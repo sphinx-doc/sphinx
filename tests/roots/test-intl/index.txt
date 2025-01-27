@@ -31,6 +31,7 @@ CONTENTS
    section
    translation_progress
    topic
+   markup
 
 .. toctree::
    :maxdepth: 2

@@ -4,7 +4,11 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
+from __future__ import annotations
+
+import inspect
 import sys
+import typing
 
 import pytest
 
@@ -51,8 +55,10 @@ def test_automodule(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_automodule_undoc_members(app):
-    options = {'members': None,
-               'undoc-members': None}
+    options = {
+        'members': None,
+        'undoc-members': None,
+    }
     actual = do_autodoc(app, 'module', 'target.module', options)
     assert list(actual) == [
         '',
@@ -82,8 +88,10 @@ def test_automodule_undoc_members(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_automodule_special_members(app):
-    options = {'members': None,
-               'special-members': None}
+    options = {
+        'members': None,
+        'special-members': None,
+    }
     actual = do_autodoc(app, 'module', 'target.module', options)
     assert list(actual) == [
         '',
@@ -115,9 +123,11 @@ def test_automodule_special_members(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_automodule_inherited_members(app):
-    options = {'members': None,
-               'undoc-members': None,
-               'inherited-members': 'Base, list'}
+    options = {
+        'members': None,
+        'undoc-members': None,
+        'inherited-members': 'Base, list',
+    }
     actual = do_autodoc(app, 'module', 'target.inheritance', options)
     assert list(actual) == [
         '',
@@ -177,16 +187,40 @@ def test_automodule_inherited_members(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_mock_imports': ['missing_module',
-                                                            'missing_package1',
-                                                            'missing_package2',
-                                                            'missing_package3',
-                                                            'sphinx.missing_module4']})
-@pytest.mark.usefixtures("rollback_sysmodules")
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-autodoc',
+    confoverrides={
+        'autodoc_mock_imports': [
+            'missing_module',
+            'missing_package1',
+            'missing_package2',
+            'missing_package3',
+            'sphinx.missing_module4',
+        ]
+    },
+)
+@pytest.mark.usefixtures('rollback_sysmodules')
 def test_subclass_of_mocked_object(app):
+    from sphinx.ext.autodoc.mock import _MockObject
+
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
-    assert '.. py:class:: Inherited(*args: ~typing.Any, **kwargs: ~typing.Any)' in actual
+    # ``typing.Any`` is not available at runtime on ``_MockObject.__new__``
+    assert '.. py:class:: Inherited(*args: Any, **kwargs: Any)' in actual
+
+    # make ``typing.Any`` available at runtime on ``_MockObject.__new__``
+    sig = inspect.signature(_MockObject.__new__)
+    parameters = sig.parameters.copy()
+    for name in ('args', 'kwargs'):
+        parameters[name] = parameters[name].replace(annotation=typing.Any)
+    sig = sig.replace(parameters=tuple(parameters.values()))
+    _MockObject.__new__.__signature__ = sig  # type: ignore[attr-defined]
+
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.need_mocks', options)
+    assert (
+        '.. py:class:: Inherited(*args: ~typing.Any, **kwargs: ~typing.Any)'
+    ) in actual

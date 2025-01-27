@@ -2,7 +2,7 @@
 
 .. _html-themes:
 
-HTML Theming
+HTML theming
 ============
 
 Sphinx provides a number of builders for HTML and HTML-based formats.
@@ -22,7 +22,7 @@ Themes
 
    This section provides information about using pre-existing HTML themes. If
    you wish to create your own theme, refer to
-   :doc:`/development/theming`.
+   :ref:`extension-html-theme`.
 
 Sphinx supports changing the appearance of its HTML output via *themes*.  A
 theme is a collection of HTML templates, stylesheet(s) and other static files.
@@ -56,7 +56,7 @@ page's top and bottom), add the following :file:`conf.py`::
 
 If the theme does not come with Sphinx, it can be in two static forms or as a
 Python package. For the static forms, either a directory (containing
-:file:`theme.conf` and other needed files), or a zip file with the same
+:file:`theme.toml` and other needed files), or a zip file with the same
 contents is supported. The directory or zipfile must be put where Sphinx can
 find it; for this there is the config value :confval:`html_theme_path`. This
 can be a list of directories, relative to the directory containing
@@ -81,7 +81,7 @@ zipfile-based theme::
     html_theme = "dotted"
 
 For more information on the design of themes, including information about
-writing your own themes, refer to :doc:`/development/theming`.
+writing your own themes, refer to :ref:`extension-html-theme`.
 
 .. _builtin-themes:
 

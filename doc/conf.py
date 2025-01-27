@@ -1,10 +1,11 @@
 # Sphinx documentation build configuration file
+from __future__ import annotations
 
 import os
 import re
-import time
+from typing import TYPE_CHECKING
 
-import sphinx
+from sphinx import __display_version__
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -18,15 +19,15 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.coverage',
+    'sphinx.ext.graphviz',
 ]
 coverage_statistics_to_report = coverage_statistics_to_stdout = True
 templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = f'2007-{time.strftime("%Y")}, the Sphinx developers'
-version = sphinx.__display_version__
-release = version
+copyright = '2007-%Y, the Sphinx developers'
+release = version = __display_version__
 show_authors = True
 nitpicky = True
 show_warning_types = True
@@ -76,7 +77,14 @@ epub_use_index = False
 epub_description = 'Sphinx documentation generator system manual'
 
 latex_documents = [
-    ('index', 'sphinx.tex', 'Sphinx Documentation', 'the Sphinx developers', 'manual', 1)
+    (
+        'index',
+        'sphinx.tex',
+        'Sphinx Documentation',
+        'the Sphinx developers',
+        'manual',
+        1,
+    )
 ]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
@@ -103,7 +111,7 @@ latex_use_xindy = True
 linkcheck_timeout = 5
 linkcheck_ignore = [
     r'^contents\.html$',  # extra generated page
-    '^\.\./contents\.html$',
+    r'^\.\./contents\.html$',
     re.escape('https://gitlab.com/projects/new'),  # requires sign-in
     re.escape('https://web.libera.chat/?channel=#sphinx-doc'),
 ]
@@ -114,15 +122,15 @@ linkcheck_anchors_ignore_for_url = [
 
 autodoc_member_order = 'groupwise'
 autosummary_generate = False
-todo_include_todos = True
+todo_include_todos = 'READTHEDOCS' not in os.environ
 extlinks = {
-    'dupage': ('https://docutils.sourceforge.io/docs/ref/rst/' '%s.html', '%s'),
+    'dupage': ('https://docutils.sourceforge.io/docs/ref/rst/%s.html', '%s'),
     'duref': (
-        'https://docutils.sourceforge.io/docs/ref/rst/' 'restructuredtext.html#%s',
+        'https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#%s',
         '%s',
     ),
-    'durole': ('https://docutils.sourceforge.io/docs/ref/rst/' 'roles.html#%s', '%s'),
-    'dudir': ('https://docutils.sourceforge.io/docs/ref/rst/' 'directives.html#%s', '%s'),
+    'durole': ('https://docutils.sourceforge.io/docs/ref/rst/roles.html#%s', '%s'),
+    'dudir': ('https://docutils.sourceforge.io/docs/ref/rst/directives.html#%s', '%s'),
 }
 
 man_pages = [
@@ -137,7 +145,7 @@ man_pages = [
     (
         'man/sphinx-quickstart',
         'sphinx-quickstart',
-        'Sphinx documentation ' 'template generator',
+        'Sphinx documentation template generator',
         '',
         1,
     ),
@@ -154,7 +162,7 @@ texinfo_documents = [
         'Sphinx',
         'The Sphinx documentation builder.',
         'Documentation tools',
-        1,
+        True,
     ),
 ]
 
@@ -165,26 +173,47 @@ intersphinx_mapping = {
 }
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
-locale_dirs = ['locale/']
 gettext_compact = False
 
 nitpick_ignore = {
     (
         'cpp:class',
         'template<typename TOuter> template<typename TInner> Wrapper::Outer<TOuter>::Inner',
-    ),  # NoQA: E501
+    ),
     ('cpp:identifier', 'MyContainer'),
     ('js:func', 'SomeError'),
     ('js:func', 'number'),
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
+    ('py:class', '_AutodocProcessDocstringListener'),
+    ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
+    # sphinx.application.Sphinx.add_html_math_renderer
+    ('py:class', '_MathsBlockRenderers'),
+    # sphinx.application.Sphinx.add_html_math_renderer
+    ('py:class', '_MathsInlineRenderers'),
+    ('py:class', '_NodeHandler'),  # sphinx.application.Sphinx.add_enumerable_node
+    ('py:class', '_NodeHandlerPair'),  # sphinx.application.Sphinx.add_node
+    ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
+    ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
+    ('py:class', 'Field'),  # sphinx.application.Sphinx.add_object_type
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
+    ('py:class', 'Inliner'),  # sphinx.util.docutils.SphinxRole.inliner
+    ('py:class', 'Lexer'),  # sphinx.application.Sphinx.add_lexer
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
+    ('py:class', 'ObjDescT'),  # sphinx.directives.ObjectDescription
+    ('py:class', 'OptionSpec'),  # sphinx.directives.ObjectDescription.option_spec
+    ('py:class', 'Path'),  # sphinx.application.Sphinx.connect
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
+    ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
+    ('py:class', 'SearchLanguage'),  # sphinx.application.Sphinx.add_search_language
+    ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
+    ('py:class', 'system_message'),  # sphinx.utils.docutils.SphinxDirective
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
+    ('py:class', 'todo_node'),  # sphinx.application.Sphinx.connect
+    ('py:class', 'Transform'),  # sphinx.application.Sphinx.add_transform
     ('py:class', 'XRefRole'),  # sphinx.domains.Domain
     ('py:class', 'docutils.nodes.Element'),
     ('py:class', 'docutils.nodes.Node'),
@@ -196,6 +225,7 @@ nitpick_ignore = {
     ('py:class', 'docutils.parsers.rst.states.Inliner'),
     ('py:class', 'docutils.transforms.Transform'),
     ('py:class', 'nodes.NodeVisitor'),
+    ('py:class', 'nodes.TextElement'),  # sphinx.application.Sphinx.connect
     ('py:class', 'nodes.document'),
     ('py:class', 'nodes.reference'),
     ('py:class', 'pygments.lexer.Lexer'),
@@ -206,6 +236,7 @@ nitpick_ignore = {
     ('py:class', 'sphinx.roles.XRefRole'),
     ('py:class', 'sphinx.search.SearchLanguage'),
     ('py:class', 'sphinx.theming.Theme'),
+    ('py:class', 'sphinx.util._pathlib._StrPath'),  # sphinx.project.Project.doc2path
     ('py:class', 'sphinxcontrib.websupport.errors.DocumentNotFoundError'),
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
     ('py:exc', 'docutils.nodes.SkipNode'),
@@ -235,12 +266,20 @@ nitpick_ignore = {
 
 from sphinx import addnodes  # NoQA: E402
 
-event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from docutils.nodes import Element
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+
+_event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
 
-def parse_event(env, sig, signode):
-    m = event_sig_re.match(sig)
-    if not m:
+def parse_event(_env: BuildEnvironment, sig: str, signode: Element) -> str:
+    m = _event_sig_re.match(sig)
+    if m is None:
         signode += addnodes.desc_name(sig, sig)
         return sig
     name, args = m.groups()
@@ -253,40 +292,75 @@ def parse_event(env, sig, signode):
     return name
 
 
-def linkify_issues_in_changelog(app, docname, source):
+def linkify_issues_in_changelog(
+    _app: Sphinx, _path: Path, docname: str, source: list[str]
+) -> None:
     """Linkify issue references like #123 in changelog to GitHub."""
     if docname == 'changes':
-        changelog_path = os.path.join(os.path.dirname(__file__), '../CHANGES.rst')
-        # this path trickery is needed because this script can
-        # be invoked with different working directories:
-        # * running make in docs/
-        # * running tox -e docs in the repo root dir
 
-        with open(changelog_path, encoding='utf-8') as f:
-            changelog = f.read()
-
-        def linkify(match):
+        def linkify(match: re.Match[str]) -> str:
             url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
             return f'`{match[0]} <{url}>`_'
 
-        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
+        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, source[0])
 
-        source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
+        source[0] = linkified_changelog
 
 
-def setup(app):
-    from sphinx.ext.autodoc import cut_lines
+REDIRECT_TEMPLATE = """
+<html>
+    <head>
+        <noscript>
+            <meta http-equiv="refresh" content="0; url={{rel_url}}"/>
+        </noscript>
+    </head>
+    <body>
+        <script>
+            window.location.href = '{{rel_url}}' + (window.location.search || '') + (window.location.hash || '');
+        </script>
+        <p>You should have been redirected.</p>
+        <a href="{{rel_url}}">If not, click here to continue.</a>
+    </body>
+</html>
+"""  # NoQA: E501
+
+
+def build_redirects(app: Sphinx, exception: Exception | None) -> None:
+    # this is a very simple implementation of
+    # https://github.com/wpilibsuite/sphinxext-rediraffe/blob/main/sphinxext/rediraffe.py
+    # to re-direct some old pages to new ones
+    if exception is not None or app.builder.name != 'html':
+        return
+    for page, rel_redirect in (
+        (('changes.html',), 'changes/index.html'),
+        (('development', 'overview.html'), 'index.html'),
+        (('development', 'builders.html'), 'howtos/builders.html'),
+        (('development', 'theming.html'), 'html_themes/index.html'),
+        (('development', 'templating.html'), 'html_themes/templating.html'),
+        (('development', 'tutorials', 'helloworld.html'), 'extending_syntax.html'),
+        (('development', 'tutorials', 'todo.html'), 'extending_build.html'),
+        (('development', 'tutorials', 'recipe.html'), 'adding_domain.html'),
+    ):
+        path = app.outdir.joinpath(*page)
+        if path.exists():
+            continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open('w', encoding='utf-8') as f:
+            f.write(REDIRECT_TEMPLATE.replace('{{rel_url}}', rel_redirect))
+
+
+def setup(app: Sphinx) -> None:
     from sphinx.util.docfields import GroupedField
 
-    app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
-    app.connect('source-read', linkify_issues_in_changelog)
-    app.add_object_type(
-        'confval',
-        'confval',
-        objname='configuration value',
-        indextemplate='pair: %s; configuration value',
+    app.connect('include-read', linkify_issues_in_changelog)
+    app.connect('build-finished', build_redirects)
+    fdesc = GroupedField(
+        'parameter', label='Parameters', names=('param',), can_collapse=True
     )
-    fdesc = GroupedField('parameter', label='Parameters', names=['param'], can_collapse=True)
     app.add_object_type(
-        'event', 'event', 'pair: %s; event', parse_event, doc_field_types=[fdesc]
+        'event',
+        'event',
+        'pair: %s; event',
+        parse_event,
+        doc_field_types=[fdesc],
     )

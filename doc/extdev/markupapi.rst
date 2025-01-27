@@ -1,11 +1,52 @@
 Docutils markup API
 ===================
 
-This section describes the API for adding ReST markup elements (roles and
-directives).
+This section describes the API for adding reStructuredText markup elements
+(roles and directives).
+
 
 Roles
 -----
+
+Roles follow the interface described below.
+They have to be registered by an extension using
+:meth:`.Sphinx.add_role` or :meth:`.Sphinx.add_role_to_domain`.
+
+
+.. code-block:: python
+
+   def role_function(
+       role_name: str, raw_source: str, text: str,
+       lineno: int, inliner: Inliner,
+       options: dict = {}, content: list = [],
+   ) -> tuple[list[Node], list[system_message]]:
+       elements = []
+       messages = []
+       return elements, messages
+
+The *options* and *content* parameters are only used for custom roles
+created via the :dudir:`role` directive.
+The return value is a tuple of two lists,
+the first containing the text nodes and elements from the role,
+and the second containing any system messages generated.
+For more information, see the `custom role overview`_ from Docutils.
+
+.. _custom role overview: https://docutils.sourceforge.io/docs/howto/rst-roles.html
+
+
+Creating custom roles
+^^^^^^^^^^^^^^^^^^^^^
+
+Sphinx provides two base classes for creating custom roles,
+:class:`~sphinx.util.docutils.SphinxRole` and :class:`~sphinx.util.docutils.ReferenceRole`.
+
+These provide a class-based interface for creating roles,
+where the main logic must be implemented in your ``run()`` method.
+The classes provide a number of useful methods and attributes,
+such as ``self.text``, ``self.config``, and ``self.env``.
+The ``ReferenceRole`` class implements Sphinx's ``title <target>`` logic,
+exposing ``self.target`` and ``self.title`` attributes.
+This is useful for creating cross-reference roles.
 
 
 Directives
@@ -85,68 +126,106 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
       The state and state machine which controls the parsing.  Used for
       ``nested_parse``.
 
+.. seealso::
 
-ViewLists
-^^^^^^^^^
+   `Creating directives`_ HOWTO of the Docutils documentation
 
-Docutils represents document source lines in a class
-``docutils.statemachine.ViewList``.  This is a list with extended functionality
--- for one, slicing creates views of the original list, and also the list
-contains information about the source line numbers.
-
-The :attr:`Directive.content` attribute is a ViewList.  If you generate content
-to be parsed as ReST, you have to create a ViewList yourself.  Important for
-content generation are the following points:
-
-* The constructor takes a list of strings (lines) and a source (document) name.
-
-* The ``.append()`` method takes a line and a source name as well.
+   .. _Creating directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html
 
 
-Parsing directive content as ReST
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _parsing-directive-content-as-rest:
 
-Many directives will contain more markup that must be parsed.  To do this, use
-one of the following APIs from the :meth:`Directive.run` method:
+Parsing directive content as reStructuredText
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* ``self.state.nested_parse``
-* :func:`sphinx.util.nodes.nested_parse_with_titles` -- this allows titles in
-  the parsed content.
+Many directives will contain more markup that must be parsed.
+To do this, use one of the following APIs from the :meth:`~Directive.run` method:
 
-Both APIs parse the content into a given node. They are used like this::
+* :py:meth:`.SphinxDirective.parse_content_to_nodes()`
+* :py:meth:`.SphinxDirective.parse_text_to_nodes()`
 
-   node = docutils.nodes.paragraph()
-   # either
-   nested_parse_with_titles(self.state, self.result, node)
-   # or
-   self.state.nested_parse(self.result, 0, node)
+The first method parses all the directive's content as markup,
+whilst the second only parses the given *text* string.
+Both methods return the parsed Docutils nodes in a list.
+
+The methods are used as follows:
+
+.. code-block:: python
+
+   def run(self) -> list[Node]:
+       # either
+       parsed = self.parse_content_to_nodes()
+       # or
+       parsed = self.parse_text_to_nodes('spam spam spam')
+       return parsed
 
 .. note::
 
-   ``sphinx.util.docutils.switch_source_input()`` allows to change a target file
-   during nested_parse.  It is useful to mixed contents.  For example, ``sphinx.
-   ext.autodoc`` uses it to parse docstrings::
+   The above utility methods were added in Sphinx 7.4.
+   Prior to Sphinx 7.4, the following methods should be used to parse content:
 
-       from sphinx.util.docutils import switch_source_input
+   * ``self.state.nested_parse``
+   * :func:`sphinx.util.nodes.nested_parse_with_titles` -- this allows titles in
+     the parsed content.
 
-       # Switch source_input between parsing content.
-       # Inside this context, all parsing errors and warnings are reported as
-       # happened in new source_input (in this case, ``self.result``).
-       with switch_source_input(self.state, self.result):
-           node = docutils.nodes.paragraph()
-           self.state.nested_parse(self.result, 0, node)
+   .. code-block:: python
+
+      def run(self) -> list[Node]:
+          container = docutils.nodes.Element()
+          # either
+          nested_parse_with_titles(self.state, self.result, container)
+          # or
+          self.state.nested_parse(self.result, 0, container)
+          parsed = container.children
+          return parsed
+
+To parse inline markup,
+use :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_inline()`.
+This must only be used for text which is a single line or paragraph,
+and does not contain any structural elements
+(headings, transitions, directives, etc).
+
+.. note::
+
+   ``sphinx.util.docutils.switch_source_input()`` allows changing
+   the source (input) file during parsing content in a directive.
+   It is useful to parse mixed content, such as in ``sphinx.ext.autodoc``,
+   where it is used to parse docstrings.
+
+   .. code-block:: python
+
+      from sphinx.util.docutils import switch_source_input
+      from sphinx.util.parsing import nested_parse_to_nodes
+
+      # Switch source_input between parsing content.
+      # Inside this context, all parsing errors and warnings are reported as
+      # happened in new source_input (in this case, ``self.result``).
+      with switch_source_input(self.state, self.result):
+          parsed = nested_parse_to_nodes(self.state, self.result)
 
    .. deprecated:: 1.7
 
       Until Sphinx 1.6, ``sphinx.ext.autodoc.AutodocReporter`` was used for this
       purpose.  It is replaced by ``switch_source_input()``.
 
-If you don't need the wrapping node, you can use any concrete node type and
-return ``node.children`` from the Directive.
 
+.. _ViewLists:
 
-.. seealso::
+ViewLists and StringLists
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   `Creating directives`_ HOWTO of the Docutils documentation
+Docutils represents document source lines in a ``StringList`` class,
+which inherits from ``ViewList``, both in the ``docutils.statemachine`` module.
+This is a list with extended functionality,
+including that slicing creates views of the original list and
+that the list contains information about source line numbers.
 
-.. _Creating directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html
+The :attr:`Directive.content` attribute is a ``StringList``.
+If you generate content to be parsed as reStructuredText,
+you have to create a ``StringList`` for the Docutils APIs.
+The utility functions provided by Sphinx handle this automatically.
+Important for content generation are the following points:
+
+* The ``ViewList`` constructor takes a list of strings (lines)
+  and a source (document) name.
+* The ``ViewList.append()`` method takes a line and a source name as well.

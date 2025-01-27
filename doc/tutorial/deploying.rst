@@ -159,7 +159,7 @@ way of getting started is to follow :doc:`the RTD
 tutorial <readthedocs:tutorial/index>`, which is loosely based on this one.
 You can publish your sources on GitHub as explained :ref:`in the previous
 section <publishing-sources>`, then skip directly to
-:ref:`readthedocs:tutorial/index:Sign up for Read the Docs`.
+:ref:`readthedocs:tutorial/index:Creating a Read the Docs account`.
 If you choose GitLab instead, the process is similar.
 
 GitHub Pages
@@ -188,6 +188,8 @@ contents:
          contents: write
        steps:
        - uses: actions/checkout@v4
+         with:
+           persist-credentials: false
        - name: Build HTML
          uses: ammaraskar/sphinx-action@master
        - name: Upload artifacts
@@ -246,7 +248,7 @@ After you have published your sources on GitLab, create a file named
 
    pages:
      stage: deploy
-     image: python:3.9-slim
+     image: python:3.12-slim
      before_script:
        - apt-get update && apt-get install make --no-install-recommends -y
        - python -m pip install sphinx furo

@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Szukaj",
         "Hide Search Matches": "Ukryj wyniki wyszukiwania",
         "Index": "Indeks",
-        "Index &ndash; %(key)s": "Indeks &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Strony indeksu alfabetycznie",
         "Indices and tables:": "Indeksy i tablice:",
         "Last updated on %(last_updated)s.": "Ostatnia modyfikacja %(last_updated)s.",
@@ -36,7 +36,12 @@ Documentation.addTranslations({
         "Search": "Szukaj",
         "Search Page": "Wyszukiwanie",
         "Search Results": "Wyniki wyszukiwania",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Szukaj po\u015br\u00f3d %(docstitle)s",
         "Searching": "Wyszukiwanie",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

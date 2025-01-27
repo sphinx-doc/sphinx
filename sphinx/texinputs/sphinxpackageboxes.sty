@@ -1,7 +1,12 @@
 %% COLOURED BOXES
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxpackageboxes}[2023/03/19 v6.2.0 advanced colored boxes]
+\ProvidesPackage{sphinxpackageboxes}[2024/07/01 v7.4.0 advanced colored boxes]
+% 7.4.0 removes usage of some booleans "...withbackgroundcolor" and
+% "...withbordercolor" as well as \spx@boxes@border dimen which was
+% actually really needed nowhere.  This was done in sync with changes in
+% sphinx.sty, sphinxlatexadmonitions.sty and sphinxlatexliterals.sty.
+%
 % Optionally executes \RequirePackage for:
 %
 % - pict2e.  Ideally we would like to use the v0.4a 2020/08/16 release of this
@@ -78,15 +83,13 @@
 %%%%%%%%%%%%%%%%
 % Internal registers, conditionals, colors to be configured by each caller
 % via a preliminary "setup" call
-%
 \newif\ifspx@boxes@withshadow
 \newif\ifspx@boxes@insetshadow
-\newif\ifspx@boxes@withbackgroundcolor
+%%% \newif\ifspx@boxes@withbackgroundcolor % removed at 7.4.0
 \newif\ifspx@boxes@withshadowcolor
-\newif\ifspx@boxes@withbordercolor
+%%% \newif\ifspx@boxes@withbordercolor     % removed at 7.4.0
 \newif\ifspx@boxes@shadowinbbox
 %
-\newdimen\spx@boxes@border
 \newdimen\spx@boxes@border@top
 \newdimen\spx@boxes@border@right
 \newdimen\spx@boxes@border@bottom
@@ -150,7 +153,6 @@
   \spx@boxes@border@right \dimexpr\@nameuse{spx@#1@border@right}\relax
   \spx@boxes@border@bottom\dimexpr\@nameuse{spx@#1@border@bottom}\relax
   \spx@boxes@border@left  \dimexpr\@nameuse{spx@#1@border@left}\relax
-  \spx@boxes@border       \dimexpr\@nameuse{spx@#1@border}\relax
   %
   \spx@boxes@padding@top   \dimexpr\@nameuse{spx@#1@padding@top}\relax
   \spx@boxes@padding@right \dimexpr\@nameuse{spx@#1@padding@right}\relax
@@ -200,19 +202,9 @@
      \spx@boxes@insetshadowfalse
   \fi
   %
-  \@nameuse{ifspx@#1@withbordercolor}%
-    \spx@boxes@withbordercolortrue
     \sphinxcolorlet{spx@boxes@bordercolor}{sphinx#1BorderColor}%
-  \else
-    \spx@boxes@withbordercolorfalse
-  \fi
   %
-  \@nameuse{ifspx@#1@withbackgroundcolor}%
-    \spx@boxes@withbackgroundcolortrue
     \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinx#1BgColor}%
-  \else
-    \spx@boxes@withbackgroundcolorfalse
-  \fi
   %
   \@nameuse{ifspx@#1@withshadowcolor}%
     \spx@boxes@withshadowcolortrue
@@ -447,14 +439,12 @@
   \fi
   % BACKGROUND
   % draw background and move back to reference point
-  \ifspx@boxes@withbackgroundcolor
    {\color{spx@boxes@backgroundcolor}%
     \vrule\@height\ht\spx@tempboxa
           \@depth\dp\spx@tempboxa
           \@width\wd\spx@tempboxa
     \kern-\wd\spx@tempboxa
     }%
-  \fi
   % BOX SHADOW
   % draw shadow and move back to reference point
   \ifspx@boxes@withshadow
@@ -494,13 +484,8 @@
        }% end of \vbox
   \fi % end of shadow drawing, and we are back to horizontal reference point
   % BOX BORDER
-  \vbox{\ifspx@boxes@withbordercolor
-            \color{spx@boxes@bordercolor}%
-        \else
-            % 6.2.0: guard against a \color command in contents whose effect
-            % could leak to border at a pagebreak
-            \normalcolor
-        \fi
+  % 7.4.0 requires a set border color
+  \vbox{\color{spx@boxes@bordercolor}%
         \hrule\@height\spx@boxes@border@top
            \kern-\spx@boxes@border@top
         \setbox\spx@tempboxb\hb@xt@\wd\spx@tempboxa
@@ -540,14 +525,13 @@
 \def\spx@boxes@fcolorbox@insetshadow{%
   % BACKGROUND
   % draw background and move back to reference point
-  \ifspx@boxes@withbackgroundcolor
+  % 7.4.0 always assumes a background color
    {\color{spx@boxes@backgroundcolor}%
     \vrule\@height\ht\spx@tempboxa
           \@depth\dp\spx@tempboxa
           \@width\wd\spx@tempboxa
     \kern-\wd\spx@tempboxa
     }%
-  \fi
   % BOX SHADOW
   % draw shadow and move back to reference point
   \ifspx@boxes@withshadow
@@ -589,13 +573,8 @@
          }% end of \hbox, attention its depth is only |yoffset| if yoffset<0
   \fi % end of inset shadow drawing, and we are back to horizontal reference point
   % BOX BORDER
-  \vbox{\ifspx@boxes@withbordercolor
-            \color{spx@boxes@bordercolor}%
-        \else
-            % 6.2.0: guard against a \color command in contents whose effect
-            % could leak to border at a pagebreak
-            \normalcolor
-        \fi
+  % 7.4.0 requires a set border color
+  \vbox{\color{spx@boxes@bordercolor}%
         \hrule\@height\spx@boxes@border@top
            \kern-\spx@boxes@border@top
         \setbox\spx@tempboxb\hb@xt@\wd\spx@tempboxa
@@ -807,17 +786,11 @@
       \fi
       \spx@boxes@border@defpath% must be redone after each \fillpath! (even if
                                % was in a  \put)
-      \ifspx@boxes@withbordercolor
+      % 7.4.0 requires a set border color
          \color{spx@boxes@bordercolor}%
-      \else
-         \normalcolor
-      \fi
       \fillpath
-      \ifspx@boxes@withbackgroundcolor
+      % and backgroundcolor command
          \color{spx@boxes@backgroundcolor}%
-      \else
-         \color{white}%
-      \fi
       \edef\spx@width{\number\dimexpr\spx@width-\spx@boxes@border@left
                                                -\spx@boxes@border@right sp}%
       \edef\spx@height{\number\dimexpr\spx@height-\spx@boxes@border@top

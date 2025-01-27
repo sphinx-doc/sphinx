@@ -7,7 +7,7 @@ import pytest
 from sphinx.testing.util import etree_parse
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
+    from collections.abc import Callable, Iterator
     from pathlib import Path
     from xml.etree.ElementTree import ElementTree
 
@@ -23,6 +23,6 @@ def _parse(path: Path) -> ElementTree:
 
 
 @pytest.fixture(scope='package')
-def cached_etree_parse() -> Generator[Callable[[Path], ElementTree], None, None]:
+def cached_etree_parse() -> Iterator[Callable[[Path], ElementTree]]:
     yield _parse
     _etree_cache.clear()

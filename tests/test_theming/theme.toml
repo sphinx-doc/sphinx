@@ -1,0 +1,10 @@
+[theme]
+inherit = "none"
+stylesheets = [
+   "spam.css",
+   "ham.css",
+]
+pygments_style = { default = "spam" }
+
+[options]
+lobster = "thermidor"

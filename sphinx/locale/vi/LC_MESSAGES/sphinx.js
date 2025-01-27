@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Th\u1ef1c hi\u1ec7n",
         "Hide Search Matches": "",
         "Index": "",
-        "Index &ndash; %(key)s": "Ch\u1ec9 m\u1ee5c &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "C\u00e1c trang ch\u1ec9 m\u1ee5c theo ch\u1eef c\u00e1i",
         "Indices and tables:": "C\u00e1c ch\u1ec9 m\u1ee5c v\u00e0 b\u1ea3ng bi\u1ec3u:",
         "Last updated on %(last_updated)s.": "C\u1eadp nh\u1eadt m\u1edbi nh\u1ea5t v\u00e0o %(last_updated)s.",
@@ -36,7 +36,9 @@ Documentation.addTranslations({
         "Search": "T\u00ecm Ki\u1ebfm",
         "Search Page": "",
         "Search Results": "",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "T\u00ecm ki\u1ebfm trong %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

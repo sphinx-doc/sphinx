@@ -2,7 +2,7 @@
 
 .. currentmodule:: sphinxcontrib.websupport
 
-The WebSupport Class
+The WebSupport class
 ====================
 
 .. class:: WebSupport

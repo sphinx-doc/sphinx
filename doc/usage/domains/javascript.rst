@@ -120,7 +120,7 @@ The JavaScript domain (name **js**) provides the following directives:
 
    Describes the attribute *name* of *object*.
 
-.. _js-roles:
+.. _js-xref-roles:
 
 These roles are provided to refer to the described objects:
 

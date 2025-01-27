@@ -9,24 +9,26 @@ reStructuredText Primer
 reStructuredText is the default plaintext markup language used by Sphinx.  This
 section is a brief introduction to reStructuredText (reST) concepts and syntax,
 intended to provide authors with enough information to author documents
-productively.  Since reST was designed to be a simple, unobtrusive markup
+productively.  Since reStructuredText was designed to be a simple, unobtrusive markup
 language, this will not take too long.
 
 .. seealso::
 
    The authoritative `reStructuredText User Documentation
-   <https://docutils.sourceforge.io/rst.html>`_.  The "ref" links in this
-   document link to the description of the individual constructs in the reST
-   reference.
+   <https://docutils.sourceforge.io/rst.html>`_.
+   The "ref" links in this document link to the description of
+   the individual constructs in the reStructuredText reference.
 
 
 Paragraphs
 ----------
 
-The paragraph (:duref:`ref <paragraphs>`) is the most basic block in a reST
-document.  Paragraphs are simply chunks of text separated by one or more blank
-lines.  As in Python, indentation is significant in reST, so all lines of the
-same paragraph must be left-aligned to the same level of indentation.
+The paragraph (:duref:`ref <paragraphs>`) is the most basic block
+in a reStructuredText document.
+Paragraphs are simply chunks of text separated by one or more blank lines.
+As in Python, indentation is significant in reStructuredText,
+so all lines of the same paragraph must be left-aligned
+to the same level of indentation.
 
 
 .. _rst-inline-markup:
@@ -34,7 +36,7 @@ same paragraph must be left-aligned to the same level of indentation.
 Inline markup
 -------------
 
-The standard reST inline markup is quite simple: use
+The standard reStructuredText inline markup is quite simple: use
 
 * one asterisk: ``*text*`` for emphasis (italics),
 * two asterisks: ``**text**`` for strong emphasis (boldface), and
@@ -53,7 +55,7 @@ Be aware of some restrictions of this markup:
 These restrictions may be lifted in future versions of the docutils.
 
 It is also possible to replace or expand upon some of this inline markup with
-roles. Refer to :ref:`rst-roles-alt` for more information.
+roles. Refer to :ref:`rst-roles` for more information.
 
 
 Lists and Quote-like blocks
@@ -201,6 +203,8 @@ Two more syntaxes are supported: *CSV tables* and *List tables*. They use an
 Hyperlinks
 ----------
 
+.. _rst-external-links:
+
 External links
 ~~~~~~~~~~~~~~
 
@@ -220,8 +224,8 @@ You can also separate the link and the target definition (:duref:`ref
 Internal links
 ~~~~~~~~~~~~~~
 
-Internal linking is done via a special reST role provided by Sphinx, see the
-section on specific markup, :ref:`ref-role`.
+Internal linking is done via a special reStructuredText role provided by Sphinx,
+see the section on specific markup, :ref:`ref-role`.
 
 
 .. _rst-sections:
@@ -250,7 +254,7 @@ follow:
 * ``^`` for subsubsections
 * ``"`` for paragraphs
 
-Of course, you are free to use your own marker characters (see the reST
+Of course, you are free to use your own marker characters (see the reStructuredText
 documentation), and use a deeper nesting level, but keep in mind that most
 target formats (HTML, LaTeX) have a limited supported nesting depth.
 
@@ -281,10 +285,7 @@ at the beginning of documents.  Refer to :doc:`field-lists` for more
 information.
 
 
-.. TODO This ref should be 'rst-roles', but that already exists. Rename the
-.. other ones
-
-.. _rst-roles-alt:
+.. _rst-roles:
 
 Roles
 -----
@@ -311,8 +312,8 @@ Refer to :doc:`roles` for roles added by Sphinx.
 Explicit Markup
 ---------------
 
-"Explicit markup" (:duref:`ref <explicit-markup-blocks>`) is used in reST for
-most constructs that need special handling, such as footnotes,
+"Explicit markup" (:duref:`ref <explicit-markup-blocks>`) is used in
+reStructuredText for most constructs that need special handling, such as footnotes,
 specially-highlighted paragraphs, comments, and generic directives.
 
 An explicit markup block begins with a line starting with ``..`` followed by
@@ -328,8 +329,8 @@ Directives
 ----------
 
 A directive (:duref:`ref <directives>`) is a generic block of explicit markup.
-Along with roles, it is one of the extension mechanisms of reST, and Sphinx
-makes heavy use of it.
+Along with roles, it is one of the extension mechanisms of reStructuredText,
+and Sphinx makes heavy use of it.
 
 Docutils supports the following directives:
 
@@ -379,6 +380,12 @@ Docutils supports the following directives:
 
        When the default domain contains a ``class`` directive, this directive
        will be shadowed.  Therefore, Sphinx re-exports it as ``rst-class``.
+
+    .. tip::
+
+       If you want to add a class to a directive,
+       you may consider the ``:class:`` :dudir:`option <common-options>` instead,
+       which is supported by most directives and allows for a more compact notation.
 
 * HTML specifics:
 
@@ -444,7 +451,7 @@ it does not start with a space.
 Images
 ------
 
-reST supports an image directive (:dudir:`ref <image>`), used like so::
+reStructuredText supports an image directive (:dudir:`ref <image>`), used like so::
 
    .. image:: gnu.png
       (options)
@@ -510,9 +517,9 @@ footnotes without names (``[#]_``).
 Citations
 ---------
 
-Standard reST citations (:duref:`ref <citations>`) are supported, with the
-additional feature that they are "global", i.e. all citations can be referenced
-from all files.  Use them like so::
+Standard reStructuredText citations (:duref:`ref <citations>`) are supported,
+with the additional feature that they are "global",
+i.e. all citations can be referenced from all files.  Use them like so::
 
    Lorem ipsum [Ref]_ dolor sit amet.
 
@@ -525,9 +532,9 @@ numeric or begins with ``#``.
 Substitutions
 -------------
 
-reST supports "substitutions" (:duref:`ref <substitution-definitions>`), which
-are pieces of text and/or markup referred to in the text by ``|name|``.  They
-are defined like footnotes with explicit markup blocks, like this::
+reStructuredText supports "substitutions" (:duref:`ref <substitution-definitions>`),
+which are pieces of text and/or markup referred to in the text by ``|name|``.
+They are defined like footnotes with explicit markup blocks, like this::
 
    .. |name| replace:: replacement *text*
 
@@ -536,8 +543,8 @@ or this::
    .. |caution| image:: warning.png
                 :alt: Warning!
 
-See the :duref:`reST reference for substitutions <substitution-definitions>`
-for details.
+See the :duref:`reStructuredText reference for substitutions
+<substitution-definitions>` for details.
 
 .. index:: ! pair: global; substitutions
 
@@ -584,7 +591,7 @@ directive::
 
 will generate the following HTML output:
 
-.. code:: html
+.. code-block:: html
 
    <meta name="description" content="The Sphinx documentation builder">
    <meta name="keywords" content="Sphinx, documentation, builder">
@@ -612,7 +619,7 @@ Source encoding
 ---------------
 
 Since the easiest way to include special characters like em dashes or copyright
-signs in reST is to directly write them as Unicode characters, one has to
+signs in reStructuredText is to directly write them as Unicode characters, one has to
 specify an encoding.  Sphinx assumes source files to be encoded in UTF-8 by
 default; you can change this with the :confval:`source_encoding` config value.
 
@@ -620,7 +627,8 @@ default; you can change this with the :confval:`source_encoding` config value.
 Gotchas
 -------
 
-There are some problems one commonly runs into while authoring reST documents:
+There are some problems one commonly runs into
+while authoring reStructuredText documents:
 
 * **Separation of inline markup:** As said above, inline markup spans must be
   separated from the surrounding text by non-word characters, you have to use a

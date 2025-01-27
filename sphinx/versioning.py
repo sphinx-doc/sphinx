@@ -5,14 +5,14 @@ from __future__ import annotations
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
-from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
+    from typing import Any
 
     from docutils.nodes import Node
 
@@ -30,7 +30,7 @@ except ImportError:
 VERSIONING_RATIO = 65
 
 
-def add_uids(doctree: Node, condition: Any) -> Iterator[Node]:
+def add_uids(doctree: Node, condition: Callable[[Node], bool]) -> Iterator[Node]:
     """Add a unique id to every node in the `doctree` which matches the
     condition and yield the nodes.
 
@@ -41,11 +41,13 @@ def add_uids(doctree: Node, condition: Any) -> Iterator[Node]:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
     for node in doctree.findall(condition):
-        node.uid = uuid4().hex
+        node.uid = uuid4().hex  # type: ignore[attr-defined]
         yield node
 
 
-def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
+def merge_doctrees(
+    old: Node, new: Node, condition: Callable[[Node], bool]
+) -> Iterator[Node]:
     """Merge the `old` doctree with the `new` one while looking at nodes
     matching the `condition`.
 
@@ -68,13 +70,13 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
             continue
         if not getattr(old_node, 'uid', None):
             # maybe config.gettext_uuid has been changed.
-            old_node.uid = uuid4().hex
+            old_node.uid = uuid4().hex  # type: ignore[union-attr]
         if new_node is None:
             old_nodes.append(old_node)
             continue
-        ratio = get_ratio(old_node.rawsource, new_node.rawsource)
+        ratio = get_ratio(old_node.rawsource, new_node.rawsource)  # type: ignore[union-attr]
         if ratio == 0:
-            new_node.uid = old_node.uid
+            new_node.uid = old_node.uid  # type: ignore[union-attr]
             seen.add(new_node)
         else:
             ratios[old_node, new_node] = ratio
@@ -85,30 +87,29 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     for old_node, new_node in product(old_nodes, new_nodes):
         if new_node in seen or (old_node, new_node) in ratios:
             continue
-        ratio = get_ratio(old_node.rawsource, new_node.rawsource)
+        ratio = get_ratio(old_node.rawsource, new_node.rawsource)  # type: ignore[union-attr]
         if ratio == 0:
-            new_node.uid = old_node.uid
+            new_node.uid = old_node.uid  # type: ignore[union-attr]
             seen.add(new_node)
         else:
             ratios[old_node, new_node] = ratio
     # choose the old node with the best ratio for each new node and set the uid
     # as long as the ratio is under a certain value, in which case we consider
     # them not changed but different
-    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore[assignment]
-    for (old_node, new_node), ratio in ratios:
+    for (old_node, new_node), ratio in sorted(ratios.items(), key=itemgetter(1)):
         if new_node in seen:
             continue
         else:
             seen.add(new_node)
         if ratio < VERSIONING_RATIO:
-            new_node.uid = old_node.uid
+            new_node.uid = old_node.uid  # type: ignore[union-attr]
         else:
-            new_node.uid = uuid4().hex
+            new_node.uid = uuid4().hex  # type: ignore[union-attr]
             yield new_node
     # create new uuids for any new node we left out earlier, this happens
     # if one or more nodes are simply added.
     for new_node in set(new_nodes) - seen:
-        new_node.uid = uuid4().hex
+        new_node.uid = uuid4().hex  # type: ignore[union-attr]
         yield new_node
 
 
@@ -153,13 +154,14 @@ class UIDTransform(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         env = self.env
         old_doctree = None
-        if not env.versioning_condition:
+        versioning_condition = env.versioning_condition
+        if not versioning_condition:
             return
 
         if env.versioning_compare:
             # get old doctree
+            filename = env.doctreedir / f'{env.docname}.doctree'
             try:
-                filename = path.join(env.doctreedir, env.docname + '.doctree')
                 with open(filename, 'rb') as f:
                     old_doctree = pickle.load(f)
             except OSError:
@@ -167,9 +169,9 @@ class UIDTransform(SphinxTransform):
 
         # add uids for versioning
         if not env.versioning_compare or old_doctree is None:
-            list(add_uids(self.document, env.versioning_condition))
+            list(add_uids(self.document, versioning_condition))
         else:
-            list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
+            list(merge_doctrees(old_doctree, self.document, versioning_condition))
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

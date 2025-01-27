@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import os
 import posixpath
 import re
 import urllib.parse
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -19,6 +17,8 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -40,13 +40,11 @@ def multiply_length(length: str, scale: int) -> str:
         return length
     amount, unit = matched.groups()
     result = float(amount) * scale / 100
-    return f"{int(result)}{unit}"
+    return f'{int(result)}{unit}'
 
 
-class HTML5Translator(SphinxTranslator, BaseTranslator):
-    """
-    Our custom HTML translator.
-    """
+class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
+    """Our custom HTML translator."""
 
     builder: StandaloneHTMLBuilder
     # Override docutils.writers.html5_polyglot:HTMLTranslator
@@ -59,7 +57,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         self.highlighter = self.builder.highlighter
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
-        self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
@@ -67,6 +64,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self._table_row_indices = [0]
         self._fieldlist_row_indices = [0]
         self.required_params_left = 0
+        self._has_maths_elements: bool = False
 
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
@@ -169,11 +167,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.param_group_index = 0
         # Counts as what we call a parameter group either a required parameter, or a
         # set of contiguous optional ones.
-        self.list_is_required_param = [isinstance(c, parameter_group) for c in node.children]
+        self.list_is_required_param = [
+            isinstance(c, parameter_group) for c in node.children
+        ]
         # How many required parameters are left.
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = node.child_text_separator
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))
@@ -206,7 +207,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     #
     def visit_desc_parameter(self, node: Element) -> None:
         on_separate_line = self.multi_line_parameter_list
-        if on_separate_line and not (self.is_first_param and self.optional_param_level > 0):
+        if on_separate_line and not (
+            self.is_first_param and self.optional_param_level > 0
+        ):
             self.body.append(self.starttag(node, 'dd', ''))
         if self.is_first_param:
             self.is_first_param = False
@@ -224,14 +227,20 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append('</em>')
         is_required = self.list_is_required_param[self.param_group_index]
         if self.multi_line_parameter_list:
-            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
             next_is_required = (
                 not is_last_group
                 and self.list_is_required_param[self.param_group_index + 1]
             )
             opt_param_left_at_level = self.params_left_at_level > 0
-            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
-                self.body.append(self.param_separator)
+            if (
+                opt_param_left_at_level
+                or is_required
+                and (is_last_group or next_is_required)
+            ):
+                if not is_last_group or opt_param_left_at_level or self.trailing_comma:
+                    self.body.append(self.param_separator)
                 self.body.append('</dd>\n')
 
         elif self.required_params_left:
@@ -247,8 +256,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.depart_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.params_left_at_level = sum(isinstance(c, addnodes.desc_parameter)
-                                        for c in node.children)
+        self.params_left_at_level = sum(
+            isinstance(c, addnodes.desc_parameter) for c in node.children
+        )
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
         if self.multi_line_parameter_list:
@@ -273,19 +283,26 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
-            # If it's the first time we go down one level, add the separator
-            # before the bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
+            # If it's the first time we go down one level, add the separator before the
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.body.append(self.param_separator)
             self.body.append('<span class="optional">]</span>')
             # End the line if we have just closed the last bracket of this
             # optional parameter group.
-            if self.optional_param_level == 0:
+            if level == 0:
                 self.body.append('</dd>\n')
         else:
             self.body.append('<span class="optional">]</span>')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
@@ -311,12 +328,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['class'] += ' external'
         if 'refuri' in node:
             atts['href'] = node['refuri'] or '#'
-            if self.settings.cloak_email_addresses and atts['href'].startswith('mailto:'):
+            if (
+                self.settings.cloak_email_addresses
+                and atts['href'].startswith('mailto:')
+            ):  # fmt: skip
                 atts['href'] = self.cloak_mailto(atts['href'])
                 self.in_mailto = True
         else:
-            assert 'refid' in node, \
-                   'References must have "refuri" or "refid" attribute.'
+            assert 'refid' in node, (
+                'References must have "refuri" or "refid" attribute.'
+            )
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
             assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
@@ -325,11 +346,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['title'] = node['reftitle']
         if 'target' in node:
             atts['target'] = node['target']
+        if 'rel' in node:
+            atts['rel'] = node['rel']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
         if node.get('secnumber'):
-            self.body.append(('%s' + self.secnumber_suffix) %
-                             '.'.join(map(str, node['secnumber'])))
+            self.body.append(
+                ('%s' + self.secnumber_suffix) % '.'.join(map(str, node['secnumber']))
+            )
 
     def visit_number_reference(self, node: Element) -> None:
         self.visit_reference(node)
@@ -343,8 +367,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def visit_admonition(self, node: Element, name: str = '') -> None:
-        self.body.append(self.starttag(
-            node, 'div', CLASS=('admonition ' + name)))
+        self.body.append(self.starttag(node, 'div', CLASS=('admonition ' + name)))
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
@@ -364,9 +387,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = "{}/#{}".format(docname, node.parent['ids'][0])
+                anchorname = f'{docname}/#{node.parent["ids"][0]}'
                 if anchorname not in self.builder.secnumbers:
-                    anchorname = "%s/" % docname  # try first heading which has no anchor
+                    # try first heading which has no anchor
+                    anchorname = f'{docname}/'
             else:
                 anchorname = '#' + node.parent['ids'][0]
                 if anchorname not in self.builder.secnumbers:
@@ -380,13 +404,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def add_secnumber(self, node: Element) -> None:
         secnumber = self.get_secnumber(node)
         if secnumber:
-            self.body.append('<span class="section-number">%s</span>' %
-                             ('.'.join(map(str, secnumber)) + self.secnumber_suffix))
+            self.body.append(
+                '<span class="section-number">%s</span>'
+                % ('.'.join(map(str, secnumber)) + self.secnumber_suffix)
+            )
 
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
             if self.builder.name == 'singlehtml':
-                key = f"{self.docnames[-1]}/{figtype}"
+                key = f'{self.docnames[-1]}/{figtype}'
             else:
                 key = figtype
 
@@ -401,7 +427,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains['std'].get_enumerable_node_type(node)
+        figtype = self._domains.standard_domain.get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
                 msg = __('Any IDs not assigned for %s node') % node.tagname
@@ -465,8 +491,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def visit_title(self, node: Element) -> None:
-        if isinstance(node.parent, addnodes.compact_paragraph) and node.parent.get('toctree'):
-            self.body.append(self.starttag(node, 'p', '', CLASS='caption', ROLE='heading'))
+        if (
+            isinstance(node.parent, addnodes.compact_paragraph)
+            and node.parent.get('toctree')
+        ):  # fmt: skip
+            self.body.append(
+                self.starttag(node, 'p', '', CLASS='caption', ROLE='heading')
+            )
             self.body.append('<span class="caption-text">')
             self.context.append('</span></p>\n')
         else:
@@ -475,20 +506,36 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
             self.body.append('<span class="caption-text">')
+        # Partially revert https://sourceforge.net/p/docutils/code/9562/
+        if (
+            isinstance(node.parent, nodes.topic)
+            and self.settings.toc_backlinks
+            and 'contents' in node.parent['classes']
+            and self.body[-1].startswith('<a ')
+            # TODO: only remove for EPUB
+        ):
+            # remove <a class="reference internal" href="#top">
+            self.body.pop()
+            self.context[-1] = '</p>\n'
 
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
-        if (self.config.html_permalinks and self.builder.add_permalinks and
-                node.parent.hasattr('ids') and node.parent['ids']):
+        if (
+            self.config.html_permalinks
+            and self.builder.add_permalinks
+            and node.parent.hasattr('ids')
+            and node.parent['ids']
+        ):
             # add permalink anchor
             if close_tag.startswith('</h'):
                 self.add_permalink_ref(node.parent, _('Link to this heading'))
             elif close_tag.startswith('</a></h'):
-                self.body.append('</a><a class="headerlink" href="#%s" ' %
-                                 node.parent['ids'][0] +
-                                 'title="{}">{}'.format(
-                                     _('Link to this heading'),
-                                     self.config.html_permalinks_icon))
+                self.body.append(
+                    '</a><a class="headerlink" href="#%s" ' % node.parent['ids'][0]
+                    + 'title="{}">{}'.format(
+                        _('Link to this heading'), self.config.html_permalinks_icon
+                    )
+                )
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
                 self.add_permalink_ref(node.parent, _('Link to this table'))
@@ -496,6 +543,30 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append('</span>')
 
         super().depart_title(node)
+
+    # overwritten
+    def visit_rubric(self, node: nodes.rubric) -> None:
+        if 'heading-level' in node:
+            level = node['heading-level']
+            if level in {1, 2, 3, 4, 5, 6}:
+                self.body.append(self.starttag(node, f'h{level}', '', CLASS='rubric'))
+            else:
+                logger.warning(
+                    __('unsupported rubric heading level: %s'),
+                    level,
+                    type='html',
+                    location=node,
+                )
+                super().visit_rubric(node)
+        else:
+            super().visit_rubric(node)
+
+    # overwritten
+    def depart_rubric(self, node: nodes.rubric) -> None:
+        if (level := node.get('heading-level')) in {1, 2, 3, 4, 5, 6}:
+            self.body.append(f'</h{level}>\n')
+        else:
+            super().depart_rubric(node)
 
     # overwritten
     def visit_literal_block(self, node: Element) -> None:
@@ -513,16 +584,24 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             linenos = self.config.html_codeblock_linenos_style
 
         highlighted = self.highlighter.highlight_block(
-            node.rawsource, lang, opts=opts, linenos=linenos,
-            location=node, **highlight_args,
+            node.rawsource,
+            lang,
+            opts=opts,
+            linenos=linenos,
+            location=node,
+            **highlight_args,
         )
-        starttag = self.starttag(node, 'div', suffix='',
-                                 CLASS='highlight-%s notranslate' % lang)
+        starttag = self.starttag(
+            node, 'div', suffix='', CLASS='highlight-%s notranslate' % lang
+        )
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 
     def visit_caption(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+        if (
+            isinstance(node.parent, nodes.container)
+            and node.parent.get('literal_block')
+        ):  # fmt: skip
             self.body.append('<div class="code-block-caption">')
         else:
             super().visit_caption(node)
@@ -533,14 +612,20 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.body.append('</span>')
 
         # append permalink if available
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+        if (
+            isinstance(node.parent, nodes.container)
+            and node.parent.get('literal_block')
+        ):  # fmt: skip
             self.add_permalink_ref(node.parent, _('Link to this code'))
         elif isinstance(node.parent, nodes.figure):
             self.add_permalink_ref(node.parent, _('Link to this image'))
         elif node.parent.get('toctree'):
             self.add_permalink_ref(node.parent.parent, _('Link to this toctree'))
 
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+        if (
+            isinstance(node.parent, nodes.container)
+            and node.parent.get('literal_block')
+        ):  # fmt: skip
             self.body.append('</div>\n')
         else:
             super().depart_caption(node)
@@ -558,26 +643,29 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     # overwritten
     def visit_literal(self, node: Element) -> None:
         if 'kbd' in node['classes']:
-            self.body.append(self.starttag(node, 'kbd', '',
-                                           CLASS='docutils literal notranslate'))
+            self.body.append(
+                self.starttag(node, 'kbd', '', CLASS='docutils literal notranslate')
+            )
             return
-        lang = node.get("language", None)
+        lang = node.get('language', None)
         if 'code' not in node['classes'] or not lang:
-            self.body.append(self.starttag(node, 'code', '',
-                                           CLASS='docutils literal notranslate'))
+            self.body.append(
+                self.starttag(node, 'code', '', CLASS='docutils literal notranslate')
+            )
             self.protect_literal_text += 1
             return
 
         opts = self.config.highlight_options.get(lang, {})
         highlighted = self.highlighter.highlight_block(
-            node.astext(), lang, opts=opts, location=node, nowrap=True)
+            node.astext(), lang, opts=opts, location=node, nowrap=True
+        )
         starttag = self.starttag(
             node,
-            "code",
-            suffix="",
-            CLASS="docutils literal highlight highlight-%s" % lang,
+            'code',
+            suffix='',
+            CLASS='docutils literal highlight highlight-%s' % lang,
         )
-        self.body.append(starttag + highlighted.strip() + "</code>")
+        self.body.append(starttag + highlighted.strip() + '</code>')
         raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
@@ -589,7 +677,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
-        productionlist = cast(Iterable[addnodes.production], node)
+        productionlist = cast('Iterable[addnodes.production]', node)
         names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
@@ -615,8 +703,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_centered(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'p', CLASS="centered") +
-                         '<strong>')
+        self.body.append(self.starttag(node, 'p', CLASS='centered') + '<strong>')
 
     def depart_centered(self, node: Element) -> None:
         self.body.append('</strong></p>')
@@ -628,8 +715,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_download_reference(self, node: Element) -> None:
-        atts = {'class': 'reference download',
-                'download': ''}
+        atts = {'class': 'reference download', 'download': ''}
 
         if not self.builder.download_support:
             self.context.append('')
@@ -640,8 +726,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath,
-                                          urllib.parse.quote(node['filename']))
+            atts['href'] = posixpath.join(
+                self.builder.dlpath, urllib.parse.quote(node['filename'])
+            )
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
         else:
@@ -662,16 +749,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         olduri = node['uri']
         # rewrite the URI if the environment knows about it
         if olduri in self.builder.images:
-            node['uri'] = posixpath.join(self.builder.imgpath,
-                                         urllib.parse.quote(self.builder.images[olduri]))
+            node['uri'] = posixpath.join(
+                self.builder.imgpath, urllib.parse.quote(self.builder.images[olduri])
+            )
 
         if 'scale' in node:
             # Try to figure out image height and width.  Docutils does that too,
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
             if not ('width' in node and 'height' in node):
-                path = os.path.join(self.builder.srcdir, olduri)  # type: ignore[has-type]
-                size = get_image_size(path)
+                size = get_image_size(self.builder.srcdir / olduri)
                 if size is None:
                     logger.warning(
                         __('Could not obtain image size. :scale: option is ignored.'),
@@ -682,24 +769,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                         node['width'] = str(size[0])
                     if 'height' not in node:
                         node['height'] = str(size[1])
-
-        uri = node['uri']
-        if uri.lower().endswith(('svg', 'svgz')):
-            atts = {'src': uri}
-            if 'width' in node:
-                atts['width'] = node['width']
-            if 'height' in node:
-                atts['height'] = node['height']
-            if 'scale' in node:
-                if 'width' in atts:
-                    atts['width'] = multiply_length(atts['width'], node['scale'])
-                if 'height' in atts:
-                    atts['height'] = multiply_length(atts['height'], node['scale'])
-            atts['alt'] = node.get('alt', uri)
-            if 'align' in node:
-                atts['class'] = 'align-%s' % node['align']
-            self.body.append(self.emptytag(node, 'img', '', **atts))
-            return
 
         super().visit_image(node)
 
@@ -756,7 +825,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 if token.strip():
                     # protect literal text from line wrapping
                     self.body.append('<span class="pre">%s</span>' % token)
-                elif token in ' \n':
+                elif token in {' ', '\n'}:
                     # allow breaks at whitespace
                     self.body.append(token)
                 else:
@@ -855,7 +924,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         atts = {}
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
-        classes.insert(0, "docutils")  # compat
+        classes.insert(0, 'docutils')  # compat
 
         # set align-default if align not specified to give a default style
         classes.append('align-%s' % node.get('align', 'default'))
@@ -893,26 +962,30 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         else:
             node['classes'].append('field-odd')
 
-    def visit_math(self, node: Element, math_env: str = '') -> None:
+    def visit_math(self, node: nodes.math, math_env: str = '') -> None:
+        self._has_maths_elements = True
+
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
         visit(self, node)
 
-    def depart_math(self, node: Element, math_env: str = '') -> None:
+    def depart_math(self, node: nodes.math, math_env: str = '') -> None:
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
         if depart:
             depart(self, node)
 
-    def visit_math_block(self, node: Element, math_env: str = '') -> None:
+    def visit_math_block(self, node: nodes.math_block, math_env: str = '') -> None:
+        self._has_maths_elements = True
+
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         visit, _ = self.builder.app.registry.html_block_math_renderers[name]
         visit(self, node)
 
-    def depart_math_block(self, node: Element, math_env: str = '') -> None:
+    def depart_math_block(self, node: nodes.math_block, math_env: str = '') -> None:
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
@@ -924,6 +997,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_footnote_reference(self, node: Element) -> None:
         href = '#' + node['refid']
         classes = ['footnote-reference', self.settings.footnote_references]
-        self.body.append(self.starttag(node, 'a', suffix='', classes=classes,
-                                       role='doc-noteref', href=href))
+        self.body.append(
+            self.starttag(
+                node, 'a', suffix='', classes=classes, role='doc-noteref', href=href
+            )
+        )
         self.body.append('<span class="fn-bracket">[</span>')

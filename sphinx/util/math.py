@@ -7,20 +7,22 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from docutils import nodes
 
-    from sphinx.builders.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
 
 
 def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) -> str:
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
-            key = f"{writer.docnames[-1]}/{figtype}"  # type: ignore[has-type]
+            key = f'{writer.docnames[-1]}/{figtype}'  # type: ignore[has-type]
         else:
             key = figtype
 
         id = node['ids'][0]
         number = writer.builder.fignumbers.get(key, {}).get(id, ())
-        return '.'.join(map(str, number))
+        eqno = '.'.join(map(str, number))
+        eqno = writer.builder.config.math_numsep.join(eqno.rsplit('.', 1))
+        return eqno
     else:
         return node['number']
 

@@ -9,11 +9,11 @@ import pytest
 from sphinx import addnodes
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
 
-@pytest.fixture()
-def sig_elements() -> Generator[set[type[addnodes.desc_sig_element]], None, None]:
+@pytest.fixture
+def sig_elements() -> Iterator[set[type[addnodes.desc_sig_element]]]:
     """Fixture returning the current ``addnodes.SIG_ELEMENTS`` set."""
     original = addnodes.SIG_ELEMENTS.copy()  # safe copy of the current nodes
     yield {*addnodes.SIG_ELEMENTS}  # temporary value to use during tests

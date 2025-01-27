@@ -38,7 +38,7 @@ class TodoDirective(SphinxDirective):
 
         todo_node = todo('\n'.join(self.content))
         todo_node += nodes.title(_('Todo'), _('Todo'))
-        self.state.nested_parse(self.content, self.content_offset, todo_node)
+        todo_node += self.parse_content_to_nodes()
 
         if not hasattr(self.env, 'todo_all_todos'):
             self.env.todo_all_todos = []
@@ -57,7 +57,9 @@ def purge_todos(app, env, docname):
     if not hasattr(env, 'todo_all_todos'):
         return
 
-    env.todo_all_todos = [todo for todo in env.todo_all_todos if todo['docname'] != docname]
+    env.todo_all_todos = [
+        todo for todo in env.todo_all_todos if todo['docname'] != docname
+    ]
 
 
 def merge_todos(app, env, docnames, other):
@@ -74,7 +76,7 @@ def process_todo_nodes(app, doctree, fromdocname):
 
     # Replace all todolist nodes with a list of the collected todos.
     # Augment each todo with a backlink to the original location.
-    env = app.builder.env
+    env = app.env
 
     if not hasattr(env, 'todo_all_todos'):
         env.todo_all_todos = []
@@ -98,7 +100,9 @@ def process_todo_nodes(app, doctree, fromdocname):
             newnode = nodes.reference('', '')
             innernode = nodes.emphasis(_('here'), _('here'))
             newnode['refdocname'] = todo_info['docname']
-            newnode['refuri'] = app.builder.get_relative_uri(fromdocname, todo_info['docname'])
+            newnode['refuri'] = app.builder.get_relative_uri(
+                fromdocname, todo_info['docname']
+            )
             newnode['refuri'] += '#' + todo_info['target']['refid']
             newnode.append(innernode)
             para += newnode
@@ -132,6 +136,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     return {
         'version': '0.1',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

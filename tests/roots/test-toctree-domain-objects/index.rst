@@ -4,3 +4,4 @@
    :name: mastertoc
 
    domains
+   document_scoping

@@ -1,5 +1,7 @@
 """Test the autodoc extension.  This tests mainly for autodoc events"""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.ext.autodoc import between, cut_lines
@@ -29,7 +31,7 @@ def test_process_docstring(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_process_docstring_for_nondatadescriptor(app):
     def on_process_docstring(app, what, name, obj, options, lines):
-        raise
+        raise RuntimeError
 
     app.connect('autodoc-process-docstring', on_process_docstring)
 
@@ -45,8 +47,7 @@ def test_process_docstring_for_nondatadescriptor(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cut_lines(app):
-    app.connect('autodoc-process-docstring',
-                cut_lines(2, 2, ['function']))
+    app.connect('autodoc-process-docstring', cut_lines(2, 2, ['function']))
 
     actual = do_autodoc(app, 'function', 'target.process_docstring.func')
     assert list(actual) == [
@@ -59,10 +60,29 @@ def test_cut_lines(app):
     ]
 
 
+def test_cut_lines_no_objtype():
+    docstring_lines = [
+        'first line',
+        '---',
+        'second line',
+        '---',
+        'third line ',
+        '',
+    ]
+    process = cut_lines(2)
+
+    process(None, 'function', 'func', None, {}, docstring_lines)
+    assert docstring_lines == [
+        'second line',
+        '---',
+        'third line ',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_between(app):
-    app.connect('autodoc-process-docstring',
-                between('---', ['function']))
+    app.connect('autodoc-process-docstring', between('---', ['function']))
 
     actual = do_autodoc(app, 'function', 'target.process_docstring.func')
     assert list(actual) == [
@@ -77,8 +97,7 @@ def test_between(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_between_exclude(app):
-    app.connect('autodoc-process-docstring',
-                between('---', ['function'], exclude=True))
+    app.connect('autodoc-process-docstring', between('---', ['function'], exclude=True))
 
     actual = do_autodoc(app, 'function', 'target.process_docstring.func')
     assert list(actual) == [
@@ -95,15 +114,15 @@ def test_between_exclude(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_skip_module_member(app):
     def autodoc_skip_member(app, what, name, obj, skip, options):
-        if name == "Class":
+        if name == 'Class':
             return True  # Skip "Class" class in __all__
-        elif name == "raises":
+        elif name == 'raises':
             return False  # Show "raises()" function (not in __all__)
         return None
 
     app.connect('autodoc-skip-member', autodoc_skip_member)
 
-    options = {"members": None}
+    options = {'members': None}
     actual = do_autodoc(app, 'module', 'target', options)
     assert list(actual) == [
         '',

@@ -1,5 +1,7 @@
 """Test sphinx.ext.graphviz extension."""
 
+from __future__ import annotations
+
 import re
 import sys
 
@@ -10,77 +12,96 @@ from sphinx.ext.graphviz import ClickableMapDefinition
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_png_html(app, status, warning):
+def test_graphviz_png_html(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    html = (r'<figure class="align-default" .*?>\s*'
-            r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
-            r'<p><span class="caption-text">caption of graph</span>.*</p>\s*'
-            r'</figcaption>\s*</figure>')
+    html = (
+        r'<figure class="align-default" .*?>\s*'
+        r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
+        r'<p><span class="caption-text">caption of graph</span>.*</p>\s*'
+        r'</figcaption>\s*</figure>'
+    )
     assert re.search(html, content, re.DOTALL)
 
     html = 'Hello <div class="graphviz"><img .*?/></div>\n graphviz world'
     assert re.search(html, content, re.DOTALL)
 
-    html = ('<img src=".*?" alt="digraph foo {\nbaz -&gt; qux\n}" '
-            'class="graphviz neato-graph" />')
+    html = (
+        '<img src=".*?" alt="digraph foo {\nbaz -&gt; qux\n}" '
+        'class="graphviz neato-graph" />'
+    )
     assert re.search(html, content, re.DOTALL)
 
-    html = (r'<figure class="align-right" .*?>\s*'
-            r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
-            r'<p><span class="caption-text">on <em>right</em></span>.*</p>\s*'
-            r'</figcaption>\s*</figure>')
+    html = (
+        r'<figure class="align-right" .*?>\s*'
+        r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
+        r'<p><span class="caption-text">on <em>right</em></span>.*</p>\s*'
+        r'</figcaption>\s*</figure>'
+    )
     assert re.search(html, content, re.DOTALL)
 
-    html = (r'<div align=\"center\" class=\"align-center\">'
-            r'<div class="graphviz"><img src=\".*\.png\" alt=\"digraph foo {\n'
-            r'centered\n'
-            r'}\" class="graphviz" /></div>\n</div>')
+    html = (
+        r'<div align=\"center\" class=\"align-center\">'
+        r'<div class="graphviz"><img src=\".*\.png\" alt=\"digraph foo {\n'
+        r'centered\n'
+        r'}\" class="graphviz" /></div>\n</div>'
+    )
     assert re.search(html, content, re.DOTALL)
 
 
-@pytest.mark.sphinx('html', testroot='ext-graphviz',
-                    confoverrides={'graphviz_output_format': 'svg'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-graphviz',
+    confoverrides={'graphviz_output_format': 'svg'},
+)
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_svg_html(app, status, warning):
+def test_graphviz_svg_html(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    html = (r'<figure class=\"align-default\" .*?>\n'
-            r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-            r'\s*<p class=\"warning\">digraph foo {\n'
-            r'bar -&gt; baz\n'
-            r'}</p></object></div>\n'
-            r'<figcaption>\n'
-            r'<p><span class=\"caption-text\">caption of graph</span>.*</p>\n'
-            r'</figcaption>\n'
-            r'</figure>')
+    html = (
+        r'<figure class=\"align-default\" .*?>\n'
+        r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
+        r'\s*<p class=\"warning\">digraph foo {\n'
+        r'bar -&gt; baz\n'
+        r'}</p></object></div>\n'
+        r'<figcaption>\n'
+        r'<p><span class=\"caption-text\">caption of graph</span>.*</p>\n'
+        r'</figcaption>\n'
+        r'</figure>'
+    )
     assert re.search(html, content, re.DOTALL)
 
-    html = (r'Hello <div class="graphviz"><object.*>\n'
-            r'\s*<p class=\"warning\">graph</p></object></div>\n'
-            r' graphviz world')
+    html = (
+        r'Hello <div class="graphviz"><object.*>\n'
+        r'\s*<p class=\"warning\">graph</p></object></div>\n'
+        r' graphviz world'
+    )
     assert re.search(html, content, re.DOTALL)
 
-    html = (r'<figure class=\"align-right\" .*\>\n'
-            r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-            r'\s*<p class=\"warning\">digraph bar {\n'
-            r'foo -&gt; bar\n'
-            r'}</p></object></div>\n'
-            r'<figcaption>\n'
-            r'<p><span class=\"caption-text\">on <em>right</em></span>.*</p>\n'
-            r'</figcaption>\n'
-            r'</figure>')
+    html = (
+        r'<figure class=\"align-right\" .*\>\n'
+        r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
+        r'\s*<p class=\"warning\">digraph bar {\n'
+        r'foo -&gt; bar\n'
+        r'}</p></object></div>\n'
+        r'<figcaption>\n'
+        r'<p><span class=\"caption-text\">on <em>right</em></span>.*</p>\n'
+        r'</figcaption>\n'
+        r'</figure>'
+    )
     assert re.search(html, content, re.DOTALL)
 
-    html = (r'<div align=\"center\" class=\"align-center\">'
-            r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-            r'\s*<p class=\"warning\">digraph foo {\n'
-            r'centered\n'
-            r'}</p></object></div>\n'
-            r'</div>')
+    html = (
+        r'<div align=\"center\" class=\"align-center\">'
+        r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
+        r'\s*<p class=\"warning\">digraph foo {\n'
+        r'centered\n'
+        r'}</p></object></div>\n'
+        r'</div>'
+    )
     assert re.search(html, content, re.DOTALL)
 
     image_re = r'.*data="([^"]+)".*?digraph test'
@@ -102,33 +123,35 @@ def test_graphviz_svg_html(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_latex(app, status, warning):
+def test_graphviz_latex(app):
     app.build(force_all=True)
 
-    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
-    macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
-             '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
-             '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')
+    content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
+    macro = (
+        '\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
+        '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
+        '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}'
+    )
     assert re.search(macro, content, re.DOTALL)
 
     macro = 'Hello \\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf} graphviz world'
     assert re.search(macro, content, re.DOTALL)
 
-    macro = ('\\\\begin{wrapfigure}{r}{0pt}\n\\\\centering\n'
-             '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
-             '\\\\caption{on \\\\sphinxstyleemphasis{right}}'
-             '\\\\label{.*}\\\\end{wrapfigure}')
+    macro = (
+        '\\\\begin{wrapfigure}{r}{0pt}\n\\\\centering\n'
+        '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
+        '\\\\caption{on \\\\sphinxstyleemphasis{right}}'
+        '\\\\label{.*}\\\\end{wrapfigure}'
+    )
     assert re.search(macro, content, re.DOTALL)
 
-    macro = (r'\{\\hfill'
-             r'\\sphinxincludegraphics\[\]{graphviz-.*}'
-             r'\\hspace\*{\\fill}}')
+    macro = r'\{\\hfill\\sphinxincludegraphics\[\]{graphviz-.*}\\hspace\*{\\fill}}'
     assert re.search(macro, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_i18n(app, status, warning):
+def test_graphviz_i18n(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -138,10 +161,8 @@ def test_graphviz_i18n(app, status, warning):
 
 def test_graphviz_parse_mapfile():
     # empty graph
-    code = ('# digraph {\n'
-            '# }\n')
-    content = ('<map id="%3" name="%3">\n'
-               '</map>')
+    code = '# digraph {\n# }\n'
+    content = '<map id="%3" name="%3">\n</map>'
     cmap = ClickableMapDefinition('dummy.map', content, code)
     assert cmap.filename == 'dummy.map'
     assert cmap.id == 'grapvizb08107169e'
@@ -149,15 +170,14 @@ def test_graphviz_parse_mapfile():
     assert cmap.generate_clickable_map() == ''
 
     # normal graph
-    code = ('digraph {\n'
-            '  foo [href="https://www.google.com/"];\n'
-            '  foo -> bar;\n'
-            '}\n')
-    content = ('<map id="%3" name="%3">\n'
-               '<area shape="poly" id="node1" href="https://www.google.com/" title="foo" alt=""'
-               ' coords="77,29,76,22,70,15,62,10,52,7,41,5,30,7,20,10,12,15,7,22,5,29,7,37,12,'
-               '43,20,49,30,52,41,53,52,52,62,49,70,43,76,37"/>\n'
-               '</map>')
+    code = 'digraph {\n  foo [href="https://www.google.com/"];\n  foo -> bar;\n}\n'
+    content = (
+        '<map id="%3" name="%3">\n'
+        '<area shape="poly" id="node1" href="https://www.google.com/" title="foo" alt=""'
+        ' coords="77,29,76,22,70,15,62,10,52,7,41,5,30,7,20,10,12,15,7,22,5,29,7,37,12,'
+        '43,20,49,30,52,41,53,52,52,62,49,70,43,76,37"/>\n'
+        '</map>'
+    )
     cmap = ClickableMapDefinition('dummy.map', content, code)
     assert cmap.filename == 'dummy.map'
     assert cmap.id == 'grapvizff087ab863'

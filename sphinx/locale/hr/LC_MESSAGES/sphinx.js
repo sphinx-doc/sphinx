@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Tra\u017ei",
         "Hide Search Matches": "Sakrij rezultate pretrage",
         "Index": "Abecedni popis",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indeksiraj stranice po slovu",
         "Indices and tables:": "Kazala i tablice:",
         "Last updated on %(last_updated)s.": "Zadnji put a\u017eurirano %(last_updated)s.",
@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Tra\u017ei",
         "Search Page": "Tra\u017eilica",
         "Search Results": "Rezultati pretrage",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Tra\u017ei izme\u0111u %(docstitle)s",
         "Searching": "Pretra\u017eivanje",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

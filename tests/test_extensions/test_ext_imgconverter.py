@@ -1,17 +1,23 @@
 """Test sphinx.ext.imgconverter extension."""
 
+from __future__ import annotations
+
 import subprocess
 
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def _if_converter_found(app):
     image_converter = getattr(app.config, 'image_converter', '')
     try:
         if image_converter:
             # print the image_converter version, to check that the command is available
-            subprocess.run([image_converter, '-version'], capture_output=True, check=False)
+            subprocess.run(
+                [image_converter, '-version'],
+                capture_output=True,
+                check=False,
+            )
             return
     except OSError:  # No such file or directory
         pass
@@ -21,10 +27,10 @@ def _if_converter_found(app):
 
 @pytest.mark.usefixtures('_if_converter_found')
 @pytest.mark.sphinx('latex', testroot='ext-imgconverter')
-def test_ext_imgconverter(app, status, warning):
+def test_ext_imgconverter(app):
     app.build(force_all=True)
 
-    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     # supported image (not converted)
     assert '\\sphinxincludegraphics{{img}.pdf}' in content

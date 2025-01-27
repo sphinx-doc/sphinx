@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Ir",
         "Hide Search Matches": "Esconder Resultados da Busca",
         "Index": "\u00cdndice",
-        "Index &ndash; %(key)s": "\u00cdndice &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "\u00cdndice &#x2013; %(key)s",
         "Index pages by letter": "P\u00e1ginas de \u00edndice por letra",
         "Indices and tables:": "\u00cdndices e Tabelas:",
         "Last updated on %(last_updated)s.": "\u00daltima atualiza\u00e7\u00e3o em %(last_updated)s.",
@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Buscar",
         "Search Page": "P\u00e1gina de Busca",
         "Search Results": "Resultados da Busca",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "Pesquisa finalizada, encontrada(s) ${resultCount} p\u00e1gina(s) correspondendo \u00e0 consulta da pesquisa.",
+        "Search finished, found one page matching the search query.": [
+            "Pesquisa conclu\u00edda, encontrada uma p\u00e1gina que correspondendo \u00e0 consulta da pesquisa.",
+            "Pesquisa finalizada, encontradas ${resultCount} p\u00e1ginas correspondendo \u00e0 consulta da pesquisa.",
+            "Pesquisa finalizada, encontradas ${resultCount} p\u00e1ginas correspondendo \u00e0 consulta da pesquisa."
+        ],
         "Search within %(docstitle)s": "Pesquisar dentro de %(docstitle)s",
         "Searching": "Buscando",
         "Searching for multiple words only shows matches that contain\n    all words.": "Pesquisando por v\u00e1rias palavras s\u00f3 mostra correspond\u00eancias\nque cont\u00eam todas as palavras.",

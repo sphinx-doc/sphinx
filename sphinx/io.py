@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-import docutils
-from docutils import nodes
 from docutils.core import Publisher
-from docutils.io import FileInput, Input, NullOutput
+from docutils.io import FileInput, NullOutput
 from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
@@ -25,7 +23,11 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from docutils import nodes
     from docutils.frontend import Values
+    from docutils.io import Input
     from docutils.parsers import Parser
     from docutils.transforms import Transform
 
@@ -36,9 +38,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class SphinxBaseReader(standalone.Reader):
-    """
-    A base class of readers for Sphinx.
+class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
+    """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
     """
@@ -71,8 +72,7 @@ class SphinxBaseReader(standalone.Reader):
         return transforms
 
     def new_document(self) -> nodes.document:
-        """
-        Creates a new document object which has a special reporter object good
+        """Creates a new document object which has a special reporter object good
         for logging.
         """
         document = super().new_document()
@@ -90,9 +90,7 @@ class SphinxBaseReader(standalone.Reader):
 
 
 class SphinxStandaloneReader(SphinxBaseReader):
-    """
-    A basic document reader for Sphinx.
-    """
+    """A basic document reader for Sphinx."""
 
     def setup(self, app: Sphinx) -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
@@ -118,8 +116,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
 
 class SphinxI18nReader(SphinxBaseReader):
-    """
-    A document reader for i18n.
+    """A document reader for i18n.
 
     This returns the source line number of original text as current source line number
     to let users know where the error happened.
@@ -144,7 +141,7 @@ class SphinxI18nReader(SphinxBaseReader):
                 self.transforms.remove(transform)
 
 
-class SphinxDummyWriter(UnfilteredWriter):
+class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
     """Dummy writer module used for generating doctree."""
 
     supported = ('html',)  # needed to keep "meta" nodes
@@ -191,8 +188,5 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     # Propagate exceptions by default when used programmatically:
     defaults = {'traceback': True, **app.env.settings}
     # Set default settings
-    if docutils.__version_info__[:2] >= (0, 19):
-        pub.get_settings(**defaults)
-    else:
-        pub.settings = pub.setup_option_parser(**defaults).get_default_values()
+    pub.get_settings(**defaults)
     return pub

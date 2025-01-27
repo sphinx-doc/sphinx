@@ -12,15 +12,16 @@ from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
 from docutils.parsers.rst.states import Body
 from docutils.utils import Reporter
-from jinja2 import Environment, pass_environment
+from jinja2 import pass_environment
 
 from sphinx.locale import __
 from sphinx.util import docutils, logging
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
     from docutils.statemachine import StringList
+    from jinja2 import Environment
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +30,8 @@ symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 SECTIONING_CHARS = ['=', '-', '~']
 
 # width of characters
-WIDECHARS: dict[str, str] = defaultdict(lambda: "WF")  # WF: Wide + Full-width
-WIDECHARS["ja"] = "WFA"  # In Japanese, Ambiguous characters also have double width
+WIDECHARS: dict[str, str] = defaultdict(lambda: 'WF')  # WF: Wide + Full-width
+WIDECHARS['ja'] = 'WFA'  # In Japanese, Ambiguous characters also have double width
 
 
 def escape(text: str) -> str:
@@ -41,6 +42,7 @@ def escape(text: str) -> str:
 
 def textwidth(text: str, widechars: str = 'WF') -> int:
     """Get width of text."""
+
     def charwidth(char: str, widechars: str) -> int:
         if east_asian_width(char) in widechars:
             return 2
@@ -61,7 +63,7 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
 
 
 @contextmanager
-def default_role(docname: str, name: str) -> Generator[None, None, None]:
+def default_role(docname: str, name: str) -> Iterator[None]:
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
@@ -103,7 +105,8 @@ def append_epilog(content: StringList, epilog: str) -> None:
     if epilog:
         if len(content) > 0:
             source, lineno = content.info(-1)
-            lineno = cast(int, lineno)  # lineno will never be None, since len(content) > 0
+            # lineno will never be None, since len(content) > 0
+            lineno = cast('int', lineno)
         else:
             source = '<generated>'
             lineno = 0

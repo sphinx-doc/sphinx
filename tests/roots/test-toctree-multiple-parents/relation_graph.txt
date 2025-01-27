@@ -1,0 +1,7 @@
+     index
+    /     \
+ alpha   delta
+    \      /
+   bravo  /
+      \  /
+     charlie

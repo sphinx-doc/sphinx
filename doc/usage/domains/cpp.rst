@@ -568,7 +568,7 @@ following fields:
 .. versionadded:: 4.3
    The ``retval`` field type.
 
-.. _cpp-roles:
+.. _cpp-xref-roles:
 
 Cross-referencing
 -----------------

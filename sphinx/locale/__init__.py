@@ -3,18 +3,19 @@
 from __future__ import annotations
 
 import locale
+import sys
 from gettext import NullTranslations, translation
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from typing import Any, Callable
+    import os
+    from collections.abc import Callable, Iterable
+    from typing import Any
 
 
 class _TranslationProxy:
-    """
-    The proxy implementation attempts to be as complete as possible, so that
+    """The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
 
@@ -97,7 +98,7 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: Iterable[str | None],
+    locale_dirs: Iterable[str | os.PathLike[str] | None],
     language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
@@ -113,11 +114,7 @@ def init(
         translator = None
 
     if language:
-        if '_' in language:
-            # for language having country code (like "de_AT")
-            languages: list[str] | None = [language, language.split('_')[0]]
-        else:
-            languages = [language]
+        languages: list[str] | None = [language]
     else:
         languages = None
 
@@ -143,11 +140,11 @@ def init(
     return translator, has_translation
 
 
-_LOCALE_DIR = path.abspath(path.dirname(__file__))
+_LOCALE_DIR = Path(__file__).resolve().parent
 
 
 def init_console(
-    locale_dir: str | None = None,
+    locale_dir: str | os.PathLike[str] | None = None,
     catalog: str = 'sphinx',
 ) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.
@@ -156,21 +153,27 @@ def init_console(
     """
     if locale_dir is None:
         locale_dir = _LOCALE_DIR
-    try:
-        # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)
-    except AttributeError:
-        # LC_MESSAGES is not always defined. Fallback to the default language
-        # in case it is not.
+    if sys.platform == 'win32':
         language = None
+    else:
+        try:
+            # encoding is ignored
+            language, _ = locale.getlocale(locale.LC_MESSAGES)
+        except AttributeError:
+            # Fallback to the default language in case LC_MESSAGES is not defined.
+            language = None
     return init([locale_dir], language, catalog, 'console')
 
 
-def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
+def get_translator(
+    catalog: str = 'sphinx', namespace: str = 'general'
+) -> NullTranslations:
     return translators.get((namespace, catalog), NullTranslations())
 
 
-def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
+def is_translator_registered(
+    catalog: str = 'sphinx', namespace: str = 'general'
+) -> bool:
     return (namespace, catalog) in translators
 
 
@@ -180,7 +183,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     The extension can use this API to translate the messages on the
     extension::
 
-        import os
+        from pathlib import Path
         from sphinx.locale import get_translation
 
         MESSAGE_CATALOG_NAME = 'myextension'  # name of *.pot, *.po and *.mo files
@@ -189,8 +192,8 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
 
         def setup(app):
-            package_dir = os.path.abspath(os.path.dirname(__file__))
-            locale_dir = os.path.join(package_dir, 'locales')
+            package_dir = Path(__file__).resolve().parent
+            locale_dir = package_dir / 'locales'
             app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
 
     With this code, sphinx searches a message catalog from
@@ -203,7 +206,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]  # NoQA: E501
+            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]
         else:
             translator = get_translator(catalog, namespace)
             return translator.gettext(message)

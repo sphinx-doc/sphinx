@@ -1,45 +1,12 @@
 %% TEXT STYLING
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexstyletext.sty}[2023/07/23 text styling]
+\ProvidesPackage{sphinxlatexstyletext}[2024/07/28 v8.1.0 text styling]
 
-% Basically everything here consists of macros which are part of the latex
-% markup produced by the Sphinx latex writer
-
-% But those arise rather from the default definitions of the respective
-% latex environments done in sphinxlatexadmonitions.sty
-\def\sphinxstylenotetitle   #1{\sphinxstrong{#1} }
-\let\sphinxstylehinttitle     \sphinxstylenotetitle % #1 holds the localized notice name
-\let\sphinxstyleimportanttitle\sphinxstylenotetitle % followed by a colon
-\let\sphinxstyletiptitle      \sphinxstylenotetitle
-\let\sphinxstylewarningtitle  \sphinxstylenotetitle
-\let\sphinxstylecautiontitle  \sphinxstylenotetitle
-\let\sphinxstyleattentiontitle\sphinxstylenotetitle
-\let\sphinxstyledangertitle   \sphinxstylenotetitle
-\let\sphinxstyleerrortitle    \sphinxstylenotetitle
-\def\sphinxstyleseealsotitle#1{\sphinxstrong{#1}\par\nopagebreak}
-%
-% A utility to remove a final colon.  Removing last token is not easy in
-% LaTeX, and there are additional complications:
-% - some languages will make the : "active" in document body,
-% - the generic admonition ends up using "note", so for \sphinxnotetitle to
-%   use it safely, the utility has to allow an input not having any final colon.
-% - a bit far-fetched but maybe there is more than one colon inside the input
-%   (possible from a generic admonition title).
-% Hence the scary code.
-\def\sphinxremovefinalcolon#1{% #1 is the "active" : TeX token
-\protected\def\sphinxremovefinalcolon ##1{%
-   % complications due to : possibly "active"
-   \begingroup\ifnum\catcode`:=\active
-                    \def\x####1#1\relax{####1}%
-               \else\def\x####1:\relax{####1}\fi
-   \expandafter\endgroup\x##1\relax
-   % trick to let \x work also if input ##1 has no ending colon
-   \@gobblefour#1\relax:\relax\relax\relax
-   }%
-}% end of wrapper to inject active :
-\begingroup\catcode`:\active\expandafter\endgroup\sphinxremovefinalcolon:
-% See doc/latex.rst for an example.
+% 7.4.0 has moved all that is related to admonitions to sphinxlatexadmonitions.sty
+% 8.1.0 has moved topic/contents/sidebar to sphinxlatexshadowbox.sty
+% Most everything left here consists of macros which are part of the latex markup
+% produced by the Sphinx LaTeX writer.
 
 % Some custom font markup commands.
 \protected\def\sphinxstrong#1{\textbf{#1}}
@@ -73,10 +40,7 @@
     {{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 \def\sphinxstyleindexlettergroupDefault #1%
     {{\Large\sffamily\sphinxnonalphabeticalgroupname}\nopagebreak\vspace{1mm}}
-\protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
-\let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
-\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 % \text.. commands do not allow multiple paragraphs
 % attention, this one is not self-delimiting
 \protected\def\sphinxstyletheadfamily    {\sffamily}

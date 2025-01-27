@@ -1,6 +1,5 @@
 def func():
-    """
-    first line
+    """first line
     ---
     second line
     ---

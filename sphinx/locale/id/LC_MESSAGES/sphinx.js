@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Go",
         "Hide Search Matches": "Sembunyikan Hasil Pencarian",
         "Index": "Indeks",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Index halaman berdasarkan huruf",
         "Indices and tables:": "Indeks dan tabel:",
         "Last updated on %(last_updated)s.": "Terakhir diperbarui pada %(last_updated)s.",
@@ -36,7 +36,9 @@ Documentation.addTranslations({
         "Search": "Pencarian",
         "Search Page": "Pencarian Halaman",
         "Search Results": "Hasil Pencarian",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "Pencarian dalam %(docstitle)s",
         "Searching": "Pencarian",
         "Searching for multiple words only shows matches that contain\n    all words.": "Mencari beberapa kata hanya menunjukkan kecocokan yang mengandung\n \u00a0\u00a0 semua kata.",

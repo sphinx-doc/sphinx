@@ -1,0 +1,81 @@
+// UML for the standard Sphinx build workflow
+
+digraph build {
+    graph [
+        rankdir=LR
+    ];
+    node [
+        shape=rect
+        style=rounded
+    ];
+
+    "Sphinx" [
+        shape=record
+        label = "Sphinx | <init> __init__ | <build> build"
+    ];
+    "legend" [
+        shape=record
+        label = <<table border="0" cellborder="0" cellspacing="0">
+            <tr><td align="center"><u><b>Method types</b></u></td></tr>
+            <tr><td align="left"><font color="darkorange">Final</font></td></tr>
+            <tr><td align="left"><font color="darkblue">Overridable</font></td></tr>
+            <tr><td align="left"><font color="darkgreen">Abstract</font></td></tr>
+        </table>>
+    ];
+    {rank=same; "Sphinx" "legend" };
+
+    "Builder.init" [color=darkblue];
+    "Builder.build_all" [color=darkorange];
+    "Builder.build_specific" [color=darkorange];
+    "Builder.build_update" [color=darkorange];
+
+    "Sphinx":init -> "Builder.init";
+    "Sphinx":build -> "Builder.build_all";
+    "Sphinx":build -> "Builder.build_specific";
+    "Sphinx":build -> "Builder.build_update";
+
+    "Builder.get_outdated_docs" [color=darkgreen];
+    "Builder.build_update" -> "Builder.get_outdated_docs";
+
+    "Builder.build" [color=darkorange];
+
+    "Builder.build_all" -> "Builder.build";
+    "Builder.build_specific" -> "Builder.build";
+    "Builder.build_update":p1 -> "Builder.build";
+
+    "Builder.read" [color=darkorange];
+    "Builder.write" [color=darkorange];
+    "Builder.finish" [color=darkblue];
+
+    "Builder.build" -> "Builder.read";
+    "Builder.build" -> "Builder.write";
+    "Builder.build" -> "Builder.finish";
+
+    "Builder.read_doc" [color=darkorange];
+    "Builder.write_doctree" [color=darkorange];
+
+    "Builder.read" -> "Builder.read_doc";
+    "Builder.read_doc" -> "Builder.write_doctree";
+
+    "Builder.prepare_writing" [color=darkblue];
+    "Builder.copy_assets" [color=darkblue];
+    "Builder.write_documents" [color=darkblue];
+
+    "Builder.write":p1 -> "Builder.prepare_writing";
+    "Builder.write":p1 -> "Builder.copy_assets";
+    "Builder.write_documents" [
+        shape=record
+        label = "<p1> Builder.write_documents | Builder._write_serial | Builder._write_parallel"
+    ];
+    "Builder.write":p1 -> "Builder.write_documents";
+
+    "Builder.write_doc" [color=darkgreen];
+    "Builder.get_relative_uri" [color=darkblue];
+
+    "Builder.write_documents":p1 -> "Builder.write_doc";
+    "Builder.write_doc" -> "Builder.get_relative_uri";
+
+    "Builder.get_target_uri" [color=darkgreen];
+
+    "Builder.get_relative_uri" -> "Builder.get_target_uri";
+}

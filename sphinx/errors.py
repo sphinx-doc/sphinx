@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 
 class SphinxError(Exception):
     """Base class for Sphinx errors.
@@ -45,7 +43,10 @@ class ExtensionError(SphinxError):
     """Extension error."""
 
     def __init__(
-        self, message: str, orig_exc: Exception | None = None, modname: str | None = None
+        self,
+        message: str,
+        orig_exc: Exception | None = None,
+        modname: str | None = None,
     ) -> None:
         super().__init__(message)
         self.message = message
@@ -106,7 +107,7 @@ class SphinxParallelError(SphinxError):
 
     category = 'Sphinx parallel build error'
 
-    def __init__(self, message: str, traceback: Any) -> None:
+    def __init__(self, message: str, traceback: str) -> None:
         self.message = message
         self.traceback = traceback
 
