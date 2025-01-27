@@ -2,13 +2,37 @@
 
 from __future__ import annotations
 
+import ctypes
 import dataclasses
 import sys
 import typing as t
+import zipfile
 from collections import abc
 from contextvars import Context, ContextVar, Token
 from enum import Enum
+from io import (
+    BufferedRandom,
+    BufferedReader,
+    BufferedRWPair,
+    BufferedWriter,
+    BytesIO,
+    FileIO,
+    StringIO,
+    TextIOWrapper,
+)
+from json import JSONDecoder, JSONEncoder
+from lzma import LZMACompressor, LZMADecompressor
+from multiprocessing import Process
 from numbers import Integral
+from pathlib import (
+    Path,
+    PosixPath,
+    PurePath,
+    PurePosixPath,
+    PureWindowsPath,
+    WindowsPath,
+)
+from pickle import Pickler, Unpickler
 from struct import Struct
 from types import (
     AsyncGeneratorType,
@@ -18,6 +42,7 @@ from types import (
     ClassMethodDescriptorType,
     CodeType,
     CoroutineType,
+    EllipsisType,
     FrameType,
     FunctionType,
     GeneratorType,
@@ -29,6 +54,8 @@ from types import (
     MethodType,
     MethodWrapperType,
     ModuleType,
+    NoneType,
+    NotImplementedType,
     TracebackType,
     WrapperDescriptorType,
 )
@@ -46,8 +73,9 @@ from typing import (
     TypeVar,
     Union,
 )
+from weakref import WeakSet
 
-from sphinx.ext.autodoc import mock
+from sphinx.ext.autodoc.mock import mock
 from sphinx.util.typing import _INVALID_BUILTIN_CLASSES, restify, stringify_annotation
 
 
@@ -99,6 +127,9 @@ def test_restify():
     assert restify(TracebackType) == ':py:class:`types.TracebackType`'
     assert restify(TracebackType, 'smart') == ':py:class:`~types.TracebackType`'
 
+    assert restify(Path) == ':py:class:`pathlib.Path`'
+    assert restify(Path, 'smart') == ':py:class:`~pathlib.Path`'
+
     assert restify(Any) == ':py:obj:`~typing.Any`'
     assert restify(Any, 'smart') == ':py:obj:`~typing.Any`'
 
@@ -111,10 +142,44 @@ def test_is_invalid_builtin_class():
     # of one of these classes has changed, and _INVALID_BUILTIN_CLASSES
     # in sphinx.util.typing needs to be updated.
     assert _INVALID_BUILTIN_CLASSES.keys() == {
+        # contextvars
         Context,
         ContextVar,
         Token,
+        # ctypes
+        ctypes.Array,
+        ctypes.Structure,
+        ctypes.Union,
+        # io
+        FileIO,
+        BytesIO,
+        StringIO,
+        BufferedReader,
+        BufferedWriter,
+        BufferedRWPair,
+        BufferedRandom,
+        TextIOWrapper,
+        # json
+        JSONDecoder,
+        JSONEncoder,
+        # lzma
+        LZMACompressor,
+        LZMADecompressor,
+        # multiprocessing
+        Process,
+        # pathlib
+        Path,
+        PosixPath,
+        PurePath,
+        PurePosixPath,
+        PureWindowsPath,
+        WindowsPath,
+        # pickle
+        Pickler,
+        Unpickler,
+        # struct
         Struct,
+        # types
         AsyncGeneratorType,
         BuiltinFunctionType,
         BuiltinMethodType,
@@ -122,6 +187,7 @@ def test_is_invalid_builtin_class():
         ClassMethodDescriptorType,
         CodeType,
         CoroutineType,
+        EllipsisType,
         FrameType,
         FunctionType,
         GeneratorType,
@@ -133,10 +199,55 @@ def test_is_invalid_builtin_class():
         MethodType,
         MethodWrapperType,
         ModuleType,
+        NoneType,
+        NotImplementedType,
         TracebackType,
         WrapperDescriptorType,
+        # weakref
+        WeakSet,
+        # zipfile
+        zipfile.Path,
+        zipfile.CompleteDirs,
     }
+    # contextvars
+    assert Context.__module__ == '_contextvars'
+    assert ContextVar.__module__ == '_contextvars'
+    assert Token.__module__ == '_contextvars'
+    # ctypes
+    assert ctypes.Array.__module__ == '_ctypes'
+    assert ctypes.Structure.__module__ == '_ctypes'
+    assert ctypes.Union.__module__ == '_ctypes'
+    # io
+    assert FileIO.__module__ == '_io'
+    assert BytesIO.__module__ == '_io'
+    assert StringIO.__module__ == '_io'
+    assert BufferedReader.__module__ == '_io'
+    assert BufferedWriter.__module__ == '_io'
+    assert BufferedRWPair.__module__ == '_io'
+    assert BufferedRandom.__module__ == '_io'
+    assert TextIOWrapper.__module__ == '_io'
+    # json
+    assert JSONDecoder.__module__ == 'json.decoder'
+    assert JSONEncoder.__module__ == 'json.encoder'
+    # lzma
+    assert LZMACompressor.__module__ == '_lzma'
+    assert LZMADecompressor.__module__ == '_lzma'
+    # multiprocessing
+    assert Process.__module__ == 'multiprocessing.context'
+    if sys.version_info[:2] >= (3, 13):
+        # pathlib
+        assert Path.__module__ == 'pathlib._local'
+        assert PosixPath.__module__ == 'pathlib._local'
+        assert PurePath.__module__ == 'pathlib._local'
+        assert PurePosixPath.__module__ == 'pathlib._local'
+        assert PureWindowsPath.__module__ == 'pathlib._local'
+        assert WindowsPath.__module__ == 'pathlib._local'
+    # pickle
+    assert Pickler.__module__ == '_pickle'
+    assert Unpickler.__module__ == '_pickle'
+    # struct
     assert Struct.__module__ == '_struct'
+    # types
     assert AsyncGeneratorType.__module__ == 'builtins'
     assert BuiltinFunctionType.__module__ == 'builtins'
     assert BuiltinMethodType.__module__ == 'builtins'
@@ -144,6 +255,7 @@ def test_is_invalid_builtin_class():
     assert ClassMethodDescriptorType.__module__ == 'builtins'
     assert CodeType.__module__ == 'builtins'
     assert CoroutineType.__module__ == 'builtins'
+    assert EllipsisType.__module__ == 'builtins'
     assert FrameType.__module__ == 'builtins'
     assert FunctionType.__module__ == 'builtins'
     assert GeneratorType.__module__ == 'builtins'
@@ -155,8 +267,16 @@ def test_is_invalid_builtin_class():
     assert MethodType.__module__ == 'builtins'
     assert MethodWrapperType.__module__ == 'builtins'
     assert ModuleType.__module__ == 'builtins'
+    assert NoneType.__module__ == 'builtins'
+    assert NotImplementedType.__module__ == 'builtins'
     assert TracebackType.__module__ == 'builtins'
     assert WrapperDescriptorType.__module__ == 'builtins'
+    # weakref
+    assert WeakSet.__module__ == '_weakrefset'
+    if sys.version_info[:2] >= (3, 12):
+        # zipfile
+        assert zipfile.Path.__module__ == 'zipfile._path'
+        assert zipfile.CompleteDirs.__module__ == 'zipfile._path'
 
 
 def test_restify_type_hints_containers():
@@ -352,7 +472,7 @@ def test_restify_type_ForwardRef():
         restify(list[ForwardRef('MyInt')]) == ':py:class:`list`\\ [:py:class:`MyInt`]'
     )
 
-    ann_rst = restify(Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]])  # type: ignore[attr-defined]
+    ann_rst = restify(Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]])
     assert ann_rst == (
         ':py:class:`~typing.Tuple`\\ [:py:class:`dict`\\ [:py:class:`MyInt`, :py:class:`str`], :py:class:`list`\\ [:py:class:`~typing.List`\\ [:py:class:`int`]]]'
     )
@@ -373,14 +493,14 @@ def test_restify_type_Literal():
 
 
 def test_restify_pep_585():
-    assert restify(list[str]) == ':py:class:`list`\\ [:py:class:`str`]'  # type: ignore[attr-defined]
-    ann_rst = restify(dict[str, str])  # type: ignore[attr-defined]
+    assert restify(list[str]) == ':py:class:`list`\\ [:py:class:`str`]'
+    ann_rst = restify(dict[str, str])
     assert ann_rst == ':py:class:`dict`\\ [:py:class:`str`, :py:class:`str`]'
     assert restify(tuple[str, ...]) == ':py:class:`tuple`\\ [:py:class:`str`, ...]'
     assert restify(tuple[str, str, str]) == (
         ':py:class:`tuple`\\ [:py:class:`str`, :py:class:`str`, :py:class:`str`]'
     )
-    ann_rst = restify(dict[str, tuple[int, ...]])  # type: ignore[attr-defined]
+    ann_rst = restify(dict[str, tuple[int, ...]])
     assert ann_rst == (
         ':py:class:`dict`\\ '
         '[:py:class:`str`, :py:class:`tuple`\\ '
@@ -428,10 +548,10 @@ def test_restify_Unpack():
 
 
 def test_restify_type_union_operator():
-    assert restify(int | None) == ':py:class:`int` | :py:obj:`None`'  # type: ignore[attr-defined]
-    assert restify(None | int) == ':py:obj:`None` | :py:class:`int`'  # type: ignore[attr-defined]
-    assert restify(int | str) == ':py:class:`int` | :py:class:`str`'  # type: ignore[attr-defined]
-    ann_rst = restify(int | str | None)  # type: ignore[attr-defined]
+    assert restify(int | None) == ':py:class:`int` | :py:obj:`None`'
+    assert restify(None | int) == ':py:obj:`None` | :py:class:`int`'
+    assert restify(int | str) == ':py:class:`int` | :py:class:`str`'
+    ann_rst = restify(int | str | None)
     assert ann_rst == ':py:class:`int` | :py:class:`str` | :py:obj:`None`'
 
 
@@ -444,7 +564,7 @@ def test_restify_broken_type_hints():
 
 def test_restify_mock():
     with mock(['unknown']):
-        import unknown
+        import unknown  # type: ignore[import-not-found]
 
         assert restify(unknown) == ':py:class:`unknown`'
         assert restify(unknown.secret.Class) == ':py:class:`unknown.secret.Class`'
@@ -486,6 +606,10 @@ def test_stringify_annotation():
     ann_str = stringify_annotation(TracebackType, 'fully-qualified-except-typing')
     assert ann_str == 'types.TracebackType'
     assert stringify_annotation(TracebackType, 'smart') == '~types.TracebackType'
+
+    ann_str = stringify_annotation(Path, 'fully-qualified-except-typing')
+    assert ann_str == 'pathlib.Path'
+    assert stringify_annotation(Path, 'smart') == '~pathlib.Path'
 
     assert stringify_annotation(Any, 'fully-qualified-except-typing') == 'Any'
     assert stringify_annotation(Any, 'fully-qualified') == 'typing.Any'
@@ -858,8 +982,8 @@ def test_stringify_type_hints_alias():
     assert stringify_annotation(MyStr, 'fully-qualified-except-typing') == 'str'
     assert stringify_annotation(MyStr, 'smart') == 'str'
 
-    assert stringify_annotation(MyTuple) == 'Tuple[str, str]'  # type: ignore[attr-defined]
-    assert stringify_annotation(MyTuple, 'smart') == '~typing.Tuple[str, str]'  # type: ignore[attr-defined]
+    assert stringify_annotation(MyTuple) == 'Tuple[str, str]'
+    assert stringify_annotation(MyTuple, 'smart') == '~typing.Tuple[str, str]'
 
 
 def test_stringify_type_Literal():
@@ -881,26 +1005,26 @@ def test_stringify_type_Literal():
 
 
 def test_stringify_type_union_operator():
-    assert stringify_annotation(int | None) == 'int | None'  # type: ignore[attr-defined]
-    assert stringify_annotation(int | None, 'smart') == 'int | None'  # type: ignore[attr-defined]
+    assert stringify_annotation(int | None) == 'int | None'
+    assert stringify_annotation(int | None, 'smart') == 'int | None'
 
-    assert stringify_annotation(int | str) == 'int | str'  # type: ignore[attr-defined]
-    assert stringify_annotation(int | str, 'smart') == 'int | str'  # type: ignore[attr-defined]
+    assert stringify_annotation(int | str) == 'int | str'
+    assert stringify_annotation(int | str, 'smart') == 'int | str'
 
-    assert stringify_annotation(int | str | None) == 'int | str | None'  # type: ignore[attr-defined]
-    assert stringify_annotation(int | str | None, 'smart') == 'int | str | None'  # type: ignore[attr-defined]
+    assert stringify_annotation(int | str | None) == 'int | str | None'
+    assert stringify_annotation(int | str | None, 'smart') == 'int | str | None'
 
     ann_str = stringify_annotation(
         int | tuple[dict[str, int | None], list[int | str]] | None
     )
-    assert ann_str == 'int | tuple[dict[str, int | None], list[int | str]] | None'  # type: ignore[attr-defined]
+    assert ann_str == 'int | tuple[dict[str, int | None], list[int | str]] | None'
     ann_str = stringify_annotation(
         int | tuple[dict[str, int | None], list[int | str]] | None, 'smart'
     )
-    assert ann_str == 'int | tuple[dict[str, int | None], list[int | str]] | None'  # type: ignore[attr-defined]
+    assert ann_str == 'int | tuple[dict[str, int | None], list[int | str]] | None'
 
-    assert stringify_annotation(int | Struct) == 'int | struct.Struct'  # type: ignore[attr-defined]
-    assert stringify_annotation(int | Struct, 'smart') == 'int | ~struct.Struct'  # type: ignore[attr-defined]
+    assert stringify_annotation(int | Struct) == 'int | struct.Struct'
+    assert stringify_annotation(int | Struct, 'smart') == 'int | ~struct.Struct'
 
 
 def test_stringify_broken_type_hints():
@@ -934,16 +1058,16 @@ def test_stringify_type_ForwardRef():
     ann_str = stringify_annotation(
         Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]]
     )
-    assert ann_str == 'Tuple[dict[MyInt, str], list[List[int]]]'  # type: ignore[attr-defined]
+    assert ann_str == 'Tuple[dict[MyInt, str], list[List[int]]]'
     ann_str = stringify_annotation(
         Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]],
         'fully-qualified-except-typing',
     )
-    assert ann_str == 'Tuple[dict[MyInt, str], list[List[int]]]'  # type: ignore[attr-defined]
+    assert ann_str == 'Tuple[dict[MyInt, str], list[List[int]]]'
     ann_str = stringify_annotation(
         Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]], 'smart'
     )
-    assert ann_str == '~typing.Tuple[dict[MyInt, str], list[~typing.List[int]]]'  # type: ignore[attr-defined]
+    assert ann_str == '~typing.Tuple[dict[MyInt, str], list[~typing.List[int]]]'
 
 
 def test_stringify_type_hints_paramspec():

@@ -47,7 +47,7 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
 
 def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> None:
     self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
-    if node['nowrap']:
+    if node['no-wrap']:
         self.body.append(self.encode(node.astext()))
         self.body.append('</div>')
         raise nodes.SkipNode

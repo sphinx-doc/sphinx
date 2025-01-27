@@ -327,7 +327,7 @@ def test_import_classes(rootdir):
     saved_path = sys.path.copy()
     sys.path.insert(0, str(rootdir / 'test-ext-inheritance_diagram'))
     try:
-        from example.sphinx import DummyClass
+        from example.sphinx import DummyClass  # type: ignore[import-not-found]
 
         # got exception for unknown class or module
         with pytest.raises(InheritanceException):

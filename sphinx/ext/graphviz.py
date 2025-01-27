@@ -277,7 +277,7 @@ def fix_svg_relative_paths(
 def render_dot(
     self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
     code: str,
-    options: dict,
+    options: dict[str, Any],
     format: str,
     prefix: str = 'graphviz',
     filename: str | None = None,
@@ -357,7 +357,7 @@ def render_dot_html(
     self: HTML5Translator,
     node: graphviz,
     code: str,
-    options: dict,
+    options: dict[str, Any],
     prefix: str = 'graphviz',
     imgcls: str | None = None,
     alt: str | None = None,
@@ -428,7 +428,7 @@ def render_dot_latex(
     self: LaTeXTranslator,
     node: graphviz,
     code: str,
-    options: dict,
+    options: dict[str, Any],
     prefix: str = 'graphviz',
     filename: str | None = None,
 ) -> None:
@@ -473,7 +473,7 @@ def render_dot_texinfo(
     self: TexinfoTranslator,
     node: graphviz,
     code: str,
-    options: dict,
+    options: dict[str, Any],
     prefix: str = 'graphviz',
 ) -> None:
     try:

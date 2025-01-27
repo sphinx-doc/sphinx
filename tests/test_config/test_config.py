@@ -216,7 +216,7 @@ def test_config_pickle_circular_reference_in_list():
         assert v.__class__ is u.__class__
         for u_i, v_i in zip(u, v, strict=True):
             counter[type(u)] += 1
-            check(u_i, v_i, counter=counter, guard=guard | {id(u), id(v)})
+            check(u_i, v_i, counter=counter, guard=guard | {id(u), id(v)})  # type: ignore[arg-type]
 
         return counter
 
@@ -280,7 +280,7 @@ def test_config_pickle_circular_reference_in_dict():
         assert v.__class__ is u.__class__
         for u_i, v_i in zip(u, v, strict=True):
             counter[type(u)] += 1
-            check(u[u_i], v[v_i], counter=counter, guard=guard | {id(u), id(v)})
+            check(u[u_i], v[v_i], counter=counter, guard=guard | {id(u), id(v)})  # type: ignore[arg-type]
         return counter
 
     counters = check(actual.x, x, counter=Counter())

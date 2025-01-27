@@ -60,6 +60,16 @@ Features added
   :confval:`python_trailing_comma_in_multi_line_signatures` and
   :confval:`javascript_trailing_comma_in_multi_line_signatures`
   configuration options.
+* #13264: Rename the :rst:dir:`math` directive's ``nowrap``option
+  to :rst:dir:`no-wrap``,
+  and rename the :rst:dir:`autosummary` directive's ``nosignatures``option
+  to :rst:dir:`no-signatures``.
+  Patch by Adam Turner.
+* #13269: Added the option to disable the use of type comments in
+  via the new :confval:`autodoc_use_type_comments` option,
+  which defaults to ``True`` for backwards compatibility.
+  The default will change to ``False`` in Sphinx 10.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
@@ -92,6 +102,8 @@ Bugs fixed
   methods and attributes.
   Patch by Bénédikt Tran.
 * #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
+* #13178: autodoc: Fix resolution for ``pathlib`` types.
+  Patch by Adam Turner.
 
 Testing
 -------

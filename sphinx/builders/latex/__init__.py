@@ -418,8 +418,6 @@ class LaTeXBuilder(Builder):
                         nodes.Text(')'),
                     ))
                     break
-            else:
-                pass
             pendingnode.replace_self(newnodes)
         return largetree
 

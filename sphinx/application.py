@@ -55,9 +55,16 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc import Documenter, _AutodocProcessDocstringListener
     from sphinx.ext.todo import todo_node
     from sphinx.extension import Extension
+    from sphinx.registry import (
+        _MathsBlockRenderers,
+        _MathsInlineRenderers,
+        _NodeHandler,
+        _NodeHandlerPair,
+    )
     from sphinx.roles import XRefRole
     from sphinx.search import SearchLanguage
     from sphinx.theming import Theme
+    from sphinx.util.docfields import Field
     from sphinx.util.typing import RoleFunction, TitleGetter
 
 
@@ -154,7 +161,7 @@ class Sphinx:
         outdir: str | os.PathLike[str],
         doctreedir: str | os.PathLike[str],
         buildername: str,
-        confoverrides: dict | None = None,
+        confoverrides: dict[str, Any] | None = None,
         status: IO[str] | None = sys.stdout,
         warning: IO[str] | None = sys.stderr,
         freshenv: bool = False,
@@ -792,7 +799,9 @@ class Sphinx:
     ) -> int: ...
 
     # event interface
-    def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
+    def connect(
+        self, event: str, callback: Callable[..., Any], priority: int = 500
+    ) -> int:
         """Register *callback* to be called when *event* is emitted.
 
         For details on available core events and the arguments of callback
@@ -831,7 +840,7 @@ class Sphinx:
         event: str,
         *args: Any,
         allowed_exceptions: tuple[type[Exception], ...] = (),
-    ) -> list:
+    ) -> list[Any]:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
@@ -974,7 +983,7 @@ class Sphinx:
         self,
         node: type[Element],
         override: bool = False,
-        **kwargs: tuple[Callable, Callable | None],
+        **kwargs: _NodeHandlerPair,
     ) -> None:
         """Register a Docutils node class.
 
@@ -1031,7 +1040,7 @@ class Sphinx:
         figtype: str,
         title_getter: TitleGetter | None = None,
         override: bool = False,
-        **kwargs: tuple[Callable, Callable],
+        **kwargs: tuple[_NodeHandler, _NodeHandler],
     ) -> None:
         """Register a Docutils node class as a numfig target.
 
@@ -1254,10 +1263,11 @@ class Sphinx:
         directivename: str,
         rolename: str,
         indextemplate: str = '',
-        parse_node: Callable | None = None,
+        parse_node: Callable[[BuildEnvironment, str, addnodes.desc_signature], str]
+        | None = None,
         ref_nodeclass: type[nodes.TextElement] | None = None,
         objname: str = '',
-        doc_field_types: Sequence = (),
+        doc_field_types: Sequence[Field] = (),
         override: bool = False,
     ) -> None:
         """Register a new object type.
@@ -1718,8 +1728,8 @@ class Sphinx:
     def add_html_math_renderer(
         self,
         name: str,
-        inline_renderers: tuple[Callable, Callable | None] | None = None,
-        block_renderers: tuple[Callable, Callable | None] | None = None,
+        inline_renderers: _MathsInlineRenderers | None = None,
+        block_renderers: _MathsBlockRenderers | None = None,
     ) -> None:
         """Register a math renderer for HTML.
 
@@ -1838,7 +1848,7 @@ class TemplateBridge:
         msg = 'must be implemented in subclasses'
         raise NotImplementedError(msg)
 
-    def render_string(self, template: str, context: dict) -> str:
+    def render_string(self, template: str, context: dict[str, Any]) -> str:
         """Called by the builder to render a template given as a string with a
         specified context (a Python dictionary).
         """

@@ -98,7 +98,7 @@ class Domain:
     #: node_class -> (enum_node_type, title_getter)
     enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {}
     #: data value for a fresh environment
-    initial_data: dict = {}
+    initial_data: dict[str, Any] = {}
     #: data value
     data: dict[str, Any]
     #: data version, bump this when the format of `self.data` changes
@@ -170,7 +170,7 @@ class Domain:
             text: str,
             lineno: int,
             inliner: Inliner,
-            options: dict | None = None,
+            options: dict[str, Any] | None = None,
             content: Sequence[str] = (),
         ) -> tuple[list[Node], list[nodes.system_message]]:
             return self.roles[name](

@@ -11,7 +11,7 @@ autosummary directive
 The autosummary directive has the form::
 
     .. autosummary::
-       :nosignatures:
+       :no-signatures:
        :toctree: generated/
 
        module.function_1
@@ -237,13 +237,20 @@ class Autosummary(SphinxDirective):
         'caption': directives.unchanged_required,
         'class': directives.class_option,
         'toctree': directives.unchanged,
-        'nosignatures': directives.flag,
+        'no-signatures': directives.flag,
         'recursive': directives.flag,
         'signatures': directives.unchanged,
         'template': directives.unchanged,
+        'nosignatures': directives.flag,
     }
 
     def run(self) -> list[Node]:
+        # Copy the old option name to the new one
+        # xref RemovedInSphinx90Warning
+        # deprecate nosignatures in Sphinx 9.0
+        if 'no-signatures' not in self.options and 'nosignatures' in self.options:
+            self.options['no-signatures'] = self.options['nosignatures']
+
         self.bridge = DocumenterBridge(
             self.env, self.state.document.reporter, Options(), self.lineno, self.state
         )

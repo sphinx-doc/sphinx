@@ -476,14 +476,14 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     def depart_inline(self, node: Element) -> None:
         pass
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         pass
 
-    def depart_math(self, node: Element) -> None:
+    def depart_math(self, node: nodes.math) -> None:
         pass
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         self.visit_centered(node)
 
-    def depart_math_block(self, node: Element) -> None:
+    def depart_math_block(self, node: nodes.math_block) -> None:
         self.depart_centered(node)

@@ -320,7 +320,7 @@ def test_autodoc_process_signature_typehints(app):
 
     app.connect('autodoc-process-signature', process_signature)
 
-    def func(x: int, y: int) -> int:
+    def func(x: int, y: int) -> int:  # type: ignore[empty-body]
         pass
 
     directive = make_directive_bridge(app.env)
@@ -2588,7 +2588,7 @@ def test_autodoc_TYPE_CHECKING(app):
         '',
         '   .. py:attribute:: Foo.attr1',
         '      :module: target.TYPE_CHECKING',
-        '      :type: ~_io.StringIO',
+        '      :type: ~io.StringIO',
         '',
         '',
         '.. py:function:: spam(ham: ~collections.abc.Iterable[str]) -> tuple[~gettext.NullTranslations, bool]',

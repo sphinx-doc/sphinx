@@ -2452,20 +2452,20 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_system_message(self, node: Element) -> None:
         self.body.append(CR)
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         if self.in_title:
             self.body.append(r'\protect\(%s\protect\)' % node.astext())
         else:
             self.body.append(r'\(%s\)' % node.astext())
         raise nodes.SkipNode
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         if node.get('label'):
             label = f'equation:{node["docname"]}:{node["label"]}'
         else:
             label = None
 
-        if node.get('nowrap'):
+        if node.get('no-wrap'):
             if label:
                 self.body.append(r'\label{%s}' % label)
             self.body.append(node.astext())
