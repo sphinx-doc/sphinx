@@ -424,7 +424,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 canonical_name, self.objtype, node_id, aliased=True, location=signode
             )
 
-        if not ('no-index-entry' in self.options or self.config.no_index_entry):
+        if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(modname, name_cls)
             if indextext:
                 self.indexnode['entries'].append((

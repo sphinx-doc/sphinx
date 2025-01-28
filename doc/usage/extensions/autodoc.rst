@@ -326,6 +326,15 @@ Automatically document modules
 
       .. versionadded:: 0.4
 
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented module
+      or any auto-documented members.
+      Unlike ``:no-index:``, cross-references are still created.
+
+      .. versionadded:: 8.2
+
    .. rst:directive:option:: platform: platforms
       :type: comma separated list
 
@@ -577,6 +586,15 @@ Automatically document classes or exceptions
       or any auto-documented members.
 
       .. versionadded:: 0.4
+
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented class
+      or any auto-documented members.
+      Unlike ``:no-index:``, cross-references are still created.
+
+      .. versionadded:: 8.2
 
    .. rst:directive:option:: class-doc-from
       :type: class, init, or both
@@ -854,6 +872,14 @@ Automatically document function-like objects
 
       .. versionadded:: 0.4
 
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented function.
+      Unlike ``:no-index:``, cross-references are still created.
+
+      .. versionadded:: 8.2
+
 
 Automatically document attributes or data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -900,10 +926,17 @@ Automatically document attributes or data
    .. rst:directive:option:: no-index
       :type:
 
-      Do not generate an index entry for the documented class
-      or any auto-documented members.
+      Do not generate an index entry for the documented variable or constant.
 
       .. versionadded:: 0.4
+
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented variable or constant.
+      Unlike ``:no-index:``, cross-references are still created.
+
+      .. versionadded:: 8.2
 
    .. rst:directive:option:: annotation: value
       :type: string
@@ -1039,6 +1072,8 @@ There are also config values that you can set:
    * ``'show-inheritance'``: See :rst:dir:`autoclass:show-inheritance`.
    * ``'class-doc-from'``: See :rst:dir:`autoclass:class-doc-from`.
    * ``'no-value'``: See :rst:dir:`autodata:no-value`.
+   * ``'no-index'``: See :rst:dir:`automodule:no-index`.
+   * ``'no-index-entry'``: See :rst:dir:`automodule:no-index-entry`.
 
    .. versionadded:: 1.8
 

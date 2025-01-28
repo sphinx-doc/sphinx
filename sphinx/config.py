@@ -306,7 +306,6 @@ class Config:
             (),
         ),
         'option_emphasise_placeholders': _Opt(False, 'env', ()),
-        'no_index_entry': _Opt(False, 'env', ()),
     }
 
     def __init__(

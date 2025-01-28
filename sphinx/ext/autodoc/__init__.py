@@ -365,9 +365,8 @@ class Documenter:
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
-        'noindex': bool_option,
         'no-index-entry': bool_option,
-        'noindexentry': bool_option,
+        'noindex': bool_option,
     }
 
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
@@ -607,10 +606,8 @@ class Documenter:
 
         if self.options.no_index or self.options.noindex:
             self.add_line('   :no-index:', sourcename)
-        if self.options.no_index_entry or self.config.no_index_entry:
+        if self.options.no_index_entry:
             self.add_line('   :no-index-entry:', sourcename)
-        if self.options.noindexentry:
-            self.add_line('   :noindexentry:', sourcename)
         if self.objpath:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
@@ -1116,6 +1113,7 @@ class ModuleDocumenter(Documenter):
         'members': members_option,
         'undoc-members': bool_option,
         'no-index': bool_option,
+        'no-index-entry': bool_option,
         'inherited-members': inherited_members_option,
         'show-inheritance': bool_option,
         'synopsis': identity,
@@ -1129,8 +1127,6 @@ class ModuleDocumenter(Documenter):
         'ignore-module-all': bool_option,
         'no-value': bool_option,
         'noindex': bool_option,
-        'no-index-entry': bool_option,
-        'noindexentry': bool_option,
     }
 
     def __init__(self, *args: Any) -> None:
@@ -1205,11 +1201,7 @@ class ModuleDocumenter(Documenter):
             self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
-        if (
-            self.options.no_index_entry
-            or self.options.noindexentry
-            or self.config.no_index_entry
-        ):
+        if self.options.no_index_entry:
             self.add_line('   :no-index-entry:', sourcename)
 
     def get_module_members(self) -> dict[str, ObjectMember]:
@@ -1639,6 +1631,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'members': members_option,
         'undoc-members': bool_option,
         'no-index': bool_option,
+        'no-index-entry': bool_option,
         'inherited-members': inherited_members_option,
         'show-inheritance': bool_option,
         'member-order': member_order_option,
@@ -1647,8 +1640,6 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'special-members': members_option,
         'class-doc-from': class_doc_from_option,
         'noindex': bool_option,
-        'no-index-entry': bool_option,
-        'noindexentry': bool_option,
     }
 
     # Must be higher than FunctionDocumenter, ClassDocumenter, and

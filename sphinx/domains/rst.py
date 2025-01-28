@@ -56,7 +56,7 @@ class ReSTMarkup(ObjectDescription[str]):
         domain = self.env.domains.restructuredtext_domain
         domain.note_object(self.objtype, name, node_id, location=signode)
 
-        if not ('no-index-entry' in self.options or self.config.no_index_entry):
+        if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(self.objtype, name)
             if indextext:
                 self.indexnode['entries'].append((

@@ -321,11 +321,6 @@ General configuration
 Options for figure numbering
 ----------------------------
 
-.. confval:: no_index_entry
-
-   If ``True``, set the ``:no-index-entry:`` flag by default on all documented domain
-   objects (see :doc:`domain </usage/domains/index>` ). Default: ``False`` .
-
 .. confval:: numfig
    :type: :code-py:`bool`
    :default: :code-py:`False`

@@ -188,7 +188,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
             self.state.document.note_explicit_target(signode)
 
-        if not ('no-index-entry' in self.options or self.config.no_index_entry):
+        if 'no-index-entry' not in self.options:
             index_text = self.get_index_text(name)
             self.indexnode['entries'].append((
                 'single',

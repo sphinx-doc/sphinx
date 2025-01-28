@@ -103,7 +103,7 @@ class PyFunction(PyObject):
         self, name_cls: tuple[str, str], sig: str, signode: desc_signature
     ) -> None:
         super().add_target_and_index(name_cls, sig, signode)
-        if not ('no-index-entry' in self.options or self.config.no_index_entry):
+        if 'no-index-entry' not in self.options:
             modname = self.options.get('module', self.env.ref_context.get('py:module'))
             node_id = signode['ids'][0]
 
@@ -480,12 +480,11 @@ class PyModule(SphinxDirective):
         'synopsis': lambda x: x,
         'no-index': directives.flag,
         'no-contents-entry': directives.flag,
+        'no-index-entry': directives.flag,
         'no-typesetting': directives.flag,
         'noindex': directives.flag,
         'nocontentsentry': directives.flag,
         'deprecated': directives.flag,
-        'no-index-entry': directives.flag,
-        'noindexentry': directives.flag,
     }
 
     def run(self) -> list[Node]:
@@ -520,9 +519,9 @@ class PyModule(SphinxDirective):
             )
             domain.note_object(modname, 'module', node_id, location=target)
 
-            # the platform and synopsis aren't printed; in fact, they are only
-            # used in the modindex currently
-            if not no_index_entry:
+            if 'no-index-entry' not in self.options:
+                # the platform and synopsis aren't printed; in fact, they are only
+                # used in the modindex currently
                 indextext = f'module; {modname}'
                 inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
                 # The node order is: index node first, then target node.
