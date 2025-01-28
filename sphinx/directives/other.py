@@ -127,9 +127,6 @@ class TocTree(SphinxDirective):
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
-                if not doc_names:
-                    logger.warning(__("toctree glob pattern %r didn't match any documents"),
-                                   entry, location=toctree, type='toc', subtype='glob')
                 continue
 
             if explicit:
@@ -161,8 +158,7 @@ class TocTree(SphinxDirective):
                     subtype = 'not_readable'
 
                 logger.warning(
-                    msg, docname,
-                               location=toctree, type='toc', subtype=subtype
+                    msg, docname, location=toctree, type='toc', subtype=subtype
                 )
                 self.env.note_reread()
                 continue
@@ -170,8 +166,13 @@ class TocTree(SphinxDirective):
             if docname in all_docnames:
                 all_docnames.remove(docname)
             else:
-                logger.warning(__('duplicated entry found in toctree: %s'), docname,
-                               location=toctree, type='toc', subtype='duplicated')
+                logger.warning(
+                    __('duplicated entry found in toctree: %s'),
+                    docname,
+                    location=toctree,
+                    type='toc',
+                    subtype='duplicate_entry',
+                )
 
             toctree['entries'].append((title, docname))
             toctree['includefiles'].append(docname)

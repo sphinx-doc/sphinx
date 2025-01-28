@@ -8,7 +8,6 @@ from docutils import nodes
 from docutils.nodes import Element
 
 from sphinx import addnodes
-from sphinx.errors import DocumentError
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
@@ -354,9 +353,8 @@ def _toctree_entry(
                 type='toc',
                 subtype='no_title',
             )
-    except KeyError as err:
-        # It may happen only after `directives/other.py` parsing when
-        # the included document changed/disappeared. Thus, it is a not correctable warning.
+    except KeyError:
+        # this is raised if the included file does not exist
         ref_path = str(env.doc2path(ref, False))
         if excluded(ref_path):
             message = __('toctree contains reference to excluded document %r')
@@ -365,11 +363,11 @@ def _toctree_entry(
             message = __('toctree contains reference to non-included document %r')
             subtype = 'not_included'
         else:
-            message = __('toctree contains reference to nonexisting document %r')
+            message = __('toctree contains reference to non-existing document %r')
             subtype = 'not_readable'
 
         logger.warning(message, ref, location=toctreenode, type='toc', subtype=subtype)
-        raise DocumentError(message % ref) from err
+        raise
     return toc, refdoc
 
 

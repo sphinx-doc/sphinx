@@ -100,16 +100,26 @@ class CatalogInfo:
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
-                logger.warning(__('reading error: %s, %s'), self.po_path, exc,
-                               type='i18n', subtype='not_readable')
+                logger.warning(
+                    __('reading error: %s, %s'),
+                    self.po_path,
+                    exc,
+                    type='i18n',
+                    subtype='not_readable',
+                )
                 return
 
         with open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po, use_fuzzy)
             except Exception as exc:
-                logger.warning(__('writing error: %s, %s'), self.mo_path, exc,
-                               type='i18n', subtype='not_writeable')
+                logger.warning(
+                    __('writing error: %s, %s'),
+                    self.mo_path,
+                    exc,
+                    type='i18n',
+                    subtype='not_writeable',
+                )
 
 
 class CatalogRepository:
@@ -226,13 +236,23 @@ def babel_format_date(
         return formatter(date, format, locale=locale)
     except (ValueError, babel.core.UnknownLocaleError):
         # fallback to English
-        logger.warning(__('Invalid locale for babel. Fallback locale to `en`.'),
-                       type='i18n', subtype='babel')
+        logger.warning(
+            __('Invalid Babel locale: %r.'),
+            locale,
+            type='i18n',
+            subtype='babel',
+        )
         return formatter(date, format, locale='en')
     except AttributeError:
-        logger.warning(__('Invalid date format. Quote the string by single quote '
-                          'if you want to output it directly: %s'), format,
-                       type='i18n', subtype='babel')
+        logger.warning(
+            __(
+                'Invalid date format. Quote the string by single quote '
+                'if you want to output it directly: %s'
+            ),
+            format,
+            type='i18n',
+            subtype='babel',
+        )
         return format
 
 

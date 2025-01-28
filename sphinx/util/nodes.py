@@ -481,9 +481,13 @@ def inline_all_toctrees(
                     )
                     docnameset.add(includefile)
                 except Exception:
-                    logger.warning(__('toctree contains ref to nonexisting file %r'),
-                                   includefile, location=docname,
-                                   type='toc', subtype='not_readable')
+                    logger.warning(
+                        __('toctree contains ref to nonexisting file %r'),
+                        includefile,
+                        location=docname,
+                        type='toc',
+                        subtype='not_readable',
+                    )
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
                     sof.children = subtree.children

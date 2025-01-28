@@ -137,8 +137,12 @@ class IndexEntries:
                             key=category_key,
                         )
                     else:
-                        logger.warning(__('unknown index entry type %r'), entry_type,
-                                       location=docname, type='index')
+                        logger.warning(
+                            __('unknown index entry type %r'),
+                            entry_type,
+                            location=docname,
+                            type='index',
+                        )
                 except ValueError as err:
                     logger.warning(str(err), location=docname, type='index')
 

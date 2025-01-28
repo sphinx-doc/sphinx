@@ -795,8 +795,12 @@ class BuildEnvironment:
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue
-                logger.warning(__("document isn't included in any toctree"),
-                               location=docname, type='toc', subtype='not_included')
+                logger.warning(
+                    __("document isn't included in any toctree"),
+                    location=docname,
+                    type='toc',
+                    subtype='not_included',
+                )
         # Call _check_toc_parents here rather than in  _get_toctree_ancestors()
         # because that method is called multiple times per document and would
         # lead to duplicate warnings.
