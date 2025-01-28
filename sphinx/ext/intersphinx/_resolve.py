@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.intersphinx._shared import InventoryName
     from sphinx.util.inventory import _InventoryItem
-    from sphinx.util.typing import Inventory, RoleFunction
+    from sphinx.util.typing import RoleFunction, _Inventory
 
 
 def _create_element_from_result(
@@ -75,7 +75,7 @@ def _create_element_from_result(
 
 def _resolve_reference_in_domain_by_target(
     inv_name: InventoryName | None,
-    inventory: Inventory,
+    inventory: _Inventory,
     domain_name: str,
     objtypes: Iterable[str],
     target: str,
@@ -139,7 +139,7 @@ def _resolve_reference_in_domain_by_target(
 
 def _resolve_reference_in_domain(
     inv_name: InventoryName | None,
-    inventory: Inventory,
+    inventory: _Inventory,
     honor_disabled_refs: bool,
     disabled_reftypes: Set[str],
     domain: Domain,
@@ -190,7 +190,7 @@ def _resolve_reference_in_domain(
 def _resolve_reference(
     inv_name: InventoryName | None,
     domains: _DomainsContainer,
-    inventory: Inventory,
+    inventory: _Inventory,
     honor_disabled_refs: bool,
     disabled_reftypes: Set[str],
     node: pending_xref,

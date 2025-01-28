@@ -28,7 +28,7 @@ from sphinx.ext.intersphinx._load import (
 )
 from sphinx.ext.intersphinx._resolve import missing_reference
 from sphinx.ext.intersphinx._shared import _IntersphinxProject
-from sphinx.util.inventory import _InventoryItem
+from sphinx.util.inventory import _Inventory, _InventoryItem
 
 from tests.test_util.intersphinx_data import (
     INVENTORY_V2,
@@ -160,7 +160,7 @@ def test_missing_reference(tmp_path, app):
     # load the inventory and check if it's done correctly
     validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
-    inv = app.env.intersphinx_inventory
+    inv: Inventory = app.env.intersphinx_inventory
 
     assert inv['py:module']['module2'] == _InventoryItem(
         project_name='foo',
@@ -775,7 +775,7 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
     # `_fetch_inventory_group` calls `_fetch_inventory`.
     # We replace it with a mock to test whether it has been called.
     # If it has been called, it means the cache had expired.
-    mock_fake_inventory: Inventory = {'std:label': {}}  # must be truthy
+    mock_fake_inventory = _Inventory({})  # must be truthy
     mock_fetch_inventory = mock.Mock(return_value=mock_fake_inventory)
     monkeypatch.setattr(
         'sphinx.ext.intersphinx._load._fetch_inventory', mock_fetch_inventory
