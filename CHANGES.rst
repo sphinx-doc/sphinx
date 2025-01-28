@@ -31,7 +31,7 @@ Deprecated
 Features added
 --------------
 
-* Add a new ``duplicate_declaration`` warning type,
+* #13173: Add a new ``duplicate_declaration`` warning type,
   with ``duplicate_declaration.c`` and ``duplicate_declaration.cpp`` subtypes.
   Patch by Julien Lecomte and Adam Turner.
 * #11824: linkcode: Allow extensions to add support for a domain by defining
@@ -46,9 +46,9 @@ Features added
   Patch by Adam Turner.
 * #13065: Enable colour by default in when running on CI.
   Patch by Adam Turner.
-* Allow supressing warnings from the :rst:dir:`toctree` directive when a glob
-  pattern doesn't match any documents, via the new ``toc.empty_glob``
-  warning sub-type.
+* #13230: Allow supressing warnings from the :rst:dir:`toctree` directive
+  when a glob pattern doesn't match any documents,
+  via the new ``toc.empty_glob`` warning sub-type.
   Patch by Slawek Figiel.
 * #9732: Add the new ``autodoc.mocked_object`` warnings sub-type.
   Patch by Cyril Roelandt.
@@ -91,8 +91,7 @@ Bugs fixed
 * #13130: LaTeX docs: ``pdflatex`` index creation may fail for index entries
   in French.  See :confval:`latex_use_xindy`.
   Patch by Jean-François B.
-* LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
-  (refs: PR #13152).
+* #13152: LaTeX: fix a typo from v7.4.0 in a default for ``\sphinxboxsetup``.
   Patch by Jean-François B.
 * #13096: HTML Search: check that query terms exist as properties in
   term indices before accessing them.
