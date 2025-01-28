@@ -4,16 +4,17 @@ from __future__ import annotations
 
 import html
 import os.path
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import package_dir
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -25,9 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class ChangesBuilder(Builder):
-    """
-    Write a summary with all versionadded/changed/deprecated/removed directives.
-    """
+    """Write a summary with all versionadded/changed/deprecated/removed directives."""
 
     name = 'changes'
     epilog = __('The overview file is in %(outdir)s.')
@@ -61,10 +60,7 @@ class ChangesBuilder(Builder):
             return
         logger.info(bold(__('writing summary file...')))
         for changeset in changesets:
-            if isinstance(changeset.descname, tuple):
-                descname = changeset.descname[0]
-            else:
-                descname = changeset.descname
+            descname = changeset.descname
             ttext = self.typemap[changeset.type]
             context = changeset.content.replace('\n', ' ')
             if descname and changeset.docname.startswith('c-api'):
@@ -108,9 +104,9 @@ class ChangesBuilder(Builder):
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
-        with open(os.path.join(self.outdir, 'index.html'), 'w', encoding='utf8') as f:
+        with open(self.outdir / 'index.html', 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/frameset.html', ctx))
-        with open(os.path.join(self.outdir, 'changes.html'), 'w', encoding='utf8') as f:
+        with open(self.outdir / 'changes.html', 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/versionchanges.html', ctx))
 
         hltext = [
@@ -131,7 +127,7 @@ class ChangesBuilder(Builder):
         logger.info(bold(__('copying source files...')))
         for docname in self.env.all_docs:
             with open(
-                self.env.doc2path(docname), encoding=self.env.config.source_encoding
+                self.env.doc2path(docname), encoding=self.config.source_encoding
             ) as f:
                 try:
                     lines = f.readlines()
@@ -140,29 +136,28 @@ class ChangesBuilder(Builder):
                         __('could not read %r for changelog creation'), docname
                     )
                     continue
-            targetfn = os.path.join(self.outdir, 'rst', os_path(docname)) + '.html'
+            text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
+            ctx = {
+                'filename': str(self.env.doc2path(docname, False)),
+                'text': text,
+            }
+            rendered = self.templates.render('changes/rstsource.html', ctx)
+            targetfn = self.outdir / 'rst' / f'{docname}.html'
             ensuredir(os.path.dirname(targetfn))
             with open(targetfn, 'w', encoding='utf-8') as f:
-                text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
-                ctx = {
-                    'filename': str(self.env.doc2path(docname, False)),
-                    'text': text,
-                }
-                f.write(self.templates.render('changes/rstsource.html', ctx))
+                f.write(rendered)
         themectx = {
             'theme_' + key: val for (key, val) in self.theme.get_options({}).items()
         }
         copy_asset_file(
-            os.path.join(
-                package_dir, 'themes', 'default', 'static', 'default.css.jinja'
-            ),
+            Path(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),
             self.outdir,
             context=themectx,
             renderer=self.templates,
             force=True,
         )
         copy_asset_file(
-            os.path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+            Path(package_dir, 'themes', 'basic', 'static', 'basic.css'),
             self.outdir / 'basic.css',
             force=True,
         )

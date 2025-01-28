@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.transforms.references import Substitutions
@@ -21,6 +21,8 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
@@ -151,7 +153,7 @@ class ShowUrlsTransform(SphinxPostTransform):
                     break
 
             # assign new footnote number
-            old_label = cast(nodes.label, footnote[0])
+            old_label = cast('nodes.label', footnote[0])
             old_label.replace_self(nodes.label('', str(num)))
             if old_label in footnote['names']:
                 footnote['names'].remove(old_label.astext())
@@ -455,7 +457,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         number = node.astext().strip()
         docname = node['docname']
         if (docname, number) in self.appeared:
-            footnote = self.appeared[(docname, number)]
+            footnote = self.appeared[docname, number]
             footnote['referred'] = True
 
             mark = footnotemark('', number, refid=node['refid'])
@@ -471,7 +473,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
                 node.replace_self(footnote)
                 footnote.walkabout(self)
 
-            self.appeared[(docname, number)] = footnote
+            self.appeared[docname, number] = footnote
         raise nodes.SkipNode
 
     def get_footnote_by_reference(

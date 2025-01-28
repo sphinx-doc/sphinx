@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sphinx.util.console import strip_escape_sequences
+from sphinx._cli.util.errors import strip_escape_sequences
 
 if TYPE_CHECKING:
     from typing import Protocol
 
     class SupportsWrite(Protocol):
-        def write(self, text: str, /) -> int | None: ...  # NoQA: E704
+        def write(self, text: str, /) -> int | None: ...
 
 
 class TeeStripANSI:

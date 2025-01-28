@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import docutils.parsers.rst.directives
 import docutils.parsers.rst.roles
@@ -17,7 +17,7 @@ from sphinx.util.docutils import ReferenceRole, SphinxRole
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Final
+    from typing import Any, Final
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -29,7 +29,6 @@ if TYPE_CHECKING:
 generic_docroles = {
     'command': addnodes.literal_strong,
     'dfn': nodes.emphasis,
-    'kbd': nodes.literal,
     'mailheader': addnodes.literal_emphasis,
     'makevar': addnodes.literal_strong,
     'mimetype': addnodes.literal_emphasis,
@@ -43,8 +42,7 @@ generic_docroles = {
 
 
 class XRefRole(ReferenceRole):
-    """
-    A generic cross-referencing role.  To create a callable that can be used as
+    """A generic cross-referencing role.  To create a callable that can be used as
     a role function, create an instance of this class.
 
     The general features of this role are:
@@ -371,8 +369,7 @@ class RFC(ReferenceRole):
 
 
 def _format_rfc_target(target: str, /) -> str:
-    """
-    Takes an RFC number with an optional anchor (like ``123#section-2.5.3``)
+    """Takes an RFC number with an optional anchor (like ``123#section-2.5.3``)
     and attempts to produce a human-friendly title for it.
 
     We have a set of known anchors that we format nicely,
@@ -479,6 +476,59 @@ class Abbreviation(SphinxRole):
         return [nodes.abbreviation(self.rawtext, text, **options)], []
 
 
+class Keyboard(SphinxRole):
+    """Implement the :kbd: role.
+
+    Split words in the text by separator or whitespace,
+    but keep multi-word keys together.
+    """
+
+    # capture ('-', '+', '^', or whitespace) in between any two characters
+    _pattern: Final = re.compile(r'(?<=.)([\-+^]| +)(?=.)')
+
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        classes = ['kbd']
+        if 'classes' in self.options:
+            classes.extend(self.options['classes'])
+
+        parts = self._pattern.split(self.text)
+        if len(parts) == 1 or self._is_multi_word_key(parts):
+            return [nodes.literal(self.rawtext, self.text, classes=classes)], []
+
+        compound: list[Node] = []
+        while parts:
+            if self._is_multi_word_key(parts):
+                key = ''.join(parts[:3])
+                parts[:3] = []
+            else:
+                key = parts.pop(0)
+            compound.append(nodes.literal(key, key, classes=classes))
+
+            try:
+                sep = parts.pop(0)  # key separator ('-', '+', '^', etc)
+            except IndexError:
+                break
+            else:
+                compound.append(nodes.Text(sep))
+
+        return compound, []
+
+    @staticmethod
+    def _is_multi_word_key(parts: list[str]) -> bool:
+        if len(parts) <= 2 or not parts[1].isspace():
+            return False
+        name = parts[0].lower(), parts[2].lower()
+        return name in frozenset({
+            ('back', 'space'),
+            ('caps', 'lock'),
+            ('num', 'lock'),
+            ('page', 'down'),
+            ('page', 'up'),
+            ('scroll', 'lock'),
+            ('sys', 'rq'),
+        })
+
+
 class Manpage(ReferenceRole):
     _manpage_re = re.compile(r'^(?P<path>(?P<page>.+)[(.](?P<section>[1-9]\w*)?\)?)$')
 
@@ -576,6 +626,7 @@ specific_docroles: dict[str, RoleFunction] = {
     'samp': EmphasizedLiteral(),
     # other
     'abbr': Abbreviation(),
+    'kbd': Keyboard(),
     'manpage': Manpage(),
 }
 

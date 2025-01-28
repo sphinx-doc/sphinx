@@ -3,21 +3,29 @@
 Runs the text builder in the test root.
 """
 
+from __future__ import annotations
+
 import os
 import re
 import shutil
 import time
-from io import StringIO
+from typing import TYPE_CHECKING
 
+import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.testing.util import assert_node, etree_parse
-from sphinx.util.console import strip_colors
 from sphinx.util.nodes import NodeMatcher
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from io import StringIO
+    from pathlib import Path
 
 _CATALOG_LOCALE = 'xx'
 
@@ -41,9 +49,9 @@ def write_mo(pathname, po):
         return mofile.write_mo(f, po)
 
 
-def _set_mtime_ns(target: str | os.PathLike[str], value: int) -> int:
+def _set_mtime_ns(target: Path, value: int) -> int:
     os.utime(target, ns=(value, value))
-    return os.stat(target).st_mtime_ns
+    return target.stat().st_mtime_ns
 
 
 def _get_bom_intl_path(app):
@@ -818,7 +826,7 @@ class _MockUnixClock(_MockClock):
 
 
 @pytest.fixture
-def mock_time_and_i18n() -> tuple[pytest.MonkeyPatch, _MockClock]:
+def mock_time_and_i18n() -> Iterator[tuple[pytest.MonkeyPatch, _MockClock]]:
     from sphinx.util.i18n import CatalogInfo
 
     # save the 'original' definition
@@ -831,6 +839,7 @@ def mock_time_and_i18n() -> tuple[pytest.MonkeyPatch, _MockClock]:
 
     # see: https://github.com/pytest-dev/pytest/issues/363
     with pytest.MonkeyPatch.context() as mock:
+        clock: _MockClock
         if os.name == 'posix':
             clock = _MockUnixClock()
         else:
@@ -1482,6 +1491,11 @@ def test_xml_strange_markup(app):
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build()
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
@@ -1520,7 +1534,7 @@ def test_additional_targets_should_not_be_translated(app):
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
-        """<span class="kn">import</span> <span class="nn">sys</span>  """
+        f"""<span class="kn">import</span>{sp}<span class="nn">sys</span>  """
         """<span class="c1"># sys importing</span>"""
     )
     assert_count(expected_expr, result, 1)
@@ -1565,6 +1579,11 @@ def test_additional_targets_should_not_be_translated(app):
     },
 )
 def test_additional_targets_should_be_translated(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build()
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
@@ -1614,7 +1633,7 @@ def test_additional_targets_should_be_translated(app):
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
-        """<span class="kn">import</span> <span class="nn">sys</span>  """
+        f"""<span class="kn">import</span>{sp}<span class="nn">sys</span>  """
         """<span class="c1"># SYS IMPORTING</span>"""
     )
     assert_count(expected_expr, result, 1)
@@ -1876,7 +1895,7 @@ def test_image_glob_intl_using_figure_language_filename(app):
 
 
 def getwarning(warnings: StringIO) -> str:
-    return strip_colors(warnings.getvalue().replace(os.sep, '/'))
+    return strip_escape_sequences(warnings.getvalue().replace(os.sep, '/'))
 
 
 @pytest.mark.sphinx(

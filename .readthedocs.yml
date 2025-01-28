@@ -1,4 +1,6 @@
 version: 2
+sphinx:
+  configuration: doc/conf.py
 
 build:
   os: ubuntu-22.04

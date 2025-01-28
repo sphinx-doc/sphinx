@@ -15,8 +15,7 @@ if TYPE_CHECKING:
 
 
 class _TranslationProxy:
-    """
-    The proxy implementation attempts to be as complete as possible, so that
+    """The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
 
@@ -207,7 +206,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]  # NoQA: E501
+            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]
         else:
             translator = get_translator(catalog, namespace)
             return translator.gettext(message)

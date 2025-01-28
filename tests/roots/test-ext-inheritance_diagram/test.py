@@ -18,5 +18,5 @@ class DocMainLevel(Foo):
     pass
 
 
-class Alice(object):
+class Alice(object):  # NoQA: UP004
     pass

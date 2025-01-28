@@ -1,12 +1,14 @@
 """Test sphinx.ext.autosectionlabel extension."""
 
+from __future__ import annotations
+
 import re
 
 import pytest
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel')
-def test_autosectionlabel_html(app, skipped_labels=False):
+def test_autosectionlabel_html(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

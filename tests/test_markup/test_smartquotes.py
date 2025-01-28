@@ -1,5 +1,7 @@
 """Test smart quotes."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.testing.util import etree_parse

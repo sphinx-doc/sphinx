@@ -16,7 +16,7 @@ namespace of the project configuration (that is, all variables from
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -24,6 +24,8 @@ import sphinx
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -35,7 +37,6 @@ class ifconfig(nodes.Element):
 
 
 class IfConfig(SphinxDirective):
-
     has_content = True
     required_arguments = 1
     optional_arguments = 0
@@ -61,10 +62,11 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
         except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
+
             msg = ''.join(format_exception_only(err.__class__, err))
-            newnode = doctree.reporter.error('Exception occurred in '
-                                             'ifconfig expression: \n%s' %
-                                             msg, base_node=node)
+            newnode = doctree.reporter.error(
+                f'Exception occurred in ifconfig expression: \n{msg}', base_node=node
+            )
             node.replace_self(newnode)
         else:
             if not res:
@@ -77,4 +79,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

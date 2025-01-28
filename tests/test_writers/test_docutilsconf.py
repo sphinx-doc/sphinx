@@ -1,5 +1,7 @@
 """Test docutils.conf support for several writers."""
 
+from __future__ import annotations
+
 import pytest
 from docutils import nodes
 

@@ -1366,31 +1366,35 @@ Options for warning control
 
    By default, Sphinx supports the following warning codes:
 
-   * ``app.add_node``
    * ``app.add_directive``
-   * ``app.add_role``
    * ``app.add_generic_role``
+   * ``app.add_node``
+   * ``app.add_role``
    * ``app.add_source_parser``
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
-   * ``epub.unknown_project_files``
+   * ``duplicate_declaration.c``
+   * ``duplicate_declaration.cpp``
    * ``epub.duplicated_toc_entry``
+   * ``epub.unknown_project_files``
    * ``i18n.inconsistent_references``
-   * ``index``
    * ``image.not_readable``
-   * ``ref.term``
-   * ``ref.ref``
-   * ``ref.numref``
-   * ``ref.keyword``
-   * ``ref.option``
-   * ``ref.citation``
-   * ``ref.footnote``
-   * ``ref.doc``
-   * ``ref.python``
+   * ``index``
    * ``misc.copy_overwrite``
    * ``misc.highlighting_failure``
+   * ``ref.citation``
+   * ``ref.any``
+   * ``ref.doc``
+   * ``ref.footnote``
+   * ``ref.keyword``
+   * ``ref.numref``
+   * ``ref.option``
+   * ``ref.python``
+   * ``ref.ref``
+   * ``ref.term``
    * ``toc.circular``
+   * ``toc.empty_glob``
    * ``toc.excluded``
    * ``toc.no_title``
    * ``toc.not_readable``
@@ -1401,6 +1405,7 @@ Options for warning control
 
    * ``autodoc``
    * ``autodoc.import_object``
+   * ``autodoc.mocked_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
@@ -1410,6 +1415,12 @@ Options for warning control
    component to exclude all warnings attached to it.
 
    .. versionadded:: 1.4
+      Added ``ref.citation``, ``ref.doc``, ``ref.keyword``,
+      ``ref.numref``, ``ref.option``, ``ref.ref``, and ``ref.term``.
+
+   .. versionadded:: 1.4.2
+      Added ``app.add_directive``, ``app.add_generic_role``,
+      ``app.add_node``, ``app.add_role``, and ``app.add_source_parser``.
 
    .. versionchanged:: 1.5
       Added ``misc.highlighting_failure``
@@ -1417,11 +1428,26 @@ Options for warning control
    .. versionchanged:: 1.5.1
       Added ``epub.unknown_project_files``
 
+   .. versionchanged:: 1.5.2
+      Added ``toc.secnum``
+
    .. versionchanged:: 1.6
       Added ``ref.footnote``
 
+   .. versionchanged:: 1.6
+      Added ``download.not_readable`` and ``image.not_readable``
+
+   .. versionchanged:: 1.7
+      Added ``ref.python``
+
+   .. versionchanged:: 2.0
+      Added ``autodoc.import_object``
+
    .. versionchanged:: 2.1
       Added ``autosectionlabel.<document name>``
+
+   .. versionchanged:: 3.1
+      Added ``toc.circular``
 
    .. versionchanged:: 3.3.0
       Added ``epub.duplicated_toc_entry``
@@ -1436,13 +1462,34 @@ Options for warning control
       Added ``index``.
 
    .. versionadded:: 7.3
+      Added ``intersphinx.external``.
+
+   .. versionadded:: 7.3
       Added ``config.cache``.
 
    .. versionadded:: 7.3
       Added ``toc.no_title``.
 
+   .. versionadded:: 7.4
+      Added ``docutils``.
+
+   .. versionadded:: 7.4
+      Added ``autosummary.import_cycle``.
+
    .. versionadded:: 8.0
       Added ``misc.copy_overwrite``.
+
+   .. versionadded:: 8.2
+      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
+
+   .. versionadded:: 8.2
+      Added ``toc.empty_glob``.
+
+   .. versionadded:: 8.2
+      Added ``autodoc.mocked_object``
+
+   .. versionadded:: 8.2
+      Added ``ref.any``
 
 
 Builder options
@@ -3157,6 +3204,9 @@ These options influence LaTeX output.
    * The default is :code-py:`False` for :code-py:`'pdflatex'`,
      but :code-py:`True` is recommended for non-English documents as soon
      as some indexed terms use non-ASCII characters from the language script.
+     Attempting to index a term whose first character is non-ASCII
+     will break the build, if :confval:`latex_use_xindy` is left to its
+     default :code-py:`False`.
 
    Sphinx adds some dedicated support to the :program:`xindy` base distribution
    for using :code-py:`'pdflatex'` engine with Cyrillic scripts.
@@ -3701,6 +3751,9 @@ and which failures and redirects it ignores.
    A list of regular expressions that match URIs that should not be checked
    when doing a ``linkcheck`` build.
 
+   Server-issued redirects that match :confval:`ignored URIs <linkcheck_ignore>`
+   will not be followed.
+
    Example:
 
    .. code-block:: python
@@ -4043,6 +4096,14 @@ Options for the Javascript domain
 
    .. versionadded:: 7.1
 
+.. confval:: javascript_trailing_comma_in_multi_line_signatures
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
+
+   .. versionadded:: 8.2
+
 
 Options for the Python domain
 -----------------------------
@@ -4131,6 +4192,14 @@ Options for the Python domain
       .. py:function:: add[T: VERY_LONG_SUPER_TYPE, U: VERY_LONG_SUPER_TYPE](a: T, b: U)
 
    .. versionadded:: 7.1
+
+.. confval:: python_trailing_comma_in_multi_line_signatures
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
+
+   .. versionadded:: 8.2
 
 .. confval:: python_use_unqualified_type_names
    :type: :code-py:`bool`

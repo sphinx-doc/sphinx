@@ -1,6 +1,4 @@
-"""
-mod1
-"""
+"""mod1"""
 
 
 def decorator(f):
@@ -9,22 +7,17 @@ def decorator(f):
 
 @decorator
 def func1(a, b):
-    """
-    this is func1
-    """
+    """this is func1"""
     return a, b
 
 
 @decorator
 class Class1:
-    """
-    this is Class1
-    """
+    """this is Class1"""
 
 
 class Class3:
-    """
-    this is Class3
-    """
+    """this is Class3"""
+
     class_attr = 42
     """this is the class attribute class_attr"""

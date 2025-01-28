@@ -1,22 +1,27 @@
 """Test the sphinx.quickstart module."""
 
+from __future__ import annotations
+
 import time
-from collections.abc import Callable
 from io import StringIO
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx._cli.util.colour import disable_colour, enable_colour
 from sphinx.cmd import quickstart as qs
 from sphinx.testing.util import SphinxTestApp
-from sphinx.util.console import coloron, nocolor
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+    from typing import Any
 
 warnfile = StringIO()
 
 
 def setup_module():
-    nocolor()
+    disable_colour()
 
 
 def mock_input(
@@ -45,7 +50,7 @@ real_input: Callable[[str], str] = input
 
 def teardown_module():
     qs.term_input = real_input
-    coloron()
+    enable_colour()
 
 
 def test_do_prompt():

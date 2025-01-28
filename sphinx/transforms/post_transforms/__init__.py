@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import re
 from itertools import starmap
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 
 from sphinx import addnodes
 from sphinx.errors import NoUri
@@ -19,6 +18,9 @@ from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
+
+    from docutils.nodes import Element, Node
 
     from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
@@ -58,9 +60,7 @@ class SphinxPostTransform(SphinxTransform):
 
 
 class ReferencesResolver(SphinxPostTransform):
-    """
-    Resolves cross-references on doctrees.
-    """
+    """Resolves cross-references on doctrees."""
 
     default_priority = 10
 
@@ -68,9 +68,9 @@ class ReferencesResolver(SphinxPostTransform):
         for node in self.document.findall(addnodes.pending_xref):
             content = self.find_pending_xref_condition(node, ('resolved', '*'))
             if content:
-                contnode = cast(Element, content[0].deepcopy())
+                contnode = cast('Element', content[0].deepcopy())
             else:
-                contnode = cast(Element, node[0].deepcopy())
+                contnode = cast('Element', node[0].deepcopy())
 
             newnode = None
 
@@ -188,6 +188,8 @@ class ReferencesResolver(SphinxPostTransform):
                 target,
                 candidates,
                 location=node,
+                type='ref',
+                subtype='any',
             )
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
@@ -276,7 +278,7 @@ class OnlyNodeTransform(SphinxPostTransform):
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to
         # something, even if it's just a comment and will lose the id anyway...
-        process_only_nodes(self.document, self.app.builder.tags)
+        process_only_nodes(self.document, self.app.tags)
 
 
 class SigElementFallbackTransform(SphinxPostTransform):

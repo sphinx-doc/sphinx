@@ -1,10 +1,12 @@
 """Test the autosummary extension."""
 
+from __future__ import annotations
+
 import sys
 from contextlib import chdir
 from io import StringIO
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
-from xml.etree.ElementTree import Element
 
 import pytest
 from docutils import nodes
@@ -25,6 +27,9 @@ from sphinx.ext.autosummary.generate import (
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
 
 html_warnfile = StringIO()
 
@@ -142,7 +147,11 @@ def test_extract_summary(capsys):
     assert err == ''
 
 
-@pytest.mark.sphinx('dummy', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary
     import sphinx.ext.autosummary.generate
@@ -181,9 +190,9 @@ def test_get_items_summary(make_app, app_params):
     assert html_warnings == ''
 
     expected_values = {
-        'withSentence': 'I have a sentence which spans multiple lines.',
-        'noSentence': "this doesn't start with a capital.",
-        'emptyLine': 'This is the real summary',
+        'with_sentence': 'I have a sentence which spans multiple lines.',
+        'no_sentence': "this doesn't start with a capital.",
+        'empty_line': 'This is the real summary',
         'module_attr': 'This is a module attribute',
         'C.class_attr': 'This is a class attribute',
         'C.instance_attr': 'This is an instance attribute',
@@ -214,7 +223,11 @@ def str_content(elem: Element) -> str:
         return ''.join(str_content(e) for e in elem)
 
 
-@pytest.mark.sphinx('xml', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'xml',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_escaping(app):
     app.build(force_all=True)
 
@@ -227,7 +240,7 @@ def test_escaping(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module(app):
-    import autosummary_dummy_module
+    import autosummary_dummy_module  # type: ignore[import-not-found]
 
     template = Mock()
 
@@ -444,7 +457,7 @@ def test_autosummary_generate_content_for_module_imported_members(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_imported_members_inherited_module(app):
-    import autosummary_dummy_inherited_module
+    import autosummary_dummy_inherited_module  # type: ignore[import-not-found]
 
     template = Mock()
 
@@ -739,7 +752,11 @@ def test_autosummary_filename_map(app):
     assert html_warnings == ''
 
 
-@pytest.mark.sphinx('latex', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'latex',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_autosummary_latex_table_colspec(app):
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -809,9 +826,8 @@ def test_autosummary_module_all(app):
         app.build()
         # generated/foo is generated successfully
         assert app.env.get_doctree('generated/autosummary_dummy_package_all')
-        module = (
-            app.srcdir / 'generated' / 'autosummary_dummy_package_all.rst'
-        ).read_text(encoding='utf8')
+        path = app.srcdir / 'generated' / 'autosummary_dummy_package_all.rst'
+        module = path.read_text(encoding='utf8')
         assert '   .. autosummary::\n   \n      PublicBar\n   \n' in module
         assert (
             '   .. autosummary::\n   \n      public_foo\n      public_baz\n   \n'
@@ -819,6 +835,30 @@ def test_autosummary_module_all(app):
         assert (
             '.. autosummary::\n   :toctree:\n   :recursive:\n\n   extra_dummy_module\n'
         ) in module
+    finally:
+        sys.modules.pop('autosummary_dummy_package_all', None)
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_empty_all')
+def test_autosummary_module_empty_all(app):
+    try:
+        app.build()
+        # generated/foo is generated successfully
+        assert app.env.get_doctree('generated/autosummary_dummy_package_empty_all')
+        path = app.srcdir / 'generated' / 'autosummary_dummy_package_empty_all.rst'
+        module = path.read_text(encoding='utf8')
+        assert '.. automodule:: autosummary_dummy_package_empty_all' in module
+        # for __all__ = (), the output should not contain any variables
+        assert '__all__' not in module
+        assert '__builtins__' not in module
+        assert '__cached__' not in module
+        assert '__doc__' not in module
+        assert '__file__' not in module
+        assert '__loader__' not in module
+        assert '__name__' not in module
+        assert '__package__' not in module
+        assert '__path__' not in module
+        assert '__spec__' not in module
     finally:
         sys.modules.pop('autosummary_dummy_package_all', None)
 

@@ -2,24 +2,31 @@
 
 from __future__ import annotations
 
-import os
 import sys
-from collections.abc import Callable  # NoQA: TCH003
+from os import environ as _environ
+
+if False:
+    from collections.abc import Callable
 
 if sys.platform == 'win32':
     import colorama
 
+    colorama.just_fix_windows_console()
+    del colorama
 
-_COLOURING_DISABLED = True
+
+_COLOURING_DISABLED = False
 
 
 def terminal_supports_colour() -> bool:
     """Return True if coloured terminal output is supported."""
-    if 'NO_COLOUR' in os.environ or 'NO_COLOR' in os.environ:
+    if 'NO_COLOUR' in _environ or 'NO_COLOR' in _environ:
         return False
     if sys.platform == 'win32':
-        colorama.just_fix_windows_console()
-    if 'FORCE_COLOUR' in os.environ or 'FORCE_COLOR' in os.environ:
+        return True
+    if 'FORCE_COLOUR' in _environ or 'FORCE_COLOR' in _environ:
+        return True
+    if _environ.get('CI', '').lower() in {'true', '1'}:
         return True
 
     try:
@@ -31,7 +38,7 @@ def terminal_supports_colour() -> bool:
         return False
 
     # Do not colour output if on a dumb terminal
-    return os.environ.get('TERM', 'unknown').lower() not in {'dumb', 'unknown'}
+    return _environ.get('TERM', 'unknown').lower() not in {'dumb', 'unknown'}
 
 
 def disable_colour() -> None:
@@ -47,7 +54,21 @@ def enable_colour() -> None:
 def colourise(colour_name: str, text: str, /) -> str:
     if _COLOURING_DISABLED:
         return text
-    return globals()[colour_name](text)
+    if colour_name.startswith('_') or colour_name in {
+        'annotations',
+        'sys',
+        'terminal_supports_colour',
+        'disable_colour',
+        'enable_colour',
+        'colourise',
+    }:
+        msg = f'Invalid colour name: {colour_name!r}'
+        raise ValueError(msg)
+    try:
+        return globals()[colour_name](text)
+    except KeyError:
+        msg = f'Invalid colour name: {colour_name!r}'
+        raise ValueError(msg) from None
 
 
 def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
@@ -56,6 +77,7 @@ def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
             return text
         return f'\x1b[{escape_code}m{text}\x1b[39;49;00m'
 
+    inner.__escape_code = escape_code  # type: ignore[attr-defined]
     return inner
 
 
@@ -73,7 +95,7 @@ else:
         def inner(text: str) -> str:
             if _COLOURING_DISABLED:
                 return text
-            return f'\x01\x1b[{escape_code}m\x02{text}\x01\x1b[39;49;00m\x02'
+            return f'\1\x1b[{escape_code}m\2{text}\1\x1b[39;49;00m\2'
 
         return inner
 
