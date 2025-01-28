@@ -1498,11 +1498,11 @@ Options for warning control
 
    .. versionchanged:: 8.2
 
-      Make ``toc``, ``i18n`` and ``index`` warning types cover all relative
-      warnings.
-
-      Added ``i18n.babel``, ``i18n.not_readable``, ``i18n.not_writeable``,
-      ``toc.duplicate_entry``, and ``toc.no_included``.
+      Added ``i18n.babel``,
+      ``i18n.not_readable``,
+      ``i18n.not_writeable``,
+      ``toc.duplicate_entry``, and
+      ``toc.not_included``.
 
 
 Builder options
