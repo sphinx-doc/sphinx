@@ -3198,7 +3198,7 @@ def test_no_index_entry(app):
     assert '   :no-index-entry:' in list(actual)
 
     # modules respect no-index-entry in autodoc_default_options
-    app.config.autodoc_default_options |= {'no-index-entry': True}
+    app.config.autodoc_default_options = {'no-index-entry': True}
     actual = do_autodoc(app, 'module', 'target.module')
     assert '   :no-index-entry:' in list(actual)
 
