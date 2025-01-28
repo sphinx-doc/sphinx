@@ -836,13 +836,13 @@ def test_no_index_entry(app):
     )
     assert_node(doctree[2], addnodes.index, entries=[])
 
-    text = '.. py:module:: h\n.. py:module:: i\n   :no-index-entry:\n'
+    text = '.. py:module:: f\n.. py:module:: g\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, nodes.target, nodes.target))
     assert_node(
         doctree[0],
         addnodes.index,
-        entries=[('pair', 'module; h', 'module-h', '', None)],
+        entries=[('pair', 'module; f', 'module-f', '', None)],
     )
 
 
