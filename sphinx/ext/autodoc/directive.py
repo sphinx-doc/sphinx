@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 AUTODOC_DEFAULT_OPTIONS = [
     'members',
     'undoc-members',
+    'no-index',
+    'no-index-entry',
     'inherited-members',
     'show-inheritance',
     'private-members',

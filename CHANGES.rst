@@ -76,6 +76,10 @@ Features added
 * #13272: The Python and JavaScript module directives now support
   the ``:no-index-entry:`` option.
   Patch by Adam Turner.
+* #12233: autodoc: Allow directives to use ``:no-index-entry:``
+  and include the ``:no-index:`` and ``:no-index-entry:`` options within
+  :confval:`autodoc_default_options`.
+  Patch by Jonny Saunders and Adam Turner.
 
 Bugs fixed
 ----------
