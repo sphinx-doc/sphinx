@@ -37,6 +37,12 @@ from tests.test_util.intersphinx_data import (
 )
 from tests.utils import http_server
 
+if TYPE_CHECKING:
+    from typing import NoReturn
+
+    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
+    from sphinx.util.typing import Inventory
+
 
 class FakeList(list[str]):
     def __iter__(self) -> NoReturn:
@@ -739,20 +745,14 @@ def test_intersphinx_role(app):
     assert html.format('index.html#foons') in content
 
 
-if TYPE_CHECKING:
-    from typing import NoReturn
-
-    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
-
-
 @pytest.mark.sphinx('html', testroot='root')
 @pytest.mark.parametrize(
     ('cache_limit', 'expected_expired'),
     [
-        (5, False),
-        (1, True),
-        (0, True),
-        (-1, False),
+        (5, False),  # cache for 5 days
+        (1, True),  # cache for 1 day
+        (0, True),  # cache for 0 days
+        (-1, False),  # cache forever
     ],
 )
 def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired):
@@ -775,7 +775,8 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
     # `_fetch_inventory_group` calls `_fetch_inventory`.
     # We replace it with a mock to test whether it has been called.
     # If it has been called, it means the cache had expired.
-    mock_fetch_inventory = mock.Mock(return_value=('inv', now, {}))
+    mock_fake_inventory: Inventory = {'std:label': {}}  # must be truthy
+    mock_fetch_inventory = mock.Mock(return_value=mock_fake_inventory)
     monkeypatch.setattr(
         'sphinx.ext.intersphinx._load._fetch_inventory', mock_fetch_inventory
     )
