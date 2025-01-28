@@ -74,7 +74,8 @@ Features added
   to allow suppressing the ambiguous 'any' cross-reference warning.
   Patch by Simão Afonso and Adam Turner.
 * #12233: autodoc: Allow directives to use ``:no-index-entry:``
-  and add ``:no-index:`` and ``:no-index-entry:`` to :convfal:`autodoc_default_options`
+  and include the ``:no-index:`` and ``:no-index-entry:`` options within
+  :confval:`autodoc_default_options`.
   Patch by Jonny Saunders and Adam Turner.
 
 Bugs fixed
