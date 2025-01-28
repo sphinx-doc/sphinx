@@ -73,6 +73,9 @@ Features added
 * #9732: Add the new ``ref.any`` warnings sub-type
   to allow suppressing the ambiguous 'any' cross-reference warning.
   Patch by Simão Afonso and Adam Turner.
+* #13272: The Python and JavaScript module directives now support
+  the ``:no-index-entry:`` option.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
