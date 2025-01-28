@@ -1,6 +1,4 @@
-r"""
-
-    Test with a class diagram like this::
+r"""Test with a class diagram like this::
 
            A
           / \
@@ -8,7 +6,7 @@ r"""
         / \ / \
        E   D   F
 
-"""
+"""  # NoQA: D208
 
 
 class A:

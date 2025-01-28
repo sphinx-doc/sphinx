@@ -1,0 +1,105 @@
+==========
+Sphinx 2.2
+==========
+
+
+Release 2.2.2 (released Dec 03, 2019)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #6803: For security reason of python, parallel mode is disabled on macOS and
+  Python3.8+
+
+Bugs fixed
+----------
+
+* #6776: LaTeX: 2019-10-01 LaTeX release breaks :file:`sphinxcyrillic.sty`
+* #6815: i18n: French, Hindi, Chinese, Japanese and Korean translation messages
+  has been broken
+* #6803: parallel build causes AttributeError on macOS and Python3.8
+
+Release 2.2.1 (released Oct 26, 2019)
+=====================================
+
+Bugs fixed
+----------
+
+* #6641: LaTeX: Undefined control sequence ``\sphinxmaketitle``
+* #6710: LaTeX not well configured for Greek language as main language
+* #6759: validation of html static paths and extra paths no longer throws
+  an error if the paths are in different directories
+
+Release 2.2.0 (released Aug 19, 2019)
+=====================================
+
+Incompatible changes
+--------------------
+
+* apidoc: template files are renamed to ``.rst_t``
+* html: Field lists will be styled by grid layout
+
+Deprecated
+----------
+
+* ``sphinx.domains.math.MathDomain.add_equation()``
+* ``sphinx.domains.math.MathDomain.get_next_equation_number()``
+* The ``info`` and ``warn`` arguments of
+  ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+* ``sphinx.ext.autosummary.generate._simple_info()``
+* ``sphinx.ext.autosummary.generate._simple_warn()``
+* ``sphinx.ext.todo.merge_info()``
+* ``sphinx.ext.todo.process_todo_nodes()``
+* ``sphinx.ext.todo.process_todos()``
+* ``sphinx.ext.todo.purge_todos()``
+
+Features added
+--------------
+
+* #5124: graphviz: ``:graphviz_dot:`` option is renamed to ``:layout:``
+* #1464: html: emit a warning if :confval:`html_static_path` and
+  :confval:`html_extra_path` directories are inside output directory
+* #6514: html: Add a label to search input for accessibility purposes
+* #5602: apidoc: Add ``--templatedir`` option
+* #6475: Add ``override`` argument to ``app.add_autodocumenter()``
+* #6310: imgmath: let :confval:`imgmath_use_preview` work also with the SVG
+  format for images rendering inline math
+* #6533: LaTeX: refactor visit_enumerated_list() to use ``\sphinxsetlistlabels``
+* #6628: quickstart: Use ``https://docs.python.org/3/`` for default setting of
+  :confval:`intersphinx_mapping`
+* #6419: sphinx-build: give reasons why rebuilt
+
+Bugs fixed
+----------
+
+* py domain: duplicated warning does not point the location of source code
+* #6499: html: Sphinx never updates a copy of :confval:`html_logo` even if
+  original file has changed
+* #1125: html theme: scrollbar is hard to see on classic theme and macOS
+* #5502: linkcheck: Consider HTTP 503 response as not an error
+* #6439: Make generated download links reproducible
+* #6486: UnboundLocalError is raised if broken extension installed
+* #6567: autodoc: :confval:`autodoc_inherit_docstrings` does not effect to
+  ``__init__()`` and ``__new__()``
+* #6574: autodoc: :confval:`autodoc_member_order` does not refer order of
+  imports when ``'bysource'`` order
+* #6574: autodoc: missing type annotation for variadic and keyword parameters
+* #6589: autodoc: Formatting issues with autodoc_typehints='none'
+* #6605: autodoc: crashed when target code contains custom method-like objects
+* #6498: autosummary: crashed with wrong autosummary_generate setting
+* #6507: autosummary: crashes without no autosummary_generate setting
+* #6511: LaTeX: autonumbered list can not be customized in LaTeX
+  since Sphinx 1.8.0 (refs: #6533)
+* #6531: Failed to load last environment object when extension added
+* #736: Invalid sort in pair index
+* #6527: :data:`last_updated` wrongly assumes timezone as UTC
+* #5592: std domain: :rst:dir:`option` directive registers an index entry for
+  each comma separated option
+* #6549: sphinx-build: Escaped characters in error messages
+* #6545: doctest comments not getting trimmed since Sphinx 1.8.0
+* #6561: glossary: Wrong hyperlinks are generated for non alphanumeric terms
+* #6620: i18n: classifiers of definition list are not translated with
+  Docutils 0.15
+* #6474: ``DocFieldTransformer`` raises AttributeError when given directive is
+  not a subclass of ObjectDescription

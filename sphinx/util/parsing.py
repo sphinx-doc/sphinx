@@ -5,12 +5,13 @@ from __future__ import annotations
 import contextlib
 from typing import TYPE_CHECKING
 
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 from docutils.statemachine import StringList, string2lines
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
 
 
@@ -53,7 +54,7 @@ def nested_parse_to_nodes(
     """
     document = state.document
     content = _text_to_string_list(
-        text, source=source, tab_width=document.settings.tab_width,
+        text, source=source, tab_width=document.settings.tab_width
     )
     node = Element()  # Anonymous container for parsing
     node.document = document
@@ -62,7 +63,9 @@ def nested_parse_to_nodes(
         state.nested_parse(content, offset, node, match_titles=allow_section_headings)
     else:
         with _fresh_title_style_context(state):
-            state.nested_parse(content, offset, node, match_titles=allow_section_headings)
+            state.nested_parse(
+                content, offset, node, match_titles=allow_section_headings
+            )
     return node.children
 
 
@@ -84,7 +87,7 @@ def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
 
 
 def _text_to_string_list(
-    text: str | StringList, /, *, source: str, tab_width: int,
+    text: str | StringList, /, *, source: str, tab_width: int
 ) -> StringList:
     # Doesn't really belong in this module, but avoids circular imports.
     if isinstance(text, StringList):

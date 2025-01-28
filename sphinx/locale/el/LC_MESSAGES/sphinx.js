@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u03a0\u03ac\u03bc\u03b5",
         "Hide Search Matches": "\u0391\u03c0\u03cc\u03ba\u03c1\u03c5\u03c8\u03b7 \u0395\u03c5\u03c1\u03b5\u03b8\u03ad\u03bd\u03c4\u03c9\u03bd \u0391\u03bd\u03b1\u03b6\u03b7\u03c4\u03ae\u03c3\u03b5\u03c9\u03bd",
         "Index": "\u0395\u03c5\u03c1\u03b5\u03c4\u03ae\u03c1\u03b9\u03bf",
-        "Index &ndash; %(key)s": "\u0395\u03c5\u03c1\u03b5\u03c4\u03ae\u03c1\u03b9\u03bf &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\u03a3\u03b5\u03bb\u03af\u03b4\u03b5\u03c2 \u03b5\u03c5\u03c1\u03b5\u03c4\u03b7\u03c1\u03af\u03bf\u03c5 \u03b1\u03bd\u03ac \u03b3\u03c1\u03ac\u03bc\u03bc\u03b1",
         "Indices and tables:": "\u0395\u03c5\u03c1\u03b5\u03c4\u03ae\u03c1\u03b9\u03b1 \u03ba\u03b1\u03b9 \u03c0\u03af\u03bd\u03b1\u03ba\u03b5\u03c2:",
         "Last updated on %(last_updated)s.": "\u03a4\u03b5\u03bb\u03b5\u03c5\u03c4\u03b1\u03af\u03b1 \u03b5\u03bd\u03b7\u03bc\u03ad\u03c1\u03c9\u03c3\u03b7 \u03c3\u03c4\u03b9\u03c2 %(last_updated)s.",
@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "\u0391\u03bd\u03b1\u03b6\u03ae\u03c4\u03b7\u03c3\u03b7",
         "Search Page": "\u03a3\u03b5\u03bb\u03af\u03b4\u03b1 \u03b1\u03bd\u03b1\u03b6\u03ae\u03c4\u03b7\u03c3\u03b7\u03c2",
         "Search Results": "\u0391\u03c0\u03bf\u03c4\u03b5\u03bb\u03ad\u03c3\u03bc\u03b1\u03c4\u03b1 \u0391\u03bd\u03b1\u03b6\u03ae\u03c4\u03b7\u03c3\u03b7\u03c2",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "\u0391\u03bd\u03b1\u03b6\u03ae\u03c4\u03b7\u03c3\u03b7 \u03c3\u03c4\u03bf %(docstitle)s",
         "Searching": "\u0395\u03ba\u03c4\u03b5\u03bb\u03b5\u03af\u03c4\u03b1\u03b9 \u03b7 \u03b1\u03bd\u03b1\u03b6\u03ae\u03c4\u03b7\u03c3\u03b7",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

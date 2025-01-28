@@ -1,4 +1,4 @@
 def setup(app):
     return {
-        'parallel_write_safe': False
+        'parallel_write_safe': False,
     }

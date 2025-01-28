@@ -10,6 +10,9 @@
 
 .. versionadded:: 0.5
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension can generate links to the documentation of objects in external
 projects, either explicitly through the :rst:role:`external` role, or as a
 fallback resolution for any other cross-reference.
@@ -54,6 +57,8 @@ To use Intersphinx linking, add ``'sphinx.ext.intersphinx'`` to your
 linking:
 
 .. confval:: intersphinx_mapping
+   :type: :code-py:`dict[str, tuple[str, tuple[str, tuple[str | None, ...]]]]`
+   :default: :code-py:`{}`
 
    This config value contains the locations and names of other projects that
    should be linked to in this documentation.
@@ -78,7 +83,7 @@ linking:
 
    The unique identifier can be used in the :rst:role:`external` role, so that
    it is clear which intersphinx set the target belongs to.  A link like
-   ``external:python+ref:`comparison manual <comparisons>``` will link to the
+   ``:external+python:ref:`comparison manual <comparisons>``` will link to the
    label "comparisons" in the doc set "python", if it exists.
 
    **Example**
@@ -128,46 +133,28 @@ linking:
                   ('../../otherbook/build/html/objects.inv', None)),
       }
 
-   **Old format for this config value**
-
-   .. deprecated:: 6.2
-
-   .. RemovedInSphinx80Warning
-
-   .. caution:: This is the format used before Sphinx 1.0.
-                It is deprecated and will be removed in Sphinx 8.0.
-
-   A dictionary mapping URIs to either ``None`` or an URI.  The keys are the
-   base URI of the foreign Sphinx documentation sets and can be local paths or
-   HTTP URIs.  The values indicate where the inventory file can be found: they
-   can be ``None`` (at the same location as the base URI) or another local or
-   HTTP URI.
-
-   Example:
-
-   .. code:: python
-
-      intersphinx_mapping = {'https://docs.python.org/': None}
-
-
 .. confval:: intersphinx_cache_limit
+   :type: :code-py:`int`
+   :default: :code-py:`5` (five days)
 
-   The maximum number of days to cache remote inventories.  The default is
-   ``5``, meaning five days.  Set this to a negative value to cache inventories
-   for unlimited time.
+   The maximum number of days to cache remote inventories.
+   Set this to a negative value to cache inventories for unlimited time.
 
 .. confval:: intersphinx_timeout
+   :type: :code-py:`int | float | None`
+   :default: :code-py:`None`
 
-   The number of seconds for timeout.  The default is ``None``, meaning do not
-   timeout.
+   The number of seconds for timeout. Use ``None`` for no timeout.
 
    .. note::
 
       timeout is not a time limit on the entire response download; rather, an
-      exception is raised if the server has not issued a response for timeout
+      exception is raised if the server has not issued a response for *timeout*
       seconds.
 
 .. confval:: intersphinx_disabled_reftypes
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`['std:doc']`
 
    .. versionadded:: 4.3
 
@@ -182,8 +169,6 @@ linking:
    - the name of a domain, and a wildcard, e.g.,
      ``std:*``, ``py:*``, or ``cpp:*``, or
    - simply a wildcard ``*``.
-
-   The default value is ``['std:doc']``.
 
    When a non-:rst:role:`external` cross-reference is being resolved by
    intersphinx, skip resolution if it matches one of the specifications in this
@@ -235,10 +220,12 @@ Showing all links of an Intersphinx mapping file
 ------------------------------------------------
 
 To show all Intersphinx links and their targets of an Intersphinx mapping file,
-run ``python -msphinx.ext.intersphinx url-or-path``.  This is helpful when
+run ``python -m sphinx.ext.intersphinx url-or-path``.  This is helpful when
 searching for the root cause of a broken Intersphinx link in a documentation
-project. The following example prints the Intersphinx mapping of the Python 3
-documentation::
+project.
+The following example prints the Intersphinx mapping of the Python documentation:
+
+.. code-block:: console
 
    $ python -m sphinx.ext.intersphinx https://docs.python.org/3/objects.inv
 

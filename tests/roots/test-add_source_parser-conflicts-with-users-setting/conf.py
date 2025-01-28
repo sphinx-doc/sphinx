@@ -1,9 +1,9 @@
-import os
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().resolve()))
 
 from docutils.parsers import Parser
-
-sys.path.insert(0, os.path.abspath('.'))
 
 
 class DummyTestParser(Parser):
@@ -11,7 +11,10 @@ class DummyTestParser(Parser):
 
 
 extensions = ['source_parser']
-source_suffix = ['.rst', '.test']
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.test': 'restructuredtext',
+}
 source_parsers = {
-    '.test': DummyTestParser
+    '.test': DummyTestParser,
 }

@@ -1,5 +1,7 @@
 """Test the build process with manpage builder with the test root."""
 
+from __future__ import annotations
+
 import docutils
 import pytest
 
@@ -7,8 +9,8 @@ from sphinx.builders.manpage import default_man_pages
 from sphinx.config import Config
 
 
-@pytest.mark.sphinx('man')
-def test_all(app, status, warning):
+@pytest.mark.sphinx('man', testroot='root')
+def test_all(app):
     app.build(force_all=True)
     assert (app.outdir / 'sphinxtests.1').exists()
 
@@ -31,24 +33,30 @@ def test_all(app, status, warning):
     assert 'Footnotes' not in content
 
 
-@pytest.mark.sphinx('man', testroot='basic',
-                    confoverrides={'man_pages': [('index', 'title', None, [], 1)]})
-def test_man_pages_empty_description(app, status, warning):
+@pytest.mark.sphinx(
+    'man',
+    testroot='basic',
+    confoverrides={'man_pages': [('index', 'title', None, [], 1)]},
+)
+def test_man_pages_empty_description(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'title.1').read_text(encoding='utf8')
     assert r'title \-' not in content
 
 
-@pytest.mark.sphinx('man', testroot='basic',
-                    confoverrides={'man_make_section_directory': True})
-def test_man_make_section_directory(app, status, warning):
+@pytest.mark.sphinx(
+    'man',
+    testroot='basic',
+    confoverrides={'man_make_section_directory': True},
+)
+def test_man_make_section_directory(app):
     app.build()
     assert (app.outdir / 'man1' / 'projectnamenotset.1').exists()
 
 
 @pytest.mark.sphinx('man', testroot='directive-code')
-def test_captioned_code_block(app, status, warning):
+def test_captioned_code_block(app):
     app.build(force_all=True)
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
 
@@ -89,16 +97,25 @@ end
 
 
 def test_default_man_pages():
-    config = Config({'project': 'STASI™ Documentation',
-                     'author': "Wolfgang Schäuble & G'Beckstein",
-                     'release': '1.0'})
-    expected = [('index', 'stasi', 'STASI™ Documentation 1.0',
-                 ["Wolfgang Schäuble & G'Beckstein"], 1)]
+    config = Config({
+        'project': 'STASI™ Documentation',
+        'author': "Wolfgang Schäuble & G'Beckstein",
+        'release': '1.0',
+    })
+    expected = [
+        (
+            'index',
+            'stasi',
+            'STASI™ Documentation 1.0',
+            ["Wolfgang Schäuble & G'Beckstein"],
+            1,
+        )
+    ]
     assert default_man_pages(config) == expected
 
 
 @pytest.mark.sphinx('man', testroot='markup-rubric')
-def test_rubric(app, status, warning):
+def test_rubric(app):
     app.build()
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
     assert 'This is a rubric\n' in content

@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Siirry",
         "Hide Search Matches": "Piilota l\u00f6ydetyt",
         "Index": "Sis\u00e4llysluettelo",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Hakemisto aakkostus sivuttain",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "",
@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Etsi",
         "Search Page": "Etsi sivu",
         "Search Results": "Etsinn\u00e4n tulos",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

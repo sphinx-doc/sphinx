@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 Application API
 ===============
@@ -94,6 +94,8 @@ package.
 .. automethod:: Sphinx.add_message_catalog
 
 .. automethod:: Sphinx.is_parallel_allowed
+
+.. automethod:: Sphinx.set_html_assets_policy
 
 .. exception:: ExtensionError
 

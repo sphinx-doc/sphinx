@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-spanish_stopwords = parse_stop_word('''
+spanish_stopwords = parse_stop_word("""
 |source: https://snowball.tartarus.org/algorithms/spanish/stop.txt
 de             |  from, of
 la             |  the, her
@@ -347,7 +345,7 @@ tenida
 tenidos
 tenidas
 tened
-''')
+""")
 
 
 class SearchSpanish(SearchLanguage):

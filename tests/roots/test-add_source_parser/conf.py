@@ -1,8 +1,6 @@
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath('.'))
-
+sys.path.insert(0, str(Path.cwd().resolve()))
 
 extensions = ['source_parser']
-source_suffix = ['.rst']

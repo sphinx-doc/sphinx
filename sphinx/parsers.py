@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 import docutils.parsers
 import docutils.parsers.rst
-from docutils import nodes
 from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
@@ -14,6 +13,7 @@ from docutils.transforms.universal import SmartQuotes
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
+    from docutils import nodes
     from docutils.transforms import Transform
 
     from sphinx.application import Sphinx
@@ -23,10 +23,12 @@ if TYPE_CHECKING:
 
 
 class Parser(docutils.parsers.Parser):
-    """
-    A base class of source parsers.  The additional parsers should inherit this class instead
-    of ``docutils.parsers.Parser``.  Compared with ``docutils.parsers.Parser``, this class
-    improves accessibility to Sphinx APIs.
+    """A base class of source parsers.
+
+    The additional parsers should inherit this class
+    instead of ``docutils.parsers.Parser``.
+    Compared with ``docutils.parsers.Parser``,
+    this class improves accessibility to Sphinx APIs.
 
     The subclasses can access sphinx core runtime objects (app, config and env).
     """
@@ -51,8 +53,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
     def get_transforms(self) -> list[type[Transform]]:
-        """
-        Sphinx's reST parser replaces a transform class for smart-quotes by its own
+        """Sphinx's reST parser replaces a transform class for smart-quotes by its own
 
         refs: sphinx.io.SphinxStandaloneReader
         """
@@ -72,7 +73,9 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         # preprocess inputstring
         if isinstance(inputstring, str):
             lines = docutils.statemachine.string2lines(
-                inputstring, tab_width=document.settings.tab_width, convert_whitespace=True
+                inputstring,
+                tab_width=document.settings.tab_width,
+                convert_whitespace=True,
             )
 
             inputlines = StringList(lines, document.current_source)

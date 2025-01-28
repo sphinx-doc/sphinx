@@ -49,7 +49,8 @@ tar: all-$(FMT)
 	rm -r $(ARCHIVEPREFIX)docs-$(FMT)
 
 gz: tar
-	gzip -9 < $(ARCHIVEPREFIX)docs-$(FMT).tar > $(ARCHIVEPREFIX)docs-$(FMT).tar.gz
+	# -n to omit mtime from gzip headers
+	gzip -n -9 < $(ARCHIVEPREFIX)docs-$(FMT).tar > $(ARCHIVEPREFIX)docs-$(FMT).tar.gz
 
 bz2: tar
 	bzip2 -9 -k $(ARCHIVEPREFIX)docs-$(FMT).tar

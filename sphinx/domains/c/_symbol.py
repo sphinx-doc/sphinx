@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.domains.c._ast import (
     ASTDeclaration,
-    ASTIdentifier,
     ASTNestedName,
 )
 from sphinx.locale import __
@@ -12,9 +11,11 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
+    from typing import Any, Self
 
-    from typing_extensions import Self
-
+    from sphinx.domains.c._ast import (
+        ASTIdentifier,
+    )
     from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
@@ -28,29 +29,47 @@ class _DuplicateSymbolError(Exception):
         self.declaration = declaration
 
     def __str__(self) -> str:
-        return "Internal C duplicate symbol error:\n%s" % self.symbol.dump(0)
+        return 'Internal C duplicate symbol error:\n%s' % self.symbol.dump(0)
 
 
 class SymbolLookupResult:
-    def __init__(self, symbols: Sequence[Symbol], parentSymbol: Symbol,
-                 ident: ASTIdentifier) -> None:
+    __slots__ = 'symbols', 'parent_symbol', 'ident'
+
+    symbols: Iterable[Symbol]
+    parent_symbol: Symbol
+    ident_or_op: ASTIdentifier
+
+    def __init__(
+        self, symbols: Iterable[Symbol], parent_symbol: Symbol, ident: ASTIdentifier
+    ) -> None:
         self.symbols = symbols
-        self.parentSymbol = parentSymbol
+        self.parent_symbol = parent_symbol
         self.ident = ident
+
+    @property
+    def parentSymbol(self) -> Symbol:
+        return self.parent_symbol
 
 
 class LookupKey:
-    def __init__(self, data: list[tuple[ASTIdentifier, str]]) -> None:
+    __slots__ = ('data',)
+
+    data: Sequence[tuple[ASTIdentifier, str]]
+
+    def __init__(self, data: Sequence[tuple[ASTIdentifier, str]], /) -> None:
         self.data = data
 
+    def __repr__(self) -> str:
+        return f'LookupKey({self.data!r})'
+
     def __str__(self) -> str:
-        inner = ', '.join(f"({ident}, {id_})" for ident, id_ in self.data)
+        inner = ', '.join(f'({ident}, {id_})' for ident, id_ in self.data)
         return f'[{inner}]'
 
 
 class Symbol:
     debug_indent = 0
-    debug_indent_string = "  "
+    debug_indent_string = '  '
     debug_lookup = False
     debug_show_tree = False
 
@@ -66,7 +85,7 @@ class Symbol:
     @staticmethod
     def debug_print(*args: Any) -> None:
         msg = Symbol.debug_indent_string * Symbol.debug_indent
-        msg += "".join(str(e) for e in args)
+        msg += ''.join(str(e) for e in args)
         logger.debug(msg)
 
     def _assert_invariants(self) -> None:
@@ -79,7 +98,7 @@ class Symbol:
                 assert self.docname
 
     def __setattr__(self, key: str, value: Any) -> None:
-        if key == "children":
+        if key == 'children':
             raise AssertionError
         return super().__setattr__(key, value)
 
@@ -136,7 +155,8 @@ class Symbol:
     def _remove_child(self, child: Symbol) -> None:
         name = child.ident.name
         self._children_by_name.pop(name, None)
-        self._children_by_docname.get(child.docname, {}).pop(name, None)
+        if children := self._children_by_docname.get(child.docname):
+            children.pop(name, None)
         if child.ident.is_anonymous:
             self._anon_children.discard(child)
 
@@ -159,12 +179,15 @@ class Symbol:
     def _add_function_params(self) -> None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("_add_function_params:")
+            Symbol.debug_print('_add_function_params:')
         # Note: we may be called from _fill_empty, so the symbols we want
         #       to add may actually already be present (as empty symbols).
 
         # add symbols for function parameters, if any
-        if self.declaration is not None and self.declaration.function_params is not None:
+        if (
+            self.declaration is not None
+            and self.declaration.function_params is not None
+        ):
             for p in self.declaration.function_params:
                 if p.arg is None:
                     continue
@@ -205,8 +228,8 @@ class Symbol:
 
     def get_all_symbols(self) -> Iterator[Symbol]:
         yield self
-        for sChild in self._children:
-            yield from sChild.get_all_symbols()
+        for s_child in self._children:
+            yield from s_child.get_all_symbols()
 
     @property
     def children(self) -> Iterator[Symbol]:
@@ -222,14 +245,11 @@ class Symbol:
         while s.parent:
             symbols.append(s)
             s = s.parent
-        symbols.reverse()
-        key = []
-        for s in symbols:
-            if s.declaration is not None:
-                # TODO: do we need the ID?
-                key.append((s.ident, s.declaration.get_newest_id()))
-            else:
-                key.append((s.ident, None))
+        key = [
+            # TODO: do we need the ID?
+            (s.ident, None if s.declaration is None else s.declaration.get_newest_id())
+            for s in reversed(symbols)
+        ]
         return LookupKey(key)
 
     def get_full_nested_name(self) -> ASTNestedName:
@@ -244,70 +264,74 @@ class Symbol:
 
     def _symbol_lookup(
         self,
-        nestedName: ASTNestedName,
-        onMissingQualifiedSymbol: Callable[[Symbol, ASTIdentifier], Symbol | None],
-        ancestorLookupType: str | None,
-        matchSelf: bool,
-        recurseInAnon: bool,
-        searchInSiblings: bool,
+        nested_name: ASTNestedName,
+        on_missing_qualified_symbol: Callable[[Symbol, ASTIdentifier], Symbol | None],
+        ancestor_lookup_type: str | None,
+        match_self: bool,
+        recurse_in_anon: bool,
+        search_in_siblings: bool,
     ) -> SymbolLookupResult | None:
         # TODO: further simplification from C++ to C
-        # ancestorLookupType: if not None, specifies the target type of the lookup
+        # ancestor_lookup_type: if not None, specifies the target type of the lookup
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("_symbol_lookup:")
+            Symbol.debug_print('_symbol_lookup:')
             Symbol.debug_indent += 1
-            Symbol.debug_print("self:")
+            Symbol.debug_print('self:')
             logger.debug(self.to_string(Symbol.debug_indent + 1, addEndNewline=False))
-            Symbol.debug_print("nestedName:        ", nestedName)
-            Symbol.debug_print("ancestorLookupType:", ancestorLookupType)
-            Symbol.debug_print("matchSelf:         ", matchSelf)
-            Symbol.debug_print("recurseInAnon:     ", recurseInAnon)
-            Symbol.debug_print("searchInSiblings:  ", searchInSiblings)
+            Symbol.debug_print('nested_name:         ', nested_name)
+            Symbol.debug_print('ancestor_lookup_type:', ancestor_lookup_type)
+            Symbol.debug_print('match_self:          ', match_self)
+            Symbol.debug_print('recurse_in_anon:     ', recurse_in_anon)
+            Symbol.debug_print('search_in_siblings:  ', search_in_siblings)
 
-        names = nestedName.names
+        names = nested_name.names
 
         # find the right starting point for lookup
-        parentSymbol = self
-        if nestedName.rooted:
-            while parentSymbol.parent is not None:
-                parentSymbol = parentSymbol.parent
+        parent_symbol = self
+        if nested_name.rooted:
+            while parent_symbol.parent is not None:
+                parent_symbol = parent_symbol.parent
 
-        if ancestorLookupType is not None:
+        if ancestor_lookup_type is not None:
             # walk up until we find the first identifier
-            firstName = names[0]
-            while parentSymbol.parent:
-                if firstName.name in parentSymbol._children_by_name:
+            first_name = names[0]
+            while parent_symbol.parent:
+                if first_name.name in parent_symbol._children_by_name:
                     break
-                parentSymbol = parentSymbol.parent
+                parent_symbol = parent_symbol.parent
 
         if Symbol.debug_lookup:
-            Symbol.debug_print("starting point:")
-            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1, addEndNewline=False))
+            Symbol.debug_print('starting point:')
+            logger.debug(
+                parent_symbol.to_string(Symbol.debug_indent + 1, addEndNewline=False)
+            )
 
         # and now the actual lookup
         for ident in names[:-1]:
             name = ident.name
-            if name in parentSymbol._children_by_name:
-                symbol = parentSymbol._children_by_name[name]
+            if name in parent_symbol._children_by_name:
+                symbol = parent_symbol._children_by_name[name]
             else:
-                symbol = onMissingQualifiedSymbol(parentSymbol, ident)
+                symbol = on_missing_qualified_symbol(parent_symbol, ident)
                 if symbol is None:
                     if Symbol.debug_lookup:
                         Symbol.debug_indent -= 2
                     return None
-            parentSymbol = symbol
+            parent_symbol = symbol
 
         if Symbol.debug_lookup:
-            Symbol.debug_print("handle last name from:")
-            logger.debug(parentSymbol.to_string(Symbol.debug_indent + 1, addEndNewline=False))
+            Symbol.debug_print('handle last name from:')
+            logger.debug(
+                parent_symbol.to_string(Symbol.debug_indent + 1, addEndNewline=False)
+            )
 
         # handle the last name
         ident = names[-1]
         name = ident.name
-        symbol = parentSymbol._children_by_name.get(name)
-        if not symbol and recurseInAnon:
-            for child in parentSymbol._anon_children:
+        symbol = parent_symbol._children_by_name.get(name)
+        if not symbol and recurse_in_anon:
+            for child in parent_symbol._anon_children:
                 if name in child._children_by_name:
                     symbol = child._children_by_name[name]
                     break
@@ -316,11 +340,11 @@ class Symbol:
             Symbol.debug_indent -= 2
 
         result = [symbol] if symbol else []
-        return SymbolLookupResult(result, parentSymbol, ident)
+        return SymbolLookupResult(result, parent_symbol, ident)
 
     def _add_symbols(
         self,
-        nestedName: ASTNestedName,
+        nested_name: ASTNestedName,
         declaration: ASTDeclaration | None,
         docname: str | None,
         line: int | None,
@@ -331,152 +355,172 @@ class Symbol:
 
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("_add_symbols:")
+            Symbol.debug_print('_add_symbols:')
             Symbol.debug_indent += 1
-            Symbol.debug_print("nn:       ", nestedName)
-            Symbol.debug_print("decl:     ", declaration)
-            Symbol.debug_print(f"location: {docname}:{line}")
+            Symbol.debug_print('nn:       ', nested_name)
+            Symbol.debug_print('decl:     ', declaration)
+            Symbol.debug_print(f'location: {docname}:{line}')
 
-        def onMissingQualifiedSymbol(parentSymbol: Symbol, ident: ASTIdentifier) -> Symbol:
+        def on_missing_qualified_symbol(
+            parent_symbol: Symbol, ident: ASTIdentifier
+        ) -> Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 1
-                Symbol.debug_print("_add_symbols, onMissingQualifiedSymbol:")
+                Symbol.debug_print('_add_symbols, on_missing_qualified_symbol:')
                 Symbol.debug_indent += 1
-                Symbol.debug_print("ident: ", ident)
+                Symbol.debug_print('ident: ', ident)
                 Symbol.debug_indent -= 2
-            return Symbol(parent=parentSymbol, ident=ident,
-                          declaration=None, docname=None, line=None)
+            return Symbol(
+                parent=parent_symbol,
+                ident=ident,
+                declaration=None,
+                docname=None,
+                line=None,
+            )
 
-        lookupResult = self._symbol_lookup(nestedName,
-                                           onMissingQualifiedSymbol,
-                                           ancestorLookupType=None,
-                                           matchSelf=False,
-                                           recurseInAnon=False,
-                                           searchInSiblings=False)
-        assert lookupResult is not None  # we create symbols all the way, so that can't happen
-        symbols = list(lookupResult.symbols)
+        lookup_result = self._symbol_lookup(
+            nested_name,
+            on_missing_qualified_symbol,
+            ancestor_lookup_type=None,
+            match_self=False,
+            recurse_in_anon=False,
+            search_in_siblings=False,
+        )
+        # we create symbols all the way, so that can't happen
+        assert lookup_result is not None
+        symbols = list(lookup_result.symbols)
         if len(symbols) == 0:
             if Symbol.debug_lookup:
-                Symbol.debug_print("_add_symbols, result, no symbol:")
+                Symbol.debug_print('_add_symbols, result, no symbol:')
                 Symbol.debug_indent += 1
-                Symbol.debug_print("ident:       ", lookupResult.ident)
-                Symbol.debug_print("declaration: ", declaration)
-                Symbol.debug_print(f"location:    {docname}:{line}")
+                Symbol.debug_print('ident:       ', lookup_result.ident)
+                Symbol.debug_print('declaration: ', declaration)
+                Symbol.debug_print(f'location:    {docname}:{line}')
                 Symbol.debug_indent -= 1
-            symbol = Symbol(parent=lookupResult.parentSymbol,
-                            ident=lookupResult.ident,
-                            declaration=declaration,
-                            docname=docname, line=line)
+            symbol = Symbol(
+                parent=lookup_result.parent_symbol,
+                ident=lookup_result.ident,
+                declaration=declaration,
+                docname=docname,
+                line=line,
+            )
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
             return symbol
 
         if Symbol.debug_lookup:
-            Symbol.debug_print("_add_symbols, result, symbols:")
+            Symbol.debug_print('_add_symbols, result, symbols:')
             Symbol.debug_indent += 1
-            Symbol.debug_print("number symbols:", len(symbols))
+            Symbol.debug_print('number symbols:', len(symbols))
             Symbol.debug_indent -= 1
 
         if not declaration:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no declaration")
+                Symbol.debug_print('no declaration')
                 Symbol.debug_indent -= 2
             # good, just a scope creation
             # TODO: what if we have more than one symbol?
             return symbols[0]
 
-        noDecl = []
-        withDecl = []
-        dupDecl = []
+        no_decl = []
+        with_decl = []
+        dup_decl = []
         for s in symbols:
             if s.declaration is None:
-                noDecl.append(s)
+                no_decl.append(s)
             elif s.isRedeclaration:
-                dupDecl.append(s)
+                dup_decl.append(s)
             else:
-                withDecl.append(s)
+                with_decl.append(s)
         if Symbol.debug_lookup:
-            Symbol.debug_print("#noDecl:  ", len(noDecl))
-            Symbol.debug_print("#withDecl:", len(withDecl))
-            Symbol.debug_print("#dupDecl: ", len(dupDecl))
+            Symbol.debug_print('#no_decl:  ', len(no_decl))
+            Symbol.debug_print('#with_decl:', len(with_decl))
+            Symbol.debug_print('#dup_decl: ', len(dup_decl))
 
         # With partial builds we may start with a large symbol tree stripped of declarations.
-        # Essentially any combination of noDecl, withDecl, and dupDecls seems possible.
+        # Essentially any combination of no_decl, with_decl, and dup_decls seems possible.
         # TODO: make partial builds fully work. What should happen when the primary symbol gets
         #  deleted, and other duplicates exist? The full document should probably be rebuild.
 
         # First check if one of those with a declaration matches.
         # If it's a function, we need to compare IDs,
         # otherwise there should be only one symbol with a declaration.
-        def makeCandSymbol() -> Symbol:
+        def make_cand_symbol() -> Symbol:
             if Symbol.debug_lookup:
-                Symbol.debug_print("begin: creating candidate symbol")
-            symbol = Symbol(parent=lookupResult.parentSymbol,
-                            ident=lookupResult.ident,
-                            declaration=declaration,
-                            docname=docname, line=line)
+                Symbol.debug_print('begin: creating candidate symbol')
+            symbol = Symbol(
+                parent=lookup_result.parent_symbol,
+                ident=lookup_result.ident,
+                declaration=declaration,
+                docname=docname,
+                line=line,
+            )
             if Symbol.debug_lookup:
-                Symbol.debug_print("end:   creating candidate symbol")
+                Symbol.debug_print('end:   creating candidate symbol')
             return symbol
 
-        if len(withDecl) == 0:
-            candSymbol = None
+        if len(with_decl) == 0:
+            cand_symbol = None
         else:
-            candSymbol = makeCandSymbol()
+            cand_symbol = make_cand_symbol()
 
-            def handleDuplicateDeclaration(symbol: Symbol, candSymbol: Symbol) -> None:
+            def handle_duplicate_declaration(
+                symbol: Symbol, cand_symbol: Symbol
+            ) -> None:
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
-                    Symbol.debug_print("redeclaration")
+                    Symbol.debug_print('redeclaration')
                     Symbol.debug_indent -= 1
                     Symbol.debug_indent -= 2
                 # Redeclaration of the same symbol.
                 # Let the new one be there, but raise an error to the client
                 # so it can use the real symbol as subscope.
                 # This will probably result in a duplicate id warning.
-                candSymbol.isRedeclaration = True
+                cand_symbol.isRedeclaration = True
                 raise _DuplicateSymbolError(symbol, declaration)
 
-            if declaration.objectType != "function":
-                assert len(withDecl) <= 1
-                handleDuplicateDeclaration(withDecl[0], candSymbol)
+            if declaration.objectType != 'function':
+                assert len(with_decl) <= 1
+                handle_duplicate_declaration(with_decl[0], cand_symbol)
                 # (not reachable)
 
             # a function, so compare IDs
-            candId = declaration.get_newest_id()
+            cand_id = declaration.get_newest_id()
             if Symbol.debug_lookup:
-                Symbol.debug_print("candId:", candId)
-            for symbol in withDecl:
-                oldId = symbol.declaration.get_newest_id()
+                Symbol.debug_print('cand_id:', cand_id)
+            for symbol in with_decl:
+                old_id = symbol.declaration.get_newest_id()
                 if Symbol.debug_lookup:
-                    Symbol.debug_print("oldId: ", oldId)
-                if candId == oldId:
-                    handleDuplicateDeclaration(symbol, candSymbol)
+                    Symbol.debug_print('old_id: ', old_id)
+                if cand_id == old_id:
+                    handle_duplicate_declaration(symbol, cand_symbol)
                     # (not reachable)
             # no candidate symbol found with matching ID
         # if there is an empty symbol, fill that one
-        if len(noDecl) == 0:
+        if len(no_decl) == 0:
             if Symbol.debug_lookup:
                 Symbol.debug_print(
-                    "no match, no empty, candSybmol is not None?:", candSymbol is not None,
+                    'no match, no empty, cand_sybmol is not None?:',
+                    cand_symbol is not None,
                 )
                 Symbol.debug_indent -= 2
-            if candSymbol is not None:
-                return candSymbol
+            if cand_symbol is not None:
+                return cand_symbol
             else:
-                return makeCandSymbol()
+                return make_cand_symbol()
         else:
             if Symbol.debug_lookup:
                 Symbol.debug_print(
-                    "no match, but fill an empty declaration, candSybmol is not None?:",
-                    candSymbol is not None)
+                    'no match, but fill an empty declaration, cand_sybmol is not None?:',
+                    cand_symbol is not None,
+                )
                 Symbol.debug_indent -= 2
-            if candSymbol is not None:
-                candSymbol.remove()
-            # assert len(noDecl) == 1
+            if cand_symbol is not None:
+                cand_symbol.remove()
+            # assert len(no_decl) == 1
             # TODO: enable assertion when we at some point find out how to do cleanup
             # for now, just take the first one, it should work fine ... right?
-            symbol = noDecl[0]
+            symbol = no_decl[0]
             # If someone first opened the scope, and then later
             # declares it, e.g,
             # .. namespace:: Test
@@ -485,39 +529,50 @@ class Symbol:
             symbol._fill_empty(declaration, docname, line)
             return symbol
 
-    def merge_with(self, other: Symbol, docnames: list[str],
-                   env: BuildEnvironment) -> None:
+    def merge_with(
+        self, other: Symbol, docnames: list[str], env: BuildEnvironment
+    ) -> None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("merge_with:")
+            Symbol.debug_print('merge_with:')
 
         assert other is not None
-        for otherChild in other._children:
-            otherName = otherChild.ident.name
-            if otherName not in self._children_by_name:
+        for other_child in other._children:
+            other_name = other_child.ident.name
+            if other_name not in self._children_by_name:
                 # TODO: hmm, should we prune by docnames?
-                otherChild.parent = self
-                self._add_child(otherChild)
-                otherChild._assert_invariants()
+                other_child.parent = self
+                self._add_child(other_child)
+                other_child._assert_invariants()
                 continue
-            ourChild = self._children_by_name[otherName]
-            if otherChild.declaration and otherChild.docname in docnames:
-                if not ourChild.declaration:
-                    ourChild._fill_empty(otherChild.declaration,
-                                         otherChild.docname, otherChild.line)
-                elif ourChild.docname != otherChild.docname:
-                    name = str(ourChild.declaration)
-                    msg = __("Duplicate C declaration, also defined at %s:%s.\n"
-                             "Declaration is '.. c:%s:: %s'.")
-                    msg = msg % (ourChild.docname, ourChild.line,
-                                 ourChild.declaration.directiveType, name)
-                    logger.warning(msg, location=(otherChild.docname, otherChild.line))
+            our_child = self._children_by_name[other_name]
+            if other_child.declaration and other_child.docname in docnames:
+                if not our_child.declaration:
+                    our_child._fill_empty(
+                        other_child.declaration, other_child.docname, other_child.line
+                    )
+                elif our_child.docname != other_child.docname:
+                    name = str(our_child.declaration)
+                    msg = __(
+                        'Duplicate C declaration, also defined at %s:%s.\n'
+                        "Declaration is '.. c:%s:: %s'."
+                    )
+                    logger.warning(
+                        msg,
+                        our_child.docname,
+                        our_child.line,
+                        our_child.declaration.directiveType,
+                        name,
+                        location=(other_child.docname, other_child.line),
+                        type='duplicate_declaration',
+                        subtype='c',
+                    )
                 else:
                     # Both have declarations, and in the same docname.
                     # This can apparently happen, it should be safe to
                     # just ignore it, right?
                     pass
-            ourChild.merge_with(otherChild, docnames, env)
+            our_child.merge_with(other_child, docnames, env)
 
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
@@ -525,45 +580,52 @@ class Symbol:
     def add_name(self, nestedName: ASTNestedName) -> Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("add_name:")
+            Symbol.debug_print('add_name:')
         res = self._add_symbols(nestedName, declaration=None, docname=None, line=None)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         return res
 
-    def add_declaration(self, declaration: ASTDeclaration,
-                        docname: str, line: int) -> Symbol:
+    def add_declaration(
+        self, declaration: ASTDeclaration, docname: str, line: int
+    ) -> Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("add_declaration:")
+            Symbol.debug_print('add_declaration:')
         assert declaration is not None
         assert docname is not None
         assert line is not None
-        nestedName = declaration.name
-        res = self._add_symbols(nestedName, declaration, docname, line)
+        nested_name = declaration.name
+        res = self._add_symbols(nested_name, declaration, docname, line)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         return res
 
-    def find_identifier(self, ident: ASTIdentifier,
-                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool,
-                        ) -> Symbol | None:
+    def find_identifier(
+        self,
+        ident: ASTIdentifier,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        searchInSiblings: bool,
+    ) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("find_identifier:")
+            Symbol.debug_print('find_identifier:')
             Symbol.debug_indent += 1
-            Symbol.debug_print("ident:           ", ident)
-            Symbol.debug_print("matchSelf:       ", matchSelf)
-            Symbol.debug_print("recurseInAnon:   ", recurseInAnon)
-            Symbol.debug_print("searchInSiblings:", searchInSiblings)
+            Symbol.debug_print('ident:           ', ident)
+            Symbol.debug_print('matchSelf:       ', matchSelf)
+            Symbol.debug_print('recurseInAnon:   ', recurseInAnon)
+            Symbol.debug_print('searchInSiblings:', searchInSiblings)
             logger.debug(self.to_string(Symbol.debug_indent + 1, addEndNewline=False))
             Symbol.debug_indent -= 2
         current = self
         while current is not None:
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 2
-                Symbol.debug_print("trying:")
-                logger.debug(current.to_string(Symbol.debug_indent + 1, addEndNewline=False))
+                Symbol.debug_print('trying:')
+                logger.debug(
+                    current.to_string(Symbol.debug_indent + 1, addEndNewline=False)
+                )
                 Symbol.debug_indent -= 2
             if matchSelf and current.ident == ident:
                 return current
@@ -582,49 +644,53 @@ class Symbol:
     def direct_lookup(self, key: LookupKey) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("direct_lookup:")
+            Symbol.debug_print('direct_lookup:')
             Symbol.debug_indent += 1
         s = self
         for ident, id_ in key.data:
             s = s._children_by_name.get(ident.name)
             if Symbol.debug_lookup:
-                Symbol.debug_print("name:          ", ident.name)
-                Symbol.debug_print("id:            ", id_)
+                Symbol.debug_print('name:          ', ident.name)
+                Symbol.debug_print('id:            ', id_)
                 if s is not None:
-                    logger.debug(s.to_string(Symbol.debug_indent + 1, addEndNewline=False))
+                    logger.debug(
+                        s.to_string(Symbol.debug_indent + 1, addEndNewline=False)
+                    )
                 else:
-                    Symbol.debug_print("not found")
+                    Symbol.debug_print('not found')
             if s is None:
                 break
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
         return s
 
-    def find_declaration(self, nestedName: ASTNestedName, typ: str,
-                         matchSelf: bool, recurseInAnon: bool) -> Symbol | None:
+    def find_declaration(
+        self, nestedName: ASTNestedName, typ: str, matchSelf: bool, recurseInAnon: bool
+    ) -> Symbol | None:
         # templateShorthand: missing template parameter lists for templates is ok
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("find_declaration:")
+            Symbol.debug_print('find_declaration:')
 
-        def onMissingQualifiedSymbol(
-            parentSymbol: Symbol,
-            ident: ASTIdentifier,
+        def on_missing_qualified_symbol(
+            parent_symbol: Symbol, ident: ASTIdentifier
         ) -> Symbol | None:
             return None
 
-        lookupResult = self._symbol_lookup(nestedName,
-                                           onMissingQualifiedSymbol,
-                                           ancestorLookupType=typ,
-                                           matchSelf=matchSelf,
-                                           recurseInAnon=recurseInAnon,
-                                           searchInSiblings=False)
+        lookup_result = self._symbol_lookup(
+            nestedName,
+            on_missing_qualified_symbol,
+            ancestor_lookup_type=typ,
+            match_self=matchSelf,
+            recurse_in_anon=recurseInAnon,
+            search_in_siblings=False,
+        )
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
-        if lookupResult is None:
+        if lookup_result is None:
             return None
 
-        symbols = list(lookupResult.symbols)
+        symbols = list(lookup_result.symbols)
         if len(symbols) == 0:
             return None
         return symbols[0]
@@ -639,17 +705,22 @@ class Symbol:
             else:
                 res.append(str(self.declaration))
             if self.declaration:
-                res.append(": ")
+                res.append(': ')
                 if self.isRedeclaration:
                     res.append('!!duplicate!! ')
                 res.append(str(self.declaration))
         if self.docname:
-            res.append('\t(')
-            res.append(self.docname)
-            res.append(')')
+            res.extend((
+                '\t(',
+                self.docname,
+                ')',
+            ))
         if addEndNewline:
             res.append('\n')
         return ''.join(res)
 
     def dump(self, indent: int) -> str:
-        return ''.join([self.to_string(indent), *(c.dump(indent + 1) for c in self._children)])
+        return ''.join([
+            self.to_string(indent),
+            *(c.dump(indent + 1) for c in self._children),
+        ])

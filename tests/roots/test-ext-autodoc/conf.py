@@ -1,15 +1,12 @@
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, str(Path.cwd().resolve()))
 
 extensions = ['sphinx.ext.autodoc']
 
-# The suffix of source filenames.
-source_suffix = '.rst'
-
 autodoc_mock_imports = [
-    'dummy'
+    'dummy',
 ]
 
 nitpicky = True

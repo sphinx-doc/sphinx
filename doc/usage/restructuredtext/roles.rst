@@ -18,8 +18,8 @@ They are written as ``:rolename:`content```.
 See :doc:`/usage/domains/index` for roles added by domains.
 
 
-Cross-referencing syntax
-------------------------
+Cross-references
+----------------
 
 See :doc:`/usage/referencing/`.
 
@@ -249,6 +249,34 @@ There is also an :rst:role:`index` role to generate index entries.
 
 The following roles generate external links:
 
+.. rst:role:: cve
+
+   A reference to a `Common Vulnerabilities and Exposures`_ record.
+   This generates appropriate index entries.
+   The text "CVE *number*\ " is generated;
+   with a link to an online copy of the specified CVE.
+   You can link to a specific section by using ``:cve:`number#anchor```.
+
+   .. _Common Vulnerabilities and Exposures: https://www.cve.org/
+
+   For example: :cve:`2020-10735`
+
+   .. versionadded:: 8.1
+
+.. rst:role:: cwe
+
+   A reference to a `Common Weakness Enumeration`_.
+   This generates appropriate index entries.
+   The text "CWE *number*\ " is generated; in the HTML output,
+   with a link to an online copy of the specified CWE.
+   You can link to a specific section by using ``:cwe:`number#anchor```.
+
+   .. _Common Weakness Enumeration: https://cwe.mitre.org/
+
+   For example: :cwe:`787`
+
+   .. versionadded:: 8.1
+
 .. rst:role:: pep
 
    A reference to a Python Enhancement Proposal.  This generates appropriate
@@ -268,7 +296,7 @@ The following roles generate external links:
    For example: :rfc:`2324`
 
 Note that there are no special roles for including hyperlinks as you can use
-the standard reST markup for that purpose.
+the standard reStructuredText markup for that purpose.
 
 
 .. _default-substitutions:

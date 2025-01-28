@@ -48,7 +48,7 @@ Installation
 The following command installs Sphinx from the `Python Package Index`_. You will
 need a working installation of Python and pip.
 
-.. code-block:: sh
+.. code-block:: shell
 
    pip install -U sphinx
 

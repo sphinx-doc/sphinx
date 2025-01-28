@@ -1,0 +1,106 @@
+==========
+Sphinx 6.1
+==========
+
+
+Release 6.1.3 (released Jan 10, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11116: Reverted to previous Sphinx 5 node copying method
+* #11117: Reverted changes to parallel image processing from Sphinx 6.1.0
+* #11119: Suppress ``ValueError`` in the ``linkcheck`` builder
+
+Release 6.1.2 (released Jan 07, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11101: LaTeX: ``div.topic_padding`` key of sphinxsetup documented at 5.1.0 was
+  implemented with name ``topic_padding``
+* #11099: LaTeX: ``shadowrule`` key of sphinxsetup causes PDF build to crash
+  since Sphinx 5.1.0
+* #11096: LaTeX: ``shadowsize`` key of sphinxsetup causes PDF build to crash
+  since Sphinx 5.1.0
+* #11095: LaTeX: shadow of :dudir:`topic` and :dudir:`contents <table-of-contents>`
+  boxes not in page margin since Sphinx 5.1.0
+* #11100: Fix copying images when running under parallel mode.
+
+Release 6.1.1 (released Jan 05, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11091: Fix ``util.nodes.apply_source_workaround`` for ``literal_block`` nodes
+  with no source information in the node or the node's parents.
+
+Release 6.1.0 (released Jan 05, 2023)
+=====================================
+
+Dependencies
+------------
+
+* Adopted the `Ruff`_ code linter.
+
+  .. _Ruff: https://github.com/charliermarsh/ruff
+
+Incompatible changes
+--------------------
+
+* #10979: gettext: Removed support for pluralisation in ``get_translation``.
+  This was unused and complicated other changes to ``sphinx.locale``.
+
+Deprecated
+----------
+
+* ``sphinx.util`` functions:
+
+   * Renamed ``sphinx.util.typing.stringify()``
+     to ``sphinx.util.typing.stringify_annotation()``
+   * Moved ``sphinx.util.xmlname_checker()``
+     to ``sphinx.builders.epub3._XML_NAME_PATTERN``
+
+   Moved to ``sphinx.util.display``:
+
+   * ``sphinx.util.status_iterator``
+   * ``sphinx.util.display_chunk``
+   * ``sphinx.util.SkipProgressMessage``
+   * ``sphinx.util.progress_message``
+
+   Moved to ``sphinx.util.http_date``:
+
+   * ``sphinx.util.epoch_to_rfc1123``
+   * ``sphinx.util.rfc1123_to_epoch``
+
+   Moved to ``sphinx.util.exceptions``:
+
+   * ``sphinx.util.save_traceback``
+   * ``sphinx.util.format_exception_cut_frames``
+
+Features added
+--------------
+
+* Cache doctrees in the build environment during the writing phase.
+* Make all writing phase tasks support parallel execution.
+* #11072: Use PEP 604 (``X | Y``) display conventions for ``typing.Optional``
+  and ``typing.Optional`` types within the Python domain and autodoc.
+* #10700: autodoc: Document ``typing.NewType()`` types as classes rather than
+  'data'.
+* Cache doctrees between the reading and writing phases.
+
+Bugs fixed
+----------
+
+* #10962: HTML: Fix the multi-word key name lookup table.
+* Fixed support for Python 3.12 alpha 3 (changes in the ``enum`` module).
+* #11069: HTML Theme: Removed outdated "shortcut" link relation keyword.
+* #10952: Properly terminate parallel processes on programme interruption.
+* #10988: Speed up ``TocTree.resolve()`` through more efficient copying.
+* #6744: LaTeX: support for seealso directive should be via an environment
+  to allow styling.
+* #11074: LaTeX: Can't change sphinxnote to use sphinxheavybox starting with
+  5.1.0

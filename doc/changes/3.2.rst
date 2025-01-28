@@ -1,0 +1,137 @@
+==========
+Sphinx 3.2
+==========
+
+
+Release 3.2.1 (released Aug 14, 2020)
+=====================================
+
+Features added
+--------------
+
+* #8095: napoleon: Add :confval:`napoleon_preprocess_types` to enable the type
+  preprocessor for numpy style docstrings
+* #8114: C and C++, parse function attributes after parameters and qualifiers.
+
+Bugs fixed
+----------
+
+* #8074: napoleon: Crashes during processing C-ext module
+* #8088: napoleon: "Inline literal start-string without end-string" warning in
+  Numpy style Parameters section
+* #8084: autodoc: KeyError is raised on documenting an attribute of the broken
+  class
+* #8091: autodoc: AttributeError is raised on documenting an attribute on Python
+  3.5.2
+* #8099: autodoc: NameError is raised when target code uses ``TYPE_CHECKING``
+* C++, fix parsing of template template parameters, broken by the fix of #7944
+
+Release 3.2.0 (released Aug 08, 2020)
+=====================================
+
+Deprecated
+----------
+
+* ``sphinx.ext.autodoc.members_set_option()``
+* ``sphinx.ext.autodoc.merge_special_members_option()``
+* ``sphinx.writers.texinfo.TexinfoWriter.desc``
+* C, parsing of pre-v3 style type directives and roles, along with the options
+  :confval:`!c_allow_pre_v3` and :confval:`!c_warn_on_allowed_pre_v3`.
+
+Features added
+--------------
+
+* #2076: autodoc: Allow overriding of exclude-members in skip-member function
+* #8034: autodoc: ``:private-member:`` can take an explicit list of member names
+  to be documented
+* #2024: autosummary: Add :confval:`autosummary_filename_map` to avoid conflict
+  of filenames between two object with different case
+* #8011: autosummary: Support instance attributes as a target of autosummary
+  directive
+* #7849: html: Add :confval:`html_codeblock_linenos_style` to change the style
+  of line numbers for code-blocks
+* #7853: C and C++, support parameterized GNU style attributes.
+* #7888: napoleon: Add aliases Warn and Raise.
+* #7690: napoleon: parse type strings and make them hyperlinks as possible.  The
+  conversion rule can be updated via :confval:`napoleon_type_aliases`
+* #8049: napoleon: Create a hyperlink for each the type of parameter when
+  :confval:`napoleon_use_param` is ``False``
+* C, added :rst:dir:`c:alias` directive for inserting copies
+  of existing declarations.
+* #7745: html: inventory is broken if the docname contains a space
+* #7991: html search: Allow searching for numbers
+* #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
+  the behavior of globaltoc in sidebar
+* #7840: i18n: Optimize the dependencies check on bootstrap
+* #7768: i18n: :confval:`figure_language_filename` supports ``docpath`` token
+* #5208: linkcheck: Support checks for local links
+* #5090: setuptools: Link verbosity to distutils' -v and -q option
+* #6698: doctest: Add ``:trim-doctest-flags:`` and ``:no-trim-doctest-flags:``
+  options to doctest, testcode and testoutput directives
+* #7052: add ``:noindexentry:`` to the Python, C, C++, and Javascript domains.
+  Update the documentation to better reflect the relationship between this option
+  and the ``:noindex:`` option.
+* #7899: C, add possibility of parsing of some pre-v3 style type directives and
+  roles and try to convert them to equivalent v3 directives/roles.
+  Set the new option :confval:`!c_allow_pre_v3` to ``True`` to enable this.
+  The warnings printed from this functionality can be suppressed by setting
+  :confval:`!c_warn_on_allowed_pre_v3` to ``True``.
+  The functionality is immediately deprecated.
+* #7999: C, add support for named variadic macro arguments.
+* #8071: Allow to suppress "self referenced toctrees" warning
+
+Bugs fixed
+----------
+
+* #7886: autodoc: TypeError is raised on mocking generic-typed classes
+* #7935: autodoc: function signature is not shown when the function has a
+  parameter having ``inspect._empty`` as its default value
+* #7901: autodoc: type annotations for overloaded functions are not resolved
+* #904: autodoc: An instance attribute cause a crash of autofunction directive
+* #1362: autodoc: ``private-members`` option does not work for class attributes
+* #7983: autodoc: Generator type annotation is wrongly rendered in py36
+* #8030: autodoc: An uninitialized annotated instance variable is not documented
+  when ``:inherited-members:`` option given
+* #8032: autodoc: A type hint for the instance variable defined at parent class
+  is not shown in the document of the derived class
+* #8041: autodoc: An annotated instance variable on super class is not
+  documented when derived class has other annotated instance variables
+* #7839: autosummary: cannot handle umlauts in function names
+* #7865: autosummary: Failed to extract summary line when abbreviations found
+* #7866: autosummary: Failed to extract correct summary line when docstring
+  contains a hyperlink target
+* #7469: autosummary: "Module attributes" header is not translatable
+* #7940: apidoc: An extra newline is generated at the end of the rst file if a
+  module has submodules
+* #4258: napoleon: decorated special methods are not shown
+* #7799: napoleon: parameters are not escaped for combined params in numpydoc
+* #7780: napoleon: multiple parameters declaration in numpydoc was wrongly
+  recognized when ``napoleon_use_param=True``
+* #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
+* #7846: html theme: XML-invalid files were generated
+* #7894: gettext: Wrong source info is shown when using rst_epilog
+* #7691: linkcheck: HEAD requests are not used for checking
+* #4888: i18n: Failed to add an explicit title to ``:ref:`` role on translation
+* #7928: py domain: failed to resolve a type annotation for the attribute
+* #8008: py domain: failed to parse a type annotation containing ellipsis
+* #7994: std domain: option directive does not generate old node_id compatible
+  with 2.x or older
+* #7968: i18n: The content of ``math`` directive is interpreted as reST on
+  translation
+* #7768: i18n: The ``root`` element for :confval:`figure_language_filename` is
+  not a path that user specifies in the document
+* #7993: texinfo: TypeError is raised for nested object descriptions
+* #7993: texinfo: a warning not supporting desc_signature_line node is shown
+* #7869: :rst:role:`abbr` role without an explanation will show the explanation
+  from the previous abbr role
+* #8048: graphviz: graphviz.css was copied on building non-HTML document
+* C and C++, removed ``noindex`` directive option as it did
+  nothing.
+* #7619: Duplicated node IDs are generated if node has multiple IDs
+* #2050: Symbols sections are appeared twice in the index page
+* #8017: Fix circular import in sphinx.addnodes
+* #7986: CSS: make "highlight" selector more robust
+* #7944: C++, parse non-type template parameters starting with
+  a dependent qualified name.
+* C, don't deepcopy the entire symbol table and make a mess every time an
+  enumerator is handled.

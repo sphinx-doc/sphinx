@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from docutils import nodes
 from pygments.lexers import PythonConsoleLexer, guess_lexer
@@ -13,6 +13,8 @@ from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Node, TextElement
 
     from sphinx.application import Sphinx
@@ -26,8 +28,7 @@ class HighlightSetting(NamedTuple):
 
 
 class HighlightLanguageTransform(SphinxTransform):
-    """
-    Apply highlight_language to all literal_block nodes.
+    """Apply highlight_language to all literal_block nodes.
 
     This refers both :confval:`highlight_language` setting and
     :rst:dir:`highlight` directive.  After processing, this transform
@@ -37,8 +38,9 @@ class HighlightLanguageTransform(SphinxTransform):
     default_priority = 400
 
     def apply(self, **kwargs: Any) -> None:
-        visitor = HighlightLanguageVisitor(self.document,
-                                           self.config.highlight_language)
+        visitor = HighlightLanguageVisitor(
+            self.document, self.config.highlight_language
+        )
         self.document.walkabout(visitor)
 
         for node in list(self.document.findall(addnodes.highlightlang)):
@@ -70,9 +72,9 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
         self.settings.pop()
 
     def visit_highlightlang(self, node: addnodes.highlightlang) -> None:
-        self.settings[-1] = HighlightSetting(node['lang'],
-                                             node['force'],
-                                             node['linenothreshold'])
+        self.settings[-1] = HighlightSetting(
+            node['lang'], node['force'], node['linenothreshold']
+        )
 
     def visit_literal_block(self, node: nodes.literal_block) -> None:
         setting = self.settings[-1]
@@ -81,12 +83,11 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
             node['force'] = setting.force
         if 'linenos' not in node:
             lines = node.astext().count('\n')
-            node['linenos'] = (lines >= setting.lineno_threshold - 1)
+            node['linenos'] = lines >= setting.lineno_threshold - 1
 
 
 class TrimDoctestFlagsTransform(SphinxTransform):
-    """
-    Trim doctest flags like ``# doctest: +FLAG`` from python code-blocks.
+    """Trim doctest flags like ``# doctest: +FLAG`` from python code-blocks.
 
     see :confval:`trim_doctest_flags` for more information.
     """

@@ -43,6 +43,8 @@ Below is an overview of the core event that happens during a build.
          6. source-read(app, docname, source)
          7. run source parsers: text -> docutils.document
             - parsers can be added with the app.add_source_parser() API
+            - event.include-read(app, relative_path, parent_docname, content)
+              is called for each include directive
          8. apply transforms based on priority: docutils.document -> docutils.document
             - event.doctree-read(app, doctree) is called in the middle of transforms,
               transforms come before/after this event depending on their priority.
@@ -52,21 +54,27 @@ Below is an overview of the core event that happens during a build.
 
    10. event.env-updated(app, env)
    11. event.env-get-updated(app, env)
-   12. event.env-check-consistency(app, env)
+
+   if environment is written to disk:
+      12. event.env-check-consistency(app, env)
+
+   13. event.write-started(app, builder)
+       - This is called after ``app.parallel_ok`` has been set,
+         which must not be altered by any event handler.
 
    # The updated-docs list can be builder dependent, but generally includes all new/changed documents,
    # plus any output from `env-get-updated`, and then all "parent" documents in the ToC tree
    # For builders that output a single page, they are first joined into a single doctree before post-transforms
    # or the doctree-resolved event is emitted
    for docname in updated-docs:
-      13. apply post-transforms (by priority): docutils.document -> docutils.document
-      14. event.doctree-resolved(app, doctree, docname)
+      14. apply post-transforms (by priority): docutils.document -> docutils.document
+      15. event.doctree-resolved(app, doctree, docname)
           - In the event that any reference nodes fail to resolve, the following may emit:
           - event.missing-reference(env, node, contnode)
           - event.warn-missing-reference(domain, node)
 
-   15. Generate output files
-   16. event.build-finished(app, exception)
+   16. Generate output files
+   17. event.build-finished(app, exception)
 
 Here is also a flow diagram of the events,
 within the context of the Sphinx build process:
@@ -99,10 +107,10 @@ Here is a more detailed list of these events.
 
    :param app: :class:`.Sphinx`
    :param env: :class:`.BuildEnvironment`
-   :param added: ``set[str]``
-   :param changed: ``set[str]``
-   :param removed: ``set[str]``
-   :returns: ``list[str]`` of additional docnames to re-read
+   :param added: ``Set[str]``
+   :param changed: ``Set[str]``
+   :param removed: ``Set[str]``
+   :returns: ``Sequence[str]`` of additional docnames to re-read
 
    Emitted when the environment determines which source files have changed and
    should be re-read.
@@ -322,6 +330,16 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 1.6
 
+.. event:: write-started (app, builder)
+
+   :param app: :class:`.Sphinx`
+   :param builder: :class:`.Builder`
+
+   Emitted before the builder starts to
+   resolve and write documents.
+
+   .. versionadded:: 7.4
+
 .. event:: build-finished (app, exception)
 
    :param app: :class:`.Sphinx`
@@ -369,15 +387,15 @@ These events are emitted by specific builders.
    The *pagename* argument is the canonical name of the page being rendered,
    that is, without ``.html`` suffix and using slashes as path separators.
    The *templatename* is the name of the template to render, this will be
-   ``'page.html'`` for all pages from reST documents.
+   ``'page.html'`` for all pages from reStructuredText documents.
 
    The *context* argument is a dictionary of values that are given to the
    template engine to render the page and can be modified to include custom
    values.
 
-   The *doctree* argument will be a doctree when the page is created from a reST
-   documents; it will be ``None`` when the page is created from an HTML template
-   alone.
+   The *doctree* argument will be a doctree when
+   the page is created from a reStructuredText documents;
+   it will be ``None`` when the page is created from an HTML template alone.
 
    You can return a string from the handler, it will then replace
    ``'page.html'`` as the HTML template for this page.

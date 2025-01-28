@@ -7,6 +7,9 @@
 
 .. versionadded:: 1.2
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension looks at your object descriptions (``.. class::``,
 ``.. function::`` etc.) and adds external links to code hosted
 somewhere on the web. The intent is similar to the
@@ -21,6 +24,8 @@ Configuration
 -------------
 
 .. confval:: linkcode_resolve
+   :type: :code-py:`Callable[[str, dict[str, str]], str | None] | None`
+   :default: :code-py:`None`
 
    This is a function ``linkcode_resolve(domain, info)``,
    which should return the URL to source code corresponding to
@@ -49,3 +54,21 @@ Configuration
               return None
           filename = info['module'].replace('.', '/')
           return "https://somesite/sourcerepo/%s.py" % filename
+
+
+Third-party domains
+-------------------
+
+Support for other domains can be added by extensions with
+:py:func:`.add_linkcode_domain()`.
+For example, a Sphinx extension that provides a ``php`` domain
+could use the following code to support :mod:`~sphinx.ext.linkcode`:
+
+.. code-block:: python
+
+   from sphinx.ext.linkcode import add_linkcode_domain
+
+   def setup(app):
+       add_linkcode_domain('php', ['namespace', 'class', 'fullname'])
+
+.. autofunction:: add_linkcode_domain

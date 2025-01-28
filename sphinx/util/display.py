@@ -1,28 +1,29 @@
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, TypeVar
 
+from sphinx._cli.util.colour import bold, terminal_supports_colour
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold, color_terminal
 
 if False:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
+    from typing import Any, ParamSpec, TypeVar
+
+    T = TypeVar('T')
+    P = ParamSpec('P')
+    R = TypeVar('R')
 
 logger = logging.getLogger(__name__)
 
 
 def display_chunk(chunk: Any) -> str:
-    if isinstance(chunk, (list, tuple)):
+    if isinstance(chunk, list | tuple):
         if len(chunk) == 1:
             return str(chunk[0])
         return f'{chunk[0]} .. {chunk[-1]}'
     return str(chunk)
-
-
-T = TypeVar('T')
 
 
 def status_iterator(
@@ -34,12 +35,12 @@ def status_iterator(
     stringify_func: Callable[[Any], str] = display_chunk,
 ) -> Iterator[T]:
     # printing on a single line requires ANSI control sequences
-    single_line = verbosity < 1 and color_terminal()
+    single_line = verbosity < 1 and terminal_supports_colour()
     bold_summary = bold(summary)
     if length == 0:
         logger.info(bold_summary, nonl=True)
         for item in iterable:
-            logger.info(stringify_func(item) + ' ', nonl=True, color=color)
+            logger.info('%s ', stringify_func(item), nonl=True, color=color)
             yield item
     else:
         for i, item in enumerate(iterable, start=1):
@@ -75,22 +76,22 @@ class progress_message:
         val: BaseException | None,
         tb: TracebackType | None,
     ) -> bool:
-        prefix = "" if self.nonl else bold(self.message + ': ')
+        prefix = '' if self.nonl else bold(self.message + ': ')
         if isinstance(val, SkipProgressMessage):
-            logger.info(prefix + __('skipped'))
+            logger.info(prefix + __('skipped'))  # NoQA: G003
             if val.args:
                 logger.info(*val.args)
             return True
         elif val:
-            logger.info(prefix + __('failed'))
+            logger.info(prefix + __('failed'))  # NoQA: G003
         else:
-            logger.info(prefix + __('done'))
+            logger.info(prefix + __('done'))  # NoQA: G003
 
         return False
 
-    def __call__(self, f: Callable) -> Callable:
+    def __call__(self, f: Callable[P, R]) -> Callable[P, R]:
         @functools.wraps(f)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]
             with self:
                 return f(*args, **kwargs)
 
