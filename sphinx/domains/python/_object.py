@@ -409,8 +409,8 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     def add_target_and_index(
         self, name_cls: tuple[str, str], sig: str, signode: desc_signature
     ) -> None:
-        modname = self.options.get('module', self.env.ref_context.get('py:module'))
-        fullname = (f'{modname}.' if modname else '') + name_cls[0]
+        mod_name = self.options.get('module', self.env.ref_context.get('py:module'))
+        fullname = (f'{mod_name}.' if mod_name else '') + name_cls[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
@@ -425,11 +425,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             )
 
         if 'no-index-entry' not in self.options:
-            indextext = self.get_index_text(modname, name_cls)
-            if indextext:
+            if index_text := self.get_index_text(mod_name, name_cls):
                 self.indexnode['entries'].append((
                     'single',
-                    indextext,
+                    index_text,
                     node_id,
                     '',
                     None,
