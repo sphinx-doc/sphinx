@@ -230,6 +230,20 @@ The following directives are provided for module and class contents:
 
    .. rubric:: options
 
+   .. rst:directive:option:: abstract
+      :type: no value
+
+      Indicate that the class is an abstract base class.
+      This produces the following output:
+
+      .. py:class:: Cheese
+         :no-index:
+         :abstract:
+
+         A cheesy representation.
+
+      .. versionadded:: 8.2
+
    .. rst:directive:option:: canonical
       :type: full qualified name including module name
 
@@ -320,7 +334,8 @@ The following directives are provided for module and class contents:
 
    .. rubric:: options
 
-   .. rst:directive:option:: abstractmethod
+   .. rst:directive:option:: abstract
+                             abstractmethod
       :type: no value
 
       Indicate the property is abstract.
@@ -331,6 +346,10 @@ The following directives are provided for module and class contents:
          :abstractmethod:
 
          Cheese levels at the *National Cheese Emporium*.
+
+      .. versionchanged:: 8.2
+
+         The ``:abstract:`` alias is also supported.
 
    .. rst:directive:option:: classmethod
       :type: no value
@@ -419,7 +438,8 @@ The following directives are provided for module and class contents:
 
    .. rubric:: options
 
-   .. rst:directive:option:: abstractmethod
+   .. rst:directive:option:: abstract
+                             abstractmethod
       :type: no value
 
       Indicate the method is an abstract method.
@@ -432,6 +452,9 @@ The following directives are provided for module and class contents:
          Order more cheese (we're fresh out!).
 
       .. versionadded:: 2.1
+      .. versionchanged:: 8.2
+
+         The ``:abstract:`` alias is also supported.
 
    .. rst:directive:option:: async
       :type: no value

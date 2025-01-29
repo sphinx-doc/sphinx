@@ -186,6 +186,7 @@ class PyClasslike(PyObject):
 
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
+        'abstract': directives.flag,
         'final': directives.flag,
     })
 
@@ -196,6 +197,11 @@ class PyClasslike(PyObject):
         if 'final' in self.options:
             prefix.extend((
                 addnodes.desc_sig_keyword('', 'final'),
+                addnodes.desc_sig_space(),
+            ))
+        if 'abstract' in self.options:
+            prefix.extend((
+                addnodes.desc_sig_keyword('', 'abstract'),
                 addnodes.desc_sig_space(),
             ))
         prefix.extend((
@@ -220,6 +226,7 @@ class PyMethod(PyObject):
 
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
+        'abstract': directives.flag,
         'abstractmethod': directives.flag,
         'async': directives.flag,
         'classmethod': directives.flag,
@@ -237,7 +244,7 @@ class PyMethod(PyObject):
                 addnodes.desc_sig_keyword('', 'final'),
                 addnodes.desc_sig_space(),
             ))
-        if 'abstractmethod' in self.options:
+        if 'abstract' in self.options or 'abstractmethod' in self.options:
             prefix.extend((
                 addnodes.desc_sig_keyword('', 'abstractmethod'),
                 addnodes.desc_sig_space(),
@@ -375,6 +382,7 @@ class PyProperty(PyObject):
 
     option_spec = PyObject.option_spec.copy()
     option_spec.update({
+        'abstract': directives.flag,
         'abstractmethod': directives.flag,
         'classmethod': directives.flag,
         'type': directives.unchanged,
@@ -398,7 +406,7 @@ class PyProperty(PyObject):
 
     def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
         prefix: list[addnodes.desc_sig_element] = []
-        if 'abstractmethod' in self.options:
+        if 'abstract' in self.options or 'abstractmethod' in self.options:
             prefix.extend((
                 addnodes.desc_sig_keyword('', 'abstract'),
                 addnodes.desc_sig_space(),
