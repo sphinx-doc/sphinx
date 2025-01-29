@@ -3120,6 +3120,36 @@ def test_canonical(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_reimport_typevar(app):
+    options = {
+        'members': None,
+        'imported-members': None,
+    }
+    actual = do_autodoc(app, 'module', 'target.reimport', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.reimport',
+        '',
+        '',
+        '.. py:class:: T',
+        '   :module: target.reimport',
+        '',
+        '   A reimported TypeVar',
+        '',
+        "   alias of TypeVar('T', bound=\\ :py:class:`int` | :py:class:`str`)",
+        '',
+        '',
+        '.. py:class:: V',
+        '   :module: target.reimport',
+        '',
+        '   A locally defined TypeVar',
+        '',
+        "   alias of TypeVar('V')",
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_literal_render(app):
     def bounded_typevar_rst(name, bound):
         return [

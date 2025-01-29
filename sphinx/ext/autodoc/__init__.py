@@ -763,6 +763,18 @@ class Documenter:
         for obj in members:
             membername = obj.__name__
             member = obj.object
+            # If the member doesn't have docs in the current module, see if it does
+            # where it is imported from
+            key = (namespace, membername)
+            if key not in attr_docs and hasattr(obj.object, '__module__'):
+                try:
+                    analyzer = ModuleAnalyzer.for_module(obj.object.__module__)
+                except PycodeError:
+                    pass
+                else:
+                    orig_docs = analyzer.find_attr_docs()
+                    if key in orig_docs:
+                        attr_docs[key] = orig_docs[key]
 
             # if isattr is True, the member is documented as an attribute
             isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
