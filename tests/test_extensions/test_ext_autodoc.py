@@ -3146,6 +3146,13 @@ def test_reimport_typevar(app):
         '',
         "   alias of TypeVar('V')",
         '',
+        '',
+        '.. py:function:: add(x: ~target.reimport.T, y: ~target.reimport.T) ->'
+        ' ~target.reimport.T',
+        '   :module: target.reimport',
+        '',
+        '   Add two things together',
+        '',
     ]
 
 
