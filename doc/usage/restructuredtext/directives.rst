@@ -480,6 +480,56 @@ and the generic :rst:dir:`admonition` directive.
          Documentation for tar archive files, including GNU tar extensions.
 
 
+.. _collapsible-admonitions:
+
+.. rubric:: Collapsible text
+
+.. versionadded:: 8.2
+
+Each admonition directive supports a ``:collapsible:`` option,
+to make the content of the admonition collapsible
+(where supported by the output format).
+This can be useful for content that is not always relevant.
+By default, collapsible admonitions are initially open,
+but this can be controlled with the ``open`` and ``closed`` arguments
+to the ``:collapsible:`` option, which change the default state.
+In output formats that don't support collapsible content,
+the text is always included.
+For example:
+
+.. code-block:: rst
+
+  .. note::
+     :collapsible:
+
+     This note is collapsible, and initially open by default.
+
+  .. admonition:: Example
+     :collapsible: open
+
+     This example is collapsible, and initially open.
+
+  .. hint::
+     :collapsible: closed
+
+     This hint is collapsible, but initially closed.
+
+.. note::
+  :collapsible:
+
+  This note is collapsible, and initially open by default.
+
+.. admonition:: Example
+  :collapsible: open
+
+  This example is collapsible, and initially open.
+
+.. hint::
+  :collapsible: closed
+
+  This hint is collapsible, but initially closed.
+
+
 Describing changes between versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

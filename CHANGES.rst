@@ -88,6 +88,9 @@ Features added
 * #13271: Support the ``:abstract:`` option for
   classes, methods, and properties in the Python domain.
   Patch by Adam Turner.
+* #12507: Add the :ref:`collapsible <collapsible-admonitions>` option
+  to admonition directives.
+  Patch by Chris Sewell.
 
 Bugs fixed
 ----------
