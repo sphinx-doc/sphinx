@@ -479,6 +479,7 @@ class PyModule(SphinxDirective):
         'platform': lambda x: x,
         'synopsis': lambda x: x,
         'no-index': directives.flag,
+        'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
         'noindex': directives.flag,
@@ -520,10 +521,15 @@ class PyModule(SphinxDirective):
 
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
-            indextext = f'module; {modname}'
-            inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
-            # The node order is: index node first, then target node.
-            ret.extend((inode, target))
+
+            if 'no-index-entry' not in self.options:
+                index_text = f'module; {modname}'
+                inode = addnodes.index(
+                    entries=[('pair', index_text, node_id, '', None)]
+                )
+                # The node order is: index node first, then target node.
+                ret.append(inode)
+            ret.append(target)
         ret.extend(content_nodes)
         return ret
 

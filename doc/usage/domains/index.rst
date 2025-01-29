@@ -48,7 +48,7 @@ the content should be the description.
 
 A domain will typically keep an internal index of all entities to aid
 cross-referencing.
-Typically it will also add entries in the shown general index.
+Typically, it will also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
 give the directive option flag ``:no-index-entry:``.
 If you want to exclude the object description from the table of contents, you
