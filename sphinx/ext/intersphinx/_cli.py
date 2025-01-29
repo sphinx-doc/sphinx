@@ -28,15 +28,15 @@ def inspect_main(argv: list[str], /) -> int:
     )
 
     try:
-        inv_data = _fetch_inventory(
+        inv = _fetch_inventory(
             target_uri='',
             inv_location=filename,
             config=config,
             srcdir=Path(),
         )
-        for key in sorted(inv_data or {}):
+        for key in sorted(inv.data):
             print(key)
-            inv_entries = sorted(inv_data[key].items())
+            inv_entries = sorted(inv.data[key].items())
             for entry, inv_item in inv_entries:
                 display_name = inv_item.display_name
                 display_name = display_name * (display_name != '-')

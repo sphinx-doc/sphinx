@@ -365,6 +365,7 @@ class Documenter:
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
+        'no-index-entry': bool_option,
         'noindex': bool_option,
     }
 
@@ -605,6 +606,8 @@ class Documenter:
 
         if self.options.no_index or self.options.noindex:
             self.add_line('   :no-index:', sourcename)
+        if self.options.no_index_entry:
+            self.add_line('   :no-index-entry:', sourcename)
         if self.objpath:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
@@ -1110,6 +1113,7 @@ class ModuleDocumenter(Documenter):
         'members': members_option,
         'undoc-members': bool_option,
         'no-index': bool_option,
+        'no-index-entry': bool_option,
         'inherited-members': inherited_members_option,
         'show-inheritance': bool_option,
         'synopsis': identity,
@@ -1197,6 +1201,8 @@ class ModuleDocumenter(Documenter):
             self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
+        if self.options.no_index_entry:
+            self.add_line('   :no-index-entry:', sourcename)
 
     def get_module_members(self) -> dict[str, ObjectMember]:
         """Get members of target module."""
@@ -1625,6 +1631,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'members': members_option,
         'undoc-members': bool_option,
         'no-index': bool_option,
+        'no-index-entry': bool_option,
         'inherited-members': inherited_members_option,
         'show-inheritance': bool_option,
         'member-order': member_order_option,

@@ -836,6 +836,15 @@ def test_no_index_entry(app):
     )
     assert_node(doctree[2], addnodes.index, entries=[])
 
+    text = '.. py:module:: f\n.. py:module:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, nodes.target, nodes.target))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('pair', 'module; f', 'module-f', '', None)],
+    )
+
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
 def test_python_python_use_unqualified_type_names(app):

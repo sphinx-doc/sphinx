@@ -141,7 +141,7 @@ def test_is_invalid_builtin_class():
     # if these tests start failing, it means that the __module__
     # of one of these classes has changed, and _INVALID_BUILTIN_CLASSES
     # in sphinx.util.typing needs to be updated.
-    assert _INVALID_BUILTIN_CLASSES.keys() == {
+    invalid_types = (
         # contextvars
         Context,
         ContextVar,
@@ -167,13 +167,6 @@ def test_is_invalid_builtin_class():
         LZMADecompressor,
         # multiprocessing
         Process,
-        # pathlib
-        Path,
-        PosixPath,
-        PurePath,
-        PurePosixPath,
-        PureWindowsPath,
-        WindowsPath,
         # pickle
         Pickler,
         Unpickler,
@@ -205,78 +198,40 @@ def test_is_invalid_builtin_class():
         WrapperDescriptorType,
         # weakref
         WeakSet,
-        # zipfile
-        zipfile.Path,
-        zipfile.CompleteDirs,
-    }
-    # contextvars
-    assert Context.__module__ == '_contextvars'
-    assert ContextVar.__module__ == '_contextvars'
-    assert Token.__module__ == '_contextvars'
-    # ctypes
-    assert ctypes.Array.__module__ == '_ctypes'
-    assert ctypes.Structure.__module__ == '_ctypes'
-    assert ctypes.Union.__module__ == '_ctypes'
-    # io
-    assert FileIO.__module__ == '_io'
-    assert BytesIO.__module__ == '_io'
-    assert StringIO.__module__ == '_io'
-    assert BufferedReader.__module__ == '_io'
-    assert BufferedWriter.__module__ == '_io'
-    assert BufferedRWPair.__module__ == '_io'
-    assert BufferedRandom.__module__ == '_io'
-    assert TextIOWrapper.__module__ == '_io'
-    # json
-    assert JSONDecoder.__module__ == 'json.decoder'
-    assert JSONEncoder.__module__ == 'json.encoder'
-    # lzma
-    assert LZMACompressor.__module__ == '_lzma'
-    assert LZMADecompressor.__module__ == '_lzma'
-    # multiprocessing
-    assert Process.__module__ == 'multiprocessing.context'
-    if sys.version_info[:2] >= (3, 13):
-        # pathlib
-        assert Path.__module__ == 'pathlib._local'
-        assert PosixPath.__module__ == 'pathlib._local'
-        assert PurePath.__module__ == 'pathlib._local'
-        assert PurePosixPath.__module__ == 'pathlib._local'
-        assert PureWindowsPath.__module__ == 'pathlib._local'
-        assert WindowsPath.__module__ == 'pathlib._local'
-    # pickle
-    assert Pickler.__module__ == '_pickle'
-    assert Unpickler.__module__ == '_pickle'
-    # struct
-    assert Struct.__module__ == '_struct'
-    # types
-    assert AsyncGeneratorType.__module__ == 'builtins'
-    assert BuiltinFunctionType.__module__ == 'builtins'
-    assert BuiltinMethodType.__module__ == 'builtins'
-    assert CellType.__module__ == 'builtins'
-    assert ClassMethodDescriptorType.__module__ == 'builtins'
-    assert CodeType.__module__ == 'builtins'
-    assert CoroutineType.__module__ == 'builtins'
-    assert EllipsisType.__module__ == 'builtins'
-    assert FrameType.__module__ == 'builtins'
-    assert FunctionType.__module__ == 'builtins'
-    assert GeneratorType.__module__ == 'builtins'
-    assert GetSetDescriptorType.__module__ == 'builtins'
-    assert LambdaType.__module__ == 'builtins'
-    assert MappingProxyType.__module__ == 'builtins'
-    assert MemberDescriptorType.__module__ == 'builtins'
-    assert MethodDescriptorType.__module__ == 'builtins'
-    assert MethodType.__module__ == 'builtins'
-    assert MethodWrapperType.__module__ == 'builtins'
-    assert ModuleType.__module__ == 'builtins'
-    assert NoneType.__module__ == 'builtins'
-    assert NotImplementedType.__module__ == 'builtins'
-    assert TracebackType.__module__ == 'builtins'
-    assert WrapperDescriptorType.__module__ == 'builtins'
-    # weakref
-    assert WeakSet.__module__ == '_weakrefset'
+    )
     if sys.version_info[:2] >= (3, 12):
-        # zipfile
-        assert zipfile.Path.__module__ == 'zipfile._path'
-        assert zipfile.CompleteDirs.__module__ == 'zipfile._path'
+        invalid_types += (
+            # zipfile
+            zipfile.Path,
+            zipfile.CompleteDirs,
+        )
+    if sys.version_info[:2] >= (3, 13):
+        invalid_types += (
+            # pathlib
+            Path,
+            PosixPath,
+            PurePath,
+            PurePosixPath,
+            PureWindowsPath,
+            WindowsPath,
+        )
+
+    invalid_names = {(cls.__module__, cls.__qualname__) for cls in invalid_types}
+    if sys.version_info[:2] < (3, 13):
+        invalid_names |= {
+            ('pathlib._local', 'Path'),
+            ('pathlib._local', 'PosixPath'),
+            ('pathlib._local', 'PurePath'),
+            ('pathlib._local', 'PurePosixPath'),
+            ('pathlib._local', 'PureWindowsPath'),
+            ('pathlib._local', 'WindowsPath'),
+        }
+    if sys.version_info[:2] < (3, 12):
+        invalid_names |= {
+            ('zipfile._path', 'Path'),
+            ('zipfile._path', 'CompleteDirs'),
+        }
+    assert _INVALID_BUILTIN_CLASSES.keys() == invalid_names
 
 
 def test_restify_type_hints_containers():
