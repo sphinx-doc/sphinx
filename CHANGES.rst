@@ -47,10 +47,10 @@ Features added
 * #13065: Enable colour by default in when running on CI.
   Patch by Adam Turner.
 * Allow supressing warnings from the :rst:dir:`toctree` directive when a glob
-  pattern doesn't match any documents, via the new ``toc.glob_not_matching``
+  pattern doesn't match any documents, via the new ``toc.empty_glob``
   warning sub-type.
   Patch by Slawek Figiel.
-* #9732: Add the new ``autodoc.mock_objects`` warnings sub-type.
+* #9732: Add the new ``autodoc.mocked_object`` warnings sub-type.
   Patch by Cyril Roelandt.
 * #7630, #4824: autodoc: Use :file:`.pyi` type stub files
   to auto-document native modules.
