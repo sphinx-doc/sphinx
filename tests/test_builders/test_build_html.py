@@ -715,3 +715,41 @@ def test_html_pep_695_trailing_comma_in_multi_line_signatures(app):
         r'.//dt[@id="MyList"][1]',
         chk('class MyList[\nT\n](list[T])'),
     )
+
+
+@pytest.mark.sphinx('html', testroot='directives-admonition-collapse')
+def test_html_admonition_collapse(app):
+    app.build()
+    fname = app.outdir / 'index.html'
+    etree = etree_parse(fname)
+
+    def _create_check(text: str, open: bool):  # type: ignore[no-untyped-def]
+        def _check(els):
+            assert len(els) == 1
+            el = els[0]
+            if open:
+                assert el.attrib['open'] == 'open'
+            else:
+                assert 'open' not in el.attrib
+            assert el.find('p').text == text
+
+        return _check
+
+    check_xpath(
+        etree,
+        fname,
+        r'.//details[@class="admonition note"]',
+        _create_check('This note is collapsible, and initially open by default.', True),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//details[@class="admonition-example admonition"]',
+        _create_check('This example is collapsible, and initially open.', True),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//details[@class="admonition hint"]',
+        _create_check('This hint is collapsible, but initially closed.', False),
+    )
