@@ -738,6 +738,12 @@ def test_html_admonition_collapse(app):
     check_xpath(
         etree,
         fname,
+        r'.//div[@class="standard admonition note"]//p',
+        'This is a standard note.',
+    )
+    check_xpath(
+        etree,
+        fname,
         r'.//details[@class="admonition note"]',
         _create_check('This note is collapsible, and initially open by default.', True),
     )
