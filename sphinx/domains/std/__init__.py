@@ -553,7 +553,7 @@ class Glossary(SphinxDirective):
         return [*messages, node]
 
 
-def token_xrefs(text: str, *, production_group: str = '') -> list[Node]:
+def token_xrefs(text: str, production_group: str = '') -> list[Node]:
     if len(production_group) != 0:
         production_group += ':'
     retnodes: list[Node] = []
