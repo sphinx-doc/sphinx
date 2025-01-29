@@ -82,6 +82,12 @@ Features added
   Patch by Jonny Saunders and Adam Turner.
 * #13172: Add support for short signatures in autosummary.
   Patch by Tim Hoffmann.
+* #13271: Change the signature prefix for abstract methods
+  in the Python domain to *abstractmethod* from *abstract*.
+  Patch by Adam Turner.
+* #13271: Support the ``:abstract:`` option for
+  classes, methods, and properties in the Python domain.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
