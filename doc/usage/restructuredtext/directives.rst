@@ -484,6 +484,8 @@ and the generic :rst:dir:`admonition` directive.
 
 .. rubric:: Collapsible text
 
+.. versionadded:: 8.2.0
+
 Each admonition directive supports a ``:collapsible:`` option,
 to make the content of the admonition collapsible
 (where supported by the output format).

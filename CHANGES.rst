@@ -70,6 +70,8 @@ Features added
   which defaults to ``True`` for backwards compatibility.
   The default will change to ``False`` in Sphinx 10.
   Patch by Adam Turner.
+* #12507: Add the :ref:`collapsible <collapsible-admonitions>` option to admonition directives.
+  Patch by Chris Sewell.
 
 Bugs fixed
 ----------
