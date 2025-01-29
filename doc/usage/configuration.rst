@@ -1378,13 +1378,16 @@ Options for warning control
    * ``duplicate_declaration.cpp``
    * ``epub.duplicated_toc_entry``
    * ``epub.unknown_project_files``
+   * ``i18n.babel``
    * ``i18n.inconsistent_references``
+   * ``i18n.not_readable``
+   * ``i18n.not_writeable``
    * ``image.not_readable``
    * ``index``
    * ``misc.copy_overwrite``
    * ``misc.highlighting_failure``
-   * ``ref.citation``
    * ``ref.any``
+   * ``ref.citation``
    * ``ref.doc``
    * ``ref.footnote``
    * ``ref.keyword``
@@ -1394,9 +1397,11 @@ Options for warning control
    * ``ref.ref``
    * ``ref.term``
    * ``toc.circular``
+   * ``toc.duplicate_entry``
    * ``toc.empty_glob``
    * ``toc.excluded``
    * ``toc.no_title``
+   * ``toc.not_included``
    * ``toc.not_readable``
    * ``toc.secnum``
 
@@ -1490,6 +1495,14 @@ Options for warning control
 
    .. versionadded:: 8.2
       Added ``ref.any``
+
+   .. versionchanged:: 8.2
+
+      Added ``i18n.babel``,
+      ``i18n.not_readable``,
+      ``i18n.not_writeable``,
+      ``toc.duplicate_entry``, and
+      ``toc.not_included``.
 
 
 Builder options

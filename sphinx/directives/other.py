@@ -157,7 +157,7 @@ class TocTree(SphinxDirective):
                     subtype = 'not_readable'
 
                 logger.warning(
-                    msg, docname, type='toc', subtype=subtype, location=toctree
+                    msg, docname, location=toctree, type='toc', subtype=subtype
                 )
                 self.env.note_reread()
                 continue
@@ -169,6 +169,8 @@ class TocTree(SphinxDirective):
                     __('duplicated entry found in toctree: %s'),
                     docname,
                     location=toctree,
+                    type='toc',
+                    subtype='duplicate_entry',
                 )
 
             toctree['entries'].append((title, docname))

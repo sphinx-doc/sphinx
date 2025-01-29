@@ -358,12 +358,15 @@ def _toctree_entry(
         ref_path = str(env.doc2path(ref, False))
         if excluded(ref_path):
             message = __('toctree contains reference to excluded document %r')
+            subtype = 'excluded'
         elif not included(ref_path):
             message = __('toctree contains reference to non-included document %r')
+            subtype = 'not_included'
         else:
-            message = __('toctree contains reference to nonexisting document %r')
+            message = __('toctree contains reference to non-existing document %r')
+            subtype = 'not_readable'
 
-        logger.warning(message, ref, location=toctreenode)
+        logger.warning(message, ref, location=toctreenode, type='toc', subtype=subtype)
         raise
     return toc, refdoc
 

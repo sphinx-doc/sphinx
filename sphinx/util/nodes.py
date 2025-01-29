@@ -485,6 +485,8 @@ def inline_all_toctrees(
                         __('toctree contains ref to nonexisting file %r'),
                         includefile,
                         location=docname,
+                        type='toc',
+                        subtype='not_readable',
                     )
                 else:
                     sof = addnodes.start_of_file(docname=includefile)

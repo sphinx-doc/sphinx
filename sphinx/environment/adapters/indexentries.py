@@ -141,9 +141,10 @@ class IndexEntries:
                             __('unknown index entry type %r'),
                             entry_type,
                             location=docname,
+                            type='index',
                         )
                 except ValueError as err:
-                    logger.warning(str(err), location=docname)
+                    logger.warning(str(err), location=docname, type='index')
 
         for targets, sub_items, _category_key in new.values():
             targets.sort(key=_key_func_0)
