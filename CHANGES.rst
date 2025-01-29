@@ -80,6 +80,8 @@ Features added
   and include the ``:no-index:`` and ``:no-index-entry:`` options within
   :confval:`autodoc_default_options`.
   Patch by Jonny Saunders and Adam Turner.
+* #13172: Add support for short signatures in autosummary.
+  Patch by Tim Hoffmann.
 
 Bugs fixed
 ----------
