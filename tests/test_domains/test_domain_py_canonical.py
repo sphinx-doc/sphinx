@@ -11,6 +11,7 @@ from sphinx.addnodes import (
     desc_annotation,
     desc_content,
     desc_name,
+    desc_sig_keyword,
     desc_sig_space,
     desc_signature,
 )
@@ -50,7 +51,10 @@ def test_canonical(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'io.'],
                             [desc_name, 'StringIO'],
                         ),

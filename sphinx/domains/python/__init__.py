@@ -25,7 +25,7 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Set
+    from collections.abc import Iterable, Iterator, Sequence, Set
     from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
@@ -87,14 +87,14 @@ class PyFunction(PyObject):
         'async': directives.flag,
     })
 
-    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
+    def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
+        prefix: list[addnodes.desc_sig_element] = []
         if 'async' in self.options:
-            return [
+            prefix.extend((
                 addnodes.desc_sig_keyword('', 'async'),
                 addnodes.desc_sig_space(),
-            ]
-        else:
-            return []
+            ))
+        return prefix
 
     def needs_arglist(self) -> bool:
         return True
@@ -186,21 +186,29 @@ class PyClasslike(PyObject):
 
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
+        'abstract': directives.flag,
         'final': directives.flag,
     })
 
     allow_nesting = True
 
-    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
+    def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
+        prefix: list[addnodes.desc_sig_element] = []
         if 'final' in self.options:
-            return [
-                nodes.Text('final'),
+            prefix.extend((
+                addnodes.desc_sig_keyword('', 'final'),
                 addnodes.desc_sig_space(),
-                nodes.Text(self.objtype),
+            ))
+        if 'abstract' in self.options:
+            prefix.extend((
+                addnodes.desc_sig_keyword('', 'abstract'),
                 addnodes.desc_sig_space(),
-            ]
-        else:
-            return [nodes.Text(self.objtype), addnodes.desc_sig_space()]
+            ))
+        prefix.extend((
+            addnodes.desc_sig_keyword('', self.objtype),
+            addnodes.desc_sig_space(),
+        ))
+        return prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
         if self.objtype == 'class':
@@ -218,6 +226,7 @@ class PyMethod(PyObject):
 
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
+        'abstract': directives.flag,
         'abstractmethod': directives.flag,
         'async': directives.flag,
         'classmethod': directives.flag,
@@ -228,31 +237,31 @@ class PyMethod(PyObject):
     def needs_arglist(self) -> bool:
         return True
 
-    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
-        prefix: list[nodes.Node] = []
+    def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
+        prefix: list[addnodes.desc_sig_element] = []
         if 'final' in self.options:
             prefix.extend((
-                nodes.Text('final'),
+                addnodes.desc_sig_keyword('', 'final'),
                 addnodes.desc_sig_space(),
             ))
-        if 'abstractmethod' in self.options:
+        if 'abstract' in self.options or 'abstractmethod' in self.options:
             prefix.extend((
-                nodes.Text('abstract'),
+                addnodes.desc_sig_keyword('', 'abstractmethod'),
                 addnodes.desc_sig_space(),
             ))
         if 'async' in self.options:
             prefix.extend((
-                nodes.Text('async'),
+                addnodes.desc_sig_keyword('', 'async'),
                 addnodes.desc_sig_space(),
             ))
         if 'classmethod' in self.options:
             prefix.extend((
-                nodes.Text('classmethod'),
+                addnodes.desc_sig_keyword('', 'classmethod'),
                 addnodes.desc_sig_space(),
             ))
         if 'staticmethod' in self.options:
             prefix.extend((
-                nodes.Text('static'),
+                addnodes.desc_sig_keyword('', 'static'),
                 addnodes.desc_sig_space(),
             ))
         return prefix
@@ -373,6 +382,7 @@ class PyProperty(PyObject):
 
     option_spec = PyObject.option_spec.copy()
     option_spec.update({
+        'abstract': directives.flag,
         'abstractmethod': directives.flag,
         'classmethod': directives.flag,
         'type': directives.unchanged,
@@ -394,21 +404,20 @@ class PyProperty(PyObject):
 
         return fullname, prefix
 
-    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
-        prefix: list[nodes.Node] = []
-        if 'abstractmethod' in self.options:
+    def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
+        prefix: list[addnodes.desc_sig_element] = []
+        if 'abstract' in self.options or 'abstractmethod' in self.options:
             prefix.extend((
-                nodes.Text('abstract'),
+                addnodes.desc_sig_keyword('', 'abstract'),
                 addnodes.desc_sig_space(),
             ))
         if 'classmethod' in self.options:
             prefix.extend((
-                nodes.Text('class'),
+                addnodes.desc_sig_keyword('', 'class'),
                 addnodes.desc_sig_space(),
             ))
-
         prefix.extend((
-            nodes.Text('property'),
+            addnodes.desc_sig_keyword('', 'property'),
             addnodes.desc_sig_space(),
         ))
         return prefix
@@ -436,8 +445,8 @@ class PyTypeAlias(PyObject):
         'canonical': directives.unchanged,
     })
 
-    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
-        return [nodes.Text('type'), addnodes.desc_sig_space()]
+    def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
+        return [addnodes.desc_sig_keyword('', 'type'), addnodes.desc_sig_space()]
 
     def handle_signature(self, sig: str, signode: desc_signature) -> tuple[str, str]:
         fullname, prefix = super().handle_signature(sig, signode)

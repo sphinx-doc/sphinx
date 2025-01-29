@@ -2265,7 +2265,7 @@ def test_one_parameter_per_line(app):
     # MyGenericClass[X]
     assert (
         '\\pysiglinewithargsretwithtypelist\n'
-        '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
+        '{\\sphinxbfcode{\\sphinxupquote{\\DUrole{k}{class}\\DUrole{w}{ }}}'
         '\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}\n'
         '{\\sphinxtypeparam{\\DUrole{n}{X}}}\n'
         '{}\n'
@@ -2275,7 +2275,7 @@ def test_one_parameter_per_line(app):
     # MyList[T](list[T])
     assert (
         '\\pysiglinewithargsretwithtypelist\n'
-        '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
+        '{\\sphinxbfcode{\\sphinxupquote{\\DUrole{k}{class}\\DUrole{w}{ }}}'
         '\\sphinxbfcode{\\sphinxupquote{MyList}}}\n'
         '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
         '{\\sphinxparam{list{[}T{]}}}\n'

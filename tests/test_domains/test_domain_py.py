@@ -1468,7 +1468,10 @@ def test_class_def_pep_695(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,
@@ -1530,7 +1533,10 @@ def test_class_def_pep_696(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,
