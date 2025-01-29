@@ -320,7 +320,7 @@ def test_autodoc_process_signature_typehints(app):
 
     app.connect('autodoc-process-signature', process_signature)
 
-    def func(x: int, y: int) -> int:
+    def func(x: int, y: int) -> int:  # type: ignore[empty-body]
         pass
 
     directive = make_directive_bridge(app.env)
@@ -3180,3 +3180,32 @@ def test_literal_render(app):
         *function_rst('bar', 'x: typing.Literal[1234]'),
         *function_rst('foo', 'x: typing.Literal[target.literal.MyEnum.a]'),
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_no_index_entry(app):
+    # modules can use no-index-entry
+    options = {'no-index-entry': None}
+    actual = do_autodoc(app, 'module', 'target.module', options)
+    assert '   :no-index-entry:' in list(actual)
+
+    # classes can use no-index-entry
+    actual = do_autodoc(app, 'class', 'target.classes.Foo', options)
+    assert '   :no-index-entry:' in list(actual)
+
+    # functions can use no-index-entry
+    actual = do_autodoc(app, 'function', 'target.functions.func', options)
+    assert '   :no-index-entry:' in list(actual)
+
+    # modules respect no-index-entry in autodoc_default_options
+    app.config.autodoc_default_options = {'no-index-entry': True}
+    actual = do_autodoc(app, 'module', 'target.module')
+    assert '   :no-index-entry:' in list(actual)
+
+    # classes respect config-level no-index-entry
+    actual = do_autodoc(app, 'class', 'target.classes.Foo')
+    assert '   :no-index-entry:' in list(actual)
+
+    # functions respect config-level no-index-entry
+    actual = do_autodoc(app, 'function', 'target.functions.func')
+    assert '   :no-index-entry:' in list(actual)

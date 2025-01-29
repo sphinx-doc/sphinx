@@ -1384,6 +1384,7 @@ Options for warning control
    * ``misc.copy_overwrite``
    * ``misc.highlighting_failure``
    * ``ref.citation``
+   * ``ref.any``
    * ``ref.doc``
    * ``ref.footnote``
    * ``ref.keyword``
@@ -1486,6 +1487,9 @@ Options for warning control
 
    .. versionadded:: 8.2
       Added ``autodoc.mocked_object``
+
+   .. versionadded:: 8.2
+      Added ``ref.any``
 
 
 Builder options

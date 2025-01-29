@@ -836,6 +836,15 @@ def test_no_index_entry(app):
     )
     assert_node(doctree[2], addnodes.index, entries=[])
 
+    text = '.. py:module:: f\n.. py:module:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, nodes.target, nodes.target))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('pair', 'module; f', 'module-f', '', None)],
+    )
+
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
 def test_python_python_use_unqualified_type_names(app):
@@ -1459,7 +1468,10 @@ def test_class_def_pep_695(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,
@@ -1521,7 +1533,10 @@ def test_class_def_pep_696(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,

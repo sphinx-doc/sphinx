@@ -102,18 +102,31 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
       .. versionadded:: 3.1
 
-   .. rst:directive:option:: no-signatures
+   .. rst:directive:option:: signatures: format
+
+      How to display signatures. Valid values are
+
+      - ``long`` (*default*): use a long signature. This is still cut off so that name
+        plus signature do not exceeed a certain length.
+      - ``short``: Function and class signatures are displayed as ``(…)`` if they have
+        arguments and as ``()`` if they don't have arguments.
+      - ``none``: do not show signatures.
+
+      .. versionadded:: 8.2
+
+   .. rst:directive:option:: nosignatures
 
       Do not show function signatures in the summary.
+
+      This is equivalent to ``:signatures: none``.
 
       .. versionadded:: 0.6
 
       .. versionchanged:: 8.2
 
-         The directive option ``:nosignatures:`` was renamed to ``:no-signatures:``.
+         The directive option is superseded by the more general ``:signatures: none``.
 
-         The previous name has been retained as an alias,
-         but will be deprecated and removed
+         It will be deprecated and removed
          in a future version of Sphinx.
 
    .. rst:directive:option:: template: filename

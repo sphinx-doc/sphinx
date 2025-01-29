@@ -16,7 +16,7 @@ from sphinx.search import IndexBuilder
 from tests.utils import TESTS_ROOT
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
     from pathlib import Path
     from typing import Any
 
@@ -53,12 +53,14 @@ class DummyEnvironment:
 
 
 class DummyDomain:
-    def __init__(self, name: str, data: dict) -> None:
+    def __init__(
+        self, name: str, data: Iterable[tuple[str, str, str, str, str, int]]
+    ) -> None:
         self.name = name
         self.data = data
         self.object_types: dict[str, ObjType] = {}
 
-    def get_objects(self) -> list[tuple[str, str, str, str, str, int]]:
+    def get_objects(self) -> Iterable[tuple[str, str, str, str, str, int]]:
         return self.data
 
 

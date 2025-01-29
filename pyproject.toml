@@ -146,59 +146,6 @@ files = [
 ]
 exclude = [
     "tests/roots",
-    # tests/
-    "^tests/test_quickstart\\.py$",
-    "^tests/test_search\\.py$",
-    # tests/test_builders
-    "^tests/test_builders/test_build_epub\\.py$",
-    "^tests/test_builders/test_build_gettext\\.py$",
-    "^tests/test_builders/test_build_latex\\.py$",
-    "^tests/test_builders/test_build_texinfo\\.py$",
-    # tests/test_config
-    "^tests/test_config/test_config\\.py$",
-    # tests/test_directives
-    "^tests/test_directives/test_directive_only\\.py$",
-    "^tests/test_directives/test_directive_other\\.py$",
-    "^tests/test_directives/test_directive_patch\\.py$",
-    # tests/test_domains
-    "^tests/test_domains/test_domain_c\\.py$",
-    "^tests/test_domains/test_domain_cpp\\.py$",
-    "^tests/test_domains/test_domain_js\\.py$",
-    "^tests/test_domains/test_domain_py\\.py$",
-    "^tests/test_domains/test_domain_py_fields\\.py$",
-    "^tests/test_domains/test_domain_py_pyfunction\\.py$",
-    "^tests/test_domains/test_domain_py_pyobject\\.py$",
-    "^tests/test_domains/test_domain_rst\\.py$",
-    "^tests/test_domains/test_domain_std\\.py$",
-    # tests/test_environment
-    "^tests/test_environment/test_environment_toctree\\.py$",
-    # tests/test_extensions
-    "^tests/test_extensions/test_ext_apidoc\\.py$",
-    "^tests/test_extensions/test_ext_autodoc\\.py$",
-    "^tests/test_extensions/test_ext_autodoc_events\\.py$",
-    "^tests/test_extensions/test_ext_autodoc_mock\\.py$",
-    "^tests/test_extensions/test_ext_autosummary\\.py$",
-    "^tests/test_extensions/test_ext_doctest\\.py$",
-    "^tests/test_extensions/test_ext_inheritance_diagram\\.py$",
-    "^tests/test_extensions/test_ext_intersphinx\\.py$",
-    "^tests/test_extensions/test_ext_napoleon_docstring\\.py$",
-    # tests/test_intl
-    "^tests/test_intl/test_intl\\.py$",
-    # tests/test_pycode
-    "^tests/test_pycode/test_pycode\\.py$",
-    "^tests/test_pycode/test_pycode_ast\\.py$",
-    # tests/test_transforms
-    "^tests/test_transforms/test_transforms_post_transforms\\.py$",
-    # tests/test_util
-    "^tests/test_util/test_util_fileutil\\.py$",
-    "^tests/test_util/test_util_i18n\\.py$",
-    "^tests/test_util/test_util_inspect\\.py$",
-    "^tests/test_util/test_util_logging\\.py$",
-    "^tests/test_util/test_util_nodes\\.py$",
-    "^tests/test_util/test_util_rst\\.py$",
-    "^tests/test_util/test_util_template\\.py$",
-    "^tests/test_util/test_util_typing\\.py$",
-    "^tests/test_util/typing_test_data\\.py$",
 ]
 python_version = "3.11"
 strict = true
@@ -231,6 +178,7 @@ strict_optional = false
 module = [
     "imagesize",
     "pypi_attestations",
+    "pyximport",
     "sigstore.models",
     "sigstore.verify",
     "sigstore.verify.policy",
@@ -350,6 +298,73 @@ module = [
     "tests.test_writers.test_writer_latex",
 ]
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    # tests/
+    "tests.test_quickstart",
+    "tests.test_search",
+    # tests/test_builders
+    "tests.test_builders.test_build_epub",
+    "tests.test_builders.test_build_gettext",
+    "tests.test_builders.test_build_latex",
+    "tests.test_builders.test_build_texinfo",
+    # tests/test_config
+    "tests.test_config.test_config",
+    # tests/test_directives
+    "tests.test_directives.test_directive_only",
+    "tests.test_directives.test_directive_other",
+    "tests.test_directives.test_directive_patch",
+    # tests/test_domains
+    "tests.test_domains.test_domain_c",
+    "tests.test_domains.test_domain_cpp",
+    "tests.test_domains.test_domain_js",
+    "tests.test_domains.test_domain_py",
+    "tests.test_domains.test_domain_py_fields",
+    "tests.test_domains.test_domain_py_pyfunction",
+    "tests.test_domains.test_domain_py_pyobject",
+    "tests.test_domains.test_domain_rst",
+    "tests.test_domains.test_domain_std",
+    # tests/test_environment
+    "tests.test_environment.test_environment_toctree",
+    # tests/test_extensions
+    "tests.test_extensions.test_ext_apidoc",
+    "tests.test_extensions.test_ext_autodoc",
+    "tests.test_extensions.test_ext_autodoc_events",
+    "tests.test_extensions.test_ext_autodoc_mock",
+    "tests.test_extensions.test_ext_autosummary",
+    "tests.test_extensions.test_ext_doctest",
+    "tests.test_extensions.test_ext_inheritance_diagram",
+    "tests.test_extensions.test_ext_intersphinx",
+    "tests.test_extensions.test_ext_napoleon_docstring",
+    # tests/test_intl
+    "tests.test_intl.test_intl",
+    # tests/test_pycode
+    "tests.test_pycode.test_pycode",
+    "tests.test_pycode.test_pycode_ast",
+    # tests/test_transforms
+    "tests.test_transforms.test_transforms_post_transforms",
+    # tests/test_util
+    "tests.test_util.test_util_fileutil",
+    "tests.test_util.test_util_i18n",
+    "tests.test_util.test_util_inspect",
+    "tests.test_util.test_util_logging",
+    "tests.test_util.test_util_nodes",
+    "tests.test_util.test_util_rst",
+    "tests.test_util.test_util_template",
+    "tests.test_util.test_util_typing",
+]
+check_untyped_defs = false
+disable_error_code = [
+    "annotation-unchecked",
+]
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["tests.test_util.typing_test_data"]
+ignore_errors = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"

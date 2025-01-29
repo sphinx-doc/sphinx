@@ -13,6 +13,7 @@ from sphinx.addnodes import (
     desc_content,
     desc_name,
     desc_parameterlist,
+    desc_sig_keyword,
     desc_sig_punctuation,
     desc_sig_space,
     desc_signature,
@@ -36,7 +37,10 @@ def test_pyexception_signature(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('exception', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'exception'], desc_sig_space),
+                            ],
                             [desc_addname, 'builtins.'],
                             [desc_name, 'IOError'],
                         ),
@@ -178,7 +182,10 @@ def test_pyobject_prefix(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Foo'],
                         ),
                     ],
@@ -247,7 +254,10 @@ def test_pyclass_options(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class1'],
                         ),
                     ],
@@ -263,7 +273,12 @@ def test_pyclass_options(app):
                         (
                             [
                                 desc_annotation,
-                                ('final', desc_sig_space, 'class', desc_sig_space),
+                                (
+                                    [desc_sig_keyword, 'final'],
+                                    desc_sig_space,
+                                    [desc_sig_keyword, 'class'],
+                                    desc_sig_space,
+                                ),
                             ],
                             [desc_name, 'Class2'],
                         ),
@@ -322,7 +337,10 @@ def test_pymethod_options(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -376,7 +394,10 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('classmethod', desc_sig_space)],
+                    [
+                        desc_annotation,
+                        ([desc_sig_keyword, 'classmethod'], desc_sig_space),
+                    ],
                     [desc_name, 'meth2'],
                     [desc_parameterlist, ()],
                 ),
@@ -399,7 +420,7 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('static', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'static'], desc_sig_space)],
                     [desc_name, 'meth3'],
                     [desc_parameterlist, ()],
                 ),
@@ -422,7 +443,7 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('async', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'async'], desc_sig_space)],
                     [desc_name, 'meth4'],
                     [desc_parameterlist, ()],
                 ),
@@ -445,7 +466,10 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('abstract', desc_sig_space)],
+                    [
+                        desc_annotation,
+                        ([desc_sig_keyword, 'abstractmethod'], desc_sig_space),
+                    ],
                     [desc_name, 'meth5'],
                     [desc_parameterlist, ()],
                 ),
@@ -468,7 +492,7 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('final', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'final'], desc_sig_space)],
                     [desc_name, 'meth6'],
                     [desc_parameterlist, ()],
                 ),
@@ -495,7 +519,10 @@ def test_pyclassmethod(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -515,7 +542,10 @@ def test_pyclassmethod(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('classmethod', desc_sig_space)],
+                    [
+                        desc_annotation,
+                        ([desc_sig_keyword, 'classmethod'], desc_sig_space),
+                    ],
                     [desc_name, 'meth'],
                     [desc_parameterlist, ()],
                 ),
@@ -542,7 +572,10 @@ def test_pystaticmethod(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -562,7 +595,7 @@ def test_pystaticmethod(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('static', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'static'], desc_sig_space)],
                     [desc_name, 'meth'],
                     [desc_parameterlist, ()],
                 ),
@@ -595,7 +628,10 @@ def test_pyattribute(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -673,7 +709,10 @@ def test_pyproperty(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -695,7 +734,12 @@ def test_pyproperty(app):
                 (
                     [
                         desc_annotation,
-                        ('abstract', desc_sig_space, 'property', desc_sig_space),
+                        (
+                            [desc_sig_keyword, 'abstract'],
+                            desc_sig_space,
+                            [desc_sig_keyword, 'property'],
+                            desc_sig_space,
+                        ),
                     ],
                     [desc_name, 'prop1'],
                     [
@@ -724,7 +768,12 @@ def test_pyproperty(app):
                 (
                     [
                         desc_annotation,
-                        ('class', desc_sig_space, 'property', desc_sig_space),
+                        (
+                            [desc_sig_keyword, 'class'],
+                            desc_sig_space,
+                            [desc_sig_keyword, 'property'],
+                            desc_sig_space,
+                        ),
                     ],
                     [desc_name, 'prop2'],
                     [
@@ -772,7 +821,10 @@ def test_py_type_alias(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('type', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'type'], desc_sig_space),
+                            ],
                             [desc_addname, 'example.'],
                             [desc_name, 'Alias1'],
                             [
@@ -803,7 +855,10 @@ def test_py_type_alias(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'example.'],
                             [desc_name, 'Class'],
                         ),
@@ -832,7 +887,7 @@ def test_py_type_alias(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('type', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'type'], desc_sig_space)],
                     [desc_name, 'Alias2'],
                     [
                         desc_annotation,
@@ -870,7 +925,7 @@ def test_domain_py_type_alias(app):
 
     content = (app.outdir / 'type_alias.html').read_text(encoding='utf8')
     assert (
-        '<em class="property"><span class="pre">type</span><span class="w"> </span></em>'
+        '<em class="property"><span class="k"><span class="pre">type</span></span><span class="w"> </span></em>'
         '<span class="sig-prename descclassname"><span class="pre">module_one.</span></span>'
         '<span class="sig-name descname"><span class="pre">MyAlias</span></span>'
         '<em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span>'
@@ -982,7 +1037,10 @@ def test_pycurrentmodule(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'Module.'],
                             [desc_name, 'A'],
                         ),
@@ -1029,7 +1087,10 @@ def test_pycurrentmodule(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'Other.'],
                             [desc_name, 'B'],
                         ),
