@@ -1364,6 +1364,8 @@ Options for warning control
 
    A list of warning codes to suppress arbitrary warning messages.
 
+   .. versionadded:: 1.4
+
    By default, Sphinx supports the following warning codes:
 
    * ``app.add_directive``
@@ -1420,89 +1422,64 @@ Options for warning control
    component to exclude all warnings attached to it.
 
    .. versionadded:: 1.4
-      Added ``ref.citation``, ``ref.doc``, ``ref.keyword``,
+      ``ref.citation``, ``ref.doc``, ``ref.keyword``,
       ``ref.numref``, ``ref.option``, ``ref.ref``, and ``ref.term``.
 
    .. versionadded:: 1.4.2
-      Added ``app.add_directive``, ``app.add_generic_role``,
+      ``app.add_directive``, ``app.add_generic_role``,
       ``app.add_node``, ``app.add_role``, and ``app.add_source_parser``.
 
-   .. versionchanged:: 1.5
-      Added ``misc.highlighting_failure``
+   .. versionadded:: 1.5
+      ``misc.highlighting_failure``.
 
-   .. versionchanged:: 1.5.1
-      Added ``epub.unknown_project_files``
+   .. versionadded:: 1.5.1
+      ``epub.unknown_project_files``.
 
-   .. versionchanged:: 1.5.2
-      Added ``toc.secnum``
+   .. versionadded:: 1.5.2
+      ``toc.secnum``.
 
-   .. versionchanged:: 1.6
-      Added ``ref.footnote``
+   .. versionadded:: 1.6
+      ``ref.footnote``, ``download.not_readable``, and ``image.not_readable``.
 
-   .. versionchanged:: 1.6
-      Added ``download.not_readable`` and ``image.not_readable``
+   .. versionadded:: 1.7
+      ``ref.python``.
 
-   .. versionchanged:: 1.7
-      Added ``ref.python``
+   .. versionadded:: 2.0
+      ``autodoc.import_object``.
 
-   .. versionchanged:: 2.0
-      Added ``autodoc.import_object``
+   .. versionadded:: 2.1
+      ``autosectionlabel.<document name>``.
 
-   .. versionchanged:: 2.1
-      Added ``autosectionlabel.<document name>``
+   .. versionadded:: 3.1
+      ``toc.circular``.
 
-   .. versionchanged:: 3.1
-      Added ``toc.circular``
+   .. versionadded:: 3.3
+      ``epub.duplicated_toc_entry``.
 
-   .. versionchanged:: 3.3.0
-      Added ``epub.duplicated_toc_entry``
-
-   .. versionchanged:: 4.3
-      Added ``toc.excluded`` and ``toc.not_readable``
+   .. versionadded:: 4.3
+      ``toc.excluded`` and ``toc.not_readable``.
 
    .. versionadded:: 4.5
-      Added ``i18n.inconsistent_references``
+      ``i18n.inconsistent_references``.
 
    .. versionadded:: 7.1
-      Added ``index``.
+      ``index``.
 
    .. versionadded:: 7.3
-      Added ``intersphinx.external``.
-
-   .. versionadded:: 7.3
-      Added ``config.cache``.
-
-   .. versionadded:: 7.3
-      Added ``toc.no_title``.
+      ``config.cache``, ``intersphinx.external``, and ``toc.no_title``.
 
    .. versionadded:: 7.4
-      Added ``docutils``.
-
-   .. versionadded:: 7.4
-      Added ``autosummary.import_cycle``.
+      ``docutils`` and ``autosummary.import_cycle``.
 
    .. versionadded:: 8.0
-      Added ``misc.copy_overwrite``.
+      ``misc.copy_overwrite``.
 
    .. versionadded:: 8.2
-      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
-
-   .. versionadded:: 8.2
-      Added ``toc.empty_glob``.
-
-   .. versionadded:: 8.2
-      Added ``autodoc.mocked_object``
-
-   .. versionadded:: 8.2
-      Added ``ref.any``
-
-   .. versionchanged:: 8.2
-
-      Added ``i18n.babel``,
-      ``i18n.not_readable``,
-      ``i18n.not_writeable``,
-      ``toc.duplicate_entry``, and
-      ``toc.not_included``.
+      ``autodoc.mocked_object``,
+      ``duplicate_declaration.c``, ``duplicate_declaration.cpp``,
+      ``i18n.babel``, ``i18n.not_readable``, ``i18n.not_writeable``,
+      ``ref.any``,
+      ``toc.duplicate_entry``, ``toc.empty_glob``, and ``toc.not_included``.
 
 
 Builder options
