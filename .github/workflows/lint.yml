@@ -26,16 +26,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         persist-credentials: false
-    - name: Get Ruff version from pyproject.toml
-      run: |
-        RUFF_VERSION=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
-        echo "RUFF_VERSION=$RUFF_VERSION" >> $GITHUB_ENV
 
-    - name: Install Ruff ${{ env.RUFF_VERSION }}
+    - name: Install Ruff
       uses: astral-sh/ruff-action@v3
       with:
         args: --version
-        version: ${{ env.RUFF_VERSION }}
 
     - name: Lint with Ruff
       run: ruff check --output-format=github
