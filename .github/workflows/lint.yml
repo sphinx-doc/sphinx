@@ -20,7 +20,7 @@ jobs:
   # If you update any of these commands, don't forget to update the equivalent
   # tox environment
   ruff:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
       run: ruff format --diff
 
   mypy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
       run: mypy
 
   pyright:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
       run: pyright
 
   docs-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
@@ -107,7 +107,7 @@ jobs:
       run: make doclinter
 
   twine:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4

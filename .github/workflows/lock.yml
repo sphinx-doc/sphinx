@@ -8,7 +8,7 @@ on:
 
 jobs:
   action:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.repository_owner == 'sphinx-doc'
     permissions:
       # to lock issues and PRs

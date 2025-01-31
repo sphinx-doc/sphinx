@@ -27,7 +27,7 @@ env:
 
 jobs:
   ubuntu:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     timeout-minutes: 15
     strategy:
@@ -72,7 +72,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     timeout-minutes: 15
     strategy:
@@ -109,7 +109,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   free-threaded:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Python ${{ matrix.python }} (free-threaded)
     timeout-minutes: 15
     strategy:
@@ -141,7 +141,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes-free-threaded:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Python ${{ matrix.python }} (free-threaded)
     timeout-minutes: 15
     strategy:
@@ -203,7 +203,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   docutils-latest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Docutils HEAD
     timeout-minutes: 15
 
@@ -242,7 +242,7 @@ jobs:
         EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
 
   oldest-supported:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Oldest supported
     timeout-minutes: 15
 
@@ -273,7 +273,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   latex:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: LaTeX
     timeout-minutes: 15
     container:
@@ -304,7 +304,7 @@ jobs:
 
   coverage:
     if: github.event_name == 'push' && github.repository_owner == 'sphinx-doc'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Coverage
     timeout-minutes: 15
 

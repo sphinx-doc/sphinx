@@ -19,7 +19,7 @@ env:
 
 jobs:
   publish-pypi:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: PyPI Release
     environment: release
     if: github.repository_owner == 'sphinx-doc'
@@ -124,7 +124,7 @@ jobs:
           twine upload dist/* --attestations
 
   github-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: GitHub release
     environment: release
     if: github.repository_owner == 'sphinx-doc'
