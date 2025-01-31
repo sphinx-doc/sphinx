@@ -202,6 +202,35 @@ jobs:
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
+  macos:
+    runs-on: macos-latest
+    name: macOS
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: brew install graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: uv pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
   docutils-latest:
     runs-on: ubuntu-latest
     name: Docutils HEAD
