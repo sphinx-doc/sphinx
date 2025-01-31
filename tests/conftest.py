@@ -19,7 +19,10 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 _TESTS_ROOT = Path(__file__).resolve().parent
-_ROOTS_DIR = _TESTS_ROOT / 'roots'
+if 'CI' in os.environ and (_TESTS_ROOT / 'roots-read-only').is_dir():
+    _ROOTS_DIR = _TESTS_ROOT / 'roots-read-only'
+else:
+    _ROOTS_DIR = _TESTS_ROOT / 'roots'
 
 
 def _init_console(
