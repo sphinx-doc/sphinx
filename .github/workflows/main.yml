@@ -174,7 +174,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     name: Windows
     timeout-minutes: 15
 
