@@ -104,12 +104,16 @@ def app_params(
 
     test_root = kwargs.pop('testroot', 'root')
     kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', test_root)
+    copy_test_root = not {'srcdir', 'copy_test_root'}.isdisjoint(kwargs)
 
     # special support for sphinx/tests
     if rootdir is not None:
         test_root_path = rootdir / f'test-{test_root}'
-        if test_root_path.is_dir() and not srcdir.exists():
-            shutil.copytree(test_root_path, srcdir)
+        if copy_test_root:
+            if test_root_path.is_dir():
+                shutil.copytree(test_root_path, srcdir, dirs_exist_ok=True)
+        else:
+            kwargs['srcdir'] = test_root_path
 
     # always write to the temporary directory
     kwargs.setdefault('builddir', srcdir / '_build')

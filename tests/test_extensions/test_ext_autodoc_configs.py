@@ -1033,6 +1033,7 @@ def test_autodoc_typehints_description(app):
         'autodoc_typehints': 'description',
         'autodoc_typehints_description_target': 'documented',
     },
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_no_undoc(app):
     # No :type: or :rtype: will be injected for `incr`, which does not have
@@ -1085,6 +1086,7 @@ def test_autodoc_typehints_description_no_undoc(app):
         'autodoc_typehints': 'description',
         'autodoc_typehints_description_target': 'documented_params',
     },
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     # No :type: will be injected for `incr`, which does not have a description
@@ -1154,6 +1156,7 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     'text',
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'description'},
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_with_documented_init(app):
     with overwrite_file(
@@ -1198,6 +1201,7 @@ def test_autodoc_typehints_description_with_documented_init(app):
         'autodoc_typehints': 'description',
         'autodoc_typehints_description_target': 'documented',
     },
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     with overwrite_file(
@@ -1232,6 +1236,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
         'autodoc_typehints': 'description',
         'autodoc_typehints_description_target': 'documented_params',
     },
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(app):
     # see test_autodoc_typehints_description_with_documented_init_no_undoc
@@ -1276,6 +1281,7 @@ def test_autodoc_typehints_description_for_invalid_node(app):
     'text',
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'both'},
+    copy_test_root=True,
 )
 def test_autodoc_typehints_both(app):
     with overwrite_file(

@@ -20,7 +20,7 @@ from sphinx.environment import (
 )
 
 
-@pytest.mark.sphinx('dummy', testroot='basic')
+@pytest.mark.sphinx('dummy', testroot='basic', copy_test_root=True)
 def test_config_status(make_app, app_params):
     args, kwargs = app_params
 
