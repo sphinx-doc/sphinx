@@ -156,7 +156,6 @@ def app(
 ) -> Iterator[SphinxTestApp]:
     """Provides the 'sphinx.application.Sphinx' object"""
     args, kwargs = app_params
-    assert 'builddir' in kwargs
     app_ = make_app(*args, **kwargs)
     yield app_
 
