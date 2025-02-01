@@ -202,7 +202,7 @@ jobs:
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
+      run: python -m pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
@@ -231,7 +231,7 @@ jobs:
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
+      run: python -m pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
@@ -330,7 +330,7 @@ jobs:
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
+      run: python -m pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
         DO_EPUBCHECK: "1"
@@ -361,7 +361,7 @@ jobs:
     - name: Install dependencies
       run: uv pip install .[test] pytest-cov
     - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --cov . --cov-append --cov-config pyproject.toml
+      run: python -m pytest -vv --cov . --cov-append --cov-config pyproject.toml
       env:
         VIRTUALENV_SYSTEM_SITE_PACKAGES: "1"
     - name: codecov
