@@ -396,11 +396,11 @@ class InheritanceDiagram(SphinxDirective):
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
         node['content'] = ', '.join(class_names)
-        node['top-classes'] = []
-        for cls in self.options.get('top-classes', '').split(','):
-            cls = cls.strip()
-            if cls:
-                node['top-classes'].append(cls)
+        node['top-classes'] = frozenset({
+            cls_stripped
+            for cls in self.options.get('top-classes', '').split(',')
+            if (cls_stripped := cls.strip())
+        })
 
         # Create a graph starting with the list of classes
         try:
@@ -410,7 +410,7 @@ class InheritanceDiagram(SphinxDirective):
                 parts=node['parts'],
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,
-                top_classes=frozenset(node['top-classes']),
+                top_classes=node['top-classes'],
                 include_subclasses='include-subclasses' in self.options,
             )
         except InheritanceException as err:
