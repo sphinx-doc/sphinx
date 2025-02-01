@@ -1,132 +1,111 @@
-"""
-    sphinx.util.requests
-    ~~~~~~~~~~~~~~~~~~~~
+"""Simple requests package loader"""
 
-    Simple requests package loader
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import sys
 import warnings
-from contextlib import contextmanager
-from typing import Any, Generator, Union
-from urllib.parse import urlsplit
+from typing import TYPE_CHECKING
+from urllib.parse import urljoin, urlsplit
 
 import requests
+from urllib3.exceptions import InsecureRequestWarning
 
 import sphinx
-from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx50Warning
 
-try:
-    from requests.packages.urllib3.exceptions import SSLError
-except ImportError:
-    # python-requests package in Debian jessie does not provide ``requests.packages.urllib3``.
-    # So try to import the exceptions from urllib3 package.
-    from urllib3.exceptions import SSLError  # type: ignore
-
-try:
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
-except ImportError:
-    try:
-        # for Debian-jessie
-        from urllib3.exceptions import InsecureRequestWarning  # type: ignore
-    except ImportError:
-        # for requests < 2.4.0
-        InsecureRequestWarning = None  # type: ignore
+if TYPE_CHECKING:
+    import re
+    from collections.abc import Sequence
+    from typing import Any
 
 
-useragent_header = [('User-Agent',
-                     'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
+_USER_AGENT = (
+    f'Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0 '
+    f'Sphinx/{sphinx.__version__}'
+)
 
 
-def is_ssl_error(exc: Exception) -> bool:
-    """Check an exception is SSLError."""
-    warnings.warn(
-        "is_ssl_error() is outdated and likely returns incorrect results "
-        "for modern versions of Requests.",
-        RemovedInSphinx50Warning)
-    if isinstance(exc, SSLError):
-        return True
-    else:
-        args = getattr(exc, 'args', [])
-        if args and isinstance(args[0], SSLError):
-            return True
-        else:
-            return False
+class _IgnoredRedirection(Exception):
+    """Sphinx-internal exception raised when an HTTP redirect is ignored"""
+
+    def __init__(self, destination: str, status_code: int) -> None:
+        self.destination = destination
+        self.status_code = status_code
 
 
-@contextmanager
-def ignore_insecure_warning(**kwargs: Any) -> Generator[None, None, None]:
-    with warnings.catch_warnings():
-        if not kwargs.get('verify') and InsecureRequestWarning:
-            # ignore InsecureRequestWarning if verify=False
-            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
-        yield
-
-
-def _get_tls_cacert(url: str, config: Config) -> Union[str, bool]:
-    """Get additional CA cert for a specific URL.
-
-    This also returns ``False`` if verification is disabled.
-    And returns ``True`` if additional CA cert not found.
-    """
-    if not config.tls_verify:
-        return False
-
-    certs = getattr(config, 'tls_cacerts', None)
+def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
+    """Get additional CA cert for a specific URL."""
     if not certs:
         return True
-    elif isinstance(certs, (str, tuple)):
-        return certs  # type: ignore
+    elif isinstance(certs, str | tuple):
+        return certs
     else:
-        hostname = urlsplit(url)[1]
+        hostname = urlsplit(url).netloc
         if '@' in hostname:
-            hostname = hostname.split('@')[1]
+            _, hostname = hostname.split('@', 1)
 
         return certs.get(hostname, True)
 
 
-def _get_user_agent(config: Config) -> str:
-    if config.user_agent:
-        return config.user_agent
-    else:
-        return ' '.join([
-            'Sphinx/%s' % sphinx.__version__,
-            'requests/%s' % requests.__version__,
-            'python/%s' % '.'.join(map(str, sys.version_info[:3])),
-        ])
-
-
 def get(url: str, **kwargs: Any) -> requests.Response:
-    """Sends a GET request like requests.get().
+    """Sends a GET request like ``requests.get()``.
 
-    This sets up User-Agent header and TLS verification automatically."""
-    headers = kwargs.setdefault('headers', {})
-    config = kwargs.pop('config', None)
-    if config:
-        kwargs.setdefault('verify', _get_tls_cacert(url, config))
-        headers.setdefault('User-Agent', _get_user_agent(config))
-    else:
-        headers.setdefault('User-Agent', useragent_header[0][1])
-
-    with ignore_insecure_warning(**kwargs):
-        return requests.get(url, **kwargs)
+    This sets up User-Agent header and TLS verification automatically.
+    """
+    with _Session() as session:
+        return session.get(url, **kwargs)
 
 
 def head(url: str, **kwargs: Any) -> requests.Response:
-    """Sends a HEAD request like requests.head().
+    """Sends a HEAD request like ``requests.head()``.
 
-    This sets up User-Agent header and TLS verification automatically."""
-    headers = kwargs.setdefault('headers', {})
-    config = kwargs.pop('config', None)
-    if config:
-        kwargs.setdefault('verify', _get_tls_cacert(url, config))
-        headers.setdefault('User-Agent', _get_user_agent(config))
-    else:
-        headers.setdefault('User-Agent', useragent_header[0][1])
+    This sets up User-Agent header and TLS verification automatically.
+    """
+    with _Session() as session:
+        return session.head(url, **kwargs)
 
-    with ignore_insecure_warning(**kwargs):
-        return requests.head(url, **kwargs)
+
+class _Session(requests.Session):
+    _ignored_redirects: Sequence[re.Pattern[str]]
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self._ignored_redirects = kwargs.pop('_ignored_redirects', ())
+        super().__init__(*args, **kwargs)
+
+    def get_redirect_target(self, resp: requests.Response) -> str | None:
+        """Overrides the default requests.Session.get_redirect_target"""
+        # do not follow redirections that match ignored URI patterns
+        if resp.is_redirect:
+            destination = urljoin(resp.url, resp.headers['location'])
+            if any(pat.match(destination) for pat in self._ignored_redirects):
+                raise _IgnoredRedirection(
+                    destination=destination, status_code=resp.status_code
+                )
+        return super().get_redirect_target(resp)
+
+    def request(  # type: ignore[override]
+        self,
+        method: str,
+        url: str,
+        _user_agent: str = '',
+        _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
+        **kwargs: Any,
+    ) -> requests.Response:
+        """Sends a request with an HTTP verb and url.
+
+        This sets up User-Agent header and TLS verification automatically.
+        """
+        headers = kwargs.setdefault('headers', {})
+        headers.setdefault('User-Agent', _user_agent or _USER_AGENT)
+        if _tls_info:
+            tls_verify, tls_cacerts = _tls_info
+            verify = bool(kwargs.get('verify', tls_verify))
+            kwargs.setdefault('verify', verify and _get_tls_cacert(url, tls_cacerts))
+        else:
+            verify = kwargs.get('verify', True)
+
+        if verify:
+            return super().request(method, url, **kwargs)
+
+        with warnings.catch_warnings():
+            # ignore InsecureRequestWarning if verify=False
+            warnings.filterwarnings('ignore', category=InsecureRequestWarning)
+            return super().request(method, url, **kwargs)

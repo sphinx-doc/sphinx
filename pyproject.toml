@@ -1,0 +1,469 @@
+[build-system]
+requires = ["flit_core>=3.7"]
+build-backend = "flit_core.buildapi"
+
+# project metadata
+[project]
+name = "Sphinx"
+description = "Python documentation generator"
+readme = "README.rst"
+urls.Changelog = "https://www.sphinx-doc.org/en/master/changes.html"
+urls.Code = "https://github.com/sphinx-doc/sphinx"
+urls.Documentation = "https://www.sphinx-doc.org/"
+urls.Download = "https://pypi.org/project/Sphinx/"
+urls.Homepage = "https://www.sphinx-doc.org/"
+urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
+license.text = "BSD-2-Clause"
+requires-python = ">=3.11"
+
+# Classifiers list: https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Framework :: Sphinx",
+    "Framework :: Sphinx :: Domain",
+    "Framework :: Sphinx :: Extension",
+    "Framework :: Sphinx :: Theme",
+    "Topic :: Documentation",
+    "Topic :: Documentation :: Sphinx",
+    "Topic :: Internet :: WWW/HTTP :: Site Management",
+    "Topic :: Printing",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Text Processing",
+    "Topic :: Text Processing :: General",
+    "Topic :: Text Processing :: Indexing",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Text Processing :: Markup :: HTML",
+    "Topic :: Text Processing :: Markup :: LaTeX",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "sphinxcontrib-applehelp>=1.0.7",
+    "sphinxcontrib-devhelp>=1.0.6",
+    "sphinxcontrib-htmlhelp>=2.0.6",
+    "sphinxcontrib-jsmath>=1.0.1",
+    "sphinxcontrib-qthelp>=1.0.6",
+    "sphinxcontrib-serializinghtml>=1.1.9",
+    "Jinja2>=3.1",
+    "Pygments>=2.17",
+    "docutils>=0.20,<0.22",
+    "snowballstemmer>=2.2",
+    "babel>=2.13",
+    "alabaster>=0.7.14",
+    "imagesize>=1.3",
+    "requests>=2.30.0",
+    "roman-numerals-py>=1.0.0",
+    "packaging>=23.0",
+    "colorama>=0.4.6; sys_platform == 'win32'",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+docs = [
+    "sphinxcontrib-websupport",
+]
+lint = [
+    "ruff==0.9.4",
+    "mypy==1.14.1",
+    "sphinx-lint>=0.9",
+    "types-colorama==0.4.15.20240311",
+    "types-defusedxml==0.7.0.20240218",
+    "types-docutils==0.21.0.20241128",
+    "types-Pillow==10.2.0.20240822",
+    "types-Pygments==2.19.0.20250107",
+    "types-requests==2.32.0.20241016",  # align with requests
+    "types-urllib3==1.26.25.14",
+    "pyright==1.1.393",
+    "pytest>=6.0",
+]
+test = [
+    "pytest>=8.0",
+    "defusedxml>=0.7.1", # for secure XML/HTML parsing
+    "cython>=3.0",
+    "setuptools>=70.0",  # for Cython compilation
+    "typing_extensions>=4.9",  # for typing_extensions.Unpack
+]
+
+[[project.authors]]
+name = "Georg Brandl"
+email = "georg@python.org"
+
+[project.scripts]
+sphinx-build = "sphinx.cmd.build:main"
+sphinx-quickstart = "sphinx.cmd.quickstart:main"
+sphinx-apidoc = "sphinx.ext.apidoc:main"
+sphinx-autogen = "sphinx.ext.autosummary.generate:main"
+
+[tool.flit.module]
+name = "sphinx"
+
+[tool.flit.sdist]
+include = [
+    "LICENSE.rst",
+    "AUTHORS.rst",
+    "CHANGES.rst",
+    # Documentation
+    "doc/",
+    "CODE_OF_CONDUCT.rst",  # used as an include in the Documentation
+    "EXAMPLES.rst",  # used as an include in the Documentation
+    # Tests
+    "tests/",
+    "tox.ini",
+    # Utilities
+    "utils/",
+    "babel.cfg",
+]
+exclude = [
+    "doc/_build",
+]
+
+[tool.mypy]
+files = [
+    "doc/conf.py",
+    "doc/development/tutorials/examples/autodoc_intenum.py",
+    "doc/development/tutorials/examples/helloworld.py",
+    "sphinx",
+    "tests",
+    "utils",
+]
+exclude = [
+    "tests/roots",
+]
+python_version = "3.11"
+strict = true
+show_column_numbers = true
+show_error_context = true
+strict_equality = false
+warn_return_any = false
+enable_error_code = [
+    "type-arg",
+    "redundant-self",
+    "truthy-iterable",
+    "ignore-without-code",
+    "unused-awaitable",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "sphinx.domains.c",
+    "sphinx.domains.c._ast",
+    "sphinx.domains.c._parser",
+    "sphinx.domains.c._symbol",
+    "sphinx.domains.cpp",
+    "sphinx.domains.cpp._ast",
+    "sphinx.domains.cpp._parser",
+    "sphinx.domains.cpp._symbol",
+]
+strict_optional = false
+
+[[tool.mypy.overrides]]
+module = [
+    "imagesize",
+    "pypi_attestations",
+    "pyximport",
+    "sigstore.models",
+    "sigstore.verify",
+    "sigstore.verify.policy",
+    "snowballstemmer",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    # tests/
+    "tests.conftest",
+    "tests.test_abc",
+    "tests.test_addnodes",
+    "tests.test_application",
+    "tests.test_errors",
+    "tests.test_events",
+    "tests.test_highlighting",
+    "tests.test_project",
+    "tests.test_roles",
+    "tests.test_versioning",
+    # tests/test__cli
+    "tests.test__cli.test__cli_util_errors",
+    # tests/test_builders
+    "tests.test_builders.test_build",
+    "tests.test_builders.test_build_changes",
+    "tests.test_builders.test_build_dirhtml",
+    "tests.test_builders.test_build_html",
+    "tests.test_builders.test_build_html_5_output",
+    "tests.test_builders.test_build_html_assets",
+    "tests.test_builders.test_build_html_code",
+    "tests.test_builders.test_build_html_copyright",
+    "tests.test_builders.test_build_html_download",
+    "tests.test_builders.test_build_html_highlight",
+    "tests.test_builders.test_build_html_image",
+    "tests.test_builders.test_build_html_maths",
+    "tests.test_builders.test_build_html_numfig",
+    "tests.test_builders.test_build_html_tocdepth",
+    "tests.test_builders.test_build_html_toctree",
+    "tests.test_builders.test_build_linkcheck",
+    "tests.test_builders.test_build_manpage",
+    "tests.test_builders.test_build_text",
+    "tests.test_builders.test_build_warnings",
+    "tests.test_builders.test_incremental_reading",
+    # tests/test_config
+    "tests.test_config.test_copyright",
+    # tests/test_directives
+    "tests.test_directives.test_directive_code",
+    "tests.test_directives.test_directive_object_description",
+    "tests.test_directives.test_directive_option",
+    "tests.test_directives.test_directives_no_typesetting",
+    # tests/test_domains
+    "tests.test_domains.test_domain_py_canonical",
+    # tests/test_environment
+    "tests.test_environment.test_environment",
+    "tests.test_environment.test_environment_indexentries",
+    "tests.test_environment.test_environment_record_dependencies",
+    # tests/test_extensions
+    "tests.test_extensions.test_ext_autodoc_autoattribute",
+    "tests.test_extensions.test_ext_autodoc_autoclass",
+    "tests.test_extensions.test_ext_autodoc_autodata",
+    "tests.test_extensions.test_ext_autodoc_autofunction",
+    "tests.test_extensions.test_ext_autodoc_automodule",
+    "tests.test_extensions.test_ext_autodoc_autoproperty",
+    "tests.test_extensions.test_ext_autodoc_configs",
+    "tests.test_extensions.test_ext_autodoc_preserve_defaults",
+    "tests.test_extensions.test_ext_autodoc_private_members",
+    "tests.test_extensions.test_ext_autosectionlabel",
+    "tests.test_extensions.test_ext_autosummary_imports",
+    "tests.test_extensions.test_ext_coverage",
+    "tests.test_extensions.test_ext_duration",
+    "tests.test_extensions.test_ext_extlinks",
+    "tests.test_extensions.test_ext_githubpages",
+    "tests.test_extensions.test_ext_graphviz",
+    "tests.test_extensions.test_ext_ifconfig",
+    "tests.test_extensions.test_ext_imgconverter",
+    "tests.test_extensions.test_ext_imgmockconverter",
+    "tests.test_extensions.test_ext_intersphinx_cache",
+    "tests.test_extensions.test_ext_math",
+    "tests.test_extensions.test_ext_napoleon",
+    "tests.test_extensions.test_ext_todo",
+    "tests.test_extensions.test_ext_viewcode",
+    "tests.test_extensions.test_extension",
+    # tests/test_intl
+    "tests.test_intl.test_catalogs",
+    "tests.test_intl.test_locale",
+    # tests/test_markup
+    "tests.test_markup.test_markup",
+    "tests.test_markup.test_metadata",
+    "tests.test_markup.test_parser",
+    "tests.test_markup.test_smartquotes",
+    # tests/test_pycode
+    "tests.test_pycode.test_pycode_parser",
+    # tests/test_theming
+    "tests.test_theming.test_html_theme",
+    "tests.test_theming.test_templating",
+    "tests.test_theming.test_theming",
+    # tests/test_transforms
+    "tests.test_transforms.test_transforms_move_module_targets",
+    "tests.test_transforms.test_transforms_post_transforms_code",
+    "tests.test_transforms.test_transforms_post_transforms_images",
+    "tests.test_transforms.test_transforms_reorder_nodes",
+    # tests/test_util
+    "tests.test_util.test_util",
+    "tests.test_util.test_util_display",
+    "tests.test_util.test_util_docstrings",
+    "tests.test_util.test_util_docutils",
+    "tests.test_util.test_util_docutils_sphinx_directive",
+    "tests.test_util.test_util_images",
+    "tests.test_util.test_util_importer",
+    "tests.test_util.test_util_inventory",
+    "tests.test_util.test_util_lines",
+    "tests.test_util.test_util_matching",
+    "tests.test_util.test_util_uri",
+    # tests/test_writers
+    "tests.test_writers.test_api_translator",
+    "tests.test_writers.test_docutilsconf",
+    "tests.test_writers.test_writer_latex",
+]
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    # tests/
+    "tests.test_quickstart",
+    "tests.test_search",
+    # tests/test_builders
+    "tests.test_builders.test_build_epub",
+    "tests.test_builders.test_build_gettext",
+    "tests.test_builders.test_build_latex",
+    "tests.test_builders.test_build_texinfo",
+    # tests/test_config
+    "tests.test_config.test_config",
+    # tests/test_directives
+    "tests.test_directives.test_directive_only",
+    "tests.test_directives.test_directive_other",
+    "tests.test_directives.test_directive_patch",
+    # tests/test_domains
+    "tests.test_domains.test_domain_c",
+    "tests.test_domains.test_domain_cpp",
+    "tests.test_domains.test_domain_js",
+    "tests.test_domains.test_domain_py",
+    "tests.test_domains.test_domain_py_fields",
+    "tests.test_domains.test_domain_py_pyfunction",
+    "tests.test_domains.test_domain_py_pyobject",
+    "tests.test_domains.test_domain_rst",
+    "tests.test_domains.test_domain_std",
+    # tests/test_environment
+    "tests.test_environment.test_environment_toctree",
+    # tests/test_extensions
+    "tests.test_extensions.test_ext_apidoc",
+    "tests.test_extensions.test_ext_autodoc",
+    "tests.test_extensions.test_ext_autodoc_events",
+    "tests.test_extensions.test_ext_autodoc_mock",
+    "tests.test_extensions.test_ext_autosummary",
+    "tests.test_extensions.test_ext_doctest",
+    "tests.test_extensions.test_ext_inheritance_diagram",
+    "tests.test_extensions.test_ext_intersphinx",
+    "tests.test_extensions.test_ext_napoleon_docstring",
+    # tests/test_intl
+    "tests.test_intl.test_intl",
+    # tests/test_pycode
+    "tests.test_pycode.test_pycode",
+    "tests.test_pycode.test_pycode_ast",
+    # tests/test_transforms
+    "tests.test_transforms.test_transforms_post_transforms",
+    # tests/test_util
+    "tests.test_util.test_util_fileutil",
+    "tests.test_util.test_util_i18n",
+    "tests.test_util.test_util_inspect",
+    "tests.test_util.test_util_logging",
+    "tests.test_util.test_util_nodes",
+    "tests.test_util.test_util_rst",
+    "tests.test_util.test_util_template",
+    "tests.test_util.test_util_typing",
+]
+check_untyped_defs = false
+disable_error_code = [
+    "annotation-unchecked",
+]
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["tests.test_util.typing_test_data"]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+    "-ra",
+    "--import-mode=prepend",
+#    "--pythonwarnings=error",
+    "--strict-config",
+    "--strict-markers",
+]
+empty_parameter_set_mark = "xfail"
+filterwarnings = [
+    "all",
+    "ignore::DeprecationWarning:docutils.io",
+    "ignore:Distutils was imported before Setuptools:UserWarning:_distutils_hack",
+    "ignore:Setuptools is replacing distutils:UserWarning:_distutils_hack",
+    "ignore::DeprecationWarning:pyximport.pyximport",
+    "ignore::ImportWarning:importlib._bootstrap",
+]
+log_cli_level = "INFO"
+markers = [
+    "apidoc",
+]
+testpaths = ["tests"]
+xfail_strict = true
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ['sphinx']
+
+[tool.coverage.report]
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    'pragma: no cover',
+    # Don't complain if tests don't hit defensive assertion code:
+    'raise NotImplementedError',
+    # Don't complain if non-runnable code isn't run:
+    'if __name__ == .__main__.:',
+]
+ignore_errors = true
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = [
+    "doc/conf.py",
+    "doc/development/tutorials/examples/autodoc_intenum.py",
+    "doc/development/tutorials/examples/helloworld.py",
+    "sphinx",
+    "tests",
+    "utils",
+]
+
+reportArgumentType = "none"
+reportAssignmentType = "none"
+reportAttributeAccessIssue = "none"
+reportCallIssue = "none"
+reportConstantRedefinition = "none"
+reportDeprecated = "none"
+reportGeneralTypeIssues = "none"
+reportIncompatibleMethodOverride = "none"
+reportIncompatibleVariableOverride = "none"
+reportInconsistentOverload = "none"
+reportIndexIssue = "none"
+reportInvalidTypeArguments = "none"
+reportInvalidTypeForm = "none"
+reportInvalidTypeVarUse = "none"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"
+reportMissingParameterType = "none"
+reportMissingTypeArgument = "none"
+reportMissingTypeStubs = "none"
+reportOperatorIssue = "none"
+reportOptionalIterable = "none"
+reportOptionalMemberAccess = "none"
+reportOptionalOperand = "none"
+reportOptionalSubscript = "none"
+reportPossiblyUnboundVariable = "none"
+reportPrivateUsage = "none"
+reportRedeclaration = "none"
+reportReturnType = "none"
+reportSelfClsParameterName = "none"
+reportTypeCommentUsage = "none"
+reportTypedDictNotRequiredAccess = "none"
+reportUndefinedVariable = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnknownMemberType = "none"
+reportUnknownParameterType = "none"
+reportUnknownVariableType = "none"
+reportUnnecessaryComparison = "none"
+reportUnnecessaryContains = "none"
+reportUnnecessaryIsInstance = "none"
+reportUnsupportedDunderAll = "none"
+reportUntypedBaseClass = "none"
+reportUntypedFunctionDecorator = "none"
+reportUntypedNamedTuple = "none"
+reportUnusedClass = "none"
+reportUnusedFunction = "none"
+reportUnusedImport = "none"
+reportUnusedVariable = "none"
+reportWildcardImportFromLibrary = "none"

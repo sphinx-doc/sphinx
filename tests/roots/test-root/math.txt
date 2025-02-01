@@ -24,7 +24,7 @@ This is inline math: :math:`a^2 + b^2 = c^2`.
    n \in \mathbb N
 
 .. math::
-   :nowrap:
+   :no-wrap:
 
    a + 1 < b
 

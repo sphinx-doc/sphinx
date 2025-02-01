@@ -1,0 +1,58 @@
+name: Lock old threads
+
+on:
+  schedule:
+    # Run at midnight daily
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  action:
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'sphinx-doc'
+    permissions:
+      # to lock issues and PRs
+      issues: write
+      pull-requests: write
+    steps:
+    - uses: actions/github-script@v7
+      with:
+        retries: 3
+        # language=JavaScript
+        script: |
+          const _FOUR_WEEKS_MILLISECONDS = 28 * 24 * 60 * 60 * 1000;
+          const _FOUR_WEEKS_DATE = new Date(Date.now() - _FOUR_WEEKS_MILLISECONDS);
+          const FOUR_WEEKS_AGO = `${_FOUR_WEEKS_DATE.toISOString().substring(0, 10)}T00:00:00Z`;
+          const OWNER = context.repo.owner;
+          const REPO = context.repo.repo;
+
+          try {
+            for (const thread_type of ["issue", "pr"]) {
+              core.debug(`Finding ${thread_type}s to lock`);
+              const query = thread_type === "issue"
+                ? `repo:${OWNER}/${REPO} updated:<${FOUR_WEEKS_AGO} is:closed is:unlocked is:issue`
+                : `repo:${OWNER}/${REPO} updated:<${FOUR_WEEKS_AGO} is:closed is:unlocked is:pr`;
+              core.debug(`Using query '${query}'`);
+              // https://octokit.github.io/rest.js/v21/#search-issues-and-pull-requests
+              const {data: {items: results}} = await github.rest.search.issuesAndPullRequests({
+                q: query,
+                order: "desc",
+                sort: "updated",
+                per_page: 100,
+              });
+              for (const item of results) {
+                if (item.locked) continue;
+                const thread_num = item.number;
+                core.debug(`Locking #${thread_num} (${thread_type})`);
+                // https://octokit.github.io/rest.js/v21/#issues-lock
+                await github.rest.issues.lock({
+                  owner: OWNER,
+                  repo: REPO,
+                  issue_number: thread_num,
+                  lock_reason: "resolved",
+                });
+              }
+            }
+          } catch (err) {
+            core.setFailed(err.message);
+          }

@@ -10,17 +10,70 @@ Builders
 These are the built-in Sphinx builders.  More builders can be added by
 :doc:`extensions </usage/extensions/index>`.
 
-The builder's "name" must be given to the **-b** command-line option of
+The builder's "name" must be given to the **-M** or **-b** command-line options of
 :program:`sphinx-build` to select a builder.
 
+The most common builders are:
+
+**html**
+   Build HTML pages.  This is the default builder.
+
+**dirhtml**
+   Build HTML pages, but with a single directory per document.  Makes for
+   prettier URLs (no ``.html``) if served from a webserver.
+
+**singlehtml**
+   Build a single HTML with the whole content.
+
+**htmlhelp**, **qthelp**, **devhelp**, **epub**
+   Build HTML files with additional information for building a documentation
+   collection in one of these formats.
+
+**applehelp**
+   Build an Apple Help Book.  Requires :program:`hiutil` and
+   :program:`codesign`, which are not Open Source and presently only
+   available on Mac OS X 10.6 and higher.
+
+**latex**
+   Build LaTeX sources that can be compiled to a PDF document using
+   :program:`pdflatex`.
+
+**man**
+   Build manual pages in groff format for UNIX systems.
+
+**texinfo**
+   Build Texinfo files that can be processed into Info files using
+   :program:`makeinfo`.
+
+**text**
+   Build plain text files.
+
+**gettext**
+   Build gettext-style message catalogs (``.pot`` files).
+
+**doctest**
+   Run all doctests in the documentation, if the :mod:`~sphinx.ext.doctest`
+   extension is enabled.
+
+**linkcheck**
+   Check the integrity of all external links.
+
+**xml**
+  Build Docutils-native XML files.
+
+**pseudoxml**
+  Build compact pretty-printed "pseudo-XML" files displaying the
+  internal structure of the intermediate document trees.
+
+--------------
 
 .. module:: sphinx.builders.html
 .. class:: StandaloneHTMLBuilder
 
    This is the standard HTML builder.  Its output is a directory with HTML
-   files, complete with style sheets and optionally the reST sources.  There are
-   quite a few configuration values that customize the output of this builder,
-   see the chapter :ref:`html-options` for details.
+   files, complete with style sheets and optionally the reStructuredText sources.
+   There are quite a few configuration values that customize
+   the output of this builder, see the chapter :ref:`html-options` for details.
 
    .. autoattribute:: name
 
@@ -51,7 +104,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    This is an HTML builder that combines the whole project in one output file.
    (Obviously this only works with smaller projects.)  The file is named like
-   the master document.  No indices will be generated.
+   the root document.  No indices will be generated.
 
    .. autoattribute:: name
 
@@ -146,7 +199,7 @@ The builder's "name" must be given to the **-b** command-line option of
    This builder produces the same output as the standalone HTML builder, but
    also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
    details about it.  For definition of the epub format, have a look at
-   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
+   `<https://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 3* files.
 
    .. autoattribute:: name
@@ -159,60 +212,64 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionchanged:: 1.5
 
-      Since Sphinx-1.5, the epub3 builder is used for the default builder of
-      epub.
+      Since Sphinx 1.5, the epub3 builder is used as the default epub builder.
 
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
 
-   This builder produces a bunch of LaTeX files in the output directory.  You
-   have to specify which documents are to be included in which LaTeX files via
-   the :confval:`latex_documents` configuration value.  There are a few
-   configuration values that customize the output of this builder, see the
-   chapter :ref:`latex-options` for details.
+   This builder produces LaTeX source files in the output directory.  The
+   actual PDF builds happen inside this output directory and need to be
+   triggered in a second step.  This can be done via
+   :program:`make all-pdf` there.
+   To combine the two steps into only one, use :option:`sphinx-build -M`
+   (i.e. ``-M latexpdf`` not ``-b latexpdf``) or :program:`make latexpdf`
+   at the project root.
 
-   The produced LaTeX file uses several LaTeX packages that may not be present
-   in a "minimal" TeX distribution installation.
+   See :confval:`latex_documents` and the chapter :ref:`latex-options` for
+   available options.
 
-   On Ubuntu xenial, the following packages need to be installed for
-   successful PDF builds:
+   PDF builds need a sufficiently complete LaTeX installation.
+   The testing is currently (since 5.3.0) done on Ubuntu 22.04LTS,
+   whose LaTeX distribution matches upstream TeXLive 2021 as of 2022/02/04,
+   but PDF builds can be successfully done on much older LaTeX installations.
+
+   At any rate, on Ubuntu for example, following packages must all be present:
 
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
-   * ``tex-gyre`` (if :confval:`latex_engine` is ``'pdflatex'``)
+   * ``texlive-fonts-extra`` (needed for ``fontawesome5``, see the 7.4.0
+     change notice below)
+   * ``tex-gyre`` (if :confval:`latex_engine` left to default)
    * ``texlive-latex-extra``
-   * ``latexmk`` (this is a Sphinx requirement on GNU/Linux and MacOS X
-     for functioning of ``make latexpdf``)
-
-   Additional packages are needed in some circumstances (see the discussion of
-   the ``'fontpkg'`` key of :confval:`latex_elements` for more information):
-
-   * ``texlive-lang-cyrillic`` for Cyrillic (even individual letters), and,
-     ``cm-super`` or ``cm-super-minimal`` (if default fonts),
-   * ``texlive-lang-greek`` for Greek (even individual letters), and,
-     ``cm-super`` or ``cm-super-minimal`` (if default fonts),
-   * ``texlive-xetex`` if :confval:`latex_engine` is ``'xelatex'``,
-   * ``texlive-luatex`` if :confval:`latex_engine` is ``'lualatex'``,
-   * ``fonts-freefont-otf`` if :confval:`latex_engine` is ``'xelatex'``
-     or ``'lualatex'``.
-
-   The testing of Sphinx LaTeX is done on Ubuntu xenial whose TeX distribution
-   is based on a TeXLive 2015 snapshot dated March 2016.
-
-   .. versionchanged:: 1.6
-      Formerly, testing had been done on Ubuntu precise (TeXLive 2009).
-
-   .. versionchanged:: 2.0
-      Formerly, testing had been done on Ubuntu trusty (TeXLive 2013).
+   * ``latexmk``
 
    .. versionchanged:: 4.0.0
-      TeX Gyre fonts dependency for the default LaTeX font configuration.
+      TeX Gyre fonts now required for ``'pdflatex'`` engine (default).
+
+   .. versionchanged:: 7.4.0
+      LaTeX package ``xcolor`` is now required (it is part of Ubuntu
+      ``texlive-latex-recommended`` anyhow).  The LaTeX package
+      ``fontawesome5`` is recommended.  See the :ref:`'sphinxsetup'
+      <latexsphinxsetup>` ``iconpackage`` key for more.
+
+   Additional packages are needed in some circumstances:
+
+   * ``texlive-lang-cyrillic`` for Cyrillic (and also then
+     ``cm-super`` if using the default fonts),
+   * ``texlive-lang-greek`` for Greek (and also then
+     ``cm-super`` if using the default fonts),
+   * ``texlive-xetex`` if :confval:`latex_engine` is ``'xelatex'``,
+   * ``texlive-luatex`` if :confval:`latex_engine` is ``'lualatex'``,
+   * ``fonts-freefont-otf`` if :confval:`latex_engine` is either
+     ``'xelatex'`` or ``'lualatex'``.
 
    .. note::
 
-      Since 1.6, ``make latexpdf`` uses ``latexmk`` (not on Windows).  This
-      makes sure the needed number of runs is automatically executed to get
-      the cross-references, bookmarks, indices, and tables of contents right.
+      Since 1.6, ``make latexpdf`` uses on GNU/Linux and macOS
+      :program:`latexmk`, as it
+      makes sure the needed number of runs is automatically executed.
+      On Windows the PDF builds execute a fix number of LaTeX runs
+      (three, then ``makeindex``, then two more).
 
       One can pass to ``latexmk`` options via the ``LATEXMKOPTS``
       Makefile variable. For example:
@@ -244,14 +301,14 @@ Note that a direct PDF builder is being provided by `rinohtype`_. The builder's
 name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
 .. _rinohtype: https://github.com/brechtm/rinohtype
-.. _rinohtype manual: https://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
+.. _rinohtype manual: https://www.mos6581.org/rinohtype/master/quickstart.html#sphinx-builder
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder
 
-   This builder produces a text file for each reST file -- this is almost the
-   same as the reST source, but with much of the markup stripped for better
-   readability.
+   This builder produces a text file for each reStructuredText file.
+   This is almost the same as the reStructuredText source,
+   but with much of the markup stripped for better readability.
 
    .. autoattribute:: name
 
@@ -304,8 +361,8 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 .. class:: SerializingHTMLBuilder
 
    This builder uses a module that implements the Python serialization API
-   (`pickle`, `simplejson`, `phpserialize`, and others) to dump the generated
-   HTML documentation.  The pickle builder is a subclass of it.
+   (``pickle``, ``simplejson``, ``phpserialize``, and others) to dump the
+   generated HTML documentation.  The pickle builder is a subclass of it.
 
    A concrete subclass of this builder serializing to the `PHP serialization`_
    format could look like this::
@@ -323,10 +380,10 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
    .. attribute:: implementation
 
-      A module that implements `dump()`, `load()`, `dumps()` and `loads()`
+      A module that implements ``dump()``, ``load()``, ``dumps()`` and ``loads()``
       functions that conform to the functions with the same names from the
       pickle module.  Known modules implementing this interface are
-      `simplejson`, `phpserialize`, `plistlib`, and others.
+      ``simplejson``, ``phpserialize``, ``plistlib``, and others.
 
    .. attribute:: out_suffix
 
@@ -404,9 +461,9 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 .. class:: ChangesBuilder
 
    This builder produces an HTML overview of all :rst:dir:`versionadded`,
-   :rst:dir:`versionchanged` and :rst:dir:`deprecated` directives for the
-   current :confval:`version`.  This is useful to generate a ChangeLog file, for
-   example.
+   :rst:dir:`versionchanged`, :rst:dir:`deprecated` and :rst:dir:`versionremoved`
+   directives for the current :confval:`version`.  This is useful to generate a
+   changelog file, for example.
 
    .. autoattribute:: name
 
@@ -441,7 +498,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
    .. versionchanged:: 1.5
 
-      Since Sphinx-1.5, the linkcheck builder comes to use requests module.
+      Since Sphinx 1.5, the linkcheck builder uses the requests module.
 
    .. versionchanged:: 3.4
 
@@ -491,8 +548,8 @@ Serialization builder details
 -----------------------------
 
 All serialization builders outputs one file per source file and a few special
-files.  They also copy the reST source files in the directory ``_sources``
-under the output directory.
+files.  They also copy the reStructuredText source files
+to the ``_sources`` directory under the output directory.
 
 The :class:`.PickleHTMLBuilder` is a builtin subclass that implements the pickle
 serialization interface.

@@ -1,93 +1,82 @@
-"""
-    sphinx.deprecation
-    ~~~~~~~~~~~~~~~~~~
+"""Sphinx deprecation classes and utilities."""
 
-    Sphinx deprecation classes and utilities.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import sys
 import warnings
-from importlib import import_module
-from typing import Any, Dict, Type
 
 
-class RemovedInSphinx40Warning(DeprecationWarning):
+class RemovedInSphinx90Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx50Warning(DeprecationWarning):
+class RemovedInSphinx10Warning(PendingDeprecationWarning):
     pass
 
 
-class RemovedInSphinx60Warning(PendingDeprecationWarning):
-    pass
+RemovedInNextVersionWarning = RemovedInSphinx90Warning
 
 
-RemovedInNextVersionWarning = RemovedInSphinx50Warning
+def _deprecation_warning(
+    module: str,
+    attribute: str,
+    canonical_name: str = '',
+    *,
+    remove: tuple[int, int],
+    raises: bool = False,
+) -> None:
+    """Helper function for module-level deprecations using ``__getattr__``.
+
+    :param module: The module containing a deprecated object.
+    :param attribute: The name of the deprecated object.
+    :param canonical_name: Optional fully-qualified name for its replacement.
+    :param remove: Target version for removal.
+    :param raises: Indicate whether to raise an exception instead of a warning.
+
+    When *raises* is ``True``, an :exc:`AttributeError` is raised instead
+    of emitting a warning so that it is easy to locate deprecated objects
+    in tests that could suppress deprecation warnings.
+
+    Usage::
+
+       # deprecated name -> (object to return, canonical path or empty string, removal version)
+       _DEPRECATED_OBJECTS = {
+           'deprecated_name': (
+               object_to_return,
+               'fully_qualified_replacement_name',
+               (9, 0),
+           ),
+       }
 
 
-def deprecated_alias(modname: str, objects: Dict[str, object],
-                     warning: Type[Warning], names: Dict[str, str] = {}) -> None:
-    module = import_module(modname)
-    sys.modules[modname] = _ModuleWrapper(  # type: ignore
-        module, modname, objects, warning, names)
+       def __getattr__(name: str) -> Any:
+           if name not in _DEPRECATED_OBJECTS:
+               msg = f'module {__name__!r} has no attribute {name!r}'
+               raise AttributeError(msg)
 
+           from sphinx.deprecation import _deprecation_warning
 
-class _ModuleWrapper:
-    def __init__(self, module: Any, modname: str,
-                 objects: Dict[str, object],
-                 warning: Type[Warning],
-                 names: Dict[str, str]) -> None:
-        self._module = module
-        self._modname = modname
-        self._objects = objects
-        self._warning = warning
-        self._names = names
+           deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+           _deprecation_warning(__name__, name, canonical_name, remove=remove)
+           return deprecated_object
+    """
+    if remove == (9, 0):
+        warning_class: type[Warning] = RemovedInSphinx90Warning
+    elif remove == (10, 0):
+        warning_class = RemovedInSphinx10Warning
+    else:
+        msg = f'removal version {remove!r} is invalid!'
+        raise RuntimeError(msg)
 
-    def __getattr__(self, name: str) -> Any:
-        if name not in self._objects:
-            return getattr(self._module, name)
+    qualname = f'{module}.{attribute}'
+    if canonical_name:
+        message = (
+            f'The alias {qualname!r} is deprecated, use {canonical_name!r} instead.'
+        )
+    else:
+        message = f'{qualname!r} is deprecated.'
 
-        canonical_name = self._names.get(name, None)
-        if canonical_name is not None:
-            warnings.warn(
-                "The alias '{}.{}' is deprecated, use '{}' instead. Check CHANGES for "
-                "Sphinx API modifications.".format(self._modname, name, canonical_name),
-                self._warning, stacklevel=3)
-        else:
-            warnings.warn("{}.{} is deprecated. Check CHANGES for Sphinx "
-                          "API modifications.".format(self._modname, name),
-                          self._warning, stacklevel=3)
-        return self._objects[name]
+    if raises:
+        raise AttributeError(message)
 
-
-class DeprecatedDict(dict):
-    """A deprecated dict which warns on each access."""
-
-    def __init__(self, data: Dict, message: str, warning: Type[Warning]) -> None:
-        self.message = message
-        self.warning = warning
-        super().__init__(data)
-
-    def __setitem__(self, key: str, value: Any) -> None:
-        warnings.warn(self.message, self.warning, stacklevel=2)
-        super().__setitem__(key, value)
-
-    def setdefault(self, key: str, default: Any = None) -> Any:
-        warnings.warn(self.message, self.warning, stacklevel=2)
-        return super().setdefault(key, default)
-
-    def __getitem__(self, key: str) -> None:
-        warnings.warn(self.message, self.warning, stacklevel=2)
-        return super().__getitem__(key)
-
-    def get(self, key: str, default: Any = None) -> Any:
-        warnings.warn(self.message, self.warning, stacklevel=2)
-        return super().get(key, default)
-
-    def update(self, other: Dict) -> None:  # type: ignore
-        warnings.warn(self.message, self.warning, stacklevel=2)
-        super().update(other)
+    message = f'{message} Check CHANGES for Sphinx API modifications.'
+    warnings.warn(message, warning_class, stacklevel=3)

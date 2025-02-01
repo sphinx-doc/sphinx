@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "ko",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">\uc800\uc791\uad8c</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; \uc800\uc791\uad8c %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", \ubb38\uc11c - ",
         "About these documents": "\uc774 \ubb38\uc11c \uc815\ubcf4",
         "Automatically generated list of changes in version %(version)s": "\ubc84\uc804 %(version)s\uc758 \ubcc0\uacbd \uc0ac\ud56d (\uc790\ub3d9\uc73c\ub85c \uc0dd\uc131\ub41c \ubaa9\ub85d)",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\uc774\ub3d9",
         "Hide Search Matches": "\uac80\uc0c9 \uc77c\uce58 \uc228\uae30\uae30",
         "Index": "\uc0c9\uc778",
-        "Index &ndash; %(key)s": "\uc0c9\uc778 &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\uc54c\ud30c\ubcb3\ubcc4 \uc0c9\uc778",
         "Indices and tables:": "\uc0c9\uc778 \ubc0f \ud45c \ubaa9\ub85d:",
         "Last updated on %(last_updated)s.": "\ucd5c\uc885 \uc5c5\ub370\uc774\ud2b8: %(last_updated)s",
@@ -30,8 +29,6 @@ Documentation.addTranslations({
         "Next topic": "\ub2e4\uc74c \ud56d\ubaa9",
         "Other changes": "\ub2e4\ub978 \ubcc0\uacbd \uc0ac\ud56d",
         "Overview": "\uac1c\uc694",
-        "Permalink to this definition": "\uc774 \uc815\uc758\uc5d0 \ub300\ud55c \ud37c\uba38\ub9c1\ud06c",
-        "Permalink to this headline": "\uc774 \ud45c\uc81c\uc5d0 \ub300\ud55c \ud37c\uba38\ub9c1\ud06c",
         "Please activate JavaScript to enable the search\n    functionality.": "\uac80\uc0c9 \uae30\ub2a5\uc744 \uc0ac\uc6a9\ud558\ub824\uba74 JavaScript\ub97c \ud65c\uc131\ud654\ud558\uc2ed\uc2dc\uc624.",
         "Preparing search...": "\uac80\uc0c9 \uc900\ube44 \uc911\u2026",
         "Previous topic": "\uc774\uc804 \ud56d\ubaa9",
@@ -39,7 +36,9 @@ Documentation.addTranslations({
         "Search": "\uac80\uc0c9",
         "Search Page": "\uac80\uc0c9 \ud398\uc774\uc9c0",
         "Search Results": "\uac80\uc0c9 \uacb0\uacfc",
-        "Search finished, found %s page(s) matching the search query.": "\uac80\uc0c9\uc774 \uc644\ub8cc\ub418\uc5c8\uc73c\uba70, \uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 %s \uac1c \ud398\uc774\uc9c0\ub97c \ucc3e\uc558\uc2b5\ub2c8\ub2e4.",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "%(docstitle)s\uc5d0\uc11c \ucc3e\uae30",
         "Searching": "\uac80\uc0c9 \uc911",
         "Searching for multiple words only shows matches that contain\n    all words.": "\uc5ec\ub7ec \ub2e8\uc5b4\ub97c \uac80\uc0c9\ud558\uba74 \ubaa8\ub4e0 \ub2e8\uc5b4\uac00 \ud3ec\ud568\ub41c \uc77c\uce58 \ud56d\ubaa9\ub9cc \ud45c\uc2dc\ub429\ub2c8\ub2e4.",

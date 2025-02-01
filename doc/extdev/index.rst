@@ -1,7 +1,7 @@
 .. _dev-extensions:
 
-Developing extensions for Sphinx
-================================
+Sphinx API
+==========
 
 Since many projects will need special features in their documentation, Sphinx
 is designed to be extensible on several levels.
@@ -85,61 +85,64 @@ extension. These are:
    The config is available as ``app.config`` or ``env.config``.
 
 To see an example of use of these objects, refer to
-:doc:`../development/tutorials/index`.
+:ref:`the tutorials <extension-tutorials-index>`.
 
 .. _build-phases:
 
-Build Phases
+Build phases
 ------------
 
 One thing that is vital in order to understand extension mechanisms is the way
 in which a Sphinx project is built: this works in several phases.
 
+.. graphviz:: /_static/diagrams/sphinx_build_phases.dot
+   :caption: Build phases
+
 **Phase 0: Initialization**
 
-   In this phase, almost nothing of interest to us happens.  The source
-   directory is searched for source files, and extensions are initialized.
-   Should a stored build environment exist, it is loaded, otherwise a new one is
-   created.
+In this phase, almost nothing of interest to us happens.  The source
+directory is searched for source files, and extensions are initialized.
+Should a stored build environment exist, it is loaded, otherwise a new one is
+created.
 
 **Phase 1: Reading**
 
-   In Phase 1, all source files (and on subsequent builds, those that are new or
-   changed) are read and parsed.  This is the phase where directives and roles
-   are encountered by docutils, and the corresponding code is executed.  The
-   output of this phase is a *doctree* for each source file; that is a tree of
-   docutils nodes.  For document elements that aren't fully known until all
-   existing files are read, temporary nodes are created.
+In Phase 1, all source files (and on subsequent builds, those that are new or
+changed) are read and parsed.  This is the phase where directives and roles
+are encountered by docutils, and the corresponding code is executed.  The
+output of this phase is a *doctree* for each source file; that is a tree of
+docutils nodes.  For document elements that aren't fully known until all
+existing files are read, temporary nodes are created.
 
-   There are nodes provided by docutils, which are documented `in the docutils
-   documentation <http://docutils.sourceforge.net/docs/ref/doctree.html>`__.
-   Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
+There are nodes provided by docutils, which are documented `in the docutils
+documentation <https://docutils.sourceforge.io/docs/ref/doctree.html>`__.
+Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
 
-   During reading, the build environment is updated with all meta- and cross
-   reference data of the read documents, such as labels, the names of headings,
-   described Python objects and index entries.  This will later be used to
-   replace the temporary nodes.
+During reading, the build environment is updated with all meta- and cross
+reference data of the read documents, such as labels, the names of headings,
+described Python objects and index entries.  This will later be used to
+replace the temporary nodes.
 
-   The parsed doctrees are stored on the disk, because it is not possible to
-   hold all of them in memory.
+The parsed doctrees are stored on the disk, because it is not possible to
+hold all of them in memory.
 
 **Phase 2: Consistency checks**
 
-   Some checking is done to ensure no surprises in the built documents.
+Some checking is done to ensure no surprises in the built documents.
 
 **Phase 3: Resolving**
 
-   Now that the metadata and cross-reference data of all existing documents is
-   known, all temporary nodes are replaced by nodes that can be converted into
-   output using components called transforms.  For example, links are created
-   for object references that exist, and simple literal nodes are created for
-   those that don't.
+Now that the metadata and cross-reference data of all existing documents is
+known, all temporary nodes are replaced by nodes that can be converted into
+output using components called transforms.  For example, links are created
+for object references that exist, and simple literal nodes are created for
+those that don't.
 
 **Phase 4: Writing**
 
-   This phase converts the resolved doctrees to the desired output format, such
-   as HTML or LaTeX.  This happens via a so-called docutils writer that visits
-   the individual nodes of each doctree and produces some output in the process.
+This phase converts the resolved doctrees to the desired output format, such
+as HTML or LaTeX.  This happens via a so-called docutils writer that visits
+the individual nodes of each doctree and produces some output in the process.
 
 .. note::
 
@@ -147,7 +150,7 @@ in which a Sphinx project is built: this works in several phases.
    that checks external links does not need anything more than the parsed
    doctrees and therefore does not have phases 2--4.
 
-To see an example of application, refer to :doc:`../development/tutorials/todo`.
+To see an example of application, refer to :ref:`tutorial-extend-build`.
 
 .. _ext-metadata:
 
@@ -156,40 +159,61 @@ Extension metadata
 
 .. versionadded:: 1.3
 
-The ``setup()`` function can return a dictionary.  This is treated by Sphinx
-as metadata of the extension.  Metadata keys currently recognized are:
+The ``setup()`` function should return a dictionary.
+This is treated by Sphinx as metadata of the extension.
+Metadata keys currently recognized are:
 
-* ``'version'``: a string that identifies the extension version.  It is used for
-  extension version requirement checking (see :confval:`needs_extensions`) and
-  informational purposes.  If not given, ``"unknown version"`` is substituted.
-* ``'env_version'``: an integer that identifies the version of env data
-  structure if the extension stores any data to environment.  It is used to
-  detect the data structure has been changed from last build.  The extensions
-  have to increment the version when data structure has changed.  If not given,
-  Sphinx considers the extension does not stores any data to environment.
-* ``'parallel_read_safe'``: a boolean that specifies if parallel reading of
-  source files can be used when the extension is loaded.  It defaults to
-  ``False``, i.e. you have to explicitly specify your extension to be
-  parallel-read-safe after checking that it is.
+``'version'``
+  A string that identifies the extension version.
+  It is used for extension version requirement checking
+  (see :confval:`needs_extensions`) and informational purposes.
+  If no version string is returned, ``'unknown version'`` is used by default.
 
-  .. note:: The *parallel-read-safe* extension must satisfy the following
-            conditions:
+``'env_version'``
+  A non-zero positive integer integer that records
+  the version of data stored in the environment by the extension.
 
-            * The core logic of the extension is parallely executable during
-              the reading phase.
-            * It has event handlers for :event:`env-merge-info` and
-              :event:`env-purge-doc` events if it stores dataa to the build
-              environment object (env) during the reading phase.
+  .. attention::
+     If ``'env_version'`` is not set, the extension **must not**
+     store any data or state directly on the environment object  (``env``).
 
-* ``'parallel_write_safe'``: a boolean that specifies if parallel writing of
-  output files can be used when the extension is loaded.  Since extensions
-  usually don't negatively influence the process, this defaults to ``True``.
+  This key must be defined if the extension uses the ``env`` object to store data.
+  The version number must be incremented whenever the type, structure,  or meaning
+  of the stored data change, to ensure Sphinx does not try and load invalid data
+  from a cached environment.
 
-  .. note:: The *parallel-write-safe* extension must satisfy the following
-            conditions:
+  .. versionadded:: 1.8
 
-            * The core logic of the extension is parallely executable during
-              the writing phase.
+``'parallel_read_safe'``
+  A boolean that specifies if parallel reading of source files
+  can be used when the extension is loaded.
+  It defaults to ``False``, meaning that you have to explicitly specify
+  your extension to be safe for parallel reading after checking that it is.
+
+  .. important::
+
+     When *parallel-read-safe* is ``True``,
+     the extension must satisfy the following conditions:
+
+     * The core logic of the extension is parallelly executable during
+       the reading phase.
+     * It has event handlers for :event:`env-merge-info` and
+       :event:`env-purge-doc` events if it stores data to the build
+       environment object (``env``) during the reading phase.
+
+``'parallel_write_safe'``
+  A boolean that specifies if parallel writing of output files
+  can be used when the extension is loaded.
+  Since extensions usually don't negatively influence the process,
+  this defaults to ``True``.
+
+  .. important::
+
+     When *parallel-write-safe* is ``True``,
+     the extension must satisfy the following conditions:
+
+     * The core logic of the extension is parallelly executable during
+       the writing phase.
 
 
 APIs used for writing extensions
@@ -204,6 +228,7 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    :maxdepth: 2
 
    appapi
+   event_callbacks
    projectapi
    envapi
    builderapi
@@ -215,4 +240,5 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    logging
    i18n
    utils
+   testing
    deprecated

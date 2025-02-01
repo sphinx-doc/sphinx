@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "he",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "\u05e2\u05dc \u05de\u05e1\u05de\u05db\u05d9\u05dd \u05d0\u05dc\u05d5",
         "Automatically generated list of changes in version %(version)s": "\u05d9\u05e6\u05e8 \u05d0\u05d5\u05d8\u05d5\u05de\u05d8\u05d9\u05ea \u05e8\u05e9\u05d9\u05de\u05d4 \u05e9\u05dc \u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd \u05d1\u05d2\u05e8\u05e1\u05d4 %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u05dc\u05da",
         "Hide Search Matches": "\u05d4\u05e1\u05ea\u05e8 \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05d7\u05d9\u05e4\u05d5\u05e9",
         "Index": "\u05d0\u05d9\u05e0\u05d3\u05e7\u05e1",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\u05e2\u05de\u05d5\u05d3\u05d9 \u05d0\u05d9\u05e0\u05d3\u05e7\u05e1 \u05dc\u05e4\u05d9 \u05d0\u05d5\u05ea\u05d9\u05d5\u05ea",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "\u05e2\u05d5\u05d3\u05db\u05df \u05dc\u05d0\u05d7\u05e8\u05d5\u05e0\u05d4 \u05d1 %(last_updated)s.",
@@ -30,8 +29,6 @@ Documentation.addTranslations({
         "Next topic": "\u05e0\u05d5\u05e9\u05d0 \u05d4\u05d1\u05d0",
         "Other changes": "\u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd \u05d0\u05d7\u05e8\u05d9\u05dd",
         "Overview": "\u05e1\u05e7\u05d9\u05e8\u05d4 \u05db\u05dc\u05dc\u05d9\u05ea",
-        "Permalink to this definition": "\u05e7\u05d9\u05e9\u05d5\u05e8 \u05e7\u05d1\u05d5\u05e2 \u05dc\u05d4\u05d2\u05d3\u05e8\u05d4 \u05d6\u05d5",
-        "Permalink to this headline": "\u05e7\u05d9\u05e9\u05d5\u05e8 \u05e7\u05d1\u05d5\u05e2 \u05dc\u05db\u05d5\u05ea\u05e8\u05ea \u05d6\u05d5",
         "Please activate JavaScript to enable the search\n    functionality.": "\u05d0\u05e0\u05d0 \u05d4\u05e4\u05e2\u05dc \u05d2'\u05d0\u05d5\u05d0\u05e1\u05e7\u05e8\u05d9\u05e4\u05d8 \u05e2\"\u05de \u05dc\u05d0\u05e4\u05e9\u05e8 \u05d0\u05ea\n    \u05d4\u05d7\u05d9\u05e4\u05d5\u05e9.",
         "Preparing search...": "",
         "Previous topic": "\u05e0\u05d5\u05e9\u05d0 \u05e7\u05d5\u05d3\u05dd",
@@ -39,7 +36,11 @@ Documentation.addTranslations({
         "Search": "\u05d7\u05d9\u05e4\u05d5\u05e9",
         "Search Page": "\u05d3\u05e3 \u05d7\u05d9\u05e4\u05d5\u05e9",
         "Search Results": "\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05d4\u05d7\u05d9\u05e4\u05d5\u05e9",
-        "Search finished, found %s page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "\u05d7\u05e4\u05e9 \u05d1\u05ea\u05d5\u05da %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",
@@ -59,5 +60,5 @@ Documentation.addTranslations({
         "search this documentation": "\u05d7\u05e4\u05e9 \u05d1\u05ea\u05d9\u05e2\u05d5\u05d3 \u05d6\u05d4",
         "the documentation for": ""
     },
-    "plural_expr": "(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3"
+    "plural_expr": "(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2"
 });

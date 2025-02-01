@@ -1,10 +1,8 @@
-"""
-    Test with nested classes.
-"""
+"""Test with nested classes."""
 
 
-class A(object):
-    class B(object):
+class A:
+    class B:  # NoQA: D106
         pass
 
 

@@ -45,7 +45,7 @@ on the first line, separated by a colon.
 def function_with_types_in_docstring(param1, param2):
     """Example function with types documented in the docstring.
 
-    `PEP 484`_ type annotations are supported. If attribute, parameter, and
+    :pep:`484` type annotations are supported. If attribute, parameter, and
     return types are annotated according to `PEP 484`_, they do not need to be
     included in the docstring:
 
@@ -55,10 +55,6 @@ def function_with_types_in_docstring(param1, param2):
 
     Returns:
         bool: The return value. True for success, False otherwise.
-
-    .. _PEP 484:
-        https://www.python.org/dev/peps/pep-0484/
-
     """
 
 
@@ -115,7 +111,7 @@ def module_level_function(param1, param2=None, *args, **kwargs):
 
             {
                 'param1': param1,
-                'param2': param2
+                'param2': param2,
             }
 
     Raises:
@@ -125,7 +121,8 @@ def module_level_function(param1, param2=None, *args, **kwargs):
 
     """
     if param1 == param2:
-        raise ValueError('param1 may not be equal to param2')
+        msg = 'param1 may not be equal to param2'
+        raise ValueError(msg)
     return True
 
 
@@ -146,8 +143,7 @@ def example_generator(n):
         [0, 1, 2, 3]
 
     """
-    for i in range(n):
-        yield i
+    yield from range(n)
 
 
 class ExampleError(Exception):
@@ -240,7 +236,7 @@ class ExampleClass:
 
     @readwrite_property.setter
     def readwrite_property(self, value):
-        value
+        _ = value
 
     def example_method(self, param1, param2):
         """Class methods are similar to regular functions.
@@ -294,6 +290,7 @@ class ExampleClass:
 
     def _private_without_docstring(self):
         pass
+
 
 class ExamplePEP526Class:
     """The summary line for a class docstring should fit on one line.

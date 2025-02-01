@@ -1,52 +1,48 @@
-"""
-    sphinx.directives.patches
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import os
-import warnings
-from os import path
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Node, make_id, system_message
+from docutils.nodes import make_id
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives import html, images, tables
+from docutils.parsers.rst.directives import images, tables
+from docutils.parsers.rst.directives.misc import Meta
+from docutils.parsers.rst.roles import set_classes
 
-from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import optional_int
-from sphinx.domains.math import MathDomain
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import SEP, os_path, relpath
-from sphinx.util.typing import OptionSpec
+from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
 
 
-class Figure(images.Figure):
+class Figure(images.Figure):  # type: ignore[misc]
     """The figure directive which applies `:name:` option to the figure node
     instead of the image node.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         name = self.options.pop('name', None)
         result = super().run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
             return result
 
         assert len(result) == 1
-        figure_node = cast(nodes.figure, result[0])
+        figure_node = cast('nodes.figure', result[0])
         if name:
             # set ``name`` to figure_node if given
             self.options['name'] = name
@@ -54,85 +50,36 @@ class Figure(images.Figure):
 
         # copy lineno from image node
         if figure_node.line is None and len(figure_node) == 2:
-            caption = cast(nodes.caption, figure_node[1])
+            caption = cast('nodes.caption', figure_node[1])
             figure_node.line = caption.line
 
         return [figure_node]
 
 
-class Meta(html.Meta, SphinxDirective):
-    def run(self) -> List[Node]:
-        result = super().run()
-        for node in result:
-            if (isinstance(node, nodes.pending) and
-               isinstance(node.details['nodes'][0], html.MetaBody.meta)):
-                meta = node.details['nodes'][0]
-                meta.source = self.env.doc2path(self.env.docname)
-                meta.line = self.lineno
-                meta.rawcontent = meta['content']  # type: ignore
-
-                # docutils' meta nodes aren't picklable because the class is nested
-                meta.__class__ = addnodes.meta  # type: ignore
-
-        return result
-
-
-class RSTTable(tables.RSTTable):
-    """The table directive which sets source and line information to its caption.
-
-    Only for docutils-0.13 or older version."""
-
-    def run(self) -> List[Node]:
-        warnings.warn('RSTTable is deprecated.',
-                      RemovedInSphinx60Warning)
-        return super().run()
-
-    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
-        title, message = super().make_title()
-        if title:
-            set_source_info(self, title)
-
-        return title, message
-
-
-class CSVTable(tables.CSVTable):
+class CSVTable(tables.CSVTable):  # type: ignore[misc]
     """The csv-table directive which searches a CSV file from Sphinx project's source
     directory when an absolute path is given via :file: option.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
             env = self.state.document.settings.env
-            filename = self.options['file']
-            if path.exists(filename):
-                logger.warning(__('":file:" option for csv-table directive now recognizes '
-                                  'an absolute path as a relative path from source directory. '
-                                  'Please update your document.'),
-                               location=(env.docname, self.lineno))
+            filename = Path(self.options['file'])
+            if filename.exists():
+                logger.warning(
+                    __(
+                        '":file:" option for csv-table directive now recognizes '
+                        'an absolute path as a relative path from source directory. '
+                        'Please update your document.'
+                    ),
+                    location=(env.docname, self.lineno),
+                )
             else:
-                abspath = path.join(env.srcdir, os_path(self.options['file'][1:]))
-                docdir = path.dirname(env.doc2path(env.docname))
-                self.options['file'] = relpath(abspath, docdir)
+                abspath = env.srcdir / self.options['file'][1:]
+                doc_dir = env.doc2path(env.docname).parent
+                self.options['file'] = relpath(abspath, doc_dir)
 
         return super().run()
-
-
-class ListTable(tables.ListTable):
-    """The list-table directive which sets source and line information to its caption.
-
-    Only for docutils-0.13 or older version."""
-
-    def run(self) -> List[Node]:
-        warnings.warn('ListTable is deprecated.',
-                      RemovedInSphinx60Warning)
-        return super().run()
-
-    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
-        title, message = super().make_title()
-        if title:
-            set_source_info(self, title)
-
-        return title, message
 
 
 class Code(SphinxDirective):
@@ -140,8 +87,9 @@ class Code(SphinxDirective):
 
     This is compatible with docutils' :rst:dir:`code` directive.
     """
+
     optional_arguments = 1
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'class': directives.class_option,
         'force': directives.flag,
         'name': directives.unchanged,
@@ -149,14 +97,18 @@ class Code(SphinxDirective):
     }
     has_content = True
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         self.assert_has_content()
 
+        set_classes(self.options)
         code = '\n'.join(self.content)
-        node = nodes.literal_block(code, code,
-                                   classes=self.options.get('classes', []),
-                                   force='force' in self.options,
-                                   highlight_args={})
+        node = nodes.literal_block(
+            code,
+            code,
+            classes=self.options.get('classes', []),
+            force='force' in self.options,
+            highlight_args={},
+        )
         self.add_name(node)
         set_source_info(self, node)
 
@@ -167,8 +119,10 @@ class Code(SphinxDirective):
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
-            node['language'] = self.env.temp_data.get('highlight_language',
-                                                      self.config.highlight_language)
+            node['language'] = (
+                self.env.current_document.highlight_language
+                or self.config.highlight_language
+            )
 
         if 'number-lines' in self.options:
             node['linenos'] = True
@@ -185,45 +139,55 @@ class MathDirective(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,
+        'no-wrap': directives.flag,
         'nowrap': directives.flag,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
+        # Copy the old option name to the new one
+        # xref RemovedInSphinx90Warning
+        # deprecate nowrap in Sphinx 9.0
+        if 'no-wrap' not in self.options and 'nowrap' in self.options:
+            self.options['no-wrap'] = self.options['nowrap']
+
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
         label = self.options.get('label', self.options.get('name'))
-        node = nodes.math_block(latex, latex,
-                                classes=self.options.get('class', []),
-                                docname=self.env.docname,
-                                number=None,
-                                label=label,
-                                nowrap='nowrap' in self.options)
+        node = nodes.math_block(
+            latex,
+            latex,
+            classes=self.options.get('class', []),
+            docname=self.env.docname,
+            number=None,
+            label=label,
+        )
+        node['no-wrap'] = node['nowrap'] = 'no-wrap' in self.options
         self.add_name(node)
         self.set_source_info(node)
 
-        ret: List[Node] = [node]
+        ret: list[Node] = [node]
         self.add_target(ret)
         return ret
 
-    def add_target(self, ret: List[Node]) -> None:
-        node = cast(nodes.math_block, ret[0])
+    def add_target(self, ret: list[Node]) -> None:
+        node = cast('nodes.math_block', ret[0])
 
         # assign label automatically if math_number_all enabled
-        if node['label'] == '' or (self.config.math_number_all and not node['label']):
+        if node['label'] == '' or (self.config.math_number_all and not node['label']):  # NoQA: PLC1901
             seq = self.env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = "%s:%d" % (self.env.docname, seq)
+            node['label'] = f'{self.env.docname}:{seq}'
 
         # no targets and numbers are needed
         if not node['label']:
             return
 
         # register label to domain
-        domain = cast(MathDomain, self.env.get_domain('math'))
+        domain = self.env.domains.math_domain
         domain.note_equation(self.env.docname, node['label'], location=node)
         node['number'] = domain.get_equation_number_for(node['label'])
 
@@ -234,12 +198,38 @@ class MathDirective(SphinxDirective):
         ret.insert(0, target)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+class Rubric(SphinxDirective):
+    """A patch of the docutils' :rst:dir:`rubric` directive,
+    which adds a level option to specify the heading level of the rubric.
+    """
+
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {
+        'class': directives.class_option,
+        'name': directives.unchanged,
+        'heading-level': lambda c: directives.choice(c, ('1', '2', '3', '4', '5', '6')),
+    }
+
+    def run(self) -> list[nodes.rubric | nodes.system_message]:
+        set_classes(self.options)
+        rubric_text = self.arguments[0]
+        textnodes, messages = self.parse_inline(rubric_text, lineno=self.lineno)
+        if 'heading-level' in self.options:
+            self.options['heading-level'] = int(self.options['heading-level'])
+        rubric = nodes.rubric(rubric_text, '', *textnodes, **self.options)
+        self.add_name(rubric)
+        return [rubric, *messages]
+
+
+def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)
     directives.register_directive('code', Code)
     directives.register_directive('math', MathDirective)
+    directives.register_directive('rubric', Rubric)
 
     return {
         'version': 'builtin',

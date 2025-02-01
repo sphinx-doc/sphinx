@@ -5,7 +5,7 @@ from functools import wraps
 class AsyncClass:
     async def do_coroutine(self):
         """A documented coroutine function"""
-        attr_coro_result = await _other_coro_func()  # NOQA
+        attr_coro_result = await _other_coro_func()
 
     @classmethod
     async def do_coroutine2(cls):
@@ -17,9 +17,13 @@ class AsyncClass:
         """A documented coroutine staticmethod"""
         pass
 
+    async def do_asyncgen(self):
+        """A documented async generator"""
+        yield
 
-async def _other_coro_func():
-    return "run"
+
+async def _other_coro_func():  # NoQA: RUF029
+    return 'run'
 
 
 def myawait(f):
@@ -27,6 +31,7 @@ def myawait(f):
     def wrapper(*args, **kwargs):
         awaitable = f(*args, **kwargs)
         return asyncio.run(awaitable)
+
     return wrapper
 
 

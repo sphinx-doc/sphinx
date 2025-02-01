@@ -1,71 +1,368 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - ".github/workflows/main.yml"
+      - "sphinx/**"
+      - "tests/**"
+  pull_request:
+    paths:
+      - ".github/workflows/main.yml"
+      - "sphinx/**"
+      - "tests/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "1"
+  PYTHONDEVMODE: "1"  # -X dev
+  PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   ubuntu:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        name: [py36, py37, py38, py39]
-        include:
-        - name: py36
-          python: 3.6
-          docutils: du14
-        - name: py37
-          python: 3.7
-          docutils: du15
-        - name: py38
-          python: 3.8
-          docutils: du16
-        - name: py39
-          python: 3.9
-          docutils: du17
-          coverage: "--cov ./ --cov-append --cov-config setup.cfg"
-        - name: py310-dev
-          python: 3.10-dev
-          docutils: du17
-    env:
-      PYTEST_ADDOPTS: ${{ matrix.coverage }}
+        python:
+        - "3.11"
+        - "3.12"
+        - "3.13"
+        docutils:
+        - "0.20"
+        - "0.21"
+#        include:
+#        # test every supported Docutils version for the latest supported Python
+#        - python: "3.13"
+#          docutils: "0.20"
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v2
-      if: "!endsWith(matrix.python, '-dev')"
+    - uses: actions/checkout@v4
       with:
-        python-version: ${{ matrix.python }}
-    - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v2.0.1
-      if: endsWith(matrix.python, '-dev')
+        persist-credentials: false
+    - name: Mount the test roots as read-only
+      run: |
+        mkdir -p ./tests/roots-read-only
+        sudo mount -v --bind --read-only ./tests/roots ./tests/roots-read-only
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}
     - name: Check Python version
-      run: python --version
+      run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: pip install -U tox codecov
-    - name: Run Tox
-      run: tox -e ${{ matrix.docutils }} -- -vv
-    - name: codecov
-      uses: codecov/codecov-action@v1
-      if: matrix.coverage
+      run: uv pip install .[test]
+    - name: Install Docutils ${{ matrix.docutils }}
+      run: uv pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  deadsnakes:
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+        - "3.14"
+        docutils:
+        - "0.20"
+        - "0.21"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python ${{ matrix.python }} (deadsnakes)
+      uses: deadsnakes/action@v3.2.0
+      with:
+        python-version: ${{ matrix.python }}-dev
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
+        python -m pip install .[test]
+    - name: Install Docutils ${{ matrix.docutils }}
+      run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  free-threaded:
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }} (free-threaded)
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+        - "3.13"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python ${{ matrix.python }} (deadsnakes)
+      uses: deadsnakes/action@v3.2.0
+      with:
+        python-version: ${{ matrix.python }}
+        nogil: true
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  deadsnakes-free-threaded:
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }} (free-threaded)
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+        - "3.14"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python ${{ matrix.python }} (deadsnakes)
+      uses: deadsnakes/action@v3.2.0
+      with:
+        python-version: ${{ matrix.python }}-dev
+        nogil: true
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
+        python -m pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   windows:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        architecture: [x86, x64]
+    name: Windows
+    timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@v4
       with:
-        architecture: ${{ matrix.architecture }}
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: choco install --no-progress graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run:  pip install -U tox
-    - name: Run Tox
-      run:  tox -e py -- -vv
+      run: uv pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  macos:
+    runs-on: macos-latest
+    name: macOS
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: brew install graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: uv pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  docutils-latest:
+    runs-on: ubuntu-latest
+    name: Docutils HEAD
+    timeout-minutes: 15
+
+    steps:
+    - name: Install epubcheck
+      run: |
+        EPUBCHECK_VERSION="5.1.0"
+        mkdir /tmp/epubcheck && cd /tmp/epubcheck
+        wget --no-verbose https://github.com/w3c/epubcheck/releases/download/v${EPUBCHECK_VERSION}/epubcheck-${EPUBCHECK_VERSION}.zip
+        unzip epubcheck-${EPUBCHECK_VERSION}.zip
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: uv pip install .[test]
+    - name: Install Docutils' HEAD
+      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+    - name: Test with pytest
+      run: python -m pytest -vv
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        DO_EPUBCHECK: "1"
+        EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
+
+  oldest-supported:
+    runs-on: ubuntu-latest
+    name: Oldest supported
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: |
+        uv pip install .[test] --resolution lowest-direct
+        uv pip install alabaster==1.0.0
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  latex:
+    runs-on: ubuntu-latest
+    name: LaTeX
+    timeout-minutes: 15
+    container:
+      image: ghcr.io/sphinx-doc/sphinx-ci
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: uv pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        DO_EPUBCHECK: "1"
+
+  coverage:
+    if: github.event_name == 'push' && github.repository_owner == 'sphinx-doc'
+    runs-on: ubuntu-latest
+    name: Coverage
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: uv pip install .[test] pytest-cov
+    - name: Test with pytest
+      run: python -m pytest -vv --cov . --cov-append --cov-config pyproject.toml
+      env:
+        VIRTUALENV_SYSTEM_SITE_PACKAGES: "1"
+    - name: codecov
+      uses: codecov/codecov-action@v5

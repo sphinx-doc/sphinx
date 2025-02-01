@@ -1,21 +1,13 @@
-"""
-    sphinx.search.sv
-    ~~~~~~~~~~~~~~~~
+"""Swedish search language: includes the JS Swedish stemmer."""
 
-    Swedish search language: includes the JS Swedish stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Dict
+from __future__ import annotations
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-swedish_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/swedish/stop.txt
+swedish_stopwords = parse_stop_word("""
+| source: https://snowball.tartarus.org/algorithms/swedish/stop.txt
 och            | and
 det            | it, this/that
 att            | to (with infinitive)
@@ -130,7 +122,7 @@ våra           | our
 ert            | your
 era            | your
 vilkas         | whose
-''')
+""")
 
 
 class SearchSwedish(SearchLanguage):
@@ -139,7 +131,7 @@ class SearchSwedish(SearchLanguage):
     js_stemmer_rawcode = 'swedish-stemmer.js'
     stopwords = swedish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('swedish')
 
     def stem(self, word: str) -> str:

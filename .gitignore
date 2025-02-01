@@ -15,6 +15,7 @@ TAGS
 .tox/
 .tx/
 .venv/
+venv/
 .coverage
 htmlcov
 .DS_Store
@@ -30,6 +31,8 @@ doc/_build/
 doc/locale/
 tests/.coverage
 tests/build/
+tests/js/roots/*/_build
+tests/test-server.lock
 utils/regression_test.js
 
 node_modules/

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Generic, TypeVar
 
 T = TypeVar('T')
@@ -7,5 +9,6 @@ T = TypeVar('T')
 # __init__ signature.
 class A(Generic[T]):
     """docstring for A"""
+
     def __init__(self, a, b=None):
         pass

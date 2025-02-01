@@ -2,9 +2,8 @@ Documentation.addTranslations({
     "locale": "fr",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Copyright %(copyright)s.",
-        ", in ": ", dans",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "&#169; %(copyright_prefix)s %(copyright)s.",
+        ", in ": ", dans ",
         "About these documents": "\u00c0 propos de ces documents",
         "Automatically generated list of changes in version %(version)s": "Liste auto-g\u00e9n\u00e9r\u00e9e des modifications dans la version %(version)s",
         "C API changes": "Modifications de l'API C",
@@ -13,7 +12,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Table des mati\u00e8res compl\u00e8te",
         "Contents": "Contenu",
         "Copyright": "Copyright",
-        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Cr\u00e9\u00e9 en utilisant <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
         "Expand sidebar": "Agrandir la barre lat\u00e9rale",
         "Full index on one page": "Index complet sur une seule page",
         "General Index": "Index g\u00e9n\u00e9ral",
@@ -21,17 +20,15 @@ Documentation.addTranslations({
         "Go": "Go",
         "Hide Search Matches": "Cacher les r\u00e9sultats de la recherche",
         "Index": "Index",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "Index &#x2013; %(key)s",
         "Index pages by letter": "Indexer les pages par lettre",
-        "Indices and tables:": "Indices et tables :",
+        "Indices and tables:": "Index et tables :",
         "Last updated on %(last_updated)s.": "Mis \u00e0 jour le %(last_updated)s.",
         "Library changes": "Modifications de la biblioth\u00e8que",
         "Navigation": "Navigation",
         "Next topic": "Sujet suivant",
         "Other changes": "Autres modifications",
         "Overview": "R\u00e9sum\u00e9",
-        "Permalink to this definition": "Lien permanent vers cette d\u00e9finition",
-        "Permalink to this headline": "Lien permanent vers ce titre",
         "Please activate JavaScript to enable the search\n    functionality.": "Veuillez activer le JavaScript pour que la recherche fonctionne.",
         "Preparing search...": "Pr\u00e9paration de la recherche...",
         "Previous topic": "Sujet pr\u00e9c\u00e9dent",
@@ -39,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Recherche",
         "Search Page": "Page de recherche",
         "Search Results": "R\u00e9sultats de la recherche",
-        "Search finished, found %s page(s) matching the search query.": "La recherche est finie, %s page(s) trouv\u00e9e(s) qui corresponde(nt) \u00e0 la recherche.",
+        "Search finished, found one page matching the search query.": [
+            "La recherche est termin\u00e9e, une page correspondant \u00e0 la requ\u00eate a \u00e9t\u00e9 trouv\u00e9e.",
+            "Recherche termin\u00e9e, ${resultCount} pages trouv\u00e9es correspondant \u00e0 la requ\u00eate.",
+            "Recherche termin\u00e9e, ${resultCount} pages trouv\u00e9es correspondant \u00e0 la requ\u00eate."
+        ],
         "Search within %(docstitle)s": "Recherchez dans %(docstitle)s",
         "Searching": "Recherche en cours",
         "Searching for multiple words only shows matches that contain\n    all words.": "Une recherche sur plusieurs mots ne retourne que les r\u00e9sultats contenant tous les mots.",
@@ -59,5 +60,5 @@ Documentation.addTranslations({
         "search this documentation": "rechercher dans cette documentation",
         "the documentation for": "la documentation pour"
     },
-    "plural_expr": "(n > 1)"
+    "plural_expr": "(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2"
 });

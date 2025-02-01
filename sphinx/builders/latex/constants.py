@@ -1,22 +1,19 @@
-"""
-    sphinx.builders.latex.constants
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""constants for LaTeX builder."""
 
-    consntants for LaTeX builder.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from typing import TYPE_CHECKING
 
-from typing import Any, Dict
+if TYPE_CHECKING:
+    from typing import Any
 
-PDFLATEX_DEFAULT_FONTPKG = r'''
+PDFLATEX_DEFAULT_FONTPKG = r"""
 \usepackage{tgtermes}
 \usepackage{tgheros}
 \renewcommand{\ttdefault}{txtt}
-'''
+"""
 
-PDFLATEX_DEFAULT_FONTSUBSTITUTION = r'''
+PDFLATEX_DEFAULT_FONTSUBSTITUTION = r"""
 \expandafter\ifx\csname T@LGR\endcsname\relax
 \else
 % LGR was declared as font encoding
@@ -38,9 +35,9 @@ PDFLATEX_DEFAULT_FONTSUBSTITUTION = r'''
   \substitutefont{X2}{\sfdefault}{cmss}
   \substitutefont{X2}{\ttdefault}{cmtt}
 \fi
-'''
+"""
 
-XELATEX_DEFAULT_FONTPKG = r'''
+XELATEX_DEFAULT_FONTPKG = r"""
 \setmainfont{FreeSerif}[
   Extension      = .otf,
   UprightFont    = *,
@@ -55,23 +52,25 @@ XELATEX_DEFAULT_FONTPKG = r'''
   BoldFont       = *Bold,
   BoldItalicFont = *BoldOblique,
 ]
-\setmonofont{FreeMono}[
+\setmonofont{FreeMono}[Scale=0.9,
   Extension      = .otf,
   UprightFont    = *,
   ItalicFont     = *Oblique,
   BoldFont       = *Bold,
   BoldItalicFont = *BoldOblique,
 ]
-'''
+"""
 
-XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
-                                 '\n\\newfontfamily\\greekfont{FreeSerif}' +
-                                 '\n\\newfontfamily\\greekfontsf{FreeSans}' +
-                                 '\n\\newfontfamily\\greekfonttt{FreeMono}')
+XELATEX_GREEK_DEFAULT_FONTPKG = (
+    XELATEX_DEFAULT_FONTPKG
+    + '\n\\newfontfamily\\greekfont{FreeSerif}'
+    + '\n\\newfontfamily\\greekfontsf{FreeSans}'
+    + '\n\\newfontfamily\\greekfonttt{FreeMono}'
+)
 
 LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 
-DEFAULT_SETTINGS: Dict[str, Any] = {
+DEFAULT_SETTINGS: dict[str, Any] = {
     'latex_engine':    'pdflatex',
     'papersize':       '',
     'pointsize':       '',
@@ -121,9 +120,9 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
-}
+}  # fmt: skip
 
-ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
+ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
@@ -148,7 +147,6 @@ ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      XELATEX_DEFAULT_FONTPKG,
-        'fvset':        '\\fvset{fontsize=\\small}',
         'fontsubstitution': '',
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
@@ -161,7 +159,6 @@ ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
-        'fvset':        '\\fvset{fontsize=\\small}',
         'fontsubstitution': '',
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
@@ -189,6 +186,11 @@ ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
     },
 
     # special settings for latex_engine + language_code
+    ('lualatex', 'fr'): {
+        # use babel instead of polyglossia by default
+        'polyglossia':  '',
+        'babel':        '\\usepackage{babel}',
+    },
     ('xelatex', 'fr'): {
         # use babel instead of polyglossia by default
         'polyglossia':  '',
@@ -198,16 +200,19 @@ ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
         'polyglossia':  '',
         'babel':        '\\usepackage{babel}',
         'fontenc':      '\\usepackage{xeCJK}',
+        # set formatcom=\xeCJKVerbAddon to prevent xeCJK from adding extra spaces in
+        # fancyvrb Verbatim environment.
+        'fvset':        '\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}',
     },
     ('xelatex', 'el'): {
         'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
     },
-}
+}  # fmt: skip
 
 
-SHORTHANDOFF = r'''
+SHORTHANDOFF = r"""
 \ifdefined\shorthandoff
   \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
   \ifnum\catcode`\"=\active\shorthandoff{"}\fi
 \fi
-'''
+"""

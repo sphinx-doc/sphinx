@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "pt_BR",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Copyright %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "&#169; %(copyright_prefix)s %(copyright)s.",
         ", in ": ", em ",
         "About these documents": "Sobre esses documentos",
         "Automatically generated list of changes in version %(version)s": "Lista de altera\u00e7\u00f5es na vers\u00e3o %(version)s, gerada automaticamente",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Ir",
         "Hide Search Matches": "Esconder Resultados da Busca",
         "Index": "\u00cdndice",
-        "Index &ndash; %(key)s": "\u00cdndice &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "\u00cdndice &#x2013; %(key)s",
         "Index pages by letter": "P\u00e1ginas de \u00edndice por letra",
         "Indices and tables:": "\u00cdndices e Tabelas:",
         "Last updated on %(last_updated)s.": "\u00daltima atualiza\u00e7\u00e3o em %(last_updated)s.",
@@ -30,8 +29,6 @@ Documentation.addTranslations({
         "Next topic": "Pr\u00f3ximo t\u00f3pico",
         "Other changes": "Outras altera\u00e7\u00f5es",
         "Overview": "Vis\u00e3o geral",
-        "Permalink to this definition": "Link permanente para esta defini\u00e7\u00e3o",
-        "Permalink to this headline": "Link permanente para este t\u00edtulo",
         "Please activate JavaScript to enable the search\n    functionality.": "Por favor, ativar JavaScript para habilitar a\nfuncionalidade de busca.",
         "Preparing search...": "Preparando a busca...",
         "Previous topic": "T\u00f3pico anterior",
@@ -39,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Buscar",
         "Search Page": "P\u00e1gina de Busca",
         "Search Results": "Resultados da Busca",
-        "Search finished, found %s page(s) matching the search query.": "Busca conclu\u00edda. %s p\u00e1gina(s) que atendem a consulta.",
+        "Search finished, found one page matching the search query.": [
+            "Pesquisa conclu\u00edda, encontrada uma p\u00e1gina que correspondendo \u00e0 consulta da pesquisa.",
+            "Pesquisa finalizada, encontradas ${resultCount} p\u00e1ginas correspondendo \u00e0 consulta da pesquisa.",
+            "Pesquisa finalizada, encontradas ${resultCount} p\u00e1ginas correspondendo \u00e0 consulta da pesquisa."
+        ],
         "Search within %(docstitle)s": "Pesquisar dentro de %(docstitle)s",
         "Searching": "Buscando",
         "Searching for multiple words only shows matches that contain\n    all words.": "Pesquisando por v\u00e1rias palavras s\u00f3 mostra correspond\u00eancias\nque cont\u00eam todas as palavras.",
@@ -59,5 +60,5 @@ Documentation.addTranslations({
         "search this documentation": "Buscar nessa documenta\u00e7\u00e3o",
         "the documentation for": "documenta\u00e7\u00e3o para"
     },
-    "plural_expr": "(n > 1)"
+    "plural_expr": "(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2"
 });

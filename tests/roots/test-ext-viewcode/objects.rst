@@ -8,7 +8,7 @@ Testing object descriptions
 .. function:: func_without_body()
 
 .. function:: func_noindex
-   :noindex:
+   :no-index:
 
 .. function:: func_with_module
    :module: foolib
@@ -103,7 +103,7 @@ Javascript items
 .. js:function:: bar.baz(href, callback[, errback])
 
    :param string href: The location of the resource.
-   :param callback: Get's called with the data returned by the resource.
+   :param callback: Gets called with the data returned by the resource.
    :throws InvalidHref: If the `href` is invalid.
    :returns: `undefined`
 
@@ -167,3 +167,10 @@ CPP domain
 
    .. cpp:function:: T& operator[]( unsigned j )
                      const T& operator[]( unsigned j ) const
+
+rST domain
+==========
+
+.. rst:role:: foo
+
+   Foo description.

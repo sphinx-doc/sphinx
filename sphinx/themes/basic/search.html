@@ -1,12 +1,4 @@
-{#
-    basic/search.html
-    ~~~~~~~~~~~~~~~~~
-
-    Template for the search page.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-#}
+{# Template for the search page. #}
 {%- extends "layout.html" %}
 {% set title = _('Search') %}
 {%- block scripts %}
@@ -15,19 +7,21 @@
     <script src="{{ pathto('_static/language_data.js', 1) }}"></script>
 {%- endblock %}
 {% block extrahead %}
-  <script src="{{ pathto('searchindex.js', 1) }}" defer></script>
-  {{ super() }}
+    <script src="{{ pathto('searchindex.js', 1) }}" defer="defer"></script>
+    <meta name="robots" content="noindex" />
+    {{ super() }}
 {% endblock %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
   {% block scriptwarning %}
-  <div id="fallback" class="admonition warning">
-  <script>$('#fallback').hide();</script>
+  <noscript>
+  <div class="admonition warning">
   <p>
     {% trans %}Please activate JavaScript to enable the search
     functionality.{% endtrans %}
   </p>
   </div>
+  </noscript>
   {% endblock %}
   {% block searchtext %}
   <p>
@@ -37,28 +31,12 @@
   {% endblock %}
   {% block searchbox %}
   <form action="" method="get">
-    <input type="text" name="q" aria-labelledby="search-documentation" value="" />
+    <input type="text" name="q" aria-labelledby="search-documentation" value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
     <input type="submit" value="{{ _('search') }}" />
     <span id="search-progress" style="padding-left: 10px"></span>
   </form>
   {% endblock %}
   {% block searchresults %}
-  {% if search_performed %}
-    <h2>{{ _('Search Results') }}</h2>
-    {% if not search_results %}
-      <p>{{ _('Your search did not match any documents. Please make sure that all words are spelled correctly and that you\'ve selected enough categories.') }}</p>
-    {% endif %}
-  {% endif %}
-  <div id="search-results">
-  {% if search_results %}
-    <ul>
-    {% for href, caption, context in search_results %}
-      <li><a href="{{ pathto(item.href) }}">{{ caption }}</a>
-        <div class="context">{{ context|e }}</div>
-      </li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-  </div>
+  <div id="search-results"></div>
   {% endblock %}
 {% endblock %}
