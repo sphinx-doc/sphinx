@@ -364,11 +364,15 @@ class IntersphinxRole(SphinxRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
-        if inventory and not inventory_exists(self.env, inventory):
-            self._emit_warning(
-                __('inventory for external cross-reference not found: %r'), inventory
-            )
-            return [], []
+        resolve_self = self.env.config.intersphinx_resolve_self
+        self_referential = bool(resolve_self) and resolve_self == inventory
+
+        if not self_referential:
+            if inventory and not inventory_exists(self.env, inventory):
+                self._emit_warning(
+                    __('inventory for external cross-reference not found: %r'), inventory
+                )
+                return [], []
 
         domain_name, role_name = self._get_domain_role(name_suffix)
 
@@ -453,10 +457,14 @@ class IntersphinxRole(SphinxRole):
             self.content,
         )
 
-        for node in result:
-            if isinstance(node, pending_xref):
-                node['intersphinx'] = True
-                node['inventory'] = inventory
+        if not self_referential:
+            # We do the intersphinx resolution by inserting our
+            # 'intersphinx' and 'inventory' attributes into the nodes.
+            # Only do this when it is an external reference.
+            for node in result:
+                if isinstance(node, pending_xref):
+                    node['intersphinx'] = True
+                    node['inventory'] = inventory
 
         return result, messages
 

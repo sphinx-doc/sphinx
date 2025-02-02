@@ -64,6 +64,7 @@ if TYPE_CHECKING:
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('intersphinx_mapping', {}, 'env', types=frozenset({dict}))
+    app.add_config_value('intersphinx_resolve_self', '', 'env', types=frozenset({str}))
     app.add_config_value('intersphinx_cache_limit', 5, '', types=frozenset({int}))
     app.add_config_value(
         'intersphinx_timeout', None, '', types=frozenset({int, float, type(None)})

@@ -91,6 +91,9 @@ Features added
 * #12507: Add the :ref:`collapsible <collapsible-admonitions>` option
   to admonition directives.
   Patch by Chris Sewell.
+* #9169: Add the :confval:`intersphinx_resolve_self` option
+  to resolve an intersphinx reference to the current project.
+  Patch by Jakob Lykke Andersen and Adam Turner.
 
 Bugs fixed
 ----------
