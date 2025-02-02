@@ -9,7 +9,6 @@ import re
 from functools import partial
 from itertools import starmap
 from typing import TYPE_CHECKING, Any
-from typing import TYPE_CHECKING
 
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -17,7 +16,6 @@ from sphinx.util.typing import RenderMode, get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.config import Config as SphinxConfig
@@ -1099,10 +1097,11 @@ class GoogleDocstring:
                     self._annotations = get_type_hints(self._obj, None, localns)
                 if _name in self._annotations:
                     mode: _StringifyMode = RenderMode.fully_qualified_except_typing
-                    if getattr(self._config, 'python_display_short_literal_types', None):
+                    if getattr(
+                        self._config, 'python_display_short_literal_types', None
+                    ):
                         mode = RenderMode.fully_qualified_except_typing_short_literal
-                    return stringify_annotation(self._annotations[_name], mode
-                    )
+                    return stringify_annotation(self._annotations[_name], mode)
         # No annotation found
         return ''
 

@@ -9,7 +9,7 @@ class MyEnum(Enum):
     b = 2
 
 
-T = TypeVar('T', bound=Literal[1234, "abcd"])
+T = TypeVar('T', bound=Literal[1234, 'abcd'])
 """docstring"""
 
 
@@ -17,7 +17,7 @@ U = TypeVar('U', bound=Literal[MyEnum.a, MyEnum.b])
 """docstring"""
 
 
-def bar(x: Literal[1234, "abcd"]):
+def bar(x: Literal[1234, 'abcd']):
     """docstring"""
 
 

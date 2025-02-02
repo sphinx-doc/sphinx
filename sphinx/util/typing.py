@@ -10,20 +10,11 @@ import sys
 import types
 import typing
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING
-from collections.abc import Sequence
-from contextvars import Context, ContextVar, Token
 from functools import reduce
-from struct import Struct
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
-    ForwardRef,
-    TypedDict,
-    TypeVar,
-    Union,
 )
 
 from docutils import nodes
@@ -285,7 +276,9 @@ class RenderMode(enum.IntFlag):
     """Apply PEP 604 style to :attr:`smart`."""
     fully_qualified_short_literal = fully_qualified | short_literal
     """Apply PEP 604 style to :attr:`fully_qualified`."""
-    fully_qualified_except_typing_short_literal = fully_qualified_except_typing | short_literal
+    fully_qualified_except_typing_short_literal = (
+        fully_qualified_except_typing | short_literal
+    )
     """Apply PEP 604 style to :attr:`fully_qualified_except_typing`."""
 
     @classmethod
@@ -293,7 +286,7 @@ class RenderMode(enum.IntFlag):
         # As soon as Python 3.11 becomes the minimal version, remove
         # the ``_Mode`` enumeration and use the STRICT boundary instead.
         if value not in _VALID_RENDER_MODE_COMBINATIONS:
-            raise ValueError("%r is not a valid %s" % (value, cls.__qualname__))
+            raise ValueError('%r is not a valid %s' % (value, cls.__qualname__))
         return super()._missing_(value)
 
 
@@ -324,23 +317,23 @@ if TYPE_CHECKING:
         'smart',
         'fully-qualified',
         'fully-qualified-except-typing',
-        _StringifyRenderMode
+        _StringifyRenderMode,
     ]
 
 
 @typing.overload
-def _normalize_mode(  # NoQA: E704
-    mode: Literal['smart']
+def _normalize_mode(
+    mode: Literal['smart'],
 ) -> Literal[RenderMode.smart]: ...
-@typing.overload  # NoQA: E302
-def _normalize_mode(  # NoQA: E704
-    mode: Literal['fully-qualified']
+@typing.overload
+def _normalize_mode(
+    mode: Literal['fully-qualified'],
 ) -> Literal[RenderMode.fully_qualified]: ...
-@typing.overload  # NoQA: E302
-def _normalize_mode(  # NoQA: E704
-    mode: Literal['fully-qualified-except-typing']
+@typing.overload
+def _normalize_mode(
+    mode: Literal['fully-qualified-except-typing'],
 ) -> Literal[RenderMode.fully_qualified_except_typing]: ...
-def _normalize_mode(mode: str) -> RenderMode:  # NoQA: E302
+def _normalize_mode(mode: str) -> RenderMode:
     if mode == 'smart':
         return RenderMode.smart
     if mode == 'fully-qualified':
@@ -350,7 +343,9 @@ def _normalize_mode(mode: str) -> RenderMode:  # NoQA: E302
     raise ValueError('invalid string mode name: %r' % mode)
 
 
-def restify(cls: Any, mode: _RestifyMode = RenderMode.fully_qualified_except_typing) -> str:
+def restify(
+    cls: Any, mode: _RestifyMode = RenderMode.fully_qualified_except_typing
+) -> str:
     """Convert a type-like object to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
@@ -606,7 +601,10 @@ def stringify_annotation(
     ):
         if mode & RenderMode.smart:
             module_prefix = f'~{module_prefix}'
-        if annotation_module_is_typing and mode & RenderMode.fully_qualified_except_typing:
+        if (
+            annotation_module_is_typing
+            and mode & RenderMode.fully_qualified_except_typing
+        ):
             module_prefix = ''
     elif _is_unpack_form(annotation) and annotation_module == 'typing_extensions':
         module_prefix = '~' if mode & RenderMode.smart else ''
@@ -664,10 +662,12 @@ def stringify_annotation(
             returns = stringify_annotation(annotation_args[-1], mode)
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
-            args = (_format_literal_arg_stringify(a, mode=mode) for a in annotation_args)
+            args = (
+                _format_literal_arg_stringify(a, mode=mode) for a in annotation_args
+            )
             if mode & RenderMode.short_literal:
                 return ' | '.join(args)
-            return f"{module_prefix}Literal[{', '.join(args)}]"
+            return f'{module_prefix}Literal[{", ".join(args)}]'
         elif _is_annotated_form(annotation):  # for py310+
             args = stringify_annotation(annotation_args[0], mode)
             meta_args = []

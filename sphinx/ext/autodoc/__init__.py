@@ -32,7 +32,6 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 from sphinx.util.typing import (
     RenderMode,
     get_type_hints,
@@ -44,7 +43,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
     from typing import ClassVar, Literal, TypeAlias
-    from typing import Any, ClassVar
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -52,7 +50,6 @@ if TYPE_CHECKING:
     from sphinx.events import EventManager
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.util.typing import ExtensionMetadata, OptionSpec, _RestifyRenderMode
-    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
     _AutodocObjType = Literal[
         'module', 'class', 'exception', 'function', 'method', 'attribute'
@@ -85,9 +82,10 @@ special_member_re = re.compile(r'^__\S+__$')
 
 
 def _get_render_mode(
-    config: Config, default: _RestifyRenderMode = RenderMode.fully_qualified_except_typing,
+    config: Config,
+    default: _RestifyRenderMode = RenderMode.fully_qualified_except_typing,
 ) -> _RestifyRenderMode:
-    if config.autodoc_typehints_format == "short":
+    if config.autodoc_typehints_format == 'short':
         mode: _RestifyRenderMode = RenderMode.smart
     else:
         mode = default
@@ -2325,7 +2323,9 @@ class DataDocumenter(
                 )
                 if self.objpath[-1] in annotations:
                     mode = _get_render_mode(self.config)
-                    objrepr = stringify_annotation(annotations.get(self.objpath[-1]), mode)
+                    objrepr = stringify_annotation(
+                        annotations.get(self.objpath[-1]), mode
+                    )
                     if self.config.autodoc_typehints_format == 'short':
                         objrepr = stringify_annotation(
                             annotations.get(self.objpath[-1]), 'smart'
@@ -2981,7 +2981,9 @@ class AttributeDocumenter(  # type: ignore[misc]
                 )
                 if self.objpath[-1] in annotations:
                     mode = _get_render_mode(self.config)
-                    objrepr = stringify_annotation(annotations.get(self.objpath[-1]), mode)
+                    objrepr = stringify_annotation(
+                        annotations.get(self.objpath[-1]), mode
+                    )
                     if self.config.autodoc_typehints_format == 'short':
                         objrepr = stringify_annotation(
                             annotations.get(self.objpath[-1]), 'smart'
@@ -3122,7 +3124,9 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
             return
 
         try:
-            signature = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
+            signature = inspect.signature(
+                func, type_aliases=self.config.autodoc_type_aliases
+            )
             if signature.return_annotation is not Parameter.empty:
                 mode = _get_render_mode(self.config)
                 objrepr = stringify_annotation(signature.return_annotation, mode)

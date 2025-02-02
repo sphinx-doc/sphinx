@@ -10,7 +10,6 @@ from docutils import nodes
 import sphinx
 from sphinx import addnodes
 from sphinx.util import inspect
-from sphinx.util.typing import stringify_annotation
 from sphinx.util.typing import ExtensionMetadata, RenderMode, stringify_annotation
 
 if TYPE_CHECKING:

@@ -21,8 +21,7 @@ from typing import TYPE_CHECKING, Any, ForwardRef
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
-from sphinx.util.typing import stringify_annotation
-from sphinx.util.typing import ForwardRef, RenderMode, stringify_annotation
+from sphinx.util.typing import RenderMode, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
