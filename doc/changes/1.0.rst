@@ -1,0 +1,441 @@
+==========
+Sphinx 1.0
+==========
+
+
+Release 1.0.8 (Sep 23, 2011)
+============================
+
+* #627: Fix tracebacks for AttributeErrors in autosummary generation.
+
+* Fix the ``abbr`` role when the abbreviation has newlines in it.
+
+* #727: Fix the links to search results with custom object types.
+
+* #648: Fix line numbers reported in warnings about undefined
+  references.
+
+* #696, #666: Fix C++ array definitions and template arguments
+  that are not type names.
+
+* #633: Allow footnotes in section headers in LaTeX output.
+
+* #616: Allow keywords to be linked via intersphinx.
+
+* #613: Allow Unicode characters in production list token names.
+
+* #720: Add dummy visitors for graphviz nodes for text and man.
+
+* #704: Fix image file duplication bug.
+
+* #677: Fix parsing of multiple signatures in C++ domain.
+
+* #637: Ignore Emacs lock files when looking for source files.
+
+* #544: Allow .pyw extension for importable modules in autodoc.
+
+* #700: Use ``$(MAKE)`` in quickstart-generated Makefiles.
+
+* #734: Make sidebar search box width consistent in browsers.
+
+* #644: Fix spacing of centered figures in HTML output.
+
+* #767: Safely encode SphinxError messages when printing them to
+  sys.stderr.
+
+* #611: Fix LaTeX output error with a document with no sections but
+  a link target.
+
+* Correctly treat built-in method descriptors as methods in autodoc.
+
+* #706: Stop monkeypatching the Python textwrap module.
+
+* #657: viewcode now works correctly with source files that have
+  non-ASCII encoding.
+
+* #669: Respect the ``noindex`` flag option in py:module directives.
+
+* #675: Fix IndexErrors when including nonexisting lines with
+  ``literalinclude``.
+
+* #676: Respect custom function/method parameter separator strings.
+
+* #682: Fix JS incompatibility with jQuery >= 1.5.
+
+* #693: Fix double encoding done when writing HTMLHelp .hhk files.
+
+* #647: Do not apply SmartyPants in parsed-literal blocks.
+
+* C++ domain now supports array definitions.
+
+
+Release 1.0.7 (Jan 15, 2011)
+============================
+
+* #347: Fix wrong generation of directives of static methods in
+  autosummary.
+
+* #599: Import PIL as ``from PIL import Image``.
+
+* #558: Fix longtables with captions in LaTeX output.
+
+* Make token references work as hyperlinks again in LaTeX output.
+
+* #572: Show warnings by default when reference labels cannot be
+  found.
+
+* #536: Include line number when complaining about missing reference
+  targets in nitpicky mode.
+
+* #590: Fix inline display of graphviz diagrams in LaTeX output.
+
+* #589: Build using app.build() in setup command.
+
+* Fix a bug in the inheritance diagram exception that caused base
+  classes to be skipped if one of them is a builtin.
+
+* Fix general index links for C++ domain objects.
+
+* #332: Make admonition boundaries in LaTeX output visible.
+
+* #573: Fix KeyErrors occurring on rebuild after removing a file.
+
+* Fix a traceback when removing files with globbed toctrees.
+
+* If an autodoc object cannot be imported, always re-read the
+  document containing the directive on next build.
+
+* If an autodoc object cannot be imported, show the full traceback
+  of the import error.
+
+* Fix a bug where the removal of download files and images wasn't
+  noticed.
+
+* #571: Implement ``~`` cross-reference prefix for the C domain.
+
+* Fix regression of LaTeX output with the fix of #556.
+
+* #568: Fix lookup of class attribute documentation on descriptors
+  so that comment documentation now works.
+
+* Fix traceback with ``only`` directives preceded by targets.
+
+* Fix tracebacks occurring for duplicate C++ domain objects.
+
+* Fix JavaScript domain links to objects with ``$`` in their name.
+
+
+Release 1.0.6 (Jan 04, 2011)
+============================
+
+* #581: Fix traceback in Python domain for empty cross-reference
+  targets.
+
+* #283: Fix literal block display issues on Chrome browsers.
+
+* #383, #148: Support sorting a limited range of accented characters
+  in the general index and the glossary.
+
+* #570: Try decoding ``-D`` and ``-A`` command-line arguments with
+  the locale's preferred encoding.
+
+* #528: Observe ``locale_dirs`` when looking for the JS
+  translations file.
+
+* #574: Add special code for better support of Japanese documents
+  in the LaTeX builder.
+
+* Regression of #77: If there is only one parameter given with
+  ``:param:`` markup, the bullet list is now suppressed again.
+
+* #556: Fix missing paragraph breaks in LaTeX output in certain
+  situations.
+
+* #567: Emit the ``autodoc-process-docstring`` event even for objects
+  without a docstring so that it can add content.
+
+* #565: In the LaTeX builder, not only literal blocks require different
+  table handling, but also quite a few other list-like block elements.
+
+* #515: Fix tracebacks in the viewcode extension for Python objects
+  that do not have a valid signature.
+
+* Fix strange reports of line numbers for warnings generated from
+  autodoc-included docstrings, due to different behavior depending
+  on Docutils version.
+
+* Several fixes to the C++ domain.
+
+
+Release 1.0.5 (Nov 12, 2010)
+============================
+
+* #557: Add CSS styles required by Docutils 0.7 for aligned images
+  and figures.
+
+* In the Makefile generated by LaTeX output, do not delete pdf files
+  on clean; they might be required images.
+
+* #535: Fix LaTeX output generated for line blocks.
+
+* #544: Allow ``.pyw`` as a source file extension.
+
+
+Release 1.0.4 (Sep 17, 2010)
+============================
+
+* #524: Open intersphinx inventories in binary mode on Windows,
+  since version 2 contains zlib-compressed data.
+
+* #513: Allow giving non-local URIs for JavaScript files, e.g.
+  in the JSMath extension.
+
+* #512: Fix traceback when ``intersphinx_mapping`` is empty.
+
+
+Release 1.0.3 (Aug 23, 2010)
+============================
+
+* #495: Fix internal vs. external link distinction for links coming
+  from a Docutils table-of-contents.
+
+* #494: Fix the ``maxdepth`` option for the ``toctree()`` template
+  callable when used with ``collapse=True``.
+
+* #507: Fix crash parsing Python argument lists containing brackets
+  in string literals.
+
+* #501: Fix regression when building LaTeX docs with figures that
+  don't have captions.
+
+* #510: Fix inheritance diagrams for classes that are not picklable.
+
+* #497: Introduce separate background color for the sidebar collapse
+  button, making it easier to see.
+
+* #502, #503, #496: Fix small layout bugs in several builtin themes.
+
+
+Release 1.0.2 (Aug 14, 2010)
+============================
+
+* #490: Fix cross-references to objects of types added by the
+  :func:`~sphinx.application.Sphinx.add_object_type` API function.
+
+* Fix handling of doc field types for different directive types.
+
+* Allow breaking long signatures, continuing with backlash-escaped
+  newlines.
+
+* Fix unwanted styling of C domain references (because of a namespace
+  clash with Pygments styles).
+
+* Allow references to PEPs and RFCs with explicit anchors.
+
+* #471: Fix LaTeX references to figures.
+
+* #482: When doing a non-exact search, match only the given type
+  of object.
+
+* #481: Apply non-exact search for Python reference targets with
+  ``.name`` for modules too.
+
+* #484: Fix crash when duplicating a parameter in an info field list.
+
+* #487: Fix setting the default role to one provided by the
+  ``oldcmarkup`` extension.
+
+* #488: Fix crash when json-py is installed, which provides a
+  ``json`` module but is incompatible to simplejson.
+
+* #480: Fix handling of target naming in intersphinx.
+
+* #486: Fix removal of ``!`` for all cross-reference roles.
+
+
+Release 1.0.1 (Jul 27, 2010)
+============================
+
+* #470: Fix generated target names for reST domain objects; they
+  are not in the same namespace.
+
+* #266: Add Bengali language.
+
+* #473: Fix a bug in parsing JavaScript object names.
+
+* #474: Fix building with SingleHTMLBuilder when there is no toctree.
+
+* Fix display names for objects linked to by intersphinx with
+  explicit targets.
+
+* Fix building with the JSON builder.
+
+* Fix hyperrefs in object descriptions for LaTeX.
+
+
+Release 1.0 (Jul 23, 2010)
+==========================
+
+Incompatible changes
+--------------------
+
+* Support for domains has been added.  A domain is a collection of
+  directives and roles that all describe objects belonging together,
+  e.g. elements of a programming language.  A few builtin domains are
+  provided:
+
+  - Python
+  - C
+  - C++
+  - JavaScript
+  - reStructuredText
+
+* The old markup for defining and linking to C directives is now
+  deprecated.  It will not work anymore in future versions without
+  activating the ``oldcmarkup`` extension; in Sphinx
+  1.0, it is activated by default.
+
+* Removed support for old dependency versions; requirements are now:
+
+  - Docutils >= 0.5
+  - Jinja2   >= 2.2
+
+* Removed deprecated elements:
+
+  - ``exclude_dirs`` config value
+  - ``sphinx.builder`` module
+
+Features added
+--------------
+
+* General:
+
+  - Added a "nitpicky" mode that emits warnings for all missing
+    references.  It is activated by the :option:`sphinx-build -n` command-line
+    switch or the :confval:`nitpicky` config value.
+  - Added ``latexpdf`` target in quickstart Makefile.
+
+* Markup:
+
+  - The ``menuselection`` and ``guilabel`` roles now
+    support ampersand accelerators.
+  - New more compact doc field syntax is now recognized: ``:param type
+    name: description``.
+  - Added ``tab-width`` option to ``literalinclude`` directive.
+  - Added ``titlesonly`` option to :rst:dir:`toctree` directive.
+  - Added the ``prepend`` and ``append`` options to the
+    ``literalinclude`` directive.
+  - #284: All docinfo metadata is now put into the document metadata, not
+    just the author.
+  - The ``ref`` role can now also reference tables by caption.
+  - The :dudir:`include` directive now supports absolute paths, which
+    are interpreted as relative to the source directory.
+  - In the Python domain, references like ``:func:`.name``` now look for
+    matching names with any prefix if no direct match is found.
+
+* Configuration:
+
+  - Added ``rst_prolog`` config value.
+  - Added ``html_secnumber_suffix`` config value to control
+    section numbering format.
+  - Added ``html_compact_lists`` config value to control
+    Docutils' compact lists feature.
+  - The ``html_sidebars`` config value can now contain patterns
+    as keys, and the values can be lists that explicitly select which
+    sidebar templates should be rendered.  That means that the builtin
+    sidebar contents can be included only selectively.
+  - ``html_static_path`` can now contain single file entries.
+  - The new universal config value ``exclude_patterns`` makes the
+    old ``unused_docs``, ``exclude_trees`` and
+    ``exclude_dirnames`` obsolete.
+  - Added ``html_output_encoding`` config value.
+  - Added the ``latex_docclass`` config value and made the
+    "twoside" documentclass option overridable by "oneside".
+  - Added the ``trim_doctest_flags`` config value, which is true
+    by default.
+  - Added ``html_show_copyright`` config value.
+  - Added ``latex_show_pagerefs``` and ``latex_show_urls``
+    config values.
+  - The behavior of ``html_file_suffix``` changed slightly: the
+    empty string now means "no suffix" instead of "default suffix", use
+    ``None`` for "default suffix".
+
+* New builders:
+
+  - Added a builder for the Epub format.
+  - Added a builder for manual pages.
+  - Added a single-file HTML builder.
+
+* HTML output:
+
+  - Inline roles now get a CSS class with their name, allowing styles to
+    customize their appearance.  Domain-specific roles get two classes,
+    ``domain`` and ``domain-rolename``.
+  - References now get the class ``internal`` if they are internal to
+    the whole project, as opposed to internal to the current page.
+  - External references can be styled differently with the new
+    ``externalrefs`` theme option for the default theme.
+  - In the default theme, the sidebar can experimentally now be made
+    collapsible using the new ``collapsiblesidebar`` theme option.
+  - #129: Toctrees are now wrapped in a ``div`` tag with class
+    ``toctree-wrapper`` in HTML output.
+  - The :data:`toctree` callable in templates now has a ``maxdepth``
+    keyword argument to control the depth of the generated tree.
+  - The :data:`toctree` callable in templates now accepts a
+    ``titles_only`` keyword argument.
+  - Added ``htmltitle`` block in layout template.
+  - In the JavaScript search, allow searching for object names including
+    the module name, like ``sys.argv``.
+  - Added new theme ``haiku``, inspired by the Haiku OS user guide.
+  - Added new theme ``nature``.
+  - Added new theme ``agogo``, created by Andi Albrecht.
+  - Added new theme ``scrolls``, created by Armin Ronacher.
+  - #193: Added a ``visitedlinkcolor`` theme option to the default
+    theme.
+  - #322: Improved responsiveness of the search page by loading the
+    search index asynchronously.
+
+* Extension API:
+
+  - Added :event:`html-collect-pages`.
+  - Added ``needs_sphinx`` config value and
+    :meth:`~sphinx.application.Sphinx.require_sphinx` application API
+    method.
+  - #200: Added :meth:`!add_stylesheet`
+    application API method.
+
+* Extensions:
+
+  - Added the :mod:`~sphinx.ext.viewcode` extension.
+  - Added the :mod:`~sphinx.ext.extlinks` extension.
+  - Added support for source ordering of members in autodoc, with
+    ``autodoc_member_order = 'bysource'``.
+  - Added ``autodoc_default_flags`` config value, which can be
+    used to select default flags for all autodoc directives.
+  - Added a way for intersphinx to refer to named labels in other
+    projects, and to specify the project you want to link to.
+  - #280: Autodoc can now document instance attributes assigned in
+    ``__init__`` methods.
+  - Many improvements and fixes to the :mod:`~sphinx.ext.autosummary`
+    extension, thanks to Pauli Virtanen.
+  - #309: The :mod:`~sphinx.ext.graphviz` extension can now output SVG
+    instead of PNG images, controlled by the
+    ``graphviz_output_format`` config value.
+  - Added ``alt`` option to :rst:dir:`graphviz` extension directives.
+  - Added ``exclude`` argument to :func:`.autodoc.between`.
+
+* Translations:
+
+  - Added Croatian translation, thanks to Bojan Mihelač.
+  - Added Turkish translation, thanks to Firat Ozgul.
+  - Added Catalan translation, thanks to Pau Fernández.
+  - Added simplified Chinese translation.
+  - Added Danish translation, thanks to Hjorth Larsen.
+  - Added Lithuanian translation, thanks to Dalius Dobravolskas.
+
+* Bugs fixed:
+
+  - #445: Fix links to result pages when using the search function
+    of HTML built with the ``dirhtml`` builder.
+  - #444: In templates, properly re-escape values treated with the
+    "striptags" Jinja filter.

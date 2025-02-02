@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import os
+import os.path
 import re
-from datetime import datetime, timezone
-from os import path
-from typing import TYPE_CHECKING, NamedTuple
+from datetime import datetime
+from typing import TYPE_CHECKING
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -15,19 +15,24 @@ from babel.messages.pofile import read_po
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import SEP, canon_path, relpath
+from sphinx.util._pathlib import _StrPath
+from sphinx.util.osutil import (
+    SEP,
+    _last_modified_time,
+    canon_path,
+)
 
 if TYPE_CHECKING:
     import datetime as dt
     from collections.abc import Iterator
-    from typing import Protocol, Union
+    from typing import Protocol, TypeAlias
 
     from babel.core import Locale
 
     from sphinx.environment import BuildEnvironment
 
     class DateFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             date: dt.date | None = ...,
             format: str = ...,
@@ -35,7 +40,7 @@ if TYPE_CHECKING:
         ) -> str: ...
 
     class TimeFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             time: dt.time | dt.datetime | float | None = ...,
             format: str = ...,
@@ -44,7 +49,7 @@ if TYPE_CHECKING:
         ) -> str: ...
 
     class DatetimeFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             datetime: dt.date | dt.time | float | None = ...,
             format: str = ...,
@@ -52,96 +57,113 @@ if TYPE_CHECKING:
             locale: str | Locale | None = ...,
         ) -> str: ...
 
-    Formatter = Union[DateFormatter, TimeFormatter, DatetimeFormatter]
+    Formatter: TypeAlias = DateFormatter | TimeFormatter | DatetimeFormatter
+
+from datetime import UTC
 
 logger = logging.getLogger(__name__)
 
 
-class LocaleFileInfoBase(NamedTuple):
-    base_dir: str
-    domain: str
-    charset: str
+class CatalogInfo:
+    __slots__ = 'base_dir', 'domain', 'charset'
 
-
-class CatalogInfo(LocaleFileInfoBase):
+    def __init__(
+        self, base_dir: str | os.PathLike[str], domain: str, charset: str
+    ) -> None:
+        self.base_dir = _StrPath(base_dir)
+        self.domain = domain
+        self.charset = charset
 
     @property
     def po_file(self) -> str:
-        return self.domain + '.po'
+        return f'{self.domain}.po'
 
     @property
     def mo_file(self) -> str:
-        return self.domain + '.mo'
+        return f'{self.domain}.mo'
 
     @property
-    def po_path(self) -> str:
-        return path.join(self.base_dir, self.po_file)
+    def po_path(self) -> _StrPath:
+        return self.base_dir / self.po_file
 
     @property
-    def mo_path(self) -> str:
-        return path.join(self.base_dir, self.mo_file)
+    def mo_path(self) -> _StrPath:
+        return self.base_dir / self.mo_file
 
     def is_outdated(self) -> bool:
-        return (
-            not path.exists(self.mo_path) or
-            path.getmtime(self.mo_path) < path.getmtime(self.po_path))
+        return not self.mo_path.exists() or (
+            _last_modified_time(self.mo_path) < _last_modified_time(self.po_path)
+        )
 
     def write_mo(self, locale: str, use_fuzzy: bool = False) -> None:
         with open(self.po_path, encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
-                logger.warning(__('reading error: %s, %s'), self.po_path, exc)
+                logger.warning(
+                    __('reading error: %s, %s'),
+                    self.po_path,
+                    exc,
+                    type='i18n',
+                    subtype='not_readable',
+                )
                 return
 
         with open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po, use_fuzzy)
             except Exception as exc:
-                logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
+                logger.warning(
+                    __('writing error: %s, %s'),
+                    self.mo_path,
+                    exc,
+                    type='i18n',
+                    subtype='not_writeable',
+                )
 
 
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str | os.PathLike[str], locale_dirs: list[str],
-                 language: str, encoding: str) -> None:
-        self.basedir = basedir
+    def __init__(
+        self,
+        basedir: str | os.PathLike[str],
+        locale_dirs: list[str],
+        language: str,
+        encoding: str,
+    ) -> None:
+        self.basedir = _StrPath(basedir)
         self._locale_dirs = locale_dirs
         self.language = language
         self.encoding = encoding
 
     @property
-    def locale_dirs(self) -> Iterator[str]:
+    def locale_dirs(self) -> Iterator[_StrPath]:
         if not self.language:
             return
 
         for locale_dir in self._locale_dirs:
-            locale_dir = path.join(self.basedir, locale_dir)
-            locale_path = path.join(locale_dir, self.language, 'LC_MESSAGES')
-            if path.exists(locale_path):
-                yield locale_dir
+            locale_path = self.basedir / locale_dir / self.language / 'LC_MESSAGES'
+            if locale_path.exists():
+                yield self.basedir / locale_dir
             else:
                 logger.verbose(__('locale_dir %s does not exist'), locale_path)
 
     @property
-    def pofiles(self) -> Iterator[tuple[str, str]]:
+    def pofiles(self) -> Iterator[tuple[_StrPath, _StrPath]]:
         for locale_dir in self.locale_dirs:
-            basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
-            for root, dirnames, filenames in os.walk(basedir):
+            locale_path = locale_dir / self.language / 'LC_MESSAGES'
+            for abs_path in locale_path.rglob('*.po'):
+                rel_path = abs_path.relative_to(locale_path)
                 # skip dot-directories
-                for dirname in [d for d in dirnames if d.startswith('.')]:
-                    dirnames.remove(dirname)
-
-                for filename in filenames:
-                    if filename.endswith('.po'):
-                        fullpath = path.join(root, filename)
-                        yield basedir, relpath(fullpath, basedir)
+                if any(part.startswith('.') for part in rel_path.parts[:-1]):
+                    continue
+                yield locale_path, rel_path
 
     @property
     def catalogs(self) -> Iterator[CatalogInfo]:
         for basedir, filename in self.pofiles:
-            domain = canon_path(path.splitext(filename)[0])
+            domain = canon_path(os.path.splitext(filename)[0])
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
@@ -157,11 +179,11 @@ def docname_to_domain(docname: str, compaction: bool | str) -> str:
 
 # date_format mappings: ustrftime() to babel.dates.format_datetime()
 date_format_mappings = {
-    '%a':  'EEE',     # Weekday as locale’s abbreviated name.
-    '%A':  'EEEE',    # Weekday as locale’s full name.
-    '%b':  'MMM',     # Month as locale’s abbreviated name.
-    '%B':  'MMMM',    # Month as locale’s full name.
-    '%c':  'medium',  # Locale’s appropriate date and time representation.
+    '%a':  'EEE',     # Weekday as locale's abbreviated name.
+    '%A':  'EEEE',    # Weekday as locale's full name.
+    '%b':  'MMM',     # Month as locale's abbreviated name.
+    '%B':  'MMMM',    # Month as locale's full name.
+    '%c':  'medium',  # Locale's appropriate date and time representation.
     '%-d': 'd',       # Day of the month as a decimal number.
     '%d':  'dd',      # Day of the month as a zero-padded decimal number.
     '%-H': 'H',       # Hour (24-hour clock) as a decimal number [0,23].
@@ -174,7 +196,7 @@ date_format_mappings = {
     '%m':  'MM',      # Month as a zero-padded decimal number.
     '%-M': 'm',       # Minute as a decimal number [0,59].
     '%M':  'mm',      # Minute as a zero-padded decimal number [00,59].
-    '%p':  'a',       # Locale’s equivalent of either AM or PM.
+    '%p':  'a',       # Locale's equivalent of either AM or PM.
     '%-S': 's',       # Second as a decimal number.
     '%S':  'ss',      # Second as a zero-padded decimal number.
     '%U':  'WW',      # Week number of the year (Sunday as the first day of the week)
@@ -186,21 +208,25 @@ date_format_mappings = {
                       # Monday are considered to be in week 0.
     '%W':  'WW',      # Week number of the year (Monday as the first day of the week)
                       # as a zero-padded decimal number.
-    '%x':  'medium',  # Locale’s appropriate date representation.
-    '%X':  'medium',  # Locale’s appropriate time representation.
+    '%x':  'medium',  # Locale's appropriate date representation.
+    '%X':  'medium',  # Locale's appropriate time representation.
     '%y':  'YY',      # Year without century as a zero-padded decimal number.
     '%Y':  'yyyy',    # Year with century as a decimal number.
     '%Z':  'zzz',     # Time zone name (no characters if no time zone exists).
     '%z':  'ZZZ',     # UTC offset in the form ±HHMM[SS[.ffffff]]
                       # (empty string if the object is naive).
     '%%':  '%',
-}
+}  # fmt: skip
 
 date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
-def babel_format_date(date: datetime, format: str, locale: str,
-                      formatter: Formatter = babel.dates.format_date) -> str:
+def babel_format_date(
+    date: datetime,
+    format: str,
+    locale: str,
+    formatter: Formatter = babel.dates.format_date,
+) -> str:
     # Check if we have the tzinfo attribute. If not we cannot do any time
     # related formats.
     if not hasattr(date, 'tzinfo'):
@@ -210,24 +236,50 @@ def babel_format_date(date: datetime, format: str, locale: str,
         return formatter(date, format, locale=locale)
     except (ValueError, babel.core.UnknownLocaleError):
         # fallback to English
+        logger.warning(
+            __('Invalid Babel locale: %r.'),
+            locale,
+            type='i18n',
+            subtype='babel',
+        )
         return formatter(date, format, locale='en')
     except AttributeError:
-        logger.warning(__('Invalid date format. Quote the string by single quote '
-                          'if you want to output it directly: %s'), format)
+        logger.warning(
+            __(
+                'Invalid date format. Quote the string by single quote '
+                'if you want to output it directly: %s'
+            ),
+            format,
+            type='i18n',
+            subtype='babel',
+        )
         return format
 
 
 def format_date(
-    format: str, *, date: datetime | None = None, language: str,
+    format: str,
+    *,
+    date: datetime | None = None,
+    language: str,
+    local_time: bool = False,
 ) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
-            date = datetime.fromtimestamp(float(source_date_epoch), tz=timezone.utc)
+            date = datetime.fromtimestamp(float(source_date_epoch), tz=UTC)
+            # If SOURCE_DATE_EPOCH is set, users likely want a reproducible result,
+            # so enforce GMT/UTC for consistency.
+            local_time = False
         else:
-            date = datetime.now(tz=timezone.utc).astimezone()
+            date = datetime.now(tz=UTC)
+
+    if local_time:
+        # > If called with tz=None, the system local time zone
+        # > is assumed for the target time zone.
+        # https://docs.python.org/dev/library/datetime.html#datetime.datetime.astimezone
+        date = date.astimezone(tz=None)
 
     result = []
     tokens = date_format_re.split(format)
@@ -246,27 +298,30 @@ def format_date(
             else:
                 function = babel.dates.format_datetime
 
-            result.append(babel_format_date(date, babel_format, locale=language,
-                                            formatter=function))
+            result.append(
+                babel_format_date(
+                    date, babel_format, locale=language, formatter=function
+                )
+            )
         else:
             result.append(token)
 
-    return "".join(result)
+    return ''.join(result)
 
 
 def get_image_filename_for_language(
     filename: str | os.PathLike[str],
     env: BuildEnvironment,
 ) -> str:
-    root, ext = path.splitext(filename)
-    dirname = path.dirname(root)
-    docpath = path.dirname(env.docname)
+    root, ext = os.path.splitext(filename)
+    dirname = os.path.dirname(root)
+    docpath = os.path.dirname(env.docname)
     try:
         return env.config.figure_language_filename.format(
             root=root,
             ext=ext,
             path=dirname and dirname + SEP,
-            basename=path.basename(root),
+            basename=os.path.basename(root),
             docpath=docpath and docpath + SEP,
             language=env.config.language,
         )
@@ -278,7 +333,7 @@ def get_image_filename_for_language(
 def search_image_for_language(filename: str, env: BuildEnvironment) -> str:
     translated = get_image_filename_for_language(filename, env)
     _, abspath = env.relfn2path(translated)
-    if path.exists(abspath):
+    if os.path.exists(abspath):
         return translated
     else:
         return filename

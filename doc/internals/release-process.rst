@@ -96,29 +96,29 @@ But you can also explicitly enable the pending ones using e.g.
 Python version support policy
 -----------------------------
 
-Sphinx supports at all minor versions of Python released in the past 42 months
+Sphinx supports at all minor versions of Python released in the past 3 years
 from the anticipated release date with a minimum of 3 minor versions of Python.
-This policy is derived from `NEP 29`_, a scientific Python domain standard.
+This policy is derived from `SPEC 0`_, a scientific Python domain standard.
 
-.. _NEP 29: https://numpy.org/neps/nep-0029-deprecation_policy.html
+.. _SPEC 0: https://scientific-python.org/specs/spec-0000/
 
-For example, a version of Sphinx released in May 2024 would support Python 3.10,
-3.11, and 3.12.
+For example, a version of Sphinx released in May 2025 would support Python 3.11,
+3.12, and 3.13.
 
 This is a summary table with the current policy:
 
 =========== ======
 Date        Python
 =========== ======
-26 Dec 2021 3.8+
+05 Oct 2023 3.10+
 ----------- ------
-14 Apr 2023 3.9+
+04 Oct 2024 3.11+
 ----------- ------
-05 Apr 2024 3.10+
+24 Oct 2025 3.12+
 ----------- ------
-04 Apr 2025 3.11+
+01 Oct 2026 3.13+
 ----------- ------
-24 Apr 2026 3.12+
+01 Oct 2027 3.14+
 =========== ======
 
 Release procedures

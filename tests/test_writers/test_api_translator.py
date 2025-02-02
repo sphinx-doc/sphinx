@@ -1,5 +1,7 @@
 """Test the Sphinx API for translator."""
 
+from __future__ import annotations
+
 import sys
 
 import pytest
@@ -7,14 +9,14 @@ import pytest
 
 @pytest.fixture(scope='module', autouse=True)
 def _setup_module(rootdir):
-    p = rootdir / 'test-api-set-translator'
-    sys.path.insert(0, p)
+    saved_path = sys.path.copy()
+    sys.path.insert(0, str(rootdir / 'test-api-set-translator'))
     yield
-    sys.path.remove(p)
+    sys.path[:] = saved_path
 
 
-@pytest.mark.sphinx('html')
-def test_html_translator(app, status, warning):
+@pytest.mark.sphinx('html', testroot='root')
+def test_html_translator(app):
     # no set_translator()
     translator_class = app.builder.get_translator_class()
     assert translator_class
@@ -22,7 +24,7 @@ def test_html_translator(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='api-set-translator')
-def test_html_with_set_translator_for_html_(app, status, warning):
+def test_html_with_set_translator_for_html_(app):
     # use set_translator()
     translator_class = app.builder.get_translator_class()
     assert translator_class
@@ -30,63 +32,63 @@ def test_html_with_set_translator_for_html_(app, status, warning):
 
 
 @pytest.mark.sphinx('singlehtml', testroot='api-set-translator')
-def test_singlehtml_set_translator_for_singlehtml(app, status, warning):
+def test_singlehtml_set_translator_for_singlehtml(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfSingleHTMLTranslator'
 
 
 @pytest.mark.sphinx('pickle', testroot='api-set-translator')
-def test_pickle_set_translator_for_pickle(app, status, warning):
+def test_pickle_set_translator_for_pickle(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfPickleTranslator'
 
 
 @pytest.mark.sphinx('json', testroot='api-set-translator')
-def test_json_set_translator_for_json(app, status, warning):
+def test_json_set_translator_for_json(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfJsonTranslator'
 
 
 @pytest.mark.sphinx('latex', testroot='api-set-translator')
-def test_html_with_set_translator_for_latex(app, status, warning):
+def test_html_with_set_translator_for_latex(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfLaTeXTranslator'
 
 
 @pytest.mark.sphinx('man', testroot='api-set-translator')
-def test_html_with_set_translator_for_man(app, status, warning):
+def test_html_with_set_translator_for_man(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfManualPageTranslator'
 
 
 @pytest.mark.sphinx('texinfo', testroot='api-set-translator')
-def test_html_with_set_translator_for_texinfo(app, status, warning):
+def test_html_with_set_translator_for_texinfo(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfTexinfoTranslator'
 
 
 @pytest.mark.sphinx('text', testroot='api-set-translator')
-def test_html_with_set_translator_for_text(app, status, warning):
+def test_html_with_set_translator_for_text(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfTextTranslator'
 
 
 @pytest.mark.sphinx('xml', testroot='api-set-translator')
-def test_html_with_set_translator_for_xml(app, status, warning):
+def test_html_with_set_translator_for_xml(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfXMLTranslator'
 
 
 @pytest.mark.sphinx('pseudoxml', testroot='api-set-translator')
-def test_html_with_set_translator_for_pseudoxml(app, status, warning):
+def test_html_with_set_translator_for_pseudoxml(app):
     translator_class = app.builder.get_translator_class()
     assert translator_class
     assert translator_class.__name__ == 'ConfPseudoXMLTranslator'

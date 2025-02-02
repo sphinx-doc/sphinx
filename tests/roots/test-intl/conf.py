@@ -1,6 +1,6 @@
 project = 'Sphinx intl <Tests>'
 source_suffix = {
-    '.txt': 'restructuredtext'
+    '.txt': 'restructuredtext',
 }
 keep_warnings = True
 templates_path = ['_templates']

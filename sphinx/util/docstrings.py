@@ -20,7 +20,7 @@ def separate_metadata(s: str | None) -> tuple[str | None, dict[str, str]]:
         return s, metadata
 
     for line in prepare_docstring(s):
-        if line.strip() == '':
+        if not line.strip():
             in_other_element = False
             lines.append(line)
         else:
@@ -29,7 +29,7 @@ def separate_metadata(s: str | None) -> tuple[str | None, dict[str, str]]:
                 field_name = matched.group()[1:].split(':', 1)[0]
                 if field_name.startswith('meta '):
                     name = field_name[5:].strip()
-                    metadata[name] = line[matched.end():].strip()
+                    metadata[name] = line[matched.end() :].strip()
                 else:
                     lines.append(line)
             else:

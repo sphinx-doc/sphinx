@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Ara",
         "Search Page": "Arama Sayfas\u0131",
         "Search Results": "Arama Sonu\u00e7lar\u0131",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "%(docstitle)s i\u00e7inde ara",
         "Searching": "Aran\u0131yor",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

@@ -13,16 +13,14 @@ from sphinx.util import logging
 from sphinx.util.index_entries import _split_into
 
 if TYPE_CHECKING:
-    from typing import Literal, Optional, Union
-
-    from typing_extensions import TypeAlias
+    from typing import Literal, TypeAlias
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
-    _IndexEntryTarget: TypeAlias = tuple[Optional[str], Union[str, Literal[False]]]
+    _IndexEntryTarget: TypeAlias = tuple[str | None, str | Literal[False]]
     _IndexEntryTargets: TypeAlias = list[_IndexEntryTarget]
-    _IndexEntryCategoryKey: TypeAlias = Optional[str]
+    _IndexEntryCategoryKey: TypeAlias = str | None
     _IndexEntrySubItems: TypeAlias = dict[
         str,
         tuple[_IndexEntryTargets, _IndexEntryCategoryKey],
@@ -32,22 +30,19 @@ if TYPE_CHECKING:
         _IndexEntrySubItems,
         _IndexEntryCategoryKey,
     ]
-    _IndexEntryMap = dict[str, _IndexEntry]
-    _Index: TypeAlias = list[
+    _IndexEntryMap: TypeAlias = dict[str, _IndexEntry]
+
+    # Used by ``create_index()`` for 'the real index'
+    _RealIndexEntry: TypeAlias = tuple[
+        str,
         tuple[
-            str,
-            list[
-                tuple[
-                    str,
-                    tuple[
-                        _IndexEntryTargets,
-                        list[tuple[str, _IndexEntryTargets]],
-                        _IndexEntryCategoryKey
-                    ]
-                ]
-            ]
-        ]
+            _IndexEntryTargets,
+            list[tuple[str, _IndexEntryTargets]],
+            _IndexEntryCategoryKey,
+        ],
     ]
+    _RealIndexEntries: TypeAlias = list[_RealIndexEntry]
+    _Index: TypeAlias = list[tuple[str, _RealIndexEntries]]
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +62,7 @@ class IndexEntries:
         new: _IndexEntryMap = {}
 
         rel_uri: str | Literal[False]
-        index_domain = self.env.domains['index']
+        index_domain = self.env.domains.index_domain
         for docname, entries in index_domain.entries.items():
             try:
                 rel_uri = builder.get_relative_uri('genindex', docname)
@@ -82,41 +77,78 @@ class IndexEntries:
                         try:
                             entry, sub_entry = _split_into(2, 'single', value)
                         except ValueError:
-                            entry, = _split_into(1, 'single', value)
+                            (entry,) = _split_into(1, 'single', value)
                             sub_entry = ''
-                        _add_entry(entry, sub_entry, main,
-                                   dic=new, link=uri, key=category_key)
+                        _add_entry(
+                            entry, sub_entry, main, dic=new, link=uri, key=category_key
+                        )
                     elif entry_type == 'pair':
                         first, second = _split_into(2, 'pair', value)
-                        _add_entry(first, second, main,
-                                   dic=new, link=uri, key=category_key)
-                        _add_entry(second, first, main,
-                                   dic=new, link=uri, key=category_key)
+                        _add_entry(
+                            first, second, main, dic=new, link=uri, key=category_key
+                        )
+                        _add_entry(
+                            second, first, main, dic=new, link=uri, key=category_key
+                        )
                     elif entry_type == 'triple':
                         first, second, third = _split_into(3, 'triple', value)
-                        _add_entry(first, second + ' ' + third, main,
-                                   dic=new, link=uri, key=category_key)
-                        _add_entry(second, third + ', ' + first, main,
-                                   dic=new, link=uri, key=category_key)
-                        _add_entry(third, first + ' ' + second, main,
-                                   dic=new, link=uri, key=category_key)
+                        _add_entry(
+                            first,
+                            second + ' ' + third,
+                            main,
+                            dic=new,
+                            link=uri,
+                            key=category_key,
+                        )
+                        _add_entry(
+                            second,
+                            third + ', ' + first,
+                            main,
+                            dic=new,
+                            link=uri,
+                            key=category_key,
+                        )
+                        _add_entry(
+                            third,
+                            first + ' ' + second,
+                            main,
+                            dic=new,
+                            link=uri,
+                            key=category_key,
+                        )
                     elif entry_type == 'see':
                         first, second = _split_into(2, 'see', value)
-                        _add_entry(first, _('see %s') % second, None,
-                                   dic=new, link=False, key=category_key)
+                        _add_entry(
+                            first,
+                            _('see %s') % second,
+                            None,
+                            dic=new,
+                            link=False,
+                            key=category_key,
+                        )
                     elif entry_type == 'seealso':
                         first, second = _split_into(2, 'see', value)
-                        _add_entry(first, _('see also %s') % second, None,
-                                   dic=new, link=False, key=category_key)
+                        _add_entry(
+                            first,
+                            _('see also %s') % second,
+                            None,
+                            dic=new,
+                            link=False,
+                            key=category_key,
+                        )
                     else:
-                        logger.warning(__('unknown index entry type %r'), entry_type,
-                                       location=docname)
+                        logger.warning(
+                            __('unknown index entry type %r'),
+                            entry_type,
+                            location=docname,
+                            type='index',
+                        )
                 except ValueError as err:
-                    logger.warning(str(err), location=docname)
+                    logger.warning(str(err), location=docname, type='index')
 
-        for (targets, sub_items, _category_key) in new.values():
+        for targets, sub_items, _category_key in new.values():
             targets.sort(key=_key_func_0)
-            for (sub_targets, _sub_category_key) in sub_items.values():
+            for sub_targets, _sub_category_key in sub_items.values():
                 sub_targets.sort(key=_key_func_0)
 
         new_list: list[tuple[str, _IndexEntry]] = sorted(new.items(), key=_key_func_1)
@@ -141,8 +173,8 @@ class IndexEntries:
                         if old_key == m.group(1):
                             # prefixes match: add entry as subitem of the
                             # previous entry
-                            old_sub_items.setdefault(
-                                m.group(2), ([], category_key))[0].extend(targets)
+                            prev = old_sub_items.setdefault(m[2], ([], category_key))
+                            prev[0].extend(targets)
                             del new_list[i]
                             continue
                         old_key = m.group(1)
@@ -152,14 +184,13 @@ class IndexEntries:
                 i += 1
 
         grouped = []
-        for (group_key, group) in groupby(new_list, _group_by_func):
+        for group_key, group in groupby(new_list, _group_by_func):
             group_list = []
             for group_entry in group:
                 entry_key, (targets, sub_items, category_key) = group_entry
                 pairs = [
                     (sub_key, sub_targets)
-                    for (sub_key, (sub_targets, _sub_category_key))
-                    in sub_items.items()
+                    for (sub_key, (sub_targets, _sub_category_key)) in sub_items.items()
                 ]
                 pairs.sort(key=_key_func_2)
                 group_list.append((entry_key, (targets, pairs, category_key)))
@@ -167,9 +198,15 @@ class IndexEntries:
         return grouped
 
 
-def _add_entry(word: str, subword: str, main: str | None, *,
-               dic: _IndexEntryMap,
-               link: str | Literal[False], key: _IndexEntryCategoryKey) -> None:
+def _add_entry(
+    word: str,
+    subword: str,
+    main: str | None,
+    *,
+    dic: _IndexEntryMap,
+    link: str | Literal[False],
+    key: _IndexEntryCategoryKey,
+) -> None:
     entry = dic.setdefault(word, ([], {}, key))
     if subword:
         targets = entry[1].setdefault(subword, ([], key))[0]
@@ -192,8 +229,7 @@ def _key_func_1(entry: tuple[str, _IndexEntry]) -> tuple[tuple[int, str], str]:
         # using the specified category key to sort
         key = category_key
     lc_key = unicodedata.normalize('NFD', key.lower())
-    if lc_key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        lc_key = lc_key[1:]
+    lc_key = lc_key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
 
     if not lc_key[0:1].isalpha() and not lc_key.startswith('_'):
         # put symbols at the front of the index (0)
@@ -209,8 +245,7 @@ def _key_func_1(entry: tuple[str, _IndexEntry]) -> tuple[tuple[int, str], str]:
 def _key_func_2(entry: tuple[str, _IndexEntryTargets]) -> str:
     """Sort the sub-index entries"""
     key = unicodedata.normalize('NFD', entry[0].lower())
-    if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        key = key[1:]
+    key = key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
     if key[0:1].isalpha() or key.startswith('_'):
         key = chr(127) + key
     return key
@@ -224,8 +259,7 @@ def _group_by_func(entry: tuple[str, _IndexEntry]) -> str:
         return category_key
 
     # now calculate the key
-    if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        key = key[1:]
+    key = key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
     letter = unicodedata.normalize('NFD', key[0])[0].upper()
     if letter.isalpha() or letter == '_':
         return letter

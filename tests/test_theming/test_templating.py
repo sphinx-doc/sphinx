@@ -1,11 +1,13 @@
 """Test templating."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.ext.autosummary.generate import setup_documenters
 
 
-@pytest.mark.sphinx('html', testroot='templating')
+@pytest.mark.sphinx('html', testroot='templating', copy_test_root=True)
 def test_layout_overloading(make_app, app_params):
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
@@ -16,16 +18,16 @@ def test_layout_overloading(make_app, app_params):
     assert '<!-- layout overloading -->' in result
 
 
-@pytest.mark.sphinx('html', testroot='templating')
+@pytest.mark.sphinx('html', testroot='templating', copy_test_root=True)
 def test_autosummary_class_template_overloading(make_app, app_params):
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
     setup_documenters(app)
     app.build()
 
-    result = (app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html').read_text(
-        encoding='utf8'
-    )
+    result = (
+        app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html'
+    ).read_text(encoding='utf8')
     assert 'autosummary/class.rst method block overloading' in result
     assert 'foobar' not in result
 
@@ -34,6 +36,7 @@ def test_autosummary_class_template_overloading(make_app, app_params):
     'html',
     testroot='templating',
     confoverrides={'autosummary_context': {'sentence': 'foobar'}},
+    copy_test_root=True,
 )
 def test_autosummary_context(make_app, app_params):
     args, kwargs = app_params
@@ -41,8 +44,8 @@ def test_autosummary_context(make_app, app_params):
     setup_documenters(app)
     app.build()
 
-    result = (app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html').read_text(
-        encoding='utf8'
-    )
+    result = (
+        app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html'
+    ).read_text(encoding='utf8')
     assert 'autosummary/class.rst method block overloading' in result
     assert 'foobar' in result

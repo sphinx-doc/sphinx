@@ -6,12 +6,13 @@ __all__ = ('Theme', 'HTMLThemeFactory')
 
 import configparser
 import contextlib
-import os
 import shutil
 import sys
 import tempfile
-from os import path
-from typing import TYPE_CHECKING, Any
+import tomllib
+from importlib.metadata import entry_points
+from pathlib import Path
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 from sphinx import package_dir
@@ -19,23 +20,12 @@ from sphinx.config import check_confval_types as _config_post_init
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.osutil import ensuredir
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
-
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import TypedDict
-
-    from typing_extensions import Required
+    from typing import Any, Required, TypedDict
 
     from sphinx.application import Sphinx
 
@@ -72,8 +62,8 @@ class Theme:
         name: str,
         *,
         configs: dict[str, _ConfigFile],
-        paths: list[str],
-        tmp_dirs: list[str],
+        paths: list[Path],
+        tmp_dirs: list[Path],
     ) -> None:
         self.name = name
         self._dirs = tuple(paths)
@@ -97,11 +87,11 @@ class Theme:
 
         self._options = options
 
-    def get_theme_dirs(self) -> list[str]:
+    def get_theme_dirs(self) -> list[_StrPath]:
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
-        return list(self._dirs)
+        return list(map(_StrPath, self._dirs))
 
     def get_config(self, section: str, name: str, default: Any = _NO_DEFAULT) -> Any:
         """Return the value for a theme configuration setting, searching the
@@ -121,17 +111,11 @@ class Theme:
         elif section == 'options':
             value = self._options.get(name, default)
         else:
-            # https://github.com/sphinx-doc/sphinx/issues/12305
-            # For backwards compatibility when attempting to read a value
-            # from an unsupported configuration section.
-            # xref: RemovedInSphinx80Warning
             msg = __(
                 'Theme configuration sections other than [theme] and [options] '
-                'are not supported, returning the default value instead '
-                '(tried to get a value from %r)'
+                'are not supported (tried to get a value from %r).'
             )
-            logger.info(msg, section)
-            value = default
+            raise ThemeError(msg)
         if value is _NO_DEFAULT:
             msg = __('setting %s.%s occurs in none of the searched theme configs') % (
                 section,
@@ -175,17 +159,17 @@ class HTMLThemeFactory:
 
     def _load_builtin_themes(self) -> None:
         """Load built-in themes."""
-        themes = self._find_themes(path.join(package_dir, 'themes'))
+        themes = self._find_themes(Path(package_dir, 'themes'))
         for name, theme in themes.items():
-            self._themes[name] = theme
+            self._themes[name] = _StrPath(theme)
 
     def _load_additional_themes(self, theme_paths: list[str]) -> None:
         """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
-            abs_theme_path = path.abspath(path.join(self._app.confdir, theme_path))
+            abs_theme_path = (self._app.confdir / theme_path).resolve()
             themes = self._find_themes(abs_theme_path)
             for name, theme in themes.items():
-                self._themes[name] = theme
+                self._themes[name] = _StrPath(theme)
 
     def _load_entry_point_themes(self) -> None:
         """Try to load a theme with the specified name.
@@ -207,18 +191,17 @@ class HTMLThemeFactory:
             self._entry_point_themes[entry_point.name] = _load_theme_closure
 
     @staticmethod
-    def _find_themes(theme_path: str) -> dict[str, str]:
+    def _find_themes(theme_path: Path) -> dict[str, Path]:
         """Search themes from specified directory."""
-        themes: dict[str, str] = {}
-        if not path.isdir(theme_path):
+        themes: dict[str, Path] = {}
+        if not theme_path.is_dir():
             return themes
 
-        for entry in os.listdir(theme_path):
-            pathname = path.join(theme_path, entry)
-            if path.isfile(pathname) and entry.lower().endswith('.zip'):
+        for pathname in theme_path.iterdir():
+            entry = pathname.name
+            if pathname.is_file() and pathname.suffix.lower() == '.zip':
                 if _is_archived_theme(pathname):
-                    name = entry[:-4]
-                    themes[name] = pathname
+                    themes[pathname.stem] = pathname
                 else:
                     logger.warning(
                         __(
@@ -228,9 +211,9 @@ class HTMLThemeFactory:
                         entry,
                     )
             else:
-                toml_path = path.join(pathname, _THEME_TOML)
-                conf_path = path.join(pathname, _THEME_CONF)
-                if path.isfile(toml_path) or path.isfile(conf_path):
+                toml_path = pathname / _THEME_TOML
+                conf_path = pathname / _THEME_CONF
+                if toml_path.is_file() or conf_path.is_file():
                     themes[entry] = pathname
 
         return themes
@@ -252,7 +235,7 @@ class HTMLThemeFactory:
         return Theme(name, configs=themes, paths=theme_dirs, tmp_dirs=tmp_dirs)
 
 
-def _is_archived_theme(filename: str, /) -> bool:
+def _is_archived_theme(filename: Path, /) -> bool:
     """Check whether the specified file is an archived theme file or not."""
     try:
         with ZipFile(filename) as f:
@@ -264,13 +247,13 @@ def _is_archived_theme(filename: str, /) -> bool:
 
 def _load_theme_with_ancestors(
     name: str,
-    theme_paths: dict[str, str],
+    theme_paths: dict[str, _StrPath],
     entry_point_themes: dict[str, Callable[[], None]],
     /,
-) -> tuple[dict[str, _ConfigFile], list[str], list[str]]:
+) -> tuple[dict[str, _ConfigFile], list[Path], list[Path]]:
     themes: dict[str, _ConfigFile] = {}
-    theme_dirs: list[str] = []
-    tmp_dirs: list[str] = []
+    theme_dirs: list[Path] = []
+    tmp_dirs: list[Path] = []
 
     # having 10+ theme ancestors is ludicrous
     for _ in range(10):
@@ -302,22 +285,24 @@ def _load_theme_with_ancestors(
     return themes, theme_dirs, tmp_dirs
 
 
-def _load_theme(name: str, theme_path: str, /) -> tuple[str, str, str | None, _ConfigFile]:
-    if path.isdir(theme_path):
+def _load_theme(
+    name: str, theme_path: Path, /
+) -> tuple[str, Path, Path | None, _ConfigFile]:
+    if theme_path.is_dir():
         # already a directory, do nothing
         tmp_dir = None
         theme_dir = theme_path
     else:
         # extract the theme to a temp directory
-        tmp_dir = tempfile.mkdtemp('sxt')
-        theme_dir = path.join(tmp_dir, name)
+        tmp_dir = Path(tempfile.mkdtemp('sxt'))
+        theme_dir = tmp_dir / name
         _extract_zip(theme_path, theme_dir)
 
-    if path.isfile(toml_path := path.join(theme_dir, _THEME_TOML)):
+    if (toml_path := theme_dir / _THEME_TOML).is_file():
         _cfg_table = _load_theme_toml(toml_path)
         inherit = _validate_theme_toml(_cfg_table, name)
         config = _convert_theme_toml(_cfg_table)
-    elif path.isfile(conf_path := path.join(theme_dir, _THEME_CONF)):
+    elif (conf_path := theme_dir / _THEME_CONF).is_file():
         _cfg_parser = _load_theme_conf(conf_path)
         inherit = _validate_theme_conf(_cfg_parser, name)
         config = _convert_theme_conf(_cfg_parser)
@@ -327,7 +312,7 @@ def _load_theme(name: str, theme_path: str, /) -> tuple[str, str, str | None, _C
     return inherit, theme_dir, tmp_dir, config
 
 
-def _extract_zip(filename: str, target_dir: str, /) -> None:
+def _extract_zip(filename: Path, target_dir: Path, /) -> None:
     """Extract zip file to target directory."""
     ensuredir(target_dir)
 
@@ -335,16 +320,13 @@ def _extract_zip(filename: str, target_dir: str, /) -> None:
         for name in archive.namelist():
             if name.endswith('/'):
                 continue
-            entry = path.join(target_dir, name)
-            ensuredir(path.dirname(entry))
-            with open(path.join(entry), 'wb') as fp:
-                fp.write(archive.read(name))
+            entry = target_dir / name
+            ensuredir(entry.parent)
+            entry.write_bytes(archive.read(name))
 
 
-def _load_theme_toml(config_file_path: str, /) -> _ThemeToml:
-    with open(config_file_path, encoding='utf-8') as f:
-        config_text = f.read()
-    c = tomllib.loads(config_text)
+def _load_theme_toml(config_file_path: Path, /) -> _ThemeToml:
+    c = tomllib.loads(config_file_path.read_text(encoding='utf-8'))
     return {s: c[s] for s in ('theme', 'options') if s in c}  # type: ignore[return-value]
 
 
@@ -380,7 +362,9 @@ def _convert_theme_toml(cfg: _ThemeToml, /) -> _ConfigFile:
     pygments_table = theme.get('pygments_style', {})
     if isinstance(pygments_table, str):
         hint = f'pygments_style = {{ default = "{pygments_table}" }}'
-        msg = __('The "theme.pygments_style" setting must be a table. Hint: "%s"') % hint
+        msg = (
+            __('The "theme.pygments_style" setting must be a table. Hint: "%s"') % hint
+        )
         raise ThemeError(msg)
     pygments_style_default: str | None = pygments_table.get('default')
     pygments_style_dark: str | None = pygments_table.get('dark')
@@ -393,7 +377,7 @@ def _convert_theme_toml(cfg: _ThemeToml, /) -> _ConfigFile:
     )
 
 
-def _load_theme_conf(config_file_path: str, /) -> configparser.RawConfigParser:
+def _load_theme_conf(config_file_path: Path, /) -> configparser.RawConfigParser:
     c = configparser.RawConfigParser()
     c.read(config_file_path, encoding='utf-8')
     return c
@@ -410,15 +394,23 @@ def _validate_theme_conf(cfg: configparser.RawConfigParser, name: str) -> str:
 
 def _convert_theme_conf(cfg: configparser.RawConfigParser, /) -> _ConfigFile:
     if stylesheet := cfg.get('theme', 'stylesheet', fallback=''):
-        stylesheets: tuple[str, ...] | None = tuple(map(str.strip, stylesheet.split(',')))
+        stylesheets: tuple[str, ...] | None = tuple(
+            map(str.strip, stylesheet.split(','))
+        )
     else:
         stylesheets = None
     if sidebar := cfg.get('theme', 'sidebars', fallback=''):
-        sidebar_templates: tuple[str, ...] | None = tuple(map(str.strip, sidebar.split(',')))
+        sidebar_templates: tuple[str, ...] | None = tuple(
+            map(str.strip, sidebar.split(','))
+        )
     else:
         sidebar_templates = None
-    pygments_style_default: str | None = cfg.get('theme', 'pygments_style', fallback=None)
-    pygments_style_dark: str | None = cfg.get('theme', 'pygments_dark_style', fallback=None)
+    pygments_style_default: str | None = cfg.get(
+        'theme', 'pygments_style', fallback=None
+    )
+    pygments_style_dark: str | None = cfg.get(
+        'theme', 'pygments_dark_style', fallback=None
+    )
     options = dict(cfg.items('options')) if cfg.has_section('options') else {}
     return _ConfigFile(
         stylesheets=stylesheets,
@@ -491,9 +483,9 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
     if len(argv) != 1:
         print('Usage: python -m sphinx.theming conf_to_toml <theme path>')  # NoQA: T201
         raise SystemExit(1)
-    theme_dir = path.realpath(argv[0])
-    conf_path = path.join(theme_dir, _THEME_CONF)
-    if not path.isdir(theme_dir) or not path.isfile(conf_path):
+    theme_dir = Path(argv[0]).resolve()
+    conf_path = theme_dir / _THEME_CONF
+    if not theme_dir.is_dir() or not conf_path.is_file():
         print(  # NoQA: T201
             f'{theme_dir!r} must be a path to a theme directory containing a "theme.conf" file'
         )
@@ -513,7 +505,7 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
     ]
 
     stylesheet = _cfg_parser.get('theme', 'stylesheet', fallback=...)
-    if stylesheet == '':
+    if not stylesheet:
         toml_lines.append('stylesheets = []')
     elif stylesheet is not ...:
         toml_lines.append('stylesheets = [')
@@ -521,7 +513,7 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
         toml_lines.append(']')
 
     sidebar = _cfg_parser.get('theme', 'sidebars', fallback=...)
-    if sidebar == '':
+    if not sidebar:
         toml_lines.append('sidebars = []')
     elif sidebar is not ...:
         toml_lines.append('sidebars = [')
@@ -547,9 +539,8 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
             if (d := default.replace('"', r'\"')) or True
         ]
 
-    toml_path = path.join(theme_dir, _THEME_TOML)
-    with open(toml_path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(toml_lines) + '\n')
+    toml_path = theme_dir / _THEME_TOML
+    toml_path.write_text('\n'.join(toml_lines) + '\n', encoding='utf-8')
     print(f'Written converted settings to {toml_path!r}')  # NoQA: T201
     return 0
 

@@ -1,10 +1,12 @@
 """Test image converter with identical basenames"""
 
+from __future__ import annotations
+
 import pytest
 
 
 @pytest.mark.sphinx('latex', testroot='ext-imgmockconverter')
-def test_ext_imgmockconverter(app, status, warning):
+def test_ext_imgmockconverter(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')

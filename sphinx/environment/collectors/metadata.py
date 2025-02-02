@@ -9,6 +9,8 @@ from docutils import nodes
 from sphinx.environment.collectors import EnvironmentCollector
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
@@ -20,8 +22,13 @@ class MetadataCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.metadata.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: Set[str],
+        other: BuildEnvironment,
+    ) -> None:
         for docname in docnames:
             env.metadata[docname] = other.metadata[docname]
 
@@ -38,12 +45,12 @@ class MetadataCollector(EnvironmentCollector):
             for node in doctree[index]:  # type: ignore[attr-defined]
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
-                    authors = cast(list[nodes.author], node)
+                    authors = cast('list[nodes.author]', node)
                     md['authors'] = [author.astext() for author in authors]
                 elif isinstance(node, nodes.field):
                     assert len(node) == 2
-                    field_name = cast(nodes.field_name, node[0])
-                    field_body = cast(nodes.field_body, node[1])
+                    field_name = cast('nodes.field_name', node[0])
+                    field_body = cast('nodes.field_body', node[1])
                     md[field_name.astext()] = field_body.astext()
                 elif isinstance(node, nodes.TextElement):
                     # other children must be TextElement

@@ -73,7 +73,7 @@ Adding cross-references
 -----------------------
 
 One powerful feature of Sphinx is the ability to seamlessly add
-:ref:`cross-references <xref-syntax>` to specific parts of the documentation:
+:ref:`cross-references <xref>` to specific parts of the documentation:
 a document, a section, a figure, a code object, etc.  This tutorial is full of
 them!
 

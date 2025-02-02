@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Etsi",
         "Search Page": "Etsi sivu",
         "Search Results": "Etsinn\u00e4n tulos",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

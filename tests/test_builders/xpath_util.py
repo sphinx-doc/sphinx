@@ -56,8 +56,10 @@ def check_xpath(
         assert nodes == [], f'found nodes matching xpath {xpath!r} in file {filename}'
         return
 
-    assert len(nodes) >= min_count, (f'expecting at least {min_count} node(s) '
-                                     f'to satisfy {xpath!r} in file {filename}')
+    assert len(nodes) >= min_count, (
+        f'expecting at least {min_count} node(s) '
+        f'to satisfy {xpath!r} in file {filename}'
+    )
 
     if check == '':
         return
@@ -75,5 +77,7 @@ def check_xpath(
             return
 
     ctx = textwrap.indent(_prettify(nodes), ' ' * 2)
-    msg = f'{check!r} not found in any node matching {xpath!r} in file {filename}:\n{ctx}'
+    msg = (
+        f'{check!r} not found in any node matching {xpath!r} in file {filename}:\n{ctx}'
+    )
     raise AssertionError(msg)

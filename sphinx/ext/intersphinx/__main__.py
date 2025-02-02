@@ -1,9 +1,11 @@
 """Command line interface for the intersphinx extension."""
 
+from __future__ import annotations
+
 import logging as _logging
 import sys
 
-from sphinx.ext.intersphinx import inspect_main
+from sphinx.ext.intersphinx._cli import inspect_main
 
 _logging.basicConfig()
 
