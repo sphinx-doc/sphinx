@@ -3119,30 +3119,32 @@ def test_canonical(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def bounded_typevar_rst(name, bound):
+    return [
+        '',
+        f'.. py:class:: {name}',
+        '   :module: target.literal',
+        '',
+        '   docstring',
+        '',
+        f'   alias of TypeVar({name!r}, bound={bound})',
+        '',
+    ]
+
+
+def function_rst(name, sig):
+    return [
+        '',
+        f'.. py:function:: {name}({sig})',
+        '   :module: target.literal',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc', freshenv=True)
 def test_literal_render(app):
-    def bounded_typevar_rst(name, bound):
-        return [
-            '',
-            f'.. py:class:: {name}',
-            '   :module: target.literal',
-            '',
-            '   docstring',
-            '',
-            f'   alias of TypeVar({name!r}, bound={bound})',
-            '',
-        ]
-
-    def function_rst(name, sig):
-        return [
-            '',
-            f'.. py:function:: {name}({sig})',
-            '   :module: target.literal',
-            '',
-            '   docstring',
-            '',
-        ]
-
     # autodoc_typehints_format can take 'short' or 'fully-qualified' values
     # and this will be interpreted as 'smart' or 'fully-qualified-except-typing' by restify()
     # and 'smart' or 'fully-qualified' by stringify_annotation().
@@ -3157,12 +3159,15 @@ def test_literal_render(app):
         '',
         '.. py:module:: target.literal',
         '',
-        *bounded_typevar_rst('T', r'\ :py:obj:`~typing.Literal`\ [1234]'),
+        *bounded_typevar_rst('T', r"\ :py:obj:`~typing.Literal`\ [1234, 'abcd']"),
         *bounded_typevar_rst(
-            'U', r'\ :py:obj:`~typing.Literal`\ [:py:attr:`~target.literal.MyEnum.a`]'
+            'U',
+            r'\ :py:obj:`~typing.Literal`\ ['
+            r':py:attr:`~target.literal.MyEnum.a`, '
+            r':py:attr:`~target.literal.MyEnum.b`]',
         ),
-        *function_rst('bar', 'x: ~typing.Literal[1234]'),
-        *function_rst('foo', 'x: ~typing.Literal[MyEnum.a]'),
+        *function_rst('bar', "x: ~typing.Literal[1234, 'abcd']"),
+        *function_rst('foo', 'x: ~typing.Literal[MyEnum.a, MyEnum.b]'),
     ]
 
     # restify() assumes that 'fully-qualified' is 'fully-qualified-except-typing'
@@ -3173,12 +3178,66 @@ def test_literal_render(app):
         '',
         '.. py:module:: target.literal',
         '',
-        *bounded_typevar_rst('T', r'\ :py:obj:`~typing.Literal`\ [1234]'),
+        *bounded_typevar_rst('T', r"\ :py:obj:`~typing.Literal`\ [1234, 'abcd']"),
         *bounded_typevar_rst(
-            'U', r'\ :py:obj:`~typing.Literal`\ [:py:attr:`target.literal.MyEnum.a`]'
+            'U',
+            r'\ :py:obj:`~typing.Literal`\ ['
+            r':py:attr:`target.literal.MyEnum.a`, '
+            r':py:attr:`target.literal.MyEnum.b`]',
         ),
-        *function_rst('bar', 'x: typing.Literal[1234]'),
-        *function_rst('foo', 'x: typing.Literal[target.literal.MyEnum.a]'),
+        *function_rst('bar', "x: typing.Literal[1234, 'abcd']"),
+        *function_rst(
+            'foo',
+            'x: typing.Literal[target.literal.MyEnum.a, target.literal.MyEnum.b]',
+        ),
+    ]
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-autodoc',
+    freshenv=True,
+    confoverrides={'python_display_short_literal_types': True},
+)
+def test_literal_render_pep604(app):
+    options = {
+        'members': None,
+        'exclude-members': 'MyEnum',
+    }
+    app.config.autodoc_typehints_format = 'short'
+    actual = do_autodoc(app, 'module', 'target.literal', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.literal',
+        '',
+        *bounded_typevar_rst('T', r"\ :py:obj:`~typing.Literal`\ [1234, 'abcd']"),
+        *bounded_typevar_rst(
+            'U',
+            r'\ :py:obj:`~typing.Literal`\ ['
+            r':py:attr:`~target.literal.MyEnum.a`, '
+            r':py:attr:`~target.literal.MyEnum.b`]',
+        ),
+        *function_rst('bar', "x: 1234 | 'abcd'"),
+        *function_rst('foo', 'x: MyEnum.a | MyEnum.b'),
+    ]
+
+    # restify() assumes that 'fully-qualified' is 'fully-qualified-except-typing'
+    # because it is more likely that a user wants to suppress 'typing.*'
+    app.config.autodoc_typehints_format = 'fully-qualified'
+    actual = do_autodoc(app, 'module', 'target.literal', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.literal',
+        '',
+        *bounded_typevar_rst('T', r"\ :py:obj:`~typing.Literal`\ [1234, 'abcd']"),
+        *bounded_typevar_rst(
+            'U',
+            r'\ :py:obj:`~typing.Literal`\ ['
+            r':py:attr:`target.literal.MyEnum.a`, '
+            r':py:attr:`target.literal.MyEnum.b`]',
+        ),
+        *function_rst('bar', "x: 1234 | 'abcd'"),
+        *function_rst('foo', 'x: target.literal.MyEnum.a | target.literal.MyEnum.b'),
     ]
 
 

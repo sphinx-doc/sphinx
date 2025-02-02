@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Options
-    from sphinx.util.typing import ExtensionMetadata
+    from sphinx.util.typing import ExtensionMetadata, _StringifyMode
 
 
 def record_typehints(
@@ -33,10 +33,13 @@ def record_typehints(
     retann: str,
 ) -> None:
     """Record type hints to env object."""
+    mode: _StringifyMode
     if app.config.autodoc_typehints_format == 'short':
         mode = 'smart'
     else:
         mode = 'fully-qualified'
+
+    short_literals = app.config.python_display_short_literal_types
 
     try:
         if callable(obj):
@@ -46,11 +49,12 @@ def record_typehints(
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
                     annotation[param.name] = stringify_annotation(
-                        param.annotation,
-                        mode,  # type: ignore[arg-type]
+                        param.annotation, mode, short_literals=short_literals
                     )
             if sig.return_annotation is not sig.empty:
-                annotation['return'] = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
+                annotation['return'] = stringify_annotation(
+                    sig.return_annotation, mode, short_literals=short_literals
+                )
     except (TypeError, ValueError):
         pass
 
