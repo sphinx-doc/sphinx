@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any, ForwardRef
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
-from sphinx.util.typing import RenderMode, stringify_annotation
+from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -30,6 +30,8 @@ if TYPE_CHECKING:
     from typing import Final, Protocol, TypeAlias
 
     from typing_extensions import TypeIs
+
+    from sphinx.util.typing import _StringifyMode
 
     class _SupportsGet(Protocol):
         def __get__(self, instance: Any, owner: type | None = ..., /) -> Any: ...
@@ -842,7 +844,7 @@ def stringify_signature(
     show_annotation: bool = True,
     show_return_annotation: bool = True,
     unqualified_typehints: bool = False,
-    short_literal_types: bool = False,
+    short_literals: bool = False,
 ) -> str:
     """Stringify a :class:`~inspect.Signature` object.
 
@@ -850,15 +852,13 @@ def stringify_signature(
     :param show_return_annotation: If enabled, show annotation of the return value
     :param unqualified_typehints: If enabled, show annotations as unqualified
                                   (ex. io.StringIO -> StringIO)
-    :param short_literal_types: If enabled, use short literal types.
+    :param short_literals: If enabled, use short literal types.
     """
+    mode: _StringifyMode
     if unqualified_typehints:
-        mode = RenderMode.smart
+        mode = 'smart'
     else:
-        mode = RenderMode.fully_qualified
-
-    if short_literal_types:
-        mode |= RenderMode.short_literal
+        mode = 'fully-qualified'
 
     EMPTY = Parameter.empty
 
@@ -889,7 +889,11 @@ def stringify_signature(
 
         if show_annotation and param.annotation is not EMPTY:
             arg.write(': ')
-            arg.write(stringify_annotation(param.annotation, mode))  # type: ignore[arg-type]
+            arg.write(
+                stringify_annotation(
+                    param.annotation, mode, short_literals=short_literals
+                )
+            )
         if param.default is not EMPTY:
             if show_annotation and param.annotation is not EMPTY:
                 arg.write(' = ')
@@ -912,7 +916,9 @@ def stringify_signature(
     ):
         return f'({concatenated_args})'
     else:
-        retann = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
+        retann = stringify_annotation(
+            sig.return_annotation, mode, short_literals=short_literals
+        )
         return f'({concatenated_args}) -> {retann}'
 
 

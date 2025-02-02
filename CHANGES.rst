@@ -94,8 +94,8 @@ Features added
 * #8191, #8159: Add :rst:dir:`inheritance-diagram:include-subclasses` option to
   the :rst:dir:`inheritance-diagram` directive.
   Patch by Walter Dörwald.
-* #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
-  Patch by Bénédikt Tran.
+* #11995: autodoc: Add support for :confval:`python_display_short_literal_types`.
+  Patch by Bénédikt Tran and Adam Turner.
 
 Bugs fixed
 ----------

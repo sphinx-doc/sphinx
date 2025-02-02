@@ -3199,7 +3199,7 @@ def test_literal_render(app):
     freshenv=True,
     confoverrides={'python_display_short_literal_types': True},
 )
-def test_literal_render_pep604(self, app):
+def test_literal_render_pep604(app):
     options = {
         'members': None,
         'exclude-members': 'MyEnum',
