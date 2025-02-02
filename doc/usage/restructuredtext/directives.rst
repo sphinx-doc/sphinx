@@ -480,6 +480,56 @@ and the generic :rst:dir:`admonition` directive.
          Documentation for tar archive files, including GNU tar extensions.
 
 
+.. _collapsible-admonitions:
+
+.. rubric:: Collapsible text
+
+.. versionadded:: 8.2
+
+Each admonition directive supports a ``:collapsible:`` option,
+to make the content of the admonition collapsible
+(where supported by the output format).
+This can be useful for content that is not always relevant.
+By default, collapsible admonitions are initially open,
+but this can be controlled with the ``open`` and ``closed`` arguments
+to the ``:collapsible:`` option, which change the default state.
+In output formats that don't support collapsible content,
+the text is always included.
+For example:
+
+.. code-block:: rst
+
+  .. note::
+     :collapsible:
+
+     This note is collapsible, and initially open by default.
+
+  .. admonition:: Example
+     :collapsible: open
+
+     This example is collapsible, and initially open.
+
+  .. hint::
+     :collapsible: closed
+
+     This hint is collapsible, but initially closed.
+
+.. note::
+  :collapsible:
+
+  This note is collapsible, and initially open by default.
+
+.. admonition:: Example
+  :collapsible: open
+
+  This example is collapsible, and initially open.
+
+.. hint::
+  :collapsible: closed
+
+  This hint is collapsible, but initially closed.
+
+
 Describing changes between versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1553,7 +1603,7 @@ or use Python raw strings (``r"raw"``).
       number to be issued.  See :rst:role:`eq` for an example.  The numbering
       style depends on the output format.
 
-   .. rst:directive:option:: nowrap
+   .. rst:directive:option:: no-wrap
 
       Prevent wrapping of the given math in a math environment.
       When you give this option, you must make sure
@@ -1561,12 +1611,20 @@ or use Python raw strings (``r"raw"``).
       For example::
 
          .. math::
-            :nowrap:
+            :no-wrap:
 
             \begin{eqnarray}
                y    & = & ax^2 + bx + c \\
                f(x) & = & x^2 + 2xy + y^2
             \end{eqnarray}
+
+      .. versionchanged:: 8.2
+
+         The directive option ``:nowrap:`` was renamed to ``:no-wrap:``.
+
+         The previous name has been retained as an alias,
+         but will be deprecated and removed
+         in a future version of Sphinx.
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
 

@@ -106,9 +106,7 @@ def _make_phony_error_name() -> ASTNestedName:
 
 
 class CObject(ObjectDescription[ASTDeclaration]):
-    """
-    Description of a C language object.
-    """
+    """Description of a C language object."""
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index-entry': directives.flag,
@@ -215,7 +213,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
         return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(
-        self, signode: TextElement, ast: ASTDeclaration, options: dict
+        self, signode: TextElement, ast: ASTDeclaration, options: dict[str, Any]
     ) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
@@ -383,8 +381,7 @@ class CTypeObject(CObject):
 
 
 class CNamespaceObject(SphinxDirective):
-    """
-    This directive is just to tell Sphinx that we're documenting stuff in
+    """This directive is just to tell Sphinx that we're documenting stuff in
     namespace foo.
     """
 
@@ -475,7 +472,7 @@ class AliasNode(nodes.Element):
     def __init__(
         self,
         sig: str,
-        aliasOptions: dict,
+        aliasOptions: dict[str, bool],
         document: Any,
         env: BuildEnvironment | None = None,
         parentKey: LookupKey | None = None,
@@ -512,8 +509,8 @@ class AliasTransform(SphinxTransform):
         s: Symbol,
         maxdepth: int,
         skip_this: bool,
-        alias_options: dict,
-        render_options: dict,
+        alias_options: dict[str, bool],
+        render_options: dict[str, bool],
         document: Any,
     ) -> list[Node]:
         if maxdepth == 0:
@@ -632,15 +629,14 @@ class AliasTransform(SphinxTransform):
             node.replace_self(nodes)
 
 
-class CAliasObject(ObjectDescription):
+class CAliasObject(ObjectDescription[str]):
     option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
     }
 
     def run(self) -> list[Node]:
-        """
-        On purpose this doesn't call the ObjectDescription version, but is based on it.
+        """On purpose this doesn't call the ObjectDescription version, but is based on it.
         Each alias signature may expand into multiple real signatures if 'noroot'.
         The code is therefore based on the ObjectDescription version.
         """
@@ -947,11 +943,18 @@ class CDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CDomain)
-    app.add_config_value('c_id_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('c_paren_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('c_extra_keywords', _macro_keywords, 'env', types={set, list})
+    app.add_config_value('c_id_attributes', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(
-        'c_maximum_signature_line_length', None, 'env', types={int, type(None)}
+        'c_paren_attributes', [], 'env', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'c_extra_keywords', _macro_keywords, 'env', types=frozenset({set, list})
+    )
+    app.add_config_value(
+        'c_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     app.add_post_transform(AliasTransform)
 

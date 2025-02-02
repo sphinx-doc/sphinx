@@ -326,6 +326,25 @@ def test_no_index_entry(app):
     )
     assert_node(doctree[2], addnodes.index, entries=[])
 
+    text = '.. js:class:: f\n.. js:class:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'f() (class)', 'f', '', None)],
+    )
+    assert_node(doctree[2], addnodes.index, entries=[])
+
+    text = '.. js:module:: f\n.. js:module:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, nodes.target, nodes.target))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'f (module)', 'module-f', '', None)],
+    )
+
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_module_content_line_number(app):
@@ -744,6 +763,124 @@ def test_domain_js_javascript_maximum_signature_line_length_in_text(app):
     assert expected_e in content
 
     expected_f = param_line_fmt.format('f,]')
+    assert expected_f in content
+
+    expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(
+        expected_a,
+        expected_b,
+        expected_c,
+        expected_d,
+        expected_e,
+        expected_f,
+    )
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='domain-js-javascript_maximum_signature_line_length',
+    confoverrides={'javascript_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_html(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    expected_parameter_list_hello = """\
+
+<dl>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">name</span></span>\
+</em>\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
+</dt>\
+"""
+    assert expected_parameter_list_hello in content
+
+    param_line_fmt = '<dd>{}</dd>\n'
+    param_name_fmt = (
+        '<em class="sig-param"><span class="n"><span class="pre">{}</span></span></em>'
+    )
+    optional_fmt = '<span class="optional">{}</span>'
+
+    expected_a = param_line_fmt.format(
+        optional_fmt.format('[')
+        + param_name_fmt.format('a')
+        + ','
+        + optional_fmt.format('['),
+    )
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format(
+        param_name_fmt.format('b')
+        + ','
+        + optional_fmt.format(']')
+        + optional_fmt.format(']'),
+    )
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format(param_name_fmt.format('c') + ',')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format(
+        param_name_fmt.format('d') + optional_fmt.format('[') + ','
+    )
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format(param_name_fmt.format('e') + ',')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format(
+        param_name_fmt.format('f') + optional_fmt.format(']')
+    )
+    assert expected_f in content
+
+    expected_parameter_list_foo = """\
+
+<dl>
+{}{}{}{}{}{}</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
+</dt>\
+""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'text',
+    testroot='domain-js-javascript_maximum_signature_line_length',
+    freshenv=True,
+    confoverrides={'javascript_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_text(app):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * ' ' + '{}\n'
+
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('name'))
+
+    assert expected_parameter_list_hello in content
+
+    expected_a = param_line_fmt.format('[a,[')
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format('b,]]')
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format('c,')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format('d[,')
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format('e,')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format('f]')
     assert expected_f in content
 
     expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(

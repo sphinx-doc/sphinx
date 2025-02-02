@@ -10,7 +10,6 @@ import itertools
 import operator
 import re
 import tokenize
-from inspect import Signature
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 from typing import TYPE_CHECKING
@@ -18,6 +17,7 @@ from typing import TYPE_CHECKING
 from sphinx.pycode.ast import unparse as ast_unparse
 
 if TYPE_CHECKING:
+    from inspect import Signature
     from typing import Any
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
@@ -43,7 +43,7 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     This raises `TypeError` if the assignment does not create new variable::
 
         ary[0] = 'foo'
-        dic["bar"] = 'baz'
+        dic['bar'] = 'baz'
         # => TypeError
     """
     if self:

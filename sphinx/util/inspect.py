@@ -31,6 +31,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import TypeIs
 
+    from sphinx.util.typing import _StringifyMode
+
     class _SupportsGet(Protocol):
         def __get__(self, instance: Any, owner: type | None = ..., /) -> Any: ...
 
@@ -42,6 +44,9 @@ if TYPE_CHECKING:
         # instance is contravariant but we do not need that precision
         def __delete__(self, instance: Any, /) -> None: ...
 
+    class _AttrGetter(Protocol):
+        def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
+
     _RoutineType: TypeAlias = (
         types.FunctionType
         | types.LambdaType
@@ -52,7 +57,9 @@ if TYPE_CHECKING:
         | types.MethodDescriptorType
         | types.ClassMethodDescriptorType
     )
-    _SignatureType: TypeAlias = Callable[..., Any] | staticmethod | classmethod
+    _SignatureType: TypeAlias = (
+        Callable[..., Any] | staticmethod[Any, Any] | classmethod[Any, Any, Any]
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -216,14 +223,14 @@ def unpartial(obj: Any) -> Any:
     return obj
 
 
-def ispartial(obj: Any) -> TypeIs[partial | partialmethod]:
+def ispartial(obj: Any) -> TypeIs[partial[Any] | partialmethod[Any]]:
     """Check if the object is a partial function or method."""
     return isinstance(obj, partial | partialmethod)
 
 
 def isclassmethod(
     obj: Any, cls: Any = None, name: str | None = None
-) -> TypeIs[classmethod]:
+) -> TypeIs[classmethod[Any, Any, Any]]:
     """Check if the object is a :class:`classmethod`."""
     if isinstance(obj, classmethod):
         return True
@@ -298,7 +305,7 @@ def is_classmethod_like(obj: Any, cls: Any = None, name: str | None = None) -> b
 
 def isstaticmethod(
     obj: Any, cls: Any = None, name: str | None = None
-) -> TypeIs[staticmethod]:
+) -> TypeIs[staticmethod[Any, Any]]:
     """Check if the object is a :class:`staticmethod`."""
     if isinstance(obj, staticmethod):
         return True
@@ -382,7 +389,7 @@ def is_singledispatch_function(obj: Any) -> bool:
     )
 
 
-def is_singledispatch_method(obj: Any) -> TypeIs[singledispatchmethod]:
+def is_singledispatch_method(obj: Any) -> TypeIs[singledispatchmethod[Any]]:
     """Check if the object is a :class:`~functools.singledispatchmethod`."""
     return isinstance(obj, singledispatchmethod)
 
@@ -417,7 +424,9 @@ def isroutine(obj: Any) -> TypeIs[_RoutineType]:
     return inspect.isroutine(unpartial(obj))
 
 
-def iscoroutinefunction(obj: Any) -> TypeIs[Callable[..., types.CoroutineType]]:
+def iscoroutinefunction(
+    obj: Any,
+) -> TypeIs[Callable[..., types.CoroutineType[Any, Any, Any]]]:
     """Check if the object is a :external+python:term:`coroutine` function."""
     obj = unwrap_all(obj, stop=_is_wrapped_coroutine)
     return inspect.iscoroutinefunction(obj)
@@ -432,7 +441,7 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
     return hasattr(obj, '__wrapped__')
 
 
-def isproperty(obj: Any) -> TypeIs[property | cached_property]:
+def isproperty(obj: Any) -> TypeIs[property | cached_property[Any]]:
     """Check if the object is property (possibly cached)."""
     return isinstance(obj, property | cached_property)
 
@@ -835,6 +844,7 @@ def stringify_signature(
     show_annotation: bool = True,
     show_return_annotation: bool = True,
     unqualified_typehints: bool = False,
+    short_literals: bool = False,
 ) -> str:
     """Stringify a :class:`~inspect.Signature` object.
 
@@ -842,7 +852,9 @@ def stringify_signature(
     :param show_return_annotation: If enabled, show annotation of the return value
     :param unqualified_typehints: If enabled, show annotations as unqualified
                                   (ex. io.StringIO -> StringIO)
+    :param short_literals: If enabled, use short literal types.
     """
+    mode: _StringifyMode
     if unqualified_typehints:
         mode = 'smart'
     else:
@@ -877,7 +889,11 @@ def stringify_signature(
 
         if show_annotation and param.annotation is not EMPTY:
             arg.write(': ')
-            arg.write(stringify_annotation(param.annotation, mode))  # type: ignore[arg-type]
+            arg.write(
+                stringify_annotation(
+                    param.annotation, mode, short_literals=short_literals
+                )
+            )
         if param.default is not EMPTY:
             if show_annotation and param.annotation is not EMPTY:
                 arg.write(' = ')
@@ -900,7 +916,9 @@ def stringify_signature(
     ):
         return f'({concatenated_args})'
     else:
-        retann = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
+        retann = stringify_annotation(
+            sig.return_annotation, mode, short_literals=short_literals
+        )
         return f'({concatenated_args}) -> {retann}'
 
 
@@ -980,7 +998,7 @@ def _define(
 
 def getdoc(
     obj: Any,
-    attrgetter: Callable = safe_getattr,
+    attrgetter: _AttrGetter = safe_getattr,
     allow_inherited: bool = False,
     cls: Any = None,
     name: str | None = None,

@@ -103,12 +103,13 @@ Options
 
 .. option:: --implicit-namespaces
 
-   By default sphinx-apidoc processes sys.path searching for modules only.
-   Python 3.3 introduced :pep:`420` implicit namespaces that allow module path
-   structures such as ``foo/bar/module.py`` or ``foo/bar/baz/__init__.py``
-   (notice that ``bar`` and ``foo`` are namespaces, not modules).
+   Without this option, :program:`sphinx-apidoc` searches :data:`sys.path`
+   for Python packages containing :file:`__init__.py` files,
+   or single-file Python modules.
 
-   Interpret paths recursively according to PEP-0420.
+   This option instead uses :pep:`420` implicit namespaces that allow
+   layouts paths such as ``foo/bar/module.py`` or ``foo/bar/baz/__init__.py``
+   (note that ``bar`` and ``foo`` are namespaces, not modules).
 
 .. option:: -M, --module-first
 

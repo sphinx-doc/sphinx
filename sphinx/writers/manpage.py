@@ -41,8 +41,7 @@ class ManualPageWriter(Writer):  # type: ignore[misc]
 
 
 class NestedInlineTransform:
-    """
-    Flatten nested inline nodes:
+    """Flatten nested inline nodes:
 
     Before:
         <strong>foo=<emphasis>1</emphasis>
@@ -73,9 +72,7 @@ class NestedInlineTransform:
 
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
-    """
-    Custom man page translator.
-    """
+    """Custom man page translator."""
 
     _docinfo: dict[str, Any] = {}
 
@@ -479,14 +476,14 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     def depart_inline(self, node: Element) -> None:
         pass
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         pass
 
-    def depart_math(self, node: Element) -> None:
+    def depart_math(self, node: nodes.math) -> None:
         pass
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         self.visit_centered(node)
 
-    def depart_math_block(self, node: Element) -> None:
+    def depart_math_block(self, node: nodes.math_block) -> None:
         self.depart_centered(node)

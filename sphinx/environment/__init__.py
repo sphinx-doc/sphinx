@@ -71,7 +71,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 64
+ENV_VERSION = 65
 
 # config status
 CONFIG_UNSET = -1
@@ -94,8 +94,7 @@ versioning_conditions: dict[str, Literal[False] | Callable[[Node], bool]] = {
 
 
 class BuildEnvironment:
-    """
-    The environment in which the ReST files are translated.
+    """The environment in which the ReST files are translated.
     Stores an inventory of cross-file targets and provides doctree
     transformations to resolve links to them.
     """
@@ -797,7 +796,10 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 logger.warning(
-                    __("document isn't included in any toctree"), location=docname
+                    __("document isn't included in any toctree"),
+                    location=docname,
+                    type='toc',
+                    subtype='not_included',
                 )
         # Call _check_toc_parents here rather than in  _get_toctree_ancestors()
         # because that method is called multiple times per document and would

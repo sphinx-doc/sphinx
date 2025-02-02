@@ -148,8 +148,7 @@ class CitationDefinitionTransform(SphinxTransform):
 
 
 class CitationReferenceTransform(SphinxTransform):
-    """
-    Replace citation references by pending_xref nodes before the default
+    """Replace citation references by pending_xref nodes before the default
     docutils transform tries to resolve them.
     """
 

@@ -49,6 +49,10 @@ jobs:
     - uses: actions/checkout@v4
       with:
         persist-credentials: false
+    - name: Mount the test roots as read-only
+      run: |
+        mkdir -p ./tests/roots-read-only
+        sudo mount -v --bind --read-only ./tests/roots ./tests/roots-read-only
     - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v5
       with:
@@ -135,9 +139,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install .[test]
-    # markupsafe._speedups has not declared that it can run safely without the GIL
-    - name: Remove markupsafe._speedups
-      run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
@@ -171,16 +172,13 @@ jobs:
         python -m pip install --upgrade pip
         sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
-    # markupsafe._speedups has not declared that it can run safely without the GIL
-    - name: Remove markupsafe._speedups
-      run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     name: Windows
     timeout-minutes: 15
 
@@ -196,6 +194,35 @@ jobs:
       run: python --version --version
     - name: Install graphviz
       run: choco install --no-progress graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: uv pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  macos:
+    runs-on: macos-latest
+    name: macOS
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: brew install graphviz
     - name: Install uv
       uses: astral-sh/setup-uv@v5
       with:

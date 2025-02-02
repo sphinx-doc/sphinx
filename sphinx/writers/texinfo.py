@@ -1503,7 +1503,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.first_param = 0
         text = self.escape(node.astext())
         # replace no-break spaces with normal ones
-        text = text.replace(' ', '@w{ }')
+        text = text.replace('\N{NO-BREAK SPACE}', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
 
@@ -1581,11 +1581,11 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_pending_xref(self, node: Element) -> None:
         pass
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         self.body.append('@math{' + self.escape_arg(node.astext()) + '}')
         raise nodes.SkipNode
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         if node.get('label'):
             self.add_anchor(node['label'], node)
         self.body.append(

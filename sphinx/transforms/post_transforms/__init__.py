@@ -60,9 +60,7 @@ class SphinxPostTransform(SphinxTransform):
 
 
 class ReferencesResolver(SphinxPostTransform):
-    """
-    Resolves cross-references on doctrees.
-    """
+    """Resolves cross-references on doctrees."""
 
     default_priority = 10
 
@@ -190,6 +188,8 @@ class ReferencesResolver(SphinxPostTransform):
                 target,
                 candidates,
                 location=node,
+                type='ref',
+                subtype='any',
             )
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling

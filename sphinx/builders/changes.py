@@ -4,16 +4,17 @@ from __future__ import annotations
 
 import html
 import os.path
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import package_dir
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -25,9 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class ChangesBuilder(Builder):
-    """
-    Write a summary with all versionadded/changed/deprecated/removed directives.
-    """
+    """Write a summary with all versionadded/changed/deprecated/removed directives."""
 
     name = 'changes'
     epilog = __('The overview file is in %(outdir)s.')
@@ -105,9 +104,9 @@ class ChangesBuilder(Builder):
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
-        with open(os.path.join(self.outdir, 'index.html'), 'w', encoding='utf8') as f:
+        with open(self.outdir / 'index.html', 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/frameset.html', ctx))
-        with open(os.path.join(self.outdir, 'changes.html'), 'w', encoding='utf8') as f:
+        with open(self.outdir / 'changes.html', 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/versionchanges.html', ctx))
 
         hltext = [
@@ -143,7 +142,7 @@ class ChangesBuilder(Builder):
                 'text': text,
             }
             rendered = self.templates.render('changes/rstsource.html', ctx)
-            targetfn = os.path.join(self.outdir, 'rst', os_path(docname)) + '.html'
+            targetfn = self.outdir / 'rst' / f'{docname}.html'
             ensuredir(os.path.dirname(targetfn))
             with open(targetfn, 'w', encoding='utf-8') as f:
                 f.write(rendered)
@@ -151,16 +150,14 @@ class ChangesBuilder(Builder):
             'theme_' + key: val for (key, val) in self.theme.get_options({}).items()
         }
         copy_asset_file(
-            os.path.join(
-                package_dir, 'themes', 'default', 'static', 'default.css.jinja'
-            ),
+            Path(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),
             self.outdir,
             context=themectx,
             renderer=self.templates,
             force=True,
         )
         copy_asset_file(
-            os.path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+            Path(package_dir, 'themes', 'basic', 'static', 'basic.css'),
             self.outdir / 'basic.css',
             force=True,
         )

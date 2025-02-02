@@ -25,7 +25,7 @@ from sphinx.addnodes import (
 from sphinx.domains.c._ids import _id_prefix, _macro_keywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError
@@ -314,8 +314,11 @@ def test_domain_c_ast_expressions():
     expr_check('5 / 42')
     expr_check('5 % 42')
     # ['.*', '->*']
+    expr_check('5 .* 42')
+    expr_check('5 ->* 42')
+    # TODO: conditional is unimplemented
     # conditional
-    # TODO
+    # expr_check('5 ? 7 : 3')
     # assignment
     expr_check('a = 5')
     expr_check('a *= 5')
@@ -1371,7 +1374,7 @@ def test_domain_c_c_maximum_signature_line_length_in_html(app):
 <dd>\
 <span class="n"><span class="pre">str</span></span>\
 <span class="w"> </span>\
-<span class="n"><span class="pre">name</span></span>,\
+<span class="n"><span class="pre">name</span></span>\
 </dd>
 </dl>
 
@@ -1392,6 +1395,6 @@ def test_domain_c_c_maximum_signature_line_length_in_text(app):
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
 
-    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name,'))
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name'))
 
     assert expected_parameter_list_hello in content

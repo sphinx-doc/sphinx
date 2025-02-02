@@ -7,15 +7,15 @@ import traceback
 
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.errors import SphinxError
-from sphinx.util.console import strip_colors
 
 ENV_WARNINGS = """\
 {root}/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent. \\[docutils\\]
 {root}/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file '{root}/wrongenc.inc' seems to be wrong, try giving an :encoding: option \\[docutils\\]
-{root}/index.rst:\\d+: WARNING: invalid single index entry ''
+{root}/index.rst:\\d+: WARNING: invalid single index entry '' \\[index\\]
 {root}/index.rst:\\d+: WARNING: image file not readable: foo.png \\[image.not_readable\\]
 {root}/index.rst:\\d+: WARNING: download file not readable: {root}/nonexisting.png \\[download.not_readable\\]
 {root}/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
@@ -55,7 +55,7 @@ TEXINFO_WARNINGS = (
 
 
 def _check_warnings(expected_warnings: str, warning: str) -> None:
-    warnings = strip_colors(re.sub(re.escape(os.sep) + '{1,2}', '/', warning))
+    warnings = strip_escape_sequences(re.sub(re.escape(os.sep) + '{1,2}', '/', warning))
     assert re.match(f'{expected_warnings}$', warnings), (
         "Warnings don't match:\n"
         f'--- Expected (regex):\n{expected_warnings}\n'
@@ -127,7 +127,7 @@ def setup(app):
     tmp_path.joinpath('index.rst').write_text('Test\n====\n', encoding='utf-8')
     app = make_app(srcdir=tmp_path)
     app.build()
-    assert strip_colors(app.warning.getvalue()).strip() == (
+    assert strip_escape_sequences(app.warning.getvalue()).strip() == (
         "WARNING: cannot cache unpickable configuration value: 'my_config' "
         '(because it contains a function, class, or module object) [config.cache]'
     )

@@ -16,7 +16,7 @@ from sphinx.search import IndexBuilder
 from tests.utils import TESTS_ROOT
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
     from pathlib import Path
     from typing import Any
 
@@ -53,12 +53,14 @@ class DummyEnvironment:
 
 
 class DummyDomain:
-    def __init__(self, name: str, data: dict) -> None:
+    def __init__(
+        self, name: str, data: Iterable[tuple[str, str, str, str, str, int]]
+    ) -> None:
         self.name = name
         self.data = data
         self.object_types: dict[str, ObjType] = {}
 
-    def get_objects(self) -> list[tuple[str, str, str, str, str, int]]:
+    def get_objects(self) -> Iterable[tuple[str, str, str, str, str, int]]:
         return self.data
 
 
@@ -425,8 +427,7 @@ def test_search_index_is_deterministic(app):
 
 
 def is_title_tuple_type(item: list[int | str]) -> bool:
-    """
-    In the search index, titles inside .alltitles are stored as a tuple of
+    """In the search index, titles inside .alltitles are stored as a tuple of
     (document_idx, title_anchor). Tuples are represented as lists in JSON,
     but their contents must not be sorted. We cannot sort them anyway, as
     document_idx is an int and title_anchor is a str.

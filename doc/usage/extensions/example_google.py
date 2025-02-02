@@ -111,7 +111,7 @@ def module_level_function(param1, param2=None, *args, **kwargs):
 
             {
                 'param1': param1,
-                'param2': param2
+                'param2': param2,
             }
 
     Raises:

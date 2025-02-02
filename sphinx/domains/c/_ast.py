@@ -9,7 +9,6 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.domains.c._ids import _id_prefix, _max_id
 from sphinx.util.cfamily import (
-    ASTAttributeList,
     ASTBaseBase,
     ASTBaseParenExprList,
     UnsupportedMultiCharacterCharLiteral,
@@ -23,7 +22,10 @@ if TYPE_CHECKING:
 
     from sphinx.domains.c._symbol import Symbol
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.cfamily import StringifyTransform
+    from sphinx.util.cfamily import (
+        ASTAttributeList,
+        StringifyTransform,
+    )
 
 DeclarationType: TypeAlias = Union[
     'ASTStruct',
@@ -160,12 +162,12 @@ class ASTNestedName(ASTBase):
         if mode == 'noneIsName':
             if self.rooted:
                 unreachable = 'Can this happen?'
-                raise AssertionError(unreachable)  # TODO
+                raise AssertionError(unreachable)  # TODO: Can this happen?
                 signode += nodes.Text('.')
             for i in range(len(self.names)):
                 if i != 0:
                     unreachable = 'Can this happen?'
-                    raise AssertionError(unreachable)  # TODO
+                    raise AssertionError(unreachable)  # TODO: Can this happen?
                     signode += nodes.Text('.')
                 n = self.names[i]
                 n.describe_signature(signode, mode, env, '', symbol)

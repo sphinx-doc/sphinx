@@ -22,9 +22,7 @@ class CustomEx(Exception):
 
 
 def _funky_classmethod(name, b, c, d, docstring=None):
-    """
-    Generates a classmethod for a class from a template by filling out some arguments.
-    """
+    """Generates a classmethod for a class from a template by filling out some arguments."""
 
     def template(cls, a, b, c, d=4, e=5, f=6):
         return a, b, c, d, e, f
@@ -74,6 +72,14 @@ class Class:
         'moore', 9, 8, 7, docstring='moore(a, e, f) -> happiness'
     )
 
+    @staticmethod
+    def b_staticmeth():
+        pass
+
+    @staticmethod
+    def a_staticmeth():
+        pass
+
     def __init__(self, arg):
         self.inst_attr_inline = None  #: an inline documented instance attr
         #: a documented instance attribute
@@ -95,9 +101,7 @@ class CustomDict(dict):  # NoQA: FURB189
 
 
 def function(foo, *args, **kwds):
-    """
-    Return spam.
-    """
+    """Return spam."""
     pass
 
 

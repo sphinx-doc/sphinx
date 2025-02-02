@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 
 from sphinx import addnodes, package_dir
 from sphinx.util._pathlib import _StrPath
@@ -22,17 +22,29 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from typing import IO, Any
+    from typing import Any, Protocol, TypeVar
+
+    from docutils.nodes import Node
 
     from sphinx.environment import BuildEnvironment
+
+    _T_co = TypeVar('_T_co', covariant=True)
+    _T_contra = TypeVar('_T_contra', contravariant=True)
+
+    class _ReadableStream(Protocol[_T_co]):
+        def read(self, n: int = ..., /) -> _T_co: ...
+        def readline(self, n: int = ..., /) -> _T_co: ...
+
+    class _WritableStream(Protocol[_T_contra]):
+        def write(self, s: _T_contra, /) -> object: ...
+
 
 _NON_MINIFIED_JS_PATH = Path(package_dir, 'search', 'non-minified-js')
 _MINIFIED_JS_PATH = Path(package_dir, 'search', 'minified-js')
 
 
 class SearchLanguage:
-    """
-    This class is the base class for search natural language preprocessors.  If
+    """This class is the base class for search natural language preprocessors.  If
     you want to add support for a new language, you should override the methods
     of this class.
 
@@ -84,21 +96,17 @@ var Stemmer = function() {
         self.init(options)
 
     def init(self, options: dict[str, str]) -> None:
-        """
-        Initialize the class with the options the user has given.
-        """
+        """Initialize the class with the options the user has given."""
 
     def split(self, input: str) -> list[str]:
-        """
-        This method splits a sentence into words.  Default splitter splits input
+        """This method splits a sentence into words.  Default splitter splits input
         at white spaces, which should be enough for most languages except CJK
         languages.
         """
         return self._word_re.findall(input)
 
     def stem(self, word: str) -> str:
-        """
-        This method implements stemming algorithm of the Python version.
+        """This method implements stemming algorithm of the Python version.
 
         Default implementation does nothing.  You should implement this if the
         language has any stemming rules.
@@ -110,8 +118,7 @@ var Stemmer = function() {
         return word
 
     def word_filter(self, word: str) -> bool:
-        """
-        Return true if the target word should be registered in the search index.
+        """Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
         return len(word) == 0 or not (
@@ -125,8 +132,7 @@ from sphinx.search.en import SearchEnglish  # NoQA: E402
 
 
 def parse_stop_word(source: str) -> set[str]:
-    """
-    Parse snowball style word list like this:
+    """Parse snowball style word list like this:
 
     * https://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
@@ -160,8 +166,7 @@ languages: dict[str, str | type[SearchLanguage]] = {
 
 
 class _JavaScriptIndex:
-    """
-    The search index as JavaScript file that calls a function
+    """The search index as JavaScript file that calls a function
     on the documentation search object to register the index.
     """
 
@@ -179,10 +184,10 @@ class _JavaScriptIndex:
             raise ValueError(msg)
         return json.loads(data)
 
-    def dump(self, data: Any, f: IO[str]) -> None:
+    def dump(self, data: Any, f: _WritableStream[str]) -> None:
         f.write(self.dumps(data))
 
-    def load(self, f: IO[str]) -> Any:
+    def load(self, f: _ReadableStream[str]) -> Any:
         return self.loads(f.read())
 
 
@@ -210,9 +215,7 @@ class WordStore:
 
 
 class WordCollector(nodes.NodeVisitor):
-    """
-    A special visitor that collects words for the `IndexBuilder`.
-    """
+    """A special visitor that collects words for the `IndexBuilder`."""
 
     def __init__(self, document: nodes.document, lang: SearchLanguage) -> None:
         super().__init__(document)
@@ -260,8 +263,7 @@ class WordCollector(nodes.NodeVisitor):
 
 
 class IndexBuilder:
-    """
-    Helper class that creates a search index based on the doctrees
+    """Helper class that creates a search index based on the doctrees
     passed to the `feed` method.
     """
 
@@ -319,7 +321,7 @@ class IndexBuilder:
             self.js_scorer_code = ''
         self.js_splitter_code = ''
 
-    def load(self, stream: IO, format: Any) -> None:
+    def load(self, stream: _ReadableStream[str | bytes], format: Any) -> None:
         """Reconstruct from frozen data."""
         if isinstance(format, str):
             format = self.formats[format]
@@ -355,7 +357,9 @@ class IndexBuilder:
         self._title_mapping = load_terms(frozen['titleterms'])
         # no need to load keywords/objtypes
 
-    def dump(self, stream: IO, format: Any) -> None:
+    def dump(
+        self, stream: _WritableStream[str] | _WritableStream[bytes], format: Any
+    ) -> None:
         """Dump the frozen index to a stream."""
         if isinstance(format, str):
             format = self.formats[format]
@@ -405,12 +409,12 @@ class IndexBuilder:
     def get_terms(
         self, fn2index: dict[str, int]
     ) -> tuple[dict[str, list[int] | int], dict[str, list[int] | int]]:
-        """
-        Return a mapping of document and title terms to their corresponding sorted document IDs.
+        """Return a mapping of document and title terms to sorted document IDs.
 
-        When a term is only found within a single document, then the value for that term will be
-        an integer value.  When a term is found within multiple documents, the value will be a list
-        of integers.
+        When a term is only found within a single document,
+        then the value for that term will be an integer value.
+        When a term is found within multiple documents,
+        the value will be a list of integers.
         """
         rvs: tuple[dict[str, list[int] | int], dict[str, list[int] | int]] = ({}, {})
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping), strict=True):

@@ -42,7 +42,6 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 import sphinx
-from sphinx import addnodes
 from sphinx.ext.graphviz import (
     figure_wrapper,
     graphviz,
@@ -53,11 +52,12 @@ from sphinx.ext.graphviz import (
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Collection, Iterable, Iterator, Sequence, Set
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Node
 
+    from sphinx import addnodes
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
@@ -106,7 +106,7 @@ def try_import(objname: str) -> Any:
             return None
 
 
-def import_classes(name: str, currmodule: str) -> Any:
+def import_classes(name: str, currmodule: str) -> list[type[Any]]:
     """Import a class using its fully-qualified *name*."""
     target = None
 
@@ -143,8 +143,7 @@ class InheritanceException(Exception):
 
 
 class InheritanceGraph:
-    """
-    Given a list of classes, determines the set of classes that they inherit
+    """Given a list of classes, determines the set of classes that they inherit
     from all the way to the root "object", and then is able to generate a
     graphviz dot graph from them.
     """
@@ -157,7 +156,8 @@ class InheritanceGraph:
         private_bases: bool = False,
         parts: int = 0,
         aliases: dict[str, str] | None = None,
-        top_classes: Sequence[Any] = (),
+        top_classes: Set[str] = frozenset(),
+        include_subclasses: bool = False,
     ) -> None:
         """*class_names* is a list of child classes to show bases from.
 
@@ -165,7 +165,12 @@ class InheritanceGraph:
         in the graph.
         """
         self.class_names = class_names
-        classes = self._import_classes(class_names, currmodule)
+        classes: Collection[type[Any]] = self._import_classes(class_names, currmodule)
+        if include_subclasses:
+            classes_set = {*classes}
+            for cls in tuple(classes_set):
+                classes_set.update(_subclasses(cls))
+            classes = classes_set
         self.class_info = self._class_info(
             classes, show_builtins, private_bases, parts, aliases, top_classes
         )
@@ -173,21 +178,23 @@ class InheritanceGraph:
             msg = 'No classes found for inheritance diagram'
             raise InheritanceException(msg)
 
-    def _import_classes(self, class_names: list[str], currmodule: str) -> list[Any]:
+    def _import_classes(
+        self, class_names: list[str], currmodule: str
+    ) -> Sequence[type[Any]]:
         """Import a list of classes."""
-        classes: list[Any] = []
+        classes: list[type[Any]] = []
         for name in class_names:
             classes.extend(import_classes(name, currmodule))
         return classes
 
     def _class_info(
         self,
-        classes: list[Any],
+        classes: Collection[type[Any]],
         show_builtins: bool,
         private_bases: bool,
         parts: int,
         aliases: dict[str, str] | None,
-        top_classes: Sequence[Any],
+        top_classes: Set[str],
     ) -> list[tuple[str, str, Sequence[str], str | None]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
@@ -206,7 +213,7 @@ class InheritanceGraph:
         """
         all_classes = {}
 
-        def recurse(cls: Any) -> None:
+        def recurse(cls: type[Any]) -> None:
             if not show_builtins and cls in PY_BUILTINS:
                 return
             if not private_bases and cls.__name__.startswith('_'):
@@ -249,7 +256,7 @@ class InheritanceGraph:
         ]
 
     def class_name(
-        self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None
+        self, cls: type[Any], parts: int = 0, aliases: dict[str, str] | None = None
     ) -> str:
         """Given a class object, return a fully-qualified name.
 
@@ -275,12 +282,12 @@ class InheritanceGraph:
         return [fullname for (_, fullname, _, _) in self.class_info]
 
     # These are the default attrs for graphviz
-    default_graph_attrs = {
+    default_graph_attrs: dict[str, float | int | str] = {
         'rankdir': 'LR',
         'size': '"8.0, 12.0"',
         'bgcolor': 'transparent',
     }
-    default_node_attrs = {
+    default_node_attrs: dict[str, float | int | str] = {
         'shape': 'box',
         'fontsize': 10,
         'height': 0.25,
@@ -288,15 +295,15 @@ class InheritanceGraph:
         'style': '"setlinewidth(0.5),filled"',
         'fillcolor': 'white',
     }
-    default_edge_attrs = {
+    default_edge_attrs: dict[str, float | int | str] = {
         'arrowsize': 0.5,
         'style': '"setlinewidth(0.5)"',
     }
 
-    def _format_node_attrs(self, attrs: dict[str, Any]) -> str:
+    def _format_node_attrs(self, attrs: dict[str, float | int | str]) -> str:
         return ','.join(f'{k}={v}' for k, v in sorted(attrs.items()))
 
-    def _format_graph_attrs(self, attrs: dict[str, Any]) -> str:
+    def _format_graph_attrs(self, attrs: dict[str, float | int | str]) -> str:
         return ''.join(f'{k}={v};\n' for k, v in sorted(attrs.items()))
 
     def generate_dot(
@@ -304,9 +311,9 @@ class InheritanceGraph:
         name: str,
         urls: dict[str, str] | None = None,
         config: Config | None = None,
-        graph_attrs: dict | None = None,
-        node_attrs: dict | None = None,
-        edge_attrs: dict | None = None,
+        graph_attrs: dict[str, float | int | str] | None = None,
+        node_attrs: dict[str, float | int | str] | None = None,
+        edge_attrs: dict[str, float | int | str] | None = None,
     ) -> str:
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.
@@ -361,17 +368,13 @@ class InheritanceGraph:
 
 
 class inheritance_diagram(graphviz):
-    """
-    A docutils node to use as a placeholder for the inheritance diagram.
-    """
+    """A docutils node to use as a placeholder for the inheritance diagram."""
 
     pass
 
 
 class InheritanceDiagram(SphinxDirective):
-    """
-    Run when the inheritance_diagram directive is first encountered.
-    """
+    """Run when the inheritance_diagram directive is first encountered."""
 
     has_content = False
     required_arguments = 1
@@ -382,6 +385,7 @@ class InheritanceDiagram(SphinxDirective):
         'private-bases': directives.flag,
         'caption': directives.unchanged,
         'top-classes': directives.unchanged_required,
+        'include-subclasses': directives.flag,
     }
 
     def run(self) -> list[Node]:
@@ -392,11 +396,11 @@ class InheritanceDiagram(SphinxDirective):
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
         node['content'] = ', '.join(class_names)
-        node['top-classes'] = []
-        for cls in self.options.get('top-classes', '').split(','):
-            cls = cls.strip()
-            if cls:
-                node['top-classes'].append(cls)
+        node['top-classes'] = frozenset({
+            cls_stripped
+            for cls in self.options.get('top-classes', '').split(',')
+            if (cls_stripped := cls.strip())
+        })
 
         # Create a graph starting with the list of classes
         try:
@@ -407,6 +411,7 @@ class InheritanceDiagram(SphinxDirective):
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,
                 top_classes=node['top-classes'],
+                include_subclasses='include-subclasses' in self.options,
             )
         except InheritanceException as err:
             return [node.document.reporter.warning(err, line=self.lineno)]
@@ -433,6 +438,12 @@ class InheritanceDiagram(SphinxDirective):
             return [figure]
 
 
+def _subclasses(cls: type[Any]) -> Iterator[type[Any]]:
+    yield cls
+    for sub_cls in cls.__subclasses__():
+        yield from _subclasses(sub_cls)
+
+
 def get_graph_hash(node: inheritance_diagram) -> str:
     encoded = (node['content'] + str(node['parts'])).encode()
     return hashlib.md5(encoded, usedforsecurity=False).hexdigest()[-10:]
@@ -441,8 +452,7 @@ def get_graph_hash(node: inheritance_diagram) -> str:
 def html_visit_inheritance_diagram(
     self: HTML5Translator, node: inheritance_diagram
 ) -> None:
-    """
-    Output the graph for HTML.  This will insert a PNG with clickable
+    """Output the graph for HTML.  This will insert a PNG with clickable
     image map.
     """
     graph = node['graph']
@@ -488,9 +498,7 @@ def html_visit_inheritance_diagram(
 def latex_visit_inheritance_diagram(
     self: LaTeXTranslator, node: inheritance_diagram
 ) -> None:
-    """
-    Output the graph for LaTeX.  This will insert a PDF.
-    """
+    """Output the graph for LaTeX.  This will insert a PDF."""
     graph = node['graph']
 
     graph_hash = get_graph_hash(node)
@@ -507,9 +515,7 @@ def texinfo_visit_inheritance_diagram(
     self: TexinfoTranslator,
     node: inheritance_diagram,
 ) -> None:
-    """
-    Output the graph for Texinfo.  This will insert a PNG.
-    """
+    """Output the graph for Texinfo.  This will insert a PNG."""
     graph = node['graph']
 
     graph_hash = get_graph_hash(node)

@@ -83,13 +83,15 @@ class ENUM:
     """
 
     def __init__(self, *candidates: str | bool | None) -> None:
-        self.candidates = candidates
+        self._candidates = frozenset(candidates)
 
-    def match(self, value: str | list | tuple) -> bool:
-        if isinstance(value, list | tuple):
-            return all(item in self.candidates for item in value)
-        else:
-            return value in self.candidates
+    def __repr__(self) -> str:
+        return f'ENUM({", ".join(sorted(map(repr, self._candidates)))})'
+
+    def match(self, value: str | Sequence[str | bool | None]) -> bool:
+        if isinstance(value, frozenset | list | set | tuple):
+            return all(item in self._candidates for item in value)
+        return value in self._candidates
 
 
 _OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
@@ -343,7 +345,7 @@ class Config:
     def read(
         cls: type[Config],
         confdir: str | os.PathLike[str],
-        overrides: dict | None = None,
+        overrides: dict[str, Any] | None = None,
         tags: Tags | None = None,
     ) -> Config:
         """Create a Config object from configuration file."""
@@ -388,7 +390,7 @@ class Config:
             # given falsy string from a command line option
             return value not in {'0', ''}
         if isinstance(default, dict):
-            raise ValueError(
+            raise ValueError(  # NoQA: TRY004
                 __(
                     'cannot override dictionary config setting %r, '
                     'ignoring (use %r to set individual elements)'
@@ -530,7 +532,7 @@ class Config:
             return (value for value in self if value.rebuild == rebuild)
         return (value for value in self if value.rebuild in rebuild)
 
-    def __getstate__(self) -> dict:
+    def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         # remove potentially pickling-problematic values from config
         __dict__ = {
@@ -567,7 +569,7 @@ class Config:
 
         return __dict__
 
-    def __setstate__(self, state: dict) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         self._overrides = {}
         self._options = {
             name: _Opt(real_value, rebuild, ())
@@ -803,7 +805,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
                 )
                 logger.warning(
                     msg.format(
-                        name=name, current=value, candidates=valid_types.candidates
+                        name=name, current=value, candidates=valid_types._candidates
                     ),
                     once=True,
                 )

@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from sphinx.domains.c._ast import (
     ASTDeclaration,
-    ASTIdentifier,
     ASTNestedName,
 )
 from sphinx.locale import __
@@ -14,6 +13,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
     from typing import Any, Self
 
+    from sphinx.domains.c._ast import (
+        ASTIdentifier,
+    )
     from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)

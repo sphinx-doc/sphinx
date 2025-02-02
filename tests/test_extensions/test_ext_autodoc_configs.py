@@ -696,11 +696,6 @@ def test_mocked_module_imports(app):
     confoverrides={'autodoc_typehints': 'signature'},
 )
 def test_autodoc_typehints_signature(app):
-    if sys.version_info[:2] >= (3, 13):
-        type_ppp = 'pathlib._local.PurePosixPath'
-    else:
-        type_ppp = 'pathlib.PurePosixPath'
-
     options = {
         'members': None,
         'undoc-members': None,
@@ -726,7 +721,7 @@ def test_autodoc_typehints_signature(app):
         '',
         '.. py:data:: CONST3',
         '   :module: target.typehints',
-        f'   :type: ~{type_ppp}',
+        '   :type: ~pathlib.PurePosixPath',
         "   :value: PurePosixPath('/a/b/c')",
         '',
         '   docstring',
@@ -749,7 +744,7 @@ def test_autodoc_typehints_signature(app):
         '',
         '   .. py:attribute:: Math.CONST3',
         '      :module: target.typehints',
-        f'      :type: ~{type_ppp}',
+        '      :type: ~pathlib.PurePosixPath',
         "      :value: PurePosixPath('/a/b/c')",
         '',
         '',
@@ -771,7 +766,7 @@ def test_autodoc_typehints_signature(app):
         '',
         '   .. py:property:: Math.path',
         '      :module: target.typehints',
-        f'      :type: ~{type_ppp}',
+        '      :type: ~pathlib.PurePosixPath',
         '',
         '',
         '   .. py:property:: Math.prop',
@@ -796,7 +791,7 @@ def test_autodoc_typehints_signature(app):
         '',
         '   docstring',
         '',
-        f"   alias of TypeVar('T', bound=\\ :py:class:`~{type_ppp}`)",
+        "   alias of TypeVar('T', bound=\\ :py:class:`~pathlib.PurePosixPath`)",
         '',
         '',
         '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
@@ -828,10 +823,6 @@ def test_autodoc_typehints_signature(app):
     confoverrides={'autodoc_typehints': 'none'},
 )
 def test_autodoc_typehints_none(app):
-    if sys.version_info[:2] >= (3, 13):
-        type_ppp = 'pathlib._local.PurePosixPath'
-    else:
-        type_ppp = 'pathlib.PurePosixPath'
     options = {
         'members': None,
         'undoc-members': None,
@@ -919,7 +910,7 @@ def test_autodoc_typehints_none(app):
         '',
         '   docstring',
         '',
-        f"   alias of TypeVar('T', bound=\\ :py:class:`~{type_ppp}`)",
+        "   alias of TypeVar('T', bound=\\ :py:class:`~pathlib.PurePosixPath`)",
         '',
         '',
         '.. py:function:: complex_func(arg1, arg2, arg3=None, *args, **kwargs)',
@@ -1042,6 +1033,7 @@ def test_autodoc_typehints_description(app):
         'autodoc_typehints': 'description',
         'autodoc_typehints_description_target': 'documented',
     },
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_no_undoc(app):
     # No :type: or :rtype: will be injected for `incr`, which does not have
@@ -1094,6 +1086,7 @@ def test_autodoc_typehints_description_no_undoc(app):
         'autodoc_typehints': 'description',
         'autodoc_typehints_description_target': 'documented_params',
     },
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     # No :type: will be injected for `incr`, which does not have a description
@@ -1163,6 +1156,7 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     'text',
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'description'},
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_with_documented_init(app):
     with overwrite_file(
@@ -1207,6 +1201,7 @@ def test_autodoc_typehints_description_with_documented_init(app):
         'autodoc_typehints': 'description',
         'autodoc_typehints_description_target': 'documented',
     },
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     with overwrite_file(
@@ -1241,6 +1236,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
         'autodoc_typehints': 'description',
         'autodoc_typehints_description_target': 'documented_params',
     },
+    copy_test_root=True,
 )
 def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(app):
     # see test_autodoc_typehints_description_with_documented_init_no_undoc
@@ -1285,6 +1281,7 @@ def test_autodoc_typehints_description_for_invalid_node(app):
     'text',
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'both'},
+    copy_test_root=True,
 )
 def test_autodoc_typehints_both(app):
     with overwrite_file(
@@ -1365,7 +1362,7 @@ def test_autodoc_type_aliases(app):
         '   docstring',
         '',
         '',
-        '.. py:function:: read(r: ~_io.BytesIO) -> ~_io.StringIO',
+        '.. py:function:: read(r: ~io.BytesIO) -> ~io.StringIO',
         '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
@@ -1438,7 +1435,7 @@ def test_autodoc_type_aliases(app):
         '   docstring',
         '',
         '',
-        '.. py:function:: read(r: ~_io.BytesIO) -> my.module.StringIO',
+        '.. py:function:: read(r: ~io.BytesIO) -> my.module.StringIO',
         '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
@@ -1511,10 +1508,6 @@ def test_autodoc_typehints_description_and_type_aliases(app):
     confoverrides={'autodoc_typehints_format': 'fully-qualified'},
 )
 def test_autodoc_typehints_format_fully_qualified(app):
-    if sys.version_info[:2] >= (3, 13):
-        type_ppp = 'pathlib._local.PurePosixPath'
-    else:
-        type_ppp = 'pathlib.PurePosixPath'
     options = {
         'members': None,
         'undoc-members': None,
@@ -1540,7 +1533,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '',
         '.. py:data:: CONST3',
         '   :module: target.typehints',
-        f'   :type: {type_ppp}',
+        '   :type: pathlib.PurePosixPath',
         "   :value: PurePosixPath('/a/b/c')",
         '',
         '   docstring',
@@ -1563,7 +1556,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '',
         '   .. py:attribute:: Math.CONST3',
         '      :module: target.typehints',
-        f'      :type: {type_ppp}',
+        '      :type: pathlib.PurePosixPath',
         "      :value: PurePosixPath('/a/b/c')",
         '',
         '',
@@ -1585,7 +1578,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '',
         '   .. py:property:: Math.path',
         '      :module: target.typehints',
-        f'      :type: {type_ppp}',
+        '      :type: pathlib.PurePosixPath',
         '',
         '',
         '   .. py:property:: Math.prop',
@@ -1610,7 +1603,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '',
         '   docstring',
         '',
-        f"   alias of TypeVar('T', bound=\\ :py:class:`{type_ppp}`)",
+        "   alias of TypeVar('T', bound=\\ :py:class:`pathlib.PurePosixPath`)",
         '',
         '',
         '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '

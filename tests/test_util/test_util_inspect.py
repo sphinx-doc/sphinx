@@ -890,7 +890,7 @@ def test_isattributedescriptor():
     try:
         # _testcapi module cannot be importable in some distro
         # refs: https://github.com/sphinx-doc/sphinx/issues/9868
-        import _testcapi
+        import _testcapi  # type: ignore[import-not-found]
 
         # instancemethod (C-API)
         testinstancemethod = _testcapi.instancemethod(str.__repr__)
@@ -942,15 +942,14 @@ def test_unpartial():
 def test_getdoc_inherited_classmethod():
     class Foo:
         @classmethod
-        def meth(self):
-            """
-            Docstring
-                indented text
+        def meth(cls):
+            """Docstring
+            indented text
             """
 
     class Bar(Foo):
         @classmethod
-        def meth(self):
+        def meth(cls):
             # inherited classmethod
             pass
 
@@ -961,9 +960,8 @@ def test_getdoc_inherited_classmethod():
 def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
-            """
-            Docstring
-                indented text
+            """Docstring
+            indented text
             """
 
     class Bar(Foo):

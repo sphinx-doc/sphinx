@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import codecs
 import operator
+import os
+import os.path
 import time
-from codecs import open
 from collections import defaultdict
-from os import getenv, path, walk
+from os import getenv, walk
 from pathlib import Path
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -14,13 +16,13 @@ from uuid import uuid4
 from docutils import nodes
 
 from sphinx import addnodes, package_dir
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.display import status_iterator
-from sphinx.util.i18n import CatalogInfo, docname_to_domain
+from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import canon_path, ensuredir, relpath
@@ -28,7 +30,6 @@ from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
-    import os
     from collections.abc import Iterable, Iterator, Sequence
     from typing import Any, Literal
 
@@ -36,6 +37,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.i18n import CatalogInfo
     from sphinx.util.typing import ExtensionMetadata
 
 DEFAULT_TEMPLATE_PATH = Path(package_dir, 'templates', 'gettext')
@@ -97,9 +99,7 @@ class Catalog:
 
 
 class MsgOrigin:
-    """
-    Origin holder for Catalog message origin.
-    """
+    """Origin holder for Catalog message origin."""
 
     __slots__ = 'source', 'line', 'uid'
 
@@ -157,9 +157,7 @@ class I18nTags(Tags):
 
 
 class I18nBuilder(Builder):
-    """
-    General i18n builder.
-    """
+    """General i18n builder."""
 
     name = 'i18n'
     versioning_method = 'text'
@@ -211,11 +209,11 @@ else:
 ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
 
 
-def should_write(filepath: str, new_content: str) -> bool:
-    if not path.exists(filepath):
+def should_write(filepath: str | os.PathLike[str], new_content: str) -> bool:
+    if not os.path.exists(filepath):
         return True
     try:
-        with open(filepath, encoding='utf-8') as oldpot:
+        with codecs.open(str(filepath), encoding='utf-8') as oldpot:
             old_content = oldpot.read()
         old_header_index = old_content.index('"POT-Creation-Date:')
         new_header_index = new_content.index('"POT-Creation-Date:')
@@ -241,9 +239,7 @@ def _is_node_in_substitution_definition(node: nodes.Node) -> bool:
 
 
 class MessageCatalogBuilder(I18nBuilder):
-    """
-    Builds gettext-style message catalogs (.pot files).
-    """
+    """Builds gettext-style message catalogs (.pot files)."""
 
     name = 'gettext'
     epilog = __('The message catalogs are in %(outdir)s.')
@@ -256,11 +252,11 @@ class MessageCatalogBuilder(I18nBuilder):
     def _collect_templates(self) -> set[str]:
         template_files = set()
         for template_path in self.config.templates_path:
-            tmpl_abs_path = path.join(self.app.srcdir, template_path)
+            tmpl_abs_path = self.app.srcdir / template_path
             for dirpath, _dirs, files in walk(tmpl_abs_path):
                 for fn in files:
                     if fn.endswith('.html'):
-                        filename = canon_path(path.join(dirpath, fn))
+                        filename = Path(dirpath, fn).as_posix()
                         template_files.add(filename)
         return template_files
 
@@ -276,7 +272,7 @@ class MessageCatalogBuilder(I18nBuilder):
             files, __('reading templates... '), 'purple', len(files), self.app.verbosity
         ):
             try:
-                with open(template, encoding='utf-8') as f:
+                with codecs.open(template, encoding='utf-8') as f:
                     context = f.read()
                 for line, _meth, msg in extract_translations(context):
                     origin = MsgOrigin(source=template, line=line)
@@ -316,7 +312,7 @@ class MessageCatalogBuilder(I18nBuilder):
             operator.itemgetter(0),
         ):
             # noop if config.gettext_compact is set
-            ensuredir(path.join(self.outdir, path.dirname(textdomain)))
+            ensuredir(self.outdir / os.path.dirname(textdomain))
 
             context['messages'] = list(catalog)
             template_path = [
@@ -325,9 +321,9 @@ class MessageCatalogBuilder(I18nBuilder):
             renderer = GettextRenderer(template_path, outdir=self.outdir)
             content = renderer.render('message.pot.jinja', context)
 
-            pofn = path.join(self.outdir, textdomain + '.pot')
+            pofn = self.outdir / f'{textdomain}.pot'
             if should_write(pofn, content):
-                with open(pofn, 'w', encoding='utf-8') as pofile:
+                with codecs.open(str(pofn), 'w', encoding='utf-8') as pofile:
                     pofile.write(content)
 
 
@@ -343,11 +339,15 @@ def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(MessageCatalogBuilder)
 
-    app.add_config_value('gettext_compact', True, 'gettext', {bool, str})
+    app.add_config_value(
+        'gettext_compact', True, 'gettext', types=frozenset({bool, str})
+    )
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
-    app.add_config_value('gettext_additional_targets', [], 'env', types={set, list})
+    app.add_config_value(
+        'gettext_additional_targets', [], 'env', types=frozenset({set, list})
+    )
     app.add_config_value(
         'gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext'
     )

@@ -220,10 +220,12 @@ Showing all links of an Intersphinx mapping file
 ------------------------------------------------
 
 To show all Intersphinx links and their targets of an Intersphinx mapping file,
-run ``python -msphinx.ext.intersphinx url-or-path``.  This is helpful when
+run ``python -m sphinx.ext.intersphinx url-or-path``.  This is helpful when
 searching for the root cause of a broken Intersphinx link in a documentation
-project. The following example prints the Intersphinx mapping of the Python 3
-documentation::
+project.
+The following example prints the Intersphinx mapping of the Python documentation:
+
+.. code-block:: console
 
    $ python -m sphinx.ext.intersphinx https://docs.python.org/3/objects.inv
 

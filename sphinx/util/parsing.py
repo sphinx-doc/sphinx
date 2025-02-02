@@ -5,12 +5,13 @@ from __future__ import annotations
 import contextlib
 from typing import TYPE_CHECKING
 
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 from docutils.statemachine import StringList, string2lines
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
 
 

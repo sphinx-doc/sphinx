@@ -71,7 +71,7 @@ def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
 
 def test_root_doc_not_found(tmp_path, make_app):
     (tmp_path / 'conf.py').touch()
-    assert os.listdir(tmp_path) == ['conf.py']
+    assert [p.name for p in tmp_path.iterdir()] == ['conf.py']
 
     app = make_app('dummy', srcdir=tmp_path)
     with pytest.raises(SphinxError):

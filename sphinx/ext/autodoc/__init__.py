@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, NewType, TypeVar
 from docutils.statemachine import StringList
 
 import sphinx
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
@@ -40,10 +40,11 @@ if TYPE_CHECKING:
     from typing import ClassVar, Literal, TypeAlias
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc.directive import DocumenterBridge
-    from sphinx.util.typing import ExtensionMetadata, OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec, _RestifyMode
 
     _AutodocObjType = Literal[
         'module', 'class', 'exception', 'function', 'method', 'attribute'
@@ -73,6 +74,14 @@ py_ext_sig_re = re.compile(
     re.VERBOSE,
 )
 special_member_re = re.compile(r'^__\S+__$')
+
+
+def _get_render_mode(
+    typehints_format: Literal['fully-qualified', 'short'],
+) -> _RestifyMode:
+    if typehints_format == 'short':
+        return 'smart'
+    return 'fully-qualified-except-typing'
 
 
 def identity(x: Any) -> Any:
@@ -166,7 +175,7 @@ def bool_option(arg: Any) -> bool:
     return True
 
 
-def merge_members_option(options: dict) -> None:
+def merge_members_option(options: dict[str, Any]) -> None:
     """Merge :private-members: and :special-members: options to the
     :members: option.
     """
@@ -196,6 +205,7 @@ def cut_lines(
     Use like this (e.g. in the ``setup()`` function of :file:`conf.py`)::
 
        from sphinx.ext.autodoc import cut_lines
+
        app.connect('autodoc-process-docstring', cut_lines(4, what={'module'}))
 
     This can (and should) be used in place of :confval:`automodule_skip_lines`.
@@ -335,8 +345,7 @@ class ObjectMember:
 
 
 class Documenter:
-    """
-    A Documenter knows how to autodocument a single object type.  When
+    """A Documenter knows how to autodocument a single object type.  When
     registered with the AutoDirective, it will be used to document objects
     of that type when needed by autodoc.
 
@@ -364,6 +373,7 @@ class Documenter:
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
+        'no-index-entry': bool_option,
         'noindex': bool_option,
     }
 
@@ -604,6 +614,8 @@ class Documenter:
 
         if self.options.no_index or self.options.noindex:
             self.add_line('   :no-index:', sourcename)
+        if self.options.no_index_entry:
+            self.add_line('   :no-index-entry:', sourcename)
         if self.objpath:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
@@ -906,7 +918,7 @@ class Documenter:
         members_check_module, members = self.get_object_members(want_all)
 
         # document non-skipped members
-        memberdocumenters: list[tuple[Documenter, bool]] = []
+        member_documenters: list[tuple[Documenter, bool]] = []
         for mname, member, isattr in self.filter_members(members, want_all):
             classes = [
                 cls
@@ -922,13 +934,27 @@ class Documenter:
             # of inner classes can be documented
             full_mname = f'{self.modname}::' + '.'.join((*self.objpath, mname))
             documenter = classes[-1](self.directive, full_mname, self.indent)
-            memberdocumenters.append((documenter, isattr))
+            member_documenters.append((documenter, isattr))
 
         member_order = self.options.member_order or self.config.autodoc_member_order
-        memberdocumenters = self.sort_members(memberdocumenters, member_order)
+        # We now try to import all objects before ordering them. This is to
+        # avoid possible circular imports if we were to import objects after
+        # their associated documenters have been sorted.
+        member_documenters = [
+            (documenter, isattr)
+            for documenter, isattr in member_documenters
+            if documenter.parse_name() and documenter.import_object()
+        ]
+        member_documenters = self.sort_members(member_documenters, member_order)
 
-        for documenter, isattr in memberdocumenters:
-            documenter.generate(
+        for documenter, isattr in member_documenters:
+            assert documenter.modname
+            # We can directly call ._generate() since the documenters
+            # already called parse_name() and import_object() before.
+            #
+            # Note that those two methods above do not emit events, so
+            # whatever objects we deduced should not have changed.
+            documenter._generate(
                 all_members=True,
                 real_modname=self.real_modname,
                 check_module=members_check_module and not isattr,
@@ -994,6 +1020,15 @@ class Documenter:
         if not self.import_object():
             return
 
+        self._generate(more_content, real_modname, check_module, all_members)
+
+    def _generate(
+        self,
+        more_content: StringList | None = None,
+        real_modname: str | None = None,
+        check_module: bool = False,
+        all_members: bool = False,
+    ) -> None:
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
         # where the attribute documentation would actually be found in.
@@ -1031,7 +1066,10 @@ class Documenter:
         )
         if ismock(self.object) and not docstrings:
             logger.warning(
-                __('A mocked object is detected: %r'), self.name, type='autodoc'
+                __('A mocked object is detected: %r'),
+                self.name,
+                type='autodoc',
+                subtype='mocked_object',
             )
 
         # check __module__ of object (for members not given explicitly)
@@ -1073,9 +1111,7 @@ class Documenter:
 
 
 class ModuleDocumenter(Documenter):
-    """
-    Specialized Documenter subclass for modules.
-    """
+    """Specialized Documenter subclass for modules."""
 
     objtype = 'module'
     content_indent = ''
@@ -1085,6 +1121,7 @@ class ModuleDocumenter(Documenter):
         'members': members_option,
         'undoc-members': bool_option,
         'no-index': bool_option,
+        'no-index-entry': bool_option,
         'inherited-members': inherited_members_option,
         'show-inheritance': bool_option,
         'synopsis': identity,
@@ -1172,6 +1209,8 @@ class ModuleDocumenter(Documenter):
             self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
+        if self.options.no_index_entry:
+            self.add_line('   :no-index-entry:', sourcename)
 
     def get_module_members(self) -> dict[str, ObjectMember]:
         """Get members of target module."""
@@ -1262,8 +1301,7 @@ class ModuleDocumenter(Documenter):
 
 
 class ModuleLevelDocumenter(Documenter):
-    """
-    Specialized Documenter subclass for objects on module level (functions,
+    """Specialized Documenter subclass for objects on module level (functions,
     classes, data/constants).
     """
 
@@ -1287,8 +1325,7 @@ class ModuleLevelDocumenter(Documenter):
 
 
 class ClassLevelDocumenter(Documenter):
-    """
-    Specialized Documenter subclass for objects on class level (methods,
+    """Specialized Documenter subclass for objects on class level (methods,
     attributes).
     """
 
@@ -1323,8 +1360,7 @@ class ClassLevelDocumenter(Documenter):
 
 
 class DocstringSignatureMixin:
-    """
-    Mixin for FunctionDocumenter and MethodDocumenter to provide the
+    """Mixin for FunctionDocumenter and MethodDocumenter to provide the
     feature of reading the signature from the docstring.
     """
 
@@ -1405,8 +1441,7 @@ class DocstringSignatureMixin:
 
 
 class DocstringStripSignatureMixin(DocstringSignatureMixin):
-    """
-    Mixin for AttributeDocumenter to provide the
+    """Mixin for AttributeDocumenter to provide the
     feature of stripping any function signature from the docstring.
     """
 
@@ -1424,9 +1459,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
 
 
 class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for functions.
-    """
+    """Specialized Documenter subclass for functions."""
 
     objtype = 'function'
     member_order = 30
@@ -1447,6 +1480,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literals', True)
 
         try:
             self._events.emit('autodoc-before-process-signature', self.object, False)
@@ -1482,6 +1517,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literals', True)
 
         sigs = []
         if (
@@ -1534,7 +1571,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: type) -> Callable | None:
+    def annotate_to_first_argument(
+        self, func: Callable[..., Any], typ: type
+    ) -> Callable[..., Any] | None:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
@@ -1566,9 +1605,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
 
 class DecoratorDocumenter(FunctionDocumenter):
-    """
-    Specialized Documenter subclass for decorator functions.
-    """
+    """Specialized Documenter subclass for decorator functions."""
 
     objtype = 'decorator'
 
@@ -1598,9 +1635,7 @@ _CLASS_NEW_BLACKLIST = frozenset({
 
 
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for classes.
-    """
+    """Specialized Documenter subclass for classes."""
 
     objtype = 'class'
     member_order = 20
@@ -1608,6 +1643,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'members': members_option,
         'undoc-members': bool_option,
         'no-index': bool_option,
+        'no-index-entry': bool_option,
         'inherited-members': inherited_members_option,
         'show-inheritance': bool_option,
         'member-order': member_order_option,
@@ -1770,6 +1806,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literals', True)
 
         try:
             self._signature_class, _signature_method_name, sig = self._get_signature()
@@ -1811,6 +1849,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literals', True)
 
         sig = super().format_signature()
         sigs = []
@@ -1907,10 +1947,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 'autodoc-process-bases', self.fullname, self.object, self.options, bases
             )
 
-            if self.config.autodoc_typehints_format == 'short':
-                base_classes = [restify(cls, 'smart') for cls in bases]
-            else:
-                base_classes = [restify(cls) for cls in bases]
+            mode = _get_render_mode(self.config.autodoc_typehints_format)
+            base_classes = [restify(cls, mode=mode) for cls in bases]
 
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
@@ -2023,25 +2061,21 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return None
 
     def add_content(self, more_content: StringList | None) -> None:
+        mode = _get_render_mode(self.config.autodoc_typehints_format)
+        short_literals = self.config.python_display_short_literal_types
+
         if isinstance(self.object, NewType):
-            if self.config.autodoc_typehints_format == 'short':
-                supertype = restify(self.object.__supertype__, 'smart')
-            else:
-                supertype = restify(self.object.__supertype__)
+            supertype = restify(self.object.__supertype__, mode=mode)
 
             more_content = StringList([_('alias of %s') % supertype, ''], source='')
         if isinstance(self.object, TypeVar):
             attrs = [repr(self.object.__name__)]
-            for constraint in self.object.__constraints__:
-                if self.config.autodoc_typehints_format == 'short':
-                    attrs.append(stringify_annotation(constraint, 'smart'))
-                else:
-                    attrs.append(stringify_annotation(constraint))
+            attrs.extend(
+                stringify_annotation(constraint, mode, short_literals=short_literals)
+                for constraint in self.object.__constraints__
+            )
             if self.object.__bound__:
-                if self.config.autodoc_typehints_format == 'short':
-                    bound = restify(self.object.__bound__, 'smart')
-                else:
-                    bound = restify(self.object.__bound__)
+                bound = restify(self.object.__bound__, mode=mode)
                 attrs.append(r'bound=\ ' + bound)
             if self.object.__covariant__:
                 attrs.append('covariant=True')
@@ -2061,10 +2095,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.doc_as_attr and not self.get_variable_comment():
             try:
-                if self.config.autodoc_typehints_format == 'short':
-                    alias = restify(self.object, 'smart')
-                else:
-                    alias = restify(self.object)
+                alias = restify(self.object, mode=mode)
                 more_content = StringList([_('alias of %s') % alias], source='')
             except AttributeError:
                 pass  # Invalid class object is passed.
@@ -2096,9 +2127,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
 
 class ExceptionDocumenter(ClassDocumenter):
-    """
-    Specialized ClassDocumenter subclass for exceptions.
-    """
+    """Specialized ClassDocumenter subclass for exceptions."""
 
     objtype = 'exception'
     member_order = 10
@@ -2146,8 +2175,7 @@ class DataDocumenterMixinBase:
 
 
 class GenericAliasMixin(DataDocumenterMixinBase):
-    """
-    Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
+    """Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
     supporting GenericAliases.
     """
 
@@ -2159,10 +2187,8 @@ class GenericAliasMixin(DataDocumenterMixinBase):
 
     def update_content(self, more_content: StringList) -> None:
         if inspect.isgenericalias(self.object):
-            if self.config.autodoc_typehints_format == 'short':
-                alias = restify(self.object, 'smart')
-            else:
-                alias = restify(self.object)
+            mode = _get_render_mode(self.config.autodoc_typehints_format)
+            alias = restify(self.object, mode=mode)
 
             more_content.append(_('alias of %s') % alias, '')
             more_content.append('', '')
@@ -2171,8 +2197,7 @@ class GenericAliasMixin(DataDocumenterMixinBase):
 
 
 class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
-    """
-    Mixin for DataDocumenter to provide the feature for supporting uninitialized
+    """Mixin for DataDocumenter to provide the feature for supporting uninitialized
     (type annotation only) global variables.
     """
 
@@ -2218,9 +2243,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
 class DataDocumenter(
     GenericAliasMixin, UninitializedGlobalVariableMixin, ModuleLevelDocumenter
 ):
-    """
-    Specialized Documenter subclass for data items.
-    """
+    """Specialized Documenter subclass for data items."""
 
     objtype = 'data'
     member_order = 40
@@ -2289,15 +2312,13 @@ class DataDocumenter(
                     include_extras=True,
                 )
                 if self.objpath[-1] in annotations:
-                    if self.config.autodoc_typehints_format == 'short':
-                        objrepr = stringify_annotation(
-                            annotations.get(self.objpath[-1]), 'smart'
-                        )
-                    else:
-                        objrepr = stringify_annotation(
-                            annotations.get(self.objpath[-1]),
-                            'fully-qualified-except-typing',
-                        )
+                    mode = _get_render_mode(self.config.autodoc_typehints_format)
+                    short_literals = self.config.python_display_short_literal_types
+                    objrepr = stringify_annotation(
+                        annotations.get(self.objpath[-1]),
+                        mode,
+                        short_literals=short_literals,
+                    )
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2353,9 +2374,7 @@ class DataDocumenter(
 
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for methods (normal, static and class).
-    """
+    """Specialized Documenter subclass for methods (normal, static and class)."""
 
     objtype = 'method'
     directivetype = 'method'
@@ -2374,17 +2393,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             return ret
 
         # to distinguish classmethod/staticmethod
-        obj = self.parent.__dict__.get(self.object_name)
-        if obj is None:
-            obj = self.object
-
-        obj_is_staticmethod = inspect.isstaticmethod(
-            obj, cls=self.parent, name=self.object_name
-        )
-        if inspect.isclassmethod(obj) or obj_is_staticmethod:
-            # document class and static members before ordinary ones
-            self.member_order = self.member_order - 1
-
+        obj = self.parent.__dict__.get(self.object_name, self.object)
+        if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
+            # document static members before regular methods
+            self.member_order -= 1
+        elif inspect.isclassmethod(obj):
+            # document class methods before static methods as
+            # they usually behave as alternative constructors
+            self.member_order -= 2
         return ret
 
     def format_args(self, **kwargs: Any) -> str:
@@ -2392,6 +2408,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literals', True)
 
         try:
             if self.object == object.__init__ and self.parent != object:  # NoQA: E721
@@ -2461,6 +2479,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
+        if self.config.python_display_short_literal_types:
+            kwargs.setdefault('short_literals', True)
 
         sigs = []
         if (
@@ -2534,7 +2554,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: type) -> Callable | None:
+    def annotate_to_first_argument(
+        self, func: Callable[..., Any], typ: type
+    ) -> Callable[..., Any] | None:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
@@ -2614,8 +2636,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
 
 class NonDataDescriptorMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting non
+    """Mixin for AttributeDocumenter to provide the feature for supporting non
     data-descriptors.
 
     .. note:: This mix-in must be inherited after other mix-ins.  Otherwise, docstring
@@ -2647,9 +2668,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
 
 
 class SlotsMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting __slots__.
-    """
+    """Mixin for AttributeDocumenter to provide the feature for supporting __slots__."""
 
     def isslotsattribute(self) -> bool:
         """Check the subject is an attribute in __slots__."""
@@ -2697,11 +2716,10 @@ class SlotsMixin(DataDocumenterMixinBase):
 
 
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting runtime
+    """Mixin for AttributeDocumenter to provide the feature for supporting runtime
     instance attributes (that are defined in __init__() methods with doc-comments).
 
-    Example:
+    Example::
 
         class Foo:
             def __init__(self):
@@ -2781,11 +2799,10 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
 
 
 class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
+    """Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
     instance attributes (PEP-526 styled, annotation only attributes).
 
-    Example:
+    Example::
 
         class Foo:
             attr: int  #: This is a target of this mix-in.
@@ -2846,9 +2863,7 @@ class AttributeDocumenter(  # type: ignore[misc]
     DocstringStripSignatureMixin,
     ClassLevelDocumenter,
 ):
-    """
-    Specialized Documenter subclass for attributes.
-    """
+    """Specialized Documenter subclass for attributes."""
 
     objtype = 'attribute'
     member_order = 60
@@ -2949,15 +2964,13 @@ class AttributeDocumenter(  # type: ignore[misc]
                     include_extras=True,
                 )
                 if self.objpath[-1] in annotations:
-                    if self.config.autodoc_typehints_format == 'short':
-                        objrepr = stringify_annotation(
-                            annotations.get(self.objpath[-1]), 'smart'
-                        )
-                    else:
-                        objrepr = stringify_annotation(
-                            annotations.get(self.objpath[-1]),
-                            'fully-qualified-except-typing',
-                        )
+                    mode = _get_render_mode(self.config.autodoc_typehints_format)
+                    short_literals = self.config.python_display_short_literal_types
+                    objrepr = stringify_annotation(
+                        annotations.get(self.objpath[-1]),
+                        mode,
+                        short_literals=short_literals,
+                    )
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -3018,9 +3031,7 @@ class AttributeDocumenter(  # type: ignore[misc]
 
 
 class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for properties.
-    """
+    """Specialized Documenter subclass for properties."""
 
     objtype = 'property'
     member_order = 60
@@ -3094,12 +3105,11 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
                 func, type_aliases=self.config.autodoc_type_aliases
             )
             if signature.return_annotation is not Parameter.empty:
-                if self.config.autodoc_typehints_format == 'short':
-                    objrepr = stringify_annotation(signature.return_annotation, 'smart')
-                else:
-                    objrepr = stringify_annotation(
-                        signature.return_annotation, 'fully-qualified-except-typing'
-                    )
+                mode = _get_render_mode(self.config.autodoc_typehints_format)
+                short_literals = self.config.python_display_short_literal_types
+                objrepr = stringify_annotation(
+                    signature.return_annotation, mode, short_literals=short_literals
+                )
                 self.add_line('   :type: ' + objrepr, sourcename)
         except TypeError as exc:
             logger.warning(
@@ -3109,7 +3119,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         except ValueError:
             pass
 
-    def _get_property_getter(self) -> Callable | None:
+    def _get_property_getter(self) -> Callable[..., Any] | None:
         if safe_getattr(self.object, 'fget', None):  # property
             return self.object.fget
         if safe_getattr(self.object, 'func', None):  # cached_property
@@ -3141,19 +3151,19 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'autoclass_content',
         'class',
         'env',
-        ENUM('both', 'class', 'init'),
+        types=ENUM('both', 'class', 'init'),
     )
     app.add_config_value(
         'autodoc_member_order',
         'alphabetical',
         'env',
-        ENUM('alphabetical', 'bysource', 'groupwise'),
+        types=ENUM('alphabetical', 'bysource', 'groupwise'),
     )
     app.add_config_value(
         'autodoc_class_signature',
         'mixed',
         'env',
-        ENUM('mixed', 'separated'),
+        types=ENUM('mixed', 'separated'),
     )
     app.add_config_value('autodoc_default_options', {}, 'env')
     app.add_config_value('autodoc_docstring_signature', True, 'env')
@@ -3162,20 +3172,20 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'autodoc_typehints',
         'signature',
         'env',
-        ENUM('signature', 'description', 'none', 'both'),
+        types=ENUM('signature', 'description', 'none', 'both'),
     )
     app.add_config_value(
         'autodoc_typehints_description_target',
         'all',
         'env',
-        ENUM('all', 'documented', 'documented_params'),
+        types=ENUM('all', 'documented', 'documented_params'),
     )
     app.add_config_value('autodoc_type_aliases', {}, 'env')
     app.add_config_value(
         'autodoc_typehints_format',
         'short',
         'env',
-        ENUM('fully-qualified', 'short'),
+        types=ENUM('fully-qualified', 'short'),
     )
     app.add_config_value('autodoc_warningiserror', True, 'env')
     app.add_config_value('autodoc_inherit_docstrings', True, 'env')
