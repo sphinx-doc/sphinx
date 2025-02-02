@@ -236,40 +236,27 @@ def _is_unpack_form(obj: Any) -> bool:
     return typing.get_origin(obj) is typing.Unpack
 
 
-class _Mode(enum.IntFlag):
-    smart = enum.auto()
-    fully_qualified = enum.auto()
-    fully_qualified_except_typing = enum.auto()
-    short_literal = enum.auto()
-
-
-_VALID_RENDER_MODE_COMBINATIONS: Final[frozenset[int]] = frozenset(
-    int(reduce(operator.__or__, __modes))
-    for __modes in itertools.product({0, *_Mode}, {0, _Mode.short_literal})
-)
-
-
-class RenderMode(enum.IntFlag):
+class RenderMode(enum.IntFlag, boundary=enum.STRICT):
     """Additional flags for rendering annotations or reST content."""
 
     # primary modes (mutually exclusive)
-    smart = _Mode.smart
+    smart = enum.auto()
     """Show the annotation name."""
 
-    fully_qualified = _Mode.fully_qualified
+    fully_qualified = enum.auto()
     """Show the module name and qualified name of the annotation.
 
     This mode is mutually exclusive with :attr:`smart` and :attr:`fully_qualified_except_typing`.
-    """  # NoQA: E501
+    """
 
-    fully_qualified_except_typing = _Mode.fully_qualified_except_typing
+    fully_qualified_except_typing = enum.auto()
     """Same as :attr:`fully_qualified` but do not show module name for ``typing`` members.
 
     This mode is mutually exclusive with :attr:`smart` and :attr:`fully_qualified`.
     """
 
     # extra bit flags
-    short_literal = _Mode.short_literal
+    short_literal = enum.auto()
     """Use PEP 604 style to render literals."""
 
     smart_short_literal = smart | short_literal
@@ -280,14 +267,6 @@ class RenderMode(enum.IntFlag):
         fully_qualified_except_typing | short_literal
     )
     """Apply PEP 604 style to :attr:`fully_qualified_except_typing`."""
-
-    @classmethod
-    def _missing_(cls, value: object) -> Any:
-        # As soon as Python 3.11 becomes the minimal version, remove
-        # the ``_Mode`` enumeration and use the STRICT boundary instead.
-        if value not in _VALID_RENDER_MODE_COMBINATIONS:
-            raise ValueError('%r is not a valid %s' % (value, cls.__qualname__))
-        return super()._missing_(value)
 
 
 if TYPE_CHECKING:
