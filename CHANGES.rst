@@ -91,6 +91,9 @@ Features added
 * #12507: Add the :ref:`collapsible <collapsible-admonitions>` option
   to admonition directives.
   Patch by Chris Sewell.
+* #8191, #8159: Add :rst:dir:`inheritance-diagram:include-subclasses` option to
+  the :rst:dir:`inheritance-diagram` directive.
+  Patch by Walter Dörwald.
 
 Bugs fixed
 ----------
