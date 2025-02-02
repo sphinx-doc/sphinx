@@ -52,7 +52,7 @@ from sphinx.ext.graphviz import (
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Collection, Iterable, Iterator, Sequence, Set
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Node
@@ -106,7 +106,7 @@ def try_import(objname: str) -> Any:
             return None
 
 
-def import_classes(name: str, currmodule: str) -> Any:
+def import_classes(name: str, currmodule: str) -> list[type[Any]]:
     """Import a class using its fully-qualified *name*."""
     target = None
 
@@ -156,7 +156,8 @@ class InheritanceGraph:
         private_bases: bool = False,
         parts: int = 0,
         aliases: dict[str, str] | None = None,
-        top_classes: Sequence[Any] = (),
+        top_classes: Set[str] = frozenset(),
+        include_subclasses: bool = False,
     ) -> None:
         """*class_names* is a list of child classes to show bases from.
 
@@ -164,7 +165,12 @@ class InheritanceGraph:
         in the graph.
         """
         self.class_names = class_names
-        classes = self._import_classes(class_names, currmodule)
+        classes: Collection[type[Any]] = self._import_classes(class_names, currmodule)
+        if include_subclasses:
+            classes_set = {*classes}
+            for cls in tuple(classes_set):
+                classes_set.update(_subclasses(cls))
+            classes = classes_set
         self.class_info = self._class_info(
             classes, show_builtins, private_bases, parts, aliases, top_classes
         )
@@ -172,21 +178,23 @@ class InheritanceGraph:
             msg = 'No classes found for inheritance diagram'
             raise InheritanceException(msg)
 
-    def _import_classes(self, class_names: list[str], currmodule: str) -> list[Any]:
+    def _import_classes(
+        self, class_names: list[str], currmodule: str
+    ) -> Sequence[type[Any]]:
         """Import a list of classes."""
-        classes: list[Any] = []
+        classes: list[type[Any]] = []
         for name in class_names:
             classes.extend(import_classes(name, currmodule))
         return classes
 
     def _class_info(
         self,
-        classes: list[Any],
+        classes: Collection[type[Any]],
         show_builtins: bool,
         private_bases: bool,
         parts: int,
         aliases: dict[str, str] | None,
-        top_classes: Sequence[Any],
+        top_classes: Set[str],
     ) -> list[tuple[str, str, Sequence[str], str | None]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
@@ -205,7 +213,7 @@ class InheritanceGraph:
         """
         all_classes = {}
 
-        def recurse(cls: Any) -> None:
+        def recurse(cls: type[Any]) -> None:
             if not show_builtins and cls in PY_BUILTINS:
                 return
             if not private_bases and cls.__name__.startswith('_'):
@@ -248,7 +256,7 @@ class InheritanceGraph:
         ]
 
     def class_name(
-        self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None
+        self, cls: type[Any], parts: int = 0, aliases: dict[str, str] | None = None
     ) -> str:
         """Given a class object, return a fully-qualified name.
 
@@ -377,6 +385,7 @@ class InheritanceDiagram(SphinxDirective):
         'private-bases': directives.flag,
         'caption': directives.unchanged,
         'top-classes': directives.unchanged_required,
+        'include-subclasses': directives.flag,
     }
 
     def run(self) -> list[Node]:
@@ -387,11 +396,11 @@ class InheritanceDiagram(SphinxDirective):
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
         node['content'] = ', '.join(class_names)
-        node['top-classes'] = []
-        for cls in self.options.get('top-classes', '').split(','):
-            cls = cls.strip()
-            if cls:
-                node['top-classes'].append(cls)
+        node['top-classes'] = frozenset({
+            cls_stripped
+            for cls in self.options.get('top-classes', '').split(',')
+            if (cls_stripped := cls.strip())
+        })
 
         # Create a graph starting with the list of classes
         try:
@@ -402,6 +411,7 @@ class InheritanceDiagram(SphinxDirective):
                 private_bases='private-bases' in self.options,
                 aliases=self.config.inheritance_alias,
                 top_classes=node['top-classes'],
+                include_subclasses='include-subclasses' in self.options,
             )
         except InheritanceException as err:
             return [node.document.reporter.warning(err, line=self.lineno)]
@@ -426,6 +436,12 @@ class InheritanceDiagram(SphinxDirective):
             figure = figure_wrapper(self, node, self.options['caption'])
             self.add_name(figure)
             return [figure]
+
+
+def _subclasses(cls: type[Any]) -> Iterator[type[Any]]:
+    yield cls
+    for sub_cls in cls.__subclasses__():
+        yield from _subclasses(sub_cls)
 
 
 def get_graph_hash(node: inheritance_diagram) -> str:
