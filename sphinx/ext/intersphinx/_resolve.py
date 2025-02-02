@@ -370,7 +370,8 @@ class IntersphinxRole(SphinxRole):
         if not self_referential:
             if inventory and not inventory_exists(self.env, inventory):
                 self._emit_warning(
-                    __('inventory for external cross-reference not found: %r'), inventory
+                    __('inventory for external cross-reference not found: %r'),
+                    inventory,
                 )
                 return [], []
 
