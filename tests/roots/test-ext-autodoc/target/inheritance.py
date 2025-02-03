@@ -19,6 +19,7 @@ class AnotherBase:
     def another_inheritedmeth(self):
         """Another inherited function."""
 
+
 class Derived(Base, AnotherBase):
     def inheritedmeth(self):
         # no docstring here
