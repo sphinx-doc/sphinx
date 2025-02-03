@@ -388,6 +388,8 @@ def stringify_annotation(
     annotation: Any,
     /,
     mode: _StringifyMode = 'fully-qualified-except-typing',
+    *,
+    short_literals: bool = False,
 ) -> str:
     """Stringify type annotation object.
 
@@ -401,6 +403,8 @@ def stringify_annotation(
                      Show the name of the annotation.
                  'fully-qualified'
                      Show the module name and qualified name of the annotation.
+
+    :param short_literals: Render :py:class:`Literals` in PEP 604 style (``|``).
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
 
@@ -462,7 +466,10 @@ def stringify_annotation(
         if not args:  # Empty tuple, list, ...
             return repr(annotation)
 
-        concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
+        concatenated_args = ', '.join(
+            stringify_annotation(arg, mode=mode, short_literals=short_literals)
+            for arg in args
+        )
         return f'{annotation_qualname}[{concatenated_args}]'
     else:
         # add other special cases that can be directly formatted
@@ -496,13 +503,16 @@ def stringify_annotation(
                 # of ``typing`` and all of them define ``__origin__``
                 qualname = stringify_annotation(
                     annotation.__origin__,
-                    'fully-qualified-except-typing',
+                    mode='fully-qualified-except-typing',
+                    short_literals=short_literals,
                 ).replace('typing.', '')  # ex. Union
     elif annotation_qualname:
         qualname = annotation_qualname
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
-        qualname = stringify_annotation(annotation.__origin__, mode)
+        qualname = stringify_annotation(
+            annotation.__origin__, mode=mode, short_literals=short_literals
+        )
     elif isinstance(annotation, types.UnionType):
         qualname = 'types.UnionType'
     else:
@@ -525,33 +535,49 @@ def stringify_annotation(
             )
             return f'{module_prefix}Literal[{args}]'
         if qualname in {'Optional', 'Union', 'types.UnionType'}:
-            return ' | '.join(stringify_annotation(a, mode) for a in annotation_args)
+            return ' | '.join(
+                stringify_annotation(a, mode=mode, short_literals=short_literals)
+                for a in annotation_args
+            )
         elif qualname == 'Callable':
             args = ', '.join(
-                stringify_annotation(a, mode) for a in annotation_args[:-1]
+                stringify_annotation(a, mode=mode, short_literals=short_literals)
+                for a in annotation_args[:-1]
             )
-            returns = stringify_annotation(annotation_args[-1], mode)
+            returns = stringify_annotation(
+                annotation_args[-1], mode=mode, short_literals=short_literals
+            )
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
+            if short_literals:
+                return ' | '.join(
+                    _format_literal_arg_stringify(a, mode=mode) for a in annotation_args
+                )
             args = ', '.join(
                 _format_literal_arg_stringify(a, mode=mode) for a in annotation_args
             )
             return f'{module_prefix}Literal[{args}]'
         elif _is_annotated_form(annotation):  # for py310+
-            args = stringify_annotation(annotation_args[0], mode)
+            args = stringify_annotation(
+                annotation_args[0], mode=mode, short_literals=short_literals
+            )
             meta_args = []
             for m in annotation.__metadata__:
                 if isinstance(m, type):
-                    meta_args.append(stringify_annotation(m, mode))
+                    meta_args.append(
+                        stringify_annotation(
+                            m, mode=mode, short_literals=short_literals
+                        )
+                    )
                 elif dataclasses.is_dataclass(m):
                     # use stringify_annotation for the repr of field values rather than repr
                     d_fields = ', '.join([
-                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode)}'
+                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode=mode, short_literals=short_literals)}'  # NoQA: E501
                         for f in dataclasses.fields(m)
                         if f.repr
                     ])
                     meta_args.append(
-                        f'{stringify_annotation(type(m), mode)}({d_fields})'
+                        f'{stringify_annotation(type(m), mode=mode, short_literals=short_literals)}({d_fields})'  # NoQA: E501
                     )
                 else:
                     meta_args.append(repr(m))
@@ -566,7 +592,10 @@ def stringify_annotation(
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
             return module_prefix + qualname
         else:
-            args = ', '.join(stringify_annotation(a, mode) for a in annotation_args)
+            args = ', '.join(
+                stringify_annotation(a, mode=mode, short_literals=short_literals)
+                for a in annotation_args
+            )
             return f'{module_prefix}{qualname}[{args}]'
 
     return module_prefix + qualname

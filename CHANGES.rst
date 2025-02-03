@@ -94,6 +94,13 @@ Features added
 * #8191, #8159: Add :rst:dir:`inheritance-diagram:include-subclasses` option to
   the :rst:dir:`inheritance-diagram` directive.
   Patch by Walter Dörwald.
+* #11995: autodoc: Add support for :confval:`python_display_short_literal_types`.
+  Patch by Bénédikt Tran and Adam Turner.
+* #13163: Always print the full context when Sphinx encounters an internal error.
+  Patch by Kevin Deldycke and Adam Turner.
+* #13105: Introduce the :rst:role:`py:deco` role to cross-reference decorator
+  functions and methods in the Python domain.
+  Patch by Adam Turner.
 * #9169: Add the :confval:`intersphinx_resolve_self` option
   to resolve an intersphinx reference to the current project.
   Patch by Jakob Lykke Andersen and Adam Turner.
@@ -130,6 +137,8 @@ Bugs fixed
 * #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
 * #13178: autodoc: Fix resolution for ``pathlib`` types.
   Patch by Adam Turner.
+* #13136: autodoc: Correctly handle multiple inheritance.
+  Patch by Pavel Holica
 
 Testing
 -------

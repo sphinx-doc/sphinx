@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence, Set
     from typing import Any, ClassVar
 
-    from docutils.nodes import Element, Node
+    from docutils.nodes import Element, Node, TextElement
 
     from sphinx.addnodes import desc_signature, pending_xref
     from sphinx.application import Sphinx
@@ -592,6 +592,27 @@ class PyXRefRole(XRefRole):
         return title, target
 
 
+class _PyDecoXRefRole(PyXRefRole):
+    def __init__(
+        self,
+        fix_parens: bool = False,
+        lowercase: bool = False,
+        nodeclass: type[Element] | None = None,
+        innernodeclass: type[TextElement] | None = None,
+        warn_dangling: bool = False,
+    ) -> None:
+        super().__init__(
+            fix_parens=True,
+            lowercase=lowercase,
+            nodeclass=nodeclass,
+            innernodeclass=innernodeclass,
+            warn_dangling=warn_dangling,
+        )
+
+    def update_title_and_target(self, title: str, target: str) -> tuple[str, str]:
+        return f'@{title}', target
+
+
 def filter_meta_fields(
     app: Sphinx, domain: str, objtype: str, content: Element
 ) -> None:
@@ -748,6 +769,7 @@ class PythonDomain(Domain):
         'data': PyXRefRole(),
         'exc': PyXRefRole(),
         'func': PyXRefRole(fix_parens=True),
+        'deco': _PyDecoXRefRole(),
         'class': PyXRefRole(),
         'const': PyXRefRole(),
         'attr': PyXRefRole(),
