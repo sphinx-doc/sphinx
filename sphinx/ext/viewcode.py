@@ -2,19 +2,17 @@
 
 from __future__ import annotations
 
+import importlib.util
 import operator
-import os.path
 import posixpath
 import traceback
-from importlib import import_module
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 
 import sphinx
 from sphinx import addnodes
-from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.transforms.post_transforms import SphinxPostTransform
@@ -24,10 +22,14 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterator, Set
+    from typing import Any
+
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
+    from sphinx.builders.html import StandaloneHTMLBuilder
     from sphinx.environment import BuildEnvironment
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
@@ -48,12 +50,30 @@ class viewcode_anchor(Element):
 
 
 def _get_full_modname(modname: str, attribute: str) -> str | None:
+    if modname is None:
+        # Prevents a TypeError: if the last getattr() call will return None
+        # then it's better to return it directly
+        return None
+
     try:
-        if modname is None:
-            # Prevents a TypeError: if the last getattr() call will return None
-            # then it's better to return it directly
+        # Attempt to find full path of module
+        module_path = modname.split('.')
+        num_parts = len(module_path)
+        for i in range(num_parts, 0, -1):
+            mod_root = '.'.join(module_path[:i])
+            module_spec = importlib.util.find_spec(mod_root)
+            if module_spec is not None:
+                break
+        else:
             return None
-        module = import_module(modname)
+        # Load and execute the module
+        module = importlib.util.module_from_spec(module_spec)
+        if module_spec.loader is None:
+            return None
+        module_spec.loader.exec_module(module)
+        if i != num_parts:
+            for mod in module_path[i:]:
+                module = getattr(module, mod)
 
         # Allow an attribute to have multiple parts and incidentally allow
         # repeated .s in the attribute.
@@ -65,8 +85,8 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
         return getattr(value, '__module__', None)
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
-        # then AttributeError logging output only verbose mode.
-        logger.verbose("Didn't find %s in %s", attribute, modname)
+        # then AttributeError logging output only debug mode.
+        logger.debug("Didn't find %s in %s", attribute, modname)
         return None
     except Exception as e:
         # sphinx.ext.viewcode follow python domain directives.
@@ -79,15 +99,15 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
 
 
 def is_supported_builder(builder: Builder) -> bool:
-    if builder.format != 'html':
-        return False
-    if builder.name == 'singlehtml':
-        return False
-    return not (builder.name.startswith('epub') and not builder.config.viewcode_enable_epub)
+    return (
+        builder.format == 'html'
+        and builder.name != 'singlehtml'
+        and (not builder.name.startswith('epub') or builder.config.viewcode_enable_epub)
+    )
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
-    env = app.builder.env
+    env = app.env
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore[attr-defined]
 
@@ -132,7 +152,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             refname = modname
             if env.config.viewcode_follow_imported_members:
                 new_modname = app.emit_firstresult(
-                    'viewcode-follow-imported', modname, fullname,
+                    'viewcode-follow-imported', modname, fullname
                 )
                 if not new_modname:
                     new_modname = _get_full_modname(modname, fullname)
@@ -147,11 +167,14 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                 continue
             names.add(fullname)
             pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
-            signode += viewcode_anchor(reftarget=pagename, refid=fullname, refdoc=env.docname)
+            signode += viewcode_anchor(
+                reftarget=pagename, refid=fullname, refdoc=env.docname
+            )
 
 
-def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
-                   other: BuildEnvironment) -> None:
+def env_merge_info(
+    app: Sphinx, env: BuildEnvironment, docnames: Set[str], other: BuildEnvironment
+) -> None:
     if not hasattr(other, '_viewcode_modules'):
         return
     # create a _viewcode_modules dict on the main environment
@@ -199,8 +222,13 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
     def convert_viewcode_anchors(self) -> None:
         for node in self.document.findall(viewcode_anchor):
             anchor = nodes.inline('', _('[source]'), classes=['viewcode-link'])
-            refnode = make_refnode(self.app.builder, node['refdoc'], node['reftarget'],
-                                   node['refid'], anchor)
+            refnode = make_refnode(
+                self.app.builder,
+                node['refdoc'],
+                node['reftarget'],
+                node['refid'],
+                anchor,
+            )
             node.replace_self(refnode)
 
     def remove_viewcode_anchors(self) -> None:
@@ -228,9 +256,9 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
         # Always (re-)generate module page when module filename is not found.
         return True
 
-    builder = cast(StandaloneHTMLBuilder, app.builder)
+    builder = cast('StandaloneHTMLBuilder', app.builder)
     basename = modname.replace('.', '/') + builder.out_suffix
-    page_filename = os.path.join(app.outdir, '_modules/', basename)
+    page_filename = app.outdir / '_modules' / basename
 
     try:
         if _last_modified_time(module_filename) <= _last_modified_time(page_filename):
@@ -243,7 +271,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
 
 
 def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
-    env = app.builder.env
+    env = app.env
     if not hasattr(env, '_viewcode_modules'):
         return
     if not is_supported_builder(app.builder):
@@ -254,10 +282,13 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
     modnames = set(env._viewcode_modules)
 
     for modname, entry in status_iterator(
-            sorted(env._viewcode_modules.items()),
-            __('highlighting module code... '), "blue",
-            len(env._viewcode_modules),
-            app.verbosity, operator.itemgetter(0)):
+        sorted(env._viewcode_modules.items()),
+        __('highlighting module code... '),
+        'blue',
+        len(env._viewcode_modules),
+        app.verbosity,
+        operator.itemgetter(0),
+    ):
         if not entry:
             continue
         if not should_generate_module_page(app, modname):
@@ -287,9 +318,11 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
         for name, docname in used.items():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
-            lines[start] = (f'<div class="viewcode-block" id="{name}">\n'
-                            f'<a class="viewcode-back" href="{backlink}">{link_text}</a>\n'
-                            + lines[start])
+            lines[start] = (
+                f'<div class="viewcode-block" id="{name}">\n'
+                f'<a class="viewcode-back" href="{backlink}">{link_text}</a>\n'
+                + lines[start]
+            )
             lines[min(end, max_index)] += '</div>\n'
 
         # try to find parents (for submodules)
@@ -299,18 +332,22 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
             parent = parent.rsplit('.', 1)[0]
             if parent in modnames:
                 parents.append({
-                    'link': urito(pagename,
-                                  posixpath.join(OUTPUT_DIRNAME, parent.replace('.', '/'))),
-                    'title': parent})
-        parents.append({'link': urito(pagename, posixpath.join(OUTPUT_DIRNAME, 'index')),
-                        'title': _('Module code')})
+                    'link': urito(
+                        pagename,
+                        posixpath.join(OUTPUT_DIRNAME, parent.replace('.', '/')),
+                    ),
+                    'title': parent,
+                })
+        parents.append({
+            'link': urito(pagename, posixpath.join(OUTPUT_DIRNAME, 'index')),
+            'title': _('Module code'),
+        })
         parents.reverse()
         # putting it all together
         context = {
             'parents': parents,
             'title': modname,
-            'body': (_('<h1>Source code for %s</h1>') % modname +
-                     '\n'.join(lines)),
+            'body': (_('<h1>Source code for %s</h1>') % modname + '\n'.join(lines)),
         }
         yield pagename, context, 'page.html'
 
@@ -330,14 +367,15 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
                 stack.pop()
                 html.append('</ul>')
             stack.append(modname + '.')
-        relative_uri = urito(posixpath.join(OUTPUT_DIRNAME, 'index'),
-                             posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/')))
+        relative_uri = urito(
+            posixpath.join(OUTPUT_DIRNAME, 'index'),
+            posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/')),
+        )
         html.append(f'<li><a href="{relative_uri}">{modname}</a></li>\n')
     html.append('</ul>' * (len(stack) - 1))
     context = {
         'title': _('Overview: module code'),
-        'body': (_('<h1>All modules for which code is available</h1>') +
-                 ''.join(html)),
+        'body': (_('<h1>All modules for which code is available</h1>') + ''.join(html)),
     }
 
     yield posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html'
@@ -347,7 +385,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('viewcode_import', None, '')
     app.add_config_value('viewcode_enable_epub', False, '')
     app.add_config_value('viewcode_follow_imported_members', True, '')
-    app.add_config_value('viewcode_line_numbers', False, 'env', bool)
+    app.add_config_value('viewcode_line_numbers', False, 'env', types=frozenset({bool}))
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)

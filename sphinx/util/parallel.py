@@ -6,7 +6,7 @@ import os
 import time
 import traceback
 from math import sqrt
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 try:
     import multiprocessing
@@ -20,6 +20,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -34,12 +35,15 @@ class SerialTasks:
         pass
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
+        self,
+        task_func: Callable[[Any], Any] | Callable[[], Any],
+        arg: Any = None,
+        result_func: Callable[[Any], Any] | None = None,
     ) -> None:
         if arg is not None:
-            res = task_func(arg)
+            res = task_func(arg)  # type: ignore[call-arg]
         else:
-            res = task_func()
+            res = task_func()  # type: ignore[call-arg]
         if result_func:
             result_func(res)
 
@@ -53,7 +57,7 @@ class ParallelTasks:
     def __init__(self, nproc: int) -> None:
         self.nproc = nproc
         # (optional) function performed by each task on the result of main task
-        self._result_funcs: dict[int, Callable] = {}
+        self._result_funcs: dict[int, Callable[[Any, Any], Any]] = {}
         # task arguments
         self._args: dict[int, list[Any] | None] = {}
         # list of subprocesses (both started and waiting)
@@ -61,20 +65,22 @@ class ParallelTasks:
         # list of receiving pipe connections of running subprocesses
         self._precvs: dict[int, Any] = {}
         # list of receiving pipe connections of waiting subprocesses
-        self._precvsWaiting: dict[int, Any] = {}
+        self._precvs_waiting: dict[int, Any] = {}
         # number of working subprocesses
         self._pworking = 0
         # task number of each subprocess
         self._taskid = 0
 
-    def _process(self, pipe: Any, func: Callable, arg: Any) -> None:
+    def _process(
+        self, pipe: Any, func: Callable[[Any], Any] | Callable[[], Any], arg: Any
+    ) -> None:
         try:
             collector = logging.LogCollector()
             with collector.collect():
                 if arg is None:
-                    ret = func()
+                    ret = func()  # type: ignore[call-arg]
                 else:
-                    ret = func(arg)
+                    ret = func(arg)  # type: ignore[call-arg]
             failed = False
         except BaseException as err:
             failed = True
@@ -84,7 +90,10 @@ class ParallelTasks:
         pipe.send((failed, collector.logs, ret))
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
+        self,
+        task_func: Callable[[Any], Any] | Callable[[], Any],
+        arg: Any = None,
+        result_func: Callable[[Any, Any], Any] | None = None,
     ) -> None:
         tid = self._taskid
         self._taskid += 1
@@ -94,7 +103,7 @@ class ParallelTasks:
         context: Any = multiprocessing.get_context('fork')
         proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
-        self._precvsWaiting[tid] = precv
+        self._precvs_waiting[tid] = precv
         try:
             self._join_one()
         except Exception:
@@ -135,8 +144,8 @@ class ParallelTasks:
                 joined_any = True
                 break
 
-        while self._precvsWaiting and self._pworking < self.nproc:
-            newtid, newprecv = self._precvsWaiting.popitem()
+        while self._precvs_waiting and self._pworking < self.nproc:
+            newtid, newprecv = self._precvs_waiting.popitem()
             self._precvs[newtid] = newprecv
             self._procs[newtid].start()
             self._pworking += 1

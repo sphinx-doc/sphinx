@@ -6,9 +6,8 @@ import math
 import os
 import re
 import textwrap
-from collections.abc import Iterable, Iterator, Sequence
 from itertools import chain, groupby, pairwise
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -18,6 +17,9 @@ from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+    from typing import Any, ClassVar
+
     from docutils.nodes import Element, Text
 
     from sphinx.builders.text import TextBuilder
@@ -381,7 +383,7 @@ class TextWriter(writers.Writer):  # type: ignore[type-arg]
         assert isinstance(self.document, nodes.document)
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
-        self.output = cast(TextTranslator, visitor).body
+        self.output = cast('TextTranslator', visitor).body
 
 
 class TextTranslator(SphinxTranslator):
@@ -646,6 +648,7 @@ class TextTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = ', '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.param_separator = self.param_separator.rstrip()
         self.context.append(sig_close_paren)
@@ -697,7 +700,8 @@ class TextTranslator(SphinxTranslator):
                 or is_required
                 and (is_last_group or next_is_required)
             ):
-                self.add_text(self.param_separator)
+                if not is_last_group or opt_param_left_at_level or self.trailing_comma:
+                    self.add_text(self.param_separator)
                 self.end_state(wrap=False, end=None)
 
         elif self.required_params_left:
@@ -738,20 +742,27 @@ class TextTranslator(SphinxTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
             # If it's the first time we go down one level, add the separator before the
-            # bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.add_text(self.param_separator)
             self.add_text(']')
             # End the line if we have just closed the last bracket of this group of
             # optional parameters.
-            if self.optional_param_level == 0:
+            if level == 0:
                 self.end_state(wrap=False, end=None)
 
         else:
             self.add_text(']')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
@@ -776,7 +787,7 @@ class TextTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.new_state()
-        productionlist = cast(Iterable[addnodes.production], node)
+        productionlist = cast('Iterable[addnodes.production]', node)
         names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
@@ -791,7 +802,7 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_footnote(self, node: Element) -> None:
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         self._footnote = label.astext().strip()
         self.new_state(len(self._footnote) + 3)
 
@@ -923,8 +934,8 @@ class TextTranslator(SphinxTranslator):
         self.end_state(wrap=False)
 
     def visit_acks(self, node: Element) -> None:
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.new_state(0)
         self.add_text(', '.join(n.astext() for n in list_items) + '.')
         self.end_state()
@@ -1316,14 +1327,14 @@ class TextTranslator(SphinxTranslator):
             self.end_state(wrap=False)
         raise nodes.SkipNode
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         pass
 
-    def depart_math(self, node: Element) -> None:
+    def depart_math(self, node: nodes.math) -> None:
         pass
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         self.new_state()
 
-    def depart_math_block(self, node: Element) -> None:
+    def depart_math_block(self, node: nodes.math_block) -> None:
         self.end_state()

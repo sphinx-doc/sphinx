@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.builders import Builder
 
 
@@ -16,10 +18,11 @@ class XMLWriter(BaseXMLWriter):  # type: ignore[misc]
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
+        self._config = builder.config
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
         self.document.settings.newlines = self.document.settings.indents = (
-            self.builder.env.config.xml_pretty
+            self._config.xml_pretty
         )
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True

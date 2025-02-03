@@ -1,5 +1,7 @@
 """Test sphinx.extension module."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.errors import VersionRequirementError

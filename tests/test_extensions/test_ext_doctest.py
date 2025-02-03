@@ -1,5 +1,7 @@
 """Test the doctest extension."""
 
+from __future__ import annotations
+
 import os
 from collections import Counter
 
@@ -73,7 +75,7 @@ def cleanup_call():
     cleanup_called += 1
 
 
-recorded_calls = Counter()
+recorded_calls: Counter[tuple[str, str, int]] = Counter()
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
@@ -120,7 +122,7 @@ def test_skipif(app):
 
 
 def record(directive, part, should_skip):
-    recorded_calls[(directive, part, should_skip)] += 1
+    recorded_calls[directive, part, should_skip] += 1
     return f'Recorded {directive} {part} {should_skip}'
 
 

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import contextlib
 import json
-import os.path
 import re
 import socket
 import time
@@ -16,15 +15,20 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
-from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
+from requests.exceptions import (
+    ConnectionError,  # NoQA: A004
+    HTTPError,
+    SSLError,
+    TooManyRedirects,
+)
 from requests.exceptions import Timeout as RequestTimeout
 
+from sphinx._cli.util.colour import darkgray, darkgreen, purple, red, turquoise
 from sphinx.builders.dummy import DummyBuilder
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging, requests
 from sphinx.util._uri import encode_uri
-from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise
 from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
@@ -67,9 +71,7 @@ DEFAULT_DELAY = 60.0
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
-    """
-    Checks for broken external links.
-    """
+    """Checks for broken external links."""
 
     name = 'linkcheck'
     epilog = __('Look for any errors in the above output or in %(outdir)s/output.txt')
@@ -85,8 +87,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
         checker = HyperlinkAvailabilityChecker(self.config)
         logger.info('')
 
-        output_text = os.path.join(self.outdir, 'output.txt')
-        output_json = os.path.join(self.outdir, 'output.json')
+        output_text = self.outdir / 'output.txt'
+        output_json = self.outdir / 'output.json'
         with (
             open(output_text, 'w', encoding='utf-8') as self.txt_outfile,
             open(output_json, 'w', encoding='utf-8') as self.json_outfile,
@@ -99,13 +101,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
+        res_uri = result.uri
 
         linkstat: dict[str, str | int | _Status] = {
             'filename': str(filename),
             'lineno': result.lineno,
             'status': result.status,
             'code': result.code,
-            'uri': result.uri,
+            'uri': res_uri,
             'info': result.message,
         }
         self.write_linkstat(linkstat)
@@ -119,71 +122,75 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 pass
             case _Status.IGNORED:
                 if result.message:
-                    msg = f'{result.uri}: {result.message}'
+                    msg = f'{res_uri}: {result.message}'
                 else:
-                    msg = result.uri
-                logger.info(darkgray('-ignored- ') + msg)
+                    msg = res_uri
+                logger.info(darkgray('-ignored- ') + msg)  # NoQA: G003
             case _Status.WORKING:
-                logger.info(darkgreen('ok        ') + f'{result.uri}{result.message}')
+                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # NoQA: G003
             case _Status.TIMEOUT:
                 if self.app.quiet:
-                    msg = 'timeout   ' + f'{result.uri}{result.message}'
+                    msg = 'timeout   ' + f'{res_uri}{result.message}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
-                    msg = red('timeout   ') + result.uri + red(f' - {result.message}')
+                    msg = red('timeout   ') + res_uri + red(f' - {result.message}')
                     logger.info(msg)
                 self.write_entry(
                     _Status.TIMEOUT,
                     result.docname,
                     filename,
                     result.lineno,
-                    f'{result.uri}: {result.message}',
+                    f'{res_uri}: {result.message}',
                 )
                 self.timed_out_hyperlinks += 1
             case _Status.BROKEN:
                 if self.app.quiet:
                     logger.warning(
                         __('broken link: %s (%s)'),
-                        result.uri,
+                        res_uri,
                         result.message,
                         location=(result.docname, result.lineno),
                     )
                 else:
-                    msg = red('broken    ') + result.uri + red(f' - {result.message}')
+                    msg = red('broken    ') + res_uri + red(f' - {result.message}')
                     logger.info(msg)
                 self.write_entry(
                     _Status.BROKEN,
                     result.docname,
                     filename,
                     result.lineno,
-                    f'{result.uri}: {result.message}',
+                    f'{res_uri}: {result.message}',
                 )
                 self.broken_hyperlinks += 1
             case _Status.REDIRECTED:
-                try:
-                    text, color = {
-                        301: ('permanently', purple),
-                        302: ('with Found', purple),
-                        303: ('with See Other', purple),
-                        307: ('temporarily', turquoise),
-                        308: ('permanently', purple),
-                    }[result.code]
-                except KeyError:
-                    text, color = ('with unknown code', purple)
+                match result.code:
+                    case 301:
+                        text = 'permanently'
+                    case 302:
+                        text = 'with Found'
+                    case 303:
+                        text = 'with See Other'
+                    case 307:
+                        text = 'temporarily'
+                    case 308:
+                        text = 'permanently'
+                    case _:
+                        text = 'with unknown code'
                 linkstat['text'] = text
                 redirection = f'{text} to {result.message}'
                 if self.config.linkcheck_allowed_redirects:
-                    msg = f'redirect  {result.uri} - {redirection}'
+                    msg = f'redirect  {res_uri} - {redirection}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
-                    msg = color('redirect  ') + result.uri + color(' - ' + redirection)
+                    colour = turquoise if result.code == 307 else purple
+                    msg = colour('redirect  ') + res_uri + colour(f' - {redirection}')
                     logger.info(msg)
                 self.write_entry(
                     f'redirected {text}',
                     result.docname,
                     filename,
                     result.lineno,
-                    f'{result.uri} to {result.message}',
+                    f'{res_uri} to {result.message}',
                 )
             case _Status.UNKNOWN:
                 msg = 'Unknown status.'
@@ -251,7 +258,7 @@ class HyperlinkCollector(SphinxPostTransform):
         :param uri: URI to add
         :param node: A node class where the URI was found
         """
-        builder = cast(CheckExternalLinksBuilder, self.app.builder)
+        builder = cast('CheckExternalLinksBuilder', self.app.builder)
         hyperlinks = builder.hyperlinks
         docname = self.env.docname
 
@@ -393,7 +400,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
 
-        self._session = requests._Session()
+        self._session = requests._Session(
+            _ignored_redirects=tuple(map(re.compile, config.linkcheck_ignore))
+        )
 
         super().__init__(daemon=True)
 
@@ -426,7 +435,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             status, info, code = self._check(docname, uri, hyperlink)
             if status == _Status.RATE_LIMITED:
                 logger.info(
-                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')
+                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')  # NoQA: G003
                 )
             else:
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
@@ -450,8 +459,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Non-supported URI schemes (ex. ftp)
                 return _Status.UNCHECKED, '', 0
 
-            src_dir = os.path.dirname(hyperlink.docpath)
-            if os.path.exists(os.path.join(src_dir, uri)):
+            if (hyperlink.docpath.parent / uri).exists():
                 return _Status.WORKING, '', 0
             return _Status.BROKEN, '', 0
 
@@ -545,7 +553,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 status_code = response.status_code
                 redirect_status_code = (
                     response.history[-1].status_code if response.history else None
-                )  # NoQA: E501
+                )
                 retry_after = response.headers.get('Retry-After', '')
                 response_url = f'{response.url}'
                 response.raise_for_status()
@@ -564,6 +572,14 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # ConnectionError.
                 error_message = str(err)
                 continue
+
+            except requests._IgnoredRedirection as err:
+                # A redirection to an ignored URI was attempted; report it appropriately
+                return (
+                    _Status.IGNORED,
+                    f'ignored redirect: {err.destination}',
+                    err.status_code,
+                )
 
             except HTTPError as err:
                 error_message = str(err)
@@ -758,16 +774,22 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('linkcheck_auth', [], '')
     app.add_config_value('linkcheck_request_headers', {}, '')
     app.add_config_value('linkcheck_retries', 1, '')
-    app.add_config_value('linkcheck_timeout', 30, '', (int, float))
+    app.add_config_value('linkcheck_timeout', 30, '', types=frozenset({int, float}))
     app.add_config_value('linkcheck_workers', 5, '')
     app.add_config_value('linkcheck_anchors', True, '')
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
-    app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
-    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
+    app.add_config_value(
+        'linkcheck_anchors_ignore_for_url', (), '', types=frozenset({tuple, list})
+    )
+    app.add_config_value(
+        'linkcheck_rate_limit_timeout', 300.0, '', types=frozenset({int, float})
+    )
     app.add_config_value('linkcheck_allow_unauthorized', False, '')
-    app.add_config_value('linkcheck_report_timeouts_as_broken', False, '', bool)
+    app.add_config_value(
+        'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
+    )
 
     app.add_event('linkcheck-process-uri')
 

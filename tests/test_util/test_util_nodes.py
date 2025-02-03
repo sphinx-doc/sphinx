@@ -161,8 +161,7 @@ def test_extract_messages(rst, node_cls, count):
 
 
 def test_extract_messages_without_rawsource():
-    """
-    Check node.rawsource is fall-backed by using node.astext() value.
+    """Check node.rawsource is fall-backed by using node.astext() value.
 
     `extract_message` which is used from Sphinx i18n feature drop ``not node.rawsource``
     nodes. So, all nodes which want to translate must have ``rawsource`` value.
@@ -180,7 +179,7 @@ def test_extract_messages_without_rawsource():
     document.append(p)
     _transform(document)
     assert_node_count(extract_messages(document), nodes.TextElement, 1)
-    assert [m for n, m in extract_messages(document)][0], 'text sentence'
+    assert next(m for n, m in extract_messages(document)), 'text sentence'
 
 
 def test_clean_astext():

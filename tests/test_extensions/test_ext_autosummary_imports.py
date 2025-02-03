@@ -1,5 +1,7 @@
 """Test autosummary for import cycles."""
 
+from __future__ import annotations
+
 import pytest
 from docutils import nodes
 
@@ -57,7 +59,11 @@ def test_autosummary_import_cycle(app):
     assert expected in app.warning.getvalue()
 
 
-@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_prefix')
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='ext-autosummary-module_prefix',
+    copy_test_root=True,
+)
 @pytest.mark.usefixtures('rollback_sysmodules')
 def test_autosummary_generate_prefixes(app):
     app.build()

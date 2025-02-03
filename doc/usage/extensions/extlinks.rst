@@ -7,6 +7,9 @@
 
 .. versionadded:: 1.0
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension is meant to help with the common pattern of having many external
 links that point to URLs on one and the same site, e.g. links to bug trackers,
 version control web interfaces, or simply subpages in other websites.  It does
@@ -21,6 +24,8 @@ to avoid repeating yourself.
 The extension adds a config value:
 
 .. confval:: extlinks
+   :type: :code-py:`dict[str, tuple[str, str | None]]`
+   :default: :code-py:`{}`
 
    This config value must be a dictionary of external sites, mapping unique
    short alias names to a *base URL* and a *caption*.  For example, to create an
@@ -61,9 +66,10 @@ The extension adds a config value:
    ordinary links to e.g. the ``linkcheck`` builder.
 
 .. confval:: extlinks_detect_hardcoded_links
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    If enabled, extlinks emits a warning if a hardcoded link is replaceable
-   by an extlink, and suggests a replacement via warning.  It defaults to
-   ``False``.
+   by an extlink, and suggests a replacement via warning.
 
    .. versionadded:: 4.5

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import tokenize
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
@@ -13,6 +13,7 @@ from sphinx.util._pathlib import _StrPath
 if TYPE_CHECKING:
     import os
     from inspect import Signature
+    from typing import Any, Literal
 
 
 class ModuleAnalyzer:

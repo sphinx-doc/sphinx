@@ -14,6 +14,9 @@ Math support for HTML outputs in Sphinx
    Math support for non-HTML builders is integrated to sphinx-core.
    So mathbase extension is no longer needed.
 
+.. role:: code-py(code)
+   :language: Python
+
 Since mathematical notation isn't natively supported by HTML in any way, Sphinx
 gives a math support to HTML document with several extensions.  These use the
 reStructuredText math :rst:dir:`directive <math>` and :rst:role:`role <math>`.
@@ -34,13 +37,17 @@ There are various configuration values you can set to influence how the images
 are built:
 
 .. confval:: imgmath_image_format
+   :type: :code-py:`'png' | 'svg'`
+   :default: :code-py:`'png'`
 
-   The output image format. The default is ``'png'``. It should be either
+   The output image format. It should be either
    ``'png'`` or ``'svg'``. The image is produced by first executing ``latex``
    on the TeX mathematical mark-up then (depending on the requested format)
    either `dvipng`_ or `dvisvgm`_.
 
 .. confval:: imgmath_use_preview
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    ``dvipng`` and ``dvisvgm`` both have the ability to collect from LaTeX the
    "depth" of the rendered math: an inline image should use this "depth" in a
@@ -55,19 +62,24 @@ are built:
       This option can be used with the ``'svg'`` :confval:`imgmath_image_format`.
 
 .. confval:: imgmath_add_tooltips
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
-   Default: ``True``.  If false, do not add the LaTeX code as an "alt" attribute
-   for math images.
+   If false, do not add the LaTeX code as an "alt" attribute for math images.
 
 .. confval:: imgmath_font_size
+   :type: :code-py:`int`
+   :default: :code-py:`12`
 
-   The font size (in ``pt``) of the displayed math.  The default value is
-   ``12``.  It must be a positive integer.
+   The font size (in ``pt``) of the displayed math.
+   This must be a positive integer.
 
 .. confval:: imgmath_latex
+   :type: :code-py:`str`
+   :default: :code-py:`'latex'`
 
-   The command name with which to invoke LaTeX.  The default is ``'latex'``; you
-   may need to set this to a full path if ``latex`` is not in the executable
+   The command name with which to invoke LaTeX.
+   You may need to set this to a full path if ``latex`` is not in the executable
    search path.
 
    Since this setting is not portable from system to system, it is normally not
@@ -114,14 +126,17 @@ are built:
          ``latexmk`` with option ``-xelatex``.
 
 .. confval:: imgmath_latex_args
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`()`
 
-   Additional arguments to give to latex, as a list.  The default is an empty
-   list.
+   Additional arguments to give to latex, as a list.
 
 .. confval:: imgmath_latex_preamble
+   :type: :code-py:`str`
+   :default: :code-py:`''`
 
    Additional LaTeX code to put into the preamble of the LaTeX files used to
-   translate the math snippets.  This is left empty by default.  Use it
+   translate the math snippets.  Use it
    e.g. to add packages which modify the fonts used for math, such as
    ``'\\usepackage{newtxsf}'`` for sans-serif fonts, or
    ``'\\usepackage{fouriernc}'`` for serif fonts.  Indeed, the default LaTeX
@@ -129,38 +144,48 @@ are built:
    match well with the font for text.
 
 .. confval:: imgmath_dvipng
+   :type: :code-py:`str`
+   :default: :code-py:`'dvipng'`
 
-   The command name to invoke ``dvipng``.  The default is
-   ``'dvipng'``; you may need to set this to a full path if ``dvipng`` is not in
+   The command name to invoke ``dvipng``.
+   You may need to set this to a full path if ``dvipng`` is not in
    the executable search path. This option is only used when
    ``imgmath_image_format`` is set to ``'png'``.
 
 .. confval:: imgmath_dvipng_args
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`('-gamma', '1.5', '-D', '110', '-bg', 'Transparent')`
 
-   Additional arguments to give to dvipng, as a list.  The default value is
-   ``['-gamma', '1.5', '-D', '110', '-bg', 'Transparent']`` which makes the
-   image a bit darker and larger then it is by default (this compensates
+   Additional arguments to give to dvipng, as a list.
+   The default value makes the image a bit darker and larger
+   than it is by default (this compensates
    somewhat for the thinness of default LaTeX math fonts), and produces PNGs with a
    transparent background.  This option is used only when
    ``imgmath_image_format`` is ``'png'``.
 
 .. confval:: imgmath_dvisvgm
+   :type: :code-py:`str`
+   :default: :code-py:`'dvisvgm'`
 
-   The command name to invoke ``dvisvgm``.  The default is
-   ``'dvisvgm'``; you may need to set this to a full path if ``dvisvgm`` is not
+   The command name to invoke ``dvisvgm``.
+   You may need to set this to a full path if ``dvisvgm`` is not
    in the executable search path.  This option is only used when
    ``imgmath_image_format`` is ``'svg'``.
 
 .. confval:: imgmath_dvisvgm_args
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`('--no-fonts',)`
 
-   Additional arguments to give to dvisvgm, as a list. The default value is
-   ``['--no-fonts']``, which means that ``dvisvgm`` will render glyphs as path
+   Additional arguments to give to dvisvgm, as a list.
+   The default value means that ``dvisvgm`` will render glyphs as path
    elements (cf the `dvisvgm FAQ`_). This option is used only when
    ``imgmath_image_format`` is ``'svg'``.
 
 .. confval:: imgmath_embed
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
-   Default: ``False``.  If true, encode LaTeX output images within HTML files
+   If true, encode LaTeX output images within HTML files
    (base64 encoded) and do not save separate png/svg files to disk.
 
    .. versionadded:: 5.2
@@ -194,6 +219,8 @@ Sphinx but is set to automatically include it from a third-party site.
 
 
 .. confval:: mathjax_path
+   :type: :code-py:`str`
+   :default: :code-py:`'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'`
 
    The path to the JavaScript file to include in the HTML files in order to load
    MathJax.
@@ -219,6 +246,8 @@ Sphinx but is set to automatically include it from a third-party site.
    You can also give a full ``https://`` URL different from the CDN URL.
 
 .. confval:: mathjax_options
+   :type: :code-py:`dict[str, Any]`
+   :default: :code-py:`{}`
 
    The options to script tag for mathjax.  For example, you can set integrity
    option with following setting::
@@ -226,8 +255,6 @@ Sphinx but is set to automatically include it from a third-party site.
        mathjax_options = {
            'integrity': 'sha384-......',
        }
-
-   The default is empty (``{}``).
 
    .. versionadded:: 1.8
 
@@ -237,6 +264,8 @@ Sphinx but is set to automatically include it from a third-party site.
       or "defer" key is set.
 
 .. confval:: mathjax3_config
+   :type: :code-py:`dict[str, Any] | None`
+   :default: :code-py:`None`
 
    The configuration options for MathJax v3 (which is used by default).
    The given dictionary is assigned to the JavaScript variable
@@ -245,11 +274,11 @@ Sphinx but is set to automatically include it from a third-party site.
 
    __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
 
-   The default is empty (not configured).
-
    .. versionadded:: 4.0
 
 .. confval:: mathjax2_config
+   :type: :code-py:`dict[str, Any] | None`
+   :default: :code-py:`None`
 
    The configuration options for MathJax v2 (which can be loaded via
    :confval:`mathjax_path`).
@@ -266,13 +295,13 @@ Sphinx but is set to automatically include it from a third-party site.
            'jax': ['input/TeX', 'output/HTML-CSS'],
        }
 
-   The default is empty (not configured).
-
    .. versionadded:: 4.0
 
       :confval:`mathjax_config` has been renamed to :confval:`mathjax2_config`.
 
 .. confval:: mathjax_config
+   :type: :code-py:`dict[str, Any] | None`
+   :default: :code-py:`None`
 
    Former name of :confval:`mathjax2_config`.
 
@@ -299,9 +328,11 @@ This extension works just as the MathJax extension does, but uses the older
 package jsMath_.  It provides this config value:
 
 .. confval:: jsmath_path
+   :type: :code-py:`str`
+   :default: :code-py:`''`
 
    The path to the JavaScript file to include in the HTML files in order to load
-   JSMath.  There is no default.
+   JSMath.
 
    The path can be absolute or relative; if it is relative, it is relative to
    the ``_static`` directory of the built docs.

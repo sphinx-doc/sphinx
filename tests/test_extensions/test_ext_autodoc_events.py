@@ -1,5 +1,7 @@
 """Test the autodoc extension.  This tests mainly for autodoc events"""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.ext.autodoc import between, cut_lines
@@ -69,7 +71,7 @@ def test_cut_lines_no_objtype():
     ]
     process = cut_lines(2)
 
-    process(None, 'function', 'func', None, {}, docstring_lines)  # type: ignore[arg-type]
+    process(None, 'function', 'func', None, {}, docstring_lines)
     assert docstring_lines == [
         'second line',
         '---',

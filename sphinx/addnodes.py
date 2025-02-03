@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from docutils.nodes import Element
 
@@ -25,8 +26,9 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Element | None = None,
-               suggested_prefix: str = '') -> str:
+    def set_id(
+        self, node: Element, msgnode: Element | None = None, suggested_prefix: str = ''
+    ) -> str:
         return super().set_id(node, msgnode, suggested_prefix)
 
 
@@ -48,7 +50,9 @@ class translatable(nodes.Node):
         """Preserve original translatable messages."""
         raise NotImplementedError
 
-    def apply_translated_message(self, original_message: str, translated_message: str) -> None:
+    def apply_translated_message(
+        self, original_message: str, translated_message: str
+    ) -> None:
         """Apply translated message."""
         raise NotImplementedError
 
@@ -80,7 +84,9 @@ class toctree(nodes.General, nodes.Element, translatable):
         if self.get('caption'):
             self['rawcaption'] = self['caption']
 
-    def apply_translated_message(self, original_message: str, translated_message: str) -> None:
+    def apply_translated_message(
+        self, original_message: str, translated_message: str
+    ) -> None:
         # toctree entries
         for i, (title, docname) in enumerate(self['entries']):
             if title == original_message:
@@ -106,6 +112,7 @@ class toctree(nodes.General, nodes.Element, translatable):
 # Domain-specific object descriptions (class, function etc.)
 #############################################################
 
+
 class _desc_classes_injector(nodes.Element, not_smartquotable):
     """Helper base class for injecting a fixed list of classes.
 
@@ -121,6 +128,7 @@ class _desc_classes_injector(nodes.Element, not_smartquotable):
 
 # Top-level nodes
 #################
+
 
 class desc(nodes.Admonition, nodes.Element):
     """Node for a list of object signatures and a common description of them.
@@ -138,7 +146,9 @@ class desc(nodes.Admonition, nodes.Element):
     #  that forces the specification of the domain and objtyp?
 
 
-class desc_signature(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_signature(
+    _desc_classes_injector, nodes.Part, nodes.Inline, nodes.TextElement
+):
     """Node for a single object signature.
 
     As default the signature is a single-line signature.
@@ -198,7 +208,10 @@ class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
 
 # nodes to use within a desc_signature or desc_signature_line
 
-class desc_name(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTextElement):
+
+class desc_name(
+    _desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTextElement
+):
     """Node for the main object name.
 
     For example, in the declaration of a Python class ``MyModule.MyClass``,
@@ -210,7 +223,9 @@ class desc_name(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTex
     classes = ['sig-name', 'descname']  # 'descname' is for backwards compatibility
 
 
-class desc_addname(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTextElement):
+class desc_addname(
+    _desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTextElement
+):
     """Node for additional name parts for an object.
 
     For example, in the declaration of a Python class ``MyModule.MyClass``,
@@ -244,6 +259,8 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     As default the parameter list is written in line with the rest of the signature.
     Set ``multi_line_parameter_list = True`` to describe a multi-line parameter list.
     In that case each parameter will then be written on its own, indented line.
+    A trailing comma will be added on the last line
+    if ``multi_line_trailing_comma`` is True.
     """
 
     child_text_separator = ', '
@@ -258,6 +275,8 @@ class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement)
     As default the type parameters list is written in line with the rest of the signature.
     Set ``multi_line_parameter_list = True`` to describe a multi-line type parameters list.
     In that case each type parameter will then be written on its own, indented line.
+    A trailing comma will be added on the last line
+    if ``multi_line_trailing_comma`` is True.
     """
 
     child_text_separator = ', '
@@ -305,13 +324,15 @@ SIG_ELEMENTS: set[type[desc_sig_element]] = set()
 # When adding a new one, add it to SIG_ELEMENTS via the class
 # keyword argument `_sig_element=True` (e.g., see `desc_sig_space`).
 
+
 class desc_sig_element(nodes.inline, _desc_classes_injector):
     """Common parent class of nodes for inline text of a signature."""
 
     classes: list[str] = []
 
-    def __init__(self, rawsource: str = '', text: str = '',
-                 *children: Element, **attributes: Any) -> None:
+    def __init__(
+        self, rawsource: str = '', text: str = '', *children: Element, **attributes: Any
+    ) -> None:
         super().__init__(rawsource, text, *children, **attributes)
         self['classes'].extend(self.classes)
 
@@ -325,66 +346,73 @@ class desc_sig_element(nodes.inline, _desc_classes_injector):
 # to not reinvent the wheel, the classes in the following desc_sig classes
 # are based on those used in Pygments
 
+
 class desc_sig_space(desc_sig_element, _sig_element=True):
     """Node for a space in a signature."""
 
-    classes = ["w"]
+    classes = ['w']
 
-    def __init__(self, rawsource: str = '', text: str = ' ',
-                 *children: Element, **attributes: Any) -> None:
+    def __init__(
+        self,
+        rawsource: str = '',
+        text: str = ' ',
+        *children: Element,
+        **attributes: Any,
+    ) -> None:
         super().__init__(rawsource, text, *children, **attributes)
 
 
 class desc_sig_name(desc_sig_element, _sig_element=True):
     """Node for an identifier in a signature."""
 
-    classes = ["n"]
+    classes = ['n']
 
 
 class desc_sig_operator(desc_sig_element, _sig_element=True):
     """Node for an operator in a signature."""
 
-    classes = ["o"]
+    classes = ['o']
 
 
 class desc_sig_punctuation(desc_sig_element, _sig_element=True):
     """Node for punctuation in a signature."""
 
-    classes = ["p"]
+    classes = ['p']
 
 
 class desc_sig_keyword(desc_sig_element, _sig_element=True):
     """Node for a general keyword in a signature."""
 
-    classes = ["k"]
+    classes = ['k']
 
 
 class desc_sig_keyword_type(desc_sig_element, _sig_element=True):
     """Node for a keyword which is a built-in type in a signature."""
 
-    classes = ["kt"]
+    classes = ['kt']
 
 
 class desc_sig_literal_number(desc_sig_element, _sig_element=True):
     """Node for a numeric literal in a signature."""
 
-    classes = ["m"]
+    classes = ['m']
 
 
 class desc_sig_literal_string(desc_sig_element, _sig_element=True):
     """Node for a string literal in a signature."""
 
-    classes = ["s"]
+    classes = ['s']
 
 
 class desc_sig_literal_char(desc_sig_element, _sig_element=True):
     """Node for a character literal in a signature."""
 
-    classes = ["sc"]
+    classes = ['sc']
 
 
 ###############################################################
 # new admonition-like constructs
+
 
 class versionmodified(nodes.Admonition, nodes.TextElement):
     """Node for version change entries.
@@ -410,6 +438,7 @@ class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 
 # other directive-level nodes
+
 
 class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
     """Node for index entries.
@@ -458,6 +487,7 @@ class only(nodes.Element):
 
 # meta-information nodes
 
+
 class start_of_file(nodes.Element):
     """Node to mark start of a new file, used in the LaTeX builder only."""
 
@@ -473,6 +503,7 @@ class tabular_col_spec(nodes.Element):
 
 
 # inline nodes
+
 
 class pending_xref(nodes.Inline, nodes.Element):
     """Node for cross-references that cannot be resolved without complete

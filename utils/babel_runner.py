@@ -13,6 +13,8 @@ babel_runner.py compile
     Compile the ".po" catalogue files to ".mo" and ".js" files.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import sys
@@ -82,11 +84,12 @@ def run_extract() -> None:
     log = _get_logger()
 
     with open('sphinx/__init__.py', encoding='utf-8') as f:
-        for line in f.read().splitlines():
-            if line.startswith('__version__ = '):
-                # remove prefix; strip whitespace; remove quotation marks
-                sphinx_version = line[14:].strip()[1:-1]
-                break
+        lines = f.readlines()
+    for line in lines:
+        if line.startswith('__version__ = '):
+            # remove prefix; strip whitespace; remove quotation marks
+            sphinx_version = line[14:].strip()[1:-1]
+            break
 
     catalogue = Catalog(project='Sphinx', version=sphinx_version, charset='utf-8')
 
@@ -160,8 +163,7 @@ def run_update() -> None:
 
 
 def run_compile() -> None:
-    """
-    Catalog compilation command.
+    """Catalogue compilation command.
 
     An extended command that writes all message strings that occur in
     JavaScript files to a JavaScript file along with the .mo file.

@@ -3,36 +3,29 @@
 from __future__ import annotations
 
 import argparse
-import bdb
 import contextlib
 import locale
 import multiprocessing
-import pdb  # NoQA: T100
 import sys
-import traceback
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TextIO
+from typing import TYPE_CHECKING
 
-from docutils.utils import SystemMessage
-
+import sphinx._cli.util.errors
 import sphinx.locale
 from sphinx import __display_version__
+from sphinx._cli.util.colour import disable_colour, terminal_supports_colour
 from sphinx.application import Sphinx
-from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util._io import TeeStripANSI
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.console import color_terminal, nocolor, red, terminal_safe
 from sphinx.util.docutils import docutils_namespace, patch_docutils
-from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from typing import Protocol
+    from collections.abc import Collection, Sequence
+    from typing import Any, TextIO
 
-    class SupportsWrite(Protocol):
-        def write(self, text: str, /) -> int | None: ...  # NoQA: E704
+    from sphinx.extension import Extension
 
 
 def handle_exception(
@@ -41,99 +34,26 @@ def handle_exception(
     exception: BaseException,
     stderr: TextIO = sys.stderr,
 ) -> None:
-    if isinstance(exception, bdb.BdbQuit):
-        return
-
-    if args.pdb:
-        print(
-            red(__('Exception occurred while building, starting debugger:')),
-            file=stderr,
-        )
-        traceback.print_exc()
-        pdb.post_mortem(sys.exc_info()[2])
+    if app is not None:
+        message_log: Sequence[str] = app.messagelog
+        extensions: Collection[Extension] = app.extensions.values()
     else:
-        print(file=stderr)
-        if args.verbosity or args.traceback:
-            exc = sys.exc_info()[1]
-            if isinstance(exc, SphinxParallelError):
-                exc_format = '(Error in parallel process)\n' + exc.traceback
-                print(exc_format, file=stderr)
-            else:
-                traceback.print_exc(None, stderr)
-                print(file=stderr)
-        if isinstance(exception, KeyboardInterrupt):
-            print(__('Interrupted!'), file=stderr)
-        elif isinstance(exception, SystemMessage):
-            print(red(__('reST markup error:')), file=stderr)
-            print(terminal_safe(exception.args[0]), file=stderr)
-        elif isinstance(exception, SphinxError):
-            print(red('%s:' % exception.category), file=stderr)
-            print(str(exception), file=stderr)
-        elif isinstance(exception, UnicodeError):
-            print(red(__('Encoding error:')), file=stderr)
-            print(terminal_safe(str(exception)), file=stderr)
-            tbpath = save_traceback(app, exception)
-            print(
-                red(
-                    __(
-                        'The full traceback has been saved in %s, if you want '
-                        'to report the issue to the developers.'
-                    )
-                    % tbpath
-                ),
-                file=stderr,
-            )
-        elif (
-            isinstance(exception, RuntimeError)
-            and 'recursion depth' in str(exception)
-        ):  # fmt: skip
-            print(red(__('Recursion error:')), file=stderr)
-            print(terminal_safe(str(exception)), file=stderr)
-            print(file=stderr)
-            print(
-                __(
-                    'This can happen with very large or deeply nested source '
-                    'files. You can carefully increase the default Python '
-                    'recursion limit of 1000 in conf.py with e.g.:'
-                ),
-                file=stderr,
-            )
-            print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
-        else:
-            print(red(__('Exception occurred:')), file=stderr)
-            print(format_exception_cut_frames().rstrip(), file=stderr)
-            tbpath = save_traceback(app, exception)
-            print(
-                red(
-                    __(
-                        'The full traceback has been saved in %s, if you '
-                        'want to report the issue to the developers.'
-                    )
-                    % tbpath
-                ),
-                file=stderr,
-            )
-            print(
-                __(
-                    'Please also report this if it was a user error, so '
-                    'that a better error message can be provided next time.'
-                ),
-                file=stderr,
-            )
-            print(
-                __(
-                    'A bug report can be filed in the tracker at '
-                    '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!'
-                ),
-                file=stderr,
-            )
+        message_log = extensions = ()
+    return sphinx._cli.util.errors.handle_exception(
+        exception,
+        stderr=stderr,
+        use_pdb=args.pdb,
+        print_traceback=args.verbosity or args.traceback,
+        message_log=message_log,
+        extensions=extensions,
+    )
 
 
 def jobs_argument(value: str) -> int:
-    """
-    Special type to handle 'auto' flags passed to 'sphinx-build' via -j flag. Can
-    be expanded to handle other special scaling requests, such as setting job count
-    to cpu_count.
+    """Parse the ``--jobs`` flag.
+
+    Return the number of CPUs if 'auto' is used,
+    otherwise ensure *value* is a positive integer.
     """
     if value == 'auto':
         return multiprocessing.cpu_count()
@@ -406,8 +326,8 @@ def _validate_filenames(
 
 
 def _validate_colour_support(colour: str) -> None:
-    if colour == 'no' or (colour == 'auto' and not color_terminal()):
-        nocolor()
+    if colour == 'no' or (colour == 'auto' and not terminal_supports_colour()):
+        disable_colour()
 
 
 def _parse_logging(
@@ -512,7 +432,19 @@ def build_main(argv: Sequence[str]) -> int:
             app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
-        handle_exception(app, args, exc, args.error)
+        if app is not None:
+            message_log: Sequence[str] = app.messagelog
+            extensions: Collection[Extension] = app.extensions.values()
+        else:
+            message_log = extensions = ()
+        sphinx._cli.util.errors.handle_exception(
+            exc,
+            stderr=args.error,
+            use_pdb=args.pdb,
+            print_traceback=args.verbosity or args.traceback,
+            message_log=message_log,
+            extensions=extensions,
+        )
         return 2
     finally:
         if warnfp is not None:

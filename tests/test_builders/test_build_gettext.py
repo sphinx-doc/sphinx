@@ -1,5 +1,7 @@
 """Test the build process with gettext builder with the test root."""
 
+from __future__ import annotations
+
 import gettext
 import re
 import subprocess

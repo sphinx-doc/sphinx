@@ -4,7 +4,12 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 import pytest
 

@@ -18,6 +18,12 @@ from sphinx.testing.util import _clean_up_global_state
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+_TESTS_ROOT = Path(__file__).resolve().parent
+if 'CI' in os.environ and (_TESTS_ROOT / 'roots-read-only').is_dir():
+    _ROOTS_DIR = _TESTS_ROOT / 'roots-read-only'
+else:
+    _ROOTS_DIR = _TESTS_ROOT / 'roots'
+
 
 def _init_console(
     locale_dir: str | os.PathLike[str] | None = sphinx.locale._LOCALE_DIR,
@@ -44,16 +50,19 @@ os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 @pytest.fixture(scope='session')
 def rootdir() -> Path:
-    return Path(__file__).resolve().parent / 'roots'
+    return _ROOTS_DIR
 
 
 def pytest_report_header(config: pytest.Config) -> str:
-    header = f'libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}'
+    lines = [
+        f'libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}',
+    ]
     if sys.version_info[:2] >= (3, 13):
-        header += f'\nGIL enabled?: {sys._is_gil_enabled()}'
+        lines.append(f'GIL enabled?: {sys._is_gil_enabled()}')
+    lines.append(f'test roots directory: {_ROOTS_DIR}')
     if hasattr(config, '_tmp_path_factory'):
-        header += f'\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}'
-    return header
+        lines.append(f'base tmp_path: {config._tmp_path_factory.getbasetemp()}')
+    return '\n'.join(lines)
 
 
 @pytest.fixture(autouse=True)

@@ -1,10 +1,13 @@
 """Test the BuildEnvironment class."""
 
+from __future__ import annotations
+
 import shutil
 from pathlib import Path
 
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.config import Config
@@ -15,10 +18,9 @@ from sphinx.environment import (
     CONFIG_OK,
     _differing_config_keys,
 )
-from sphinx.util.console import strip_colors
 
 
-@pytest.mark.sphinx('dummy', testroot='basic')
+@pytest.mark.sphinx('dummy', testroot='basic', copy_test_root=True)
 def test_config_status(make_app, app_params):
     args, kwargs = app_params
 
@@ -26,7 +28,7 @@ def test_config_status(make_app, app_params):
     app1 = make_app(*args, freshenv=True, **kwargs)
     assert app1.env.config_status == CONFIG_NEW
     app1.build()
-    output = strip_colors(app1.status.getvalue())
+    output = strip_escape_sequences(app1.status.getvalue())
     # assert 'The configuration has changed' not in output
     assert '[new config] 1 added' in output
 
@@ -34,7 +36,7 @@ def test_config_status(make_app, app_params):
     app2 = make_app(*args, **kwargs)
     assert app2.env.config_status == CONFIG_OK
     app2.build()
-    output = strip_colors(app2.status.getvalue())
+    output = strip_escape_sequences(app2.status.getvalue())
     assert 'The configuration has changed' not in output
     assert '0 added, 0 changed, 0 removed' in output
 
@@ -47,7 +49,7 @@ def test_config_status(make_app, app_params):
     assert app3.env.config_status == CONFIG_CHANGED
     app3.build()
     shutil.move(other_fname, fname)
-    output = strip_colors(app3.status.getvalue())
+    output = strip_escape_sequences(app3.status.getvalue())
     assert 'The configuration has changed' in output
     assert "[config changed ('master_doc')] 1 added," in output
 
@@ -58,7 +60,7 @@ def test_config_status(make_app, app_params):
     assert app4.env.config_status == CONFIG_EXTENSIONS_CHANGED
     app4.build()
     want_str = "[extensions changed ('sphinx.ext.autodoc')] 1 added"
-    output = strip_colors(app4.status.getvalue())
+    output = strip_escape_sequences(app4.status.getvalue())
     assert 'The configuration has changed' not in output
     assert want_str in output
 
@@ -183,14 +185,14 @@ def test_env_relfn2path(app):
     assert absfn == str(app.srcdir / 'logo.jpg')
 
     # omit docname (w/ current docname)
-    app.env.temp_data['docname'] = 'subdir/document'
+    app.env.current_document.docname = 'subdir/document'
     relfn, absfn = app.env.relfn2path('images/logo.jpg')
     assert Path(relfn) == Path('subdir/images/logo.jpg')
     assert absfn == str(app.srcdir / 'subdir' / 'images' / 'logo.jpg')
 
     # omit docname (w/o current docname)
-    app.env.temp_data.clear()
-    with pytest.raises(KeyError):
+    app.env.current_document.clear()
+    with pytest.raises(KeyError, match=r"^'docname'$"):
         app.env.relfn2path('images/logo.jpg')
 
 

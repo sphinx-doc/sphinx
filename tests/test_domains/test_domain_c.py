@@ -1,9 +1,11 @@
 """Tests the C Domain"""
 
+from __future__ import annotations
+
 import itertools
 import xml.etree.ElementTree as ET
 import zlib
-from io import StringIO
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -20,20 +22,23 @@ from sphinx.addnodes import (
     desc_signature_line,
     pending_xref,
 )
-from sphinx.domains.c._ids import _id_prefix, _macroKeywords, _max_id
+from sphinx.domains.c._ids import _id_prefix, _macro_keywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError
 from sphinx.writers.text import STDINDENT
 
+if TYPE_CHECKING:
+    from io import StringIO
+
 
 class Config:
     c_id_attributes = ['id_attr', 'LIGHTGBM_C_EXPORT']
     c_paren_attributes = ['paren_attr']
-    c_extra_keywords = _macroKeywords
+    c_extra_keywords = _macro_keywords
 
 
 def parse(name, string):
@@ -44,62 +49,62 @@ def parse(name, string):
     return ast
 
 
-def _check(name, input, idDict, output, key, asTextOutput):
+def _check(name, input, id_dict, output, key, as_text_output):
     if key is None:
         key = name
     key += ' '
     if name in {'function', 'member'}:
-        inputActual = input
-        outputAst = output
-        outputAsText = output
+        input_actual = input
+        output_ast = output
+        output_as_text = output
     else:
-        inputActual = input.format(key='')
-        outputAst = output.format(key='')
-        outputAsText = output.format(key=key)
-    if asTextOutput is not None:
-        outputAsText = asTextOutput
+        input_actual = input.format(key='')
+        output_ast = output.format(key='')
+        output_as_text = output.format(key=key)
+    if as_text_output is not None:
+        output_as_text = as_text_output
 
     # first a simple check of the AST
-    ast = parse(name, inputActual)
+    ast = parse(name, input_actual)
     res = str(ast)
-    if res != outputAst:
+    if res != output_ast:
         print()
         print('Input:    ', input)
         print('Result:   ', res)
-        print('Expected: ', outputAst)
+        print('Expected: ', output_ast)
         raise DefinitionError
-    rootSymbol = Symbol(None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname='TestDoc', line=42)
-    parentNode = addnodes.desc()
+    root_symbol = Symbol(None, None, None, None, None)
+    symbol = root_symbol.add_declaration(ast, docname='TestDoc', line=42)
+    parent_node = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
-    parentNode += signode
+    parent_node += signode
     ast.describe_signature(signode, 'lastIsName', symbol, options={})
-    resAsText = parentNode.astext()
-    if resAsText != outputAsText:
+    res_as_text = parent_node.astext()
+    if res_as_text != output_as_text:
         print()
         print('Input:    ', input)
-        print('astext(): ', resAsText)
-        print('Expected: ', outputAsText)
+        print('astext(): ', res_as_text)
+        print('Expected: ', output_as_text)
         raise DefinitionError
 
-    idExpected = [None]
+    id_expected = [None]
     for i in range(1, _max_id + 1):
-        if i in idDict:
-            idExpected.append(idDict[i])
+        if i in id_dict:
+            id_expected.append(id_dict[i])
         else:
-            idExpected.append(idExpected[i - 1])
-    idActual = [None]
+            id_expected.append(id_expected[i - 1])
+    id_actual = [None]
     for i in range(1, _max_id + 1):
         # try:
         id = ast.get_id(version=i)
         assert id is not None
-        idActual.append(id[len(_id_prefix[i]) :])
+        id_actual.append(id[len(_id_prefix[i]) :])
         # except NoOldIdError:
-        #     idActual.append(None)
+        #     id_actual.append(None)
 
     res = [True]
     for i in range(1, _max_id + 1):
-        res.append(idExpected[i] == idActual[i])
+        res.append(id_expected[i] == id_actual[i])
 
     if not all(res):
         print('input:    %s' % input.rjust(20))
@@ -107,31 +112,31 @@ def _check(name, input, idDict, output, key, asTextOutput):
             if res[i]:
                 continue
             print('Error in id version %d.' % i)
-            print('result:   %s' % idActual[i])
-            print('expected: %s' % idExpected[i])
-        # print(rootSymbol.dump(0))
+            print('result:   %s' % id_actual[i])
+            print('expected: %s' % id_expected[i])
+        # print(root_symbol.dump(0))
         raise DefinitionError
 
 
-def check(name, input, idDict, output=None, key=None, asTextOutput=None):
+def check(name, input, id_dict, output=None, key=None, as_text_output=None):
     if output is None:
         output = input
     # First, check without semicolon
-    _check(name, input, idDict, output, key, asTextOutput)
+    _check(name, input, id_dict, output, key, as_text_output)
     if name != 'macro':
         # Second, check with semicolon
         _check(
             name,
             input + ' ;',
-            idDict,
+            id_dict,
             output + ';',
             key,
-            asTextOutput + ';' if asTextOutput is not None else None,
+            as_text_output + ';' if as_text_output is not None else None,
         )
 
 
 def test_domain_c_ast_expressions():
-    def exprCheck(expr, output=None):
+    def expr_check(expr, output=None):
         parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
@@ -146,30 +151,30 @@ def test_domain_c_ast_expressions():
             print('Result:   ', res)
             print('Expected: ', output)
             raise DefinitionError
-        displayString = ast.get_display_string()
-        if res != displayString:
+        display_string = ast.get_display_string()
+        if res != display_string:
             # note: if the expression contains an anon name then this will trigger a falsely
             print()
             print('Input:    ', expr)
             print('Result:   ', res)
-            print('Display:  ', displayString)
+            print('Display:  ', display_string)
             raise DefinitionError
 
     # type expressions
-    exprCheck('int*')
-    exprCheck('int *const*')
-    exprCheck('int *volatile*')
-    exprCheck('int *restrict*')
-    exprCheck('int *(*)(double)')
-    exprCheck('const int*')
-    exprCheck('__int64')
-    exprCheck('unsigned __int64')
+    expr_check('int*')
+    expr_check('int *const*')
+    expr_check('int *volatile*')
+    expr_check('int *restrict*')
+    expr_check('int *(*)(double)')
+    expr_check('const int*')
+    expr_check('__int64')
+    expr_check('unsigned __int64')
 
     # actual expressions
 
     # primary
-    exprCheck('true')
-    exprCheck('false')
+    expr_check('true')
+    expr_check('false')
     ints = [
         '5',
         '0',
@@ -183,15 +188,15 @@ def test_domain_c_ast_expressions():
         "0x0'1'2",
         "1'2'3",
     ]
-    unsignedSuffix = ['', 'u', 'U']
-    longSuffix = ['', 'l', 'L', 'll', 'LL']
+    unsigned_suffix = ['', 'u', 'U']
+    long_suffix = ['', 'l', 'L', 'll', 'LL']
     for i in ints:
-        for u in unsignedSuffix:
-            for l in longSuffix:
+        for u in unsigned_suffix:
+            for l in long_suffix:
                 expr = i + u + l
-                exprCheck(expr)
+                expr_check(expr)
                 expr = i + l + u
-                exprCheck(expr)
+                expr_check(expr)
     for suffix in ('', 'f', 'F', 'l', 'L'):
         for e in (
             '5e42',
@@ -215,7 +220,7 @@ def test_domain_c_ast_expressions():
             "1'2'3.4'5'6e7'8'9",
         ):
             expr = e + suffix
-            exprCheck(expr)
+            expr_check(expr)
         for e in (
             'ApF',
             'Ap+F',
@@ -238,94 +243,97 @@ def test_domain_c_ast_expressions():
             "A'B'C.D'E'Fp1'2'3",
         ):
             expr = '0x' + e + suffix
-            exprCheck(expr)
-    exprCheck('"abc\\"cba"')  # string
+            expr_check(expr)
+    expr_check('"abc\\"cba"')  # string
     # character literals
     for p in ('', 'u8', 'u', 'U', 'L'):
-        exprCheck(p + "'a'")
-        exprCheck(p + "'\\n'")
-        exprCheck(p + "'\\012'")
-        exprCheck(p + "'\\0'")
-        exprCheck(p + "'\\x0a'")
-        exprCheck(p + "'\\x0A'")
-        exprCheck(p + "'\\u0a42'")
-        exprCheck(p + "'\\u0A42'")
-        exprCheck(p + "'\\U0001f34c'")
-        exprCheck(p + "'\\U0001F34C'")
+        expr_check(p + "'a'")
+        expr_check(p + "'\\n'")
+        expr_check(p + "'\\012'")
+        expr_check(p + "'\\0'")
+        expr_check(p + "'\\x0a'")
+        expr_check(p + "'\\x0A'")
+        expr_check(p + "'\\u0a42'")
+        expr_check(p + "'\\u0A42'")
+        expr_check(p + "'\\U0001f34c'")
+        expr_check(p + "'\\U0001F34C'")
 
-    exprCheck('(5)')
-    exprCheck('C')
+    expr_check('(5)')
+    expr_check('C')
     # postfix
-    exprCheck('A(2)')
-    exprCheck('A[2]')
-    exprCheck('a.b.c')
-    exprCheck('a->b->c')
-    exprCheck('i++')
-    exprCheck('i--')
+    expr_check('A(2)')
+    expr_check('A[2]')
+    expr_check('a.b.c')
+    expr_check('a->b->c')
+    expr_check('i++')
+    expr_check('i--')
     # unary
-    exprCheck('++5')
-    exprCheck('--5')
-    exprCheck('*5')
-    exprCheck('&5')
-    exprCheck('+5')
-    exprCheck('-5')
-    exprCheck('!5')
-    exprCheck('not 5')
-    exprCheck('~5')
-    exprCheck('compl 5')
-    exprCheck('sizeof(T)')
-    exprCheck('sizeof -42')
-    exprCheck('alignof(T)')
+    expr_check('++5')
+    expr_check('--5')
+    expr_check('*5')
+    expr_check('&5')
+    expr_check('+5')
+    expr_check('-5')
+    expr_check('!5')
+    expr_check('not 5')
+    expr_check('~5')
+    expr_check('compl 5')
+    expr_check('sizeof(T)')
+    expr_check('sizeof -42')
+    expr_check('alignof(T)')
     # cast
-    exprCheck('(int)2')
+    expr_check('(int)2')
     # binary op
-    exprCheck('5 || 42')
-    exprCheck('5 or 42')
-    exprCheck('5 && 42')
-    exprCheck('5 and 42')
-    exprCheck('5 | 42')
-    exprCheck('5 bitor 42')
-    exprCheck('5 ^ 42')
-    exprCheck('5 xor 42')
-    exprCheck('5 & 42')
-    exprCheck('5 bitand 42')
+    expr_check('5 || 42')
+    expr_check('5 or 42')
+    expr_check('5 && 42')
+    expr_check('5 and 42')
+    expr_check('5 | 42')
+    expr_check('5 bitor 42')
+    expr_check('5 ^ 42')
+    expr_check('5 xor 42')
+    expr_check('5 & 42')
+    expr_check('5 bitand 42')
     # ['==', '!=']
-    exprCheck('5 == 42')
-    exprCheck('5 != 42')
-    exprCheck('5 not_eq 42')
+    expr_check('5 == 42')
+    expr_check('5 != 42')
+    expr_check('5 not_eq 42')
     # ['<=', '>=', '<', '>']
-    exprCheck('5 <= 42')
-    exprCheck('5 >= 42')
-    exprCheck('5 < 42')
-    exprCheck('5 > 42')
+    expr_check('5 <= 42')
+    expr_check('5 >= 42')
+    expr_check('5 < 42')
+    expr_check('5 > 42')
     # ['<<', '>>']
-    exprCheck('5 << 42')
-    exprCheck('5 >> 42')
+    expr_check('5 << 42')
+    expr_check('5 >> 42')
     # ['+', '-']
-    exprCheck('5 + 42')
-    exprCheck('5 - 42')
+    expr_check('5 + 42')
+    expr_check('5 - 42')
     # ['*', '/', '%']
-    exprCheck('5 * 42')
-    exprCheck('5 / 42')
-    exprCheck('5 % 42')
+    expr_check('5 * 42')
+    expr_check('5 / 42')
+    expr_check('5 % 42')
     # ['.*', '->*']
+    expr_check('5 .* 42')
+    expr_check('5 ->* 42')
+    # TODO: conditional is unimplemented
     # conditional
-    # TODO
+    # expr_check('5 ? 7 : 3')
     # assignment
-    exprCheck('a = 5')
-    exprCheck('a *= 5')
-    exprCheck('a /= 5')
-    exprCheck('a %= 5')
-    exprCheck('a += 5')
-    exprCheck('a -= 5')
-    exprCheck('a >>= 5')
-    exprCheck('a <<= 5')
-    exprCheck('a &= 5')
-    exprCheck('a and_eq 5')
-    exprCheck('a ^= 5')
-    exprCheck('a xor_eq 5')
-    exprCheck('a |= 5')
-    exprCheck('a or_eq 5')
+    expr_check('a = 5')
+    expr_check('a *= 5')
+    expr_check('a /= 5')
+    expr_check('a %= 5')
+    expr_check('a += 5')
+    expr_check('a -= 5')
+    expr_check('a >>= 5')
+    expr_check('a <<= 5')
+    expr_check('a &= 5')
+    expr_check('a and_eq 5')
+    expr_check('a ^= 5')
+    expr_check('a xor_eq 5')
+    expr_check('a |= 5')
+    expr_check('a or_eq 5')
 
 
 def test_domain_c_ast_fundamental_types():
@@ -583,29 +591,29 @@ def test_domain_c_ast_enum_definitions():
 
 
 def test_domain_c_ast_anon_definitions():
-    check('struct', '@a', {1: '@a'}, asTextOutput='struct [anonymous]')
-    check('union', '@a', {1: '@a'}, asTextOutput='union [anonymous]')
-    check('enum', '@a', {1: '@a'}, asTextOutput='enum [anonymous]')
-    check('struct', '@1', {1: '@1'}, asTextOutput='struct [anonymous]')
-    check('struct', '@a.A', {1: '@a.A'}, asTextOutput='struct [anonymous].A')
+    check('struct', '@a', {1: '@a'}, as_text_output='struct [anonymous]')
+    check('union', '@a', {1: '@a'}, as_text_output='union [anonymous]')
+    check('enum', '@a', {1: '@a'}, as_text_output='enum [anonymous]')
+    check('struct', '@1', {1: '@1'}, as_text_output='struct [anonymous]')
+    check('struct', '@a.A', {1: '@a.A'}, as_text_output='struct [anonymous].A')
 
 
 def test_domain_c_ast_initializers():
-    idsMember = {1: 'v'}
-    idsFunction = {1: 'f'}
+    ids_member = {1: 'v'}
+    ids_function = {1: 'f'}
     # no init
-    check('member', 'T v', idsMember)
-    check('function', 'void f(T v)', idsFunction)
+    check('member', 'T v', ids_member)
+    check('function', 'void f(T v)', ids_function)
     # with '=', assignment-expression
-    check('member', 'T v = 42', idsMember)
-    check('function', 'void f(T v = 42)', idsFunction)
+    check('member', 'T v = 42', ids_member)
+    check('function', 'void f(T v = 42)', ids_function)
     # with '=', braced-init
-    check('member', 'T v = {}', idsMember)
-    check('function', 'void f(T v = {})', idsFunction)
-    check('member', 'T v = {42, 42, 42}', idsMember)
-    check('function', 'void f(T v = {42, 42, 42})', idsFunction)
-    check('member', 'T v = {42, 42, 42,}', idsMember)
-    check('function', 'void f(T v = {42, 42, 42,})', idsFunction)
+    check('member', 'T v = {}', ids_member)
+    check('function', 'void f(T v = {})', ids_function)
+    check('member', 'T v = {42, 42, 42}', ids_member)
+    check('function', 'void f(T v = {42, 42, 42})', ids_function)
+    check('member', 'T v = {42, 42, 42,}', ids_member)
+    check('function', 'void f(T v = {42, 42, 42,})', ids_function)
     # TODO: designator-list
 
 
@@ -718,9 +726,9 @@ def extract_role_links(app, filename):
     entries = []
     for l in lis:
         li = ET.fromstring(l)  # NoQA: S314  # using known data in tests
-        aList = list(li.iter('a'))
-        assert len(aList) == 1
-        a = aList[0]
+        a_list = list(li.iter('a'))
+        assert len(a_list) == 1
+        a = a_list[0]
         target = a.attrib['href'].lstrip('#')
         title = a.attrib['title']
         assert len(a) == 1
@@ -803,12 +811,12 @@ def test_domain_c_build_field_role(app):
     assert len(ws) == 0
 
 
-def _get_obj(app, queryName):
+def _get_obj(app, query_name):
     domain = app.env.domains.c_domain
-    for name, _dispname, objectType, docname, anchor, _prio in domain.get_objects():
-        if name == queryName:
-            return docname, anchor, objectType
-    return queryName, 'not', 'found'
+    for name, _dispname, object_type, docname, anchor, _prio in domain.get_objects():
+        if name == query_name:
+            return docname, anchor, object_type
+    return query_name, 'not', 'found'
 
 
 @pytest.mark.sphinx(
@@ -817,7 +825,7 @@ def _get_obj(app, queryName):
 def test_domain_c_build_intersphinx(tmp_path, app):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
-    origSource = """\
+    orig_source = """\
 .. c:member:: int _member
 .. c:var:: int _var
 .. c:function:: void _function()
@@ -830,7 +838,7 @@ def test_domain_c_build_intersphinx(tmp_path, app):
 
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
-"""  # NoQA: F841
+"""
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(
         b"""\
@@ -853,7 +861,7 @@ _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
 """)
-    )  # NoQA: W291
+    )
     app.config.intersphinx_mapping = {
         'local': ('https://localhost/intersphinx/c/', str(inv_file)),
     }
@@ -1366,7 +1374,7 @@ def test_domain_c_c_maximum_signature_line_length_in_html(app):
 <dd>\
 <span class="n"><span class="pre">str</span></span>\
 <span class="w"> </span>\
-<span class="n"><span class="pre">name</span></span>,\
+<span class="n"><span class="pre">name</span></span>\
 </dd>
 </dl>
 
@@ -1387,6 +1395,6 @@ def test_domain_c_c_maximum_signature_line_length_in_text(app):
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
 
-    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name,'))
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name'))
 
     assert expected_parameter_list_hello in content

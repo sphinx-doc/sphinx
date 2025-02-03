@@ -218,9 +218,7 @@ iti|ous|ive|ize)$/;
 
 
 class SearchChinese(SearchLanguage):
-    """
-    Chinese search implementation
-    """
+    """Chinese search implementation"""
 
     lang = 'zh'
     language_name = 'Chinese'
@@ -260,7 +258,7 @@ class SearchChinese(SearchLanguage):
         stemmed = self.stemmer.stemWord(word.lower())
         should_not_be_stemmed = (
             len(word) >= 3 > len(stemmed) and word in self.latin_terms
-        )  # fmt: skip
+        )
         if should_not_be_stemmed:
             return word.lower()
         return stemmed

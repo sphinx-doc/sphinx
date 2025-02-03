@@ -6,7 +6,7 @@ import functools
 import os
 import pickle
 from collections import defaultdict
-from copy import copy
+from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
@@ -22,6 +22,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
+from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
@@ -30,8 +31,8 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
-    from typing import Any, Literal
+    from collections.abc import Callable, Iterable, Iterator, Mapping
+    from typing import Any, Final, Literal
 
     from docutils import nodes
     from docutils.nodes import Node
@@ -41,7 +42,10 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.domains import Domain
+    from sphinx.domains.c._symbol import Symbol as CSymbol
+    from sphinx.domains.cpp._symbol import Symbol as CPPSymbol
     from sphinx.events import EventManager
+    from sphinx.extension import Extension
     from sphinx.project import Project
     from sphinx.util._pathlib import _StrPath
 
@@ -67,7 +71,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 64
+ENV_VERSION = 65
 
 # config status
 CONFIG_UNSET = -1
@@ -90,24 +94,26 @@ versioning_conditions: dict[str, Literal[False] | Callable[[Node], bool]] = {
 
 
 class BuildEnvironment:
-    """
-    The environment in which the ReST files are translated.
+    """The environment in which the ReST files are translated.
     Stores an inventory of cross-file targets and provides doctree
     transformations to resolve links to them.
     """
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
+    srcdir = _StrPathProperty()
+    doctreedir = _StrPathProperty()
+
     def __init__(self, app: Sphinx) -> None:
         self.app: Sphinx = app
-        self.doctreedir: _StrPath = app.doctreedir
-        self.srcdir: _StrPath = app.srcdir
+        self.doctreedir = app.doctreedir
+        self.srcdir = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
         self.events: EventManager = app.events
         self.project: Project = app.project
-        self.version: dict[str, int] = app.registry.get_envversion(app)
+        self.version: Mapping[str, int] = _get_env_version(app.extensions)
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: Literal[False] | Callable[[Node], bool] | None = None
@@ -192,10 +198,10 @@ class BuildEnvironment:
         self.original_image_uri: dict[_StrPath, str] = {}
 
         # temporary data storage while reading a document
-        self.temp_data: dict[str, Any] = {}
+        self.current_document: _CurrentDocument = _CurrentDocument()
         # context for cross-references (e.g. current module or class)
-        # this is similar to temp_data, but will for example be copied to
-        # attributes of "any" cross references
+        # this is similar to ``self.current_document``,
+        # but will for example be copied to attributes of "any" cross references
         self.ref_context: dict[str, Any] = {}
 
         # search index data
@@ -241,7 +247,7 @@ class BuildEnvironment:
 
     def setup(self, app: Sphinx) -> None:
         """Set up BuildEnvironment object."""
-        if self.version and self.version != app.registry.get_envversion(app):
+        if self.version and self.version != _get_env_version(app.extensions):
             raise BuildEnvironmentError(__('build environment version not current'))
         if self.srcdir and self.srcdir != app.srcdir:
             raise BuildEnvironmentError(__('source directory has changed'))
@@ -254,7 +260,7 @@ class BuildEnvironment:
         self.events = app.events
         self.srcdir = app.srcdir
         self.project = app.project
-        self.version = app.registry.get_envversion(app)
+        self.version = _get_env_version(app.extensions)
 
         # initialise domains
         if self.domains is None:
@@ -422,7 +428,13 @@ class BuildEnvironment:
         if filename.startswith('/'):
             abs_fn = (self.srcdir / filename[1:]).resolve()
         else:
-            doc_dir = self.doc2path(docname or self.docname, base=False).parent
+            if not docname:
+                if self.docname:
+                    docname = self.docname
+                else:
+                    msg = 'docname'
+                    raise KeyError(msg)
+            doc_dir = self.doc2path(docname, base=False).parent
             abs_fn = (self.srcdir / doc_dir / filename).resolve()
 
         rel_fn = _relative_path(abs_fn, self.srcdir)
@@ -554,32 +566,42 @@ class BuildEnvironment:
 
     def prepare_settings(self, docname: str) -> None:
         """Prepare to set up environment for reading."""
-        self.temp_data['docname'] = docname
-        # defaults to the global default, but can be re-set in a document
-        self.temp_data['default_role'] = self.config.default_role
-        self.temp_data['default_domain'] = self.domains.get(self.config.primary_domain)
+        self.current_document = _CurrentDocument(
+            docname=docname,
+            # defaults to the global default, but can be re-set in a document
+            default_role=self.config.default_role,
+            default_domain=self.domains.get(self.config.primary_domain),
+        )
 
     # utilities to use while reading a document
 
     @property
+    def temp_data(self) -> _CurrentDocument:
+        """Returns the temporary data storage for the current document.
+
+        Kept for backwards compatibility.
+        """
+        return self.current_document
+
+    @property
     def docname(self) -> str:
         """Returns the docname of the document currently being parsed."""
-        return self.temp_data['docname']
+        return self.current_document.docname
 
     @property
     def parser(self) -> Parser:
         """Returns the parser being used for to parse the current document."""
-        return self.temp_data['_parser']
+        if (parser := self.current_document._parser) is not None:
+            return parser
+        msg = 'parser'
+        raise KeyError(msg)
 
     def new_serialno(self, category: str = '') -> int:
         """Return a serial number, e.g. for index entry targets.
 
         The number is guaranteed to be unique in the current document.
         """
-        key = category + 'serialno'
-        cur = self.temp_data.get(key, 0)
-        self.temp_data[key] = cur + 1
-        return cur
+        return self.current_document.new_serial_number(category)
 
     def note_dependency(
         self, filename: str | os.PathLike[str], *, docname: str | None = None
@@ -673,6 +695,7 @@ class BuildEnvironment:
                 toctreenode,
                 prune=prune_toctrees,
                 includehidden=includehidden,
+                tags=builder.tags,
             )
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
@@ -713,6 +736,7 @@ class BuildEnvironment:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=builder.tags,
         )
 
     def resolve_references(
@@ -722,17 +746,19 @@ class BuildEnvironment:
 
     def apply_post_transforms(self, doctree: nodes.document, docname: str) -> None:
         """Apply all post-transforms."""
+        backup = self.current_document
+        new = deepcopy(backup)
+        new.docname = docname
         try:
             # set env.docname during applying post-transforms
-            backup = copy(self.temp_data)
-            self.temp_data['docname'] = docname
+            self.current_document = new
 
             transformer = SphinxTransformer(doctree)
             transformer.set_environment(self)
             transformer.add_transforms(self.app.registry.get_post_transforms())
             transformer.apply_transforms()
         finally:
-            self.temp_data = backup
+            self.current_document = backup
 
         # allow custom references to be resolved
         self.events.emit('doctree-resolved', doctree, docname)
@@ -770,7 +796,10 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 logger.warning(
-                    __("document isn't included in any toctree"), location=docname
+                    __("document isn't included in any toctree"),
+                    location=docname,
+                    type='toc',
+                    subtype='not_included',
                 )
         # Call _check_toc_parents here rather than in  _get_toctree_ancestors()
         # because that method is called multiple times per document and would
@@ -780,6 +809,16 @@ class BuildEnvironment:
         # call check-consistency for all extensions
         self.domains._check_consistency()
         self.events.emit('env-check-consistency', self)
+
+
+def _get_env_version(extensions: Mapping[str, Extension]) -> Mapping[str, int]:
+    env_version = {
+        ext.name: ext_env_version
+        for ext in extensions.values()
+        if (ext_env_version := ext.metadata.get('env_version'))
+    }
+    env_version['sphinx'] = ENV_VERSION
+    return env_version
 
 
 def _differing_config_keys(old: Config, new: Config) -> frozenset[str]:
@@ -842,3 +881,230 @@ def _check_toc_parents(toctree_includes: dict[str, list[str]]) -> None:
                 type='toc',
                 subtype='multiple_toc_parents',
             )
+
+
+class _CurrentDocument:
+    """Temporary data storage while reading a document.
+
+    This class is only for internal use. Please don't use this in your extensions.
+    It will be removed or changed without notice.
+    The only stable API is via ``env.current_document``.
+    """
+
+    __slots__ = (
+        '_parser',
+        '_serial_numbers',
+        '_extension_data',
+        'autodoc_annotations',
+        'autodoc_class',
+        'autodoc_module',
+        'c_last_symbol',
+        'c_namespace_stack',
+        'c_parent_symbol',
+        'cpp_domain_name',
+        'cpp_last_symbol',
+        'cpp_namespace_stack',
+        'cpp_parent_symbol',
+        'default_domain',
+        'default_role',
+        'docname',
+        'highlight_language',
+        'obj_desc_name',
+        'reading_started_at',
+    )
+
+    # Map of old-style temp_data keys to _CurrentDocument attributes
+    __attr_map: Final = {
+        '_parser': '_parser',
+        'annotations': 'autodoc_annotations',
+        'autodoc:class': 'autodoc_class',
+        'autodoc:module': 'autodoc_module',
+        'c:last_symbol': 'c_last_symbol',
+        'c:namespace_stack': 'c_namespace_stack',
+        'c:parent_symbol': 'c_parent_symbol',
+        'cpp:domain_name': 'cpp_domain_name',
+        'cpp:last_symbol': 'cpp_last_symbol',
+        'cpp:namespace_stack': 'cpp_namespace_stack',
+        'cpp:parent_symbol': 'cpp_parent_symbol',
+        'default_domain': 'default_domain',
+        'default_role': 'default_role',
+        'docname': 'docname',
+        'highlight_language': 'highlight_language',
+        'object': 'obj_desc_name',
+        'started_at': 'reading_started_at',
+    }
+
+    # Attributes that should reset to None if popped.
+    __attr_default_none: Final = frozenset({
+        '_parser',
+        'c:last_symbol',
+        'c:parent_symbol',
+        'cpp:last_symbol',
+        'cpp:parent_symbol',
+        'default_domain',
+    })
+
+    def __init__(
+        self,
+        *,
+        docname: str = '',
+        default_role: str = '',
+        default_domain: Domain | None = None,
+    ) -> None:
+        #: The docname of the document currently being parsed.
+        self.docname: str = docname
+
+        #: The default role for the current document.
+        #: Set by the ``.. default-role::`` directive.
+        self.default_role: str = default_role
+
+        #: The default domain for the current document.
+        #: Set by the ``.. default-domain::`` directive.
+        self.default_domain: Domain | None = default_domain
+
+        #: The parser being used to parse the current document.
+        self._parser: Parser | None = None
+
+        #: The default language for syntax highlighting.
+        #: Set by the ``.. highlight::`` directive to override
+        #: the ``highlight_language`` config value.
+        self.highlight_language: str = ''
+
+        #: The current object's name.
+        #: Used in the Changes builder.
+        self.obj_desc_name: str = ''
+
+        #: Records type hints of Python objects in the current document.
+        #: Used in ``sphinx.ext.autodoc.typehints``.
+        #: Maps object names to maps of attribute names -> type hints.
+        self.autodoc_annotations: dict[str, dict[str, str]] = {}
+
+        #: The current Python class name.
+        #: Used in ``sphinx.ext.autodoc``.
+        self.autodoc_class: str = ''
+
+        #: The current Python module name.
+        #: Used in ``sphinx.ext.autodoc``.
+        self.autodoc_module: str = ''
+
+        #: The most-recently added declaration in a directive.
+        #: Used in the C Domain.
+        self.c_last_symbol: CSymbol | None = None
+
+        #: The stack of namespace scopes, altered by the ``.. c:namespace::``
+        #: and ``.. c:namespace-(push|pop)::``directives.
+        #: Used in the C Domain.
+        self.c_namespace_stack: list[CSymbol] = []
+
+        #: The parent declaration.
+        #: Used in the C Domain.
+        self.c_parent_symbol: CSymbol | None = None
+
+        #: A stack of the string representation of declarations,
+        #: used to format the table of contents entry.
+        #: Used in the C++ Domain.
+        self.cpp_domain_name: tuple[str, ...] = ()
+
+        #: The most-recently added declaration in a directive.
+        #: Used in the C++ Domain.
+        self.cpp_last_symbol: CPPSymbol | None = None
+
+        #: The stack of namespace scopes, altered by the ``.. cpp:namespace::``
+        #: and ``.. cpp:namespace-(push|pop)::``directives.
+        #: Used in the C++ Domain.
+        self.cpp_namespace_stack: list[CPPSymbol] = []
+
+        #: The parent declaration.
+        #: Used in the C++ Domain.
+        self.cpp_parent_symbol: CPPSymbol | None = None
+
+        #: Records the time when reading begain for the current document.
+        #: Used in ``sphinx.ext.duration``.
+        self.reading_started_at: float = 0.0
+
+        # Used for generating unique serial numbers.
+        self._serial_numbers: dict[str, int] = {}
+
+        # Stores properties relating to the current document set by extensions.
+        self._extension_data: dict[str, Any] = {}
+
+    def new_serial_number(self, category: str = '', /) -> int:
+        """Return a serial number, e.g. for index entry targets.
+
+        The number is guaranteed to be unique in the current document & category.
+        """
+        current = self._serial_numbers.get(category, 0)
+        self._serial_numbers[category] = current + 1
+        return current
+
+    # Mapping interface:
+
+    def __getitem__(self, item: str) -> Any:
+        if item in self.__attr_map:
+            return getattr(self, self.__attr_map[item])
+        return self._extension_data[item]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        if key in self.__attr_map:
+            setattr(self, self.__attr_map[key], value)
+        else:
+            self._extension_data[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        self.pop(key, default=None)
+
+    def __contains__(self, item: str) -> bool:
+        if item in {'c:parent_symbol', 'cpp:parent_symbol'}:
+            return getattr(self, item) is not None
+        return item in self.__attr_map or item in self._extension_data
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.keys())
+
+    def __len__(self) -> int:
+        return len(self.__attr_map) + len(self._extension_data)
+
+    def keys(self) -> Iterable[str]:
+        return frozenset(self.__attr_map.keys() | self._extension_data.keys())
+
+    def items(self) -> Iterable[tuple[str, Any]]:
+        for key in self.keys():
+            yield key, self[key]
+
+    def values(self) -> Iterable[Any]:
+        for key in self.keys():
+            yield self[key]
+
+    def get(self, key: str, default: Any | None = None) -> Any | None:
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    __sentinel = object()
+
+    def pop(self, key: str, default: Any | None = __sentinel) -> Any | None:
+        if key in self.__attr_map:
+            # the keys in  __attr_map always exist, so ``default`` is ignored
+            value = getattr(self, self.__attr_map[key])
+            if key in self.__attr_default_none:
+                default = None
+            else:
+                default = type(value)()  # set key to type's default
+            setattr(self, self.__attr_map[key], default)
+            return value
+        if default is self.__sentinel:
+            return self._extension_data.pop(key)
+        return self._extension_data.pop(key, default)
+
+    def setdefault(self, key: str, default: Any | None = None) -> Any | None:
+        return self._extension_data.setdefault(key, default)
+
+    def clear(self) -> None:
+        _CurrentDocument.__init__(self)  # NoQA: PLC2801
+
+    def update(self, other: Iterable[tuple[str, Any]] = (), /, **kwargs: Any) -> None:
+        other_dict = dict(other) if not isinstance(other, dict) else other
+        for dct in other_dict, kwargs:
+            for key, value in dct.items():
+                self[key] = value

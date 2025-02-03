@@ -1,5 +1,7 @@
 """Test sphinx.ext.inheritance_diagram extension."""
 
+from __future__ import annotations
+
 import re
 import sys
 import zlib
@@ -12,7 +14,7 @@ from sphinx.ext.inheritance_diagram import (
     InheritanceException,
     import_classes,
 )
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 
 
 @pytest.mark.sphinx('html', testroot='inheritance')
@@ -325,7 +327,7 @@ def test_import_classes(rootdir):
     saved_path = sys.path.copy()
     sys.path.insert(0, str(rootdir / 'test-ext-inheritance_diagram'))
     try:
-        from example.sphinx import DummyClass
+        from example.sphinx import DummyClass  # type: ignore[import-not-found]
 
         # got exception for unknown class or module
         with pytest.raises(InheritanceException):

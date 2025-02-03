@@ -3,6 +3,8 @@
 Reference: https://www.rfc-editor.org/rfc/rfc7231#section-7.1.1.1
 """
 
+from __future__ import annotations
+
 import time
 import warnings
 from email.utils import parsedate_tz

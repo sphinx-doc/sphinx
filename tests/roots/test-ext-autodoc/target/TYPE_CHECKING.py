@@ -1,6 +1,7 @@
+# NoQA: N999
 from __future__ import annotations
 
-from gettext import NullTranslations
+from gettext import NullTranslations  # NoQA: TC003
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

@@ -8,6 +8,9 @@
 
 .. versionadded:: 0.6
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension allows you to include inheritance diagrams, rendered via the
 :mod:`Graphviz extension <sphinx.ext.graphviz>`.
 
@@ -97,6 +100,24 @@ It adds this directive:
    .. versionchanged:: 1.7
       Added ``top-classes`` option to limit the scope of inheritance graphs.
 
+   .. rst:directive:option:: include-subclasses
+      :type: no value
+
+      .. versionadded:: 8.2
+
+      If given, any subclass of the classes will be added to the diagram too.
+
+      Given the Python module from above, you can specify
+      your inheritance diagram like this:
+
+      .. code-block:: rst
+
+         .. inheritance-diagram:: dummy.test.A
+            :include-subclasses:
+
+      This will include the classes A, B, C, D, E and F in the inheritance diagram
+      but no other classes in the module ``dummy.test``.
+
 
 Examples
 --------
@@ -142,6 +163,8 @@ Configuration
 -------------
 
 .. confval:: inheritance_graph_attrs
+   :type: :code-py:`dict[str, str | int | float | bool]`
+   :default: :code-py:`{}`
 
    A dictionary of graphviz graph attributes for inheritance diagrams.
 
@@ -151,6 +174,8 @@ Configuration
                                      fontsize=14, ratio='compress')
 
 .. confval:: inheritance_node_attrs
+   :type: :code-py:`dict[str, str | int | float | bool]`
+   :default: :code-py:`{}`
 
    A dictionary of graphviz node attributes for inheritance diagrams.
 
@@ -160,10 +185,14 @@ Configuration
                                     color='dodgerblue1', style='filled')
 
 .. confval:: inheritance_edge_attrs
+   :type: :code-py:`dict[str, str | int | float | bool]`
+   :default: :code-py:`{}`
 
    A dictionary of graphviz edge attributes for inheritance diagrams.
 
 .. confval:: inheritance_alias
+   :type: :code-py:`dict[str, str]`
+   :default: :code-py:`{}`
 
    Allows mapping the full qualified name of the class to custom values
    (useful when exposing the underlying path of a class is not desirable,
