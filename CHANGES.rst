@@ -98,6 +98,9 @@ Features added
   Patch by Bénédikt Tran and Adam Turner.
 * #13163: Always print the full context when Sphinx encounters an internal error.
   Patch by Kevin Deldycke and Adam Turner.
+* #13105: Introduce the :rst:role:`py:deco` role to cross-reference decorator
+  functions and methods in the Python domain.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
