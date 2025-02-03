@@ -562,7 +562,7 @@ The following directives are provided for module and class contents:
 
    (as opposed to ``.. py:decorator:: removename(func)``.)
 
-   Refer to a decorator method using the :rst:role:`py:deco` role.
+   Refer to a decorator function using the :rst:role:`py:deco` role.
 
    .. rst:directive:option:: single-line-parameter-list
       :type: no value
