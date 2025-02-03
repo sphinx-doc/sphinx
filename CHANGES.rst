@@ -101,6 +101,9 @@ Features added
 * #13105: Introduce the :rst:role:`py:deco` role to cross-reference decorator
   functions and methods in the Python domain.
   Patch by Adam Turner.
+* #9169: Add the :confval:`intersphinx_resolve_self` option
+  to resolve an intersphinx reference to the current project.
+  Patch by Jakob Lykke Andersen and Adam Turner.
 
 Bugs fixed
 ----------
