@@ -134,6 +134,8 @@ Bugs fixed
 * #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
 * #13178: autodoc: Fix resolution for ``pathlib`` types.
   Patch by Adam Turner.
+* #13136: autodoc: Correctly handle multiple inheritance.
+  Patch by Pavel Holica
 
 Testing
 -------

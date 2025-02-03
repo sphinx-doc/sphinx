@@ -831,6 +831,7 @@ def test_autodoc_inherited_members(app):
     }
     actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
     assert list(filter(lambda l: 'method::' in l, actual)) == [
+        '   .. py:method:: Derived.another_inheritedmeth()',
         '   .. py:method:: Derived.inheritedclassmeth()',
         '   .. py:method:: Derived.inheritedmeth()',
         '   .. py:method:: Derived.inheritedstaticmeth(cls)',
