@@ -562,8 +562,7 @@ The following directives are provided for module and class contents:
 
    (as opposed to ``.. py:decorator:: removename(func)``.)
 
-   There is no ``py:deco`` role to link to a decorator that is marked up with
-   this directive; rather, use the :rst:role:`py:func` role.
+   Refer to a decorator function using the :rst:role:`py:deco` role.
 
    .. rst:directive:option:: single-line-parameter-list
       :type: no value
@@ -589,7 +588,7 @@ The following directives are provided for module and class contents:
 
    Same as :rst:dir:`py:decorator`, but for decorators that are methods.
 
-   Refer to a decorator method using the :rst:role:`py:meth` role.
+   Refer to a decorator method using the :rst:role:`py:deco` role.
 
 .. _annotation expression: https://typing.readthedocs.io/en/latest/spec/annotations.html#type-and-annotation-expressions
 
@@ -768,6 +767,17 @@ a matching identifier is found:
    not include trailing parentheses to enhance readability; they will be added
    automatically by Sphinx if the :confval:`add_function_parentheses` config
    value is ``True`` (the default).
+
+.. rst:role:: py:deco
+
+   Reference a Python decorator; dotted names may be used.
+   The rendered output will be prepended with an at-sign (``@``),
+   for example: ``:py:deco:`removename``` produces :py:deco:`removename`.
+
+   .. py:decorator:: removename
+      :no-contents-entry:
+      :no-index-entry:
+      :no-typesetting:
 
 .. rst:role:: py:data
 
