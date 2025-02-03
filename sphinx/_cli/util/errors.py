@@ -58,6 +58,7 @@ def full_exception_context(
     *,
     message_log: Collection[str] = (),
     extensions: Collection[Extension] = (),
+    full_traceback: bool = True,
 ) -> str:
     """Return a formatted message containing useful debugging context."""
     last_msgs = '\n'.join(f'* {strip_escape_sequences(s)}' for s in message_log)
@@ -66,12 +67,23 @@ def full_exception_context(
         for ext in extensions
         if ext.version != 'builtin'
     )
-    exc_format = format_traceback(exception)
+    exc_format = format_traceback(exception, short_traceback=not full_traceback)
     return error_info(last_msgs or 'None.', exts_list or 'None.', exc_format)
 
 
-def format_traceback(exception: BaseException, /) -> str:
+def format_traceback(
+    exception: BaseException, /, *, short_traceback: bool = False
+) -> str:
     """Format the given exception's traceback."""
+    if short_traceback:
+        from traceback import TracebackException
+
+        # format an exception with traceback, but only the last frame.
+        te = TracebackException.from_exception(exception, limit=-1)
+        formatted_tb = (
+            te.stack.format()[-1] + ''.join(te.format_exception_only()).rstrip()
+        )
+        return formatted_tb
     if isinstance(exception, SphinxParallelError):
         return f'(Error in parallel process)\n{exception.traceback}'
     else:
@@ -158,7 +170,6 @@ def handle_exception(
     extensions: Collection[Extension] = (),
 ) -> None:
     from bdb import BdbQuit
-    from traceback import TracebackException
 
     from docutils.utils import SystemMessage
 
@@ -175,24 +186,64 @@ def handle_exception(
         print_err(*map(red, values))
 
     print_err()
-    if print_traceback or use_pdb:
-        # format an exception with traceback, but only the last frame.
-        te = TracebackException.from_exception(exception, limit=-1)
-        formatted_tb = te.stack.format()[-1] + ''.join(te.format_exception_only()).rstrip()
+    if not use_pdb and isinstance(exception, KeyboardInterrupt):
+        print_err(__('Interrupted!'))
+        return
 
-        print_red(__('Exception occurred:'))
-        print_err(formatted_tb)
-        traceback_output = full_exception_context(
-            exception, message_log=message_log, extensions=extensions
-        )
-        print_err(traceback_output)
-        traceback_info_path = write_temporary_file(traceback_output)
-        print_err(__('The full traceback has been saved in:'))
-        print_err(traceback_info_path)
+    if isinstance(exception, SystemMessage):
+        print_red(__('reStructuredText markup error!'))
+
+    if isinstance(exception, SphinxError):
+        print_red(f'{exception.category}!')
+
+    if isinstance(exception, UnicodeError):
+        print_red(__('Encoding error!'))
+
+    if isinstance(exception, RecursionError):
+        print_red(__('Recursion error!'))
         print_err()
+        print_err(
+            __(
+                'This can happen with very large or deeply nested source '
+                'files. You can carefully increase the default Python '
+                'recursion limit of 1,000 in conf.py with e.g.:'
+            )
+        )
+        print_err('\n    import sys\n    sys.setrecursionlimit(1_500)\n')
+
+    print_err()
+    error_context = full_exception_context(
+        exception,
+        message_log=message_log,
+        extensions=extensions,
+        full_traceback=print_traceback or use_pdb,
+    )
+    print_err(error_context)
+    print_err()
 
     if use_pdb:
         from pdb import post_mortem
 
-        print_red(__('Exception occurred, starting debugger:'))
+        print_red(__('Starting debugger:'))
         post_mortem(exception.__traceback__)
+        return
+
+    # Save full traceback to log file
+    traceback_info_path = save_traceback(
+        exception, message_log=message_log, extensions=extensions
+    )
+    print_err(__('The full traceback has been saved in:'))
+    print_err(traceback_info_path)
+    print_err()
+    print_err(
+        __(
+            'To report this error to the developers, please open an issue '
+            'at <https://github.com/sphinx-doc/sphinx/issues/>. Thanks!'
+        )
+    )
+    print_err(
+        __(
+            'Please also report this if it was a user error, so '
+            'that a better error message can be provided next time.'
+        )
+    )

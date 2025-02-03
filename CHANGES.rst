@@ -96,8 +96,8 @@ Features added
   Patch by Walter Dörwald.
 * #11995: autodoc: Add support for :confval:`python_display_short_literal_types`.
   Patch by Bénédikt Tran and Adam Turner.
-* #13163: Always print tracebacks in full when Sphinx encounters an internal error.
-  Patch by Kevin Deldycke.
+* #13163: Always print the full context when Sphinx encounters an internal error.
+  Patch by Kevin Deldycke and Adam Turner.
 
 Bugs fixed
 ----------
