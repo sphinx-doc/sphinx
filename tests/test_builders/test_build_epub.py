@@ -14,7 +14,7 @@ import pytest
 from sphinx.builders.epub3 import _XML_NAME_PATTERN
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
     from typing import Self
 
     from sphinx.testing.util import SphinxTestApp
@@ -69,7 +69,7 @@ class EPUBElementTree:
     def get(self, key: str) -> str | None:
         return self.tree.get(key)
 
-    def __iter__(self) -> Generator[Self, None, None]:
+    def __iter__(self) -> Iterator[Self]:
         for child in self.tree:
             yield self.__class__(child)
 
