@@ -250,7 +250,6 @@ module = [
     "tests.test_extensions.test_ext_coverage",
     "tests.test_extensions.test_ext_duration",
     "tests.test_extensions.test_ext_extlinks",
-    "tests.test_extensions.test_ext_githubpages",
     "tests.test_extensions.test_ext_graphviz",
     "tests.test_extensions.test_ext_ifconfig",
     "tests.test_extensions.test_ext_imgconverter",
