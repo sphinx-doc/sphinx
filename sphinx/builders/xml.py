@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os.path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -12,7 +11,7 @@ from docutils.writers.docutils_xml import XMLTranslator
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import _last_modified_time, ensuredir
+from sphinx.util.osutil import _last_modified_time
 from sphinx.writers.xml import PseudoXMLWriter, XMLWriter
 
 if TYPE_CHECKING:
@@ -82,13 +81,13 @@ class XMLBuilder(Builder):
                             value[i] = list(val)
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
-        outfilename = self.outdir / (docname + self.out_suffix)
-        ensuredir(os.path.dirname(outfilename))
+        out_file_name = self.outdir / (docname + self.out_suffix)
+        out_file_name.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with open(outfilename, 'w', encoding='utf-8') as f:
+            with open(out_file_name, 'w', encoding='utf-8') as f:
                 f.write(self.writer.output)
         except OSError as err:
-            logger.warning(__('error writing file %s: %s'), outfilename, err)
+            logger.warning(__('error writing file %s: %s'), out_file_name, err)
 
     def finish(self) -> None:
         pass

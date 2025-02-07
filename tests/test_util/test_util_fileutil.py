@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -144,10 +145,10 @@ def test_copy_asset_overwrite(app):
 
 
 def test_template_basename():
-    assert _template_basename('asset.txt') is None
-    assert _template_basename('asset.txt.jinja') == 'asset.txt'
-    assert _template_basename('sidebar.html.jinja') == 'sidebar.html'
+    assert _template_basename(Path('asset.txt')) is None
+    assert _template_basename(Path('asset.txt.jinja')) == Path('asset.txt')
+    assert _template_basename(Path('sidebar.html.jinja')) == Path('sidebar.html')
 
 
 def test_legacy_template_basename():
-    assert _template_basename('asset.txt_t') == 'asset.txt'
+    assert _template_basename(Path('asset.txt_t')) == Path('asset.txt')

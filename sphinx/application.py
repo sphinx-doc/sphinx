@@ -415,9 +415,7 @@ class Sphinx:
 
     # ---- main "build" method -------------------------------------------------
 
-    def build(
-        self, force_all: bool = False, filenames: list[str] | None = None
-    ) -> None:
+    def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
         self.phase = BuildPhase.READING
         try:
             if force_all:

@@ -3,8 +3,6 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import locale
-import os
-import os.path
 import re
 import sys
 from pathlib import Path
@@ -262,7 +260,7 @@ def main(argv: Sequence[str] = (), /) -> int:
     opts = _parse_args(argv)
     rootpath = opts.module_path
     excludes = tuple(
-        re.compile(fnmatch.translate(os.path.abspath(exclude)))
+        re.compile(fnmatch.translate(str(Path(exclude).resolve())))
         for exclude in dict.fromkeys(opts.exclude_pattern)
     )
 
