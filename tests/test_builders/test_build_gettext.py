@@ -126,7 +126,7 @@ def test_msgfmt(app: SphinxTestApp) -> None:
 )
 def test_gettext_index_entries(app: SphinxTestApp) -> None:
     # regression test for #976
-    app.build(filenames=[str(app.srcdir / 'index_entries.txt')])
+    app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
     pot = (app.outdir / 'index_entries.pot').read_text(encoding='utf8')
     msg_ids = get_msgids(pot)
@@ -157,7 +157,7 @@ def test_gettext_index_entries(app: SphinxTestApp) -> None:
 def test_gettext_disable_index_entries(app: SphinxTestApp) -> None:
     # regression test for #976
     app.env._pickled_doctree_cache.clear()  # clear cache
-    app.build(filenames=[str(app.srcdir / 'index_entries.txt')])
+    app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
     pot = (app.outdir / 'index_entries.pot').read_text(encoding='utf8')
     msg_ids = get_msgids(pot)
