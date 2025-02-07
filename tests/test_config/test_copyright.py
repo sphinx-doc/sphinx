@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -11,6 +12,12 @@ from sphinx.config import (
     correct_copyright_year,
     evaluate_copyright_placeholders,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+    from pathlib import Path
+
+    from sphinx.testing.util import SphinxTestApp
 
 LT = time.localtime()
 LT_NEW = (2009, *LT[1:], LT.tm_zone, LT.tm_gmtoff)
@@ -29,7 +36,10 @@ LOCALTIME_2009 = type(LT)(LT_NEW)
         ('1199145599', 2007),
     ],
 )
-def expect_date(request, monkeypatch):
+def expect_date(
+    request: pytest.FixtureRequest,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[int | None]:
     sde, expect = request.param
     with monkeypatch.context() as m:
         m.setattr(time, 'localtime', lambda *a: LOCALTIME_2009)
@@ -40,7 +50,7 @@ def expect_date(request, monkeypatch):
         yield expect
 
 
-def test_correct_year(expect_date):
+def test_correct_year(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_date = '2006-2009, Alice'
     cfg = Config({'copyright': copyright_date}, {})
@@ -52,7 +62,7 @@ def test_correct_year(expect_date):
         assert cfg.copyright == copyright_date
 
 
-def test_correct_year_space(expect_date):
+def test_correct_year_space(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_date = '2006-2009 Alice'
     cfg = Config({'copyright': copyright_date}, {})
@@ -64,7 +74,7 @@ def test_correct_year_space(expect_date):
         assert cfg.copyright == copyright_date
 
 
-def test_correct_year_no_author(expect_date):
+def test_correct_year_no_author(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_date = '2006-2009'
     cfg = Config({'copyright': copyright_date}, {})
@@ -76,7 +86,7 @@ def test_correct_year_no_author(expect_date):
         assert cfg.copyright == copyright_date
 
 
-def test_correct_year_single(expect_date):
+def test_correct_year_single(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_date = '2009, Alice'
     cfg = Config({'copyright': copyright_date}, {})
@@ -88,7 +98,7 @@ def test_correct_year_single(expect_date):
         assert cfg.copyright == copyright_date
 
 
-def test_correct_year_single_space(expect_date):
+def test_correct_year_single_space(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_date = '2009 Alice'
     cfg = Config({'copyright': copyright_date}, {})
@@ -100,7 +110,7 @@ def test_correct_year_single_space(expect_date):
         assert cfg.copyright == copyright_date
 
 
-def test_correct_year_single_no_author(expect_date):
+def test_correct_year_single_no_author(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_date = '2009'
     cfg = Config({'copyright': copyright_date}, {})
@@ -112,7 +122,7 @@ def test_correct_year_single_no_author(expect_date):
         assert cfg.copyright == copyright_date
 
 
-def test_correct_year_placeholder(expect_date):
+def test_correct_year_placeholder(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_date = '2006-%Y, Alice'
     cfg = Config({'copyright': copyright_date}, {})
@@ -125,7 +135,7 @@ def test_correct_year_placeholder(expect_date):
         assert cfg.copyright == '2006-2009, Alice'
 
 
-def test_correct_year_multi_line(expect_date):
+def test_correct_year_multi_line(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_dates = (
         '2009',
@@ -152,7 +162,7 @@ def test_correct_year_multi_line(expect_date):
         assert cfg.copyright == copyright_dates
 
 
-def test_correct_year_multi_line_all_formats(expect_date):
+def test_correct_year_multi_line_all_formats(expect_date: int | None) -> None:
     # test that copyright is substituted
     copyright_dates = (
         '2009',
@@ -178,7 +188,9 @@ def test_correct_year_multi_line_all_formats(expect_date):
         assert cfg.copyright == copyright_dates
 
 
-def test_correct_year_multi_line_all_formats_placeholder(expect_date):
+def test_correct_year_multi_line_all_formats_placeholder(
+    expect_date: int | None,
+) -> None:
     # test that copyright is substituted
     copyright_dates = (
         '%Y',
@@ -219,7 +231,11 @@ def test_correct_year_multi_line_all_formats_placeholder(expect_date):
         )
 
 
-def test_correct_year_app(expect_date, tmp_path, make_app):
+def test_correct_year_app(
+    expect_date: int | None,
+    tmp_path: Path,
+    make_app: Callable[..., SphinxTestApp],
+) -> None:
     # integration test
     copyright_date = '2006-2009, Alice'
     (tmp_path / 'conf.py').touch()
