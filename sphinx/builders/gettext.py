@@ -209,8 +209,8 @@ else:
 ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
 
 
-def should_write(filepath: str | os.PathLike[str], new_content: str) -> bool:
-    if not os.path.exists(filepath):
+def should_write(filepath: Path, new_content: str) -> bool:
+    if not filepath.exists():
         return True
     try:
         with codecs.open(str(filepath), encoding='utf-8') as oldpot:

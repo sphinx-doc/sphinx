@@ -5,7 +5,8 @@ from __future__ import annotations
 import sys
 from os import environ as _environ
 
-if False:
+TYPE_CHECKING = False
+if TYPE_CHECKING:
     from collections.abc import Callable
 
 if sys.platform == 'win32':
