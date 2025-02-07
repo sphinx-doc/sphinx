@@ -794,6 +794,15 @@ def test_autosummary_generate_command_line_false():
     assert config.autosummary_generate is False
 
 
+def test_boolean_command_line_invalid():
+    config = Config({}, {'rabit_of_caerbannog': ''})
+    config.add('rabit_of_caerbannog', True, '', {bool})
+    with pytest.raises(
+        ConfigError, match="'rabit_of_caerbannog' must be '0' or '1', got ''"
+    ):
+        _ = config.rabit_of_caerbannog
+
+
 def test_root_doc_and_master_doc_are_synchronized():
     c = Config()
     assert c.master_doc == 'index'
