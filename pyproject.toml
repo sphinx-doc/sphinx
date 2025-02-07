@@ -199,8 +199,6 @@ module = [
     "tests.test_project",
     "tests.test_roles",
     "tests.test_versioning",
-    # tests/test__cli
-    "tests.test__cli.test__cli_util_errors",
     # tests/test_builders
     "tests.test_builders.test_build",
     "tests.test_builders.test_build_changes",
