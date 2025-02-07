@@ -36,7 +36,6 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
-    from sphinx.config import Config
     from sphinx.util.i18n import CatalogInfo
     from sphinx.util.typing import ExtensionMetadata
 
@@ -327,15 +326,6 @@ class MessageCatalogBuilder(I18nBuilder):
                     pofile.write(content)
 
 
-def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
-    gettext_compact = config.gettext_compact
-    # Convert 0/1 from the command line to ``bool`` types
-    if gettext_compact == '0':
-        config.gettext_compact = False
-    elif gettext_compact == '1':
-        config.gettext_compact = True
-
-
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(MessageCatalogBuilder)
 
@@ -352,7 +342,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext'
     )
     app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
-    app.connect('config-inited', _gettext_compact_validator, priority=800)
 
     return {
         'version': 'builtin',

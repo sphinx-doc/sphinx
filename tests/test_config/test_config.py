@@ -11,7 +11,6 @@ from unittest import mock
 import pytest
 
 import sphinx
-from sphinx.builders.gettext import _gettext_compact_validator
 from sphinx.config import (
     ENUM,
     Config,
@@ -741,7 +740,6 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
 def test_gettext_compact_command_line_true():
     config = Config({}, {'gettext_compact': '1'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=1)
     assert config.gettext_compact is True
@@ -750,7 +748,6 @@ def test_gettext_compact_command_line_true():
 def test_gettext_compact_command_line_false():
     config = Config({}, {'gettext_compact': '0'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=0)
     assert config.gettext_compact is False
@@ -759,10 +756,33 @@ def test_gettext_compact_command_line_false():
 def test_gettext_compact_command_line_str():
     config = Config({}, {'gettext_compact': 'spam'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=spam)
     assert config.gettext_compact == 'spam'
+
+
+def test_translation_progress_classes_command_line():
+    config = Config({}, {'translation_progress_classes': '1'})
+
+    # regression test for --define translation_progress_classes=1
+    # https://github.com/sphinx-doc/sphinx/issues/13071
+    assert config.translation_progress_classes is True
+
+
+def test_translation_progress_classes_command_line_false():
+    config = Config({}, {'translation_progress_classes': '0'})
+
+    # regression test for --define translation_progress_classes=0
+    # https://github.com/sphinx-doc/sphinx/issues/13071
+    assert config.translation_progress_classes is False
+
+
+def test_translation_progress_classes_command_line_str():
+    config = Config({}, {'translation_progress_classes': 'translated'})
+
+    # regression test for --define translation_progress_classes=translated
+    # https://github.com/sphinx-doc/sphinx/issues/13071
+    assert config.translation_progress_classes == 'translated'
 
 
 def test_root_doc_and_master_doc_are_synchronized():
