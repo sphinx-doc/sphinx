@@ -238,7 +238,6 @@ module = [
     # tests/test_extensions
     "tests.test_extensions.test_ext_autodoc_autoattribute",
     "tests.test_extensions.test_ext_autodoc_autoclass",
-    "tests.test_extensions.test_ext_autodoc_autodata",
     "tests.test_extensions.test_ext_autodoc_autofunction",
     "tests.test_extensions.test_ext_autodoc_automodule",
     "tests.test_extensions.test_ext_autodoc_autoproperty",
