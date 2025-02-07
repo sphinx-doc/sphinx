@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import functools
+from typing import TYPE_CHECKING
 
 from sphinx._cli.util.colour import bold, terminal_supports_colour
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
+if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
-    from typing import Any, ParamSpec, TypeVar
+    from typing import Any
+
+if False:
+    from typing import ParamSpec, TypeVar
 
     T = TypeVar('T')
     P = ParamSpec('P')

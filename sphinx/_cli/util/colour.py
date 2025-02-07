@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import sys
 from os import environ as _environ
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 if False:
-    from collections.abc import Callable
+    pass
 
 if sys.platform == 'win32':
     import colorama
