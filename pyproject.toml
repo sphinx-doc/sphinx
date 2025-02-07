@@ -287,9 +287,7 @@ module = [
     "tests.test_util.test_util_matching",
     "tests.test_util.test_util_uri",
     # tests/test_writers
-    "tests.test_writers.test_api_translator",
     "tests.test_writers.test_docutilsconf",
-    "tests.test_writers.test_writer_latex",
 ]
 disallow_untyped_defs = false
 
