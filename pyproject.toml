@@ -297,7 +297,6 @@ module = [
     "tests.test_quickstart",
     "tests.test_search",
     # tests/test_builders
-    "tests.test_builders.test_build_gettext",
     "tests.test_builders.test_build_latex",
     "tests.test_builders.test_build_texinfo",
     # tests/test_config
