@@ -18,8 +18,6 @@ import argparse
 import importlib
 import inspect
 import locale
-import os
-import os.path
 import pkgutil
 import pydoc
 import re
@@ -52,6 +50,7 @@ from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Sequence, Set
     from gettext import NullTranslations
     from typing import Any
@@ -556,7 +555,7 @@ def generate_autosummary_docs(
             # a :toctree: option
             continue
 
-        path = output_dir or os.path.abspath(entry.path)
+        path = output_dir or Path(entry.path).resolve()
         ensuredir(path)
 
         try:
@@ -862,7 +861,7 @@ def main(argv: Sequence[str] = (), /) -> None:
     args = get_parser().parse_args(argv or sys.argv[1:])
 
     if args.templates:
-        app.config.templates_path.append(os.path.abspath(args.templates))
+        app.config.templates_path.append(str(Path(args.templates).resolve()))
     app.config.autosummary_ignore_module_all = not args.respect_module_all
 
     written_files = generate_autosummary_docs(

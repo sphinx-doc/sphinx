@@ -31,6 +31,7 @@ from sphinx.util.inspect import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping
+    from importlib.machinery import ModuleSpec
     from types import ModuleType
     from typing import Any, Protocol
 
@@ -169,20 +170,7 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
         if spec is None:
             msg = f'No module named {modname!r}'
             raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
-        pyi_path = None
-        if spec.origin is not None:
-            # Try finding a spec for a '.pyi' stubs file for native modules.
-            for suffix in _NATIVE_SUFFIXES:
-                if not spec.origin.endswith(suffix):
-                    continue
-                pyi_path = Path(spec.origin.removesuffix(suffix) + '.pyi')
-                if not pyi_path.is_file():
-                    continue
-                pyi_loader = _StubFileLoader(modname, path=str(pyi_path))
-                pyi_spec = spec_from_loader(modname, loader=pyi_loader)
-                if pyi_spec is not None:
-                    spec = pyi_spec
-                    break
+        spec, pyi_path = _find_type_stub_spec(spec, modname)
         if pyi_path is None:
             module = importlib.import_module(modname)
         else:
@@ -201,7 +189,7 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
         new_modules = [m for m in sys.modules if m not in original_module_names]
         # Try reloading modules with ``typing.TYPE_CHECKING == True``.
         try:
-            typing.TYPE_CHECKING = True
+            typing.TYPE_CHECKING = True  # type: ignore[misc]
             # Ignore failures; we've already successfully loaded these modules
             with contextlib.suppress(ImportError, KeyError):
                 for m in new_modules:
@@ -210,9 +198,29 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
                         continue
                     _reload_module(sys.modules[m])
         finally:
-            typing.TYPE_CHECKING = False
+            typing.TYPE_CHECKING = False  # type: ignore[misc]
         module = sys.modules[modname]
     return module
+
+
+def _find_type_stub_spec(
+    spec: ModuleSpec, modname: str
+) -> tuple[ModuleSpec, Path | None]:
+    """Try finding a spec for a PEP 561 '.pyi' stub file for native modules."""
+    if spec.origin is None:
+        return spec, None
+
+    for suffix in _NATIVE_SUFFIXES:
+        if not spec.origin.endswith(suffix):
+            continue
+        pyi_path = Path(spec.origin.removesuffix(suffix) + '.pyi')
+        if not pyi_path.is_file():
+            continue
+        pyi_loader = _StubFileLoader(modname, path=str(pyi_path))
+        pyi_spec = spec_from_loader(modname, loader=pyi_loader)
+        if pyi_spec is not None:
+            return pyi_spec, pyi_path
+    return spec, None
 
 
 class _StubFileLoader(FileLoader):

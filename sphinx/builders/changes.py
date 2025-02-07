@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import html
-import os.path
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -14,7 +13,6 @@ from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -143,7 +141,7 @@ class ChangesBuilder(Builder):
             }
             rendered = self.templates.render('changes/rstsource.html', ctx)
             targetfn = self.outdir / 'rst' / f'{docname}.html'
-            ensuredir(os.path.dirname(targetfn))
+            targetfn.parent.mkdir(parents=True, exist_ok=True)
             with open(targetfn, 'w', encoding='utf-8') as f:
                 f.write(rendered)
         themectx = {

@@ -24,7 +24,6 @@ from sphinx.util._pathlib import _StrPath
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar
@@ -299,13 +298,13 @@ def render_dot(
     relfn = _StrPath(self.builder.imgpath, fname)
     outfn = self.builder.outdir / self.builder.imagedir / fname
 
-    if os.path.isfile(outfn):
+    if outfn.is_file():
         return relfn, outfn
 
     if getattr(self.builder, '_graphviz_warned_dot', {}).get(graphviz_dot):
         return None, None
 
-    ensuredir(os.path.dirname(outfn))
+    outfn.parent.mkdir(parents=True, exist_ok=True)
 
     dot_args = [graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
@@ -313,9 +312,9 @@ def render_dot(
 
     docname = options.get('docname', 'index')
     if filename:
-        cwd = os.path.dirname(self.builder.srcdir / filename)
+        cwd = (self.builder.srcdir / filename).parent
     else:
-        cwd = os.path.dirname(self.builder.srcdir / docname)
+        cwd = (self.builder.srcdir / docname).parent
 
     if format == 'png':
         dot_args.extend(['-Tcmapx', f'-o{outfn}.map'])
@@ -341,7 +340,7 @@ def render_dot(
             __('dot exited with error:\n[stderr]\n%r\n[stdout]\n%r')
             % (exc.stderr, exc.stdout)
         ) from exc
-    if not os.path.isfile(outfn):
+    if not outfn.is_file():
         raise GraphvizError(
             __('dot did not produce an output file:\n[stderr]\n%r\n[stdout]\n%r')
             % (ret.stderr, ret.stdout)

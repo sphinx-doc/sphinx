@@ -257,7 +257,8 @@ class FileAvoidWrite:
 
 
 def rmtree(path: str | os.PathLike[str], /) -> None:
-    if os.path.isdir(path):
+    path = Path(path)
+    if path.is_dir():
         shutil.rmtree(path)
     else:
         os.remove(path)

@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 import re
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -91,7 +92,7 @@ class MecabSplitter(BaseSplitter):
             libpath = ctypes.util.find_library(lib)
         else:
             libpath = None
-            if os.path.exists(lib):
+            if Path(lib).exists():
                 libpath = lib
         if libpath is None:
             msg = 'MeCab dynamic library is not available'
