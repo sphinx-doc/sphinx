@@ -10,10 +10,7 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
-    from typing import Any
-
-if False:
-    from typing import ParamSpec, TypeVar
+    from typing import Any, ParamSpec, TypeVar
 
     T = TypeVar('T')
     P = ParamSpec('P')

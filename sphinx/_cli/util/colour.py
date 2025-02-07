@@ -9,9 +9,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-if False:
-    pass
-
 if sys.platform == 'win32':
     import colorama
 
