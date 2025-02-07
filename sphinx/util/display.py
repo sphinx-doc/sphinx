@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import functools
-from typing import TYPE_CHECKING
 
 from sphinx._cli.util.colour import bold, terminal_supports_colour
 from sphinx.locale import __
 from sphinx.util import logging
 
+TYPE_CHECKING = False
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
