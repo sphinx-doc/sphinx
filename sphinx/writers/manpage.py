@@ -277,8 +277,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
         productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
+        maxlen = max(len(production['tokenname']) for production in productionlist)
         lastname = None
         for production in productionlist:
             if production['tokenname']:
@@ -288,7 +287,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
                 self.body.append(self.defs['strong'][1])
                 self.body.append(' ::= ')
             elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
+                self.body.append(' ' * (maxlen + 5))
             production.walkabout(self)
             self.body.append('\n')
         self.body.append('\n.fi\n')

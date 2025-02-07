@@ -1309,8 +1309,7 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_productionlist(self, node: Element) -> None:
         self.visit_literal_block(None)
         productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
+        maxlen = max(len(production['tokenname']) for production in productionlist)
 
         for production in productionlist:
             if production['tokenname']:
@@ -1318,7 +1317,7 @@ class TexinfoTranslator(SphinxTranslator):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
             else:
-                s = '%s    ' % (' ' * maxlen)
+                s = ' ' * (maxlen + 4)
             self.body.append(self.escape(s))
             self.body.append(self.escape(production.astext() + '\n'))
         self.depart_literal_block(None)
