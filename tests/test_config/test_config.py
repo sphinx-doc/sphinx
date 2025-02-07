@@ -785,6 +785,15 @@ def test_translation_progress_classes_command_line_str():
     assert config.translation_progress_classes == 'translated'
 
 
+def test_autosummary_generate_command_line_false():
+    config = Config({}, {'autosummary_generate': '0'})
+    config.add('autosummary_generate', True, '', {bool, list})
+
+    # regression test for --define autosummary_generate=0
+    # https://github.com/sphinx-doc/sphinx/issues/13273
+    assert config.autosummary_generate is False
+
+
 def test_root_doc_and_master_doc_are_synchronized():
     c = Config()
     assert c.master_doc == 'index'
