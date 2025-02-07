@@ -25,7 +25,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
-from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
@@ -266,7 +265,7 @@ def render_math(
         f'{sha1(latex.encode(), usedforsecurity=False).hexdigest()}.{image_format}'
     )
     generated_path = self.builder.outdir / self.builder.imagedir / 'math' / filename
-    ensuredir(os.path.dirname(generated_path))
+    generated_path.parent.mkdir(parents=True, exist_ok=True)
     if generated_path.is_file():
         if image_format == 'png':
             depth = read_png_depth(generated_path)

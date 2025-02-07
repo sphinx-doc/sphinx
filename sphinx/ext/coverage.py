@@ -170,8 +170,8 @@ class CoverageBuilder(Builder):
     name = 'coverage'
     epilog = __(
         'Testing of coverage in the sources finished, look at the '
-        'results in %(outdir)s' + os.path.sep + 'python.txt.'
-    )
+        'results in %(outdir)s{sep}python.txt.'
+    ).format(sep=os.path.sep)
 
     def init(self) -> None:
         self.c_sourcefiles: list[str] = []

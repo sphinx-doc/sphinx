@@ -22,7 +22,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
-from sphinx.util._pathlib import _StrPathProperty
+from sphinx.util._pathlib import _StrPath, _StrPathProperty
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
@@ -47,7 +47,6 @@ if TYPE_CHECKING:
     from sphinx.events import EventManager
     from sphinx.extension import Extension
     from sphinx.project import Project
-    from sphinx.util._pathlib import _StrPath
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +130,7 @@ class BuildEnvironment:
         self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
-        self.dependencies: dict[str, set[str]] = defaultdict(set)
+        self.dependencies: dict[str, set[_StrPath]] = {}
         # docname -> set of included file
         # docnames included from other documents
         self.included: dict[str, set[str]] = defaultdict(set)
@@ -524,6 +523,8 @@ class BuildEnvironment:
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
+                if docname not in self.dependencies:
+                    continue
                 for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
@@ -614,7 +615,7 @@ class BuildEnvironment:
         """
         if docname is None:
             docname = self.docname
-        self.dependencies[docname].add(os.fspath(filename))
+        self.dependencies.setdefault(docname, set()).add(_StrPath(filename))
 
     def note_included(self, filename: str | os.PathLike[str]) -> None:
         """Add *filename* as a included from other document.

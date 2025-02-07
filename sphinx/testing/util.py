@@ -232,9 +232,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self._builder_name!r}>'
 
-    def build(
-        self, force_all: bool = False, filenames: list[str] | None = None
-    ) -> None:
+    def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
         self.env._pickled_doctree_cache.clear()
         super().build(force_all, filenames)
 
@@ -246,9 +244,7 @@ class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
     if it has already been built and there are any output files.
     """
 
-    def build(
-        self, force_all: bool = False, filenames: list[str] | None = None
-    ) -> None:
+    def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
         if not list(self.outdir.iterdir()):
             # if listdir is empty, do build.
             super().build(force_all, filenames)

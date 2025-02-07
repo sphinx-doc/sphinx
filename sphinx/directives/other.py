@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from os.path import abspath, relpath
+from os.path import relpath
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
@@ -387,7 +387,7 @@ class Include(BaseInclude, SphinxDirective):
             # We must preserve them and leave them out of the include-read event:
             text = '\n'.join(include_lines[:-2])
 
-            path = Path(relpath(abspath(source), start=self.env.srcdir))
+            path = Path(relpath(Path(source).resolve(), start=self.env.srcdir))
             docname = self.env.docname
 
             # Emit the "include-read" event
@@ -412,7 +412,7 @@ class Include(BaseInclude, SphinxDirective):
             # docutils "standard" includes, do not do path processing
             return super().run()
         rel_filename, filename = self.env.relfn2path(self.arguments[0])
-        self.arguments[0] = filename
+        self.arguments[0] = str(filename)
         self.env.note_included(filename)
         return super().run()
 

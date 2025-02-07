@@ -498,11 +498,11 @@ class LaTeXBuilder(Builder):
                         err,
                     )
         if self.config.latex_logo:
-            if not os.path.isfile(self.confdir / self.config.latex_logo):
+            source = self.confdir / self.config.latex_logo
+            if not source.is_file():
                 raise SphinxError(
                     __('logo file %r does not exist') % self.config.latex_logo
                 )
-            source = self.confdir / self.config.latex_logo
             copyfile(
                 source,
                 self.outdir / source.name,

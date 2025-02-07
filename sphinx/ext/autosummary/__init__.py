@@ -51,8 +51,6 @@ from __future__ import annotations
 import functools
 import inspect
 import operator
-import os
-import os.path
 import posixpath
 import re
 import sys
@@ -893,7 +891,7 @@ def process_generate_options(app: Sphinx) -> None:
         genfiles = [
             str(env.doc2path(x, base=False))
             for x in env.found_docs
-            if os.path.isfile(env.doc2path(x))
+            if env.doc2path(x).is_file()
         ]
     elif genfiles is False:
         pass
