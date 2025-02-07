@@ -139,6 +139,8 @@ Bugs fixed
   Patch by Adam Turner.
 * #13136: autodoc: Correctly handle multiple inheritance.
   Patch by Pavel Holica
+* #13273, #13318: Properly convert command-line overrides for Boolean types.
+  Patch by Adam Turner.
 
 Testing
 -------
