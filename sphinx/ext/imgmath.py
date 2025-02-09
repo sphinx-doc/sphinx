@@ -411,21 +411,26 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         block_renderers=(html_visit_displaymath, None),
     )
 
-    app.add_config_value('imgmath_image_format', 'png', 'html')
-    app.add_config_value('imgmath_dvipng', 'dvipng', 'html')
-    app.add_config_value('imgmath_dvisvgm', 'dvisvgm', 'html')
-    app.add_config_value('imgmath_latex', 'latex', 'html')
-    app.add_config_value('imgmath_use_preview', False, 'html')
+    app.add_config_value('imgmath_image_format', 'png', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_dvipng', 'dvipng', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_dvisvgm', 'dvisvgm', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_latex', 'latex', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_use_preview', False, 'html', types=frozenset({bool}))
     app.add_config_value(
         'imgmath_dvipng_args',
         ['-gamma', '1.5', '-D', '110', '-bg', 'Transparent'],
         'html',
+        types=frozenset({list}),
     )
-    app.add_config_value('imgmath_dvisvgm_args', ['--no-fonts'], 'html')
-    app.add_config_value('imgmath_latex_args', [], 'html')
-    app.add_config_value('imgmath_latex_preamble', '', 'html')
-    app.add_config_value('imgmath_add_tooltips', True, 'html')
-    app.add_config_value('imgmath_font_size', 12, 'html')
+    app.add_config_value(
+        'imgmath_dvisvgm_args', ['--no-fonts'], 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'imgmath_latex_args', [], 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value('imgmath_latex_preamble', '', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_add_tooltips', True, 'html', types=frozenset({bool}))
+    app.add_config_value('imgmath_font_size', 12, 'html', types=frozenset({int}))
     app.add_config_value('imgmath_embed', False, 'html', types=frozenset({bool}))
     app.connect('build-finished', clean_up_files)
     return {

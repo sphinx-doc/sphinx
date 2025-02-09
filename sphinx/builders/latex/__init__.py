@@ -608,10 +608,14 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         '',
         types=ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'),
     )
-    app.add_config_value('latex_documents', default_latex_documents, '')
+    app.add_config_value(
+        'latex_documents', default_latex_documents, '', types=frozenset({list, tuple})
+    )
     app.add_config_value('latex_logo', None, '', types=frozenset({str}))
-    app.add_config_value('latex_appendices', [], '')
-    app.add_config_value('latex_use_latex_multicolumn', False, '')
+    app.add_config_value('latex_appendices', [], '', types=frozenset({list, tuple}))
+    app.add_config_value(
+        'latex_use_latex_multicolumn', False, '', types=frozenset({bool})
+    )
     app.add_config_value(
         'latex_use_xindy', default_latex_use_xindy, '', types=frozenset({bool})
     )
@@ -622,18 +626,22 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         types=ENUM(None, 'part', 'chapter', 'section'),
     )
     app.add_config_value('latex_domain_indices', True, '', types=frozenset({set, list}))
-    app.add_config_value('latex_show_urls', 'no', '')
-    app.add_config_value('latex_show_pagerefs', False, '')
-    app.add_config_value('latex_elements', {}, '')
-    app.add_config_value('latex_additional_files', [], '')
+    app.add_config_value('latex_show_urls', 'no', '', types=frozenset({str}))
+    app.add_config_value('latex_show_pagerefs', False, '', types=frozenset({bool}))
+    app.add_config_value('latex_elements', {}, '', types=frozenset({dict}))
+    app.add_config_value(
+        'latex_additional_files', [], '', types=frozenset({list, tuple})
+    )
     app.add_config_value(
         'latex_table_style', ['booktabs', 'colorrows'], '', types=frozenset({list})
     )
     app.add_config_value('latex_theme', 'manual', '', types=frozenset({str}))
-    app.add_config_value('latex_theme_options', {}, '')
+    app.add_config_value('latex_theme_options', {}, '', types=frozenset({dict}))
     app.add_config_value('latex_theme_path', [], '', types=frozenset({list}))
 
-    app.add_config_value('latex_docclass', default_latex_docclass, '')
+    app.add_config_value(
+        'latex_docclass', default_latex_docclass, '', types=frozenset({dict})
+    )
 
     return {
         'version': 'builtin',

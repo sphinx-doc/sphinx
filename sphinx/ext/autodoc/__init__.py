@@ -3174,9 +3174,13 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'env',
         types=ENUM('mixed', 'separated'),
     )
-    app.add_config_value('autodoc_default_options', {}, 'env')
-    app.add_config_value('autodoc_docstring_signature', True, 'env')
-    app.add_config_value('autodoc_mock_imports', [], 'env')
+    app.add_config_value('autodoc_default_options', {}, 'env', types=frozenset({dict}))
+    app.add_config_value(
+        'autodoc_docstring_signature', True, 'env', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'autodoc_mock_imports', [], 'env', types=frozenset({list, tuple})
+    )
     app.add_config_value(
         'autodoc_typehints',
         'signature',
@@ -3189,15 +3193,17 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'env',
         types=ENUM('all', 'documented', 'documented_params'),
     )
-    app.add_config_value('autodoc_type_aliases', {}, 'env')
+    app.add_config_value('autodoc_type_aliases', {}, 'env', types=frozenset({dict}))
     app.add_config_value(
         'autodoc_typehints_format',
         'short',
         'env',
         types=ENUM('fully-qualified', 'short'),
     )
-    app.add_config_value('autodoc_warningiserror', True, 'env')
-    app.add_config_value('autodoc_inherit_docstrings', True, 'env')
+    app.add_config_value('autodoc_warningiserror', True, 'env', types=frozenset({bool}))
+    app.add_config_value(
+        'autodoc_inherit_docstrings', True, 'env', types=frozenset({bool})
+    )
     app.add_event('autodoc-before-process-signature')
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')

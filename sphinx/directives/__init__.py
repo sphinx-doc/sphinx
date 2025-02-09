@@ -364,7 +364,9 @@ class DefaultDomain(SphinxDirective):
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('strip_signature_backslash', False, 'env')
+    app.add_config_value(
+        'strip_signature_backslash', False, 'env', types=frozenset({bool})
+    )
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)

@@ -82,10 +82,10 @@ class TextBuilder(Builder):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TextBuilder)
 
-    app.add_config_value('text_sectionchars', '*=-~"+`', 'env')
-    app.add_config_value('text_newlines', 'unix', 'env')
-    app.add_config_value('text_add_secnumbers', True, 'env')
-    app.add_config_value('text_secnumber_suffix', '. ', 'env')
+    app.add_config_value('text_sectionchars', '*=-~"+`', 'env', types=frozenset({str}))
+    app.add_config_value('text_newlines', 'unix', 'env', types=frozenset({str}))
+    app.add_config_value('text_add_secnumbers', True, 'env', types=frozenset({bool}))
+    app.add_config_value('text_secnumber_suffix', '. ', 'env', types=frozenset({str}))
 
     return {
         'version': 'builtin',
