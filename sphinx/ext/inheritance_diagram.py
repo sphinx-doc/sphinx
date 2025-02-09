@@ -60,6 +60,7 @@ if TYPE_CHECKING:
     from sphinx import addnodes
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
@@ -310,6 +311,20 @@ class InheritanceGraph:
         self,
         name: str,
         urls: dict[str, str] | None = None,
+        env: BuildEnvironment | None = None,
+        graph_attrs: dict[str, float | int | str] | None = None,
+        node_attrs: dict[str, float | int | str] | None = None,
+        edge_attrs: dict[str, float | int | str] | None = None,
+    ) -> str:
+        config = env.config if env is not None else None
+        return self._generate_dot(
+            name, urls, config, graph_attrs, node_attrs, edge_attrs
+        )
+
+    def _generate_dot(
+        self,
+        name: str,
+        urls: dict[str, str] | None = None,
         config: Config | None = None,
         graph_attrs: dict[str, float | int | str] | None = None,
         node_attrs: dict[str, float | int | str] | None = None,
@@ -482,7 +497,7 @@ def html_visit_inheritance_diagram(
             else:
                 urls[child['reftitle']] = '#' + child.get('refid')
 
-    dotcode = graph.generate_dot(name, urls, config=self.config)
+    dotcode = graph._generate_dot(name, urls, config=self.config)
     render_dot_html(
         self,
         node,
@@ -504,7 +519,7 @@ def latex_visit_inheritance_diagram(
     graph_hash = get_graph_hash(node)
     name = 'inheritance%s' % graph_hash
 
-    dotcode = graph.generate_dot(
+    dotcode = graph._generate_dot(
         name, config=self.config, graph_attrs={'size': '"6.0,6.0"'}
     )
     render_dot_latex(self, node, dotcode, {}, 'inheritance')
@@ -521,7 +536,7 @@ def texinfo_visit_inheritance_diagram(
     graph_hash = get_graph_hash(node)
     name = 'inheritance%s' % graph_hash
 
-    dotcode = graph.generate_dot(
+    dotcode = graph._generate_dot(
         name, config=self.config, graph_attrs={'size': '"6.0,6.0"'}
     )
     render_dot_texinfo(self, node, dotcode, {}, 'inheritance')
