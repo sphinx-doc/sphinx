@@ -72,33 +72,30 @@ class ReferencesResolver(SphinxPostTransform):
             else:
                 contnode = cast('Element', node[0].deepcopy())
 
-            newnode = self._resolve_pending_xref(node, contnode)
-            if newnode:
-                newnodes: list[Node] = [newnode]
+            new_node = self._resolve_pending_xref(node, contnode)
+            if new_node:
+                new_nodes: list[Node] = [new_node]
             else:
-                newnodes = [contnode]
-                if newnode is None and isinstance(
+                new_nodes = [contnode]
+                if new_node is None and isinstance(
                     node[0], addnodes.pending_xref_condition
                 ):
                     matched = self.find_pending_xref_condition(node, ('*',))
                     if matched:
-                        newnodes = matched
+                        new_nodes = matched
                     else:
-                        logger.warning(
-                            __(
-                                'Could not determine the fallback text for the '
-                                'cross-reference. Might be a bug.'
-                            ),
-                            location=node,
+                        msg = __(
+                            'Could not determine the fallback text for the '
+                            'cross-reference. Might be a bug.'
                         )
+                        logger.warning(msg, location=node)
 
-            node.replace_self(newnodes)
+            node.replace_self(new_nodes)
 
     def _resolve_pending_xref(
         self, node: addnodes.pending_xref, contnode: Element
     ) -> nodes.reference | None:
-        new_node: nodes.reference | None = None
-
+        new_node: nodes.reference | None
         typ = node['reftype']
         target = node['reftarget']
         ref_doc = node.setdefault('refdoc', self.env.docname)
