@@ -30,7 +30,8 @@ if TYPE_CHECKING:
         InventoryName,
         InventoryURI,
     )
-    from sphinx.util.typing import Inventory, _Inventory
+    from sphinx.util.inventory import _Inventory
+    from sphinx.util.typing import Inventory
 
 
 def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
