@@ -208,7 +208,6 @@ module = [
     "tests.test_builders.test_build_html_5_output",
     "tests.test_builders.test_build_html_assets",
     "tests.test_builders.test_build_html_code",
-    "tests.test_builders.test_build_html_copyright",
     "tests.test_builders.test_build_html_download",
     "tests.test_builders.test_build_html_highlight",
     "tests.test_builders.test_build_html_image",
