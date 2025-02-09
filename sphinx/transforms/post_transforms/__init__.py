@@ -140,14 +140,17 @@ class ReferencesResolver(SphinxPostTransform):
         # Is this a self-referential intersphinx reference?
         if 'intersphinx_self_referential' in node:
             del node.attributes['intersphinx_self_referential']
-            new_node = self._resolve_pending_xref_in_domain(
-                domain=domain,
-                node=node,
-                contnode=contnode,
-                ref_doc=ref_doc,
-                typ=typ,
-                target=node['reftarget'],
-            )
+            try:
+                new_node = self._resolve_pending_xref_in_domain(
+                    domain=domain,
+                    node=node,
+                    contnode=contnode,
+                    ref_doc=ref_doc,
+                    typ=typ,
+                    target=node['reftarget'],
+                )
+            except NoUri:
+                return None
             if new_node is not None:
                 return new_node
 
