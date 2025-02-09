@@ -2465,7 +2465,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             label = None
 
-        if node.get('no-wrap'):
+        if node.get('no-wrap', node.get('nowrap', False)):
             if label:
                 self.body.append(r'\label{%s}' % label)
             self.body.append(node.astext())
