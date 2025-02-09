@@ -308,6 +308,8 @@ def resolve_reference_detect_inventory(
     to form ``inv_name:new_target``. If ``inv_name`` is a named inventory, then resolution
     is tried in that inventory with the new target.
     """
+    resolve_self = env.config.intersphinx_resolve_self
+
     # ordinary direct lookup, use data as is
     res = resolve_reference_any_inventory(env, True, node, contnode)
     if res is not None:
@@ -318,6 +320,14 @@ def resolve_reference_detect_inventory(
     if ':' not in target:
         return None
     inv_name, _, new_target = target.partition(':')
+
+    # check if the target is self-referential
+    self_referential = bool(resolve_self) and resolve_self == inv_name
+    if self_referential:
+        node['reftarget'] = new_target
+        node['intersphinx_self_referential'] = True
+        return None
+
     if not inventory_exists(env, inv_name):
         return None
     node['reftarget'] = new_target
