@@ -113,14 +113,14 @@ class ReferencesResolver(SphinxPostTransform):
             domain = None
 
         try:
-            # let the domain try to resolve the reference
-            if domain is not None:
-                new_node = domain.resolve_xref(
-                    self.env, ref_doc, self.app.builder, typ, target, node, contnode
-                )
-            # really hardwired reference types
-            elif typ == 'any':
-                new_node = self.resolve_anyref(ref_doc, node, contnode)
+            new_node = self._resolve_pending_xref_in_domain(
+                domain=domain,
+                node=node,
+                contnode=contnode,
+                ref_doc=ref_doc,
+                typ=typ,
+                target=target,
+            )
         except NoUri:
             return None
         if new_node is not None:
@@ -143,6 +143,29 @@ class ReferencesResolver(SphinxPostTransform):
         # Still not found? Emit a warning if we are in nitpicky mode
         # or if the node wishes to be warned about.
         self.warn_missing_reference(ref_doc, typ, target, node, domain)
+        return None
+
+    def _resolve_pending_xref_in_domain(
+        self,
+        *,
+        domain: Domain | None,
+        node: addnodes.pending_xref,
+        contnode: Element,
+        ref_doc: str,
+        typ: str,
+        target: str,
+    ) -> nodes.reference | None:
+        # let the domain try to resolve the reference
+        if domain is not None:
+            return domain.resolve_xref(
+                self.env, ref_doc, self.app.builder, typ, target, node, contnode
+            )
+
+        # really hardwired reference types
+        if typ == 'any':
+            return self.resolve_anyref(ref_doc, node, contnode
+            )
+
         return None
 
     def resolve_anyref(
