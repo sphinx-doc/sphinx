@@ -365,7 +365,7 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
 
 
 def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> None:
-    if node['no-wrap'] or node['nowrap']:
+    if 'no-wrap' in node or 'nowrap' in node:
         latex = node.astext()
     else:
         latex = wrap_displaymath(node.astext(), None, False)
