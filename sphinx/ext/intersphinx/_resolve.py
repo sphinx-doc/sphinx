@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.intersphinx._shared import InventoryName
     from sphinx.util.inventory import _InventoryItem
-    from sphinx.util.typing import RoleFunction, _Inventory
+    from sphinx.util.typing import Inventory, RoleFunction
 
 
 def _create_element_from_result(
@@ -75,7 +75,7 @@ def _create_element_from_result(
 
 def _resolve_reference_in_domain_by_target(
     inv_name: InventoryName | None,
-    inventory: _Inventory,
+    inventory: Inventory,
     domain_name: str,
     objtypes: Iterable[str],
     target: str,
@@ -139,7 +139,7 @@ def _resolve_reference_in_domain_by_target(
 
 def _resolve_reference_in_domain(
     inv_name: InventoryName | None,
-    inventory: _Inventory,
+    inventory: Inventory,
     honor_disabled_refs: bool,
     disabled_reftypes: Set[str],
     domain: Domain,
@@ -190,7 +190,7 @@ def _resolve_reference_in_domain(
 def _resolve_reference(
     inv_name: InventoryName | None,
     domains: _DomainsContainer,
-    inventory: _Inventory,
+    inventory: Inventory,
     honor_disabled_refs: bool,
     disabled_reftypes: Set[str],
     node: pending_xref,
@@ -317,10 +317,10 @@ def resolve_reference_detect_inventory(
     target = node['reftarget']
     if ':' not in target:
         return None
-    inv_name, newtarget = target.split(':', 1)
+    inv_name, _, new_target = target.partition(':')
     if not inventory_exists(env, inv_name):
         return None
-    node['reftarget'] = newtarget
+    node['reftarget'] = new_target
     res_inv = resolve_reference_in_inventory(env, inv_name, node, contnode)
     node['reftarget'] = target
     return res_inv
