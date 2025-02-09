@@ -70,6 +70,7 @@ def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
+    app.config.intersphinx_resolve_self = ''
     app.config.intersphinx_timeout = None
 
 
