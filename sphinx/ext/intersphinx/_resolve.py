@@ -305,7 +305,7 @@ def resolve_reference_detect_inventory(
 
     Resolution is tried first with the target as is in any inventory.
     If this does not succeed, then the target is split by the first ``:``,
-    to form ``inv_name:newtarget``. If ``inv_name`` is a named inventory, then resolution
+    to form ``inv_name:new_target``. If ``inv_name`` is a named inventory, then resolution
     is tried in that inventory with the new target.
     """
     # ordinary direct lookup, use data as is
