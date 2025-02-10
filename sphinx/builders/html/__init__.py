@@ -1055,7 +1055,7 @@ class StandaloneHTMLBuilder(Builder):
                 if matched and has_wildcard(pattern):
                     # warn if both patterns contain wildcards
                     if has_wildcard(matched):
-                        logger.warning(msg, pagename, matched)
+                        logger.warning(msg, pagename, matched, pattern)
                     # else the already matched pattern is more specific
                     # than the present one, because it contains no wildcard
                     continue
