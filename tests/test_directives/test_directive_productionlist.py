@@ -90,3 +90,70 @@ def test_productionlist_xref(app):
     assert_node(refnodes[1], [pending_xref, nodes.literal, 'A'])
     assert_node(refnodes[2], [pending_xref, nodes.literal, 'P1:B'])
     assert_node(refnodes[3], [pending_xref, nodes.literal, 'B'])
+
+
+def test_productionlist_continuation_lines(make_app, tmp_path):
+    text = """
+.. productionlist:: python-grammar
+   assignment_stmt: (`target_list` "=")+ (`starred_expression` | `yield_expression`)
+   target_list: `target` ("," `target`)* [","]
+   target: `identifier`
+         : | "(" [`target_list`] ")"
+         : | "[" [`target_list`] "]"
+         : | `attributeref`
+         : | `subscription`
+         : | `slicing`
+         : | "*" `target`
+"""
+    (tmp_path / 'conf.py').touch()
+    (tmp_path / 'index.rst').write_text(text, encoding='utf-8')
+
+    app = make_app(buildername='text', srcdir=tmp_path)
+    app.build(force_all=True)
+    content = (app.outdir / 'index.txt').read_text(encoding='utf-8')
+    assert content == """\
+   assignment_stmt ::= (target_list "=")+ (starred_expression | yield_expression)
+   target_list     ::= target ("," target)* [","]
+   target          ::= identifier
+                       | "(" [target_list] ")"
+                       | "[" [target_list] "]"
+                       | attributeref
+                       | subscription
+                       | slicing
+                       | "*" target
+"""
+
+    app = make_app(buildername='html', srcdir=tmp_path)
+    app.build(force_all=True)
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    _, _, content = content.partition('<pre>')
+    content, _, _ = content.partition('</pre>')
+    assert content == """
+<strong id="grammar-token-python-grammar-assignment_stmt">assignment_stmt</strong> ::=  (<a class="reference internal" href="#grammar-token-python-grammar-target_list"><code class="xref docutils literal notranslate"><span class="pre">target_list</span></code></a> &quot;=&quot;)+ (<code class="xref docutils literal notranslate"><span class="pre">starred_expression</span></code> | <code class="xref docutils literal notranslate"><span class="pre">yield_expression</span></code>)
+<strong id="grammar-token-python-grammar-target_list">target_list    </strong> ::=  <a class="reference internal" href="#grammar-token-python-grammar-target"><code class="xref docutils literal notranslate"><span class="pre">target</span></code></a> (&quot;,&quot; <a class="reference internal" href="#grammar-token-python-grammar-target"><code class="xref docutils literal notranslate"><span class="pre">target</span></code></a>)* [&quot;,&quot;]
+<strong id="grammar-token-python-grammar-target">target         </strong> ::=  <code class="xref docutils literal notranslate"><span class="pre">identifier</span></code>
+                     | &quot;(&quot; [<a class="reference internal" href="#grammar-token-python-grammar-target_list"><code class="xref docutils literal notranslate"><span class="pre">target_list</span></code></a>] &quot;)&quot;
+                     | &quot;[&quot; [<a class="reference internal" href="#grammar-token-python-grammar-target_list"><code class="xref docutils literal notranslate"><span class="pre">target_list</span></code></a>] &quot;]&quot;
+                     | <code class="xref docutils literal notranslate"><span class="pre">attributeref</span></code>
+                     | <code class="xref docutils literal notranslate"><span class="pre">subscription</span></code>
+                     | <code class="xref docutils literal notranslate"><span class="pre">slicing</span></code>
+                     | &quot;*&quot; <a class="reference internal" href="#grammar-token-python-grammar-target"><code class="xref docutils literal notranslate"><span class="pre">target</span></code></a>
+"""
+
+    app = make_app(buildername='man', srcdir=tmp_path)
+    app.build(force_all=True)
+    content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf-8')
+    _, _, content = content.partition('.nf')
+    content, _, _ = content.partition('.fi')
+    assert content == r"""
+\fBassignment_stmt\fP ::=  (\fI\%target_list\fP \(dq=\(dq)+ (\fBstarred_expression\fP | \fByield_expression\fP)
+\fBtarget_list    \fP ::=  \fI\%target\fP (\(dq,\(dq \fI\%target\fP)* [\(dq,\(dq]
+\fBtarget         \fP ::=  \fBidentifier\fP
+                     | \(dq(\(dq [\fI\%target_list\fP] \(dq)\(dq
+                     | \(dq[\(dq [\fI\%target_list\fP] \(dq]\(dq
+                     | \fBattributeref\fP
+                     | \fBsubscription\fP
+                     | \fBslicing\fP
+                     | \(dq*\(dq \fI\%target\fP
+
+"""
