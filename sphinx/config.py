@@ -94,7 +94,7 @@ class ENUM:
         return all(item in self._candidates for item in value)
 
 
-_OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
+_OptValidTypes: TypeAlias = frozenset[type] | ENUM
 
 
 class _Opt:
@@ -576,7 +576,7 @@ class Config:
     def __setstate__(self, state: dict[str, Any]) -> None:
         self._overrides = {}
         self._options = {
-            name: _Opt(real_value, rebuild, ())
+            name: _Opt(real_value, rebuild, frozenset())
             for name, (real_value, rebuild) in state.pop('_options').items()
         }
         self._raw_config = {}
@@ -620,9 +620,9 @@ def eval_config_file(
 
 def _validate_valid_types(
     valid_types: type | Collection[type] | ENUM, /
-) -> tuple[()] | tuple[type, ...] | frozenset[type] | ENUM:
+) -> frozenset[type] | ENUM:
     if not valid_types:
-        return ()
+        return frozenset()
     if isinstance(valid_types, frozenset | ENUM):
         return valid_types
     if isinstance(valid_types, type):
@@ -631,16 +631,11 @@ def _validate_valid_types(
         return frozenset({Any})  # type: ignore[arg-type]
     if isinstance(valid_types, set):
         return frozenset(valid_types)
-    if not isinstance(valid_types, tuple):
-        try:
-            valid_types = tuple(valid_types)
-        except TypeError:
-            logger.warning(__('Failed to convert %r to a set or tuple'), valid_types)
-            return valid_types  # type: ignore[return-value]
     try:
         return frozenset(valid_types)
     except TypeError:
-        return valid_types
+        logger.warning(__('Failed to convert %r to a frozenset'), valid_types)
+        return frozenset()
 
 
 def convert_source_suffix(app: Sphinx, config: Config) -> None:
@@ -822,6 +817,12 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
             continue
 
         if type_value in valid_types:  # check explicitly listed types
+            if value is None:
+                continue
+            if type_value is not frozenset and frozenset in valid_types:
+                setattr(config, name, frozenset(value))
+            elif type_value is not tuple and tuple in valid_types:
+                setattr(config, name, tuple(value))
             continue
 
         common_bases = {*type_value.__bases__, type_value} & set(type_default.__bases__)
