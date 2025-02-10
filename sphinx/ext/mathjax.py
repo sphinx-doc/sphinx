@@ -132,10 +132,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('mathjax_path', MATHJAX_URL, 'html', types=frozenset({str}))
     app.add_config_value('mathjax_options', {}, 'html', types=frozenset({dict}))
     app.add_config_value(
-        'mathjax_inline', [r'\(', r'\)'], 'html', types=frozenset({tuple, list})
+        'mathjax_inline', [r'\(', r'\)'], 'html', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'mathjax_display', [r'\[', r'\]'], 'html', types=frozenset({tuple, list})
+        'mathjax_display', [r'\[', r'\]'], 'html', types=frozenset({list, tuple})
     )
     app.add_config_value(
         'mathjax_config', None, 'html', types=frozenset({dict, NoneType})

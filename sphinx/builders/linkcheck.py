@@ -776,7 +776,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('linkcheck_auth', [], '', types=frozenset({list, tuple}))
     app.add_config_value('linkcheck_request_headers', {}, '', types=frozenset({dict}))
     app.add_config_value('linkcheck_retries', 1, '', types=frozenset({int}))
-    app.add_config_value('linkcheck_timeout', 30, '', types=frozenset({int, float}))
+    app.add_config_value('linkcheck_timeout', 30, '', types=frozenset({float, int}))
     app.add_config_value('linkcheck_workers', 5, '', types=frozenset({int}))
     app.add_config_value('linkcheck_anchors', True, '', types=frozenset({bool}))
     # Anchors starting with ! are ignored since they are
@@ -785,10 +785,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'linkcheck_anchors_ignore', ['^!'], '', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'linkcheck_anchors_ignore_for_url', (), '', types=frozenset({tuple, list})
+        'linkcheck_anchors_ignore_for_url', (), '', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'linkcheck_rate_limit_timeout', 300.0, '', types=frozenset({int, float})
+        'linkcheck_rate_limit_timeout', 300.0, '', types=frozenset({float, int})
     )
     app.add_config_value(
         'linkcheck_allow_unauthorized', False, '', types=frozenset({bool})

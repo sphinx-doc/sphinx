@@ -336,7 +336,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('gettext_uuid', False, 'gettext', types=frozenset({bool}))
     app.add_config_value('gettext_auto_build', True, 'env', types=frozenset({bool}))
     app.add_config_value(
-        'gettext_additional_targets', [], 'env', types=frozenset({set, list})
+        'gettext_additional_targets',
+        [],
+        'env',
+        types=frozenset({frozenset, list, set, tuple}),
     )
     app.add_config_value(
         'gettext_last_translator',

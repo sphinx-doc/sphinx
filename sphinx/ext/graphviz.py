@@ -524,7 +524,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('digraph', GraphvizSimple)
     app.add_config_value('graphviz_dot', 'dot', 'html', types=frozenset({str}))
     app.add_config_value(
-        'graphviz_dot_args', (), 'html', types=frozenset({tuple, list})
+        'graphviz_dot_args', (), 'html', types=frozenset({list, tuple})
     )
     app.add_config_value(
         'graphviz_output_format', 'png', 'html', types=frozenset({str})

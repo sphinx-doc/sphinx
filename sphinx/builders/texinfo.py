@@ -262,7 +262,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('texinfo_appendices', [], '', types=frozenset({list, tuple}))
     app.add_config_value('texinfo_elements', {}, '', types=frozenset({dict}))
     app.add_config_value(
-        'texinfo_domain_indices', True, '', types=frozenset({set, list})
+        'texinfo_domain_indices',
+        True,
+        '',
+        types=frozenset({frozenset, list, set, tuple}),
     )
     app.add_config_value('texinfo_show_urls', 'footnote', '', types=frozenset({str}))
     app.add_config_value('texinfo_no_detailmenu', False, '', types=frozenset({bool}))

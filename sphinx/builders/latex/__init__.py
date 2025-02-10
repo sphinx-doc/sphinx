@@ -625,7 +625,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         '',
         types=ENUM(None, 'part', 'chapter', 'section'),
     )
-    app.add_config_value('latex_domain_indices', True, '', types=frozenset({set, list}))
+    app.add_config_value(
+        'latex_domain_indices', True, '', types=frozenset({frozenset, list, set, tuple})
+    )
     app.add_config_value('latex_show_urls', 'no', '', types=frozenset({str}))
     app.add_config_value('latex_show_pagerefs', False, '', types=frozenset({bool}))
     app.add_config_value('latex_elements', {}, '', types=frozenset({dict}))

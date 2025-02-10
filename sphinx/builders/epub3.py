@@ -319,8 +319,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('epub_identifier', 'unknown', 'epub', types=frozenset({str}))
     app.add_config_value('epub_scheme', 'unknown', 'epub', types=frozenset({str}))
     app.add_config_value('epub_uid', 'unknown', 'env', types=frozenset({str}))
-    app.add_config_value('epub_cover', (), 'env', types=frozenset({tuple, list}))
-    app.add_config_value('epub_guide', (), 'env', types=frozenset({tuple, list}))
+    app.add_config_value('epub_cover', (), 'env', types=frozenset({list, tuple}))
+    app.add_config_value('epub_guide', (), 'env', types=frozenset({list, tuple}))
     app.add_config_value('epub_pre_files', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value('epub_post_files', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(

@@ -522,7 +522,7 @@ class CoverageBuilder(Builder):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CoverageBuilder)
-    app.add_config_value('coverage_modules', (), '', types=frozenset({tuple, list}))
+    app.add_config_value('coverage_modules', (), '', types=frozenset({list, tuple}))
     app.add_config_value(
         'coverage_ignore_modules', [], '', types=frozenset({list, tuple})
     )

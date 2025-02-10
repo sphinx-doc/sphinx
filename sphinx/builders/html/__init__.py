@@ -1452,7 +1452,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'html_short_title', lambda self: self.html_title, 'html', types=frozenset({str})
     )
-    app.add_config_value('html_style', None, 'html', types=frozenset({list, str}))
+    app.add_config_value(
+        'html_style', None, 'html', types=frozenset({list, str, tuple})
+    )
     app.add_config_value('html_logo', None, 'html', types=frozenset({str}))
     app.add_config_value('html_favicon', None, 'html', types=frozenset({str}))
     app.add_config_value('html_css_files', [], 'html', types=frozenset({list, tuple}))
@@ -1466,7 +1468,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_sidebars', {}, 'html', types=frozenset({dict}))
     app.add_config_value('html_additional_pages', {}, 'html', types=frozenset({dict}))
     app.add_config_value(
-        'html_domain_indices', True, 'html', types=frozenset({set, list})
+        'html_domain_indices',
+        True,
+        'html',
+        types=frozenset({frozenset, list, set, tuple}),
     )
     app.add_config_value('html_permalinks', True, 'html', types=frozenset({bool}))
     app.add_config_value('html_permalinks_icon', '¶', 'html', types=frozenset({str}))

@@ -268,7 +268,7 @@ class Config:
         'pygments_style': _Opt(None, 'html', frozenset((str,))),
         'highlight_language': _Opt('default', 'env', frozenset((str,))),
         'highlight_options': _Opt({}, 'env', frozenset((dict,))),
-        'templates_path': _Opt([], 'html', frozenset((list, tuple))),
+        'templates_path': _Opt([], 'html', frozenset((list,))),
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
         'keep_warnings': _Opt(False, 'env', frozenset((bool,))),
         'suppress_warnings': _Opt([], 'env', frozenset((list, tuple))),

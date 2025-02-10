@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from types import NoneType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -948,13 +949,16 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'c_paren_attributes', [], 'env', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'c_extra_keywords', _macro_keywords, 'env', types=frozenset({set, list})
+        'c_extra_keywords',
+        _macro_keywords,
+        'env',
+        types=frozenset({frozenset, list, set, tuple}),
     )
     app.add_config_value(
         'c_maximum_signature_line_length',
         None,
         'env',
-        types=frozenset({int, type(None)}),
+        types=frozenset({int, NoneType}),
     )
     app.add_post_transform(AliasTransform)
 

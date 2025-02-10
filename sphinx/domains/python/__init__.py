@@ -5,6 +5,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import typing
+from types import NoneType
 from typing import TYPE_CHECKING, NamedTuple, cast
 
 from docutils import nodes
@@ -1115,7 +1116,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'python_maximum_signature_line_length',
         None,
         'env',
-        types=frozenset({int, type(None)}),
+        types=frozenset({int, NoneType}),
     )
     app.add_config_value(
         'python_trailing_comma_in_multi_line_signatures',

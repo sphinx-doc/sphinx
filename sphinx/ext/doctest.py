@@ -624,7 +624,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
     app.add_config_value('doctest_show_successes', True, '', types=frozenset({bool}))
-    app.add_config_value('doctest_path', (), '', types=frozenset({tuple, list}))
+    app.add_config_value('doctest_path', (), '', types=frozenset({list, tuple}))
     app.add_config_value(
         'doctest_test_doctest_blocks', 'default', '', types=frozenset({str})
     )
