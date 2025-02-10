@@ -1647,7 +1647,7 @@ derived forms), but provides enough to allow context-free grammars to be
 displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
 the definition of the symbol.  There is this directive:
 
-.. rst:directive:: .. productionlist:: [productionGroup]
+.. rst:directive:: .. productionlist:: [production_group]
 
    This directive is used to enclose a group of productions.  Each production
    is given on a single line and consists of a name, separated by a colon from
@@ -1662,26 +1662,26 @@ the definition of the symbol.  There is this directive:
    production list, you can reference to token productions using
    :rst:role:`token`.
 
-   The *productionGroup* argument to :rst:dir:`productionlist` serves to
+   The *production_group* argument to :rst:dir:`productionlist` serves to
    distinguish different sets of production lists that belong to different
-   grammars.  Multiple production lists with the same *productionGroup* thus
+   grammars.  Multiple production lists with the same *production_group* thus
    define rules in the same scope.
 
    Inside of the production list, tokens implicitly refer to productions
    from the current group. You can refer to the production of another
    grammar by prefixing the token with its group name and a colon, e.g,
-   "``otherGroup:sum``". If the group of the token should not be shown in
+   "``other-group:sum``". If the group of the token should not be shown in
    the production, it can be prefixed by a tilde, e.g.,
-   "``~otherGroup:sum``". To refer to a production from an unnamed
+   "``~other-group:sum``". To refer to a production from an unnamed
    grammar, the token should be prefixed by a colon, e.g., "``:sum``".
 
    Outside of the production list,
-   if you have given a *productionGroup* argument you must prefix the
+   if you have given a *production_group* argument you must prefix the
    token name in the cross-reference with the group name and a colon,
-   e.g., "``myGroup:sum``" instead of just "``sum``".
+   e.g., "``my_group:sum``" instead of just "``sum``".
    If the group should not be shown in the title of the link either
-   an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
-   or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
+   an explicit title can be given (e.g., "``myTitle <my_group:sum>``"),
+   or the target can be prefixed with a tilde (e.g., "``~my_group:sum``").
 
    Note that no further reStructuredText parsing is done in the production,
    so that you don't have to escape ``*`` or ``|`` characters.

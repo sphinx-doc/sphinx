@@ -22,7 +22,7 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Set
+    from collections.abc import Callable, Iterable, Iterator, Sequence, Set
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
@@ -597,41 +597,91 @@ class ProductionList(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        domain = self.env.domains.standard_domain
-        node: Element = addnodes.productionlist()
+        node = addnodes.productionlist()
         self.set_source_info(node)
         # The backslash handling is from ObjectDescription.get_signatures
         nl_escape_re = re.compile(r'\\\n')
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
-
-        production_group = ''
-        first_rule_seen = False
-        for rule in lines:
-            if not first_rule_seen and ':' not in rule:
-                production_group = rule.strip()
-                continue
-            first_rule_seen = True
-            try:
-                name, tokens = rule.split(':', 1)
-            except ValueError:
-                break
-            subnode = addnodes.production(rule)
-            name = name.strip()
-            subnode['tokenname'] = name
-            if subnode['tokenname']:
-                prefix = 'grammar-token-%s' % production_group
-                node_id = make_id(self.env, self.state.document, prefix, name)
-                subnode['ids'].append(node_id)
-                self.state.document.note_implicit_target(subnode, subnode)
-
-                if len(production_group) != 0:
-                    obj_name = f'{production_group}:{name}'
-                else:
-                    obj_name = name
-                domain.note_object('token', obj_name, node_id, location=node)
-            subnode.extend(token_xrefs(tokens, production_group=production_group))
-            node.append(subnode)
+        production_group = self.production_group(lines, self.options)
+        production_lines = list(self.production_definitions(lines))
+        max_len = max(len(name) for _, name, _ in production_lines)
+        node_location = self.get_location()
+        node += [
+            self.make_production(
+                rawsource=rule,
+                name=name,
+                tokens=tokens,
+                production_group=production_group,
+                max_len=max_len,
+                location=node_location,
+            )
+            for rule, name, tokens in production_lines
+        ]
         return [node]
+
+    @staticmethod
+    def production_group(lines: Sequence[str], options: dict[str, Any]) -> str:  # NoQA: ARG004
+        # get production_group
+        if not lines or ':' in lines[0]:
+            return ''
+        production_group = lines[0].strip()
+        lines[:] = lines[1:]
+        return production_group
+
+    @staticmethod
+    def production_definitions(lines: Iterable[str]) -> Iterator[tuple[str, str, str]]:
+        """Yield triples of rawsource, name, definition."""
+        for line in lines:
+            if ':' not in line:
+                break
+            name, _, tokens = line.partition(':')
+            yield line, name.strip(), tokens.strip()
+
+    def make_production(
+        self,
+        rawsource: str,
+        name: str,
+        tokens: str,
+        production_group: str,
+        max_len: int,
+        location: str,
+    ) -> addnodes.production:
+        production_node = addnodes.production(rawsource, tokenname=name)
+        if name:
+            production_node += self.make_target(name, production_group, location)
+        else:
+            production_node += self.continuation_padding(max_len)
+        production_node.append(self.production_separator(name, max_len))
+        production_node += token_xrefs(tokens, production_group=production_group)
+        production_node.append(nodes.Text('\n'))
+        return production_node
+
+    def make_target(
+        self,
+        name: str,
+        production_group: str,
+        location: str,
+    ) -> addnodes.literal_strong:
+        """Make a link target for the given production."""
+        name_node = addnodes.literal_strong(name, name)
+        prefix = f'grammar-token-{production_group}'
+        node_id = make_id(self.env, self.state.document, prefix, name)
+        name_node['ids'].append(node_id)
+        self.state.document.note_implicit_target(name_node, name_node)
+        obj_name = f'{production_group}:{name}' if production_group else name
+        std = self.env.domains.standard_domain
+        std.note_object('token', obj_name, node_id, location=location)
+        return name_node
+
+    @staticmethod
+    def continuation_padding(max_len: int) -> nodes.Text:
+        return nodes.Text(' ' * max_len)
+
+    @staticmethod
+    def production_separator(name: str, max_len: int) -> nodes.Text:
+        if name:
+            return nodes.Text(' ::= '.rjust(max_len - len(name) + 5))
+        return nodes.Text('     ')
 
 
 class TokenXRefRole(XRefRole):
