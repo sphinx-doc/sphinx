@@ -22,7 +22,7 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Sequence, Set
+    from collections.abc import Callable, Iterable, Iterator, Set
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
