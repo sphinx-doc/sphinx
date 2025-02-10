@@ -141,6 +141,9 @@ Bugs fixed
   Patch by Pavel Holica
 * #13273, #13318: Properly convert command-line overrides for Boolean types.
   Patch by Adam Turner.
+* #13302, #13319: Use the correct indentation for continuation lines
+  in :rst:dir:`productionlist` directives.
+  Patch by Adam Turner.
 
 Testing
 -------

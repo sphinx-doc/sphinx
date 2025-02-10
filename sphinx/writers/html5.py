@@ -696,8 +696,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
         productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
+        maxlen = max(len(production['tokenname']) for production in productionlist)
         lastname = None
         for production in productionlist:
             if production['tokenname']:
@@ -705,7 +704,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 self.body.append(self.starttag(production, 'strong', ''))
                 self.body.append(lastname + '</strong> ::= ')
             elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
+                self.body.append(' ' * (maxlen + 5))
             production.walkabout(self)
             self.body.append('\n')
         self.body.append('</pre>\n')
