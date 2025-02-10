@@ -109,7 +109,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 
-    app.add_config_value('xml_pretty', True, 'env')
+    app.add_config_value('xml_pretty', True, 'env', types=frozenset({bool}))
 
     return {
         'version': 'builtin',

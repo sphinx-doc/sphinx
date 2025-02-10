@@ -332,16 +332,27 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'gettext_compact', True, 'gettext', types=frozenset({bool, str})
     )
-    app.add_config_value('gettext_location', True, 'gettext')
-    app.add_config_value('gettext_uuid', False, 'gettext')
-    app.add_config_value('gettext_auto_build', True, 'env')
+    app.add_config_value('gettext_location', True, 'gettext', types=frozenset({bool}))
+    app.add_config_value('gettext_uuid', False, 'gettext', types=frozenset({bool}))
+    app.add_config_value('gettext_auto_build', True, 'env', types=frozenset({bool}))
     app.add_config_value(
-        'gettext_additional_targets', [], 'env', types=frozenset({set, list})
+        'gettext_additional_targets',
+        [],
+        'env',
+        types=frozenset({frozenset, list, set, tuple}),
     )
     app.add_config_value(
-        'gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext'
+        'gettext_last_translator',
+        'FULL NAME <EMAIL@ADDRESS>',
+        'gettext',
+        types=frozenset({str}),
     )
-    app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
+    app.add_config_value(
+        'gettext_language_team',
+        'LANGUAGE <LL@li.org>',
+        'gettext',
+        types=frozenset({str}),
+    )
 
     return {
         'version': 'builtin',

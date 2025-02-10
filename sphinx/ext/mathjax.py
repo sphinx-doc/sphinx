@@ -8,6 +8,7 @@ This requires the MathJax JavaScript library on your webserver/computer.
 from __future__ import annotations
 
 import json
+from types import NoneType
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -128,13 +129,26 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         block_renderers=(html_visit_displaymath, None),
     )
 
-    app.add_config_value('mathjax_path', MATHJAX_URL, 'html')
-    app.add_config_value('mathjax_options', {}, 'html')
-    app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
-    app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
-    app.add_config_value('mathjax_config', None, 'html')
-    app.add_config_value('mathjax2_config', lambda c: c.mathjax_config, 'html')
-    app.add_config_value('mathjax3_config', None, 'html')
+    app.add_config_value('mathjax_path', MATHJAX_URL, 'html', types=frozenset({str}))
+    app.add_config_value('mathjax_options', {}, 'html', types=frozenset({dict}))
+    app.add_config_value(
+        'mathjax_inline', [r'\(', r'\)'], 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'mathjax_display', [r'\[', r'\]'], 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'mathjax_config', None, 'html', types=frozenset({dict, NoneType})
+    )
+    app.add_config_value(
+        'mathjax2_config',
+        lambda c: c.mathjax_config,
+        'html',
+        types=frozenset({dict, NoneType}),
+    )
+    app.add_config_value(
+        'mathjax3_config', None, 'html', types=frozenset({dict, NoneType})
+    )
     app.connect('html-page-context', install_mathjax)
 
     return {

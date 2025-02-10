@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from types import NoneType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -1300,7 +1301,7 @@ class CPPDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
-    app.add_config_value('cpp_index_common_prefix', [], 'env')
+    app.add_config_value('cpp_index_common_prefix', [], 'env', types=frozenset({list}))
     app.add_config_value('cpp_id_attributes', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(
         'cpp_paren_attributes', [], 'env', types=frozenset({list, tuple})
@@ -1309,13 +1310,13 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'cpp_maximum_signature_line_length',
         None,
         'env',
-        types=frozenset({int, type(None)}),
+        types=frozenset({int, NoneType}),
     )
     app.add_post_transform(AliasTransform)
 
     # debug stuff
-    app.add_config_value('cpp_debug_lookup', False, '')
-    app.add_config_value('cpp_debug_show_tree', False, '')
+    app.add_config_value('cpp_debug_lookup', False, '', types=frozenset({bool}))
+    app.add_config_value('cpp_debug_show_tree', False, '', types=frozenset({bool}))
 
     def init_stuff(app: Sphinx) -> None:
         Symbol.debug_lookup = app.config.cpp_debug_lookup

@@ -558,10 +558,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         texinfo=(texinfo_visit_inheritance_diagram, None),
     )
     app.add_directive('inheritance-diagram', InheritanceDiagram)
-    app.add_config_value('inheritance_graph_attrs', {}, '')
-    app.add_config_value('inheritance_node_attrs', {}, '')
-    app.add_config_value('inheritance_edge_attrs', {}, '')
-    app.add_config_value('inheritance_alias', {}, '')
+    app.add_config_value('inheritance_graph_attrs', {}, '', types=frozenset({dict}))
+    app.add_config_value('inheritance_node_attrs', {}, '', types=frozenset({dict}))
+    app.add_config_value('inheritance_edge_attrs', {}, '', types=frozenset({dict}))
+    app.add_config_value('inheritance_alias', {}, '', types=frozenset({dict}))
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,

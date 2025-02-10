@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from types import NoneType
 from typing import TYPE_CHECKING
 
 import sphinx
@@ -331,7 +332,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('autodoc-skip-member', _skip_member)
 
     for name, (default, rebuild) in Config._config_values.items():
-        app.add_config_value(name, default, rebuild)
+        if isinstance(default, bool):
+            app.add_config_value(name, default, rebuild, types=frozenset({bool}))
+        else:
+            app.add_config_value(name, default, rebuild, types=frozenset({NoneType}))
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,

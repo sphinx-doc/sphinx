@@ -209,7 +209,12 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(SingleFileHTMLBuilder)
-    app.add_config_value('singlehtml_sidebars', lambda self: self.html_sidebars, 'html')
+    app.add_config_value(
+        'singlehtml_sidebars',
+        lambda self: self.html_sidebars,
+        'html',
+        types=frozenset({dict}),
+    )
 
     return {
         'version': 'builtin',
