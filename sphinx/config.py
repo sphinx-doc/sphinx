@@ -817,11 +817,9 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
             continue
 
         if type_value in valid_types:  # check explicitly listed types
-            if value is None:
-                continue
-            if type_value is not frozenset and frozenset in valid_types:
+            if frozenset in valid_types and type_value in {list, tuple, set}:
                 setattr(config, name, frozenset(value))
-            elif type_value is not tuple and tuple in valid_types:
+            elif tuple in valid_types and type_value is list:
                 setattr(config, name, tuple(value))
             continue
 
