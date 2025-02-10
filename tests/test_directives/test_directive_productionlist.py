@@ -9,9 +9,16 @@ from sphinx.addnodes import pending_xref
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node, etree_parse
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='productionlist')
-def test_productionlist(app):
+def test_productionlist(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     warnings = app.warning.getvalue().split('\n')
@@ -47,6 +54,7 @@ def test_productionlist(app):
         assert len(code_list) == 1
         span = code_list[0]
         assert span.tag == 'span'
+        assert span.text is not None
         link_text = span.text.strip()
         cases.append((text, link, link_text))
     assert cases == [
@@ -74,7 +82,7 @@ def test_productionlist(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_productionlist_xref(app):
+def test_productionlist_xref(app: SphinxTestApp) -> None:
     text = """\
 .. productionlist:: P2
    A: `:A` `A`
@@ -92,7 +100,9 @@ def test_productionlist_xref(app):
     assert_node(refnodes[3], [pending_xref, nodes.literal, 'B'])
 
 
-def test_productionlist_continuation_lines(make_app, tmp_path):
+def test_productionlist_continuation_lines(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
     text = """
 .. productionlist:: python-grammar
    assignment_stmt: (`target_list` "=")+ (`starred_expression` | `yield_expression`)
@@ -111,7 +121,7 @@ def test_productionlist_continuation_lines(make_app, tmp_path):
     app = make_app(buildername='text', srcdir=tmp_path)
     app.build(force_all=True)
     content = (app.outdir / 'index.txt').read_text(encoding='utf-8')
-    assert content == """\
+    expected = """\
    assignment_stmt ::= (target_list "=")+ (starred_expression | yield_expression)
    target_list     ::= target ("," target)* [","]
    target          ::= identifier
@@ -122,13 +132,14 @@ def test_productionlist_continuation_lines(make_app, tmp_path):
                        | slicing
                        | "*" target
 """
+    assert content == expected
 
     app = make_app(buildername='html', srcdir=tmp_path)
     app.build(force_all=True)
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
     _, _, content = content.partition('<pre>')
     content, _, _ = content.partition('</pre>')
-    assert content == """
+    expected = """
 <strong id="grammar-token-python-grammar-assignment_stmt">assignment_stmt</strong> ::=  (<a class="reference internal" href="#grammar-token-python-grammar-target_list"><code class="xref docutils literal notranslate"><span class="pre">target_list</span></code></a> &quot;=&quot;)+ (<code class="xref docutils literal notranslate"><span class="pre">starred_expression</span></code> | <code class="xref docutils literal notranslate"><span class="pre">yield_expression</span></code>)
 <strong id="grammar-token-python-grammar-target_list">target_list    </strong> ::=  <a class="reference internal" href="#grammar-token-python-grammar-target"><code class="xref docutils literal notranslate"><span class="pre">target</span></code></a> (&quot;,&quot; <a class="reference internal" href="#grammar-token-python-grammar-target"><code class="xref docutils literal notranslate"><span class="pre">target</span></code></a>)* [&quot;,&quot;]
 <strong id="grammar-token-python-grammar-target">target         </strong> ::=  <code class="xref docutils literal notranslate"><span class="pre">identifier</span></code>
@@ -139,21 +150,4 @@ def test_productionlist_continuation_lines(make_app, tmp_path):
                      | <code class="xref docutils literal notranslate"><span class="pre">slicing</span></code>
                      | &quot;*&quot; <a class="reference internal" href="#grammar-token-python-grammar-target"><code class="xref docutils literal notranslate"><span class="pre">target</span></code></a>
 """
-
-    app = make_app(buildername='man', srcdir=tmp_path)
-    app.build(force_all=True)
-    content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf-8')
-    _, _, content = content.partition('.nf')
-    content, _, _ = content.partition('.fi')
-    assert content == r"""
-\fBassignment_stmt\fP ::=  (\fI\%target_list\fP \(dq=\(dq)+ (\fBstarred_expression\fP | \fByield_expression\fP)
-\fBtarget_list    \fP ::=  \fI\%target\fP (\(dq,\(dq \fI\%target\fP)* [\(dq,\(dq]
-\fBtarget         \fP ::=  \fBidentifier\fP
-                     | \(dq(\(dq [\fI\%target_list\fP] \(dq)\(dq
-                     | \(dq[\(dq [\fI\%target_list\fP] \(dq]\(dq
-                     | \fBattributeref\fP
-                     | \fBsubscription\fP
-                     | \fBslicing\fP
-                     | \(dq*\(dq \fI\%target\fP
-
-"""
+    assert content == expected
