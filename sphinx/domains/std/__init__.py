@@ -620,7 +620,7 @@ class ProductionList(SphinxDirective):
         return [node]
 
     @staticmethod
-    def production_group(lines: Sequence[str], options: dict[str, Any]) -> str:  # NoQA: ARG004
+    def production_group(lines: list[str], options: dict[str, Any]) -> str:  # NoQA: ARG004
         # get production_group
         if not lines or ':' in lines[0]:
             return ''

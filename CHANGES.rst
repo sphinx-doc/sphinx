@@ -104,6 +104,9 @@ Features added
 * #9169: Add the :confval:`intersphinx_resolve_self` option
   to resolve an intersphinx reference to the current project.
   Patch by Jakob Lykke Andersen and Adam Turner.
+* #13326: Remove hardcoding from handling :class:`~sphinx.addnodes.productionlist`
+  nodes in all writers, to improve flexibility.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
