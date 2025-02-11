@@ -2,16 +2,10 @@
 
 from __future__ import annotations
 
-import os
-from contextlib import contextmanager
-
 import pytest
 from docutils import nodes
 
-from sphinx.cmd.build import build_main
 from sphinx.errors import SphinxError
-
-from tests.utils import TESTS_ROOT
 
 
 def test_root_doc_not_found(tmp_path, make_app):
@@ -110,29 +104,3 @@ def test_image_glob(app):
         'image/svg+xml': 'subdir/svgimg.svg',
     }
     assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'
-
-
-@contextmanager
-def force_colors():
-    forcecolor = os.environ.get('FORCE_COLOR', None)
-
-    try:
-        os.environ['FORCE_COLOR'] = '1'
-        yield
-    finally:
-        if forcecolor is None:
-            os.environ.pop('FORCE_COLOR', None)
-        else:
-            os.environ['FORCE_COLOR'] = forcecolor
-
-
-def test_log_no_ansi_colors(tmp_path):
-    with force_colors():
-        wfile = tmp_path / 'warnings.txt'
-        srcdir = TESTS_ROOT / 'roots' / 'test-nitpicky-warnings'
-        argv = list(map(str, ['-b', 'html', srcdir, tmp_path, '-n', '-w', wfile]))
-        retcode = build_main(argv)
-        assert retcode == 0
-
-        content = wfile.read_text(encoding='utf8')
-        assert '\x1b[91m' not in content

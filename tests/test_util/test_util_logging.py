@@ -4,16 +4,20 @@ from __future__ import annotations
 
 import codecs
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
 from docutils import nodes
 
 from sphinx._cli.util.errors import strip_escape_sequences
+from sphinx.cmd.build import build_main
 from sphinx.util import logging
 from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
+
+from tests.utils import TESTS_ROOT
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -274,6 +278,32 @@ def test_pending_warnings(app):
     # actually logged as ordered
     warnings = strip_escape_sequences(app.warning.getvalue())
     assert 'WARNING: message2\nWARNING: message3' in warnings
+
+
+@contextmanager
+def force_colors():
+    forcecolor = os.environ.get('FORCE_COLOR', None)
+
+    try:
+        os.environ['FORCE_COLOR'] = '1'
+        yield
+    finally:
+        if forcecolor is None:
+            os.environ.pop('FORCE_COLOR', None)
+        else:
+            os.environ['FORCE_COLOR'] = forcecolor
+
+
+def test_log_no_ansi_colors(tmp_path):
+    with force_colors():
+        wfile = tmp_path / 'warnings.txt'
+        srcdir = TESTS_ROOT / 'roots' / 'test-nitpicky-warnings'
+        argv = list(map(str, ['-b', 'html', srcdir, tmp_path, '-n', '-w', wfile]))
+        retcode = build_main(argv)
+        assert retcode == 0
+
+        content = wfile.read_text(encoding='utf8')
+        assert '\x1b[91m' not in content
 
 
 @pytest.mark.sphinx('html', testroot='root')
