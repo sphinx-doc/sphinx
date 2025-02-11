@@ -16,8 +16,8 @@ SPHINX_MODULE_PATH = Path(sphinx.__file__).resolve().with_suffix('.py')
 
 def test_ModuleAnalyzer_get_module_source():
     assert ModuleAnalyzer.get_module_source('sphinx') == (
-        sphinx.__file__,
-        sphinx.__loader__.get_source('sphinx'),
+        Path(sphinx.__file__),
+        sphinx.__spec__.loader.get_source('sphinx'),
     )
 
     # failed to obtain source information from builtin modules
