@@ -24,10 +24,10 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import (
     get_filetype,
-    import_object,
     logging,
     rst,
 )
+from sphinx.util._importer import import_object
 from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.display import progress_message, status_iterator
