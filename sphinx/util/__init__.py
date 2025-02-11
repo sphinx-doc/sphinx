@@ -5,10 +5,8 @@ from __future__ import annotations
 import os
 import posixpath
 import re
-from typing import TYPE_CHECKING
 
-from sphinx.errors import FiletypeNotFoundError
-
+TYPE_CHECKING = False
 if TYPE_CHECKING:
     import hashlib
     from collections.abc import Callable
@@ -23,12 +21,14 @@ url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
 
 
 def docname_join(basedocname: str, docname: str) -> str:
-    return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
+    return posixpath.normpath(posixpath.join(f'/{basedocname}', '..', docname))[1:]
 
 
 def get_filetype(
     source_suffix: dict[str, str], filename: str | os.PathLike[str]
 ) -> str:
+    from sphinx.errors import FiletypeNotFoundError
+
     for suffix, filetype in source_suffix.items():
         if os.fspath(filename).endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
