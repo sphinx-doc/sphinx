@@ -35,7 +35,7 @@ except ImportError:
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.search import SearchLanguage
-from sphinx.util._importer import import_object
+from sphinx.util import import_object
 
 
 class BaseSplitter:
