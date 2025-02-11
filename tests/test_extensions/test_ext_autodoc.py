@@ -196,8 +196,8 @@ def test_format_signature(app):
             assert formatsig('function', 'f', f, '...', None) == '(...)'
             assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
 
-    # TODO: add more test cases for PEP-695 classes as well (but they are less
-    # likely
+    # TODO(picnixz): add more test cases for PEP-695 classes as well (though
+    # complex cases are less likely to appear and are painful to test).
 
     # test for classes
     class D:
