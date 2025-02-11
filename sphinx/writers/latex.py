@@ -674,12 +674,12 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_production_list = True
 
     def depart_productionlist(self, node: Element) -> None:
-        self.body.append(r'\end{productionlist}' + BLANKLINE)
         self.in_production_list = False
+        self.body.append(r'\end{productionlist}' + BLANKLINE)
 
     def visit_production(self, node: Element) -> None:
         # Nothing to do, the productionlist LaTeX environment
-        # is configured to render line per line the nodes
+        # is configured to render the nodes line-by-line
         pass
 
     def depart_production(self, node: Element) -> None:
