@@ -680,6 +680,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_production(self, node: Element) -> None:
         # Nothing to do, the productionlist LaTeX environment
         # is configured to render the nodes line-by-line
+        # But see also visit_literal_strong special clause.
         pass
 
     def depart_production(self, node: Element) -> None:
@@ -2068,6 +2069,10 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_literal_strong(self, node: Element) -> None:
         if self.in_production_list:
+            ctx = r'\phantomsection'
+            for id_ in node['ids']:
+                ctx += self.hypertarget(id_, anchor=False)
+            self.body.append(ctx)
             return
         self.body.append(r'\sphinxstyleliteralstrong{\sphinxupquote{')
 
