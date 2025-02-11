@@ -65,12 +65,12 @@ def test_function_signatures():
         rv = parse(f'func{params}')
         assert rv == expect
 
-        # 'def f[Foo[Bar]]()' is not valid Python but people might write it
-        # in a reST document to convene the intent of a higher-kinded typed
-        # variable
-        for tparams in ['Foo', 'Foo[Bar]']:
+        # Note: 'def f[Foo[Bar]]()' is not valid Python but people might write
+        # it in a reST document to convene the intent of a higher-kinded type
+        # variable.
+        for tparams in ['', '[Foo]', '[Foo[Bar]]']:
             for retann in ['', '-> Foo', '-> Foo[Bar]', '-> anything else']:
-                rv = parse(f'func[{tparams}]{params} {retann}'.rstrip())
+                rv = parse(f'func{tparams}{params} {retann}'.rstrip())
                 assert rv == expect
 
 
