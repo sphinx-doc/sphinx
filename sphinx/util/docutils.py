@@ -813,8 +813,6 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
         settings = copy(cached_settings)
 
     # Create a new instance of nodes.document using cached reporter
-    from sphinx import addnodes
-
-    document = addnodes.document(settings, reporter, source=source_path)
+    document = nodes.document(settings, reporter, source=source_path)
     document.note_source(source_path, -1)
     return document
