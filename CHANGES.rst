@@ -27,6 +27,8 @@ Deprecated
 
 * #13037: Deprecate the ``SingleHTMLBuilder.fix_refuris`` method.
   Patch by James Addison.
+* #13083, #13330: Un-deprecate ``sphinx.util.import_object``.
+  Patch by Matthias Geier.
 
 Features added
 --------------

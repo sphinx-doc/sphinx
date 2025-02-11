@@ -98,12 +98,6 @@ def __getattr__(name: str) -> Any:
         _deprecation_warning(__name__, name, '', remove=(10, 0))
         return obj
 
-    if name == 'import_object':
-        from sphinx.util._importer import import_object
-
-        _deprecation_warning(__name__, name, '', remove=(10, 0))
-        return import_object
-
     # Re-exported for backwards compatibility,
     # but not currently deprecated
 
@@ -111,6 +105,11 @@ def __getattr__(name: str) -> Any:
         from sphinx.util._uri import encode_uri
 
         return encode_uri
+
+    if name == 'import_object':
+        from sphinx.util._importer import import_object
+
+        return import_object
 
     if name == 'isurl':
         from sphinx.util._uri import is_url
