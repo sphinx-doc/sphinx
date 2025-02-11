@@ -1909,7 +1909,7 @@ _var cpp:member 1 index.html#_CPPv44$ -
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_cpp_parse_no_index_entry(app):
     text = (
         '.. cpp:function:: void f()\n.. cpp:function:: void g()\n   :no-index-entry:\n'
@@ -1924,7 +1924,7 @@ def test_domain_cpp_parse_no_index_entry(app):
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_cpp_parse_mix_decl_duplicate(app):
     # Issue 8270
     text = '.. cpp:struct:: A\n.. cpp:function:: void A()\n.. cpp:struct:: A\n'

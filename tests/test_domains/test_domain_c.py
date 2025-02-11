@@ -765,7 +765,7 @@ def test_domain_c_build_anon_dup_decl(app):
     assert 'WARNING: c:identifier reference target not found: @b' in ws[1]
 
 
-@pytest.mark.sphinx('html', testroot='root', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='_blank', confoverrides={'nitpicky': True})
 def test_domain_c_build_semicolon(app):
     text = """
 .. c:member:: int member;
@@ -875,7 +875,7 @@ _var c:member 1 index.html#c.$ -
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_c_parse_cfunction(app):
     text = (
         '.. c:function:: PyObject* '
@@ -895,7 +895,7 @@ def test_domain_c_parse_cfunction(app):
     assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_c_parse_cmember(app):
     text = '.. c:member:: PyObject* PyTypeObject.tp_bases'
     doctree = restructuredtext.parse(app, text)
@@ -912,7 +912,7 @@ def test_domain_c_parse_cmember(app):
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_c_parse_cvar(app):
     text = '.. c:var:: PyObject* PyClass_Type'
     doctree = restructuredtext.parse(app, text)
@@ -929,7 +929,7 @@ def test_domain_c_parse_cvar(app):
     assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_c_parse_no_index_entry(app):
     text = '.. c:function:: void f()\n.. c:function:: void g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
@@ -944,7 +944,7 @@ def test_domain_c_parse_no_index_entry(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1005,7 +1005,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1066,7 +1066,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1125,7 +1125,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1186,7 +1186,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1247,7 +1247,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1306,7 +1306,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_break(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
         'maximum_signature_line_length': 1,

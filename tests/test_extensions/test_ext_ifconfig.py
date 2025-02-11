@@ -17,7 +17,7 @@ def test_ifconfig(app):
     assert 'ham' not in result
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_ifconfig_content_line_number(app):
     app.setup_extension('sphinx.ext.ifconfig')
     text = '.. ifconfig:: confval1\n\n   Some link here: :ref:`abc`\n'
