@@ -177,8 +177,7 @@ def test_format_signature(app):
     assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
     assert formatsig('function', 'g', g, None, None) == r"(a='\n')"
 
-    import os
-    if sys.version_info >= (3, 12) and os.name != 'nt':
+    if sys.version_info >= (3, 12):
         for params, expect in [
             ('(a=1)', '(a=1)'),
             ('(a: int=1)', '(a: int = 1)'),  # auto whitespace formatting
