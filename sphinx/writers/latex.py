@@ -678,20 +678,12 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_production_list = False
 
     def visit_production(self, node: Element) -> None:
-        if node['tokenname']:
-            tn = node['tokenname']
-            self.body.append(self.hypertarget(f'grammar-token-{tn}'))
-            self.body.append(r'\production{%s}{' % self.encode(tn))
-        else:
-            self.body.append(r'\productioncont{')
-
-        # remove name/padding and seperator child nodes,
-        # these are handled by '\production' and '\productioncont'
-        # TODO: remove special LaTeX handling of production nodes
-        node[:] = node[2:]
+        # Nothing to do, the productionlist LaTeX environment
+        # is configured to render line per line the nodes
+        pass
 
     def depart_production(self, node: Element) -> None:
-        self.body.append('}' + CR)
+        pass
 
     def visit_transition(self, node: Element) -> None:
         self.body.append(self.elements['transition'])
