@@ -199,8 +199,8 @@ class StandaloneHTMLBuilder(Builder):
             if js_file.is_file():
                 return js_file
 
-        js_file = Path(
-            package_dir, 'locale', self.config.language, 'LC_MESSAGES', 'sphinx.js'
+        js_file = package_dir.joinpath(
+            'locale', self.config.language, 'LC_MESSAGES', 'sphinx.js'
         )
         if js_file.is_file():
             return js_file

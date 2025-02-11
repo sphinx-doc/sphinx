@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import os
 import os.path
 import warnings
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -36,7 +34,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
-template_dir = Path(package_dir, 'templates', 'texinfo')
+template_dir = package_dir.joinpath('templates', 'texinfo')
 
 
 class TexinfoBuilder(Builder):

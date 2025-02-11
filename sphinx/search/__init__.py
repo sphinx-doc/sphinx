@@ -10,7 +10,6 @@ import os
 import pickle
 import re
 from importlib import import_module
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -39,8 +38,8 @@ if TYPE_CHECKING:
         def write(self, s: _T_contra, /) -> object: ...
 
 
-_NON_MINIFIED_JS_PATH = Path(package_dir, 'search', 'non-minified-js')
-_MINIFIED_JS_PATH = Path(package_dir, 'search', 'minified-js')
+_NON_MINIFIED_JS_PATH = package_dir.joinpath('search', 'non-minified-js')
+_MINIFIED_JS_PATH = package_dir.joinpath('search', 'minified-js')
 
 
 class SearchLanguage:
