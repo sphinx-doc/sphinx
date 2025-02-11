@@ -184,13 +184,13 @@ def test_format_signature(app):
             ('(a:list[T]   =[], b=None)', '(a: list[T] = [], b=None)'),  # idem
         ]:
             ns = {}
-            exec(f'def f[T]{params}: pass', ns)
+            exec(f'def f[T]{params}: pass', ns)  # NoQA: S102
             f = ns['f']
             assert formatsig('function', 'f', f, None, None) == expect
             assert formatsig('function', 'f', f, '...', None) == '(...)'
             assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
 
-            exec(f'def f[T]{params} -> list[T]: return []', ns)
+            exec(f'def f[T]{params} -> list[T]: return []', ns)  # NoQA: S102
             f = ns['f']
             assert formatsig('function', 'f', f, None, None) == f'{expect} -> list[T]'
             assert formatsig('function', 'f', f, '...', None) == '(...)'

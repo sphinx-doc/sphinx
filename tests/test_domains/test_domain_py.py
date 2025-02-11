@@ -70,7 +70,7 @@ def test_function_signatures():
         # variable
         for tparams in ['Foo', 'Foo[Bar]']:
             for retann in ['', '-> Foo', '-> Foo[Bar]', '-> anything else']:
-                rv  = parse(f'func[{tparams}]{params} {retann}'.rstrip())
+                rv = parse(f'func[{tparams}]{params} {retann}'.rstrip())
                 assert rv == expect
 
 
