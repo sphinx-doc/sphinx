@@ -7,19 +7,7 @@ import sys
 import types
 import typing
 from collections.abc import Callable, Sequence
-from contextvars import Context, ContextVar, Token
-from struct import Struct
-from typing import (
-    TYPE_CHECKING,
-    Annotated,
-    Any,
-    ForwardRef,
-    NewType,
-    TypedDict,
-    TypeVar,
-    Union,
-    Unpack,
-)
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -28,11 +16,12 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal, Protocol, TypeAlias
+    from typing import Annotated, Any, Final, Literal, Protocol, TypeAlias
 
     from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
+    from sphinx.util.inventory import _InventoryItem
 
     _RestifyMode: TypeAlias = Literal[
         'fully-qualified-except-typing',
@@ -48,41 +37,82 @@ logger = logging.getLogger(__name__)
 
 
 # classes that have an incorrect .__module__ attribute
-_INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
-    Context: 'contextvars.Context',  # Context.__module__ == '_contextvars'
-    ContextVar: 'contextvars.ContextVar',  # ContextVar.__module__ == '_contextvars'
-    Token: 'contextvars.Token',  # Token.__module__ == '_contextvars'
-    Struct: 'struct.Struct',  # Struct.__module__ == '_struct'
-    # types in 'types' with <type>.__module__ == 'builtins':
-    types.AsyncGeneratorType: 'types.AsyncGeneratorType',
-    types.BuiltinFunctionType: 'types.BuiltinFunctionType',
-    types.BuiltinMethodType: 'types.BuiltinMethodType',
-    types.CellType: 'types.CellType',
-    types.ClassMethodDescriptorType: 'types.ClassMethodDescriptorType',
-    types.CodeType: 'types.CodeType',
-    types.CoroutineType: 'types.CoroutineType',
-    types.FrameType: 'types.FrameType',
-    types.FunctionType: 'types.FunctionType',
-    types.GeneratorType: 'types.GeneratorType',
-    types.GetSetDescriptorType: 'types.GetSetDescriptorType',
-    types.LambdaType: 'types.LambdaType',
-    types.MappingProxyType: 'types.MappingProxyType',
-    types.MemberDescriptorType: 'types.MemberDescriptorType',
-    types.MethodDescriptorType: 'types.MethodDescriptorType',
-    types.MethodType: 'types.MethodType',
-    types.MethodWrapperType: 'types.MethodWrapperType',
-    types.ModuleType: 'types.ModuleType',
-    types.TracebackType: 'types.TracebackType',
-    types.WrapperDescriptorType: 'types.WrapperDescriptorType',
+# Map of (__module__, __qualname__) to the correct fully-qualified name
+_INVALID_BUILTIN_CLASSES: Final[Mapping[tuple[str, str], str]] = {
+    # types from 'contextvars'
+    ('_contextvars', 'Context'): 'contextvars.Context',
+    ('_contextvars', 'ContextVar'): 'contextvars.ContextVar',
+    ('_contextvars', 'Token'): 'contextvars.Token',
+    # types from 'ctypes':
+    ('_ctypes', 'Array'): 'ctypes.Array',
+    ('_ctypes', 'Structure'): 'ctypes.Structure',
+    ('_ctypes', 'Union'): 'ctypes.Union',
+    # types from 'io':
+    ('_io', 'BufferedRandom'): 'io.BufferedRandom',
+    ('_io', 'BufferedReader'): 'io.BufferedReader',
+    ('_io', 'BufferedRWPair'): 'io.BufferedRWPair',
+    ('_io', 'BufferedWriter'): 'io.BufferedWriter',
+    ('_io', 'BytesIO'): 'io.BytesIO',
+    ('_io', 'FileIO'): 'io.FileIO',
+    ('_io', 'StringIO'): 'io.StringIO',
+    ('_io', 'TextIOWrapper'): 'io.TextIOWrapper',
+    # types from 'json':
+    ('json.decoder', 'JSONDecoder'): 'json.JSONDecoder',
+    ('json.encoder', 'JSONEncoder'): 'json.JSONEncoder',
+    # types from 'lzma':
+    ('_lzma', 'LZMACompressor'): 'lzma.LZMACompressor',
+    ('_lzma', 'LZMADecompressor'): 'lzma.LZMADecompressor',
+    # types from 'multiprocessing':
+    ('multiprocessing.context', 'Process'): 'multiprocessing.Process',
+    # types from 'pathlib':
+    ('pathlib._local', 'Path'): 'pathlib.Path',
+    ('pathlib._local', 'PosixPath'): 'pathlib.PosixPath',
+    ('pathlib._local', 'PurePath'): 'pathlib.PurePath',
+    ('pathlib._local', 'PurePosixPath'): 'pathlib.PurePosixPath',
+    ('pathlib._local', 'PureWindowsPath'): 'pathlib.PureWindowsPath',
+    ('pathlib._local', 'WindowsPath'): 'pathlib.WindowsPath',
+    # types from 'pickle':
+    ('_pickle', 'Pickler'): 'pickle.Pickler',
+    ('_pickle', 'Unpickler'): 'pickle.Unpickler',
+    # types from 'struct':
+    ('_struct', 'Struct'): 'struct.Struct',
+    # types from 'types':
+    ('builtins', 'async_generator'): 'types.AsyncGeneratorType',
+    ('builtins', 'builtin_function_or_method'): 'types.BuiltinMethodType',
+    ('builtins', 'cell'): 'types.CellType',
+    ('builtins', 'classmethod_descriptor'): 'types.ClassMethodDescriptorType',
+    ('builtins', 'code'): 'types.CodeType',
+    ('builtins', 'coroutine'): 'types.CoroutineType',
+    ('builtins', 'ellipsis'): 'types.EllipsisType',
+    ('builtins', 'frame'): 'types.FrameType',
+    ('builtins', 'function'): 'types.LambdaType',
+    ('builtins', 'generator'): 'types.GeneratorType',
+    ('builtins', 'getset_descriptor'): 'types.GetSetDescriptorType',
+    ('builtins', 'mappingproxy'): 'types.MappingProxyType',
+    ('builtins', 'member_descriptor'): 'types.MemberDescriptorType',
+    ('builtins', 'method'): 'types.MethodType',
+    ('builtins', 'method-wrapper'): 'types.MethodWrapperType',
+    ('builtins', 'method_descriptor'): 'types.MethodDescriptorType',
+    ('builtins', 'module'): 'types.ModuleType',
+    ('builtins', 'NoneType'): 'types.NoneType',
+    ('builtins', 'NotImplementedType'): 'types.NotImplementedType',
+    ('builtins', 'traceback'): 'types.TracebackType',
+    ('builtins', 'wrapper_descriptor'): 'types.WrapperDescriptorType',
+    # types from 'weakref':
+    ('_weakrefset', 'WeakSet'): 'weakref.WeakSet',
+    # types from 'zipfile':
+    ('zipfile._path', 'CompleteDirs'): 'zipfile.CompleteDirs',
+    ('zipfile._path', 'Path'): 'zipfile.Path',
 }
 
 
-def is_invalid_builtin_class(obj: Any) -> bool:
+def is_invalid_builtin_class(obj: Any) -> str:
     """Check *obj* is an invalid built-in class."""
     try:
-        return obj in _INVALID_BUILTIN_CLASSES
-    except TypeError:  # unhashable type
-        return False
+        key = obj.__module__, obj.__qualname__
+    except AttributeError:  # non-standard type
+        return ''
+    return _INVALID_BUILTIN_CLASSES.get(key, '')
 
 
 # Text like nodes which are initialized with text and rawsource
@@ -109,27 +139,21 @@ if TYPE_CHECKING:
 
 else:
     RoleFunction: TypeAlias = Callable[
-        [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+        [str, str, str, int, Inliner, dict[str, typing.Any], Sequence[str]],
         tuple[list[nodes.Node], list[nodes.system_message]],
     ]
 
 # A option spec for directive
-OptionSpec: TypeAlias = dict[str, Callable[[str], Any]]
+OptionSpec: TypeAlias = dict[str, Callable[[str], typing.Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter: TypeAlias = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryItem: TypeAlias = tuple[
-    str,  # project name
-    str,  # project version
-    str,  # URL
-    str,  # display name
-]
-Inventory: TypeAlias = dict[str, dict[str, InventoryItem]]
+Inventory: TypeAlias = dict[str, dict[str, '_InventoryItem']]
 
 
-class ExtensionMetadata(TypedDict, total=False):
+class ExtensionMetadata(typing.TypedDict, total=False):
     """The metadata returned by an extension's ``setup()`` function.
 
     See :ref:`ext-metadata`.
@@ -188,20 +212,20 @@ def get_type_hints(
 def is_system_TypeVar(typ: Any) -> bool:
     """Check *typ* is system defined TypeVar."""
     modname = getattr(typ, '__module__', '')
-    return modname == 'typing' and isinstance(typ, TypeVar)
+    return modname == 'typing' and isinstance(typ, typing.TypeVar)
 
 
 def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
     """Check if *obj* is an annotated type."""
     return (
-        typing.get_origin(obj) is Annotated
+        typing.get_origin(obj) is typing.Annotated
         or str(obj).startswith('typing.Annotated')
     )  # fmt: skip
 
 
 def _is_unpack_form(obj: Any) -> bool:
     """Check if the object is :class:`typing.Unpack` or equivalent."""
-    return typing.get_origin(obj) is Unpack
+    return typing.get_origin(obj) is typing.Unpack
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
@@ -244,11 +268,11 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return f':py:class:`{module_prefix}{cls.__name__}`'
         elif ismock(cls):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-        elif is_invalid_builtin_class(cls):
+        elif fixed_cls := is_invalid_builtin_class(cls):
             # The above predicate never raises TypeError but should not be
             # evaluated before determining whether *cls* is a mocked object
             # or not; instead of two try-except blocks, we keep it here.
-            return f':py:class:`{module_prefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
+            return f':py:class:`{module_prefix}{fixed_cls}`'
         elif _is_annotated_form(cls):
             args = restify(cls.__args__[0], mode)
             meta_args = []
@@ -273,10 +297,12 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
                 rf'\ [{args}, {meta}]'
             )
-        elif isinstance(cls, NewType):
+        elif isinstance(cls, typing.NewType):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif isinstance(cls, types.UnionType) or (
-            isgenericalias(cls) and cls_module_is_typing and cls.__origin__ is Union
+            isgenericalias(cls)
+            and cls_module_is_typing
+            and cls.__origin__ is typing.Union
         ):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
@@ -333,7 +359,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
         elif hasattr(cls, '__qualname__'):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__qualname__}`'
-        elif isinstance(cls, ForwardRef):
+        elif isinstance(cls, typing.ForwardRef):
             return f':py:class:`{cls.__forward_arg__}`'
         else:
             # not a class (ex. TypeVar) but should have a __name__
@@ -362,6 +388,8 @@ def stringify_annotation(
     annotation: Any,
     /,
     mode: _StringifyMode = 'fully-qualified-except-typing',
+    *,
+    short_literals: bool = False,
 ) -> str:
     """Stringify type annotation object.
 
@@ -375,6 +403,8 @@ def stringify_annotation(
                      Show the name of the annotation.
                  'fully-qualified'
                      Show the module name and qualified name of the annotation.
+
+    :param short_literals: Render :py:class:`Literals` in PEP 604 style (``|``).
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
 
@@ -404,12 +434,12 @@ def stringify_annotation(
     annotation_module: str = getattr(annotation, '__module__', '')
     annotation_name: str = getattr(annotation, '__name__', '')
     annotation_module_is_typing = annotation_module == 'typing'
-    if sys.version_info[:2] >= (3, 14) and isinstance(annotation, ForwardRef):
+    if sys.version_info[:2] >= (3, 14) and isinstance(annotation, typing.ForwardRef):
         # ForwardRef moved from `typing` to `annotationlib` in Python 3.14.
         annotation_module_is_typing = True
 
     # Extract the annotation's base type by considering formattable cases
-    if isinstance(annotation, TypeVar) and not _is_unpack_form(annotation):
+    if isinstance(annotation, typing.TypeVar) and not _is_unpack_form(annotation):
         # typing_extensions.Unpack is incorrectly determined as a TypeVar
         if annotation_module_is_typing and mode in {
             'fully-qualified-except-typing',
@@ -417,14 +447,14 @@ def stringify_annotation(
         }:
             return annotation_name
         return module_prefix + f'{annotation_module}.{annotation_name}'
-    elif isinstance(annotation, NewType):
+    elif isinstance(annotation, typing.NewType):
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif ismockmodule(annotation):
         return module_prefix + annotation_name
     elif ismock(annotation):
         return module_prefix + f'{annotation_module}.{annotation_name}'
-    elif is_invalid_builtin_class(annotation):
-        return module_prefix + _INVALID_BUILTIN_CLASSES[annotation]
+    elif fixed_annotation := is_invalid_builtin_class(annotation):
+        return module_prefix + fixed_annotation
     elif _is_annotated_form(annotation):  # for py310+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
@@ -436,7 +466,10 @@ def stringify_annotation(
         if not args:  # Empty tuple, list, ...
             return repr(annotation)
 
-        concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
+        concatenated_args = ', '.join(
+            stringify_annotation(arg, mode=mode, short_literals=short_literals)
+            for arg in args
+        )
         return f'{annotation_qualname}[{concatenated_args}]'
     else:
         # add other special cases that can be directly formatted
@@ -470,13 +503,16 @@ def stringify_annotation(
                 # of ``typing`` and all of them define ``__origin__``
                 qualname = stringify_annotation(
                     annotation.__origin__,
-                    'fully-qualified-except-typing',
+                    mode='fully-qualified-except-typing',
+                    short_literals=short_literals,
                 ).replace('typing.', '')  # ex. Union
     elif annotation_qualname:
         qualname = annotation_qualname
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
-        qualname = stringify_annotation(annotation.__origin__, mode)
+        qualname = stringify_annotation(
+            annotation.__origin__, mode=mode, short_literals=short_literals
+        )
     elif isinstance(annotation, types.UnionType):
         qualname = 'types.UnionType'
     else:
@@ -499,33 +535,49 @@ def stringify_annotation(
             )
             return f'{module_prefix}Literal[{args}]'
         if qualname in {'Optional', 'Union', 'types.UnionType'}:
-            return ' | '.join(stringify_annotation(a, mode) for a in annotation_args)
+            return ' | '.join(
+                stringify_annotation(a, mode=mode, short_literals=short_literals)
+                for a in annotation_args
+            )
         elif qualname == 'Callable':
             args = ', '.join(
-                stringify_annotation(a, mode) for a in annotation_args[:-1]
+                stringify_annotation(a, mode=mode, short_literals=short_literals)
+                for a in annotation_args[:-1]
             )
-            returns = stringify_annotation(annotation_args[-1], mode)
+            returns = stringify_annotation(
+                annotation_args[-1], mode=mode, short_literals=short_literals
+            )
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
+            if short_literals:
+                return ' | '.join(
+                    _format_literal_arg_stringify(a, mode=mode) for a in annotation_args
+                )
             args = ', '.join(
                 _format_literal_arg_stringify(a, mode=mode) for a in annotation_args
             )
             return f'{module_prefix}Literal[{args}]'
         elif _is_annotated_form(annotation):  # for py310+
-            args = stringify_annotation(annotation_args[0], mode)
+            args = stringify_annotation(
+                annotation_args[0], mode=mode, short_literals=short_literals
+            )
             meta_args = []
             for m in annotation.__metadata__:
                 if isinstance(m, type):
-                    meta_args.append(stringify_annotation(m, mode))
+                    meta_args.append(
+                        stringify_annotation(
+                            m, mode=mode, short_literals=short_literals
+                        )
+                    )
                 elif dataclasses.is_dataclass(m):
                     # use stringify_annotation for the repr of field values rather than repr
                     d_fields = ', '.join([
-                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode)}'
+                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode=mode, short_literals=short_literals)}'  # NoQA: E501
                         for f in dataclasses.fields(m)
                         if f.repr
                     ])
                     meta_args.append(
-                        f'{stringify_annotation(type(m), mode)}({d_fields})'
+                        f'{stringify_annotation(type(m), mode=mode, short_literals=short_literals)}({d_fields})'  # NoQA: E501
                     )
                 else:
                     meta_args.append(repr(m))
@@ -540,7 +592,10 @@ def stringify_annotation(
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
             return module_prefix + qualname
         else:
-            args = ', '.join(stringify_annotation(a, mode) for a in annotation_args)
+            args = ', '.join(
+                stringify_annotation(a, mode=mode, short_literals=short_literals)
+                for a in annotation_args
+            )
             return f'{module_prefix}{qualname}[{args}]'
 
     return module_prefix + qualname

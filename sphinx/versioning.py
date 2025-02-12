@@ -5,13 +5,14 @@ from __future__ import annotations
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from typing import Any
 
     from docutils.nodes import Node
 

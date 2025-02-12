@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from types import FunctionType, NoneType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -90,7 +91,9 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('doctree-read', doctree_read)
-    app.add_config_value('linkcode_resolve', None, '')
+    app.add_config_value(
+        'linkcode_resolve', None, '', types=frozenset({FunctionType, NoneType})
+    )
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,

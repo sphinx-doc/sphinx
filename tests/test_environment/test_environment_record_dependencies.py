@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import pytest
 
+from sphinx.util._pathlib import _StrPath
+
 
 @pytest.mark.sphinx('html', testroot='environment-record-dependencies')
 def test_record_dependencies_cleared(app):
     app.builder.read()
-    assert app.env.dependencies['index'] == set()
-    assert app.env.dependencies['api'] == {'example_module.py'}
+    assert 'index' not in app.env.dependencies
+    assert app.env.dependencies['api'] == {_StrPath('example_module.py')}

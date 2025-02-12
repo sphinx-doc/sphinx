@@ -8,20 +8,24 @@ import subprocess
 from contextlib import chdir
 from pathlib import Path
 from subprocess import CalledProcessError
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.builders.gettext import Catalog, MsgOrigin
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 _MSGID_PATTERN = re.compile(r'msgid "((?:\n|.)*?)"\nmsgstr', re.MULTILINE)
 
 
-def get_msgids(pot):
+def get_msgids(pot: str) -> list[str]:
     matches = _MSGID_PATTERN.findall(pot)
     return [m.replace('"\n"', '') for m in matches[1:]]
 
 
-def test_Catalog_duplicated_message():
+def test_Catalog_duplicated_message() -> None:
     catalog = Catalog()
     catalog.add('hello', MsgOrigin('/path/to/filename', 1))
     catalog.add('hello', MsgOrigin('/path/to/filename', 1))
@@ -47,7 +51,7 @@ def test_Catalog_duplicated_message():
     testroot='root',
     srcdir='root-gettext',
 )
-def test_build_gettext(app):
+def test_build_gettext(app: SphinxTestApp) -> None:
     # Generic build; should fail only when the builder is horribly broken.
     app.build(force_all=True)
 
@@ -67,7 +71,7 @@ def test_build_gettext(app):
     testroot='root',
     srcdir='root-gettext',
 )
-def test_msgfmt(app):
+def test_msgfmt(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     (app.outdir / 'en' / 'LC_MESSAGES').mkdir(parents=True, exist_ok=True)
@@ -96,7 +100,7 @@ def test_msgfmt(app):
                 'msgfmt',
                 'en_US.po',
                 '-o',
-                Path('en', 'LC_MESSAGES', 'test_root.mo'),
+                str(Path('en', 'LC_MESSAGES', 'test_root.mo')),
             ]
             subprocess.run(args, capture_output=True, check=True)
         except OSError:
@@ -120,7 +124,7 @@ def test_msgfmt(app):
     srcdir='gettext',
     confoverrides={'gettext_compact': False},
 )
-def test_gettext_index_entries(app):
+def test_gettext_index_entries(app: SphinxTestApp) -> None:
     # regression test for #976
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
@@ -150,7 +154,7 @@ def test_gettext_index_entries(app):
     srcdir='gettext',
     confoverrides={'gettext_compact': False, 'gettext_additional_targets': []},
 )
-def test_gettext_disable_index_entries(app):
+def test_gettext_disable_index_entries(app: SphinxTestApp) -> None:
     # regression test for #976
     app.env._pickled_doctree_cache.clear()  # clear cache
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
@@ -172,7 +176,7 @@ def test_gettext_disable_index_entries(app):
     testroot='intl',
     srcdir='gettext',
 )
-def test_gettext_template(app):
+def test_gettext_template(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     assert (app.outdir / 'sphinx.pot').is_file()
@@ -183,7 +187,7 @@ def test_gettext_template(app):
 
 
 @pytest.mark.sphinx('gettext', testroot='gettext-template')
-def test_gettext_template_msgid_order_in_sphinxpot(app):
+def test_gettext_template_msgid_order_in_sphinxpot(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert (app.outdir / 'sphinx.pot').is_file()
 
@@ -201,7 +205,7 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
 
 
 @pytest.mark.sphinx('gettext', testroot='gettext-custom-output-template')
-def test_gettext_custom_output_template(app):
+def test_gettext_custom_output_template(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert (app.outdir / 'index.pot').is_file()
 
@@ -215,7 +219,7 @@ def test_gettext_custom_output_template(app):
     srcdir='root-gettext',
     confoverrides={'gettext_compact': 'documentation'},
 )
-def test_build_single_pot(app):
+def test_build_single_pot(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     assert (app.outdir / 'documentation.pot').is_file()
@@ -239,7 +243,7 @@ def test_build_single_pot(app):
     srcdir='gettext-subst',
     confoverrides={'gettext_compact': False, 'gettext_additional_targets': ['image']},
 )
-def test_gettext_prolog_epilog_substitution(app):
+def test_gettext_prolog_epilog_substitution(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     assert (app.outdir / 'prolog_epilog_substitution.pot').is_file()
@@ -265,7 +269,7 @@ def test_gettext_prolog_epilog_substitution(app):
     srcdir='gettext-subst',
     confoverrides={'gettext_compact': False, 'gettext_additional_targets': ['image']},
 )
-def test_gettext_prolog_epilog_substitution_excluded(app):
+def test_gettext_prolog_epilog_substitution_excluded(app: SphinxTestApp) -> None:
     # regression test for #9428
     app.build(force_all=True)
 
@@ -290,7 +294,7 @@ def test_gettext_prolog_epilog_substitution_excluded(app):
         'gettext_additional_targets': ['literal-block', 'doctest-block'],
     },
 )
-def test_gettext_literalblock_additional(app):
+def test_gettext_literalblock_additional(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     assert (app.outdir / 'literalblock.pot').is_file()

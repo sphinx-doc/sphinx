@@ -19,22 +19,23 @@ This works as follows:
 from __future__ import annotations
 
 __all__ = (
-    'InventoryAdapter',
-    'fetch_inventory',
-    'load_mappings',
-    'validate_intersphinx_mapping',
-    'IntersphinxRoleResolver',
-    'inventory_exists',
-    'install_dispatcher',
-    'resolve_reference_in_inventory',
-    'resolve_reference_any_inventory',
-    'resolve_reference_detect_inventory',
-    'missing_reference',
     'IntersphinxDispatcher',
     'IntersphinxRole',
+    'IntersphinxRoleResolver',
+    'InventoryAdapter',
+    'fetch_inventory',
     'inspect_main',
+    'install_dispatcher',
+    'inventory_exists',
+    'load_mappings',
+    'missing_reference',
+    'resolve_reference_any_inventory',
+    'resolve_reference_detect_inventory',
+    'resolve_reference_in_inventory',
+    'validate_intersphinx_mapping',
 )
 
+from types import NoneType
 from typing import TYPE_CHECKING
 
 import sphinx
@@ -63,10 +64,18 @@ if TYPE_CHECKING:
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('intersphinx_mapping', {}, 'env')
-    app.add_config_value('intersphinx_cache_limit', 5, '')
-    app.add_config_value('intersphinx_timeout', None, '')
-    app.add_config_value('intersphinx_disabled_reftypes', ['std:doc'], 'env')
+    app.add_config_value('intersphinx_mapping', {}, 'env', types=frozenset({dict}))
+    app.add_config_value('intersphinx_resolve_self', '', 'env', types=frozenset({str}))
+    app.add_config_value('intersphinx_cache_limit', 5, '', types=frozenset({int}))
+    app.add_config_value(
+        'intersphinx_timeout', None, '', types=frozenset({float, int, NoneType})
+    )
+    app.add_config_value(
+        'intersphinx_disabled_reftypes',
+        ['std:doc'],
+        'env',
+        types=frozenset({frozenset, list, set, tuple}),
+    )
     app.connect('config-inited', validate_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('source-read', install_dispatcher)

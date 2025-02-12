@@ -1,3 +1,4 @@
+# NoQA: N999
 from __future__ import annotations
 
 from gettext import NullTranslations  # NoQA: TC003

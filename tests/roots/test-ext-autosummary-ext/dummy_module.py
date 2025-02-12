@@ -7,7 +7,7 @@
    C.prop_attr1
    C.prop_attr2
    C.C2
-"""
+"""  # NoQA: D212
 
 
 def with_sentence():
@@ -41,8 +41,7 @@ module_attr = 1
 
 
 class C:
-    """
-    My C class
+    """My C class
 
     with class_attr attribute
     """
@@ -59,8 +58,7 @@ class C:
         self.instance_attr = '42'
 
     def _prop_attr_get(self):
-        """
-        This is a function docstring
+        """This is a function docstring
 
         return value is string.
         """
@@ -76,9 +74,7 @@ class C:
     """
 
     class C2:
-        """
-        This is a nested inner class docstring
-        """
+        """This is a nested inner class docstring"""
 
 
 def func(arg_, *args, **kwargs):

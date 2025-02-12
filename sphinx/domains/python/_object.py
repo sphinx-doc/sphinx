@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import contextlib
 import re
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
+from sphinx.addnodes import pending_xref, pending_xref_condition
 from sphinx.directives import ObjectDescription
 from sphinx.domains.python._annotations import (
     _parse_annotation,
@@ -25,9 +25,13 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import ClassVar
+
     from docutils.nodes import Node
     from docutils.parsers.rst.states import Inliner
 
+    from sphinx.addnodes import desc_signature
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import OptionSpec, TextlikeNode
 
@@ -159,8 +163,7 @@ class PyTypedField(PyXrefMixin, TypedField):
 
 
 class PyObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a general Python object.
+    """Description of a general Python object.
 
     :cvar allow_nesting: Class is an object that allows for nested namespaces
     :vartype allow_nesting: bool
@@ -230,7 +233,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
     allow_nesting = False
 
-    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
+    def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
         """May return a prefix to put before the object name in the
         signature.
         """
@@ -308,6 +311,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             and (sig_len - (arglist_span[1] - arglist_span[0])) > max_len > 0
         )
 
+        trailing_comma = self.env.config.python_trailing_comma_in_multi_line_signatures
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
@@ -330,7 +334,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         if tp_list:
             try:
                 signode += _parse_type_list(
-                    tp_list, self.env, multi_line_type_parameter_list
+                    tp_list,
+                    self.env,
+                    multi_line_type_parameter_list,
+                    trailing_comma,
                 )
             except Exception as exc:
                 logger.warning(
@@ -339,19 +346,34 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
         if arglist:
             try:
-                signode += _parse_arglist(arglist, self.env, multi_line_parameter_list)
+                signode += _parse_arglist(
+                    arglist,
+                    self.env,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
             except SyntaxError:
                 # fallback to parse arglist original parser
                 # (this may happen if the argument list is incorrectly used
                 # as a list of bases when documenting a class)
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
             except (NotImplementedError, ValueError) as exc:
                 # duplicated parameter names raise ValueError and not a SyntaxError
                 logger.warning(
                     'could not parse arglist (%r): %s', arglist, exc, location=signode
                 )
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
         else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list
@@ -388,8 +410,8 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     def add_target_and_index(
         self, name_cls: tuple[str, str], sig: str, signode: desc_signature
     ) -> None:
-        modname = self.options.get('module', self.env.ref_context.get('py:module'))
-        fullname = (f'{modname}.' if modname else '') + name_cls[0]
+        mod_name = self.options.get('module', self.env.ref_context.get('py:module'))
+        fullname = (f'{mod_name}.' if mod_name else '') + name_cls[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
@@ -404,11 +426,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             )
 
         if 'no-index-entry' not in self.options:
-            indextext = self.get_index_text(modname, name_cls)
-            if indextext:
+            if index_text := self.get_index_text(mod_name, name_cls):
                 self.indexnode['entries'].append((
                     'single',
-                    indextext,
+                    index_text,
                     node_id,
                     '',
                     None,

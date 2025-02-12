@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import datetime
 import os
+import sys
 import time
 from pathlib import Path
 
+import babel
 import pytest
 from babel.messages.mofile import read_mo
 
@@ -39,7 +41,7 @@ def test_catalog_outdated(tmp_path):
     mo_file.write_text('#', encoding='utf8')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
-    new_mtime = os.stat(mo_file).st_mtime_ns - 10_000_000_000
+    new_mtime = mo_file.stat().st_mtime_ns - 10_000_000_000
     os.utime(mo_file, ns=(new_mtime, new_mtime))  # to be outdated
     assert cat.is_outdated()  # if mo is exist and older than po
 
@@ -54,6 +56,11 @@ def test_catalog_write_mo(tmp_path):
         assert read_mo(f) is not None
 
 
+# https://github.com/python-babel/babel/issues/1183
+@pytest.mark.xfail(
+    sys.platform == 'win32' and babel.__version__ == '2.17.0',
+    reason='Windows tests fail with Babel 2.17',
+)
 def test_format_date():
     date = datetime.date(2016, 2, 7)
 
@@ -98,7 +105,7 @@ def test_format_date():
 def test_format_date_timezone():
     dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.UTC)
     if time.localtime(dt.timestamp()).tm_gmtoff == 0:
-        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101
+        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101,TRY003
 
     fmt = '%Y-%m-%d %H:%M:%S'
 

@@ -9,7 +9,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_code_directive(app):
     # normal case
     text = '.. code::\n\n   print("hello world")\n'
@@ -89,7 +89,7 @@ def test_csv_table_directive(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_math_directive(app):
     # normal case
     text = '.. math:: E = mc^2'

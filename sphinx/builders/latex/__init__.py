@@ -5,12 +5,14 @@ from __future__ import annotations
 import os
 import os.path
 import warnings
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from docutils.frontend import OptionParser
 
 import sphinx.builders.latex.nodes  # NoQA: F401  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
+from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder
 from sphinx.builders.latex.constants import (
     ADDITIONAL_SETTINGS,
@@ -19,12 +21,11 @@ from sphinx.builders.latex.constants import (
 )
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -39,10 +40,12 @@ from docutils import nodes  # isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
+    from typing import Any
 
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
 
 XINDY_LANG_OPTIONS = {
@@ -108,9 +111,7 @@ logger = logging.getLogger(__name__)
 
 
 class LaTeXBuilder(Builder):
-    """
-    Builds LaTeX output to create PDF.
-    """
+    """Builds LaTeX output to create PDF."""
 
     name = 'latex'
     format = 'latex'
@@ -276,7 +277,7 @@ class LaTeXBuilder(Builder):
 
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
-        stylesheet = os.path.join(self.outdir, 'sphinxhighlight.sty')
+        stylesheet = self.outdir / 'sphinxhighlight.sty'
         with open(stylesheet, 'w', encoding='utf-8') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write(
@@ -317,7 +318,7 @@ class LaTeXBuilder(Builder):
             if len(entry) > 5:
                 toctree_only = entry[5]
             destination = SphinxFileOutput(
-                destination_path=os.path.join(self.outdir, targetname),
+                destination_path=self.outdir / targetname,
                 encoding='utf-8',
                 overwrite_if_changed=True,
             )
@@ -417,8 +418,6 @@ class LaTeXBuilder(Builder):
                         nodes.Text(')'),
                     ))
                     break
-            else:
-                pass
             pendingnode.replace_self(newnodes)
         return largetree
 
@@ -443,11 +442,11 @@ class LaTeXBuilder(Builder):
             'xindy_lang_option': xindy_lang_option,
             'xindy_cyrillic': xindy_cyrillic,
         }
-        staticdirname = os.path.join(package_dir, 'texinputs')
-        for filename in os.listdir(staticdirname):
-            if not filename.startswith('.'):
+        static_dir_name = package_dir / 'texinputs'
+        for filename in Path(static_dir_name).iterdir():
+            if not filename.name.startswith('.'):
                 copy_asset_file(
-                    os.path.join(staticdirname, filename),
+                    static_dir_name / filename,
                     self.outdir,
                     context=context,
                     force=True,
@@ -455,9 +454,9 @@ class LaTeXBuilder(Builder):
 
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
-            staticdirname = os.path.join(package_dir, 'texinputs_win')
+            static_dir_name = package_dir / 'texinputs_win'
             copy_asset_file(
-                os.path.join(staticdirname, 'Makefile.jinja'),
+                static_dir_name / 'Makefile.jinja',
                 self.outdir,
                 context=context,
                 force=True,
@@ -466,7 +465,7 @@ class LaTeXBuilder(Builder):
     @progress_message(__('copying additional files'))
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
-            logger.info(' ' + filename, nonl=True)
+            logger.info(' %s', filename, nonl=True)
             source = self.confdir / filename
             copyfile(
                 source,
@@ -495,15 +494,15 @@ class LaTeXBuilder(Builder):
                 except Exception as err:
                     logger.warning(
                         __('cannot copy image file %r: %s'),
-                        os.path.join(self.srcdir, src),
+                        self.srcdir / src,
                         err,
                     )
         if self.config.latex_logo:
-            if not os.path.isfile(os.path.join(self.confdir, self.config.latex_logo)):
+            source = self.confdir / self.config.latex_logo
+            if not source.is_file():
                 raise SphinxError(
                     __('logo file %r does not exist') % self.config.latex_logo
                 )
-            source = self.confdir / self.config.latex_logo
             copyfile(
                 source,
                 self.outdir / source.name,
@@ -522,11 +521,8 @@ class LaTeXBuilder(Builder):
         if self.context['babel'] or self.context['polyglossia']:
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
-        filename = os.path.join(
-            package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja'
-        )
         copy_asset_file(
-            filename,
+            package_dir.joinpath('templates', 'latex', 'sphinxmessages.sty.jinja'),
             self.outdir,
             context=context,
             renderer=LaTeXRenderer(),
@@ -610,27 +606,44 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'latex_engine',
         default_latex_engine,
         '',
-        ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'),
+        types=ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'),
     )
-    app.add_config_value('latex_documents', default_latex_documents, '')
-    app.add_config_value('latex_logo', None, '', str)
-    app.add_config_value('latex_appendices', [], '')
-    app.add_config_value('latex_use_latex_multicolumn', False, '')
-    app.add_config_value('latex_use_xindy', default_latex_use_xindy, '', bool)
     app.add_config_value(
-        'latex_toplevel_sectioning', None, '', ENUM(None, 'part', 'chapter', 'section')
+        'latex_documents', default_latex_documents, '', types=frozenset({list, tuple})
     )
-    app.add_config_value('latex_domain_indices', True, '', types={set, list})
-    app.add_config_value('latex_show_urls', 'no', '')
-    app.add_config_value('latex_show_pagerefs', False, '')
-    app.add_config_value('latex_elements', {}, '')
-    app.add_config_value('latex_additional_files', [], '')
-    app.add_config_value('latex_table_style', ['booktabs', 'colorrows'], '', list)
-    app.add_config_value('latex_theme', 'manual', '', str)
-    app.add_config_value('latex_theme_options', {}, '')
-    app.add_config_value('latex_theme_path', [], '', list)
+    app.add_config_value('latex_logo', None, '', types=frozenset({str}))
+    app.add_config_value('latex_appendices', [], '', types=frozenset({list, tuple}))
+    app.add_config_value(
+        'latex_use_latex_multicolumn', False, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'latex_use_xindy', default_latex_use_xindy, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'latex_toplevel_sectioning',
+        None,
+        '',
+        types=ENUM(None, 'part', 'chapter', 'section'),
+    )
+    app.add_config_value(
+        'latex_domain_indices', True, '', types=frozenset({frozenset, list, set, tuple})
+    )
+    app.add_config_value('latex_show_urls', 'no', '', types=frozenset({str}))
+    app.add_config_value('latex_show_pagerefs', False, '', types=frozenset({bool}))
+    app.add_config_value('latex_elements', {}, '', types=frozenset({dict}))
+    app.add_config_value(
+        'latex_additional_files', [], '', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'latex_table_style', ['booktabs', 'colorrows'], '', types=frozenset({list})
+    )
+    app.add_config_value('latex_theme', 'manual', '', types=frozenset({str}))
+    app.add_config_value('latex_theme_options', {}, '', types=frozenset({dict}))
+    app.add_config_value('latex_theme_path', [], '', types=frozenset({list}))
 
-    app.add_config_value('latex_docclass', default_latex_docclass, '')
+    app.add_config_value(
+        'latex_docclass', default_latex_docclass, '', types=frozenset({dict})
+    )
 
     return {
         'version': 'builtin',

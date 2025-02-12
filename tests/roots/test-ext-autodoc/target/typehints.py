@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import pathlib
-from typing import Any, Tuple, TypeVar, Union  # NoQA: UP035
+from typing import TYPE_CHECKING, Tuple, TypeVar, Union  # NoQA: UP035
+
+if TYPE_CHECKING:
+    from typing import Any
 
 CONST1: int
 #: docstring

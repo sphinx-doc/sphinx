@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from docutils import nodes
 from pygments.lexers import PythonConsoleLexer, guess_lexer
@@ -13,6 +13,8 @@ from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Node, TextElement
 
     from sphinx.application import Sphinx
@@ -26,8 +28,7 @@ class HighlightSetting(NamedTuple):
 
 
 class HighlightLanguageTransform(SphinxTransform):
-    """
-    Apply highlight_language to all literal_block nodes.
+    """Apply highlight_language to all literal_block nodes.
 
     This refers both :confval:`highlight_language` setting and
     :rst:dir:`highlight` directive.  After processing, this transform
@@ -86,8 +87,7 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
 
 
 class TrimDoctestFlagsTransform(SphinxTransform):
-    """
-    Trim doctest flags like ``# doctest: +FLAG`` from python code-blocks.
+    """Trim doctest flags like ``# doctest: +FLAG`` from python code-blocks.
 
     see :confval:`trim_doctest_flags` for more information.
     """

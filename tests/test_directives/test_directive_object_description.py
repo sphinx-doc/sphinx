@@ -57,7 +57,7 @@ def test_object_description_sections(app):
     assert doctree[1][1][0][1][0] == 'Lorem ipsum dolar sit amet'
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_object_description_content_line_number(app):
     text = '.. py:function:: foo(bar)\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)

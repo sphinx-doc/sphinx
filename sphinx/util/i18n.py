@@ -16,11 +16,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.osutil import (
-    SEP,
-    _last_modified_time,
-    canon_path,
-)
+from sphinx.util.osutil import SEP, _last_modified_time
 
 if TYPE_CHECKING:
     import datetime as dt
@@ -100,14 +96,26 @@ class CatalogInfo:
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
-                logger.warning(__('reading error: %s, %s'), self.po_path, exc)
+                logger.warning(
+                    __('reading error: %s, %s'),
+                    self.po_path,
+                    exc,
+                    type='i18n',
+                    subtype='not_readable',
+                )
                 return
 
         with open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po, use_fuzzy)
             except Exception as exc:
-                logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
+                logger.warning(
+                    __('writing error: %s, %s'),
+                    self.mo_path,
+                    exc,
+                    type='i18n',
+                    subtype='not_writeable',
+                )
 
 
 class CatalogRepository:
@@ -151,7 +159,7 @@ class CatalogRepository:
     @property
     def catalogs(self) -> Iterator[CatalogInfo]:
         for basedir, filename in self.pofiles:
-            domain = canon_path(os.path.splitext(filename)[0])
+            domain = filename.with_suffix('').as_posix()
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
@@ -224,6 +232,12 @@ def babel_format_date(
         return formatter(date, format, locale=locale)
     except (ValueError, babel.core.UnknownLocaleError):
         # fallback to English
+        logger.warning(
+            __('Invalid Babel locale: %r.'),
+            locale,
+            type='i18n',
+            subtype='babel',
+        )
         return formatter(date, format, locale='en')
     except AttributeError:
         logger.warning(
@@ -232,6 +246,8 @@ def babel_format_date(
                 'if you want to output it directly: %s'
             ),
             format,
+            type='i18n',
+            subtype='babel',
         )
         return format
 

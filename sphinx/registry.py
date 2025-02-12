@@ -6,9 +6,9 @@ import traceback
 from importlib import import_module
 from importlib.metadata import entry_points
 from types import MethodType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from sphinx.domains import Domain, Index, ObjType
+from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
@@ -23,6 +23,7 @@ from sphinx.util.logging import prefixed_warnings
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterator, Mapping, Sequence
+    from typing import Any, TypeAlias
 
     from docutils import nodes
     from docutils.core import Publisher
@@ -31,17 +32,34 @@ if TYPE_CHECKING:
     from docutils.parsers.rst import Directive
     from docutils.transforms import Transform
 
+    from sphinx import addnodes
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.config import Config
+    from sphinx.domains import Domain, Index
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
+    from sphinx.util.docfields import Field
     from sphinx.util.typing import (
         ExtensionMetadata,
         RoleFunction,
         TitleGetter,
         _ExtensionSetupFunc,
     )
+    from sphinx.writers.html5 import HTML5Translator
+
+    # visit/depart function
+    # the parameters should be (SphinxTranslator, Element)
+    # or any subtype of either, but mypy rejects this.
+    _NodeHandler: TypeAlias = Callable[[Any, Any], None]
+    _NodeHandlerPair: TypeAlias = tuple[_NodeHandler, _NodeHandler | None]
+
+    _MathsRenderer: TypeAlias = Callable[[HTML5Translator, nodes.math], None]
+    _MathsBlockRenderer: TypeAlias = Callable[[HTML5Translator, nodes.math_block], None]
+    _MathsInlineRenderers: TypeAlias = tuple[_MathsRenderer, _MathsRenderer | None]
+    _MathsBlockRenderers: TypeAlias = tuple[
+        _MathsBlockRenderer, _MathsBlockRenderer | None
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +112,13 @@ class SphinxComponentRegistry:
         #: HTML inline and block math renderers
         #: a dict of name -> tuple of visit function and depart function
         self.html_inline_math_renderers: dict[
-            str, tuple[Callable, Callable | None]
+            str,
+            _MathsInlineRenderers,
         ] = {}
-        self.html_block_math_renderers: dict[str, tuple[Callable, Callable | None]] = {}
+        self.html_block_math_renderers: dict[
+            str,
+            _MathsBlockRenderers,
+        ] = {}
 
         #: HTML assets
         self.html_assets_policy: str = 'per_page'
@@ -126,9 +148,7 @@ class SphinxComponentRegistry:
 
         #: custom handlers for translators
         #: a dict of builder name -> dict of node name -> visitor and departure functions
-        self.translation_handlers: dict[
-            str, dict[str, tuple[Callable, Callable | None]]
-        ] = {}
+        self.translation_handlers: dict[str, dict[str, _NodeHandlerPair]] = {}
 
         #: additional transforms; list of transforms
         self.transforms: list[type[Transform]] = []
@@ -253,10 +273,11 @@ class SphinxComponentRegistry:
         directivename: str,
         rolename: str,
         indextemplate: str = '',
-        parse_node: Callable | None = None,
+        parse_node: Callable[[BuildEnvironment, str, addnodes.desc_signature], str]
+        | None = None,
         ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
-        doc_field_types: Sequence = (),
+        doc_field_types: Sequence[Field] = (),
         override: bool = False,
     ) -> None:
         logger.debug(
@@ -370,9 +391,7 @@ class SphinxComponentRegistry:
         self.translators[name] = translator
 
     def add_translation_handlers(
-        self,
-        node: type[Element],
-        **kwargs: tuple[Callable, Callable | None],
+        self, node: type[Element], **kwargs: _NodeHandlerPair
     ) -> None:
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
@@ -480,8 +499,8 @@ class SphinxComponentRegistry:
     def add_html_math_renderer(
         self,
         name: str,
-        inline_renderers: tuple[Callable, Callable | None] | None,
-        block_renderers: tuple[Callable, Callable | None] | None,
+        inline_renderers: _MathsInlineRenderers | None,
+        block_renderers: _MathsBlockRenderers | None,
     ) -> None:
         logger.debug(
             '[app] adding html_math_renderer: %s, %r, %r',

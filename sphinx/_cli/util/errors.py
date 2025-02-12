@@ -58,27 +58,39 @@ def full_exception_context(
     *,
     message_log: Collection[str] = (),
     extensions: Collection[Extension] = (),
+    full_traceback: bool = True,
 ) -> str:
     """Return a formatted message containing useful debugging context."""
-    last_msgs = '\n'.join(f'* {strip_escape_sequences(s)}' for s in message_log)
+    messages = [f'    {strip_escape_sequences(msg)}'.rstrip() for msg in message_log]
+    while messages and not messages[-1]:
+        messages.pop()
+    last_msgs = '\n'.join(messages)
     exts_list = '\n'.join(
         f'* {ext.name} ({ext.version})'
         for ext in extensions
         if ext.version != 'builtin'
     )
-    exc_format = format_traceback(exception)
+    exc_format = format_traceback(exception, short_traceback=not full_traceback)
     return error_info(last_msgs or 'None.', exts_list or 'None.', exc_format)
 
 
-def format_traceback(exception: BaseException, /) -> str:
+def format_traceback(
+    exception: BaseException, /, *, short_traceback: bool = False
+) -> str:
     """Format the given exception's traceback."""
-    if isinstance(exception, SphinxParallelError):
-        return f'(Error in parallel process)\n{exception.traceback}'
+    if short_traceback:
+        from traceback import TracebackException
+
+        # format an exception with traceback, but only the last frame.
+        te = TracebackException.from_exception(exception, limit=-1)
+        exc_format = te.stack.format()[-1] + ''.join(te.format_exception_only())
+    elif isinstance(exception, SphinxParallelError):
+        exc_format = f'(Error in parallel process)\n{exception.traceback}'
     else:
         from traceback import format_exception
 
         exc_format = ''.join(format_exception(exception))
-    return exc_format
+    return '\n'.join(f'    {line}' for line in exc_format.rstrip().splitlines())
 
 
 def error_info(messages: str, extensions: str, traceback: str) -> str:
@@ -158,7 +170,6 @@ def handle_exception(
     extensions: Collection[Extension] = (),
 ) -> None:
     from bdb import BdbQuit
-    from traceback import TracebackException
 
     from docutils.utils import SystemMessage
 
@@ -175,39 +186,21 @@ def handle_exception(
         print_err(*map(red, values))
 
     print_err()
-    if print_traceback or use_pdb:
-        print_err(format_traceback(exception))
-        print_err()
-
-    if use_pdb:
-        from pdb import post_mortem
-
-        print_red(__('Exception occurred, starting debugger:'))
-        post_mortem(exception.__traceback__)
-        return
-
-    if isinstance(exception, KeyboardInterrupt):
+    if not use_pdb and isinstance(exception, KeyboardInterrupt):
         print_err(__('Interrupted!'))
         return
 
     if isinstance(exception, SystemMessage):
-        print_red(__('reStructuredText markup error:'))
-        print_err(str(exception))
-        return
+        print_red(__('reStructuredText markup error!'))
 
     if isinstance(exception, SphinxError):
-        print_red(f'{exception.category}:')
-        print_err(str(exception))
-        return
+        print_red(f'{exception.category}!')
 
     if isinstance(exception, UnicodeError):
-        print_red(__('Encoding error:'))
-        print_err(str(exception))
-        return
+        print_red(__('Encoding error!'))
 
     if isinstance(exception, RecursionError):
-        print_red(__('Recursion error:'))
-        print_err(str(exception))
+        print_red(__('Recursion error!'))
         print_err()
         print_err(
             __(
@@ -217,14 +210,25 @@ def handle_exception(
             )
         )
         print_err('\n    import sys\n    sys.setrecursionlimit(1_500)\n')
+
+    print_err()
+    error_context = full_exception_context(
+        exception,
+        message_log=message_log,
+        extensions=extensions,
+        full_traceback=print_traceback or use_pdb,
+    )
+    print_err(error_context)
+    print_err()
+
+    if use_pdb:
+        from pdb import post_mortem
+
+        print_red(__('Starting debugger:'))
+        post_mortem(exception.__traceback__)
         return
 
-    # format an exception with traceback, but only the last frame.
-    te = TracebackException.from_exception(exception, limit=-1)
-    formatted_tb = te.stack.format()[-1] + ''.join(te.format_exception_only()).rstrip()
-
-    print_red(__('Exception occurred:'))
-    print_err(formatted_tb)
+    # Save full traceback to log file
     traceback_info_path = save_traceback(
         exception, message_log=message_log, extensions=extensions
     )

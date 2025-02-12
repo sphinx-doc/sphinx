@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import pickle
 from collections import Counter
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 import pytest
 
 import sphinx
-from sphinx.builders.gettext import _gettext_compact_validator
 from sphinx.config import (
     ENUM,
     Config,
@@ -162,7 +160,7 @@ def test_config_pickle_circular_reference_in_list():
 
     config = Config()
     config.add('a', [], '', types=list)
-    config.add('b', [], '', types=list)
+    config.add('b', [], '', types=frozenset({list}))
     config.a, config.b = a, b
 
     actual = pickle.loads(pickle.dumps(config))
@@ -216,7 +214,7 @@ def test_config_pickle_circular_reference_in_list():
         assert v.__class__ is u.__class__
         for u_i, v_i in zip(u, v, strict=True):
             counter[type(u)] += 1
-            check(u_i, v_i, counter=counter, guard=guard | {id(u), id(v)})
+            check(u_i, v_i, counter=counter, guard=guard | {id(u), id(v)})  # type: ignore[arg-type]
 
         return counter
 
@@ -244,7 +242,7 @@ def test_config_pickle_circular_reference_in_dict():
     check_is_serializable(x, circular=True)
 
     config = Config()
-    config.add('x', [], '', types=dict)
+    config.add('x', [], '', types=frozenset({dict}))
     config.x = x
 
     actual = pickle.loads(pickle.dumps(config))
@@ -280,7 +278,7 @@ def test_config_pickle_circular_reference_in_dict():
         assert v.__class__ is u.__class__
         for u_i, v_i in zip(u, v, strict=True):
             counter[type(u)] += 1
-            check(u[u_i], v[v_i], counter=counter, guard=guard | {id(u), id(v)})
+            check(u[u_i], v[v_i], counter=counter, guard=guard | {id(u), id(v)})  # type: ignore[arg-type]
         return counter
 
     counters = check(actual.x, x, counter=Counter())
@@ -410,17 +408,6 @@ def test_errors_if_setup_is_not_callable(tmp_path, make_app):
     with pytest.raises(ConfigError) as excinfo:
         make_app(srcdir=tmp_path)
     assert 'callable' in str(excinfo.value)
-
-
-@pytest.fixture
-def make_app_with_empty_project(make_app, tmp_path):
-    (tmp_path / 'conf.py').touch()
-
-    def _make_app(*args, **kw):
-        kw.setdefault('srcdir', Path(tmp_path))
-        return make_app(*args, **kw)
-
-    return _make_app
 
 
 @mock.patch.object(sphinx, '__display_version__', '1.6.4')
@@ -741,7 +728,6 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
 def test_gettext_compact_command_line_true():
     config = Config({}, {'gettext_compact': '1'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=1)
     assert config.gettext_compact is True
@@ -750,7 +736,6 @@ def test_gettext_compact_command_line_true():
 def test_gettext_compact_command_line_false():
     config = Config({}, {'gettext_compact': '0'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=0)
     assert config.gettext_compact is False
@@ -759,10 +744,51 @@ def test_gettext_compact_command_line_false():
 def test_gettext_compact_command_line_str():
     config = Config({}, {'gettext_compact': 'spam'})
     config.add('gettext_compact', True, '', {bool, str})
-    _gettext_compact_validator(..., config)
 
     # regression test for #8549 (-D gettext_compact=spam)
     assert config.gettext_compact == 'spam'
+
+
+def test_translation_progress_classes_command_line():
+    config = Config({}, {'translation_progress_classes': '1'})
+
+    # regression test for --define translation_progress_classes=1
+    # https://github.com/sphinx-doc/sphinx/issues/13071
+    assert config.translation_progress_classes is True
+
+
+def test_translation_progress_classes_command_line_false():
+    config = Config({}, {'translation_progress_classes': '0'})
+
+    # regression test for --define translation_progress_classes=0
+    # https://github.com/sphinx-doc/sphinx/issues/13071
+    assert config.translation_progress_classes is False
+
+
+def test_translation_progress_classes_command_line_str():
+    config = Config({}, {'translation_progress_classes': 'translated'})
+
+    # regression test for --define translation_progress_classes=translated
+    # https://github.com/sphinx-doc/sphinx/issues/13071
+    assert config.translation_progress_classes == 'translated'
+
+
+def test_autosummary_generate_command_line_false():
+    config = Config({}, {'autosummary_generate': '0'})
+    config.add('autosummary_generate', True, '', {bool, list})
+
+    # regression test for --define autosummary_generate=0
+    # https://github.com/sphinx-doc/sphinx/issues/13273
+    assert config.autosummary_generate is False
+
+
+def test_boolean_command_line_invalid():
+    config = Config({}, {'rabit_of_caerbannog': ''})
+    config.add('rabit_of_caerbannog', True, '', {bool})
+    with pytest.raises(
+        ConfigError, match="'rabit_of_caerbannog' must be '0' or '1', got ''"
+    ):
+        _ = config.rabit_of_caerbannog
 
 
 def test_root_doc_and_master_doc_are_synchronized():

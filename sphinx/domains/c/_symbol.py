@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.domains.c._ast import (
     ASTDeclaration,
-    ASTIdentifier,
     ASTNestedName,
 )
 from sphinx.locale import __
@@ -12,8 +11,11 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Self
+    from typing import Any, Self
 
+    from sphinx.domains.c._ast import (
+        ASTIdentifier,
+    )
     from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)

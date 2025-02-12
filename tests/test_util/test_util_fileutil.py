@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from unittest import mock
 
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.jinja2glue import BuiltinTemplateLoader
-from sphinx.util.console import strip_colors
 from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
 
 
@@ -127,7 +128,7 @@ def test_copy_asset_template(app):
     app.build(force_all=True)
 
     expected_msg = r'^Writing evaluated template result to [^\n]*\bAPI.html$'
-    output = strip_colors(app.status.getvalue())
+    output = strip_escape_sequences(app.status.getvalue())
     assert re.findall(expected_msg, output, flags=re.MULTILINE)
 
 
@@ -136,7 +137,7 @@ def test_copy_asset_overwrite(app):
     app.build()
     src = app.srcdir / 'myext_static' / 'custom-styles.css'
     dst = app.outdir / '_static' / 'custom-styles.css'
-    assert strip_colors(app.warning.getvalue()) == (
+    assert strip_escape_sequences(app.warning.getvalue()) == (
         f'WARNING: Aborted attempted copy from {src} to {dst} '
         '(the destination path has existing data). '
         '[misc.copy_overwrite]\n'
@@ -144,10 +145,10 @@ def test_copy_asset_overwrite(app):
 
 
 def test_template_basename():
-    assert _template_basename('asset.txt') is None
-    assert _template_basename('asset.txt.jinja') == 'asset.txt'
-    assert _template_basename('sidebar.html.jinja') == 'sidebar.html'
+    assert _template_basename(Path('asset.txt')) is None
+    assert _template_basename(Path('asset.txt.jinja')) == Path('asset.txt')
+    assert _template_basename(Path('sidebar.html.jinja')) == Path('sidebar.html')
 
 
 def test_legacy_template_basename():
-    assert _template_basename('asset.txt_t') == 'asset.txt'
+    assert _template_basename(Path('asset.txt_t')) == Path('asset.txt')

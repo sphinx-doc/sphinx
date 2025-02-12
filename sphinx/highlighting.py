@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pygments
 from pygments import highlight
@@ -27,6 +27,8 @@ from sphinx.pygments_styles import NoneStyle, SphinxStyle
 from sphinx.util import logging, texescape
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pygments.formatter import Formatter
     from pygments.lexer import Lexer
     from pygments.style import Style
@@ -127,7 +129,7 @@ class PygmentsBridge:
         else:
             return get_style_by_name(stylename)
 
-    def get_formatter(self, **kwargs: Any) -> Formatter:
+    def get_formatter(self, **kwargs: Any) -> Formatter[str]:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
@@ -135,7 +137,7 @@ class PygmentsBridge:
         self,
         source: str,
         lang: str,
-        opts: dict | None = None,
+        opts: dict[str, Any] | None = None,
         force: bool = False,
         location: Any = None,
     ) -> Lexer:
@@ -178,7 +180,7 @@ class PygmentsBridge:
         self,
         source: str,
         lang: str,
-        opts: dict | None = None,
+        opts: dict[str, Any] | None = None,
         force: bool = False,
         location: Any = None,
         **kwargs: Any,

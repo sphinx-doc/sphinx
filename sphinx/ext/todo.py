@@ -9,14 +9,13 @@ from __future__ import annotations
 
 import functools
 import operator
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 import sphinx
 from sphinx import addnodes
+from sphinx.directives.admonitions import SphinxAdmonition
 from sphinx.domains import Domain
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
@@ -25,6 +24,7 @@ from sphinx.util.docutils import SphinxDirective, new_document
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -45,37 +45,25 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-class Todo(BaseAdmonition, SphinxDirective):
-    """
-    A todo entry, displayed (if configured) in the form of an admonition.
-    """
+class Todo(SphinxAdmonition):
+    """A todo entry, displayed (if configured) in the form of an admonition."""
 
     node_class = todo_node
-    has_content = True
-    required_arguments = 0
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec: ClassVar[OptionSpec] = {
-        'class': directives.class_option,
-        'name': directives.unchanged,
-    }
 
     def run(self) -> list[Node]:
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
         (todo,) = super().run()
-        if isinstance(todo, nodes.system_message):
+        if not isinstance(todo, todo_node):
             return [todo]
-        elif isinstance(todo, todo_node):
-            todo.insert(0, nodes.title(text=_('Todo')))
-            todo['docname'] = self.env.docname
-            self.add_name(todo)
-            self.set_source_info(todo)
-            self.state.document.note_explicit_target(todo)
-            return [todo]
-        else:
-            raise RuntimeError  # never reached here
+
+        todo.insert(0, nodes.title(text=_('Todo')))
+        todo['docname'] = self.env.docname
+        self.add_name(todo)
+        self.set_source_info(todo)
+        self.state.document.note_explicit_target(todo)
+        return [todo]
 
 
 class TodoDomain(Domain):
@@ -108,9 +96,7 @@ class TodoDomain(Domain):
 
 
 class TodoList(SphinxDirective):
-    """
-    A list of all todo entries.
-    """
+    """A list of all todo entries."""
 
     has_content = False
     required_arguments = 0
@@ -239,9 +225,9 @@ def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_event('todo-defined')
-    app.add_config_value('todo_include_todos', False, 'html')
-    app.add_config_value('todo_link_only', False, 'html')
-    app.add_config_value('todo_emit_warnings', False, 'html')
+    app.add_config_value('todo_include_todos', False, 'html', types=frozenset({bool}))
+    app.add_config_value('todo_link_only', False, 'html', types=frozenset({bool}))
+    app.add_config_value('todo_emit_warnings', False, 'html', types=frozenset({bool}))
 
     app.add_node(todolist)
     app.add_node(

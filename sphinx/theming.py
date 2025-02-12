@@ -12,7 +12,7 @@ import tempfile
 import tomllib
 from importlib.metadata import entry_points
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 from sphinx import package_dir
@@ -25,7 +25,7 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Required, TypedDict
+    from typing import Any, Required, TypedDict
 
     from sphinx.application import Sphinx
 
@@ -159,7 +159,7 @@ class HTMLThemeFactory:
 
     def _load_builtin_themes(self) -> None:
         """Load built-in themes."""
-        themes = self._find_themes(Path(package_dir, 'themes'))
+        themes = self._find_themes(package_dir / 'themes')
         for name, theme in themes.items():
             self._themes[name] = _StrPath(theme)
 

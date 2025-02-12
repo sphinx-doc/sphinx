@@ -26,7 +26,7 @@ from sphinx.addnodes import (
 from sphinx.domains.cpp._ids import _id_prefix, _max_id
 from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError, NoOldIdError
@@ -1826,7 +1826,7 @@ def test_domain_cpp_build_field_role(app):
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_operator_lookup(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     ws = filter_warnings(app.warning, 'operator-lookup')
     assert len(ws) == 5
     # TODO: the first one should not happen
@@ -1909,7 +1909,7 @@ _var cpp:member 1 index.html#_CPPv44$ -
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_cpp_parse_no_index_entry(app):
     text = (
         '.. cpp:function:: void f()\n.. cpp:function:: void g()\n   :no-index-entry:\n'
@@ -1924,7 +1924,7 @@ def test_domain_cpp_parse_no_index_entry(app):
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_cpp_parse_mix_decl_duplicate(app):
     # Issue 8270
     text = '.. cpp:struct:: A\n.. cpp:function:: void A()\n.. cpp:struct:: A\n'
@@ -2426,7 +2426,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app):
 <dd>\
 <span class="n"><span class="pre">str</span></span>\
 <span class="w"> </span>\
-<span class="n sig-param"><span class="pre">name</span></span>,\
+<span class="n sig-param"><span class="pre">name</span></span>\
 </dd>
 </dl>
 
@@ -2445,6 +2445,6 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app):
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
 
-    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name,'))
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name'))
 
     assert expected_parameter_list_hello in content

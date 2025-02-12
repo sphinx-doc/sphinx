@@ -344,7 +344,7 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation(app):
     doctree = _parse_annotation('int', app.env)
     assert_node(doctree, ([pending_xref, 'int'],))
@@ -504,7 +504,7 @@ def test_parse_annotation(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation('~typing.Dict[str, str]', app.env)
     assert_node(
@@ -524,7 +524,7 @@ def test_parse_annotation_suppress(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_Literal(app):
     doctree = _parse_annotation('Literal[True, False]', app.env)
     assert_node(
@@ -814,7 +814,7 @@ def test_modindex_common_prefix(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_no_index_entry(app):
     text = '.. py:function:: f()\n.. py:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
@@ -835,6 +835,15 @@ def test_no_index_entry(app):
         entries=[('single', 'f (built-in class)', 'f', '', None)],
     )
     assert_node(doctree[2], addnodes.index, entries=[])
+
+    text = '.. py:module:: f\n.. py:module:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, nodes.target, nodes.target))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('pair', 'module; f', 'module-f', '', None)],
+    )
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
@@ -1073,7 +1082,134 @@ def test_domain_py_python_maximum_signature_line_length_in_text(app):
     assert expected_parameter_list_foo in content
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx(
+    'html',
+    testroot='domain-py-python_maximum_signature_line_length',
+    confoverrides={'python_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_html(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    expected_parameter_list_hello = """\
+
+<dl>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">name</span></span>\
+<span class="p"><span class="pre">:</span></span>\
+<span class="w"> </span>\
+<span class="n"><span class="pre">str</span></span>\
+</em>\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span> \
+<span class="sig-return">\
+<span class="sig-return-icon">&#x2192;</span> \
+<span class="sig-return-typehint"><span class="pre">str</span></span>\
+</span>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
+</dt>\
+"""
+    assert expected_parameter_list_hello in content
+
+    param_line_fmt = '<dd>{}</dd>\n'
+    param_name_fmt = (
+        '<em class="sig-param"><span class="n"><span class="pre">{}</span></span></em>'
+    )
+    optional_fmt = '<span class="optional">{}</span>'
+
+    expected_a = param_line_fmt.format(
+        optional_fmt.format('[')
+        + param_name_fmt.format('a')
+        + ','
+        + optional_fmt.format('['),
+    )
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format(
+        param_name_fmt.format('b')
+        + ','
+        + optional_fmt.format(']')
+        + optional_fmt.format(']'),
+    )
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format(param_name_fmt.format('c') + ',')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format(
+        param_name_fmt.format('d') + optional_fmt.format('[') + ','
+    )
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format(param_name_fmt.format('e') + ',')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format(
+        param_name_fmt.format('f') + optional_fmt.format(']')
+    )
+    assert expected_f in content
+
+    expected_parameter_list_foo = """\
+
+<dl>
+{}{}{}{}{}{}</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
+</dt>\
+""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'text',
+    testroot='domain-py-python_maximum_signature_line_length',
+    freshenv=True,
+    confoverrides={'python_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_text(app):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * ' ' + '{}\n'
+
+    expected_parameter_list_hello = '(\n{}) -> str'.format(
+        param_line_fmt.format('name: str')
+    )
+
+    assert expected_parameter_list_hello in content
+
+    expected_a = param_line_fmt.format('[a,[')
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format('b,]]')
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format('c,')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format('d[,')
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format('e,')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format('f]')
+    assert expected_f in content
+
+    expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(
+        expected_a,
+        expected_b,
+        expected_c,
+        expected_d,
+        expected_e,
+        expected_f,
+    )
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_module_content_line_number(app):
     text = '.. py:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
@@ -1189,7 +1325,7 @@ def test_short_literal_types(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_function_pep_695(app):
     text = """.. py:function:: func[\
         S,\
@@ -1316,7 +1452,7 @@ def test_function_pep_695(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_class_def_pep_695(app):
     # Non-concrete unbound generics are allowed at runtime but type checkers
     # should fail (https://peps.python.org/pep-0695/#type-parameter-scopes)
@@ -1332,7 +1468,10 @@ def test_class_def_pep_695(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,
@@ -1369,7 +1508,7 @@ def test_class_def_pep_695(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_class_def_pep_696(app):
     # test default values for type variables without using PEP 696 AST parser
     text = """.. py:class:: Class[\
@@ -1394,7 +1533,10 @@ def test_class_def_pep_696(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,

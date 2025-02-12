@@ -30,6 +30,7 @@ if TYPE_CHECKING:
         InventoryName,
         InventoryURI,
     )
+    from sphinx.util.inventory import _Inventory
     from sphinx.util.typing import Inventory
 
 
@@ -81,7 +82,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
                 'Values must be a (target URI, inventory locations) pair.'
             )
-            LOGGER.error(msg, value, name)
+            LOGGER.error(msg, value, name)  # NoQA: TRY400
             del config.intersphinx_mapping[name]
             continue
 
@@ -245,27 +246,27 @@ def _fetch_inventory_group(
     for location in project.locations:
         # location is either None or a non-empty string
         if location is None:
-            inv = posixpath.join(project.target_uri, INVENTORY_FILENAME)
+            inv_location = posixpath.join(project.target_uri, INVENTORY_FILENAME)
         else:
-            inv = location
+            inv_location = location
 
         # decide whether the inventory must be read: always read local
         # files; remote ones only if the cache time is expired
         if (
-            '://' not in inv
+            '://' not in inv_location
             or project.target_uri not in cache
             or cache[project.target_uri][1] < cache_time
         ):
             LOGGER.info(
                 __("loading intersphinx inventory '%s' from %s ..."),
                 project.name,
-                _get_safe_url(inv),
+                _get_safe_url(inv_location),
             )
 
             try:
-                invdata = _fetch_inventory(
+                inv = _fetch_inventory(
                     target_uri=project.target_uri,
-                    inv_location=inv,
+                    inv_location=inv_location,
                     config=config,
                     srcdir=srcdir,
                 )
@@ -273,8 +274,8 @@ def _fetch_inventory_group(
                 failures.append(err.args)
                 continue
 
-            if invdata:
-                cache[project.target_uri] = project.name, now, invdata
+            if inv:
+                cache[project.target_uri] = project.name, now, inv.data
                 updated = True
                 break
 
@@ -292,9 +293,9 @@ def _fetch_inventory_group(
     else:
         issues = '\n'.join(f[0] % f[1:] for f in failures)
         LOGGER.warning(
-            __('failed to reach any of the inventories with the following issues:')
-            + '\n'
-            + issues
+            '%s\n%s',
+            __('failed to reach any of the inventories with the following issues:'),
+            issues,
         )
     return updated
 
@@ -306,12 +307,12 @@ def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
         inv_location=inv,
         config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
-    )
+    ).data
 
 
 def _fetch_inventory(
     *, target_uri: InventoryURI, inv_location: str, config: _InvConfig, srcdir: Path
-) -> Inventory:
+) -> _Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *target_uri* (base URI of the links to generate)
     # and *inv_location* (actual location of the inventory file)
@@ -327,11 +328,11 @@ def _fetch_inventory(
         raw_data = _fetch_inventory_file(inv_location=inv_location, srcdir=srcdir)
 
     try:
-        invdata = InventoryFile.loads(raw_data, uri=target_uri)
+        inv = InventoryFile.loads(raw_data, uri=target_uri)
     except ValueError as exc:
         msg = f'unknown or unsupported inventory version: {exc!r}'
         raise ValueError(msg) from exc
-    return invdata
+    return inv
 
 
 def _fetch_inventory_url(
@@ -340,7 +341,6 @@ def _fetch_inventory_url(
     try:
         with requests.get(
             inv_location,
-            stream=True,
             timeout=config.intersphinx_timeout,
             _user_agent=config.user_agent,
             _tls_info=(config.tls_verify, config.tls_cacerts),

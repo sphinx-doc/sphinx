@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import importlib.util
 import operator
-import os.path
 import posixpath
 import traceback
-from typing import TYPE_CHECKING, Any, cast
+from types import NoneType
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 
 import sphinx
 from sphinx import addnodes
@@ -24,6 +24,9 @@ from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any
+
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -256,7 +259,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
 
     builder = cast('StandaloneHTMLBuilder', app.builder)
     basename = modname.replace('.', '/') + builder.out_suffix
-    page_filename = os.path.join(app.outdir, '_modules/', basename)
+    page_filename = app.outdir / '_modules' / basename
 
     try:
         if _last_modified_time(module_filename) <= _last_modified_time(page_filename):
@@ -380,16 +383,22 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('viewcode_import', None, '')
-    app.add_config_value('viewcode_enable_epub', False, '')
-    app.add_config_value('viewcode_follow_imported_members', True, '')
-    app.add_config_value('viewcode_line_numbers', False, 'env', bool)
+    app.add_config_value('viewcode_import', None, '', types=frozenset({NoneType}))
+    app.add_config_value('viewcode_enable_epub', False, '', types=frozenset({bool}))
+    app.add_config_value(
+        'viewcode_follow_imported_members', True, '', types=frozenset({bool})
+    )
+    app.add_config_value('viewcode_line_numbers', False, 'env', types=frozenset({bool}))
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)
     app.connect('html-collect-pages', collect_pages)
-    # app.add_config_value('viewcode_include_modules', [], 'env')
-    # app.add_config_value('viewcode_exclude_modules', [], 'env')
+    # app.add_config_value(
+    #     'viewcode_include_modules', [], 'env', types=frozenset({list, tuple})
+    # )
+    # app.add_config_value(
+    #     'viewcode_exclude_modules', [], 'env', types=frozenset({list, tuple})
+    # )
     app.add_event('viewcode-find-source')
     app.add_event('viewcode-follow-imported')
     app.add_post_transform(ViewcodeAnchorTransform)

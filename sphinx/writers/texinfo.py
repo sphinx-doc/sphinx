@@ -5,7 +5,7 @@ from __future__ import annotations
 import os.path
 import re
 import textwrap
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 
@@ -18,6 +18,7 @@ from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, Text
 
@@ -1308,8 +1309,7 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_productionlist(self, node: Element) -> None:
         self.visit_literal_block(None)
         productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
+        maxlen = max(len(production['tokenname']) for production in productionlist)
 
         for production in productionlist:
             if production['tokenname']:
@@ -1317,7 +1317,7 @@ class TexinfoTranslator(SphinxTranslator):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
             else:
-                s = '%s    ' % (' ' * maxlen)
+                s = ' ' * (maxlen + 4)
             self.body.append(self.escape(s))
             self.body.append(self.escape(production.astext() + '\n'))
         self.depart_literal_block(None)
@@ -1502,7 +1502,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.first_param = 0
         text = self.escape(node.astext())
         # replace no-break spaces with normal ones
-        text = text.replace(' ', '@w{ }')
+        text = text.replace('\N{NO-BREAK SPACE}', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
 
@@ -1580,11 +1580,11 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_pending_xref(self, node: Element) -> None:
         pass
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         self.body.append('@math{' + self.escape_arg(node.astext()) + '}')
         raise nodes.SkipNode
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         if node.get('label'):
             self.add_anchor(node['label'], node)
         self.body.append(

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.domains.cpp._ast import (
     ASTAlignofExpr,
@@ -18,7 +18,6 @@ from sphinx.domains.cpp._ast import (
     ASTConcept,
     ASTConditionalExpr,
     ASTDeclaration,
-    ASTDeclarator,
     ASTDeclaratorMemPtr,
     ASTDeclaratorNameBitField,
     ASTDeclaratorNameParamQual,
@@ -33,14 +32,12 @@ from sphinx.domains.cpp._ast import (
     ASTEnumerator,
     ASTExplicitCast,
     ASTExplicitSpec,
-    ASTExpression,
     ASTFallbackExpr,
     ASTFoldExpr,
     ASTFunctionParameter,
     ASTIdentifier,
     ASTIdExpression,
     ASTInitializer,
-    ASTLiteral,
     ASTNamespace,
     ASTNestedName,
     ASTNestedNameElement,
@@ -48,7 +45,6 @@ from sphinx.domains.cpp._ast import (
     ASTNoexceptExpr,
     ASTNoexceptSpec,
     ASTNumberLiteral,
-    ASTOperator,
     ASTOperatorBuildIn,
     ASTOperatorLiteral,
     ASTOperatorType,
@@ -64,7 +60,6 @@ from sphinx.domains.cpp._ast import (
     ASTPostfixInc,
     ASTPostfixMember,
     ASTPostfixMemberOfPointer,
-    ASTPostfixOp,
     ASTRequiresClause,
     ASTSizeofExpr,
     ASTSizeofParamPack,
@@ -76,14 +71,12 @@ from sphinx.domains.cpp._ast import (
     ASTTemplateIntroduction,
     ASTTemplateIntroductionParameter,
     ASTTemplateKeyParamPackIdDefault,
-    ASTTemplateParam,
     ASTTemplateParamConstrainedTypeWithInit,
     ASTTemplateParamNonType,
     ASTTemplateParams,
     ASTTemplateParamTemplateType,
     ASTTemplateParamType,
     ASTThisLiteral,
-    ASTTrailingTypeSpec,
     ASTTrailingTypeSpecDecltype,
     ASTTrailingTypeSpecDecltypeAuto,
     ASTTrailingTypeSpecFundamental,
@@ -128,6 +121,17 @@ from sphinx.util.cfamily import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
+
+    from sphinx.domains.cpp._ast import (
+        ASTDeclarator,
+        ASTExpression,
+        ASTLiteral,
+        ASTOperator,
+        ASTPostfixOp,
+        ASTTemplateParam,
+        ASTTrailingTypeSpec,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -1620,8 +1624,7 @@ class DefinitionParser(BaseParser):
         return ASTInitializer(value)
 
     def _parse_type(self, named: bool | str, outer: str | None = None) -> ASTType:
-        """
-        named=False|'maybe'|True: 'maybe' is e.g., for function objects which
+        """named=False|'maybe'|True: 'maybe' is e.g., for function objects which
         doesn't need to name the arguments
 
         outer == operatorCast: annoying case, we should not take the params
@@ -2048,7 +2051,7 @@ class DefinitionParser(BaseParser):
                     if object_type == 'member' and len(templates) == 0:
                         return ASTTemplateDeclarationPrefix(None)
                     else:
-                        raise e
+                        raise
                 if object_type == 'concept' and params.requiresClause is not None:
                     self.fail('requires-clause not allowed for concept')
             else:

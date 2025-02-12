@@ -18,14 +18,12 @@ import argparse
 import importlib
 import inspect
 import locale
-import os
-import os.path
 import pkgutil
 import pydoc
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -52,8 +50,10 @@ from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Sequence, Set
     from gettext import NullTranslations
+    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
@@ -130,10 +130,10 @@ class AutosummaryRenderer:
     def __init__(self, app: Sphinx) -> None:
         if isinstance(app, Builder):
             msg = 'Expected a Sphinx application object!'
-            raise ValueError(msg)
+            raise TypeError(msg)
 
         system_templates_path = [
-            os.path.join(package_dir, 'ext', 'autosummary', 'templates')
+            package_dir.joinpath('ext', 'autosummary', 'templates')
         ]
         loader = SphinxTemplateLoader(
             app.srcdir, app.config.templates_path, system_templates_path
@@ -274,7 +274,11 @@ def members_of(obj: Any, conf: Config) -> Sequence[str]:
     if conf.autosummary_ignore_module_all:
         return dir(obj)
     else:
-        return getall(obj) or dir(obj)
+        if (obj___all__ := getall(obj)) is not None:
+            # return __all__, even if empty.
+            return obj___all__
+        # if __all__ is not set, return dir(obj)
+        return dir(obj)
 
 
 def generate_autosummary_content(
@@ -553,7 +557,7 @@ def generate_autosummary_docs(
             # a :toctree: option
             continue
 
-        path = output_dir or os.path.abspath(entry.path)
+        path = output_dir or Path(entry.path).resolve()
         ensuredir(path)
 
         try:
@@ -859,7 +863,7 @@ def main(argv: Sequence[str] = (), /) -> None:
     args = get_parser().parse_args(argv or sys.argv[1:])
 
     if args.templates:
-        app.config.templates_path.append(os.path.abspath(args.templates))
+        app.config.templates_path.append(str(Path(args.templates).resolve()))
     app.config.autosummary_ignore_module_all = not args.respect_module_all
 
     written_files = generate_autosummary_docs(

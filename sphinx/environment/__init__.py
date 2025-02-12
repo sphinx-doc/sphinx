@@ -7,7 +7,8 @@ import os
 import pickle
 from collections import defaultdict
 from copy import deepcopy
-from typing import TYPE_CHECKING, Final
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from sphinx import addnodes
 from sphinx.domains._domains_container import _DomainsContainer
@@ -22,17 +23,17 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
-from sphinx.util._pathlib import _StrPathProperty
+from sphinx.util._pathlib import _StrPath, _StrPathProperty
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
+from sphinx.util.osutil import _last_modified_time, _relative_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Mapping
-    from typing import Any, Literal
+    from typing import Any, Final, Literal
 
     from docutils import nodes
     from docutils.nodes import Node
@@ -47,7 +48,6 @@ if TYPE_CHECKING:
     from sphinx.events import EventManager
     from sphinx.extension import Extension
     from sphinx.project import Project
-    from sphinx.util._pathlib import _StrPath
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 64
+ENV_VERSION = 65
 
 # config status
 CONFIG_UNSET = -1
@@ -94,8 +94,7 @@ versioning_conditions: dict[str, Literal[False] | Callable[[Node], bool]] = {
 
 
 class BuildEnvironment:
-    """
-    The environment in which the ReST files are translated.
+    """The environment in which the ReST files are translated.
     Stores an inventory of cross-file targets and provides doctree
     transformations to resolve links to them.
     """
@@ -132,7 +131,7 @@ class BuildEnvironment:
         self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
-        self.dependencies: dict[str, set[str]] = defaultdict(set)
+        self.dependencies: dict[str, set[_StrPath]] = {}
         # docname -> set of included file
         # docnames included from other documents
         self.included: dict[str, set[str]] = defaultdict(set)
@@ -417,7 +416,9 @@ class BuildEnvironment:
         """
         return self.project.doc2path(docname, absolute=base)
 
-    def relfn2path(self, filename: str, docname: str | None = None) -> tuple[str, str]:
+    def relfn2path(
+        self, filename: str | Path, docname: str | None = None
+    ) -> tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -425,9 +426,9 @@ class BuildEnvironment:
         source dir, while relative filenames are relative to the dir of the
         containing document.
         """
-        filename = canon_path(filename)
-        if filename.startswith('/'):
-            abs_fn = (self.srcdir / filename[1:]).resolve()
+        file_name = Path(filename)
+        if file_name.parts[:1] in {('/',), ('\\',)}:
+            abs_fn = self.srcdir.joinpath(*file_name.parts[1:]).resolve()
         else:
             if not docname:
                 if self.docname:
@@ -436,10 +437,10 @@ class BuildEnvironment:
                     msg = 'docname'
                     raise KeyError(msg)
             doc_dir = self.doc2path(docname, base=False).parent
-            abs_fn = (self.srcdir / doc_dir / filename).resolve()
+            abs_fn = self.srcdir.joinpath(doc_dir, file_name).resolve()
 
         rel_fn = _relative_path(abs_fn, self.srcdir)
-        return canon_path(rel_fn), os.fspath(abs_fn)
+        return rel_fn.as_posix(), os.fspath(abs_fn)
 
     @property
     def found_docs(self) -> set[str]:
@@ -525,6 +526,8 @@ class BuildEnvironment:
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
+                if docname not in self.dependencies:
+                    continue
                 for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
@@ -615,7 +618,7 @@ class BuildEnvironment:
         """
         if docname is None:
             docname = self.docname
-        self.dependencies[docname].add(os.fspath(filename))
+        self.dependencies.setdefault(docname, set()).add(_StrPath(filename))
 
     def note_included(self, filename: str | os.PathLike[str]) -> None:
         """Add *filename* as a included from other document.
@@ -797,7 +800,10 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 logger.warning(
-                    __("document isn't included in any toctree"), location=docname
+                    __("document isn't included in any toctree"),
+                    location=docname,
+                    type='toc',
+                    subtype='not_included',
                 )
         # Call _check_toc_parents here rather than in  _get_toctree_ancestors()
         # because that method is called multiple times per document and would

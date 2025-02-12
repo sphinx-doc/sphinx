@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os.path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -12,11 +11,7 @@ from docutils.writers.docutils_xml import XMLTranslator
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import (
-    _last_modified_time,
-    ensuredir,
-    os_path,
-)
+from sphinx.util.osutil import _last_modified_time
 from sphinx.writers.xml import PseudoXMLWriter, XMLWriter
 
 if TYPE_CHECKING:
@@ -29,9 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class XMLBuilder(Builder):
-    """
-    Builds Docutils-native XML.
-    """
+    """Builds Docutils-native XML."""
 
     name = 'xml'
     format = 'xml'
@@ -52,7 +45,7 @@ class XMLBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = os.path.join(self.outdir, docname + self.out_suffix)
+            targetname = self.outdir / (docname + self.out_suffix)
             try:
                 targetmtime = _last_modified_time(targetname)
             except Exception:
@@ -88,22 +81,20 @@ class XMLBuilder(Builder):
                             value[i] = list(val)
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
-        outfilename = os.path.join(self.outdir, os_path(docname) + self.out_suffix)
-        ensuredir(os.path.dirname(outfilename))
+        out_file_name = self.outdir / (docname + self.out_suffix)
+        out_file_name.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with open(outfilename, 'w', encoding='utf-8') as f:
+            with open(out_file_name, 'w', encoding='utf-8') as f:
                 f.write(self.writer.output)
         except OSError as err:
-            logger.warning(__('error writing file %s: %s'), outfilename, err)
+            logger.warning(__('error writing file %s: %s'), out_file_name, err)
 
     def finish(self) -> None:
         pass
 
 
 class PseudoXMLBuilder(XMLBuilder):
-    """
-    Builds pseudo-XML for display purposes.
-    """
+    """Builds pseudo-XML for display purposes."""
 
     name = 'pseudoxml'
     format = 'pseudoxml'
@@ -118,7 +109,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 
-    app.add_config_value('xml_pretty', True, 'env')
+    app.add_config_value('xml_pretty', True, 'env', types=frozenset({bool}))
 
     return {
         'version': 'builtin',

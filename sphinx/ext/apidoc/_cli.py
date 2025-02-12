@@ -3,12 +3,10 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import locale
-import os
-import os.path
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import sphinx.locale
 from sphinx import __display_version__
@@ -20,6 +18,7 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -261,7 +260,7 @@ def main(argv: Sequence[str] = (), /) -> int:
     opts = _parse_args(argv)
     rootpath = opts.module_path
     excludes = tuple(
-        re.compile(fnmatch.translate(os.path.abspath(exclude)))
+        re.compile(fnmatch.translate(str(Path(exclude).resolve())))
         for exclude in dict.fromkeys(opts.exclude_pattern)
     )
 
