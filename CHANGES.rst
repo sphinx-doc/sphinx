@@ -106,6 +106,8 @@ Features added
 * #9169: Add the :confval:`intersphinx_resolve_self` option
   to resolve an intersphinx reference to the current project.
   Patch by Jakob Lykke Andersen and Adam Turner.
+* #13332: Add :confval:`doctest_fail_fast` option to exit after the first failed
+  test. Patch by Till Hoffmann.
 
 Bugs fixed
 ----------
