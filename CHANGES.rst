@@ -108,6 +108,8 @@ Features added
   Patch by Jakob Lykke Andersen and Adam Turner.
 * #11280: Add ability to skip a particular section using the ``no-search`` class.
   Patch by Will Lachance.
+* #13335: Use ``misc.highlighting_failure`` subtype for Pygments unknown lexers.
+  Patch by Bart Kamphorst.
 
 Bugs fixed
 ----------
