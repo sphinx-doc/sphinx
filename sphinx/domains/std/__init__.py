@@ -604,11 +604,13 @@ class ProductionList(SphinxDirective):
     _name_getter = operator.itemgetter(1)
 
     def run(self) -> list[Node]:
-        lines = self._nl_escape_re.sub('', self.arguments[0]).splitlines()
-        production_lines = list(self.production_definitions(lines))
-
         name_getter = self._name_getter
+        lines = self._nl_escape_re.sub('', self.arguments[0]).splitlines()
+
+        # Extract production_group argument.
+        # Must be before extracting production definition triples.
         production_group = self.production_group(lines=lines, options=self.options)
+        production_lines = list(self.production_definitions(lines))
         max_name_len = max(map(len, map(name_getter, production_lines)))
         node_location = self.get_location()
 
