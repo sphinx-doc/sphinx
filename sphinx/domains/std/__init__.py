@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 import re
 from copy import copy
 from typing import TYPE_CHECKING, cast
@@ -599,12 +600,16 @@ class ProductionList(SphinxDirective):
     # The backslash handling is from ObjectDescription.get_signatures
     _nl_escape_re: Final = re.compile(r'\\\n')
 
+    # Get 'name' from triples of rawsource, name, definition (tokens)
+    _name_getter = operator.itemgetter(1)
+
     def run(self) -> list[Node]:
         lines = self._nl_escape_re.sub('', self.arguments[0]).splitlines()
         production_lines = list(self.production_definitions(lines))
 
+        name_getter = self._name_getter
         production_group = self.production_group(lines=lines, options=self.options)
-        max_name_len = max(len(name) for _, name, _ in production_lines)
+        max_name_len = max(map(len, map(name_getter, production_lines)))
         node_location = self.get_location()
 
         productions = [
