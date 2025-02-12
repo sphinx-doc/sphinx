@@ -36,6 +36,8 @@ Features added
 * #13146: Napoleon: Unify the type preprocessing logic to allow
   Google-style docstrings to use the optional and default keywords.
   Patch by Chris Barrick.
+* #11280: Add ability to skip a particular section using the `no-search` class.
+  Patch by Will Lachance.
 
 Bugs fixed
 ----------
