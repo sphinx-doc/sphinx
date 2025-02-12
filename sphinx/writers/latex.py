@@ -2069,10 +2069,9 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_literal_strong(self, node: Element) -> None:
         if self.in_production_list:
-            ctx = r'\phantomsection'
-            for id_ in node['ids']:
-                ctx += self.hypertarget(id_, anchor=False)
-            self.body.append(ctx)
+            ctx = [r'\phantomsection']
+            ctx += [self.hypertarget(id_, anchor=False) for id_ in node['ids']]
+            self.body.append(''.join(ctx))
             return
         self.body.append(r'\sphinxstyleliteralstrong{\sphinxupquote{')
 
