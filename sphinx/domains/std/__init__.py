@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 import re
 from copy import copy
 from typing import TYPE_CHECKING, cast
@@ -22,7 +23,7 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Set
+    from collections.abc import Callable, Iterable, Iterator, MutableSequence, Set
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
@@ -553,7 +554,7 @@ class Glossary(SphinxDirective):
         return [*messages, node]
 
 
-def token_xrefs(text: str, production_group: str = '') -> list[Node]:
+def token_xrefs(text: str, production_group: str = '') -> Iterable[Node]:
     if len(production_group) != 0:
         production_group += ':'
     retnodes: list[Node] = []
@@ -596,31 +597,42 @@ class ProductionList(SphinxDirective):
     final_argument_whitespace = True
     option_spec: ClassVar[OptionSpec] = {}
 
+    # The backslash handling is from ObjectDescription.get_signatures
+    _nl_escape_re: Final = re.compile(r'\\\n')
+
+    # Get 'name' from triples of rawsource, name, definition (tokens)
+    _name_getter = operator.itemgetter(1)
+
     def run(self) -> list[Node]:
-        node = addnodes.productionlist()
-        self.set_source_info(node)
-        # The backslash handling is from ObjectDescription.get_signatures
-        nl_escape_re = re.compile(r'\\\n')
-        lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
-        production_group = self.production_group(lines, self.options)
+        lines = self._nl_escape_re.sub('', self.arguments[0]).splitlines()
         production_lines = list(self.production_definitions(lines))
-        max_len = max(len(name) for _, name, _ in production_lines)
+
+        name_getter = self._name_getter
+        production_group = self.production_group(lines=lines, options=self.options)
+        max_name_len = max(map(len, map(name_getter, production_lines)))
         node_location = self.get_location()
-        node += [
+
+        productions = [
             self.make_production(
                 rawsource=rule,
                 name=name,
                 tokens=tokens,
                 production_group=production_group,
-                max_len=max_len,
+                max_len=max_name_len,
                 location=node_location,
             )
             for rule, name, tokens in production_lines
         ]
+        node = addnodes.productionlist('', *productions)
+        self.set_source_info(node)
         return [node]
 
     @staticmethod
-    def production_group(lines: list[str], options: dict[str, Any]) -> str:  # NoQA: ARG004
+    def production_group(
+        *,
+        lines: MutableSequence[str],
+        options: dict[str, Any],  # NoQA: ARG004
+    ) -> str:
         # get production_group
         if not lines or ':' in lines[0]:
             return ''
@@ -629,8 +641,10 @@ class ProductionList(SphinxDirective):
         return production_group
 
     @staticmethod
-    def production_definitions(lines: Iterable[str]) -> Iterator[tuple[str, str, str]]:
-        """Yield triples of rawsource, name, definition."""
+    def production_definitions(
+        lines: Iterable[str], /
+    ) -> Iterator[tuple[str, str, str]]:
+        """Yield triples of rawsource, name, definition (tokens)."""
         for line in lines:
             if ':' not in line:
                 break
@@ -639,6 +653,7 @@ class ProductionList(SphinxDirective):
 
     def make_production(
         self,
+        *,
         rawsource: str,
         name: str,
         tokens: str,
@@ -648,16 +663,17 @@ class ProductionList(SphinxDirective):
     ) -> addnodes.production:
         production_node = addnodes.production(rawsource, tokenname=name)
         if name:
-            production_node += self.make_target(name, production_group, location)
-        else:
-            production_node += self.continuation_padding(max_len)
-        production_node.append(self.production_separator(name, max_len))
-        production_node += token_xrefs(tokens, production_group=production_group)
+            production_node += self.make_name_target(
+                name=name, production_group=production_group, location=location
+            )
+        production_node.append(self.separator_node(name=name, max_len=max_len))
+        production_node += token_xrefs(text=tokens, production_group=production_group)
         production_node.append(nodes.Text('\n'))
         return production_node
 
-    def make_target(
+    def make_name_target(
         self,
+        *,
         name: str,
         production_group: str,
         location: str,
@@ -674,14 +690,11 @@ class ProductionList(SphinxDirective):
         return name_node
 
     @staticmethod
-    def continuation_padding(max_len: int) -> nodes.Text:
-        return nodes.Text(' ' * max_len)
-
-    @staticmethod
-    def production_separator(name: str, max_len: int) -> nodes.Text:
+    def separator_node(*, name: str, max_len: int) -> nodes.Text:
+        """Return seperator between 'name' and 'tokens'."""
         if name:
             return nodes.Text(' ::= '.rjust(max_len - len(name) + 5))
-        return nodes.Text('     ')
+        return nodes.Text(' ' * (max_len + 5))
 
 
 class TokenXRefRole(XRefRole):
