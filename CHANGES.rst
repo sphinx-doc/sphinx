@@ -106,6 +106,8 @@ Features added
 * #9169: Add the :confval:`intersphinx_resolve_self` option
   to resolve an intersphinx reference to the current project.
   Patch by Jakob Lykke Andersen and Adam Turner.
+* #11280: Add ability to skip a particular section using the ``no-search`` class.
+  Patch by Will Lachance.
 
 Bugs fixed
 ----------
