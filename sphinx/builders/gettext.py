@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from sphinx.util.i18n import CatalogInfo
     from sphinx.util.typing import ExtensionMetadata
 
-DEFAULT_TEMPLATE_PATH = Path(package_dir, 'templates', 'gettext')
+DEFAULT_TEMPLATE_PATH = package_dir.joinpath('templates', 'gettext')
 
 logger = logging.getLogger(__name__)
 

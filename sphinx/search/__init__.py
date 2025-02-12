@@ -10,7 +10,6 @@ import os
 import pickle
 import re
 from importlib import import_module
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -39,8 +38,8 @@ if TYPE_CHECKING:
         def write(self, s: _T_contra, /) -> object: ...
 
 
-_NON_MINIFIED_JS_PATH = Path(package_dir, 'search', 'non-minified-js')
-_MINIFIED_JS_PATH = Path(package_dir, 'search', 'minified-js')
+_NON_MINIFIED_JS_PATH = package_dir.joinpath('search', 'non-minified-js')
+_MINIFIED_JS_PATH = package_dir.joinpath('search', 'minified-js')
 
 
 class SearchLanguage:
@@ -226,6 +225,9 @@ class WordCollector(nodes.NodeVisitor):
 
     def dispatch_visit(self, node: Node) -> None:
         if isinstance(node, nodes.comment):
+            raise nodes.SkipNode
+        elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
+            # skip nodes marked with a 'no-search' class
             raise nodes.SkipNode
         elif isinstance(node, nodes.raw):
             if 'html' in node.get('format', '').split():
@@ -602,6 +604,9 @@ def _feed_visit_nodes(
     language: str,
 ) -> None:
     if isinstance(node, nodes.comment):
+        return
+    elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
+        # skip nodes marked with a 'no-search' class
         return
     elif isinstance(node, nodes.raw):
         if 'html' in node.get('format', '').split():

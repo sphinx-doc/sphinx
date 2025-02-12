@@ -147,15 +147,7 @@ def verify(verify_re_html, verify_re_latex):
 
 @pytest.fixture
 def get_verifier(verify, verify_re):
-    v = {
-        'verify': verify,
-        'verify_re': verify_re,
-    }
-
-    def get(name):
-        return v[name]
-
-    return get
+    return {'verify': verify, 'verify_re': verify_re}.__getitem__
 
 
 @pytest.mark.parametrize(

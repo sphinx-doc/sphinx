@@ -77,20 +77,14 @@ def compile_latex_document(app, filename='projectnamenotset.tex', docclass='manu
         raise AssertionError(msg) from exc
 
 
-def skip_if_requested(testfunc):
-    if 'SKIP_LATEX_BUILD' in os.environ:
-        msg = 'Skip LaTeX builds because SKIP_LATEX_BUILD is set'
-        return pytest.mark.skipif(True, reason=msg)(testfunc)
-    else:
-        return testfunc
-
-
-def skip_if_stylefiles_notfound(testfunc):
-    if kpsetest(*STYLEFILES) is False:
-        msg = 'not running latex, the required styles do not seem to be installed'
-        return pytest.mark.skipif(True, reason=msg)(testfunc)
-    else:
-        return testfunc
+skip_if_requested = pytest.mark.skipif(
+    'SKIP_LATEX_BUILD' in os.environ,
+    reason='Skip LaTeX builds because SKIP_LATEX_BUILD is set',
+)
+skip_if_stylefiles_notfound = pytest.mark.skipif(
+    not kpsetest(*STYLEFILES),
+    reason='not running latex, the required styles do not seem to be installed',
+)
 
 
 class RemoteImageHandler(http.server.BaseHTTPRequestHandler):

@@ -23,7 +23,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyexception_signature(app):
     text = '.. py:exception:: builtins.IOError'
     doctree = restructuredtext.parse(app, text)
@@ -60,7 +60,7 @@ def test_pyexception_signature(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata_signature(app):
     text = '.. py:data:: version\n   :type: int\n   :value: 1\n'
     doctree = restructuredtext.parse(app, text)
@@ -109,7 +109,7 @@ def test_pydata_signature(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata_signature_old(app):
     text = '.. py:data:: version\n   :annotation: = 1\n'
     doctree = restructuredtext.parse(app, text)
@@ -142,7 +142,7 @@ def test_pydata_signature_old(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata_with_union_type_operator(app):
     text = '.. py:data:: version\n   :type: int | str'
     doctree = restructuredtext.parse(app, text)
@@ -166,7 +166,7 @@ def test_pydata_with_union_type_operator(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyobject_prefix(app):
     text = (
         '.. py:class:: Foo\n\n   .. py:method:: Foo.say\n   .. py:method:: FooBar.say'
@@ -200,7 +200,7 @@ def test_pyobject_prefix(app):
     assert doctree[1][1][3].astext().strip() == 'FooBar.say()'
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata(app):
     text = '.. py:module:: example\n.. py:data:: var\n   :type: int\n'
     domain = app.env.domains.python_domain
@@ -239,7 +239,7 @@ def test_pydata(app):
     assert domain.objects['example.var'] == ('index', 'example.var', 'data', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyclass_options(app):
     text = '.. py:class:: Class1\n.. py:class:: Class2\n   :final:\n'
     domain = app.env.domains.python_domain
@@ -308,7 +308,7 @@ def test_pyclass_options(app):
     assert domain.objects['Class2'] == ('index', 'Class2', 'class', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pymethod_options(app):
     text = (
         '.. py:class:: Class\n'
@@ -504,7 +504,7 @@ def test_pymethod_options(app):
     assert domain.objects['Class.meth6'] == ('index', 'Class.meth6', 'method', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyclassmethod(app):
     text = '.. py:class:: Class\n\n   .. py:classmethod:: meth\n'
     domain = app.env.domains.python_domain
@@ -557,7 +557,7 @@ def test_pyclassmethod(app):
     assert domain.objects['Class.meth'] == ('index', 'Class.meth', 'method', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pystaticmethod(app):
     text = '.. py:class:: Class\n\n   .. py:staticmethod:: meth\n'
     domain = app.env.domains.python_domain
@@ -607,7 +607,7 @@ def test_pystaticmethod(app):
     assert domain.objects['Class.meth'] == ('index', 'Class.meth', 'method', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyattribute(app):
     text = (
         '.. py:class:: Class\n'
@@ -684,7 +684,7 @@ def test_pyattribute(app):
     assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyproperty(app):
     text = (
         '.. py:class:: Class\n'
@@ -795,7 +795,7 @@ def test_pyproperty(app):
     assert domain.objects['Class.prop2'] == ('index', 'Class.prop2', 'property', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_py_type_alias(app):
     text = (
         '.. py:module:: example\n'
@@ -940,7 +940,7 @@ def test_domain_py_type_alias(app):
     assert app.warning.getvalue() == ''
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydecorator_signature(app):
     text = '.. py:decorator:: deco'
     domain = app.env.domains.python_domain
@@ -971,7 +971,7 @@ def test_pydecorator_signature(app):
     assert domain.objects['deco'] == ('index', 'deco', 'function', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydecoratormethod_signature(app):
     text = '.. py:decoratormethod:: deco'
     domain = app.env.domains.python_domain
@@ -1002,7 +1002,7 @@ def test_pydecoratormethod_signature(app):
     assert domain.objects['deco'] == ('index', 'deco', 'method', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pycurrentmodule(app):
     text = (
         '.. py:module:: Other\n'

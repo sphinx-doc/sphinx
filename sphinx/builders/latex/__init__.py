@@ -442,7 +442,7 @@ class LaTeXBuilder(Builder):
             'xindy_lang_option': xindy_lang_option,
             'xindy_cyrillic': xindy_cyrillic,
         }
-        static_dir_name = Path(package_dir, 'texinputs')
+        static_dir_name = package_dir / 'texinputs'
         for filename in Path(static_dir_name).iterdir():
             if not filename.name.startswith('.'):
                 copy_asset_file(
@@ -454,7 +454,7 @@ class LaTeXBuilder(Builder):
 
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
-            static_dir_name = Path(package_dir, 'texinputs_win')
+            static_dir_name = package_dir / 'texinputs_win'
             copy_asset_file(
                 static_dir_name / 'Makefile.jinja',
                 self.outdir,
@@ -522,7 +522,7 @@ class LaTeXBuilder(Builder):
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
         copy_asset_file(
-            Path(package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja'),
+            package_dir.joinpath('templates', 'latex', 'sphinxmessages.sty.jinja'),
             self.outdir,
             context=context,
             renderer=LaTeXRenderer(),

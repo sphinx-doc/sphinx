@@ -16,11 +16,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.osutil import (
-    SEP,
-    _last_modified_time,
-    canon_path,
-)
+from sphinx.util.osutil import SEP, _last_modified_time
 
 if TYPE_CHECKING:
     import datetime as dt
@@ -163,7 +159,7 @@ class CatalogRepository:
     @property
     def catalogs(self) -> Iterator[CatalogInfo]:
         for basedir, filename in self.pofiles:
-            domain = canon_path(os.path.splitext(filename)[0])
+            domain = filename.with_suffix('').as_posix()
             yield CatalogInfo(basedir, domain, self.encoding)
 
 

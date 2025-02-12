@@ -40,7 +40,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-templates_path = Path(package_dir, 'templates', 'imgmath')
+templates_path = package_dir.joinpath('templates', 'imgmath')
 
 
 class MathExtError(SphinxError):

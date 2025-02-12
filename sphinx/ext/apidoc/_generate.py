@@ -33,7 +33,7 @@ else:
 
 PY_SUFFIXES = ('.py', '.pyx', *EXTENSION_SUFFIXES)
 
-template_dir = Path(package_dir, 'templates', 'apidoc')
+template_dir = package_dir.joinpath('templates', 'apidoc')
 
 
 def is_initpy(filename: str | Path) -> bool:

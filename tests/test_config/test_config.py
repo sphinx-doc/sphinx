@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import pickle
 from collections import Counter
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from unittest import mock
 
@@ -409,17 +408,6 @@ def test_errors_if_setup_is_not_callable(tmp_path, make_app):
     with pytest.raises(ConfigError) as excinfo:
         make_app(srcdir=tmp_path)
     assert 'callable' in str(excinfo.value)
-
-
-@pytest.fixture
-def make_app_with_empty_project(make_app, tmp_path):
-    (tmp_path / 'conf.py').touch()
-
-    def _make_app(*args, **kw):
-        kw.setdefault('srcdir', Path(tmp_path))
-        return make_app(*args, **kw)
-
-    return _make_app
 
 
 @mock.patch.object(sphinx, '__display_version__', '1.6.4')

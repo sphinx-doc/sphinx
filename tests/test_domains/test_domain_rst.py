@@ -32,7 +32,7 @@ def test_parse_directive():
     assert s == ('.. :: bar', '')
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_rst_directive(app):
     # bare
     text = '.. rst:directive:: toctree'
@@ -81,7 +81,7 @@ def test_rst_directive(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_rst_directive_with_argument(app):
     text = '.. rst:directive:: .. toctree:: foo bar baz'
     doctree = restructuredtext.parse(app, text)
@@ -115,7 +115,7 @@ def test_rst_directive_with_argument(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_rst_directive_option(app):
     text = '.. rst:directive:option:: foo'
     doctree = restructuredtext.parse(app, text)
@@ -142,7 +142,7 @@ def test_rst_directive_option(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_rst_directive_option_with_argument(app):
     text = '.. rst:directive:option:: foo: bar baz'
     doctree = restructuredtext.parse(app, text)
@@ -178,7 +178,7 @@ def test_rst_directive_option_with_argument(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_rst_directive_option_type(app):
     text = '.. rst:directive:option:: foo\n   :type: directives.flags\n'
     doctree = restructuredtext.parse(app, text)
@@ -217,7 +217,7 @@ def test_rst_directive_option_type(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_rst_directive_and_directive_option(app):
     text = '.. rst:directive:: foo\n\n   .. rst:directive:option:: bar\n'
     doctree = restructuredtext.parse(app, text)
@@ -259,7 +259,7 @@ def test_rst_directive_and_directive_option(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_rst_role(app):
     text = '.. rst:role:: ref'
     doctree = restructuredtext.parse(app, text)
