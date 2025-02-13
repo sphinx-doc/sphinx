@@ -115,6 +115,9 @@ Features added
 Bugs fixed
 ----------
 
+* #13097: autodoc: :confval:`autodoc_type_aliases` is now supported by overload
+  signatures of functions and methods.
+  Patch by Barak Katzir.
 * #12463: autosummary: Respect an empty module ``__all__``.
   Patch by Valentin Pratz
 * #13060: HTML Search: use ``Map`` to store per-file term scores.
