@@ -112,7 +112,7 @@ Features added
   nodes in all writers, to improve flexibility.
   Patch by Adam Turner.
 * #10385: Add RTL (right-to-left) support for all Sphinx themes via ``is_rtl``
-  theme option. Includes automatic layout mirroring, and bidirectional text 
+  theme option. Includes automatic layout mirroring, and bidirectional text
   support.
   Patch by Revisto.
 
