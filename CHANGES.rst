@@ -33,7 +33,7 @@ Deprecated
 Features added
 --------------
 
-* #13098: autodoc: overloaded function or method can now be customized in the
+* #10351, #10359: autodoc: overloaded function or method can now be customized in the
   'autodoc-before-process-signature' and 'autodoc-process-signature' events.
   Patch by Barak Katzir.
 * #13173: Add a new ``duplicate_declaration`` warning type,
@@ -118,8 +118,8 @@ Features added
 Bugs fixed
 ----------
 
-* #13097: autodoc: :confval:`autodoc_type_aliases` is now supported by overload
-  signatures of functions and methods.
+* #9813: autodoc: partial bugfix, :confval:`autodoc_type_aliases` is now supported
+  by overload signatures of functions and methods.
   Patch by Barak Katzir.
 * #12463: autosummary: Respect an empty module ``__all__``.
   Patch by Valentin Pratz
