@@ -51,6 +51,26 @@ class Foo:
     def __init__(self):
         self.attr2: myint = None  #: docstring
 
+    def method1(self, x: Union[frac.Fraction, myfrac]) -> Union[frac.Fraction, myfrac]:  # NoQA: UP007
+        """docstring"""
+        return self.attr1 * x
+
+    @overload
+    def method2(self, x: frac.Fraction) -> frac.Fraction: ...
+
+    @overload
+    def method2(self, x: myfrac) -> myfrac: ...
+
+    @overload
+    def method2(
+        self,
+        x: Union[frac.Fraction, myfrac],  # NoQA: UP007
+    ) -> Union[frac.Fraction, myfrac]: ...  # NoQA: UP007
+
+    def method2(self, x):
+        """docstring"""
+        return self.attr2 * x
+
 
 @overload
 def prod(x: tuple[float, myfrac]) -> float: ...
