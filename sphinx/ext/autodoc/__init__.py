@@ -12,7 +12,7 @@ import operator
 import re
 import sys
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, NewType, TypeVar
+from typing import TYPE_CHECKING, Any, NewType, TypeVar, get_overloads
 
 from docutils.statemachine import StringList
 
@@ -1472,6 +1472,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
     objtype = 'function'
     member_order = 30
+    overload_impl_sig: Signature | None = None
 
     @classmethod
     def can_document_member(
@@ -1497,10 +1498,16 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             sig = inspect.signature(
                 self.object, type_aliases=self.config.autodoc_type_aliases
             )
+            if self.overload_impl_sig is not None:
+                sig = self.merge_default_value(self.overload_impl_sig, sig)
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
+            overload = '' if self.overload_impl_sig is None else 'overload '
             logger.warning(
-                __('Failed to get a function signature for %s: %s'), self.fullname, exc
+                __('Failed to get a %sfunction signature for %s: %s'),
+                overload,
+                self.fullname,
+                exc,
             )
             return ''
         except ValueError:
@@ -1558,15 +1565,13 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             actual = inspect.signature(
                 self.object, type_aliases=self.config.autodoc_type_aliases
             )
-            __globals__ = safe_getattr(self.object, '__globals__', {})
-            for overload in self.analyzer.overloads['.'.join(self.objpath)]:
-                overload = self.merge_default_value(actual, overload)
-                overload = evaluate_signature(
-                    overload, __globals__, self.config.autodoc_type_aliases
-                )
-
-                sig = stringify_signature(overload, **kwargs)
-                sigs.append(sig)
+            for overload_func in get_overloads(self.object):
+                documenter = FunctionDocumenter(self.directive, '')
+                documenter.object = overload_func
+                documenter.objpath = ['']
+                # pass actual implementation signature to merge default values later
+                documenter.overload_impl_sig = actual
+                sigs.append(documenter.format_signature(**kwargs))
 
         return '\n'.join(sigs)
 
@@ -1575,7 +1580,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         parameters = list(overload.parameters.values())
         for i, param in enumerate(parameters):
             actual_param = actual.parameters.get(param.name)
-            if actual_param and param.default == '...':
+            if actual_param and param.default in {'...', ...}:
                 parameters[i] = param.replace(default=actual_param.default)
 
         return overload.replace(parameters=parameters)

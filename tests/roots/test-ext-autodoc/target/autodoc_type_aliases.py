@@ -4,7 +4,8 @@ import io  # NoQA: TC003
 from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
-    from typing import Optional
+    import fractions as frac
+    from typing import Optional, Union
 
 myint = int
 
@@ -48,3 +49,21 @@ class Foo:
 
     def __init__(self):
         self.attr2: myint = None  #: docstring
+
+
+@overload
+def prod(x: tuple[float, myint]) -> float: ...
+
+
+@overload
+def prod(x: tuple[frac.Fraction, myint]) -> frac.Fraction: ...
+
+
+def prod(x):
+    """docstring"""
+    return x[0] * x[1]
+
+
+def print_value(x: Union[frac.Fraction, myint]) -> None:  # NoQA: UP007
+    """docstring"""
+    print('value:', x)
