@@ -1565,13 +1565,14 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             actual = inspect.signature(
                 self.object, type_aliases=self.config.autodoc_type_aliases
             )
+            overload_kwargs = kwargs | {'show_annotation': True}
             for overload_func in get_overloads(self.object):
-                documenter = FunctionDocumenter(self.directive, '')
+                documenter = type(self)(self.directive, '')
                 documenter.object = overload_func
                 documenter.objpath = ['']
                 # pass actual implementation signature to merge default values later
                 documenter.overload_impl_sig = actual
-                sigs.append(documenter.format_signature(**kwargs))
+                sigs.append(documenter.format_signature(**overload_kwargs))
 
         return '\n'.join(sigs)
 
