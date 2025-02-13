@@ -9,3 +9,10 @@ class Bar(Foo):
         self.attr2 = None  #: docstring bar
         self.attr3 = None  #: docstring bar
         self.attr4 = None
+
+class Baz:
+    def __init__(self):
+        self.undoc = None
+
+        class Biz:
+            self.not_picked = None
