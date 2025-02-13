@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from typing import Optional, Union
 
 myint = int
+myfrac = float
 
 #: docstring
 variable: myint
@@ -23,17 +24,17 @@ def read(r: io.BytesIO) -> io.StringIO:
     """docstring"""
 
 
-def sum(x: myint, y: myint) -> myint:
+def sum(x: myfrac, y: myfrac) -> myfrac:
     """docstring"""
     return x + y
 
 
 @overload
-def mult(x: myint, y: myint) -> myint: ...
+def mult(x: int, y: int) -> int: ...
 
 
 @overload
-def mult(x: float, y: float) -> float: ...
+def mult(x: myfrac, y: myfrac) -> myfrac: ...
 
 
 def mult(x, y):
@@ -45,18 +46,18 @@ class Foo:
     """docstring"""
 
     #: docstring
-    attr1: myint
+    attr1: Union[frac.Fraction, myint]  # NoQA: UP007
 
     def __init__(self):
         self.attr2: myint = None  #: docstring
 
 
 @overload
-def prod(x: tuple[float, myint]) -> float: ...
+def prod(x: tuple[float, myfrac]) -> float: ...
 
 
 @overload
-def prod(x: tuple[frac.Fraction, myint]) -> frac.Fraction: ...
+def prod(x: tuple[frac.Fraction, myfrac]) -> frac.Fraction: ...
 
 
 def prod(x):
@@ -64,6 +65,6 @@ def prod(x):
     return x[0] * x[1]
 
 
-def print_value(x: Union[frac.Fraction, myint]) -> None:  # NoQA: UP007
+def print_value(x: Union[frac.Fraction, myfrac]) -> None:  # NoQA: UP007
     """docstring"""
     print('value:', x)
