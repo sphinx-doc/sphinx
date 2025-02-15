@@ -671,7 +671,7 @@ def test_nitpick_ignore_regex_fullmatch(app):
 
 
 def test_conf_py_language_none(tmp_path):
-    """Regression test for #10474."""
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/10474."""
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text('language = None', encoding='utf-8')
 
@@ -684,7 +684,7 @@ def test_conf_py_language_none(tmp_path):
 
 @mock.patch('sphinx.config.logger')
 def test_conf_py_language_none_warning(logger, tmp_path):
-    """Regression test for #10474."""
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/10474."""
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text('language = None', encoding='utf-8')
 
@@ -701,7 +701,7 @@ def test_conf_py_language_none_warning(logger, tmp_path):
 
 
 def test_conf_py_no_language(tmp_path):
-    """Regression test for #10474."""
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/10474."""
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').touch()
 
@@ -713,7 +713,7 @@ def test_conf_py_no_language(tmp_path):
 
 
 def test_conf_py_nitpick_ignore_list(tmp_path):
-    """Regression test for #11355."""
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/11355."""
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').touch()
 
@@ -729,7 +729,8 @@ def test_gettext_compact_command_line_true():
     config = Config({}, {'gettext_compact': '1'})
     config.add('gettext_compact', True, '', {bool, str})
 
-    # regression test for #8549 (-D gettext_compact=1)
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/8549
+    # (-D gettext_compact=1)
     assert config.gettext_compact is True
 
 
@@ -737,7 +738,8 @@ def test_gettext_compact_command_line_false():
     config = Config({}, {'gettext_compact': '0'})
     config.add('gettext_compact', True, '', {bool, str})
 
-    # regression test for #8549 (-D gettext_compact=0)
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/8549
+    # (-D gettext_compact=0)
     assert config.gettext_compact is False
 
 
@@ -745,7 +747,8 @@ def test_gettext_compact_command_line_str():
     config = Config({}, {'gettext_compact': 'spam'})
     config.add('gettext_compact', True, '', {bool, str})
 
-    # regression test for #8549 (-D gettext_compact=spam)
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/8549
+    # (-D gettext_compact=spam)
     assert config.gettext_compact == 'spam'
 
 

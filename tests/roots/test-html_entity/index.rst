@@ -1,7 +1,8 @@
 .. _index:
 
-test-html_entity (#3450)
-=========================
+test-html_entity
+================
+.. https://github.com/sphinx-doc/sphinx/issues/3450
 
 Empty cell
 ----------

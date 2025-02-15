@@ -152,7 +152,7 @@ def patched_get_language() -> Iterator[None]:
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
-    refs: https://github.com/sphinx-doc/sphinx/issues/3788
+    See: https://github.com/sphinx-doc/sphinx/issues/3788
     """
     from docutils.languages import get_language
 
@@ -178,7 +178,7 @@ def patched_rst_get_language() -> Iterator[None]:
     This should also work for old versions of docutils,
     because reporter is none by default.
 
-    refs: https://github.com/sphinx-doc/sphinx/issues/10179
+    See: https://github.com/sphinx-doc/sphinx/issues/10179
     """
     from docutils.parsers.rst.languages import get_language
 

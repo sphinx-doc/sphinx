@@ -2916,7 +2916,7 @@ def test_autodoc(app):
     assert content[3][0].astext() == 'autodoc_dummy_module.test()'
     assert content[3][1].astext() == 'Dummy function using dummy.*'
 
-    # issue sphinx-doc/sphinx#2437
+    # See: https://github.com/sphinx-doc/sphinx/issues/2437
     assert content[11][-1].astext() == (
         """Dummy class Bar with alias.
 

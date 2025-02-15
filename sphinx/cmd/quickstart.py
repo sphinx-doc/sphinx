@@ -76,7 +76,7 @@ PROMPT_PREFIX = '> '
 
 if sys.platform == 'win32':
     # On Windows, show questions as bold because of PowerShell's colour scheme
-    # (xref: https://github.com/sphinx-doc/sphinx/issues/5294).
+    # See: https://github.com/sphinx-doc/sphinx/issues/5294
     from sphinx._cli.util.colour import bold as _question_colour
 else:
     from sphinx._cli.util.colour import purple as _question_colour
@@ -163,9 +163,10 @@ def do_prompt(
         else:
             prompt = PROMPT_PREFIX + text + ': '
         if USE_LIBEDIT:
-            # Note: libedit has a problem for combination of ``input()`` and escape
-            # sequence (see #5335).  To avoid the problem, all prompts are not colored
-            # on libedit.
+            # Note: libedit has a problem for combination of ``input()``
+            # and escape sequences.
+            # To avoid the problem, all prompts are not colored on libedit.
+            # See https://github.com/sphinx-doc/sphinx/issues/5335
             pass
         else:
             prompt = _question_colour(prompt)

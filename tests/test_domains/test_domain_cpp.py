@@ -314,7 +314,7 @@ def test_domain_cpp_ast_expressions():
         for c, val in chars:
             expr_check(f"{p}'{c}'_udl", 'clL_Zli4_udlE' + t + val + 'E')
     expr_check('"abc"_udl', 'clL_Zli4_udlELA3_KcEE')
-    # from issue #7294
+    # from https://github.com/sphinx-doc/sphinx/issues/7294
     expr_check('6.62607015e-34q_J', 'clL_Zli3q_JEL6.62607015e-34EE')
 
     # fold expressions, paren, name
@@ -829,7 +829,8 @@ def test_domain_cpp_ast_function_definitions():
         {1: 'result__i.std::error_categoryCR', 2: '6resultiRKNSt14error_categoryE'},
     )
     check('function', 'int *f()', {1: 'f', 2: '1fv'})
-    # tests derived from issue #1753 (skip to keep sanity)
+    # tests derived from https://github.com/sphinx-doc/sphinx/issues/1753
+    # (skip to keep sanity)
     check('function', 'f(int (&array)[10])', {2: '1fRA10_i', 3: '1fRAL10E_i'})
     check('function', 'void f(int (&array)[10])', {2: '1fRA10_i', 3: '1fRAL10E_i'})
     check('function', 'void f(float *q(double))', {2: '1fFPfdE'})
@@ -920,10 +921,10 @@ def test_domain_cpp_ast_function_definitions():
         {1: 'MakeThingy', 2: '10MakeThingyv'},
     )
 
-    # from #8960
+    # from https://github.com/sphinx-doc/sphinx/issues/8960
     check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
 
-    # from #9535 comment
+    # from https://github.com/sphinx-doc/sphinx/issues/9535 comment
     check('function', 'void f(void (*p)(int) = &foo)', {2: '1fPFviE'})
 
 
@@ -1023,7 +1024,7 @@ def test_domain_cpp_ast_class_definitions():
     check('class', '{key}A : B, C...', {1: 'A', 2: '1A'})
     check('class', '{key}A : B..., C', {1: 'A', 2: '1A'})
 
-    # from #4094
+    # from https://github.com/sphinx-doc/sphinx/issues/4094
     check(
         'class',
         'template<class, class = std::void_t<>> {key}has_var',
@@ -1122,7 +1123,7 @@ def test_domain_cpp_ast_templates():
 
     check('class', 'template<typename A<B>::C> {key}A', {2: 'I_N1AI1BE1CEE1A'})
     check('class', 'template<typename A<B>::C = 42> {key}A', {2: 'I_N1AI1BE1CEE1A'})
-    # from #7944
+    # from https://github.com/sphinx-doc/sphinx/issues/7944
     check(
         'function',
         'template<typename T, '
@@ -1137,7 +1138,7 @@ def test_domain_cpp_ast_templates():
 
     check('class', 'template<> {key}A<NS::B<>>', {2: 'IE1AIN2NS1BIEEE'})
 
-    # from #2058
+    # from https://github.com/sphinx-doc/sphinx/issues/2058
     check(
         'function',
         'template<typename Char, typename Traits> '
@@ -1360,7 +1361,7 @@ def test_domain_cpp_ast_template_args():
             4: 'I0E5allowvP1FN4funcI1F1BXne1GL1EEE4typeE',
         },
     )
-    # from #3542
+    # from https://github.com/sphinx-doc/sphinx/issues/3542
     check(
         'type',
         'template<typename T> {key}'

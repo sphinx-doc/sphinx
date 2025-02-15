@@ -25,7 +25,8 @@ def test_dirhtml(app):
     assert 'href="foo/foo_2/"' in content
     assert 'href="bar/"' in content
 
-    # objects.inv (refs: #7095)
+    # objects.inv
+    # See: https://github.com/sphinx-doc/sphinx/issues/7095
     with (app.outdir / 'objects.inv').open('rb') as f:
         invdata = InventoryFile.load(f, 'path/to', posixpath.join)
 

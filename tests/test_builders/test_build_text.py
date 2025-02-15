@@ -43,7 +43,8 @@ def test_maxwitdh_with_prefix(app: SphinxTestApp) -> None:
 
 @with_text_app()
 def test_lineblock(app: SphinxTestApp) -> None:
-    # regression test for #1109: need empty line after line block
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/1109:
+    # need empty line after line block
     app.build()
     result = (app.outdir / 'lineblock.txt').read_text(encoding='utf8')
     expect = '* one\n\n     line-block 1\n     line-block 2\n\nfollowed paragraph.\n'

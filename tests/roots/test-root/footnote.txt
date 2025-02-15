@@ -2,7 +2,8 @@
 
 Testing footnote and citation
 ================================
-.. #1058 footnote-backlinks-do-not-work
+.. https://github.com/sphinx-doc/sphinx/issues/1058
+   footnote-backlinks-do-not-work
 
 numbered footnote
 --------------------
