@@ -202,6 +202,8 @@ These themes are:
 
     Defaults to ``False``.
 
+    .. versionadded:: 8.2.0
+
 **alabaster**
   `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally
