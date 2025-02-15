@@ -889,7 +889,7 @@ def test_isattributedescriptor():
 
     try:
         # _testcapi module cannot be importable in some distro
-        # refs: https://github.com/sphinx-doc/sphinx/issues/9868
+        # See: https://github.com/sphinx-doc/sphinx/issues/9868
         import _testcapi  # type: ignore[import-not-found]
 
         # instancemethod (C-API)

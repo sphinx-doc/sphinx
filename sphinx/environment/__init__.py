@@ -234,7 +234,7 @@ class BuildEnvironment:
     def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        # clear unpickable attributes
+        # clear unpickleable attributes
         __dict__.update(app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files

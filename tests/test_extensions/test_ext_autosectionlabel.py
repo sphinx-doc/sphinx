@@ -48,7 +48,8 @@ def test_autosectionlabel_html(app):
     )
     assert re.search(html, content, re.DOTALL)
 
-    # for smart_quotes (refs: #4027)
+    # for smart_quotes
+    # See: https://github.com/sphinx-doc/sphinx/issues/4027
     html = (
         '<li><p><a class="reference internal" '
         'href="#this-one-s-got-an-apostrophe">'

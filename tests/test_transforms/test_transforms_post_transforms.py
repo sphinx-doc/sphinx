@@ -83,7 +83,7 @@ def test_missing_reference_conditional_pending_xref(app):
     freshenv=True,
 )
 def test_keyboard_hyphen_spaces(app):
-    """Regression test for issue 10495, we want no crash."""
+    # https://github.com/sphinx-doc/sphinx/issues/10495
     app.build()
     assert 'spanish' in (app.outdir / 'index.html').read_text(encoding='utf8')
     assert 'inquisition' in (app.outdir / 'index.html').read_text(encoding='utf8')

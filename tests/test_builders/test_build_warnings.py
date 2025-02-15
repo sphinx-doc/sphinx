@@ -128,6 +128,6 @@ def setup(app):
     app = make_app(srcdir=tmp_path)
     app.build()
     assert strip_escape_sequences(app.warning.getvalue()).strip() == (
-        "WARNING: cannot cache unpickable configuration value: 'my_config' "
+        "WARNING: cannot cache unpickleable configuration value: 'my_config' "
         '(because it contains a function, class, or module object) [config.cache]'
     )

@@ -586,7 +586,7 @@ def test_html_signaturereturn_icon(app):
     srcdir=os.urandom(4).hex(),
 )
 def test_html_remove_sources_before_write_gh_issue_10786(app):
-    # see:  https://github.com/sphinx-doc/sphinx/issues/10786
+    # See: https://github.com/sphinx-doc/sphinx/issues/10786
     target = app.srcdir / 'img.png'
 
     def handler(app):

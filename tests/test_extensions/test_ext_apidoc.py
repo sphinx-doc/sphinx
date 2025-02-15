@@ -437,7 +437,8 @@ def extract_toc(path):
 )
 def test_subpackage_in_toc(apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them
-    are not skipped (issue #4520)
+    are not skipped
+    See: https://github.com/sphinx-doc/sphinx/issues/4520
     """
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()

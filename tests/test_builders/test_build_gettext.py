@@ -61,7 +61,7 @@ def test_build_gettext(app: SphinxTestApp) -> None:
     # directory items are grouped into sections
     assert (app.outdir / 'subdir.pot').is_file()
 
-    # regression test for issue #960
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/960
     catalog = (app.outdir / 'markup.pot').read_text(encoding='utf8')
     assert 'msgid "something, something else, something more"' in catalog
 
@@ -125,7 +125,7 @@ def test_msgfmt(app: SphinxTestApp) -> None:
     confoverrides={'gettext_compact': False},
 )
 def test_gettext_index_entries(app: SphinxTestApp) -> None:
-    # regression test for #976
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/976
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
     pot = (app.outdir / 'index_entries.pot').read_text(encoding='utf8')
@@ -155,7 +155,7 @@ def test_gettext_index_entries(app: SphinxTestApp) -> None:
     confoverrides={'gettext_compact': False, 'gettext_additional_targets': []},
 )
 def test_gettext_disable_index_entries(app: SphinxTestApp) -> None:
-    # regression test for #976
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/976
     app.env._pickled_doctree_cache.clear()  # clear cache
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
@@ -270,7 +270,7 @@ def test_gettext_prolog_epilog_substitution(app: SphinxTestApp) -> None:
     confoverrides={'gettext_compact': False, 'gettext_additional_targets': ['image']},
 )
 def test_gettext_prolog_epilog_substitution_excluded(app: SphinxTestApp) -> None:
-    # regression test for #9428
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/9428
     app.build(force_all=True)
 
     assert (app.outdir / 'prolog_epilog_substitution_excluded.pot').is_file()

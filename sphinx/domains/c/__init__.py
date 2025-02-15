@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 # re-export objects for backwards compatibility
-# xref https://github.com/sphinx-doc/sphinx/issues/12295
+# See: https://github.com/sphinx-doc/sphinx/issues/12295
 from sphinx.domains.c._ast import (  # NoQA: F401
     ASTAlignofExpr,
     ASTArray,

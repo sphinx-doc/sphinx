@@ -17,7 +17,7 @@ todo
 
 .. todo::
 
-   Test with |sub| (see #286).
+   Test with |sub| (see https://github.com/sphinx-doc/sphinx/issues/286).
 
 .. |sub| replace:: substitution references
 

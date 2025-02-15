@@ -169,7 +169,7 @@ def test_extract_messages_without_rawsource():
 
     For example: recommonmark-0.2.0 doesn't set rawsource to `paragraph` node.
 
-    refs #1994: Fall back to node's astext() during i18n message extraction.
+    See https://github.com/sphinx-doc/sphinx/pull/1994
     """
     p = nodes.paragraph()
     p.append(nodes.Text('test'))
@@ -252,7 +252,7 @@ def test_split_explicit_target(title, expected):
 
 
 def test_apply_source_workaround_literal_block_no_source():
-    """Regression test for #11091.
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/11091.
 
     Test that apply_source_workaround doesn't raise.
     """
