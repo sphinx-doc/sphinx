@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 # re-export objects for backwards compatibility
-# xref https://github.com/sphinx-doc/sphinx/issues/12295
+# See: https://github.com/sphinx-doc/sphinx/issues/12295
 from sphinx.domains.cpp._ast import (  # NoQA: F401
     ASTAlignofExpr,
     ASTArray,
@@ -317,7 +317,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             env.ref_context['cpp:parent_key'] = root.get_lookup_key()
 
         # The lookup keys assume that no nested scopes exists inside overloaded functions.
-        # (see also #5191)
+        # See: https://github.com/sphinx-doc/sphinx/issues/5191
         # Example:
         # .. cpp:function:: void f(int)
         # .. cpp:function:: void f(double)

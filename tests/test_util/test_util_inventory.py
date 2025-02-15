@@ -78,7 +78,8 @@ def test_ambiguous_definition_warning(app):
     def _multiple_defs_notice_for(entity: str) -> str:
         return f'contains multiple definitions for {entity}'
 
-    # was warning-level; reduced to info-level - see https://github.com/sphinx-doc/sphinx/issues/12613
+    # was warning-level; reduced to info-level
+    # See: https://github.com/sphinx-doc/sphinx/issues/12613
     mult_defs_a, mult_defs_b = (
         _multiple_defs_notice_for('std:term:a'),
         _multiple_defs_notice_for('std:term:b'),

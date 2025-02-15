@@ -336,7 +336,8 @@ def test_import_classes(rootdir):
             import_classes('unknown.Unknown', None)
 
         # got exception InheritanceException for wrong class or module
-        # not AttributeError (refs: #4019)
+        # not AttributeError
+        # See: https://github.com/sphinx-doc/sphinx/issues/4019
         with pytest.raises(InheritanceException):
             import_classes('unknown', '.')
         with pytest.raises(InheritanceException):
@@ -371,7 +372,8 @@ def test_import_classes(rootdir):
         with pytest.raises(InheritanceException):
             import_classes('encode_uri', 'sphinx.util')
 
-        # import submodule on current module (refs: #3164)
+        # import submodule on current module
+        # See: https://github.com/sphinx-doc/sphinx/issues/3164
         classes = import_classes('sphinx', 'example')
         assert classes == [DummyClass]
     finally:

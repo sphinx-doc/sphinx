@@ -436,7 +436,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
     *key* is categorization characters (usually a single character) for
     general index page. For the details of this, please see also:
-    :rst:dir:`glossary` and issue #2320.
+    :rst:dir:`glossary` and https://github.com/sphinx-doc/sphinx/pull/2320.
     """
 
 

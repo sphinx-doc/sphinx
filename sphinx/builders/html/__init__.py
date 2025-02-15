@@ -1193,13 +1193,14 @@ class StandaloneHTMLBuilder(Builder):
 
         # sort JS/CSS before rendering HTML
         try:  # NoQA: SIM105
-            # Convert script_files to list to support non-list script_files (refs: #8889)
+            # Convert script_files to list to support non-list script_files
+            # See: https://github.com/sphinx-doc/sphinx/issues/8889
             ctx['script_files'] = sorted(
                 ctx['script_files'], key=lambda js: js.priority
             )
         except AttributeError:
             # Skip sorting if users modifies script_files directly (maybe via `html_context`).
-            # refs: #8885
+            # See: https://github.com/sphinx-doc/sphinx/issues/8885
             #
             # Note: priority sorting feature will not work in this case.
             pass
@@ -1503,7 +1504,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'html_scaled_image_link', True, 'html', types=frozenset({bool})
     )
     app.add_config_value('html_baseurl', '', 'html', types=frozenset({str}))
-    # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
+    # removal is indefinitely on hold
+    # See: https://github.com/sphinx-doc/sphinx/issues/10265
     app.add_config_value(
         'html_codeblock_linenos_style', 'inline', 'html', types=ENUM('table', 'inline')
     )

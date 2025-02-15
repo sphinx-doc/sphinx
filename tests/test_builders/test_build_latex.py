@@ -1300,7 +1300,8 @@ def test_latex_show_urls_is_no(app):
     },
 )
 def test_latex_show_urls_footnote_and_substitutions(app):
-    # hyperlinks in substitutions should not effect to make footnotes (refs: #4784)
+    # hyperlinks in substitutions should not effect to make footnotes
+    # See: https://github.com/sphinx-doc/sphinx/issues/4784
     test_latex_show_urls_is_footnote(app)
 
 
@@ -1996,7 +1997,8 @@ def test_latex_labels(app):
         r'\label{\detokenize{otherdoc::doc}}'
     ) in result
 
-    # Embedded standalone hyperlink reference (refs: #5948)
+    # Embedded standalone hyperlink reference
+    # See: https://github.com/sphinx-doc/sphinx/issues/5948
     assert result.count(r'\label{\detokenize{index:section1}}') == 1
 
 

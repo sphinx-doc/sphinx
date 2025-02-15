@@ -419,7 +419,8 @@ def test_domain_c_ast_type_definitions():
     # test decl specs on right
     check('type', '{key}bool const b', {1: 'b'}, key='typedef')
 
-    # from breathe#267 (named function parameters for function pointers
+    # from https://github.com/breathe-doc/breathe/issues/267
+    # (named function parameters for function pointers
     check(
         'type',
         '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
@@ -482,7 +483,7 @@ def test_domain_c_ast_member_definitions():
     check('member', 'T a = {1, 2}', {1: 'a'})
     check('member', 'T a = {1, 2, 3}', {1: 'a'})
 
-    # test from issue #1539
+    # test from issue https://github.com/sphinx-doc/sphinx/issues/1539
     check('member', 'CK_UTF8CHAR model[16]', {1: 'model'})
 
     check('member', 'auto int a', {1: 'a'})
@@ -514,17 +515,18 @@ def test_domain_c_ast_function_definitions():
     check('function', 'void f(enum T)', {1: 'f'})
     check('function', 'void f(enum T t)', {1: 'f'})
 
-    # test from issue #1539
+    # test from issue https://github.com/sphinx-doc/sphinx/issues/1539
     check('function', 'void f(A x[])', {1: 'f'})
 
-    # test from issue #2377
+    # test from issue https://github.com/sphinx-doc/sphinx/issues/2377
     check('function', 'void (*signal(int sig, void (*func)(int)))(int)', {1: 'signal'})
 
     check('function', 'extern void f()', {1: 'f'})
     check('function', 'static void f()', {1: 'f'})
     check('function', 'inline void f()', {1: 'f'})
 
-    # tests derived from issue #1753 (skip to keep sanity)
+    # tests derived from https://github.com/sphinx-doc/sphinx/issues/1753
+    # (skip to keep sanity)
     check('function', 'void f(float *q(double))', {1: 'f'})
     check('function', 'void f(float *(*q)(double))', {1: 'f'})
     check('function', 'void f(float (*q)(double))', {1: 'f'})
@@ -533,7 +535,7 @@ def test_domain_c_ast_function_definitions():
     check('function', 'void f(int *const p)', {1: 'f'})
     check('function', 'void f(int *volatile const p)', {1: 'f'})
 
-    # from breathe#223
+    # from https://github.com/breathe-doc/breathe/issues/223
     check('function', 'void f(struct E e)', {1: 'f'})
     check('function', 'void f(enum E e)', {1: 'f'})
     check('function', 'void f(union E e)', {1: 'f'})
@@ -564,7 +566,7 @@ def test_domain_c_ast_function_definitions():
     with pytest.raises(DefinitionError):
         parse('function', 'void f(int for)')
 
-    # from #8960
+    # from https://github.com/sphinx-doc/sphinx/issues/8960
     check('function', 'void f(void (*p)(int, double), int i)', {1: 'f'})
 
 
@@ -678,7 +680,7 @@ def test_domain_c_ast_attributes():
     check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {1: 'Foo'})
     check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {1: 'Foo'})
 
-    # issue michaeljones/breathe#500
+    # issue https://github.com/breathe-doc/breathe/issues/500
     check(
         'function',
         'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',

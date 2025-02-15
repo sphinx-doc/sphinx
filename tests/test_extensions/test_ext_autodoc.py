@@ -2182,7 +2182,7 @@ def test_partialmethod(app):
         '',
         '   An example for partialmethod.',
         '',
-        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   refs: https://docs.python.org/3/library/functools.html#functools.partialmethod',
         '',
         '',
         '   .. py:method:: Cell.set_alive()',
@@ -2212,7 +2212,7 @@ def test_partialmethod_undoc_members(app):
         '',
         '   An example for partialmethod.',
         '',
-        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   refs: https://docs.python.org/3/library/functools.html#functools.partialmethod',
         '',
         '',
         '   .. py:method:: Cell.set_alive()',
@@ -2938,7 +2938,7 @@ def test_autodoc(app):
     assert content[3][0].astext() == 'autodoc_dummy_module.test()'
     assert content[3][1].astext() == 'Dummy function using dummy.*'
 
-    # issue sphinx-doc/sphinx#2437
+    # See: https://github.com/sphinx-doc/sphinx/issues/2437
     assert content[11][-1].astext() == (
         """Dummy class Bar with alias.
 

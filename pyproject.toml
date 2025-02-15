@@ -81,7 +81,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.9.5",
+    "ruff==0.9.6",
     "mypy==1.15.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -91,7 +91,7 @@ lint = [
     "types-Pygments==2.19.0.20250107",
     "types-requests==2.32.0.20241016",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.393",
+    "pyright==1.1.394",
     "pytest>=6.0",
 ]
 test = [
@@ -217,7 +217,6 @@ module = [
     "tests.test_builders.test_build_html_toctree",
     "tests.test_builders.test_build_linkcheck",
     "tests.test_builders.test_build_manpage",
-    "tests.test_builders.test_build_text",
     "tests.test_builders.test_build_warnings",
     "tests.test_builders.test_incremental_reading",
     # tests/test_directives
@@ -285,7 +284,6 @@ module = [
     "tests.test_util.test_util_inventory",
     "tests.test_util.test_util_lines",
     "tests.test_util.test_util_matching",
-    "tests.test_util.test_util_uri",
     # tests/test_writers
     "tests.test_writers.test_docutilsconf",
 ]

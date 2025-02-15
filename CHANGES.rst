@@ -27,6 +27,8 @@ Deprecated
 
 * #13037: Deprecate the ``SingleHTMLBuilder.fix_refuris`` method.
   Patch by James Addison.
+* #13083, #13330: Un-deprecate ``sphinx.util.import_object``.
+  Patch by Matthias Geier.
 
 Features added
 --------------
@@ -104,6 +106,13 @@ Features added
 * #9169: Add the :confval:`intersphinx_resolve_self` option
   to resolve an intersphinx reference to the current project.
   Patch by Jakob Lykke Andersen and Adam Turner.
+* #11280: Add ability to skip a particular section using the ``no-search`` class.
+  Patch by Will Lachance.
+* #13326: Remove hardcoding from handling :class:`~sphinx.addnodes.productionlist`
+  nodes in all writers, to improve flexibility.
+  Patch by Adam Turner.
+* #13335: Use ``misc.highlighting_failure`` subtype for Pygments unknown lexers.
+  Patch by Bart Kamphorst.
 
 Bugs fixed
 ----------

@@ -661,7 +661,7 @@ class Builder:
         _cache: bool = True,
     ) -> None:
         """Write the doctree to a file, to be used as a cache by re-builds."""
-        # make it picklable
+        # make it pickleable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
 

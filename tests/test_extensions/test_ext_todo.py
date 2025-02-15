@@ -95,8 +95,8 @@ def test_todo_not_included(app):
 )
 def test_todo_valid_link(app):
     """Test that the inserted "original entry" links for todo items have a target
-    that exists in the LaTeX output. The target was previously incorrectly
-    omitted (GitHub issue #1020).
+    that exists in the LaTeX output. The target was previously incorrectly omitted.
+    https://github.com/sphinx-doc/sphinx/issues/1020
     """
     # Ensure the LaTeX output is built.
     app.build(force_all=True)

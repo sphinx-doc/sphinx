@@ -113,8 +113,19 @@ def test_process_doc(app):
         ),
     )
 
-    assert_node(toctree[1][0], [compact_paragraph, reference, 'Test for issue #1157'])
-    assert_node(toctree[1][0][0], reference, anchorname='#test-for-issue-1157')
+    assert_node(
+        toctree[1][0],
+        [
+            compact_paragraph,
+            reference,
+            'Test for combination of ‘globaltoc.html’ and hidden toctree',
+        ],
+    )
+    assert_node(
+        toctree[1][0][0],
+        reference,
+        anchorname='#test-for-combination-of-globaltoc-html-and-hidden-toctree',
+    )
     assert_node(
         toctree[1][1][0],
         addnodes.toctree,
@@ -494,7 +505,14 @@ def test_document_toc(app):
             [bullet_list, list_item, compact_paragraph, reference, 'subsubsection'],
         ),
     )
-    assert_node(toctree[1][0], [compact_paragraph, reference, 'Test for issue #1157'])
+    assert_node(
+        toctree[1][0],
+        [
+            compact_paragraph,
+            reference,
+            'Test for combination of ‘globaltoc.html’ and hidden toctree',
+        ],
+    )
     assert_node(toctree[2][0], [compact_paragraph, reference, 'Indices and tables'])
 
 
@@ -553,7 +571,14 @@ def test_document_toc_only(app):
             [bullet_list, list_item, compact_paragraph, reference, 'subsubsection'],
         ),
     )
-    assert_node(toctree[1][0], [compact_paragraph, reference, 'Test for issue #1157'])
+    assert_node(
+        toctree[1][0],
+        [
+            compact_paragraph,
+            reference,
+            'Test for combination of ‘globaltoc.html’ and hidden toctree',
+        ],
+    )
     assert_node(toctree[2][0], [compact_paragraph, reference, 'Indices and tables'])
 
 
