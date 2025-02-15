@@ -503,7 +503,8 @@ def test_domain_cpp_ast_type_definitions():
     check('type', '{key}A = B', {2: '1A'}, key='using')
     check('type', '{key}A = decltype(b)', {2: '1A'}, key='using')
 
-    # from breathe#267 (named function parameters for function pointers
+    # from https://github.com/breathe-doc/breathe/issues/267
+    # (named function parameters for function pointers
     check(
         'type',
         '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
@@ -865,7 +866,7 @@ def test_domain_cpp_ast_function_definitions():
         {1: 'f__osR.i', 2: '1fRNSt7ostreamEi'},
     )
 
-    # from breathe#223
+    # from https://github.com/breathe-doc/breathe/issues/223
     check('function', 'void f(struct E e)', {1: 'f__E', 2: '1f1E'})
     check('function', 'void f(class E e)', {1: 'f__E', 2: '1f1E'})
     check('function', 'void f(typename E e)', {1: 'f__E', 2: '1f1E'})
@@ -912,7 +913,7 @@ def test_domain_cpp_ast_function_definitions():
     check('function', 'template<typename T> int f()', ids)
     check('function', 'template<typename T> f() -> int', ids)
 
-    # from breathe#441
+    # from https://github.com/breathe-doc/breathe/issues/441
     check(
         'function',
         'auto MakeThingy() -> Thingy*',
@@ -1349,7 +1350,7 @@ def test_domain_cpp_ast_requires_clauses():
 
 
 def test_domain_cpp_ast_template_args():
-    # from breathe#218
+    # from https://github.com/breathe-doc/breathe/issues/218
     check(
         'function',
         'template<typename F> void allow(F *f, typename func<F, B, G != 1>::type tt)',

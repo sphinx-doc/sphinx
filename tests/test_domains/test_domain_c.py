@@ -419,7 +419,8 @@ def test_domain_c_ast_type_definitions():
     # test decl specs on right
     check('type', '{key}bool const b', {1: 'b'}, key='typedef')
 
-    # from breathe#267 (named function parameters for function pointers
+    # from https://github.com/breathe-doc/breathe/issues/267
+    # (named function parameters for function pointers
     check(
         'type',
         '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
@@ -533,7 +534,7 @@ def test_domain_c_ast_function_definitions():
     check('function', 'void f(int *const p)', {1: 'f'})
     check('function', 'void f(int *volatile const p)', {1: 'f'})
 
-    # from breathe#223
+    # from https://github.com/breathe-doc/breathe/issues/223
     check('function', 'void f(struct E e)', {1: 'f'})
     check('function', 'void f(enum E e)', {1: 'f'})
     check('function', 'void f(union E e)', {1: 'f'})
@@ -678,7 +679,7 @@ def test_domain_c_ast_attributes():
     check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {1: 'Foo'})
     check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {1: 'Foo'})
 
-    # issue michaeljones/breathe#500
+    # issue https://github.com/breathe-doc/breathe/issues/500
     check(
         'function',
         'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
