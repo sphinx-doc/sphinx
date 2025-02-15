@@ -64,7 +64,7 @@ def test_texinfo_citation(app):
     ) in output
 
 
-def test_default_texinfo_documents():
+def test_default_texinfo_documents() -> None:
     config = Config({
         'project': 'STASI™ Documentation',
         'author': "Wolfgang Schäuble & G'Beckstein",

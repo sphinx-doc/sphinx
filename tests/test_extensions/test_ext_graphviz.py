@@ -159,7 +159,7 @@ def test_graphviz_i18n(app):
     assert re.search(html, content, re.MULTILINE)
 
 
-def test_graphviz_parse_mapfile():
+def test_graphviz_parse_mapfile() -> None:
     # empty graph
     code = '# digraph {\n# }\n'
     content = '<map id="%3" name="%3">\n</map>'

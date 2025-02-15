@@ -626,7 +626,7 @@ class TestStripBasicAuth:
         assert actual == expected
 
 
-def test_getsafeurl_authed():
+def test_getsafeurl_authed() -> None:
     """_get_safe_url() with a url with basic auth"""
     url = 'https://user:12345@domain.com/project/objects.inv'
     expected = 'https://user@domain.com/project/objects.inv'
@@ -634,7 +634,7 @@ def test_getsafeurl_authed():
     assert actual == expected
 
 
-def test_getsafeurl_authed_having_port():
+def test_getsafeurl_authed_having_port() -> None:
     """_get_safe_url() with a url with basic auth having port"""
     url = 'https://user:12345@domain.com:8080/project/objects.inv'
     expected = 'https://user@domain.com:8080/project/objects.inv'
@@ -642,7 +642,7 @@ def test_getsafeurl_authed_having_port():
     assert actual == expected
 
 
-def test_getsafeurl_unauthed():
+def test_getsafeurl_unauthed() -> None:
     """_get_safe_url() with a url without basic auth"""
     url = 'https://domain.com/project/objects.inv'
     expected = 'https://domain.com/project/objects.inv'

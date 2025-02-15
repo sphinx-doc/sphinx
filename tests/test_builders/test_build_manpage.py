@@ -96,7 +96,7 @@ end
     assert expected in content
 
 
-def test_default_man_pages():
+def test_default_man_pages() -> None:
     config = Config({
         'project': 'STASI™ Documentation',
         'author': "Wolfgang Schäuble & G'Beckstein",

@@ -46,7 +46,7 @@ def test_highlight_language_python3(app):
         assert node['language'] in {'python', 'pycon', 'none'}
 
 
-def test_is_allowed_version():
+def test_is_allowed_version() -> None:
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.2', '3.3') is False

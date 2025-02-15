@@ -24,7 +24,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-def test_process_doc_handle_figure_caption():
+def test_process_doc_handle_figure_caption() -> None:
     env = mock.Mock(domaindata={})
     env.app.registry.enumerable_nodes = {}
     figure_node = nodes.figure(
@@ -47,7 +47,7 @@ def test_process_doc_handle_figure_caption():
     assert domain.data['labels']['testname'] == ('testdoc', 'testid', 'caption text')
 
 
-def test_process_doc_handle_table_title():
+def test_process_doc_handle_table_title() -> None:
     env = mock.Mock(domaindata={})
     env.app.registry.enumerable_nodes = {}
     table_node = nodes.table(
@@ -70,7 +70,7 @@ def test_process_doc_handle_table_title():
     assert domain.data['labels']['testname'] == ('testdoc', 'testid', 'title text')
 
 
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = mock.Mock(domaindata={})
     env.app.registry.enumerable_nodes = {}
     domain = StandardDomain(env)

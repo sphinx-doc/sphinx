@@ -14,7 +14,7 @@ from sphinx.util.display import (
 )
 
 
-def test_display_chunk():
+def test_display_chunk() -> None:
     assert display_chunk('hello') == 'hello'
     assert display_chunk(['hello']) == 'hello'
     assert display_chunk(['hello', 'sphinx', 'world']) == 'hello .. world'

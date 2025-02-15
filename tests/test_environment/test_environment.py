@@ -196,7 +196,7 @@ def test_env_relfn2path(app):
         app.env.relfn2path('images/logo.jpg')
 
 
-def test_differing_config_keys():
+def test_differing_config_keys() -> None:
     diff = _differing_config_keys
 
     old = Config({'project': 'old'})

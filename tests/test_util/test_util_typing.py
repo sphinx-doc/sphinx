@@ -108,7 +108,7 @@ class Gt:
     gt: float
 
 
-def test_restify():
+def test_restify() -> None:
     assert restify(int) == ':py:class:`int`'
     assert restify(int, 'smart') == ':py:class:`int`'
 
@@ -137,7 +137,7 @@ def test_restify():
     assert restify('str', 'smart') == 'str'
 
 
-def test_is_invalid_builtin_class():
+def test_is_invalid_builtin_class() -> None:
     # if these tests start failing, it means that the __module__
     # of one of these classes has changed, and _INVALID_BUILTIN_CLASSES
     # in sphinx.util.typing needs to be updated.
@@ -280,7 +280,7 @@ def test_restify_type_hints_containers():
     )
 
 
-def test_restify_Annotated():
+def test_restify_Annotated() -> None:
     ann_rst = restify(Annotated[str, 'foo', 'bar'])
     assert ann_rst == (
         ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
@@ -299,7 +299,7 @@ def test_restify_Annotated():
     )
 
 
-def test_restify_type_hints_Callable():
+def test_restify_type_hints_Callable() -> None:
     assert restify(t.Callable) == ':py:class:`~typing.Callable`'
     assert restify(t.Callable[[str], int]) == (
         ':py:class:`~typing.Callable`\\ [[:py:class:`str`], :py:class:`int`]'
@@ -316,7 +316,7 @@ def test_restify_type_hints_Callable():
     )
 
 
-def test_restify_type_hints_Union():
+def test_restify_type_hints_Union() -> None:
     assert restify(Union[int]) == ':py:class:`int`'
     assert restify(Union[int, str]) == ':py:class:`int` | :py:class:`str`'
     assert restify(Optional[int]) == ':py:class:`int` | :py:obj:`None`'
@@ -399,7 +399,7 @@ def test_restify_type_hints_typevars():
     assert ann_rst == ':py:class:`~tests.test_util.test_util_typing.MyInt`'
 
 
-def test_restify_type_hints_custom_class():
+def test_restify_type_hints_custom_class() -> None:
     assert restify(MyClass1) == ':py:class:`tests.test_util.test_util_typing.MyClass1`'
     ann_rst = restify(MyClass1, 'smart')
     assert ann_rst == ':py:class:`~tests.test_util.test_util_typing.MyClass1`'
@@ -410,7 +410,7 @@ def test_restify_type_hints_custom_class():
     assert ann_rst == ':py:class:`~tests.test_util.test_util_typing.<MyClass2>`'
 
 
-def test_restify_type_hints_alias():
+def test_restify_type_hints_alias() -> None:
     MyStr = str
     MyTypingTuple = Tuple[str, str]
     MyTuple = tuple[str, str]
@@ -433,7 +433,7 @@ def test_restify_type_ForwardRef():
     )
 
 
-def test_restify_type_Literal():
+def test_restify_type_Literal() -> None:
     ann_rst = restify(Literal[1, '2', '\r'])
     assert ann_rst == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
@@ -447,7 +447,7 @@ def test_restify_type_Literal():
     )
 
 
-def test_restify_pep_585():
+def test_restify_pep_585() -> None:
     assert restify(list[str]) == ':py:class:`list`\\ [:py:class:`str`]'
     ann_rst = restify(dict[str, str])
     assert ann_rst == ':py:class:`dict`\\ [:py:class:`str`, :py:class:`str`]'
@@ -479,7 +479,7 @@ def test_restify_pep_585():
     )
 
 
-def test_restify_Unpack():
+def test_restify_Unpack() -> None:
     from typing_extensions import Unpack as UnpackCompat
 
     class X(t.TypedDict):
@@ -502,7 +502,7 @@ def test_restify_Unpack():
     assert restify(t.Unpack['X'], 'smart') == expect
 
 
-def test_restify_type_union_operator():
+def test_restify_type_union_operator() -> None:
     assert restify(int | None) == ':py:class:`int` | :py:obj:`None`'
     assert restify(None | int) == ':py:obj:`None` | :py:class:`int`'
     assert restify(int | str) == ':py:class:`int` | :py:class:`str`'
@@ -510,14 +510,14 @@ def test_restify_type_union_operator():
     assert ann_rst == ':py:class:`int` | :py:class:`str` | :py:obj:`None`'
 
 
-def test_restify_broken_type_hints():
+def test_restify_broken_type_hints() -> None:
     ann_rst = restify(BrokenType)
     assert ann_rst == ':py:class:`tests.test_util.test_util_typing.BrokenType`'
     ann_rst = restify(BrokenType, 'smart')
     assert ann_rst == ':py:class:`~tests.test_util.test_util_typing.BrokenType`'
 
 
-def test_restify_mock():
+def test_restify_mock() -> None:
     with mock(['unknown']):
         import unknown  # type: ignore[import-not-found]
 
@@ -540,7 +540,7 @@ def test_restify_type_hints_paramspec():
     assert restify(P.kwargs, 'smart') == 'P.kwargs'
 
 
-def test_stringify_annotation():
+def test_stringify_annotation() -> None:
     assert stringify_annotation(int, 'fully-qualified-except-typing') == 'int'
     assert stringify_annotation(int, 'smart') == 'int'
 
@@ -726,7 +726,7 @@ def test_stringify_type_hints_pep_585():
     assert ann_str == 'tuple[~typing.List[dict[int, str]], str, ...]'
 
 
-def test_stringify_Annotated():
+def test_stringify_Annotated() -> None:
     ann_str = stringify_annotation(
         Annotated[str, 'foo', 'bar'], 'fully-qualified-except-typing'
     )
@@ -745,7 +745,7 @@ def test_stringify_Annotated():
     )
 
 
-def test_stringify_Unpack():
+def test_stringify_Unpack() -> None:
     class X(t.TypedDict):
         x: int
         y: int
@@ -755,7 +755,7 @@ def test_stringify_Unpack():
     assert stringify_annotation(t.Unpack['X'], 'smart') == '~typing.Unpack[X]'
 
 
-def test_stringify_type_hints_string():
+def test_stringify_type_hints_string() -> None:
     assert stringify_annotation('int', 'fully-qualified-except-typing') == 'int'
     assert stringify_annotation('int', 'fully-qualified') == 'int'
     assert stringify_annotation('int', 'smart') == 'int'
@@ -789,7 +789,7 @@ def test_stringify_type_hints_string():
     assert stringify_annotation('unknown', 'smart') == 'unknown'
 
 
-def test_stringify_type_hints_Callable():
+def test_stringify_type_hints_Callable() -> None:
     ann_str = stringify_annotation(t.Callable, 'fully-qualified-except-typing')
     assert ann_str == 'Callable'
     assert stringify_annotation(t.Callable, 'fully-qualified') == 'typing.Callable'
@@ -838,7 +838,7 @@ def test_stringify_type_hints_Callable():
     assert ann_str == '~collections.abc.Callable[[...], int]'
 
 
-def test_stringify_type_hints_Union():
+def test_stringify_type_hints_Union() -> None:
     ann_str = stringify_annotation(Optional[int], 'fully-qualified-except-typing')
     assert ann_str == 'int | None'
     assert stringify_annotation(Optional[int], 'fully-qualified') == 'int | None'
@@ -918,7 +918,7 @@ def test_stringify_type_hints_typevars():
     assert ann_str == '~tests.test_util.test_util_typing.MyInt'
 
 
-def test_stringify_type_hints_custom_class():
+def test_stringify_type_hints_custom_class() -> None:
     ann_str = stringify_annotation(MyClass1, 'fully-qualified-except-typing')
     assert ann_str == 'tests.test_util.test_util_typing.MyClass1'
     ann_str = stringify_annotation(MyClass1, 'smart')
@@ -930,7 +930,7 @@ def test_stringify_type_hints_custom_class():
     assert ann_str == '~tests.test_util.test_util_typing.<MyClass2>'
 
 
-def test_stringify_type_hints_alias():
+def test_stringify_type_hints_alias() -> None:
     MyStr = str
     MyTuple = Tuple[str, str]
 
@@ -941,7 +941,7 @@ def test_stringify_type_hints_alias():
     assert stringify_annotation(MyTuple, 'smart') == '~typing.Tuple[str, str]'
 
 
-def test_stringify_type_Literal():
+def test_stringify_type_Literal() -> None:
     ann_str = stringify_annotation(
         Literal[1, '2', '\r'], 'fully-qualified-except-typing'
     )
@@ -959,7 +959,7 @@ def test_stringify_type_Literal():
     assert ann_str == '~typing.Literal[MyEnum.a]'
 
 
-def test_stringify_type_union_operator():
+def test_stringify_type_union_operator() -> None:
     assert stringify_annotation(int | None) == 'int | None'
     assert stringify_annotation(int | None, 'smart') == 'int | None'
 
@@ -982,14 +982,14 @@ def test_stringify_type_union_operator():
     assert stringify_annotation(int | Struct, 'smart') == 'int | ~struct.Struct'
 
 
-def test_stringify_broken_type_hints():
+def test_stringify_broken_type_hints() -> None:
     ann_str = stringify_annotation(BrokenType, 'fully-qualified-except-typing')
     assert ann_str == 'tests.test_util.test_util_typing.BrokenType'
     ann_str = stringify_annotation(BrokenType, 'smart')
     assert ann_str == '~tests.test_util.test_util_typing.BrokenType'
 
 
-def test_stringify_mock():
+def test_stringify_mock() -> None:
     with mock(['unknown']):
         import unknown
 

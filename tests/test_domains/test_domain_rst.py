@@ -18,7 +18,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-def test_parse_directive():
+def test_parse_directive() -> None:
     s = parse_directive(' foö  ')
     assert s == ('foö', '')
 

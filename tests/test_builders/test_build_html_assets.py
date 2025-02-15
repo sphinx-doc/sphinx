@@ -138,7 +138,7 @@ def test_file_checksum(app):
     assert '<script src="https://example.com/script.js"></script>' in content
 
 
-def test_file_checksum_query_string():
+def test_file_checksum_query_string() -> None:
     with pytest.raises(
         ThemeError,
         match='Local asset file paths must not contain query strings',

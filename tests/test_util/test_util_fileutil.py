@@ -144,11 +144,11 @@ def test_copy_asset_overwrite(app):
     )
 
 
-def test_template_basename():
+def test_template_basename() -> None:
     assert _template_basename(Path('asset.txt')) is None
     assert _template_basename(Path('asset.txt.jinja')) == Path('asset.txt')
     assert _template_basename(Path('sidebar.html.jinja')) == Path('sidebar.html')
 
 
-def test_legacy_template_basename():
+def test_legacy_template_basename() -> None:
     assert _template_basename(Path('asset.txt_t')) == Path('asset.txt')

@@ -160,7 +160,7 @@ def test_extract_messages(rst, node_cls, count):
     assert_node_count(msg, node_cls, count)
 
 
-def test_extract_messages_without_rawsource():
+def test_extract_messages_without_rawsource() -> None:
     """Check node.rawsource is fall-backed by using node.astext() value.
 
     `extract_message` which is used from Sphinx i18n feature drop ``not node.rawsource``
@@ -251,7 +251,7 @@ def test_split_explicit_target(title, expected):
     assert split_explicit_title(title) == expected
 
 
-def test_apply_source_workaround_literal_block_no_source():
+def test_apply_source_workaround_literal_block_no_source() -> None:
     """Regression test for https://github.com/sphinx-doc/sphinx/issues/11091.
 
     Test that apply_source_workaround doesn't raise.

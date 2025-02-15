@@ -116,7 +116,7 @@ def test_TypeAliasForwardRef():
     assert sig_str == "TypeAliasForwardRef('example') | None"
 
 
-def test_TypeAliasNamespace():
+def test_TypeAliasNamespace() -> None:
     import logging.config
 
     type_alias = TypeAliasNamespace({
@@ -138,13 +138,13 @@ def test_TypeAliasNamespace():
         assert type_alias['unknown']
 
 
-def test_signature():
+def test_signature() -> None:
     # literals
     with pytest.raises(TypeError):
-        inspect.signature(1)
+        inspect.signature(1)  # type: ignore[arg-type]
 
     with pytest.raises(TypeError):
-        inspect.signature('')
+        inspect.signature('')  # type: ignore[arg-type]
 
     # builtins are supported on a case-by-case basis, depending on whether
     # they define __text_signature__
@@ -165,7 +165,7 @@ def test_signature():
     assert sig == '(a, b, c=1, d=2, *e, **f)'
 
 
-def test_signature_partial():
+def test_signature_partial() -> None:
     def fun(a, b, c=1, d=2):
         pass
 
@@ -175,7 +175,7 @@ def test_signature_partial():
     assert stringify_signature(sig) == '(b, *, c=11, d=2)'
 
 
-def test_signature_methods():
+def test_signature_methods() -> None:
     class Foo:
         def meth1(self, arg1, **kwargs):
             pass
@@ -222,7 +222,7 @@ def test_signature_methods():
     assert stringify_signature(sig) == '(arg1, **kwargs)'
 
 
-def test_signature_partialmethod():
+def test_signature_partialmethod() -> None:
     from functools import partialmethod
 
     class Foo:
@@ -247,7 +247,7 @@ def test_signature_partialmethod():
     assert stringify_signature(sig) == '()'
 
 
-def test_signature_annotations():
+def test_signature_annotations() -> None:
     import tests.test_util.typing_test_data as mod
 
     # Class annotations
@@ -396,7 +396,7 @@ def test_signature_annotations():
     )
 
 
-def test_signature_from_str_basic():
+def test_signature_from_str_basic() -> None:
     signature = '(a, b, *args, c=0, d="blah", **kwargs)'
     sig = inspect.signature_from_str(signature)
     assert list(sig.parameters.keys()) == ['a', 'b', 'args', 'c', 'd', 'kwargs']
@@ -427,7 +427,7 @@ def test_signature_from_str_basic():
     assert sig.return_annotation == Parameter.empty
 
 
-def test_signature_from_str_default_values():
+def test_signature_from_str_default_values() -> None:
     signature = (
         '(a=0, b=0.0, c="str", d=b"bytes", e=..., f=True, '
         'g=[1, 2, 3], h={"a": 1}, i={1, 2, 3}, '
@@ -449,7 +449,7 @@ def test_signature_from_str_default_values():
     assert sig.parameters['m'].default == 'foo.bar.CONSTANT'
 
 
-def test_signature_from_str_annotations():
+def test_signature_from_str_annotations() -> None:
     signature = '(a: int, *args: bytes, b: str = "blah", **kwargs: float) -> None'
     sig = inspect.signature_from_str(signature)
     assert list(sig.parameters.keys()) == ['a', 'args', 'b', 'kwargs']
@@ -460,7 +460,7 @@ def test_signature_from_str_annotations():
     assert sig.return_annotation == 'None'
 
 
-def test_signature_from_str_complex_annotations():
+def test_signature_from_str_complex_annotations() -> None:
     sig = inspect.signature_from_str('() -> Tuple[str, int, ...]')
     assert sig.return_annotation == 'Tuple[str, int, ...]'
 
@@ -468,7 +468,7 @@ def test_signature_from_str_complex_annotations():
     assert sig.return_annotation == 'Callable[[int, int], int]'
 
 
-def test_signature_from_str_kwonly_args():
+def test_signature_from_str_kwonly_args() -> None:
     sig = inspect.signature_from_str('(a, *, b)')
     assert list(sig.parameters.keys()) == ['a', 'b']
     assert sig.parameters['a'].kind == Parameter.POSITIONAL_OR_KEYWORD
@@ -477,7 +477,7 @@ def test_signature_from_str_kwonly_args():
     assert sig.parameters['b'].default == Parameter.empty
 
 
-def test_signature_from_str_positionaly_only_args():
+def test_signature_from_str_positionaly_only_args() -> None:
     sig = inspect.signature_from_str('(a, b=0, /, c=1)')
     assert list(sig.parameters.keys()) == ['a', 'b', 'c']
     assert sig.parameters['a'].kind == Parameter.POSITIONAL_ONLY
@@ -488,7 +488,7 @@ def test_signature_from_str_positionaly_only_args():
     assert sig.parameters['c'].default == '1'
 
 
-def test_signature_from_str_invalid():
+def test_signature_from_str_invalid() -> None:
     with pytest.raises(SyntaxError):
         inspect.signature_from_str('')
 
@@ -525,7 +525,7 @@ def test_signature_from_ast():
     assert sig.return_annotation == Parameter.empty
 
 
-def test_safe_getattr_with_default():
+def test_safe_getattr_with_default() -> None:
     class Foo:
         def __getattr__(self, item):
             raise Exception
@@ -537,7 +537,7 @@ def test_safe_getattr_with_default():
     assert result == 'baz'
 
 
-def test_safe_getattr_with_exception():
+def test_safe_getattr_with_exception() -> None:
     class Foo:
         def __getattr__(self, item):
             raise Exception
@@ -548,7 +548,7 @@ def test_safe_getattr_with_exception():
         inspect.safe_getattr(obj, 'bar')
 
 
-def test_safe_getattr_with_property_exception():
+def test_safe_getattr_with_property_exception() -> None:
     class Foo:
         @property
         def bar(self):
@@ -560,7 +560,7 @@ def test_safe_getattr_with_property_exception():
         inspect.safe_getattr(obj, 'bar')
 
 
-def test_safe_getattr_with___dict___override():
+def test_safe_getattr_with___dict___override() -> None:
     class Foo:
         @property
         def __dict__(self):
@@ -572,19 +572,19 @@ def test_safe_getattr_with___dict___override():
         inspect.safe_getattr(obj, 'bar')
 
 
-def test_dictionary_sorting():
+def test_dictionary_sorting() -> None:
     dictionary = {'c': 3, 'a': 1, 'd': 2, 'b': 4}
     description = inspect.object_description(dictionary)
     assert description == "{'a': 1, 'b': 4, 'c': 3, 'd': 2}"
 
 
-def test_set_sorting():
+def test_set_sorting() -> None:
     set_ = set('gfedcba')
     description = inspect.object_description(set_)
     assert description == "{'a', 'b', 'c', 'd', 'e', 'f', 'g'}"
 
 
-def test_set_sorting_enum():
+def test_set_sorting_enum() -> None:
     class MyEnum(enum.Enum):
         a = 1
         b = 2
@@ -595,13 +595,13 @@ def test_set_sorting_enum():
     assert description == '{MyEnum.a, MyEnum.b, MyEnum.c}'
 
 
-def test_set_sorting_fallback():
+def test_set_sorting_fallback() -> None:
     set_ = {None, 1}
     description = inspect.object_description(set_)
     assert description == '{1, None}'
 
 
-def test_deterministic_nested_collection_descriptions():
+def test_deterministic_nested_collection_descriptions() -> None:
     # sortable
     assert inspect.object_description([{1, 2, 3, 10}]) == '[{1, 2, 3, 10}]'
     assert inspect.object_description(({1, 2, 3, 10},)) == '({1, 2, 3, 10},)'
@@ -612,13 +612,13 @@ def test_deterministic_nested_collection_descriptions():
     assert inspect.object_description(({None, 1, 'A'},)) == "({'A', 1, None},)"
 
 
-def test_frozenset_sorting():
+def test_frozenset_sorting() -> None:
     frozenset_ = frozenset('gfedcba')
     description = inspect.object_description(frozenset_)
     assert description == "frozenset({'a', 'b', 'c', 'd', 'e', 'f', 'g'})"
 
 
-def test_frozenset_sorting_fallback():
+def test_frozenset_sorting_fallback() -> None:
     frozenset_ = frozenset((None, 1))
     description = inspect.object_description(frozenset_)
     assert description == 'frozenset({1, None})'
@@ -656,7 +656,7 @@ def test_recursive_collection_description():
     assert description_d == '[5, 6, 7, 8, [1, 2, 3, 4, list(...)]]'
 
 
-def test_dict_customtype():
+def test_dict_customtype() -> None:
     class CustomType:
         def __init__(self, value):
             self._value = value
@@ -670,7 +670,7 @@ def test_dict_customtype():
     assert '<CustomType(2)>: 2' in description
 
 
-def test_object_description_enum():
+def test_object_description_enum() -> None:
     class MyEnum(enum.Enum):
         FOO = 1
         BAR = 2
@@ -678,7 +678,7 @@ def test_object_description_enum():
     assert inspect.object_description(MyEnum.FOO) == 'MyEnum.FOO'
 
 
-def test_object_description_enum_custom_repr():
+def test_object_description_enum_custom_repr() -> None:
     class MyEnum(enum.Enum):
         FOO = 1
         BAR = 2
@@ -689,7 +689,7 @@ def test_object_description_enum_custom_repr():
     assert inspect.object_description(MyEnum.FOO) == 'FOO'
 
 
-def test_getslots():
+def test_getslots() -> None:
     class Foo:
         pass
 
@@ -804,14 +804,14 @@ def test_is_classmethod_like(expect, klass, name):
     assert inspect.is_classmethod_like(subject) is expect
 
 
-def test_isstaticmethod():
+def test_isstaticmethod() -> None:
     assert inspect.isstaticmethod(Base.staticmeth, Base, 'staticmeth')
     assert not inspect.isstaticmethod(Base.meth, Base, 'meth')
     assert inspect.isstaticmethod(Inherited.staticmeth, Inherited, 'staticmeth')
     assert not inspect.isstaticmethod(Inherited.meth, Inherited, 'meth')
 
 
-def test_iscoroutinefunction():
+def test_iscoroutinefunction() -> None:
     # function
     assert not inspect.iscoroutinefunction(func)
     # coroutine
@@ -830,12 +830,12 @@ def test_iscoroutinefunction():
     assert inspect.iscoroutinefunction(partial_coroutinemeth)
 
 
-def test_iscoroutinefunction_wrapped():
+def test_iscoroutinefunction_wrapped() -> None:
     # function wrapping a callable obj
     assert inspect.isfunction(_decorator(coroutinefunc))
 
 
-def test_isfunction():
+def test_isfunction() -> None:
     # fmt: off
     assert inspect.isfunction(func)                      # function
     assert inspect.isfunction(partial_func)              # partial-ed function
@@ -847,12 +847,12 @@ def test_isfunction():
     # fmt: on
 
 
-def test_isfunction_wrapped():
+def test_isfunction_wrapped() -> None:
     # function wrapping a callable obj
     assert inspect.isfunction(_decorator(_Callable()))
 
 
-def test_isbuiltin():
+def test_isbuiltin() -> None:
     # fmt: off
     assert inspect.isbuiltin(builtin_func)          # builtin function
     assert inspect.isbuiltin(partial_builtin_func)  # partial-ed builtin function
@@ -863,7 +863,7 @@ def test_isbuiltin():
     # fmt: on
 
 
-def test_isdescriptor():
+def test_isdescriptor() -> None:
     # fmt: off
     assert inspect.isdescriptor(Base.prop)        # property of class
     assert not inspect.isdescriptor(Base().prop)  # property of instance
@@ -873,7 +873,7 @@ def test_isdescriptor():
     # fmt: on
 
 
-def test_isattributedescriptor():
+def test_isattributedescriptor() -> None:
     # fmt: off
     assert inspect.isattributedescriptor(Base.prop)                      # property
     assert not inspect.isattributedescriptor(Base.meth)                  # method
@@ -899,7 +899,7 @@ def test_isattributedescriptor():
         pass
 
 
-def test_isproperty():
+def test_isproperty() -> None:
     # fmt: off
     assert inspect.isproperty(Base.prop)        # property of class
     assert not inspect.isproperty(Base().prop)  # property of instance
@@ -909,7 +909,7 @@ def test_isproperty():
     # fmt: on
 
 
-def test_isgenericalias():
+def test_isgenericalias() -> None:
     #: A list of int
     T = List[int]  # NoQA: UP006
     S = list[Union[str, None]]  # NoQA: UP007
@@ -927,7 +927,7 @@ def test_isgenericalias():
     assert not inspect.isgenericalias(Base)
 
 
-def test_unpartial():
+def test_unpartial() -> None:
     def func1(a, b, c):
         pass
 
@@ -974,7 +974,7 @@ def test_getdoc_inherited_decorated_method():
     assert inspect.getdoc(Bar.meth, getattr, True, Bar, 'meth') == Foo.meth.__doc__
 
 
-def test_is_builtin_class_method():
+def test_is_builtin_class_method() -> None:
     class MyInt(int):
         def my_method(self):
             pass

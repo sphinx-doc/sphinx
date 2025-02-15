@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
-def test_register_node():
+def test_register_node() -> None:
     class custom_node(nodes.Element):
         pass
 

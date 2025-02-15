@@ -312,7 +312,7 @@ def test_extension_values():
     assert 'already present' in str(excinfo.value)
 
 
-def test_overrides():
+def test_overrides() -> None:
     config = Config(
         {'value1': '1', 'value2': 2, 'value6': {'default': 6}},
         {
@@ -343,7 +343,7 @@ def test_overrides():
     assert config.value8 == ['abc', 'def', 'ghi']
 
 
-def test_overrides_boolean():
+def test_overrides_boolean() -> None:
     config = Config({}, {'value1': '1', 'value2': '0', 'value3': '0'})
     config.add('value1', None, 'env', [bool])
     config.add('value2', None, 'env', [bool])
@@ -372,7 +372,7 @@ def test_overrides_dict_str(logger):
     )
 
 
-def test_callable_defer():
+def test_callable_defer() -> None:
     config = Config()
     config.add('alias', lambda c: c.master_doc, '', str)
 
@@ -725,7 +725,7 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
     assert cfg.nitpick_ignore_regex == []
 
 
-def test_gettext_compact_command_line_true():
+def test_gettext_compact_command_line_true() -> None:
     config = Config({}, {'gettext_compact': '1'})
     config.add('gettext_compact', True, '', {bool, str})
 
@@ -734,7 +734,7 @@ def test_gettext_compact_command_line_true():
     assert config.gettext_compact is True
 
 
-def test_gettext_compact_command_line_false():
+def test_gettext_compact_command_line_false() -> None:
     config = Config({}, {'gettext_compact': '0'})
     config.add('gettext_compact', True, '', {bool, str})
 
@@ -743,7 +743,7 @@ def test_gettext_compact_command_line_false():
     assert config.gettext_compact is False
 
 
-def test_gettext_compact_command_line_str():
+def test_gettext_compact_command_line_str() -> None:
     config = Config({}, {'gettext_compact': 'spam'})
     config.add('gettext_compact', True, '', {bool, str})
 
@@ -752,7 +752,7 @@ def test_gettext_compact_command_line_str():
     assert config.gettext_compact == 'spam'
 
 
-def test_translation_progress_classes_command_line():
+def test_translation_progress_classes_command_line() -> None:
     config = Config({}, {'translation_progress_classes': '1'})
 
     # regression test for --define translation_progress_classes=1
@@ -760,7 +760,7 @@ def test_translation_progress_classes_command_line():
     assert config.translation_progress_classes is True
 
 
-def test_translation_progress_classes_command_line_false():
+def test_translation_progress_classes_command_line_false() -> None:
     config = Config({}, {'translation_progress_classes': '0'})
 
     # regression test for --define translation_progress_classes=0
@@ -768,7 +768,7 @@ def test_translation_progress_classes_command_line_false():
     assert config.translation_progress_classes is False
 
 
-def test_translation_progress_classes_command_line_str():
+def test_translation_progress_classes_command_line_str() -> None:
     config = Config({}, {'translation_progress_classes': 'translated'})
 
     # regression test for --define translation_progress_classes=translated
@@ -776,7 +776,7 @@ def test_translation_progress_classes_command_line_str():
     assert config.translation_progress_classes == 'translated'
 
 
-def test_autosummary_generate_command_line_false():
+def test_autosummary_generate_command_line_false() -> None:
     config = Config({}, {'autosummary_generate': '0'})
     config.add('autosummary_generate', True, '', {bool, list})
 
@@ -785,7 +785,7 @@ def test_autosummary_generate_command_line_false():
     assert config.autosummary_generate is False
 
 
-def test_boolean_command_line_invalid():
+def test_boolean_command_line_invalid() -> None:
     config = Config({}, {'rabit_of_caerbannog': ''})
     config.add('rabit_of_caerbannog', True, '', {bool})
     with pytest.raises(
@@ -794,7 +794,7 @@ def test_boolean_command_line_invalid():
         _ = config.rabit_of_caerbannog
 
 
-def test_root_doc_and_master_doc_are_synchronized():
+def test_root_doc_and_master_doc_are_synchronized() -> None:
     c = Config()
     assert c.master_doc == 'index'
     assert c.root_doc == c.master_doc

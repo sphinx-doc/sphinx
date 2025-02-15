@@ -5,7 +5,7 @@ import pytest
 from sphinx.util._lines import parse_line_num_spec
 
 
-def test_parse_line_num_spec():
+def test_parse_line_num_spec() -> None:
     assert parse_line_num_spec('1,2,3', 10) == [0, 1, 2]
     assert parse_line_num_spec('4, 5, 6', 10) == [3, 4, 5]
     assert parse_line_num_spec('-4', 10) == [0, 1, 2, 3]

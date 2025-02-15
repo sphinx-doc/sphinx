@@ -49,7 +49,7 @@ def parse(sig):
     return signode.astext()
 
 
-def test_function_signatures():
+def test_function_signatures() -> None:
     rv = parse("compile(source : string, filename, symbol='file')")
     assert rv == "(source : string, filename, symbol='file')"
 
@@ -321,7 +321,7 @@ def test_domain_py_find_obj(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = PythonDomain(env)
 

@@ -39,7 +39,7 @@ def test_ensuredir(tmp_path):
     assert path.is_dir()
 
 
-def test_exported_attributes():
+def test_exported_attributes() -> None:
     # RemovedInSphinx90Warning
     with pytest.warns(
         RemovedInSphinx90Warning,

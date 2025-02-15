@@ -223,7 +223,7 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
 
 
-def test_config_file_toml():
+def test_config_file_toml() -> None:
     config_path = HERE / 'theme.toml'
     cfg = _load_theme_toml(config_path)
     config = _convert_theme_toml(cfg)
@@ -237,7 +237,7 @@ def test_config_file_toml():
     )
 
 
-def test_config_file_conf():
+def test_config_file_conf() -> None:
     config_path = HERE / 'theme.conf'
     cfg = _load_theme_conf(config_path)
     config = _convert_theme_conf(cfg)

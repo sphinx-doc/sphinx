@@ -218,7 +218,7 @@ def make_inventory_handler(
     return InventoryHandler
 
 
-def test_intersphinx_project_fixture():
+def test_intersphinx_project_fixture() -> None:
     # check that our fixture class is correct
     project = SingleEntryProject(1, 'route')
     assert project.url == 'http://localhost:9341/route'
