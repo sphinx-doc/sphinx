@@ -49,7 +49,7 @@ def test_add_uids():
     assert len(original_uids) == 3
 
 
-def test_picklablility():
+def test_pickleablility():
     # we have to modify the doctree so we can pickle it
     copy = original.copy()
     copy.reporter = None
