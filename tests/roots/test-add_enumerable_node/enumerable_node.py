@@ -1,3 +1,5 @@
+from typing import Never
+
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
@@ -6,11 +8,11 @@ class my_figure(nodes.figure):
     pass
 
 
-def visit_my_figure(self, node):
+def visit_my_figure(self, node) -> None:
     self.visit_figure(node)
 
 
-def depart_my_figure(self, node):
+def depart_my_figure(self, node) -> None:
     self.depart_figure(node)
 
 
@@ -29,7 +31,7 @@ class numbered_text(nodes.Element):
     pass
 
 
-def visit_numbered_text(self, node):
+def visit_numbered_text(self, node) -> Never:
     self.body.append(self.starttag(node, 'div'))
     self.add_fignumber(node)
     self.body.append(node['title'])
@@ -49,7 +51,7 @@ class NumberedText(Directive):
         return [numbered_text(title=self.arguments[0])]
 
 
-def setup(app):
+def setup(app) -> None:
     # my-figure
     app.add_enumerable_node(
         my_figure, 'figure', html=(visit_my_figure, depart_my_figure)

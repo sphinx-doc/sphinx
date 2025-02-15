@@ -9,27 +9,27 @@ def assign_signature(func):
 
 
 @singledispatch
-def func(arg, kwarg=None):
+def func(arg, kwarg=None) -> None:
     """A function for general use."""
     pass
 
 
 @func.register(int)
 @func.register(float)
-def _func_int(arg, kwarg=None):
+def _func_int(arg, kwarg=None) -> None:
     """A function for int."""
     pass
 
 
 @func.register(str)
 @assign_signature
-def _func_str(arg, kwarg=None):
+def _func_str(arg, kwarg=None) -> None:
     """A function for str."""
     pass
 
 
 @func.register
-def _func_dict(arg: dict, kwarg=None):
+def _func_dict(arg: dict, kwarg=None) -> None:
     """A function for dict."""
     # This function tests for specifying type through annotations
     pass

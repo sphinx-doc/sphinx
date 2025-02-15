@@ -49,7 +49,7 @@ def parse(sig):
     return signode.astext()
 
 
-def test_function_signatures():
+def test_function_signatures() -> None:
     rv = parse('func(a=1) -> int object')
     assert rv == '(a=1)'
 
@@ -70,13 +70,13 @@ def test_function_signatures():
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_domain_py_xrefs(app):
+def test_domain_py_xrefs(app) -> None:
     """Domain objects have correct prefixes when looking up xrefs"""
     app.build(force_all=True)
 
     def assert_refnode(
         node, module_name, class_name, target, reftype=None, domain='py'
-    ):
+    ) -> None:
         attributes = {
             'refdomain': domain,
             'reftarget': target,
@@ -170,7 +170,7 @@ def test_domain_py_xrefs(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-py')
-def test_domain_py_xrefs_abbreviations(app):
+def test_domain_py_xrefs_abbreviations(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'abbr.html').read_text(encoding='utf8')
@@ -203,7 +203,7 @@ def test_domain_py_xrefs_abbreviations(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_domain_py_objects(app):
+def test_domain_py_objects(app) -> None:
     app.build(force_all=True)
 
     modules = app.env.domains.python_domain.data['modules']
@@ -237,7 +237,7 @@ def test_domain_py_objects(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-py')
-def test_resolve_xref_for_properties(app):
+def test_resolve_xref_for_properties(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'module.html').read_text(encoding='utf8')
@@ -262,7 +262,7 @@ def test_resolve_xref_for_properties(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_domain_py_find_obj(app):
+def test_domain_py_find_obj(app) -> None:
     def find_obj(modname, prefix, obj_name, obj_type, searchmode=0):
         return app.env.domains.python_domain.find_obj(
             app.env, modname, prefix, obj_name, obj_type, searchmode
@@ -316,7 +316,7 @@ def test_domain_py_find_obj(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = PythonDomain(env)
 
@@ -345,7 +345,7 @@ def test_get_full_qualified_name():
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_parse_annotation(app):
+def test_parse_annotation(app) -> None:
     doctree = _parse_annotation('int', app.env)
     assert_node(doctree, ([pending_xref, 'int'],))
     assert_node(
@@ -505,7 +505,7 @@ def test_parse_annotation(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_parse_annotation_suppress(app):
+def test_parse_annotation_suppress(app) -> None:
     doctree = _parse_annotation('~typing.Dict[str, str]', app.env)
     assert_node(
         doctree,
@@ -525,7 +525,7 @@ def test_parse_annotation_suppress(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_parse_annotation_Literal(app):
+def test_parse_annotation_Literal(app) -> None:
     doctree = _parse_annotation('Literal[True, False]', app.env)
     assert_node(
         doctree,
@@ -559,7 +559,7 @@ def test_parse_annotation_Literal(app):
 
 
 @pytest.mark.sphinx('html', testroot='root', freshenv=True)
-def test_module_index(app):
+def test_module_index(app) -> None:
     text = (
         '.. py:module:: docutils\n'
         '.. py:module:: sphinx\n'
@@ -642,7 +642,7 @@ def test_module_index(app):
 
 
 @pytest.mark.sphinx('html', testroot='root', freshenv=True)
-def test_module_index_submodule(app):
+def test_module_index_submodule(app) -> None:
     text = '.. py:module:: sphinx.config\n'
     restructuredtext.parse(app, text)
     index = PythonModuleIndex(app.env.domains.python_domain)
@@ -677,7 +677,7 @@ def test_module_index_submodule(app):
 
 
 @pytest.mark.sphinx('html', testroot='root', freshenv=True)
-def test_module_index_not_collapsed(app):
+def test_module_index_not_collapsed(app) -> None:
     text = '.. py:module:: docutils\n.. py:module:: sphinx\n'
     restructuredtext.parse(app, text)
     index = PythonModuleIndex(app.env.domains.python_domain)
@@ -722,7 +722,7 @@ def test_module_index_not_collapsed(app):
     freshenv=True,
     confoverrides={'modindex_common_prefix': ['sphinx.']},
 )
-def test_modindex_common_prefix(app):
+def test_modindex_common_prefix(app) -> None:
     text = (
         '.. py:module:: docutils\n'
         '.. py:module:: sphinx\n'
@@ -815,7 +815,7 @@ def test_modindex_common_prefix(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_no_index_entry(app):
+def test_no_index_entry(app) -> None:
     text = '.. py:function:: f()\n.. py:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
@@ -847,7 +847,7 @@ def test_no_index_entry(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
-def test_python_python_use_unqualified_type_names(app):
+def test_python_python_use_unqualified_type_names(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
@@ -867,7 +867,7 @@ def test_python_python_use_unqualified_type_names(app):
     testroot='domain-py-python_use_unqualified_type_names',
     confoverrides={'python_use_unqualified_type_names': False},
 )
-def test_python_python_use_unqualified_type_names_disabled(app):
+def test_python_python_use_unqualified_type_names_disabled(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
@@ -883,7 +883,7 @@ def test_python_python_use_unqualified_type_names_disabled(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')
-def test_warn_missing_reference(app):
+def test_warn_missing_reference(app) -> None:
     app.build()
     assert "index.rst:6: WARNING: undefined label: 'no-label'" in app.warning.getvalue()
     assert (
@@ -894,7 +894,7 @@ def test_warn_missing_reference(app):
 
 @pytest.mark.parametrize('include_options', [True, False])
 @pytest.mark.sphinx('html', testroot='root', confoverrides={'nitpicky': True})
-def test_signature_line_number(app, include_options):
+def test_signature_line_number(app, include_options) -> None:
     text = '.. py:function:: foo(bar : string)\n' + (
         '   :no-index-entry:\n' if include_options else ''
     )
@@ -914,7 +914,7 @@ def test_signature_line_number(app, include_options):
         'maximum_signature_line_length': 1,
     },
 )
-def test_python_maximum_signature_line_length_overrides_global(app):
+def test_python_maximum_signature_line_length_overrides_global(app) -> None:
     text = '.. py:function:: hello(name: str) -> str'
     doctree = restructuredtext.parse(app, text)
     expected_doctree = (
@@ -962,7 +962,7 @@ def test_python_maximum_signature_line_length_overrides_global(app):
     'html',
     testroot='domain-py-python_maximum_signature_line_length',
 )
-def test_domain_py_python_maximum_signature_line_length_in_html(app):
+def test_domain_py_python_maximum_signature_line_length_in_html(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected_parameter_list_hello = """\
@@ -1042,7 +1042,7 @@ def test_domain_py_python_maximum_signature_line_length_in_html(app):
     'text',
     testroot='domain-py-python_maximum_signature_line_length',
 )
-def test_domain_py_python_maximum_signature_line_length_in_text(app):
+def test_domain_py_python_maximum_signature_line_length_in_text(app) -> None:
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
@@ -1087,7 +1087,7 @@ def test_domain_py_python_maximum_signature_line_length_in_text(app):
     testroot='domain-py-python_maximum_signature_line_length',
     confoverrides={'python_trailing_comma_in_multi_line_signatures': False},
 )
-def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_html(app):
+def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_html(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected_parameter_list_hello = """\
@@ -1169,7 +1169,7 @@ def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_html(app):
     freshenv=True,
     confoverrides={'python_trailing_comma_in_multi_line_signatures': False},
 )
-def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_text(app):
+def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_text(app) -> None:
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
@@ -1210,7 +1210,7 @@ def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_text(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_module_content_line_number(app):
+def test_module_content_line_number(app) -> None:
     text = '.. py:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))
@@ -1226,7 +1226,7 @@ def test_module_content_line_number(app):
     freshenv=True,
     confoverrides={'python_display_short_literal_types': True},
 )
-def test_short_literal_types(app):
+def test_short_literal_types(app) -> None:
     text = """\
 .. py:function:: literal_ints(x: Literal[1, 2, 3] = 1) -> None
 .. py:function:: literal_union(x: Union[Literal["a"], Literal["b"], Literal["c"]]) -> None
@@ -1326,7 +1326,7 @@ def test_short_literal_types(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_function_pep_695(app):
+def test_function_pep_695(app) -> None:
     text = """.. py:function:: func[\
         S,\
         T: int,\
@@ -1453,7 +1453,7 @@ def test_function_pep_695(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_class_def_pep_695(app):
+def test_class_def_pep_695(app) -> None:
     # Non-concrete unbound generics are allowed at runtime but type checkers
     # should fail (https://peps.python.org/pep-0695/#type-parameter-scopes)
     text = """.. py:class:: Class[S: Sequence[T], T, KT, VT](Dict[KT, VT])"""
@@ -1509,7 +1509,7 @@ def test_class_def_pep_695(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_class_def_pep_696(app):
+def test_class_def_pep_696(app) -> None:
     # test default values for type variables without using PEP 696 AST parser
     text = """.. py:class:: Class[\
         T, KT, VT,\
@@ -1705,7 +1705,7 @@ def test_class_def_pep_696(app):
     ],
 )
 @pytest.mark.sphinx('html', testroot='root')
-def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
+def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext) -> None:
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
@@ -1719,7 +1719,7 @@ def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     ],
 )
 @pytest.mark.sphinx('html', testroot='root')
-def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
+def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext) -> None:
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
@@ -1743,7 +1743,7 @@ def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
     ],
 )
 @pytest.mark.sphinx('html', testroot='root')
-def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
+def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext) -> None:
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'

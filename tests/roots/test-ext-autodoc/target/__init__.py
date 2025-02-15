@@ -9,7 +9,7 @@ __all__ = ['Class']
 integer = 1
 
 
-def raises(exc, func, *args, **kwds):
+def raises(exc, func, *args, **kwds) -> None:
     """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*."""
     pass
 
@@ -17,7 +17,7 @@ def raises(exc, func, *args, **kwds):
 class CustomEx(Exception):
     """My custom exception."""
 
-    def f(self):
+    def f(self) -> None:
         """Exception method."""
 
 
@@ -38,16 +38,16 @@ def _funky_classmethod(name, b, c, d, docstring=None):
 class Class:
     """Class to document."""
 
-    def meth(self):
+    def meth(self) -> None:
         """Function."""
 
-    def undocmeth(self):
+    def undocmeth(self) -> None:
         pass
 
-    def skipmeth(self):
+    def skipmeth(self) -> None:
         """Method that should be skipped."""
 
-    def excludemeth(self):
+    def excludemeth(self) -> None:
         """Method that should be excluded."""
 
     # should not be documented
@@ -73,14 +73,14 @@ class Class:
     )
 
     @staticmethod
-    def b_staticmeth():
+    def b_staticmeth() -> None:
         pass
 
     @staticmethod
-    def a_staticmeth():
+    def a_staticmeth() -> None:
         pass
 
-    def __init__(self, arg):
+    def __init__(self, arg) -> None:
         self.inst_attr_inline = None  #: an inline documented instance attr
         #: a documented instance attribute
         self.inst_attr_comment = None
@@ -100,7 +100,7 @@ class CustomDict(dict):  # NoQA: FURB189
     """Docstring."""
 
 
-def function(foo, *args, **kwds):
+def function(foo, *args, **kwds) -> None:
     """Return spam."""
     pass
 
@@ -111,7 +111,7 @@ class Outer:
     class Inner:
         """Foo"""
 
-        def meth(self):
+        def meth(self) -> None:
             """Foo"""
 
     # should be documented as an alias
@@ -130,21 +130,21 @@ class DocstringSig:
         rest of docstring
         """
 
-    def __init__(self, *init_args, **init_kwargs):
+    def __init__(self, *init_args, **init_kwargs) -> None:
         """__init__(self, a, b=1) -> None
         First line of docstring
 
         rest of docstring
         """
 
-    def meth(self):
+    def meth(self) -> None:
         """meth(FOO, BAR=1) -> BAZ
         First line of docstring
 
         rest of docstring
         """
 
-    def meth2(self):
+    def meth2(self) -> None:
         """First line, no signature
         Second line followed by indentation::
 
@@ -152,14 +152,14 @@ class DocstringSig:
         """
 
     @property
-    def prop1(self):
+    def prop1(self) -> int:
         """DocstringSig.prop1(self)
         First line of docstring
         """
         return 123
 
     @property
-    def prop2(self):
+    def prop2(self) -> int:
         """First line of docstring
         Second line of docstring
         """
@@ -169,7 +169,7 @@ class DocstringSig:
 class StrRepr(str):  # NoQA: FURB189,SLOT000
     """docstring"""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self
 
 
@@ -190,7 +190,7 @@ class InstAttCls:
     ca3 = 'c'
     """Docstring for class attribute InstAttCls.ca3."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         #: Doc comment for instance attribute InstAttCls.ia1
         self.ia1 = 'd'
 
@@ -199,7 +199,7 @@ class InstAttCls:
 
 
 class CustomIter:
-    def __init__(self):
+    def __init__(self) -> None:
         """Create a new `CustomIter`."""
         self.values = range(10)
 
@@ -208,6 +208,6 @@ class CustomIter:
         for i in self.values:
             yield i**2
 
-    def snafucate(self):
+    def snafucate(self) -> None:
         """Makes this snafucated."""
         print('snafucated')

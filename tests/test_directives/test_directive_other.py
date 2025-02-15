@@ -13,7 +13,7 @@ from sphinx.testing.util import assert_node
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree(app):
+def test_toctree(app) -> None:
     text = '.. toctree::\n\n   foo\n   bar/index\n   baz\n'
 
     app.env.find_files(app.config, app.builder)
@@ -27,7 +27,7 @@ def test_toctree(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_relative_toctree(app):
+def test_relative_toctree(app) -> None:
     text = '.. toctree::\n\n   bar_1\n   bar_2\n   bar_3\n   ../quux\n'
 
     app.env.find_files(app.config, app.builder)
@@ -46,7 +46,7 @@ def test_relative_toctree(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_urls_and_titles(app):
+def test_toctree_urls_and_titles(app) -> None:
     text = (
         '.. toctree::\n'
         '\n'
@@ -70,7 +70,7 @@ def test_toctree_urls_and_titles(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_glob(app):
+def test_toctree_glob(app) -> None:
     text = '.. toctree::\n   :glob:\n\n   *\n'
 
     app.env.find_files(app.config, app.builder)
@@ -108,7 +108,7 @@ def test_toctree_glob(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_glob_and_url(app):
+def test_toctree_glob_and_url(app) -> None:
     text = '.. toctree::\n   :glob:\n\n   https://example.com/?q=sphinx\n'
 
     app.env.find_files(app.config, app.builder)
@@ -122,7 +122,7 @@ def test_toctree_glob_and_url(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_reversed_toctree(app):
+def test_reversed_toctree(app) -> None:
     text = '.. toctree::\n   :reversed:\n\n   foo\n   bar/index\n   baz\n'
 
     app.env.find_files(app.config, app.builder)
@@ -136,7 +136,7 @@ def test_reversed_toctree(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_class(app):
+def test_toctree_class(app) -> None:
     text = '.. toctree::\n   :class: custom-toc\n\n   foo\n'
     app.env.find_files(app.config, app.builder)
     doctree = restructuredtext.parse(app, text, 'index')
@@ -145,7 +145,7 @@ def test_toctree_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_twice(app):
+def test_toctree_twice(app) -> None:
     text = '.. toctree::\n\n   foo\n   foo\n'
 
     app.env.find_files(app.config, app.builder)
@@ -159,10 +159,10 @@ def test_toctree_twice(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-include')
-def test_include_include_read_event(app):
+def test_include_include_read_event(app) -> None:
     sources_reported = []
 
-    def source_read_handler(_app, relative_path, parent_docname, source):
+    def source_read_handler(_app, relative_path, parent_docname, source) -> None:
         sources_reported.append((relative_path, parent_docname, source[0]))
 
     app.connect('include-read', source_read_handler)
@@ -192,8 +192,8 @@ def test_include_include_read_event(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-include')
-def test_include_include_read_event_nested_includes(app):
-    def source_read_handler(_app, _relative_path, _parent_docname, source):
+def test_include_include_read_event_nested_includes(app) -> None:
+    def source_read_handler(_app, _relative_path, _parent_docname, source) -> None:
         text = source[0].replace('#magical', 'amazing')
         source[0] = text
 

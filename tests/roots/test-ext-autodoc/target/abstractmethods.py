@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 
 class Base:
-    def meth(self):
+    def meth(self) -> None:
         pass
 
     @abstractmethod

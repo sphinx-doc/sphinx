@@ -18,7 +18,7 @@ def with_text_app(*args: Any, **kw: Any) -> pytest.MarkDecorator:
 
 
 @with_text_app()
-def test_maxwitdh_with_prefix(app):
+def test_maxwitdh_with_prefix(app) -> None:
     app.build()
     result = (app.outdir / 'maxwidth.txt').read_text(encoding='utf8')
 
@@ -40,7 +40,7 @@ def test_maxwitdh_with_prefix(app):
 
 
 @with_text_app()
-def test_lineblock(app):
+def test_lineblock(app) -> None:
     # regression test for #1109: need empty line after line block
     app.build()
     result = (app.outdir / 'lineblock.txt').read_text(encoding='utf8')
@@ -49,7 +49,7 @@ def test_lineblock(app):
 
 
 @with_text_app()
-def test_nonascii_title_line(app):
+def test_nonascii_title_line(app) -> None:
     app.build(force_all=True)
     result = (app.outdir / 'nonascii_title.txt').read_text(encoding='utf8')
     expect_underline = '*********'
@@ -58,7 +58,7 @@ def test_nonascii_title_line(app):
 
 
 @with_text_app()
-def test_nonascii_table(app):
+def test_nonascii_table(app) -> None:
     app.build()
     result = (app.outdir / 'nonascii_table.txt').read_text(encoding='utf8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
@@ -67,7 +67,7 @@ def test_nonascii_table(app):
 
 
 @with_text_app()
-def test_nonascii_maxwidth(app):
+def test_nonascii_maxwidth(app) -> None:
     app.build()
     result = (app.outdir / 'nonascii_maxwidth.txt').read_text(encoding='utf8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
@@ -75,7 +75,7 @@ def test_nonascii_maxwidth(app):
     assert max(line_widths) < MAXWIDTH
 
 
-def test_table_builder():
+def test_table_builder() -> None:
     table = Table([6, 6])
     table.add_cell(Cell('foo'))
     table.add_cell(Cell('bar'))
@@ -86,7 +86,7 @@ def test_table_builder():
     assert repr(table).count('<Cell ') == 2
 
 
-def test_table_separator():
+def test_table_separator() -> None:
     table = Table([6, 6])
     table.add_cell(Cell('foo'))
     table.add_cell(Cell('bar'))
@@ -103,7 +103,7 @@ def test_table_separator():
     assert repr(table).count('<Cell ') == 4
 
 
-def test_table_cell():
+def test_table_cell() -> None:
     cell = Cell('Foo bar baz')
     cell.wrap(3)
     assert 'Cell' in repr(cell)
@@ -111,7 +111,7 @@ def test_table_cell():
 
 
 @with_text_app()
-def test_table_with_empty_cell(app):
+def test_table_with_empty_cell(app) -> None:
     app.build()
     result = (app.outdir / 'table.txt').read_text(encoding='utf8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
@@ -125,7 +125,7 @@ def test_table_with_empty_cell(app):
 
 
 @with_text_app()
-def test_table_with_rowspan(app):
+def test_table_with_rowspan(app) -> None:
     app.build()
     result = (app.outdir / 'table_rowspan.txt').read_text(encoding='utf8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
@@ -139,7 +139,7 @@ def test_table_with_rowspan(app):
 
 
 @with_text_app()
-def test_table_with_colspan(app):
+def test_table_with_colspan(app) -> None:
     app.build()
     result = (app.outdir / 'table_colspan.txt').read_text(encoding='utf8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
@@ -153,7 +153,7 @@ def test_table_with_colspan(app):
 
 
 @with_text_app()
-def test_table_with_colspan_left(app):
+def test_table_with_colspan_left(app) -> None:
     app.build()
     result = (app.outdir / 'table_colspan_left.txt').read_text(encoding='utf8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
@@ -167,7 +167,7 @@ def test_table_with_colspan_left(app):
 
 
 @with_text_app()
-def test_table_with_colspan_and_rowspan(app):
+def test_table_with_colspan_and_rowspan(app) -> None:
     app.build()
     result = (app.outdir / 'table_colspan_and_rowspan.txt').read_text(encoding='utf8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
@@ -182,7 +182,7 @@ def test_table_with_colspan_and_rowspan(app):
 
 
 @with_text_app()
-def test_list_items_in_admonition(app):
+def test_list_items_in_admonition(app) -> None:
     app.build()
     result = (app.outdir / 'listitems.txt').read_text(encoding='utf8')
     lines = [line.rstrip() for line in result.splitlines()]
@@ -194,7 +194,7 @@ def test_list_items_in_admonition(app):
 
 
 @with_text_app()
-def test_secnums(app):
+def test_secnums(app) -> None:
     app.build(force_all=True)
     index = (app.outdir / 'index.txt').read_text(encoding='utf8')
     lines = index.splitlines()

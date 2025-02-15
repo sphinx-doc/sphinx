@@ -12,7 +12,7 @@ SENTINEL = object()
 ze_lambda = lambda z=SENTINEL: None  # NoQA: E731
 
 
-def foo(x, y, z=SENTINEL):
+def foo(x, y, z=SENTINEL) -> None:
     """docstring"""
 
 

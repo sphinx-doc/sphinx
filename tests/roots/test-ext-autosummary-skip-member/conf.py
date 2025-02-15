@@ -8,7 +8,7 @@ autosummary_generate = True
 autodoc_default_options = {'members': True}
 
 
-def skip_member(app, what, name, obj, skip, options):
+def skip_member(app, what, name, obj, skip, options) -> bool | None:
     if name == 'skipmeth':
         return True
     elif name == '_privatemeth':
@@ -16,5 +16,5 @@ def skip_member(app, what, name, obj, skip, options):
     return None
 
 
-def setup(app):
+def setup(app) -> None:
     app.connect('autodoc-skip-member', skip_member)

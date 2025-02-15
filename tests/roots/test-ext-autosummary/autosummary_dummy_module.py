@@ -26,15 +26,15 @@ class Foo:
     class Bar:  # NoQA: D106
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         #: docstring
         self.value = 1
 
-    def bar(self):
+    def bar(self) -> None:
         pass
 
     @property
-    def baz(self):
+    def baz(self) -> None:
         pass
 
 
@@ -46,7 +46,7 @@ def bar(x: Union[int, str], y: int = 1) -> None:  # NoQA: UP007
     pass
 
 
-def _quux():
+def _quux() -> None:
     pass
 
 

@@ -51,7 +51,7 @@ class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))): 
 
 
 class TestNamedtupleSubclass:
-    def test_attributes_docstring(self):
+    def test_attributes_docstring(self) -> None:
         config = Config()
         actual = NumpyDocstring(
             cleandoc(NamedtupleSubclass.__doc__),
@@ -104,22 +104,22 @@ class TestInlineAttribute:
         )
         return str(rst)
 
-    def test_class_data_member(self):
+    def test_class_data_member(self) -> None:
         source = 'data member description:\n\n- a: b'
         actual = self._docstring(source).splitlines()
         assert actual == ['data member description:', '', '- a: b']
 
-    def test_class_data_member_inline(self):
+    def test_class_data_member_inline(self) -> None:
         source = f'CustomType: {self.inline_google_docstring}'
         actual = self._docstring(source).splitlines()
         assert actual == [self.inline_google_docstring, '', ':type: CustomType']
 
-    def test_class_data_member_inline_no_type(self):
+    def test_class_data_member_inline_no_type(self) -> None:
         source = self.inline_google_docstring
         actual = self._docstring(source).splitlines()
         assert actual == [source]
 
-    def test_class_data_member_inline_ref_in_type(self):
+    def test_class_data_member_inline_ref_in_type(self) -> None:
         source = f':py:class:`int`: {self.inline_google_docstring}'
         actual = self._docstring(source).splitlines()
         assert actual == [self.inline_google_docstring, '', ':type: :py:class:`int`']
@@ -411,7 +411,7 @@ class TestGoogleDocstring:
         ),
     ]
 
-    def test_sphinx_admonitions(self):
+    def test_sphinx_admonitions(self) -> None:
         admonition_map = {
             'Attention': 'attention',
             'Caution': 'caution',
@@ -449,7 +449,7 @@ class TestGoogleDocstring:
             expect = f'.. {admonition}:: this is a single line\n'
             assert str(actual) == expect
 
-    def test_docstrings(self):
+    def test_docstrings(self) -> None:
         config = Config(
             napoleon_use_param=False,
             napoleon_use_rtype=False,
@@ -460,7 +460,7 @@ class TestGoogleDocstring:
             expected = dedent(expected)
             assert str(actual) == expected
 
-    def test_parameters_with_class_reference(self):
+    def test_parameters_with_class_reference(self) -> None:
         docstring = """\
 Construct a new XBlock.
 
@@ -496,7 +496,7 @@ This class should only be used by runtimes.
 """
         assert str(actual) == expected
 
-    def test_attributes_with_class_reference(self):
+    def test_attributes_with_class_reference(self) -> None:
         docstring = """\
 Attributes:
     in_attr(:py:class:`numpy.ndarray`): super-dooper attribute
@@ -526,7 +526,7 @@ Attributes:
    :type: numpy.ndarray
 """
 
-    def test_attributes_with_use_ivar(self):
+    def test_attributes_with_use_ivar(self) -> None:
         docstring = """\
 Attributes:
     foo (int): blah blah
@@ -543,7 +543,7 @@ Attributes:
 """
         assert str(actual) == expected
 
-    def test_code_block_in_returns_section(self):
+    def test_code_block_in_returns_section(self) -> None:
         docstring = """
 Returns:
     foobar: foo::
@@ -563,7 +563,7 @@ Returns:
         actual = GoogleDocstring(docstring)
         assert str(actual) == expected
 
-    def test_colon_in_return_type(self):
+    def test_colon_in_return_type(self) -> None:
         docstring = """Example property.
 
 Returns:
@@ -579,7 +579,7 @@ Returns:
         actual = GoogleDocstring(docstring)
         assert str(actual) == expected
 
-    def test_xrefs_in_return_type(self):
+    def test_xrefs_in_return_type(self) -> None:
         docstring = """Example Function
 
 Returns:
@@ -595,7 +595,7 @@ Returns:
         actual = GoogleDocstring(docstring)
         assert str(actual) == expected
 
-    def test_raises_types(self):
+    def test_raises_types(self) -> None:
         docstrings = [
             (
                 """
@@ -803,7 +803,7 @@ Example Function
             actual = GoogleDocstring(docstring)
             assert str(actual) == expected
 
-    def test_kwargs_in_arguments(self):
+    def test_kwargs_in_arguments(self) -> None:
         docstring = """Allows to create attributes binded to this device.
 
 Some other paragraph.
@@ -834,7 +834,7 @@ Code sample for usage::
         actual = GoogleDocstring(docstring)
         assert str(actual) == expected
 
-    def test_section_header_formatting(self):
+    def test_section_header_formatting(self) -> None:
         docstrings = [
             (
                 """
@@ -899,7 +899,7 @@ Summary line
             actual = GoogleDocstring(docstring)
             assert str(actual) == expected
 
-    def test_list_in_parameter_description(self):
+    def test_list_in_parameter_description(self) -> None:
         docstring = """One line summary.
 
 Parameters:
@@ -1178,7 +1178,7 @@ Parameters:
         actual = GoogleDocstring(docstring, config)
         assert str(actual) == expected
 
-    def test_custom_generic_sections(self):
+    def test_custom_generic_sections(self) -> None:
         docstrings = (
             (
                 """\
@@ -1234,7 +1234,7 @@ Returns Style:
             actual = GoogleDocstring(docstring, test_config)
             assert str(actual) == expected
 
-    def test_noindex(self):
+    def test_noindex(self) -> None:
         docstring = """
 Attributes:
     arg
@@ -1267,7 +1267,7 @@ Methods:
         )
         assert str(actual) == expected
 
-    def test_keywords_with_types(self):
+    def test_keywords_with_types(self) -> None:
         docstring = """\
 Do as you please
 
@@ -1283,7 +1283,7 @@ Do as you please
 """
         assert str(actual) == expected
 
-    def test_pep526_annotations(self):
+    def test_pep526_annotations(self) -> None:
         # Test class attributes annotations
         config = Config(
             napoleon_attr_annotations=True,
@@ -1312,7 +1312,7 @@ Sample class with PEP 526 annotations and google docstring.
 """
         assert str(actual) == expected
 
-    def test_preprocess_types(self):
+    def test_preprocess_types(self) -> None:
         docstring = """\
 Do as you please
 
@@ -1562,7 +1562,7 @@ class TestNumpyDocstring:
         ),
     ]
 
-    def test_sphinx_admonitions(self):
+    def test_sphinx_admonitions(self) -> None:
         admonition_map = {
             'Attention': 'attention',
             'Caution': 'caution',
@@ -1605,7 +1605,7 @@ class TestNumpyDocstring:
             expect = f'.. {admonition}:: this is a single line\n'
             assert str(actual) == expect
 
-    def test_docstrings(self):
+    def test_docstrings(self) -> None:
         config = Config(
             napoleon_use_param=False,
             napoleon_use_rtype=False,
@@ -1617,7 +1617,7 @@ class TestNumpyDocstring:
             expected = dedent(expected)
             assert str(actual) == expected
 
-    def test_type_preprocessor(self):
+    def test_type_preprocessor(self) -> None:
         docstring = dedent("""
         Single line summary
 
@@ -1638,7 +1638,7 @@ class TestNumpyDocstring:
         """)
         assert str(actual) == expected
 
-    def test_parameters_with_class_reference(self):
+    def test_parameters_with_class_reference(self) -> None:
         docstring = """\
 Parameters
 ----------
@@ -1670,7 +1670,7 @@ param2 : :class:`MyClass <name.space.MyClass>` instance
 """
         assert str(actual) == expected
 
-    def test_multiple_parameters(self):
+    def test_multiple_parameters(self) -> None:
         docstring = """\
 Parameters
 ----------
@@ -1696,7 +1696,7 @@ x1, x2 : array_like
 """
         assert str(actual) == expected
 
-    def test_parameters_without_class_reference(self):
+    def test_parameters_without_class_reference(self) -> None:
         docstring = """\
 Parameters
 ----------
@@ -1719,7 +1719,7 @@ param1 : MyClass instance
 """
         assert str(actual) == expected
 
-    def test_see_also_refs(self):
+    def test_see_also_refs(self) -> None:
         docstring = """\
 numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
@@ -1799,7 +1799,7 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 """
         assert str(actual) == expected
 
-    def test_colon_in_return_type(self):
+    def test_colon_in_return_type(self) -> None:
         docstring = """
 Summary
 
@@ -1822,7 +1822,7 @@ Summary
 
         assert str(actual) == expected
 
-    def test_underscore_in_attribute(self):
+    def test_underscore_in_attribute(self) -> None:
         docstring = """
 Attributes
 ----------
@@ -1842,7 +1842,7 @@ arg_ : type
 
         assert str(actual) == expected
 
-    def test_underscore_in_attribute_strip_signature_backslash(self):
+    def test_underscore_in_attribute_strip_signature_backslash(self) -> None:
         docstring = """
 Attributes
 ----------
@@ -1863,7 +1863,7 @@ arg_ : type
 
         assert str(actual) == expected
 
-    def test_return_types(self):
+    def test_return_types(self) -> None:
         docstring = dedent("""
             Returns
             -------
@@ -1886,7 +1886,7 @@ arg_ : type
         actual = NumpyDocstring(docstring, config)
         assert str(actual) == expected
 
-    def test_yield_types(self):
+    def test_yield_types(self) -> None:
         docstring = dedent("""
             Example Function
 
@@ -1911,7 +1911,7 @@ arg_ : type
         actual = NumpyDocstring(docstring, config, app, 'method')
         assert str(actual) == expected
 
-    def test_raises_types(self):
+    def test_raises_types(self) -> None:
         docstrings = [
             (
                 """
@@ -2170,7 +2170,7 @@ Example Function
             actual = NumpyDocstring(docstring, config, app, 'method')
             assert str(actual) == expected
 
-    def test_xrefs_in_return_type(self):
+    def test_xrefs_in_return_type(self) -> None:
         docstring = """
 Example Function
 
@@ -2192,7 +2192,7 @@ Example Function
         actual = NumpyDocstring(docstring, config, app, 'method')
         assert str(actual) == expected
 
-    def test_section_header_underline_length(self):
+    def test_section_header_underline_length(self) -> None:
         docstrings = [
             (
                 """
@@ -2278,7 +2278,7 @@ body
             actual = NumpyDocstring(docstring)
             assert str(actual) == expected
 
-    def test_list_in_parameter_description(self):
+    def test_list_in_parameter_description(self) -> None:
         docstring = """One line summary.
 
 Parameters
@@ -2544,7 +2544,7 @@ definition_after_normal_text : int
         actual = NumpyDocstring(docstring, config)
         assert str(actual) == expected
 
-    def test_token_type(self):
+    def test_token_type(self) -> None:
         tokens = (
             ('1', 'literal'),
             ('-4.6', 'literal'),
@@ -2569,7 +2569,7 @@ definition_after_normal_text : int
             actual = _token_type(token)
             assert actual == expected
 
-    def test_tokenize_type_spec(self):
+    def test_tokenize_type_spec(self) -> None:
         specs = (
             'str',
             'defaultdict',
@@ -2610,7 +2610,7 @@ definition_after_normal_text : int
             actual = _tokenize_type_spec(spec)
             assert actual == expected
 
-    def test_recombine_set_tokens(self):
+    def test_recombine_set_tokens(self) -> None:
         tokens = (
             ['{', '1', ', ', '2', '}'],
             ['{', '"F"', ', ', '"C"', ', ', '"N"', '}', ', ', 'optional'],
@@ -2629,7 +2629,7 @@ definition_after_normal_text : int
             actual = _recombine_set_tokens(tokens_)
             assert actual == expected
 
-    def test_recombine_set_tokens_invalid(self):
+    def test_recombine_set_tokens_invalid(self) -> None:
         tokens = (
             ['{', '1', ', ', '2'],
             ['"F"', ', ', '"C"', ', ', '"N"', '}', ', ', 'optional'],
@@ -2645,7 +2645,7 @@ definition_after_normal_text : int
             actual = _recombine_set_tokens(tokens_)
             assert actual == expected
 
-    def test_convert_numpy_type_spec(self):
+    def test_convert_numpy_type_spec(self) -> None:
         translations = {
             'DataFrame': 'pandas.DataFrame',
         }
@@ -2680,7 +2680,7 @@ definition_after_normal_text : int
             actual = _convert_type_spec(spec, translations=translations)
             assert actual == expected
 
-    def test_parameter_types(self):
+    def test_parameter_types(self) -> None:
         docstring = dedent("""\
             Parameters
             ----------
@@ -2738,7 +2738,7 @@ definition_after_normal_text : int
         assert str(actual) == expected
 
     @pytest.mark.sphinx('html', testroot='root')
-    def test_token_type_invalid(self, app):
+    def test_token_type_invalid(self, app) -> None:
         tokens = (
             '{1, 2',
             '}',
@@ -2774,13 +2774,13 @@ definition_after_normal_text : int
             ('*x, **y', r'\*x, \*\*y'),
         ],
     )
-    def test_escape_args_and_kwargs(self, name, expected):
+    def test_escape_args_and_kwargs(self, name, expected) -> None:
         numpy_docstring = NumpyDocstring('')
         actual = numpy_docstring._escape_args_and_kwargs(name)
 
         assert actual == expected
 
-    def test_pep526_annotations(self):
+    def test_pep526_annotations(self) -> None:
         # test class attributes annotations
         config = Config(
             napoleon_attr_annotations=True,
@@ -2819,7 +2819,7 @@ Sample class with PEP 526 annotations and numpy docstring
         'autodoc_typehints_description_target': 'all',
     },
 )
-def test_napoleon_and_autodoc_typehints_description_all(app):
+def test_napoleon_and_autodoc_typehints_description_all(app) -> None:
     app.build()
     content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
     assert content == (
@@ -2848,7 +2848,7 @@ def test_napoleon_and_autodoc_typehints_description_all(app):
         'autodoc_typehints_description_target': 'documented_params',
     },
 )
-def test_napoleon_and_autodoc_typehints_description_documented_params(app):
+def test_napoleon_and_autodoc_typehints_description_documented_params(app) -> None:
     app.build()
     content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
     assert content == (
@@ -2867,7 +2867,7 @@ def test_napoleon_and_autodoc_typehints_description_documented_params(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-napoleon-paramtype', freshenv=True)
-def test_napoleon_keyword_and_paramtype(app, tmp_path):
+def test_napoleon_keyword_and_paramtype(app, tmp_path) -> None:
     inv_file = tmp_path / 'objects.inv'
     inv_file.write_bytes(
         b"""\

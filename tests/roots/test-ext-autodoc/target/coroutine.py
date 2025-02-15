@@ -3,17 +3,17 @@ from functools import wraps
 
 
 class AsyncClass:
-    async def do_coroutine(self):
+    async def do_coroutine(self) -> None:
         """A documented coroutine function"""
         attr_coro_result = await _other_coro_func()
 
     @classmethod
-    async def do_coroutine2(cls):
+    async def do_coroutine2(cls) -> None:
         """A documented coroutine classmethod"""
         pass
 
     @staticmethod
-    async def do_coroutine3():
+    async def do_coroutine3() -> None:
         """A documented coroutine staticmethod"""
         pass
 
@@ -22,7 +22,7 @@ class AsyncClass:
         yield
 
 
-async def _other_coro_func():  # NoQA: RUF029
+async def _other_coro_func() -> str:  # NoQA: RUF029
     return 'run'
 
 

@@ -37,7 +37,7 @@ def _setup_test(app_params):
     testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']},
 )
-def test_compile_all_catalogs(app):
+def test_compile_all_catalogs(app) -> None:
     app.builder.compile_all_catalogs()
 
     locale_dir = app.srcdir / 'locale'
@@ -55,7 +55,7 @@ def test_compile_all_catalogs(app):
     testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']},
 )
-def test_compile_specific_catalogs(app):
+def test_compile_specific_catalogs(app) -> None:
     locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
 
@@ -76,7 +76,7 @@ def test_compile_specific_catalogs(app):
     testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']},
 )
-def test_compile_update_catalogs(app):
+def test_compile_update_catalogs(app) -> None:
     app.builder.compile_update_catalogs()
 
     locale_dir = app.srcdir / 'locale'

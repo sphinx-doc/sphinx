@@ -9,12 +9,12 @@ from sphinx.missing_module4 import missing_name2
 
 
 @missing_name(int)
-def decorated_function():
+def decorated_function() -> None:
     """decorated_function docstring"""
     return None  # NoQA: RET501
 
 
-def func(arg: missing_module.Class):
+def func(arg: missing_module.Class) -> None:
     """a function takes mocked object as an argument"""
     pass
 
@@ -26,7 +26,7 @@ class TestAutodoc:
     Alias = missing_module2.Class
 
     @missing_name
-    def decorated_method(self):
+    def decorated_method(self) -> None:
         """TestAutodoc::decorated_method docstring"""
         return None  # NoQA: RET501
 

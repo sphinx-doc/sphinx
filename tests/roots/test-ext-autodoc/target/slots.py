@@ -14,7 +14,7 @@ class Bar:
     }
     __annotations__ = {'attr1': int}
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.attr2 = None  #: docstring of instance attr2
 
 

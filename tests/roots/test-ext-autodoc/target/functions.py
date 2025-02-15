@@ -1,11 +1,11 @@
 from functools import partial
 
 
-def func():
+def func() -> None:
     pass
 
 
-async def coroutinefunc():
+async def coroutinefunc() -> None:
     pass
 
 
@@ -20,5 +20,5 @@ builtin_func = print
 partial_builtin_func = partial(print)
 
 
-def slice_arg_func(arg: 'float64[:, :]'):  # NoQA: F821
+def slice_arg_func(arg: 'float64[:, :]') -> None:  # NoQA: F821
     pass

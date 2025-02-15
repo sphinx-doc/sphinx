@@ -10,7 +10,7 @@ from sphinx.util.inventory import InventoryFile, _InventoryItem
 
 
 @pytest.mark.sphinx('dirhtml', testroot='builder-dirhtml')
-def test_dirhtml(app):
+def test_dirhtml(app) -> None:
     app.build()
 
     assert (app.outdir / 'index.html').exists()

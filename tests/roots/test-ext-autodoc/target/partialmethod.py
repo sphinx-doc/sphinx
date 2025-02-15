@@ -7,7 +7,7 @@ class Cell:
     refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod
     """
 
-    def set_state(self, state):
+    def set_state(self, state) -> None:
         """Update state of cell to *state*."""
 
     #: Make a cell alive.

@@ -63,7 +63,7 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     confoverrides={'viewcode_line_numbers': True},
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_viewcode_linenos(app):
+def test_viewcode_linenos(app) -> None:
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
     app.build(force_all=True)
 
@@ -78,7 +78,7 @@ def test_viewcode_linenos(app):
     confoverrides={'viewcode_line_numbers': False},
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_viewcode(app):
+def test_viewcode(app) -> None:
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
     app.build(force_all=True)
 
@@ -88,7 +88,7 @@ def test_viewcode(app):
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_viewcode_epub_default(app):
+def test_viewcode_epub_default(app) -> None:
     shutil.rmtree(app.outdir)
     app.build(force_all=True)
 
@@ -104,7 +104,7 @@ def test_viewcode_epub_default(app):
     confoverrides={'viewcode_enable_epub': True},
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_viewcode_epub_enabled(app):
+def test_viewcode_epub_enabled(app) -> None:
     app.build(force_all=True)
 
     assert (app.outdir / '_modules/spam/mod1.xhtml').exists()
@@ -114,7 +114,7 @@ def test_viewcode_epub_enabled(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode', tags=['test_linkcode'])
-def test_linkcode(app):
+def test_linkcode(app) -> None:
     app.build(filenames=[app.srcdir / 'objects.rst'])
 
     stuff = (app.outdir / 'objects.html').read_text(encoding='utf8')
@@ -127,7 +127,7 @@ def test_linkcode(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode-find', freshenv=True)
-def test_local_source_files(app):
+def test_local_source_files(app) -> None:
     def find_source(app, modname):
         if modname == 'not_a_package':
             source = app.srcdir / 'not_a_package/__init__.py'
@@ -172,7 +172,7 @@ def test_local_source_files(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode-find-package', freshenv=True)
-def test_find_local_package_import_path(app, status, warning):
+def test_find_local_package_import_path(app, status, warning) -> None:
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 

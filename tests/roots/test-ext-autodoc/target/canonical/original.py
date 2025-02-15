@@ -1,7 +1,7 @@
 class Foo:
     """docstring"""
 
-    def meth(self):
+    def meth(self) -> None:
         """docstring"""
 
 

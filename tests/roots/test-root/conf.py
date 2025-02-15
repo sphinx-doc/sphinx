@@ -156,7 +156,7 @@ class ClassDirective(Directive):
         return [nodes.strong(text='from class: %s' % self.options['opt'])]
 
 
-def setup(app):
+def setup(app) -> None:
     import parsermod
 
     app.add_directive('clsdir', ClassDirective)

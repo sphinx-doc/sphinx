@@ -29,7 +29,7 @@ from sphinx.testing.util import assert_node
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyfunction(app):
+def test_pyfunction(app) -> None:
     text = (
         '.. py:function:: func1\n'
         '.. py:module:: example\n'
@@ -100,7 +100,7 @@ def test_pyfunction(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyfunction_signature(app):
+def test_pyfunction_signature(app) -> None:
     text = '.. py:function:: hello(name: str) -> str'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -147,7 +147,7 @@ def test_pyfunction_signature(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyfunction_signature_full(app):
+def test_pyfunction_signature_full(app) -> None:
     text = (
         '.. py:function:: hello(a: str, b = 1, *args: str, '
         'c: bool = True, d: tuple = (1, 2), **kwargs: str) -> str'
@@ -312,7 +312,7 @@ def test_pyfunction_signature_full(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyfunction_with_unary_operators(app):
+def test_pyfunction_with_unary_operators(app) -> None:
     text = '.. py:function:: menu(egg=+1, bacon=-1, sausage=~1, spam=not spam)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -358,7 +358,7 @@ def test_pyfunction_with_unary_operators(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyfunction_with_binary_operators(app):
+def test_pyfunction_with_binary_operators(app) -> None:
     text = '.. py:function:: menu(spam=2**64)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -378,7 +378,7 @@ def test_pyfunction_with_binary_operators(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyfunction_with_number_literals(app):
+def test_pyfunction_with_number_literals(app) -> None:
     text = '.. py:function:: hello(age=0x10, height=1_6_0)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -408,7 +408,7 @@ def test_pyfunction_with_number_literals(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyfunction_with_union_type_operator(app):
+def test_pyfunction_with_union_type_operator(app) -> None:
     text = '.. py:function:: hello(age: int | None)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -438,7 +438,7 @@ def test_pyfunction_with_union_type_operator(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_optional_pyfunction_signature(app):
+def test_optional_pyfunction_signature(app) -> None:
     text = '.. py:function:: compile(source [, filename [, symbol]]) -> ast object'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -491,7 +491,7 @@ def test_optional_pyfunction_signature(app):
         'python_maximum_signature_line_length': len('hello(name: str) -> str'),
     },
 )
-def test_pyfunction_signature_with_python_maximum_signature_line_length_equal(app):
+def test_pyfunction_signature_with_python_maximum_signature_line_length_equal(app) -> None:
     text = '.. py:function:: hello(name: str) -> str'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -547,7 +547,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_equal(ap
 )
 def test_pyfunction_signature_with_python_maximum_signature_line_length_force_single(
     app,
-):
+) -> None:
     text = '.. py:function:: hello(names: str) -> str\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -601,7 +601,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_force_si
         'python_maximum_signature_line_length': len('hello(name: str) -> str'),
     },
 )
-def test_pyfunction_signature_with_python_maximum_signature_line_length_break(app):
+def test_pyfunction_signature_with_python_maximum_signature_line_length_break(app) -> None:
     text = '.. py:function:: hello(names: str) -> str'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -655,7 +655,7 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length_break(ap
         'maximum_signature_line_length': len('hello(name: str) -> str'),
     },
 )
-def test_pyfunction_signature_with_maximum_signature_line_length_equal(app):
+def test_pyfunction_signature_with_maximum_signature_line_length_equal(app) -> None:
     text = '.. py:function:: hello(name: str) -> str'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -709,7 +709,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_equal(app):
         'maximum_signature_line_length': len('hello(name: str) -> str'),
     },
 )
-def test_pyfunction_signature_with_maximum_signature_line_length_force_single(app):
+def test_pyfunction_signature_with_maximum_signature_line_length_force_single(app) -> None:
     text = '.. py:function:: hello(names: str) -> str\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -763,7 +763,7 @@ def test_pyfunction_signature_with_maximum_signature_line_length_force_single(ap
         'maximum_signature_line_length': len('hello(name: str) -> str'),
     },
 )
-def test_pyfunction_signature_with_maximum_signature_line_length_break(app):
+def test_pyfunction_signature_with_maximum_signature_line_length_break(app) -> None:
     text = '.. py:function:: hello(names: str) -> str'
     doctree = restructuredtext.parse(app, text)
     assert_node(

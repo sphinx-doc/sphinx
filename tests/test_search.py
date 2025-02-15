@@ -90,7 +90,7 @@ test that non-comments are indexed: fermion
 
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode')
-def test_objects_are_escaped(app):
+def test_objects_are_escaped(app) -> None:
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
     for item in index.get('objects').get(''):
@@ -101,7 +101,7 @@ def test_objects_are_escaped(app):
 
 
 @pytest.mark.sphinx('html', testroot='search')
-def test_meta_keys_are_handled_for_language_en(app):
+def test_meta_keys_are_handled_for_language_en(app) -> None:
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
@@ -119,7 +119,7 @@ def test_meta_keys_are_handled_for_language_en(app):
     confoverrides={'html_search_language': 'de'},
     freshenv=True,
 )
-def test_meta_keys_are_handled_for_language_de(app):
+def test_meta_keys_are_handled_for_language_de(app) -> None:
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
@@ -132,14 +132,14 @@ def test_meta_keys_are_handled_for_language_de(app):
 
 
 @pytest.mark.sphinx('html', testroot='search')
-def test_stemmer_does_not_remove_short_words(app):
+def test_stemmer_does_not_remove_short_words(app) -> None:
     app.build(force_all=True)
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     assert 'bat' in searchindex
 
 
 @pytest.mark.sphinx('html', testroot='search')
-def test_stemmer(app):
+def test_stemmer(app) -> None:
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
@@ -148,7 +148,7 @@ def test_stemmer(app):
 
 
 @pytest.mark.sphinx('html', testroot='search')
-def test_term_in_heading_and_section(app):
+def test_term_in_heading_and_section(app) -> None:
     app.build(force_all=True)
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     # if search term is in the title of one doc and in the text of another
@@ -159,7 +159,7 @@ def test_term_in_heading_and_section(app):
 
 
 @pytest.mark.sphinx('html', testroot='search')
-def test_term_in_raw_directive(app):
+def test_term_in_raw_directive(app) -> None:
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'raw')
@@ -167,7 +167,7 @@ def test_term_in_raw_directive(app):
     assert not is_registered_term(searchindex, 'latex_keyword')
 
 
-def test_IndexBuilder():
+def test_IndexBuilder() -> None:
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', category=DeprecationWarning)
         # DeprecationWarning: The frontend.OptionParser class will be replaced
@@ -362,7 +362,7 @@ def test_IndexBuilder():
     }
 
 
-def test_IndexBuilder_lookup():
+def test_IndexBuilder_lookup() -> None:
     env = DummyEnvironment('1.0', {})
 
     # zh
@@ -380,7 +380,7 @@ def test_IndexBuilder_lookup():
     confoverrides={'html_search_language': 'zh'},
     srcdir='search_zh',
 )
-def test_search_index_gen_zh(app):
+def test_search_index_gen_zh(app) -> None:
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert 'chinesetest ' not in index['terms']
@@ -394,7 +394,7 @@ def test_search_index_gen_zh(app):
     testroot='search',
     freshenv=True,
 )
-def test_nosearch(app):
+def test_nosearch(app) -> None:
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
@@ -414,14 +414,14 @@ def test_nosearch(app):
     parallel=3,
     freshenv=True,
 )
-def test_parallel(app):
+def test_parallel(app) -> None:
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
 
 
 @pytest.mark.sphinx('html', testroot='search')
-def test_search_index_is_deterministic(app):
+def test_search_index_is_deterministic(app) -> None:
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
     # Pretty print the index. Only shown by pytest on failure.
@@ -466,7 +466,7 @@ def assert_is_sorted(
 
 
 @pytest.mark.parametrize('directory', JAVASCRIPT_TEST_ROOTS)
-def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
+def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory) -> None:
     app = make_app(
         'html',
         srcdir=directory,

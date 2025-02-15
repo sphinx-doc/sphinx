@@ -13,7 +13,7 @@ from sphinx.errors import ThemeError
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_html_assets(app):
+def test_html_assets(app) -> None:
     app.build(force_all=True)
 
     # exclude_path and its family
@@ -64,7 +64,7 @@ def test_html_assets(app):
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_assets_order(app, monkeypatch):
+def test_assets_order(app, monkeypatch) -> None:
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 
     app.add_css_file('normal.css')
@@ -108,7 +108,7 @@ def test_assets_order(app, monkeypatch):
 
 
 @pytest.mark.sphinx('html', testroot='html_file_checksum')
-def test_file_checksum(app):
+def test_file_checksum(app) -> None:
     app.add_css_file('stylesheet-a.css')
     app.add_css_file('stylesheet-b.css')
     app.add_css_file('https://example.com/custom.css')
@@ -138,7 +138,7 @@ def test_file_checksum(app):
     assert '<script src="https://example.com/script.js"></script>' in content
 
 
-def test_file_checksum_query_string():
+def test_file_checksum_query_string() -> None:
     with pytest.raises(
         ThemeError,
         match='Local asset file paths must not contain query strings',
@@ -165,7 +165,7 @@ def test_file_checksum_query_string():
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_javscript_loading_method(app):
+def test_javscript_loading_method(app) -> None:
     app.add_js_file('normal.js')
     app.add_js_file('early.js', loading_method='async')
     app.add_js_file('late.js', loading_method='defer')

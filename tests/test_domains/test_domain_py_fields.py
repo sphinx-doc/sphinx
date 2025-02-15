@@ -23,7 +23,7 @@ from sphinx.testing.util import assert_node
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_info_field_list(app):
+def test_info_field_list(app) -> None:
     text = (
         '.. py:module:: example\n'
         '.. py:class:: Class\n'
@@ -202,7 +202,7 @@ def test_info_field_list(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_info_field_list_piped_type(app):
+def test_info_field_list_piped_type(app) -> None:
     text = (
         '.. py:module:: example\n'
         '.. py:class:: Class\n'
@@ -279,7 +279,7 @@ def test_info_field_list_piped_type(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_info_field_list_Literal(app):
+def test_info_field_list_Literal(app) -> None:
     text = (
         '.. py:module:: example\n'
         '.. py:class:: Class\n'
@@ -353,7 +353,7 @@ def test_info_field_list_Literal(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_info_field_list_var(app):
+def test_info_field_list_var(app) -> None:
     text = '.. py:class:: Class\n\n   :var int attr: blah blah\n'
     doctree = restructuredtext.parse(app, text)
 
@@ -392,7 +392,7 @@ def test_info_field_list_var(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_info_field_list_napoleon_deliminator_of(app):
+def test_info_field_list_napoleon_deliminator_of(app) -> None:
     text = (
         '.. py:module:: example\n'
         '.. py:class:: Class\n'
@@ -438,7 +438,7 @@ def test_info_field_list_napoleon_deliminator_of(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_info_field_list_napoleon_deliminator_or(app):
+def test_info_field_list_napoleon_deliminator_or(app) -> None:
     text = (
         '.. py:module:: example\n'
         '.. py:class:: Class\n'
@@ -484,7 +484,7 @@ def test_info_field_list_napoleon_deliminator_or(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_type_field(app):
+def test_type_field(app) -> None:
     text = (
         '.. py:data:: var1\n'
         '   :type: .int\n'

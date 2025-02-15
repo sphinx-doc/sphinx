@@ -58,7 +58,7 @@ class ConfPseudoXMLTranslator(XMLTranslator):
     pass
 
 
-def setup(app):
+def setup(app) -> None:
     app.set_translator('html', ConfHTMLTranslator)
     app.set_translator('dirhtml', ConfDirHTMLTranslator)
     app.set_translator('singlehtml', ConfSingleHTMLTranslator)

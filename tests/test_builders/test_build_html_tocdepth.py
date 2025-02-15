@@ -68,7 +68,7 @@ from tests.test_builders.xpath_util import check_xpath
 )
 @pytest.mark.sphinx('html', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
-def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
+def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found) -> None:
     app.build()
     # issue #1251
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
@@ -111,6 +111,6 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
 )
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
-def test_tocdepth_singlehtml(app, cached_etree_parse, expect):
+def test_tocdepth_singlehtml(app, cached_etree_parse, expect) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)

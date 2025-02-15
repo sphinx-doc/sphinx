@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.mark.sphinx('html', testroot='trim_doctest_flags')
-def test_trim_doctest_flags_html(app):
+def test_trim_doctest_flags_html(app) -> None:
     app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -24,7 +24,7 @@ def test_trim_doctest_flags_html(app):
     testroot='trim_doctest_flags',
     confoverrides={'trim_doctest_flags': False},
 )
-def test_trim_doctest_flags_disabled(app):
+def test_trim_doctest_flags_disabled(app) -> None:
     app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -38,7 +38,7 @@ def test_trim_doctest_flags_disabled(app):
 
 
 @pytest.mark.sphinx('latex', testroot='trim_doctest_flags')
-def test_trim_doctest_flags_latex(app):
+def test_trim_doctest_flags_latex(app) -> None:
     app.build()
 
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')

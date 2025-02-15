@@ -491,14 +491,14 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
     tags=['testtag'],
     confoverrides={'html_context.hckey_co': 'hcval_co'},
 )
-def test_html5_output(app, cached_etree_parse, fname, path, check):
+def test_html5_output(app, cached_etree_parse, fname, path, check) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
 
 
 @pytest.mark.sphinx('html', testroot='markup-rubric')
-def test_html5_rubric(app):
-    def insert_invalid_rubric_heading_level(app, doctree, docname):
+def test_html5_rubric(app) -> None:
+    def insert_invalid_rubric_heading_level(app, doctree, docname) -> None:
         if docname != 'index':
             return
         new_node = nodes.rubric('', 'INSERTED RUBRIC')

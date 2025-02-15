@@ -77,7 +77,7 @@ DOMAINS = [
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+) -> None:
     text = f'.. {directive}:: {sig_f}\n   :no-typesetting:\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, nodes.target))
@@ -90,7 +90,7 @@ def test_object_description_no_typesetting(
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_twice(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+) -> None:
     text = (
         f'.. {directive}:: {sig_f}\n'
         f'   :no-typesetting:\n'
@@ -109,7 +109,7 @@ def test_object_description_no_typesetting_twice(
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_noindex_orig(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+) -> None:
     if not no_index:
         pytest.skip(f'{directive} does not support :no-index: option')
     text = f'.. {directive}:: {sig_f}\n   :no-index:\n.. {directive}:: {sig_g}\n'
@@ -125,7 +125,7 @@ def test_object_description_no_typesetting_noindex_orig(
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_noindex(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+) -> None:
     if not no_index:
         pytest.skip(f'{directive} does not support :no-index: option')
     text = (
@@ -148,7 +148,7 @@ def test_object_description_no_typesetting_noindex(
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_no_index_entry(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+) -> None:
     if not no_index_entry:
         pytest.skip(f'{directive} does not support :no-index-entry: option')
     text = (
@@ -171,7 +171,7 @@ def test_object_description_no_typesetting_no_index_entry(
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_code(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+) -> None:
     text = (
         f'.. {directive}:: {sig_f}\n'
         f'   :no-typesetting:\n'
@@ -202,7 +202,7 @@ def test_object_description_no_typesetting_code(
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_heading(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+) -> None:
     text = (
         f'.. {directive}:: {sig_f}\n'
         f'   :no-typesetting:\n'

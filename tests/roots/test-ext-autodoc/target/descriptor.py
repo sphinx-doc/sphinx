@@ -1,7 +1,7 @@
 class CustomDataDescriptor:
     """Descriptor class docstring."""
 
-    def __init__(self, doc):
+    def __init__(self, doc) -> None:
         self.__doc__ = doc
 
     def __get__(self, obj, type=None):
@@ -9,7 +9,7 @@ class CustomDataDescriptor:
             return self
         return 42
 
-    def meth(self):
+    def meth(self) -> str:
         """Function."""
         return 'The Answer'
 
@@ -28,5 +28,5 @@ class Class:
     descr = CustomDataDescriptor('Descriptor instance docstring.')
 
     @property
-    def prop(self):
+    def prop(self) -> None:
         """Property."""

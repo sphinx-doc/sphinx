@@ -29,7 +29,7 @@ move-module-targets
     ],
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_move_module_targets(tmp_path, content):
+def test_move_module_targets(tmp_path, content) -> None:
     # Test for the MoveModuleTargets transform
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').write_text(content, encoding='utf-8')
@@ -48,7 +48,7 @@ def test_move_module_targets(tmp_path, content):
 
 
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_move_module_targets_no_section(tmp_path):
+def test_move_module_targets_no_section(tmp_path) -> None:
     # Test for the MoveModuleTargets transform
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').write_text(
@@ -63,7 +63,7 @@ def test_move_module_targets_no_section(tmp_path):
 
 
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_move_module_targets_disabled(tmp_path):
+def test_move_module_targets_disabled(tmp_path) -> None:
     # Test for the MoveModuleTargets transform
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').write_text(CONTENT_PY, encoding='utf-8')

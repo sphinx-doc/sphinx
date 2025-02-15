@@ -10,7 +10,7 @@ from sphinx.testing import restructuredtext
 
 
 @pytest.mark.sphinx('text', testroot='ext-ifconfig')
-def test_ifconfig(app):
+def test_ifconfig(app) -> None:
     app.build(force_all=True)
     result = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert 'spam' in result
@@ -18,7 +18,7 @@ def test_ifconfig(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_ifconfig_content_line_number(app):
+def test_ifconfig_content_line_number(app) -> None:
     app.setup_extension('sphinx.ext.ifconfig')
     text = '.. ifconfig:: confval1\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)

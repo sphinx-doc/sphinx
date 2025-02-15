@@ -15,11 +15,11 @@ class MemberType:
         self.__data = value
         return self
 
-    def __str__(self):
+    def __str__(self) -> str:
         """inherited"""
         return self.__data
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.__data)
 
     def __reduce__(self):
@@ -30,7 +30,7 @@ class MemberType:
 
     @final
     @property
-    def dtype(self):
+    def dtype(self) -> str:
         """docstring"""
         return 'str'
 
@@ -49,11 +49,11 @@ class EnumCls(enum.Enum):
     """doc for val3"""
     val4 = 34
 
-    def say_hello(self):
+    def say_hello(self) -> None:
         """a method says hello to you."""
 
     @classmethod
-    def say_goodbye(cls):
+    def say_goodbye(cls) -> None:
         """a classmethod says good-bye to you."""
 
 
@@ -62,11 +62,11 @@ class EnumClassWithDataType(MemberType, enum.Enum):
 
     x = 'x'
 
-    def say_hello(self):
+    def say_hello(self) -> None:
         """docstring"""
 
     @classmethod
-    def say_goodbye(cls):
+    def say_goodbye(cls) -> None:
         """docstring"""
 
 
@@ -78,11 +78,11 @@ class ToUpperCase:  # not inheriting from enum.Enum
 
 
 class Greeter:
-    def say_hello(self):
+    def say_hello(self) -> None:
         """inherited"""
 
     @classmethod
-    def say_goodbye(cls):
+    def say_goodbye(cls) -> None:
         """inherited"""
 
 
@@ -91,11 +91,11 @@ class EnumClassWithMixinType(ToUpperCase, enum.Enum):
 
     x = 'x'
 
-    def say_hello(self):
+    def say_hello(self) -> None:
         """docstring"""
 
     @classmethod
-    def say_goodbye(cls):
+    def say_goodbye(cls) -> None:
         """docstring"""
 
 
@@ -106,7 +106,7 @@ class EnumClassWithMixinTypeInherit(Greeter, ToUpperCase, enum.Enum):
 
 
 class Overridden(enum.Enum):
-    def override(self):
+    def override(self) -> int:
         """inherited"""
         return 1
 
@@ -116,7 +116,7 @@ class EnumClassWithMixinEnumType(Greeter, Overridden, enum.Enum):
 
     x = 'x'
 
-    def override(self):
+    def override(self) -> int:
         """overridden"""
         return 2
 
@@ -126,18 +126,18 @@ class EnumClassWithMixinAndDataType(Greeter, ToUpperCase, MemberType, enum.Enum)
 
     x = 'x'
 
-    def say_hello(self):
+    def say_hello(self) -> None:
         """overridden"""
 
     @classmethod
-    def say_goodbye(cls):
+    def say_goodbye(cls) -> None:
         """overridden"""
 
-    def isupper(self):
+    def isupper(self) -> bool:
         """overridden"""
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         """overridden"""
         return super().__str__()
 
@@ -151,11 +151,11 @@ class EnumClassWithParentEnum(ToUpperCase, MemberType, _ParentEnum, enum.Enum):
 
     x = 'x'
 
-    def isupper(self):
+    def isupper(self) -> bool:
         """overridden"""
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         """overridden"""
         return super().__str__()
 

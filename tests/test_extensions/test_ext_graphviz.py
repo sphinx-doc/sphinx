@@ -12,7 +12,7 @@ from sphinx.ext.graphviz import ClickableMapDefinition
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_png_html(app):
+def test_graphviz_png_html(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -56,7 +56,7 @@ def test_graphviz_png_html(app):
     confoverrides={'graphviz_output_format': 'svg'},
 )
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_svg_html(app):
+def test_graphviz_svg_html(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -123,7 +123,7 @@ def test_graphviz_svg_html(app):
 
 @pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_latex(app):
+def test_graphviz_latex(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -151,7 +151,7 @@ def test_graphviz_latex(app):
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_i18n(app):
+def test_graphviz_i18n(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -159,7 +159,7 @@ def test_graphviz_i18n(app):
     assert re.search(html, content, re.MULTILINE)
 
 
-def test_graphviz_parse_mapfile():
+def test_graphviz_parse_mapfile() -> None:
     # empty graph
     code = '# digraph {\n# }\n'
     content = '<map id="%3" name="%3">\n</map>'

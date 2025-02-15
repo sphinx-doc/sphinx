@@ -10,11 +10,11 @@ class PublicBar:
     pass
 
 
-def foo():
+def foo() -> None:
     """Foo function"""
     pass
 
 
-def public_foo():
+def public_foo() -> None:
     """Public Foo function"""
     pass

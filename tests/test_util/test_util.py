@@ -30,7 +30,7 @@ from sphinx.util.osutil import (
 )
 
 
-def test_ensuredir(tmp_path):
+def test_ensuredir(tmp_path) -> None:
     # Does not raise an exception for an existing directory.
     ensuredir(tmp_path)
 
@@ -39,7 +39,7 @@ def test_ensuredir(tmp_path):
     assert path.is_dir()
 
 
-def test_exported_attributes():
+def test_exported_attributes() -> None:
     # RemovedInSphinx90Warning
     with pytest.warns(
         RemovedInSphinx90Warning,

@@ -9,8 +9,8 @@ class Class:
     """docstring"""
 
     @final
-    def meth1(self):
+    def meth1(self) -> None:
         """docstring"""
 
-    def meth2(self):
+    def meth2(self) -> None:
         """docstring"""

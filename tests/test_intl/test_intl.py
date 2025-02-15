@@ -80,7 +80,7 @@ def elem_getref(elem):
     return elem.attrib.get('refid') or elem.attrib.get('refuri')
 
 
-def assert_elem(elem, texts=None, refs=None, names=None):
+def assert_elem(elem, texts=None, refs=None, names=None) -> None:
     if texts is not None:
         _texts = elem_gettexts(elem)
         assert _texts == texts
@@ -92,7 +92,7 @@ def assert_elem(elem, texts=None, refs=None, names=None):
         assert _names == names
 
 
-def assert_count(expected_expr, result, count):
+def assert_count(expected_expr, result, count) -> None:
     find_pair = (expected_expr, result)
     assert len(re.findall(*find_pair)) == count, find_pair
 
@@ -100,7 +100,7 @@ def assert_count(expected_expr, result, count):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_emit_warnings(app):
+def test_text_emit_warnings(app) -> None:
     app.build()
     # test warnings in translation
     warnings = getwarning(app.warning)
@@ -116,7 +116,7 @@ def test_text_emit_warnings(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_warning_node(app):
+def test_text_warning_node(app) -> None:
     app.build()
     # test warnings in translation
     result = (app.outdir / 'warnings.txt').read_text(encoding='utf8')
@@ -131,7 +131,7 @@ def test_text_warning_node(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_title_underline(app):
+def test_text_title_underline(app) -> None:
     app.build()
     # --- simple translation; check title underlines
     result = (app.outdir / 'bom.txt').read_text(encoding='utf8')
@@ -146,7 +146,7 @@ def test_text_title_underline(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_subdirs(app):
+def test_text_subdirs(app) -> None:
     app.build()
     # --- check translation in subdirs
     result = (app.outdir / 'subdir' / 'index.txt').read_text(encoding='utf8')
@@ -156,7 +156,7 @@ def test_text_subdirs(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_inconsistency_warnings(app):
+def test_text_inconsistency_warnings(app) -> None:
     app.build()
     # --- check warnings for inconsistency in number of references
     result = (app.outdir / 'refs_inconsistency.txt').read_text(encoding='utf8')
@@ -224,7 +224,7 @@ def test_text_inconsistency_warnings(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_noqa(app):
+def test_noqa(app) -> None:
     app.build()
     result = (app.outdir / 'noqa.txt').read_text(encoding='utf8')
     expect = r"""FIRST SECTION
@@ -250,7 +250,7 @@ TO TEST BARE noqa.
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_literalblock_warnings(app):
+def test_text_literalblock_warnings(app) -> None:
     app.build()
     # --- check warning for literal block
     result = (app.outdir / 'literalblock.txt').read_text(encoding='utf8')
@@ -277,7 +277,7 @@ def test_text_literalblock_warnings(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_definition_terms(app):
+def test_text_definition_terms(app) -> None:
     app.build()
     # --- definition terms: regression test for #975, #2198, #2205
     result = (app.outdir / 'definition_terms.txt').read_text(encoding='utf8')
@@ -299,7 +299,7 @@ def test_text_definition_terms(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_glossary_term(app):
+def test_text_glossary_term(app) -> None:
     app.build()
     # --- glossary terms: regression test for #1090
     result = (app.outdir / 'glossary_terms.txt').read_text(encoding='utf8')
@@ -334,7 +334,7 @@ VVV
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_glossary_term_inconsistencies(app):
+def test_text_glossary_term_inconsistencies(app) -> None:
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
     result = (app.outdir / 'glossary_terms_inconsistency.txt').read_text(
@@ -370,7 +370,7 @@ def test_text_glossary_term_inconsistencies(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_section(app):
+def test_gettext_section(app) -> None:
     app.build()
     # --- section
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
@@ -383,7 +383,7 @@ def test_gettext_section(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_section(app):
+def test_text_section(app) -> None:
     app.build()
     # --- section
     result = (app.outdir / 'section.txt').read_text(encoding='utf8')
@@ -395,7 +395,7 @@ def test_text_section(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_seealso(app):
+def test_text_seealso(app) -> None:
     app.build()
     # --- seealso
     result = (app.outdir / 'seealso.txt').read_text(encoding='utf8')
@@ -414,7 +414,7 @@ def test_text_seealso(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_figure_captions(app):
+def test_text_figure_captions(app) -> None:
     app.build()
     # --- figure captions: regression test for #940
     result = (app.outdir / 'figure.txt').read_text(encoding='utf8')
@@ -460,7 +460,7 @@ def test_text_figure_captions(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_rubric(app):
+def test_text_rubric(app) -> None:
     app.build()
     # --- rubric: regression test for pull request #190
     result = (app.outdir / 'rubric.txt').read_text(encoding='utf8')
@@ -480,7 +480,7 @@ def test_text_rubric(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_docfields(app):
+def test_text_docfields(app) -> None:
     app.build()
     # --- docfields
     result = (app.outdir / 'docfields.txt').read_text(encoding='utf8')
@@ -511,7 +511,7 @@ def test_text_docfields(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_admonitions(app):
+def test_text_admonitions(app) -> None:
     app.build()
     # --- admonitions
     # #1206: gettext did not translate admonition directive's title
@@ -540,7 +540,7 @@ def test_text_admonitions(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_toctree(app):
+def test_gettext_toctree(app) -> None:
     app.build()
     # --- toctree (index.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'index.po')
@@ -559,7 +559,7 @@ def test_gettext_toctree(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_table(app):
+def test_gettext_table(app) -> None:
     app.build()
     # --- toctree
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
@@ -572,7 +572,7 @@ def test_gettext_table(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_table(app):
+def test_text_table(app) -> None:
     app.build()
     # --- toctree
     result = (app.outdir / 'table.txt').read_text(encoding='utf8')
@@ -584,7 +584,7 @@ def test_text_table(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_toctree(app):
+def test_text_toctree(app) -> None:
     app.build()
     # --- toctree (index.rst)
     # Note: index.rst contains contents that is not shown in text.
@@ -601,7 +601,7 @@ def test_text_toctree(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_topic(app):
+def test_gettext_topic(app) -> None:
     app.build()
     # --- topic
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
@@ -614,7 +614,7 @@ def test_gettext_topic(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_topic(app):
+def test_text_topic(app) -> None:
     app.build()
     # --- topic
     result = (app.outdir / 'topic.txt').read_text(encoding='utf8')
@@ -626,7 +626,7 @@ def test_text_topic(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_definition_terms(app):
+def test_gettext_definition_terms(app) -> None:
     app.build()
     # --- definition terms: regression test for #2198, #2205
     expect = read_po(
@@ -641,7 +641,7 @@ def test_gettext_definition_terms(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_glossary_terms(app):
+def test_gettext_glossary_terms(app) -> None:
     app.build()
     # --- glossary terms: regression test for #1090
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms.po')
@@ -656,7 +656,7 @@ def test_gettext_glossary_terms(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_glossary_term_inconsistencies(app):
+def test_gettext_glossary_term_inconsistencies(app) -> None:
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
     expect = read_po(
@@ -671,7 +671,7 @@ def test_gettext_glossary_term_inconsistencies(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_literalblock(app):
+def test_gettext_literalblock(app) -> None:
     app.build()
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'literalblock.po')
@@ -688,7 +688,7 @@ def test_gettext_literalblock(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_buildr_ignores_only_directive(app):
+def test_gettext_buildr_ignores_only_directive(app) -> None:
     app.build()
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'only.po')
@@ -700,7 +700,7 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl', copy_test_root=True)
-def test_node_translated_attribute(app):
+def test_node_translated_attribute(app) -> None:
     app.build(filenames=[app.srcdir / 'translation_progress.txt'])
 
     doctree = app.env.get_doctree('translation_progress')
@@ -714,7 +714,7 @@ def test_node_translated_attribute(app):
 
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl', copy_test_root=True)
-def test_translation_progress_substitution(app):
+def test_translation_progress_substitution(app) -> None:
     app.build(filenames=[app.srcdir / 'translation_progress.txt'])
 
     doctree = app.env.get_doctree('translation_progress')
@@ -734,7 +734,7 @@ def test_translation_progress_substitution(app):
     },
     copy_test_root=True,
 )
-def test_translation_progress_classes_true(app):
+def test_translation_progress_classes_true(app) -> None:
     app.build(filenames=[app.srcdir / 'translation_progress.txt'])
 
     doctree = app.env.get_doctree('translation_progress')
@@ -833,7 +833,7 @@ def mock_time_and_i18n() -> Iterator[tuple[pytest.MonkeyPatch, _MockClock]]:
     # save the 'original' definition
     catalog_write_mo = CatalogInfo.write_mo
 
-    def mock_write_mo(self, locale, use_fuzzy=False):
+    def mock_write_mo(self, locale, use_fuzzy=False) -> None:
         catalog_write_mo(self, locale, use_fuzzy)
         # ensure that the .mo file being written has a correct fake timestamp
         _set_mtime_ns(self.mo_path, time.time_ns())
@@ -865,7 +865,7 @@ def mock_time_and_i18n() -> Iterator[tuple[pytest.MonkeyPatch, _MockClock]]:
     freshenv=True,
     copy_test_root=True,
 )
-def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
+def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params) -> None:
     mock, clock = mock_time_and_i18n
     assert os.name == 'posix' or clock.time() == 0
 
@@ -928,7 +928,7 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
     freshenv=True,
     copy_test_root=True,
 )
-def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
+def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app) -> None:
     mock, clock = mock_time_and_i18n
     assert os.name == 'posix' or clock.time() == 0
 
@@ -974,7 +974,7 @@ def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_meta(app):
+def test_html_meta(app) -> None:
     app.build()
     # --- test for meta
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -993,7 +993,7 @@ def test_html_meta(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_footnotes(app):
+def test_html_footnotes(app) -> None:
     app.build()
     # --- test for #955 cant-build-html-with-footnotes-when-using
     # expect no error by build
@@ -1003,7 +1003,7 @@ def test_html_footnotes(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_undefined_refs(app):
+def test_html_undefined_refs(app) -> None:
     app.build()
     # --- links to undefined reference
     result = (app.outdir / 'refs_inconsistency.html').read_text(encoding='utf8')
@@ -1027,17 +1027,17 @@ def test_html_undefined_refs(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_index_entries(app):
+def test_html_index_entries(app) -> None:
     app.build()
     # --- index entries: regression test for #976
     result = (app.outdir / 'genindex.html').read_text(encoding='utf8')
 
-    def wrap(tag, keyword):
+    def wrap(tag, keyword) -> str:
         start_tag = '<%s[^>]*>' % tag
         end_tag = '</%s>' % tag
         return rf'{start_tag}\s*{keyword}\s*{end_tag}'
 
-    def wrap_nest(parenttag, childtag, keyword):
+    def wrap_nest(parenttag, childtag, keyword) -> str:
         start_tag1 = '<%s[^>]*>' % parenttag
         start_tag2 = '<%s[^>]*>' % childtag
         return rf'{start_tag1}\s*{keyword}\s*{start_tag2}'
@@ -1071,7 +1071,7 @@ def test_html_index_entries(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_versionchanges(app):
+def test_html_versionchanges(app) -> None:
     app.build()
     # --- versionchanges
     result = (app.outdir / 'versionchange.html').read_text(encoding='utf8')
@@ -1116,7 +1116,7 @@ def test_html_versionchanges(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_docfields(app):
+def test_html_docfields(app) -> None:
     app.build()
     # --- docfields
     # expect no error by build
@@ -1126,7 +1126,7 @@ def test_html_docfields(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_template(app):
+def test_html_template(app) -> None:
     app.build()
     # --- gettext template
     result = (app.outdir / 'contents.html').read_text(encoding='utf8')
@@ -1137,7 +1137,7 @@ def test_html_template(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_rebuild_mo(app):
+def test_html_rebuild_mo(app) -> None:
     app.build()
     # --- rebuild by .mo mtime
     app.build()
@@ -1156,7 +1156,7 @@ def test_html_rebuild_mo(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_footnotes(app):
+def test_xml_footnotes(app) -> None:
     app.build()
     # --- footnotes: regression test for fix #955, #1176
     et = etree_parse(app.outdir / 'footnote.xml')
@@ -1205,7 +1205,7 @@ def test_xml_footnotes(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_footnote_backlinks(app):
+def test_xml_footnote_backlinks(app) -> None:
     app.build()
     # --- footnote backlinks: i18n test for #1058
     et = etree_parse(app.outdir / 'footnote.xml')
@@ -1225,7 +1225,7 @@ def test_xml_footnote_backlinks(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_refs_in_python_domain(app):
+def test_xml_refs_in_python_domain(app) -> None:
     app.build()
     # --- refs in the Python domain
     et = etree_parse(app.outdir / 'refs_python_domain.xml')
@@ -1243,7 +1243,7 @@ def test_xml_refs_in_python_domain(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_keep_external_links(app):
+def test_xml_keep_external_links(app) -> None:
     app.build()
     # --- keep external links: regression test for #1044
     et = etree_parse(app.outdir / 'external_links.xml')
@@ -1311,7 +1311,7 @@ def test_xml_keep_external_links(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_role_xref(app):
+def test_xml_role_xref(app) -> None:
     app.build()
     # --- role xref: regression test for #1090, #1193
     et = etree_parse(app.outdir / 'role_xref.xml')
@@ -1386,7 +1386,7 @@ def test_xml_role_xref(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_warnings(app):
+def test_xml_warnings(app) -> None:
     app.build()
     # warnings
     warnings = getwarning(app.warning)
@@ -1398,7 +1398,7 @@ def test_xml_warnings(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_label_targets(app):
+def test_xml_label_targets(app) -> None:
     app.build()
     # --- label targets: regression test for #1193, #1265
     et = etree_parse(app.outdir / 'label_target.xml')
@@ -1480,7 +1480,7 @@ def test_xml_label_targets(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_strange_markup(app):
+def test_xml_strange_markup(app) -> None:
     app.build()
     et = etree_parse(app.outdir / 'markup.xml')
     secs = et.findall('section')
@@ -1493,7 +1493,7 @@ def test_xml_strange_markup(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_additional_targets_should_not_be_translated(app):
+def test_additional_targets_should_not_be_translated(app) -> None:
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:
@@ -1581,7 +1581,7 @@ def test_additional_targets_should_not_be_translated(app):
         ],
     },
 )
-def test_additional_targets_should_be_translated(app):
+def test_additional_targets_should_be_translated(app) -> None:
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:
@@ -1682,7 +1682,7 @@ def test_additional_targets_should_be_translated(app):
     },
     copy_test_root=True,
 )
-def test_additional_targets_should_be_translated_substitution_definitions(app):
+def test_additional_targets_should_be_translated_substitution_definitions(app) -> None:
     app.build(force_all=True)
 
     # [prolog_epilog_substitution.txt]
@@ -1701,7 +1701,7 @@ def test_additional_targets_should_be_translated_substitution_definitions(app):
 @sphinx_intl
 @pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_references(app):
+def test_text_references(app) -> None:
     app.build(filenames=[app.srcdir / 'refs.txt'])
 
     warnings = app.warning.getvalue().replace(os.sep, '/')
@@ -1719,7 +1719,7 @@ def test_text_references(app):
     },
     copy_test_root=True,
 )
-def test_text_prolog_epilog_substitution(app):
+def test_text_prolog_epilog_substitution(app) -> None:
     app.build()
 
     result = (app.outdir / 'prolog_epilog_substitution.txt').read_text(encoding='utf8')
@@ -1747,7 +1747,7 @@ SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
     srcdir='test_intl_images',
     confoverrides={'language': _CATALOG_LOCALE},
 )
-def test_image_glob_intl(app):
+def test_image_glob_intl(app) -> None:
     app.build()
 
     # index.rst
@@ -1828,7 +1828,7 @@ def test_image_glob_intl(app):
         'figure_language_filename': '{root}{ext}.{language}',
     },
 )
-def test_image_glob_intl_using_figure_language_filename(app):
+def test_image_glob_intl_using_figure_language_filename(app) -> None:
     app.build()
 
     # index.rst
@@ -1912,7 +1912,7 @@ def getwarning(warnings: StringIO) -> str:
         'gettext_allow_fuzzy_translations': True,
     },
 )
-def test_gettext_allow_fuzzy_translations(app):
+def test_gettext_allow_fuzzy_translations(app) -> None:
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
     locale_dir.mkdir(parents=True, exist_ok=True)
     with (locale_dir / 'index.po').open('wb') as f:
@@ -1934,7 +1934,7 @@ def test_gettext_allow_fuzzy_translations(app):
         'gettext_allow_fuzzy_translations': False,
     },
 )
-def test_gettext_disallow_fuzzy_translations(app):
+def test_gettext_disallow_fuzzy_translations(app) -> None:
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
     locale_dir.mkdir(parents=True, exist_ok=True)
     with (locale_dir / 'index.po').open('wb') as f:
@@ -1953,7 +1953,7 @@ def test_gettext_disallow_fuzzy_translations(app):
     confoverrides={'language': 'de', 'html_sidebars': {'**': ['searchbox.html']}},
     copy_test_root=True,
 )
-def test_customize_system_message(make_app, app_params):
+def test_customize_system_message(make_app, app_params) -> None:
     try:
         # clear translators cache
         locale.translators.clear()
@@ -1984,7 +1984,7 @@ def test_customize_system_message(make_app, app_params):
     testroot='intl',
     confoverrides={'today_fmt': '%Y-%m-%d'},
 )
-def test_customize_today_date_format(app, monkeypatch):
+def test_customize_today_date_format(app, monkeypatch) -> None:
     with monkeypatch.context() as m:
         m.setenv('SOURCE_DATE_EPOCH', '1439131307')
         app.build()

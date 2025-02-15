@@ -65,7 +65,7 @@ def reference_check(app, *args, **kwds):
     return missing_reference(app, app.env, node, contnode)
 
 
-def set_config(app, mapping):
+def set_config(app, mapping) -> None:
     # copy *mapping* so that normalization does not alter it
     app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
@@ -77,7 +77,7 @@ def set_config(app, mapping):
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
 @mock.patch('sphinx.ext.intersphinx._load.requests.get')
 @pytest.mark.sphinx('html', testroot='root')
-def test_fetch_inventory_redirection(get_request, InventoryFile, app):
+def test_fetch_inventory_redirection(get_request, InventoryFile, app) -> None:
     mocked_get = get_request.return_value.__enter__.return_value
     intersphinx_setup(app)
     mocked_get.content = b'# Sphinx inventory version 2'
@@ -145,7 +145,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_missing_reference(tmp_path, app):
+def test_missing_reference(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(
@@ -237,7 +237,7 @@ def test_missing_reference(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_missing_reference_pydomain(tmp_path, app):
+def test_missing_reference_pydomain(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(
@@ -271,7 +271,7 @@ def test_missing_reference_pydomain(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_missing_reference_stddomain(tmp_path, app):
+def test_missing_reference_stddomain(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(
@@ -332,7 +332,7 @@ def test_missing_reference_stddomain(tmp_path, app):
     ],
 )
 @pytest.mark.sphinx('html', testroot='root')
-def test_ambiguous_reference_handling(term, expected_ambiguity, tmp_path, app, warning):
+def test_ambiguous_reference_handling(term, expected_ambiguity, tmp_path, app, warning) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
     set_config(
@@ -355,7 +355,7 @@ def test_ambiguous_reference_handling(term, expected_ambiguity, tmp_path, app, w
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
-def test_missing_reference_cppdomain(tmp_path, app):
+def test_missing_reference_cppdomain(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(
@@ -391,7 +391,7 @@ def test_missing_reference_cppdomain(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_missing_reference_jsdomain(tmp_path, app):
+def test_missing_reference_jsdomain(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(
@@ -419,7 +419,7 @@ def test_missing_reference_jsdomain(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_missing_reference_disabled_domain(tmp_path, app):
+def test_missing_reference_disabled_domain(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(
@@ -433,8 +433,8 @@ def test_missing_reference_disabled_domain(tmp_path, app):
     validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
-    def case(*, term, doc, py):
-        def assert_(rn, expected):
+    def case(*, term, doc, py) -> None:
+        def assert_(rn, expected) -> None:
             if expected is None:
                 assert rn is None
             else:
@@ -485,7 +485,7 @@ def test_missing_reference_disabled_domain(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_inventory_not_having_version(tmp_path, app):
+def test_inventory_not_having_version(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_NO_VERSION)
     set_config(
@@ -507,7 +507,7 @@ def test_inventory_not_having_version(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_validate_intersphinx_mapping_warnings(app):
+def test_validate_intersphinx_mapping_warnings(app) -> None:
     """Check warnings in :func:`sphinx.ext.intersphinx.validate_intersphinx_mapping`."""
     bad_intersphinx_mapping = {
         '':                 ('789.example', None),     # invalid project name (value)
@@ -561,7 +561,7 @@ def test_validate_intersphinx_mapping_warnings(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_load_mappings_fallback(tmp_path, app):
+def test_load_mappings_fallback(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {})
@@ -602,21 +602,21 @@ def test_load_mappings_fallback(tmp_path, app):
 class TestStripBasicAuth:
     """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""
 
-    def test_auth_stripped(self):
+    def test_auth_stripped(self) -> None:
         """Basic auth creds stripped from URL containing creds"""
         url = 'https://user:12345@domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
         assert actual == expected
 
-    def test_no_auth(self):
+    def test_no_auth(self) -> None:
         """Url unchanged if param doesn't contain basic auth creds"""
         url = 'https://domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
         actual = _strip_basic_auth(url)
         assert actual == expected
 
-    def test_having_port(self):
+    def test_having_port(self) -> None:
         """Basic auth creds correctly stripped from URL containing creds even if URL
         contains port
         """
@@ -626,7 +626,7 @@ class TestStripBasicAuth:
         assert actual == expected
 
 
-def test_getsafeurl_authed():
+def test_getsafeurl_authed() -> None:
     """_get_safe_url() with a url with basic auth"""
     url = 'https://user:12345@domain.com/project/objects.inv'
     expected = 'https://user@domain.com/project/objects.inv'
@@ -634,7 +634,7 @@ def test_getsafeurl_authed():
     assert actual == expected
 
 
-def test_getsafeurl_authed_having_port():
+def test_getsafeurl_authed_having_port() -> None:
     """_get_safe_url() with a url with basic auth having port"""
     url = 'https://user:12345@domain.com:8080/project/objects.inv'
     expected = 'https://user@domain.com:8080/project/objects.inv'
@@ -642,7 +642,7 @@ def test_getsafeurl_authed_having_port():
     assert actual == expected
 
 
-def test_getsafeurl_unauthed():
+def test_getsafeurl_unauthed() -> None:
     """_get_safe_url() with a url without basic auth"""
     url = 'https://domain.com/project/objects.inv'
     expected = 'https://domain.com/project/objects.inv'
@@ -650,7 +650,7 @@ def test_getsafeurl_unauthed():
     assert actual == expected
 
 
-def test_inspect_main_noargs(capsys):
+def test_inspect_main_noargs(capsys) -> None:
     """inspect_main interface, without arguments"""
     assert inspect_main([]) == 1
 
@@ -663,7 +663,7 @@ def test_inspect_main_noargs(capsys):
     assert stderr == expected + '\n'
 
 
-def test_inspect_main_file(capsys, tmp_path):
+def test_inspect_main_file(capsys, tmp_path) -> None:
     """inspect_main interface, with file argument"""
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -675,16 +675,16 @@ def test_inspect_main_file(capsys, tmp_path):
     assert stderr == ''
 
 
-def test_inspect_main_url(capsys):
+def test_inspect_main_url(capsys) -> None:
     """inspect_main interface, with url argument"""
 
     class InventoryHandler(http.server.BaseHTTPRequestHandler):
-        def do_GET(self):
+        def do_GET(self) -> None:
             self.send_response(200, 'OK')
             self.end_headers()
             self.wfile.write(INVENTORY_V2)
 
-        def log_message(*args, **kwargs):
+        def log_message(*args, **kwargs) -> None:
             # Silenced.
             pass
 
@@ -698,7 +698,7 @@ def test_inspect_main_url(capsys):
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-role', copy_test_root=True)
-def test_intersphinx_role(app):
+def test_intersphinx_role(app) -> None:
     inv_file = app.srcdir / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     app.config.intersphinx_mapping = {
@@ -756,7 +756,7 @@ def test_intersphinx_role(app):
         (-1, False),  # cache forever
     ],
 )
-def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired):
+def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired) -> None:
     url = 'https://example.org/'
     app.config.intersphinx_cache_limit = cache_limit
     app.config.intersphinx_mapping = {
@@ -802,14 +802,14 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
     assert mock_fetch_inventory.called is expected_expired
 
 
-def test_intersphinx_fetch_inventory_group_url():
+def test_intersphinx_fetch_inventory_group_url() -> None:
     class InventoryHandler(http.server.BaseHTTPRequestHandler):
-        def do_GET(self):
+        def do_GET(self) -> None:
             self.send_response(200, 'OK')
             self.end_headers()
             self.wfile.write(INVENTORY_V2)
 
-        def log_message(*args, **kwargs):
+        def log_message(*args, **kwargs) -> None:
             # Silenced.
             pass
 

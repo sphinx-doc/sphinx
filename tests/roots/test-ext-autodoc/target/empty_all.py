@@ -3,13 +3,13 @@
 __all__ = []
 
 
-def foo():
+def foo() -> None:
     """docstring"""
 
 
-def bar():
+def bar() -> None:
     """docstring"""
 
 
-def baz():
+def baz() -> None:
     """docstring"""

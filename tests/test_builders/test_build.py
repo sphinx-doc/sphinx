@@ -8,7 +8,7 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 
 
-def test_root_doc_not_found(tmp_path, make_app):
+def test_root_doc_not_found(tmp_path, make_app) -> None:
     (tmp_path / 'conf.py').touch()
     assert [p.name for p in tmp_path.iterdir()] == ['conf.py']
 
@@ -18,7 +18,7 @@ def test_root_doc_not_found(tmp_path, make_app):
 
 
 @pytest.mark.sphinx('text', testroot='circular')
-def test_circular_toctree(app):
+def test_circular_toctree(app) -> None:
     app.build(force_all=True)
     warnings = app.warning.getvalue()
     assert (
@@ -30,7 +30,7 @@ def test_circular_toctree(app):
 
 
 @pytest.mark.sphinx('text', testroot='numbered-circular')
-def test_numbered_circular_toctree(app):
+def test_numbered_circular_toctree(app) -> None:
     app.build(force_all=True)
     warnings = app.warning.getvalue()
     assert (
@@ -42,7 +42,7 @@ def test_numbered_circular_toctree(app):
 
 
 @pytest.mark.sphinx('text', testroot='toctree-multiple-parents')
-def test_multiple_parents_toctree(app):
+def test_multiple_parents_toctree(app) -> None:
     app.build(force_all=True)
     assert (
         "document is referenced in multiple toctrees: ['bravo', 'delta'], selecting: delta <- charlie"
@@ -51,7 +51,7 @@ def test_multiple_parents_toctree(app):
 
 @pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('dummy', testroot='images')
-def test_image_glob(app):
+def test_image_glob(app) -> None:
     app.build(force_all=True)
 
     # index.rst

@@ -6,7 +6,7 @@ import pytest
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_theme': 'alabaster'})
-def test_html_pygments_style_default(app):
+def test_html_pygments_style_default(app) -> None:
     style = app.builder.highlighter.formatter_args.get('style')
     assert style.__name__ == 'Alabaster'
 
@@ -16,7 +16,7 @@ def test_html_pygments_style_default(app):
     testroot='basic',
     confoverrides={'pygments_style': 'sphinx'},
 )
-def test_html_pygments_style_manually(app):
+def test_html_pygments_style_manually(app) -> None:
     style = app.builder.highlighter.formatter_args.get('style')
     assert style.__name__ == 'SphinxStyle'
 
@@ -26,18 +26,18 @@ def test_html_pygments_style_manually(app):
     testroot='basic',
     confoverrides={'html_theme': 'classic'},
 )
-def test_html_pygments_for_classic_theme(app):
+def test_html_pygments_for_classic_theme(app) -> None:
     style = app.builder.highlighter.formatter_args.get('style')
     assert style.__name__ == 'SphinxStyle'
 
 
 @pytest.mark.sphinx('html', testroot='basic')
-def test_html_dark_pygments_style_default(app):
+def test_html_dark_pygments_style_default(app) -> None:
     assert app.builder.dark_highlighter is None
 
 
 @pytest.mark.sphinx('html', testroot='highlight_options')
-def test_highlight_options(app):
+def test_highlight_options(app) -> None:
     subject = app.builder.highlighter
     with patch.object(
         subject,
@@ -79,7 +79,7 @@ def test_highlight_options(app):
     testroot='highlight_options',
     confoverrides={'highlight_options': {'default_option': True}},
 )
-def test_highlight_options_old(app):
+def test_highlight_options_old(app) -> None:
     subject = app.builder.highlighter
     with patch.object(
         subject,

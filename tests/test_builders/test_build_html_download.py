@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_html_download(app):
+def test_html_download(app) -> None:
     app.build()
 
     # subdir/includes.html
@@ -42,7 +42,7 @@ def test_html_download(app):
 
 
 @pytest.mark.sphinx('html', testroot='roles-download')
-def test_html_download_role(app):
+def test_html_download_role(app) -> None:
     app.build()
     digest = hashlib.md5(b'dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()

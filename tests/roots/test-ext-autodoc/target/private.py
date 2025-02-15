@@ -1,11 +1,11 @@
-def private_function(name):
+def private_function(name) -> None:
     """private_function is a docstring().
 
     :meta private:
     """
 
 
-def _public_function(name):
+def _public_function(name) -> None:
     """public_function is a docstring().
 
     :meta public:

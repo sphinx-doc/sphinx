@@ -46,5 +46,5 @@ class Foo:
     #: docstring
     attr1: myint
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.attr2: myint = None  #: docstring

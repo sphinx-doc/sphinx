@@ -80,10 +80,10 @@ def parse(new_document):
 
 # since we're not resolving the markup afterwards, these nodes may remain
 class ForgivingTranslator:
-    def visit_pending_xref(self, node):
+    def visit_pending_xref(self, node) -> None:
         pass
 
-    def depart_pending_xref(self, node):
+    def depart_pending_xref(self, node) -> None:
         pass
 
 
@@ -97,7 +97,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 
 @pytest.fixture
 def verify_re_html(app, parse):
-    def verify(rst, html_expected):
+    def verify(rst, html_expected) -> None:
         document = parse(rst)
         html_translator = ForgivingHTMLTranslator(document, app.builder)
         document.walkabout(html_translator)
@@ -109,7 +109,7 @@ def verify_re_html(app, parse):
 
 @pytest.fixture
 def verify_re_latex(app, parse):
-    def verify(rst, latex_expected):
+    def verify(rst, latex_expected) -> None:
         document = parse(rst)
         app.builder = LaTeXBuilder(app, app.env)
         app.builder.init()
@@ -125,7 +125,7 @@ def verify_re_latex(app, parse):
 
 @pytest.fixture
 def verify_re(verify_re_html, verify_re_latex):
-    def verify_re_(rst, html_expected, latex_expected):
+    def verify_re_(rst, html_expected, latex_expected) -> None:
         if html_expected:
             verify_re_html(rst, html_expected)
         if latex_expected:
@@ -136,7 +136,7 @@ def verify_re(verify_re_html, verify_re_latex):
 
 @pytest.fixture
 def verify(verify_re_html, verify_re_latex):
-    def verify_(rst, html_expected, latex_expected):
+    def verify_(rst, html_expected, latex_expected) -> None:
         if html_expected:
             verify_re_html(rst, re.escape(html_expected) + '$')
         if latex_expected:
@@ -543,7 +543,7 @@ def get_verifier(verify, verify_re):
     ],
 )
 @pytest.mark.sphinx('html', testroot='root')
-def test_inline(get_verifier, type, rst, html_expected, latex_expected):
+def test_inline(get_verifier, type, rst, html_expected, latex_expected) -> None:
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
 
@@ -560,7 +560,7 @@ def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     ],
 )
 @pytest.mark.sphinx('html', testroot='root')
-def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expected):
+def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expected) -> None:
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
 
@@ -584,13 +584,13 @@ def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expecte
 )
 def test_inline_for_unicode_latex_engine(
     get_verifier, type, rst, html_expected, latex_expected
-):
+) -> None:
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_samp_role(parse):
+def test_samp_role(parse) -> None:
     # no braces
     text = ':samp:`a{b}c`'
     doctree = parse(text)
@@ -622,7 +622,7 @@ def test_samp_role(parse):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_download_role(parse):
+def test_download_role(parse) -> None:
     # implicit
     text = ':download:`sphinx.rst`'
     doctree = parse(text)
@@ -661,7 +661,7 @@ def test_download_role(parse):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_XRefRole(inliner):
+def test_XRefRole(inliner) -> None:
     role = XRefRole()
 
     # implicit
@@ -739,7 +739,7 @@ def test_XRefRole(inliner):
 
 
 @pytest.mark.sphinx('dummy', testroot='prolog')
-def test_rst_prolog(app):
+def test_rst_prolog(app) -> None:
     app.build(force_all=True)
     rst = app.env.get_doctree('restructuredtext')
     md = app.env.get_doctree('markdown')
@@ -763,7 +763,7 @@ def test_rst_prolog(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='keep_warnings')
-def test_keep_warnings_is_True(app):
+def test_keep_warnings_is_True(app) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
@@ -776,7 +776,7 @@ def test_keep_warnings_is_True(app):
     testroot='keep_warnings',
     confoverrides={'keep_warnings': False},
 )
-def test_keep_warnings_is_False(app):
+def test_keep_warnings_is_False(app) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
@@ -784,7 +784,7 @@ def test_keep_warnings_is_False(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
-def test_compact_refonly_bullet_list(app):
+def test_compact_refonly_bullet_list(app) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
@@ -802,7 +802,7 @@ def test_compact_refonly_bullet_list(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='default_role')
-def test_default_role1(app):
+def test_default_role1(app) -> None:
     app.build(force_all=True)
 
     # default-role: pep
@@ -826,7 +826,7 @@ def test_default_role1(app):
     testroot='default_role',
     confoverrides={'default_role': 'guilabel'},
 )
-def test_default_role2(app):
+def test_default_role2(app) -> None:
     app.build(force_all=True)
 
     # default-role directive is stronger than configratuion

@@ -49,8 +49,8 @@ def test_instantiation(
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_events(app):
-    def empty():
+def test_events(app) -> None:
+    def empty() -> None:
         pass
 
     with pytest.raises(ExtensionError) as excinfo:
@@ -62,7 +62,7 @@ def test_events(app):
         app.add_event('my_event')
     assert "Event 'my_event' already present" in str(excinfo.value)
 
-    def mock_callback(a_app, *args):
+    def mock_callback(a_app, *args) -> str:
         assert a_app is app
         assert emit_args == args
         return 'ret'
@@ -76,27 +76,27 @@ def test_events(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_emit_with_nonascii_name_node(app):
+def test_emit_with_nonascii_name_node(app) -> None:
     node = nodes.section(names=['\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_extensions(app):
+def test_extensions(app) -> None:
     app.setup_extension('shutil')
     warning = strip_escape_sequences(app.warning.getvalue())
     assert "extension 'shutil' has no setup() function" in warning
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_extension_in_blacklist(app):
+def test_extension_in_blacklist(app) -> None:
     app.setup_extension('sphinxjp.themecore')
     msg = strip_escape_sequences(app.warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
 @pytest.mark.sphinx('html', testroot='add_source_parser')
-def test_add_source_parser(app):
+def test_add_source_parser(app) -> None:
     assert set(app.config.source_suffix) == {'.rst', '.test'}
 
     # .rst; only in :confval:`source_suffix`
@@ -110,7 +110,7 @@ def test_add_source_parser(app):
 
 
 @pytest.mark.sphinx('html', testroot='extensions')
-def test_add_is_parallel_allowed(app):
+def test_add_is_parallel_allowed(app) -> None:
     logging.setup(app, app.status, app.warning)
 
     assert app.is_parallel_allowed('read') is True
@@ -155,7 +155,7 @@ def test_add_is_parallel_allowed(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
-def test_build_specific(app):
+def test_build_specific(app) -> None:
     app.builder.build = Mock()
     filenames = [
         app.srcdir / 'index.txt',                      # normal

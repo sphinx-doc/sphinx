@@ -9,7 +9,7 @@ import pytest
     testroot='reST-code-block',
     confoverrides={'html_codeblock_linenos_style': 'table'},
 )
-def test_html_codeblock_linenos_style_table(app):
+def test_html_codeblock_linenos_style_table(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -26,7 +26,7 @@ def test_html_codeblock_linenos_style_table(app):
     testroot='reST-code-block',
     confoverrides={'html_codeblock_linenos_style': 'inline'},
 )
-def test_html_codeblock_linenos_style_inline(app):
+def test_html_codeblock_linenos_style_inline(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -34,7 +34,7 @@ def test_html_codeblock_linenos_style_inline(app):
 
 
 @pytest.mark.sphinx('html', testroot='reST-code-role')
-def test_html_code_role(app):
+def test_html_code_role(app) -> None:
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:

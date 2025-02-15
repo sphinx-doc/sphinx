@@ -2,24 +2,24 @@ from functools import partialmethod
 
 
 class Base:
-    def meth(self):
+    def meth(self) -> None:
         pass
 
     @staticmethod
-    def staticmeth():
+    def staticmeth() -> None:
         pass
 
     @classmethod
-    def classmeth(cls):
+    def classmeth(cls) -> None:
         pass
 
     @property
-    def prop(self):
+    def prop(self) -> None:
         pass
 
     partialmeth = partialmethod(meth)
 
-    async def coroutinemeth(self):
+    async def coroutinemeth(self) -> None:
         pass
 
     partial_coroutinemeth = partialmethod(coroutinemeth)

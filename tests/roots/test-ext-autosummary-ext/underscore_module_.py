@@ -4,11 +4,11 @@
 class class_:
     """Class"""
 
-    def method_(_arg):  # NoQA: N805
+    def method_(_arg) -> None:  # NoQA: N805
         """Method"""
         pass
 
 
-def function_(_arg):
+def function_(_arg) -> None:
     """Function"""
     pass

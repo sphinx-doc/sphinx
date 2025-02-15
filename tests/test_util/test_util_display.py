@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx._cli.util.errors import strip_escape_sequences
@@ -13,8 +15,11 @@ from sphinx.util.display import (
     status_iterator,
 )
 
+if TYPE_CHECKING:
+    from typing import Never
 
-def test_display_chunk():
+
+def test_display_chunk() -> None:
     assert display_chunk('hello') == 'hello'
     assert display_chunk(['hello']) == 'hello'
     assert display_chunk(['hello', 'sphinx', 'world']) == 'hello .. world'
@@ -23,7 +28,7 @@ def test_display_chunk():
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
-def test_status_iterator_length_0(app):
+def test_status_iterator_length_0(app) -> None:
     logging.setup(app, app.status, app.warning)
 
     # test for status_iterator (length=0)
@@ -36,7 +41,7 @@ def test_status_iterator_length_0(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
-def test_status_iterator_verbosity_0(app, monkeypatch):
+def test_status_iterator_verbosity_0(app, monkeypatch) -> None:
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
@@ -54,7 +59,7 @@ def test_status_iterator_verbosity_0(app, monkeypatch):
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
-def test_status_iterator_verbosity_1(app, monkeypatch):
+def test_status_iterator_verbosity_1(app, monkeypatch) -> None:
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
@@ -72,7 +77,7 @@ def test_status_iterator_verbosity_1(app, monkeypatch):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_progress_message(app):
+def test_progress_message(app) -> Never:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -102,7 +107,7 @@ def test_progress_message(app):
 
     # decorator
     @progress_message('testing')
-    def func():
+    def func() -> None:
         logger.info('in func ', nonl=True)
 
     func()

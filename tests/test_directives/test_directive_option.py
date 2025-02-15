@@ -8,7 +8,7 @@ import pytest
     testroot='root',
     confoverrides={'option_emphasise_placeholders': True},
 )
-def test_option_emphasise_placeholders(app):
+def test_option_emphasise_placeholders(app) -> None:
     app.build()
     content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<em><span class="pre">TYPE</span></em>' in content
@@ -26,7 +26,7 @@ def test_option_emphasise_placeholders(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_option_emphasise_placeholders_default(app):
+def test_option_emphasise_placeholders_default(app) -> None:
     app.build()
     content = (app.outdir / 'objects.html').read_text(encoding='utf8')
     assert '<span class="pre">={TYPE}</span>' in content
@@ -40,7 +40,7 @@ def test_option_emphasise_placeholders_default(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_option_reference_with_value(app):
+def test_option_reference_with_value(app) -> None:
     app.build()
     content = (app.outdir / 'objects.html').read_text(encoding='utf-8')
     assert (

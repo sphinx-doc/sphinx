@@ -24,7 +24,7 @@ from sphinx.testing.util import assert_node
     testroot='domain-py',
     freshenv=True,
 )
-def test_domain_py_canonical(app):
+def test_domain_py_canonical(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'canonical.html').read_text(encoding='utf8')
@@ -37,7 +37,7 @@ def test_domain_py_canonical(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_canonical(app):
+def test_canonical(app) -> None:
     text = '.. py:class:: io.StringIO\n   :canonical: _io.StringIO'
     domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
@@ -70,7 +70,7 @@ def test_canonical(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_canonical_definition_overrides(app):
+def test_canonical_definition_overrides(app) -> None:
     text = (
         '.. py:class:: io.StringIO\n'
         '   :canonical: _io.StringIO\n'
@@ -84,7 +84,7 @@ def test_canonical_definition_overrides(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_canonical_definition_skip(app):
+def test_canonical_definition_skip(app) -> None:
     text = (
         '.. py:class:: _io.StringIO\n'
         '.. py:class:: io.StringIO\n'
@@ -99,7 +99,7 @@ def test_canonical_definition_skip(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_canonical_duplicated(app):
+def test_canonical_duplicated(app) -> None:
     text = (
         '.. py:class:: mypackage.StringIO\n'
         '   :canonical: _io.StringIO\n'

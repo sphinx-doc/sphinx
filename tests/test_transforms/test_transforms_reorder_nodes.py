@@ -11,7 +11,7 @@ from sphinx.testing.util import assert_node
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(app):
+def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(app) -> None:
     text = '.. index:: abc\n.. index:: def\n.. index:: ghi\n.. index:: jkl\n\ntext\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -50,7 +50,7 @@ def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(ap
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_transforms_reorder_consecutive_target_and_index_nodes_no_merge_across_other_nodes(
     app,
-):
+) -> None:
     text = (
         '.. index:: abc\n'
         '.. index:: def\n'
@@ -99,7 +99,7 @@ def test_transforms_reorder_consecutive_target_and_index_nodes_no_merge_across_o
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_transforms_reorder_consecutive_target_and_index_nodes_merge_with_labels(app):
+def test_transforms_reorder_consecutive_target_and_index_nodes_merge_with_labels(app) -> None:
     text = (
         '.. _abc:\n'
         '.. index:: def\n'

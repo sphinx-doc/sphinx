@@ -13,10 +13,10 @@ import pytest
     freshenv=True,
     confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True},
 )
-def test_todo(app):
+def test_todo(app) -> None:
     todos = []
 
-    def on_todo_defined(app, node):
+    def on_todo_defined(app, node) -> None:
         todos.append(node)
 
     app.connect('todo-defined', on_todo_defined)
@@ -55,10 +55,10 @@ def test_todo(app):
     freshenv=True,
     confoverrides={'todo_include_todos': False, 'todo_emit_warnings': True},
 )
-def test_todo_not_included(app):
+def test_todo_not_included(app) -> None:
     todos = []
 
-    def on_todo_defined(app, node):
+    def on_todo_defined(app, node) -> None:
         todos.append(node)
 
     app.connect('todo-defined', on_todo_defined)
@@ -93,7 +93,7 @@ def test_todo_not_included(app):
     freshenv=True,
     confoverrides={'todo_include_todos': True},
 )
-def test_todo_valid_link(app):
+def test_todo_valid_link(app) -> None:
     """Test that the inserted "original entry" links for todo items have a target
     that exists in the LaTeX output. The target was previously incorrectly
     omitted (GitHub issue #1020).

@@ -16,7 +16,7 @@ from sphinx.errors import SphinxError
 from sphinx.util import i18n
 
 
-def test_catalog_info_for_file_and_path():
+def test_catalog_info_for_file_and_path() -> None:
     cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
     assert cat.po_file == 'domain.po'
     assert cat.mo_file == 'domain.mo'
@@ -24,7 +24,7 @@ def test_catalog_info_for_file_and_path():
     assert cat.mo_path == Path('path', 'domain.mo')
 
 
-def test_catalog_info_for_sub_domain_file_and_path():
+def test_catalog_info_for_sub_domain_file_and_path() -> None:
     cat = i18n.CatalogInfo('path', 'sub/domain', 'utf-8')
     assert cat.po_file == 'sub/domain.po'
     assert cat.mo_file == 'sub/domain.mo'
@@ -32,7 +32,7 @@ def test_catalog_info_for_sub_domain_file_and_path():
     assert cat.mo_path == Path('path', 'sub', 'domain.mo')
 
 
-def test_catalog_outdated(tmp_path):
+def test_catalog_outdated(tmp_path) -> None:
     (tmp_path / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tmp_path, 'test', 'utf-8')
     assert cat.is_outdated()  # if mo is not exist
@@ -46,7 +46,7 @@ def test_catalog_outdated(tmp_path):
     assert cat.is_outdated()  # if mo is exist and older than po
 
 
-def test_catalog_write_mo(tmp_path):
+def test_catalog_write_mo(tmp_path) -> None:
     (tmp_path / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tmp_path, 'test', 'utf-8')
     cat.write_mo('en')
@@ -61,7 +61,7 @@ def test_catalog_write_mo(tmp_path):
     sys.platform == 'win32' and babel.__version__ == '2.17.0',
     reason='Windows tests fail with Babel 2.17',
 )
-def test_format_date():
+def test_format_date() -> None:
     date = datetime.date(2016, 2, 7)
 
     # strftime format
@@ -102,7 +102,7 @@ def test_format_date():
     assert i18n.format_date(format, date=datet, language='en') == '+0000'
 
 
-def test_format_date_timezone():
+def test_format_date_timezone() -> None:
     dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.UTC)
     if time.localtime(dt.timestamp()).tm_gmtoff == 0:
         raise pytest.skip('Local time zone is GMT')  # NoQA: EM101,TRY003
@@ -121,7 +121,7 @@ def test_format_date_timezone():
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_filename_for_language(app):
+def test_get_filename_for_language(app) -> None:
     get_filename = i18n.get_image_filename_for_language
     app.env.current_document.docname = 'index'
 
@@ -166,7 +166,7 @@ def test_get_filename_for_language(app):
     assert get_filename('foo.png', app.env) == '/subdir/en/foo.png'
 
 
-def test_CatalogRepository(tmp_path):
+def test_CatalogRepository(tmp_path) -> None:
     for po_file in (
         (tmp_path / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po'),
         (tmp_path / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po'),

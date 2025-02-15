@@ -6,7 +6,7 @@ from typing import Generator  # NoQA: TC003,UP035
 
 
 @lru_cache(maxsize=None)  # NoQA: UP033
-def slow_function(message, timeout):
+def slow_function(message, timeout) -> None:
     """This function is slow."""
     print(message)
 

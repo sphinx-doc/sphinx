@@ -1,7 +1,7 @@
 __all__ = ['baz', 'foo', 'Bar']
 
 
-def foo():
+def foo() -> None:
     pass
 
 
@@ -9,11 +9,11 @@ class Bar:
     pass
 
 
-def baz():
+def baz() -> None:
     pass
 
 
-def qux():
+def qux() -> None:
     pass
 
 
@@ -21,5 +21,5 @@ class Quux:
     pass
 
 
-def foobar():
+def foobar() -> None:
     pass

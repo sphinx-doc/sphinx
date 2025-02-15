@@ -9,7 +9,7 @@ from sphinx.extension import Extension, verify_needs_extensions
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_needs_extensions(app):
+def test_needs_extensions(app) -> None:
     # empty needs_extensions
     assert app.config.needs_extensions == {}
     verify_needs_extensions(app, app.config)

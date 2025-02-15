@@ -17,9 +17,9 @@ U = TypeVar('U', bound=Literal[MyEnum.a, MyEnum.b])
 """docstring"""
 
 
-def bar(x: Literal[1234, 'abcd']):
+def bar(x: Literal[1234, 'abcd']) -> None:
     """docstring"""
 
 
-def foo(x: Literal[MyEnum.a, MyEnum.b]):
+def foo(x: Literal[MyEnum.a, MyEnum.b]) -> None:
     """docstring"""

@@ -10,7 +10,7 @@ from sphinx.testing.util import assert_node
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_code_directive(app):
+def test_code_directive(app) -> None:
     # normal case
     text = '.. code::\n\n   print("hello world")\n'
 
@@ -43,7 +43,7 @@ def test_code_directive(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-csv-table')
-def test_csv_table_directive(app):
+def test_csv_table_directive(app) -> None:
     # relative path from current document
     text = '.. csv-table::\n   :file: example.csv\n'
     doctree = restructuredtext.parse(app, text, docname='subdir/index')
@@ -90,7 +90,7 @@ def test_csv_table_directive(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_math_directive(app):
+def test_math_directive(app) -> None:
     # normal case
     text = '.. math:: E = mc^2'
     doctree = restructuredtext.parse(app, text)

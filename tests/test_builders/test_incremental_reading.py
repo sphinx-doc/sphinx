@@ -13,7 +13,7 @@ import pytest
     srcdir='test_builder',
     freshenv=True,
 )
-def test_incremental_reading(app):
+def test_incremental_reading(app) -> None:
     # first reading
     updated = app.builder.read()
     assert set(updated) == app.env.found_docs == set(app.env.all_docs)
@@ -40,7 +40,7 @@ def test_incremental_reading(app):
     testroot='warnings',
     freshenv=True,
 )
-def test_incremental_reading_for_missing_files(app):
+def test_incremental_reading_for_missing_files(app) -> None:
     # first reading
     updated = app.builder.read()
     assert set(updated) == app.env.found_docs == set(app.env.all_docs)

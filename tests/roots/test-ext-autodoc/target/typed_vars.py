@@ -7,7 +7,7 @@ attr3 = ''  # type: str
 
 
 class _Descriptor:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.__doc__ = f'This is {name}'
 
     def __get__(self):  # NoQA: PLE0302
@@ -21,7 +21,7 @@ class Class:
 
     descr4: int = _Descriptor('descr4')
 
-    def __init__(self):
+    def __init__(self) -> None:
         # fmt: off
         self.attr4: int = 0     #: attr4
         self.attr5: int         #: attr5

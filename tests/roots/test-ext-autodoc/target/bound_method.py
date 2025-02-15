@@ -1,5 +1,5 @@
 class Cls:
-    def method(self):
+    def method(self) -> None:
         """Method docstring"""
         pass
 

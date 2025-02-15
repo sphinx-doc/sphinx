@@ -19,7 +19,7 @@ from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_map
 
 @pytest.mark.sphinx('html', testroot='inheritance')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram(app):
+def test_inheritance_diagram(app) -> None:
     # monkey-patch InheritaceDiagram.run() so we can get access to its
     # results.
     orig_run = InheritanceDiagram.run
@@ -157,7 +157,7 @@ external.other.Bob py:class 1 foo.html#external.other.Bob -
 
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_png_html(tmp_path, app):
+def test_inheritance_diagram_png_html(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(external_inventory)
     app.config.intersphinx_mapping = {
@@ -211,7 +211,7 @@ def test_inheritance_diagram_png_html(tmp_path, app):
     confoverrides={'graphviz_output_format': 'svg'},
 )
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_svg_html(tmp_path, app):
+def test_inheritance_diagram_svg_html(tmp_path, app) -> None:
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(external_inventory)
     app.config.intersphinx_mapping = {
@@ -266,7 +266,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
 
 @pytest.mark.sphinx('latex', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_latex(app):
+def test_inheritance_diagram_latex(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -285,7 +285,7 @@ def test_inheritance_diagram_latex(app):
     srcdir='ext-inheritance_diagram-alias',
 )
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_latex_alias(app):
+def test_inheritance_diagram_latex_alias(app) -> None:
     app.config.inheritance_alias = {'test.Foo': 'alias.Foo'}
     app.build(force_all=True)
 
@@ -320,7 +320,7 @@ def test_inheritance_diagram_latex_alias(app):
     assert re.search(pattern, content, re.MULTILINE)
 
 
-def test_import_classes(rootdir):
+def test_import_classes(rootdir) -> None:
     from sphinx.parsers import Parser, RSTParser
     from sphinx.util.i18n import CatalogInfo
 

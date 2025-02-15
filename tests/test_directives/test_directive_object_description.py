@@ -30,7 +30,7 @@ def _doctree_for_test(
 
 
 @pytest.mark.sphinx('text', testroot='object-description-sections')
-def test_object_description_sections(app):
+def test_object_description_sections(app) -> None:
     doctree = _doctree_for_test(app, app.env, 'index')
     # <document>
     #     <index>
@@ -58,7 +58,7 @@ def test_object_description_sections(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_object_description_content_line_number(app):
+def test_object_description_content_line_number(app) -> None:
     text = '.. py:function:: foo(bar)\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))

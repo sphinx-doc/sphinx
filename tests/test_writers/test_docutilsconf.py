@@ -14,7 +14,7 @@ from sphinx.util.docutils import patch_docutils
     testroot='docutilsconf',
     freshenv=True,
 )
-def test_html_with_default_docutilsconf(app):
+def test_html_with_default_docutilsconf(app) -> None:
     with patch_docutils(app.confdir):
         app.build()
 
@@ -31,7 +31,7 @@ def test_html_with_default_docutilsconf(app):
     docutils_conf='[restructuredtext parser]\ntrim_footnote_reference_space: true\n',
     copy_test_root=True,
 )
-def test_html_with_docutilsconf(app):
+def test_html_with_docutilsconf(app) -> None:
     with patch_docutils(app.confdir):
         app.build()
 

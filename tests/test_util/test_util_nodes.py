@@ -60,7 +60,7 @@ def assert_node_count(messages, node_type, expect_count) -> None:
     )
 
 
-def test_NodeMatcher():
+def test_NodeMatcher() -> None:
     doctree = nodes.document(None, None)
     doctree += nodes.paragraph('', 'Hello')
     doctree += nodes.paragraph('', 'Sphinx', block=1)
@@ -155,12 +155,12 @@ def test_NodeMatcher():
         ),
     ],
 )
-def test_extract_messages(rst, node_cls, count):
+def test_extract_messages(rst, node_cls, count) -> None:
     msg = extract_messages(_get_doctree(dedent(rst)))
     assert_node_count(msg, node_cls, count)
 
 
-def test_extract_messages_without_rawsource():
+def test_extract_messages_without_rawsource() -> None:
     """Check node.rawsource is fall-backed by using node.astext() value.
 
     `extract_message` which is used from Sphinx i18n feature drop ``not node.rawsource``
@@ -182,7 +182,7 @@ def test_extract_messages_without_rawsource():
     assert next(m for n, m in extract_messages(document)), 'text sentence'
 
 
-def test_clean_astext():
+def test_clean_astext() -> None:
     node = nodes.paragraph(text='hello world')
     assert clean_astext(node) == 'hello world'
 
@@ -217,20 +217,20 @@ def test_clean_astext():
     ],
 )
 @pytest.mark.sphinx('html', testroot='root')
-def test_make_id(app, prefix, term, expected):
+def test_make_id(app, prefix, term, expected) -> None:
     document = create_new_document()
     assert make_id(app.env, document, prefix, term) == expected
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_make_id_already_registered(app):
+def test_make_id_already_registered(app) -> None:
     document = create_new_document()
     document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
     assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_make_id_sequential(app):
+def test_make_id_sequential(app) -> None:
     document = create_new_document()
     document.ids['term-0'] = True
     assert make_id(app.env, document, 'term') == 'term-1'
@@ -247,11 +247,11 @@ def test_make_id_sequential(app):
         ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
     ],
 )
-def test_split_explicit_target(title, expected):
+def test_split_explicit_target(title, expected) -> None:
     assert split_explicit_title(title) == expected
 
 
-def test_apply_source_workaround_literal_block_no_source():
+def test_apply_source_workaround_literal_block_no_source() -> None:
     """Regression test for #11091.
 
     Test that apply_source_workaround doesn't raise.

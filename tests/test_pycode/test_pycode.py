@@ -14,7 +14,7 @@ from sphinx.pycode import ModuleAnalyzer
 SPHINX_MODULE_PATH = Path(sphinx.__file__).resolve().with_suffix('.py')
 
 
-def test_ModuleAnalyzer_get_module_source():
+def test_ModuleAnalyzer_get_module_source() -> None:
     assert ModuleAnalyzer.get_module_source('sphinx') == (
         Path(sphinx.__file__),
         sphinx.__spec__.loader.get_source('sphinx'),
@@ -27,19 +27,19 @@ def test_ModuleAnalyzer_get_module_source():
         ModuleAnalyzer.get_module_source('itertools')
 
 
-def test_ModuleAnalyzer_for_string():
+def test_ModuleAnalyzer_for_string() -> None:
     analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')
     assert analyzer.modname == 'module_name'
     assert analyzer.srcname == '<string>'
 
 
-def test_ModuleAnalyzer_for_file():
+def test_ModuleAnalyzer_for_file() -> None:
     analyzer = ModuleAnalyzer.for_string(SPHINX_MODULE_PATH, 'sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname == '<string>'
 
 
-def test_ModuleAnalyzer_for_module(rootdir):
+def test_ModuleAnalyzer_for_module(rootdir) -> None:
     analyzer = ModuleAnalyzer.for_module('sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname == str(SPHINX_MODULE_PATH)
@@ -54,7 +54,7 @@ def test_ModuleAnalyzer_for_module(rootdir):
         sys.path[:] = saved_path
 
 
-def test_ModuleAnalyzer_find_tags():
+def test_ModuleAnalyzer_find_tags() -> None:
     code = (
         'class Foo(object):\n'  # line: 1
         '    """class Foo!"""\n'
@@ -108,7 +108,7 @@ def test_ModuleAnalyzer_find_tags():
     assert tags['Corge.grault'] == ('def', 24, 27)
 
 
-def test_ModuleAnalyzer_find_attr_docs():
+def test_ModuleAnalyzer_find_attr_docs() -> None:
     code = (
         'class Foo(object):\n'
         '    """class Foo!"""\n'
@@ -180,7 +180,7 @@ def test_ModuleAnalyzer_find_attr_docs():
     }
 
 
-def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
+def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method() -> None:
     code = (
         'class Foo(object):\n'
         '    def __init__(self, /):\n'

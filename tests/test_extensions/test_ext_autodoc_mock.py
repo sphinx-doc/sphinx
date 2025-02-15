@@ -12,7 +12,7 @@ import pytest
 from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock, undecorate
 
 
-def test_MockModule():
+def test_MockModule() -> None:
     mock = _MockModule('mocked_module')
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
@@ -27,7 +27,7 @@ def test_MockModule():
     assert repr(mock) == 'mocked_module'
 
 
-def test_MockObject():
+def test_MockObject() -> None:
     mock = _MockObject()
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
@@ -38,7 +38,7 @@ def test_MockObject():
     class SubClass(mock.SomeClass):
         """docstring of SubClass"""
 
-        def method(self):
+        def method(self) -> str:
             return 'string'
 
     obj = SubClass()
@@ -58,7 +58,7 @@ def test_MockObject():
     assert isinstance(obj2, SubClass2)
 
 
-def test_mock():
+def test_mock() -> None:
     modname = 'sphinx.unknown'
     submodule = modname + '.submodule'
     assert modname not in sys.modules
@@ -80,18 +80,18 @@ def test_mock():
         import_module(modname)
 
 
-def test_mock_does_not_follow_upper_modules():
+def test_mock_does_not_follow_upper_modules() -> None:
     with mock(['sphinx.unknown.module']):  # NoQA: SIM117
         with pytest.raises(ImportError):
             import_module('sphinx.unknown')
 
 
-def test_abc_MockObject():
+def test_abc_MockObject() -> None:
     mock = _MockObject()
 
     class Base:
         @abc.abstractmethod
-        def __init__(self):
+        def __init__(self) -> None:
             pass
 
     class Derived(Base, mock.SubClass):
@@ -103,21 +103,21 @@ def test_abc_MockObject():
     assert isinstance(obj.some_method(), Derived)
 
 
-def test_mock_decorator():
+def test_mock_decorator() -> None:
     mock = _MockObject()
 
     @mock.function_deco
-    def func():
+    def func() -> None:
         pass
 
     class Foo:
         @mock.method_deco
-        def meth(self):
+        def meth(self) -> None:
             pass
 
         @classmethod
         @mock.method_deco
-        def class_meth(cls):
+        def class_meth(cls) -> None:
             pass
 
     @mock.class_deco
@@ -135,7 +135,7 @@ def test_mock_decorator():
     assert undecorate(Baz).__name__ == 'Baz'
 
 
-def test_ismock():
+def test_ismock() -> None:
     with mock(['sphinx.unknown']):
         mod1 = import_module('sphinx.unknown')
         mod2 = import_module('sphinx.application')

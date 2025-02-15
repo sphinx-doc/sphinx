@@ -9,7 +9,7 @@ import pytest
 
 @pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('html', testroot='images')
-def test_html_remote_images(app):
+def test_html_remote_images(app) -> None:
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -21,7 +21,7 @@ def test_html_remote_images(app):
 
 
 @pytest.mark.sphinx('html', testroot='image-escape')
-def test_html_encoded_image(app):
+def test_html_encoded_image(app) -> None:
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -30,7 +30,7 @@ def test_html_encoded_image(app):
 
 
 @pytest.mark.sphinx('html', testroot='remote-logo')
-def test_html_remote_logo(app):
+def test_html_remote_logo(app) -> None:
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -44,7 +44,7 @@ def test_html_remote_logo(app):
 
 
 @pytest.mark.sphinx('html', testroot='local-logo')
-def test_html_local_logo(app):
+def test_html_local_logo(app) -> None:
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -55,7 +55,7 @@ def test_html_local_logo(app):
 
 
 @pytest.mark.sphinx('html', testroot='html_scaled_image_link')
-def test_html_scaled_image_link(app):
+def test_html_scaled_image_link(app) -> None:
     app.build()
     context = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -97,7 +97,7 @@ def test_html_scaled_image_link(app):
 
 @pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('html', testroot='images')
-def test_copy_images(app):
+def test_copy_images(app) -> None:
     app.build()
 
     images_dir = Path(app.outdir) / '_images'

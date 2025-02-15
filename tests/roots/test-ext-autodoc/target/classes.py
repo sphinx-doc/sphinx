@@ -9,7 +9,7 @@ class Foo:
 
 
 class Bar:
-    def __init__(self, x, y):
+    def __init__(self, x, y) -> None:
         pass
 
 
@@ -26,7 +26,7 @@ class Qux:
         ]
     )
 
-    def __init__(self, x, y):
+    def __init__(self, x, y) -> None:
         pass
 
 

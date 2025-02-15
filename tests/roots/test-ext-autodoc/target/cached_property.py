@@ -7,6 +7,6 @@ class Foo:
         return 1
 
     @cached_property
-    def prop_with_type_comment(self):
+    def prop_with_type_comment(self) -> int:
         # type: () -> int
         return 1

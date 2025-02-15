@@ -15,7 +15,7 @@ from sphinx.transforms.post_transforms import SigElementFallbackTransform
 from sphinx.util.docutils import new_document
 
 if TYPE_CHECKING:
-    from typing import Any, NoReturn
+    from typing import Any, Never, NoReturn
 
     from _pytest.fixtures import SubRequest
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference')
-def test_nitpicky_warning(app):
+def test_nitpicky_warning(app) -> None:
     app.build()
     assert (
         'index.rst:4: WARNING: py:class reference target not found: io.StringIO'
@@ -41,7 +41,7 @@ def test_nitpicky_warning(app):
     testroot='transforms-post_transforms-missing-reference',
     freshenv=True,
 )
-def test_missing_reference(app):
+def test_missing_reference(app) -> None:
     def missing_reference(app_, env_, node_, contnode_):
         assert app_ is app
         assert env_ is app.env
@@ -64,7 +64,7 @@ def test_missing_reference(app):
     testroot='domain-py-python_use_unqualified_type_names',
     freshenv=True,
 )
-def test_missing_reference_conditional_pending_xref(app):
+def test_missing_reference_conditional_pending_xref(app) -> None:
     def missing_reference(_app, _env, _node, contnode):
         return contnode
 
@@ -82,7 +82,7 @@ def test_missing_reference_conditional_pending_xref(app):
     testroot='transforms-post_transforms-keyboard',
     freshenv=True,
 )
-def test_keyboard_hyphen_spaces(app):
+def test_keyboard_hyphen_spaces(app) -> None:
     """Regression test for issue 10495, we want no crash."""
     app.build()
     assert 'spanish' in (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -140,11 +140,11 @@ class TestSigElementFallbackTransform:
         class BaseCustomTranslatorClass(nodes.NodeVisitor):
             """Base class for a custom translator class, orthogonal to ``SphinxTranslator``."""
 
-            def __init__(self, document, *_a):
+            def __init__(self, document, *_a) -> None:
                 super().__init__(document)
                 # ignore other arguments
 
-            def dispatch_visit(self, node):
+            def dispatch_visit(self, node) -> None:
                 for node_class in node.__class__.__mro__:
                     if method := getattr(self, f'visit_{node_class.__name__}', None):
                         method(node)
@@ -153,11 +153,11 @@ class TestSigElementFallbackTransform:
                     logger.info('generic visit: %r', node.__class__.__name__)
                     super().dispatch_visit(node)
 
-            def unknown_visit(self, node):
+            def unknown_visit(self, node) -> Never:
                 logger.warning('unknown visit: %r', node.__class__.__name__)
                 raise nodes.SkipDeparture  # ignore unknown departure
 
-            def visit_document(self, node):
+            def visit_document(self, node) -> Never:
                 raise nodes.SkipDeparture  # ignore departure
 
             def mark_node(self, node: nodes.Node) -> NoReturn:

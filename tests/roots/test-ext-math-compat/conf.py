@@ -15,6 +15,6 @@ class MyMathDirective(Directive):
         return [nodes.math_block(text, text)]
 
 
-def setup(app):
+def setup(app) -> None:
     app.add_role('my_math', my_math_role)
     app.add_directive('my-math', MyMathDirective)

@@ -34,7 +34,7 @@ def overwrite_file(path: Path, content: str) -> Iterator[None]:
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_content_class(app):
+def test_autoclass_content_class(app) -> None:
     app.config.autoclass_content = 'class'
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
@@ -94,7 +94,7 @@ def test_autoclass_content_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_content_init(app):
+def test_autoclass_content_init(app) -> None:
     app.config.autoclass_content = 'init'
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
@@ -154,7 +154,7 @@ def test_autoclass_content_init(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_class_signature_mixed(app):
+def test_autodoc_class_signature_mixed(app) -> None:
     app.config.autodoc_class_signature = 'mixed'
     options = {
         'members': None,
@@ -170,7 +170,7 @@ def test_autodoc_class_signature_mixed(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_class_signature_separated_init(app):
+def test_autodoc_class_signature_separated_init(app) -> None:
     app.config.autodoc_class_signature = 'separated'
     options = {
         'members': None,
@@ -190,7 +190,7 @@ def test_autodoc_class_signature_separated_init(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_class_signature_separated_new(app):
+def test_autodoc_class_signature_separated_new(app) -> None:
     app.config.autodoc_class_signature = 'separated'
     options = {
         'members': None,
@@ -211,7 +211,7 @@ def test_autodoc_class_signature_separated_new(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_content_both(app):
+def test_autoclass_content_both(app) -> None:
     app.config.autoclass_content = 'both'
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.autoclass_content', options)
@@ -281,7 +281,7 @@ def test_autoclass_content_both(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_inherit_docstrings(app):
+def test_autodoc_inherit_docstrings(app) -> None:
     assert app.config.autodoc_inherit_docstrings is True  # default
     actual = do_autodoc(app, 'method', 'target.inheritance.Derived.inheritedmeth')
     assert list(actual) == [
@@ -305,7 +305,7 @@ def test_autodoc_inherit_docstrings(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_inherit_docstrings_for_inherited_members(app):
+def test_autodoc_inherit_docstrings_for_inherited_members(app) -> None:
     options = {
         'members': None,
         'inherited-members': None,
@@ -385,7 +385,7 @@ def test_autodoc_inherit_docstrings_for_inherited_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_docstring_signature(app):
+def test_autodoc_docstring_signature(app) -> None:
     options = {'members': None, 'special-members': '__init__, __new__'}
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
     assert list(actual) == [
@@ -508,7 +508,7 @@ def test_autodoc_docstring_signature(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_content_and_docstring_signature_class(app):
+def test_autoclass_content_and_docstring_signature_class(app) -> None:
     app.config.autoclass_content = 'class'
     options = {
         'members': None,
@@ -547,7 +547,7 @@ def test_autoclass_content_and_docstring_signature_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_content_and_docstring_signature_init(app):
+def test_autoclass_content_and_docstring_signature_init(app) -> None:
     app.config.autoclass_content = 'init'
     options = {
         'members': None,
@@ -590,7 +590,7 @@ def test_autoclass_content_and_docstring_signature_init(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_content_and_docstring_signature_both(app):
+def test_autoclass_content_and_docstring_signature_both(app) -> None:
     app.config.autoclass_content = 'both'
     options = {
         'members': None,
@@ -638,7 +638,7 @@ def test_autoclass_content_and_docstring_signature_both(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_mocked_module_imports(app):
+def test_mocked_module_imports(app) -> None:
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
     # no autodoc_mock_imports
@@ -707,7 +707,7 @@ def test_mocked_module_imports(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'signature'},
 )
-def test_autodoc_typehints_signature(app):
+def test_autodoc_typehints_signature(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -834,7 +834,7 @@ def test_autodoc_typehints_signature(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'none'},
 )
-def test_autodoc_typehints_none(app):
+def test_autodoc_typehints_none(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -952,7 +952,7 @@ def test_autodoc_typehints_none(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'none'},
 )
-def test_autodoc_typehints_none_for_overload(app):
+def test_autodoc_typehints_none_for_overload(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.overload', options)
     assert list(actual) == [
@@ -1004,7 +1004,7 @@ def test_autodoc_typehints_none_for_overload(app):
     confoverrides={'autodoc_typehints': 'description'},
     freshenv=True,
 )
-def test_autodoc_typehints_description(app):
+def test_autodoc_typehints_description(app) -> None:
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert (
@@ -1047,7 +1047,7 @@ def test_autodoc_typehints_description(app):
     },
     copy_test_root=True,
 )
-def test_autodoc_typehints_description_no_undoc(app):
+def test_autodoc_typehints_description_no_undoc(app) -> None:
     # No :type: or :rtype: will be injected for `incr`, which does not have
     # a description for its parameters or its return. `tuple_args` does
     # describe them, so :type: and :rtype: will be added.
@@ -1100,7 +1100,7 @@ def test_autodoc_typehints_description_no_undoc(app):
     },
     copy_test_root=True,
 )
-def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
+def test_autodoc_typehints_description_no_undoc_doc_rtype(app) -> None:
     # No :type: will be injected for `incr`, which does not have a description
     # for its parameters or its return, just :rtype: will be injected due to
     # autodoc_typehints_description_target. `tuple_args` does describe both, so
@@ -1170,7 +1170,7 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     confoverrides={'autodoc_typehints': 'description'},
     copy_test_root=True,
 )
-def test_autodoc_typehints_description_with_documented_init(app):
+def test_autodoc_typehints_description_with_documented_init(app) -> None:
     with overwrite_file(
         app.srcdir / 'index.rst',
         '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
@@ -1215,7 +1215,7 @@ def test_autodoc_typehints_description_with_documented_init(app):
     },
     copy_test_root=True,
 )
-def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
+def test_autodoc_typehints_description_with_documented_init_no_undoc(app) -> None:
     with overwrite_file(
         app.srcdir / 'index.rst',
         '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
@@ -1250,7 +1250,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     },
     copy_test_root=True,
 )
-def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(app):
+def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(app) -> None:
     # see test_autodoc_typehints_description_with_documented_init_no_undoc
     # returnvalue_and_documented_params should not change class or method
     # docstring.
@@ -1284,7 +1284,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(a
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'description'},
 )
-def test_autodoc_typehints_description_for_invalid_node(app):
+def test_autodoc_typehints_description_for_invalid_node(app) -> None:
     text = '.. py:function:: hello; world'
     restructuredtext.parse(app, text)  # raises no error
 
@@ -1295,7 +1295,7 @@ def test_autodoc_typehints_description_for_invalid_node(app):
     confoverrides={'autodoc_typehints': 'both'},
     copy_test_root=True,
 )
-def test_autodoc_typehints_both(app):
+def test_autodoc_typehints_both(app) -> None:
     with overwrite_file(
         app.srcdir / 'index.rst',
         '.. autofunction:: target.typehints.incr\n'
@@ -1338,7 +1338,7 @@ def test_autodoc_typehints_both(app):
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc')
-def test_autodoc_type_aliases(app):
+def test_autodoc_type_aliases(app) -> None:
     # default
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
@@ -1492,7 +1492,7 @@ def test_autodoc_type_aliases(app):
         'autodoc_type_aliases': {'myint': 'myint'},
     },
 )
-def test_autodoc_typehints_description_and_type_aliases(app):
+def test_autodoc_typehints_description_and_type_aliases(app) -> None:
     with overwrite_file(
         app.srcdir / 'autodoc_type_aliases.rst',
         '.. autofunction:: target.autodoc_type_aliases.sum',
@@ -1519,7 +1519,7 @@ def test_autodoc_typehints_description_and_type_aliases(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints_format': 'fully-qualified'},
 )
-def test_autodoc_typehints_format_fully_qualified(app):
+def test_autodoc_typehints_format_fully_qualified(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -1646,7 +1646,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints_format': 'fully-qualified'},
 )
-def test_autodoc_typehints_format_fully_qualified_for_class_alias(app):
+def test_autodoc_typehints_format_fully_qualified_for_class_alias(app) -> None:
     actual = do_autodoc(app, 'class', 'target.classes.Alias')
     assert list(actual) == [
         '',
@@ -1662,7 +1662,7 @@ def test_autodoc_typehints_format_fully_qualified_for_class_alias(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints_format': 'fully-qualified'},
 )
-def test_autodoc_typehints_format_fully_qualified_for_generic_alias(app):
+def test_autodoc_typehints_format_fully_qualified_for_generic_alias(app) -> None:
     actual = do_autodoc(app, 'data', 'target.genericalias.L')
     assert list(actual) == [
         '',
@@ -1681,7 +1681,7 @@ def test_autodoc_typehints_format_fully_qualified_for_generic_alias(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints_format': 'fully-qualified'},
 )
-def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(app):
+def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(app) -> None:
     actual = do_autodoc(app, 'class', 'target.typevar.T6')
     assert list(actual) == [
         '',
@@ -1696,7 +1696,7 @@ def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_options(app):
+def test_autodoc_default_options(app) -> None:
     if (3, 11, 7) <= sys.version_info < (3, 12) or sys.version_info >= (3, 12, 1):
         list_of_weak_references = '      list of weak references to the object'
     else:
@@ -1775,7 +1775,7 @@ def test_autodoc_default_options(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_options_with_values(app):
+def test_autodoc_default_options_with_values(app) -> None:
     if (3, 11, 7) <= sys.version_info < (3, 12) or sys.version_info >= (3, 12, 1):
         list_of_weak_references = '      list of weak references to the object'
     else:

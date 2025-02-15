@@ -5,5 +5,5 @@ class SomeClass_:
     """A class with a trailing underscore"""
 
 
-def some_function_(some_arg_):
+def some_function_(some_arg_) -> None:
     """A function with a trailing underscore in name and argument"""

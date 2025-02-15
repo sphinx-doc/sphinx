@@ -48,7 +48,7 @@ def apidoc_params(request):
 
 
 @pytest.mark.apidoc(coderoot='test-root')
-def test_simple(make_app, apidoc):
+def test_simple(make_app, apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'index.rst').is_file()
@@ -66,7 +66,7 @@ def test_simple(make_app, apidoc):
         '--templatedir=tests/roots/test-ext-apidoc-custom-templates/_templates',
     ],
 )
-def test_custom_templates(make_app, apidoc):
+def test_custom_templates(make_app, apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'index.rst').is_file()
@@ -98,7 +98,7 @@ def test_custom_templates(make_app, apidoc):
     coderoot='test-ext-apidoc-pep420/a',
     options=['--implicit-namespaces'],
 )
-def test_pep_0420_enabled(make_app, apidoc):
+def test_pep_0420_enabled(make_app, apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'a.b.c.rst').is_file()
@@ -146,7 +146,7 @@ def test_pep_0420_enabled(make_app, apidoc):
     coderoot='test-ext-apidoc-pep420/a',
     options=['--implicit-namespaces', '--separate'],
 )
-def test_pep_0420_enabled_separate(make_app, apidoc):
+def test_pep_0420_enabled_separate(make_app, apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'a.b.c.rst').is_file()
@@ -193,7 +193,7 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
 
 
 @pytest.mark.apidoc(coderoot='test-ext-apidoc-pep420/a')
-def test_pep_0420_disabled(make_app, apidoc):
+def test_pep_0420_disabled(make_app, apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert not (outdir / 'a.b.c.rst').exists()
@@ -206,7 +206,7 @@ def test_pep_0420_disabled(make_app, apidoc):
 
 
 @pytest.mark.apidoc(coderoot='test-ext-apidoc-pep420/a/b')
-def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
+def test_pep_0420_disabled_top_level_verify(make_app, apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'c.rst').is_file()
@@ -225,7 +225,7 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
 
 
 @pytest.mark.apidoc(coderoot='test-ext-apidoc-trailing-underscore')
-def test_trailing_underscore(make_app, apidoc):
+def test_trailing_underscore(make_app, apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'package_.rst').is_file()
@@ -247,7 +247,7 @@ def test_trailing_underscore(make_app, apidoc):
     excludes=['b/c/d.py', 'b/e/f.py', 'b/e/__init__.py'],
     options=['--implicit-namespaces', '--separate'],
 )
-def test_excludes(apidoc):
+def test_excludes(apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'a.rst').is_file()
@@ -265,7 +265,7 @@ def test_excludes(apidoc):
     excludes=['b/e'],
     options=['--implicit-namespaces', '--separate'],
 )
-def test_excludes_subpackage_should_be_skipped(apidoc):
+def test_excludes_subpackage_should_be_skipped(apidoc) -> None:
     """Subpackage exclusion should work."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -282,7 +282,7 @@ def test_excludes_subpackage_should_be_skipped(apidoc):
     excludes=['b/e/f.py'],
     options=['--implicit-namespaces', '--separate'],
 )
-def test_excludes_module_should_be_skipped(apidoc):
+def test_excludes_module_should_be_skipped(apidoc) -> None:
     """Module exclusion should work."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -299,7 +299,7 @@ def test_excludes_module_should_be_skipped(apidoc):
     excludes=[],
     options=['--implicit-namespaces', '--separate'],
 )
-def test_excludes_module_should_not_be_skipped(apidoc):
+def test_excludes_module_should_not_be_skipped(apidoc) -> None:
     """Module should be included if no excludes are used."""
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -322,7 +322,7 @@ def test_excludes_module_should_not_be_skipped(apidoc):
         'リリース',
     ],
 )
-def test_multibyte_parameters(make_app, apidoc):
+def test_multibyte_parameters(make_app, apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
     assert (outdir / 'index.rst').is_file()
@@ -343,7 +343,7 @@ def test_multibyte_parameters(make_app, apidoc):
     coderoot='test-root',
     options=['--ext-mathjax'],
 )
-def test_extension_parsed(apidoc):
+def test_extension_parsed(apidoc) -> None:
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
 
@@ -356,7 +356,7 @@ def test_extension_parsed(apidoc):
     coderoot='test-ext-apidoc-toc/mypackage',
     options=['--implicit-namespaces'],
 )
-def test_toc_all_references_should_exist_pep420_enabled(apidoc):
+def test_toc_all_references_should_exist_pep420_enabled(apidoc) -> None:
     """All references in toc should exist. This test doesn't say if
     directories with empty __init__.py and and nothing else should be
     skipped, just ensures consistency between what's referenced in the toc
@@ -387,7 +387,7 @@ def test_toc_all_references_should_exist_pep420_enabled(apidoc):
 @pytest.mark.apidoc(
     coderoot='test-ext-apidoc-toc/mypackage',
 )
-def test_toc_all_references_should_exist_pep420_disabled(apidoc):
+def test_toc_all_references_should_exist_pep420_disabled(apidoc) -> None:
     """All references in toc should exist. This test doesn't say if
     directories with empty __init__.py and and nothing else should be
     skipped, just ensures consistency between what's referenced in the toc
@@ -435,7 +435,7 @@ def extract_toc(path):
     coderoot='test-ext-apidoc-subpackage-in-toc',
     options=['--separate'],
 )
-def test_subpackage_in_toc(apidoc):
+def test_subpackage_in_toc(apidoc) -> None:
     """Make sure that empty subpackages with non-empty subpackages in them
     are not skipped (issue #4520)
     """
@@ -455,7 +455,7 @@ def test_subpackage_in_toc(apidoc):
     assert (outdir / 'parent.child.foo.rst').is_file()
 
 
-def test_private(tmp_path):
+def test_private(tmp_path) -> None:
     (tmp_path / 'hello.py').touch()
     (tmp_path / '_world.py').touch()
 
@@ -474,7 +474,7 @@ def test_private(tmp_path):
     assert (tmp_path / '_world.rst').exists()
 
 
-def test_toc_file(tmp_path):
+def test_toc_file(tmp_path) -> None:
     outdir = tmp_path
     (outdir / 'module').mkdir(parents=True, exist_ok=True)
     (outdir / 'example.py').touch()
@@ -494,7 +494,7 @@ def test_toc_file(tmp_path):
     )
 
 
-def test_module_file(tmp_path):
+def test_module_file(tmp_path) -> None:
     outdir = tmp_path
     (outdir / 'example.py').touch()
     apidoc_main(['-o', str(tmp_path), str(tmp_path)])
@@ -512,7 +512,7 @@ def test_module_file(tmp_path):
     )
 
 
-def test_module_file_noheadings(tmp_path):
+def test_module_file_noheadings(tmp_path) -> None:
     outdir = tmp_path
     (outdir / 'example.py').touch()
     apidoc_main(['--no-headings', '-o', str(tmp_path), str(tmp_path)])
@@ -527,7 +527,7 @@ def test_module_file_noheadings(tmp_path):
     )
 
 
-def test_package_file(tmp_path):
+def test_package_file(tmp_path) -> None:
     outdir = tmp_path
     (outdir / 'testpkg').mkdir(parents=True, exist_ok=True)
     (outdir / 'testpkg' / '__init__.py').touch()
@@ -595,7 +595,7 @@ def test_package_file(tmp_path):
     )
 
 
-def test_package_file_separate(tmp_path):
+def test_package_file_separate(tmp_path) -> None:
     outdir = tmp_path
     (outdir / 'testpkg').mkdir(parents=True, exist_ok=True)
     (outdir / 'testpkg' / '__init__.py').touch()
@@ -638,7 +638,7 @@ def test_package_file_separate(tmp_path):
     )
 
 
-def test_package_file_module_first(tmp_path):
+def test_package_file_module_first(tmp_path) -> None:
     outdir = tmp_path
     (outdir / 'testpkg').mkdir(parents=True, exist_ok=True)
     (outdir / 'testpkg' / '__init__.py').touch()
@@ -668,7 +668,7 @@ def test_package_file_module_first(tmp_path):
     )
 
 
-def test_package_file_without_submodules(tmp_path):
+def test_package_file_without_submodules(tmp_path) -> None:
     outdir = tmp_path
     (outdir / 'testpkg').mkdir(parents=True, exist_ok=True)
     (outdir / 'testpkg' / '__init__.py').touch()
@@ -690,7 +690,7 @@ def test_package_file_without_submodules(tmp_path):
     )
 
 
-def test_namespace_package_file(tmp_path):
+def test_namespace_package_file(tmp_path) -> None:
     outdir = tmp_path
     (outdir / 'testpkg').mkdir(parents=True, exist_ok=True)
     (outdir / 'testpkg' / 'example.py').touch()
@@ -722,7 +722,7 @@ def test_namespace_package_file(tmp_path):
     )
 
 
-def test_no_duplicates(rootdir, tmp_path):
+def test_no_duplicates(rootdir, tmp_path) -> None:
     """Make sure that a ".pyx" and ".so" don't cause duplicate listings.
 
     We can't use pytest.mark.apidoc here as we use a different set of arguments
@@ -749,7 +749,7 @@ def test_no_duplicates(rootdir, tmp_path):
         sphinx.ext.apidoc._generate.PY_SUFFIXES = original_suffixes
 
 
-def test_remove_old_files(tmp_path: Path):
+def test_remove_old_files(tmp_path: Path) -> None:
     """Test that old files are removed when using the -r option.
 
     Also ensure that pre-existing files are not re-written, if unchanged.

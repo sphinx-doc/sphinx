@@ -12,7 +12,7 @@ from sphinx.testing.util import etree_parse
     testroot='smartquotes',
     freshenv=True,
 )
-def test_basic(app):
+def test_basic(app) -> None:
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -24,7 +24,7 @@ def test_basic(app):
     testroot='smartquotes',
     freshenv=True,
 )
-def test_literals(app):
+def test_literals(app) -> None:
     app.build()
 
     etree = etree_parse(app.outdir / 'literals.html')
@@ -44,7 +44,7 @@ def test_literals(app):
     testroot='smartquotes',
     freshenv=True,
 )
-def test_text_builder(app):
+def test_text_builder(app) -> None:
     app.build()
 
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -56,7 +56,7 @@ def test_text_builder(app):
     testroot='smartquotes',
     freshenv=True,
 )
-def test_man_builder(app):
+def test_man_builder(app) -> None:
     app.build()
 
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
@@ -68,7 +68,7 @@ def test_man_builder(app):
     testroot='smartquotes',
     freshenv=True,
 )
-def test_latex_builder(app):
+def test_latex_builder(app) -> None:
     app.build()
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -81,7 +81,7 @@ def test_latex_builder(app):
     freshenv=True,
     confoverrides={'language': 'ja'},
 )
-def test_ja_html_builder(app):
+def test_ja_html_builder(app) -> None:
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -94,7 +94,7 @@ def test_ja_html_builder(app):
     freshenv=True,
     confoverrides={'language': 'zh_CN'},
 )
-def test_zh_cn_html_builder(app):
+def test_zh_cn_html_builder(app) -> None:
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -107,7 +107,7 @@ def test_zh_cn_html_builder(app):
     freshenv=True,
     confoverrides={'language': 'zh_TW'},
 )
-def test_zh_tw_html_builder(app):
+def test_zh_tw_html_builder(app) -> None:
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -120,7 +120,7 @@ def test_zh_tw_html_builder(app):
     freshenv=True,
     confoverrides={'smartquotes': False},
 )
-def test_smartquotes_disabled(app):
+def test_smartquotes_disabled(app) -> None:
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -133,7 +133,7 @@ def test_smartquotes_disabled(app):
     freshenv=True,
     confoverrides={'smartquotes_action': 'q'},
 )
-def test_smartquotes_action(app):
+def test_smartquotes_action(app) -> None:
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -146,7 +146,7 @@ def test_smartquotes_action(app):
     freshenv=True,
     confoverrides={'language': 'ja', 'smartquotes_excludes': {}},
 )
-def test_smartquotes_excludes_language(app):
+def test_smartquotes_excludes_language(app) -> None:
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -159,7 +159,7 @@ def test_smartquotes_excludes_language(app):
     freshenv=True,
     confoverrides={'smartquotes_excludes': {}},
 )
-def test_smartquotes_excludes_builders(app):
+def test_smartquotes_excludes_builders(app) -> None:
     app.build()
 
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')

@@ -24,7 +24,7 @@ from sphinx.testing.util import assert_node
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyexception_signature(app):
+def test_pyexception_signature(app) -> None:
     text = '.. py:exception:: builtins.IOError'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -61,7 +61,7 @@ def test_pyexception_signature(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pydata_signature(app):
+def test_pydata_signature(app) -> None:
     text = '.. py:data:: version\n   :type: int\n   :value: 1\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -110,7 +110,7 @@ def test_pydata_signature(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pydata_signature_old(app):
+def test_pydata_signature_old(app) -> None:
     text = '.. py:data:: version\n   :annotation: = 1\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -143,7 +143,7 @@ def test_pydata_signature_old(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pydata_with_union_type_operator(app):
+def test_pydata_with_union_type_operator(app) -> None:
     text = '.. py:data:: version\n   :type: int | str'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -167,7 +167,7 @@ def test_pydata_with_union_type_operator(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyobject_prefix(app):
+def test_pyobject_prefix(app) -> None:
     text = (
         '.. py:class:: Foo\n\n   .. py:method:: Foo.say\n   .. py:method:: FooBar.say'
     )
@@ -201,7 +201,7 @@ def test_pyobject_prefix(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pydata(app):
+def test_pydata(app) -> None:
     text = '.. py:module:: example\n.. py:data:: var\n   :type: int\n'
     domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
@@ -240,7 +240,7 @@ def test_pydata(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyclass_options(app):
+def test_pyclass_options(app) -> None:
     text = '.. py:class:: Class1\n.. py:class:: Class2\n   :final:\n'
     domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
@@ -309,7 +309,7 @@ def test_pyclass_options(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pymethod_options(app):
+def test_pymethod_options(app) -> None:
     text = (
         '.. py:class:: Class\n'
         '\n'
@@ -505,7 +505,7 @@ def test_pymethod_options(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyclassmethod(app):
+def test_pyclassmethod(app) -> None:
     text = '.. py:class:: Class\n\n   .. py:classmethod:: meth\n'
     domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
@@ -558,7 +558,7 @@ def test_pyclassmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pystaticmethod(app):
+def test_pystaticmethod(app) -> None:
     text = '.. py:class:: Class\n\n   .. py:staticmethod:: meth\n'
     domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
@@ -608,7 +608,7 @@ def test_pystaticmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyattribute(app):
+def test_pyattribute(app) -> None:
     text = (
         '.. py:class:: Class\n'
         '\n'
@@ -685,7 +685,7 @@ def test_pyattribute(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyproperty(app):
+def test_pyproperty(app) -> None:
     text = (
         '.. py:class:: Class\n'
         '\n'
@@ -796,7 +796,7 @@ def test_pyproperty(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_py_type_alias(app):
+def test_py_type_alias(app) -> None:
     text = (
         '.. py:module:: example\n'
         '.. py:type:: Alias1\n'
@@ -920,7 +920,7 @@ def test_py_type_alias(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-py', freshenv=True)
-def test_domain_py_type_alias(app):
+def test_domain_py_type_alias(app) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'type_alias.html').read_text(encoding='utf8')
@@ -941,7 +941,7 @@ def test_domain_py_type_alias(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pydecorator_signature(app):
+def test_pydecorator_signature(app) -> None:
     text = '.. py:decorator:: deco'
     domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
@@ -972,7 +972,7 @@ def test_pydecorator_signature(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pydecoratormethod_signature(app):
+def test_pydecoratormethod_signature(app) -> None:
     text = '.. py:decoratormethod:: deco'
     domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
@@ -1003,7 +1003,7 @@ def test_pydecoratormethod_signature(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pycurrentmodule(app):
+def test_pycurrentmodule(app) -> None:
     text = (
         '.. py:module:: Other\n'
         '\n'

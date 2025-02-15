@@ -12,7 +12,7 @@ import pytest
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
-def test_githubpages(app):
+def test_githubpages(app) -> None:
     app.build()
 
     assert 'slowest reading durations' in app.status.getvalue()

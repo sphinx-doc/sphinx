@@ -8,7 +8,7 @@ import pytest
 
 
 @pytest.mark.sphinx('coverage', testroot='root')
-def test_build(app):
+def test_build(app) -> None:
     app.build(force_all=True)
 
     py_undoc = (app.outdir / 'python.txt').read_text(encoding='utf8')
@@ -52,7 +52,7 @@ def test_build(app):
 
 
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
-def test_coverage_ignore_pyobjects(app):
+def test_coverage_ignore_pyobjects(app) -> None:
     app.build(force_all=True)
     actual = (app.outdir / 'python.txt').read_text(encoding='utf8')
     expected = """\
@@ -97,7 +97,7 @@ Classes:
 @pytest.mark.sphinx(
     'coverage', testroot='root', confoverrides={'coverage_show_missing_items': True}
 )
-def test_show_missing_items(app):
+def test_show_missing_items(app) -> None:
     app.build(force_all=True)
 
     assert 'undocumented' in app.status.getvalue()
@@ -112,7 +112,7 @@ def test_show_missing_items(app):
 @pytest.mark.sphinx(
     'coverage', testroot='root', confoverrides={'coverage_show_missing_items': True}
 )
-def test_show_missing_items_quiet(app):
+def test_show_missing_items_quiet(app) -> None:
     app.quiet = True
     app.build(force_all=True)
 

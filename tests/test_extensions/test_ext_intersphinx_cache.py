@@ -49,7 +49,7 @@ class InventoryEntry:
         uri: str = 'index.html',
         anchor: str = '',
         priority: int = 0,
-    ):
+    ) -> None:
         if anchor.endswith(name):
             anchor = anchor.removesuffix(name) + '$'
 
@@ -197,7 +197,7 @@ def make_inventory_handler(
     assert all(p.port == port for p in projects)
 
     class InventoryHandler(BaseHTTPRequestHandler):
-        def do_GET(self):
+        def do_GET(self) -> None:
             self.send_response(200, 'OK')
 
             data = b''
@@ -212,19 +212,19 @@ def make_inventory_handler(
             self.end_headers()
             self.wfile.write(data)
 
-        def log_message(*args, **kwargs):
+        def log_message(*args, **kwargs) -> None:
             pass
 
     return InventoryHandler
 
 
-def test_intersphinx_project_fixture():
+def test_intersphinx_project_fixture() -> None:
     # check that our fixture class is correct
     project = SingleEntryProject(1, 'route')
     assert project.url == 'http://localhost:9341/route'
 
 
-def test_load_mappings_cache(tmp_path):
+def test_load_mappings_cache(tmp_path) -> None:
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').touch()
     project = SingleEntryProject(1, 'a')
@@ -248,7 +248,7 @@ def test_load_mappings_cache(tmp_path):
     assert inventories.named_inventory == {'spam': {'py:module': item}}
 
 
-def test_load_mappings_cache_update(tmp_path):
+def test_load_mappings_cache_update(tmp_path) -> None:
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').touch()
     old_project = SingleEntryProject(1337, 'old')
@@ -279,7 +279,7 @@ def test_load_mappings_cache_update(tmp_path):
     assert inventories.named_inventory == {'spam': {'py:module': item}}
 
 
-def test_load_mappings_cache_revert_update(tmp_path):
+def test_load_mappings_cache_revert_update(tmp_path) -> None:
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').touch()
     old_project = SingleEntryProject(1337, 'old')

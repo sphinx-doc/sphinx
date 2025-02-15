@@ -16,7 +16,7 @@ cleanup_called = 0
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest')
-def test_build(app):
+def test_build(app) -> None:
     global cleanup_called  # NoQA: PLW0603
     cleanup_called = 0
     app.build(force_all=True)
@@ -27,7 +27,7 @@ def test_build(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-doctest')
-def test_highlight_language_default(app):
+def test_highlight_language_default(app) -> None:
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
@@ -39,14 +39,14 @@ def test_highlight_language_default(app):
     testroot='ext-doctest',
     confoverrides={'highlight_language': 'python'},
 )
-def test_highlight_language_python3(app):
+def test_highlight_language_python3(app) -> None:
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
         assert node['language'] in {'python', 'pycon', 'none'}
 
 
-def test_is_allowed_version():
+def test_is_allowed_version() -> None:
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.2', '3.3') is False
@@ -70,7 +70,7 @@ def test_is_allowed_version():
         is_allowed_version('>3.4', 'Sphinx')
 
 
-def cleanup_call():
+def cleanup_call() -> None:
     global cleanup_called  # NoQA: PLW0603
     cleanup_called += 1
 
@@ -79,7 +79,7 @@ recorded_calls: Counter[tuple[str, str, int]] = Counter()
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
-def test_skipif(app):
+def test_skipif(app) -> None:
     """Tests for the :skipif: option
 
     The tests are separated into a different test root directory since the
@@ -121,13 +121,13 @@ def test_skipif(app):
     }
 
 
-def record(directive, part, should_skip):
+def record(directive, part, should_skip) -> str:
     recorded_calls[directive, part, should_skip] += 1
     return f'Recorded {directive} {part} {should_skip}'
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
-def test_reporting_with_autodoc(app, capfd):
+def test_reporting_with_autodoc(app, capfd) -> None:
     # Patch builder to get a copy of the output
     written = []
     app.builder._warn_out = written.append

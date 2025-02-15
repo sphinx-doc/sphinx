@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
-def test_register_node():
+def test_register_node() -> None:
     class custom_node(nodes.Element):
         pass
 
@@ -40,7 +40,7 @@ def test_register_node():
     assert not hasattr(nodes.SparseNodeVisitor, 'depart_custom_node')
 
 
-def test_SphinxFileOutput(tmp_path):
+def test_SphinxFileOutput(tmp_path) -> None:
     content = 'Hello Sphinx World'
 
     # write test.txt at first
@@ -69,25 +69,25 @@ def test_SphinxFileOutput(tmp_path):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_SphinxTranslator(app):
+def test_SphinxTranslator(app) -> None:
     class CustomNode(nodes.inline):
         pass
 
     class MyTranslator(SphinxTranslator):
-        def __init__(self, document: nodes.document, builder: Builder):
+        def __init__(self, document: nodes.document, builder: Builder) -> None:
             self.called: list[str] = []
             super().__init__(document, builder)
 
-        def visit_document(self, node):
+        def visit_document(self, node) -> None:
             pass
 
-        def depart_document(self, node):
+        def depart_document(self, node) -> None:
             pass
 
-        def visit_inline(self, node):
+        def visit_inline(self, node) -> None:
             self.called.append('visit_inline')
 
-        def depart_inline(self, node):
+        def depart_inline(self, node) -> None:
             self.called.append('depart_inline')
 
     document = new_document('')

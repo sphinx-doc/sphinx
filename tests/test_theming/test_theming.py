@@ -28,7 +28,7 @@ HERE = Path(__file__).resolve().parent
     testroot='theming',
     confoverrides={'html_theme': 'ziptheme', 'html_theme_options.testopt': 'foo'},
 )
-def test_theme_api(app):
+def test_theme_api(app) -> None:
     themes = [
         'basic',
         'default',
@@ -92,7 +92,7 @@ def test_theme_api(app):
     assert not any(p.exists() for p in theme._tmp_dirs)
 
 
-def test_nonexistent_theme_settings(tmp_path):
+def test_nonexistent_theme_settings(tmp_path) -> None:
     # Check that error occurs with a non-existent theme.toml or theme.conf
     # (https://github.com/sphinx-doc/sphinx/issues/11668)
     with pytest.raises(ThemeError):
@@ -100,7 +100,7 @@ def test_nonexistent_theme_settings(tmp_path):
 
 
 @pytest.mark.sphinx('html', testroot='double-inheriting-theme')
-def test_double_inheriting_theme(app):
+def test_double_inheriting_theme(app) -> None:
     assert app.builder.theme.name == 'base_theme2'
     app.build()  # => not raises TemplateNotFound
 
@@ -110,7 +110,7 @@ def test_double_inheriting_theme(app):
     testroot='theming',
     confoverrides={'html_theme': 'child'},
 )
-def test_nested_zipped_theme(app):
+def test_nested_zipped_theme(app) -> None:
     assert app.builder.theme.name == 'child'
     app.build()  # => not raises TemplateNotFound
 
@@ -120,7 +120,7 @@ def test_nested_zipped_theme(app):
     testroot='theming',
     confoverrides={'html_theme': 'staticfiles'},
 )
-def test_staticfiles(app):
+def test_staticfiles(app) -> None:
     app.build()
     assert (app.outdir / '_static' / 'legacytmpl.html').exists()
     assert (app.outdir / '_static' / 'legacytmpl.html').read_text(encoding='utf8') == (
@@ -142,7 +142,7 @@ def test_staticfiles(app):
     testroot='theming',
     confoverrides={'html_theme': 'test-theme'},
 )
-def test_dark_style(app, monkeypatch):
+def test_dark_style(app, monkeypatch) -> None:
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 
     style = app.builder.dark_highlighter.formatter_args.get('style')
@@ -174,7 +174,7 @@ def test_dark_style(app, monkeypatch):
 
 
 @pytest.mark.sphinx('html', testroot='theming')
-def test_theme_sidebars(app):
+def test_theme_sidebars(app) -> None:
     app.build()
 
     # test-theme specifies globaltoc and searchbox as default sidebars
@@ -204,7 +204,7 @@ def test_theme_sidebars(app):
         'traditional',
     ],
 )
-def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
+def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name) -> None:
     """Test all the themes included with Sphinx build a simple project and produce valid XML."""
     testroot_path = rootdir / 'test-basic'
     srcdir = sphinx_test_tempdir / f'test-theme-{theme_name}'
@@ -223,7 +223,7 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
 
 
-def test_config_file_toml():
+def test_config_file_toml() -> None:
     config_path = HERE / 'theme.toml'
     cfg = _load_theme_toml(config_path)
     config = _convert_theme_toml(cfg)
@@ -237,7 +237,7 @@ def test_config_file_toml():
     )
 
 
-def test_config_file_conf():
+def test_config_file_conf() -> None:
     config_path = HERE / 'theme.conf'
     cfg = _load_theme_conf(config_path)
     config = _convert_theme_conf(cfg)

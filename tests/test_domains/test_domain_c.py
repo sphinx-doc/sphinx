@@ -49,7 +49,7 @@ def parse(name, string):
     return ast
 
 
-def _check(name, input, id_dict, output, key, as_text_output):
+def _check(name, input, id_dict, output, key, as_text_output) -> None:
     if key is None:
         key = name
     key += ' '
@@ -118,7 +118,7 @@ def _check(name, input, id_dict, output, key, as_text_output):
         raise DefinitionError
 
 
-def check(name, input, id_dict, output=None, key=None, as_text_output=None):
+def check(name, input, id_dict, output=None, key=None, as_text_output=None) -> None:
     if output is None:
         output = input
     # First, check without semicolon
@@ -135,8 +135,8 @@ def check(name, input, id_dict, output=None, key=None, as_text_output=None):
         )
 
 
-def test_domain_c_ast_expressions():
-    def expr_check(expr, output=None):
+def test_domain_c_ast_expressions() -> None:
+    def expr_check(expr, output=None) -> None:
         parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
@@ -336,7 +336,7 @@ def test_domain_c_ast_expressions():
     expr_check('a or_eq 5')
 
 
-def test_domain_c_ast_fundamental_types():
+def test_domain_c_ast_fundamental_types() -> None:
     def types():
         def signed(t):
             yield t
@@ -403,7 +403,7 @@ def test_domain_c_ast_fundamental_types():
                 check('type', input, {1: 'foo'}, key='typedef', output=output)
 
 
-def test_domain_c_ast_type_definitions():
+def test_domain_c_ast_type_definitions() -> None:
     check('type', '{key}T', {1: 'T'})
 
     check('type', '{key}bool *b', {1: 'b'}, key='typedef')
@@ -428,7 +428,7 @@ def test_domain_c_ast_type_definitions():
     )
 
 
-def test_domain_c_ast_macro_definitions():
+def test_domain_c_ast_macro_definitions() -> None:
     check('macro', 'M', {1: 'M'})
     check('macro', 'M()', {1: 'M'})
     check('macro', 'M(arg)', {1: 'M'})
@@ -444,7 +444,7 @@ def test_domain_c_ast_macro_definitions():
         check('macro', 'M(arg1, arg2..., arg3)', {1: 'M'})
 
 
-def test_domain_c_ast_member_definitions():
+def test_domain_c_ast_member_definitions() -> None:
     check('member', 'void a', {1: 'a'})
     check('member', '_Bool a', {1: 'a'})
     check('member', 'bool a', {1: 'a'})
@@ -500,7 +500,7 @@ def test_domain_c_ast_member_definitions():
     check('member', 'int b : 3', {1: 'b'})
 
 
-def test_domain_c_ast_function_definitions():
+def test_domain_c_ast_function_definitions() -> None:
     check('function', 'void f()', {1: 'f'})
     check('function', 'void f(int)', {1: 'f'})
     check('function', 'void f(int i)', {1: 'f'})
@@ -568,29 +568,29 @@ def test_domain_c_ast_function_definitions():
     check('function', 'void f(void (*p)(int, double), int i)', {1: 'f'})
 
 
-def test_domain_c_ast_nested_name():
+def test_domain_c_ast_nested_name() -> None:
     check('struct', '{key}.A', {1: 'A'})
     check('struct', '{key}.A.B', {1: 'A.B'})
     check('function', 'void f(.A a)', {1: 'f'})
     check('function', 'void f(.A.B a)', {1: 'f'})
 
 
-def test_domain_c_ast_struct_definitions():
+def test_domain_c_ast_struct_definitions() -> None:
     check('struct', '{key}A', {1: 'A'})
 
 
-def test_domain_c_ast_union_definitions():
+def test_domain_c_ast_union_definitions() -> None:
     check('union', '{key}A', {1: 'A'})
 
 
-def test_domain_c_ast_enum_definitions():
+def test_domain_c_ast_enum_definitions() -> None:
     check('enum', '{key}A', {1: 'A'})
 
     check('enumerator', '{key}A', {1: 'A'})
     check('enumerator', '{key}A = 42', {1: 'A'})
 
 
-def test_domain_c_ast_anon_definitions():
+def test_domain_c_ast_anon_definitions() -> None:
     check('struct', '@a', {1: '@a'}, as_text_output='struct [anonymous]')
     check('union', '@a', {1: '@a'}, as_text_output='union [anonymous]')
     check('enum', '@a', {1: '@a'}, as_text_output='enum [anonymous]')
@@ -598,7 +598,7 @@ def test_domain_c_ast_anon_definitions():
     check('struct', '@a.A', {1: '@a.A'}, as_text_output='struct [anonymous].A')
 
 
-def test_domain_c_ast_initializers():
+def test_domain_c_ast_initializers() -> None:
     ids_member = {1: 'v'}
     ids_function = {1: 'f'}
     # no init
@@ -617,7 +617,7 @@ def test_domain_c_ast_initializers():
     # TODO: designator-list
 
 
-def test_domain_c_ast_attributes():
+def test_domain_c_ast_attributes() -> None:
     # style: C++
     check('member', '[[]] int f', {1: 'f'})
     check(
@@ -686,7 +686,7 @@ def test_domain_c_ast_attributes():
     )
 
 
-def test_extra_keywords():
+def test_extra_keywords() -> None:
     with pytest.raises(DefinitionError, match='Expected identifier in nested name'):
         parse('function', 'void complex(void)')
 
@@ -740,14 +740,14 @@ def extract_role_links(app, filename):
 
 
 @pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build(app):
+def test_domain_c_build(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'index')
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_namespace(app):
+def test_domain_c_build_namespace(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'namespace')
     assert len(ws) == 0
@@ -757,7 +757,7 @@ def test_domain_c_build_namespace(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_anon_dup_decl(app):
+def test_domain_c_build_anon_dup_decl(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'anon-dup-decl')
     assert len(ws) == 2
@@ -766,7 +766,7 @@ def test_domain_c_build_anon_dup_decl(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank', confoverrides={'nitpicky': True})
-def test_domain_c_build_semicolon(app):
+def test_domain_c_build_semicolon(app) -> None:
     text = """
 .. c:member:: int member;
 .. c:var:: int var;
@@ -785,7 +785,7 @@ def test_domain_c_build_semicolon(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_function_param_target(app):
+def test_domain_c_build_function_param_target(app) -> None:
     # the anchor for function parameters should be the function
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'function_param_target')
@@ -798,14 +798,14 @@ def test_domain_c_build_function_param_target(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_ns_lookup(app):
+def test_domain_c_build_ns_lookup(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'ns_lookup')
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_field_role(app):
+def test_domain_c_build_field_role(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'field-role')
     assert len(ws) == 0
@@ -822,7 +822,7 @@ def _get_obj(app, query_name):
 @pytest.mark.sphinx(
     'html', testroot='domain-c-intersphinx', confoverrides={'nitpicky': True}
 )
-def test_domain_c_build_intersphinx(tmp_path, app):
+def test_domain_c_build_intersphinx(tmp_path, app) -> None:
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
     orig_source = """\
@@ -876,7 +876,7 @@ _var c:member 1 index.html#c.$ -
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_domain_c_parse_cfunction(app):
+def test_domain_c_parse_cfunction(app) -> None:
     text = (
         '.. c:function:: PyObject* '
         'PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)'
@@ -896,7 +896,7 @@ def test_domain_c_parse_cfunction(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_domain_c_parse_cmember(app):
+def test_domain_c_parse_cmember(app) -> None:
     text = '.. c:member:: PyObject* PyTypeObject.tp_bases'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -913,7 +913,7 @@ def test_domain_c_parse_cmember(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_domain_c_parse_cvar(app):
+def test_domain_c_parse_cvar(app) -> None:
     text = '.. c:var:: PyObject* PyClass_Type'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -930,7 +930,7 @@ def test_domain_c_parse_cvar(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_domain_c_parse_no_index_entry(app):
+def test_domain_c_parse_no_index_entry(app) -> None:
     text = '.. c:function:: void f()\n.. c:function:: void g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
@@ -949,7 +949,7 @@ def test_domain_c_parse_no_index_entry(app):
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
+def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app) -> None:
     text = '.. c:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -1010,7 +1010,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(app):
+def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(app) -> None:
     text = '.. c:function:: str hello(str names)\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -1071,7 +1071,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
+def test_cfunction_signature_with_c_maximum_signature_line_length_break(app) -> None:
     text = '.. c:function:: str hello(str names)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -1130,7 +1130,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
         'maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
+def test_cfunction_signature_with_maximum_signature_line_length_equal(app) -> None:
     text = '.. c:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -1191,7 +1191,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
         'maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cfunction_signature_with_maximum_signature_line_length_force_single(app):
+def test_cfunction_signature_with_maximum_signature_line_length_force_single(app) -> None:
     text = '.. c:function:: str hello(str names)\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -1252,7 +1252,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
         'maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cfunction_signature_with_maximum_signature_line_length_break(app):
+def test_cfunction_signature_with_maximum_signature_line_length_break(app) -> None:
     text = '.. c:function:: str hello(str names)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -1312,7 +1312,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_break(app):
         'maximum_signature_line_length': 1,
     },
 )
-def test_c_maximum_signature_line_length_overrides_global(app):
+def test_c_maximum_signature_line_length_overrides_global(app) -> None:
     text = '.. c:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -1365,7 +1365,7 @@ def test_c_maximum_signature_line_length_overrides_global(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-c-c_maximum_signature_line_length')
-def test_domain_c_c_maximum_signature_line_length_in_html(app):
+def test_domain_c_c_maximum_signature_line_length_in_html(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
     expected = """\
@@ -1390,7 +1390,7 @@ def test_domain_c_c_maximum_signature_line_length_in_html(app):
     'text',
     testroot='domain-c-c_maximum_signature_line_length',
 )
-def test_domain_c_c_maximum_signature_line_length_in_text(app):
+def test_domain_c_c_maximum_signature_line_length_in_text(app) -> None:
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'

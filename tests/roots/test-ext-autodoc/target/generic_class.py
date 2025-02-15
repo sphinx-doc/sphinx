@@ -10,5 +10,5 @@ T = TypeVar('T')
 class A(Generic[T]):
     """docstring for A"""
 
-    def __init__(self, a, b=None):
+    def __init__(self, a, b=None) -> None:
         pass

@@ -11,12 +11,12 @@ class Foo:
         """docstring"""
 
     @property
-    def prop1_with_type_comment(self):
+    def prop1_with_type_comment(self) -> None:
         # type: () -> int
         """docstring"""
 
     @classmethod
     @property
-    def prop2_with_type_comment(cls):
+    def prop2_with_type_comment(cls) -> None:
         # type: () -> int
         """docstring"""

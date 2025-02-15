@@ -10,7 +10,7 @@
 """  # NoQA: D212
 
 
-def with_sentence():
+def with_sentence() -> None:
     """I have a sentence which
     spans multiple lines. Then I have
     more stuff
@@ -18,7 +18,7 @@ def with_sentence():
     pass
 
 
-def no_sentence():
+def no_sentence() -> None:
     """this doesn't start with a
     capital. so it's not considered
     a sentence
@@ -26,7 +26,7 @@ def no_sentence():
     pass
 
 
-def empty_line():
+def empty_line() -> None:
     """This is the real summary
 
     However, it did't end with a period.
@@ -51,13 +51,13 @@ class C:
     #: value is integer.
     class_attr = 42
 
-    def __init__(self):
+    def __init__(self) -> None:
         #: This is an instance attribute
         #:
         #: value is a string
         self.instance_attr = '42'
 
-    def _prop_attr_get(self):
+    def _prop_attr_get(self) -> str:
         """This is a function docstring
 
         return value is string.
@@ -77,5 +77,5 @@ class C:
         """This is a nested inner class docstring"""
 
 
-def func(arg_, *args, **kwargs):
+def func(arg_, *args, **kwargs) -> None:
     """Test function take an argument ended with underscore."""

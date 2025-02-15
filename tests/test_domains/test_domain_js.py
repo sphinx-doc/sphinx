@@ -28,11 +28,11 @@ from sphinx.writers.text import STDINDENT
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_xrefs(app):
+def test_domain_js_xrefs(app) -> None:
     """Domain objects have correct prefixes when looking up xrefs"""
     app.build(force_all=True)
 
-    def assert_refnode(node, mod_name, prefix, target, reftype=None, domain='js'):
+    def assert_refnode(node, mod_name, prefix, target, reftype=None, domain='js') -> None:
         attributes = {
             'refdomain': domain,
             'reftarget': target,
@@ -101,7 +101,7 @@ def test_domain_js_xrefs(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_objects(app):
+def test_domain_js_objects(app) -> None:
     app.build(force_all=True)
 
     modules = app.env.domains.javascript_domain.data['modules']
@@ -131,7 +131,7 @@ def test_domain_js_objects(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_find_obj(app):
+def test_domain_js_find_obj(app) -> None:
     def find_obj(mod_name, prefix, obj_name, obj_type, searchmode=0):
         return app.env.domains.javascript_domain.find_obj(
             app.env, mod_name, prefix, obj_name, obj_type, searchmode
@@ -173,7 +173,7 @@ def test_domain_js_find_obj(app):
     ) == ('module_a.submodule', ('module', 'module-module_a.submodule', 'module'))
 
 
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = JavaScriptDomain(env)
 
@@ -202,7 +202,7 @@ def test_get_full_qualified_name():
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_js_module(app):
+def test_js_module(app) -> None:
     text = '.. js:module:: sphinx'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, nodes.target))
@@ -215,7 +215,7 @@ def test_js_module(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_js_function(app):
+def test_js_function(app) -> None:
     text = '.. js:function:: sum(a, b)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -255,7 +255,7 @@ def test_js_function(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_js_class(app):
+def test_js_class(app) -> None:
     text = '.. js:class:: Application'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -290,7 +290,7 @@ def test_js_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_js_data(app):
+def test_js_data(app) -> None:
     text = '.. js:data:: name'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -315,7 +315,7 @@ def test_js_data(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_no_index_entry(app):
+def test_no_index_entry(app) -> None:
     text = '.. js:function:: f()\n.. js:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
@@ -347,7 +347,7 @@ def test_no_index_entry(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_module_content_line_number(app):
+def test_module_content_line_number(app) -> None:
     text = '.. js:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))
@@ -364,7 +364,7 @@ def test_module_content_line_number(app):
         'javascript_maximum_signature_line_length': len('hello(name)'),
     },
 )
-def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equal(app):
+def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equal(app) -> None:
     text = '.. js:function:: hello(name)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -410,7 +410,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equa
 )
 def test_jsfunction_signature_with_javascript_maximum_signature_line_length_force_single(
     app,
-):
+) -> None:
     text = '.. js:function:: hello(names)\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -454,7 +454,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_forc
         'javascript_maximum_signature_line_length': len('hello(name)'),
     },
 )
-def test_jsfunction_signature_with_javascript_maximum_signature_line_length_break(app):
+def test_jsfunction_signature_with_javascript_maximum_signature_line_length_break(app) -> None:
     text = '.. js:function:: hello(names)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -498,7 +498,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_brea
         'maximum_signature_line_length': len('hello(name)'),
     },
 )
-def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
+def test_jsfunction_signature_with_maximum_signature_line_length_equal(app) -> None:
     text = '.. js:function:: hello(name)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -542,7 +542,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
         'maximum_signature_line_length': len('hello(name)'),
     },
 )
-def test_jsfunction_signature_with_maximum_signature_line_length_force_single(app):
+def test_jsfunction_signature_with_maximum_signature_line_length_force_single(app) -> None:
     text = '.. js:function:: hello(names)\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -586,7 +586,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_force_single(ap
         'maximum_signature_line_length': len('hello(name)'),
     },
 )
-def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
+def test_jsfunction_signature_with_maximum_signature_line_length_break(app) -> None:
     text = '.. js:function:: hello(names)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -631,7 +631,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
         'maximum_signature_line_length': 1,
     },
 )
-def test_javascript_maximum_signature_line_length_overrides_global(app):
+def test_javascript_maximum_signature_line_length_overrides_global(app) -> None:
     text = '.. js:function:: hello(name)'
     doctree = restructuredtext.parse(app, text)
     expected_doctree = (
@@ -665,7 +665,7 @@ def test_javascript_maximum_signature_line_length_overrides_global(app):
     'html',
     testroot='domain-js-javascript_maximum_signature_line_length',
 )
-def test_domain_js_javascript_maximum_signature_line_length_in_html(app):
+def test_domain_js_javascript_maximum_signature_line_length_in_html(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected_parameter_list_hello = """\
@@ -738,7 +738,7 @@ def test_domain_js_javascript_maximum_signature_line_length_in_html(app):
     'text',
     testroot='domain-js-javascript_maximum_signature_line_length',
 )
-def test_domain_js_javascript_maximum_signature_line_length_in_text(app):
+def test_domain_js_javascript_maximum_signature_line_length_in_text(app) -> None:
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
@@ -781,7 +781,7 @@ def test_domain_js_javascript_maximum_signature_line_length_in_text(app):
     testroot='domain-js-javascript_maximum_signature_line_length',
     confoverrides={'javascript_trailing_comma_in_multi_line_signatures': False},
 )
-def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_html(app):
+def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_html(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected_parameter_list_hello = """\
@@ -856,7 +856,7 @@ def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_html(ap
     freshenv=True,
     confoverrides={'javascript_trailing_comma_in_multi_line_signatures': False},
 )
-def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_text(app):
+def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_text(app) -> None:
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'

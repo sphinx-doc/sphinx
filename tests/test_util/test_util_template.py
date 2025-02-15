@@ -5,13 +5,13 @@ from __future__ import annotations
 from sphinx.util.template import ReSTRenderer
 
 
-def test_ReSTRenderer_escape():
+def test_ReSTRenderer_escape() -> None:
     r = ReSTRenderer()
     template = '{{ "*hello*" | e }}'
     assert r.render_string(template, {}) == r'\*hello\*'
 
 
-def test_ReSTRenderer_heading():
+def test_ReSTRenderer_heading() -> None:
     r = ReSTRenderer()
 
     template = '{{ "hello" | heading }}'

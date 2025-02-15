@@ -19,6 +19,6 @@ def _copy_asset_overwrite_hook(app):
     return []
 
 
-def setup(app):
+def setup(app) -> None:
     app.connect('html-collect-pages', _copy_asset_overwrite_hook)
     app.add_css_file('custom-styles.css')

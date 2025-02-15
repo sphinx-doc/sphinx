@@ -42,11 +42,11 @@ defaults = {
 
 
 @pytest.fixture(autouse=True)
-def _unload_target_module():
+def _unload_target_module() -> None:
     sys.modules.pop('target', None)
 
 
-def test_mangle_signature():
+def test_mangle_signature() -> None:
     TEST_SIGNATURE = """
     () :: ()
     (a, b, c, d, e) :: (a, b, c, d, e)
@@ -78,7 +78,7 @@ def test_mangle_signature():
         assert res == outp, f"'{inp}' -> '{res}' != '{outp}'"
 
 
-def test_extract_summary(capsys):
+def test_extract_summary(capsys) -> None:
     settings = Mock(
         language_code='en',
         id_prefix='',
@@ -153,7 +153,7 @@ def test_extract_summary(capsys):
     confoverrides=defaults.copy(),
     copy_test_root=True,
 )
-def test_get_items_summary(make_app, app_params):
+def test_get_items_summary(make_app, app_params) -> None:
     import sphinx.ext.autosummary
     import sphinx.ext.autosummary.generate
 
@@ -172,7 +172,7 @@ def test_get_items_summary(make_app, app_params):
             autosummary_items[name] = result  # NoQA: PERF403
         return results
 
-    def handler(app, what, name, obj, options, lines):
+    def handler(app, what, name, obj, options, lines) -> None:
         assert isinstance(lines, list)
 
         # ensure no docstring is processed twice:
@@ -230,7 +230,7 @@ def str_content(elem: Element) -> str:
     confoverrides=defaults.copy(),
     copy_test_root=True,
 )
-def test_escaping(app):
+def test_escaping(app) -> None:
     app.build(force_all=True)
 
     docpage = app.builder.outdir / 'underscore_module_.xml'
@@ -241,7 +241,7 @@ def test_escaping(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
-def test_autosummary_generate_content_for_module(app):
+def test_autosummary_generate_content_for_module(app) -> None:
     import autosummary_dummy_module  # type: ignore[import-not-found]
 
     template = Mock()
@@ -301,7 +301,7 @@ def test_autosummary_generate_content_for_module(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
-def test_autosummary_generate_content_for_module___all__(app):
+def test_autosummary_generate_content_for_module___all__(app) -> None:
     import autosummary_dummy_module
 
     template = Mock()
@@ -346,12 +346,12 @@ def test_autosummary_generate_content_for_module___all__(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
-def test_autosummary_generate_content_for_module_skipped(app):
+def test_autosummary_generate_content_for_module_skipped(app) -> None:
     import autosummary_dummy_module
 
     template = Mock()
 
-    def skip_member(app, what, name, obj, skip, options):
+    def skip_member(app, what, name, obj, skip, options) -> bool | None:
         if name in {'Foo', 'bar', 'Exc'}:
             return True
         return None
@@ -392,7 +392,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
-def test_autosummary_generate_content_for_module_imported_members(app):
+def test_autosummary_generate_content_for_module_imported_members(app) -> None:
     import autosummary_dummy_module
 
     template = Mock()
@@ -458,7 +458,7 @@ def test_autosummary_generate_content_for_module_imported_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
-def test_autosummary_generate_content_for_module_imported_members_inherited_module(app):
+def test_autosummary_generate_content_for_module_imported_members_inherited_module(app) -> None:
     import autosummary_dummy_inherited_module  # type: ignore[import-not-found]
 
     template = Mock()
@@ -504,7 +504,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary', copy_test_root=True)
-def test_autosummary_generate(app):
+def test_autosummary_generate(app) -> None:
     app.build(force_all=True)
 
     doctree = app.env.get_doctree('index')
@@ -654,7 +654,7 @@ def test_autosummary_generate(app):
     confoverrides={'autosummary_generate_overwrite': False},
     copy_test_root=True,
 )
-def test_autosummary_generate_overwrite1(app_params, make_app):
+def test_autosummary_generate_overwrite1(app_params, make_app) -> None:
     args, kwargs = app_params
     srcdir = kwargs.get('srcdir')
 
@@ -674,7 +674,7 @@ def test_autosummary_generate_overwrite1(app_params, make_app):
     confoverrides={'autosummary_generate_overwrite': True},
     copy_test_root=True,
 )
-def test_autosummary_generate_overwrite2(app_params, make_app):
+def test_autosummary_generate_overwrite2(app_params, make_app) -> None:
     args, kwargs = app_params
     srcdir = kwargs.get('srcdir')
 
@@ -690,7 +690,7 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive', copy_test_root=True)
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_autosummary_recursive(app):
+def test_autosummary_recursive(app) -> None:
     sys.modules.pop('package', None)  # unload target module to clear the module cache
 
     app.build()
@@ -732,7 +732,7 @@ def test_autosummary_recursive(app):
     confoverrides={'autosummary_mock_imports': ['package.package']},
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_autosummary_recursive_skips_mocked_modules(app):
+def test_autosummary_recursive_skips_mocked_modules(app) -> None:
     sys.modules.pop('package', None)  # unload target module to clear the module cache
     app.build()
 
@@ -747,7 +747,7 @@ def test_autosummary_recursive_skips_mocked_modules(app):
     testroot='ext-autosummary-filename-map',
     copy_test_root=True,
 )
-def test_autosummary_filename_map(app):
+def test_autosummary_filename_map(app) -> None:
     app.build()
 
     assert (app.srcdir / 'generated' / 'module_mangled.rst').exists()
@@ -766,7 +766,7 @@ def test_autosummary_filename_map(app):
     confoverrides=defaults.copy(),
     copy_test_root=True,
 )
-def test_autosummary_latex_table_colspec(app):
+def test_autosummary_latex_table_colspec(app) -> None:
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(app.status.getvalue())
@@ -775,7 +775,7 @@ def test_autosummary_latex_table_colspec(app):
     assert r'p{0.5\linewidth}' not in result
 
 
-def test_import_by_name():
+def test_import_by_name() -> None:
     import sphinx
     import sphinx.ext.autosummary
 
@@ -807,7 +807,7 @@ def test_import_by_name():
     testroot='ext-autosummary-mock_imports',
     copy_test_root=True,
 )
-def test_autosummary_mock_imports(app):
+def test_autosummary_mock_imports(app) -> None:
     try:
         app.build()
         assert app.warning.getvalue() == ''
@@ -823,7 +823,7 @@ def test_autosummary_mock_imports(app):
     testroot='ext-autosummary-imported_members',
     copy_test_root=True,
 )
-def test_autosummary_imported_members(app):
+def test_autosummary_imported_members(app) -> None:
     try:
         app.build()
         # generated/foo is generated successfully
@@ -842,7 +842,7 @@ def test_autosummary_imported_members(app):
     testroot='ext-autosummary-module_all',
     copy_test_root=True,
 )
-def test_autosummary_module_all(app):
+def test_autosummary_module_all(app) -> None:
     try:
         app.build()
         # generated/foo is generated successfully
@@ -865,7 +865,7 @@ def test_autosummary_module_all(app):
     testroot='ext-autosummary-module_empty_all',
     copy_test_root=True,
 )
-def test_autosummary_module_empty_all(app):
+def test_autosummary_module_empty_all(app) -> None:
     try:
         app.build()
         # generated/foo is generated successfully
@@ -894,7 +894,7 @@ def test_autosummary_module_empty_all(app):
     confoverrides={'extensions': ['sphinx.ext.autosummary']},
     copy_test_root=True,
 )
-def test_generate_autosummary_docs_property(app):
+def test_generate_autosummary_docs_property(app) -> None:
     with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
         mock.return_value = [
             AutosummaryEntry('target.methods.Base.prop', 'prop', None, False)
@@ -917,7 +917,7 @@ def test_generate_autosummary_docs_property(app):
     testroot='ext-autosummary-skip-member',
     copy_test_root=True,
 )
-def test_autosummary_skip_member(app):
+def test_autosummary_skip_member(app) -> None:
     app.build()
 
     content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text(encoding='utf8')
@@ -926,7 +926,7 @@ def test_autosummary_skip_member(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary-template', copy_test_root=True)
-def test_autosummary_template(app):
+def test_autosummary_template(app) -> None:
     app.build()
 
     content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text(encoding='utf8')
@@ -938,7 +938,7 @@ def test_autosummary_template(app):
     testroot='ext-autosummary',
     confoverrides={'autosummary_generate': []},
 )
-def test_empty_autosummary_generate(app):
+def test_empty_autosummary_generate(app) -> None:
     app.build()
     assert (
         'WARNING: autosummary: failed to import autosummary_importfail'
@@ -950,20 +950,20 @@ def test_empty_autosummary_generate(app):
     testroot='ext-autosummary',
     confoverrides={'autosummary_generate': ['unknown']},
 )
-def test_invalid_autosummary_generate(app):
+def test_invalid_autosummary_generate(app) -> None:
     assert (
         'WARNING: autosummary_generate: file not found: unknown.rst'
     ) in app.warning.getvalue()
 
 
-def test_autogen(rootdir, tmp_path):
+def test_autogen(rootdir, tmp_path) -> None:
     with chdir(rootdir / 'test-templating'):
         args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
         assert (tmp_path / 'sphinx.application.TemplateBridge.rst').exists()
 
 
-def test_autogen_remove_old(rootdir, tmp_path):
+def test_autogen_remove_old(rootdir, tmp_path) -> None:
     """Test the ``--remove-old`` option."""
     tmp_path.joinpath('other.rst').write_text('old content', encoding='utf-8')
     with chdir(rootdir / 'test-templating'):

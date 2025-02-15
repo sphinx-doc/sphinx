@@ -22,7 +22,7 @@ class DummyTemplateLoader(BuiltinTemplateLoader):
         self.init(builder)
 
 
-def test_copy_asset_file(tmp_path):
+def test_copy_asset_file(tmp_path) -> None:
     renderer = DummyTemplateLoader()
 
     # copy normal file
@@ -65,7 +65,7 @@ def test_copy_asset_file(tmp_path):
     assert (subdir2 / 'asset.txt.jinja').read_text(encoding='utf8') == '# {{var1}} data'
 
 
-def test_copy_asset(tmp_path):
+def test_copy_asset(tmp_path) -> None:
     renderer = DummyTemplateLoader()
 
     # prepare source files
@@ -124,7 +124,7 @@ def test_copy_asset(tmp_path):
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_copy_asset_template(app):
+def test_copy_asset_template(app) -> None:
     app.build(force_all=True)
 
     expected_msg = r'^Writing evaluated template result to [^\n]*\bAPI.html$'
@@ -133,7 +133,7 @@ def test_copy_asset_template(app):
 
 
 @pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
-def test_copy_asset_overwrite(app):
+def test_copy_asset_overwrite(app) -> None:
     app.build()
     src = app.srcdir / 'myext_static' / 'custom-styles.css'
     dst = app.outdir / '_static' / 'custom-styles.css'
@@ -144,11 +144,11 @@ def test_copy_asset_overwrite(app):
     )
 
 
-def test_template_basename():
+def test_template_basename() -> None:
     assert _template_basename(Path('asset.txt')) is None
     assert _template_basename(Path('asset.txt.jinja')) == Path('asset.txt')
     assert _template_basename(Path('sidebar.html.jinja')) == Path('sidebar.html')
 
 
-def test_legacy_template_basename():
+def test_legacy_template_basename() -> None:
     assert _template_basename(Path('asset.txt_t')) == Path('asset.txt')

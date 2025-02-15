@@ -9,7 +9,7 @@ from docutils import nodes
 
 
 @pytest.mark.sphinx('text', testroot='directive-only')
-def test_sectioning(app):
+def test_sectioning(app) -> None:
     def getsects(section):
         if not isinstance(section, nodes.section):
             return [getsects(n) for n in section.children]
@@ -24,7 +24,7 @@ def test_sectioning(app):
             children = list(node.children) + children
         return [title, [getsects(subsect) for subsect in subsects]]
 
-    def testsects(prefix, sects, indent=0):
+    def testsects(prefix, sects, indent=0) -> None:
         title = sects[0]
         parent_num = title.split()[0]
         assert prefix == parent_num, f'Section out of place: {title!r}'

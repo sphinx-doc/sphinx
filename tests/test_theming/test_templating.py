@@ -8,7 +8,7 @@ from sphinx.ext.autosummary.generate import setup_documenters
 
 
 @pytest.mark.sphinx('html', testroot='templating', copy_test_root=True)
-def test_layout_overloading(make_app, app_params):
+def test_layout_overloading(make_app, app_params) -> None:
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
     setup_documenters(app)
@@ -19,7 +19,7 @@ def test_layout_overloading(make_app, app_params):
 
 
 @pytest.mark.sphinx('html', testroot='templating', copy_test_root=True)
-def test_autosummary_class_template_overloading(make_app, app_params):
+def test_autosummary_class_template_overloading(make_app, app_params) -> None:
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
     setup_documenters(app)
@@ -38,7 +38,7 @@ def test_autosummary_class_template_overloading(make_app, app_params):
     confoverrides={'autosummary_context': {'sentence': 'foobar'}},
     copy_test_root=True,
 )
-def test_autosummary_context(make_app, app_params):
+def test_autosummary_context(make_app, app_params) -> None:
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
     setup_documenters(app)

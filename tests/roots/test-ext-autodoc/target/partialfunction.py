@@ -1,7 +1,7 @@
 from functools import partial
 
 
-def func1(a, b, c):
+def func1(a, b, c) -> None:
     """docstring of func1"""
     pass
 

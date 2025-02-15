@@ -15,7 +15,7 @@ from sphinx.testing.util import assert_node
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_process_doc(app):
+def test_process_doc(app) -> None:
     app.build()
     # tocs
     toctree = app.env.tocs['index']
@@ -160,7 +160,7 @@ def test_process_doc(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='toctree-glob')
-def test_glob(app):
+def test_glob(app) -> None:
     includefiles = [
         'foo',
         'bar/index',
@@ -268,7 +268,7 @@ def test_glob(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='toctree-domain-objects')
-def test_domain_objects(app):
+def test_domain_objects(app) -> None:
     app.build()
 
     assert app.env.toc_num_entries['index'] == 0
@@ -331,7 +331,7 @@ def test_domain_objects(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='toctree-domain-objects')
-def test_domain_objects_document_scoping(app):
+def test_domain_objects_document_scoping(app) -> None:
     app.build()
 
     # tocs
@@ -450,7 +450,7 @@ def test_domain_objects_document_scoping(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_toc(app):
+def test_document_toc(app) -> None:
     app.build()
     toctree = document_toc(app.env, 'index', app.tags)
 
@@ -500,7 +500,7 @@ def test_document_toc(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_toc_only(app):
+def test_document_toc_only(app) -> None:
     app.build()
     StandaloneHTMLBuilder(app, app.env)  # adds format/builder tags
     toctree = document_toc(app.env, 'index', app.tags)
@@ -559,7 +559,7 @@ def test_document_toc_only(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_toc_tocdepth(app):
+def test_document_toc_tocdepth(app) -> None:
     app.build()
     toctree = document_toc(app.env, 'tocdepth', app.tags)
 
@@ -582,7 +582,7 @@ def test_document_toc_tocdepth(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_global_toctree_for_doc(app):
+def test_global_toctree_for_doc(app) -> None:
     app.build()
     toctree = global_toctree_for_doc(app.env, 'index', app.builder, collapse=False)
     assert_node(
@@ -644,7 +644,7 @@ def test_global_toctree_for_doc(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_global_toctree_for_doc_collapse(app):
+def test_global_toctree_for_doc_collapse(app) -> None:
     app.build()
     toctree = global_toctree_for_doc(app.env, 'index', app.builder, collapse=True)
     assert_node(
@@ -690,7 +690,7 @@ def test_global_toctree_for_doc_collapse(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_global_toctree_for_doc_maxdepth(app):
+def test_global_toctree_for_doc_maxdepth(app) -> None:
     app.build()
     toctree = global_toctree_for_doc(
         app.env, 'index', app.builder, collapse=False, maxdepth=3
@@ -781,7 +781,7 @@ def test_global_toctree_for_doc_maxdepth(app):
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_global_toctree_for_doc_includehidden(app):
+def test_global_toctree_for_doc_includehidden(app) -> None:
     app.build()
     toctree = global_toctree_for_doc(
         app.env, 'index', app.builder, collapse=False, includehidden=False
@@ -844,7 +844,7 @@ def test_global_toctree_for_doc_includehidden(app):
 
 
 @pytest.mark.sphinx('xml', testroot='toctree-index')
-def test_toctree_index(app):
+def test_toctree_index(app) -> None:
     app.build()
     toctree = app.env.tocs['index']
     assert_node(

@@ -10,7 +10,7 @@ class Foo:
         kwarg_kwtype,
         kwparam_paramtype,
         kwparam_kwtype,
-    ):
+    ) -> None:
         """Some method.
 
         :keyword keyword_paramtype: some param

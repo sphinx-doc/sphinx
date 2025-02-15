@@ -51,7 +51,7 @@ def parse(name, string):
     return ast
 
 
-def _check(name, input, id_dict, output, key, as_text_output):
+def _check(name, input, id_dict, output, key, as_text_output) -> None:
     if key is None:
         key = name
     key += ' '
@@ -121,7 +121,7 @@ def _check(name, input, id_dict, output, key, as_text_output):
         raise DefinitionError
 
 
-def check(name, input, id_dict, output=None, key=None, as_text_output=None):
+def check(name, input, id_dict, output=None, key=None, as_text_output=None) -> None:
     if output is None:
         output = input
     # First, check without semicolon
@@ -141,9 +141,9 @@ def check(name, input, id_dict, output=None, key=None, as_text_output=None):
     ('type_', 'id_v2'),
     sphinx.domains.cpp._ids._id_fundamental_v2.items(),
 )
-def test_domain_cpp_ast_fundamental_types(type_, id_v2):
+def test_domain_cpp_ast_fundamental_types(type_, id_v2) -> None:
     # see https://en.cppreference.com/w/cpp/language/types
-    def make_id_v1():
+    def make_id_v1() -> str | None:
         if type_ == 'decltype(auto)':
             return None
         id_ = type_.replace(' ', '-').replace('long', 'l')
@@ -155,7 +155,7 @@ def test_domain_cpp_ast_fundamental_types(type_, id_v2):
         id_ = id_.replace('c32_t', 'char32_t')
         return f'f__{id_}'
 
-    def make_id_v2():
+    def make_id_v2() -> str:
         id_ = id_v2
         if type_ == 'std::nullptr_t':
             id_ = 'NSt9nullptr_tE'
@@ -176,8 +176,8 @@ def test_domain_cpp_ast_fundamental_types(type_, id_v2):
             check('function', input, {1: id1, 2: id2})
 
 
-def test_domain_cpp_ast_expressions():
-    def expr_check(expr, id, id4=None):
+def test_domain_cpp_ast_expressions() -> None:
+    def expr_check(expr, id, id4=None) -> None:
         ids = 'IE1CIA%s_1aE'
         # call .format() on the expr to unescape double curly braces
         id_dict = {2: ids % expr.format(), 3: ids % id}
@@ -450,7 +450,7 @@ def test_domain_cpp_ast_expressions():
     expr_check('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
 
 
-def test_domain_cpp_ast_type_definitions():
+def test_domain_cpp_ast_type_definitions() -> None:
     check('type', 'public bool b', {1: 'b', 2: '1b'}, '{key}bool b', key='typedef')
     check('type', '{key}bool A::b', {1: 'A::b', 2: 'N1A1bE'}, key='typedef')
     check('type', '{key}bool *b', {1: 'b', 2: '1b'}, key='typedef')
@@ -529,7 +529,7 @@ def test_domain_cpp_ast_type_definitions():
     check('type', '{key}T = Q<A::operator bool>', {2: '1T'}, key='using')
 
 
-def test_domain_cpp_ast_concept_definitions():
+def test_domain_cpp_ast_concept_definitions() -> None:
     check(
         'concept',
         'template<typename Param> {key}A::B::Concept',
@@ -546,7 +546,7 @@ def test_domain_cpp_ast_concept_definitions():
         parse('concept', 'template<typename T> template<typename U> {key}Foo')
 
 
-def test_domain_cpp_ast_member_definitions():
+def test_domain_cpp_ast_member_definitions() -> None:
     check(
         'member',
         '  const  std::string  &  name = 42',
@@ -597,7 +597,7 @@ def test_domain_cpp_ast_member_definitions():
     check('member', 'constinit int n', {1: 'n__i', 2: '1n'})
 
 
-def test_domain_cpp_ast_function_definitions():
+def test_domain_cpp_ast_function_definitions() -> None:
     check('function', 'void f(volatile int)', {1: 'f__iV', 2: '1fVi'})
     check('function', 'void f(std::size_t)', {1: 'f__std::s', 2: '1fNSt6size_tE'})
     check('function', 'operator bool() const', {1: 'castto-b-operatorC', 2: 'NKcvbEv'})
@@ -926,7 +926,7 @@ def test_domain_cpp_ast_function_definitions():
     check('function', 'void f(void (*p)(int) = &foo)', {2: '1fPFviE'})
 
 
-def test_domain_cpp_ast_operators():
+def test_domain_cpp_ast_operators() -> None:
     check('function', 'void operator new()', {1: 'new-operator', 2: 'nwv'})
     check('function', 'void operator new[]()', {1: 'new-array-operator', 2: 'nav'})
     check('function', 'void operator delete()', {1: 'delete-operator', 2: 'dlv'})
@@ -990,14 +990,14 @@ def test_domain_cpp_ast_operators():
     check('function', 'void operator[]()', {1: 'subscript-operator', 2: 'ixv'})
 
 
-def test_domain_cpp_ast_nested_name():
+def test_domain_cpp_ast_nested_name() -> None:
     check('class', '{key}::A', {1: 'A', 2: '1A'})
     check('class', '{key}::A::B', {1: 'A::B', 2: 'N1A1BE'})
     check('function', 'void f(::A a)', {1: 'f__A', 2: '1f1A'})
     check('function', 'void f(::A::B a)', {1: 'f__A::B', 2: '1fN1A1BE'})
 
 
-def test_domain_cpp_ast_class_definitions():
+def test_domain_cpp_ast_class_definitions() -> None:
     check('class', 'public A', {1: 'A', 2: '1A'}, output='{key}A')
     check('class', 'private {key}A', {1: 'A', 2: '1A'})
     check('class', '{key}A final', {1: 'A', 2: '1A'})
@@ -1046,11 +1046,11 @@ def test_domain_cpp_ast_class_definitions():
     )
 
 
-def test_domain_cpp_ast_union_definitions():
+def test_domain_cpp_ast_union_definitions() -> None:
     check('union', '{key}A', {2: '1A'})
 
 
-def test_domain_cpp_ast_enum_definitions():
+def test_domain_cpp_ast_enum_definitions() -> None:
     check('enum', '{key}A', {2: '1A'})
     check('enum', '{key}A : std::underlying_type<B>::type', {2: '1A'})
     check('enum', '{key}A : unsigned int', {2: '1A'})
@@ -1061,7 +1061,7 @@ def test_domain_cpp_ast_enum_definitions():
     check('enumerator', '{key}A = std::numeric_limits<unsigned long>::max()', {2: '1A'})
 
 
-def test_domain_cpp_ast_anon_definitions():
+def test_domain_cpp_ast_anon_definitions() -> None:
     check('class', '@a', {3: 'Ut1_a'}, as_text_output='class [anonymous]')
     check('union', '@a', {3: 'Ut1_a'}, as_text_output='union [anonymous]')
     check('enum', '@a', {3: 'Ut1_a'}, as_text_output='enum [anonymous]')
@@ -1076,7 +1076,7 @@ def test_domain_cpp_ast_anon_definitions():
     )
 
 
-def test_domain_cpp_ast_templates():
+def test_domain_cpp_ast_templates() -> None:
     check('class', 'A<T>', {2: 'IE1AI1TE'}, output='template<> {key}A<T>')
     # first just check which objects support templating
     check('class', 'template<> {key}A', {2: 'IE1A'})
@@ -1266,7 +1266,7 @@ def test_domain_cpp_ast_templates():
     )
 
 
-def test_domain_cpp_ast_placeholder_types():
+def test_domain_cpp_ast_placeholder_types() -> None:
     check(
         'function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'}
     )
@@ -1293,7 +1293,7 @@ def test_domain_cpp_ast_placeholder_types():
     )
 
 
-def test_domain_cpp_ast_requires_clauses():
+def test_domain_cpp_ast_requires_clauses() -> None:
     check(
         'function',
         'template<typename T> requires A auto f() -> void requires B',
@@ -1348,7 +1348,7 @@ def test_domain_cpp_ast_requires_clauses():
     )
 
 
-def test_domain_cpp_ast_template_args():
+def test_domain_cpp_ast_template_args() -> None:
     # from breathe#218
     check(
         'function',
@@ -1369,7 +1369,7 @@ def test_domain_cpp_ast_template_args():
     )
 
 
-def test_domain_cpp_ast_initializers():
+def test_domain_cpp_ast_initializers() -> None:
     ids_member = {1: 'v__T', 2: '1v'}
     ids_function = {1: 'f__T', 2: '1f1T'}
     ids_template = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
@@ -1403,7 +1403,7 @@ def test_domain_cpp_ast_initializers():
     check('member', 'T v = T{}', ids_member)
 
 
-def test_domain_cpp_ast_attributes():
+def test_domain_cpp_ast_attributes() -> None:
     # style: C++
     check('member', '[[]] int f', {1: 'f__i', 2: '1f'})
     check(
@@ -1470,7 +1470,7 @@ def test_domain_cpp_ast_attributes():
     check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {2: '3Foo'})
 
 
-def check_ast_xref_parsing(target):
+def check_ast_xref_parsing(target) -> None:
     class Config:
         cpp_id_attributes = ['id_attr']
         cpp_paren_attributes = ['paren_attr']
@@ -1480,7 +1480,7 @@ def check_ast_xref_parsing(target):
     parser.assert_end()
 
 
-def test_domain_cpp_ast_xref_parsing():
+def test_domain_cpp_ast_xref_parsing() -> None:
     check_ast_xref_parsing('f')
     check_ast_xref_parsing('f()')
     check_ast_xref_parsing('void f()')
@@ -1513,7 +1513,7 @@ def test_domain_cpp_ast_xref_parsing():
         ('template<typename> class...', True),
     ],
 )
-def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
+def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool) -> None:
     def parse_template_parameter(param: str):
         ast = parse('type', 'template<' + param + '> X')
         return ast.templatePrefix.templates[0].params[0]
@@ -1545,7 +1545,7 @@ def filter_warnings(warning: StringIO, file):
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_domain_cpp_build_multi_decl_lookup(app):
+def test_domain_cpp_build_multi_decl_lookup(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'lookup-key-overload')
     assert len(ws) == 0
@@ -1555,7 +1555,7 @@ def test_domain_cpp_build_multi_decl_lookup(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_domain_cpp_build_warn_template_param_qualified_name(app):
+def test_domain_cpp_build_warn_template_param_qualified_name(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'warn-template-param-qualified-name')
     assert len(ws) == 2
@@ -1564,14 +1564,14 @@ def test_domain_cpp_build_warn_template_param_qualified_name(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_domain_cpp_build_backslash_ok_true(app):
+def test_domain_cpp_build_backslash_ok_true(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'backslash')
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_domain_cpp_build_semicolon(app):
+def test_domain_cpp_build_semicolon(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'semicolon')
     assert len(ws) == 0
@@ -1582,7 +1582,7 @@ def test_domain_cpp_build_semicolon(app):
     testroot='domain-cpp',
     confoverrides={'nitpicky': True, 'strip_signature_backslash': True},
 )
-def test_domain_cpp_build_backslash_ok_false(app):
+def test_domain_cpp_build_backslash_ok_false(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'backslash')
     assert len(ws) == 1
@@ -1590,7 +1590,7 @@ def test_domain_cpp_build_backslash_ok_false(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_domain_cpp_build_anon_dup_decl(app):
+def test_domain_cpp_build_anon_dup_decl(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'anon-dup-decl')
     assert len(ws) == 2
@@ -1599,7 +1599,7 @@ def test_domain_cpp_build_anon_dup_decl(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp')
-def test_domain_cpp_build_misuse_of_roles(app):
+def test_domain_cpp_build_misuse_of_roles(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'roles-targets-ok')
     assert len(ws) == 0
@@ -1664,7 +1664,7 @@ def test_domain_cpp_build_misuse_of_roles(app):
     testroot='domain-cpp',
     confoverrides={'add_function_parentheses': True},
 )
-def test_domain_cpp_build_with_add_function_parentheses_is_True(app):
+def test_domain_cpp_build_with_add_function_parentheses_is_True(app) -> None:
     app.build(force_all=True)
 
     role_patterns = [
@@ -1709,7 +1709,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app):
     testroot='domain-cpp',
     confoverrides={'add_function_parentheses': False},
 )
-def test_domain_cpp_build_with_add_function_parentheses_is_False(app):
+def test_domain_cpp_build_with_add_function_parentheses_is_False(app) -> None:
     app.build(force_all=True)
 
     role_patterns = [
@@ -1750,7 +1750,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp')
-def test_domain_cpp_build_xref_consistency(app):
+def test_domain_cpp_build_xref_consistency(app) -> None:
     app.build(force_all=True)
 
     test = 'xref_consistency.html'
@@ -1775,7 +1775,7 @@ not found in `{test}`
     class RoleClasses:
         """Collect the classes from the layout that was generated for a given role."""
 
-        def __init__(self, role, root, contents):
+        def __init__(self, role, root, contents) -> None:
             self.name = role
             self.classes = classes(role, root)
             self.content_classes = {}
@@ -1818,14 +1818,14 @@ not found in `{test}`
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_domain_cpp_build_field_role(app):
+def test_domain_cpp_build_field_role(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'field-role')
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_domain_cpp_build_operator_lookup(app):
+def test_domain_cpp_build_operator_lookup(app) -> None:
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'operator-lookup')
     assert len(ws) == 5
@@ -1844,7 +1844,7 @@ def test_domain_cpp_build_operator_lookup(app):
 @pytest.mark.sphinx(
     'html', testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True}
 )
-def test_domain_cpp_build_intersphinx(tmp_path, app):
+def test_domain_cpp_build_intersphinx(tmp_path, app) -> None:
     orig_source = """\
 .. cpp:class:: _class
 .. cpp:struct:: _struct
@@ -1910,7 +1910,7 @@ _var cpp:member 1 index.html#_CPPv44$ -
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_domain_cpp_parse_no_index_entry(app):
+def test_domain_cpp_parse_no_index_entry(app) -> None:
     text = (
         '.. cpp:function:: void f()\n.. cpp:function:: void g()\n   :no-index-entry:\n'
     )
@@ -1925,7 +1925,7 @@ def test_domain_cpp_parse_no_index_entry(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_domain_cpp_parse_mix_decl_duplicate(app):
+def test_domain_cpp_parse_mix_decl_duplicate(app) -> None:
     # Issue 8270
     text = '.. cpp:struct:: A\n.. cpp:function:: void A()\n.. cpp:struct:: A\n'
     restructuredtext.parse(app, text)
@@ -1946,7 +1946,7 @@ def test_domain_cpp_parse_mix_decl_duplicate(app):
 # `test-root/objects.txt` polluting the symbol table depending on the test
 # execution order.  Using a testroot of "config" seems to avoid that problem.
 @pytest.mark.sphinx('html', testroot='config')
-def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
+def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params) -> None:
     args, kwargs = app_params
 
     text1 = '.. cpp:class:: template <typename T> A\n'
@@ -1999,7 +1999,7 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
         'cpp_maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app):
+def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app) -> None:
     text = '.. cpp:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -2062,7 +2062,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app
 )
 def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_single(
     app,
-):
+) -> None:
     text = '.. cpp:function:: str hello(str names)\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -2123,7 +2123,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_sin
         'cpp_maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app):
+def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app) -> None:
     text = '.. cpp:function:: str hello(str names)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -2182,7 +2182,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
         'maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
+def test_cpp_function_signature_with_maximum_signature_line_length_equal(app) -> None:
     text = '.. cpp:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -2243,7 +2243,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
         'maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cpp_function_signature_with_maximum_signature_line_length_force_single(app):
+def test_cpp_function_signature_with_maximum_signature_line_length_force_single(app) -> None:
     text = '.. cpp:function:: str hello(str names)\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -2304,7 +2304,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_force_single(
         'maximum_signature_line_length': len('str hello(str name)'),
     },
 )
-def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
+def test_cpp_function_signature_with_maximum_signature_line_length_break(app) -> None:
     text = '.. cpp:function:: str hello(str names)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -2364,7 +2364,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
         'maximum_signature_line_length': 1,
     },
 )
-def test_cpp_maximum_signature_line_length_overrides_global(app):
+def test_cpp_maximum_signature_line_length_overrides_global(app) -> None:
     text = '.. cpp:function:: str hello(str name)'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -2417,7 +2417,7 @@ def test_cpp_maximum_signature_line_length_overrides_global(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-cpp-cpp_maximum_signature_line_length')
-def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app):
+def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
     expected = """\
@@ -2440,7 +2440,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app):
     'text',
     testroot='domain-cpp-cpp_maximum_signature_line_length',
 )
-def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app):
+def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app) -> None:
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'

@@ -5,14 +5,14 @@ class A:
 class B:
     """A class having __init__(no docstring), no __new__"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
 
 class C:
     """A class having __init__, no __new__"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """__init__ docstring"""
 
 
@@ -33,7 +33,7 @@ class E:
 class F:
     """A class having both __init__ and __new__"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """__init__ docstring"""
 
     def __new__(cls):
@@ -43,12 +43,12 @@ class F:
 class G(C):
     """A class inherits __init__ without docstring."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
 
 class H(E):
     """A class inherits __new__ without docstring."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass

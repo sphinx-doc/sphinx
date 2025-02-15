@@ -21,7 +21,7 @@ from tests.utils import TESTS_ROOT
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_info_and_warning(app):
+def test_info_and_warning(app) -> None:
     app.verbosity = 2
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ def test_info_and_warning(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_Exception(app):
+def test_Exception(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ def test_Exception(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_verbosity_filter(app):
+def test_verbosity_filter(app) -> None:
     # verbosity = 0: INFO
     app.verbosity = 0
     logging.setup(app, app.status, app.warning)
@@ -100,7 +100,7 @@ def test_verbosity_filter(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_nonl_info_log(app):
+def test_nonl_info_log(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ def test_nonl_info_log(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_once_warning_log(app):
+def test_once_warning_log(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -124,7 +124,7 @@ def test_once_warning_log(app):
     assert 'WARNING: message: 1\nWARNING: message: 2\n' in warnings
 
 
-def test_is_suppressed_warning():
+def test_is_suppressed_warning() -> None:
     suppress_warnings = ['ref', 'files.*', 'rest.duplicated_labels']
 
     assert is_suppressed_warning(None, None, suppress_warnings) is False
@@ -139,7 +139,7 @@ def test_is_suppressed_warning():
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_suppress_warnings(app):
+def test_suppress_warnings(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -183,7 +183,7 @@ def test_suppress_warnings(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_info_location(app):
+def test_info_location(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -215,7 +215,7 @@ def test_info_location(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_warning_location(app):
+def test_warning_location(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -247,7 +247,7 @@ def test_warning_location(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_suppress_logging(app):
+def test_suppress_logging(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -262,7 +262,7 @@ def test_suppress_logging(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_pending_warnings(app):
+def test_pending_warnings(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -294,7 +294,7 @@ def force_colors():
             os.environ['FORCE_COLOR'] = forcecolor
 
 
-def test_log_no_ansi_colors(tmp_path):
+def test_log_no_ansi_colors(tmp_path) -> None:
     with force_colors():
         wfile = tmp_path / 'warnings.txt'
         srcdir = TESTS_ROOT / 'roots' / 'test-nitpicky-warnings'
@@ -307,7 +307,7 @@ def test_log_no_ansi_colors(tmp_path):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_colored_logs(app):
+def test_colored_logs(app) -> None:
     app.verbosity = 2
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -338,11 +338,11 @@ def test_colored_logs(app):
     os.name != 'posix',
     reason='Parallel mode does not work on Windows',
 )
-def test_logging_in_ParallelTasks(app):
+def test_logging_in_ParallelTasks(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
-    def child_process():
+    def child_process() -> None:
         logger.info('message1')
         logger.warning('message2', location='index')
 
@@ -354,9 +354,9 @@ def test_logging_in_ParallelTasks(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_output_with_unencodable_char(app):
+def test_output_with_unencodable_char(app) -> None:
     class StreamWriter(codecs.StreamWriter):
-        def write(self, object):
+        def write(self, object) -> None:
             self.stream.write(object.encode('cp1252').decode('cp1252'))
 
     logging.setup(app, StreamWriter(app.status), app.warning)
@@ -370,7 +370,7 @@ def test_output_with_unencodable_char(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_prefixed_warnings(app):
+def test_prefixed_warnings(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -389,7 +389,7 @@ def test_prefixed_warnings(app):
     assert 'WARNING: message5' in app.warning.getvalue()
 
 
-def test_get_node_location_abspath():
+def test_get_node_location_abspath() -> None:
     # Ensure that node locations are reported as an absolute path,
     # even if the source attribute is a relative path.
 
@@ -405,7 +405,7 @@ def test_get_node_location_abspath():
 
 
 @pytest.mark.sphinx('html', testroot='root', confoverrides={'show_warning_types': True})
-def test_show_warning_types(app):
+def test_show_warning_types(app) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
     logger.warning('message2')

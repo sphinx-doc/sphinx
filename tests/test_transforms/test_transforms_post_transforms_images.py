@@ -33,7 +33,7 @@ WEBP_DATA = (
 )
 
 
-def test_guess_mimetype_webp(tmp_path):
+def test_guess_mimetype_webp(tmp_path) -> None:
     document = new_document('<source>')
     document.settings.env = SimpleNamespace(app=SimpleNamespace(srcdir=tmp_path))
     converter = ImageConverter(document)

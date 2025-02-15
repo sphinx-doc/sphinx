@@ -24,19 +24,19 @@ def deco2(condition, message):
 
 
 @deco1
-def foo(name=None, age=None):
+def foo(name=None, age=None) -> None:
     pass
 
 
 class Bar:
     @deco1
-    def meth(self, name=None, age=None):
+    def meth(self, name=None, age=None) -> None:
         pass
 
 
 class Baz:
     @deco1
-    def __init__(self, name=None, age=None):
+    def __init__(self, name=None, age=None) -> None:
         pass
 
 

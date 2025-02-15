@@ -39,7 +39,7 @@ class Math:
         # type: (int, int) -> int
         return a - b
 
-    def nothing(self):
+    def nothing(self) -> None:
         # type: () -> None
         pass
 
@@ -47,7 +47,7 @@ class Math:
         self,
         a,  # type: str
         b,  # type: int
-    ):
+    ) -> None:
         # type: (...) -> None
         return
 
@@ -84,7 +84,7 @@ class SignatureFromMetaclass(metaclass=_MetaclassWithCall):
     pass
 
 
-def complex_func(arg1, arg2, arg3=None, *args, **kwargs):
+def complex_func(arg1, arg2, arg3=None, *args, **kwargs) -> None:
     # type: (str, List[int], Tuple[int, Union[str, Unknown]], *str, **str) -> None
     pass
 

@@ -73,8 +73,8 @@ processed_signatures = []
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_parse_name(app):
-    def verify(objtype, name, result):
+def test_parse_name(app) -> None:
+    def verify(objtype, name, result) -> None:
         inst = app.registry.documenters[objtype](directive, name)
         assert inst.parse_name()
         assert (inst.modname, inst.objpath, inst.args, inst.retann) == result
@@ -129,7 +129,7 @@ def test_parse_name(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_format_signature(app):
+def test_format_signature(app) -> None:
     def process_signature(app, what, name, obj, options, args, retann):
         processed_signatures.append((what, name))
         if name == 'bar':
@@ -167,10 +167,10 @@ def test_format_signature(app):
     assert formatsig('module', 'test', None, None, None) == ''
 
     # test for functions
-    def f(a, b, c=1, **d):
+    def f(a, b, c=1, **d) -> None:
         pass
 
-    def g(a='\n'):
+    def g(a='\n') -> None:
         pass
 
     assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
@@ -182,7 +182,7 @@ def test_format_signature(app):
         pass
 
     class E:
-        def __init__(self):
+        def __init__(self) -> None:
             pass
 
     # an empty init and no init are the same
@@ -195,7 +195,7 @@ def test_format_signature(app):
 
     # these three are all equivalent
     class F:
-        def __init__(self, a, b=None):
+        def __init__(self, a, b=None) -> None:
             pass
 
     class FNew:
@@ -242,7 +242,7 @@ def test_format_signature(app):
     class F2:
         """some docstring for F2."""
 
-        def __init__(self, *args, **kw):
+        def __init__(self, *args, **kw) -> None:
             """__init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
@@ -256,13 +256,13 @@ def test_format_signature(app):
 
     # test for methods
     class H:
-        def foo1(self, b, *c):
+        def foo1(self, b, *c) -> None:
             pass
 
-        def foo2(b, *c):  # NoQA: N805
+        def foo2(b, *c) -> None:  # NoQA: N805
             pass
 
-        def foo3(self, d='\n'):
+        def foo3(self, d='\n') -> None:
             pass
 
     assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
@@ -298,7 +298,7 @@ def test_format_signature(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_process_signature_typing_generic(app):
+def test_autodoc_process_signature_typing_generic(app) -> None:
     actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
 
     assert list(actual) == [
@@ -312,10 +312,10 @@ def test_autodoc_process_signature_typing_generic(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_autodoc_process_signature_typehints(app):
+def test_autodoc_process_signature_typehints(app) -> None:
     captured = []
 
-    def process_signature(*args):
+    def process_signature(*args) -> None:
         captured.append(args)
 
     app.connect('autodoc-process-signature', process_signature)
@@ -335,7 +335,7 @@ def test_autodoc_process_signature_typehints(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_doc(app):
+def test_get_doc(app) -> None:
     directive = make_directive_bridge(app.env)
 
     def getdocl(objtype, obj):
@@ -352,23 +352,23 @@ def test_get_doc(app):
         return res
 
     # objects without docstring
-    def f():
+    def f() -> None:
         pass
 
     assert getdocl('function', f) == []
 
     # standard function, diverse docstring styles...
-    def f():
+    def f() -> None:
         """Docstring"""
 
-    def g():
+    def g() -> None:
         """Docstring"""
 
     for func in (f, g):
         assert getdocl('function', func) == ['Docstring']
 
     # first line vs. other lines indentation
-    def f():
+    def f() -> None:
         """First line
 
         Other
@@ -378,7 +378,7 @@ def test_get_doc(app):
     assert getdocl('function', f) == ['First line', '', 'Other', '  lines']
 
     # charset guessing (this module is encoded in utf-8)
-    def f():
+    def f() -> None:
         """Döcstring"""
 
     assert getdocl('function', f) == ['Döcstring']
@@ -386,7 +386,7 @@ def test_get_doc(app):
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
     class J:
-        def foo(self):
+        def foo(self) -> None:
             """Method docstring"""
 
     assert getdocl('method', J.foo) == ['Method docstring']
@@ -394,7 +394,7 @@ def test_get_doc(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_new_documenter(app):
+def test_new_documenter(app) -> None:
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
         directivetype = 'integer'
@@ -404,7 +404,7 @@ def test_new_documenter(app):
         def can_document_member(cls, member, membername, isattr, parent):
             return isinstance(member, int)
 
-        def document_members(self, all_members=False):
+        def document_members(self, all_members=False) -> None:
             return
 
     app.add_autodocumenter(MyDocumenter)
@@ -425,7 +425,7 @@ def test_new_documenter(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_attrgetter_using(app):
+def test_attrgetter_using(app) -> None:
     directive = make_directive_bridge(app.env)
     directive.genopt['members'] = ALL
 
@@ -440,7 +440,7 @@ def test_attrgetter_using(app):
         )
 
 
-def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
+def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw) -> None:
     getattr_spy = []
 
     def _special_getattr(obj, attr_name, *defargs):
@@ -463,7 +463,7 @@ def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_py_module(app):
+def test_py_module(app) -> None:
     # without py:module
     actual = do_autodoc(app, 'method', 'Class.meth')
     assert list(actual) == []
@@ -490,7 +490,7 @@ def test_py_module(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_decorator(app):
+def test_autodoc_decorator(app) -> None:
     actual = do_autodoc(app, 'decorator', 'target.decorator.deco1')
     assert list(actual) == [
         '',
@@ -513,7 +513,7 @@ def test_autodoc_decorator(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_exception(app):
+def test_autodoc_exception(app) -> None:
     actual = do_autodoc(app, 'exception', 'target.CustomEx')
     assert list(actual) == [
         '',
@@ -526,7 +526,7 @@ def test_autodoc_exception(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_warnings(app):
+def test_autodoc_warnings(app) -> None:
     app.env.current_document.docname = 'dummy'
 
     # can't import module
@@ -550,7 +550,7 @@ def test_autodoc_warnings(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_attributes(app):
+def test_autodoc_attributes(app) -> None:
     options = {
         'synopsis': 'Synopsis',
         'platform': 'Platform',
@@ -568,7 +568,7 @@ def test_autodoc_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_members(app):
+def test_autodoc_members(app) -> None:
     # default (no-members)
     actual = do_autodoc(app, 'class', 'target.inheritance.Base')
     assert list(filter(lambda l: '::' in l, actual)) == [
@@ -628,7 +628,7 @@ def test_autodoc_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_exclude_members(app):
+def test_autodoc_exclude_members(app) -> None:
     options = {
         'members': None,
         'exclude-members': 'inheritedmeth,inheritedstaticmeth',
@@ -720,7 +720,7 @@ def test_autodoc_exclude_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_undoc_members(app):
+def test_autodoc_undoc_members(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -794,7 +794,7 @@ def test_autodoc_undoc_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_undoc_members_for_metadata_only(app):
+def test_autodoc_undoc_members_for_metadata_only(app) -> None:
     # metadata only member is not displayed
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.metadata', options)
@@ -824,7 +824,7 @@ def test_autodoc_undoc_members_for_metadata_only(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_inherited_members(app):
+def test_autodoc_inherited_members(app) -> None:
     options = {
         'members': None,
         'inherited-members': None,
@@ -839,7 +839,7 @@ def test_autodoc_inherited_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_inherited_members_Base(app):
+def test_autodoc_inherited_members_Base(app) -> None:
     options = {
         'members': None,
         'inherited-members': 'Base',
@@ -853,7 +853,7 @@ def test_autodoc_inherited_members_Base(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_inherited_members_None(app):
+def test_autodoc_inherited_members_None(app) -> None:
     options = {
         'members': None,
         'inherited-members': 'None',
@@ -867,7 +867,7 @@ def test_autodoc_inherited_members_None(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_imported_members(app):
+def test_autodoc_imported_members(app) -> None:
     options = {
         'members': None,
         'imported-members': None,
@@ -880,7 +880,7 @@ def test_autodoc_imported_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_special_members(app):
+def test_autodoc_special_members(app) -> None:
     # specific special methods
     options = {
         'undoc-members': None,
@@ -982,7 +982,7 @@ def test_autodoc_special_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_ignore_module_all(app):
+def test_autodoc_ignore_module_all(app) -> None:
     # default (no-ignore-module-all)
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target', options)
@@ -1008,7 +1008,7 @@ def test_autodoc_ignore_module_all(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_noindex(app):
+def test_autodoc_noindex(app) -> None:
     options = {'no-index': None}
     actual = do_autodoc(app, 'module', 'target', options)
     assert list(actual) == [
@@ -1031,7 +1031,7 @@ def test_autodoc_noindex(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_subclass_of_builtin_class(app):
+def test_autodoc_subclass_of_builtin_class(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.CustomDict', options)
     assert list(actual) == [
@@ -1045,7 +1045,7 @@ def test_autodoc_subclass_of_builtin_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_inner_class(app):
+def test_autodoc_inner_class(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.Outer', options)
     assert list(actual) == [
@@ -1105,7 +1105,7 @@ def test_autodoc_inner_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_classmethod(app):
+def test_autodoc_classmethod(app) -> None:
     actual = do_autodoc(app, 'method', 'target.inheritance.Base.inheritedclassmeth')
     assert list(actual) == [
         '',
@@ -1119,7 +1119,7 @@ def test_autodoc_classmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_staticmethod(app):
+def test_autodoc_staticmethod(app) -> None:
     actual = do_autodoc(app, 'method', 'target.inheritance.Base.inheritedstaticmeth')
     assert list(actual) == [
         '',
@@ -1133,7 +1133,7 @@ def test_autodoc_staticmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_descriptor(app):
+def test_autodoc_descriptor(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -1160,7 +1160,7 @@ def test_autodoc_descriptor(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_cached_property(app):
+def test_autodoc_cached_property(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -1185,7 +1185,7 @@ def test_autodoc_cached_property(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_member_order(app):
+def test_autodoc_member_order(app) -> None:
     # case member-order='bysource'
     options = {
         'members': None,
@@ -1277,7 +1277,7 @@ def test_autodoc_member_order(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_module_member_order(app):
+def test_autodoc_module_member_order(app) -> None:
     # case member-order='bysource'
     options = {
         'members': 'foo, Bar, baz, qux, Quux, foobar',
@@ -1315,7 +1315,7 @@ def test_autodoc_module_member_order(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_module_scope(app):
+def test_autodoc_module_scope(app) -> None:
     app.env.current_document.autodoc_module = 'target'
     actual = do_autodoc(app, 'attribute', 'Class.mdocattr')
     assert list(actual) == [
@@ -1330,7 +1330,7 @@ def test_autodoc_module_scope(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_class_scope(app):
+def test_autodoc_class_scope(app) -> None:
     app.env.current_document.autodoc_module = 'target'
     app.env.current_document.autodoc_class = 'Class'
     actual = do_autodoc(app, 'attribute', 'mdocattr')
@@ -1346,7 +1346,7 @@ def test_autodoc_class_scope(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_attributes(app):
+def test_class_attributes(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -1371,7 +1371,7 @@ def test_class_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoclass_instance_attributes(app):
+def test_autoclass_instance_attributes(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.InstAttCls', options)
     assert list(actual) == [
@@ -1447,7 +1447,7 @@ def test_autoclass_instance_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_instance_attributes(app):
+def test_autoattribute_instance_attributes(app) -> None:
     actual = do_autodoc(app, 'attribute', 'target.InstAttCls.ia1')
     assert list(actual) == [
         '',
@@ -1460,7 +1460,7 @@ def test_autoattribute_instance_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_slots(app):
+def test_slots(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -1599,7 +1599,7 @@ class _EnumFormatter:
         return self._node('class', self.name, doc, args=args, indent=indent, **options)
 
     @staticmethod
-    def _preamble_args(functional_constructor: bool = False):
+    def _preamble_args(functional_constructor: bool = False) -> str:
         """EnumType.__call__() is a dual-purpose method:
 
         * Look an enum member (valid only if the enum has members)
@@ -1653,7 +1653,7 @@ def autodoc_enum_options() -> dict[str, object]:
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_class(app, autodoc_enum_options):
+def test_enum_class(app, autodoc_enum_options) -> None:
     fmt = _EnumFormatter('EnumCls')
     options = autodoc_enum_options | {'private-members': None}
 
@@ -1692,7 +1692,7 @@ def test_enum_class(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_class_with_data_type(app, autodoc_enum_options):
+def test_enum_class_with_data_type(app, autodoc_enum_options) -> None:
     fmt = _EnumFormatter('EnumClassWithDataType')
 
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
@@ -1716,7 +1716,7 @@ def test_enum_class_with_data_type(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_class_with_mixin_type(app, autodoc_enum_options):
+def test_enum_class_with_mixin_type(app, autodoc_enum_options) -> None:
     fmt = _EnumFormatter('EnumClassWithMixinType')
 
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
@@ -1739,7 +1739,7 @@ def test_enum_class_with_mixin_type(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_class_with_mixin_type_and_inheritence(app, autodoc_enum_options):
+def test_enum_class_with_mixin_type_and_inheritence(app, autodoc_enum_options) -> None:
     fmt = _EnumFormatter('EnumClassWithMixinTypeInherit')
 
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
@@ -1760,7 +1760,7 @@ def test_enum_class_with_mixin_type_and_inheritence(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_class_with_mixin_enum_type(app, autodoc_enum_options):
+def test_enum_class_with_mixin_enum_type(app, autodoc_enum_options) -> None:
     fmt = _EnumFormatter('EnumClassWithMixinEnumType')
 
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
@@ -1784,7 +1784,7 @@ def test_enum_class_with_mixin_enum_type(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_class_with_mixin_and_data_type(app, autodoc_enum_options):
+def test_enum_class_with_mixin_and_data_type(app, autodoc_enum_options) -> None:
     fmt = _EnumFormatter('EnumClassWithMixinAndDataType')
 
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
@@ -1822,7 +1822,7 @@ def test_enum_class_with_mixin_and_data_type(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_with_parent_enum(app, autodoc_enum_options):
+def test_enum_with_parent_enum(app, autodoc_enum_options) -> None:
     fmt = _EnumFormatter('EnumClassWithParentEnum')
 
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
@@ -1857,7 +1857,7 @@ def test_enum_with_parent_enum(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_sunder_method(app, autodoc_enum_options):
+def test_enum_sunder_method(app, autodoc_enum_options) -> None:
     PRIVATE = {'private-members': None}  # sunder methods are recognized as private
 
     fmt = _EnumFormatter('EnumSunderMissingInNonEnumMixin')
@@ -1889,7 +1889,7 @@ def test_enum_sunder_method(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_inherited_sunder_method(app, autodoc_enum_options):
+def test_enum_inherited_sunder_method(app, autodoc_enum_options) -> None:
     options = autodoc_enum_options | {
         'private-members': None,
         'inherited-members': None,
@@ -1927,7 +1927,7 @@ def test_enum_inherited_sunder_method(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_custom_name_property(app, autodoc_enum_options):
+def test_enum_custom_name_property(app, autodoc_enum_options) -> None:
     fmt = _EnumFormatter('EnumNamePropertyInNonEnumMixin')
     actual = do_autodoc(app, 'class', fmt.target, autodoc_enum_options)
     assert list(actual) == [*fmt.preamble_constructor('this is enum class')]
@@ -1949,7 +1949,7 @@ def test_enum_custom_name_property(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_enum_inherited_custom_name_property(app, autodoc_enum_options):
+def test_enum_inherited_custom_name_property(app, autodoc_enum_options) -> None:
     options = autodoc_enum_options | {'inherited-members': None}
 
     fmt = _EnumFormatter('EnumNamePropertyInNonEnumMixin')
@@ -1984,7 +1984,7 @@ def test_enum_inherited_custom_name_property(app, autodoc_enum_options):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_descriptor_class(app):
+def test_descriptor_class(app) -> None:
     options = {
         'members': 'CustomDataDescriptor,CustomDataDescriptor2',
     }
@@ -2015,7 +2015,7 @@ def test_descriptor_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_automethod_for_builtin(app):
+def test_automethod_for_builtin(app) -> None:
     actual = do_autodoc(app, 'method', 'builtins.int.__add__')
     assert list(actual) == [
         '',
@@ -2028,7 +2028,7 @@ def test_automethod_for_builtin(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_automethod_for_decorated(app):
+def test_automethod_for_decorated(app) -> None:
     actual = do_autodoc(app, 'method', 'target.decorator.Bar.meth')
     assert list(actual) == [
         '',
@@ -2039,7 +2039,7 @@ def test_automethod_for_decorated(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_abstractmethods(app):
+def test_abstractmethods(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -2089,7 +2089,7 @@ def test_abstractmethods(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_partialfunction(app):
+def test_partialfunction(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.partialfunction', options)
     assert list(actual) == [
@@ -2124,7 +2124,7 @@ def test_partialfunction(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_imported_partialfunction_should_not_shown_without_imported_members(app):
+def test_imported_partialfunction_should_not_shown_without_imported_members(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.imported_members', options)
     assert list(actual) == [
@@ -2135,7 +2135,7 @@ def test_imported_partialfunction_should_not_shown_without_imported_members(app)
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_bound_method(app):
+def test_bound_method(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.bound_method', options)
     assert list(actual) == [
@@ -2152,7 +2152,7 @@ def test_bound_method(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_partialmethod(app):
+def test_partialmethod(app) -> None:
     expected = [
         '',
         '.. py:class:: Cell()',
@@ -2182,7 +2182,7 @@ def test_partialmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_partialmethod_undoc_members(app):
+def test_partialmethod_undoc_members(app) -> None:
     expected = [
         '',
         '.. py:class:: Cell()',
@@ -2219,7 +2219,7 @@ def test_partialmethod_undoc_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_typed_instance_variables(app):
+def test_autodoc_typed_instance_variables(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -2319,7 +2319,7 @@ def test_autodoc_typed_instance_variables(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_typed_inherited_instance_variables(app):
+def test_autodoc_typed_inherited_instance_variables(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -2383,7 +2383,7 @@ def test_autodoc_typed_inherited_instance_variables(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_GenericAlias(app):
+def test_autodoc_GenericAlias(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -2426,7 +2426,7 @@ def test_autodoc_GenericAlias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_TypeVar(app):
+def test_autodoc_TypeVar(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -2508,7 +2508,7 @@ def test_autodoc_TypeVar(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_Annotated(app):
+def test_autodoc_Annotated(app) -> None:
     options = {
         'members': None,
         'member-order': 'bysource',
@@ -2572,7 +2572,7 @@ def test_autodoc_Annotated(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_TYPE_CHECKING(app):
+def test_autodoc_TYPE_CHECKING(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -2599,7 +2599,7 @@ def test_autodoc_TYPE_CHECKING(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_TYPE_CHECKING_circular_import(app):
+def test_autodoc_TYPE_CHECKING_circular_import(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -2614,7 +2614,7 @@ def test_autodoc_TYPE_CHECKING_circular_import(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_singledispatch(app):
+def test_singledispatch(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
     assert list(actual) == [
@@ -2635,7 +2635,7 @@ def test_singledispatch(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_singledispatchmethod(app):
+def test_singledispatchmethod(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.singledispatchmethod', options)
     assert list(actual) == [
@@ -2662,7 +2662,7 @@ def test_singledispatchmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_singledispatchmethod_automethod(app):
+def test_singledispatchmethod_automethod(app) -> None:
     options = {}
     actual = do_autodoc(app, 'method', 'target.singledispatchmethod.Foo.meth', options)
     assert list(actual) == [
@@ -2680,7 +2680,7 @@ def test_singledispatchmethod_automethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_singledispatchmethod_classmethod(app):
+def test_singledispatchmethod_classmethod(app) -> None:
     options = {'members': None}
     actual = do_autodoc(
         app, 'module', 'target.singledispatchmethod_classmethod', options
@@ -2711,7 +2711,7 @@ def test_singledispatchmethod_classmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_singledispatchmethod_classmethod_automethod(app):
+def test_singledispatchmethod_classmethod_automethod(app) -> None:
     options = {}
     actual = do_autodoc(
         app, 'method', 'target.singledispatchmethod_classmethod.Foo.class_meth', options
@@ -2738,7 +2738,7 @@ def test_singledispatchmethod_classmethod_automethod(app):
 )
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_cython(app):
+def test_cython(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -2770,7 +2770,7 @@ def test_cython(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_final(app):
+def test_final(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.final', options)
     assert list(actual) == [
@@ -2801,7 +2801,7 @@ def test_final(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_overload(app):
+def test_overload(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.overload', options)
     assert list(actual) == [
@@ -2855,7 +2855,7 @@ def test_overload(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_overload2(app):
+def test_overload2(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.overload2', options)
     assert list(actual) == [
@@ -2871,7 +2871,7 @@ def test_overload2(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_pymodule_for_ModuleLevelDocumenter(app):
+def test_pymodule_for_ModuleLevelDocumenter(app) -> None:
     app.env.ref_context['py:module'] = 'target.classes'
     actual = do_autodoc(app, 'class', 'Foo')
     assert list(actual) == [
@@ -2883,7 +2883,7 @@ def test_pymodule_for_ModuleLevelDocumenter(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_pymodule_for_ClassLevelDocumenter(app):
+def test_pymodule_for_ClassLevelDocumenter(app) -> None:
     app.env.ref_context['py:module'] = 'target.methods'
     actual = do_autodoc(app, 'method', 'Base.meth')
     assert list(actual) == [
@@ -2895,7 +2895,7 @@ def test_pymodule_for_ClassLevelDocumenter(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_pyclass_for_ClassLevelDocumenter(app):
+def test_pyclass_for_ClassLevelDocumenter(app) -> None:
     app.env.ref_context['py:module'] = 'target.methods'
     app.env.ref_context['py:class'] = 'Base'
     actual = do_autodoc(app, 'method', 'meth')
@@ -2908,7 +2908,7 @@ def test_pyclass_for_ClassLevelDocumenter(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autodoc')
-def test_autodoc(app):
+def test_autodoc(app) -> None:
     app.build(force_all=True)
 
     content = app.env.get_doctree('index')
@@ -2930,7 +2930,7 @@ alias of Foo"""
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_name_conflict(app):
+def test_name_conflict(app) -> None:
     actual = do_autodoc(app, 'class', 'target.name_conflict.foo')
     assert list(actual) == [
         '',
@@ -2953,7 +2953,7 @@ def test_name_conflict(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_name_mangling(app):
+def test_name_mangling(app) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -3000,7 +3000,7 @@ def test_name_mangling(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_type_union_operator(app):
+def test_type_union_operator(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.pep604', options)
     assert list(actual) == [
@@ -3043,7 +3043,7 @@ def test_type_union_operator(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_hide_value(app):
+def test_hide_value(app) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.hide_value', options)
     assert list(actual) == [
@@ -3088,7 +3088,7 @@ def test_hide_value(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_canonical(app):
+def test_canonical(app) -> None:
     options = {
         'members': None,
         'imported-members': None,
@@ -3145,7 +3145,7 @@ def function_rst(name, sig):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc', freshenv=True)
-def test_literal_render(app):
+def test_literal_render(app) -> None:
     # autodoc_typehints_format can take 'short' or 'fully-qualified' values
     # and this will be interpreted as 'smart' or 'fully-qualified-except-typing' by restify()
     # and 'smart' or 'fully-qualified' by stringify_annotation().
@@ -3200,7 +3200,7 @@ def test_literal_render(app):
     freshenv=True,
     confoverrides={'python_display_short_literal_types': True},
 )
-def test_literal_render_pep604(app):
+def test_literal_render_pep604(app) -> None:
     options = {
         'members': None,
         'exclude-members': 'MyEnum',
@@ -3243,7 +3243,7 @@ def test_literal_render_pep604(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_no_index_entry(app):
+def test_no_index_entry(app) -> None:
     # modules can use no-index-entry
     options = {'no-index-entry': None}
     actual = do_autodoc(app, 'module', 'target.module', options)

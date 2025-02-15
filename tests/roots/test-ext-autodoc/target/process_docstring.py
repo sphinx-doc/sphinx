@@ -1,4 +1,4 @@
-def func():
+def func() -> None:
     """first line
     ---
     second line

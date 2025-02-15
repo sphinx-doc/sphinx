@@ -4,6 +4,6 @@ class Bar:
     pass
 
 
-def foo():
+def foo() -> None:
     """Foo function"""
     pass

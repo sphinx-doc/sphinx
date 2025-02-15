@@ -8,14 +8,14 @@ class Foo:
     class Bar:  # NoQA: D106
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def bar(self):
+    def bar(self) -> None:
         pass
 
     @property
-    def baz(self):
+    def baz(self) -> None:
         pass
 
 

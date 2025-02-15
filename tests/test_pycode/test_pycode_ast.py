@@ -64,10 +64,10 @@ from sphinx.pycode.ast import unparse as ast_unparse
          'y[:, 1:3][np.array([0, 2, 4]), :]'),     # Index, 2x Subscript, numpy extended syntax
     ],
 )  # fmt: skip
-def test_unparse(source, expected):
+def test_unparse(source, expected) -> None:
     module = ast.parse(source)
     assert ast_unparse(module.body[0].value, source) == expected
 
 
-def test_unparse_None():
+def test_unparse_None() -> None:
     assert ast_unparse(None) is None

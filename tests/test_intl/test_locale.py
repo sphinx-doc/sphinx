@@ -19,7 +19,7 @@ def _cleanup_translations():
     locale.translators.clear()
 
 
-def test_init(rootdir):
+def test_init(rootdir) -> None:
     # not initialized yet
     _ = locale.get_translation('myext')
     assert _('Hello world') == 'Hello world'
@@ -48,7 +48,7 @@ def test_init(rootdir):
     assert _('Hello reST') == 'Hello reST'
 
 
-def test_init_with_unknown_language(rootdir):
+def test_init_with_unknown_language(rootdir) -> None:
     locale.init([rootdir / 'test-locale' / 'locale1'], 'unknown', 'myext')
     _ = locale.get_translation('myext')
     assert _('Hello world') == 'Hello world'
@@ -57,7 +57,7 @@ def test_init_with_unknown_language(rootdir):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_add_message_catalog(app, rootdir):
+def test_add_message_catalog(app, rootdir) -> None:
     app.config.language = 'en'
     app.add_message_catalog('myext', rootdir / 'test-locale' / 'locale1')
     _ = locale.get_translation('myext')
@@ -73,7 +73,7 @@ def _empty_language_translation(rootdir: Path) -> Callable[[str], str]:
     return locale.get_translation(catalog)
 
 
-def test_init_environment_language(rootdir, monkeypatch):
+def test_init_environment_language(rootdir, monkeypatch) -> None:
     with monkeypatch.context() as m:
         m.setenv('LANGUAGE', 'en_US:en')
         _ = _empty_language_translation(rootdir)

@@ -5,6 +5,6 @@ class TestSourceParser(Parser):
     supported = ('test',)
 
 
-def setup(app):
+def setup(app) -> None:
     app.add_source_suffix('.test', 'test')
     app.add_source_parser(TestSourceParser)

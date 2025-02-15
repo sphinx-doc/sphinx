@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from typing import Any
 
 
-def test_html_sidebars_error(make_app, tmp_path):
+def test_html_sidebars_error(make_app, tmp_path) -> None:
     (tmp_path / 'conf.py').touch()
     with pytest.raises(
         ConfigError,
@@ -37,7 +37,7 @@ def test_html_sidebars_error(make_app, tmp_path):
         )
 
 
-def test_html4_error(make_app, tmp_path):
+def test_html4_error(make_app, tmp_path) -> None:
     (tmp_path / 'conf.py').touch()
     with pytest.raises(
         ConfigError,
@@ -126,7 +126,7 @@ def test_html4_error(make_app, tmp_path):
 )
 @pytest.mark.sphinx('html', testroot='root')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
-def test_docutils_output(app, cached_etree_parse, fname, path, check):
+def test_docutils_output(app, cached_etree_parse, fname, path, check) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
 
@@ -136,12 +136,12 @@ def test_docutils_output(app, cached_etree_parse, fname, path, check):
     testroot='root',
     parallel=2,
 )
-def test_html_parallel(app):
+def test_html_parallel(app) -> None:
     app.build()
 
 
 @pytest.mark.sphinx('html', testroot='build-html-translator')
-def test_html_translator(app):
+def test_html_translator(app) -> None:
     app.build()
     assert app.builder.docwriter.visitor.depart_with_node == 10
 
@@ -166,7 +166,7 @@ def test_html_translator(app):
     testroot='add_enumerable_node',
     srcdir='test_enumerable_node',
 )
-def test_enumerable_node(app, cached_etree_parse, expect):
+def test_enumerable_node(app, cached_etree_parse, expect) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
 
@@ -176,7 +176,7 @@ def test_enumerable_node(app, cached_etree_parse, expect):
     testroot='basic',
     confoverrides={'html_copy_source': False},
 )
-def test_html_copy_source(app):
+def test_html_copy_source(app) -> None:
     app.build(force_all=True)
     assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
 
@@ -186,7 +186,7 @@ def test_html_copy_source(app):
     testroot='basic',
     confoverrides={'html_sourcelink_suffix': '.txt'},
 )
-def test_html_sourcelink_suffix(app):
+def test_html_sourcelink_suffix(app) -> None:
     app.build(force_all=True)
     assert (app.outdir / '_sources' / 'index.rst.txt').exists()
 
@@ -196,7 +196,7 @@ def test_html_sourcelink_suffix(app):
     testroot='basic',
     confoverrides={'html_sourcelink_suffix': '.rst'},
 )
-def test_html_sourcelink_suffix_same(app):
+def test_html_sourcelink_suffix_same(app) -> None:
     app.build(force_all=True)
     assert (app.outdir / '_sources' / 'index.rst').exists()
 
@@ -206,13 +206,13 @@ def test_html_sourcelink_suffix_same(app):
     testroot='basic',
     confoverrides={'html_sourcelink_suffix': ''},
 )
-def test_html_sourcelink_suffix_empty(app):
+def test_html_sourcelink_suffix_empty(app) -> None:
     app.build(force_all=True)
     assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='html_entity')
-def test_html_entity(app):
+def test_html_entity(app) -> None:
     app.build(force_all=True)
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -221,7 +221,7 @@ def test_html_entity(app):
 
 
 @pytest.mark.sphinx('html', testroot='basic')
-def test_html_inventory(app):
+def test_html_inventory(app) -> None:
     app.build(force_all=True)
 
     with app.outdir.joinpath('objects.inv').open('rb') as f:
@@ -273,7 +273,7 @@ def test_html_inventory(app):
     testroot='images',
     confoverrides={'html_sourcelink_suffix': ''},
 )
-def test_html_anchor_for_figure(app):
+def test_html_anchor_for_figure(app) -> None:
     app.build(force_all=True)
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
@@ -283,7 +283,7 @@ def test_html_anchor_for_figure(app):
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
-def test_html_raw_directive(app):
+def test_html_raw_directive(app) -> None:
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -344,13 +344,13 @@ def test_html_raw_directive(app):
     ],
 )
 @pytest.mark.sphinx('html', testroot='stylesheets')
-def test_alternate_stylesheets(app, cached_etree_parse, expect):
+def test_alternate_stylesheets(app, cached_etree_parse, expect) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
 
 
 @pytest.mark.sphinx('html', testroot='html_style')
-def test_html_style(app):
+def test_html_style(app) -> None:
     app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
@@ -374,7 +374,7 @@ def test_html_style(app):
         }
     },
 )
-def test_html_sidebar(app):
+def test_html_sidebar(app) -> None:
     ctx: dict[str, Any] = {}
 
     # default for alabaster
@@ -452,7 +452,7 @@ def test_html_sidebar(app):
     confoverrides={'manpages_url': 'https://example.com/{page}.{section}'},
 )
 @pytest.mark.test_params(shared_result='test_build_html_manpage_url')
-def test_html_manpage(app, cached_etree_parse, fname, expect):
+def test_html_manpage(app, cached_etree_parse, fname, expect) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -462,7 +462,7 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
     testroot='toctree-glob',
     confoverrides={'html_baseurl': 'https://example.com/'},
 )
-def test_html_baseurl(app):
+def test_html_baseurl(app) -> None:
     app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -482,7 +482,7 @@ def test_html_baseurl(app):
         'html_file_suffix': '.htm',
     },
 )
-def test_html_baseurl_and_html_file_suffix(app):
+def test_html_baseurl_and_html_file_suffix(app) -> None:
     app.build()
 
     result = (app.outdir / 'index.htm').read_text(encoding='utf8')
@@ -501,7 +501,7 @@ def test_html_baseurl_and_html_file_suffix(app):
     testroot='basic',
     srcdir='validate_html_extra_path',
 )
-def test_validate_html_extra_path(app):
+def test_validate_html_extra_path(app) -> None:
     (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_extra_path = [
         '/path/to/not_found',    # not found
@@ -525,7 +525,7 @@ def test_validate_html_extra_path(app):
     testroot='basic',
     srcdir='validate_html_static_path',
 )
-def test_validate_html_static_path(app):
+def test_validate_html_static_path(app) -> None:
     (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_static_path = [
         '/path/to/not_found',    # not found
@@ -549,7 +549,7 @@ def test_validate_html_static_path(app):
     testroot='basic',
     confoverrides={'html_permalinks': False},
 )
-def test_html_permalink_disable(app):
+def test_html_permalink_disable(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -561,7 +561,7 @@ def test_html_permalink_disable(app):
     testroot='basic',
     confoverrides={'html_permalinks_icon': '<span>[PERMALINK]</span>'},
 )
-def test_html_permalink_icon(app):
+def test_html_permalink_icon(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -573,7 +573,7 @@ def test_html_permalink_icon(app):
 
 
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
-def test_html_signaturereturn_icon(app):
+def test_html_signaturereturn_icon(app) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -585,7 +585,7 @@ def test_html_signaturereturn_icon(app):
     testroot='root',
     srcdir=os.urandom(4).hex(),
 )
-def test_html_remove_sources_before_write_gh_issue_10786(app):
+def test_html_remove_sources_before_write_gh_issue_10786(app) -> None:
     # see:  https://github.com/sphinx-doc/sphinx/issues/10786
     target = app.srcdir / 'img.png'
 
@@ -611,7 +611,7 @@ def test_html_remove_sources_before_write_gh_issue_10786(app):
     testroot='domain-py-python_maximum_signature_line_length',
     confoverrides={'python_maximum_signature_line_length': 1},
 )
-def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
+def test_html_pep_695_one_type_per_line(app, cached_etree_parse) -> None:
     app.build()
     fname = app.outdir / 'index.html'
     etree = cached_etree_parse(fname)
@@ -668,7 +668,7 @@ def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
         'python_trailing_comma_in_multi_line_signatures': False,
     },
 )
-def test_html_pep_695_trailing_comma_in_multi_line_signatures(app):
+def test_html_pep_695_trailing_comma_in_multi_line_signatures(app) -> None:
     app.build()
     fname = app.outdir / 'index.html'
     etree = etree_parse(fname)
@@ -718,13 +718,13 @@ def test_html_pep_695_trailing_comma_in_multi_line_signatures(app):
 
 
 @pytest.mark.sphinx('html', testroot='directives-admonition-collapse')
-def test_html_admonition_collapse(app):
+def test_html_admonition_collapse(app) -> None:
     app.build()
     fname = app.outdir / 'index.html'
     etree = etree_parse(fname)
 
     def _create_check(text: str, open: bool):  # type: ignore[no-untyped-def]
-        def _check(els):
+        def _check(els) -> None:
             assert len(els) == 1
             el = els[0]
             if open:

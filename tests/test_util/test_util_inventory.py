@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def test_read_inventory_v1():
+def test_read_inventory_v1() -> None:
     inv = InventoryFile.loads(INVENTORY_V1, uri='/util')
     assert inv['py:module', 'module'] == _InventoryItem(
         project_name='foo',
@@ -37,7 +37,7 @@ def test_read_inventory_v1():
     )
 
 
-def test_read_inventory_v2():
+def test_read_inventory_v2() -> None:
     inv = InventoryFile.loads(INVENTORY_V2, uri='/util')
 
     assert len(inv.data['py:module']) == 2
@@ -61,7 +61,7 @@ def test_read_inventory_v2():
     )
 
 
-def test_read_inventory_v2_not_having_version():
+def test_read_inventory_v2_not_having_version() -> None:
     inv = InventoryFile.loads(INVENTORY_V2_NO_VERSION, uri='/util')
     assert inv['py:module', 'module1'] == _InventoryItem(
         project_name='foo',
@@ -72,7 +72,7 @@ def test_read_inventory_v2_not_having_version():
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_ambiguous_definition_warning(app):
+def test_ambiguous_definition_warning(app) -> None:
     InventoryFile.loads(INVENTORY_V2_AMBIGUOUS_TERMS, uri='/util')
 
     def _multiple_defs_notice_for(entity: str) -> str:
@@ -106,7 +106,7 @@ def _build_inventory(srcdir: Path) -> Path:
     return app.outdir / 'objects.inv'
 
 
-def test_inventory_localization(tmp_path):
+def test_inventory_localization(tmp_path) -> None:
     # Build an app using Estonian (EE) locale
     srcdir_et = _write_appconfig(tmp_path, 'et')
     inventory_et = _build_inventory(srcdir_et)

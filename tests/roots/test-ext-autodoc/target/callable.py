@@ -4,7 +4,7 @@ class Callable:
     def __call__(self, arg1, arg2, **kwargs):
         pass
 
-    def method(self, arg1, arg2):
+    def method(self, arg1, arg2) -> None:
         """docstring of Callable.method()."""
         pass
 

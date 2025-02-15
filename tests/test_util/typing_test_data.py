@@ -57,7 +57,7 @@ def f10(x: Tuple[int, str], y: Tuple[int, ...]) -> None:
 
 
 class CustomAnnotation:
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'CustomAnnotation'
 
 
@@ -81,11 +81,11 @@ def f15(x: 'Unknown', y: 'int') -> Any:  # NoQA: F821  # type: ignore[attr-defin
     pass
 
 
-def f16(arg1, arg2, *, arg3=None, arg4=None):
+def f16(arg1, arg2, *, arg3=None, arg4=None) -> None:
     pass
 
 
-def f17(*, arg3, arg4):
+def f17(*, arg3, arg4) -> None:
     pass
 
 
@@ -93,7 +93,7 @@ def f18(self, arg1: Union[int, Tuple] = 10) -> List[Dict]:
     pass
 
 
-def f19(*args: int, **kwargs: str):
+def f19(*args: int, **kwargs: str) -> None:
     pass
 
 
@@ -101,23 +101,23 @@ def f20() -> Optional[Union[int, str]]:
     pass
 
 
-def f21(arg1='whatever', arg2=Signature.empty):
+def f21(arg1='whatever', arg2=Signature.empty) -> None:
     pass
 
 
-def f22(*, a, b):
+def f22(*, a, b) -> None:
     pass
 
 
-def f23(a, b, /, c, d):
+def f23(a, b, /, c, d) -> None:
     pass
 
 
-def f24(a, /, *, b):
+def f24(a, /, *, b) -> None:
     pass
 
 
-def f25(a, b, /):
+def f25(a, b, /) -> None:
     pass
 
 

@@ -12,7 +12,7 @@ from tests.test_extensions.autodoc_util import do_autodoc
     testroot='ext-autodoc',
     confoverrides={'autodoc_preserve_defaults': True},
 )
-def test_preserve_defaults(app):
+def test_preserve_defaults(app) -> None:
     color = '0xFFFFFF'
 
     options = {'members': None}
@@ -102,7 +102,7 @@ def test_preserve_defaults(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_preserve_defaults': True},
 )
-def test_preserve_defaults_special_constructs(app):
+def test_preserve_defaults_special_constructs(app) -> None:
     options = {'members': None}
     actual = do_autodoc(
         app, 'module', 'target.preserve_defaults_special_constructs', options

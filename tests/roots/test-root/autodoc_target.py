@@ -7,7 +7,7 @@ __all__ = ['Class']
 integer = 1
 
 
-def raises(exc, func, *args, **kwds):
+def raises(exc, func, *args, **kwds) -> None:
     """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*."""
     pass
 
@@ -15,14 +15,14 @@ def raises(exc, func, *args, **kwds):
 class CustomEx(Exception):
     """My custom exception."""
 
-    def f(self):
+    def f(self) -> None:
         """Exception method."""
 
 
 class CustomDataDescriptor:
     """Descriptor class docstring."""
 
-    def __init__(self, doc):
+    def __init__(self, doc) -> None:
         self.__doc__ = doc
 
     def __get__(self, obj, type=None):
@@ -30,7 +30,7 @@ class CustomDataDescriptor:
             return self
         return 42
 
-    def meth(self):
+    def meth(self) -> str:
         """Function."""
         return 'The Answer'
 
@@ -60,12 +60,12 @@ def _funky_classmethod(name, b, c, d, docstring=None):
 
 
 class Base:
-    def inheritedmeth(self):
+    def inheritedmeth(self) -> None:
         """Inherited function."""
 
 
 class Derived(Base):
-    def inheritedmeth(self):
+    def inheritedmeth(self) -> None:
         # no docstring here
         pass
 
@@ -75,16 +75,16 @@ class Class(Base):
 
     descr = CustomDataDescriptor('Descriptor instance docstring.')
 
-    def meth(self):
+    def meth(self) -> None:
         """Function."""
 
-    def undocmeth(self):
+    def undocmeth(self) -> None:
         pass
 
-    def skipmeth(self):
+    def skipmeth(self) -> None:
         """Method that should be skipped."""
 
-    def excludemeth(self):
+    def excludemeth(self) -> None:
         """Method that should be excluded."""
 
     # should not be documented
@@ -94,7 +94,7 @@ class Class(Base):
     attr = 'bar'
 
     @property
-    def prop(self):
+    def prop(self) -> None:
         """Property."""
 
     docattr = 'baz'
@@ -113,7 +113,7 @@ class Class(Base):
         'moore', 9, 8, 7, docstring='moore(a, e, f) -> happiness'
     )
 
-    def __init__(self, arg):
+    def __init__(self, arg) -> None:
         self.inst_attr_inline = None  #: an inline documented instance attr
         #: a documented instance attribute
         self.inst_attr_comment = None
@@ -133,7 +133,7 @@ class CustomDict(dict):  # NoQA: FURB189
     """Docstring."""
 
 
-def function(foo, *args, **kwds):
+def function(foo, *args, **kwds) -> None:
     """Return spam."""
     pass
 
@@ -144,7 +144,7 @@ class Outer:
     class Inner:
         """Foo"""
 
-        def meth(self):
+        def meth(self) -> None:
             """Foo"""
 
     # should be documented as an alias
@@ -152,14 +152,14 @@ class Outer:
 
 
 class DocstringSig:
-    def meth(self):
+    def meth(self) -> None:
         """meth(FOO, BAR=1) -> BAZ
         First line of docstring
 
         rest of docstring
         """
 
-    def meth2(self):
+    def meth2(self) -> None:
         """First line, no signature
         Second line followed by indentation::
 
@@ -167,14 +167,14 @@ class DocstringSig:
         """
 
     @property
-    def prop1(self):
+    def prop1(self) -> int:
         """DocstringSig.prop1(self)
         First line of docstring
         """
         return 123
 
     @property
-    def prop2(self):
+    def prop2(self) -> int:
         """First line of docstring
         Second line of docstring
         """
@@ -182,7 +182,7 @@ class DocstringSig:
 
 
 class StrRepr(str):  # NoQA: FURB189,SLOT000
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self
 
 
@@ -203,7 +203,7 @@ class InstAttCls:
     ca3 = 'c'
     """Docstring for class attribute InstAttCls.ca3."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         #: Doc comment for instance attribute InstAttCls.ia1
         self.ia1 = 'd'
 
