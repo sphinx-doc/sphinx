@@ -111,6 +111,8 @@ Features added
 * #13326: Remove hardcoding from handling :class:`~sphinx.addnodes.productionlist`
   nodes in all writers, to improve flexibility.
   Patch by Adam Turner.
+* #13335: Use ``misc.highlighting_failure`` subtype for Pygments unknown lexers.
+  Patch by Bart Kamphorst.
 
 Bugs fixed
 ----------
