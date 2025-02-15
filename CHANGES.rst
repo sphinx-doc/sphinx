@@ -111,9 +111,8 @@ Features added
 * #13326: Remove hardcoding from handling :class:`~sphinx.addnodes.productionlist`
   nodes in all writers, to improve flexibility.
   Patch by Adam Turner.
-* #10385: Add RTL (right-to-left) support for all Sphinx themes via ``is_rtl``
-  theme option. Includes automatic layout mirroring, and bidirectional text
-  support.
+* #10385: Add RTL (right-to-left) support for all Sphinx themes via the ``is_rtl``
+  theme option. Includes automatic layout mirroring, and bidirectional text support.
   Patch by Revisto.
 
 Bugs fixed
