@@ -14,21 +14,25 @@ from sphinx.testing import restructuredtext
 from sphinx.util.docutils import sphinx_domains
 
 if TYPE_CHECKING:
-    from sphinx.builders import Builder
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.testing.util import SphinxTestApp
 
 
-def _doctree_for_test(builder: Builder, docname: str) -> nodes.document:
-    builder.env.prepare_settings(docname)
-    publisher = create_publisher(builder.app, 'restructuredtext')
-    with sphinx_domains(builder.env):
-        publisher.set_source(source_path=str(builder.env.doc2path(docname)))
+def _doctree_for_test(
+    app: Sphinx, env: BuildEnvironment, docname: str
+) -> nodes.document:
+    env.prepare_settings(docname)
+    publisher = create_publisher(app, 'restructuredtext')
+    with sphinx_domains(env):
+        publisher.set_source(source_path=str(env.doc2path(docname)))
         publisher.publish()
         return publisher.document
 
 
 @pytest.mark.sphinx('text', testroot='object-description-sections')
-def test_object_description_sections(app):
-    doctree = _doctree_for_test(app.builder, 'index')
+def test_object_description_sections(app: SphinxTestApp) -> None:
+    doctree = _doctree_for_test(app, app.env, 'index')
     # <document>
     #     <index>
     #     <desc>
@@ -54,8 +58,8 @@ def test_object_description_sections(app):
     assert doctree[1][1][0][1][0] == 'Lorem ipsum dolar sit amet'
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_object_description_content_line_number(app):
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_object_description_content_line_number(app: SphinxTestApp) -> None:
     text = '.. py:function:: foo(bar)\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))

@@ -1,12 +1,14 @@
 """Test sphinx.util._importer."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.errors import ExtensionError
 from sphinx.util._importer import import_object
 
 
-def test_import_object():
+def test_import_object() -> None:
     module = import_object('sphinx')
     assert module.__name__ == 'sphinx'
 

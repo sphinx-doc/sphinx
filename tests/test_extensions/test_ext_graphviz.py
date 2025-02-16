@@ -1,16 +1,22 @@
 """Test sphinx.ext.graphviz extension."""
 
+from __future__ import annotations
+
 import re
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.ext.graphviz import ClickableMapDefinition
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_png_html(app):
+def test_graphviz_png_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -54,7 +60,7 @@ def test_graphviz_png_html(app):
     confoverrides={'graphviz_output_format': 'svg'},
 )
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_svg_html(app):
+def test_graphviz_svg_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -121,7 +127,7 @@ def test_graphviz_svg_html(app):
 
 @pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_latex(app):
+def test_graphviz_latex(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -149,7 +155,7 @@ def test_graphviz_latex(app):
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_i18n(app):
+def test_graphviz_i18n(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -157,7 +163,7 @@ def test_graphviz_i18n(app):
     assert re.search(html, content, re.MULTILINE)
 
 
-def test_graphviz_parse_mapfile():
+def test_graphviz_parse_mapfile() -> None:
     # empty graph
     code = '# digraph {\n# }\n'
     content = '<map id="%3" name="%3">\n</map>'
@@ -168,12 +174,7 @@ def test_graphviz_parse_mapfile():
     assert cmap.generate_clickable_map() == ''
 
     # normal graph
-    code = (
-        'digraph {\n'
-        '  foo [href="https://www.google.com/"];\n'
-        '  foo -> bar;\n'
-        '}\n'
-    )
+    code = 'digraph {\n  foo [href="https://www.google.com/"];\n  foo -> bar;\n}\n'
     content = (
         '<map id="%3" name="%3">\n'
         '<area shape="poly" id="node1" href="https://www.google.com/" title="foo" alt=""'

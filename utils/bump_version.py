@@ -9,12 +9,14 @@ import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import Literal
 
-script_dir = Path(__file__).parent
+
+script_dir = Path(__file__).resolve().parent
 package_dir = script_dir.parent
 
 

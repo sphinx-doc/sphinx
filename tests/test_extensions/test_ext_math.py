@@ -1,15 +1,21 @@
 """Test math extensions."""
 
+from __future__ import annotations
+
 import re
 import shutil
 import subprocess
 import warnings
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import nodes
 
 from sphinx.ext.mathjax import MATHJAX_URL
 from sphinx.testing.util import assert_node
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 def has_binary(binary: str) -> bool:
@@ -31,7 +37,7 @@ def has_binary(binary: str) -> bool:
     testroot='ext-math-simple',
     confoverrides={'extensions': ['sphinx.ext.imgmath']},
 )
-def test_imgmath_png(app):
+def test_imgmath_png(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
         msg = 'LaTeX command "latex" is not available'
@@ -58,7 +64,7 @@ def test_imgmath_png(app):
     testroot='ext-math-simple',
     confoverrides={'extensions': ['sphinx.ext.imgmath'], 'imgmath_image_format': 'svg'},
 )
-def test_imgmath_svg(app):
+def test_imgmath_svg(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
         msg = 'LaTeX command "latex" is not available'
@@ -89,7 +95,7 @@ def test_imgmath_svg(app):
         'imgmath_embed': True,
     },
 )
-def test_imgmath_svg_embed(app):
+def test_imgmath_svg_embed(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
         msg = 'LaTeX command "latex" is not available'
@@ -112,7 +118,7 @@ def test_imgmath_svg_embed(app):
         'mathjax_options': {'integrity': 'sha384-0123456789'},
     },
 )
-def test_mathjax_options(app):
+def test_mathjax_options(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -129,7 +135,7 @@ def test_mathjax_options(app):
     testroot='ext-math',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_mathjax_align(app):
+def test_mathjax_align(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -147,7 +153,7 @@ def test_mathjax_align(app):
     testroot='ext-math',
     confoverrides={'math_number_all': True, 'extensions': ['sphinx.ext.mathjax']},
 )
-def test_math_number_all_mathjax(app):
+def test_math_number_all_mathjax(app: SphinxTestApp) -> None:
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -163,7 +169,7 @@ def test_math_number_all_mathjax(app):
     testroot='ext-math',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_math_number_all_latex(app):
+def test_math_number_all_latex(app: SphinxTestApp) -> None:
     app.build()
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -204,7 +210,7 @@ def test_math_number_all_latex(app):
         'math_eqref_format': 'Eq.{number}',
     },
 )
-def test_math_eqref_format_html(app):
+def test_math_eqref_format_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'math.html').read_text(encoding='utf8')
@@ -224,7 +230,7 @@ def test_math_eqref_format_html(app):
         'math_eqref_format': 'Eq.{number}',
     },
 )
-def test_math_eqref_format_latex(app):
+def test_math_eqref_format_latex(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -244,7 +250,7 @@ def test_math_eqref_format_latex(app):
         'math_numfig': True,
     },
 )
-def test_mathjax_numfig_html(app):
+def test_mathjax_numfig_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'math.html').read_text(encoding='utf8')
@@ -271,7 +277,7 @@ def test_mathjax_numfig_html(app):
         'math_numsep': '-',
     },
 )
-def test_mathjax_numsep_html(app):
+def test_mathjax_numsep_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'math.html').read_text(encoding='utf8')
@@ -299,7 +305,7 @@ def test_mathjax_numsep_html(app):
         'math_numfig': True,
     },
 )
-def test_imgmath_numfig_html(app):
+def test_imgmath_numfig_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'page.html').read_text(encoding='utf8')
@@ -361,7 +367,7 @@ def test_math_compat(app):
         'mathjax3_config': {'extensions': ['tex2jax.js']},
     },
 )
-def test_mathjax3_config(app):
+def test_mathjax3_config(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -378,7 +384,7 @@ def test_mathjax3_config(app):
         'mathjax2_config': {'extensions': ['tex2jax.js']},
     },
 )
-def test_mathjax2_config(app):
+def test_mathjax2_config(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -399,7 +405,7 @@ def test_mathjax2_config(app):
         'mathjax3_config': {'extensions': ['tex2jax.js']},
     },
 )
-def test_mathjax_options_async_for_mathjax3(app):
+def test_mathjax_options_async_for_mathjax3(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -416,7 +422,7 @@ def test_mathjax_options_async_for_mathjax3(app):
         'mathjax2_config': {'extensions': ['tex2jax.js']},
     },
 )
-def test_mathjax_options_defer_for_mathjax2(app):
+def test_mathjax_options_defer_for_mathjax2(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -431,7 +437,7 @@ def test_mathjax_options_defer_for_mathjax2(app):
         'mathjax_path': 'MathJax.js',
     },
 )
-def test_mathjax_path(app):
+def test_mathjax_path(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -446,7 +452,7 @@ def test_mathjax_path(app):
         'mathjax_path': 'MathJax.js?config=scipy-mathjax',
     },
 )
-def test_mathjax_path_config(app):
+def test_mathjax_path_config(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -460,7 +466,7 @@ def test_mathjax_path_config(app):
     testroot='ext-math',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_mathjax_is_installed_only_if_document_having_math(app):
+def test_mathjax_is_installed_only_if_document_having_math(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -475,7 +481,7 @@ def test_mathjax_is_installed_only_if_document_having_math(app):
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_mathjax_is_not_installed_if_no_equations(app):
+def test_mathjax_is_not_installed_if_no_equations(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -487,7 +493,7 @@ def test_mathjax_is_not_installed_if_no_equations(app):
     testroot='ext-math',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_mathjax_is_installed_if_no_equations_when_forced(app):
+def test_mathjax_is_installed_if_no_equations_when_forced(app: SphinxTestApp) -> None:
     app.set_html_assets_policy('always')
     app.build(force_all=True)
 
@@ -503,7 +509,9 @@ def test_mathjax_is_installed_if_no_equations_when_forced(app):
     testroot='ext-math-include',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_mathjax_is_installed_if_included_file_has_equations(app):
+def test_mathjax_is_installed_if_included_file_has_equations(
+    app: SphinxTestApp,
+) -> None:
     app.build(force_all=True)
 
     # no real equations at the rst level, but includes "included"
@@ -523,7 +531,9 @@ def test_mathjax_is_installed_if_included_file_has_equations(app):
     testroot='ext-math',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_mathjax_is_installed_only_if_document_having_math_singlehtml(app):
+def test_mathjax_is_installed_only_if_document_having_math_singlehtml(
+    app: SphinxTestApp,
+) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -535,7 +545,9 @@ def test_mathjax_is_installed_only_if_document_having_math_singlehtml(app):
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_mathjax_is_not_installed_if_no_equations_singlehtml(app):
+def test_mathjax_is_not_installed_if_no_equations_singlehtml(
+    app: SphinxTestApp,
+) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -547,7 +559,9 @@ def test_mathjax_is_not_installed_if_no_equations_singlehtml(app):
     testroot='ext-math-include',
     confoverrides={'extensions': ['sphinx.ext.mathjax']},
 )
-def test_mathjax_is_installed_if_included_file_has_equations_singlehtml(app):
+def test_mathjax_is_installed_if_included_file_has_equations_singlehtml(
+    app: SphinxTestApp,
+) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

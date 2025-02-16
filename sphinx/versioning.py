@@ -5,14 +5,14 @@ from __future__ import annotations
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
-from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from typing import Any
 
     from docutils.nodes import Node
 
@@ -160,8 +160,8 @@ class UIDTransform(SphinxTransform):
 
         if env.versioning_compare:
             # get old doctree
+            filename = env.doctreedir / f'{env.docname}.doctree'
             try:
-                filename = path.join(env.doctreedir, env.docname + '.doctree')
                 with open(filename, 'rb') as f:
                     old_doctree = pickle.load(f)
             except OSError:

@@ -8,6 +8,9 @@
 
 .. versionadded:: 0.6
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension allows you to embed `Graphviz <https://graphviz.org/>`_ graphs in
 your documents.
 
@@ -201,9 +204,11 @@ It adds these directives:
 There are also these config values:
 
 .. confval:: graphviz_dot
+   :type: :code-py:`str`
+   :default: :code-py:`'dot'`
 
-   The command name with which to invoke ``dot``.  The default is ``'dot'``; you
-   may need to set this to a full path if ``dot`` is not in the executable
+   The command name with which to invoke ``dot``.
+   You may need to set this to a full path if ``dot`` is not in the executable
    search path.
 
    Since this setting is not portable from system to system, it is normally not
@@ -214,15 +219,19 @@ There are also these config values:
       sphinx-build -M html -D graphviz_dot=C:\graphviz\bin\dot.exe . _build
 
 .. confval:: graphviz_dot_args
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`()`
 
-   Additional command-line arguments to give to dot, as a list.  The default is
-   an empty list.  This is the right place to set global graph, node or edge
+   Additional command-line arguments to give to dot, as a list.
+   This is the right place to set global graph, node or edge
    attributes via dot's ``-G``, ``-N`` and ``-E`` options.
 
 .. confval:: graphviz_output_format
+   :type: :code-py:`'png' | 'svg'`
+   :default: :code-py:`'png'`
 
    The output format for Graphviz when building HTML files.  This must be either
-   ``'png'`` or ``'svg'``; the default is ``'png'``. If ``'svg'`` is used, in
+   ``'png'`` or ``'svg'``. If ``'svg'`` is used, in
    order to make the URL links work properly, an appropriate ``target``
    attribute must be set, such as ``"_top"`` and ``"_blank"``. For example, the
    link in the following graph should work in the svg output: ::

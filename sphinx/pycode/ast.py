@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import ast
-from typing import NoReturn, overload
+from typing import TYPE_CHECKING, overload
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: '+',
@@ -29,11 +32,11 @@ OPERATORS: dict[type[ast.AST], str] = {
 
 
 @overload
-def unparse(node: None, code: str = '') -> None: ...  # NoQA: E704
+def unparse(node: None, code: str = '') -> None: ...
 
 
 @overload
-def unparse(node: ast.AST, code: str = '') -> str: ...  # NoQA: E704
+def unparse(node: ast.AST, code: str = '') -> str: ...
 
 
 def unparse(node: ast.AST | None, code: str = '') -> str | None:

@@ -2,7 +2,8 @@
 
 i18n with external links
 ========================
-.. #1044 external-links-dont-work-in-localized-html
+.. https://github.com/sphinx-doc/sphinx/issues/1044
+   external-links-dont-work-in-localized-html
 
 External link to Python_.
 

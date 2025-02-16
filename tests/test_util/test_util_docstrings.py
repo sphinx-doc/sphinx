@@ -1,5 +1,7 @@
 """Test sphinx.util.docstrings."""
 
+from __future__ import annotations
+
 from sphinx.util.docstrings import (
     prepare_commentdoc,
     prepare_docstring,
@@ -7,7 +9,7 @@ from sphinx.util.docstrings import (
 )
 
 
-def test_separate_metadata():
+def test_separate_metadata() -> None:
     # metadata only
     text = ':meta foo: bar\n:meta baz:\n'
     docstring, metadata = separate_metadata(text)
@@ -39,7 +41,7 @@ def test_separate_metadata():
     assert metadata == {'foo': 'bar'}
 
 
-def test_prepare_docstring():
+def test_prepare_docstring() -> None:
     docstring = """multiline docstring
 
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit,
@@ -75,7 +77,7 @@ def test_prepare_docstring():
     assert prepare_docstring(docstring) == ['single line docstring', '']
 
 
-def test_prepare_commentdoc():
+def test_prepare_commentdoc() -> None:
     assert prepare_commentdoc('hello world') == []
     assert prepare_commentdoc('#: hello world') == ['hello world', '']
     assert prepare_commentdoc('#:  hello world') == [' hello world', '']

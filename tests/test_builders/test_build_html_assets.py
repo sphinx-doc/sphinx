@@ -1,7 +1,10 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -9,9 +12,12 @@ import sphinx.builders.html
 from sphinx.builders.html._assets import _file_checksum
 from sphinx.errors import ThemeError
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_html_assets(app):
+def test_html_assets(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     # exclude_path and its family
@@ -106,7 +112,7 @@ def test_assets_order(app, monkeypatch):
 
 
 @pytest.mark.sphinx('html', testroot='html_file_checksum')
-def test_file_checksum(app):
+def test_file_checksum(app: SphinxTestApp) -> None:
     app.add_css_file('stylesheet-a.css')
     app.add_css_file('stylesheet-b.css')
     app.add_css_file('https://example.com/custom.css')
@@ -136,30 +142,34 @@ def test_file_checksum(app):
     assert '<script src="https://example.com/script.js"></script>' in content
 
 
-def test_file_checksum_query_string():
+def test_file_checksum_query_string() -> None:
     with pytest.raises(
-        ThemeError, match='Local asset file paths must not contain query strings'
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
     ):
         _file_checksum(Path(), 'with_query_string.css?dead_parrots=1')
 
     with pytest.raises(
-        ThemeError, match='Local asset file paths must not contain query strings'
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
     ):
         _file_checksum(Path(), 'with_query_string.js?dead_parrots=1')
 
     with pytest.raises(
-        ThemeError, match='Local asset file paths must not contain query strings'
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
     ):
         _file_checksum(Path.cwd(), '_static/with_query_string.css?dead_parrots=1')
 
     with pytest.raises(
-        ThemeError, match='Local asset file paths must not contain query strings'
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
     ):
         _file_checksum(Path.cwd(), '_static/with_query_string.js?dead_parrots=1')
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_javscript_loading_method(app):
+def test_javscript_loading_method(app: SphinxTestApp) -> None:
     app.add_js_file('normal.js')
     app.add_js_file('early.js', loading_method='async')
     app.add_js_file('late.js', loading_method='defer')

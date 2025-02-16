@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import os.path
 import re
+import unicodedata
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-from sphinx.util.osutil import canon_path, path_stabilize
+from sphinx.util.osutil import canon_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
@@ -125,7 +127,7 @@ def get_matching_files(
 
     """
     # dirname is a normalized absolute path.
-    dirname = os.path.normpath(os.path.abspath(dirname))
+    dirname = Path(dirname).resolve()
 
     exclude_matchers = compile_matchers(exclude_patterns)
     include_matchers = compile_matchers(include_patterns)
@@ -134,11 +136,12 @@ def get_matching_files(
         relative_root = os.path.relpath(root, dirname)
         if relative_root == '.':
             relative_root = ''  # suppress dirname for files on the target dir
+        relative_root_path = Path(relative_root)
 
         # Filter files
         included_files = []
         for entry in sorted(files):
-            entry = path_stabilize(os.path.join(relative_root, entry))
+            entry = _unicode_nfc((relative_root_path / entry).as_posix())
             keep = False
             for matcher in include_matchers:
                 if matcher(entry):
@@ -156,7 +159,7 @@ def get_matching_files(
         # Filter directories
         filtered_dirs = []
         for dir_name in sorted(dirs):
-            normalised = path_stabilize(os.path.join(relative_root, dir_name))
+            normalised = _unicode_nfc((relative_root_path / dir_name).as_posix())
             for matcher in exclude_matchers:
                 if matcher(normalised):
                     break  # break the inner loop
@@ -168,3 +171,8 @@ def get_matching_files(
 
         # Yield filtered files
         yield from included_files
+
+
+def _unicode_nfc(s: str, /) -> str:
+    """Normalise the string to NFC form."""
+    return unicodedata.normalize('NFC', s)

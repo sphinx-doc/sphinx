@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -10,6 +10,8 @@ from sphinx import addnodes
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -75,8 +77,8 @@ class RefOnlyBulletListTransform(SphinxTransform):
         for node in self.document.findall(nodes.bullet_list):
             if check_refonly_list(node):
                 for item in node.findall(nodes.list_item):
-                    para = cast(nodes.paragraph, item[0])
-                    ref = cast(nodes.reference, para[0])
+                    para = cast('nodes.paragraph', item[0])
+                    ref = cast('nodes.reference', para[0])
                     compact_para = addnodes.compact_paragraph()
                     compact_para += ref
                     item.replace(para, compact_para)

@@ -1,5 +1,9 @@
 """Tests the transformations"""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 from docutils import nodes
 
@@ -7,17 +11,15 @@ from sphinx import addnodes
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(app):
-    text = (
-        '.. index:: abc\n'
-        '.. index:: def\n'
-        '.. index:: ghi\n'
-        '.. index:: jkl\n'
-        '\n'
-        'text\n'
-    )
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(
+    app: SphinxTestApp,
+) -> None:
+    text = '.. index:: abc\n.. index:: def\n.. index:: ghi\n.. index:: jkl\n\ntext\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -52,7 +54,7 @@ def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(ap
     # assert_node(doctree[8], nodes.paragraph)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_transforms_reorder_consecutive_target_and_index_nodes_no_merge_across_other_nodes(
     app,
 ):
@@ -103,8 +105,10 @@ def test_transforms_reorder_consecutive_target_and_index_nodes_no_merge_across_o
     # assert_node(doctree[9], nodes.paragraph)
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_transforms_reorder_consecutive_target_and_index_nodes_merge_with_labels(app):
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_transforms_reorder_consecutive_target_and_index_nodes_merge_with_labels(
+    app: SphinxTestApp,
+) -> None:
     text = (
         '.. _abc:\n'
         '.. index:: def\n'

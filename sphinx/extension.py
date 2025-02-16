@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from packaging.version import InvalidVersion, Version
 
@@ -11,6 +11,8 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata

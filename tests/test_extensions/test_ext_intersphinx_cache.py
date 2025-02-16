@@ -9,8 +9,9 @@ from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 from typing import TYPE_CHECKING
 
-from sphinx.ext.intersphinx import InventoryAdapter
+from sphinx.ext.intersphinx._shared import InventoryAdapter
 from sphinx.testing.util import SphinxTestApp
+from sphinx.util.inventory import _InventoryItem
 
 from tests.utils import http_server
 
@@ -18,7 +19,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import BinaryIO
 
-    from sphinx.util.typing import InventoryItem
 
 BASE_CONFIG = {
     'extensions': ['sphinx.ext.intersphinx'],
@@ -109,10 +109,14 @@ class IntersphinxProject:
         """The :confval:`intersphinx_mapping` record for this project."""
         return {self.name: (self.url, self.file)}
 
-    def normalise(self, entry: InventoryEntry) -> tuple[str, InventoryItem]:
+    def normalise(self, entry: InventoryEntry) -> tuple[str, _InventoryItem]:
         """Format an inventory entry as if it were part of this project."""
-        url = posixpath.join(self.url, entry.uri)
-        return entry.name, (self.safe_name, self.safe_version, url, entry.display_name)
+        return entry.name, _InventoryItem(
+            project_name=self.safe_name,
+            project_version=self.safe_version,
+            uri=posixpath.join(self.url, entry.uri),
+            display_name=entry.display_name,
+        )
 
 
 class FakeInventory:
@@ -214,7 +218,7 @@ def make_inventory_handler(
     return InventoryHandler
 
 
-def test_intersphinx_project_fixture():
+def test_intersphinx_project_fixture() -> None:
     # check that our fixture class is correct
     project = SingleEntryProject(1, 'route')
     assert project.url == 'http://localhost:9341/route'
@@ -295,7 +299,7 @@ def test_load_mappings_cache_revert_update(tmp_path):
         app2.build()
         app2.cleanup()
 
-        # switch back to old url (re-use 'old_item')
+        # switch back to old url (reuse 'old_item')
         confoverrides3 = BASE_CONFIG | {'intersphinx_mapping': old_project.record}
         app3 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides3)
         app3.build()

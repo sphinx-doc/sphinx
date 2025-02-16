@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.duration import DurationDomain
     from sphinx.ext.todo import TodoDomain
+    from sphinx.registry import SphinxComponentRegistry
 
 
 class _DomainsContainer:
@@ -71,8 +72,10 @@ class _DomainsContainer:
     })
 
     @classmethod
-    def _from_environment(cls, env: BuildEnvironment, /) -> Self:
-        create_domains = env.app.registry.create_domains
+    def _from_environment(
+        cls, env: BuildEnvironment, /, *, registry: SphinxComponentRegistry
+    ) -> Self:
+        create_domains = registry.create_domains
         # Initialise domains
         if domains := {domain.name: domain for domain in create_domains(env)}:
             return cls(**domains)  # type: ignore[arg-type]
@@ -205,47 +208,47 @@ class _DomainsContainer:
     # Mapping interface: builtin domains
 
     @overload
-    def __getitem__(self, key: Literal['c']) -> CDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['c']) -> CDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['cpp']) -> CPPDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['cpp']) -> CPPDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['changeset']) -> ChangeSetDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['changeset']) -> ChangeSetDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['citation']) -> CitationDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['citation']) -> CitationDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['index']) -> IndexDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['index']) -> IndexDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['js']) -> JavaScriptDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['js']) -> JavaScriptDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['math']) -> MathDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['math']) -> MathDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['py']) -> PythonDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['py']) -> PythonDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['rst']) -> ReSTDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['rst']) -> ReSTDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['std']) -> StandardDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['std']) -> StandardDomain: ...
 
     # Mapping interface: first-party domains
 
     @overload
-    def __getitem__(self, key: Literal['duration']) -> DurationDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['duration']) -> DurationDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['todo']) -> TodoDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['todo']) -> TodoDomain: ...
 
     # Mapping interface: third-party domains
 
     @overload
-    def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
+    def __getitem__(self, key: str) -> Domain: ...
 
     def __getitem__(self, key: str) -> Domain:
         if domain := getattr(self, key, None):

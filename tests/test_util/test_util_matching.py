@@ -1,9 +1,11 @@
 """Tests sphinx.util.matching functions."""
 
+from __future__ import annotations
+
 from sphinx.util.matching import Matcher, compile_matchers, get_matching_files
 
 
-def test_compile_matchers():
+def test_compile_matchers() -> None:
     # exact matching
     pat = compile_matchers(['hello.py']).pop()
     assert pat('hello.py')
@@ -75,7 +77,7 @@ def test_compile_matchers():
     assert not pat('hello.py')
 
 
-def test_Matcher():
+def test_Matcher() -> None:
     matcher = Matcher(['hello.py', '**/world.py'])
     assert matcher('hello.py')
     assert not matcher('subdir/hello.py')

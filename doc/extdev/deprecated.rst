@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.builders.singlehtml.SingleFileHTMLBuilder.fix_refuris``
+     - 8.2
+     - 10.0
+     - N/A
+
    * - ``sphinx.util.FilenameUniqDict``
      - 8.1
      - 10.0
@@ -31,11 +36,6 @@ The following is a list of deprecated interfaces.
      - 8.1
      - 10.0
      - N/A
-
-   * - ``sphinx.util.import_object``
-     - 8.1
-     - 10.0
-     - ``importlib.import_module``
 
    * - ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
      - 8.0

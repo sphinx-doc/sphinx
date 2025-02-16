@@ -1,11 +1,13 @@
 """Test the LaTeX writer"""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.writers.latex import rstdim_to_latexdim
 
 
-def test_rstdim_to_latexdim():
+def test_rstdim_to_latexdim() -> None:
     # Length units docutils supported
     # https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#length-units
     assert rstdim_to_latexdim('160em') == '160em'

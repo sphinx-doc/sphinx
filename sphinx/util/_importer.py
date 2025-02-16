@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from importlib import import_module
-from typing import Any
+from typing import TYPE_CHECKING
 
 from sphinx.errors import ExtensionError
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 def import_object(object_name: str, /, source: str = '') -> Any:

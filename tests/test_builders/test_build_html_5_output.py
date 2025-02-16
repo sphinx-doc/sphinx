@@ -15,6 +15,8 @@ if TYPE_CHECKING:
     from typing import Literal
     from xml.etree.ElementTree import Element
 
+    from sphinx.testing.util import SphinxTestApp
+
 
 def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
     rex = re.compile(check)
@@ -162,8 +164,7 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'markup.html',
-            ".//a[@href='#with']"
-            "[@class='reference internal']/code/span[@class='pre']",
+            ".//a[@href='#with'][@class='reference internal']/code/span[@class='pre']",
             '^with$',
         ),
         (
@@ -498,7 +499,7 @@ def test_html5_output(app, cached_etree_parse, fname, path, check):
 
 
 @pytest.mark.sphinx('html', testroot='markup-rubric')
-def test_html5_rubric(app):
+def test_html5_rubric(app: SphinxTestApp) -> None:
     def insert_invalid_rubric_heading_level(app, doctree, docname):
         if docname != 'index':
             return

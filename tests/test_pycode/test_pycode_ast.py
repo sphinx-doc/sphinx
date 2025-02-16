@@ -1,5 +1,7 @@
 """Test pycode.ast"""
 
+from __future__ import annotations
+
 import ast
 
 import pytest
@@ -67,5 +69,5 @@ def test_unparse(source, expected):
     assert ast_unparse(module.body[0].value, source) == expected
 
 
-def test_unparse_None():
+def test_unparse_None() -> None:
     assert ast_unparse(None) is None
