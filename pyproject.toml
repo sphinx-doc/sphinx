@@ -92,7 +92,7 @@ lint = [
     "types-requests==2.32.0.20241016",  # align with requests
     "types-urllib3==1.26.25.14",
     "pyright==1.1.394",
-    "pytest>=6.0",
+    "pytest>=8.0",
 ]
 test = [
     "pytest>=8.0",
