@@ -73,6 +73,8 @@ jobs:
 
       - name: Inspect PEP 740 attestations
         run: |
+          # resolution fails without betterproto and protobuf-specs
+          uv pip install "pypi-attestations==0.0.12" "sigstore-protobuf-specs==0.3.2" "betterproto==2.0.0b6"
           python -m pypi_attestations inspect dist/*.publish.attestation
 
       - name: Prepare attestation bundles for uploading
