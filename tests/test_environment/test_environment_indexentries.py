@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.testing import restructuredtext
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx(
@@ -13,7 +18,7 @@ from sphinx.testing import restructuredtext
     testroot='root',
     freshenv=True,
 )
-def test_create_single_index(app):
+def test_create_single_index(app: SphinxTestApp) -> None:
     text = (
         '.. index:: docutils\n'
         '.. index:: Python\n'
@@ -79,7 +84,7 @@ def test_create_single_index(app):
     testroot='root',
     freshenv=True,
 )
-def test_create_pair_index(app):
+def test_create_pair_index(app: SphinxTestApp) -> None:
     text = (
         '.. index:: pair: docutils; reStructuredText\n'
         '.. index:: pair: Python; interpreter\n'
@@ -146,7 +151,7 @@ def test_create_pair_index(app):
     testroot='root',
     freshenv=True,
 )
-def test_create_triple_index(app):
+def test_create_triple_index(app: SphinxTestApp) -> None:
     text = '.. index:: triple: foo; bar; baz\n.. index:: triple: Python; Sphinx; reST\n'
     restructuredtext.parse(app, text)
     index = IndexEntries(app.env).create_index(app.builder)
@@ -178,7 +183,7 @@ def test_create_triple_index(app):
     testroot='root',
     freshenv=True,
 )
-def test_create_see_index(app):
+def test_create_see_index(app: SphinxTestApp) -> None:
     text = (
         '.. index:: see: docutils; reStructuredText\n'
         '.. index:: see: Python; interpreter\n'
@@ -197,7 +202,7 @@ def test_create_see_index(app):
     testroot='root',
     freshenv=True,
 )
-def test_create_seealso_index(app):
+def test_create_seealso_index(app: SphinxTestApp) -> None:
     text = (
         '.. index:: seealso: docutils; reStructuredText\n'
         '.. index:: seealso: Python; interpreter\n'
@@ -222,7 +227,7 @@ def test_create_seealso_index(app):
     testroot='root',
     freshenv=True,
 )
-def test_create_main_index(app):
+def test_create_main_index(app: SphinxTestApp) -> None:
     text = (
         '.. index:: !docutils\n'
         '.. index:: docutils\n'
@@ -247,7 +252,7 @@ def test_create_main_index(app):
     testroot='root',
     freshenv=True,
 )
-def test_create_index_with_name(app):
+def test_create_index_with_name(app: SphinxTestApp) -> None:
     text = (
         '.. index:: single: docutils\n'
         '   :name: ref1\n'
@@ -275,7 +280,7 @@ def test_create_index_with_name(app):
     testroot='root',
     freshenv=True,
 )
-def test_create_index_by_key(app):
+def test_create_index_by_key(app: SphinxTestApp) -> None:
     # At present, only glossary directive is able to create index key
     text = '.. glossary::\n\n   docutils\n   Python\n   スフィンクス : ス\n'
     restructuredtext.parse(app, text)

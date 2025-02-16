@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.intersphinx._shared import InventoryName
     from sphinx.util.inventory import _InventoryItem
-    from sphinx.util.typing import RoleFunction, _Inventory
+    from sphinx.util.typing import Inventory, RoleFunction
 
 
 def _create_element_from_result(
@@ -75,7 +75,7 @@ def _create_element_from_result(
 
 def _resolve_reference_in_domain_by_target(
     inv_name: InventoryName | None,
-    inventory: _Inventory,
+    inventory: Inventory,
     domain_name: str,
     objtypes: Iterable[str],
     target: str,
@@ -139,7 +139,7 @@ def _resolve_reference_in_domain_by_target(
 
 def _resolve_reference_in_domain(
     inv_name: InventoryName | None,
-    inventory: _Inventory,
+    inventory: Inventory,
     honor_disabled_refs: bool,
     disabled_reftypes: Set[str],
     domain: Domain,
@@ -190,7 +190,7 @@ def _resolve_reference_in_domain(
 def _resolve_reference(
     inv_name: InventoryName | None,
     domains: _DomainsContainer,
-    inventory: _Inventory,
+    inventory: Inventory,
     honor_disabled_refs: bool,
     disabled_reftypes: Set[str],
     node: pending_xref,
@@ -305,9 +305,11 @@ def resolve_reference_detect_inventory(
 
     Resolution is tried first with the target as is in any inventory.
     If this does not succeed, then the target is split by the first ``:``,
-    to form ``inv_name:newtarget``. If ``inv_name`` is a named inventory, then resolution
+    to form ``inv_name:new_target``. If ``inv_name`` is a named inventory, then resolution
     is tried in that inventory with the new target.
     """
+    resolve_self = env.config.intersphinx_resolve_self
+
     # ordinary direct lookup, use data as is
     res = resolve_reference_any_inventory(env, True, node, contnode)
     if res is not None:
@@ -317,10 +319,18 @@ def resolve_reference_detect_inventory(
     target = node['reftarget']
     if ':' not in target:
         return None
-    inv_name, newtarget = target.split(':', 1)
+    inv_name, _, new_target = target.partition(':')
+
+    # check if the target is self-referential
+    self_referential = bool(resolve_self) and resolve_self == inv_name
+    if self_referential:
+        node['reftarget'] = new_target
+        node['intersphinx_self_referential'] = True
+        return None
+
     if not inventory_exists(env, inv_name):
         return None
-    node['reftarget'] = newtarget
+    node['reftarget'] = new_target
     res_inv = resolve_reference_in_inventory(env, inv_name, node, contnode)
     node['reftarget'] = target
     return res_inv

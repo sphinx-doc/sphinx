@@ -291,7 +291,7 @@ def import_object(
                 logger.debug('[autodoc] => %r', obj)
             except TypeError:
                 # fallback of failure on logging for broken object
-                # refs: https://github.com/sphinx-doc/sphinx/issues/9095
+                # See: https://github.com/sphinx-doc/sphinx/issues/9095
                 logger.debug('[autodoc] => %r', (obj,))
 
             object_name = attrname

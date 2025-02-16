@@ -14,9 +14,12 @@ import pytest
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
+if typing.TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_empty_all(app):
+def test_empty_all(app: SphinxTestApp) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.empty_all', options)
     assert list(actual) == [
@@ -29,7 +32,7 @@ def test_empty_all(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_automodule(app):
+def test_automodule(app: SphinxTestApp) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.module', options)
     assert list(actual) == [
@@ -54,7 +57,7 @@ def test_automodule(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_automodule_undoc_members(app):
+def test_automodule_undoc_members(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -87,7 +90,7 @@ def test_automodule_undoc_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_automodule_special_members(app):
+def test_automodule_special_members(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'special-members': None,
@@ -122,7 +125,7 @@ def test_automodule_special_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_automodule_inherited_members(app):
+def test_automodule_inherited_members(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'undoc-members': None,
@@ -217,7 +220,7 @@ def test_automodule_inherited_members(app):
     },
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_subclass_of_mocked_object(app):
+def test_subclass_of_mocked_object(app: SphinxTestApp) -> None:
     from sphinx.ext.autodoc.mock import _MockObject
 
     sys.modules.pop('target', None)  # unload target module to clear the module cache

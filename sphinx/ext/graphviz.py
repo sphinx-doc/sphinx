@@ -8,7 +8,6 @@ import subprocess
 import xml.etree.ElementTree as ET
 from hashlib import sha1
 from itertools import chain
-from pathlib import Path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
@@ -506,7 +505,7 @@ def man_visit_graphviz(self: ManualPageTranslator, node: graphviz) -> None:
 
 
 def on_config_inited(_app: Sphinx, config: Config) -> None:
-    css_path = Path(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
+    css_path = sphinx.package_dir.joinpath('templates', 'graphviz', 'graphviz.css')
     config.html_static_path.append(str(css_path))
 
 
@@ -522,9 +521,13 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('graphviz', Graphviz)
     app.add_directive('graph', GraphvizSimple)
     app.add_directive('digraph', GraphvizSimple)
-    app.add_config_value('graphviz_dot', 'dot', 'html')
-    app.add_config_value('graphviz_dot_args', (), 'html')
-    app.add_config_value('graphviz_output_format', 'png', 'html')
+    app.add_config_value('graphviz_dot', 'dot', 'html', types=frozenset({str}))
+    app.add_config_value(
+        'graphviz_dot_args', (), 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'graphviz_output_format', 'png', 'html', types=frozenset({str})
+    )
     app.add_css_file('graphviz.css')
     app.connect('config-inited', on_config_inited)
     return {

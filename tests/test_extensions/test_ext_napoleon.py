@@ -164,7 +164,8 @@ class TestSkipMember:
         # Since python 3.7, namedtuple._asdict() has not been documented
         # because there is no way to check the method is a member of the
         # namedtuple class.  This testcase confirms only it does not
-        # raise an error on building document (refs: #1455)
+        # raise an error on building document
+        # See: https://github.com/sphinx-doc/sphinx/issues/1455
         self.assert_skip(
             'class',
             '_asdict',

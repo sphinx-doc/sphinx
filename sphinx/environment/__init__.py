@@ -7,6 +7,7 @@ import os
 import pickle
 from collections import defaultdict
 from copy import deepcopy
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
@@ -28,7 +29,7 @@ from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
+from sphinx.util.osutil import _last_modified_time, _relative_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Mapping
@@ -130,7 +131,7 @@ class BuildEnvironment:
         self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
-        self.dependencies: dict[str, set[_StrPath]] = {}
+        self.dependencies: dict[str, set[_StrPath]] = defaultdict(set)
         # docname -> set of included file
         # docnames included from other documents
         self.included: dict[str, set[str]] = defaultdict(set)
@@ -233,7 +234,7 @@ class BuildEnvironment:
     def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        # clear unpickable attributes
+        # clear unpickleable attributes
         __dict__.update(app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files
@@ -415,7 +416,9 @@ class BuildEnvironment:
         """
         return self.project.doc2path(docname, absolute=base)
 
-    def relfn2path(self, filename: str, docname: str | None = None) -> tuple[str, str]:
+    def relfn2path(
+        self, filename: str | Path, docname: str | None = None
+    ) -> tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -423,9 +426,9 @@ class BuildEnvironment:
         source dir, while relative filenames are relative to the dir of the
         containing document.
         """
-        filename = canon_path(filename)
-        if filename.startswith('/'):
-            abs_fn = (self.srcdir / filename[1:]).resolve()
+        file_name = Path(filename)
+        if file_name.parts[:1] in {('/',), ('\\',)}:
+            abs_fn = self.srcdir.joinpath(*file_name.parts[1:]).resolve()
         else:
             if not docname:
                 if self.docname:
@@ -434,10 +437,10 @@ class BuildEnvironment:
                     msg = 'docname'
                     raise KeyError(msg)
             doc_dir = self.doc2path(docname, base=False).parent
-            abs_fn = (self.srcdir / doc_dir / filename).resolve()
+            abs_fn = self.srcdir.joinpath(doc_dir, file_name).resolve()
 
         rel_fn = _relative_path(abs_fn, self.srcdir)
-        return canon_path(rel_fn), os.fspath(abs_fn)
+        return rel_fn.as_posix(), os.fspath(abs_fn)
 
     @property
     def found_docs(self) -> set[str]:

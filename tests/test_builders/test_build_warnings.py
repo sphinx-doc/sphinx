@@ -4,11 +4,15 @@ import os
 import re
 import sys
 import traceback
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.errors import SphinxError
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 ENV_WARNINGS = """\
 {root}/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
@@ -69,7 +73,7 @@ def _check_warnings(expected_warnings: str, warning: str) -> None:
     testroot='warnings',
     freshenv=True,
 )
-def test_html_warnings(app):
+def test_html_warnings(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     warnings_exp = HTML_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, app.warning.getvalue())
@@ -81,7 +85,7 @@ def test_html_warnings(app):
     freshenv=True,
     exception_on_warning=True,
 )
-def test_html_warnings_exception_on_warning(app):
+def test_html_warnings_exception_on_warning(app: SphinxTestApp) -> None:
     try:
         app.build(force_all=True)
         pytest.fail('Expected an exception to be raised')
@@ -96,7 +100,7 @@ def test_html_warnings_exception_on_warning(app):
     testroot='warnings',
     freshenv=True,
 )
-def test_latex_warnings(app):
+def test_latex_warnings(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     warnings_exp = LATEX_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, app.warning.getvalue())
@@ -107,7 +111,7 @@ def test_latex_warnings(app):
     testroot='warnings',
     freshenv=True,
 )
-def test_texinfo_warnings(app):
+def test_texinfo_warnings(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     warnings_exp = TEXINFO_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, app.warning.getvalue())
@@ -128,6 +132,6 @@ def setup(app):
     app = make_app(srcdir=tmp_path)
     app.build()
     assert strip_escape_sequences(app.warning.getvalue()).strip() == (
-        "WARNING: cannot cache unpickable configuration value: 'my_config' "
+        "WARNING: cannot cache unpickleable configuration value: 'my_config' "
         '(because it contains a function, class, or module object) [config.cache]'
     )

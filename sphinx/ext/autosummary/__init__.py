@@ -957,14 +957,21 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', AutoLink())
     app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_context', {}, 'env')
-    app.add_config_value('autosummary_filename_map', {}, 'html')
+    app.add_config_value('autosummary_context', {}, 'env', types=frozenset({dict}))
+    app.add_config_value(
+        'autosummary_filename_map', {}, 'html', types=frozenset({dict})
+    )
     app.add_config_value(
         'autosummary_generate', True, 'env', types=frozenset({bool, list})
     )
-    app.add_config_value('autosummary_generate_overwrite', True, '')
     app.add_config_value(
-        'autosummary_mock_imports', lambda config: config.autodoc_mock_imports, 'env'
+        'autosummary_generate_overwrite', True, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'autosummary_mock_imports',
+        lambda config: config.autodoc_mock_imports,
+        'env',
+        types=frozenset({list, tuple}),
     )
     app.add_config_value(
         'autosummary_imported_members', False, '', types=frozenset({bool})

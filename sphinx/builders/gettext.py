@@ -36,11 +36,10 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
-    from sphinx.config import Config
     from sphinx.util.i18n import CatalogInfo
     from sphinx.util.typing import ExtensionMetadata
 
-DEFAULT_TEMPLATE_PATH = Path(package_dir, 'templates', 'gettext')
+DEFAULT_TEMPLATE_PATH = package_dir.joinpath('templates', 'gettext')
 
 logger = logging.getLogger(__name__)
 
@@ -327,32 +326,33 @@ class MessageCatalogBuilder(I18nBuilder):
                     pofile.write(content)
 
 
-def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
-    gettext_compact = config.gettext_compact
-    # Convert 0/1 from the command line to ``bool`` types
-    if gettext_compact == '0':
-        config.gettext_compact = False
-    elif gettext_compact == '1':
-        config.gettext_compact = True
-
-
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value(
         'gettext_compact', True, 'gettext', types=frozenset({bool, str})
     )
-    app.add_config_value('gettext_location', True, 'gettext')
-    app.add_config_value('gettext_uuid', False, 'gettext')
-    app.add_config_value('gettext_auto_build', True, 'env')
+    app.add_config_value('gettext_location', True, 'gettext', types=frozenset({bool}))
+    app.add_config_value('gettext_uuid', False, 'gettext', types=frozenset({bool}))
+    app.add_config_value('gettext_auto_build', True, 'env', types=frozenset({bool}))
     app.add_config_value(
-        'gettext_additional_targets', [], 'env', types=frozenset({set, list})
+        'gettext_additional_targets',
+        [],
+        'env',
+        types=frozenset({frozenset, list, set, tuple}),
     )
     app.add_config_value(
-        'gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext'
+        'gettext_last_translator',
+        'FULL NAME <EMAIL@ADDRESS>',
+        'gettext',
+        types=frozenset({str}),
     )
-    app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
-    app.connect('config-inited', _gettext_compact_validator, priority=800)
+    app.add_config_value(
+        'gettext_language_team',
+        'LANGUAGE <LL@li.org>',
+        'gettext',
+        types=frozenset({str}),
+    )
 
     return {
         'version': 'builtin',

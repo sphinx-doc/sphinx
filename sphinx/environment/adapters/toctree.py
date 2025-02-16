@@ -146,7 +146,8 @@ def _resolve_toctree(
     # </ul>
     #
     # The transformation is made in two passes in order to avoid
-    # interactions between marking and pruning the tree (see bug #1046).
+    # interactions between marking and pruning the tree.
+    # See: https://github.com/sphinx-doc/sphinx/issues/1046
 
     toctree_ancestors = _get_toctree_ancestors(env.toctree_includes, docname)
     included = Matcher(env.config.include_patterns)

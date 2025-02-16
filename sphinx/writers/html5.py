@@ -5,7 +5,7 @@ from __future__ import annotations
 import posixpath
 import re
 import urllib.parse
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
@@ -17,8 +17,6 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -201,10 +199,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that
-    # signatures like the following render correctly (see issue #1001):
+    # signatures like the following render correctly:
     #
     #     foo([a, ]b, c[, d])
     #
+    # See: https://github.com/sphinx-doc/sphinx/issues/1001
     def visit_desc_parameter(self, node: Element) -> None:
         on_separate_line = self.multi_line_parameter_list
         if on_separate_line and not (
@@ -695,24 +694,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
-        productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
-        lastname = None
-        for production in productionlist:
-            if production['tokenname']:
-                lastname = production['tokenname'].ljust(maxlen)
-                self.body.append(self.starttag(production, 'strong', ''))
-                self.body.append(lastname + '</strong> ::= ')
-            elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
-            production.walkabout(self)
-            self.body.append('\n')
-        self.body.append('</pre>\n')
-        raise nodes.SkipNode
 
     def depart_productionlist(self, node: Element) -> None:
-        pass
+        self.body.append('</pre>\n')
 
     def visit_production(self, node: Element) -> None:
         pass

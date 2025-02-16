@@ -61,7 +61,10 @@ def full_exception_context(
     full_traceback: bool = True,
 ) -> str:
     """Return a formatted message containing useful debugging context."""
-    last_msgs = '\n'.join(f'* {strip_escape_sequences(s)}' for s in message_log)
+    messages = [f'    {strip_escape_sequences(msg)}'.rstrip() for msg in message_log]
+    while messages and not messages[-1]:
+        messages.pop()
+    last_msgs = '\n'.join(messages)
     exts_list = '\n'.join(
         f'* {ext.name} ({ext.version})'
         for ext in extensions
@@ -80,17 +83,14 @@ def format_traceback(
 
         # format an exception with traceback, but only the last frame.
         te = TracebackException.from_exception(exception, limit=-1)
-        formatted_tb = (
-            te.stack.format()[-1] + ''.join(te.format_exception_only()).rstrip()
-        )
-        return formatted_tb
-    if isinstance(exception, SphinxParallelError):
-        return f'(Error in parallel process)\n{exception.traceback}'
+        exc_format = te.stack.format()[-1] + ''.join(te.format_exception_only())
+    elif isinstance(exception, SphinxParallelError):
+        exc_format = f'(Error in parallel process)\n{exception.traceback}'
     else:
         from traceback import format_exception
 
         exc_format = ''.join(format_exception(exception))
-    return exc_format
+    return '\n'.join(f'    {line}' for line in exc_format.rstrip().splitlines())
 
 
 def error_info(messages: str, extensions: str, traceback: str) -> str:

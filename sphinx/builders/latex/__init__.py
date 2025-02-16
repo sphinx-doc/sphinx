@@ -442,7 +442,7 @@ class LaTeXBuilder(Builder):
             'xindy_lang_option': xindy_lang_option,
             'xindy_cyrillic': xindy_cyrillic,
         }
-        static_dir_name = Path(package_dir, 'texinputs')
+        static_dir_name = package_dir / 'texinputs'
         for filename in Path(static_dir_name).iterdir():
             if not filename.name.startswith('.'):
                 copy_asset_file(
@@ -454,7 +454,7 @@ class LaTeXBuilder(Builder):
 
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
-            static_dir_name = Path(package_dir, 'texinputs_win')
+            static_dir_name = package_dir / 'texinputs_win'
             copy_asset_file(
                 static_dir_name / 'Makefile.jinja',
                 self.outdir,
@@ -522,7 +522,7 @@ class LaTeXBuilder(Builder):
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
         copy_asset_file(
-            Path(package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja'),
+            package_dir.joinpath('templates', 'latex', 'sphinxmessages.sty.jinja'),
             self.outdir,
             context=context,
             renderer=LaTeXRenderer(),
@@ -608,10 +608,14 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         '',
         types=ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'),
     )
-    app.add_config_value('latex_documents', default_latex_documents, '')
+    app.add_config_value(
+        'latex_documents', default_latex_documents, '', types=frozenset({list, tuple})
+    )
     app.add_config_value('latex_logo', None, '', types=frozenset({str}))
-    app.add_config_value('latex_appendices', [], '')
-    app.add_config_value('latex_use_latex_multicolumn', False, '')
+    app.add_config_value('latex_appendices', [], '', types=frozenset({list, tuple}))
+    app.add_config_value(
+        'latex_use_latex_multicolumn', False, '', types=frozenset({bool})
+    )
     app.add_config_value(
         'latex_use_xindy', default_latex_use_xindy, '', types=frozenset({bool})
     )
@@ -621,19 +625,25 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         '',
         types=ENUM(None, 'part', 'chapter', 'section'),
     )
-    app.add_config_value('latex_domain_indices', True, '', types=frozenset({set, list}))
-    app.add_config_value('latex_show_urls', 'no', '')
-    app.add_config_value('latex_show_pagerefs', False, '')
-    app.add_config_value('latex_elements', {}, '')
-    app.add_config_value('latex_additional_files', [], '')
+    app.add_config_value(
+        'latex_domain_indices', True, '', types=frozenset({frozenset, list, set, tuple})
+    )
+    app.add_config_value('latex_show_urls', 'no', '', types=frozenset({str}))
+    app.add_config_value('latex_show_pagerefs', False, '', types=frozenset({bool}))
+    app.add_config_value('latex_elements', {}, '', types=frozenset({dict}))
+    app.add_config_value(
+        'latex_additional_files', [], '', types=frozenset({list, tuple})
+    )
     app.add_config_value(
         'latex_table_style', ['booktabs', 'colorrows'], '', types=frozenset({list})
     )
     app.add_config_value('latex_theme', 'manual', '', types=frozenset({str}))
-    app.add_config_value('latex_theme_options', {}, '')
+    app.add_config_value('latex_theme_options', {}, '', types=frozenset({dict}))
     app.add_config_value('latex_theme_path', [], '', types=frozenset({list}))
 
-    app.add_config_value('latex_docclass', default_latex_docclass, '')
+    app.add_config_value(
+        'latex_docclass', default_latex_docclass, '', types=frozenset({dict})
+    )
 
     return {
         'version': 'builtin',

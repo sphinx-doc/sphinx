@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx.testing.util import SphinxTestApp
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path

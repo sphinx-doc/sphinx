@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import html
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import package_dir
@@ -148,14 +147,14 @@ class ChangesBuilder(Builder):
             'theme_' + key: val for (key, val) in self.theme.get_options({}).items()
         }
         copy_asset_file(
-            Path(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),
+            package_dir.joinpath('themes', 'default', 'static', 'default.css.jinja'),
             self.outdir,
             context=themectx,
             renderer=self.templates,
             force=True,
         )
         copy_asset_file(
-            Path(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+            package_dir.joinpath('themes', 'basic', 'static', 'basic.css'),
             self.outdir / 'basic.css',
             force=True,
         )

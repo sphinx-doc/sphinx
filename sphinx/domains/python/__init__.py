@@ -5,6 +5,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import typing
+from types import NoneType
 from typing import TYPE_CHECKING, NamedTuple, cast
 
 from docutils import nodes
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 # re-export objects for backwards compatibility
-# xref https://github.com/sphinx-doc/sphinx/issues/12295
+# See: https://github.com/sphinx-doc/sphinx/issues/12295
 
 from sphinx.domains.python._annotations import (  # NoQA: F401
     _parse_arglist,  # for sphinx-immaterial
@@ -1108,12 +1109,14 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.directives')
 
     app.add_domain(PythonDomain)
-    app.add_config_value('python_use_unqualified_type_names', False, 'env')
+    app.add_config_value(
+        'python_use_unqualified_type_names', False, 'env', types=frozenset({bool})
+    )
     app.add_config_value(
         'python_maximum_signature_line_length',
         None,
         'env',
-        types=frozenset({int, type(None)}),
+        types=frozenset({int, NoneType}),
     )
     app.add_config_value(
         'python_trailing_comma_in_multi_line_signatures',
@@ -1121,7 +1124,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'env',
         types=frozenset({bool}),
     )
-    app.add_config_value('python_display_short_literal_types', False, 'env')
+    app.add_config_value(
+        'python_display_short_literal_types', False, 'env', types=frozenset({bool})
+    )
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)
 

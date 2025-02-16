@@ -6,6 +6,7 @@ import importlib.util
 import operator
 import posixpath
 import traceback
+from types import NoneType
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -382,16 +383,22 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('viewcode_import', None, '')
-    app.add_config_value('viewcode_enable_epub', False, '')
-    app.add_config_value('viewcode_follow_imported_members', True, '')
+    app.add_config_value('viewcode_import', None, '', types=frozenset({NoneType}))
+    app.add_config_value('viewcode_enable_epub', False, '', types=frozenset({bool}))
+    app.add_config_value(
+        'viewcode_follow_imported_members', True, '', types=frozenset({bool})
+    )
     app.add_config_value('viewcode_line_numbers', False, 'env', types=frozenset({bool}))
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)
     app.connect('html-collect-pages', collect_pages)
-    # app.add_config_value('viewcode_include_modules', [], 'env')
-    # app.add_config_value('viewcode_exclude_modules', [], 'env')
+    # app.add_config_value(
+    #     'viewcode_include_modules', [], 'env', types=frozenset({list, tuple})
+    # )
+    # app.add_config_value(
+    #     'viewcode_exclude_modules', [], 'env', types=frozenset({list, tuple})
+    # )
     app.add_event('viewcode-find-source')
     app.add_event('viewcode-follow-imported')
     app.add_post_transform(ViewcodeAnchorTransform)

@@ -33,7 +33,7 @@ from sphinx.util.build_phase import BuildPhase
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
-from sphinx.util.osutil import canon_path, ensuredir, relative_uri, relpath
+from sphinx.util.osutil import ensuredir, relative_uri, relpath
 from sphinx.util.parallel import (
     ParallelTasks,
     SerialTasks,
@@ -518,7 +518,7 @@ class Builder:
             from sphinx.util.matching import _translate_pattern
 
             master_doc_path = self.env.doc2path(self.config.master_doc)
-            master_doc_canon = canon_path(master_doc_path)
+            master_doc_canon = master_doc_path.as_posix()
             for pat in EXCLUDE_PATHS:
                 if not re.match(_translate_pattern(pat), master_doc_canon):
                     continue
@@ -661,7 +661,7 @@ class Builder:
         _cache: bool = True,
     ) -> None:
         """Write the doctree to a file, to be used as a cache by re-builds."""
-        # make it picklable
+        # make it pickleable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
 

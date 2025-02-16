@@ -225,9 +225,9 @@ def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_event('todo-defined')
-    app.add_config_value('todo_include_todos', False, 'html')
-    app.add_config_value('todo_link_only', False, 'html')
-    app.add_config_value('todo_emit_warnings', False, 'html')
+    app.add_config_value('todo_include_todos', False, 'html', types=frozenset({bool}))
+    app.add_config_value('todo_link_only', False, 'html', types=frozenset({bool}))
+    app.add_config_value('todo_emit_warnings', False, 'html', types=frozenset({bool}))
 
     app.add_node(todolist)
     app.add_node(

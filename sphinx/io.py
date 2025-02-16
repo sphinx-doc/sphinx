@@ -10,7 +10,6 @@ from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx import addnodes
 from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
 from sphinx.transforms.i18n import (
     Locale,
@@ -76,7 +75,6 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
         for logging.
         """
         document = super().new_document()
-        document.__class__ = addnodes.document  # replace the class with patched version
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)

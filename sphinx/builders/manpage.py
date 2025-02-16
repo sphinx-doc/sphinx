@@ -131,9 +131,13 @@ def default_man_pages(config: Config) -> list[tuple[str, str, str, list[str], in
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(ManualPageBuilder)
 
-    app.add_config_value('man_pages', default_man_pages, '')
-    app.add_config_value('man_show_urls', False, '')
-    app.add_config_value('man_make_section_directory', False, '')
+    app.add_config_value(
+        'man_pages', default_man_pages, '', types=frozenset({list, tuple})
+    )
+    app.add_config_value('man_show_urls', False, '', types=frozenset({bool}))
+    app.add_config_value(
+        'man_make_section_directory', False, '', types=frozenset({bool})
+    )
 
     return {
         'version': 'builtin',

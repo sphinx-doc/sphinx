@@ -126,8 +126,10 @@ def setup_link_roles(app: Sphinx) -> None:
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('extlinks', {}, 'env')
-    app.add_config_value('extlinks_detect_hardcoded_links', False, 'env')
+    app.add_config_value('extlinks', {}, 'env', types=frozenset({dict}))
+    app.add_config_value(
+        'extlinks_detect_hardcoded_links', False, 'env', types=frozenset({bool})
+    )
 
     app.connect('builder-inited', setup_link_roles)
     app.add_post_transform(ExternalLinksChecker)

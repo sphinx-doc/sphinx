@@ -408,6 +408,7 @@ class TextTranslator(SphinxTranslator):
         self.sectionlevel = 0
         self.lineblocklevel = 0
         self.table: Table
+        self.in_production_list = False
 
         self.context: list[str] = []
         """Heterogeneous stack.
@@ -787,19 +788,17 @@ class TextTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.new_state()
-        productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
-        lastname = None
-        for production in productionlist:
-            if production['tokenname']:
-                self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
-                lastname = production['tokenname']
-            elif lastname is not None:
-                self.add_text('%s    ' % (' ' * len(lastname)))
-            self.add_text(production.astext() + self.nl)
+        self.in_production_list = True
+
+    def depart_productionlist(self, node: Element) -> None:
+        self.in_production_list = False
         self.end_state(wrap=False)
-        raise nodes.SkipNode
+
+    def visit_production(self, node: Element) -> None:
+        pass
+
+    def depart_production(self, node: Element) -> None:
+        pass
 
     def visit_footnote(self, node: Element) -> None:
         label = cast('nodes.label', node[0])
@@ -1225,9 +1224,13 @@ class TextTranslator(SphinxTranslator):
         self.add_text('**')
 
     def visit_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('**')
 
     def depart_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('**')
 
     def visit_abbreviation(self, node: Element) -> None:
@@ -1250,9 +1253,13 @@ class TextTranslator(SphinxTranslator):
         self.add_text('*')
 
     def visit_literal(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('"')
 
     def depart_literal(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('"')
 
     def visit_subscript(self, node: Element) -> None:

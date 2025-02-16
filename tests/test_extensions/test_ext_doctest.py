@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from collections import Counter
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import nodes
@@ -12,11 +13,14 @@ from packaging.version import InvalidVersion
 
 from sphinx.ext.doctest import is_allowed_version
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 cleanup_called = 0
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest')
-def test_build(app):
+def test_build(app: SphinxTestApp) -> None:
     global cleanup_called  # NoQA: PLW0603
     cleanup_called = 0
     app.build(force_all=True)
@@ -27,7 +31,7 @@ def test_build(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-doctest')
-def test_highlight_language_default(app):
+def test_highlight_language_default(app: SphinxTestApp) -> None:
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
@@ -39,14 +43,14 @@ def test_highlight_language_default(app):
     testroot='ext-doctest',
     confoverrides={'highlight_language': 'python'},
 )
-def test_highlight_language_python3(app):
+def test_highlight_language_python3(app: SphinxTestApp) -> None:
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
         assert node['language'] in {'python', 'pycon', 'none'}
 
 
-def test_is_allowed_version():
+def test_is_allowed_version() -> None:
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.2', '3.3') is False
@@ -79,7 +83,7 @@ recorded_calls: Counter[tuple[str, str, int]] = Counter()
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
-def test_skipif(app):
+def test_skipif(app: SphinxTestApp) -> None:
     """Tests for the :skipif: option
 
     The tests are separated into a different test root directory since the

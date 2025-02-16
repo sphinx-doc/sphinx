@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import logging
 import logging.handlers
+import os.path
 from collections import defaultdict
 from contextlib import contextmanager, nullcontext
-from os.path import abspath
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -554,9 +554,9 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 def get_node_location(node: Node) -> str | None:
     source, line = get_source_line(node)
     if source and line:
-        return f'{abspath(source)}:{line}'
+        return f'{os.path.abspath(source)}:{line}'
     if source:
-        return f'{abspath(source)}:'
+        return f'{os.path.abspath(source)}:'
     if line:
         return f'<unknown>:{line}'
     return None

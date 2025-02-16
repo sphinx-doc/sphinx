@@ -66,7 +66,7 @@ py_ext_sig_re = re.compile(
     r"""^ ([\w.]+::)?            # explicit module name
           ([\w.]+\.)?            # module and/or class name(s)
           (\w+)  \s*             # thing name
-          (?: \[\s*(.*)\s*])?    # optional: type parameters list
+          (?: \[\s*(.*?)\s*])?   # optional: type parameters list
           (?: \((.*)\)           # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
@@ -288,7 +288,8 @@ def between(
 
 
 # This class is used only in ``sphinx.ext.autodoc.directive``,
-# But we define this class here to keep compatibility (see #4538)
+# But we define this class here to keep compatibility
+# See: https://github.com/sphinx-doc/sphinx/issues/4538
 class Options(dict[str, Any]):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
 
@@ -3021,7 +3022,7 @@ class AttributeDocumenter(  # type: ignore[misc]
         try:
             # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
             # a docstring from the value which descriptor returns unexpectedly.
-            # ref: https://github.com/sphinx-doc/sphinx/issues/7805
+            # See: https://github.com/sphinx-doc/sphinx/issues/7805
             orig = self.config.autodoc_inherit_docstrings
             self.config.autodoc_inherit_docstrings = False
             return super().get_doc()
@@ -3174,9 +3175,13 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'env',
         types=ENUM('mixed', 'separated'),
     )
-    app.add_config_value('autodoc_default_options', {}, 'env')
-    app.add_config_value('autodoc_docstring_signature', True, 'env')
-    app.add_config_value('autodoc_mock_imports', [], 'env')
+    app.add_config_value('autodoc_default_options', {}, 'env', types=frozenset({dict}))
+    app.add_config_value(
+        'autodoc_docstring_signature', True, 'env', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'autodoc_mock_imports', [], 'env', types=frozenset({list, tuple})
+    )
     app.add_config_value(
         'autodoc_typehints',
         'signature',
@@ -3189,15 +3194,17 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'env',
         types=ENUM('all', 'documented', 'documented_params'),
     )
-    app.add_config_value('autodoc_type_aliases', {}, 'env')
+    app.add_config_value('autodoc_type_aliases', {}, 'env', types=frozenset({dict}))
     app.add_config_value(
         'autodoc_typehints_format',
         'short',
         'env',
         types=ENUM('fully-qualified', 'short'),
     )
-    app.add_config_value('autodoc_warningiserror', True, 'env')
-    app.add_config_value('autodoc_inherit_docstrings', True, 'env')
+    app.add_config_value('autodoc_warningiserror', True, 'env', types=frozenset({bool}))
+    app.add_config_value(
+        'autodoc_inherit_docstrings', True, 'env', types=frozenset({bool})
+    )
     app.add_event('autodoc-before-process-signature')
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')

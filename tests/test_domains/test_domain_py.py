@@ -49,24 +49,29 @@ def parse(sig):
     return signode.astext()
 
 
-def test_function_signatures():
-    rv = parse('func(a=1) -> int object')
-    assert rv == '(a=1)'
-
-    rv = parse('func(a=1, [b=None])')
-    assert rv == '(a=1, [b=None])'
-
-    rv = parse('func(a=1[, b=None])')
-    assert rv == '(a=1, [b=None])'
-
+def test_function_signatures() -> None:
     rv = parse("compile(source : string, filename, symbol='file')")
     assert rv == "(source : string, filename, symbol='file')"
 
-    rv = parse('func(a=[], [b=None])')
-    assert rv == '(a=[], [b=None])'
+    for params, expect in [
+        ('(a=1)', '(a=1)'),
+        ('(a: int = 1)', '(a: int = 1)'),
+        ('(a=1, [b=None])', '(a=1, [b=None])'),
+        ('(a=1[, b=None])', '(a=1, [b=None])'),
+        ('(a=[], [b=None])', '(a=[], [b=None])'),
+        ('(a=[][, b=None])', '(a=[], [b=None])'),
+        ('(a: Foo[Bar]=[][, b=None])', '(a: Foo[Bar]=[], [b=None])'),
+    ]:
+        rv = parse(f'func{params}')
+        assert rv == expect
 
-    rv = parse('func(a=[][, b=None])')
-    assert rv == '(a=[], [b=None])'
+        # Note: 'def f[Foo[Bar]]()' is not valid Python but people might write
+        # it in a reST document to convene the intent of a higher-kinded type
+        # variable.
+        for tparams in ['', '[Foo]', '[Foo[Bar]]']:
+            for retann in ['', '-> Foo', '-> Foo[Bar]', '-> anything else']:
+                rv = parse(f'func{tparams}{params} {retann}'.rstrip())
+                assert rv == expect
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -316,7 +321,7 @@ def test_domain_py_find_obj(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = PythonDomain(env)
 
@@ -344,7 +349,7 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation(app):
     doctree = _parse_annotation('int', app.env)
     assert_node(doctree, ([pending_xref, 'int'],))
@@ -504,7 +509,7 @@ def test_parse_annotation(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation('~typing.Dict[str, str]', app.env)
     assert_node(
@@ -524,7 +529,7 @@ def test_parse_annotation_suppress(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_Literal(app):
     doctree = _parse_annotation('Literal[True, False]', app.env)
     assert_node(
@@ -814,7 +819,7 @@ def test_modindex_common_prefix(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_no_index_entry(app):
     text = '.. py:function:: f()\n.. py:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
@@ -1209,7 +1214,7 @@ def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_text(app):
     assert expected_parameter_list_foo in content
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_module_content_line_number(app):
     text = '.. py:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
@@ -1325,7 +1330,7 @@ def test_short_literal_types(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_function_pep_695(app):
     text = """.. py:function:: func[\
         S,\
@@ -1452,7 +1457,7 @@ def test_function_pep_695(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_class_def_pep_695(app):
     # Non-concrete unbound generics are allowed at runtime but type checkers
     # should fail (https://peps.python.org/pep-0695/#type-parameter-scopes)
@@ -1508,7 +1513,7 @@ def test_class_def_pep_695(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_class_def_pep_696(app):
     # test default values for type variables without using PEP 696 AST parser
     text = """.. py:class:: Class[\
@@ -1710,6 +1715,10 @@ def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
+
 
 @pytest.mark.parametrize(
     ('tp_list', 'tptext'),
@@ -1723,6 +1732,10 @@ def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
+
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
 
 
 @pytest.mark.parametrize(
@@ -1747,3 +1760,7 @@ def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
+
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'

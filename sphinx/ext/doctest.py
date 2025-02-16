@@ -624,16 +624,19 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
     app.add_config_value('doctest_show_successes', True, '', types=frozenset({bool}))
-    app.add_config_value('doctest_path', (), '')
-    app.add_config_value('doctest_test_doctest_blocks', 'default', '')
-    app.add_config_value('doctest_global_setup', '', '')
-    app.add_config_value('doctest_global_cleanup', '', '')
+    app.add_config_value('doctest_path', (), '', types=frozenset({list, tuple}))
+    app.add_config_value(
+        'doctest_test_doctest_blocks', 'default', '', types=frozenset({str})
+    )
+    app.add_config_value('doctest_global_setup', '', '', types=frozenset({str}))
+    app.add_config_value('doctest_global_cleanup', '', '', types=frozenset({str}))
     app.add_config_value(
         'doctest_default_flags',
         doctest.DONT_ACCEPT_TRUE_FOR_1
         | doctest.ELLIPSIS
         | doctest.IGNORE_EXCEPTION_DETAIL,
         '',
+        types=frozenset({int}),
     )
     return {
         'version': sphinx.__display_version__,

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from docutils import nodes
+from docutils.nodes import document  # NoQA: F401
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -14,22 +15,6 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
-
-
-class document(nodes.document):
-    """The document root element patched by Sphinx.
-
-    This fixes that document.set_id() does not support a node having multiple node Ids.
-    see https://sourceforge.net/p/docutils/patches/167/
-
-    .. important:: This is only for Sphinx internal use.  Please don't use this
-                   in your extensions.  It will be removed without deprecation period.
-    """
-
-    def set_id(
-        self, node: Element, msgnode: Element | None = None, suggested_prefix: str = ''
-    ) -> str:
-        return super().set_id(node, msgnode, suggested_prefix)
 
 
 class translatable(nodes.Node):
@@ -451,7 +436,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
     *key* is categorization characters (usually a single character) for
     general index page. For the details of this, please see also:
-    :rst:dir:`glossary` and issue #2320.
+    :rst:dir:`glossary` and https://github.com/sphinx-doc/sphinx/pull/2320.
     """
 
 

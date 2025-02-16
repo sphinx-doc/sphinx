@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+from types import NoneType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -574,7 +575,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'javascript_maximum_signature_line_length',
         None,
         'env',
-        types=frozenset({int, type(None)}),
+        types=frozenset({int, NoneType}),
     )
     app.add_config_value(
         'javascript_trailing_comma_in_multi_line_signatures',

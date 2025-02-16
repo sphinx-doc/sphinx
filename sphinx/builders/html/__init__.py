@@ -12,6 +12,7 @@ import shutil
 import sys
 import warnings
 from pathlib import Path
+from types import NoneType
 from typing import TYPE_CHECKING
 from urllib.parse import quote
 
@@ -198,8 +199,8 @@ class StandaloneHTMLBuilder(Builder):
             if js_file.is_file():
                 return js_file
 
-        js_file = Path(
-            package_dir, 'locale', self.config.language, 'LC_MESSAGES', 'sphinx.js'
+        js_file = package_dir.joinpath(
+            'locale', self.config.language, 'LC_MESSAGES', 'sphinx.js'
         )
         if js_file.is_file():
             return js_file
@@ -1054,7 +1055,7 @@ class StandaloneHTMLBuilder(Builder):
                 if matched and has_wildcard(pattern):
                     # warn if both patterns contain wildcards
                     if has_wildcard(matched):
-                        logger.warning(msg, pagename, matched)
+                        logger.warning(msg, pagename, matched, pattern)
                     # else the already matched pattern is more specific
                     # than the present one, because it contains no wildcard
                     continue
@@ -1192,13 +1193,14 @@ class StandaloneHTMLBuilder(Builder):
 
         # sort JS/CSS before rendering HTML
         try:  # NoQA: SIM105
-            # Convert script_files to list to support non-list script_files (refs: #8889)
+            # Convert script_files to list to support non-list script_files
+            # See: https://github.com/sphinx-doc/sphinx/issues/8889
             ctx['script_files'] = sorted(
                 ctx['script_files'], key=lambda js: js.priority
             )
         except AttributeError:
             # Skip sorting if users modifies script_files directly (maybe via `html_context`).
-            # refs: #8885
+            # See: https://github.com/sphinx-doc/sphinx/issues/8885
             #
             # Note: priority sorting feature will not work in this case.
             pass
@@ -1439,60 +1441,78 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(StandaloneHTMLBuilder)
 
     # config values
-    app.add_config_value('html_theme', 'alabaster', 'html')
-    app.add_config_value('html_theme_path', [], 'html')
-    app.add_config_value('html_theme_options', {}, 'html')
+    app.add_config_value('html_theme', 'alabaster', 'html', types=frozenset({str}))
+    app.add_config_value('html_theme_path', [], 'html', types=frozenset({list, tuple}))
+    app.add_config_value('html_theme_options', {}, 'html', types=frozenset({dict}))
     app.add_config_value(
         'html_title',
         lambda c: _('%s %s documentation') % (c.project, c.release),
         'html',
         types=frozenset({str}),
     )
-    app.add_config_value('html_short_title', lambda self: self.html_title, 'html')
-    app.add_config_value('html_style', None, 'html', types=frozenset({list, str}))
+    app.add_config_value(
+        'html_short_title', lambda self: self.html_title, 'html', types=frozenset({str})
+    )
+    app.add_config_value(
+        'html_style', None, 'html', types=frozenset({list, str, tuple})
+    )
     app.add_config_value('html_logo', None, 'html', types=frozenset({str}))
     app.add_config_value('html_favicon', None, 'html', types=frozenset({str}))
-    app.add_config_value('html_css_files', [], 'html')
-    app.add_config_value('html_js_files', [], 'html')
-    app.add_config_value('html_static_path', [], 'html')
-    app.add_config_value('html_extra_path', [], 'html')
+    app.add_config_value('html_css_files', [], 'html', types=frozenset({list, tuple}))
+    app.add_config_value('html_js_files', [], 'html', types=frozenset({list, tuple}))
+    app.add_config_value('html_static_path', [], 'html', types=frozenset({list, tuple}))
+    app.add_config_value('html_extra_path', [], 'html', types=frozenset({list, tuple}))
     app.add_config_value('html_last_updated_fmt', None, 'html', types=frozenset({str}))
     app.add_config_value(
         'html_last_updated_use_utc', False, 'html', types=frozenset({bool})
     )
-    app.add_config_value('html_sidebars', {}, 'html')
-    app.add_config_value('html_additional_pages', {}, 'html')
+    app.add_config_value('html_sidebars', {}, 'html', types=frozenset({dict}))
+    app.add_config_value('html_additional_pages', {}, 'html', types=frozenset({dict}))
     app.add_config_value(
-        'html_domain_indices', True, 'html', types=frozenset({set, list})
+        'html_domain_indices',
+        True,
+        'html',
+        types=frozenset({frozenset, list, set, tuple}),
     )
-    app.add_config_value('html_permalinks', True, 'html')
-    app.add_config_value('html_permalinks_icon', '¶', 'html')
-    app.add_config_value('html_use_index', True, 'html')
-    app.add_config_value('html_split_index', False, 'html')
-    app.add_config_value('html_copy_source', True, 'html')
-    app.add_config_value('html_show_sourcelink', True, 'html')
-    app.add_config_value('html_sourcelink_suffix', '.txt', 'html')
-    app.add_config_value('html_use_opensearch', '', 'html')
+    app.add_config_value('html_permalinks', True, 'html', types=frozenset({bool}))
+    app.add_config_value('html_permalinks_icon', '¶', 'html', types=frozenset({str}))
+    app.add_config_value('html_use_index', True, 'html', types=frozenset({bool}))
+    app.add_config_value('html_split_index', False, 'html', types=frozenset({bool}))
+    app.add_config_value('html_copy_source', True, 'html', types=frozenset({bool}))
+    app.add_config_value('html_show_sourcelink', True, 'html', types=frozenset({bool}))
+    app.add_config_value(
+        'html_sourcelink_suffix', '.txt', 'html', types=frozenset({str})
+    )
+    app.add_config_value('html_use_opensearch', '', 'html', types=frozenset({str}))
     app.add_config_value('html_file_suffix', None, 'html', types=frozenset({str}))
     app.add_config_value('html_link_suffix', None, 'html', types=frozenset({str}))
-    app.add_config_value('html_show_copyright', True, 'html')
-    app.add_config_value('html_show_search_summary', True, 'html')
-    app.add_config_value('html_show_sphinx', True, 'html')
-    app.add_config_value('html_context', {}, 'html')
-    app.add_config_value('html_output_encoding', 'utf-8', 'html')
-    app.add_config_value('html_compact_lists', True, 'html')
-    app.add_config_value('html_secnumber_suffix', '. ', 'html')
+    app.add_config_value('html_show_copyright', True, 'html', types=frozenset({bool}))
+    app.add_config_value(
+        'html_show_search_summary', True, 'html', types=frozenset({bool})
+    )
+    app.add_config_value('html_show_sphinx', True, 'html', types=frozenset({bool}))
+    app.add_config_value('html_context', {}, 'html', types=frozenset({dict}))
+    app.add_config_value(
+        'html_output_encoding', 'utf-8', 'html', types=frozenset({str})
+    )
+    app.add_config_value('html_compact_lists', True, 'html', types=frozenset({bool}))
+    app.add_config_value('html_secnumber_suffix', '. ', 'html', types=frozenset({str}))
     app.add_config_value('html_search_language', None, 'html', types=frozenset({str}))
-    app.add_config_value('html_search_options', {}, 'html')
-    app.add_config_value('html_search_scorer', '', '')
-    app.add_config_value('html_scaled_image_link', True, 'html')
-    app.add_config_value('html_baseurl', '', 'html')
-    # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
+    app.add_config_value('html_search_options', {}, 'html', types=frozenset({dict}))
+    app.add_config_value('html_search_scorer', '', '', types=frozenset({str}))
+    app.add_config_value(
+        'html_scaled_image_link', True, 'html', types=frozenset({bool})
+    )
+    app.add_config_value('html_baseurl', '', 'html', types=frozenset({str}))
+    # removal is indefinitely on hold
+    # See: https://github.com/sphinx-doc/sphinx/issues/10265
     app.add_config_value(
         'html_codeblock_linenos_style', 'inline', 'html', types=ENUM('table', 'inline')
     )
-    app.add_config_value('html_math_renderer', None, 'env')
-    app.add_config_value('html4_writer', False, 'html')
+    app.add_config_value(
+        'html_math_renderer', None, 'env', types=frozenset({str, NoneType})
+    )
+    app.add_config_value('html4_writer', False, 'html', types=frozenset({bool}))
 
     # events
     app.add_event('html-collect-pages')

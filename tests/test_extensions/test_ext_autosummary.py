@@ -46,7 +46,7 @@ def _unload_target_module():
     sys.modules.pop('target', None)
 
 
-def test_mangle_signature():
+def test_mangle_signature() -> None:
     TEST_SIGNATURE = """
     () :: ()
     (a, b, c, d, e) :: (a, b, c, d, e)
@@ -775,7 +775,7 @@ def test_autosummary_latex_table_colspec(app):
     assert r'p{0.5\linewidth}' not in result
 
 
-def test_import_by_name():
+def test_import_by_name() -> None:
     import sphinx
     import sphinx.ext.autosummary
 

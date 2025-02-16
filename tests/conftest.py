@@ -89,3 +89,14 @@ def _http_teapot(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     with monkeypatch.context() as m:
         m.setattr('sphinx.util.requests._Session.request', _request)
         yield
+
+
+@pytest.fixture
+def make_app_with_empty_project(make_app, tmp_path):
+    (tmp_path / 'conf.py').touch()
+
+    def _make_app(*args, **kw):
+        kw.setdefault('srcdir', Path(tmp_path))
+        return make_app(*args, **kw)
+
+    return _make_app

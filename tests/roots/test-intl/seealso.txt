@@ -2,7 +2,8 @@
 
 i18n with seealso
 ============================
-.. #960 directive-seelaso-ignored-in-the-gettext
+.. https://github.com/sphinx-doc/sphinx/issues/960
+   directive-seelaso-ignored-in-the-gettext
 
 .. seealso:: short text 1
 

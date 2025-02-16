@@ -135,7 +135,7 @@ def check(name, input, id_dict, output=None, key=None, as_text_output=None):
         )
 
 
-def test_domain_c_ast_expressions():
+def test_domain_c_ast_expressions() -> None:
     def expr_check(expr, output=None):
         parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
@@ -336,7 +336,7 @@ def test_domain_c_ast_expressions():
     expr_check('a or_eq 5')
 
 
-def test_domain_c_ast_fundamental_types():
+def test_domain_c_ast_fundamental_types() -> None:
     def types():
         def signed(t):
             yield t
@@ -403,7 +403,7 @@ def test_domain_c_ast_fundamental_types():
                 check('type', input, {1: 'foo'}, key='typedef', output=output)
 
 
-def test_domain_c_ast_type_definitions():
+def test_domain_c_ast_type_definitions() -> None:
     check('type', '{key}T', {1: 'T'})
 
     check('type', '{key}bool *b', {1: 'b'}, key='typedef')
@@ -419,7 +419,8 @@ def test_domain_c_ast_type_definitions():
     # test decl specs on right
     check('type', '{key}bool const b', {1: 'b'}, key='typedef')
 
-    # from breathe#267 (named function parameters for function pointers
+    # from https://github.com/breathe-doc/breathe/issues/267
+    # (named function parameters for function pointers
     check(
         'type',
         '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
@@ -428,7 +429,7 @@ def test_domain_c_ast_type_definitions():
     )
 
 
-def test_domain_c_ast_macro_definitions():
+def test_domain_c_ast_macro_definitions() -> None:
     check('macro', 'M', {1: 'M'})
     check('macro', 'M()', {1: 'M'})
     check('macro', 'M(arg)', {1: 'M'})
@@ -444,7 +445,7 @@ def test_domain_c_ast_macro_definitions():
         check('macro', 'M(arg1, arg2..., arg3)', {1: 'M'})
 
 
-def test_domain_c_ast_member_definitions():
+def test_domain_c_ast_member_definitions() -> None:
     check('member', 'void a', {1: 'a'})
     check('member', '_Bool a', {1: 'a'})
     check('member', 'bool a', {1: 'a'})
@@ -482,7 +483,7 @@ def test_domain_c_ast_member_definitions():
     check('member', 'T a = {1, 2}', {1: 'a'})
     check('member', 'T a = {1, 2, 3}', {1: 'a'})
 
-    # test from issue #1539
+    # test from issue https://github.com/sphinx-doc/sphinx/issues/1539
     check('member', 'CK_UTF8CHAR model[16]', {1: 'model'})
 
     check('member', 'auto int a', {1: 'a'})
@@ -500,7 +501,7 @@ def test_domain_c_ast_member_definitions():
     check('member', 'int b : 3', {1: 'b'})
 
 
-def test_domain_c_ast_function_definitions():
+def test_domain_c_ast_function_definitions() -> None:
     check('function', 'void f()', {1: 'f'})
     check('function', 'void f(int)', {1: 'f'})
     check('function', 'void f(int i)', {1: 'f'})
@@ -514,17 +515,18 @@ def test_domain_c_ast_function_definitions():
     check('function', 'void f(enum T)', {1: 'f'})
     check('function', 'void f(enum T t)', {1: 'f'})
 
-    # test from issue #1539
+    # test from issue https://github.com/sphinx-doc/sphinx/issues/1539
     check('function', 'void f(A x[])', {1: 'f'})
 
-    # test from issue #2377
+    # test from issue https://github.com/sphinx-doc/sphinx/issues/2377
     check('function', 'void (*signal(int sig, void (*func)(int)))(int)', {1: 'signal'})
 
     check('function', 'extern void f()', {1: 'f'})
     check('function', 'static void f()', {1: 'f'})
     check('function', 'inline void f()', {1: 'f'})
 
-    # tests derived from issue #1753 (skip to keep sanity)
+    # tests derived from https://github.com/sphinx-doc/sphinx/issues/1753
+    # (skip to keep sanity)
     check('function', 'void f(float *q(double))', {1: 'f'})
     check('function', 'void f(float *(*q)(double))', {1: 'f'})
     check('function', 'void f(float (*q)(double))', {1: 'f'})
@@ -533,7 +535,7 @@ def test_domain_c_ast_function_definitions():
     check('function', 'void f(int *const p)', {1: 'f'})
     check('function', 'void f(int *volatile const p)', {1: 'f'})
 
-    # from breathe#223
+    # from https://github.com/breathe-doc/breathe/issues/223
     check('function', 'void f(struct E e)', {1: 'f'})
     check('function', 'void f(enum E e)', {1: 'f'})
     check('function', 'void f(union E e)', {1: 'f'})
@@ -564,33 +566,33 @@ def test_domain_c_ast_function_definitions():
     with pytest.raises(DefinitionError):
         parse('function', 'void f(int for)')
 
-    # from #8960
+    # from https://github.com/sphinx-doc/sphinx/issues/8960
     check('function', 'void f(void (*p)(int, double), int i)', {1: 'f'})
 
 
-def test_domain_c_ast_nested_name():
+def test_domain_c_ast_nested_name() -> None:
     check('struct', '{key}.A', {1: 'A'})
     check('struct', '{key}.A.B', {1: 'A.B'})
     check('function', 'void f(.A a)', {1: 'f'})
     check('function', 'void f(.A.B a)', {1: 'f'})
 
 
-def test_domain_c_ast_struct_definitions():
+def test_domain_c_ast_struct_definitions() -> None:
     check('struct', '{key}A', {1: 'A'})
 
 
-def test_domain_c_ast_union_definitions():
+def test_domain_c_ast_union_definitions() -> None:
     check('union', '{key}A', {1: 'A'})
 
 
-def test_domain_c_ast_enum_definitions():
+def test_domain_c_ast_enum_definitions() -> None:
     check('enum', '{key}A', {1: 'A'})
 
     check('enumerator', '{key}A', {1: 'A'})
     check('enumerator', '{key}A = 42', {1: 'A'})
 
 
-def test_domain_c_ast_anon_definitions():
+def test_domain_c_ast_anon_definitions() -> None:
     check('struct', '@a', {1: '@a'}, as_text_output='struct [anonymous]')
     check('union', '@a', {1: '@a'}, as_text_output='union [anonymous]')
     check('enum', '@a', {1: '@a'}, as_text_output='enum [anonymous]')
@@ -598,7 +600,7 @@ def test_domain_c_ast_anon_definitions():
     check('struct', '@a.A', {1: '@a.A'}, as_text_output='struct [anonymous].A')
 
 
-def test_domain_c_ast_initializers():
+def test_domain_c_ast_initializers() -> None:
     ids_member = {1: 'v'}
     ids_function = {1: 'f'}
     # no init
@@ -617,7 +619,7 @@ def test_domain_c_ast_initializers():
     # TODO: designator-list
 
 
-def test_domain_c_ast_attributes():
+def test_domain_c_ast_attributes() -> None:
     # style: C++
     check('member', '[[]] int f', {1: 'f'})
     check(
@@ -678,7 +680,7 @@ def test_domain_c_ast_attributes():
     check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {1: 'Foo'})
     check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {1: 'Foo'})
 
-    # issue michaeljones/breathe#500
+    # issue https://github.com/breathe-doc/breathe/issues/500
     check(
         'function',
         'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
@@ -686,12 +688,12 @@ def test_domain_c_ast_attributes():
     )
 
 
-def test_extra_keywords():
+def test_extra_keywords() -> None:
     with pytest.raises(DefinitionError, match='Expected identifier in nested name'):
         parse('function', 'void complex(void)')
 
 
-# def test_print():
+# def test_print() -> None:
 #     # used for getting all the ids out for checking
 #     for a in ids:
 #         print(a)
@@ -765,7 +767,7 @@ def test_domain_c_build_anon_dup_decl(app):
     assert 'WARNING: c:identifier reference target not found: @b' in ws[1]
 
 
-@pytest.mark.sphinx('html', testroot='root', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='_blank', confoverrides={'nitpicky': True})
 def test_domain_c_build_semicolon(app):
     text = """
 .. c:member:: int member;
@@ -875,7 +877,7 @@ _var c:member 1 index.html#c.$ -
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_c_parse_cfunction(app):
     text = (
         '.. c:function:: PyObject* '
@@ -895,7 +897,7 @@ def test_domain_c_parse_cfunction(app):
     assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_c_parse_cmember(app):
     text = '.. c:member:: PyObject* PyTypeObject.tp_bases'
     doctree = restructuredtext.parse(app, text)
@@ -912,7 +914,7 @@ def test_domain_c_parse_cmember(app):
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_c_parse_cvar(app):
     text = '.. c:var:: PyObject* PyClass_Type'
     doctree = restructuredtext.parse(app, text)
@@ -929,7 +931,7 @@ def test_domain_c_parse_cvar(app):
     assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_c_parse_no_index_entry(app):
     text = '.. c:function:: void f()\n.. c:function:: void g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
@@ -944,7 +946,7 @@ def test_domain_c_parse_no_index_entry(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1005,7 +1007,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1066,7 +1068,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1125,7 +1127,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1186,7 +1188,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1247,7 +1249,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1306,7 +1308,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_break(app):
 
 @pytest.mark.sphinx(
     'html',
-    testroot='root',
+    testroot='_blank',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
         'maximum_signature_line_length': 1,
