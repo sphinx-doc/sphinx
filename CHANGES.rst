@@ -10,7 +10,7 @@ Incompatible changes
 --------------------
 
 * #13044: Remove the internal and undocumented ``has_equations`` data
-  from the :py:class:`!MathDomain`` domain.
+  from the :py:class:`!MathDomain` domain.
   The undocumented :py:meth:`!MathDomain.has_equations` method
   now unconditionally returns ``True``.
   These are replaced by the ``has_maths_elements`` key of the page context dict.
@@ -62,10 +62,8 @@ Features added
   :confval:`python_trailing_comma_in_multi_line_signatures` and
   :confval:`javascript_trailing_comma_in_multi_line_signatures`
   configuration options.
-* #13264: Rename the :rst:dir:`math` directive's ``nowrap``option
-  to :rst:dir:`no-wrap``,
-  and rename the :rst:dir:`autosummary` directive's ``nosignatures``option
-  to :rst:dir:`no-signatures``.
+* #13264: Rename the :rst:dir:`math` directive's ``nowrap`` option
+  to :rst:dir:`math:no-wrap`.
   Patch by Adam Turner.
 * #13269: Added the option to disable the use of type comments in
   via the new :confval:`autodoc_use_type_comments` option,
