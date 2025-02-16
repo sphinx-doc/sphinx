@@ -31,21 +31,18 @@ if TYPE_CHECKING:
         _IndexEntryCategoryKey,
     ]
     _IndexEntryMap: TypeAlias = dict[str, _IndexEntry]
-    _Index: TypeAlias = list[
+
+    # Used by ``create_index()`` for 'the real index'
+    _RealIndexEntry: TypeAlias = tuple[
+        str,
         tuple[
-            str,
-            list[
-                tuple[
-                    str,
-                    tuple[
-                        _IndexEntryTargets,
-                        list[tuple[str, _IndexEntryTargets]],
-                        _IndexEntryCategoryKey,
-                    ],
-                ]
-            ],
-        ]
+            _IndexEntryTargets,
+            list[tuple[str, _IndexEntryTargets]],
+            _IndexEntryCategoryKey,
+        ],
     ]
+    _RealIndexEntries: TypeAlias = list[_RealIndexEntry]
+    _Index: TypeAlias = list[tuple[str, _RealIndexEntries]]
 
 logger = logging.getLogger(__name__)
 
@@ -144,9 +141,10 @@ class IndexEntries:
                             __('unknown index entry type %r'),
                             entry_type,
                             location=docname,
+                            type='index',
                         )
                 except ValueError as err:
-                    logger.warning(str(err), location=docname)
+                    logger.warning(str(err), location=docname, type='index')
 
         for targets, sub_items, _category_key in new.values():
             targets.sort(key=_key_func_0)
@@ -231,8 +229,7 @@ def _key_func_1(entry: tuple[str, _IndexEntry]) -> tuple[tuple[int, str], str]:
         # using the specified category key to sort
         key = category_key
     lc_key = unicodedata.normalize('NFD', key.lower())
-    if lc_key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        lc_key = lc_key[1:]
+    lc_key = lc_key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
 
     if not lc_key[0:1].isalpha() and not lc_key.startswith('_'):
         # put symbols at the front of the index (0)
@@ -248,8 +245,7 @@ def _key_func_1(entry: tuple[str, _IndexEntry]) -> tuple[tuple[int, str], str]:
 def _key_func_2(entry: tuple[str, _IndexEntryTargets]) -> str:
     """Sort the sub-index entries"""
     key = unicodedata.normalize('NFD', entry[0].lower())
-    if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        key = key[1:]
+    key = key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
     if key[0:1].isalpha() or key.startswith('_'):
         key = chr(127) + key
     return key
@@ -263,8 +259,7 @@ def _group_by_func(entry: tuple[str, _IndexEntry]) -> str:
         return category_key
 
     # now calculate the key
-    if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        key = key[1:]
+    key = key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
     letter = unicodedata.normalize('NFD', key[0])[0].upper()
     if letter.isalpha() or letter == '_':
         return letter

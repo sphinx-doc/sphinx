@@ -7,14 +7,14 @@ import traceback
 import types
 import warnings
 from contextlib import chdir
-from os import getenv, path
+from os import getenv
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.osutil import fs_encoding
 
 if TYPE_CHECKING:
     import os
@@ -29,7 +29,11 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _ConfigRebuild: TypeAlias = Literal[
-    '', 'env', 'epub', 'gettext', 'html',
+    '',
+    'env',
+    'epub',
+    'gettext',
+    'html',
     # sphinxcontrib-applehelp
     'applehelp',
     # sphinxcontrib-devhelp
@@ -79,16 +83,18 @@ class ENUM:
     """
 
     def __init__(self, *candidates: str | bool | None) -> None:
-        self.candidates = candidates
+        self._candidates = frozenset(candidates)
 
-    def match(self, value: str | list | tuple) -> bool:
-        if isinstance(value, list | tuple):
-            return all(item in self.candidates for item in value)
-        else:
-            return value in self.candidates
+    def __repr__(self) -> str:
+        return f'ENUM({", ".join(sorted(map(repr, self._candidates)))})'
+
+    def match(self, value: str | bool | None | Sequence[str | bool | None]) -> bool:  # NoQA: RUF036
+        if isinstance(value, str | bool | None):
+            return value in self._candidates
+        return all(item in self._candidates for item in value)
 
 
-_OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
+_OptValidTypes: TypeAlias = frozenset[type] | ENUM
 
 
 class _Opt:
@@ -130,15 +136,35 @@ class _Opt:
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, _Opt):
-            self_tpl = (self.default, self.rebuild, self.valid_types, self.description)
-            other_tpl = (other.default, other.rebuild, other.valid_types, self.description)
+            self_tpl = (
+                self.default,
+                self.rebuild,
+                self.valid_types,
+                self.description,
+            )
+            other_tpl = (
+                other.default,
+                other.rebuild,
+                other.valid_types,
+                other.description,
+            )
             return self_tpl == other_tpl
         return NotImplemented
 
     def __lt__(self, other: _Opt) -> bool:
         if self.__class__ is other.__class__:
-            self_tpl = (self.default, self.rebuild, self.valid_types, self.description)
-            other_tpl = (other.default, other.rebuild, other.valid_types, self.description)
+            self_tpl = (
+                self.default,
+                self.rebuild,
+                self.valid_types,
+                self.description,
+            )
+            other_tpl = (
+                other.default,
+                other.rebuild,
+                other.valid_types,
+                other.description,
+            )
             return self_tpl > other_tpl
         return NotImplemented
 
@@ -161,7 +187,8 @@ class _Opt:
         return self.default, self.rebuild, self.valid_types, self.description
 
     def __setstate__(
-            self, state: tuple[Any, _ConfigRebuild, _OptValidTypes, str]) -> None:
+        self, state: tuple[Any, _ConfigRebuild, _OptValidTypes, str]
+    ) -> None:
         default, rebuild, valid_types, description = state
         super().__setattr__('default', default)
         super().__setattr__('rebuild', rebuild)
@@ -172,7 +199,9 @@ class _Opt:
         warnings.warn(
             f'The {self.__class__.__name__!r} object tuple interface is deprecated, '
             "use attribute access instead for 'default', 'rebuild', and 'valid_types'.",
-            RemovedInSphinx90Warning, stacklevel=2)
+            RemovedInSphinx90Warning,
+            stacklevel=2,
+        )
         return (self.default, self.rebuild, self.valid_types)[item]
 
 
@@ -197,81 +226,93 @@ class Config:
 
     config_values: dict[str, _Opt] = {
         # general options
-        'project': _Opt('Project name not set', 'env', ()),
-        'author': _Opt('Author name not set', 'env', ()),
+        'project': _Opt('Project name not set', 'env', frozenset((str,))),
+        'author': _Opt('Author name not set', 'env', frozenset((str,))),
         'project_copyright': _Opt('', 'html', frozenset((str, tuple, list))),
         'copyright': _Opt(
-            lambda config: config.project_copyright, 'html', frozenset((str, tuple, list))),
-        'version': _Opt('', 'env', ()),
-        'release': _Opt('', 'env', ()),
-        'today': _Opt('', 'env', ()),
+            lambda config: config.project_copyright,
+            'html',
+            frozenset((str, tuple, list)),
+        ),
+        'version': _Opt('', 'env', frozenset((str,))),
+        'release': _Opt('', 'env', frozenset((str,))),
+        'today': _Opt('', 'env', frozenset((str,))),
         # the real default is locale-dependent
         'today_fmt': _Opt(None, 'env', frozenset((str,))),
-
         'language': _Opt('en', 'env', frozenset((str,))),
-        'locale_dirs': _Opt(['locales'], 'env', ()),
-        'figure_language_filename': _Opt('{root}.{language}{ext}', 'env', frozenset((str,))),
-        'gettext_allow_fuzzy_translations': _Opt(False, 'gettext', ()),
+        'locale_dirs': _Opt(['locales'], 'env', frozenset((list, tuple))),
+        'figure_language_filename': _Opt(
+            '{root}.{language}{ext}', 'env', frozenset((str,))
+        ),
+        'gettext_allow_fuzzy_translations': _Opt(False, 'gettext', frozenset((bool,))),
         'translation_progress_classes': _Opt(
-            False, 'env', ENUM(True, False, 'translated', 'untranslated')),
-
-        'master_doc': _Opt('index', 'env', ()),
-        'root_doc': _Opt(lambda config: config.master_doc, 'env', ()),
+            False, 'env', ENUM(True, False, 'translated', 'untranslated')
+        ),
+        'master_doc': _Opt('index', 'env', frozenset((str,))),
+        'root_doc': _Opt(lambda config: config.master_doc, 'env', frozenset((str,))),
         # ``source_suffix`` type is actually ``dict[str, str | None]``:
         # see ``convert_source_suffix()`` below.
-        'source_suffix': _Opt(
-            {'.rst': 'restructuredtext'}, 'env', Any),  # type: ignore[arg-type]
-        'source_encoding': _Opt('utf-8-sig', 'env', ()),
+        'source_suffix': _Opt({'.rst': 'restructuredtext'}, 'env', Any),  # type: ignore[arg-type]
+        'source_encoding': _Opt('utf-8-sig', 'env', frozenset((str,))),
         'exclude_patterns': _Opt([], 'env', frozenset((str,))),
-        'include_patterns': _Opt(["**"], 'env', frozenset((str,))),
+        'include_patterns': _Opt(['**'], 'env', frozenset((str,))),
         'default_role': _Opt(None, 'env', frozenset((str,))),
-        'add_function_parentheses': _Opt(True, 'env', ()),
-        'add_module_names': _Opt(True, 'env', ()),
+        'add_function_parentheses': _Opt(True, 'env', frozenset((bool,))),
+        'add_module_names': _Opt(True, 'env', frozenset((bool,))),
         'toc_object_entries': _Opt(True, 'env', frozenset((bool,))),
         'toc_object_entries_show_parents': _Opt(
-            'domain', 'env', ENUM('domain', 'all', 'hide')),
-        'trim_footnote_reference_space': _Opt(False, 'env', ()),
-        'show_authors': _Opt(False, 'env', ()),
+            'domain', 'env', ENUM('domain', 'all', 'hide')
+        ),
+        'trim_footnote_reference_space': _Opt(False, 'env', frozenset((bool,))),
+        'show_authors': _Opt(False, 'env', frozenset((bool,))),
         'pygments_style': _Opt(None, 'html', frozenset((str,))),
-        'highlight_language': _Opt('default', 'env', ()),
-        'highlight_options': _Opt({}, 'env', ()),
-        'templates_path': _Opt([], 'html', ()),
+        'highlight_language': _Opt('default', 'env', frozenset((str,))),
+        'highlight_options': _Opt({}, 'env', frozenset((dict,))),
+        'templates_path': _Opt([], 'html', frozenset((list,))),
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
-        'keep_warnings': _Opt(False, 'env', ()),
-        'suppress_warnings': _Opt([], 'env', ()),
+        'keep_warnings': _Opt(False, 'env', frozenset((bool,))),
+        'suppress_warnings': _Opt([], 'env', frozenset((list, tuple))),
         'show_warning_types': _Opt(True, 'env', frozenset((bool,))),
-        'modindex_common_prefix': _Opt([], 'html', ()),
+        'modindex_common_prefix': _Opt([], 'html', frozenset((list, tuple))),
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
-        'trim_doctest_flags': _Opt(True, 'env', ()),
+        'trim_doctest_flags': _Opt(True, 'env', frozenset((bool,))),
         'primary_domain': _Opt('py', 'env', frozenset((types.NoneType,))),
         'needs_sphinx': _Opt(None, '', frozenset((str,))),
-        'needs_extensions': _Opt({}, '', ()),
-        'manpages_url': _Opt(None, 'env', ()),
-        'nitpicky': _Opt(False, '', ()),
+        'needs_extensions': _Opt({}, '', frozenset((dict,))),
+        'manpages_url': _Opt(None, 'env', frozenset((str, types.NoneType))),
+        'nitpicky': _Opt(False, '', frozenset((bool,))),
         'nitpick_ignore': _Opt([], '', frozenset((set, list, tuple))),
         'nitpick_ignore_regex': _Opt([], '', frozenset((set, list, tuple))),
-        'numfig': _Opt(False, 'env', ()),
-        'numfig_secnum_depth': _Opt(1, 'env', ()),
-        'numfig_format': _Opt({}, 'env', ()),  # will be initialized in init_numfig_format()
+        'numfig': _Opt(False, 'env', frozenset((bool,))),
+        'numfig_secnum_depth': _Opt(1, 'env', frozenset((int, types.NoneType))),
+        # numfig_format will be initialized in init_numfig_format()
+        'numfig_format': _Opt({}, 'env', frozenset((dict,))),
         'maximum_signature_line_length': _Opt(
-            None, 'env', frozenset((int, types.NoneType))),
-        'math_number_all': _Opt(False, 'env', ()),
+            None, 'env', frozenset((int, types.NoneType))
+        ),
+        'math_number_all': _Opt(False, 'env', frozenset((bool,))),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
-        'math_numfig': _Opt(True, 'env', ()),
+        'math_numfig': _Opt(True, 'env', frozenset((bool,))),
         'math_numsep': _Opt('.', 'env', frozenset((str,))),
-        'tls_verify': _Opt(True, 'env', ()),
-        'tls_cacerts': _Opt(None, 'env', ()),
+        'tls_verify': _Opt(True, 'env', frozenset((bool,))),
+        'tls_cacerts': _Opt(None, 'env', frozenset((str, dict, types.NoneType))),
         'user_agent': _Opt(None, 'env', frozenset((str,))),
-        'smartquotes': _Opt(True, 'env', ()),
-        'smartquotes_action': _Opt('qDe', 'env', ()),
+        'smartquotes': _Opt(True, 'env', frozenset((bool,))),
+        'smartquotes_action': _Opt('qDe', 'env', frozenset((str,))),
         'smartquotes_excludes': _Opt(
-            {'languages': ['ja', 'zh_CN', 'zh_TW'], 'builders': ['man', 'text']}, 'env', ()),
-        'option_emphasise_placeholders': _Opt(False, 'env', ()),
+            {'languages': ['ja', 'zh_CN', 'zh_TW'], 'builders': ['man', 'text']},
+            'env',
+            frozenset((dict,)),
+        ),
+        'option_emphasise_placeholders': _Opt(False, 'env', frozenset((bool,))),
     }
 
-    def __init__(self, config: dict[str, Any] | None = None,
-                 overrides: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self,
+        config: dict[str, Any] | None = None,
+        overrides: dict[str, Any] | None = None,
+    ) -> None:
         raw_config: dict[str, Any] = config or {}
         self._overrides = dict(overrides) if overrides is not None else {}
         self._options = Config.config_values.copy()
@@ -301,24 +342,33 @@ class Config:
         return self._overrides
 
     @classmethod
-    def read(cls: type[Config], confdir: str | os.PathLike[str], overrides: dict | None = None,
-             tags: Tags | None = None) -> Config:
+    def read(
+        cls: type[Config],
+        confdir: str | os.PathLike[str],
+        overrides: dict[str, Any] | None = None,
+        tags: Tags | None = None,
+    ) -> Config:
         """Create a Config object from configuration file."""
-        filename = path.join(confdir, CONFIG_FILENAME)
-        if not path.isfile(filename):
-            raise ConfigError(__("config directory doesn't contain a conf.py file (%s)") %
-                              confdir)
+        filename = Path(confdir, CONFIG_FILENAME)
+        if not filename.is_file():
+            raise ConfigError(
+                __("config directory doesn't contain a conf.py file (%s)") % confdir
+            )
         namespace = eval_config_file(filename, tags)
 
         # Note: Old sphinx projects have been configured as "language = None" because
         #       sphinx-quickstart previously generated this by default.
         #       To keep compatibility, they should be fallback to 'en' for a while
         #       (This conversion should not be removed before 2025-01-01).
-        if namespace.get("language", ...) is None:
-            logger.warning(__("Invalid configuration value found: 'language = None'. "
-                              "Update your configuration to a valid language code. "
-                              "Falling back to 'en' (English)."))
-            namespace["language"] = "en"
+        if namespace.get('language', ...) is None:
+            logger.warning(
+                __(
+                    "Invalid configuration value found: 'language = None'. "
+                    'Update your configuration to a valid language code. '
+                    "Falling back to 'en' (English)."
+                )
+            )
+            namespace['language'] = 'en'
 
         return cls(namespace, overrides)
 
@@ -328,33 +378,47 @@ class Config:
         valid_types = opt.valid_types
         if valid_types == Any:
             return value
-        if (type(default) is bool
-            or (not isinstance(valid_types, ENUM)
-                and len(valid_types) == 1 and bool in valid_types)):
-            if isinstance(valid_types, ENUM) or len(valid_types) > 1:
-                # if valid_types are given, and non-bool valid types exist,
-                # return the value without coercing to a Boolean.
+        if isinstance(valid_types, ENUM):
+            if False in valid_types._candidates and value == '0':
+                return False
+            if True in valid_types._candidates and value == '1':
+                return True
+            return value
+        elif type(default) is bool or (bool in valid_types):
+            if value == '0':
+                return False
+            if value == '1':
+                return True
+            if len(valid_types) > 1:
                 return value
-            # given falsy string from a command line option
-            return value not in {'0', ''}
+            msg = __("'%s' must be '0' or '1', got '%s'") % (name, value)
+            raise ConfigError(msg)
         if isinstance(default, dict):
-            raise ValueError(__('cannot override dictionary config setting %r, '
-                                'ignoring (use %r to set individual elements)') %
-                             (name, f'{name}.key=value'))
+            raise ValueError(  # NoQA: TRY004
+                __(
+                    'cannot override dictionary config setting %r, '
+                    'ignoring (use %r to set individual elements)'
+                )
+                % (name, f'{name}.key=value')
+            )
         if isinstance(default, list):
             return value.split(',')
         if isinstance(default, int):
             try:
                 return int(value)
             except ValueError as exc:
-                raise ValueError(__('invalid number %r for config value %r, ignoring') %
-                                 (value, name)) from exc
+                raise ValueError(
+                    __('invalid number %r for config value %r, ignoring')
+                    % (value, name)
+                ) from exc
         if callable(default):
             return value
         if isinstance(default, str) or default is None:
             return value
-        raise ValueError(__('cannot override config setting %r with unsupported '
-                            'type, ignoring') % name)
+        raise ValueError(
+            __('cannot override config setting %r with unsupported type, ignoring')
+            % name
+        )
 
     @staticmethod
     def pre_init_values() -> None:
@@ -374,7 +438,9 @@ class Config:
     def _report_override_warnings(self) -> None:
         for name in self._overrides:
             if name not in self._options:
-                logger.warning(__('unknown config value %r in override, ignoring'), name)
+                logger.warning(
+                    __('unknown config value %r in override, ignoring'), name
+                )
 
     def __repr__(self) -> str:
         values = []
@@ -383,7 +449,7 @@ class Config:
                 opt_value = getattr(self, opt_name)
             except Exception:
                 opt_value = '<error!>'
-            values.append(f"{opt_name}={opt_value!r}")
+            values.append(f'{opt_name}={opt_value!r}')
         return self.__class__.__qualname__ + '(' + ', '.join(values) + ')'
 
     def __setattr__(self, key: str, value: object) -> None:
@@ -409,7 +475,7 @@ class Config:
                 try:
                     value = self.convert_overrides(name, value)
                 except ValueError as exc:
-                    logger.warning("%s", exc)
+                    logger.warning('%s', exc)
                 else:
                     self.__setattr__(name, value)
                     return value
@@ -446,9 +512,14 @@ class Config:
         for name, opt in self._options.items():
             yield ConfigValue(name, getattr(self, name), opt.rebuild)
 
-    def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
-            types: type | Collection[type] | ENUM,
-            description: str = '') -> None:
+    def add(
+        self,
+        name: str,
+        default: Any,
+        rebuild: _ConfigRebuild,
+        types: type | Collection[type] | ENUM,
+        description: str = '',
+    ) -> None:
         if name in self._options:
             raise ExtensionError(__('Config value %r already present') % name)
 
@@ -465,7 +536,7 @@ class Config:
             return (value for value in self if value.rebuild == rebuild)
         return (value for value in self if value.rebuild in rebuild)
 
-    def __getstate__(self) -> dict:
+    def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         # remove potentially pickling-problematic values from config
         __dict__ = {
@@ -473,7 +544,7 @@ class Config:
             for key, value in self.__dict__.items()
             if not key.startswith('_') and is_serializable(value)
         }
-        # create a picklable copy of ``self._options``
+        # create a pickleable copy of ``self._options``
         __dict__['_options'] = _options = {}
         for name, opt in self._options.items():
             if not isinstance(opt, _Opt) and isinstance(opt, tuple) and len(opt) <= 3:
@@ -486,8 +557,10 @@ class Config:
                     # will always mark the config value as changed,
                     # and thus always invalidate the cache and perform a rebuild.
                     logger.warning(
-                        __('cannot cache unpickable configuration value: %r '
-                           '(because it contains a function, class, or module object)'),
+                        __(
+                            'cannot cache unpickleable configuration value: %r '
+                            '(because it contains a function, class, or module object)'
+                        ),
                         name,
                         type='config',
                         subtype='cache',
@@ -500,50 +573,56 @@ class Config:
 
         return __dict__
 
-    def __setstate__(self, state: dict) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         self._overrides = {}
         self._options = {
-            name: _Opt(real_value, rebuild, ())
+            name: _Opt(real_value, rebuild, frozenset())
             for name, (real_value, rebuild) in state.pop('_options').items()
         }
         self._raw_config = {}
         self.__dict__.update(state)
 
 
-def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
+def eval_config_file(
+    filename: str | os.PathLike[str], tags: Tags | None
+) -> dict[str, Any]:
     """Evaluate a config file."""
-    namespace: dict[str, Any] = {}
-    namespace['__file__'] = filename
-    namespace['tags'] = tags
+    filename = Path(filename)
 
-    with chdir(path.dirname(filename)):
+    namespace: dict[str, Any] = {
+        '__file__': str(filename),
+        'tags': tags,
+    }
+
+    with chdir(filename.parent):
         # during executing config file, current dir is changed to ``confdir``.
         try:
-            with open(filename, 'rb') as f:
-                code = compile(f.read(), filename.encode(fs_encoding), 'exec')
-                exec(code, namespace)  # NoQA: S102
+            code = compile(filename.read_bytes(), filename, 'exec')
+            exec(code, namespace)  # NoQA: S102
         except SyntaxError as err:
-            msg = __("There is a syntax error in your configuration file: %s\n")
+            msg = __('There is a syntax error in your configuration file: %s\n')
             raise ConfigError(msg % err) from err
         except SystemExit as exc:
-            msg = __("The configuration file (or one of the modules it imports) "
-                     "called sys.exit()")
+            msg = __(
+                'The configuration file (or one of the modules it imports) '
+                'called sys.exit()'
+            )
             raise ConfigError(msg) from exc
         except ConfigError:
             # pass through ConfigError from conf.py as is.  It will be shown in console.
             raise
         except Exception as exc:
-            msg = __("There is a programmable error in your configuration file:\n\n%s")
+            msg = __('There is a programmable error in your configuration file:\n\n%s')
             raise ConfigError(msg % traceback.format_exc()) from exc
 
     return namespace
 
 
 def _validate_valid_types(
-    valid_types: type | Collection[type] | ENUM, /,
-) -> tuple[()] | tuple[type, ...] | frozenset[type] | ENUM:
+    valid_types: type | Collection[type] | ENUM, /
+) -> frozenset[type] | ENUM:
     if not valid_types:
-        return ()
+        return frozenset()
     if isinstance(valid_types, frozenset | ENUM):
         return valid_types
     if isinstance(valid_types, type):
@@ -552,16 +631,11 @@ def _validate_valid_types(
         return frozenset({Any})  # type: ignore[arg-type]
     if isinstance(valid_types, set):
         return frozenset(valid_types)
-    if not isinstance(valid_types, tuple):
-        try:
-            valid_types = tuple(valid_types)
-        except TypeError:
-            logger.warning(__('Failed to convert %r to a set or tuple'), valid_types)
-            return valid_types  # type: ignore[return-value]
     try:
         return frozenset(valid_types)
     except TypeError:
-        return valid_types
+        logger.warning(__('Failed to convert %r to a frozenset'), valid_types)
+        return frozenset()
 
 
 def convert_source_suffix(app: Sphinx, config: Config) -> None:
@@ -577,16 +651,24 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
         config.source_suffix = {source_suffix: 'restructuredtext'}
-        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
-                    source_suffix, config.source_suffix)
+        logger.info(
+            __('Converting `source_suffix = %r` to `source_suffix = %r`.'),
+            source_suffix,
+            config.source_suffix,
+        )
     elif isinstance(source_suffix, list | tuple):
         # if list, considers as all of them are default filetype
         config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
-        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
-                    source_suffix, config.source_suffix)
+        logger.info(
+            __('Converting `source_suffix = %r` to `source_suffix = %r`.'),
+            source_suffix,
+            config.source_suffix,
+        )
     elif not isinstance(source_suffix, dict):
-        msg = __("The config value `source_suffix' expects a dictionary, "
-                 "a string, or a list of strings. Got `%r' instead (type %s).")
+        msg = __(
+            "The config value `source_suffix' expects a dictionary, "
+            "a string, or a list of strings. Got `%r' instead (type %s)."
+        )
         raise ConfigError(msg % (source_suffix, type(source_suffix)))
 
 
@@ -604,10 +686,12 @@ def convert_highlight_options(app: Sphinx, config: Config) -> None:
 
 def init_numfig_format(app: Sphinx, config: Config) -> None:
     """Initialize :confval:`numfig_format`."""
-    numfig_format = {'section': _('Section %s'),
-                     'figure': _('Fig. %s'),
-                     'table': _('Table %s'),
-                     'code-block': _('Listing %s')}
+    numfig_format = {
+        'section': _('Section %s'),
+        'figure': _('Fig. %s'),
+        'table': _('Table %s'),
+        'code-block': _('Listing %s'),
+    }
 
     # override default labels by configuration
     numfig_format.update(config.numfig_format)
@@ -714,10 +798,14 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
 
         if isinstance(valid_types, ENUM):
             if not valid_types.match(value):
-                msg = __("The config value `{name}` has to be a one of {candidates}, "
-                         "but `{current}` is given.")
+                msg = __(
+                    'The config value `{name}` has to be a one of {candidates}, '
+                    'but `{current}` is given.'
+                )
                 logger.warning(
-                    msg.format(name=name, current=value, candidates=valid_types.candidates),
+                    msg.format(
+                        name=name, current=value, candidates=valid_types._candidates
+                    ),
                     once=True,
                 )
             continue
@@ -729,30 +817,39 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
             continue
 
         if type_value in valid_types:  # check explicitly listed types
+            if frozenset in valid_types and type_value in {list, tuple, set}:
+                setattr(config, name, frozenset(value))
+            elif tuple in valid_types and type_value is list:
+                setattr(config, name, tuple(value))
             continue
 
-        common_bases = ({*type_value.__bases__, type_value}
-                        & set(type_default.__bases__))
+        common_bases = {*type_value.__bases__, type_value} & set(type_default.__bases__)
         common_bases.discard(object)
         if common_bases:
             continue  # at least we share a non-trivial base class
 
         if valid_types:
-            msg = __("The config value `{name}' has type `{current.__name__}'; "
-                     "expected {permitted}.")
+            msg = __(
+                "The config value `{name}' has type `{current.__name__}'; "
+                'expected {permitted}.'
+            )
             wrapped_valid_types = sorted(f"`{c.__name__}'" for c in valid_types)
             if len(wrapped_valid_types) > 2:
-                permitted = (", ".join(wrapped_valid_types[:-1])
-                             + f", or {wrapped_valid_types[-1]}")
+                permitted = (
+                    ', '.join(wrapped_valid_types[:-1])
+                    + f', or {wrapped_valid_types[-1]}'
+                )
             else:
-                permitted = " or ".join(wrapped_valid_types)
+                permitted = ' or '.join(wrapped_valid_types)
             logger.warning(
                 msg.format(name=name, current=type_value, permitted=permitted),
                 once=True,
             )
         else:
-            msg = __("The config value `{name}' has type `{current.__name__}', "
-                     "defaults to `{default.__name__}'.")
+            msg = __(
+                "The config value `{name}' has type `{current.__name__}', "
+                "defaults to `{default.__name__}'."
+            )
             logger.warning(
                 msg.format(name=name, current=type_value, default=type_default),
                 once=True,
@@ -766,17 +863,27 @@ def check_primary_domain(app: Sphinx, config: Config) -> None:
         config.primary_domain = None
 
 
-def check_root_doc(app: Sphinx, env: BuildEnvironment, added: Set[str],
-                   changed: Set[str], removed: Set[str]) -> Iterable[str]:
-    """Adjust root_doc to 'contents' to support an old project which does not have
-    any root_doc setting.
-    """
-    if (app.config.root_doc == 'index' and
-            'index' not in app.project.docnames and
-            'contents' in app.project.docnames):
-        logger.warning(__('Since v2.0, Sphinx uses "index" as root_doc by default. '
-                          'Please add "root_doc = \'contents\'" to your conf.py.'))
-        app.config.root_doc = "contents"
+def check_master_doc(
+    app: Sphinx,
+    env: BuildEnvironment,
+    added: Set[str],
+    changed: Set[str],
+    removed: Set[str],
+) -> Iterable[str]:
+    """Sphinx 2.0 changed the default from 'contents' to 'index'."""
+    docnames = app.project.docnames
+    if (
+        app.config.master_doc == 'index'
+        and 'index' not in docnames
+        and 'contents' in docnames
+    ):
+        logger.warning(
+            __(
+                'Sphinx now uses "index" as the master document by default. '
+                'To keep pre-2.0 behaviour, set "master_doc = \'contents\'".'
+            )
+        )
+        app.config.master_doc = 'contents'
 
     return changed
 
@@ -789,7 +896,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
     app.connect('config-inited', check_primary_domain, priority=800)
-    app.connect('env-get-outdated', check_root_doc)
+    app.connect('env-get-outdated', check_master_doc)
 
     return {
         'version': 'builtin',

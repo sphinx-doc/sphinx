@@ -1,5 +1,7 @@
 """Sphinx theme specific highlighting styles."""
 
+from __future__ import annotations
+
 from pygments.style import Style
 from pygments.styles.friendly import FriendlyStyle
 from pygments.token import (
@@ -20,8 +22,7 @@ class NoneStyle(Style):
 
 
 class SphinxStyle(Style):
-    """
-    Like friendly, but a bit darker to enhance contrast on the green
+    """Like friendly, but a bit darker to enhance contrast on the green
     background.
     """
 
@@ -37,9 +38,7 @@ class SphinxStyle(Style):
 
 
 class PyramidStyle(Style):
-    """
-    Pylons/pyramid pygments style based on friendly style, by Blaise Laflamme.
-    """
+    """Pylons/pyramid pygments style based on friendly style, by Blaise Laflamme."""
 
     # work in progress...
 

@@ -1,9 +1,11 @@
 """Tests the C++ Domain"""
 
+from __future__ import annotations
+
 import itertools
 import re
 import zlib
-from io import StringIO
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -24,11 +26,14 @@ from sphinx.addnodes import (
 from sphinx.domains.cpp._ids import _id_prefix, _max_id
 from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError, NoOldIdError
 from sphinx.writers.text import STDINDENT
+
+if TYPE_CHECKING:
+    from io import StringIO
 
 
 def parse(name, string):
@@ -46,63 +51,63 @@ def parse(name, string):
     return ast
 
 
-def _check(name, input, idDict, output, key, asTextOutput):
+def _check(name, input, id_dict, output, key, as_text_output):
     if key is None:
         key = name
     key += ' '
-    if name in ('function', 'member'):
-        inputActual = input
-        outputAst = output
-        outputAsText = output
+    if name in {'function', 'member'}:
+        input_actual = input
+        output_ast = output
+        output_as_text = output
     else:
-        inputActual = input.format(key='')
-        outputAst = output.format(key='')
-        outputAsText = output.format(key=key)
-    if asTextOutput is not None:
-        outputAsText = asTextOutput
+        input_actual = input.format(key='')
+        output_ast = output.format(key='')
+        output_as_text = output.format(key=key)
+    if as_text_output is not None:
+        output_as_text = as_text_output
 
     # first a simple check of the AST
-    ast = parse(name, inputActual)
+    ast = parse(name, input_actual)
     res = str(ast)
-    if res != outputAst:
+    if res != output_ast:
         print()
         print('Input:    ', input)
         print('Result:   ', res)
-        print('Expected: ', outputAst)
+        print('Expected: ', output_ast)
         raise DefinitionError
-    rootSymbol = Symbol(None, None, None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname='TestDoc', line=42)
-    parentNode = addnodes.desc()
+    root_symbol = Symbol(None, None, None, None, None, None, None)
+    symbol = root_symbol.add_declaration(ast, docname='TestDoc', line=42)
+    parent_node = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
-    parentNode += signode
+    parent_node += signode
     ast.describe_signature(signode, 'lastIsName', symbol, options={})
-    resAsText = parentNode.astext()
-    if resAsText != outputAsText:
+    res_as_text = parent_node.astext()
+    if res_as_text != output_as_text:
         print()
         print('Input:    ', input)
-        print('astext(): ', resAsText)
-        print('Expected: ', outputAsText)
-        print('Node:', parentNode)
+        print('astext(): ', res_as_text)
+        print('Expected: ', output_as_text)
+        print('Node:', parent_node)
         raise DefinitionError
 
-    idExpected = [None]
+    id_expected = [None]
     for i in range(1, _max_id + 1):
-        if i in idDict:
-            idExpected.append(idDict[i])
+        if i in id_dict:
+            id_expected.append(id_dict[i])
         else:
-            idExpected.append(idExpected[i - 1])
-    idActual = [None]
+            id_expected.append(id_expected[i - 1])
+    id_actual = [None]
     for i in range(1, _max_id + 1):
         try:
             id = ast.get_id(version=i)
             assert id is not None
-            idActual.append(id[len(_id_prefix[i]) :])
+            id_actual.append(id[len(_id_prefix[i]) :])
         except NoOldIdError:
-            idActual.append(None)
+            id_actual.append(None)
 
     res = [True]
     for i in range(1, _max_id + 1):
-        res.append(idExpected[i] == idActual[i])
+        res.append(id_expected[i] == id_actual[i])
 
     if not all(res):
         print('input:    %s' % input.rjust(20))
@@ -110,25 +115,25 @@ def _check(name, input, idDict, output, key, asTextOutput):
             if res[i]:
                 continue
             print('Error in id version %d.' % i)
-            print('result:   %s' % idActual[i])
-            print('expected: %s' % idExpected[i])
-        print(rootSymbol.dump(0))
+            print('result:   %s' % id_actual[i])
+            print('expected: %s' % id_expected[i])
+        print(root_symbol.dump(0))
         raise DefinitionError
 
 
-def check(name, input, idDict, output=None, key=None, asTextOutput=None):
+def check(name, input, id_dict, output=None, key=None, as_text_output=None):
     if output is None:
         output = input
     # First, check without semicolon
-    _check(name, input, idDict, output, key, asTextOutput)
+    _check(name, input, id_dict, output, key, as_text_output)
     # Second, check with semicolon
     _check(
         name,
         input + ' ;',
-        idDict,
+        id_dict,
         output + ';',
         key,
-        asTextOutput + ';' if asTextOutput is not None else None,
+        as_text_output + ';' if as_text_output is not None else None,
     )
 
 
@@ -159,7 +164,7 @@ def test_domain_cpp_ast_fundamental_types(type_, id_v2):
     id1 = make_id_v1()
     id2 = make_id_v2()
 
-    input = f"void f({type_.replace(' ', '  ')} arg)"
+    input = f'void f({type_.replace(" ", "  ")} arg)'
     output = f'void f({type_} arg)'
 
     check('function', input, {1: id1, 2: id2}, output=output)
@@ -167,18 +172,18 @@ def test_domain_cpp_ast_fundamental_types(type_, id_v2):
         # try permutations of all components
         tcs = type_.split()
         for p in itertools.permutations(tcs):
-            input = f"void f({' '.join(p)} arg)"
+            input = f'void f({" ".join(p)} arg)'
             check('function', input, {1: id1, 2: id2})
 
 
-def test_domain_cpp_ast_expressions():
-    def exprCheck(expr, id, id4=None):
+def test_domain_cpp_ast_expressions() -> None:
+    def expr_check(expr, id, id4=None):
         ids = 'IE1CIA%s_1aE'
         # call .format() on the expr to unescape double curly braces
-        idDict = {2: ids % expr.format(), 3: ids % id}
+        id_dict = {2: ids % expr.format(), 3: ids % id}
         if id4 is not None:
-            idDict[4] = ids % id4
-        check('class', 'template<> {key}C<a[%s]>' % expr, idDict)
+            id_dict[4] = ids % id4
+        check('class', 'template<> {key}C<a[%s]>' % expr, id_dict)
 
         class Config:
             cpp_id_attributes = ['id_attr']
@@ -193,19 +198,19 @@ def test_domain_cpp_ast_expressions():
             print('Input:    ', expr)
             print('Result:   ', res)
             raise DefinitionError
-        displayString = ast.get_display_string()
-        if res != displayString:
+        display_string = ast.get_display_string()
+        if res != display_string:
             # note: if the expression contains an anon name then this will trigger a falsely
             print()
             print('Input:    ', expr)
             print('Result:   ', res)
-            print('Display:  ', displayString)
+            print('Display:  ', display_string)
             raise DefinitionError
 
     # primary
-    exprCheck('nullptr', 'LDnE')
-    exprCheck('true', 'L1E')
-    exprCheck('false', 'L0E')
+    expr_check('nullptr', 'LDnE')
+    expr_check('true', 'L1E')
+    expr_check('false', 'L0E')
     ints = [
         '5',
         '0',
@@ -219,16 +224,16 @@ def test_domain_cpp_ast_expressions():
         "0x0'1'2",
         "1'2'3",
     ]
-    unsignedSuffix = ['', 'u', 'U']
-    longSuffix = ['', 'l', 'L', 'll', 'LL']
+    unsigned_suffix = ['', 'u', 'U']
+    long_suffix = ['', 'l', 'L', 'll', 'LL']
     for i in ints:
-        for u in unsignedSuffix:
-            for l in longSuffix:
+        for u in unsigned_suffix:
+            for l in long_suffix:
                 expr = i + u + l
-                exprCheck(expr, 'L' + expr.replace("'", '') + 'E')
+                expr_check(expr, 'L' + expr.replace("'", '') + 'E')
                 expr = i + l + u
-                exprCheck(expr, 'L' + expr.replace("'", '') + 'E')
-    decimalFloats = [
+                expr_check(expr, 'L' + expr.replace("'", '') + 'E')
+    decimal_floats = [
         '5e42',
         '5e+42',
         '5e-42',
@@ -249,7 +254,7 @@ def test_domain_cpp_ast_expressions():
         ".4'5'6e7'8'9",
         "1'2'3.4'5'6e7'8'9",
     ]
-    hexFloats = [
+    hex_floats = [
         'ApF',
         'Ap+F',
         'Ap-F',
@@ -270,17 +275,17 @@ def test_domain_cpp_ast_expressions():
         ".D'E'Fp1'2'3",
         "A'B'C.D'E'Fp1'2'3",
     ]
-    for suffix in ['', 'f', 'F', 'l', 'L']:
-        for e in decimalFloats:
+    for suffix in ('', 'f', 'F', 'l', 'L'):
+        for e in decimal_floats:
             expr = e + suffix
-            exprCheck(expr, 'L' + expr.replace("'", '') + 'E')
-        for e in hexFloats:
+            expr_check(expr, 'L' + expr.replace("'", '') + 'E')
+        for e in hex_floats:
             expr = '0x' + e + suffix
-            exprCheck(expr, 'L' + expr.replace("'", '') + 'E')
-    exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
-    exprCheck('this', 'fpT')
+            expr_check(expr, 'L' + expr.replace("'", '') + 'E')
+    expr_check('"abc\\"cba"', 'LA8_KcE')  # string
+    expr_check('this', 'fpT')
     # character literals
-    charPrefixAndIds = [('', 'c'), ('u8', 'c'), ('u', 'Ds'), ('U', 'Di'), ('L', 'w')]
+    char_prefix_and_ids = [('', 'c'), ('u8', 'c'), ('u', 'Ds'), ('U', 'Di'), ('L', 'w')]
     chars = [
         ('a', '97'),
         ('\\n', '10'),
@@ -293,159 +298,159 @@ def test_domain_cpp_ast_expressions():
         ('\\U0001f34c', '127820'),
         ('\\U0001F34C', '127820'),
     ]
-    for p, t in charPrefixAndIds:
+    for p, t in char_prefix_and_ids:
         for c, val in chars:
-            exprCheck(f"{p}'{c}'", t + val)
+            expr_check(f"{p}'{c}'", t + val)
     # user-defined literals
     for i in ints:
-        exprCheck(i + '_udl', 'clL_Zli4_udlEL' + i.replace("'", '') + 'EE')
-        exprCheck(i + 'uludl', 'clL_Zli5uludlEL' + i.replace("'", '') + 'EE')
-    for f in decimalFloats:
-        exprCheck(f + '_udl', 'clL_Zli4_udlEL' + f.replace("'", '') + 'EE')
-        exprCheck(f + 'fudl', 'clL_Zli4fudlEL' + f.replace("'", '') + 'EE')
-    for f in hexFloats:
-        exprCheck('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f.replace("'", '') + 'EE')
-    for p, t in charPrefixAndIds:
+        expr_check(i + '_udl', 'clL_Zli4_udlEL' + i.replace("'", '') + 'EE')
+        expr_check(i + 'uludl', 'clL_Zli5uludlEL' + i.replace("'", '') + 'EE')
+    for f in decimal_floats:
+        expr_check(f + '_udl', 'clL_Zli4_udlEL' + f.replace("'", '') + 'EE')
+        expr_check(f + 'fudl', 'clL_Zli4fudlEL' + f.replace("'", '') + 'EE')
+    for f in hex_floats:
+        expr_check('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f.replace("'", '') + 'EE')
+    for p, t in char_prefix_and_ids:
         for c, val in chars:
-            exprCheck(f"{p}'{c}'_udl", 'clL_Zli4_udlE' + t + val + 'E')
-    exprCheck('"abc"_udl', 'clL_Zli4_udlELA3_KcEE')
-    # from issue #7294
-    exprCheck('6.62607015e-34q_J', 'clL_Zli3q_JEL6.62607015e-34EE')
+            expr_check(f"{p}'{c}'_udl", 'clL_Zli4_udlE' + t + val + 'E')
+    expr_check('"abc"_udl', 'clL_Zli4_udlELA3_KcEE')
+    # from https://github.com/sphinx-doc/sphinx/issues/7294
+    expr_check('6.62607015e-34q_J', 'clL_Zli3q_JEL6.62607015e-34EE')
 
     # fold expressions, paren, name
-    exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
-    exprCheck('(Ns + ...)', '(Ns + ...)', id4='frpl2Ns')
-    exprCheck('(Ns + ... + 0)', '(Ns + ... + 0)', id4='fLpl2NsL0E')
-    exprCheck('(5)', 'L5E')
-    exprCheck('C', '1C')
+    expr_check('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
+    expr_check('(Ns + ...)', '(Ns + ...)', id4='frpl2Ns')
+    expr_check('(Ns + ... + 0)', '(Ns + ... + 0)', id4='fLpl2NsL0E')
+    expr_check('(5)', 'L5E')
+    expr_check('C', '1C')
     # postfix
-    exprCheck('A(2)', 'cl1AL2EE')
-    exprCheck('A[2]', 'ix1AL2E')
-    exprCheck('a.b.c', 'dtdt1a1b1c')
-    exprCheck('a->b->c', 'ptpt1a1b1c')
-    exprCheck('i++', 'pp1i')
-    exprCheck('i--', 'mm1i')
-    exprCheck('dynamic_cast<T&>(i)++', 'ppdcR1T1i')
-    exprCheck('static_cast<T&>(i)++', 'ppscR1T1i')
-    exprCheck('reinterpret_cast<T&>(i)++', 'pprcR1T1i')
-    exprCheck('const_cast<T&>(i)++', 'ppccR1T1i')
-    exprCheck('typeid(T).name', 'dtti1T4name')
-    exprCheck('typeid(a + b).name', 'dttepl1a1b4name')
+    expr_check('A(2)', 'cl1AL2EE')
+    expr_check('A[2]', 'ix1AL2E')
+    expr_check('a.b.c', 'dtdt1a1b1c')
+    expr_check('a->b->c', 'ptpt1a1b1c')
+    expr_check('i++', 'pp1i')
+    expr_check('i--', 'mm1i')
+    expr_check('dynamic_cast<T&>(i)++', 'ppdcR1T1i')
+    expr_check('static_cast<T&>(i)++', 'ppscR1T1i')
+    expr_check('reinterpret_cast<T&>(i)++', 'pprcR1T1i')
+    expr_check('const_cast<T&>(i)++', 'ppccR1T1i')
+    expr_check('typeid(T).name', 'dtti1T4name')
+    expr_check('typeid(a + b).name', 'dttepl1a1b4name')
     # unary
-    exprCheck('++5', 'pp_L5E')
-    exprCheck('--5', 'mm_L5E')
-    exprCheck('*5', 'deL5E')
-    exprCheck('&5', 'adL5E')
-    exprCheck('+5', 'psL5E')
-    exprCheck('-5', 'ngL5E')
-    exprCheck('!5', 'ntL5E')
-    exprCheck('not 5', 'ntL5E')
-    exprCheck('~5', 'coL5E')
-    exprCheck('compl 5', 'coL5E')
-    exprCheck('sizeof...(a)', 'sZ1a')
-    exprCheck('sizeof(T)', 'st1T')
-    exprCheck('sizeof -42', 'szngL42E')
-    exprCheck('alignof(T)', 'at1T')
-    exprCheck('noexcept(-42)', 'nxngL42E')
+    expr_check('++5', 'pp_L5E')
+    expr_check('--5', 'mm_L5E')
+    expr_check('*5', 'deL5E')
+    expr_check('&5', 'adL5E')
+    expr_check('+5', 'psL5E')
+    expr_check('-5', 'ngL5E')
+    expr_check('!5', 'ntL5E')
+    expr_check('not 5', 'ntL5E')
+    expr_check('~5', 'coL5E')
+    expr_check('compl 5', 'coL5E')
+    expr_check('sizeof...(a)', 'sZ1a')
+    expr_check('sizeof(T)', 'st1T')
+    expr_check('sizeof -42', 'szngL42E')
+    expr_check('alignof(T)', 'at1T')
+    expr_check('noexcept(-42)', 'nxngL42E')
     # new-expression
-    exprCheck('new int', 'nw_iE')
-    exprCheck('new volatile int', 'nw_ViE')
-    exprCheck('new int[42]', 'nw_AL42E_iE')
-    exprCheck('new int()', 'nw_ipiE')
-    exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
-    exprCheck('::new int', 'nw_iE')
-    exprCheck('new int{{}}', 'nw_iilE')
-    exprCheck('new int{{5, 42}}', 'nw_iilL5EL42EE')
+    expr_check('new int', 'nw_iE')
+    expr_check('new volatile int', 'nw_ViE')
+    expr_check('new int[42]', 'nw_AL42E_iE')
+    expr_check('new int()', 'nw_ipiE')
+    expr_check('new int(5, 42)', 'nw_ipiL5EL42EE')
+    expr_check('::new int', 'nw_iE')
+    expr_check('new int{{}}', 'nw_iilE')
+    expr_check('new int{{5, 42}}', 'nw_iilL5EL42EE')
     # delete-expression
-    exprCheck('delete p', 'dl1p')
-    exprCheck('delete [] p', 'da1p')
-    exprCheck('::delete p', 'dl1p')
-    exprCheck('::delete [] p', 'da1p')
+    expr_check('delete p', 'dl1p')
+    expr_check('delete [] p', 'da1p')
+    expr_check('::delete p', 'dl1p')
+    expr_check('::delete [] p', 'da1p')
     # cast
-    exprCheck('(int)2', 'cviL2E')
+    expr_check('(int)2', 'cviL2E')
     # binary op
-    exprCheck('5 || 42', 'ooL5EL42E')
-    exprCheck('5 or 42', 'ooL5EL42E')
-    exprCheck('5 && 42', 'aaL5EL42E')
-    exprCheck('5 and 42', 'aaL5EL42E')
-    exprCheck('5 | 42', 'orL5EL42E')
-    exprCheck('5 bitor 42', 'orL5EL42E')
-    exprCheck('5 ^ 42', 'eoL5EL42E')
-    exprCheck('5 xor 42', 'eoL5EL42E')
-    exprCheck('5 & 42', 'anL5EL42E')
-    exprCheck('5 bitand 42', 'anL5EL42E')
+    expr_check('5 || 42', 'ooL5EL42E')
+    expr_check('5 or 42', 'ooL5EL42E')
+    expr_check('5 && 42', 'aaL5EL42E')
+    expr_check('5 and 42', 'aaL5EL42E')
+    expr_check('5 | 42', 'orL5EL42E')
+    expr_check('5 bitor 42', 'orL5EL42E')
+    expr_check('5 ^ 42', 'eoL5EL42E')
+    expr_check('5 xor 42', 'eoL5EL42E')
+    expr_check('5 & 42', 'anL5EL42E')
+    expr_check('5 bitand 42', 'anL5EL42E')
     # ['==', '!=']
-    exprCheck('5 == 42', 'eqL5EL42E')
-    exprCheck('5 != 42', 'neL5EL42E')
-    exprCheck('5 not_eq 42', 'neL5EL42E')
+    expr_check('5 == 42', 'eqL5EL42E')
+    expr_check('5 != 42', 'neL5EL42E')
+    expr_check('5 not_eq 42', 'neL5EL42E')
     # ['<=', '>=', '<', '>', '<=>']
-    exprCheck('5 <= 42', 'leL5EL42E')
-    exprCheck('A <= 42', 'le1AL42E')
-    exprCheck('5 >= 42', 'geL5EL42E')
-    exprCheck('5 < 42', 'ltL5EL42E')
-    exprCheck('A < 42', 'lt1AL42E')
-    exprCheck('5 > 42', 'gtL5EL42E')
-    exprCheck('A > 42', 'gt1AL42E')
-    exprCheck('5 <=> 42', 'ssL5EL42E')
-    exprCheck('A <=> 42', 'ss1AL42E')
+    expr_check('5 <= 42', 'leL5EL42E')
+    expr_check('A <= 42', 'le1AL42E')
+    expr_check('5 >= 42', 'geL5EL42E')
+    expr_check('5 < 42', 'ltL5EL42E')
+    expr_check('A < 42', 'lt1AL42E')
+    expr_check('5 > 42', 'gtL5EL42E')
+    expr_check('A > 42', 'gt1AL42E')
+    expr_check('5 <=> 42', 'ssL5EL42E')
+    expr_check('A <=> 42', 'ss1AL42E')
     # ['<<', '>>']
-    exprCheck('5 << 42', 'lsL5EL42E')
-    exprCheck('A << 42', 'ls1AL42E')
-    exprCheck('5 >> 42', 'rsL5EL42E')
+    expr_check('5 << 42', 'lsL5EL42E')
+    expr_check('A << 42', 'ls1AL42E')
+    expr_check('5 >> 42', 'rsL5EL42E')
     # ['+', '-']
-    exprCheck('5 + 42', 'plL5EL42E')
-    exprCheck('5 - 42', 'miL5EL42E')
+    expr_check('5 + 42', 'plL5EL42E')
+    expr_check('5 - 42', 'miL5EL42E')
     # ['*', '/', '%']
-    exprCheck('5 * 42', 'mlL5EL42E')
-    exprCheck('5 / 42', 'dvL5EL42E')
-    exprCheck('5 % 42', 'rmL5EL42E')
+    expr_check('5 * 42', 'mlL5EL42E')
+    expr_check('5 / 42', 'dvL5EL42E')
+    expr_check('5 % 42', 'rmL5EL42E')
     # ['.*', '->*']
-    exprCheck('5 .* 42', 'dsL5EL42E')
-    exprCheck('5 ->* 42', 'pmL5EL42E')
+    expr_check('5 .* 42', 'dsL5EL42E')
+    expr_check('5 ->* 42', 'pmL5EL42E')
     # conditional
-    exprCheck('5 ? 7 : 3', 'quL5EL7EL3E')
+    expr_check('5 ? 7 : 3', 'quL5EL7EL3E')
     # assignment
-    exprCheck('a = 5', 'aS1aL5E')
-    exprCheck('a *= 5', 'mL1aL5E')
-    exprCheck('a /= 5', 'dV1aL5E')
-    exprCheck('a %= 5', 'rM1aL5E')
-    exprCheck('a += 5', 'pL1aL5E')
-    exprCheck('a -= 5', 'mI1aL5E')
-    exprCheck('a >>= 5', 'rS1aL5E')
-    exprCheck('a <<= 5', 'lS1aL5E')
-    exprCheck('a &= 5', 'aN1aL5E')
-    exprCheck('a and_eq 5', 'aN1aL5E')
-    exprCheck('a ^= 5', 'eO1aL5E')
-    exprCheck('a xor_eq 5', 'eO1aL5E')
-    exprCheck('a |= 5', 'oR1aL5E')
-    exprCheck('a or_eq 5', 'oR1aL5E')
-    exprCheck('a = {{1, 2, 3}}', 'aS1ailL1EL2EL3EE')
+    expr_check('a = 5', 'aS1aL5E')
+    expr_check('a *= 5', 'mL1aL5E')
+    expr_check('a /= 5', 'dV1aL5E')
+    expr_check('a %= 5', 'rM1aL5E')
+    expr_check('a += 5', 'pL1aL5E')
+    expr_check('a -= 5', 'mI1aL5E')
+    expr_check('a >>= 5', 'rS1aL5E')
+    expr_check('a <<= 5', 'lS1aL5E')
+    expr_check('a &= 5', 'aN1aL5E')
+    expr_check('a and_eq 5', 'aN1aL5E')
+    expr_check('a ^= 5', 'eO1aL5E')
+    expr_check('a xor_eq 5', 'eO1aL5E')
+    expr_check('a |= 5', 'oR1aL5E')
+    expr_check('a or_eq 5', 'oR1aL5E')
+    expr_check('a = {{1, 2, 3}}', 'aS1ailL1EL2EL3EE')
     # complex assignment and conditional
-    exprCheck('5 = 6 = 7', 'aSL5EaSL6EL7E')
-    exprCheck('5 = 6 ? 7 = 8 : 3', 'aSL5EquL6EaSL7EL8EL3E')
+    expr_check('5 = 6 = 7', 'aSL5EaSL6EL7E')
+    expr_check('5 = 6 ? 7 = 8 : 3', 'aSL5EquL6EaSL7EL8EL3E')
     # comma operator
-    exprCheck('a, 5', 'cm1aL5E')
+    expr_check('a, 5', 'cm1aL5E')
 
     # Additional tests
     # a < expression that starts with something that could be a template
-    exprCheck('A < 42', 'lt1AL42E')
+    expr_check('A < 42', 'lt1AL42E')
     check(
         'function',
         'template<> void f(A<B, 2> &v)',
         {2: 'IE1fR1AI1BX2EE', 3: 'IE1fR1AI1BXL2EEE', 4: 'IE1fvR1AI1BXL2EEE'},
     )
-    exprCheck('A<1>::value', 'N1AIXL1EEE5valueE')
+    expr_check('A<1>::value', 'N1AIXL1EEE5valueE')
     check('class', 'template<int T = 42> {key}A', {2: 'I_iE1A'})
     check('enumerator', '{key}A = std::numeric_limits<unsigned long>::max()', {2: '1A'})
 
-    exprCheck('operator()()', 'clclE')
-    exprCheck('operator()<int>()', 'clclIiEE')
+    expr_check('operator()()', 'clclE')
+    expr_check('operator()<int>()', 'clclIiEE')
 
     # pack expansion
-    exprCheck('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
+    expr_check('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
 
 
-def test_domain_cpp_ast_type_definitions():
+def test_domain_cpp_ast_type_definitions() -> None:
     check('type', 'public bool b', {1: 'b', 2: '1b'}, '{key}bool b', key='typedef')
     check('type', '{key}bool A::b', {1: 'A::b', 2: 'N1A1bE'}, key='typedef')
     check('type', '{key}bool *b', {1: 'b', 2: '1b'}, key='typedef')
@@ -498,7 +503,8 @@ def test_domain_cpp_ast_type_definitions():
     check('type', '{key}A = B', {2: '1A'}, key='using')
     check('type', '{key}A = decltype(b)', {2: '1A'}, key='using')
 
-    # from breathe#267 (named function parameters for function pointers
+    # from https://github.com/breathe-doc/breathe/issues/267
+    # (named function parameters for function pointers
     check(
         'type',
         '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
@@ -524,7 +530,7 @@ def test_domain_cpp_ast_type_definitions():
     check('type', '{key}T = Q<A::operator bool>', {2: '1T'}, key='using')
 
 
-def test_domain_cpp_ast_concept_definitions():
+def test_domain_cpp_ast_concept_definitions() -> None:
     check(
         'concept',
         'template<typename Param> {key}A::B::Concept',
@@ -541,7 +547,7 @@ def test_domain_cpp_ast_concept_definitions():
         parse('concept', 'template<typename T> template<typename U> {key}Foo')
 
 
-def test_domain_cpp_ast_member_definitions():
+def test_domain_cpp_ast_member_definitions() -> None:
     check(
         'member',
         '  const  std::string  &  name = 42',
@@ -592,7 +598,7 @@ def test_domain_cpp_ast_member_definitions():
     check('member', 'constinit int n', {1: 'n__i', 2: '1n'})
 
 
-def test_domain_cpp_ast_function_definitions():
+def test_domain_cpp_ast_function_definitions() -> None:
     check('function', 'void f(volatile int)', {1: 'f__iV', 2: '1fVi'})
     check('function', 'void f(std::size_t)', {1: 'f__std::s', 2: '1fNSt6size_tE'})
     check('function', 'operator bool() const', {1: 'castto-b-operatorC', 2: 'NKcvbEv'})
@@ -823,7 +829,8 @@ def test_domain_cpp_ast_function_definitions():
         {1: 'result__i.std::error_categoryCR', 2: '6resultiRKNSt14error_categoryE'},
     )
     check('function', 'int *f()', {1: 'f', 2: '1fv'})
-    # tests derived from issue #1753 (skip to keep sanity)
+    # tests derived from https://github.com/sphinx-doc/sphinx/issues/1753
+    # (skip to keep sanity)
     check('function', 'f(int (&array)[10])', {2: '1fRA10_i', 3: '1fRAL10E_i'})
     check('function', 'void f(int (&array)[10])', {2: '1fRA10_i', 3: '1fRAL10E_i'})
     check('function', 'void f(float *q(double))', {2: '1fFPfdE'})
@@ -860,7 +867,7 @@ def test_domain_cpp_ast_function_definitions():
         {1: 'f__osR.i', 2: '1fRNSt7ostreamEi'},
     )
 
-    # from breathe#223
+    # from https://github.com/breathe-doc/breathe/issues/223
     check('function', 'void f(struct E e)', {1: 'f__E', 2: '1f1E'})
     check('function', 'void f(class E e)', {1: 'f__E', 2: '1f1E'})
     check('function', 'void f(typename E e)', {1: 'f__E', 2: '1f1E'})
@@ -907,21 +914,21 @@ def test_domain_cpp_ast_function_definitions():
     check('function', 'template<typename T> int f()', ids)
     check('function', 'template<typename T> f() -> int', ids)
 
-    # from breathe#441
+    # from https://github.com/breathe-doc/breathe/issues/441
     check(
         'function',
         'auto MakeThingy() -> Thingy*',
         {1: 'MakeThingy', 2: '10MakeThingyv'},
     )
 
-    # from #8960
+    # from https://github.com/sphinx-doc/sphinx/issues/8960
     check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
 
-    # from #9535 comment
+    # from https://github.com/sphinx-doc/sphinx/issues/9535 comment
     check('function', 'void f(void (*p)(int) = &foo)', {2: '1fPFviE'})
 
 
-def test_domain_cpp_ast_operators():
+def test_domain_cpp_ast_operators() -> None:
     check('function', 'void operator new()', {1: 'new-operator', 2: 'nwv'})
     check('function', 'void operator new[]()', {1: 'new-array-operator', 2: 'nav'})
     check('function', 'void operator delete()', {1: 'delete-operator', 2: 'dlv'})
@@ -985,14 +992,14 @@ def test_domain_cpp_ast_operators():
     check('function', 'void operator[]()', {1: 'subscript-operator', 2: 'ixv'})
 
 
-def test_domain_cpp_ast_nested_name():
+def test_domain_cpp_ast_nested_name() -> None:
     check('class', '{key}::A', {1: 'A', 2: '1A'})
     check('class', '{key}::A::B', {1: 'A::B', 2: 'N1A1BE'})
     check('function', 'void f(::A a)', {1: 'f__A', 2: '1f1A'})
     check('function', 'void f(::A::B a)', {1: 'f__A::B', 2: '1fN1A1BE'})
 
 
-def test_domain_cpp_ast_class_definitions():
+def test_domain_cpp_ast_class_definitions() -> None:
     check('class', 'public A', {1: 'A', 2: '1A'}, output='{key}A')
     check('class', 'private {key}A', {1: 'A', 2: '1A'})
     check('class', '{key}A final', {1: 'A', 2: '1A'})
@@ -1017,7 +1024,7 @@ def test_domain_cpp_ast_class_definitions():
     check('class', '{key}A : B, C...', {1: 'A', 2: '1A'})
     check('class', '{key}A : B..., C', {1: 'A', 2: '1A'})
 
-    # from #4094
+    # from https://github.com/sphinx-doc/sphinx/issues/4094
     check(
         'class',
         'template<class, class = std::void_t<>> {key}has_var',
@@ -1041,11 +1048,11 @@ def test_domain_cpp_ast_class_definitions():
     )
 
 
-def test_domain_cpp_ast_union_definitions():
+def test_domain_cpp_ast_union_definitions() -> None:
     check('union', '{key}A', {2: '1A'})
 
 
-def test_domain_cpp_ast_enum_definitions():
+def test_domain_cpp_ast_enum_definitions() -> None:
     check('enum', '{key}A', {2: '1A'})
     check('enum', '{key}A : std::underlying_type<B>::type', {2: '1A'})
     check('enum', '{key}A : unsigned int', {2: '1A'})
@@ -1056,22 +1063,22 @@ def test_domain_cpp_ast_enum_definitions():
     check('enumerator', '{key}A = std::numeric_limits<unsigned long>::max()', {2: '1A'})
 
 
-def test_domain_cpp_ast_anon_definitions():
-    check('class', '@a', {3: 'Ut1_a'}, asTextOutput='class [anonymous]')
-    check('union', '@a', {3: 'Ut1_a'}, asTextOutput='union [anonymous]')
-    check('enum', '@a', {3: 'Ut1_a'}, asTextOutput='enum [anonymous]')
-    check('class', '@1', {3: 'Ut1_1'}, asTextOutput='class [anonymous]')
-    check('class', '@a::A', {3: 'NUt1_a1AE'}, asTextOutput='class [anonymous]::A')
+def test_domain_cpp_ast_anon_definitions() -> None:
+    check('class', '@a', {3: 'Ut1_a'}, as_text_output='class [anonymous]')
+    check('union', '@a', {3: 'Ut1_a'}, as_text_output='union [anonymous]')
+    check('enum', '@a', {3: 'Ut1_a'}, as_text_output='enum [anonymous]')
+    check('class', '@1', {3: 'Ut1_1'}, as_text_output='class [anonymous]')
+    check('class', '@a::A', {3: 'NUt1_a1AE'}, as_text_output='class [anonymous]::A')
 
     check(
         'function',
         'int f(int @a)',
         {1: 'f__i', 2: '1fi'},
-        asTextOutput='int f(int [anonymous])',
+        as_text_output='int f(int [anonymous])',
     )
 
 
-def test_domain_cpp_ast_templates():
+def test_domain_cpp_ast_templates() -> None:
     check('class', 'A<T>', {2: 'IE1AI1TE'}, output='template<> {key}A<T>')
     # first just check which objects support templating
     check('class', 'template<> {key}A', {2: 'IE1A'})
@@ -1116,7 +1123,7 @@ def test_domain_cpp_ast_templates():
 
     check('class', 'template<typename A<B>::C> {key}A', {2: 'I_N1AI1BE1CEE1A'})
     check('class', 'template<typename A<B>::C = 42> {key}A', {2: 'I_N1AI1BE1CEE1A'})
-    # from #7944
+    # from https://github.com/sphinx-doc/sphinx/issues/7944
     check(
         'function',
         'template<typename T, '
@@ -1131,7 +1138,7 @@ def test_domain_cpp_ast_templates():
 
     check('class', 'template<> {key}A<NS::B<>>', {2: 'IE1AIN2NS1BIEEE'})
 
-    # from #2058
+    # from https://github.com/sphinx-doc/sphinx/issues/2058
     check(
         'function',
         'template<typename Char, typename Traits> '
@@ -1261,7 +1268,7 @@ def test_domain_cpp_ast_templates():
     )
 
 
-def test_domain_cpp_ast_placeholder_types():
+def test_domain_cpp_ast_placeholder_types() -> None:
     check(
         'function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'}
     )
@@ -1288,7 +1295,7 @@ def test_domain_cpp_ast_placeholder_types():
     )
 
 
-def test_domain_cpp_ast_requires_clauses():
+def test_domain_cpp_ast_requires_clauses() -> None:
     check(
         'function',
         'template<typename T> requires A auto f() -> void requires B',
@@ -1343,19 +1350,18 @@ def test_domain_cpp_ast_requires_clauses():
     )
 
 
-def test_domain_cpp_ast_template_args():
-    # from breathe#218
+def test_domain_cpp_ast_template_args() -> None:
+    # from https://github.com/breathe-doc/breathe/issues/218
     check(
         'function',
-        'template<typename F> '
-        'void allow(F *f, typename func<F, B, G != 1>::type tt)',
+        'template<typename F> void allow(F *f, typename func<F, B, G != 1>::type tt)',
         {
             2: 'I0E5allowP1FN4funcI1F1BXG != 1EE4typeE',
             3: 'I0E5allowP1FN4funcI1F1BXne1GL1EEE4typeE',
             4: 'I0E5allowvP1FN4funcI1F1BXne1GL1EEE4typeE',
         },
     )
-    # from #3542
+    # from https://github.com/sphinx-doc/sphinx/issues/3542
     check(
         'type',
         'template<typename T> {key}'
@@ -1365,41 +1371,41 @@ def test_domain_cpp_ast_template_args():
     )
 
 
-def test_domain_cpp_ast_initializers():
-    idsMember = {1: 'v__T', 2: '1v'}
-    idsFunction = {1: 'f__T', 2: '1f1T'}
-    idsTemplate = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
+def test_domain_cpp_ast_initializers() -> None:
+    ids_member = {1: 'v__T', 2: '1v'}
+    ids_function = {1: 'f__T', 2: '1f1T'}
+    ids_template = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
     # no init
-    check('member', 'T v', idsMember)
-    check('function', 'void f(T v)', idsFunction)
-    check('function', 'template<T v> void f()', idsTemplate)
+    check('member', 'T v', ids_member)
+    check('function', 'void f(T v)', ids_function)
+    check('function', 'template<T v> void f()', ids_template)
     # with '=', assignment-expression
-    check('member', 'T v = 42', idsMember)
-    check('function', 'void f(T v = 42)', idsFunction)
-    check('function', 'template<T v = 42> void f()', idsTemplate)
+    check('member', 'T v = 42', ids_member)
+    check('function', 'void f(T v = 42)', ids_function)
+    check('function', 'template<T v = 42> void f()', ids_template)
     # with '=', braced-init
-    check('member', 'T v = {}', idsMember)
-    check('function', 'void f(T v = {})', idsFunction)
-    check('function', 'template<T v = {}> void f()', idsTemplate)
-    check('member', 'T v = {42, 42, 42}', idsMember)
-    check('function', 'void f(T v = {42, 42, 42})', idsFunction)
-    check('function', 'template<T v = {42, 42, 42}> void f()', idsTemplate)
-    check('member', 'T v = {42, 42, 42,}', idsMember)
-    check('function', 'void f(T v = {42, 42, 42,})', idsFunction)
-    check('function', 'template<T v = {42, 42, 42,}> void f()', idsTemplate)
-    check('member', 'T v = {42, 42, args...}', idsMember)
-    check('function', 'void f(T v = {42, 42, args...})', idsFunction)
-    check('function', 'template<T v = {42, 42, args...}> void f()', idsTemplate)
+    check('member', 'T v = {}', ids_member)
+    check('function', 'void f(T v = {})', ids_function)
+    check('function', 'template<T v = {}> void f()', ids_template)
+    check('member', 'T v = {42, 42, 42}', ids_member)
+    check('function', 'void f(T v = {42, 42, 42})', ids_function)
+    check('function', 'template<T v = {42, 42, 42}> void f()', ids_template)
+    check('member', 'T v = {42, 42, 42,}', ids_member)
+    check('function', 'void f(T v = {42, 42, 42,})', ids_function)
+    check('function', 'template<T v = {42, 42, 42,}> void f()', ids_template)
+    check('member', 'T v = {42, 42, args...}', ids_member)
+    check('function', 'void f(T v = {42, 42, args...})', ids_function)
+    check('function', 'template<T v = {42, 42, args...}> void f()', ids_template)
     # without '=', braced-init
-    check('member', 'T v{}', idsMember)
-    check('member', 'T v{42, 42, 42}', idsMember)
-    check('member', 'T v{42, 42, 42,}', idsMember)
-    check('member', 'T v{42, 42, args...}', idsMember)
+    check('member', 'T v{}', ids_member)
+    check('member', 'T v{42, 42, 42}', ids_member)
+    check('member', 'T v{42, 42, 42,}', ids_member)
+    check('member', 'T v{42, 42, args...}', ids_member)
     # other
-    check('member', 'T v = T{}', idsMember)
+    check('member', 'T v = T{}', ids_member)
 
 
-def test_domain_cpp_ast_attributes():
+def test_domain_cpp_ast_attributes() -> None:
     # style: C++
     check('member', '[[]] int f', {1: 'f__i', 2: '1f'})
     check(
@@ -1476,7 +1482,7 @@ def check_ast_xref_parsing(target):
     parser.assert_end()
 
 
-def test_domain_cpp_ast_xref_parsing():
+def test_domain_cpp_ast_xref_parsing() -> None:
     check_ast_xref_parsing('f')
     check_ast_xref_parsing('f()')
     check_ast_xref_parsing('void f()')
@@ -1518,7 +1524,7 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
     assert ast.isPack == is_pack
 
 
-# def test_print():
+# def test_print() -> None:
 #     # used for getting all the ids out for checking
 #     for a in ids:
 #         print(a)
@@ -1602,7 +1608,7 @@ def test_domain_cpp_build_misuse_of_roles(app):
 
     ws = filter_warnings(app.warning, 'roles-targets-warn')
     # the roles that should be able to generate warnings:
-    allRoles = [
+    all_roles = [
         'class',
         'struct',
         'union',
@@ -1614,7 +1620,7 @@ def test_domain_cpp_build_misuse_of_roles(app):
         'enum',
         'enumerator',
     ]
-    ok = [  # targetType, okRoles
+    ok = [  # target_type, ok_roles
         ('class', ['class', 'struct', 'type']),
         ('union', ['union', 'type']),
         ('func', ['func', 'type']),
@@ -1627,14 +1633,16 @@ def test_domain_cpp_build_misuse_of_roles(app):
         ('templateParam', ['class', 'struct', 'union', 'member', 'var', 'type']),
     ]
     warn = []
-    for targetType, roles in ok:
-        txtTargetType = 'function' if targetType == 'func' else targetType
-        for r in allRoles:
+    for target_type, roles in ok:
+        txt_target_type = 'function' if target_type == 'func' else target_type
+        for r in all_roles:
             if r not in roles:
-                warn.append(f'WARNING: cpp:{r} targets a {txtTargetType} (')
-                if targetType == 'templateParam':
-                    warn.append(f'WARNING: cpp:{r} targets a {txtTargetType} (')
-                    warn.append(f'WARNING: cpp:{r} targets a {txtTargetType} (')
+                warn.append(f'WARNING: cpp:{r} targets a {txt_target_type} (')
+                if target_type == 'templateParam':
+                    warn.extend((
+                        f'WARNING: cpp:{r} targets a {txt_target_type} (',
+                        f'WARNING: cpp:{r} targets a {txt_target_type} (',
+                    ))
     warn = sorted(warn)
     for w in ws:
         assert 'targets a' in w
@@ -1661,14 +1669,14 @@ def test_domain_cpp_build_misuse_of_roles(app):
 def test_domain_cpp_build_with_add_function_parentheses_is_True(app):
     app.build(force_all=True)
 
-    rolePatterns = [
+    role_patterns = [
         'Sphinx',
         'Sphinx::version',
         'version',
         'List',
         'MyEnum',
     ]
-    parenPatterns = [
+    paren_patterns = [
         ('ref function without parens ', r'paren_1\(\)'),
         ('ref function with parens ', r'paren_2\(\)'),
         ('ref function without parens, explicit title ', 'paren_3_title'),
@@ -1680,19 +1688,19 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app):
     ]
 
     text = (app.outdir / 'roles.html').read_text(encoding='utf8')
-    for ref_text in rolePatterns:
+    for ref_text in role_patterns:
         pattern = (
             f'<li><p><a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
         )
         match = re.search(pattern, text)
         assert match is not None, f'Pattern not found in roles.html:\n\t{pattern}'
-    for desc_text, ref_text in parenPatterns:
+    for desc_text, ref_text in paren_patterns:
         pattern = f'<li><p>{desc_text}<a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
         match = re.search(pattern, text)
         assert match is not None, f'Pattern not found in roles.html:\n\t{pattern}'
 
     text = (app.outdir / 'any-role.html').read_text(encoding='utf8')
-    for desc_text, ref_text in parenPatterns:
+    for desc_text, ref_text in paren_patterns:
         pattern = f'<li><p>{desc_text}<a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
         match = re.search(pattern, text)
         assert match is not None, f'Pattern not found in any-role.html:\n\t{pattern}'
@@ -1706,14 +1714,14 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app):
 def test_domain_cpp_build_with_add_function_parentheses_is_False(app):
     app.build(force_all=True)
 
-    rolePatterns = [
+    role_patterns = [
         'Sphinx',
         'Sphinx::version',
         'version',
         'List',
         'MyEnum',
     ]
-    parenPatterns = [
+    paren_patterns = [
         ('ref function without parens ', 'paren_1'),
         ('ref function with parens ', 'paren_2'),
         ('ref function without parens, explicit title ', 'paren_3_title'),
@@ -1725,19 +1733,19 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app):
     ]
 
     text = (app.outdir / 'roles.html').read_text(encoding='utf8')
-    for ref_text in rolePatterns:
+    for ref_text in role_patterns:
         pattern = (
             f'<li><p><a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
         )
         match = re.search(pattern, text)
         assert match is not None, f'Pattern not found in roles.html:\n\t{pattern}'
-    for desc_text, ref_text in parenPatterns:
+    for desc_text, ref_text in paren_patterns:
         pattern = f'<li><p>{desc_text}<a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
         match = re.search(pattern, text)
         assert match is not None, f'Pattern not found in roles.html:\n\t{pattern}'
 
     text = (app.outdir / 'any-role.html').read_text(encoding='utf8')
-    for desc_text, ref_text in parenPatterns:
+    for desc_text, ref_text in paren_patterns:
         pattern = f'<li><p>{desc_text}<a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
         match = re.search(pattern, text)
         assert match is not None, f'Pattern not found in any-role.html:\n\t{pattern}'
@@ -1820,7 +1828,7 @@ def test_domain_cpp_build_field_role(app):
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_operator_lookup(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     ws = filter_warnings(app.warning, 'operator-lookup')
     assert len(ws) == 5
     # TODO: the first one should not happen
@@ -1839,7 +1847,7 @@ def test_domain_cpp_build_operator_lookup(app):
     'html', testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True}
 )
 def test_domain_cpp_build_intersphinx(tmp_path, app):
-    origSource = """\
+    orig_source = """\
 .. cpp:class:: _class
 .. cpp:struct:: _struct
 .. cpp:union:: _union
@@ -1859,7 +1867,7 @@ def test_domain_cpp_build_intersphinx(tmp_path, app):
 .. cpp:enum-class:: _enumClass
 .. cpp:function:: void _functionParam(int param)
 .. cpp:function:: template<typename TParam> void _templateParam()
-"""  # NoQA: F841
+"""
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(
         b"""\
@@ -1889,7 +1897,7 @@ _type cpp:type 1 index.html#_CPPv45$ -
 _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
 """)
-    )  # NoQA: W291
+    )
     app.config.intersphinx_mapping = {
         'test': ('https://localhost/intersphinx/cpp/', str(inv_file)),
     }
@@ -1903,12 +1911,10 @@ _var cpp:member 1 index.html#_CPPv44$ -
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_cpp_parse_no_index_entry(app):
     text = (
-        '.. cpp:function:: void f()\n'
-        '.. cpp:function:: void g()\n'
-        '   :no-index-entry:\n'
+        '.. cpp:function:: void f()\n.. cpp:function:: void g()\n   :no-index-entry:\n'
     )
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
@@ -1920,7 +1926,7 @@ def test_domain_cpp_parse_no_index_entry(app):
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_cpp_parse_mix_decl_duplicate(app):
     # Issue 8270
     text = '.. cpp:struct:: A\n.. cpp:function:: void A()\n.. cpp:struct:: A\n'
@@ -2422,7 +2428,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app):
 <dd>\
 <span class="n"><span class="pre">str</span></span>\
 <span class="w"> </span>\
-<span class="n sig-param"><span class="pre">name</span></span>,\
+<span class="n sig-param"><span class="pre">name</span></span>\
 </dd>
 </dl>
 
@@ -2441,6 +2447,6 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app):
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
 
-    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name,'))
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name'))
 
     assert expected_parameter_list_hello in content

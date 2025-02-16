@@ -1,12 +1,19 @@
 """Test the autodoc extension.  This tests mainly for private-members option."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_field(app):
+def test_private_field(app: SphinxTestApp) -> None:
     app.config.autoclass_content = 'class'
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.private', options)
@@ -33,7 +40,7 @@ def test_private_field(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_field_and_private_members(app):
+def test_private_field_and_private_members(app: SphinxTestApp) -> None:
     app.config.autoclass_content = 'class'
     options = {
         'members': None,
@@ -78,7 +85,7 @@ def test_private_field_and_private_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_members(app):
+def test_private_members(app: SphinxTestApp) -> None:
     app.config.autoclass_content = 'class'
     options = {
         'members': None,
@@ -108,7 +115,7 @@ def test_private_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_attributes(app):
+def test_private_attributes(app: SphinxTestApp) -> None:
     app.config.autoclass_content = 'class'
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.private.Foo', options)
@@ -130,7 +137,7 @@ def test_private_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_attributes_and_private_members(app):
+def test_private_attributes_and_private_members(app: SphinxTestApp) -> None:
     app.config.autoclass_content = 'class'
     options = {
         'members': None,

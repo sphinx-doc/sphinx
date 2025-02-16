@@ -1,10 +1,16 @@
 """Tests project module."""
 
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.project import Project
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 DOCNAMES = {
     'autodoc',
@@ -79,7 +85,7 @@ def test_project_path2doc(rootdir):
     testroot='basic',
     srcdir='project_doc2path',
 )
-def test_project_doc2path(app):
+def test_project_doc2path(app: SphinxTestApp) -> None:
     source_suffix = {'.rst': 'restructuredtext', '.txt': 'restructuredtext'}
 
     project = Project(app.srcdir, source_suffix)

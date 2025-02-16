@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from types import FunctionType, NoneType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -18,12 +19,29 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
 
+_DOMAIN_KEYS = {
+    'py': ['module', 'fullname'],
+    'c': ['names'],
+    'cpp': ['names'],
+    'js': ['object', 'fullname'],
+}
+
+
+def add_linkcode_domain(domain: str, keys: list[str], override: bool = False) -> None:
+    """Register a new list of keys to use for a domain.
+
+    .. versionadded:: 8.2
+    """
+    if override or domain not in _DOMAIN_KEYS:
+        _DOMAIN_KEYS[domain] = list(keys)
+
+
 class LinkcodeError(SphinxError):
-    category = "linkcode error"
+    category = 'linkcode error'
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
-    env = app.builder.env
+    env = app.env
 
     resolve_target = getattr(env.config, 'linkcode_resolve', None)
     if not callable(env.config.linkcode_resolve):
@@ -37,13 +55,6 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
     # ``supported_linkcode`` attribute.
     node_only_expr = getattr(app.builder, 'supported_linkcode', 'html')
 
-    domain_keys = {
-        'py': ['module', 'fullname'],
-        'c': ['names'],
-        'cpp': ['names'],
-        'js': ['object', 'fullname'],
-    }
-
     for objnode in list(doctree.findall(addnodes.desc)):
         domain = objnode.get('domain')
         uris: set[str] = set()
@@ -53,7 +64,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
             # Convert signode to a specified format
             info = {}
-            for key in domain_keys.get(domain, []):
+            for key in _DOMAIN_KEYS.get(domain, ()):
                 value = signode.get(key)
                 if not value:
                     value = ''
@@ -80,5 +91,10 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('doctree-read', doctree_read)
-    app.add_config_value('linkcode_resolve', None, '')
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    app.add_config_value(
+        'linkcode_resolve', None, '', types=frozenset({FunctionType, NoneType})
+    )
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

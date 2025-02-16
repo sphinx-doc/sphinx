@@ -44,6 +44,8 @@ There is a set of directives allowing documenting command-line programs:
 
 .. rst:directive:: .. confval:: name
 
+   .. versionadded:: 7.4
+
    Describes a configuration value or setting that the documented
    code or program uses or defines.
    Referenceable by :rst:role:`confval`.

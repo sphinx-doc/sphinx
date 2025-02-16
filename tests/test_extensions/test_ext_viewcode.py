@@ -6,13 +6,21 @@ import re
 import shutil
 from typing import TYPE_CHECKING
 
+import pygments
 import pytest
+
+from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
 def check_viewcode_output(app: SphinxTestApp) -> str:
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span> </span>'
+    else:
+        sp = ' '
+
     warnings = re.sub(r'\\+', '/', app.warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include "
@@ -41,10 +49,11 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
         '<a class="viewcode-back" href="../../index.html#spam.Class1">[docs]</a>\n'
     ) in result
     assert '<span>@decorator</span>\n' in result
-    assert '<span>class</span> <span>Class1</span><span>:</span>\n' in result
-    assert '<span>    </span><span>&quot;&quot;&quot;</span>\n' in result
-    assert '<span>    this is Class1</span>\n' in result
-    assert '<span>    &quot;&quot;&quot;</span>\n' in result
+    assert f'<span>class</span>{sp}<span>Class1</span><span>:</span>\n' in result
+    assert (
+        '<span>    </span>'
+        '<span>&quot;&quot;&quot;this is Class1&quot;&quot;&quot;</span></div>\n'
+    ) in result
 
     return result
 
@@ -56,7 +65,7 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     confoverrides={'viewcode_line_numbers': True},
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_viewcode_linenos(app):
+def test_viewcode_linenos(app: SphinxTestApp) -> None:
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
     app.build(force_all=True)
 
@@ -71,7 +80,7 @@ def test_viewcode_linenos(app):
     confoverrides={'viewcode_line_numbers': False},
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_viewcode(app):
+def test_viewcode(app: SphinxTestApp) -> None:
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
     app.build(force_all=True)
 
@@ -81,7 +90,7 @@ def test_viewcode(app):
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_viewcode_epub_default(app):
+def test_viewcode_epub_default(app: SphinxTestApp) -> None:
     shutil.rmtree(app.outdir)
     app.build(force_all=True)
 
@@ -97,7 +106,7 @@ def test_viewcode_epub_default(app):
     confoverrides={'viewcode_enable_epub': True},
 )
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_viewcode_epub_enabled(app):
+def test_viewcode_epub_enabled(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     assert (app.outdir / '_modules/spam/mod1.xhtml').exists()
@@ -107,7 +116,7 @@ def test_viewcode_epub_enabled(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode', tags=['test_linkcode'])
-def test_linkcode(app):
+def test_linkcode(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'objects.rst'])
 
     stuff = (app.outdir / 'objects.html').read_text(encoding='utf8')
@@ -116,10 +125,11 @@ def test_linkcode(app):
     assert 'https://foobar/js/' in stuff
     assert 'https://foobar/c/' in stuff
     assert 'https://foobar/cpp/' in stuff
+    assert 'http://foobar/rst/' in stuff
 
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode-find', freshenv=True)
-def test_local_source_files(app):
+def test_local_source_files(app: SphinxTestApp) -> None:
     def find_source(app, modname):
         if modname == 'not_a_package':
             source = app.srcdir / 'not_a_package/__init__.py'
@@ -161,3 +171,24 @@ def test_local_source_files(app):
         'This is the class attribute class_attr',
     ):
         assert result.count(needle) == 1
+
+
+@pytest.mark.sphinx('html', testroot='ext-viewcode-find-package', freshenv=True)
+def test_find_local_package_import_path(app, status, warning):
+    app.build(force_all=True)
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+
+    count_func1 = result.count(
+        'href="_modules/main_package/subpackage/_subpackage2/submodule.html#func1"'
+    )
+    assert count_func1 == 1
+
+    count_class1 = result.count(
+        'href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class1"'
+    )
+    assert count_class1 == 1
+
+    count_class3 = result.count(
+        'href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class3"'
+    )
+    assert count_class3 == 1

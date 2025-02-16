@@ -2,14 +2,19 @@
 
 # adapted from an example of bibliographic metadata at
 # https://docutils.sourceforge.io/docs/user/rst/demo.txt
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('dummy', testroot='metadata')
-def test_docinfo(app):
-    """
-    Inspect the 'docinfo' metadata stored in the first node of the document.
+def test_docinfo(app: SphinxTestApp) -> None:
+    """Inspect the 'docinfo' metadata stored in the first node of the document.
     Note this doesn't give us access to data stored in subsequence blocks
     that might be considered document metadata, such as 'abstract' or
     'dedication' blocks, or the 'meta' role. Doing otherwise is probably more

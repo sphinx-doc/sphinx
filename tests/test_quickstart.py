@@ -1,23 +1,27 @@
 """Test the sphinx.quickstart module."""
 
+from __future__ import annotations
+
 import time
-from collections.abc import Callable
 from io import StringIO
-from os import path
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx._cli.util.colour import disable_colour, enable_colour
 from sphinx.cmd import quickstart as qs
 from sphinx.testing.util import SphinxTestApp
-from sphinx.util.console import coloron, nocolor
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+    from typing import Any
 
 warnfile = StringIO()
 
 
 def setup_module():
-    nocolor()
+    disable_colour()
 
 
 def mock_input(
@@ -31,9 +35,9 @@ def mock_input(
                 'answer for %r missing and no default present' % prompt
             )
         called.add(prompt)
-        for question in answers:
+        for question, answer in answers.items():
             if prompt.startswith(qs.PROMPT_PREFIX + question):
-                return answers[question]
+                return answer
         if needanswer:
             raise AssertionError('answer for %r missing' % prompt)
         return ''
@@ -46,10 +50,10 @@ real_input: Callable[[str], str] = input
 
 def teardown_module():
     qs.term_input = real_input
-    coloron()
+    enable_colour()
 
 
-def test_do_prompt():
+def test_do_prompt() -> None:
     answers = {
         'Q2': 'v2',
         'Q3': 'v3',
@@ -57,7 +61,7 @@ def test_do_prompt():
         'Q5': 'no',
         'Q6': 'foo',
     }
-    qs.term_input = mock_input(answers)
+    qs.term_input = mock_input(answers)  # type: ignore[assignment]
 
     assert qs.do_prompt('Q1', default='v1') == 'v1'
     assert qs.do_prompt('Q3', default='v3_default') == 'v3'
@@ -68,14 +72,14 @@ def test_do_prompt():
         qs.do_prompt('Q6', validator=qs.boolean)
 
 
-def test_do_prompt_inputstrip():
+def test_do_prompt_inputstrip() -> None:
     answers = {
         'Q1': 'Y',
         'Q2': ' Yes ',
         'Q3': 'N',
         'Q4': 'N ',
     }
-    qs.term_input = mock_input(answers)
+    qs.term_input = mock_input(answers)  # type: ignore[assignment]
 
     assert qs.do_prompt('Q1') == 'Y'
     assert qs.do_prompt('Q2') == 'Yes'
@@ -83,11 +87,11 @@ def test_do_prompt_inputstrip():
     assert qs.do_prompt('Q4') == 'N'
 
 
-def test_do_prompt_with_nonascii():
+def test_do_prompt_with_nonascii() -> None:
     answers = {
         'Q1': '\u30c9\u30a4\u30c4',
     }
-    qs.term_input = mock_input(answers)
+    qs.term_input = mock_input(answers)  # type: ignore[assignment]
     result = qs.do_prompt('Q1', default='\u65e5\u672c')
     assert result == '\u30c9\u30a4\u30c4'
 
@@ -260,10 +264,7 @@ def test_extensions(tmp_path):
 def test_exits_when_existing_confpy(monkeypatch):
     # The code detects existing conf.py with path.is_file()
     # so we mock it as True with pytest's monkeypatch
-    def mock_isfile(path):
-        return True
-
-    monkeypatch.setattr(path, 'isfile', mock_isfile)
+    monkeypatch.setattr('os.path.isfile', lambda path: True)
 
     qs.term_input = mock_input({
         'Please enter a new root path (or just Enter to exit)': '',

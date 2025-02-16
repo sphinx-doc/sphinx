@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Iterable
-from os import path
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
+from roman_numerals import RomanNumeral
 
 from sphinx import addnodes, highlighting
 from sphinx.errors import SphinxError
@@ -24,13 +24,10 @@ from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
 
-try:
-    from docutils.utils.roman import toRoman
-except ImportError:
-    # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore[no-redef, import-not-found]
-
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Any, ClassVar
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders.latex import LaTeXBuilder
@@ -100,7 +97,7 @@ class LaTeXWriter(writers.Writer):  # type: ignore[type-arg]
             self.document, self.builder, self.theme
         )
         self.document.walkabout(visitor)
-        self.output = cast(LaTeXTranslator, visitor).astext()
+        self.output = cast('LaTeXTranslator', visitor).astext()
 
 
 # Helper classes
@@ -219,8 +216,8 @@ class Table:
         self.cell_id += 1
         for col in range(width):
             for row in range(height):
-                assert self.cells[(self.row + row, self.col + col)] == 0
-                self.cells[(self.row + row, self.col + col)] = self.cell_id
+                assert self.cells[self.row + row, self.col + col] == 0
+                self.cells[self.row + row, self.col + col] = self.cell_id
 
     def cell(
         self,
@@ -246,25 +243,25 @@ class TableCell:
     """Data of a cell in a table."""
 
     def __init__(self, table: Table, row: int, col: int) -> None:
-        if table.cells[(row, col)] == 0:
+        if table.cells[row, col] == 0:
             raise IndexError
 
         self.table = table
-        self.cell_id = table.cells[(row, col)]
+        self.cell_id = table.cells[row, col]
         self.row = row
         self.col = col
 
         # adjust position for multirow/multicol cell
-        while table.cells[(self.row - 1, self.col)] == self.cell_id:
+        while table.cells[self.row - 1, self.col] == self.cell_id:
             self.row -= 1
-        while table.cells[(self.row, self.col - 1)] == self.cell_id:
+        while table.cells[self.row, self.col - 1] == self.cell_id:
             self.col -= 1
 
     @property
     def width(self) -> int:
         """Returns the cell width."""
         width = 0
-        while self.table.cells[(self.row, self.col + width)] == self.cell_id:
+        while self.table.cells[self.row, self.col + width] == self.cell_id:
             width += 1
         return width
 
@@ -272,7 +269,7 @@ class TableCell:
     def height(self) -> int:
         """Returns the cell height."""
         height = 0
-        while self.table.cells[(self.row + height, self.col)] == self.cell_id:
+        while self.table.cells[self.row + height, self.col] == self.cell_id:
             height += 1
         return height
 
@@ -291,7 +288,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
     amount, unit = match.groups()[:2]
     if scale == 100:
         float(amount)  # validate amount is float
-        if unit in ('', 'px'):
+        if unit in {'', 'px'}:
             res = r'%s\sphinxpxdimen' % amount
         elif unit == 'pt':
             res = '%sbp' % amount  # convert to 'bp'
@@ -299,7 +296,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = r'%.3f\linewidth' % (float(amount) / 100.0)
     else:
         amount_float = float(amount) * scale / 100.0
-        if unit in ('', 'px'):
+        if unit in {'', 'px'}:
             res = r'%.5f\sphinxpxdimen' % amount_float
         elif unit == 'pt':
             res = '%.5fbp' % amount_float
@@ -326,7 +323,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         # flags
         self.in_title = 0
-        self.in_production_list = 0
+        self.in_production_list = False
         self.in_footnote = 0
         self.in_caption = 0
         self.in_term = 0
@@ -564,7 +561,7 @@ class LaTeXTranslator(SphinxTranslator):
                 indices_config = frozenset(indices_config)
             else:
                 check_names = False
-            for domain in self.builder.env.domains.sorted():
+            for domain in self._domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
                     if check_names and index_name not in indices_config:
@@ -583,18 +580,19 @@ class LaTeXTranslator(SphinxTranslator):
     def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
-            template = path.join(self.builder.confdir, template_dir, template_name)
-            if path.exists(template):
-                return renderer.render(template, variables)
-            elif template.endswith('.jinja'):
-                legacy_template = template.removesuffix('.jinja') + '_t'
-                if path.exists(legacy_template):
+            template = self.builder.confdir / template_dir / template_name
+            if template.exists():
+                return renderer.render(str(template), variables)
+            elif template.suffix == '.jinja':
+                legacy_template_name = template.name.removesuffix('.jinja') + '_t'
+                legacy_template = template.with_name(legacy_template_name)
+                if legacy_template.exists():
                     logger.warning(
                         __('template %s not found; loading from legacy %s instead'),
                         template_name,
                         legacy_template,
                     )
-                    return renderer.render(legacy_template, variables)
+                    return renderer.render(str(legacy_template), variables)
 
         return renderer.render(template_name, variables)
 
@@ -673,22 +671,20 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(BLANKLINE)
         self.body.append(r'\begin{productionlist}' + CR)
-        self.in_production_list = 1
+        self.in_production_list = True
 
     def depart_productionlist(self, node: Element) -> None:
+        self.in_production_list = False
         self.body.append(r'\end{productionlist}' + BLANKLINE)
-        self.in_production_list = 0
 
     def visit_production(self, node: Element) -> None:
-        if node['tokenname']:
-            tn = node['tokenname']
-            self.body.append(self.hypertarget('grammar-token-' + tn))
-            self.body.append(r'\production{%s}{' % self.encode(tn))
-        else:
-            self.body.append(r'\productioncont{')
+        # Nothing to do, the productionlist LaTeX environment
+        # is configured to render the nodes line-by-line
+        # But see also visit_literal_strong special clause.
+        pass
 
     def depart_production(self, node: Element) -> None:
-        self.body.append('}' + CR)
+        pass
 
     def visit_transition(self, node: Element) -> None:
         self.body.append(self.elements['transition'])
@@ -956,6 +952,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = r'\sphinxparamcomma '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         if self.has_tp_list:
@@ -1015,7 +1012,7 @@ class LaTeXTranslator(SphinxTranslator):
             if (
                 opt_param_left_at_level
                 or is_required
-                and (is_last_group or next_is_required)
+                and (next_is_required or self.trailing_comma)
             ):
                 self.body.append(self.param_separator)
 
@@ -1057,13 +1054,20 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
             # If it's the first time we go down one level, add the separator before the
-            # bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.body.append(self.param_separator)
         self.body.append('}')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
@@ -1090,7 +1094,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.no_latex_floats -= 1
 
     def visit_rubric(self, node: nodes.rubric) -> None:
-        if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
+        if len(node) == 1 and node.astext() in {'Footnotes', _('Footnotes')}:
             raise nodes.SkipNode
         tag = 'subsubsection'
         if 'heading-level' in node:
@@ -1115,7 +1119,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_footnote(self, node: Element) -> None:
         self.in_footnote += 1
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         if self.in_parsed_literal:
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
         else:
@@ -1337,7 +1341,7 @@ class LaTeXTranslator(SphinxTranslator):
             if (
                 len(node) == 1
                 and isinstance(node[0], nodes.paragraph)
-                and node.astext() == ''
+                and not node.astext()
             ):
                 pass
             else:
@@ -1386,8 +1390,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_acks(self, node: Element) -> None:
         # this is a list in the source, but should be rendered as a
         # comma-separated list here
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.body.append(BLANKLINE)
         self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append(BLANKLINE)
@@ -1420,8 +1424,9 @@ class LaTeXTranslator(SphinxTranslator):
             else:
                 return get_nested_level(node.parent)
 
-        enum = 'enum%s' % toRoman(get_nested_level(node)).lower()
-        enumnext = 'enum%s' % toRoman(get_nested_level(node) + 1).lower()
+        nested_level = get_nested_level(node)
+        enum = f'enum{RomanNumeral(nested_level).to_lowercase()}'
+        enumnext = f'enum{RomanNumeral(nested_level + 1).to_lowercase()}'
         style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
         prefix = node.get('prefix', '')
         suffix = node.get('suffix', '.')
@@ -1648,7 +1653,9 @@ class LaTeXTranslator(SphinxTranslator):
         options = ''
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
-        base, ext = path.splitext(uri)
+        img_path = Path(uri)
+        base = img_path.with_suffix('')
+        ext = img_path.suffix
 
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
@@ -1657,8 +1664,8 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             cmd = rf'\sphinxincludegraphics{options}{{{{{base}}}{ext}}}'
         # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
-        if '#' in base:
-            cmd = r'{\catcode`\#=12' + cmd + '}'
+        if '#' in str(base):
+            cmd = rf'{{\catcode`\#=12{cmd}}}'
         self.body.append(cmd)
         self.body.extend(post)
 
@@ -1684,7 +1691,7 @@ class LaTeXTranslator(SphinxTranslator):
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append(r'\capstart')
             self.context.append(r'\end{sphinxfigure-in-table}\relax' + CR)
-        elif node.get('align', '') in ('left', 'right'):
+        elif node.get('align', '') in {'left', 'right'}:
             length = None
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
@@ -1816,7 +1823,7 @@ class LaTeXTranslator(SphinxTranslator):
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
-        domain = self.builder.env.domains.standard_domain
+        domain = self._domains.standard_domain
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if (
@@ -1840,7 +1847,8 @@ class LaTeXTranslator(SphinxTranslator):
             else:
                 add_target(node['refid'])
         # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
-        # TODO: investigate if a more elegant solution exists (see comments of #11093)
+        # TODO: investigate if a more elegant solution exists
+        # (see comments of https://github.com/sphinx-doc/sphinx/issues/11093)
         if node.get('ismod', False):
             # Detect if the previous nodes are label targets. If so, remove
             # the refid thereof from node['ids'] to avoid duplicated ids.
@@ -2061,9 +2069,16 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}')
 
     def visit_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            ctx = [r'\phantomsection']
+            ctx += [self.hypertarget(id_, anchor=False) for id_ in node['ids']]
+            self.body.append(''.join(ctx))
+            return
         self.body.append(r'\sphinxstyleliteralstrong{\sphinxupquote{')
 
     def depart_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.body.append('}}')
 
     def visit_abbreviation(self, node: Element) -> None:
@@ -2092,8 +2107,8 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}')
 
     def visit_thebibliography(self, node: Element) -> None:
-        citations = cast(Iterable[nodes.citation], node)
-        labels = (cast(nodes.label, citation[0]) for citation in citations)
+        citations = cast('Iterable[nodes.citation]', node)
+        labels = (cast('nodes.label', citation[0]) for citation in citations)
         longest_label = max((label.astext() for label in labels), key=len)
         if len(longest_label) > MAX_CITATION_LABEL_LENGTH:
             # adjust max width of citation labels not to break the layout
@@ -2107,7 +2122,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(r'\end{sphinxthebibliography}' + CR)
 
     def visit_citation(self, node: Element) -> None:
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         self.body.append(
             rf'\bibitem[{self.encode(label.astext())}]'
             rf'{{{node["docname"]}:{node["ids"][0]}}}'
@@ -2160,7 +2175,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(']')
 
     def visit_footnotetext(self, node: Element) -> None:
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         self.body.append('%' + CR)
         self.body.append(r'\begin{footnotetext}[%s]' % label.astext())
         self.body.append(r'\sphinxAtStartFootnote' + CR)
@@ -2443,20 +2458,20 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_system_message(self, node: Element) -> None:
         self.body.append(CR)
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         if self.in_title:
             self.body.append(r'\protect\(%s\protect\)' % node.astext())
         else:
             self.body.append(r'\(%s\)' % node.astext())
         raise nodes.SkipNode
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         if node.get('label'):
-            label = f"equation:{node['docname']}:{node['label']}"
+            label = f'equation:{node["docname"]}:{node["label"]}'
         else:
             label = None
 
-        if node.get('nowrap'):
+        if node.get('no-wrap', node.get('nowrap', False)):
             if label:
                 self.body.append(r'\label{%s}' % label)
             self.body.append(node.astext())
@@ -2469,7 +2484,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
-        label = f"equation:{node['docname']}:{node['target']}"
+        label = f'equation:{node["docname"]}:{node["target"]}'
         eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:
@@ -2486,7 +2501,7 @@ class LaTeXTranslator(SphinxTranslator):
 
 
 # FIXME: Workaround to avoid circular import
-# refs: https://github.com/sphinx-doc/sphinx/issues/5433
+# See: https://github.com/sphinx-doc/sphinx/issues/5433
 from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
     HYPERLINK_SUPPORT_NODES,
     captioned_literal_block,

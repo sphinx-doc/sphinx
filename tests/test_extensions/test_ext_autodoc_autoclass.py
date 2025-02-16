@@ -12,9 +12,12 @@ import pytest
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
+if typing.TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_classes(app):
+def test_classes(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.classes.Foo')
     assert list(actual) == [
         '',
@@ -49,7 +52,7 @@ def test_classes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_instance_variable(app):
+def test_instance_variable(app: SphinxTestApp) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.instance_variable.Bar', options)
     assert list(actual) == [
@@ -73,7 +76,7 @@ def test_instance_variable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_inherited_instance_variable(app):
+def test_inherited_instance_variable(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'inherited-members': None,
@@ -106,7 +109,7 @@ def test_inherited_instance_variable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_uninitialized_attributes(app):
+def test_uninitialized_attributes(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'inherited-members': None,
@@ -137,7 +140,7 @@ def test_uninitialized_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_undocumented_uninitialized_attributes(app):
+def test_undocumented_uninitialized_attributes(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'inherited-members': None,
@@ -179,7 +182,7 @@ def test_undocumented_uninitialized_attributes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_decorators(app):
+def test_decorators(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'class', 'target.decorator.Baz')
     assert list(actual) == [
         '',
@@ -206,7 +209,7 @@ def test_decorators(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_properties(app):
+def test_properties(app: SphinxTestApp) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.properties.Foo', options)
     assert list(actual) == [
@@ -250,7 +253,7 @@ def test_properties(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_slots_attribute(app):
+def test_slots_attribute(app: SphinxTestApp) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.slots.Bar', options)
     assert list(actual) == [
@@ -277,7 +280,7 @@ def test_slots_attribute(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_show_inheritance_for_subclass_of_generic_type(app):
+def test_show_inheritance_for_subclass_of_generic_type(app: SphinxTestApp) -> None:
     options = {'show-inheritance': None}
     actual = do_autodoc(app, 'class', 'target.classes.Quux', options)
     assert list(actual) == [
@@ -293,7 +296,7 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_show_inheritance_for_decendants_of_generic_type(app):
+def test_show_inheritance_for_decendants_of_generic_type(app: SphinxTestApp) -> None:
     options = {'show-inheritance': None}
     actual = do_autodoc(app, 'class', 'target.classes.Corge', options)
     assert list(actual) == [
@@ -307,7 +310,7 @@ def test_show_inheritance_for_decendants_of_generic_type(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_process_bases(app):
+def test_autodoc_process_bases(app: SphinxTestApp) -> None:
     def autodoc_process_bases(app, name, obj, options, bases):
         assert name == 'target.classes.Quux'
         assert obj.__module__ == 'target.classes'
@@ -335,7 +338,7 @@ def test_autodoc_process_bases(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_doc_from_class(app):
+def test_class_doc_from_class(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'class-doc-from': 'class',
@@ -352,7 +355,7 @@ def test_class_doc_from_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_doc_from_init(app):
+def test_class_doc_from_init(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'class-doc-from': 'init',
@@ -369,7 +372,7 @@ def test_class_doc_from_init(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_doc_from_both(app):
+def test_class_doc_from_both(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'class-doc-from': 'both',
@@ -388,12 +391,12 @@ def test_class_doc_from_both(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_alias(app):
+def test_class_alias(app: SphinxTestApp) -> None:
     def autodoc_process_docstring(*args):
         """A handler always raises an error.
         This confirms this handler is never called for class aliases.
         """
-        raise
+        raise RuntimeError
 
     app.connect('autodoc-process-docstring', autodoc_process_docstring)
     actual = do_autodoc(app, 'class', 'target.classes.Alias')
@@ -407,7 +410,7 @@ def test_class_alias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_alias_having_doccomment(app):
+def test_class_alias_having_doccomment(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'class', 'target.classes.OtherAlias')
     assert list(actual) == [
         '',
@@ -420,7 +423,7 @@ def test_class_alias_having_doccomment(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_alias_for_imported_object_having_doccomment(app):
+def test_class_alias_for_imported_object_having_doccomment(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'class', 'target.classes.IntAlias')
     assert list(actual) == [
         '',
@@ -433,7 +436,7 @@ def test_class_alias_for_imported_object_having_doccomment(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_coroutine(app):
+def test_coroutine(app: SphinxTestApp) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
     assert list(actual) == [
@@ -475,7 +478,7 @@ def test_coroutine(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodata_NewType_module_level(app):
+def test_autodata_NewType_module_level(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'class', 'target.typevar.T6')
     assert list(actual) == [
         '',
@@ -490,7 +493,7 @@ def test_autodata_NewType_module_level(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_NewType_class_level(app):
+def test_autoattribute_NewType_class_level(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'class', 'target.typevar.Class.T6')
     assert list(actual) == [
         '',
@@ -505,7 +508,7 @@ def test_autoattribute_NewType_class_level(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodata_TypeVar_class_level(app):
+def test_autodata_TypeVar_class_level(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'class', 'target.typevar.T1')
     assert list(actual) == [
         '',
@@ -520,7 +523,7 @@ def test_autodata_TypeVar_class_level(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_TypeVar_module_level(app):
+def test_autoattribute_TypeVar_module_level(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'class', 'target.typevar.Class.T1')
     assert list(actual) == [
         '',
@@ -535,7 +538,7 @@ def test_autoattribute_TypeVar_module_level(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_inherited_instance_variable_with_annotations(app):
+def test_inherited_instance_variable_with_annotations(app: SphinxTestApp) -> None:
     options = {
         'members': None,
         'inherited-members': None,
@@ -566,7 +569,7 @@ def test_inherited_instance_variable_with_annotations(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_no_inherited_instance_variable_with_annotations(app):
+def test_no_inherited_instance_variable_with_annotations(app: SphinxTestApp) -> None:
     options = {'members': None}
     actual = do_autodoc(
         app, 'class', 'target.inherited_annotations.NoTypeAnnotation2', options

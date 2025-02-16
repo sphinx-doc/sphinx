@@ -20,7 +20,7 @@ Both, the url string and the caption string must escape ``%`` as ``%%``.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes, utils
 
@@ -32,6 +32,7 @@ from sphinx.util.nodes import split_explicit_title
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from docutils.nodes import Node, system_message
     from docutils.parsers.rst.states import Inliner
@@ -43,8 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class ExternalLinksChecker(SphinxPostTransform):
-    """
-    For each external link, check if it can be replaced by an extlink.
+    """For each external link, check if it can be replaced by an extlink.
 
     We treat each ``reference`` node without ``internal`` attribute as an external link.
     """
@@ -59,8 +59,7 @@ class ExternalLinksChecker(SphinxPostTransform):
             self.check_uri(refnode)
 
     def check_uri(self, refnode: nodes.reference) -> None:
-        """
-        If the URI in ``refnode`` has a replacement in ``extlinks``,
+        """If the URI in ``refnode`` has a replacement in ``extlinks``,
         emit a warning with a replacement suggestion.
         """
         if 'internal' in refnode or 'refuri' not in refnode:
@@ -74,31 +73,38 @@ class ExternalLinksChecker(SphinxPostTransform):
 
             match = uri_pattern.match(uri)
             if (
-                match and
-                match.groupdict().get('value') and
-                '/' not in match.groupdict()['value']
+                match
+                and match.groupdict().get('value')
+                and '/' not in match.groupdict()['value']
             ):
                 # build a replacement suggestion
-                msg = __('hardcoded link %r could be replaced by an extlink '
-                         '(try using %r instead)')
+                msg = __(
+                    'hardcoded link %r could be replaced by an extlink '
+                    '(try using %r instead)'
+                )
                 value = match.groupdict().get('value')
                 if uri != title:
-                    replacement = f":{alias}:`{rst.escape(title)} <{value}>`"
+                    replacement = f':{alias}:`{rst.escape(title)} <{value}>`'
                 else:
-                    replacement = f":{alias}:`{value}`"
+                    replacement = f':{alias}:`{value}`'
                 logger.warning(msg, uri, replacement, location=refnode)
 
 
-def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
+def make_link_role(name: str, base_url: str, caption: str | None) -> RoleFunction:
     # Check whether we have base_url and caption strings have an '%s' for
     # expansion.  If not, fall back to the old behaviour and use the string as
     # a prefix.
     # Remark: It is an implementation detail that we use Python's %-formatting.
     # So far we only expose ``%s`` and require quoting of ``%`` using ``%%``.
-    def role(typ: str, rawtext: str, text: str, lineno: int,
-             inliner: Inliner, options: dict[str, Any] | None = None,
-             content: Sequence[str] = (),
-             ) -> tuple[list[Node], list[system_message]]:
+    def role(
+        typ: str,
+        rawtext: str,
+        text: str,
+        lineno: int,
+        inliner: Inliner,
+        options: dict[str, Any] | None = None,
+        content: Sequence[str] = (),
+    ) -> tuple[list[Node], list[system_message]]:
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
         full_url = base_url % part
@@ -108,8 +114,9 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
             else:
                 title = caption % part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
-        pnode["classes"].append(f"extlink-{name}")
+        pnode['classes'].append(f'extlink-{name}')
         return [pnode], []
+
     return role
 
 
@@ -119,9 +126,14 @@ def setup_link_roles(app: Sphinx) -> None:
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('extlinks', {}, 'env')
-    app.add_config_value('extlinks_detect_hardcoded_links', False, 'env')
+    app.add_config_value('extlinks', {}, 'env', types=frozenset({dict}))
+    app.add_config_value(
+        'extlinks_detect_hardcoded_links', False, 'env', types=frozenset({bool})
+    )
 
     app.connect('builder-inited', setup_link_roles)
     app.add_post_transform(ExternalLinksChecker)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

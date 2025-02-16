@@ -9,17 +9,23 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
-from sphinx.deprecation import RemovedInSphinx90Warning
+from sphinx._cli.util.errors import strip_escape_sequences
+from sphinx.builders.html import (
+    StandaloneHTMLBuilder,
+    validate_html_extra_path,
+    validate_html_static_path,
+)
 from sphinx.errors import ConfigError
-from sphinx.util.console import strip_colors
-from sphinx.util.inventory import InventoryFile
+from sphinx.testing.util import etree_parse
+from sphinx.util.inventory import InventoryFile, _InventoryItem
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
     from typing import Any
+
+    from sphinx.testing.util import SphinxTestApp
 
 
 def test_html_sidebars_error(make_app, tmp_path):
@@ -136,13 +142,14 @@ def test_docutils_output(app, cached_etree_parse, fname, path, check):
     testroot='root',
     parallel=2,
 )
-def test_html_parallel(app):
+def test_html_parallel(app: SphinxTestApp) -> None:
     app.build()
 
 
 @pytest.mark.sphinx('html', testroot='build-html-translator')
-def test_html_translator(app):
+def test_html_translator(app: SphinxTestApp) -> None:
     app.build()
+    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
     assert app.builder.docwriter.visitor.depart_with_node == 10
 
 
@@ -176,7 +183,7 @@ def test_enumerable_node(app, cached_etree_parse, expect):
     testroot='basic',
     confoverrides={'html_copy_source': False},
 )
-def test_html_copy_source(app):
+def test_html_copy_source(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
 
@@ -186,7 +193,7 @@ def test_html_copy_source(app):
     testroot='basic',
     confoverrides={'html_sourcelink_suffix': '.txt'},
 )
-def test_html_sourcelink_suffix(app):
+def test_html_sourcelink_suffix(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert (app.outdir / '_sources' / 'index.rst.txt').exists()
 
@@ -196,7 +203,7 @@ def test_html_sourcelink_suffix(app):
     testroot='basic',
     confoverrides={'html_sourcelink_suffix': '.rst'},
 )
-def test_html_sourcelink_suffix_same(app):
+def test_html_sourcelink_suffix_same(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert (app.outdir / '_sources' / 'index.rst').exists()
 
@@ -206,13 +213,13 @@ def test_html_sourcelink_suffix_same(app):
     testroot='basic',
     confoverrides={'html_sourcelink_suffix': ''},
 )
-def test_html_sourcelink_suffix_empty(app):
+def test_html_sourcelink_suffix_empty(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='html_entity')
-def test_html_entity(app):
+def test_html_entity(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -221,7 +228,7 @@ def test_html_entity(app):
 
 
 @pytest.mark.sphinx('html', testroot='basic')
-def test_html_inventory(app):
+def test_html_inventory(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     with app.outdir.joinpath('objects.inv').open('rb') as f:
@@ -234,36 +241,36 @@ def test_html_inventory(app):
         'genindex',
         'search',
     }
-    assert invdata['std:label']['modindex'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/py-modindex.html',
-        'Module Index',
+    assert invdata['std:label']['modindex'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/py-modindex.html',
+        display_name='Module Index',
     )
-    assert invdata['std:label']['py-modindex'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/py-modindex.html',
-        'Python Module Index',
+    assert invdata['std:label']['py-modindex'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/py-modindex.html',
+        display_name='Python Module Index',
     )
-    assert invdata['std:label']['genindex'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/genindex.html',
-        'Index',
+    assert invdata['std:label']['genindex'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/genindex.html',
+        display_name='Index',
     )
-    assert invdata['std:label']['search'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/search.html',
-        'Search Page',
+    assert invdata['std:label']['search'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/search.html',
+        display_name='Search Page',
     )
     assert set(invdata['std:doc'].keys()) == {'index'}
-    assert invdata['std:doc']['index'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/index.html',
-        'The basic Sphinx documentation for testing',
+    assert invdata['std:doc']['index'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/index.html',
+        display_name='The basic Sphinx documentation for testing',
     )
 
 
@@ -273,7 +280,7 @@ def test_html_inventory(app):
     testroot='images',
     confoverrides={'html_sourcelink_suffix': ''},
 )
-def test_html_anchor_for_figure(app):
+def test_html_anchor_for_figure(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
@@ -283,7 +290,7 @@ def test_html_anchor_for_figure(app):
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
-def test_html_raw_directive(app):
+def test_html_raw_directive(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -301,9 +308,7 @@ def test_html_raw_directive(app):
     [
         (".//link[@href='_static/persistent.css'][@rel='stylesheet']", '', True),
         (
-            ".//link[@href='_static/default.css']"
-            "[@rel='stylesheet']"
-            "[@title='Default']",
+            ".//link[@href='_static/default.css'][@rel='stylesheet'][@title='Default']",
             '',
             True,
         ),
@@ -339,8 +344,7 @@ def test_html_raw_directive(app):
             True,
         ),
         (
-            ".//link[@href='_static/more_alternate2.css']"
-            "[@rel='alternate stylesheet']",
+            ".//link[@href='_static/more_alternate2.css'][@rel='alternate stylesheet']",
             '',
             True,
         ),
@@ -353,7 +357,7 @@ def test_alternate_stylesheets(app, cached_etree_parse, expect):
 
 
 @pytest.mark.sphinx('html', testroot='html_style')
-def test_html_style(app):
+def test_html_style(app: SphinxTestApp) -> None:
     app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
@@ -377,7 +381,7 @@ def test_html_style(app):
         }
     },
 )
-def test_html_sidebar(app):
+def test_html_sidebar(app: SphinxTestApp) -> None:
     ctx: dict[str, Any] = {}
 
     # default for alabaster
@@ -394,6 +398,7 @@ def test_html_sidebar(app):
     # sourcelink.html
     assert '<h3>This Page</h3>' in result
 
+    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == [
         'localtoc.html',
@@ -416,6 +421,7 @@ def test_html_sidebar(app):
     # sourcelink.html
     assert '<h3>This Page</h3>' in result
 
+    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == ['sourcelink.html']
 
@@ -436,6 +442,7 @@ def test_html_sidebar(app):
     # sourcelink.html
     assert '<h3>This Page</h3>' not in result
 
+    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == []
 
@@ -465,7 +472,7 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
     testroot='toctree-glob',
     confoverrides={'html_baseurl': 'https://example.com/'},
 )
-def test_html_baseurl(app):
+def test_html_baseurl(app: SphinxTestApp) -> None:
     app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -485,7 +492,7 @@ def test_html_baseurl(app):
         'html_file_suffix': '.htm',
     },
 )
-def test_html_baseurl_and_html_file_suffix(app):
+def test_html_baseurl_and_html_file_suffix(app: SphinxTestApp) -> None:
     app.build()
 
     result = (app.outdir / 'index.htm').read_text(encoding='utf8')
@@ -504,7 +511,7 @@ def test_html_baseurl_and_html_file_suffix(app):
     testroot='basic',
     srcdir='validate_html_extra_path',
 )
-def test_validate_html_extra_path(app):
+def test_validate_html_extra_path(app: SphinxTestApp) -> None:
     (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_extra_path = [
         '/path/to/not_found',    # not found
@@ -512,11 +519,15 @@ def test_validate_html_extra_path(app):
         app.outdir,              # outdir
         app.outdir / '_static',  # inside outdir
     ]  # fmt: skip
-    with pytest.warns(
-        RemovedInSphinx90Warning, match='Use "pathlib.Path" or "os.fspath" instead'
-    ):
-        validate_html_extra_path(app, app.config)
+
+    validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
+
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
+    assert "html_extra_path entry '/path/to/not_found' does not exist" in warnings[0]
+    assert warnings[1].endswith(' is placed inside outdir')
+    assert warnings[2].endswith(' does not exist')
+    assert len(warnings) == 3
 
 
 @pytest.mark.sphinx(
@@ -524,7 +535,7 @@ def test_validate_html_extra_path(app):
     testroot='basic',
     srcdir='validate_html_static_path',
 )
-def test_validate_html_static_path(app):
+def test_validate_html_static_path(app: SphinxTestApp) -> None:
     (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_static_path = [
         '/path/to/not_found',    # not found
@@ -532,11 +543,15 @@ def test_validate_html_static_path(app):
         app.outdir,              # outdir
         app.outdir / '_static',  # inside outdir
     ]  # fmt: skip
-    with pytest.warns(
-        RemovedInSphinx90Warning, match='Use "pathlib.Path" or "os.fspath" instead'
-    ):
-        validate_html_static_path(app, app.config)
+
+    validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
+
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
+    assert "html_static_path entry '/path/to/not_found' does not exist" in warnings[0]
+    assert warnings[1].endswith(' is placed inside outdir')
+    assert warnings[2].endswith(' does not exist')
+    assert len(warnings) == 3
 
 
 @pytest.mark.sphinx(
@@ -544,7 +559,7 @@ def test_validate_html_static_path(app):
     testroot='basic',
     confoverrides={'html_permalinks': False},
 )
-def test_html_permalink_disable(app):
+def test_html_permalink_disable(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -556,7 +571,7 @@ def test_html_permalink_disable(app):
     testroot='basic',
     confoverrides={'html_permalinks_icon': '<span>[PERMALINK]</span>'},
 )
-def test_html_permalink_icon(app):
+def test_html_permalink_icon(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -568,7 +583,7 @@ def test_html_permalink_icon(app):
 
 
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
-def test_html_signaturereturn_icon(app):
+def test_html_signaturereturn_icon(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -580,8 +595,8 @@ def test_html_signaturereturn_icon(app):
     testroot='root',
     srcdir=os.urandom(4).hex(),
 )
-def test_html_remove_sources_before_write_gh_issue_10786(app):
-    # see:  https://github.com/sphinx-doc/sphinx/issues/10786
+def test_html_remove_sources_before_write_gh_issue_10786(app: SphinxTestApp) -> None:
+    # See: https://github.com/sphinx-doc/sphinx/issues/10786
     target = app.srcdir / 'img.png'
 
     def handler(app):
@@ -594,7 +609,7 @@ def test_html_remove_sources_before_write_gh_issue_10786(app):
     app.build()
     assert not target.exists()
 
-    ws = strip_colors(app.warning.getvalue()).splitlines()
+    ws = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert len(ws) >= 1
 
     file = os.fsdecode(target)
@@ -652,4 +667,107 @@ def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
         fname,
         r'.//dt[@id="MyList"][1]',
         chk('class MyList[\nT,\n](list[T])'),
+    )
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='domain-py-python_maximum_signature_line_length',
+    confoverrides={
+        'python_maximum_signature_line_length': 1,
+        'python_trailing_comma_in_multi_line_signatures': False,
+    },
+)
+def test_html_pep_695_trailing_comma_in_multi_line_signatures(
+    app: SphinxTestApp,
+) -> None:
+    app.build()
+    fname = app.outdir / 'index.html'
+    etree = etree_parse(fname)
+
+    class chk:
+        def __init__(self, expect: str) -> None:
+            self.expect = expect
+
+        def __call__(self, nodes):
+            assert len(nodes) == 1, nodes
+            objnode = ''.join(nodes[0].itertext()).replace('\n\n', '')
+            objnode = objnode.rstrip(chr(182))  # remove '¶' symbol
+            objnode = objnode.strip('\n')  # remove surrounding new lines
+            assert objnode == self.expect
+
+    # each signature has a dangling ',' at the end of its parameters lists
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="generic_foo"][1]',
+        chk('generic_foo[\nT\n]()'),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="generic_bar"][1]',
+        chk('generic_bar[\nT\n](\nx: list[T]\n)'),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="generic_ret"][1]',
+        chk('generic_ret[\nR\n]() → R'),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="MyGenericClass"][1]',
+        chk('class MyGenericClass[\nX\n]'),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="MyList"][1]',
+        chk('class MyList[\nT\n](list[T])'),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='directives-admonition-collapse')
+def test_html_admonition_collapse(app: SphinxTestApp) -> None:
+    app.build()
+    fname = app.outdir / 'index.html'
+    etree = etree_parse(fname)
+
+    def _create_check(text: str, open: bool):  # type: ignore[no-untyped-def]
+        def _check(els):
+            assert len(els) == 1
+            el = els[0]
+            if open:
+                assert el.attrib['open'] == 'open'
+            else:
+                assert 'open' not in el.attrib
+            assert el.find('p').text == text
+
+        return _check
+
+    check_xpath(
+        etree,
+        fname,
+        r'.//div[@class="standard admonition note"]//p',
+        'This is a standard note.',
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//details[@class="admonition note"]',
+        _create_check('This note is collapsible, and initially open by default.', True),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//details[@class="admonition-example admonition"]',
+        _create_check('This example is collapsible, and initially open.', True),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//details[@class="admonition hint"]',
+        _create_check('This hint is collapsible, but initially closed.', False),
     )

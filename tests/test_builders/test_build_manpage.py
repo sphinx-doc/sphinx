@@ -1,14 +1,21 @@
 """Test the build process with manpage builder with the test root."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import docutils
 import pytest
 
 from sphinx.builders.manpage import default_man_pages
 from sphinx.config import Config
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('man', testroot='root')
-def test_all(app):
+def test_all(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert (app.outdir / 'sphinxtests.1').exists()
 
@@ -36,7 +43,7 @@ def test_all(app):
     testroot='basic',
     confoverrides={'man_pages': [('index', 'title', None, [], 1)]},
 )
-def test_man_pages_empty_description(app):
+def test_man_pages_empty_description(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'title.1').read_text(encoding='utf8')
@@ -48,13 +55,13 @@ def test_man_pages_empty_description(app):
     testroot='basic',
     confoverrides={'man_make_section_directory': True},
 )
-def test_man_make_section_directory(app):
+def test_man_make_section_directory(app: SphinxTestApp) -> None:
     app.build()
     assert (app.outdir / 'man1' / 'projectnamenotset.1').exists()
 
 
 @pytest.mark.sphinx('man', testroot='directive-code')
-def test_captioned_code_block(app):
+def test_captioned_code_block(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
 
@@ -94,7 +101,7 @@ end
     assert expected in content
 
 
-def test_default_man_pages():
+def test_default_man_pages() -> None:
     config = Config({
         'project': 'STASI™ Documentation',
         'author': "Wolfgang Schäuble & G'Beckstein",
@@ -113,7 +120,7 @@ def test_default_man_pages():
 
 
 @pytest.mark.sphinx('man', testroot='markup-rubric')
-def test_rubric(app):
+def test_rubric(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
     assert 'This is a rubric\n' in content

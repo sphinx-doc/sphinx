@@ -49,24 +49,29 @@ def parse(sig):
     return signode.astext()
 
 
-def test_function_signatures():
-    rv = parse('func(a=1) -> int object')
-    assert rv == '(a=1)'
-
-    rv = parse('func(a=1, [b=None])')
-    assert rv == '(a=1, [b=None])'
-
-    rv = parse('func(a=1[, b=None])')
-    assert rv == '(a=1, [b=None])'
-
+def test_function_signatures() -> None:
     rv = parse("compile(source : string, filename, symbol='file')")
     assert rv == "(source : string, filename, symbol='file')"
 
-    rv = parse('func(a=[], [b=None])')
-    assert rv == '(a=[], [b=None])'
+    for params, expect in [
+        ('(a=1)', '(a=1)'),
+        ('(a: int = 1)', '(a: int = 1)'),
+        ('(a=1, [b=None])', '(a=1, [b=None])'),
+        ('(a=1[, b=None])', '(a=1, [b=None])'),
+        ('(a=[], [b=None])', '(a=[], [b=None])'),
+        ('(a=[][, b=None])', '(a=[], [b=None])'),
+        ('(a: Foo[Bar]=[][, b=None])', '(a: Foo[Bar]=[], [b=None])'),
+    ]:
+        rv = parse(f'func{params}')
+        assert rv == expect
 
-    rv = parse('func(a=[][, b=None])')
-    assert rv == '(a=[], [b=None])'
+        # Note: 'def f[Foo[Bar]]()' is not valid Python but people might write
+        # it in a reST document to convene the intent of a higher-kinded type
+        # variable.
+        for tparams in ['', '[Foo]', '[Foo[Bar]]']:
+            for retann in ['', '-> Foo', '-> Foo[Bar]', '-> anything else']:
+                rv = parse(f'func{tparams}{params} {retann}'.rstrip())
+                assert rv == expect
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -316,7 +321,7 @@ def test_domain_py_find_obj(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = PythonDomain(env)
 
@@ -344,7 +349,7 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation(app):
     doctree = _parse_annotation('int', app.env)
     assert_node(doctree, ([pending_xref, 'int'],))
@@ -504,7 +509,7 @@ def test_parse_annotation(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation('~typing.Dict[str, str]', app.env)
     assert_node(
@@ -524,7 +529,7 @@ def test_parse_annotation_suppress(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_Literal(app):
     doctree = _parse_annotation('Literal[True, False]', app.env)
     assert_node(
@@ -572,34 +577,67 @@ def test_module_index(app):
     index = PythonModuleIndex(app.env.domains.python_domain)
     assert index.generate() == (
         [
-            ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
+            (
+                'd',
+                [
+                    IndexEntry(
+                        name='docutils',
+                        subtype=0,
+                        docname='index',
+                        anchor='module-docutils',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    ),
+                ],
+            ),
             (
                 's',
                 [
-                    IndexEntry('sphinx', 1, 'index', 'module-sphinx', '', '', ''),
                     IndexEntry(
-                        'sphinx.builders',
-                        2,
-                        'index',
-                        'module-sphinx.builders',
-                        '',
-                        '',
-                        '',
+                        name='sphinx',
+                        subtype=1,
+                        docname='index',
+                        anchor='module-sphinx',
+                        extra='',
+                        qualifier='',
+                        descr='',
                     ),
                     IndexEntry(
-                        'sphinx.builders.html',
-                        2,
-                        'index',
-                        'module-sphinx.builders.html',
-                        '',
-                        '',
-                        '',
+                        name='sphinx.builders',
+                        subtype=2,
+                        docname='index',
+                        anchor='module-sphinx.builders',
+                        extra='',
+                        qualifier='',
+                        descr='',
                     ),
                     IndexEntry(
-                        'sphinx.config', 2, 'index', 'module-sphinx.config', '', '', ''
+                        name='sphinx.builders.html',
+                        subtype=2,
+                        docname='index',
+                        anchor='module-sphinx.builders.html',
+                        extra='',
+                        qualifier='',
+                        descr='',
                     ),
                     IndexEntry(
-                        'sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', ''
+                        name='sphinx.config',
+                        subtype=2,
+                        docname='index',
+                        anchor='module-sphinx.config',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    ),
+                    IndexEntry(
+                        name='sphinx_intl',
+                        subtype=0,
+                        docname='index',
+                        anchor='module-sphinx_intl',
+                        extra='',
+                        qualifier='',
+                        descr='',
                     ),
                 ],
             ),
@@ -618,9 +656,23 @@ def test_module_index_submodule(app):
             (
                 's',
                 [
-                    IndexEntry('sphinx', 1, '', '', '', '', ''),
                     IndexEntry(
-                        'sphinx.config', 2, 'index', 'module-sphinx.config', '', '', ''
+                        name='sphinx',
+                        subtype=1,
+                        docname='',
+                        anchor='',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    ),
+                    IndexEntry(
+                        name='sphinx.config',
+                        subtype=2,
+                        docname='index',
+                        anchor='module-sphinx.config',
+                        extra='',
+                        qualifier='',
+                        descr='',
                     ),
                 ],
             )
@@ -636,8 +688,34 @@ def test_module_index_not_collapsed(app):
     index = PythonModuleIndex(app.env.domains.python_domain)
     assert index.generate() == (
         [
-            ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
-            ('s', [IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', '')]),
+            (
+                'd',
+                [
+                    IndexEntry(
+                        name='docutils',
+                        subtype=0,
+                        docname='index',
+                        anchor='module-docutils',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    ),
+                ],
+            ),
+            (
+                's',
+                [
+                    IndexEntry(
+                        name='sphinx',
+                        subtype=0,
+                        docname='index',
+                        anchor='module-sphinx',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    ),
+                ],
+            ),
         ],
         True,
     )
@@ -666,22 +744,22 @@ def test_modindex_common_prefix(app):
                 'b',
                 [
                     IndexEntry(
-                        'sphinx.builders',
-                        1,
-                        'index',
-                        'module-sphinx.builders',
-                        '',
-                        '',
-                        '',
+                        name='sphinx.builders',
+                        subtype=1,
+                        docname='index',
+                        anchor='module-sphinx.builders',
+                        extra='',
+                        qualifier='',
+                        descr='',
                     ),
                     IndexEntry(
-                        'sphinx.builders.html',
-                        2,
-                        'index',
-                        'module-sphinx.builders.html',
-                        '',
-                        '',
-                        '',
+                        name='sphinx.builders.html',
+                        subtype=2,
+                        docname='index',
+                        anchor='module-sphinx.builders.html',
+                        extra='',
+                        qualifier='',
+                        descr='',
                     ),
                 ],
             ),
@@ -689,17 +767,50 @@ def test_modindex_common_prefix(app):
                 'c',
                 [
                     IndexEntry(
-                        'sphinx.config', 0, 'index', 'module-sphinx.config', '', '', ''
-                    )
+                        name='sphinx.config',
+                        subtype=0,
+                        docname='index',
+                        anchor='module-sphinx.config',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    ),
                 ],
             ),
-            ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
+            (
+                'd',
+                [
+                    IndexEntry(
+                        name='docutils',
+                        subtype=0,
+                        docname='index',
+                        anchor='module-docutils',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    ),
+                ],
+            ),
             (
                 's',
                 [
-                    IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', ''),
                     IndexEntry(
-                        'sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', ''
+                        name='sphinx',
+                        subtype=0,
+                        docname='index',
+                        anchor='module-sphinx',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    ),
+                    IndexEntry(
+                        name='sphinx_intl',
+                        subtype=0,
+                        docname='index',
+                        anchor='module-sphinx_intl',
+                        extra='',
+                        qualifier='',
+                        descr='',
                     ),
                 ],
             ),
@@ -708,7 +819,7 @@ def test_modindex_common_prefix(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_no_index_entry(app):
     text = '.. py:function:: f()\n.. py:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
@@ -729,6 +840,15 @@ def test_no_index_entry(app):
         entries=[('single', 'f (built-in class)', 'f', '', None)],
     )
     assert_node(doctree[2], addnodes.index, entries=[])
+
+    text = '.. py:module:: f\n.. py:module:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, nodes.target, nodes.target))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('pair', 'module; f', 'module-f', '', None)],
+    )
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
@@ -967,7 +1087,134 @@ def test_domain_py_python_maximum_signature_line_length_in_text(app):
     assert expected_parameter_list_foo in content
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx(
+    'html',
+    testroot='domain-py-python_maximum_signature_line_length',
+    confoverrides={'python_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_html(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    expected_parameter_list_hello = """\
+
+<dl>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">name</span></span>\
+<span class="p"><span class="pre">:</span></span>\
+<span class="w"> </span>\
+<span class="n"><span class="pre">str</span></span>\
+</em>\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span> \
+<span class="sig-return">\
+<span class="sig-return-icon">&#x2192;</span> \
+<span class="sig-return-typehint"><span class="pre">str</span></span>\
+</span>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
+</dt>\
+"""
+    assert expected_parameter_list_hello in content
+
+    param_line_fmt = '<dd>{}</dd>\n'
+    param_name_fmt = (
+        '<em class="sig-param"><span class="n"><span class="pre">{}</span></span></em>'
+    )
+    optional_fmt = '<span class="optional">{}</span>'
+
+    expected_a = param_line_fmt.format(
+        optional_fmt.format('[')
+        + param_name_fmt.format('a')
+        + ','
+        + optional_fmt.format('['),
+    )
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format(
+        param_name_fmt.format('b')
+        + ','
+        + optional_fmt.format(']')
+        + optional_fmt.format(']'),
+    )
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format(param_name_fmt.format('c') + ',')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format(
+        param_name_fmt.format('d') + optional_fmt.format('[') + ','
+    )
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format(param_name_fmt.format('e') + ',')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format(
+        param_name_fmt.format('f') + optional_fmt.format(']')
+    )
+    assert expected_f in content
+
+    expected_parameter_list_foo = """\
+
+<dl>
+{}{}{}{}{}{}</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
+</dt>\
+""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'text',
+    testroot='domain-py-python_maximum_signature_line_length',
+    freshenv=True,
+    confoverrides={'python_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_text(app):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * ' ' + '{}\n'
+
+    expected_parameter_list_hello = '(\n{}) -> str'.format(
+        param_line_fmt.format('name: str')
+    )
+
+    assert expected_parameter_list_hello in content
+
+    expected_a = param_line_fmt.format('[a,[')
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format('b,]]')
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format('c,')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format('d[,')
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format('e,')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format('f]')
+    assert expected_f in content
+
+    expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(
+        expected_a,
+        expected_b,
+        expected_c,
+        expected_d,
+        expected_e,
+        expected_f,
+    )
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_module_content_line_number(app):
     text = '.. py:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
@@ -1083,7 +1330,7 @@ def test_short_literal_types(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_function_pep_695(app):
     text = """.. py:function:: func[\
         S,\
@@ -1210,7 +1457,7 @@ def test_function_pep_695(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_class_def_pep_695(app):
     # Non-concrete unbound generics are allowed at runtime but type checkers
     # should fail (https://peps.python.org/pep-0695/#type-parameter-scopes)
@@ -1226,7 +1473,10 @@ def test_class_def_pep_695(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,
@@ -1263,7 +1513,7 @@ def test_class_def_pep_695(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_class_def_pep_696(app):
     # test default values for type variables without using PEP 696 AST parser
     text = """.. py:class:: Class[\
@@ -1288,7 +1538,10 @@ def test_class_def_pep_696(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,
@@ -1462,6 +1715,10 @@ def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
+
 
 @pytest.mark.parametrize(
     ('tp_list', 'tptext'),
@@ -1475,6 +1732,10 @@ def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
+
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
 
 
 @pytest.mark.parametrize(
@@ -1499,3 +1760,7 @@ def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
+
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'

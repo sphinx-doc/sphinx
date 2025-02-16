@@ -169,10 +169,10 @@ For example:
 
 .. code-block:: python
 
-   import os
    import sys
+   from pathlib import Path
 
-   sys.path.append(os.path.abspath("./_ext"))
+   sys.path.append(str(Path('_ext').resolve()))
 
    extensions = ['helloworld']
 

@@ -4,7 +4,14 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from sphinx.testing.util import SphinxTestApp
 
 import pytest
 
@@ -12,7 +19,7 @@ from tests.test_extensions.autodoc_util import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_classes(app):
+def test_classes(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.classes.Foo')
     assert list(actual) == [
         '',
@@ -47,7 +54,7 @@ def test_classes(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_callable(app):
+def test_callable(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.callable.function')
     assert list(actual) == [
         '',
@@ -60,7 +67,7 @@ def test_callable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_method(app):
+def test_method(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.callable.method')
     assert list(actual) == [
         '',
@@ -73,7 +80,7 @@ def test_method(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_builtin_function(app):
+def test_builtin_function(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'os.umask')
     assert list(actual) == [
         '',
@@ -86,7 +93,7 @@ def test_builtin_function(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_methoddescriptor(app):
+def test_methoddescriptor(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'builtins.int.__add__')
     assert list(actual) == [
         '',
@@ -99,7 +106,7 @@ def test_methoddescriptor(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_decorated(app):
+def test_decorated(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.decorator.foo')
     assert list(actual) == [
         '',
@@ -110,7 +117,7 @@ def test_decorated(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_singledispatch(app):
+def test_singledispatch(app: SphinxTestApp) -> None:
     options: dict[str, Any] = {}
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
     assert list(actual) == [
@@ -128,7 +135,7 @@ def test_singledispatch(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_cfunction(app):
+def test_cfunction(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'time.asctime')
     assert list(actual) == [
         '',
@@ -143,7 +150,7 @@ def test_cfunction(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_wrapped_function(app):
+def test_wrapped_function(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.wrappedfunction.slow_function')
     assert list(actual) == [
         '',
@@ -156,7 +163,7 @@ def test_wrapped_function(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_wrapped_function_contextmanager(app):
+def test_wrapped_function_contextmanager(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.wrappedfunction.feeling_good')
     assert list(actual) == [
         '',
@@ -169,7 +176,7 @@ def test_wrapped_function_contextmanager(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_coroutine(app):
+def test_coroutine(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
     assert list(actual) == [
         '',
@@ -181,7 +188,7 @@ def test_coroutine(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_synchronized_coroutine(app):
+def test_synchronized_coroutine(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
     assert list(actual) == [
         '',
@@ -192,7 +199,7 @@ def test_synchronized_coroutine(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_async_generator(app):
+def test_async_generator(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.functions.asyncgenerator')
     assert list(actual) == [
         '',
@@ -204,7 +211,7 @@ def test_async_generator(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_slice_function_arg(app):
+def test_slice_function_arg(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'target.functions.slice_arg_func')
     assert list(actual) == [
         '',

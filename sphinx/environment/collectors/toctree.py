@@ -15,7 +15,7 @@ from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import logging, url_re
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Sequence, Set
 
     from docutils.nodes import Element, Node
 
@@ -47,7 +47,7 @@ class TocTreeCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         for docname in docnames:
@@ -219,7 +219,7 @@ class TocTreeCollector(EnvironmentCollector):
                     _walk_toc(subnode, secnums, depth - 1, titlenode)
                     numstack.pop()
                     titlenode = None
-                elif isinstance(subnode, nodes.list_item):  # NoQA: SIM114
+                elif isinstance(subnode, nodes.list_item):
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.only):
@@ -232,7 +232,7 @@ class TocTreeCollector(EnvironmentCollector):
                     if 'skip_section_number' in subnode:
                         continue
                     numstack[-1] += 1
-                    reference = cast(nodes.reference, subnode[0])
+                    reference = cast('nodes.reference', subnode[0])
                     if depth > 0:
                         number = numstack.copy()
                         secnums[reference['anchorname']] = tuple(numstack)

@@ -31,16 +31,21 @@ if TYPE_CHECKING:
 
     from typing_extensions import TypeIs
 
+    from sphinx.util.typing import _StringifyMode
+
     class _SupportsGet(Protocol):
-        def __get__(self, __instance: Any, __owner: type | None = ...) -> Any: ...  # NoQA: E704
+        def __get__(self, instance: Any, owner: type | None = ..., /) -> Any: ...
 
     class _SupportsSet(Protocol):
         # instance and value are contravariants but we do not need that precision
-        def __set__(self, __instance: Any, __value: Any) -> None: ...  # NoQA: E704
+        def __set__(self, instance: Any, value: Any, /) -> None: ...
 
     class _SupportsDelete(Protocol):
         # instance is contravariant but we do not need that precision
-        def __delete__(self, __instance: Any) -> None: ...  # NoQA: E704
+        def __delete__(self, instance: Any, /) -> None: ...
+
+    class _AttrGetter(Protocol):
+        def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
     _RoutineType: TypeAlias = (
         types.FunctionType
@@ -52,7 +57,9 @@ if TYPE_CHECKING:
         | types.MethodDescriptorType
         | types.ClassMethodDescriptorType
     )
-    _SignatureType: TypeAlias = Callable[..., Any] | staticmethod | classmethod
+    _SignatureType: TypeAlias = (
+        Callable[..., Any] | staticmethod[Any, Any] | classmethod[Any, Any, Any]
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -163,7 +170,7 @@ def getorigbases(obj: Any) -> tuple[Any, ...] | None:
         return None
 
     # Get __orig_bases__ from obj.__dict__ to avoid accessing the parent's __orig_bases__.
-    # refs: https://github.com/sphinx-doc/sphinx/issues/9607
+    # See: https://github.com/sphinx-doc/sphinx/issues/9607
     __dict__ = safe_getattr(obj, '__dict__', {})
     __orig_bases__ = __dict__.get('__orig_bases__')
     if isinstance(__orig_bases__, tuple) and len(__orig_bases__) > 0:
@@ -216,16 +223,14 @@ def unpartial(obj: Any) -> Any:
     return obj
 
 
-def ispartial(obj: Any) -> TypeIs[partial | partialmethod]:
+def ispartial(obj: Any) -> TypeIs[partial[Any] | partialmethod[Any]]:
     """Check if the object is a partial function or method."""
     return isinstance(obj, partial | partialmethod)
 
 
 def isclassmethod(
-    obj: Any,
-    cls: Any = None,
-    name: str | None = None,
-) -> TypeIs[classmethod]:
+    obj: Any, cls: Any = None, name: str | None = None
+) -> TypeIs[classmethod[Any, Any, Any]]:
     """Check if the object is a :class:`classmethod`."""
     if isinstance(obj, classmethod):
         return True
@@ -241,14 +246,71 @@ def isclassmethod(
     return False
 
 
+def is_classmethod_descriptor(
+    obj: Any, cls: Any = None, name: str | None = None
+) -> TypeIs[types.ClassMethodDescriptorType]:
+    """Check if the object is a :class:`~types.ClassMethodDescriptorType`.
+
+    This check is stricter than :func:`is_builtin_classmethod_like` as
+    a classmethod descriptor does not have a ``__func__`` attribute.
+    """
+    if isinstance(obj, types.ClassMethodDescriptorType):
+        return True
+    if cls and name:
+        # trace __mro__ if the method is defined in parent class
+        sentinel = object()
+        for basecls in getmro(cls):
+            meth = basecls.__dict__.get(name, sentinel)
+            if meth is not sentinel:
+                return isinstance(meth, types.ClassMethodDescriptorType)
+    return False
+
+
+def is_builtin_classmethod_like(
+    obj: Any, cls: Any = None, name: str | None = None
+) -> bool:
+    """Check if the object looks like a class method implemented in C.
+
+    This is equivalent to test that *obj* is a class method descriptor
+    or is a built-in object with a ``__self__`` attribute that is a type,
+    or that ``parent_class.__dict__[name]`` satisfies those properties
+    for some parent class in *cls* MRO.
+    """
+    if is_classmethod_descriptor(obj, cls, name):
+        return True
+    if (
+        isbuiltin(obj)
+        and getattr(obj, '__self__', None) is not None
+        and isclass(obj.__self__)
+    ):
+        return True
+    if cls and name:
+        # trace __mro__ if the method is defined in parent class
+        sentinel = object()
+        for basecls in getmro(cls):
+            meth = basecls.__dict__.get(name, sentinel)
+            if meth is not sentinel:
+                return is_classmethod_descriptor(meth, None, None) or (
+                    isbuiltin(meth)
+                    and getattr(meth, '__self__', None) is not None
+                    and isclass(meth.__self__)
+                )
+    return False
+
+
+def is_classmethod_like(obj: Any, cls: Any = None, name: str | None = None) -> bool:
+    """Check if the object looks like a class method."""
+    return isclassmethod(obj, cls, name) or is_builtin_classmethod_like(obj, cls, name)
+
+
 def isstaticmethod(
-    obj: Any,
-    cls: Any = None,
-    name: str | None = None,
-) -> TypeIs[staticmethod]:
+    obj: Any, cls: Any = None, name: str | None = None
+) -> TypeIs[staticmethod[Any, Any]]:
     """Check if the object is a :class:`staticmethod`."""
     if isinstance(obj, staticmethod):
         return True
+    # Unlike built-in class methods, built-in static methods
+    # satisfy "isinstance(cls.__dict__[name], staticmethod)".
     if cls and name:
         # trace __mro__ if the method is defined in parent class
         sentinel = object()
@@ -327,7 +389,7 @@ def is_singledispatch_function(obj: Any) -> bool:
     )
 
 
-def is_singledispatch_method(obj: Any) -> TypeIs[singledispatchmethod]:
+def is_singledispatch_method(obj: Any) -> TypeIs[singledispatchmethod[Any]]:
     """Check if the object is a :class:`~functools.singledispatchmethod`."""
     return isinstance(obj, singledispatchmethod)
 
@@ -362,7 +424,9 @@ def isroutine(obj: Any) -> TypeIs[_RoutineType]:
     return inspect.isroutine(unpartial(obj))
 
 
-def iscoroutinefunction(obj: Any) -> TypeIs[Callable[..., types.CoroutineType]]:
+def iscoroutinefunction(
+    obj: Any,
+) -> TypeIs[Callable[..., types.CoroutineType[Any, Any, Any]]]:
     """Check if the object is a :external+python:term:`coroutine` function."""
     obj = unwrap_all(obj, stop=_is_wrapped_coroutine)
     return inspect.iscoroutinefunction(obj)
@@ -377,7 +441,7 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
     return hasattr(obj, '__wrapped__')
 
 
-def isproperty(obj: Any) -> TypeIs[property | cached_property]:
+def isproperty(obj: Any) -> TypeIs[property | cached_property[Any]]:
     """Check if the object is property (possibly cached)."""
     return isinstance(obj, property | cached_property)
 
@@ -523,6 +587,9 @@ class DefaultValue:
     def __eq__(self, other: object) -> bool:
         return self.value == other
 
+    def __hash__(self) -> int:
+        return hash(self.value)
+
     def __repr__(self) -> str:
         return self.value
 
@@ -540,7 +607,7 @@ class TypeAliasForwardRef:
         # Dummy method to imitate special typing classes
         pass
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return self.name == other
 
     def __hash__(self) -> int:
@@ -642,7 +709,9 @@ def signature(
 ) -> Signature:
     """Return a Signature object for the given *subject*.
 
-    :param bound_method: Specify *subject* is a bound method or not
+    :param bound_method: Specify *subject* is a bound method or not.
+
+    When *subject* is a built-in callable, *bound_method* is ignored.
     """
     if type_aliases is None:
         type_aliases = {}
@@ -678,7 +747,10 @@ def signature(
         # ForwardRef and so on.
         pass
 
-    if bound_method:
+    # For built-in objects, we use the signature that was specified
+    # by the extension module even if we detected the subject to be
+    # a possible bound method.
+    if bound_method and not inspect.isbuiltin(subject):
         if inspect.ismethod(subject):
             # ``inspect.signature()`` considers the subject is a bound method and removes
             # first argument from signature.  Therefore no skips are needed here.
@@ -691,7 +763,7 @@ def signature(
     # pass an internal parameter __validate_parameters__=False to Signature
     #
     # For example, this helps a function having a default value `inspect._empty`.
-    # refs: https://github.com/sphinx-doc/sphinx/issues/7935
+    # See: https://github.com/sphinx-doc/sphinx/issues/7935
     return Signature(
         parameters, return_annotation=return_annotation, __validate_parameters__=False
     )
@@ -772,6 +844,7 @@ def stringify_signature(
     show_annotation: bool = True,
     show_return_annotation: bool = True,
     unqualified_typehints: bool = False,
+    short_literals: bool = False,
 ) -> str:
     """Stringify a :class:`~inspect.Signature` object.
 
@@ -779,7 +852,9 @@ def stringify_signature(
     :param show_return_annotation: If enabled, show annotation of the return value
     :param unqualified_typehints: If enabled, show annotations as unqualified
                                   (ex. io.StringIO -> StringIO)
+    :param short_literals: If enabled, use short literal types.
     """
+    mode: _StringifyMode
     if unqualified_typehints:
         mode = 'smart'
     else:
@@ -796,11 +871,11 @@ def stringify_signature(
         ):
             # PEP-570: Separator for Positional Only Parameter: /
             args.append('/')
-        if param.kind == Parameter.KEYWORD_ONLY and last_kind in (
+        if param.kind == Parameter.KEYWORD_ONLY and last_kind in {
             Parameter.POSITIONAL_OR_KEYWORD,
             Parameter.POSITIONAL_ONLY,
             None,
-        ):
+        }:
             # PEP-3102: Separator for Keyword Only Parameter: *
             args.append('*')
 
@@ -814,7 +889,11 @@ def stringify_signature(
 
         if show_annotation and param.annotation is not EMPTY:
             arg.write(': ')
-            arg.write(stringify_annotation(param.annotation, mode))  # type: ignore[arg-type]
+            arg.write(
+                stringify_annotation(
+                    param.annotation, mode, short_literals=short_literals
+                )
+            )
         if param.default is not EMPTY:
             if show_annotation and param.annotation is not EMPTY:
                 arg.write(' = ')
@@ -837,7 +916,9 @@ def stringify_signature(
     ):
         return f'({concatenated_args})'
     else:
-        retann = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
+        retann = stringify_annotation(
+            sig.return_annotation, mode, short_literals=short_literals
+        )
         return f'({concatenated_args}) -> {retann}'
 
 
@@ -845,7 +926,7 @@ def signature_from_str(signature: str) -> Signature:
     """Create a :class:`~inspect.Signature` object from a string."""
     code = 'def func' + signature + ': pass'
     module = ast.parse(code)
-    function = typing.cast(ast.FunctionDef, module.body[0])
+    function = typing.cast('ast.FunctionDef', module.body[0])
 
     return signature_from_ast(function, code)
 
@@ -917,7 +998,7 @@ def _define(
 
 def getdoc(
     obj: Any,
-    attrgetter: Callable = safe_getattr,
+    attrgetter: _AttrGetter = safe_getattr,
     allow_inherited: bool = False,
     cls: Any = None,
     name: str | None = None,
@@ -930,11 +1011,15 @@ def getdoc(
     * inherited docstring
     * inherited decorated methods
     """
-    if cls and name and isclassmethod(obj, cls, name):
+    if cls and name and is_classmethod_like(obj, cls, name):
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
-            if meth and hasattr(meth, '__func__'):
-                doc: str | None = getdoc(meth.__func__)
+            if not meth:
+                continue
+            # Built-in class methods do not have '__func__'
+            # but they may have a docstring.
+            if hasattr(meth, '__func__') or is_classmethod_descriptor(meth):
+                doc: str | None = getdoc(getattr(meth, '__func__', meth))
                 if doc is not None or not allow_inherited:
                     return doc
 

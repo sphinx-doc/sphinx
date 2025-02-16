@@ -9,7 +9,7 @@ SENTINEL = object()
 
 
 #: docstring
-ze_lambda = lambda z=SENTINEL: None
+ze_lambda = lambda z=SENTINEL: None  # NoQA: E731
 
 
 def foo(x, y, z=SENTINEL):
@@ -19,6 +19,7 @@ def foo(x, y, z=SENTINEL):
 @dataclass
 class DataClass:
     """docstring"""
+
     a: int
     b: object = SENTINEL
     c: list[int] = field(default_factory=lambda: [1, 2, 3])
@@ -27,6 +28,7 @@ class DataClass:
 @dataclass(init=False)
 class DataClassNoInit:
     """docstring"""
+
     a: int
     b: object = SENTINEL
     c: list[int] = field(default_factory=lambda: [1, 2, 3])
@@ -34,6 +36,7 @@ class DataClassNoInit:
 
 class MyTypedDict(TypedDict):
     """docstring"""
+
     a: int
     b: object
     c: list[int]
@@ -41,10 +44,11 @@ class MyTypedDict(TypedDict):
 
 class MyNamedTuple1(NamedTuple):
     """docstring"""
+
     a: int
     b: object = object()
     c: list[int] = [1, 2, 3]
 
 
-class MyNamedTuple2(namedtuple('Base', ('a', 'b'), defaults=(0, SENTINEL))):
+class MyNamedTuple2(namedtuple('Base', ('a', 'b'), defaults=(0, SENTINEL))):  # NoQA: PYI024,SLOT002
     """docstring"""

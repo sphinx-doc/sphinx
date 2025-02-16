@@ -1,13 +1,20 @@
 """Test the code-block directive."""
 
-import os.path
+from __future__ import annotations
 
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import pygments
 import pytest
 from docutils import nodes
 
 from sphinx.config import Config
 from sphinx.directives.code import LiteralIncludeReader
 from sphinx.testing.util import etree_parse
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 DUMMY_CONFIG = Config({}, {})
 
@@ -106,7 +113,8 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
-        ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'
+        ValueError,
+        match='Cannot use "lineno-match" with a disjoint set of "lines"',
     ):
         reader.read()
 
@@ -116,7 +124,8 @@ def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
-        ValueError, match="Line spec '100-': no lines pulled from include file"
+        ValueError,
+        match="Line spec '100-': no lines pulled from include file",
     ):
         reader.read()
 
@@ -257,12 +266,13 @@ def test_LiteralIncludeReader_tabwidth_dedent(testroot):
 
 
 def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
-    options = {'diff': testroot / 'literal-diff.inc'}
+    literal_diff_path = testroot / 'literal-diff.inc'
+    options = {'diff': literal_diff_path}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == (
-        '--- ' + os.path.join(testroot, 'literal-diff.inc') + '\n'
-        '+++ ' + os.path.join(testroot, 'literal.inc') + '\n'
+        f'--- {literal_diff_path}\n'
+        f'+++ {literal_inc_path}\n'
         '@@ -6,8 +6,8 @@\n'
         '     pass\n'
         ' \n'
@@ -278,7 +288,7 @@ def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_code_block(app):
+def test_code_block(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'index.rst'])
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
@@ -290,13 +300,13 @@ def test_code_block(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_force_option(app):
+def test_force_option(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'force.rst'])
     assert 'force.rst' not in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_code_block_caption_html(app):
+def test_code_block_caption_html(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'caption.rst'])
     html = (app.outdir / 'caption.html').read_text(encoding='utf8')
     caption = (
@@ -310,7 +320,7 @@ def test_code_block_caption_html(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_caption_latex(app):
+def test_code_block_caption_latex(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
@@ -325,7 +335,7 @@ def test_code_block_caption_latex(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_namedlink_latex(app):
+def test_code_block_namedlink_latex(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     label1 = (
@@ -350,21 +360,21 @@ def test_code_block_namedlink_latex(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_emphasize_latex(app):
+def test_code_block_emphasize_latex(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'emphasize.rst'])
     latex = (
         (app.outdir / 'projectnamenotset.tex')
         .read_text(encoding='utf8')
         .replace('\r\n', '\n')
     )
-    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
+    includes = '\\fvset{hllines={, 6, 7, 16, 17, 18, 19, 29, 30, 31,}}%\n'
     assert includes in latex
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literal_include(app):
+def test_literal_include(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'index.rst'])
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
@@ -376,7 +386,7 @@ def test_literal_include(app):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literal_include_block_start_with_comment_or_brank(app):
+def test_literal_include_block_start_with_comment_or_brank(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'python.rst'])
     et = etree_parse(app.outdir / 'python.xml')
     secs = et.findall('./section/section')
@@ -392,7 +402,12 @@ def test_literal_include_block_start_with_comment_or_brank(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_literal_include_linenos(app):
+def test_literal_include_linenos(app: SphinxTestApp) -> None:
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build(filenames=[app.srcdir / 'linenos.rst'])
     html = (app.outdir / 'linenos.html').read_text(encoding='utf8')
 
@@ -410,13 +425,13 @@ def test_literal_include_linenos(app):
 
     # :lines: 5-9
     assert (
-        '<span class="linenos">5</span><span class="k">class</span> '
+        f'<span class="linenos">5</span><span class="k">class</span>{sp}'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_file_whole_of_emptyline(app):
+def test_literalinclude_file_whole_of_emptyline(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     latex = (
         (app.outdir / 'projectnamenotset.tex')
@@ -435,7 +450,7 @@ def test_literalinclude_file_whole_of_emptyline(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_literalinclude_caption_html(app):
+def test_literalinclude_caption_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     html = (app.outdir / 'caption.html').read_text(encoding='utf8')
     caption = (
@@ -449,8 +464,8 @@ def test_literalinclude_caption_html(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_caption_latex(app):
-    app.build(filenames='index')
+def test_literalinclude_caption_latex(app: SphinxTestApp) -> None:
+    app.build(filenames=(Path('index'),))
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id2}}}'
@@ -464,8 +479,8 @@ def test_literalinclude_caption_latex(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_namedlink_latex(app):
-    app.build(filenames='index')
+def test_literalinclude_namedlink_latex(app: SphinxTestApp) -> None:
+    app.build(filenames=(Path('index'),))
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     label1 = (
         '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}}'
@@ -489,7 +504,7 @@ def test_literalinclude_namedlink_latex(app):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literalinclude_classes(app):
+def test_literalinclude_classes(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'classes.rst'])
     et = etree_parse(app.outdir / 'classes.xml')
     secs = et.findall('./section/section')
@@ -506,7 +521,7 @@ def test_literalinclude_classes(app):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literalinclude_pydecorators(app):
+def test_literalinclude_pydecorators(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'py-decorators.rst'])
     et = etree_parse(app.outdir / 'py-decorators.xml')
     secs = et.findall('./section/section')
@@ -537,17 +552,12 @@ def test_literalinclude_pydecorators(app):
     assert actual == expect
 
     actual = literal_include[2].text
-    expect = (
-        '@function_decorator\n'
-        '@other_decorator()\n'
-        'def the_function():\n'
-        '    pass\n'
-    )
+    expect = '@function_decorator\n@other_decorator()\ndef the_function():\n    pass\n'
     assert actual == expect
 
 
 @pytest.mark.sphinx('dummy', testroot='directive-code')
-def test_code_block_highlighted(app):
+def test_code_block_highlighted(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'highlight.rst'])
     doctree = app.env.get_doctree('highlight')
     codeblocks = list(doctree.findall(nodes.literal_block))
@@ -559,13 +569,18 @@ def test_code_block_highlighted(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_linenothreshold(app):
+def test_linenothreshold(app: SphinxTestApp) -> None:
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build(filenames=[app.srcdir / 'linenothreshold.rst'])
     html = (app.outdir / 'linenothreshold.html').read_text(encoding='utf8')
 
     # code-block using linenothreshold
     assert (
-        '<span class="linenos">1</span><span class="k">class</span> '
+        f'<span class="linenos">1</span><span class="k">class</span>{sp}'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 
@@ -586,7 +601,7 @@ def test_linenothreshold(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='directive-code')
-def test_code_block_dedent(app):
+def test_code_block_dedent(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'dedent.rst'])
     doctree = app.env.get_doctree('dedent')
     codeblocks = list(doctree.findall(nodes.literal_block))

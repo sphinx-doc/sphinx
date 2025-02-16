@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
-from sphinx.ext.intersphinx._load import _fetch_inventory
+from sphinx.ext.intersphinx._load import _fetch_inventory, _InvConfig
 
 
 def inspect_main(argv: list[str], /) -> int:
@@ -17,26 +18,29 @@ def inspect_main(argv: list[str], /) -> int:
         )
         return 1
 
-    class MockConfig:
-        intersphinx_timeout: int | None = None
-        tls_verify = False
-        tls_cacerts: str | dict[str, str] | None = None
-        user_agent: str = ''
+    filename = argv[0]
+    config = _InvConfig(
+        intersphinx_cache_limit=5,
+        intersphinx_timeout=None,
+        tls_verify=False,
+        tls_cacerts=None,
+        user_agent='',
+    )
 
     try:
-        filename = argv[0]
-        inv_data = _fetch_inventory(
+        inv = _fetch_inventory(
             target_uri='',
             inv_location=filename,
-            config=MockConfig(),  # type: ignore[arg-type]
-            srcdir='',  # type: ignore[arg-type]
+            config=config,
+            srcdir=Path(),
         )
-        for key in sorted(inv_data or {}):
+        for key in sorted(inv.data):
             print(key)
-            inv_entries = sorted(inv_data[key].items())
-            for entry, (_proj, _ver, url_path, display_name) in inv_entries:
+            inv_entries = sorted(inv.data[key].items())
+            for entry, inv_item in inv_entries:
+                display_name = inv_item.display_name
                 display_name = display_name * (display_name != '-')
-                print(f'    {entry:<40} {display_name:<40}: {url_path}')
+                print(f'    {entry:<40} {display_name:<40}: {inv_item.uri}')
     except ValueError as exc:
         print(exc.args[0] % exc.args[1:], file=sys.stderr)
         return 1

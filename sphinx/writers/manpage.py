@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.writers.manpage import Translator as BaseTranslator
@@ -17,6 +16,9 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Any
+
     from docutils.nodes import Element
 
     from sphinx.builders import Builder
@@ -33,14 +35,13 @@ class ManualPageWriter(Writer):  # type: ignore[misc]
         transform = NestedInlineTransform(self.document)
         transform.apply()
         visitor = self.builder.create_translator(self.document, self.builder)
-        self.visitor = cast(ManualPageTranslator, visitor)
+        self.visitor = cast('ManualPageTranslator', visitor)
         self.document.walkabout(visitor)
         self.output = self.visitor.astext()
 
 
 class NestedInlineTransform:
-    """
-    Flatten nested inline nodes:
+    """Flatten nested inline nodes:
 
     Before:
         <strong>foo=<emphasis>1</emphasis>
@@ -71,16 +72,12 @@ class NestedInlineTransform:
 
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
-    """
-    Custom man page translator.
-    """
+    """Custom man page translator."""
 
     _docinfo: dict[str, Any] = {}
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
-
-        self.in_productionlist = 0
 
         # first title is the manpage title
         self.section_level = -1
@@ -117,7 +114,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
             ' "%(date)s" "%(version)s" "%(manual_group)s"\n'
         )
         if self._docinfo['subtitle']:
-            tmpl += '.SH NAME\n' '%(title)s \\- %(subtitle)s\n'
+            tmpl += '.SH NAME\n%(title)s \\- %(subtitle)s\n'
         return tmpl % self._docinfo
 
     def visit_start_of_file(self, node: Element) -> None:
@@ -259,7 +256,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     # overwritten -- handle footnotes rubric
     def visit_rubric(self, node: Element) -> None:
         self.ensure_eol()
-        if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
+        if len(node) == 1 and node.astext() in {'Footnotes', _('Footnotes')}:
             self.body.append('.SH ' + self.deunicode(node.astext()).upper() + '\n')
             raise nodes.SkipNode
         self.body.append('.sp\n')
@@ -275,26 +272,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
 
     def visit_productionlist(self, node: Element) -> None:
         self.ensure_eol()
-        self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
-        productionlist = cast(Iterable[addnodes.production], node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
-        lastname = None
-        for production in productionlist:
-            if production['tokenname']:
-                lastname = production['tokenname'].ljust(maxlen)
-                self.body.append(self.defs['strong'][0])
-                self.body.append(self.deunicode(lastname))
-                self.body.append(self.defs['strong'][1])
-                self.body.append(' ::= ')
-            elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
-            production.walkabout(self)
-            self.body.append('\n')
+
+    def depart_productionlist(self, node: Element) -> None:
         self.body.append('\n.fi\n')
-        self.in_productionlist -= 1
-        raise nodes.SkipNode
 
     def visit_production(self, node: Element) -> None:
         pass
@@ -379,11 +360,11 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         pass
 
     def visit_acks(self, node: Element) -> None:
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.ensure_eol()
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n')
         raise nodes.SkipNode
@@ -477,14 +458,14 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     def depart_inline(self, node: Element) -> None:
         pass
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         pass
 
-    def depart_math(self, node: Element) -> None:
+    def depart_math(self, node: nodes.math) -> None:
         pass
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         self.visit_centered(node)
 
-    def depart_math_block(self, node: Element) -> None:
+    def depart_math_block(self, node: nodes.math_block) -> None:
         self.depart_centered(node)

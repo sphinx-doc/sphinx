@@ -209,6 +209,19 @@ describe('Basic html theme search', function() {
 
   });
 
+  describe('can handle edge-case search queries', function() {
+
+    it('does not find the javascript prototype property in unrelated documents', function() {
+      eval(loadFixture("partial/searchindex.js"));
+
+      searchParameters = Search._parseQuery('__proto__');
+
+      hits = [];
+      expect(Search._performSearch(...searchParameters)).toEqual(hits);
+    });
+
+  });
+
 });
 
 describe("htmlToText", function() {
@@ -245,8 +258,8 @@ describe("htmlToText", function() {
 
   it("basic case", () => {
     expect(Search.htmlToText(testHTML).trim().split(/\s+/)).toEqual([
-      'Getting', 'Started', 'Some', 'text', 
-      'Other', 'Section', 'Other', 'text', 
+      'Getting', 'Started', 'Some', 'text',
+      'Other', 'Section', 'Other', 'text',
       'Yet', 'Another', 'Section', 'More', 'text'
     ]);
   });
@@ -256,7 +269,7 @@ describe("htmlToText", function() {
   });
 });
 
-// This is regression test for https://github.com/sphinx-doc/sphinx/issues/3150
+// Regression test for https://github.com/sphinx-doc/sphinx/issues/3150
 describe('splitQuery regression tests', () => {
 
   it('can split English words', () => {

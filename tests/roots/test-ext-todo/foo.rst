@@ -5,6 +5,6 @@ foo
 
 .. py:function:: hello()
 
-   :param bug: #5800
+   :param bug: https://github.com/sphinx-doc/sphinx/pull/5800
 
                .. todo:: todo in param field

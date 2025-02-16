@@ -1,4 +1,6 @@
-"""Tests for :mod:`sphinx.ext.napoleon.docstring` module."""
+"""Tests for :py:mod:`sphinx.ext.napoleon.docstring` module."""
+
+from __future__ import annotations
 
 import re
 import zlib
@@ -6,16 +8,17 @@ from collections import namedtuple
 from inspect import cleandoc
 from itertools import product
 from textwrap import dedent
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
 
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (
     GoogleDocstring,
     NumpyDocstring,
-    _convert_numpy_type_spec,
+    _convert_type_spec,
     _recombine_set_tokens,
     _token_type,
     _tokenize_type_spec,
@@ -25,8 +28,11 @@ from sphinx.testing.util import etree_parse
 from tests.test_extensions.ext_napoleon_pep526_data_google import PEP526GoogleClass
 from tests.test_extensions.ext_napoleon_pep526_data_numpy import PEP526NumpyClass
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
-class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
+
+class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):  # NoQA: PYI024
     """Sample namedtuple subclass
 
     Attributes
@@ -118,9 +124,9 @@ class TestInlineAttribute:
         assert actual == [source]
 
     def test_class_data_member_inline_ref_in_type(self):
-        source = f':class:`int`: {self.inline_google_docstring}'
+        source = f':py:class:`int`: {self.inline_google_docstring}'
         actual = self._docstring(source).splitlines()
-        assert actual == [self.inline_google_docstring, '', ':type: :class:`int`']
+        assert actual == [self.inline_google_docstring, '', ':type: :py:class:`int`']
 
 
 class TestGoogleDocstring:
@@ -443,9 +449,7 @@ class TestGoogleDocstring:
             assert str(actual) == expect
 
             # Single line
-            actual = GoogleDocstring(
-                f'{section}:\n' '    this is a single line\n', config
-            )
+            actual = GoogleDocstring(f'{section}:\n    this is a single line\n', config)
             expect = f'.. {admonition}:: this is a single line\n'
             assert str(actual) == expect
 
@@ -467,14 +471,14 @@ Construct a new XBlock.
 This class should only be used by runtimes.
 
 Arguments:
-    runtime (:class:`~typing.Dict`\\[:class:`int`,:class:`str`\\]): Use it to
+    runtime (:py:class:`~typing.Dict`\\[:py:class:`int`,:py:class:`str`\\]): Use it to
         access the environment. It is available in XBlock code
         as ``self.runtime``.
 
-    field_data (:class:`FieldData`): Interface used by the XBlock
+    field_data (:py:class:`FieldData`): Interface used by the XBlock
         fields to access their data from wherever it is persisted.
 
-    scope_ids (:class:`ScopeIds`): Identifiers needed to resolve scopes.
+    scope_ids (:py:class:`ScopeIds`): Identifiers needed to resolve scopes.
 
 """
 
@@ -487,19 +491,19 @@ This class should only be used by runtimes.
 :param runtime: Use it to
                 access the environment. It is available in XBlock code
                 as ``self.runtime``.
-:type runtime: :class:`~typing.Dict`\\[:class:`int`,:class:`str`\\]
+:type runtime: :py:class:`~typing.Dict`\\[:py:class:`int`,:py:class:`str`\\]
 :param field_data: Interface used by the XBlock
                    fields to access their data from wherever it is persisted.
-:type field_data: :class:`FieldData`
+:type field_data: :py:class:`FieldData`
 :param scope_ids: Identifiers needed to resolve scopes.
-:type scope_ids: :class:`ScopeIds`
+:type scope_ids: :py:class:`ScopeIds`
 """
         assert str(actual) == expected
 
     def test_attributes_with_class_reference(self):
         docstring = """\
 Attributes:
-    in_attr(:class:`numpy.ndarray`): super-dooper attribute
+    in_attr(:py:class:`numpy.ndarray`): super-dooper attribute
 """
 
         actual = GoogleDocstring(docstring)
@@ -508,7 +512,7 @@ Attributes:
 
    super-dooper attribute
 
-   :type: :class:`numpy.ndarray`
+   :type: :py:class:`numpy.ndarray`
 """
         assert str(actual) == expected
 
@@ -583,14 +587,14 @@ Returns:
         docstring = """Example Function
 
 Returns:
-    :class:`numpy.ndarray`: A :math:`n \\times 2` array containing
+    :py:class:`numpy.ndarray`: A :math:`n \\times 2` array containing
     a bunch of math items
 """
         expected = """Example Function
 
 :returns: A :math:`n \\times 2` array containing
           a bunch of math items
-:rtype: :class:`numpy.ndarray`
+:rtype: :py:class:`numpy.ndarray`
 """
         actual = GoogleDocstring(docstring)
         assert str(actual) == expected
@@ -612,7 +616,7 @@ Raises:
         If the dimensions couldn't be parsed.
     `InvalidArgumentsError`
         If the arguments are invalid.
-    :exc:`~ValueError`
+    :py:exc:`~ValueError`
         If the arguments are wrong.
 
 """,
@@ -723,7 +727,7 @@ Example Function
 Example Function
 
 Raises:
-    :class:`exc.InvalidDimensionsError`
+    :py:class:`exc.InvalidDimensionsError`
 
 """,
                 """
@@ -738,7 +742,7 @@ Example Function
 Example Function
 
 Raises:
-    :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed.
+    :py:class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed.
 
 """,
                 """
@@ -753,15 +757,15 @@ Example Function
 Example Function
 
 Raises:
-    :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed,
-       then a :class:`exc.InvalidDimensionsError` will be raised.
+    :py:class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed,
+       then a :py:class:`exc.InvalidDimensionsError` will be raised.
 
 """,
                 """
 Example Function
 
 :raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed,
-    then a :class:`exc.InvalidDimensionsError` will be raised.
+    then a :py:class:`exc.InvalidDimensionsError` will be raised.
 """,
             ),
             ################################
@@ -770,8 +774,8 @@ Example Function
 Example Function
 
 Raises:
-    :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed.
-    :class:`exc.InvalidArgumentsError`: If the arguments are invalid.
+    :py:class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed.
+    :py:class:`exc.InvalidArgumentsError`: If the arguments are invalid.
 
 """,
                 """
@@ -787,8 +791,8 @@ Example Function
 Example Function
 
 Raises:
-    :class:`exc.InvalidDimensionsError`
-    :class:`exc.InvalidArgumentsError`
+    :py:class:`exc.InvalidDimensionsError`
+    :py:class:`exc.InvalidArgumentsError`
 
 """,
                 """
@@ -1221,7 +1225,7 @@ Returns Style:
             ),
         )
 
-        testConfig = Config(
+        test_config = Config(
             napoleon_custom_sections=[
                 'Really Important Details',
                 ('Sooper Warning', 'warns'),
@@ -1231,7 +1235,7 @@ Returns Style:
         )
 
         for docstring, expected in docstrings:
-            actual = GoogleDocstring(docstring, testConfig)
+            actual = GoogleDocstring(docstring, test_config)
             assert str(actual) == expected
 
     def test_noindex(self):
@@ -1369,7 +1373,7 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :Parameters: **arg1** (:class:`str`) -- Extended
+        :Parameters: **arg1** (:py:class:`str`) -- Extended
                      description of arg1
         """,
         ),
@@ -1398,14 +1402,14 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :Parameters: * **arg1** (:class:`str`) -- Extended
+        :Parameters: * **arg1** (:py:class:`str`) -- Extended
                        description of arg1
-                     * **arg2** (:class:`int`) -- Extended
+                     * **arg2** (:py:class:`int`) -- Extended
                        description of arg2
 
-        :Keyword Arguments: * **kwarg1** (:class:`str`) -- Extended
+        :Keyword Arguments: * **kwarg1** (:py:class:`str`) -- Extended
                               description of kwarg1
-                            * **kwarg2** (:class:`int`) -- Extended
+                            * **kwarg2** (:py:class:`int`) -- Extended
                               description of kwarg2
         """,
         ),
@@ -1422,7 +1426,7 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :returns: :class:`str` -- Extended
+        :returns: :py:class:`str` -- Extended
                   description of return value
         """,
         ),
@@ -1439,7 +1443,7 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :returns: :class:`str` -- Extended
+        :returns: :py:class:`str` -- Extended
                   description of return value
         """,
         ),
@@ -1459,7 +1463,7 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
+        :Parameters: * **arg1** (:py:class:`str`) -- Extended description of arg1
                      * **\\*args** -- Variable length argument list.
                      * **\\*\\*kwargs** -- Arbitrary keyword arguments.
         """,
@@ -1478,7 +1482,7 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :Parameters: * **arg1** (:class:`str`) -- Extended description of arg1
+        :Parameters: * **arg1** (:py:class:`str`) -- Extended description of arg1
                      * **\\*args, \\*\\*kwargs** -- Variable length argument list and arbitrary keyword arguments.
         """,
         ),
@@ -1498,9 +1502,9 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :Receives: * **arg1** (:class:`str`) -- Extended
+        :Receives: * **arg1** (:py:class:`str`) -- Extended
                      description of arg1
-                   * **arg2** (:class:`int`) -- Extended
+                   * **arg2** (:py:class:`int`) -- Extended
                      description of arg2
         """,
         ),
@@ -1520,9 +1524,9 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :Receives: * **arg1** (:class:`str`) -- Extended
+        :Receives: * **arg1** (:py:class:`str`) -- Extended
                      description of arg1
-                   * **arg2** (:class:`int`) -- Extended
+                   * **arg2** (:py:class:`int`) -- Extended
                      description of arg2
         """,
         ),
@@ -1539,7 +1543,7 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :Yields: :class:`str` -- Extended
+        :Yields: :py:class:`str` -- Extended
                  description of yielded value
         """,
         ),
@@ -1556,7 +1560,7 @@ class TestNumpyDocstring:
             """
         Single line summary
 
-        :Yields: :class:`str` -- Extended
+        :Yields: :py:class:`str` -- Extended
                  description of yielded value
         """,
         ),
@@ -1579,12 +1583,13 @@ class TestNumpyDocstring:
         config = Config()
         for section, admonition in admonition_map.items():
             # Multiline
+            underline = '-' * len(section)
             actual = NumpyDocstring(
-                f"{section}\n"
-                f"{'-' * len(section)}\n"
-                "    this is the first line\n"
-                "\n"
-                "    and this is the second line\n",
+                f'{section}\n'
+                f'{underline}\n'
+                '    this is the first line\n'
+                '\n'
+                '    and this is the second line\n',
                 config,
             )
             expect = (
@@ -1598,7 +1603,7 @@ class TestNumpyDocstring:
 
             # Single line
             actual = NumpyDocstring(
-                f"{section}\n{'-' * len(section)}\n    this is a single line\n",
+                f'{section}\n{"-" * len(section)}\n    this is a single line\n',
                 config,
             )
             expect = f'.. {admonition}:: this is a single line\n'
@@ -1736,9 +1741,9 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
 
-   :obj:`some`, :obj:`other`, :obj:`funcs`
+   :py:obj:`some`, :py:obj:`other`, :py:obj:`funcs`
    \n\
-   :obj:`otherfunc`
+   :py:obj:`otherfunc`
        relationship
 """
         assert str(actual) == expected
@@ -1762,9 +1767,9 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
 
-   :obj:`some`, :obj:`other`, :obj:`funcs`
+   :py:obj:`some`, :py:obj:`other`, :py:obj:`funcs`
    \n\
-   :obj:`otherfunc`
+   :py:obj:`otherfunc`
        relationship
 """
         assert str(actual) == expected
@@ -1791,7 +1796,7 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
 
-   :obj:`some`, :obj:`MyClass.other`, :func:`funcs`
+   :py:obj:`some`, :py:obj:`MyClass.other`, :func:`funcs`
    \n\
    :func:`~my_package.otherfunc`
        relationship
@@ -1871,7 +1876,7 @@ arg_ : type
         """)
         expected = dedent("""
            :returns: a dataframe
-           :rtype: :class:`~pandas.DataFrame`
+           :rtype: :py:class:`~pandas.DataFrame`
         """)
         translations = {
             'DataFrame': '~pandas.DataFrame',
@@ -1897,11 +1902,11 @@ arg_ : type
         expected = dedent("""
             Example Function
 
-            :Yields: :term:`scalar` or :class:`array-like <numpy.ndarray>` -- The result of the computation
+            :Yields: :term:`scalar` or :py:class:`array-like <numpy.ndarray>` -- The result of the computation
         """)
         translations = {
             'scalar': ':term:`scalar`',
-            'array-like': ':class:`array-like <numpy.ndarray>`',
+            'array-like': ':py:class:`array-like <numpy.ndarray>`',
         }
         config = Config(
             napoleon_type_aliases=translations, napoleon_preprocess_types=True
@@ -2453,60 +2458,60 @@ definition_after_normal_text : int
 
         expected = """One line summary.
 
-:Parameters: * **no_list** (:class:`int`)
-             * **one_bullet_empty** (:class:`int`) --
+:Parameters: * **no_list** (:py:class:`int`)
+             * **one_bullet_empty** (:py:class:`int`) --
 
                *
-             * **one_bullet_single_line** (:class:`int`) --
+             * **one_bullet_single_line** (:py:class:`int`) --
 
                - first line
-             * **one_bullet_two_lines** (:class:`int`) --
+             * **one_bullet_two_lines** (:py:class:`int`) --
 
                +   first line
                    continued
-             * **two_bullets_single_line** (:class:`int`) --
+             * **two_bullets_single_line** (:py:class:`int`) --
 
                -  first line
                -  second line
-             * **two_bullets_two_lines** (:class:`int`) --
+             * **two_bullets_two_lines** (:py:class:`int`) --
 
                * first line
                  continued
                * second line
                  continued
-             * **one_enumeration_single_line** (:class:`int`) --
+             * **one_enumeration_single_line** (:py:class:`int`) --
 
                1.  first line
-             * **one_enumeration_two_lines** (:class:`int`) --
+             * **one_enumeration_two_lines** (:py:class:`int`) --
 
                1)   first line
                     continued
-             * **two_enumerations_one_line** (:class:`int`) --
+             * **two_enumerations_one_line** (:py:class:`int`) --
 
                (iii) first line
                (iv) second line
-             * **two_enumerations_two_lines** (:class:`int`) --
+             * **two_enumerations_two_lines** (:py:class:`int`) --
 
                a. first line
                   continued
                b. second line
                   continued
-             * **one_definition_one_line** (:class:`int`) --
+             * **one_definition_one_line** (:py:class:`int`) --
 
                item 1
                    first line
-             * **one_definition_two_lines** (:class:`int`) --
+             * **one_definition_two_lines** (:py:class:`int`) --
 
                item 1
                    first line
                    continued
-             * **two_definitions_one_line** (:class:`int`) --
+             * **two_definitions_one_line** (:py:class:`int`) --
 
                item 1
                    first line
                item 2
                    second line
-             * **two_definitions_two_lines** (:class:`int`) --
+             * **two_definitions_two_lines** (:py:class:`int`) --
 
                item 1
                    first line
@@ -2514,14 +2519,14 @@ definition_after_normal_text : int
                item 2
                    second line
                    continued
-             * **one_definition_blank_line** (:class:`int`) --
+             * **one_definition_blank_line** (:py:class:`int`) --
 
                item 1
 
                    first line
 
                    extra first line
-             * **two_definitions_blank_lines** (:class:`int`) --
+             * **two_definitions_blank_lines** (:py:class:`int`) --
 
                item 1
 
@@ -2534,7 +2539,7 @@ definition_after_normal_text : int
                    second line
 
                    extra second line
-             * **definition_after_normal_text** (:class:`int`) -- text line
+             * **definition_after_normal_text** (:py:class:`int`) -- text line
 
                item 1
                    first line
@@ -2665,18 +2670,18 @@ definition_after_normal_text : int
         converted = (
             '',
             '*optional*',
-            ':class:`str`, *optional*',
-            ':class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`',
-            ':class:`list` of :class:`tuple` of :class:`str`, *optional*',
-            ':class:`int`, *default* :obj:`None`',
+            ':py:class:`str`, *optional*',
+            ':py:class:`int` or :py:class:`float` or :py:obj:`None`, *default*: :py:obj:`None`',
+            ':py:class:`list` of :py:class:`tuple` of :py:class:`str`, *optional*',
+            ':py:class:`int`, *default* :py:obj:`None`',
             '``{"F", "C", "N"}``',
             "``{'F', 'C', 'N'}``, *default*: ``'N'``",
             "``{'F', 'C', 'N'}``, *default* ``'N'``",
-            ':class:`pandas.DataFrame`, *optional*',
+            ':py:class:`pandas.DataFrame`, *optional*',
         )
 
         for spec, expected in zip(specs, converted, strict=True):
-            actual = _convert_numpy_type_spec(spec, translations=translations)
+            actual = _convert_type_spec(spec, translations=translations)
             assert actual == expected
 
     def test_parameter_types(self):
@@ -2704,23 +2709,23 @@ definition_after_normal_text : int
         """)
         expected = dedent("""\
             :param param1: the data to work on
-            :type param1: :class:`DataFrame`
+            :type param1: :py:class:`DataFrame`
             :param param2: a parameter with different types
-            :type param2: :class:`int` or :class:`float` or :obj:`None`, *optional*
+            :type param2: :py:class:`int` or :py:class:`float` or :py:obj:`None`, *optional*
             :param param3: a optional mapping
             :type param3: :term:`dict-like <mapping>`, *optional*
             :param param4: a optional parameter with different types
-            :type param4: :class:`int` or :class:`float` or :obj:`None`, *optional*
+            :type param4: :py:class:`int` or :py:class:`float` or :py:obj:`None`, *optional*
             :param param5: a optional parameter with fixed values
             :type param5: ``{"F", "C", "N"}``, *optional*
             :param param6: different default format
-            :type param6: :class:`int`, *default* :obj:`None`
+            :type param6: :py:class:`int`, *default* :py:obj:`None`
             :param param7: a optional mapping
-            :type param7: :term:`mapping` of :term:`hashable` to :class:`str`, *optional*
+            :type param7: :term:`mapping` of :term:`hashable` to :py:class:`str`, *optional*
             :param param8: ellipsis
-            :type param8: :obj:`... <Ellipsis>` or :obj:`Ellipsis`
+            :type param8: :py:obj:`... <Ellipsis>` or :py:obj:`Ellipsis`
             :param param9: a parameter with tuple of list of int
-            :type param9: :class:`tuple` of :class:`list` of :class:`int`
+            :type param9: :py:class:`tuple` of :py:class:`list` of :py:class:`int`
         """)
         translations = {
             'dict-like': ':term:`dict-like <mapping>`',
@@ -2818,7 +2823,7 @@ Sample class with PEP 526 annotations and numpy docstring
         'autodoc_typehints_description_target': 'all',
     },
 )
-def test_napoleon_and_autodoc_typehints_description_all(app):
+def test_napoleon_and_autodoc_typehints_description_all(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
     assert content == (
@@ -2847,7 +2852,9 @@ def test_napoleon_and_autodoc_typehints_description_all(app):
         'autodoc_typehints_description_target': 'documented_params',
     },
 )
-def test_napoleon_and_autodoc_typehints_description_documented_params(app):
+def test_napoleon_and_autodoc_typehints_description_documented_params(
+    app: SphinxTestApp,
+) -> None:
     app.build()
     content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
     assert content == (
@@ -2880,7 +2887,7 @@ None py:data 1 none.html -
 list py:class 1 list.html -
 int py:class 1 int.html -
 """)
-    )  # NoQA: W291
+    )
     app.config.intersphinx_mapping = {'python': ('127.0.0.1:5555', str(inv_file))}
     validate_intersphinx_mapping(app, app.config)
     load_mappings(app)

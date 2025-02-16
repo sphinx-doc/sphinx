@@ -1,5 +1,7 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import pytest
 
 from tests.test_builders.xpath_html_util import _intradocument_hyperlink_check
@@ -68,7 +70,7 @@ from tests.test_builders.xpath_util import check_xpath
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
-    # issue #1251
+    # https://github.com/sphinx-doc/sphinx/issues/1251
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
 

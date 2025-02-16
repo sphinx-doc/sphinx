@@ -1,11 +1,18 @@
 """Test autosummary for import cycles."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.ext.autosummary import autosummary_table
 from sphinx.testing.util import assert_node
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-import_cycle')
@@ -57,9 +64,13 @@ def test_autosummary_import_cycle(app):
     assert expected in app.warning.getvalue()
 
 
-@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_prefix')
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='ext-autosummary-module_prefix',
+    copy_test_root=True,
+)
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_autosummary_generate_prefixes(app):
+def test_autosummary_generate_prefixes(app: SphinxTestApp) -> None:
     app.build()
     warnings = app.warning.getvalue()
     assert 'Summarised items should not include the current module.' not in warnings

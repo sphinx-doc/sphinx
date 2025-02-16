@@ -12,7 +12,7 @@ import pytest
 from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock, undecorate
 
 
-def test_MockModule():
+def test_MockModule() -> None:
     mock = _MockModule('mocked_module')
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
@@ -58,7 +58,7 @@ def test_MockObject():
     assert isinstance(obj2, SubClass2)
 
 
-def test_mock():
+def test_mock() -> None:
     modname = 'sphinx.unknown'
     submodule = modname + '.submodule'
     assert modname not in sys.modules
@@ -80,7 +80,7 @@ def test_mock():
         import_module(modname)
 
 
-def test_mock_does_not_follow_upper_modules():
+def test_mock_does_not_follow_upper_modules() -> None:
     with mock(['sphinx.unknown.module']):  # NoQA: SIM117
         with pytest.raises(ImportError):
             import_module('sphinx.unknown')

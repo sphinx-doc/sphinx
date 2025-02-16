@@ -1,5 +1,7 @@
 """The Sphinx documentation toolchain."""
 
+from __future__ import annotations
+
 __version__ = '8.2.0'
 __display_version__ = __version__  # used for command line version
 
@@ -8,6 +10,8 @@ __display_version__ = __version__  # used for command line version
 
 import os
 import warnings
+
+from sphinx.util._pathlib import _StrPath
 
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
@@ -32,7 +36,7 @@ warnings.filterwarnings(
 #:    Before version 1.2, check the string ``sphinx.__version__``.
 version_info = (8, 2, 0, 'beta', 0)
 
-package_dir = os.path.abspath(os.path.dirname(__file__))
+package_dir = _StrPath(__file__).resolve().parent
 
 _in_development = True
 if _in_development:
@@ -41,7 +45,7 @@ if _in_development:
 
     try:
         if ret := subprocess.run(
-            ['git', 'rev-parse', '--short', 'HEAD'],
+            ['git', 'rev-parse', '--short', 'HEAD'],  # NoQA: S607
             cwd=package_dir,
             capture_output=True,
             check=False,

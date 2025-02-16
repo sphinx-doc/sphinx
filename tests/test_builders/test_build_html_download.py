@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import hashlib
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_html_download(app):
+def test_html_download(app: SphinxTestApp) -> None:
     app.build()
 
     # subdir/includes.html
@@ -40,7 +46,7 @@ def test_html_download(app):
 
 
 @pytest.mark.sphinx('html', testroot='roles-download')
-def test_html_download_role(app):
+def test_html_download_role(app: SphinxTestApp) -> None:
     app.build()
     digest = hashlib.md5(b'dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()

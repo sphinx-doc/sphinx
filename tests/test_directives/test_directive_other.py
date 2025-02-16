@@ -1,6 +1,9 @@
 """Test the other directives."""
 
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import nodes
@@ -8,6 +11,9 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
@@ -157,7 +163,7 @@ def test_toctree_twice(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-include')
-def test_include_include_read_event(app):
+def test_include_include_read_event(app: SphinxTestApp) -> None:
     sources_reported = []
 
     def source_read_handler(_app, relative_path, parent_docname, source):

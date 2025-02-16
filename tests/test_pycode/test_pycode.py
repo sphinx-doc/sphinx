@@ -1,7 +1,10 @@
 """Test pycode."""
 
-import os
+from __future__ import annotations
+
 import sys
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
 
 import pytest
 
@@ -9,13 +12,14 @@ import sphinx
 from sphinx.errors import PycodeError
 from sphinx.pycode import ModuleAnalyzer
 
-SPHINX_MODULE_PATH = os.path.splitext(sphinx.__file__)[0] + '.py'
+SPHINX_MODULE_PATH = Path(sphinx.__file__).resolve().with_suffix('.py')
 
 
-def test_ModuleAnalyzer_get_module_source():
+def test_ModuleAnalyzer_get_module_source() -> None:
+    assert isinstance(sphinx.__spec__.loader, SourceFileLoader)  # type checking
     assert ModuleAnalyzer.get_module_source('sphinx') == (
-        sphinx.__file__,
-        sphinx.__loader__.get_source('sphinx'),
+        Path(sphinx.__file__),
+        sphinx.__spec__.loader.get_source('sphinx'),
     )
 
     # failed to obtain source information from builtin modules
@@ -25,22 +29,22 @@ def test_ModuleAnalyzer_get_module_source():
         ModuleAnalyzer.get_module_source('itertools')
 
 
-def test_ModuleAnalyzer_for_string():
+def test_ModuleAnalyzer_for_string() -> None:
     analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')
     assert analyzer.modname == 'module_name'
     assert analyzer.srcname == '<string>'
 
 
-def test_ModuleAnalyzer_for_file():
-    analyzer = ModuleAnalyzer.for_string(SPHINX_MODULE_PATH, 'sphinx')
+def test_ModuleAnalyzer_for_file() -> None:
+    analyzer = ModuleAnalyzer.for_file(SPHINX_MODULE_PATH, 'sphinx')
     assert analyzer.modname == 'sphinx'
-    assert analyzer.srcname == '<string>'
+    assert analyzer.srcname == str(SPHINX_MODULE_PATH)
 
 
 def test_ModuleAnalyzer_for_module(rootdir):
     analyzer = ModuleAnalyzer.for_module('sphinx')
     assert analyzer.modname == 'sphinx'
-    assert analyzer.srcname in (SPHINX_MODULE_PATH, os.path.abspath(SPHINX_MODULE_PATH))
+    assert analyzer.srcname == str(SPHINX_MODULE_PATH)
 
     saved_path = sys.path.copy()
     sys.path.insert(0, str(rootdir / 'test-pycode'))
@@ -52,7 +56,7 @@ def test_ModuleAnalyzer_for_module(rootdir):
         sys.path[:] = saved_path
 
 
-def test_ModuleAnalyzer_find_tags():
+def test_ModuleAnalyzer_find_tags() -> None:
     code = (
         'class Foo(object):\n'  # line: 1
         '    """class Foo!"""\n'
@@ -106,7 +110,7 @@ def test_ModuleAnalyzer_find_tags():
     assert tags['Corge.grault'] == ('def', 24, 27)
 
 
-def test_ModuleAnalyzer_find_attr_docs():
+def test_ModuleAnalyzer_find_attr_docs() -> None:
     code = (
         'class Foo(object):\n'
         '    """class Foo!"""\n'
@@ -149,15 +153,15 @@ def test_ModuleAnalyzer_find_attr_docs():
         ('Foo', 'attr8'),
         ('Foo', 'attr9'),
     }
-    assert docs[('Foo', 'attr1')] == ['comment before attr1', '']
-    assert docs[('Foo', 'attr3')] == ['attribute comment for attr3', '']
-    assert docs[('Foo', 'attr4')] == ['long attribute comment', '']
-    assert docs[('Foo', 'attr4')] == ['long attribute comment', '']
-    assert docs[('Foo', 'attr5')] == ['attribute comment for attr5', '']
-    assert docs[('Foo', 'attr6')] == ['this comment is ignored', '']
-    assert docs[('Foo', 'attr7')] == ['this comment is ignored', '']
-    assert docs[('Foo', 'attr8')] == ['attribute comment for attr8', '']
-    assert docs[('Foo', 'attr9')] == ['string after attr9', '']
+    assert docs['Foo', 'attr1'] == ['comment before attr1', '']
+    assert docs['Foo', 'attr3'] == ['attribute comment for attr3', '']
+    assert docs['Foo', 'attr4'] == ['long attribute comment', '']
+    assert docs['Foo', 'attr4'] == ['long attribute comment', '']
+    assert docs['Foo', 'attr5'] == ['attribute comment for attr5', '']
+    assert docs['Foo', 'attr6'] == ['this comment is ignored', '']
+    assert docs['Foo', 'attr7'] == ['this comment is ignored', '']
+    assert docs['Foo', 'attr8'] == ['attribute comment for attr8', '']
+    assert docs['Foo', 'attr9'] == ['string after attr9', '']
     assert analyzer.tagorder == {
         'Foo': 0,
         'Foo.__init__': 8,
@@ -178,7 +182,7 @@ def test_ModuleAnalyzer_find_attr_docs():
     }
 
 
-def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
+def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method() -> None:
     code = (
         'class Foo(object):\n'
         '    def __init__(self, /):\n'
@@ -187,5 +191,5 @@ def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
     analyzer = ModuleAnalyzer.for_string(code, 'module')
     docs = analyzer.find_attr_docs()
     assert set(docs) == {('Foo', 'attr')}
-    assert docs[('Foo', 'attr')] == ['attribute comment', '']
+    assert docs['Foo', 'attr'] == ['attribute comment', '']
     assert analyzer.tagorder == {'Foo': 0, 'Foo.__init__': 1, 'Foo.attr': 2}

@@ -1,4 +1,4 @@
 #!python
 # -*- coding: windows-1251 -*-
 
-X="Õ" #:It MUST look like X="Õ"
+X="Ð¥" #:It MUST look like X="Ð¥"

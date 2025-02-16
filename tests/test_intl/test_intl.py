@@ -3,22 +3,29 @@
 Runs the text builder in the test root.
 """
 
+from __future__ import annotations
+
 import os
-import os.path
 import re
 import shutil
 import time
-from io import StringIO
+from typing import TYPE_CHECKING
 
+import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.testing.util import assert_node, etree_parse
-from sphinx.util.console import strip_colors
 from sphinx.util.nodes import NodeMatcher
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from io import StringIO
+    from pathlib import Path
 
 _CATALOG_LOCALE = 'xx'
 
@@ -42,9 +49,9 @@ def write_mo(pathname, po):
         return mofile.write_mo(f, po)
 
 
-def _set_mtime_ns(target: str | os.PathLike[str], value: int) -> int:
+def _set_mtime_ns(target: Path, value: int) -> int:
     os.utime(target, ns=(value, value))
-    return os.stat(target).st_mtime_ns
+    return target.stat().st_mtime_ns
 
 
 def _get_bom_intl_path(app):
@@ -66,7 +73,7 @@ def _info(app):
 
 
 def elem_gettexts(elem):
-    return [_f for _f in [s.strip() for s in elem.itertext()] if _f]
+    return list(filter(None, map(str.strip, elem.itertext())))
 
 
 def elem_getref(elem):
@@ -101,9 +108,9 @@ def test_text_emit_warnings(app):
         '.*/warnings.txt:4:<translated>:1: '
         'WARNING: Inline literal start-string without end-string. \\[docutils\\]\n'
     )
-    assert re.search(
-        warning_expr, warnings
-    ), f'{warning_expr!r} did not match {warnings!r}'
+    assert re.search(warning_expr, warnings), (
+        f'{warning_expr!r} did not match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -197,21 +204,21 @@ def test_text_inconsistency_warnings(app):
             'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
         }
     )
-    assert re.search(
-        expected_warning_expr, warnings
-    ), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), (
+        f'{expected_warning_expr!r} did not match {warnings!r}'
+    )
 
     expected_citation_ref_warning_expr = '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.'
-    assert re.search(
-        expected_citation_ref_warning_expr, warnings
-    ), f'{expected_citation_ref_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_citation_ref_warning_expr, warnings), (
+        f'{expected_citation_ref_warning_expr!r} did not match {warnings!r}'
+    )
 
     expected_citation_warning_expr = (
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3'
     )
-    assert re.search(
-        expected_citation_warning_expr, warnings
-    ), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_citation_warning_expr, warnings), (
+        f'{expected_citation_warning_expr!r} did not match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -262,9 +269,9 @@ def test_text_literalblock_warnings(app):
     expected_warning_expr = (
         '.*/literalblock.txt:\\d+: WARNING: Literal block expected; none found.'
     )
-    assert re.search(
-        expected_warning_expr, warnings
-    ), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), (
+        f'{expected_warning_expr!r} did not match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -272,7 +279,10 @@ def test_text_literalblock_warnings(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_definition_terms(app):
     app.build()
-    # --- definition terms: regression test for #975, #2198, #2205
+    # --- definition terms: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/975,
+    # https://github.com/sphinx-doc/sphinx/issues/2198, and
+    # https://github.com/sphinx-doc/sphinx/issues/2205
     result = (app.outdir / 'definition_terms.txt').read_text(encoding='utf8')
     expect = (
         '13. I18N WITH DEFINITION TERMS'
@@ -294,7 +304,8 @@ def test_text_definition_terms(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_glossary_term(app):
     app.build()
-    # --- glossary terms: regression test for #1090
+    # --- glossary terms: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/1090
     result = (app.outdir / 'glossary_terms.txt').read_text(encoding='utf8')
     expect = r"""18. I18N WITH GLOSSARY TERMS
 ****************************
@@ -329,7 +340,8 @@ VVV
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_glossary_term_inconsistencies(app):
     app.build()
-    # --- glossary term inconsistencies: regression test for #1090
+    # --- glossary term inconsistencies: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/1090
     result = (app.outdir / 'glossary_terms_inconsistency.txt').read_text(
         encoding='utf8'
     )
@@ -348,16 +360,16 @@ def test_text_glossary_term_inconsistencies(app):
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\] \\[i18n.inconsistent_references\\]\n"
     )
-    assert re.search(
-        expected_warning_expr, warnings
-    ), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), (
+        f'{expected_warning_expr!r} did not match {warnings!r}'
+    )
     expected_warning_expr = (
         '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '
         "WARNING: term not in glossary: 'TERM NOT IN GLOSSARY'"
     )
-    assert re.search(
-        expected_warning_expr, warnings
-    ), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), (
+        f'{expected_warning_expr!r} did not match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -368,8 +380,9 @@ def test_gettext_section(app):
     # --- section
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
     actual = read_po(app.outdir / 'section.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -380,7 +393,7 @@ def test_text_section(app):
     # --- section
     result = (app.outdir / 'section.txt').read_text(encoding='utf8')
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
-    for expect_msg in [m for m in expect if m.id]:
+    for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.string in result
 
 
@@ -408,7 +421,8 @@ def test_text_seealso(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_figure_captions(app):
     app.build()
-    # --- figure captions: regression test for #940
+    # --- figure captions: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/940
     result = (app.outdir / 'figure.txt').read_text(encoding='utf8')
     expect = (
         '14. I18N WITH FIGURE CAPTION'
@@ -454,7 +468,8 @@ def test_text_figure_captions(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_rubric(app):
     app.build()
-    # --- rubric: regression test for pull request #190
+    # --- rubric: regression test for pull request
+    # https://github.com/sphinx-doc/sphinx/issues/190
     result = (app.outdir / 'rubric.txt').read_text(encoding='utf8')
     expect = (
         'I18N WITH RUBRIC'
@@ -506,8 +521,9 @@ def test_text_docfields(app):
 def test_text_admonitions(app):
     app.build()
     # --- admonitions
-    # #1206: gettext did not translate admonition directive's title
-    # seealso: https://docutils.sourceforge.io/docs/ref/rst/directives.html#admonitions
+    # https://github.com/sphinx-doc/sphinx/issues/1206:
+    # gettext did not translate admonition directive's title
+    # see https://docutils.sourceforge.io/docs/ref/rst/directives.html#admonitions
     result = (app.outdir / 'admonitions.txt').read_text(encoding='utf8')
     directives = (
         'attention',
@@ -525,7 +541,8 @@ def test_text_admonitions(app):
         assert d.upper() + ' TITLE' in result
         assert d.upper() + ' BODY' in result
 
-    # for #4938 `1. ` prefixed admonition title
+    # https://github.com/sphinx-doc/sphinx/issues/4938
+    # `1. ` prefixed admonition title
     assert '1. ADMONITION TITLE' in result
 
 
@@ -537,13 +554,15 @@ def test_gettext_toctree(app):
     # --- toctree (index.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'index.po')
     actual = read_po(app.outdir / 'index.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
     # --- toctree (toctree.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'toctree.po')
     actual = read_po(app.outdir / 'toctree.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -554,8 +573,9 @@ def test_gettext_table(app):
     # --- toctree
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
     actual = read_po(app.outdir / 'table.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -566,7 +586,7 @@ def test_text_table(app):
     # --- toctree
     result = (app.outdir / 'table.txt').read_text(encoding='utf8')
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
-    for expect_msg in [m for m in expect if m.id]:
+    for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.string in result
 
 
@@ -595,8 +615,9 @@ def test_gettext_topic(app):
     # --- topic
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
     actual = read_po(app.outdir / 'topic.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -607,7 +628,7 @@ def test_text_topic(app):
     # --- topic
     result = (app.outdir / 'topic.txt').read_text(encoding='utf8')
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
-    for expect_msg in [m for m in expect if m.id]:
+    for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.string in result
 
 
@@ -616,13 +637,16 @@ def test_text_topic(app):
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_definition_terms(app):
     app.build()
-    # --- definition terms: regression test for #2198, #2205
+    # --- definition terms: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/2198,
+    # https://github.com/sphinx-doc/sphinx/issues/2205
     expect = read_po(
         app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'definition_terms.po'
     )
     actual = read_po(app.outdir / 'definition_terms.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -630,11 +654,13 @@ def test_gettext_definition_terms(app):
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_glossary_terms(app):
     app.build()
-    # --- glossary terms: regression test for #1090
+    # --- glossary terms: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/1090
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms.po')
     actual = read_po(app.outdir / 'glossary_terms.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
     warnings = app.warning.getvalue().replace(os.sep, '/')
     assert 'term not in glossary' not in warnings
 
@@ -644,13 +670,15 @@ def test_gettext_glossary_terms(app):
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_glossary_term_inconsistencies(app):
     app.build()
-    # --- glossary term inconsistencies: regression test for #1090
+    # --- glossary term inconsistencies: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/1090
     expect = read_po(
         app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po'
     )
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -661,10 +689,11 @@ def test_gettext_literalblock(app):
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'literalblock.po')
     actual = read_po(app.outdir / 'literalblock.pot')
-    for expect_msg in [m for m in expect if m.id]:
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
         if len(expect_msg.id.splitlines()) == 1:
             # compare translations only labels
-            assert expect_msg.id in [m.id for m in actual if m.id]
+            assert expect_msg.id in actual_msg_ids
         else:
             pass  # skip code-blocks and literalblocks
 
@@ -677,12 +706,13 @@ def test_gettext_buildr_ignores_only_directive(app):
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'only.po')
     actual = read_po(app.outdir / 'only.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html', testroot='intl')
+@pytest.mark.sphinx('html', testroot='intl', copy_test_root=True)
 def test_node_translated_attribute(app):
     app.build(filenames=[app.srcdir / 'translation_progress.txt'])
 
@@ -696,7 +726,7 @@ def test_node_translated_attribute(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html', testroot='intl')
+@pytest.mark.sphinx('html', testroot='intl', copy_test_root=True)
 def test_translation_progress_substitution(app):
     app.build(filenames=[app.srcdir / 'translation_progress.txt'])
 
@@ -715,6 +745,7 @@ def test_translation_progress_substitution(app):
         'gettext_compact': False,
         'translation_progress_classes': True,
     },
+    copy_test_root=True,
 )
 def test_translation_progress_classes_true(app):
     app.build(filenames=[app.srcdir / 'translation_progress.txt'])
@@ -809,7 +840,7 @@ class _MockUnixClock(_MockClock):
 
 
 @pytest.fixture
-def mock_time_and_i18n() -> tuple[pytest.MonkeyPatch, _MockClock]:
+def mock_time_and_i18n() -> Iterator[tuple[pytest.MonkeyPatch, _MockClock]]:
     from sphinx.util.i18n import CatalogInfo
 
     # save the 'original' definition
@@ -822,6 +853,7 @@ def mock_time_and_i18n() -> tuple[pytest.MonkeyPatch, _MockClock]:
 
     # see: https://github.com/pytest-dev/pytest/issues/363
     with pytest.MonkeyPatch.context() as mock:
+        clock: _MockClock
         if os.name == 'posix':
             clock = _MockUnixClock()
         else:
@@ -844,6 +876,7 @@ def mock_time_and_i18n() -> tuple[pytest.MonkeyPatch, _MockClock]:
     'dummy',
     testroot='builder-gettext-dont-rebuild-mo',
     freshenv=True,
+    copy_test_root=True,
 )
 def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
     mock, clock = mock_time_and_i18n
@@ -906,6 +939,7 @@ def test_dummy_should_rebuild_mo(mock_time_and_i18n, make_app, app_params):
     'gettext',
     testroot='builder-gettext-dont-rebuild-mo',
     freshenv=True,
+    copy_test_root=True,
 )
 def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
     mock, clock = mock_time_and_i18n
@@ -974,7 +1008,9 @@ def test_html_meta(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_footnotes(app):
     app.build()
-    # --- test for #955 cant-build-html-with-footnotes-when-using
+    # --- test for
+    # https://github.com/sphinx-doc/sphinx/issues/955
+    # cant-build-html-with-footnotes-when-using
     # expect no error by build
     (app.outdir / 'footnote.html').read_text(encoding='utf8')
 
@@ -1008,7 +1044,8 @@ def test_html_undefined_refs(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_index_entries(app):
     app.build()
-    # --- index entries: regression test for #976
+    # --- index entries: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/976
     result = (app.outdir / 'genindex.html').read_text(encoding='utf8')
 
     def wrap(tag, keyword):
@@ -1042,9 +1079,9 @@ def test_html_index_entries(app):
         wrap_nest('li', 'ul', 'SEE'),
     ]
     for expr in expected_exprs:
-        assert re.search(
-            expr, result, re.MULTILINE
-        ), f'{expr!r} did not match {result!r}'
+        assert re.search(expr, result, re.MULTILINE), (
+            f'{expr!r} did not match {result!r}'
+        )
 
 
 @sphinx_intl
@@ -1137,7 +1174,9 @@ def test_html_rebuild_mo(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_footnotes(app):
     app.build()
-    # --- footnotes: regression test for fix #955, #1176
+    # --- footnotes: regression test for fix
+    # https://github.com/sphinx-doc/sphinx/issues/955,
+    # https://github.com/sphinx-doc/sphinx/issues/1176
     et = etree_parse(app.outdir / 'footnote.xml')
     secs = et.findall('section')
 
@@ -1159,7 +1198,8 @@ def test_xml_footnotes(app):
         ['i18n-with-footnote', 'ref'],
     )
 
-    # check node_id for footnote_references which refer same footnote (refs: #3002)
+    # check node_id for footnote_references which refer same footnote
+    # See: https://github.com/sphinx-doc/sphinx/issues/3002
     assert para0[0][4].text == para0[0][6].text == '100'
     assert para0[0][4].attrib['ids'] != para0[0][6].attrib['ids']
 
@@ -1176,9 +1216,9 @@ def test_xml_footnotes(app):
 
     warnings = getwarning(app.warning)
     warning_expr = '.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
-    assert not re.search(
-        warning_expr, warnings
-    ), f'{warning_expr!r} did match {warnings!r}'
+    assert not re.search(warning_expr, warnings), (
+        f'{warning_expr!r} did match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -1186,7 +1226,8 @@ def test_xml_footnotes(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_footnote_backlinks(app):
     app.build()
-    # --- footnote backlinks: i18n test for #1058
+    # --- footnote backlinks: i18n test for
+    # https://github.com/sphinx-doc/sphinx/issues/1058
     et = etree_parse(app.outdir / 'footnote.xml')
     secs = et.findall('section')
 
@@ -1210,7 +1251,8 @@ def test_xml_refs_in_python_domain(app):
     et = etree_parse(app.outdir / 'refs_python_domain.xml')
     secs = et.findall('section')
 
-    # regression test for fix #1363
+    # regression test for fix
+    # https://github.com/sphinx-doc/sphinx/issues/1363
     para0 = secs[0].findall('paragraph')
     assert_elem(
         para0[0],
@@ -1224,7 +1266,8 @@ def test_xml_refs_in_python_domain(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_keep_external_links(app):
     app.build()
-    # --- keep external links: regression test for #1044
+    # --- keep external links: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/1044
     et = etree_parse(app.outdir / 'external_links.xml')
     secs = et.findall('section')
 
@@ -1292,7 +1335,9 @@ def test_xml_keep_external_links(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_role_xref(app):
     app.build()
-    # --- role xref: regression test for #1090, #1193
+    # --- role xref: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/1090,
+    # https://github.com/sphinx-doc/sphinx/issues/1193
     et = etree_parse(app.outdir / 'role_xref.xml')
     sec1, sec2 = et.findall('section')
 
@@ -1379,7 +1424,9 @@ def test_xml_warnings(app):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_label_targets(app):
     app.build()
-    # --- label targets: regression test for #1193, #1265
+    # --- label targets: regression test for
+    # https://github.com/sphinx-doc/sphinx/issues/1193,
+    # https://github.com/sphinx-doc/sphinx/issues/1265
     et = etree_parse(app.outdir / 'label_target.xml')
     secs = et.findall('section')
 
@@ -1473,6 +1520,11 @@ def test_xml_strange_markup(app):
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build()
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
@@ -1511,7 +1563,7 @@ def test_additional_targets_should_not_be_translated(app):
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
-        """<span class="kn">import</span> <span class="nn">sys</span>  """
+        f"""<span class="kn">import</span>{sp}<span class="nn">sys</span>  """
         """<span class="c1"># sys importing</span>"""
     )
     assert_count(expected_expr, result, 1)
@@ -1556,11 +1608,16 @@ def test_additional_targets_should_not_be_translated(app):
     },
 )
 def test_additional_targets_should_be_translated(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build()
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
 
-    # basic literal bloc should be translated
+    # basic literal block should be translated
     expected_expr = (
         '<span class="n">THIS</span> <span class="n">IS</span>\n'
         '<span class="n">LITERAL</span> <span class="n">BLOCK</span>'
@@ -1605,7 +1662,7 @@ def test_additional_targets_should_be_translated(app):
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
-        """<span class="kn">import</span> <span class="nn">sys</span>  """
+        f"""<span class="kn">import</span>{sp}<span class="nn">sys</span>  """
         """<span class="c1"># SYS IMPORTING</span>"""
     )
     assert_count(expected_expr, result, 1)
@@ -1649,6 +1706,7 @@ def test_additional_targets_should_be_translated(app):
             'image',
         ],
     },
+    copy_test_root=True,
 )
 def test_additional_targets_should_be_translated_substitution_definitions(app):
     app.build(force_all=True)
@@ -1685,6 +1743,7 @@ def test_text_references(app):
         'locale_dirs': ['.'],
         'gettext_compact': False,
     },
+    copy_test_root=True,
 )
 def test_text_prolog_epilog_substitution(app):
     app.build()
@@ -1867,7 +1926,7 @@ def test_image_glob_intl_using_figure_language_filename(app):
 
 
 def getwarning(warnings: StringIO) -> str:
-    return strip_colors(warnings.getvalue().replace(os.sep, '/'))
+    return strip_escape_sequences(warnings.getvalue().replace(os.sep, '/'))
 
 
 @pytest.mark.sphinx(
@@ -1918,6 +1977,7 @@ def test_gettext_disallow_fuzzy_translations(app):
     'html',
     testroot='basic',
     confoverrides={'language': 'de', 'html_sidebars': {'**': ['searchbox.html']}},
+    copy_test_root=True,
 )
 def test_customize_system_message(make_app, app_params):
     try:

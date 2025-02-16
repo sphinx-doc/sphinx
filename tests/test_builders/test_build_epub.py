@@ -1,18 +1,28 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import os
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from subprocess import CalledProcessError
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.builders.epub3 import _XML_NAME_PATTERN
+from sphinx.testing.util import SphinxTestApp
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from typing import Self
+
+    from sphinx.testing.util import SphinxTestApp
 
 
 # check given command is runnable
-def runnable(command):
+def runnable(command: list[str]) -> bool:
     try:
         subprocess.run(command, capture_output=True, check=True)
         return True
@@ -32,35 +42,41 @@ class EPUBElementTree:
         'epub': 'http://www.idpf.org/2007/ops',
     }
 
-    def __init__(self, tree):
+    def __init__(self, tree: ET.Element) -> None:
         self.tree = tree
 
     @classmethod
-    def fromstring(cls, string):
+    def fromstring(cls, string: str | bytes) -> Self:
         tree = ET.fromstring(string)  # NoQA: S314  # using known data in tests
         return cls(tree)
 
-    def find(self, match):
+    def find(self, match: str) -> Self:
         ret = self.tree.find(match, namespaces=self.namespaces)
-        if ret is not None:
-            return self.__class__(ret)
-        else:
-            return ret
+        assert ret is not None
+        return self.__class__(ret)
 
-    def findall(self, match):
+    def findall(self, match: str) -> list[Self]:
         ret = self.tree.findall(match, namespaces=self.namespaces)
         return [self.__class__(e) for e in ret]
 
-    def __getattr__(self, name):
-        return getattr(self.tree, name)
+    @property
+    def text(self) -> str | None:
+        return self.tree.text
 
-    def __iter__(self):
+    @property
+    def attrib(self) -> dict[str, str]:
+        return self.tree.attrib
+
+    def get(self, key: str) -> str | None:
+        return self.tree.get(key)
+
+    def __iter__(self) -> Iterator[Self]:
         for child in self.tree:
             yield self.__class__(child)
 
 
 @pytest.mark.sphinx('epub', testroot='basic')
-def test_build_epub(app):
+def test_build_epub(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert (app.outdir / 'mimetype').read_text(
         encoding='utf8'
@@ -167,11 +183,13 @@ def test_build_epub(app):
 
     # nav.xhtml / nav
     navlist = nav.find('./xhtml:body/xhtml:nav')
-    toc = navlist.findall('./xhtml:ol/xhtml:li')
+    tocs = navlist.findall('./xhtml:ol/xhtml:li')
     assert navlist.find('./xhtml:h1').text == 'Table of Contents'
-    assert len(toc) == 1
-    assert toc[0].find('./xhtml:a').get('href') == 'index.xhtml'
-    assert toc[0].find('./xhtml:a').text == 'The basic Sphinx documentation for testing'
+    assert len(tocs) == 1
+    assert tocs[0].find('./xhtml:a').get('href') == 'index.xhtml'
+    assert (
+        tocs[0].find('./xhtml:a').text == 'The basic Sphinx documentation for testing'
+    )
 
 
 @pytest.mark.sphinx(
@@ -179,7 +197,7 @@ def test_build_epub(app):
     testroot='footnotes',
     confoverrides={'epub_cover': ('_images/rimg.png', None)},
 )
-def test_epub_cover(app):
+def test_epub_cover(app: SphinxTestApp) -> None:
     app.build()
 
     # content.opf / metadata
@@ -195,7 +213,7 @@ def test_epub_cover(app):
 
 
 @pytest.mark.sphinx('epub', testroot='toctree')
-def test_nested_toc(app):
+def test_nested_toc(app: SphinxTestApp) -> None:
     app.build()
 
     # toc.ncx
@@ -203,14 +221,16 @@ def test_nested_toc(app):
     assert toc.find('./ncx:docTitle/ncx:text').text == 'Project name not set'
 
     # toc.ncx / navPoint
-    def navinfo(elem: EPUBElementTree):
+    def toc_navpoint_navinfo(
+        elem: EPUBElementTree,
+    ) -> tuple[str | None, str | None, str | None, str | None]:
         label = elem.find('./ncx:navLabel/ncx:text')
         content = elem.find('./ncx:content')
         return elem.get('id'), elem.get('playOrder'), content.get('src'), label.text
 
     navpoints = toc.findall('./ncx:navMap/ncx:navPoint')
     assert len(navpoints) == 4
-    assert navinfo(navpoints[0]) == (
+    assert toc_navpoint_navinfo(navpoints[0]) == (
         'navPoint1',
         '1',
         'index.xhtml',
@@ -219,43 +239,63 @@ def test_nested_toc(app):
     assert navpoints[0].findall('./ncx:navPoint') == []
 
     # toc.ncx / nested navPoints
-    assert navinfo(navpoints[1]) == ('navPoint2', '2', 'foo.xhtml', 'foo')
+    assert toc_navpoint_navinfo(navpoints[1]) == ('navPoint2', '2', 'foo.xhtml', 'foo')
     navchildren = navpoints[1].findall('./ncx:navPoint')
     assert len(navchildren) == 4
-    assert navinfo(navchildren[0]) == ('navPoint3', '2', 'foo.xhtml', 'foo')
-    assert navinfo(navchildren[1]) == ('navPoint4', '3', 'quux.xhtml', 'quux')
-    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', 'foo.1')
-    assert navinfo(navchildren[3]) == ('navPoint8', '6', 'foo.xhtml#foo-2', 'foo.2')
+    assert toc_navpoint_navinfo(navchildren[0]) == (
+        'navPoint3',
+        '2',
+        'foo.xhtml',
+        'foo',
+    )
+    assert toc_navpoint_navinfo(navchildren[1]) == (
+        'navPoint4',
+        '3',
+        'quux.xhtml',
+        'quux',
+    )
+    assert toc_navpoint_navinfo(navchildren[2]) == (
+        'navPoint5',
+        '4',
+        'foo.xhtml#foo-1',
+        'foo.1',
+    )
+    assert toc_navpoint_navinfo(navchildren[3]) == (
+        'navPoint8',
+        '6',
+        'foo.xhtml#foo-2',
+        'foo.2',
+    )
 
     # nav.xhtml / nav
-    def navinfo(elem):
+    def nav_nav_navinfo(elem: EPUBElementTree) -> tuple[str | None, str | None]:
         anchor = elem.find('./xhtml:a')
         return anchor.get('href'), anchor.text
 
     nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').read_bytes())
-    toc = nav.findall('./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li')
-    assert len(toc) == 4
-    assert navinfo(toc[0]) == (
+    tocs = nav.findall('./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li')
+    assert len(tocs) == 4
+    assert nav_nav_navinfo(tocs[0]) == (
         'index.xhtml',
         'Welcome to Sphinx Tests’s documentation!',
     )
-    assert toc[0].findall('./xhtml:ol') == []
+    assert tocs[0].findall('./xhtml:ol') == []
 
     # nav.xhtml / nested toc
-    assert navinfo(toc[1]) == ('foo.xhtml', 'foo')
-    tocchildren = toc[1].findall('./xhtml:ol/xhtml:li')
+    assert nav_nav_navinfo(tocs[1]) == ('foo.xhtml', 'foo')
+    tocchildren = tocs[1].findall('./xhtml:ol/xhtml:li')
     assert len(tocchildren) == 3
-    assert navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
-    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo.1')
-    assert navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
+    assert nav_nav_navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
+    assert nav_nav_navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo.1')
+    assert nav_nav_navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
 
     grandchild = tocchildren[1].findall('./xhtml:ol/xhtml:li')
     assert len(grandchild) == 1
-    assert navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
+    assert nav_nav_navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
 
 
 @pytest.mark.sphinx('epub', testroot='need-escaped')
-def test_escaped_toc(app):
+def test_escaped_toc(app: SphinxTestApp) -> None:
     app.build()
 
     # toc.ncx
@@ -263,14 +303,17 @@ def test_escaped_toc(app):
     assert toc.find('./ncx:docTitle/ncx:text').text == 'need <b>"escaped"</b> project'
 
     # toc.ncx / navPoint
-    def navinfo(elem):
+    def navpoint_navinfo(
+        elem: EPUBElementTree,
+    ) -> tuple[str | None, str | None, str | None, str | None]:
         label = elem.find('./ncx:navLabel/ncx:text')
         content = elem.find('./ncx:content')
-        return elem.get('id'), elem.get('playOrder'), content.get('src'), label.text
+        ret = elem.get('id'), elem.get('playOrder'), content.get('src'), label.text
+        return ret
 
     navpoints = toc.findall('./ncx:navMap/ncx:navPoint')
     assert len(navpoints) == 4
-    assert navinfo(navpoints[0]) == (
+    assert navpoint_navinfo(navpoints[0]) == (
         'navPoint1',
         '1',
         'index.xhtml',
@@ -279,43 +322,53 @@ def test_escaped_toc(app):
     assert navpoints[0].findall('./ncx:navPoint') == []
 
     # toc.ncx / nested navPoints
-    assert navinfo(navpoints[1]) == ('navPoint2', '2', 'foo.xhtml', '<foo>')
+    assert navpoint_navinfo(navpoints[1]) == ('navPoint2', '2', 'foo.xhtml', '<foo>')
     navchildren = navpoints[1].findall('./ncx:navPoint')
     assert len(navchildren) == 4
-    assert navinfo(navchildren[0]) == ('navPoint3', '2', 'foo.xhtml', '<foo>')
-    assert navinfo(navchildren[1]) == ('navPoint4', '3', 'quux.xhtml', 'quux')
-    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', 'foo “1”')
-    assert navinfo(navchildren[3]) == ('navPoint8', '6', 'foo.xhtml#foo-2', 'foo.2')
+    assert navpoint_navinfo(navchildren[0]) == ('navPoint3', '2', 'foo.xhtml', '<foo>')
+    assert navpoint_navinfo(navchildren[1]) == ('navPoint4', '3', 'quux.xhtml', 'quux')
+    assert navpoint_navinfo(navchildren[2]) == (
+        'navPoint5',
+        '4',
+        'foo.xhtml#foo-1',
+        'foo “1”',
+    )
+    assert navpoint_navinfo(navchildren[3]) == (
+        'navPoint8',
+        '6',
+        'foo.xhtml#foo-2',
+        'foo.2',
+    )
 
     # nav.xhtml / nav
-    def navinfo(elem):
+    def nav_navinfo(elem: EPUBElementTree) -> tuple[str | None, str | None]:
         anchor = elem.find('./xhtml:a')
         return anchor.get('href'), anchor.text
 
     nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').read_bytes())
-    toc = nav.findall('./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li')
-    assert len(toc) == 4
-    assert navinfo(toc[0]) == (
+    tocs = nav.findall('./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li')
+    assert len(tocs) == 4
+    assert nav_navinfo(tocs[0]) == (
         'index.xhtml',
         "Welcome to Sphinx Tests's documentation!",
     )
-    assert toc[0].findall('./xhtml:ol') == []
+    assert tocs[0].findall('./xhtml:ol') == []
 
     # nav.xhtml / nested toc
-    assert navinfo(toc[1]) == ('foo.xhtml', '<foo>')
-    tocchildren = toc[1].findall('./xhtml:ol/xhtml:li')
+    assert nav_navinfo(tocs[1]) == ('foo.xhtml', '<foo>')
+    tocchildren = tocs[1].findall('./xhtml:ol/xhtml:li')
     assert len(tocchildren) == 3
-    assert navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
-    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo “1”')
-    assert navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
+    assert nav_navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
+    assert nav_navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo “1”')
+    assert nav_navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
 
     grandchild = tocchildren[1].findall('./xhtml:ol/xhtml:li')
     assert len(grandchild) == 1
-    assert navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
+    assert nav_navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
 
 
 @pytest.mark.sphinx('epub', testroot='basic')
-def test_epub_writing_mode(app):
+def test_epub_writing_mode(app: SphinxTestApp) -> None:
     # horizontal (default)
     app.build(force_all=True)
 
@@ -359,7 +412,7 @@ def test_epub_writing_mode(app):
 
 
 @pytest.mark.sphinx('epub', testroot='epub-anchor-id')
-def test_epub_anchor_id(app):
+def test_epub_anchor_id(app: SphinxTestApp) -> None:
     app.build()
 
     html = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
@@ -373,7 +426,7 @@ def test_epub_anchor_id(app):
 
 
 @pytest.mark.sphinx('epub', testroot='html_assets')
-def test_epub_assets(app):
+def test_epub_assets(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     # epub_sytlesheets (same as html_css_files)
@@ -392,7 +445,7 @@ def test_epub_assets(app):
     testroot='html_assets',
     confoverrides={'epub_css_files': ['css/epub.css']},
 )
-def test_epub_css_files(app):
+def test_epub_css_files(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     # epub_css_files
@@ -412,7 +465,7 @@ def test_epub_css_files(app):
 
 
 @pytest.mark.sphinx('epub', testroot='roles-download')
-def test_html_download_role(app):
+def test_html_download_role(app: SphinxTestApp) -> None:
     app.build()
     assert not (app.outdir / '_downloads' / 'dummy.dat').exists()
 
@@ -434,7 +487,7 @@ def test_html_download_role(app):
 
 
 @pytest.mark.sphinx('epub', testroot='toctree-duplicated')
-def test_duplicated_toctree_entry(app):
+def test_duplicated_toctree_entry(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert 'WARNING: duplicated ToC entry found: foo.xhtml' in app.warning.getvalue()
 
@@ -444,19 +497,19 @@ def test_duplicated_toctree_entry(app):
     reason='Skipped because DO_EPUBCHECK is not set',
 )
 @pytest.mark.sphinx('epub', testroot='root')
-def test_run_epubcheck(app):
+def test_run_epubcheck(app: SphinxTestApp) -> None:
     app.build()
 
     if not runnable(['java', '-version']):
         pytest.skip('Unable to run Java; skipping test')
 
-    epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
-    if not os.path.exists(epubcheck):
+    epubcheck = Path(os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar'))
+    if not epubcheck.exists():
         pytest.skip('Could not find epubcheck; skipping test')
 
     try:
         subprocess.run(
-            ['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
+            ['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],  # NoQA: S607
             capture_output=True,
             check=True,
         )
@@ -467,7 +520,7 @@ def test_run_epubcheck(app):
         raise AssertionError(msg) from exc
 
 
-def test_xml_name_pattern_check():
+def test_xml_name_pattern_check() -> None:
     assert _XML_NAME_PATTERN.match('id-pub')
     assert _XML_NAME_PATTERN.match('webpage')
     assert not _XML_NAME_PATTERN.match('1bfda21')
@@ -475,7 +528,7 @@ def test_xml_name_pattern_check():
 
 @pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('epub', testroot='images')
-def test_copy_images(app):
+def test_copy_images(app: SphinxTestApp) -> None:
     app.build()
 
     images_dir = Path(app.outdir) / '_images'

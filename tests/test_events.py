@@ -1,12 +1,16 @@
 """Test the EventManager class."""
 
+from __future__ import annotations
+
+from types import SimpleNamespace
+
 import pytest
 
 from sphinx.errors import ExtensionError
 from sphinx.events import EventManager
 
 
-def test_event_priority():
+def test_event_priority() -> None:
     result = []
     app = object()  # pass a dummy object as an app
     events = EventManager(app)  # type: ignore[arg-type]
@@ -22,16 +26,11 @@ def test_event_priority():
     assert result == [3, 1, 2, 5, 4]
 
 
-class FakeApp:
-    def __init__(self, pdb: bool = False):
-        self.pdb = pdb
-
-
-def test_event_allowed_exceptions():
+def test_event_allowed_exceptions() -> None:
     def raise_error(app):
         raise RuntimeError
 
-    app = FakeApp()  # pass a dummy object as an app
+    app = SimpleNamespace(pdb=False)  # pass a dummy object as an app
     events = EventManager(app)  # type: ignore[arg-type]
     events.connect('builder-inited', raise_error, priority=500)
 
@@ -44,11 +43,11 @@ def test_event_allowed_exceptions():
         events.emit('builder-inited', allowed_exceptions=(RuntimeError,))
 
 
-def test_event_pdb():
+def test_event_pdb() -> None:
     def raise_error(app):
         raise RuntimeError
 
-    app = FakeApp(pdb=True)  # pass a dummy object as an app
+    app = SimpleNamespace(pdb=True)  # pass a dummy object as an app
     events = EventManager(app)  # type: ignore[arg-type]
     events.connect('builder-inited', raise_error, priority=500)
 

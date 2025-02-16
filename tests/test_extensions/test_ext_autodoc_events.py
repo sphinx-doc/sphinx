@@ -1,14 +1,21 @@
 """Test the autodoc extension.  This tests mainly for autodoc events"""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx.ext.autodoc import between, cut_lines
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_process_docstring(app):
+def test_process_docstring(app: SphinxTestApp) -> None:
     def on_process_docstring(app, what, name, obj, options, lines):
         lines.clear()
         lines.append('my docstring')
@@ -27,9 +34,9 @@ def test_process_docstring(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_process_docstring_for_nondatadescriptor(app):
+def test_process_docstring_for_nondatadescriptor(app: SphinxTestApp) -> None:
     def on_process_docstring(app, what, name, obj, options, lines):
-        raise
+        raise RuntimeError
 
     app.connect('autodoc-process-docstring', on_process_docstring)
 
@@ -44,7 +51,7 @@ def test_process_docstring_for_nondatadescriptor(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_cut_lines(app):
+def test_cut_lines(app: SphinxTestApp) -> None:
     app.connect('autodoc-process-docstring', cut_lines(2, 2, ['function']))
 
     actual = do_autodoc(app, 'function', 'target.process_docstring.func')
@@ -69,7 +76,7 @@ def test_cut_lines_no_objtype():
     ]
     process = cut_lines(2)
 
-    process(None, 'function', 'func', None, {}, docstring_lines)  # type: ignore[arg-type]
+    process(None, 'function', 'func', None, {}, docstring_lines)
     assert docstring_lines == [
         'second line',
         '---',
@@ -79,7 +86,7 @@ def test_cut_lines_no_objtype():
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_between(app):
+def test_between(app: SphinxTestApp) -> None:
     app.connect('autodoc-process-docstring', between('---', ['function']))
 
     actual = do_autodoc(app, 'function', 'target.process_docstring.func')
@@ -94,7 +101,7 @@ def test_between(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_between_exclude(app):
+def test_between_exclude(app: SphinxTestApp) -> None:
     app.connect('autodoc-process-docstring', between('---', ['function'], exclude=True))
 
     actual = do_autodoc(app, 'function', 'target.process_docstring.func')
@@ -110,7 +117,7 @@ def test_between_exclude(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_skip_module_member(app):
+def test_skip_module_member(app: SphinxTestApp) -> None:
     def autodoc_skip_member(app, what, name, obj, skip, options):
         if name == 'Class':
             return True  # Skip "Class" class in __all__

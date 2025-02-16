@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import functools
 
+from sphinx._cli.util.colour import bold, terminal_supports_colour
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold, color_terminal
 
-if False:
+TYPE_CHECKING = False
+if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
-    from typing import Any, TypeVar
-
-    from typing_extensions import ParamSpec
+    from typing import Any, ParamSpec, TypeVar
 
     T = TypeVar('T')
     P = ParamSpec('P')
@@ -37,12 +36,12 @@ def status_iterator(
     stringify_func: Callable[[Any], str] = display_chunk,
 ) -> Iterator[T]:
     # printing on a single line requires ANSI control sequences
-    single_line = verbosity < 1 and color_terminal()
+    single_line = verbosity < 1 and terminal_supports_colour()
     bold_summary = bold(summary)
     if length == 0:
         logger.info(bold_summary, nonl=True)
         for item in iterable:
-            logger.info(stringify_func(item) + ' ', nonl=True, color=color)
+            logger.info('%s ', stringify_func(item), nonl=True, color=color)
             yield item
     else:
         for i, item in enumerate(iterable, start=1):
@@ -80,14 +79,14 @@ class progress_message:
     ) -> bool:
         prefix = '' if self.nonl else bold(self.message + ': ')
         if isinstance(val, SkipProgressMessage):
-            logger.info(prefix + __('skipped'))
+            logger.info(prefix + __('skipped'))  # NoQA: G003
             if val.args:
                 logger.info(*val.args)
             return True
         elif val:
-            logger.info(prefix + __('failed'))
+            logger.info(prefix + __('failed'))  # NoQA: G003
         else:
-            logger.info(prefix + __('done'))
+            logger.info(prefix + __('done'))  # NoQA: G003
 
         return False
 

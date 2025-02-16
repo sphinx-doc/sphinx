@@ -28,7 +28,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction(app):
     text = (
         '.. py:function:: func1\n'
@@ -99,7 +99,7 @@ def test_pyfunction(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction_signature(app):
     text = '.. py:function:: hello(name: str) -> str'
     doctree = restructuredtext.parse(app, text)
@@ -146,7 +146,7 @@ def test_pyfunction_signature(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction_signature_full(app):
     text = (
         '.. py:function:: hello(a: str, b = 1, *args: str, '
@@ -311,7 +311,7 @@ def test_pyfunction_signature_full(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction_with_unary_operators(app):
     text = '.. py:function:: menu(egg=+1, bacon=-1, sausage=~1, spam=not spam)'
     doctree = restructuredtext.parse(app, text)
@@ -357,7 +357,7 @@ def test_pyfunction_with_unary_operators(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction_with_binary_operators(app):
     text = '.. py:function:: menu(spam=2**64)'
     doctree = restructuredtext.parse(app, text)
@@ -377,7 +377,7 @@ def test_pyfunction_with_binary_operators(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction_with_number_literals(app):
     text = '.. py:function:: hello(age=0x10, height=1_6_0)'
     doctree = restructuredtext.parse(app, text)
@@ -407,7 +407,7 @@ def test_pyfunction_with_number_literals(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction_with_union_type_operator(app):
     text = '.. py:function:: hello(age: int | None)'
     doctree = restructuredtext.parse(app, text)
@@ -437,7 +437,7 @@ def test_pyfunction_with_union_type_operator(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_optional_pyfunction_signature(app):
     text = '.. py:function:: compile(source [, filename [, symbol]]) -> ast object'
     doctree = restructuredtext.parse(app, text)

@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-import os.path
 import sys
-from typing import Any
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.cmd import make_mode
 from sphinx.cmd.build import get_parser
 from sphinx.cmd.make_mode import run_make_mode
+
+if TYPE_CHECKING:
+    from typing import Any
 
 broken_argparse = (
     sys.version_info[:3] <= (3, 12, 6)
@@ -52,8 +55,8 @@ EXPECTED_BUILD_MAIN = {
 EXPECTED_MAKE_MODE = {
     'builder': 'html',
     'sourcedir': 'source_dir',
-    'outputdir': os.path.join('build_dir', 'html'),
-    'doctreedir': os.path.join('build_dir', 'doctrees'),
+    'outputdir': str(Path('build_dir', 'html')),
+    'doctreedir': str(Path('build_dir', 'doctrees')),
     'filenames': ['filename1', 'filename2'],
     'freshenv': True,
     'noconfig': True,

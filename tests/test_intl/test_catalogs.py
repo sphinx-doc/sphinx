@@ -1,9 +1,15 @@
 """Test the base build process."""
 
+from __future__ import annotations
+
 import shutil
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.fixture
@@ -35,7 +41,7 @@ def _setup_test(app_params):
     testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']},
 )
-def test_compile_all_catalogs(app):
+def test_compile_all_catalogs(app: SphinxTestApp) -> None:
     app.builder.compile_all_catalogs()
 
     locale_dir = app.srcdir / 'locale'
@@ -53,7 +59,7 @@ def test_compile_all_catalogs(app):
     testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']},
 )
-def test_compile_specific_catalogs(app):
+def test_compile_specific_catalogs(app: SphinxTestApp) -> None:
     locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
 
@@ -74,7 +80,7 @@ def test_compile_specific_catalogs(app):
     testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']},
 )
-def test_compile_update_catalogs(app):
+def test_compile_update_catalogs(app: SphinxTestApp) -> None:
     app.builder.compile_update_catalogs()
 
     locale_dir = app.srcdir / 'locale'
