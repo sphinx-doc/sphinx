@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-swedish_stopwords = parse_stop_word('''
+swedish_stopwords = parse_stop_word("""
 | source: https://snowball.tartarus.org/algorithms/swedish/stop.txt
 och            | and
 det            | it, this/that
@@ -124,7 +122,7 @@ våra           | our
 ert            | your
 era            | your
 vilkas         | whose
-''')
+""")
 
 
 class SearchSwedish(SearchLanguage):

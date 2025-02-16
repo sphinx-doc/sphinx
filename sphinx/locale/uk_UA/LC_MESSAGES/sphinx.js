@@ -36,7 +36,12 @@ Documentation.addTranslations({
         "Search": "\u041f\u043e\u0448\u0443\u043a",
         "Search Page": "\u0421\u0442\u043e\u0440\u0456\u043d\u043a\u0430 \u043f\u043e\u0448\u0443\u043a\u0443",
         "Search Results": "\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u0438 \u043f\u043e\u0448\u0443\u043a\u0443",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "\u0428\u0443\u043a\u0430\u0442\u0438 \u0432 %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

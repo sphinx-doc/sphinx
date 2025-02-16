@@ -1,7 +1,10 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -9,9 +12,12 @@ import sphinx.builders.html
 from sphinx.builders.html._assets import _file_checksum
 from sphinx.errors import ThemeError
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_html_assets(app):
+def test_html_assets(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     # exclude_path and its family
@@ -22,7 +28,9 @@ def test_html_assets(app):
     assert not (app.outdir / '_static' / '.htaccess').exists()
     assert not (app.outdir / '_static' / '.htpasswd').exists()
     assert (app.outdir / '_static' / 'API.html').exists()
-    assert (app.outdir / '_static' / 'API.html').read_text(encoding='utf8') == 'Sphinx-1.4.4'
+    assert (app.outdir / '_static' / 'API.html').read_text(
+        encoding='utf8'
+    ) == 'Sphinx-1.4.4'
     assert (app.outdir / '_static' / 'css' / 'style.css').exists()
     assert (app.outdir / '_static' / 'js' / 'custom.js').exists()
     assert (app.outdir / '_static' / 'rimg.png').exists()
@@ -44,14 +52,19 @@ def test_html_assets(app):
 
     # html_css_files
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content
-    assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
-            'href="https://example.com/custom.css" />' in content)
+    assert (
+        '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />'
+    ) in content
+    assert (
+        '<link media="print" rel="stylesheet" title="title" type="text/css" '
+        'href="https://example.com/custom.css" />'
+    ) in content
 
     # html_js_files
     assert '<script src="_static/js/custom.js"></script>' in content
-    assert ('<script async="async" src="https://example.com/script.js">'
-            '</script>' in content)
+    assert (
+        '<script async="async" src="https://example.com/script.js"></script>'
+    ) in content
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
@@ -74,7 +87,6 @@ def test_assets_order(app, monkeypatch):
     expected = [
         '_static/early.css',
         '_static/pygments.css',
-        '_static/alabaster.css',
         'https://example.com/custom.css',
         '_static/normal.css',
         '_static/late.css',
@@ -100,7 +112,7 @@ def test_assets_order(app, monkeypatch):
 
 
 @pytest.mark.sphinx('html', testroot='html_file_checksum')
-def test_file_checksum(app):
+def test_file_checksum(app: SphinxTestApp) -> None:
     app.add_css_file('stylesheet-a.css')
     app.add_css_file('stylesheet-b.css')
     app.add_css_file('https://example.com/custom.css')
@@ -112,34 +124,52 @@ def test_file_checksum(app):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # checksum for local files
-    assert '<link rel="stylesheet" type="text/css" href="_static/stylesheet-a.css?v=e575b6df" />' in content
-    assert '<link rel="stylesheet" type="text/css" href="_static/stylesheet-b.css?v=a2d5cc0f" />' in content
+    assert (
+        '<link rel="stylesheet" type="text/css" href="_static/stylesheet-a.css?v=e575b6df" />'
+    ) in content
+    assert (
+        '<link rel="stylesheet" type="text/css" href="_static/stylesheet-b.css?v=a2d5cc0f" />'
+    ) in content
     assert '<script src="_static/script.js?v=48278d48"></script>' in content
 
     # empty files have no checksum
     assert '<script src="_static/empty.js"></script>' in content
 
     # no checksum for hyperlinks
-    assert '<link rel="stylesheet" type="text/css" href="https://example.com/custom.css" />' in content
+    assert (
+        '<link rel="stylesheet" type="text/css" href="https://example.com/custom.css" />'
+    ) in content
     assert '<script src="https://example.com/script.js"></script>' in content
 
 
-def test_file_checksum_query_string():
-    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+def test_file_checksum_query_string() -> None:
+    with pytest.raises(
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
+    ):
         _file_checksum(Path(), 'with_query_string.css?dead_parrots=1')
 
-    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+    with pytest.raises(
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
+    ):
         _file_checksum(Path(), 'with_query_string.js?dead_parrots=1')
 
-    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+    with pytest.raises(
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
+    ):
         _file_checksum(Path.cwd(), '_static/with_query_string.css?dead_parrots=1')
 
-    with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
+    with pytest.raises(
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
+    ):
         _file_checksum(Path.cwd(), '_static/with_query_string.js?dead_parrots=1')
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_javscript_loading_method(app):
+def test_javscript_loading_method(app: SphinxTestApp) -> None:
     app.add_js_file('normal.js')
     app.add_js_file('early.js', loading_method='async')
     app.add_js_file('late.js', loading_method='defer')

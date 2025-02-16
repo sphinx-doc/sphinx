@@ -1,73 +1,90 @@
 """Tests util functions."""
 
-import os
-import tempfile
+from __future__ import annotations
 
 import pytest
 
+import sphinx.util
+from sphinx._cli.util.errors import strip_escape_sequences
+from sphinx.deprecation import RemovedInSphinx10Warning, RemovedInSphinx90Warning
 from sphinx.errors import ExtensionError
-from sphinx.util import encode_uri, ensuredir, import_object, parselinenos
+from sphinx.util._files import DownloadFiles, FilenameUniqDict
+from sphinx.util._importer import import_object
+from sphinx.util._lines import parse_line_num_spec
+from sphinx.util._uri import encode_uri, is_url
+from sphinx.util.index_entries import _split_into, split_index_msg
+from sphinx.util.matching import patfilter
+from sphinx.util.nodes import (
+    caption_ref_re,
+    explicit_title_re,
+    nested_parse_with_titles,
+    split_explicit_title,
+)
+from sphinx.util.osutil import (
+    SEP,
+    copyfile,
+    ensuredir,
+    make_filename,
+    os_path,
+    relative_uri,
+)
 
 
-def test_encode_uri():
-    expected = ('https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0_'
-                '%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F_'
-                '%D0%B1%D0%B0%D0%B7%D0%B0%D0%BC%D0%B8_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85')
-    uri = ('https://ru.wikipedia.org/wiki'
-           '/Система_управления_базами_данных')
-    assert expected == encode_uri(uri)
+def test_ensuredir(tmp_path):
+    # Does not raise an exception for an existing directory.
+    ensuredir(tmp_path)
 
-    expected = ('https://github.com/search?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+is%3A'
-                'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
-    uri = ('https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
-           'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
-    assert expected == encode_uri(uri)
+    path = tmp_path / 'a' / 'b' / 'c'
+    ensuredir(path)
+    assert path.is_dir()
 
 
-def test_ensuredir():
-    with tempfile.TemporaryDirectory() as tmp_path:
-        # Does not raise an exception for an existing directory.
-        ensuredir(tmp_path)
+def test_exported_attributes() -> None:
+    # RemovedInSphinx90Warning
+    with pytest.warns(
+        RemovedInSphinx90Warning,
+        match=r"deprecated, use 'sphinx.util.index_entries.split_index_msg' instead.",
+    ):
+        assert sphinx.util.split_index_msg is split_index_msg
+    with pytest.warns(RemovedInSphinx90Warning, match=r'deprecated.'):
+        assert sphinx.util.split_into is _split_into
+    with pytest.warns(
+        RemovedInSphinx90Warning,
+        match=r"deprecated, use 'sphinx.errors.ExtensionError' instead.",
+    ):
+        assert sphinx.util.ExtensionError is ExtensionError
+    with pytest.warns(
+        RemovedInSphinx90Warning,
+        match=r"deprecated, use 'hashlib.md5' instead.",
+    ):
+        _ = sphinx.util.md5
+    with pytest.warns(
+        RemovedInSphinx90Warning,
+        match=r"deprecated, use 'hashlib.sha1' instead.",
+    ):
+        _ = sphinx.util.sha1
 
-        path = os.path.join(tmp_path, 'a', 'b', 'c')
-        ensuredir(path)
-        assert os.path.isdir(path)
+    # RemovedInSphinx10Warning
+    with pytest.warns(RemovedInSphinx10Warning, match=r'deprecated.'):
+        assert sphinx.util.FilenameUniqDict is FilenameUniqDict
+    with pytest.warns(RemovedInSphinx10Warning, match=r'deprecated.'):
+        assert sphinx.util.DownloadFiles is DownloadFiles
 
-
-def test_import_object():
-    module = import_object('sphinx')
-    assert module.__name__ == 'sphinx'
-
-    module = import_object('sphinx.application')
-    assert module.__name__ == 'sphinx.application'
-
-    obj = import_object('sphinx.application.Sphinx')
-    assert obj.__name__ == 'Sphinx'
-
-    with pytest.raises(ExtensionError) as exc:
-        import_object('sphinx.unknown_module')
-    assert exc.value.args[0] == 'Could not import sphinx.unknown_module'
-
-    with pytest.raises(ExtensionError) as exc:
-        import_object('sphinx.unknown_module', 'my extension')
-    assert exc.value.args[0] == ('Could not import sphinx.unknown_module '
-                                 '(needed for my extension)')
-
-
-def test_parselinenos():
-    assert parselinenos('1,2,3', 10) == [0, 1, 2]
-    assert parselinenos('4, 5, 6', 10) == [3, 4, 5]
-    assert parselinenos('-4', 10) == [0, 1, 2, 3]
-    assert parselinenos('7-9', 10) == [6, 7, 8]
-    assert parselinenos('7-', 10) == [6, 7, 8, 9]
-    assert parselinenos('1,7-', 10) == [0, 6, 7, 8, 9]
-    assert parselinenos('7-7', 10) == [6]
-    assert parselinenos('11-', 10) == [10]
-    with pytest.raises(ValueError, match="invalid line number spec: '1-2-3'"):
-        parselinenos('1-2-3', 10)
-    with pytest.raises(ValueError, match="invalid line number spec: 'abc-def'"):
-        parselinenos('abc-def', 10)
-    with pytest.raises(ValueError, match="invalid line number spec: '-'"):
-        parselinenos('-', 10)
-    with pytest.raises(ValueError, match="invalid line number spec: '3-1'"):
-        parselinenos('3-1', 10)
+    # Re-exported for backwards compatibility,
+    # but not currently deprecated
+    assert sphinx.util.encode_uri is encode_uri
+    assert sphinx.util.import_object is import_object
+    assert sphinx.util.isurl is is_url
+    assert sphinx.util.parselinenos is parse_line_num_spec
+    assert sphinx.util.patfilter is patfilter
+    assert sphinx.util.strip_escape_sequences is strip_escape_sequences
+    assert sphinx.util.caption_ref_re is caption_ref_re
+    assert sphinx.util.explicit_title_re is explicit_title_re
+    assert sphinx.util.nested_parse_with_titles is nested_parse_with_titles
+    assert sphinx.util.split_explicit_title is split_explicit_title
+    assert sphinx.util.SEP is SEP
+    assert sphinx.util.copyfile is copyfile
+    assert sphinx.util.ensuredir is ensuredir
+    assert sphinx.util.make_filename is make_filename
+    assert sphinx.util.os_path is os_path
+    assert sphinx.util.relative_uri is relative_uri

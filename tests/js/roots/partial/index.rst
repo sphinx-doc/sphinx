@@ -1,7 +1,7 @@
 sphinx_utils module
 ===================
 
-Partial (also known as "prefix") matches on document titles should be possible
+Partial matches on document titles and document terms should both be possible
 using the JavaScript search functionality included when HTML documentation
 projects are built.
 

@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Tra\u017ei",
         "Search Page": "Tra\u017eilica",
         "Search Results": "Rezultati pretrage",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Tra\u017ei izme\u0111u %(docstitle)s",
         "Searching": "Pretra\u017eivanje",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

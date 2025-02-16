@@ -42,11 +42,15 @@ def get_function_def(obj: Any) -> ast.FunctionDef | None:
     This tries to parse original code for living object and returns
     AST node for given *obj*.
     """
-    warnings.warn('sphinx.ext.autodoc.preserve_defaults.get_function_def is'
-                  ' deprecated and scheduled for removal in Sphinx 9.'
-                  ' Use sphinx.ext.autodoc.preserve_defaults._get_arguments() to'
-                  ' extract AST arguments objects from a lambda or regular'
-                  ' function.', RemovedInSphinx90Warning, stacklevel=2)
+    warnings.warn(
+        'sphinx.ext.autodoc.preserve_defaults.get_function_def is'
+        ' deprecated and scheduled for removal in Sphinx 9.'
+        ' Use sphinx.ext.autodoc.preserve_defaults._get_arguments() to'
+        ' extract AST arguments objects from a lambda or regular'
+        ' function.',
+        RemovedInSphinx90Warning,
+        stacklevel=2,
+    )
 
     try:
         source = inspect.getsource(obj)
@@ -102,9 +106,9 @@ def _is_lambda(x: Any, /) -> bool:
 
 
 def _get_arguments_inner(x: Any, /) -> ast.arguments | None:
-    if isinstance(x, (ast.AsyncFunctionDef, ast.FunctionDef, ast.Lambda)):
+    if isinstance(x, ast.AsyncFunctionDef | ast.FunctionDef | ast.Lambda):
         return x.args
-    if isinstance(x, (ast.Assign, ast.AnnAssign)):
+    if isinstance(x, ast.Assign | ast.AnnAssign):
         return _get_arguments_inner(x.value)
     return None
 
@@ -113,7 +117,7 @@ def get_default_value(lines: list[str], position: ast.expr) -> str | None:
     try:
         if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
-            return line[position.col_offset:position.end_col_offset]
+            return line[position.col_offset : position.end_col_offset]
         else:
             # multiline value is not supported now
             return None
@@ -161,7 +165,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                     # Consume kw_defaults for kwonly args
                     kw_defaults.pop(0)
             else:
-                if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
+                if param.kind in {param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD}:
                     default = defaults.pop(0)
                     value = get_default_value(lines, default)
                     if value is None:
@@ -187,11 +191,15 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         # In this case, we can't set __signature__.
         return
     except NotImplementedError as exc:  # failed to ast_unparse()
-        logger.warning(__("Failed to parse a default argument value for %r: %s"), obj, exc)
+        logger.warning(
+            __('Failed to parse a default argument value for %r: %s'), obj, exc
+        )
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('autodoc_preserve_defaults', False, 'env')
+    app.add_config_value(
+        'autodoc_preserve_defaults', False, 'env', types=frozenset({bool})
+    )
     app.connect('autodoc-before-process-signature', update_defvalue)
 
     return {

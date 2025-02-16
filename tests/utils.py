@@ -22,17 +22,17 @@ if TYPE_CHECKING:
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
 #     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
-TESTS_ROOT: Final[Path] = Path(__file__).parent
+TESTS_ROOT: Final[Path] = Path(__file__).resolve().parent
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
-        """
-        Constructs a threaded HTTP server.  The default port number of ``0``
-        delegates selection of a port number to bind to to Python.
+        """Constructs a threaded HTTP server.
 
-        Ref: https://docs.python.org/3.11/library/socketserver.html#asynchronous-mixins
+        The default port number of ``0`` delegates selection of a port number
+        to bind to Python.
+        See: https://docs.python.org/3/library/socketserver.html#asynchronous-mixins
         """
         super().__init__(daemon=True)
         self.server = ThreadingHTTPServer(('localhost', port), handler)
@@ -51,7 +51,9 @@ class HttpsServerThread(HttpServerThread):
         super().__init__(handler, port=port)
         sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
         sslcontext.load_cert_chain(CERT_FILE)
-        self.server.socket = sslcontext.wrap_socket(self.server.socket, server_side=True)
+        self.server.socket = sslcontext.wrap_socket(
+            self.server.socket, server_side=True
+        )
 
 
 @contextmanager
@@ -65,7 +67,7 @@ def http_server(
     server_thread = server_cls(handler, port=port)
     server_thread.start()
     server_port = server_thread.server.server_port
-    assert port == 0 or server_port == port
+    assert port in {0, server_port}
     try:
         socket.create_connection(('localhost', server_port), timeout=0.5).close()
         yield server_thread.server  # Connection has been confirmed possible; proceed.
@@ -75,8 +77,7 @@ def http_server(
 
 @contextmanager
 def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Iterator[None]:
-    """
-    Rewrite hyperlinks that refer to network location 'localhost:7777',
+    """Rewrite hyperlinks that refer to network location 'localhost:7777',
     allowing that location to vary dynamically with the arbitrary test HTTP
     server port assigned during unit testing.
 
@@ -107,8 +108,7 @@ def serve_application(
     tls_enabled: bool = False,
     port: int = 0,
 ) -> Iterator[str]:
-    """
-    Prepare a temporary server to handle HTTP requests related to the links
+    """Prepare a temporary server to handle HTTP requests related to the links
     found in a Sphinx application project.
 
     :param app: The Sphinx application.

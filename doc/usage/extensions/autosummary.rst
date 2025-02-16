@@ -8,6 +8,9 @@
 
 .. versionadded:: 0.6
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension generates function/method/attribute summary lists, similar to
 those output e.g. by Epydoc and other API doc generation tools.  This is
 especially useful when your docstrings are long and detailed, and putting each
@@ -61,10 +64,22 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
    :event:`autodoc-process-docstring` and :event:`autodoc-process-signature`
    hooks as :mod:`~sphinx.ext.autodoc`.
 
-   **Options**
+   .. rubric:: Options
 
-   * If you want the :rst:dir:`autosummary` table to also serve as a
-     :rst:dir:`toctree` entry, use the ``toctree`` option, for example::
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
+
+      Assign `class attributes`_ to the table.
+      This is a :dudir:`common option <common-options>`.
+
+      .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
+
+      .. versionadded:: 8.2
+
+   .. rst:directive:option:: toctree: optional directory name
+
+      If you want the :rst:dir:`autosummary` table to also serve as a
+      :rst:dir:`toctree` entry, use the ``toctree`` option, for example::
 
          .. autosummary::
             :toctree: DIRNAME
@@ -72,52 +87,75 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
             sphinx.environment.BuildEnvironment
             sphinx.util.relative_uri
 
-     The ``toctree`` option also signals to the :program:`sphinx-autogen` script
-     that stub pages should be generated for the entries listed in this
-     directive.  The option accepts a directory name as an argument;
-     :program:`sphinx-autogen` will by default place its output in this
-     directory. If no argument is given, output is placed in the same directory
-     as the file that contains the directive.
+      The ``toctree`` option also signals to the :program:`sphinx-autogen` script
+      that stub pages should be generated for the entries listed in this
+      directive.  The option accepts a directory name as an argument;
+      :program:`sphinx-autogen` will by default place its output in this
+      directory. If no argument is given, output is placed in the same directory
+      as the file that contains the directive.
 
-     You can also use ``caption`` option to give a caption to the toctree.
+      .. versionadded:: 0.6
 
-     .. versionadded:: 3.1
+   .. rst:directive:option:: caption: caption of ToC
 
-        caption option added.
+      Add a caption to the toctree.
 
-   * If you don't want the :rst:dir:`autosummary` to show function signatures in
-     the listing, include the ``nosignatures`` option::
+      .. versionadded:: 3.1
 
-         .. autosummary::
-            :nosignatures:
+   .. rst:directive:option:: signatures: format
 
-            sphinx.environment.BuildEnvironment
-            sphinx.util.relative_uri
+      How to display signatures. Valid values are
 
-   * You can specify a custom template with the ``template`` option.
-     For example, ::
+      - ``long`` (*default*): use a long signature. This is still cut off so that name
+        plus signature do not exceeed a certain length.
+      - ``short``: Function and class signatures are displayed as ``(…)`` if they have
+        arguments and as ``()`` if they don't have arguments.
+      - ``none``: do not show signatures.
+
+      .. versionadded:: 8.2
+
+   .. rst:directive:option:: nosignatures
+
+      Do not show function signatures in the summary.
+
+      This is equivalent to ``:signatures: none``.
+
+      .. versionadded:: 0.6
+
+      .. versionchanged:: 8.2
+
+         The directive option is superseded by the more general ``:signatures: none``.
+
+         It will be deprecated and removed
+         in a future version of Sphinx.
+
+   .. rst:directive:option:: template: filename
+
+      Specify a custom template for rendering the summary.
+      For example, ::
 
          .. autosummary::
             :template: mytemplate.rst
 
             sphinx.environment.BuildEnvironment
 
-     would use the template :file:`mytemplate.rst` in your
-     :confval:`templates_path` to generate the pages for all entries
-     listed. See `Customizing templates`_ below.
+      would use the template :file:`mytemplate.rst` in your
+      :confval:`templates_path` to generate the pages for all entries
+      listed. See `Customizing templates`_ below.
 
-     .. versionadded:: 1.0
+      .. versionadded:: 1.0
 
-   * You can specify the ``recursive`` option to generate documents for
-     modules and sub-packages recursively.  It defaults to disabled.
-     For example, ::
+   .. rst:directive:option:: recursive
+
+      Generate documents for modules and sub-packages recursively.
+      For example, ::
 
          .. autosummary::
             :recursive:
 
             sphinx.environment.BuildEnvironment
 
-     .. versionadded:: 3.1
+      .. versionadded:: 3.1
 
 
 :program:`sphinx-autogen` -- generate autodoc stub pages
@@ -154,6 +192,8 @@ If you do not want to create stub pages with :program:`sphinx-autogen`, you can
 also use these config values:
 
 .. confval:: autosummary_context
+   :type: :code-py:`dict[str, Any]`
+   :default: :code-py:`{}`
 
    A dictionary of values to pass into the template engine's context for
    autosummary stubs files.
@@ -161,9 +201,11 @@ also use these config values:
    .. versionadded:: 3.1
 
 .. confval:: autosummary_generate
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    Boolean indicating whether to scan all found documents for autosummary
-   directives, and to generate stub pages for each. It is enabled by default.
+   directives, and to generate stub pages for each.
 
    Can also be a list of documents for which stub pages should be generated.
 
@@ -180,24 +222,29 @@ also use these config values:
       Enabled by default.
 
 .. confval:: autosummary_generate_overwrite
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    If true, autosummary overwrites existing files by generated stub pages.
-   Defaults to true (enabled).
 
    .. versionadded:: 3.0
 
 .. confval:: autosummary_mock_imports
+   :type: :code-py:`list[str]`
+   :default: :code-py:`[]`
 
-   This value contains a list of modules to be mocked up.  See
-   :confval:`autodoc_mock_imports` for more details.  It defaults to
-   :confval:`autodoc_mock_imports`.
+   This value contains a list of modules to be mocked up.
+   See :confval:`autodoc_mock_imports` for more details.
+   It defaults to :confval:`autodoc_mock_imports`.
 
    .. versionadded:: 2.0
 
 .. confval:: autosummary_imported_members
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    A boolean flag indicating whether to document classes and functions imported
-   in modules. Default is ``False``
+   in modules.
 
    .. versionadded:: 2.1
 
@@ -207,10 +254,11 @@ also use these config values:
       value is ignored for members listed in ``__all__``.
 
 .. confval:: autosummary_ignore_module_all
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    If ``False`` and a module has the ``__all__`` attribute set, autosummary
-   documents every member listed in ``__all__`` and no others. Default is
-   ``True``
+   documents every member listed in ``__all__`` and no others.
 
    Note that if an imported member is listed in ``__all__``, it will be
    documented regardless of the value of ``autosummary_imported_members``. To
@@ -221,6 +269,8 @@ also use these config values:
    .. versionadded:: 4.4
 
 .. confval:: autosummary_filename_map
+   :type: :code-py:`dict[str, str]`
+   :default: :code-py:`{}`
 
    A dict mapping object names to filenames. This is necessary to avoid
    filename conflicts where multiple objects have names that are

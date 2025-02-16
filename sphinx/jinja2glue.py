@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from os import path
+import os
+import os.path
+from pathlib import Path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -12,20 +14,26 @@ from jinja2.utils import open_if_exists, pass_context
 
 from sphinx.application import TemplateBridge
 from sphinx.util import logging
-from sphinx.util.osutil import mtimes_of_files
+from sphinx.util._pathlib import _StrPath
+from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
+    from typing import Any
 
     from jinja2.environment import Environment
 
     from sphinx.builders import Builder
+    from sphinx.environment.adapters.indexentries import (
+        _RealIndexEntries,
+        _RealIndexEntry,
+    )
     from sphinx.theming import Theme
 
 
 def _tobool(val: str) -> bool:
     if isinstance(val, str):
-        return val.lower() in ('true', '1', 'yes', 'on')
+        return val.lower() in {'true', '1', 'yes', 'on'}
     return bool(val)
 
 
@@ -37,8 +45,7 @@ def _toint(val: str) -> int:
 
 
 def _todim(val: int | str) -> str:
-    """
-    Make val a css dimension. In particular the following transformations
+    """Make val a css dimension. In particular the following transformations
     are performed:
 
     - None -> 'initial' (default CSS value)
@@ -54,7 +61,9 @@ def _todim(val: int | str) -> str:
     return val  # type: ignore[return-value]
 
 
-def _slice_index(values: list, slices: int) -> Iterator[list]:
+def _slice_index(
+    values: _RealIndexEntries, slices: int
+) -> Iterator[list[_RealIndexEntry]]:
     seq = values.copy()
     length = 0
     for value in values:
@@ -100,7 +109,7 @@ class idgen:
 
 
 @pass_context
-def warning(context: dict, message: str, *args: Any, **kwargs: Any) -> str:
+def warning(context: dict[str, Any], message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
         message = f'in rendering {filename}: {message}'
@@ -110,38 +119,48 @@ def warning(context: dict, message: str, *args: Any, **kwargs: Any) -> str:
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
-    """
-    FileSystemLoader subclass that is not so strict about '..'  entries in
+    """FileSystemLoader subclass that is not so strict about '..'  entries in
     template names.
     """
 
-    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
-        for searchpath in self.searchpath:
-            filename = path.join(searchpath, template)
-            f = open_if_exists(filename)
+    def get_source(
+        self, environment: Environment, template: str
+    ) -> tuple[str, str, Callable[[], bool]]:
+        if template.endswith('.jinja'):
+            legacy_suffix = '_t'
+            legacy_template = template.removesuffix('.jinja') + legacy_suffix
+        else:
+            legacy_template = None
+
+        for search_path in map(Path, self.searchpath):
+            filename = search_path / template
+            f = open_if_exists(str(filename))
             if f is not None:
                 break
+            if legacy_template is not None:
+                filename = search_path / legacy_template
+                f = open_if_exists(str(filename))
+                if f is not None:
+                    break
         else:
             raise TemplateNotFound(template)
 
         with f:
             contents = f.read().decode(self.encoding)
 
-        mtime = path.getmtime(filename)
+        mtime = _last_modified_time(filename)
 
         def uptodate() -> bool:
             try:
-                return path.getmtime(filename) == mtime
+                return _last_modified_time(filename) == mtime
             except OSError:
                 return False
 
-        return contents, filename, uptodate
+        return contents, str(filename), uptodate
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
-    """
-    Interfaces the rendering environment of jinja2 for use in Sphinx.
-    """
+    """Interfaces the rendering environment of jinja2 for use in Sphinx."""
 
     # TemplateBridge interface
 
@@ -156,10 +175,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
             # the theme's own dir and its bases' dirs
             pathchain = theme.get_theme_dirs()
             # the loader dirs: pathchain + the parent directories for all themes
-            loaderchain = pathchain + [path.join(p, '..') for p in pathchain]
+            loaderchain = pathchain + [p.parent for p in pathchain]
         elif dirs:
-            pathchain = list(dirs)
-            loaderchain = list(dirs)
+            pathchain = list(map(_StrPath, dirs))
+            loaderchain = list(map(_StrPath, dirs))
         else:
             pathchain = []
             loaderchain = []
@@ -168,7 +187,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
             cfg_templates_path = [
-                path.join(builder.confdir, tp) for tp in builder.config.templates_path
+                builder.confdir / tp for tp in builder.config.templates_path
             ]
             pathchain[0:0] = cfg_templates_path
             loaderchain[0:0] = cfg_templates_path
@@ -196,18 +215,32 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                 builder.app.translator
             )
 
-    def render(self, template: str, context: dict) -> str:  # type: ignore[override]
+    def render(self, template: str, context: dict[str, Any]) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
 
-    def render_string(self, source: str, context: dict) -> str:
+    def render_string(self, source: str, context: dict[str, Any]) -> str:
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:
-        return max(mtimes_of_files(self.pathchain, '.html'))
+        return self._newest_template_mtime_name()[0]
+
+    def newest_template_name(self) -> str:
+        return self._newest_template_mtime_name()[1]
+
+    def _newest_template_mtime_name(self) -> tuple[float, str]:
+        return max(
+            (Path(root, sfile).stat().st_mtime_ns / 10**9, sfile)
+            for dirname in self.pathchain
+            for root, _dirs, files in os.walk(dirname)
+            for sfile in files
+            if sfile.endswith('.html')
+        )
 
     # Loader interface
 
-    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
+    def get_source(
+        self, environment: Environment, template: str
+    ) -> tuple[str, str, Callable[[], bool]]:
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

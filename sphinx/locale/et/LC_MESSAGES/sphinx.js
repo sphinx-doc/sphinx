@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Otsing",
         "Search Page": "Otsinguleht",
         "Search Results": "Otsingu tulemused",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Otsi %(docstitle)s piires",
         "Searching": "Otsimine",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

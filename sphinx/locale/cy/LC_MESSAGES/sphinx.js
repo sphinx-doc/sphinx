@@ -36,7 +36,12 @@ Documentation.addTranslations({
         "Search": "Chwilio",
         "Search Page": "Tudalen Chwilio",
         "Search Results": "Canlyniadau chwilio",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Chwilio o fewn %(docstitle)s",
         "Searching": "Yn chwilio",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

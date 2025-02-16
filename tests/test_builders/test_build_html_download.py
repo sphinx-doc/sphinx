@@ -1,17 +1,25 @@
+from __future__ import annotations
+
 import hashlib
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
-@pytest.mark.sphinx('html')
-def test_html_download(app):
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_html_download(app: SphinxTestApp) -> None:
     app.build()
 
     # subdir/includes.html
     result = (app.outdir / 'subdir' / 'includes.html').read_text(encoding='utf8')
-    pattern = ('<a class="reference download internal" download="" '
-               'href="../(_downloads/.*/img.png)">')
+    pattern = (
+        '<a class="reference download internal" download="" '
+        'href="../(_downloads/.*/img.png)">'
+    )
     matched = re.search(pattern, result)
     assert matched
     assert (app.outdir / matched.group(1)).exists()
@@ -19,43 +27,56 @@ def test_html_download(app):
 
     # includes.html
     result = (app.outdir / 'includes.html').read_text(encoding='utf8')
-    pattern = ('<a class="reference download internal" download="" '
-               'href="(_downloads/.*/img.png)">')
+    pattern = (
+        '<a class="reference download internal" download="" '
+        'href="(_downloads/.*/img.png)">'
+    )
     matched = re.search(pattern, result)
     assert matched
     assert (app.outdir / matched.group(1)).exists()
     assert matched.group(1) == filename
 
-    pattern = ('<a class="reference download internal" download="" '
-               'href="(_downloads/.*/)(file_with_special_%23_chars.xyz)">')
+    pattern = (
+        '<a class="reference download internal" download="" '
+        'href="(_downloads/.*/)(file_with_special_%23_chars.xyz)">'
+    )
     matched = re.search(pattern, result)
     assert matched
-    assert (app.outdir / matched.group(1) / "file_with_special_#_chars.xyz").exists()
+    assert (app.outdir / matched.group(1) / 'file_with_special_#_chars.xyz').exists()
 
 
 @pytest.mark.sphinx('html', testroot='roles-download')
-def test_html_download_role(app, status, warning):
+def test_html_download_role(app: SphinxTestApp) -> None:
     app.build()
     digest = hashlib.md5(b'dummy.dat', usedforsecurity=False).hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
-    digest_another = hashlib.md5(b'another/dummy.dat', usedforsecurity=False).hexdigest()
+    digest_another = hashlib.md5(
+        b'another/dummy.dat', usedforsecurity=False
+    ).hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert (('<li><p><a class="reference download internal" download="" '
-             'href="_downloads/%s/dummy.dat">'
-             '<code class="xref download docutils literal notranslate">'
-             '<span class="pre">dummy.dat</span></code></a></p></li>' % digest)
-            in content)
-    assert (('<li><p><a class="reference download internal" download="" '
-             'href="_downloads/%s/dummy.dat">'
-             '<code class="xref download docutils literal notranslate">'
-             '<span class="pre">another/dummy.dat</span></code></a></p></li>' %
-             digest_another) in content)
-    assert ('<li><p><code class="xref download docutils literal notranslate">'
-            '<span class="pre">not_found.dat</span></code></p></li>' in content)
-    assert ('<li><p><a class="reference download external" download="" '
-            'href="https://www.sphinx-doc.org/en/master/_static/sphinx-logo.svg">'
-            '<code class="xref download docutils literal notranslate">'
-            '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
-            '</code></a></p></li>' in content)
+    assert (
+        '<li><p><a class="reference download internal" download="" '
+        'href="_downloads/%s/dummy.dat">'
+        '<code class="xref download docutils literal notranslate">'
+        '<span class="pre">dummy.dat</span></code></a></p></li>' % digest
+    ) in content
+    assert (
+        '<li><p><a class="reference download internal" download="" '
+        'href="_downloads/%s/dummy.dat">'
+        '<code class="xref download docutils literal notranslate">'
+        '<span class="pre">another/dummy.dat</span></code></a></p></li>'
+        % digest_another
+    ) in content
+    assert (
+        '<li><p><code class="xref download docutils literal notranslate">'
+        '<span class="pre">not_found.dat</span></code></p></li>'
+    ) in content
+    assert (
+        '<li><p><a class="reference download external" download="" '
+        'href="https://www.sphinx-doc.org/en/master/_static/sphinx-logo.svg">'
+        '<code class="xref download docutils literal notranslate">'
+        '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
+        '</code></a></p></li>'
+    ) in content

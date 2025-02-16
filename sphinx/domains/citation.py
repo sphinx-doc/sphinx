@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -14,6 +14,9 @@ from sphinx.util import logging
 from sphinx.util.nodes import copy_source_info, make_refnode
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+    from typing import Any
+
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
@@ -53,7 +56,7 @@ class CitationDomain(Domain):
             elif docname in docnames:
                 docnames.remove(docname)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for key, data in otherdata['citations'].items():
             if data[0] in docnames:
@@ -68,8 +71,14 @@ class CitationDomain(Domain):
         label = node[0].astext()
         if label in self.citations:
             path = self.env.doc2path(self.citations[label][0])
-            logger.warning(__('duplicate citation %s, other instance in %s'), label, path,
-                           location=node, type='ref', subtype='citation')
+            logger.warning(
+                __('duplicate citation %s, other instance in %s'),
+                label,
+                path,
+                location=node,
+                type='ref',
+                subtype='citation',
+            )
         self.citations[label] = (node['docname'], node['ids'][0], node.line)  # type: ignore[assignment]
 
     def note_citation_reference(self, node: pending_xref) -> None:
@@ -79,23 +88,42 @@ class CitationDomain(Domain):
     def check_consistency(self) -> None:
         for name, (docname, _labelid, lineno) in self.citations.items():
             if name not in self.citation_refs:
-                logger.warning(__('Citation [%s] is not referenced.'), name,
-                               type='ref', subtype='citation', location=(docname, lineno))
+                logger.warning(
+                    __('Citation [%s] is not referenced.'),
+                    name,
+                    type='ref',
+                    subtype='citation',
+                    location=(docname, lineno),
+                )
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         docname, labelid, lineno = self.citations.get(target, ('', '', 0))
         if not docname:
             return None
 
-        return make_refnode(builder, fromdocname, docname,
-                            labelid, contnode)
+        return make_refnode(builder, fromdocname, docname, labelid, contnode)
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
-        refnode = self.resolve_xref(env, fromdocname, builder, 'ref', target, node, contnode)
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, nodes.reference]]:
+        refnode = self.resolve_xref(
+            env, fromdocname, builder, 'ref', target, node, contnode
+        )
         if refnode is None:
             return []
         else:
@@ -108,34 +136,38 @@ class CitationDefinitionTransform(SphinxTransform):
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
+        domain = self.env.domains.citation_domain
         for node in self.document.findall(nodes.citation):
             # register citation node to domain
             node['docname'] = self.env.docname
             domain.note_citation(node)
 
             # mark citation labels as not smartquoted
-            label = cast(nodes.label, node[0])
+            label = cast('nodes.label', node[0])
             label['support_smartquotes'] = False
 
 
 class CitationReferenceTransform(SphinxTransform):
-    """
-    Replace citation references by pending_xref nodes before the default
+    """Replace citation references by pending_xref nodes before the default
     docutils transform tries to resolve them.
     """
 
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
+        domain = self.env.domains.citation_domain
         for node in self.document.findall(nodes.citation_reference):
             target = node.astext()
-            ref = pending_xref(target, refdomain='citation', reftype='ref',
-                               reftarget=target, refwarn=True,
-                               support_smartquotes=False,
-                               ids=node["ids"],
-                               classes=node.get('classes', []))
+            ref = pending_xref(
+                target,
+                refdomain='citation',
+                reftype='ref',
+                reftarget=target,
+                refwarn=True,
+                support_smartquotes=False,
+                ids=node['ids'],
+                classes=node.get('classes', []),
+            )
             ref += nodes.inline(target, '[%s]' % target)
             copy_source_info(node, ref)
             node.replace_self(ref)

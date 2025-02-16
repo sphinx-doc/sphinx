@@ -1,5 +1,7 @@
 """Tests the JavaScript Domain"""
 
+from __future__ import annotations
+
 from unittest.mock import Mock
 
 import docutils.utils
@@ -26,12 +28,11 @@ from sphinx.writers.text import STDINDENT
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_xrefs(app, status, warning):
+def test_domain_js_xrefs(app):
     """Domain objects have correct prefixes when looking up xrefs"""
     app.build(force_all=True)
 
-    def assert_refnode(node, mod_name, prefix, target, reftype=None,
-                       domain='js'):
+    def assert_refnode(node, mod_name, prefix, target, reftype=None, domain='js'):
         attributes = {
             'refdomain': domain,
             'reftarget': target,
@@ -49,14 +50,21 @@ def test_domain_js_xrefs(app, status, warning):
     assert_refnode(refnodes[0], None, None, 'TopLevel', 'class')
     assert_refnode(refnodes[1], None, None, 'top_level', 'func')
     assert_refnode(refnodes[2], None, 'NestedParentA', 'child_1', 'func')
-    assert_refnode(refnodes[3], None, 'NestedParentA', 'NestedChildA.subchild_2', 'func')
+    assert_refnode(
+        refnodes[3], None, 'NestedParentA', 'NestedChildA.subchild_2', 'func'
+    )
     assert_refnode(refnodes[4], None, 'NestedParentA', 'child_2', 'func')
     assert_refnode(refnodes[5], False, 'NestedParentA', 'any_child', domain='')
     assert_refnode(refnodes[6], None, 'NestedParentA', 'NestedChildA', 'class')
-    assert_refnode(refnodes[7], None, 'NestedParentA.NestedChildA', 'subchild_2', 'func')
-    assert_refnode(refnodes[8], None, 'NestedParentA.NestedChildA',
-                   'NestedParentA.child_1', 'func')
-    assert_refnode(refnodes[9], None, 'NestedParentA', 'NestedChildA.subchild_1', 'func')
+    assert_refnode(
+        refnodes[7], None, 'NestedParentA.NestedChildA', 'subchild_2', 'func'
+    )
+    assert_refnode(
+        refnodes[8], None, 'NestedParentA.NestedChildA', 'NestedParentA.child_1', 'func'
+    )
+    assert_refnode(
+        refnodes[9], None, 'NestedParentA', 'NestedChildA.subchild_1', 'func'
+    )
     assert_refnode(refnodes[10], None, 'NestedParentB', 'child_1', 'func')
     assert_refnode(refnodes[11], None, 'NestedParentB', 'NestedParentB', 'class')
     assert_refnode(refnodes[12], None, None, 'NestedParentA.NestedChildA', 'class')
@@ -64,29 +72,40 @@ def test_domain_js_xrefs(app, status, warning):
 
     doctree = app.env.get_doctree('module')
     refnodes = list(doctree.findall(addnodes.pending_xref))
-    assert_refnode(refnodes[0], 'module_a.submodule', None, 'ModTopLevel',
-                   'class')
-    assert_refnode(refnodes[1], 'module_a.submodule', 'ModTopLevel',
-                   'mod_child_1', 'meth')
-    assert_refnode(refnodes[2], 'module_a.submodule', 'ModTopLevel',
-                   'ModTopLevel.mod_child_1', 'meth')
-    assert_refnode(refnodes[3], 'module_a.submodule', 'ModTopLevel',
-                   'mod_child_2', 'meth')
-    assert_refnode(refnodes[4], 'module_a.submodule', 'ModTopLevel',
-                   'module_a.submodule.ModTopLevel.mod_child_1', 'meth')
-    assert_refnode(refnodes[5], 'module_b.submodule', None, 'ModTopLevel',
-                   'class')
-    assert_refnode(refnodes[6], 'module_b.submodule', 'ModTopLevel',
-                   'module_a.submodule', 'mod')
+    assert_refnode(refnodes[0], 'module_a.submodule', None, 'ModTopLevel', 'class')
+    assert_refnode(
+        refnodes[1], 'module_a.submodule', 'ModTopLevel', 'mod_child_1', 'meth'
+    )
+    assert_refnode(
+        refnodes[2],
+        'module_a.submodule',
+        'ModTopLevel',
+        'ModTopLevel.mod_child_1',
+        'meth',
+    )
+    assert_refnode(
+        refnodes[3], 'module_a.submodule', 'ModTopLevel', 'mod_child_2', 'meth'
+    )
+    assert_refnode(
+        refnodes[4],
+        'module_a.submodule',
+        'ModTopLevel',
+        'module_a.submodule.ModTopLevel.mod_child_1',
+        'meth',
+    )
+    assert_refnode(refnodes[5], 'module_b.submodule', None, 'ModTopLevel', 'class')
+    assert_refnode(
+        refnodes[6], 'module_b.submodule', 'ModTopLevel', 'module_a.submodule', 'mod'
+    )
     assert len(refnodes) == 7
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_objects(app, status, warning):
+def test_domain_js_objects(app):
     app.build(force_all=True)
 
-    modules = app.env.domains['js'].data['modules']
-    objects = app.env.domains['js'].data['objects']
+    modules = app.env.domains.javascript_domain.data['modules']
+    objects = app.env.domains.javascript_domain.data['objects']
 
     assert 'module_a.submodule' in modules
     assert 'module_a.submodule' in objects
@@ -112,41 +131,49 @@ def test_domain_js_objects(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_find_obj(app, status, warning):
-
+def test_domain_js_find_obj(app):
     def find_obj(mod_name, prefix, obj_name, obj_type, searchmode=0):
-        return app.env.domains['js'].find_obj(
-            app.env, mod_name, prefix, obj_name, obj_type, searchmode)
+        return app.env.domains.javascript_domain.find_obj(
+            app.env, mod_name, prefix, obj_name, obj_type, searchmode
+        )
 
     app.build(force_all=True)
 
-    assert (find_obj(None, None, 'NONEXISTANT', 'class') == (None, None))
-    assert (find_obj(None, None, 'NestedParentA', 'class') ==
-            ('NestedParentA', ('roles', 'NestedParentA', 'class')))
-    assert (find_obj(None, None, 'NestedParentA.NestedChildA', 'class') ==
-            ('NestedParentA.NestedChildA',
-             ('roles', 'NestedParentA.NestedChildA', 'class')))
-    assert (find_obj(None, 'NestedParentA', 'NestedChildA', 'class') ==
-            ('NestedParentA.NestedChildA',
-             ('roles', 'NestedParentA.NestedChildA', 'class')))
-    assert (find_obj(None, None, 'NestedParentA.NestedChildA.subchild_1', 'func') ==
-            ('NestedParentA.NestedChildA.subchild_1',
-             ('roles', 'NestedParentA.NestedChildA.subchild_1', 'function')))
-    assert (find_obj(None, 'NestedParentA', 'NestedChildA.subchild_1', 'func') ==
-            ('NestedParentA.NestedChildA.subchild_1',
-             ('roles', 'NestedParentA.NestedChildA.subchild_1', 'function')))
-    assert (find_obj(None, 'NestedParentA.NestedChildA', 'subchild_1', 'func') ==
-            ('NestedParentA.NestedChildA.subchild_1',
-             ('roles', 'NestedParentA.NestedChildA.subchild_1', 'function')))
-    assert (find_obj('module_a.submodule', 'ModTopLevel', 'mod_child_2', 'meth') ==
-            ('module_a.submodule.ModTopLevel.mod_child_2',
-             ('module', 'module_a.submodule.ModTopLevel.mod_child_2', 'method')))
-    assert (find_obj('module_b.submodule', 'ModTopLevel', 'module_a.submodule', 'mod') ==
-            ('module_a.submodule',
-             ('module', 'module-module_a.submodule', 'module')))
+    assert find_obj(None, None, 'NONEXISTANT', 'class') == (None, None)
+    assert find_obj(None, None, 'NestedParentA', 'class') == (
+        'NestedParentA',
+        ('roles', 'NestedParentA', 'class'),
+    )
+    assert find_obj(None, None, 'NestedParentA.NestedChildA', 'class') == (
+        'NestedParentA.NestedChildA',
+        ('roles', 'NestedParentA.NestedChildA', 'class'),
+    )
+    assert find_obj(None, 'NestedParentA', 'NestedChildA', 'class') == (
+        'NestedParentA.NestedChildA',
+        ('roles', 'NestedParentA.NestedChildA', 'class'),
+    )
+    assert find_obj(None, None, 'NestedParentA.NestedChildA.subchild_1', 'func') == (
+        'NestedParentA.NestedChildA.subchild_1',
+        ('roles', 'NestedParentA.NestedChildA.subchild_1', 'function'),
+    )
+    assert find_obj(None, 'NestedParentA', 'NestedChildA.subchild_1', 'func') == (
+        'NestedParentA.NestedChildA.subchild_1',
+        ('roles', 'NestedParentA.NestedChildA.subchild_1', 'function'),
+    )
+    assert find_obj(None, 'NestedParentA.NestedChildA', 'subchild_1', 'func') == (
+        'NestedParentA.NestedChildA.subchild_1',
+        ('roles', 'NestedParentA.NestedChildA.subchild_1', 'function'),
+    )
+    assert find_obj('module_a.submodule', 'ModTopLevel', 'mod_child_2', 'meth') == (
+        'module_a.submodule.ModTopLevel.mod_child_2',
+        ('module', 'module_a.submodule.ModTopLevel.mod_child_2', 'method'),
+    )
+    assert find_obj(
+        'module_b.submodule', 'ModTopLevel', 'module_a.submodule', 'mod'
+    ) == ('module_a.submodule', ('module', 'module-module_a.submodule', 'module'))
 
 
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = JavaScriptDomain(env)
 
@@ -174,69 +201,154 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_js_module(app):
-    text = ".. js:module:: sphinx"
+    text = '.. js:module:: sphinx'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index,
-                          nodes.target))
-    assert_node(doctree[0], addnodes.index,
-                entries=[("single", "sphinx (module)", "module-sphinx", "", None)])
-    assert_node(doctree[1], nodes.target, ids=["module-sphinx"])
+    assert_node(doctree, (addnodes.index, nodes.target))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'sphinx (module)', 'module-sphinx', '', None)],
+    )
+    assert_node(doctree[1], nodes.target, ids=['module-sphinx'])
 
 
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_js_function(app):
-    text = ".. js:function:: sum(a, b)"
+    text = '.. js:function:: sum(a, b)'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_name, ([desc_sig_name, "sum"])],
-                                                    desc_parameterlist)],
-                                  [desc_content, ()])]))
-    assert_node(doctree[1][0][1], [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "a"])],
-                                                        [desc_parameter, ([desc_sig_name, "b"])])])
-    assert_node(doctree[0], addnodes.index,
-                entries=[("single", "sum() (built-in function)", "sum", "", None)])
-    assert_node(doctree[1], addnodes.desc, domain="js", objtype="function", no_index=False)
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        ([desc_name, ([desc_sig_name, 'sum'])], desc_parameterlist),
+                    ],
+                    [desc_content, ()],
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1][0][1],
+        [
+            desc_parameterlist,
+            (
+                [desc_parameter, ([desc_sig_name, 'a'])],
+                [desc_parameter, ([desc_sig_name, 'b'])],
+            ),
+        ],
+    )
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'sum() (built-in function)', 'sum', '', None)],
+    )
+    assert_node(
+        doctree[1], addnodes.desc, domain='js', objtype='function', no_index=False
+    )
 
 
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_js_class(app):
-    text = ".. js:class:: Application"
+    text = '.. js:class:: Application'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, ([desc_sig_keyword, 'class'],
-                                                                       desc_sig_space)],
-                                                    [desc_name, ([desc_sig_name, "Application"])],
-                                                    [desc_parameterlist, ()])],
-                                  [desc_content, ()])]))
-    assert_node(doctree[0], addnodes.index,
-                entries=[("single", "Application() (class)", "Application", "", None)])
-    assert_node(doctree[1], addnodes.desc, domain="js", objtype="class", no_index=False)
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
+                            [desc_name, ([desc_sig_name, 'Application'])],
+                            [desc_parameterlist, ()],
+                        ),
+                    ],
+                    [desc_content, ()],
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'Application() (class)', 'Application', '', None)],
+    )
+    assert_node(doctree[1], addnodes.desc, domain='js', objtype='class', no_index=False)
 
 
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_js_data(app):
-    text = ".. js:data:: name"
+    text = '.. js:data:: name'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_name, ([desc_sig_name, "name"])])],
-                                  [desc_content, ()])]))
-    assert_node(doctree[0], addnodes.index,
-                entries=[("single", "name (global variable or constant)", "name", "", None)])
-    assert_node(doctree[1], addnodes.desc, domain="js", objtype="data", no_index=False)
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [desc_signature, ([desc_name, ([desc_sig_name, 'name'])])],
+                    [desc_content, ()],
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'name (global variable or constant)', 'name', '', None)],
+    )
+    assert_node(doctree[1], addnodes.desc, domain='js', objtype='data', no_index=False)
 
 
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_no_index_entry(app):
-    text = (".. js:function:: f()\n"
-            ".. js:function:: g()\n"
-            "   :no-index-entry:\n")
+    text = '.. js:function:: f()\n.. js:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
-    assert_node(doctree[0], addnodes.index, entries=[('single', 'f() (built-in function)', 'f', '', None)])
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'f() (built-in function)', 'f', '', None)],
+    )
     assert_node(doctree[2], addnodes.index, entries=[])
 
+    text = '.. js:class:: f\n.. js:class:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'f() (class)', 'f', '', None)],
+    )
+    assert_node(doctree[2], addnodes.index, entries=[])
 
+    text = '.. js:module:: f\n.. js:module:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, nodes.target, nodes.target))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('single', 'f (module)', 'module-f', '', None)],
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_module_content_line_number(app):
-    text = (".. js:module:: foo\n" +
-            "\n" +
-            "   Some link here: :ref:`abc`\n")
+    text = '.. js:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))
     assert len(xrefs) == 1
@@ -245,172 +357,315 @@ def test_module_content_line_number(app):
     assert line == 3
 
 
-@pytest.mark.sphinx('html', confoverrides={
-    'javascript_maximum_signature_line_length': len("hello(name)"),
-})
+@pytest.mark.sphinx(
+    'html',
+    testroot='root',
+    confoverrides={
+        'javascript_maximum_signature_line_length': len('hello(name)'),
+    },
+)
 def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equal(app):
-    text = ".. js:function:: hello(name)"
+    text = '.. js:function:: hello(name)'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (
-        addnodes.index,
-        [desc, (
-            [desc_signature, (
-                [desc_name, ([desc_sig_name, "hello"])],
-                desc_parameterlist,
-            )],
-            desc_content,
-        )],
-    ))
-    assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", no_index=False)
-    assert_node(doctree[1][0][1],
-                [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"])])
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [desc_name, ([desc_sig_name, 'hello'])],
+                            desc_parameterlist,
+                        ),
+                    ],
+                    desc_content,
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        desc,
+        desctype='function',
+        domain='js',
+        objtype='function',
+        no_index=False,
+    )
+    assert_node(
+        doctree[1][0][1],
+        [desc_parameterlist, desc_parameter, ([desc_sig_name, 'name'])],
+    )
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
-    'javascript_maximum_signature_line_length': len("hello(name)"),
-})
-def test_jsfunction_signature_with_javascript_maximum_signature_line_length_force_single(app):
-    text = (".. js:function:: hello(names)\n"
-            "   :single-line-parameter-list:")
+@pytest.mark.sphinx(
+    'html',
+    testroot='root',
+    confoverrides={
+        'javascript_maximum_signature_line_length': len('hello(name)'),
+    },
+)
+def test_jsfunction_signature_with_javascript_maximum_signature_line_length_force_single(
+    app,
+):
+    text = '.. js:function:: hello(names)\n   :single-line-parameter-list:'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (
-        addnodes.index,
-        [desc, (
-            [desc_signature, (
-                [desc_name, ([desc_sig_name, "hello"])],
-                desc_parameterlist,
-            )],
-            desc_content,
-        )],
-    ))
-    assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", no_index=False)
-    assert_node(doctree[1][0][1],
-                [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [desc_name, ([desc_sig_name, 'hello'])],
+                            desc_parameterlist,
+                        ),
+                    ],
+                    desc_content,
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        desc,
+        desctype='function',
+        domain='js',
+        objtype='function',
+        no_index=False,
+    )
+    assert_node(
+        doctree[1][0][1],
+        [desc_parameterlist, desc_parameter, ([desc_sig_name, 'names'])],
+    )
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
-@pytest.mark.sphinx('html', confoverrides={
-    'javascript_maximum_signature_line_length': len("hello(name)"),
-})
+@pytest.mark.sphinx(
+    'html',
+    testroot='root',
+    confoverrides={
+        'javascript_maximum_signature_line_length': len('hello(name)'),
+    },
+)
 def test_jsfunction_signature_with_javascript_maximum_signature_line_length_break(app):
-    text = ".. js:function:: hello(names)"
+    text = '.. js:function:: hello(names)'
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (
-        addnodes.index,
-        [desc, (
-            [desc_signature, (
-                [desc_name, ([desc_sig_name, "hello"])],
-                desc_parameterlist,
-            )],
-            desc_content,
-        )],
-    ))
-    assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", no_index=False)
-    assert_node(doctree[1][0][1],
-                [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
-
-
-@pytest.mark.sphinx('html', confoverrides={
-    'maximum_signature_line_length': len("hello(name)"),
-})
-def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
-    text = ".. js:function:: hello(name)"
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (
-        addnodes.index,
-        [desc, (
-            [desc_signature, (
-                [desc_name, ([desc_sig_name, "hello"])],
-                desc_parameterlist,
-            )],
-            desc_content,
-        )],
-    ))
-    assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", no_index=False)
-    assert_node(doctree[1][0][1],
-                [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"])])
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
-
-
-@pytest.mark.sphinx('html', confoverrides={
-    'maximum_signature_line_length': len("hello(name)"),
-})
-def test_jsfunction_signature_with_maximum_signature_line_length_force_single(app):
-    text = (".. js:function:: hello(names)\n"
-            "   :single-line-parameter-list:")
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (
-        addnodes.index,
-        [desc, (
-            [desc_signature, (
-                [desc_name, ([desc_sig_name, "hello"])],
-                desc_parameterlist,
-            )],
-            desc_content,
-        )],
-    ))
-    assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", no_index=False)
-    assert_node(doctree[1][0][1],
-                [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
-
-
-@pytest.mark.sphinx('html', confoverrides={
-    'maximum_signature_line_length': len("hello(name)"),
-})
-def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
-    text = ".. js:function:: hello(names)"
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (
-        addnodes.index,
-        [desc, (
-            [desc_signature, (
-                [desc_name, ([desc_sig_name, "hello"])],
-                desc_parameterlist,
-            )],
-            desc_content,
-        )],
-    ))
-    assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", no_index=False)
-    assert_node(doctree[1][0][1],
-                [desc_parameterlist, desc_parameter, ([desc_sig_name, "names"])])
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [desc_name, ([desc_sig_name, 'hello'])],
+                            desc_parameterlist,
+                        ),
+                    ],
+                    desc_content,
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        desc,
+        desctype='function',
+        domain='js',
+        objtype='function',
+        no_index=False,
+    )
+    assert_node(
+        doctree[1][0][1],
+        [desc_parameterlist, desc_parameter, ([desc_sig_name, 'names'])],
+    )
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
 
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
-        'javascript_maximum_signature_line_length': len("hello(name)"),
+        'maximum_signature_line_length': len('hello(name)'),
+    },
+)
+def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
+    text = '.. js:function:: hello(name)'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [desc_name, ([desc_sig_name, 'hello'])],
+                            desc_parameterlist,
+                        ),
+                    ],
+                    desc_content,
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        desc,
+        desctype='function',
+        domain='js',
+        objtype='function',
+        no_index=False,
+    )
+    assert_node(
+        doctree[1][0][1],
+        [desc_parameterlist, desc_parameter, ([desc_sig_name, 'name'])],
+    )
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='root',
+    confoverrides={
+        'maximum_signature_line_length': len('hello(name)'),
+    },
+)
+def test_jsfunction_signature_with_maximum_signature_line_length_force_single(app):
+    text = '.. js:function:: hello(names)\n   :single-line-parameter-list:'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [desc_name, ([desc_sig_name, 'hello'])],
+                            desc_parameterlist,
+                        ),
+                    ],
+                    desc_content,
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        desc,
+        desctype='function',
+        domain='js',
+        objtype='function',
+        no_index=False,
+    )
+    assert_node(
+        doctree[1][0][1],
+        [desc_parameterlist, desc_parameter, ([desc_sig_name, 'names'])],
+    )
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='root',
+    confoverrides={
+        'maximum_signature_line_length': len('hello(name)'),
+    },
+)
+def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
+    text = '.. js:function:: hello(names)'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [desc_name, ([desc_sig_name, 'hello'])],
+                            desc_parameterlist,
+                        ),
+                    ],
+                    desc_content,
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        desc,
+        desctype='function',
+        domain='js',
+        objtype='function',
+        no_index=False,
+    )
+    assert_node(
+        doctree[1][0][1],
+        [desc_parameterlist, desc_parameter, ([desc_sig_name, 'names'])],
+    )
+    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='root',
+    confoverrides={
+        'javascript_maximum_signature_line_length': len('hello(name)'),
         'maximum_signature_line_length': 1,
     },
 )
 def test_javascript_maximum_signature_line_length_overrides_global(app):
-    text = ".. js:function:: hello(name)"
+    text = '.. js:function:: hello(name)'
     doctree = restructuredtext.parse(app, text)
-    expected_doctree = (addnodes.index,
-                        [desc, ([desc_signature, ([desc_name, ([desc_sig_name, "hello"])],
-                                                  desc_parameterlist)],
-                                desc_content)])
+    expected_doctree = (
+        addnodes.index,
+        [
+            desc,
+            (
+                [
+                    desc_signature,
+                    ([desc_name, ([desc_sig_name, 'hello'])], desc_parameterlist),
+                ],
+                desc_content,
+            ),
+        ],
+    )
     assert_node(doctree, expected_doctree)
-    assert_node(doctree[1], desc, desctype="function",
-                domain="js", objtype="function", no_index=False)
-    expected_sig = [desc_parameterlist, desc_parameter, [desc_sig_name, "name"]]
+    assert_node(
+        doctree[1],
+        desc,
+        desctype='function',
+        domain='js',
+        objtype='function',
+        no_index=False,
+    )
+    expected_sig = [desc_parameterlist, desc_parameter, [desc_sig_name, 'name']]
     assert_node(doctree[1][0][1], expected_sig)
     assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
 
 
 @pytest.mark.sphinx(
-    'html', testroot='domain-js-javascript_maximum_signature_line_length',
+    'html',
+    testroot='domain-js-javascript_maximum_signature_line_length',
 )
-def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status, warning):
+def test_domain_js_javascript_maximum_signature_line_length_in_html(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected_parameter_list_hello = """\
@@ -436,25 +691,35 @@ def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status,
     optional_fmt = '<span class="optional">{}</span>'
 
     expected_a = param_line_fmt.format(
-        optional_fmt.format("[") + param_name_fmt.format("a") + "," + optional_fmt.format("["),
+        optional_fmt.format('[')
+        + param_name_fmt.format('a')
+        + ','
+        + optional_fmt.format('['),
     )
     assert expected_a in content
 
     expected_b = param_line_fmt.format(
-        param_name_fmt.format("b") + "," + optional_fmt.format("]") + optional_fmt.format("]"),
+        param_name_fmt.format('b')
+        + ','
+        + optional_fmt.format(']')
+        + optional_fmt.format(']'),
     )
     assert expected_b in content
 
-    expected_c = param_line_fmt.format(param_name_fmt.format("c") + ",")
+    expected_c = param_line_fmt.format(param_name_fmt.format('c') + ',')
     assert expected_c in content
 
-    expected_d = param_line_fmt.format(param_name_fmt.format("d") + optional_fmt.format("[") + ",")
+    expected_d = param_line_fmt.format(
+        param_name_fmt.format('d') + optional_fmt.format('[') + ','
+    )
     assert expected_d in content
 
-    expected_e = param_line_fmt.format(param_name_fmt.format("e") + ",")
+    expected_e = param_line_fmt.format(param_name_fmt.format('e') + ',')
     assert expected_e in content
 
-    expected_f = param_line_fmt.format(param_name_fmt.format("f") + "," + optional_fmt.format("]"))
+    expected_f = param_line_fmt.format(
+        param_name_fmt.format('f') + ',' + optional_fmt.format(']')
+    )
     assert expected_f in content
 
     expected_parameter_list_foo = """\
@@ -470,36 +735,160 @@ def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status,
 
 
 @pytest.mark.sphinx(
-    'text', testroot='domain-js-javascript_maximum_signature_line_length',
+    'text',
+    testroot='domain-js-javascript_maximum_signature_line_length',
 )
-def test_domain_js_javascript_maximum_signature_line_length_in_text(app, status, warning):
+def test_domain_js_javascript_maximum_signature_line_length_in_text(app):
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    param_line_fmt = STDINDENT * " " + "{}\n"
+    param_line_fmt = STDINDENT * ' ' + '{}\n'
 
-    expected_parameter_list_hello = "(\n{})".format(param_line_fmt.format("name,"))
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('name,'))
 
     assert expected_parameter_list_hello in content
 
-    expected_a = param_line_fmt.format("[a,[")
+    expected_a = param_line_fmt.format('[a,[')
     assert expected_a in content
 
-    expected_b = param_line_fmt.format("b,]]")
+    expected_b = param_line_fmt.format('b,]]')
     assert expected_b in content
 
-    expected_c = param_line_fmt.format("c,")
+    expected_c = param_line_fmt.format('c,')
     assert expected_c in content
 
-    expected_d = param_line_fmt.format("d[,")
+    expected_d = param_line_fmt.format('d[,')
     assert expected_d in content
 
-    expected_e = param_line_fmt.format("e,")
+    expected_e = param_line_fmt.format('e,')
     assert expected_e in content
 
-    expected_f = param_line_fmt.format("f,]")
+    expected_f = param_line_fmt.format('f,]')
     assert expected_f in content
 
-    expected_parameter_list_foo = "(\n{}{}{}{}{}{})".format(
-        expected_a, expected_b, expected_c, expected_d, expected_e, expected_f,
+    expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(
+        expected_a,
+        expected_b,
+        expected_c,
+        expected_d,
+        expected_e,
+        expected_f,
+    )
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='domain-js-javascript_maximum_signature_line_length',
+    confoverrides={'javascript_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_html(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    expected_parameter_list_hello = """\
+
+<dl>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">name</span></span>\
+</em>\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
+</dt>\
+"""
+    assert expected_parameter_list_hello in content
+
+    param_line_fmt = '<dd>{}</dd>\n'
+    param_name_fmt = (
+        '<em class="sig-param"><span class="n"><span class="pre">{}</span></span></em>'
+    )
+    optional_fmt = '<span class="optional">{}</span>'
+
+    expected_a = param_line_fmt.format(
+        optional_fmt.format('[')
+        + param_name_fmt.format('a')
+        + ','
+        + optional_fmt.format('['),
+    )
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format(
+        param_name_fmt.format('b')
+        + ','
+        + optional_fmt.format(']')
+        + optional_fmt.format(']'),
+    )
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format(param_name_fmt.format('c') + ',')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format(
+        param_name_fmt.format('d') + optional_fmt.format('[') + ','
+    )
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format(param_name_fmt.format('e') + ',')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format(
+        param_name_fmt.format('f') + optional_fmt.format(']')
+    )
+    assert expected_f in content
+
+    expected_parameter_list_foo = """\
+
+<dl>
+{}{}{}{}{}{}</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
+</dt>\
+""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'text',
+    testroot='domain-js-javascript_maximum_signature_line_length',
+    freshenv=True,
+    confoverrides={'javascript_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_text(app):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * ' ' + '{}\n'
+
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('name'))
+
+    assert expected_parameter_list_hello in content
+
+    expected_a = param_line_fmt.format('[a,[')
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format('b,]]')
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format('c,')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format('d[,')
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format('e,')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format('f]')
+    assert expected_f in content
+
+    expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(
+        expected_a,
+        expected_b,
+        expected_c,
+        expected_d,
+        expected_e,
+        expected_f,
     )
     assert expected_parameter_list_foo in content

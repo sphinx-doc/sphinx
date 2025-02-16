@@ -1,5 +1,7 @@
 """Additional nodes for LaTeX writer."""
 
+from __future__ import annotations
+
 from docutils import nodes
 
 
@@ -15,8 +17,9 @@ class footnotemark(nodes.Inline, nodes.Referential, nodes.TextElement):
     pass
 
 
-class footnotetext(nodes.General, nodes.BackLinkable, nodes.Element,
-                   nodes.Labeled, nodes.Targetable):
+class footnotetext(
+    nodes.General, nodes.BackLinkable, nodes.Element, nodes.Labeled, nodes.Targetable
+):
     r"""A node represents ``\footnotetext``."""
 
 

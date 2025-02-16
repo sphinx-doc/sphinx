@@ -1,16 +1,26 @@
 """Test the autodoc extension."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_preserve_defaults': True})
-def test_preserve_defaults(app):
-    color = "0xFFFFFF"
 
-    options = {"members": None}
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-autodoc',
+    confoverrides={'autodoc_preserve_defaults': True},
+)
+def test_preserve_defaults(app: SphinxTestApp) -> None:
+    color = '0xFFFFFF'
+
+    options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.preserve_defaults', options)
     assert list(actual) == [
         '',
@@ -92,11 +102,16 @@ def test_preserve_defaults(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_preserve_defaults': True})
-def test_preserve_defaults_special_constructs(app):
-    options = {"members": None}
-    actual = do_autodoc(app, 'module', 'target.preserve_defaults_special_constructs', options)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-autodoc',
+    confoverrides={'autodoc_preserve_defaults': True},
+)
+def test_preserve_defaults_special_constructs(app: SphinxTestApp) -> None:
+    options = {'members': None}
+    actual = do_autodoc(
+        app, 'module', 'target.preserve_defaults_special_constructs', options
+    )
 
     # * dataclasses.dataclass:
     #   - __init__ source code is not available

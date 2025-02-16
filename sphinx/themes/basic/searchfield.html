@@ -1,14 +1,8 @@
-{#
-    basic/searchfield.html
-    ~~~~~~~~~~~~~~~~~~~~~~
+{# Sphinx sidebar template: search field.
 
-    Sphinx sidebar template: search field.
-    This component is similar to searchbox.html but does not include an
-    extra heading ("Quick search"). Instead, it uses a placeholder text
-    in the search field.
-
-    :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This component is similar to searchbox.html but does not include an
+extra heading ("Quick search"). Instead, it uses a placeholder text
+in the search field.
 #}
 {%- if pagename != "search" and builder != "singlehtml" %}
 <search id="searchbox" style="display: none" role="search">

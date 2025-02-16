@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
+import pygments
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
@@ -26,9 +27,16 @@ from sphinx.pygments_styles import NoneStyle, SphinxStyle
 from sphinx.util import logging, texescape
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pygments.formatter import Formatter
     from pygments.lexer import Lexer
     from pygments.style import Style
+
+if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 18):
+    from pygments.formatter import Formatter
+
+    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +50,11 @@ lexer_classes: dict[str, type[Lexer] | partial[Lexer]] = {
 }
 
 
-escape_hl_chars = {ord('\\'): '\\PYGZbs{}', ord('{'): '\\PYGZob{}', ord('}'): '\\PYGZcb{}'}
+escape_hl_chars = {
+    ord('\\'): '\\PYGZbs{}',
+    ord('{'): '\\PYGZob{}',
+    ord('}'): '\\PYGZcb{}',
+}
 
 # used if Pygments is available
 # MEMO: no use of \protected here to avoid having to do hyperref extras,
@@ -90,7 +102,10 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter[str]
 
     def __init__(
-        self, dest: str = 'html', stylename: str = 'sphinx', latex_engine: str | None = None
+        self,
+        dest: str = 'html',
+        stylename: str = 'sphinx',
+        latex_engine: str | None = None,
     ) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
@@ -114,7 +129,7 @@ class PygmentsBridge:
         else:
             return get_style_by_name(stylename)
 
-    def get_formatter(self, **kwargs: Any) -> Formatter:
+    def get_formatter(self, **kwargs: Any) -> Formatter[str]:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
@@ -122,7 +137,7 @@ class PygmentsBridge:
         self,
         source: str,
         lang: str,
-        opts: dict | None = None,
+        opts: dict[str, Any] | None = None,
         force: bool = False,
         location: Any = None,
     ) -> Lexer:
@@ -152,7 +167,11 @@ class PygmentsBridge:
                     lexer = get_lexer_by_name(lang, **opts)
             except ClassNotFound:
                 logger.warning(
-                    __('Pygments lexer name %r is not known'), lang, location=location
+                    __('Pygments lexer name %r is not known'),
+                    lang,
+                    location=location,
+                    type='misc',
+                    subtype='higlighting_failure',
                 )
                 lexer = lexer_classes['none'](**opts)
 
@@ -165,7 +184,7 @@ class PygmentsBridge:
         self,
         source: str,
         lang: str,
-        opts: dict | None = None,
+        opts: dict[str, Any] | None = None,
         force: bool = False,
         location: Any = None,
         **kwargs: Any,

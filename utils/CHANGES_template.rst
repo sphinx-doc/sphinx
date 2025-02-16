@@ -1,6 +1,3 @@
-Release x.y.z (in development)
-==============================
-
 Dependencies
 ------------
 

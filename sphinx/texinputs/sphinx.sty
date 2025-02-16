@@ -9,7 +9,7 @@
 % by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2024/07/01 v7.4.0 Sphinx LaTeX package (sphinx-doc)]
+\ProvidesPackage{sphinx}[2024/11/23 v8.2.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -156,6 +156,7 @@
 \DeclareStringOption[-1]{numfigreset}
 \DeclareBoolOption[false]{nonumfigreset}
 \DeclareBoolOption[false]{mathnumfig}
+\DeclareStringOption[.]{mathnumsep}
 \define@key{sphinx}{bookmarksdepth}{\AtBeginDocument{\hypersetup{bookmarksdepth=#1}}}
 \AtBeginDocument{\define@key{sphinx}{bookmarksdepth}{\hypersetup{bookmarksdepth=#1}}}
 % \DeclareBoolOption[false]{usespart}% not used
@@ -350,6 +351,11 @@
 % is handled as an admonition with the same customizability. And the
 % todo directive.
 %
+% 8.1.0: style separately topic, contents, and sidebar directives
+% ---------------------------------------------------------------
+%
+% And use some title row also for them (but without icon, per default).
+%
 \def\spxstring@none{none}
 \def\spxstring@clone{clone}
 %
@@ -397,6 +403,15 @@
 %          macro prefix   option prefix   legacy option    init value
 \spx@tempa{spx@pre@}      {pre_}          {verbatimborder} {0.4pt}
 \spx@tempa{spx@topic@}    {div.topic_}    {shadowrule}     {0.5pt}% mod. at 7.4.0
+\spx@tempa{spx@contents@} {div.contents_} {shadowrule}     {0.5pt}% 8.1.0
+\spx@tempa{spx@sidebar@}  {div.sidebar_}  {shadowrule}     {1pt}%   8.1.0
+% let legacy shadowrule key set all topic/contents/sidebar border
+% keys to the common value given by user to shadowrule
+\def\KV@sphinx@shadowrule #1{%
+  \@nameuse{KV@sphinx@div.topic_border-width}{#1}%
+  \@nameuse{KV@sphinx@div.contents_border-width}{#1}%
+  \@nameuse{KV@sphinx@div.sidebar_border-width}{#1}%
+}%
 \spx@tempa{spx@note@}     {div.note_}     {noteborder}     {0.5pt}
 \spx@tempa{spx@hint@}     {div.hint_}     {hintborder}     {0.5pt}
 \spx@tempa{spx@important@}{div.important_}{importantborder}{0.5pt}
@@ -444,9 +459,13 @@
 % In order for perfect exact same vertical alignment of contents from all such
 % directives, the value of horizontal border-width+padding is kept constant
 % (equal to 7.5pt since 7.4.0).
+% 8.1.0 styles separately topic, contents, and sidebar.
 %         #1 macro prefix #6 option prefix   top right bottom left
 \spx@tempa{spx@pre@}      {pre_}            {3pt}{3pt}{3pt}{3pt}
-\spx@tempa{spx@topic@}    {div.topic_}      {10pt}{7pt}{12pt}{7pt}
+\spx@tempa{spx@topic@}    {div.topic_}      {6pt}{7pt}{6pt}{7pt}% mod. at 8.1.0
+% contents styling inherits at 8.1.0 the former 7.4.0 topic defaults
+\spx@tempa{spx@contents@} {div.contents_}   {10pt}{7pt}{12pt}{7pt}%   8.1.0
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {6pt}{6.5pt}{6pt}{6.5pt}% 8.1.0
 % 7.4.0 drops legacy settings which linked strangely padding with border width
 \spx@tempa{spx@note@}     {div.note_}       {6pt}{7pt}{6pt}{7pt}
 \spx@tempa{spx@hint@}     {div.hint_}       {6pt}{7pt}{6pt}{7pt}
@@ -462,8 +481,13 @@
 \spx@tempa{spx@box@}      {box_}            {3pt}{3pt}{3pt}{3pt}
 % define legacy verbatimsep key as alias of pre_padding key
 \expandafter\let\expandafter\KV@sphinx@verbatimsep\csname KV@sphinx@pre_padding\endcsname
-% define legacy shadowsep key as alias of div.topic_padding key
-\expandafter\let\expandafter\KV@sphinx@shadowsep\csname KV@sphinx@div.topic_padding\endcsname
+% let legacy shadowsep key set all topic/contents/sidebar padding
+% keys to the common value given by user to shadosep
+\def\KV@sphinx@shadowsep #1{%
+  \@nameuse{KV@sphinx@div.topic_padding}{#1}%
+  \@nameuse{KV@sphinx@div.contents_padding}{#1}%
+  \@nameuse{KV@sphinx@div.sidebar_padding}{#1}%
+}%
 
 % Corner radii keys
 %
@@ -491,9 +515,16 @@
 % - the 3pt is used (which is normal value of \fboxsep).
 % - some admonitions use rounded corners as well.
 % - topic boxed have only their bottom right corner rounded.
+% At 8.1.0 topic, contents and sidebar separately styled.
 %          macro prefix    option prefix     tl   tr   br   bl
 \spx@tempa{spx@pre@}      {pre_}            {3pt}{3pt}{3pt}{3pt}
-\spx@tempa{spx@topic@}    {div.topic_}      \z@  \z@  {12pt} \z@
+% use four rounded corners (and no shadow) for topic at 8.1.0
+\spx@tempa{spx@topic@}    {div.topic_}      {8pt}{8pt}{8pt}{8pt}
+% contents inherits at 8.1.0 the 7.4.0 former styling of topic
+\spx@tempa{spx@contents@} {div.contents_}   \z@  \z@  {12pt} \z@
+% make sidebard distinctive as we can't really safely implement
+% it with text flowing around it, but rather as a full width block
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {12pt}\z@ {12pt} \z@
 \spx@tempa{spx@note@}     {div.note_}       {5pt}{5pt}{5pt}{5pt}
 \spx@tempa{spx@hint@}     {div.hint_}       {5pt}{5pt}{5pt}{5pt}
 \spx@tempa{spx@important@}{div.important_}  \z@\z@\z@\z@
@@ -522,6 +553,8 @@
 %          macro prefix
 \spx@tempa{spx@pre@}
 \spx@tempa{spx@topic@}
+\spx@tempa{spx@contents@}% 8.1.0
+\spx@tempa{spx@sidebar@}% 8.1.0
 \spx@tempa{spx@note@}
 \spx@tempa{spx@hint@}
 \spx@tempa{spx@important@}
@@ -555,13 +588,10 @@
         % used here.  Since 6.2.0, expansion is delayed to time of use as for
         % the other dimensions handled above.  This is synched with an added
         % encapsulation in \dimexpr...\relax by the "setup" from
-        % sphinxpackageboxes.sty.  An induced regression had to be fixed in
-        % the sphinxShadowBox environment as it was using in an \ifdim the
-        % \spx@topic@shadow@yoffset macro, now holding by default 4pt+\z@
-        % rather than an already digested 262144sp.  The +\z@ is in case ##2
-        % is empty.
+        % sphinxpackageboxes.sty.
   \else #1%
-        \def#6{##1}\def#7{##2+\z@}%
+        \def#6{##1}%
+        \if\relax\detokenize{##2}\relax\let#7#6\else\def#7{##2}\fi
         \if\relax\detokenize{##3}\relax#4\else#3\fi
   \fi
   }%
@@ -569,8 +599,12 @@
 }
 \spx@tempa{spx@pre@}      {pre_}
 \spx@tempa{spx@topic@}    {div.topic_}
-% This corresponds to the legacy parameters of ShadowBox
-    \spx@topic@shadow@setter 4pt 4pt {} \@nnil
+\spx@tempa{spx@contents@} {div.contents_}
+\spx@tempa{spx@sidebar@}  {div.sidebar_}
+% This corresponds to the legacy parameters for topic/contents/sidebar,
+% but they are now only kept for contents
+    \spx@contents@shadow@setter 4pt 4pt {} \@nnil
+% topic and sidebar default to no shadow
 \spx@tempa{spx@note@}     {div.note_}
 \spx@tempa{spx@hint@}     {div.hint_}
 \spx@tempa{spx@important@}{div.important_}
@@ -584,18 +618,28 @@
 \spx@tempa{spx@error@}    {div.error_}
 \spx@tempa{spx@box@}      {box_}
 
-% Support for legacy shadowsize (topic/contents)
+% Support for legacy shadowsize (topic/contents/sidebar)
 % This definition was broken due to a typo at 5.1.0 and got fixed at 6.1.2
 % MEMO: at 6.2.0 this no longer does \number\dimexpr in an \edef.  Reason is to
 % keep in sync with div.topic_box-shadow handling of xoffset and yoffset.
 \define@key{sphinx}{shadowsize}{%
   \def\spx@topic@shadow@xoffset{#1}%
-  \let\spx@topic@shadow@yoffset\spx@topic@shadow@xoffset
+  \let\spx@contents@shadow@xoffset\spx@topic@shadow@xoffset
+  \let\spx@sidebar@shadow@xoffset \spx@topic@shadow@xoffset
+  \let\spx@topic@shadow@yoffset   \spx@topic@shadow@xoffset
+  \let\spx@contents@shadow@yoffset\spx@topic@shadow@xoffset
+  \let\spx@sidebar@shadow@yoffset \spx@topic@shadow@xoffset
   \ifdim\dimexpr\spx@topic@shadow@xoffset=\z@
       \spx@topic@withshadowfalse
+      \spx@contents@withshadowfalse
+      \spx@sidebar@withshadowfalse
   \else
       \spx@topic@withshadowtrue
       \spx@topic@insetshadowfalse
+      \spx@contents@withshadowtrue
+      \spx@contents@insetshadowfalse
+      \spx@sidebar@withshadowtrue
+      \spx@sidebar@insetshadowfalse
   \fi
 }%
 
@@ -638,6 +682,8 @@
 %          macro prefix
 \spx@tempa{spx@pre@}
 \spx@tempa{spx@topic@}
+\spx@tempa{spx@contents@}
+\spx@tempa{spx@sidebar@}
 \spx@tempa{spx@note@}
 \spx@tempa{spx@hint@}
 \spx@tempa{spx@important@}
@@ -690,7 +736,11 @@
                                 \csname KV@sphinx@pre_background-TeXcolor\endcsname
 % (6.2.0 modified some internal namings for the colors of topic boxes)
 %          macro prefix   option prefix     color name prefix
-\spx@tempa{spx@topic@}    {div.topic_}      {sphinxtopic}% (no legacy interface)
+% There was no legacy interface for topic/contents/sidebar
+% 8.1.0 allows separate styling for topic/contents/sidebar
+\spx@tempa{spx@topic@}    {div.topic_}      {sphinxtopic}
+\spx@tempa{spx@contents@} {div.contents_}   {sphinxcontents}
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {sphinxsidebar}
 \spx@tempa{spx@note@}     {div.note_}       {sphinxnote}
 \spx@tempa{spx@hint@}     {div.hint_}       {sphinxhint}
 \spx@tempa{spx@important@}{div.important_}  {sphinximportant}
@@ -731,7 +781,7 @@
     \spx@tempa{div.important_}  {important}
     \spx@tempa{div.tip_}        {tip}
 
-    % Add "legacy" hintTeXextras etc... 
+    % Add "legacy" hintTeXextras etc...
     \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy option prefix
       \expandafter\let\csname KV@sphinx@#2TeXextras\expandafter\endcsname
                       \csname KV@sphinx@#1TeXextras\endcsname
@@ -743,10 +793,19 @@
 
     % At 7.4.0, let topic/contents boxes acquire background and border colours
     % and give the shadow some colour other than black
-    \setkeys{sphinx}{div.topic_border-TeXcolor=sphinx-admonition-bordercolor,
-                     div.topic_background-TeXcolor=sphinx-admonition-bgcolor,
-                     div.topic_box-shadow-TeXcolor={RGB}{108,108,108},
-                   }
+    % 8.1.0 styles separately topic/contents/sidebar
+    % topic has no shadow but we keep 7.4.0 color in case it gets needed
+    \setkeys{sphinx}{%
+        div.topic_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.topic_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.topic_box-shadow-TeXcolor={RGB}{108,108,108},
+        div.contents_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.contents_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.contents_box-shadow-TeXcolor={RGB}{108,108,108},
+        div.sidebar_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.sidebar_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.sidebar_box-shadow-TeXcolor=sphinx-admonition-bordercolor!80,% #9eacaf
+    }
 
 
 % 7.4.0 lets all types of admonitions style especially their titlss.
@@ -799,15 +858,21 @@
   div.error_title-background-TeXcolor=sphinx-error-title-bgcolor,
   div.error_title-foreground-TeXcolor=sphinx-error-title-fgcolor,
 %
-% TODO: implement todo (sic)
-%
+% 8.1.0 add title rows, but will not use icons per default, so
+% the fgcolor setting will be used only if user uses title-icon key
+  div.topic_title-background-TeXcolor=sphinx-admonition-title-bgcolor,
+  div.topic_title-foreground-TeXcolor=sphinx-admonition-title-fgcolor,
+  div.contents_title-background-TeXcolor=sphinx-admonition-title-bgcolor,
+  div.contents_title-foreground-TeXcolor=sphinx-admonition-title-fgcolor,
+  div.sidebar_title-background-TeXcolor=sphinx-note-title-bgcolor,
+  div.sidebar_title-foreground-TeXcolor=sphinx-note-title-fgcolor,
 }
 
 % 7.4.0 Support for icons in admonition titles
 % We try to
 % - get Sphinx PDF builds to process fine in absence of fontawesome5
 % - use fontawesome5 if present, but not if user prefers another package
-% - provide an interface for using other LaTeX code for icons  
+% - provide an interface for using other LaTeX code for icons
 % - provide an interface for using some other package than fontawesome5
 % Indeed we can't load fontawesome5 unconditionally even if available,
 % as it proves incompatible with fontawesome package.
@@ -820,15 +885,12 @@
   {\DeclareStringOption[fontawesome]{iconpackage}}
   {\DeclareStringOption[none]{iconpackage}}%
 }%
-\newcommand\spx@faIcon[3][]{}%
-% The hacky definition of \spx@faIcon above is to let it by default swallow
-% the icon macro and the \sphinxtitlerowaftericonspacecmd (see
-% \sphinxdotitlerowwithicon in sphinxlatexadmonitions.sty) which inserts
-% a space between it and title.  See how \spx@faIcon is used below.
-%
-% If user sets a title-icon key to some LaTeX code of their own, of course
-% \spx@faIcon is not executed and the inserted space will thus be there, as
-% expected.
+\newcommand\spx@faIcon[2][]{}%
+% The above \spx@faIcon which gobbles one mandatory and one optional
+% argument is put into use only if both fontawesome5 and fontawesome
+% LaTeX packages are not available, as part of the defaults for the
+% div.*_title-icon keys (these keys can be redefined via the sphinxsetup
+% interface).
 %
 \def\spxstring@fontawesome{fontawesome}
 \def\spxstring@fontawesomev{fontawesome5}
@@ -855,8 +917,8 @@
                    \let\faicon@pen\faPencil
               \fi
           % if neither has been required, \spx@faIcon will simply swallow
-          % its argument (and follwing space macro) and it is up to user
-          % to set the keys appropriately.
+          % its argument and it is up to user
+          % to set the various div.*_title-icon keys appropriately.
           \fi\fi %
          }%
          {%
@@ -881,6 +943,9 @@
   div.attention_title-icon = \spx@faIcon{exclamation-triangle},
   div.danger_title-icon    = \spx@faIcon{radiation},
   div.error_title-icon     = \spx@faIcon{times-circle},
+% MEMO: the new at 8.1.0 defaults for contents/topic/sidebar directives
+% use no icons, they use \sphinxdotitlerow which detects automatically
+% whether title-icon key has been set or not.
 }
 
 \newif\ifspx@opt@box@addstrut
@@ -945,9 +1010,9 @@
 %% PASS OPTIONS
 %
 % pass options to hyperref; it must not have been loaded already
-\input{sphinxoptionshyperref.sty}
+\RequirePackage{sphinxoptionshyperref}
 % pass options to geometry; it must not have been loaded already
-\input{sphinxoptionsgeometry.sty}
+\RequirePackage{sphinxoptionsgeometry}
 
 
 %% COLOR (general)
@@ -986,7 +1051,7 @@
 %
 % It will always be needed, so let's load it here
 \RequirePackage{graphicx}
-\input{sphinxlatexgraphics.sty}
+\RequirePackage{sphinxlatexgraphics}
 
 
 %% FRAMED ENVIRONMENTS
@@ -1033,12 +1098,13 @@
 % Some of these defaults got already set.  But we now list them all explicitly
 % for a complete initial configuration of reset storage.
 % At 7.4.0, \fboxrule and \fboxsep replaced by 0.4pt and 3pt which are anyhow
-% the defaults for these LaTeX dimensions.
+% the defaults for these LaTeX dimensions. 8.2.0 corrected border-radius
+% default back to 3pt (\fboxsep) not 0.4pt (\fboxrule).
 \let\spx@boxes@sphinxbox@defaults\@gobble
 \sphinxboxsetup{%
                 border-width=0.4pt,
                 padding=3pt,
-                border-radius=0.4pt,
+                border-radius=3pt,
                 box-shadow=none,
 % MEMO: as xcolor is loaded, \spx@defineorletcolor has a "\colorlet" branch
 % which makes this syntax acceptable and avoids duplicating here the values.
@@ -1051,14 +1117,14 @@
                 addstrut=false,
                }%
 \RequirePackage{sphinxpackageboxes}
-\input{sphinxlatexadmonitions.sty}
-\input{sphinxlatexliterals.sty}
-\input{sphinxlatexshadowbox.sty}
+\RequirePackage{sphinxlatexadmonitions}
+\RequirePackage{sphinxlatexliterals}
+\RequirePackage{sphinxlatexshadowbox}
 
 
 %% CONTAINERS
 %
-\input{sphinxlatexcontainers.sty}
+\RequirePackage{sphinxlatexcontainers}
 
 
 %% PYGMENTS
@@ -1068,17 +1134,17 @@
 
 %% TABLES
 %
-\input{sphinxlatextables.sty}
+\RequirePackage{sphinxlatextables}
 
 
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
 %
-\input{sphinxlatexnumfig.sty}
+\RequirePackage{sphinxlatexnumfig}
 
 
 %% LISTS
 %
-\input{sphinxlatexlists.sty}
+\RequirePackage{sphinxlatexlists}
 
 
 %% FOOTNOTES
@@ -1108,19 +1174,19 @@
 
 %% INDEX, BIBLIOGRAPHY, APPENDIX, TABLE OF CONTENTS
 %
-\input{sphinxlatexindbibtoc.sty}
+\RequirePackage{sphinxlatexindbibtoc}
 
 
 %% STYLING
 %
-\input{sphinxlatexstylepage.sty}
-\input{sphinxlatexstyleheadings.sty}
-\input{sphinxlatexstyletext.sty}
+\RequirePackage{sphinxlatexstylepage}
+\RequirePackage{sphinxlatexstyleheadings}
+\RequirePackage{sphinxlatexstyletext}
 
 
 %% MODULE RELEASE DATA AND OBJECT DESCRIPTIONS
 %
-\input{sphinxlatexobjects.sty}
+\RequirePackage{sphinxlatexobjects}
 
 
 % FIXME: this line should be dropped, as "9" is default anyhow.

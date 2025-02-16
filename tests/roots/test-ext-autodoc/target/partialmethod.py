@@ -4,7 +4,7 @@ from functools import partialmethod
 class Cell:
     """An example for partialmethod.
 
-    refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod
+    refs: https://docs.python.org/3/library/functools.html#functools.partialmethod
     """
 
     def set_state(self, state):

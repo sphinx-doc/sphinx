@@ -1,111 +1,180 @@
-target-version = "py39"  # Pin Ruff to Python 3.9
-line-length = 95
+target-version = "py311"  # Pin Ruff to Python 3.11
+line-length = 88
 output-format = "full"
 
 extend-exclude = [
-    "tests/roots/*",
-    "tests/js/roots/*",
     "build/*",
     "doc/_build/*",
-    "sphinx/search/*",
-    "doc/usage/extensions/example*.py",
+    "tests/roots/test-directive-code/target.py",  # Tests break if formatted
+    "tests/roots/test-pycode/cp_1251_coded.py",  # Not UTF-8
 ]
+
+[format]
+preview = true
+quote-style = "single"
 
 [lint]
 preview = true
 ignore = [
+    # flake8-builtins
+    "A001",  # Variable `{name}` is shadowing a Python builtin
+    "A002",  # Function argument `{name}` is shadowing a Python builtin
+    "A005",  # Module `{name}` is shadowing a Python builtin module
     # flake8-annotations
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
+    # flake8-unused-arguments ('ARG')
+    "ARG001",  # Unused function argument: `{name}`
+    "ARG002",  # Unused method argument: `{name}`
+    "ARG003",  # Unused class method argument: `{name}`
+    "ARG005",  # Unused lambda argument: `{name}`
+    # flake8-blind-except
+    "BLE001",  # Do not catch blind exception: `{name}`
+    # flake8-commas
+    "COM812",  # Trailing comma missing
+    # flake8-copyright
+    "CPY001",  # Missing copyright notice at top of file
+    # pydocstyle ('D')
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in `__init__`
+    "D200",  # One-line docstring should fit on one line
+    "D205",  # 1 blank line required between summary line and description
+    "D400",  # First line should end with a period
+    "D401",  # First line of docstring should be in imperative mood: "{first_line}"
+    # pydoclint
+    "DOC201",  # `return` is not documented in docstring
+    "DOC402",  # `yield` is not documented in docstring
+    "DOC501",  # Raised exception `{id}` missing from docstring
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
+    # eradicate
+    "ERA001",  # Found commented-out code
     # pyflakes
     "F841",  # Local variable `{name}` is assigned to but never used
+    # flake8-boolean-trap
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "FBT002",  # Boolean default positional argument in function definition
+    "FBT003",  # Boolean positional value in function call
+    # flake8-fixme
+    "FIX001",  # Line contains FIXME, consider resolving the issue
+    "FIX002",  # Line contains TODO, consider resolving the issue
+    "FIX003",  # Line contains XXX, consider resolving the issue
+    "FIX004",  # Line contains HACK, consider resolving the issue
     # refurb
     "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
     "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
+    # flake8-implicit-str-concat
+    # pep8-naming
+    "N801",  # Class name `{name}` should use CapWords convention
+    "N802",  # Function name `{name}` should be lowercase
+    "N803",  # Argument name `{name}` should be lowercase
+    "N806",  # Variable `{name}` in function should be lowercase
+    "N818",  # Exception name `{name}` should be named with an Error suffix
+    # perflint
+    "PERF203",  # `try`-`except` within a loop incurs performance overhead
+    # flake8-pie
+    "PIE790",  # Unnecessary `pass` statement
     # pylint
-    "PLC1901",  # simplify truthy/falsey string comparisons
+    "PLC0415",  # `import` should be at the top-level of a file
+    "PLC2701",  # Private name import `{name}` from external module `{module}`
+    "PLR0904",  # Too many public methods ({methods} > {max_methods})
+    "PLR0911",  # Too many return statements ({returns} > {max_returns})
+    "PLR0912",  # Too many branches ({branches} > {max_branches})
+    "PLR0913",  # Too many arguments in function definition ({c_args} > {max_args})
+    "PLR0914",  # Too many local variables ({current_amount}/{max_amount})
+    "PLR0915",  # Too many statements ({statements} > {max_statements})
+    "PLR0916",  # Too many Boolean expressions ({expressions} > {max_expressions})
+    "PLR0917",  # Too many positional arguments ({c_pos}/{max_pos})
+    "PLR1702",  # Too many nested blocks ({nested_blocks} > {max_nested_blocks})
+    "PLR2004",  # Magic value used in comparison, consider replacing `{value}` with a constant variable
+    "PLR5501",  # Use `elif` instead of `else` then `if`, to reduce indentation
+    "PLR6104",  # Use `{operator}` to perform an augmented assignment directly
+    "PLR6301",  # Method `{method_name}` could be a function, class method, or static method
+    "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
+    # flake8-use-pathlib
+    "PTH100",  # `os.path.abspath()` should be replaced by `Path.resolve()`
+    "PTH110",  # `os.path.exists()` should be replaced by `Path.exists()`
+    "PTH113",  # `os.path.isfile()` should be replaced by `Path.is_file()`
+    "PTH118",  # `os.{module}.join()` should be replaced by `Path` with `/` operator
+    "PTH119",  # `os.path.basename()` should be replaced by `Path.name`
+    "PTH120",  # `os.path.dirname()` should be replaced by `Path.parent`
+    "PTH122",  # `os.path.splitext()` should be replaced by `Path.suffix`, `Path.stem`, and `Path.parent`
+    "PTH123",  # `open()` should be replaced by `Path.open()`
+    # flake8-pyi ('PYI')
+    "PYI025",  # Use `from collections.abc import Set as AbstractSet` to avoid confusion with the `set` builtin
+    # flake8-return
+    "RET504",  # Unnecessary assignment to `{name}` before `return` statement
+    "RET505",  # Unnecessary `{branch}` after `return` statement
+    "RET506",  # Unnecessary `{branch}` after `raise` statement
+    # flake8-bandit ('S')
+    "S101",  # Use of `assert` detected
+    "S110",  # `try`-`except`-`pass` detected, consider logging the exception
+    "S404",  # `subprocess` module is possibly insecure
+    "S405",  # `xml.etree` methods are vulnerable to XML attacks
+    "S603",  # `subprocess` call: check for execution of untrusted input
     # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
+    # flake8-self
+    "SLF001",  # Private member accessed: `{access}`
+    # flake8-todos ('TD')
+    "TD001",  # Invalid TODO tag: `{tag}`
+    "TD002",  # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
+    "TD003",  # Missing issue link on the line following this TODO
+    "TD004",  # Missing colon in TODO
+    # tryceratops
+    "TRY002",  # Create your own exception
+    "TRY300",  # Consider moving this statement to an `else` block
     # pyupgrade
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
+    # Ruff-specific rules ('RUF')
+    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF021",  # Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
+    "RUF022",  # `__all__` is not sorted
+    "RUF023",  # `{}.__slots__` is not sorted
+    "RUF027",  # Possible f-string without an `f` prefix
+    "RUF039",  # First argument to {call} is not raw string
+    "RUF052",  # Local dummy variable `{}` is accessed
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
-    "E704",
     "SIM113",
 ]
 select = [
     # flake8-builtins ('A')
-      # NOT YET USED
+    "A",
     # airflow ('AIR')
       # Airflow is not used in Sphinx
     # flake8-annotations ('ANN')
     "ANN",
     # flake8-unused-arguments ('ARG')
-    "ARG004",  # Unused static method argument: `{name}`
+    "ARG",
     # flake8-async ('ASYNC')
     "ASYNC",
     # flake8-bugbear ('B')
     "B",
     # flake8-blind-except ('BLE')
-      # NOT YET USED
+    "BLE",
     # flake8-comprehensions ('C4')
     "C4",
     # mccabe ('C90')
 #    "C901",  # `{name}` is too complex ({complexity} > {max_complexity})
     # flake8-commas ('COM')
-    "COM818",  # Trailing comma on bare tuple prohibited
-    "COM819",  # Trailing comma prohibited
+    "COM",  # Trailing comma prohibited
     # flake8-copyright ('CPY')
-      # NOT YET USED
+    "CPY",
     # pydocstyle ('D')
-#    "D100",  # Missing docstring in public module
-#    "D101",  # Missing docstring in public class
-#    "D102",  # Missing docstring in public method
-#    "D103",  # Missing docstring in public function
-#    "D104",  # Missing docstring in public package
-#    "D105",  # Missing docstring in magic method
-    "D106",  # Missing docstring in public nested class
-#    "D107",  # Missing docstring in `__init__`
-#    "D200",  # One-line docstring should fit on one line
-    "D201",  # No blank lines allowed before function docstring (found {num_lines})
-    "D202",  # No blank lines allowed after function docstring (found {num_lines})
-    "D204",  # 1 blank line required after class docstring
-#    "D205",  # 1 blank line required between summary line and description
-    "D206",  # Docstring should be indented with spaces, not tabs
-    "D207",  # Docstring is under-indented
-    "D208",  # Docstring is over-indented
-    "D209",  # Multi-line docstring closing quotes should be on a separate line
-    "D210",  # No whitespaces allowed surrounding docstring text
-    "D211",  # No blank lines allowed before class docstring
-#    "D212",  # Multi-line docstring summary should start at the first line
-#    "D213",  # Multi-line docstring summary should start at the second line
-#    "D214",  # Section is over-indented ("{name}")
-#    "D215",  # Section underline is over-indented ("{name}")
-    "D300",  # Use triple double quotes `"""`
-    "D301",  # Use `r"""` if any backslashes in a docstring
-#    "D400",  # First line should end with a period
-#    "D401",  # First line of docstring should be in imperative mood: "{first_line}"
-    "D402",  # First line should not be the function's signature
-    "D403",  # First word of the first line should be capitalized: `{}` -> `{}`
-#    "D404",  # First word of the docstring should not be "This"
-    "D405",  # Section name should be properly capitalized ("{name}")
-#    "D406",  # Section name should end with a newline ("{name}")
-#    "D407",  # Missing dashed underline after section ("{name}")
-    "D408",  # Section underline should be in the line following the section's name ("{name}")
-    "D409",  # Section underline should match the length of its name ("{name}")
-    "D410",  # Missing blank line after section ("{name}")
-    "D411",  # Missing blank line before section ("{name}")
-#    "D412",  # No blank lines allowed between a section header and its content ("{name}")
-#    "D413",  # Missing blank line after last section ("{name}")
-    "D414",  # Section has no content ("{name}")
-#    "D415",  # First line should end with a period, question mark, or exclamation point
-    "D416",  # Section name should end with a colon ("{name}")
+    "D",
+    "D212",  # Multi-line docstring summary should start at the first line
+    # "D404",  # First word of the docstring should not be "This"
+    # "D415",  # First line should end with a period, question mark, or exclamation point
     "D417",  # Missing argument description in the docstring for `{definition}`: `{name}`
-    "D418",  # Function decorated with `@overload` shouldn't contain a docstring
-    "D419",  # Docstring is empty
+    # pydoclint ('DOC')
+    "DOC",
     # flake8-django ('DJ')
       # Django is not used in Sphinx
     # flake8-datetimez ('DTZ')
@@ -115,252 +184,87 @@ select = [
     # flake8-errmsg ('EM')
     "EM",
     # eradicate ('ERA')
-      # NOT YET USED
+    "ERA",
     # flake8-executable ('EXE')
     "EXE",
     # pyflakes ('F')
     "F",
     # flake8-future-annotations ('FA')
     "FA",
+    # flake8-fastapi ('FAST')
+      # FastAPI is not used in Sphinx
     # flake8-boolean-trap ('FBT')
-      # NOT YET USED
+    "FBT",
     # flake8-fixme ('FIX')
-      # NOT YET USED
+    "FIX",
     # flynt ('FLY')
     "FLY",
     # refurb ('FURB')
     "FURB",
     # flake8-logging-format ('G')
-    "G001",  # Logging statement uses `str.format`
-    "G002",  # Logging statement uses `%`
-#    "G003",  # Logging statement uses `+`
-    "G004",  # Logging statement uses f-string
-    "G010",  # Logging statement uses `warn` instead of `warning`
-    "G101",  # Logging statement uses an `extra` field that clashes with a `LogRecord` field: `{key}`
-    "G201",  # Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
-    "G202",  # Logging statement has redundant `exc_info`
+    "G",
     # isort ('I')
     "I",
     # flake8-import-conventions ('ICN')
-    "ICN",  # flake8-import-conventions
+    "ICN",
     # flake8-no-pep420 ('INP')
     "INP",
     # flake8-gettext ('INT')
     "INT",
     # flake8-implicit-str-concat ('ISC')
-      # NOT YET USED
+    "ISC",
     # flake8-logging ('LOG')
     "LOG",
     # pep8-naming ('N')
-      # NOT YET USED
+    "N",
     # numpy-specific rules ('NPY')
       # Numpy is not used in Sphinx
     # pandas-vet ('PD')
       # Pandas is not used in Sphinx
     # perflint ('PERF')
-    "PERF101",  # Do not cast an iterable to `list` before iterating over it
-    "PERF102",  # When using only the {subset} of a dict use the `{subset}()` method
-#    "PERF203",  # `try`-`except` within a loop incurs performance overhead
-    "PERF401",  # Use a list comprehension to create a transformed list
-    "PERF402",  # Use `list` or `list.copy` to create a copy of a list
-    "PERF403",  # Use a dictionary comprehension instead of a for-loop
+    "PERF",
     # pygrep-hooks ('PGH')
     "PGH",
     # flake8-pie ('PIE')
-#    "PIE790",  # Unnecessary `pass` statement
-    "PIE794",  # Class field `{name}` is defined multiple times
-    "PIE796",  # Enum contains duplicate value: `{value}`
-    "PIE800",  # Unnecessary spread `**`
-    "PIE804",  # Unnecessary `dict` kwargs
-    "PIE807",  # Prefer `list` over useless lambda
-    "PIE810",  # Call `{attr}` once with a `tuple`
-    # pylint ('PLC')
-    "PLC0105",  # `{kind}` name "{param_name}" does not reflect its {variance}; consider renaming it to "{replacement_name}"
-    "PLC0131",  # `{kind}` cannot be both covariant and contravariant
-    "PLC0132",  # `{kind}` name `{param_name}` does not match assigned variable name `{var_name}`
-    "PLC0205",  # Class `__slots__` should be a non-string iterable
-    "PLC0208",  # Use a sequence type instead of a `set` when iterating over values
-    "PLC0414",  # Import alias does not rename original package
-#    "PLC0415",  # `import` should be at the top-level of a file
-    "PLC1901",  # `{existing}` can be simplified to `{replacement}` as an empty string is falsey
-    "PLC2401",  # {kind} name `{name}` contains a non-ASCII character, consider renaming it
-    "PLC2403",  # Module alias `{name}` contains a non-ASCII character, use an ASCII-only alias
-#    "PLC2701",  # Private name import `{name}` from external module `{module}`
-    "PLC2801",  # Unnecessary dunder call to `{method}`. {replacement}.
-    "PLC3002",  # Lambda expression called directly. Execute the expression inline instead.
-    # pylint ('PLE')
-    "PLE0100",  # `__init__` method is a generator
-    "PLE0101",  # Explicit return in `__init__`
-    "PLE0116",  # `continue` not supported inside `finally` clause
-    "PLE0117",  # Nonlocal name `{name}` found without binding
-    "PLE0118",  # Name `{name}` is used prior to global declaration on line {line}
-    "PLE0241",  # Duplicate base `{base}` for class `{class}`
-    "PLE0302",  # The special method `{}` expects {}, {} {} given
-    "PLE0307",  # `__str__` does not return `str`
-    "PLE0604",  # Invalid object in `__all__`, must contain only strings
-    "PLE0605",  # Invalid format for `__all__`, must be `tuple` or `list`
-    "PLE1142",  # `await` should be used within an async function
-    "PLE1205",  # Too many arguments for `logging` format string
-    "PLE1206",  # Not enough arguments for `logging` format string
-    "PLE1300",  # Unsupported format character '{}'
-    "PLE1307",  # Format type does not match argument type
-    "PLE1310",  # String `{strip}` call contains duplicate characters (did you mean `{removal}`?)
-    "PLE1507",  # Invalid type for initial `os.getenv` argument; expected `str`
-    "PLE1700",  # `yield from` statement in async function; use `async for` instead
-    "PLE2502",  # Contains control characters that can permit obfuscated code
-    "PLE2510",  # Invalid unescaped character backspace, use "\b" instead
-    "PLE2512",  # Invalid unescaped character SUB, use "\x1A" instead
-    "PLE2513",  # Invalid unescaped character ESC, use "\x1B" instead
-    "PLE2514",  # Invalid unescaped character NUL, use "\0" instead
-    "PLE2515",  # Invalid unescaped character zero-width-space, use "\u200B" instead
-    # pylint ('PLR')
-#    "PLR0124",  # Name compared with itself, consider replacing `{left} {} {right}`
-    "PLR0133",  # Two constants compared in a comparison, consider replacing `{left_constant} {} {right_constant}`
-    "PLR0206",  # Cannot have defined parameters for properties
-    "PLR0402",  # Use `from {module} import {name}` in lieu of alias
-#    "PLR0911",  # Too many return statements ({returns} > {max_returns})
-#    "PLR0912",  # Too many branches ({branches} > {max_branches})
-#    "PLR0913",  # Too many arguments to function call ({c_args} > {max_args})
-#    "PLR0915",  # Too many statements ({statements} > {max_statements})
-    "PLR1711",  # Useless `return` statement at end of function
-#    "PLR1714",  # Consider merging multiple comparisons: `{expr}`. Use a `set` if the elements are hashable.
-    "PLR1722",  # Use `sys.exit()` instead of `{name}`
-#    "PLR2004",  # Magic value used in comparison, consider replacing {value} with a constant variable
-#    "PLR5501",  # Use `elif` instead of `else` then `if`, to reduce indentation
-    # pylint ('PLW')
-    "PLW0120",  # `else` clause on loop without a `break` statement; remove the `else` and de-indent all the code inside it
-    "PLW0127",  # Self-assignment of variable `{name}`
-    "PLW0129",  # Asserting on an empty string literal will never pass
-    "PLW0131",  # Named expression used without context
-    "PLW0406",  # Module `{name}` imports itself
-    "PLW0602",  # Using global for `{name}` but no assignment is done
-#    "PLW0603",  # Using the global statement to update `{name}` is discouraged
-    "PLW0711",  # Exception to catch is the result of a binary `and` operation
-    "PLW1508",  # Invalid type for environment variable default; expected `str` or `None`
-    "PLW1509",  # `preexec_fn` argument is unsafe when using threads
-#    "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
-    "PLW3301",  # Nested `{}` calls can be flattened
+    "PIE",
+    # pylint ('PL', 'PLC', 'PLE', 'PLR', 'PLW')
+    "PL",
     # flake8-pytest-style ('PT')
     "PT",
     # flake8-use-pathlib ('PTH')
-      # NOT YET USED
+    "PTH",
     # flake8-pyi ('PYI')
-      # NOT YET USED
+    "PYI",
     # flake8-quotes ('Q')
-#    "Q000",  # Double quotes found but single quotes preferred
-#    "Q001",  # Single quote multiline found but double quotes preferred
-    "Q002",  # Single quote docstring found but double quotes preferred
-    "Q003",  # Change outer quotes to avoid escaping inner quotes
-    "Q004",  # Unnecessary escape on inner quote character
+    "Q",
     # flake8-return ('RET')
-    "RET501",  # Do not explicitly `return None` in function if it is the only possible return value
-    "RET502",  # Do not implicitly `return None` in function able to return non-`None` value
-#    "RET503",  # Missing explicit `return` at the end of function able to return non-`None` value
-#    "RET504",  # Unnecessary assignment to `{name}` before `return` statement
-#    "RET505",  # Unnecessary `{branch}` after `return` statement
-#    "RET506",  # Unnecessary `{branch}` after `raise` statement
-    "RET507",  # Unnecessary `{branch}` after `continue` statement
-    "RET508",  # Unnecessary `{branch}` after `break` statement
+    "RET",
     # flake8-raise ('RSE')
-    "RSE102",  # Unnecessary parentheses on raised exception
-    # ruff-specific rules ('RUF')
-#    "RUF001",  # String contains ambiguous {}. Did you mean {}?
-    "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
-#    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
-    "RUF005",  # Consider `{expression}` instead of concatenation
-    "RUF006",  # Store a reference to the return value of `asyncio.{method}`
-    "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
-    "RUF008",  # Do not use mutable default values for dataclass attributes
-    "RUF009",  # Do not perform function call `{name}` in dataclass defaults
-    "RUF010",  # Use explicit conversion flag
-#    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
-    "RUF013",  # PEP 484 prohibits implicit `Optional`
-#    "RUF015",  # Prefer `next({iterable})` over single element slice
-    "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer
-    "RUF017",  # Avoid quadratic list summation
-    "RUF018",  # Avoid assignment expressions in `assert` statements
-    "RUF019",  # Unnecessary key check before dictionary access
-    "RUF020",  # `{never_like} | T` is equivalent to `T`
-#    "RUF100",  # Unused `noqa` directive
-    "RUF200",  # Failed to parse pyproject.toml: {message}
+    "RSE",
+    # Ruff-specific rules ('RUF')
+    "RUF",
     # flake8-bandit ('S')
-#    "S101",  # Use of `assert` detected
-    "S102",  # Use of `exec` detected
-    "S103",  # `os.chmod` setting a permissive mask `{mask:#o}` on file or directory
-    "S104",  # Possible binding to all interfaces
-#    "S105",  # Possible hardcoded password assigned to: "{}"
-    "S106",  # Possible hardcoded password assigned to argument: "{}"
-    "S107",  # Possible hardcoded password assigned to function default: "{}"
-    "S108",  # Probable insecure usage of temporary file or directory: "{}"
-#    "S110",  # `try`-`except`-`pass` detected, consider logging the exception
-    "S112",  # `try`-`except`-`continue` detected, consider logging the exception
-#    "S113",  # Probable use of requests call without timeout
-#    "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
-    "S302",  # Deserialization with the `marshal` module is possibly dangerous
-    "S303",  # Use of insecure MD2, MD4, MD5, or SHA1 hash function
-    "S304",  # Use of insecure cipher, replace with a known secure cipher such as AES
-    "S305",  # Use of insecure cipher mode, replace with a known secure cipher such as AES
-    "S306",  # Use of insecure and deprecated function (`mktemp`)
-    "S307",  # Use of possibly insecure function; consider using `ast.literal_eval`
-    "S308",  # Use of `mark_safe` may expose cross-site scripting vulnerabilities
-    "S310",  # Audit URL open for permitted schemes. Allowing use of `file:` or custom schemes is often unexpected.
-    "S311",  # Standard pseudo-random generators are not suitable for cryptographic purposes
-    "S312",  # Telnet-related functions are being called. Telnet is considered insecure. Use SSH or some other encrypted protocol.
-    "S313",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S314",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S315",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S316",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S317",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S318",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S319",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S320",  # Using `lxml` to parse untrusted data is known to be vulnerable to XML attacks
-    "S321",  # FTP-related functions are being called. FTP is considered insecure. Use SSH/SFTP/SCP or some other encrypted protocol.
-    "S323",  # Python allows using an insecure context via the `_create_unverified_context` that reverts to the previous behavior that does not validate certificates or perform hostname checks.
-#    "S324",  # Probable use of insecure hash functions in `hashlib`: `{string}`
-    "S501",  # Probable use of `{string}` call with `verify=False` disabling SSL certificate checks
-    "S506",  # Probable use of unsafe loader `{name}` with `yaml.load`. Allows instantiation of arbitrary objects. Consider `yaml.safe_load`.
-    "S508",  # The use of SNMPv1 and SNMPv2 is insecure. Use SNMPv3 if able.
-    "S509",  # You should not use SNMPv3 without encryption. `noAuthNoPriv` & `authNoPriv` is insecure.
-    "S601",  # Possible shell injection via Paramiko call; check inputs are properly sanitized
-    "S602",  # `subprocess` call with `shell=True` seems safe, but may be changed in the future; consider rewriting without `shell`
-#    "S603",  # `subprocess` call: check for execution of untrusted input
-    "S604",  # Function call with `shell=True` parameter identified, security issue
-    "S605",  # Starting a process with a shell: seems safe, but may be changed in the future; consider rewriting without `shell`
-    "S606",  # Starting a process without a shell
-#    "S607",  # Starting a process with a partial executable path
-    "S608",  # Possible SQL injection vector through string-based query construction
-    "S609",  # Possible wildcard injection in call due to `*` usage
-    "S612",  # Use of insecure `logging.config.listen` detected
-#    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
-#    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
+    "S",
     # flake8-simplify ('SIM')
     "SIM",  # flake8-simplify
     # flake8-self ('SLF')
-      # NOT YET USED
+    "SLF",
     # flake8-slots ('SLOT')
     "SLOT",
     # flake8-debugger ('T10')
-    "T100",  # Trace found: `{name}` used
+    "T10",
     # flake8-print ('T20')
-    "T201",  # `print` found
-    "T203",  # `pprint` found
-    # flake8-type-checking ('TCH')
-    "TCH",
+    "T20",
+    # flake8-type-checking ('TC')
+    "TC",
     # flake8-todos ('TD')
-#    "TD001",  # Invalid TODO tag: `{tag}`
-#    "TD003",  # Missing issue link on the line following this TODO
-#    "TD004",  # Missing colon in TODO
-#    "TD005",  # Missing issue description after `TODO`
-    "TD006",  # Invalid TODO capitalization: `{tag}` should be `TODO`
-    "TD007",  # Missing space after colon in TODO
+    "TD",
     # flake8-tidy-imports ('TID')
-    "TID251",  # `{name}` is banned: {message}
-    "TID252",  # Relative imports from parent modules are banned
-    "TID253",  # `{name}` is banned at the module level
+    "TID",
     # flake8-trio ('TRIO')
       # Trio is not used in Sphinx
     # tryceratops ('TRY')
-      # NOT YET USED
+    "TRY",
     # pyupgrade ('UP')
     "UP",
     # pycodestyle ('W')
@@ -369,31 +273,51 @@ select = [
     "YTT",
 ]
 
+logger-objects = [
+    "sphinx.ext.apidoc._shared.LOGGER",
+    "sphinx.ext.intersphinx._shared.LOGGER",
+]
+
 [lint.per-file-ignores]
 "doc/*" = [
     "ANN",  # documentation doesn't need annotations
-    "TCH001",  # documentation doesn't need type-checking blocks
+    "TC001",  # documentation doesn't need type-checking blocks
 ]
-"doc/conf.py" = ["INP001", "W605"]
-"doc/development/tutorials/examples/*" = ["INP001"]
-# allow print() in the tutorial
+"doc/conf.py" = [
+    "INP001",  # doc/ is not a namespace package
+]
+"doc/development/tutorials/examples/*" = [
+    "I002",  # we don't need the annotations future
+    "INP001",  # examples/ is not a namespace package
+]
 "doc/development/tutorials/examples/recipe.py" = [
-    "FURB118",
-    "T201"
+    "FURB118",  # keep the tutorial simple: no itemgetter
+    "T201"  # allow print() in the tutorial
 ]
-"sphinx/domains/**" = ["FURB113"]
-"tests/test_domains/test_domain_cpp.py" = ["FURB113"]
-
-# from .flake8
-"sphinx/*" = ["E241"]
+"doc/usage/extensions/example_{google,numpy}.py" = [
+    "D416",  # Section name should end with a colon ("{name}")
+    "DOC502",  # Raised exception is not explicitly raised: `{id}`
+    "I002",  # Missing required import: {name}
+    "INP001",  # File {filename} is part of an implicit namespace package. Add an __init__.py.
+    "PLW3201",  # Dunder method {name} has no special meaning in Python 3
+]
 
 # whitelist ``print`` for stdout messages
 "sphinx/_cli/__init__.py" = ["T201"]
 
+# allow use of ``pickle``
+"sphinx/{application,builders/__init__,environment/__init__,ext/coverage,search/__init__,versioning}.py" = [
+    "S301",
+    "S403",
+]
+
 # whitelist ``print`` for stdout messages
 "sphinx/cmd/build.py" = ["T201"]
 "sphinx/cmd/make_mode.py" = ["T201"]
-"sphinx/cmd/quickstart.py" = ["T201"]
+"sphinx/cmd/quickstart.py" = [
+    "PTH",
+    "T201",
+]
 
 "sphinx/environment/collectors/toctree.py" = ["B026"]
 "sphinx/environment/adapters/toctree.py" = ["B026"]
@@ -401,99 +325,75 @@ select = [
 # whitelist ``print`` for stdout messages
 "sphinx/ext/intersphinx/_cli.py" = ["T201"]
 
+# whitelist ``token`` in docstring parsing
+"sphinx/ext/napoleon/docstring.py" = ["S105"]
+
+"sphinx/search/*" = ["RUF001"]
+
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
 
-# Ruff bug: https://github.com/astral-sh/ruff/issues/6540
-"sphinx/transforms/i18n.py" = ["PGH004"]
+# whitelist ``os.path`` for deprecated ``sphinx.testing.path``
+"sphinx/testing/path.py" = ["PTH"]
 
-# Function wrappers
-"sphinx/ext/autodoc/importer.py" = ["D402"]
-"sphinx/util/requests.py" = ["D402"]
+# whitelist ``token`` in date format parsing
+"sphinx/util/i18n.py" = ["S105"]
+
+# whitelist ``os.path`` for ``sphinx.util.osutil``
+"sphinx/util/osutil.py" = ["PTH"]
+
+# whitelist ``token`` in literal parsing
+"sphinx/writers/html5.py" = ["S105"]
 
 "tests/*" = [
     "E501",
     "ANN",  # tests don't need annotations
     "D402",
+    "PLC1901",  # whitelist comparisons to the empty string ('')
+    "RUF001",  # ambiguous unicode character
+    "S301",  # allow use of ``pickle``
+    "S403",  # allow use of ``pickle``
     "T201",  # whitelist ``print`` for tests
 ]
 
+# test roots are not packages
+"tests/js/roots/*" = ["I002", "INP001"]
+"tests/roots/*" = [
+    "D403",  # permit uncapitalised docstrings
+    "F401",  # names may be unused in test roots
+    "I002",  # we don't need the annotations future
+    "INP001",  # test roots are not packages
+]
+
 # these tests need old ``typing`` generic aliases
-"tests/test_util/test_util_typing.py" = ["UP006", "UP035"]
-"tests/test_util/typing_test_data.py" = ["FA100", "UP006", "UP035"]
+"tests/roots/test-ext-autodoc/target/genericalias.py" = ["UP006", "UP007", "UP035", "UP045"]
+"tests/test_util/test_util_typing.py" = ["RUF036", "UP006", "UP007", "UP035", "UP045"]
+"tests/test_util/typing_test_data.py" = ["FA100", "I002", "PYI030", "UP006", "UP007", "UP035", "UP045"]
 
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages
     "ANN",  # utilities don't need annotations
 ]
 
+[lint.pycodestyle]
+max-line-length = 95
+
 [lint.flake8-quotes]
 inline-quotes = "single"
+
+[lint.flake8-type-checking]
+exempt-modules = []
+strict = true
 
 [lint.isort]
 forced-separate = [
     "tests",
 ]
-
-[format]
-preview = true
-quote-style = "single"
-exclude = [
-    "sphinx/_cli/*",
-    "sphinx/addnodes.py",
-    "sphinx/application.py",
-    "sphinx/builders/*",
-    "sphinx/cmd/*",
-    "sphinx/config.py",
-    "sphinx/directives/*",
-    "sphinx/domains/*",
-    "sphinx/environment/*",
-    "sphinx/ext/autodoc/__init__.py",
-    "sphinx/ext/autodoc/directive.py",
-    "sphinx/ext/autodoc/importer.py",
-    "sphinx/ext/autodoc/mock.py",
-    "sphinx/ext/autodoc/preserve_defaults.py",
-    "sphinx/ext/autodoc/type_comment.py",
-    "sphinx/ext/autodoc/typehints.py",
-    "sphinx/ext/autosectionlabel.py",
-    "sphinx/ext/autosummary/__init__.py",
-    "sphinx/ext/coverage.py",
-    "sphinx/ext/doctest.py",
-    "sphinx/ext/duration.py",
-    "sphinx/ext/extlinks.py",
-    "sphinx/ext/githubpages.py",
-    "sphinx/ext/graphviz.py",
-    "sphinx/ext/ifconfig.py",
-    "sphinx/ext/imgconverter.py",
-    "sphinx/ext/imgmath.py",
-    "sphinx/ext/inheritance_diagram.py",
-    "sphinx/ext/intersphinx/*",
-    "sphinx/ext/linkcode.py",
-    "sphinx/ext/mathjax.py",
-    "sphinx/ext/napoleon/__init__.py",
-    "sphinx/ext/napoleon/docstring.py",
-    "sphinx/ext/todo.py",
-    "sphinx/ext/viewcode.py",
-    "sphinx/pycode/*",
-    "sphinx/pygments_styles.py",
-    "sphinx/registry.py",
-    "sphinx/search/*",
-    "sphinx/testing/*",
-    "sphinx/transforms/*",
-    "sphinx/util/*",
-    "sphinx/writers/*",
-    "tests/*",
-    "tests/roots/*",
-    "tests/test_builders/*",
-    "tests/test_config/*",
-    "tests/test_directives/*",
-    "tests/test_domains/*",
-    "tests/test_environment/*",
-    "tests/test_extensions/*",
-    "tests/test_intl/*",
-    "tests/test_markup/*",
-    "tests/test_pycode/*",
-    "tests/test_transforms/*",
-    "tests/test_util/*",
-    "tests/test_writers/*",
+required-imports = [
+    "from __future__ import annotations",
 ]
+
+[lint.pydocstyle]
+convention = "pep257"
+ignore-decorators = ["typing.overload"]
+ignore-var-parameters = true

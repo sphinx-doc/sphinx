@@ -12,7 +12,7 @@ import pytest
 from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock, undecorate
 
 
-def test_MockModule():
+def test_MockModule() -> None:
     mock = _MockModule('mocked_module')
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
@@ -39,12 +39,12 @@ def test_MockObject():
         """docstring of SubClass"""
 
         def method(self):
-            return "string"
+            return 'string'
 
     obj = SubClass()
-    assert SubClass.__doc__ == "docstring of SubClass"
+    assert SubClass.__doc__ == 'docstring of SubClass'
     assert isinstance(obj, SubClass)
-    assert obj.method() == "string"
+    assert obj.method() == 'string'
     assert isinstance(obj.other_method(), SubClass)
 
     # parametrized type
@@ -54,11 +54,11 @@ def test_MockObject():
         """docstring of SubClass"""
 
     obj2 = SubClass2()
-    assert SubClass2.__doc__ == "docstring of SubClass"
+    assert SubClass2.__doc__ == 'docstring of SubClass'
     assert isinstance(obj2, SubClass2)
 
 
-def test_mock():
+def test_mock() -> None:
     modname = 'sphinx.unknown'
     submodule = modname + '.submodule'
     assert modname not in sys.modules
@@ -80,7 +80,7 @@ def test_mock():
         import_module(modname)
 
 
-def test_mock_does_not_follow_upper_modules():
+def test_mock_does_not_follow_upper_modules() -> None:
     with mock(['sphinx.unknown.module']):  # NoQA: SIM117
         with pytest.raises(ImportError):
             import_module('sphinx.unknown')
@@ -128,11 +128,11 @@ def test_mock_decorator():
     class Baz:
         pass
 
-    assert undecorate(func).__name__ == "func"
-    assert undecorate(Foo.meth).__name__ == "meth"
-    assert undecorate(Foo.class_meth).__name__ == "class_meth"
-    assert undecorate(Bar).__name__ == "Bar"
-    assert undecorate(Baz).__name__ == "Baz"
+    assert undecorate(func).__name__ == 'func'
+    assert undecorate(Foo.meth).__name__ == 'meth'
+    assert undecorate(Foo.class_meth).__name__ == 'class_meth'
+    assert undecorate(Bar).__name__ == 'Bar'
+    assert undecorate(Baz).__name__ == 'Baz'
 
 
 def test_ismock():

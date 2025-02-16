@@ -114,6 +114,8 @@ Project information
 
       author = 'Joe Bloggs'
 
+.. _config-copyright:
+
 .. confval:: copyright
              project_copyright
    :type: :code-py:`str | Sequence[str]`
@@ -128,12 +130,23 @@ Project information
    * :code-py:`copyright = 'YYYY-YYYY, Author Name'`
    * :code-py:`copyright = 'YYYY-YYYY Author Name'`
 
+   If the string :code-py:`'%Y'` appears in a copyright line,
+   it will be replaced with the current four-digit year.
+   For example:
+
+   * :code-py:`copyright = '%Y'`
+   * :code-py:`copyright = '%Y, Author Name'`
+   * :code-py:`copyright = 'YYYY-%Y, Author Name'`
+
    .. versionadded:: 3.5
       The :code-py:`project_copyright` alias.
 
    .. versionchanged:: 7.1
       The value may now be a sequence of copyright statements in the above form,
       which will be displayed each to their own line.
+
+   .. versionchanged:: 8.1
+      Copyright statements support the :code-py:`'%Y'` placeholder.
 
 .. confval:: version
    :type: :code-py:`str`
@@ -210,11 +223,14 @@ General configuration
 
    Ensure that absolute paths are used when modifying :data:`sys.path`.
    If your custom extensions live in a directory that is relative to the
-   :term:`configuration directory`, use :func:`os.path.abspath` like so:
+   :term:`configuration directory`, use :meth:`pathlib.Path.resolve` like so:
 
    .. code-block:: python
 
-      import os, sys; sys.path.append(os.path.abspath('sphinxext'))
+      import sys
+      from pathlib import Path
+
+      sys.path.append(str(Path('sphinxext').resolve()))
 
       extensions = [
          ...
@@ -556,17 +572,17 @@ See the documentation on :ref:`intl` for details.
 
 .. confval:: locale_dirs
    :type: :code-py:`list[str]`
-   :default: :code-py:`['locale']`
+   :default: :code-py:`['locales']`
 
    Directories in which to search for additional message catalogs
    (see :confval:`language`), relative to the source directory.
    The directories on this path are searched by the :mod:`gettext` module.
 
    Internal messages are fetched from a text domain of ``sphinx``;
-   so if you add the directory :file:`./locale` to this setting,
+   so if you add the directory :file:`./locales` to this setting,
    the message catalogs
    (compiled from ``.po`` format using :program:`msgfmt`)
-   must be in :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.
+   must be in :file:`./locales/{language}/LC_MESSAGES/sphinx.mo`.
    The text domain of individual documents
    depends on :confval:`gettext_compact`.
 
@@ -1348,34 +1364,46 @@ Options for warning control
 
    A list of warning codes to suppress arbitrary warning messages.
 
+   .. versionadded:: 1.4
+
    By default, Sphinx supports the following warning codes:
 
-   * ``app.add_node``
    * ``app.add_directive``
-   * ``app.add_role``
    * ``app.add_generic_role``
+   * ``app.add_node``
+   * ``app.add_role``
    * ``app.add_source_parser``
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
-   * ``epub.unknown_project_files``
+   * ``duplicate_declaration.c``
+   * ``duplicate_declaration.cpp``
    * ``epub.duplicated_toc_entry``
+   * ``epub.unknown_project_files``
+   * ``i18n.babel``
    * ``i18n.inconsistent_references``
-   * ``index``
+   * ``i18n.not_readable``
+   * ``i18n.not_writeable``
    * ``image.not_readable``
-   * ``ref.term``
-   * ``ref.ref``
-   * ``ref.numref``
-   * ``ref.keyword``
-   * ``ref.option``
-   * ``ref.citation``
-   * ``ref.footnote``
-   * ``ref.doc``
-   * ``ref.python``
+   * ``index``
+   * ``misc.copy_overwrite``
    * ``misc.highlighting_failure``
+   * ``ref.any``
+   * ``ref.citation``
+   * ``ref.doc``
+   * ``ref.footnote``
+   * ``ref.keyword``
+   * ``ref.numref``
+   * ``ref.option``
+   * ``ref.python``
+   * ``ref.ref``
+   * ``ref.term``
    * ``toc.circular``
+   * ``toc.duplicate_entry``
+   * ``toc.empty_glob``
    * ``toc.excluded``
    * ``toc.no_title``
+   * ``toc.not_included``
    * ``toc.not_readable``
    * ``toc.secnum``
 
@@ -1384,6 +1412,7 @@ Options for warning control
 
    * ``autodoc``
    * ``autodoc.import_object``
+   * ``autodoc.mocked_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
@@ -1393,36 +1422,64 @@ Options for warning control
    component to exclude all warnings attached to it.
 
    .. versionadded:: 1.4
+      ``ref.citation``, ``ref.doc``, ``ref.keyword``,
+      ``ref.numref``, ``ref.option``, ``ref.ref``, and ``ref.term``.
 
-   .. versionchanged:: 1.5
-      Added ``misc.highlighting_failure``
+   .. versionadded:: 1.4.2
+      ``app.add_directive``, ``app.add_generic_role``,
+      ``app.add_node``, ``app.add_role``, and ``app.add_source_parser``.
 
-   .. versionchanged:: 1.5.1
-      Added ``epub.unknown_project_files``
+   .. versionadded:: 1.5
+      ``misc.highlighting_failure``.
 
-   .. versionchanged:: 1.6
-      Added ``ref.footnote``
+   .. versionadded:: 1.5.1
+      ``epub.unknown_project_files``.
 
-   .. versionchanged:: 2.1
-      Added ``autosectionlabel.<document name>``
+   .. versionadded:: 1.5.2
+      ``toc.secnum``.
 
-   .. versionchanged:: 3.3.0
-      Added ``epub.duplicated_toc_entry``
+   .. versionadded:: 1.6
+      ``ref.footnote``, ``download.not_readable``, and ``image.not_readable``.
 
-   .. versionchanged:: 4.3
-      Added ``toc.excluded`` and ``toc.not_readable``
+   .. versionadded:: 1.7
+      ``ref.python``.
+
+   .. versionadded:: 2.0
+      ``autodoc.import_object``.
+
+   .. versionadded:: 2.1
+      ``autosectionlabel.<document name>``.
+
+   .. versionadded:: 3.1
+      ``toc.circular``.
+
+   .. versionadded:: 3.3
+      ``epub.duplicated_toc_entry``.
+
+   .. versionadded:: 4.3
+      ``toc.excluded`` and ``toc.not_readable``.
 
    .. versionadded:: 4.5
-      Added ``i18n.inconsistent_references``
+      ``i18n.inconsistent_references``.
 
    .. versionadded:: 7.1
-      Added ``index``.
+      ``index``.
 
    .. versionadded:: 7.3
-      Added ``config.cache``.
+      ``config.cache``, ``intersphinx.external``, and ``toc.no_title``.
 
-   .. versionadded:: 7.3
-      Added ``toc.no_title``.
+   .. versionadded:: 7.4
+      ``docutils`` and ``autosummary.import_cycle``.
+
+   .. versionadded:: 8.0
+      ``misc.copy_overwrite``.
+
+   .. versionadded:: 8.2
+      ``autodoc.mocked_object``,
+      ``duplicate_declaration.c``, ``duplicate_declaration.cpp``,
+      ``i18n.babel``, ``i18n.not_readable``, ``i18n.not_writeable``,
+      ``ref.any``,
+      ``toc.duplicate_entry``, ``toc.empty_glob``, and ``toc.not_included``.
 
 
 Builder options
@@ -1608,7 +1665,7 @@ and also make use of these options.
 
    The special attribute *priority* can be set as an integer
    to load the CSS file at an earlier or later step.
-   For more information, refer to :meth:`.Sphinx.add_css_file()`.
+   For more information, refer to :meth:`.Sphinx.add_css_file`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
@@ -1637,7 +1694,7 @@ and also make use of these options.
 
    As a special attribute, *priority* can be set as an integer
    to load the JavaScript file at an earlier or later step.
-   For more information, refer to :meth:`.Sphinx.add_js_file()`.
+   For more information, refer to :meth:`.Sphinx.add_js_file`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
@@ -1706,12 +1763,20 @@ and also make use of these options.
 
 .. confval:: html_last_updated_fmt
    :type: :code-py:`str`
-   :default: :code-py:`'%b %d, %Y'`
+   :default: :code-py:`None`
 
    If set, a 'Last updated on:' timestamp is inserted into the page footer
    using the given :func:`~time.strftime` format.
    The empty string is equivalent to :code-py:`'%b %d, %Y'`
    (or a locale-dependent equivalent).
+
+.. confval:: html_last_updated_use_utc
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   Use GMT/UTC (+00:00) instead of the system's local time zone
+   for the time supplied to :confval:`html_last_updated_fmt`.
+   This is most useful when the format used includes the time.
 
 .. confval:: html_permalinks
    :type: :code-py:`bool`
@@ -2516,6 +2581,7 @@ so the HTML options also apply where appropriate.
    :default: The value of **copyright**
 
    The copyright of the document.
+   See :confval:`copyright` for permitted formats.
 
 .. confval:: epub_identifier
    :type: :code-py:`str`
@@ -2779,12 +2845,14 @@ These options influence LaTeX output.
 
    * :code-py:`'pdflatex'` -- PDFLaTeX (default)
    * :code-py:`'xelatex'` -- XeLaTeX
+     (default if :confval:`language` is one of ``el``, ``zh_CN``, or ``zh_TW``)
    * :code-py:`'lualatex'` -- LuaLaTeX
    * :code-py:`'platex'` -- pLaTeX
    * :code-py:`'uplatex'` -- upLaTeX
      (default if :confval:`language` is :code-py:`'ja'`)
 
-   .. caution::
+   .. important::
+
       ``'pdflatex'``\ 's support for Unicode characters is limited.
       If your project uses Unicode characters,
       setting the engine to ``'xelatex'`` or ``'lualatex'``
@@ -2796,10 +2864,10 @@ These options influence LaTeX output.
 
    .. note::
 
-      Sphinx 2.0 adds support to ``'pdflatex'`` in Latin language document of
-      occasional Cyrillic or Greek letters or words.
-      This is not automatic, see the discussion
-      of the ``'fontenc'`` key in :confval:`latex_elements` .
+      Sphinx 2.0 adds support for occasional Cyrillic and Greek letters or
+      words in documents using a Latin language and ``'pdflatex'``.  To enable
+      this, the :ref:`fontenc` key of :ref:`latex_elements
+      <latex_elements_confval>` must be used appropriately.
 
    .. note::
 
@@ -2809,23 +2877,24 @@ These options influence LaTeX output.
       the only comprehensive solution (as far as we know) is to
       use ``'xelatex'`` or ``'lualatex'`` *and* to add
       ``r'\usepackage{unicode-math}'``
-      (e.g. via the :confval:`latex_elements` ``'preamble'`` key).
+      (e.g. via the :ref:`preamble` key of :ref:`latex_elements
+      <latex_elements_confval>`).
       You may prefer ``r'\usepackage[math-style=literal]{unicode-math}'``
       to keep a Unicode literal such as ``α`` (U+03B1) as-is in output,
       rather than being rendered as :math:`\alpha`.
 
    .. versionchanged:: 2.1.0
-      Use ``xelatex`` (and LaTeX package ``xeCJK``)
+      Use ``'xelatex'`` (and LaTeX package ``xeCJK``)
       by default for Chinese documents.
 
    .. versionchanged:: 2.2.1
-      Use ``xelatex`` by default for Greek documents.
+      Use ``'xelatex'`` by default for Greek documents.
 
    .. versionchanged:: 2.3
-      Add ``uplatex`` support.
+      Add ``'uplatex'`` support.
 
    .. versionchanged:: 4.0
-      Use ``uplatex`` by default for Japanese documents.
+      Use ``'uplatex'`` by default for Japanese documents.
 
 .. confval:: latex_documents
    :type: :code-py:`Sequence[tuple[str, str, str, str, str, bool]]`
@@ -2895,16 +2964,16 @@ These options influence LaTeX output.
    :type: :code-py:`'part' | 'chapter' | 'section'`
    :default: :code-py:`None`
 
-   This value determines the topmost sectioning unit.
-   By default,  the topmost sectioning unit is switched by documentclass:
-   ``section`` is used if documentclass will be ``howto``,
-   otherwise ``chapter`` is used be used.
+   This value determines the topmost sectioning unit.  The default setting is
+   ``'section'`` if :confval:`latex_theme` is ``'howto'``, and ``'chapter'``
+   if it is ``'manual'``.  The alternative in both cases is to specify
+   ``'part'``, which means that LaTeX document will use the :code-tex:`\\part`
+   command.
 
-   Note that if LaTeX uses :code-tex:`\\part` command,
-   then the numbering of sectioning units one level deep gets off-sync
-   with HTML numbering,
-   because LaTeX numbers :code-tex:`\\chapter` continuously
-   (or :code-tex:`\\section` for ``howto``).
+   In that case the numbering of sectioning units one level deep gets off-sync
+   with HTML numbering, as by default LaTeX does not reset
+   :code-tex:`\\chapter` numbering (or :code-tex:`\\section` for ``'howto'``
+   theme) when encountering :code-tex:`\\part` command.
 
    .. versionadded:: 1.4
 
@@ -3017,8 +3086,11 @@ These options influence LaTeX output.
          Please update your project to use the
          :ref:`latex table color configuration <tablecolors>` keys instead.
 
-   Each table can override the global style via ``:class:`` option,
-   or ``.. rst-class::`` for no-directive tables (cf.  :ref:`table-directives`).
+   To customise the styles for a table,
+   use the ``:class:`` option if the table is defined using a directive,
+   or otherwise insert a :ref:`rst-class <rstclass>` directive before the table
+   (cf. :ref:`table-directives`).
+
    Currently recognised classes are ``booktabs``, ``borderless``,
    ``standard``, ``colorrows``, ``nocolorrows``.
    The latter two can be combined with any of the first three.
@@ -3103,7 +3175,7 @@ These options influence LaTeX output.
    Use Xindy_ to prepare the index of general terms.
    By default, the LaTeX builder uses :program:`makeindex`
    for preparing the index of general terms .
-   This means that words with UTF-8 characters will be
+   Using Xindy_ means that words with UTF-8 characters will be
    ordered correctly for the :confval:`language`.
 
    .. _Xindy: https://xindy.sourceforge.net/
@@ -3122,12 +3194,15 @@ These options influence LaTeX output.
    * The default is :code-py:`False` for :code-py:`'pdflatex'`,
      but :code-py:`True` is recommended for non-English documents as soon
      as some indexed terms use non-ASCII characters from the language script.
+     Attempting to index a term whose first character is non-ASCII
+     will break the build, if :confval:`latex_use_xindy` is left to its
+     default :code-py:`False`.
 
    Sphinx adds some dedicated support to the :program:`xindy` base distribution
    for using :code-py:`'pdflatex'` engine with Cyrillic scripts.
    With both :code-py:`'pdflatex'` and Unicode engines,
    Cyrillic documents handle the indexing of Latin names correctly,
-   even with diacritics.
+   even those having diacritics.
 
    .. versionadded:: 1.8
 
@@ -3163,12 +3238,9 @@ These options influence LaTeX output.
    A list of file names, relative to the :term:`configuration directory`,
    to copy to the build directory when building LaTeX output.
    This is useful to copy files that Sphinx doesn't copy automatically,
-   e.g. if they are referenced in custom LaTeX added in ``latex_elements``.
+   or to overwrite Sphinx LaTeX support files with custom versions.
    Image files that are referenced in source files (e.g. via ``.. image::``)
-   are copied automatically.
-
-   You have to make sure yourself that the filenames don't collide with those
-   of any automatically copied files.
+   are copied automatically and should not be listed there.
 
    .. attention::
       Filenames with the ``.tex`` extension will be automatically
@@ -3669,6 +3741,9 @@ and which failures and redirects it ignores.
    A list of regular expressions that match URIs that should not be checked
    when doing a ``linkcheck`` build.
 
+   Server-issued redirects that match :confval:`ignored URIs <linkcheck_ignore>`
+   will not be followed.
+
    Example:
 
    .. code-block:: python
@@ -4011,6 +4086,14 @@ Options for the Javascript domain
 
    .. versionadded:: 7.1
 
+.. confval:: javascript_trailing_comma_in_multi_line_signatures
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
+
+   .. versionadded:: 8.2
+
 
 Options for the Python domain
 -----------------------------
@@ -4099,6 +4182,14 @@ Options for the Python domain
       .. py:function:: add[T: VERY_LONG_SUPER_TYPE, U: VERY_LONG_SUPER_TYPE](a: T, b: U)
 
    .. versionadded:: 7.1
+
+.. confval:: python_trailing_comma_in_multi_line_signatures
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
+
+   .. versionadded:: 8.2
 
 .. confval:: python_use_unqualified_type_names
    :type: :code-py:`bool`

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from types import NoneType
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -20,7 +21,8 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -34,9 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a JavaScript object.
-    """
+    """Description of a JavaScript object."""
 
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
@@ -100,12 +100,18 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         signode['object'] = prefix
         signode['fullname'] = fullname
 
-        max_len = (self.env.config.javascript_maximum_signature_line_length
-                   or self.env.config.maximum_signature_line_length
-                   or 0)
+        max_len = (
+            self.config.javascript_maximum_signature_line_length
+            or self.config.maximum_signature_line_length
+            or 0
+        )
         multi_line_parameter_list = (
             'single-line-parameter-list' not in self.options
             and (len(sig) > max_len > 0)
+        )
+
+        trailing_comma = (
+            self.env.config.javascript_trailing_comma_in_multi_line_signatures
         )
 
         display_prefix = self.get_display_prefix()
@@ -118,17 +124,22 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         elif mod_name:
             actual_prefix = mod_name
         if actual_prefix:
-            addName = addnodes.desc_addname('', '')
+            add_name = addnodes.desc_addname('', '')
             for p in actual_prefix.split('.'):
-                addName += addnodes.desc_sig_name(p, p)
-                addName += addnodes.desc_sig_punctuation('.', '.')
-            signode += addName
+                add_name += addnodes.desc_sig_name(p, p)
+                add_name += addnodes.desc_sig_punctuation('.', '.')
+            signode += add_name
         signode += addnodes.desc_name('', '', addnodes.desc_sig_name(name, name))
         if self.has_arguments:
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
         return fullname, prefix
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
@@ -142,21 +153,27 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         else:
             return tuple(fullname.split('.'))
 
-    def add_target_and_index(self, name_obj: tuple[str, str], sig: str,
-                             signode: desc_signature) -> None:
-        mod_name = self.env.ref_context.get('js:module')
-        fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
+    def add_target_and_index(
+        self, name_obj: tuple[str, str], sig: str, signode: desc_signature
+    ) -> None:
+        mod_name = self.env.ref_context.get('js:module', '')
+        fullname = (f'{mod_name}.' if mod_name else '') + name_obj[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+        domain = self.env.domains.javascript_domain
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
-            indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
-            if indextext:
-                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+            if index_text := self.get_index_text(mod_name, name_obj):
+                self.indexnode['entries'].append((
+                    'single',
+                    index_text,
+                    node_id,
+                    '',
+                    None,
+                ))
 
     def get_index_text(self, objectname: str, name_obj: tuple[str, str]) -> str:
         name, obj = name_obj
@@ -223,14 +240,13 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             with contextlib.suppress(IndexError):
                 objects.pop()
 
-        self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
-                                             else None)
+        self.env.ref_context['js:object'] = objects[-1] if len(objects) > 0 else None
 
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.app.config
+        config = self.config
         objtype = sig_node.parent.get('objtype')
         if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'
@@ -252,16 +268,32 @@ class JSCallable(JSObject):
     has_arguments = True
 
     doc_field_types = [
-        TypedField('arguments', label=_('Arguments'),
-                   names=('argument', 'arg', 'parameter', 'param'),
-                   typerolename='func', typenames=('paramtype', 'type')),
-        GroupedField('errors', label=_('Throws'), rolename='func',
-                     names=('throws', ),
-                     can_collapse=True),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
-        Field('returntype', label=_('Return type'), has_arg=False,
-              names=('rtype',)),
+        TypedField(
+            'arguments',
+            label=_('Arguments'),
+            names=('argument', 'arg', 'parameter', 'param'),
+            typerolename='func',
+            typenames=('paramtype', 'type'),
+        ),
+        GroupedField(
+            'errors',
+            label=_('Throws'),
+            rolename='func',
+            names=('throws',),
+            can_collapse=True,
+        ),
+        Field(
+            'returnvalue',
+            label=_('Returns'),
+            has_arg=False,
+            names=('returns', 'return'),
+        ),
+        Field(
+            'returntype',
+            label=_('Return type'),
+            has_arg=False,
+            names=('rtype',),
+        ),
     ]
 
 
@@ -271,13 +303,14 @@ class JSConstructor(JSCallable):
     allow_nesting = True
 
     def get_display_prefix(self) -> list[Node]:
-        return [addnodes.desc_sig_keyword('class', 'class'),
-                addnodes.desc_sig_space()]
+        return [
+            addnodes.desc_sig_keyword('class', 'class'),
+            addnodes.desc_sig_space(),
+        ]
 
 
 class JSModule(SphinxDirective):
-    """
-    Directive to mark description of a new JavaScript module.
+    """Directive to mark description of a new JavaScript module.
 
     This directive specifies the module name that will be used by objects that
     follow this directive.
@@ -300,6 +333,7 @@ class JSModule(SphinxDirective):
     final_argument_whitespace = False
     option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
+        'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
         'noindex': directives.flag,
@@ -307,6 +341,12 @@ class JSModule(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # # deprecate noindex in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         no_index = 'no-index' in self.options
@@ -315,19 +355,23 @@ class JSModule(SphinxDirective):
 
         ret: list[Node] = []
         if not no_index:
-            domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+            domain = self.env.domains.javascript_domain
 
             node_id = make_id(self.env, self.state.document, 'module', mod_name)
-            domain.note_module(mod_name, node_id)
+            domain.note_module(modname=mod_name, node_id=node_id)
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
-            domain.note_object(mod_name, 'module', node_id,
-                               location=(self.env.docname, self.lineno))
+            domain.note_object(
+                mod_name, 'module', node_id, location=(self.env.docname, self.lineno)
+            )
 
             # The node order is: index node first, then target node
-            indextext = _('%s (module)') % mod_name
-            inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
-            ret.append(inode)
+            if 'no-index-entry' not in self.options:
+                index_text = _('%s (module)') % mod_name
+                inode = addnodes.index(
+                    entries=[('single', index_text, node_id, '', None)]
+                )
+                ret.append(inode)
             target = nodes.target('', '', ids=[node_id], ismod=True)
             self.state.document.note_explicit_target(target)
             ret.append(target)
@@ -336,8 +380,14 @@ class JSModule(SphinxDirective):
 
 
 class JSXRefRole(XRefRole):
-    def process_link(self, env: BuildEnvironment, refnode: Element,
-                     has_explicit_title: bool, title: str, target: str) -> tuple[str, str]:
+    def process_link(
+        self,
+        env: BuildEnvironment,
+        refnode: Element,
+        has_explicit_title: bool,
+        title: str,
+        target: str,
+    ) -> tuple[str, str]:
         # basically what sphinx.domains.python.PyXRefRole does
         refnode['js:object'] = env.ref_context.get('js:object')
         refnode['js:module'] = env.ref_context.get('js:module')
@@ -348,7 +398,7 @@ class JSXRefRole(XRefRole):
                 title = title[1:]
                 dot = title.rfind('.')
                 if dot != -1:
-                    title = title[dot + 1:]
+                    title = title[dot + 1 :]
         if target[0:1] == '.':
             target = target[1:]
             refnode['refspecific'] = True
@@ -362,28 +412,28 @@ class JavaScriptDomain(Domain):
     label = 'JavaScript'
     # if you add a new object type make sure to edit JSObject.get_index_string
     object_types = {
-        'function':  ObjType(_('function'),  'func'),
-        'method':    ObjType(_('method'),    'meth'),
-        'class':     ObjType(_('class'),     'class'),
-        'data':      ObjType(_('data'),      'data'),
+        'function': ObjType(_('function'), 'func'),
+        'method': ObjType(_('method'), 'meth'),
+        'class': ObjType(_('class'), 'class'),
+        'data': ObjType(_('data'), 'data'),
         'attribute': ObjType(_('attribute'), 'attr'),
-        'module':    ObjType(_('module'),    'mod'),
+        'module': ObjType(_('module'), 'mod'),
     }
     directives = {
-        'function':  JSCallable,
-        'method':    JSCallable,
-        'class':     JSConstructor,
-        'data':      JSObject,
+        'function': JSCallable,
+        'method': JSCallable,
+        'class': JSConstructor,
+        'data': JSObject,
         'attribute': JSObject,
-        'module':    JSModule,
+        'module': JSModule,
     }
     roles = {
-        'func':  JSXRefRole(fix_parens=True),
-        'meth':  JSXRefRole(fix_parens=True),
+        'func': JSXRefRole(fix_parens=True),
+        'meth': JSXRefRole(fix_parens=True),
         'class': JSXRefRole(fix_parens=True),
-        'data':  JSXRefRole(),
-        'attr':  JSXRefRole(),
-        'mod':   JSXRefRole(),
+        'data': JSXRefRole(),
+        'attr': JSXRefRole(),
+        'mod': JSXRefRole(),
     }
     initial_data: dict[str, dict[str, tuple[str, str]]] = {
         'objects': {},  # fullname -> docname, node_id, objtype
@@ -392,14 +442,22 @@ class JavaScriptDomain(Domain):
 
     @property
     def objects(self) -> dict[str, tuple[str, str, str]]:
-        return self.data.setdefault('objects', {})  # fullname -> docname, node_id, objtype
+        # fullname -> docname, node_id, objtype
+        return self.data.setdefault('objects', {})
 
-    def note_object(self, fullname: str, objtype: str, node_id: str,
-                    location: Any = None) -> None:
+    def note_object(
+        self, fullname: str, objtype: str, node_id: str, location: Any = None
+    ) -> None:
         if fullname in self.objects:
             docname = self.objects[fullname][0]
-            logger.warning(__('duplicate %s description of %s, other %s in %s'),
-                           objtype, fullname, objtype, docname, location=location)
+            logger.warning(
+                __('duplicate %s description of %s, other %s in %s'),
+                objtype,
+                fullname,
+                objtype,
+                docname,
+                location=location,
+            )
         self.objects[fullname] = (self.env.docname, node_id, objtype)
 
     @property
@@ -417,7 +475,7 @@ class JavaScriptDomain(Domain):
             if pkg_docname == docname:
                 del self.modules[modname]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates
         for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
@@ -435,8 +493,7 @@ class JavaScriptDomain(Domain):
         typ: str | None,
         searchorder: int = 0,
     ) -> tuple[str | None, tuple[str, str, str] | None]:
-        if name[-2:] == '()':
-            name = name[:-2]
+        name = name.removesuffix('()')
 
         searches = []
         if mod_name and prefix:
@@ -459,9 +516,16 @@ class JavaScriptDomain(Domain):
 
         return newname, object_
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         searchorder = 1 if node.hasattr('refspecific') else 0
@@ -470,16 +534,26 @@ class JavaScriptDomain(Domain):
             return None
         return make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name)
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, nodes.reference]]:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
-        return [('js:' + self.role_for_objtype(obj[2]),  # type: ignore[operator]
-                 make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name))]
+        return [
+            (
+                f'js:{self.role_for_objtype(obj[2])}',
+                make_refnode(builder, fromdocname, obj[0], obj[1], contnode, name),
+            )
+        ]
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         for refname, (docname, node_id, typ) in list(self.objects.items()):
@@ -498,7 +572,16 @@ class JavaScriptDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)},
+        'javascript_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, NoneType}),
+    )
+    app.add_config_value(
+        'javascript_trailing_comma_in_multi_line_signatures',
+        True,
+        'env',
+        types=frozenset({bool}),
     )
     return {
         'version': 'builtin',

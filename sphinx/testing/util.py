@@ -4,8 +4,6 @@ from __future__ import annotations
 
 __all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
 
-import contextlib
-import os
 import sys
 from io import StringIO
 from types import MappingProxyType
@@ -17,10 +15,11 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
-from sphinx.util.console import strip_colors
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Mapping, Sequence
     from pathlib import Path
     from typing import Any
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
 
-def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
+def assert_node(node: Node, cls: Any = None, xpath: str = '', **kwargs: Any) -> None:
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)
@@ -37,36 +36,43 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 if isinstance(cls[1], tuple):
                     assert_node(node, cls[1], xpath=xpath, **kwargs)
                 else:
-                    assert isinstance(node, nodes.Element), \
-                        'The node%s does not have any children' % xpath
-                    assert len(node) == 1, \
-                        'The node%s has %d child nodes, not one' % (xpath, len(node))
-                    assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
+                    assert (
+                        isinstance(node, nodes.Element)
+                    ), f'The node{xpath} does not have any children'  # fmt: skip
+                    assert len(node) == 1, (
+                        f'The node{xpath} has {len(node)} child nodes, not one'
+                    )
+                    assert_node(node[0], cls[1:], xpath=xpath + '[0]', **kwargs)
         elif isinstance(cls, tuple):
-            assert isinstance(node, (list, nodes.Element)), \
-                'The node%s does not have any items' % xpath
-            assert len(node) == len(cls), \
-                'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
+            assert (
+                isinstance(node, list | nodes.Element)
+            ), f'The node{xpath} does not have any items'  # fmt: skip
+            assert (
+                len(node) == len(cls)
+            ), f'The node{xpath} has {len(node)} child nodes, not {len(cls)!r}'  # fmt: skip
             for i, nodecls in enumerate(cls):
-                path = xpath + "[%d]" % i
+                path = xpath + f'[{i}]'
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
         elif isinstance(cls, str):
             assert node == cls, f'The node {xpath!r} is not {cls!r}: {node!r}'
         else:
-            assert isinstance(node, cls), \
-                f'The node{xpath} is not subclass of {cls!r}: {node!r}'
+            assert (
+                isinstance(node, cls)
+            ), f'The node{xpath} is not subclass of {cls!r}: {node!r}'  # fmt: skip
 
     if kwargs:
-        assert isinstance(node, nodes.Element), \
-            'The node%s does not have any attributes' % xpath
+        assert (
+            isinstance(node, nodes.Element)
+        ), f'The node{xpath} does not have any attributes'  # fmt: skip
 
         for key, value in kwargs.items():
             if key not in node:
                 if (key := key.replace('_', '-')) not in node:
                     msg = f'The node{xpath} does not have {key!r} attribute: {node!r}'
                     raise AssertionError(msg)
-            assert node[key] == value, \
+            assert node[key] == value, (
                 f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
+            )
 
 
 # keep this to restrict the API usage and to have a correct return type
@@ -86,7 +92,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
     It is recommended to use::
 
-        @pytest.mark.sphinx('html')
+        @pytest.mark.sphinx('html', testroot='root')
         def test(app):
             app = ...
 
@@ -117,11 +123,14 @@ class SphinxTestApp(sphinx.application.Sphinx):
         parallel: int = 0,
         # additional arguments at the end to keep the signature
         verbosity: int = 0,  # argument is not in the same order as in the superclass
-        keep_going: bool = False,
         warningiserror: bool = False,  # argument is not in the same order as in the superclass
+        pdb: bool = False,
+        exception_on_warning: bool = False,
         # unknown keyword arguments
         **extras: Any,
     ) -> None:
+        self._builder_name = buildername
+
         assert srcdir is not None
 
         if verbosity == -1:
@@ -135,7 +144,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             status = None if quiet else StringIO()
         elif not isinstance(status, StringIO):
-            err = "%r must be an io.StringIO object, got: %s" % ('status', type(status))
+            err = f"'status' must be an io.StringIO object, got: {type(status)}"
             raise TypeError(err)
 
         if warning is None:
@@ -143,7 +152,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             warning = None if quiet else StringIO()
         elif not isinstance(warning, StringIO):
-            err = '%r must be an io.StringIO object, got: %s' % ('warning', type(warning))
+            err = f"'warning' must be an io.StringIO object, got: {type(warning)}"
             raise TypeError(err)
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
@@ -167,15 +176,35 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
         try:
             super().__init__(
-                srcdir, confdir, outdir, doctreedir, buildername,
-                confoverrides=confoverrides, status=status, warning=warning,
-                freshenv=freshenv, warningiserror=warningiserror, tags=tags,
-                verbosity=verbosity, parallel=parallel, keep_going=keep_going,
-                pdb=False,
+                srcdir,
+                confdir,
+                outdir,
+                doctreedir,
+                buildername,
+                confoverrides=confoverrides,
+                status=status,
+                warning=warning,
+                freshenv=freshenv,
+                warningiserror=warningiserror,
+                tags=tags,
+                verbosity=verbosity,
+                parallel=parallel,
+                pdb=pdb,
+                exception_on_warning=exception_on_warning,
             )
         except Exception:
             self.cleanup()
             raise
+
+    def _init_builder(self) -> None:
+        # override the default theme to 'basic' rather than 'alabaster'
+        # for test independence
+
+        if 'html_theme' in self.config._overrides:
+            pass  # respect overrides
+        elif 'html_theme' in self.config and self.config.html_theme == 'alabaster':
+            self.config.html_theme = self.config._overrides.get('html_theme', 'basic')
+        super()._init_builder()
 
     @property
     def status(self) -> StringIO:
@@ -194,13 +223,16 @@ class SphinxTestApp(sphinx.application.Sphinx):
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
         _clean_up_global_state()
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(self.docutils_conf_path)
+        try:
+            self.docutils_conf_path.unlink(missing_ok=True)
+        except OSError as exc:
+            if exc.errno != 30:  # Ignore "read-only file system" errors
+                raise
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
+        return f'<{self.__class__.__name__} buildername={self._builder_name!r}>'
 
-    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+    def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
         self.env._pickled_doctree_cache.clear()
         super().build(force_all, filenames)
 
@@ -212,8 +244,8 @@ class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
     if it has already been built and there are any output files.
     """
 
-    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
-        if not os.listdir(self.outdir):
+    def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
+        if not list(self.outdir.iterdir()):
             # if listdir is empty, do build.
             super().build(force_all, filenames)
             # otherwise, we can use built cache
@@ -239,7 +271,11 @@ def _clean_up_global_state() -> None:
 
 # deprecated name -> (object to return, canonical path or '', removal version)
 _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
+    'strip_escseq': (
+        strip_escape_sequences,
+        'sphinx.util.console.strip_escape_sequences',
+        (9, 0),
+    ),
 }
 
 
