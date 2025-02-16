@@ -802,7 +802,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=800)
 
     # FIXME: Disable URL rewrite handler for github.com temporarily.
-    # ref: https://github.com/sphinx-doc/sphinx/issues/9435
+    # See: https://github.com/sphinx-doc/sphinx/issues/9435
     # app.connect('linkcheck-process-uri', rewrite_github_anchor)
 
     return {

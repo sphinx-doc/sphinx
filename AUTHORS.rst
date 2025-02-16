@@ -29,6 +29,7 @@ Contributors
 * Antti Kaihola -- doctest extension (skipif option)
 * Barak Katzir -- autodoc improvements
 * Barry Warsaw -- setup command improvements
+* Bart Kamphorst -- warning improvements
 * Ben Egan -- Napoleon improvements & viewcode improvements
 * Benjamin Peterson -- unittests
 * Blaise Laflamme -- pyramid theme

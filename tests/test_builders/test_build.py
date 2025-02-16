@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxError
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 def test_root_doc_not_found(tmp_path, make_app):
@@ -18,7 +23,7 @@ def test_root_doc_not_found(tmp_path, make_app):
 
 
 @pytest.mark.sphinx('text', testroot='circular')
-def test_circular_toctree(app):
+def test_circular_toctree(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     warnings = app.warning.getvalue()
     assert (
@@ -30,7 +35,7 @@ def test_circular_toctree(app):
 
 
 @pytest.mark.sphinx('text', testroot='numbered-circular')
-def test_numbered_circular_toctree(app):
+def test_numbered_circular_toctree(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     warnings = app.warning.getvalue()
     assert (
@@ -42,7 +47,7 @@ def test_numbered_circular_toctree(app):
 
 
 @pytest.mark.sphinx('text', testroot='toctree-multiple-parents')
-def test_multiple_parents_toctree(app):
+def test_multiple_parents_toctree(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert (
         "document is referenced in multiple toctrees: ['bravo', 'delta'], selecting: delta <- charlie"

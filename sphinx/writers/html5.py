@@ -199,10 +199,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that
-    # signatures like the following render correctly (see issue #1001):
+    # signatures like the following render correctly:
     #
     #     foo([a, ]b, c[, d])
     #
+    # See: https://github.com/sphinx-doc/sphinx/issues/1001
     def visit_desc_parameter(self, node: Element) -> None:
         on_separate_line = self.multi_line_parameter_list
         if on_separate_line and not (

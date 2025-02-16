@@ -205,7 +205,8 @@ def get_type_hints(
         # Invalid object is given. But try to get __annotations__ as a fallback.
         return safe_getattr(obj, '__annotations__', {})
     except KeyError:
-        # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
+        # a broken class found
+        # See: https://github.com/sphinx-doc/sphinx/issues/8084
         return {}
 
 

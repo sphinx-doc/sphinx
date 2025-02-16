@@ -131,7 +131,7 @@ class BuildEnvironment:
         self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
-        self.dependencies: dict[str, set[_StrPath]] = {}
+        self.dependencies: dict[str, set[_StrPath]] = defaultdict(set)
         # docname -> set of included file
         # docnames included from other documents
         self.included: dict[str, set[str]] = defaultdict(set)
@@ -234,7 +234,7 @@ class BuildEnvironment:
     def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        # clear unpickable attributes
+        # clear unpickleable attributes
         __dict__.update(app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files

@@ -10,7 +10,7 @@ Incompatible changes
 --------------------
 
 * #13044: Remove the internal and undocumented ``has_equations`` data
-  from the :py:class:`!MathDomain`` domain.
+  from the :py:class:`!MathDomain` domain.
   The undocumented :py:meth:`!MathDomain.has_equations` method
   now unconditionally returns ``True``.
   These are replaced by the ``has_maths_elements`` key of the page context dict.
@@ -65,10 +65,8 @@ Features added
   :confval:`python_trailing_comma_in_multi_line_signatures` and
   :confval:`javascript_trailing_comma_in_multi_line_signatures`
   configuration options.
-* #13264: Rename the :rst:dir:`math` directive's ``nowrap``option
-  to :rst:dir:`no-wrap``,
-  and rename the :rst:dir:`autosummary` directive's ``nosignatures``option
-  to :rst:dir:`no-signatures``.
+* #13264: Rename the :rst:dir:`math` directive's ``nowrap`` option
+  to :rst:dir:`math:no-wrap`.
   Patch by Adam Turner.
 * #13269: Added the option to disable the use of type comments in
   via the new :confval:`autodoc_use_type_comments` option,
@@ -114,6 +112,8 @@ Features added
 * #13326: Remove hardcoding from handling :class:`~sphinx.addnodes.productionlist`
   nodes in all writers, to improve flexibility.
   Patch by Adam Turner.
+* #13335: Use ``misc.highlighting_failure`` subtype for Pygments unknown lexers.
+  Patch by Bart Kamphorst.
 
 Bugs fixed
 ----------
@@ -157,6 +157,8 @@ Bugs fixed
 * #13302, #13319: Use the correct indentation for continuation lines
   in :rst:dir:`productionlist` directives.
   Patch by Adam Turner.
+* #13328: Fix parsing of PEP 695 functions with return annotations.
+  Patch by Bénédikt Tran. Initial work by Arash Badie-Modiri.
 
 Testing
 -------

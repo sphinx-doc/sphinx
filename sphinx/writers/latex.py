@@ -1847,7 +1847,8 @@ class LaTeXTranslator(SphinxTranslator):
             else:
                 add_target(node['refid'])
         # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
-        # TODO: investigate if a more elegant solution exists (see comments of #11093)
+        # TODO: investigate if a more elegant solution exists
+        # (see comments of https://github.com/sphinx-doc/sphinx/issues/11093)
         if node.get('ismod', False):
             # Detect if the previous nodes are label targets. If so, remove
             # the refid thereof from node['ids'] to avoid duplicated ids.
@@ -2500,7 +2501,7 @@ class LaTeXTranslator(SphinxTranslator):
 
 
 # FIXME: Workaround to avoid circular import
-# refs: https://github.com/sphinx-doc/sphinx/issues/5433
+# See: https://github.com/sphinx-doc/sphinx/issues/5433
 from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
     HYPERLINK_SUPPORT_NODES,
     captioned_literal_block,

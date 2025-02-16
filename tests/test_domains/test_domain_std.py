@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -23,8 +24,11 @@ from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
-def test_process_doc_handle_figure_caption():
+
+def test_process_doc_handle_figure_caption() -> None:
     env = mock.Mock(domaindata={})
     env.app.registry.enumerable_nodes = {}
     figure_node = nodes.figure(
@@ -47,7 +51,7 @@ def test_process_doc_handle_figure_caption():
     assert domain.data['labels']['testname'] == ('testdoc', 'testid', 'caption text')
 
 
-def test_process_doc_handle_table_title():
+def test_process_doc_handle_table_title() -> None:
     env = mock.Mock(domaindata={})
     env.app.registry.enumerable_nodes = {}
     table_node = nodes.table(
@@ -70,7 +74,7 @@ def test_process_doc_handle_table_title():
     assert domain.data['labels']['testname'] == ('testdoc', 'testid', 'title text')
 
 
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = mock.Mock(domaindata={})
     env.app.registry.enumerable_nodes = {}
     domain = StandardDomain(env)
@@ -90,7 +94,7 @@ def test_get_full_qualified_name():
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_cmd_option_with_optional_value(app):
+def test_cmd_option_with_optional_value(app: SphinxTestApp) -> None:
     text = '.. option:: -j[=N]'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -117,7 +121,7 @@ def test_cmd_option_with_optional_value(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_cmd_option_starting_with_bracket(app):
+def test_cmd_option_starting_with_bracket(app: SphinxTestApp) -> None:
     text = '.. option:: [enable=]PATTERN'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -244,7 +248,7 @@ def test_glossary(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_glossary_warning(app):
+def test_glossary_warning(app: SphinxTestApp) -> None:
     # empty line between terms
     text = '.. glossary::\n\n   term1\n\n   term2\n'
     restructuredtext.parse(app, text, 'case1')
@@ -374,7 +378,7 @@ def test_glossary_sorted(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_glossary_alphanumeric(app):
+def test_glossary_alphanumeric(app: SphinxTestApp) -> None:
     text = '.. glossary::\n\n   1\n   /\n'
     restructuredtext.parse(app, text)
     objects = list(app.env.domains.standard_domain.get_objects())
@@ -383,7 +387,7 @@ def test_glossary_alphanumeric(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_glossary_conflicted_labels(app):
+def test_glossary_conflicted_labels(app: SphinxTestApp) -> None:
     text = '.. _term-foo:\n.. glossary::\n\n   foo\n'
     restructuredtext.parse(app, text)
     objects = list(app.env.domains.standard_domain.get_objects())
@@ -391,7 +395,7 @@ def test_glossary_conflicted_labels(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_cmdoption(app):
+def test_cmdoption(app: SphinxTestApp) -> None:
     text = '.. program:: ls\n\n.. option:: -l\n'
     domain = app.env.domains.standard_domain
     doctree = restructuredtext.parse(app, text)
@@ -418,7 +422,7 @@ def test_cmdoption(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_cmdoption_for_None(app):
+def test_cmdoption_for_None(app: SphinxTestApp) -> None:
     text = '.. program:: ls\n.. program:: None\n\n.. option:: -l\n'
     domain = app.env.domains.standard_domain
     doctree = restructuredtext.parse(app, text)
@@ -445,7 +449,7 @@ def test_cmdoption_for_None(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_multiple_cmdoptions(app):
+def test_multiple_cmdoptions(app: SphinxTestApp) -> None:
     text = '.. program:: cmd\n\n.. option:: -o directory, --output directory\n'
     domain = app.env.domains.standard_domain
     doctree = restructuredtext.parse(app, text)
@@ -486,7 +490,7 @@ def test_multiple_cmdoptions(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_disabled_docref(app):
+def test_disabled_docref(app: SphinxTestApp) -> None:
     text = ':doc:`index`\n:doc:`!index`\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -501,7 +505,7 @@ def test_disabled_docref(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_labeled_rubric(app):
+def test_labeled_rubric(app: SphinxTestApp) -> None:
     text = '.. _label:\n.. rubric:: blah *blah* blah\n'
     restructuredtext.parse(app, text)
 
@@ -511,7 +515,7 @@ def test_labeled_rubric(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_labeled_definition(app):
+def test_labeled_definition(app: SphinxTestApp) -> None:
     text = (
         '.. _label1:\n'
         '\n'
@@ -534,7 +538,7 @@ def test_labeled_definition(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_labeled_field(app):
+def test_labeled_field(app: SphinxTestApp) -> None:
     text = (
         '.. _label1:\n'
         '\n'
@@ -561,7 +565,7 @@ def test_labeled_field(app):
     testroot='manpage_url',
     confoverrides={'manpages_url': 'https://example.com/{page}.{section}'},
 )
-def test_html_manpage(app):
+def test_html_manpage(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

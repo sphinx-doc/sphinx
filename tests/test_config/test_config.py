@@ -24,6 +24,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import TypeAlias
 
+    from sphinx.testing.util import SphinxTestApp
+
     CircularList: TypeAlias = list[int | 'CircularList']
     CircularDict: TypeAlias = dict[str, int | 'CircularDict']
 
@@ -85,7 +87,7 @@ def test_config_opt_deprecated(recwarn):
         'modindex_common_prefix': 'path1,path2',
     },
 )
-def test_core_config(app):
+def test_core_config(app: SphinxTestApp) -> None:
     cfg = app.config
 
     # simple values
@@ -312,7 +314,7 @@ def test_extension_values():
     assert 'already present' in str(excinfo.value)
 
 
-def test_overrides():
+def test_overrides() -> None:
     config = Config(
         {'value1': '1', 'value2': 2, 'value6': {'default': 6}},
         {
@@ -343,7 +345,7 @@ def test_overrides():
     assert config.value8 == ['abc', 'def', 'ghi']
 
 
-def test_overrides_boolean():
+def test_overrides_boolean() -> None:
     config = Config({}, {'value1': '1', 'value2': '0', 'value3': '0'})
     config.add('value1', None, 'env', [bool])
     config.add('value2', None, 'env', [bool])
@@ -372,7 +374,7 @@ def test_overrides_dict_str(logger):
     )
 
 
-def test_callable_defer():
+def test_callable_defer() -> None:
     config = Config()
     config.add('alias', lambda c: c.master_doc, '', str)
 
@@ -448,7 +450,7 @@ def test_config_eol(logger, tmp_path):
     testroot='root',
     confoverrides={'root_doc': 123, 'language': 'foo', 'primary_domain': None},
 )
-def test_builtin_conf(app):
+def test_builtin_conf(app: SphinxTestApp) -> None:
     warnings = app.warning.getvalue()
     assert 'root_doc' in warnings, (
         'override on builtin "root_doc" should raise a type warning'
@@ -591,7 +593,7 @@ nitpick_warnings = [
 
 
 @pytest.mark.sphinx('html', testroot='nitpicky-warnings')
-def test_nitpick_base(app):
+def test_nitpick_base(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     warning = app.warning.getvalue().strip().split('\n')
@@ -611,7 +613,7 @@ def test_nitpick_base(app):
         },
     },
 )
-def test_nitpick_ignore(app):
+def test_nitpick_ignore(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert not len(app.warning.getvalue().strip())
 
@@ -626,7 +628,7 @@ def test_nitpick_ignore(app):
         ],
     },
 )
-def test_nitpick_ignore_regex1(app):
+def test_nitpick_ignore_regex1(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert not len(app.warning.getvalue().strip())
 
@@ -641,7 +643,7 @@ def test_nitpick_ignore_regex1(app):
         ],
     },
 )
-def test_nitpick_ignore_regex2(app):
+def test_nitpick_ignore_regex2(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert not len(app.warning.getvalue().strip())
 
@@ -662,7 +664,7 @@ def test_nitpick_ignore_regex2(app):
         ],
     },
 )
-def test_nitpick_ignore_regex_fullmatch(app):
+def test_nitpick_ignore_regex_fullmatch(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     warning = app.warning.getvalue().strip().split('\n')
@@ -671,7 +673,7 @@ def test_nitpick_ignore_regex_fullmatch(app):
 
 
 def test_conf_py_language_none(tmp_path):
-    """Regression test for #10474."""
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/10474."""
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text('language = None', encoding='utf-8')
 
@@ -684,7 +686,7 @@ def test_conf_py_language_none(tmp_path):
 
 @mock.patch('sphinx.config.logger')
 def test_conf_py_language_none_warning(logger, tmp_path):
-    """Regression test for #10474."""
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/10474."""
     # Given a conf.py file with language = None
     (tmp_path / 'conf.py').write_text('language = None', encoding='utf-8')
 
@@ -701,7 +703,7 @@ def test_conf_py_language_none_warning(logger, tmp_path):
 
 
 def test_conf_py_no_language(tmp_path):
-    """Regression test for #10474."""
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/10474."""
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').touch()
 
@@ -713,7 +715,7 @@ def test_conf_py_no_language(tmp_path):
 
 
 def test_conf_py_nitpick_ignore_list(tmp_path):
-    """Regression test for #11355."""
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/11355."""
     # Given a conf.py file with no language attribute
     (tmp_path / 'conf.py').touch()
 
@@ -725,31 +727,34 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
     assert cfg.nitpick_ignore_regex == []
 
 
-def test_gettext_compact_command_line_true():
+def test_gettext_compact_command_line_true() -> None:
     config = Config({}, {'gettext_compact': '1'})
     config.add('gettext_compact', True, '', {bool, str})
 
-    # regression test for #8549 (-D gettext_compact=1)
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/8549
+    # (-D gettext_compact=1)
     assert config.gettext_compact is True
 
 
-def test_gettext_compact_command_line_false():
+def test_gettext_compact_command_line_false() -> None:
     config = Config({}, {'gettext_compact': '0'})
     config.add('gettext_compact', True, '', {bool, str})
 
-    # regression test for #8549 (-D gettext_compact=0)
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/8549
+    # (-D gettext_compact=0)
     assert config.gettext_compact is False
 
 
-def test_gettext_compact_command_line_str():
+def test_gettext_compact_command_line_str() -> None:
     config = Config({}, {'gettext_compact': 'spam'})
     config.add('gettext_compact', True, '', {bool, str})
 
-    # regression test for #8549 (-D gettext_compact=spam)
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/8549
+    # (-D gettext_compact=spam)
     assert config.gettext_compact == 'spam'
 
 
-def test_translation_progress_classes_command_line():
+def test_translation_progress_classes_command_line() -> None:
     config = Config({}, {'translation_progress_classes': '1'})
 
     # regression test for --define translation_progress_classes=1
@@ -757,7 +762,7 @@ def test_translation_progress_classes_command_line():
     assert config.translation_progress_classes is True
 
 
-def test_translation_progress_classes_command_line_false():
+def test_translation_progress_classes_command_line_false() -> None:
     config = Config({}, {'translation_progress_classes': '0'})
 
     # regression test for --define translation_progress_classes=0
@@ -765,7 +770,7 @@ def test_translation_progress_classes_command_line_false():
     assert config.translation_progress_classes is False
 
 
-def test_translation_progress_classes_command_line_str():
+def test_translation_progress_classes_command_line_str() -> None:
     config = Config({}, {'translation_progress_classes': 'translated'})
 
     # regression test for --define translation_progress_classes=translated
@@ -773,7 +778,7 @@ def test_translation_progress_classes_command_line_str():
     assert config.translation_progress_classes == 'translated'
 
 
-def test_autosummary_generate_command_line_false():
+def test_autosummary_generate_command_line_false() -> None:
     config = Config({}, {'autosummary_generate': '0'})
     config.add('autosummary_generate', True, '', {bool, list})
 
@@ -782,7 +787,7 @@ def test_autosummary_generate_command_line_false():
     assert config.autosummary_generate is False
 
 
-def test_boolean_command_line_invalid():
+def test_boolean_command_line_invalid() -> None:
     config = Config({}, {'rabit_of_caerbannog': ''})
     config.add('rabit_of_caerbannog', True, '', {bool})
     with pytest.raises(
@@ -791,7 +796,7 @@ def test_boolean_command_line_invalid():
         _ = config.rabit_of_caerbannog
 
 
-def test_root_doc_and_master_doc_are_synchronized():
+def test_root_doc_and_master_doc_are_synchronized() -> None:
     c = Config()
     assert c.master_doc == 'index'
     assert c.root_doc == c.master_doc

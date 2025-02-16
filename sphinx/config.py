@@ -544,7 +544,7 @@ class Config:
             for key, value in self.__dict__.items()
             if not key.startswith('_') and is_serializable(value)
         }
-        # create a picklable copy of ``self._options``
+        # create a pickleable copy of ``self._options``
         __dict__['_options'] = _options = {}
         for name, opt in self._options.items():
             if not isinstance(opt, _Opt) and isinstance(opt, tuple) and len(opt) <= 3:
@@ -558,7 +558,7 @@ class Config:
                     # and thus always invalidate the cache and perform a rebuild.
                     logger.warning(
                         __(
-                            'cannot cache unpickable configuration value: %r '
+                            'cannot cache unpickleable configuration value: %r '
                             '(because it contains a function, class, or module object)'
                         ),
                         name,

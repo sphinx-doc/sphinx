@@ -170,7 +170,7 @@ def getorigbases(obj: Any) -> tuple[Any, ...] | None:
         return None
 
     # Get __orig_bases__ from obj.__dict__ to avoid accessing the parent's __orig_bases__.
-    # refs: https://github.com/sphinx-doc/sphinx/issues/9607
+    # See: https://github.com/sphinx-doc/sphinx/issues/9607
     __dict__ = safe_getattr(obj, '__dict__', {})
     __orig_bases__ = __dict__.get('__orig_bases__')
     if isinstance(__orig_bases__, tuple) and len(__orig_bases__) > 0:
@@ -763,7 +763,7 @@ def signature(
     # pass an internal parameter __validate_parameters__=False to Signature
     #
     # For example, this helps a function having a default value `inspect._empty`.
-    # refs: https://github.com/sphinx-doc/sphinx/issues/7935
+    # See: https://github.com/sphinx-doc/sphinx/issues/7935
     return Signature(
         parameters, return_annotation=return_annotation, __validate_parameters__=False
     )
