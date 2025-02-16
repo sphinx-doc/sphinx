@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel')
-def test_autosectionlabel_html(app):
+def test_autosectionlabel_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -61,7 +65,7 @@ def test_autosectionlabel_html(app):
 
 # Reuse test definition from above, just change the test root directory
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel-prefix-document')
-def test_autosectionlabel_prefix_document_html(app):
+def test_autosectionlabel_prefix_document_html(app: SphinxTestApp) -> None:
     test_autosectionlabel_html(app)
 
 
@@ -70,7 +74,7 @@ def test_autosectionlabel_prefix_document_html(app):
     testroot='ext-autosectionlabel',
     confoverrides={'autosectionlabel_maxdepth': 3},
 )
-def test_autosectionlabel_maxdepth(app):
+def test_autosectionlabel_maxdepth(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 from docutils.utils import column_width
 
+from sphinx.testing.util import SphinxTestApp
 from sphinx.writers.text import MAXWIDTH, Cell, Table
 
 if TYPE_CHECKING:

@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import posixpath
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.util.inventory import InventoryFile, _InventoryItem
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('dirhtml', testroot='builder-dirhtml')
-def test_dirhtml(app):
+def test_dirhtml(app: SphinxTestApp) -> None:
     app.build()
 
     assert (app.outdir / 'index.html').exists()

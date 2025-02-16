@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pygments
@@ -11,6 +12,9 @@ from pygments.lexer import RegexLexer
 from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 18):
     from pygments.formatter import Formatter
@@ -41,7 +45,7 @@ class ComplainOnUnhighlighted(PygmentsBridge):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_add_lexer(app):
+def test_add_lexer(app: SphinxTestApp) -> None:
     app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')

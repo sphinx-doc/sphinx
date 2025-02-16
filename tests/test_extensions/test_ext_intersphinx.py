@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
     from sphinx.ext.intersphinx._shared import InventoryCacheEntry
+    from sphinx.testing.util import SphinxTestApp
     from sphinx.util.typing import Inventory
 
 
@@ -507,7 +508,7 @@ def test_inventory_not_having_version(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_validate_intersphinx_mapping_warnings(app):
+def test_validate_intersphinx_mapping_warnings(app: SphinxTestApp) -> None:
     """Check warnings in :func:`sphinx.ext.intersphinx.validate_intersphinx_mapping`."""
     bad_intersphinx_mapping = {
         '':                 ('789.example', None),     # invalid project name (value)
@@ -698,7 +699,7 @@ def test_inspect_main_url(capsys):
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-role', copy_test_root=True)
-def test_intersphinx_role(app):
+def test_intersphinx_role(app: SphinxTestApp) -> None:
     inv_file = app.srcdir / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     app.config.intersphinx_mapping = {

@@ -7,7 +7,7 @@ from docutils import nodes
 
 from sphinx.addnodes import pending_xref
 from sphinx.testing import restructuredtext
-from sphinx.testing.util import assert_node, etree_parse
+from sphinx.testing.util import SphinxTestApp, assert_node, etree_parse
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:

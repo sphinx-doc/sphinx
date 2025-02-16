@@ -72,7 +72,7 @@ def test_read_inventory_v2_not_having_version() -> None:
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_ambiguous_definition_warning(app):
+def test_ambiguous_definition_warning(app: SphinxTestApp) -> None:
     InventoryFile.loads(INVENTORY_V2_AMBIGUOUS_TERMS, uri='/util')
 
     def _multiple_defs_notice_for(entity: str) -> str:

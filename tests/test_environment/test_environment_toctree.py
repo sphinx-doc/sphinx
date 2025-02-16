@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from docutils import nodes
 from docutils.nodes import bullet_list, list_item, literal, reference, title
@@ -11,6 +13,9 @@ from sphinx.addnodes import compact_paragraph, only
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import document_toc, global_toctree_for_doc
 from sphinx.testing.util import assert_node
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -342,7 +347,7 @@ def test_domain_objects(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='toctree-domain-objects')
-def test_domain_objects_document_scoping(app):
+def test_domain_objects_document_scoping(app: SphinxTestApp) -> None:
     app.build()
 
     # tocs

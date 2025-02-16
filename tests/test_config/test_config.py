@@ -24,6 +24,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import TypeAlias
 
+    from sphinx.testing.util import SphinxTestApp
+
     CircularList: TypeAlias = list[int | 'CircularList']
     CircularDict: TypeAlias = dict[str, int | 'CircularDict']
 
@@ -85,7 +87,7 @@ def test_config_opt_deprecated(recwarn):
         'modindex_common_prefix': 'path1,path2',
     },
 )
-def test_core_config(app):
+def test_core_config(app: SphinxTestApp) -> None:
     cfg = app.config
 
     # simple values
@@ -448,7 +450,7 @@ def test_config_eol(logger, tmp_path):
     testroot='root',
     confoverrides={'root_doc': 123, 'language': 'foo', 'primary_domain': None},
 )
-def test_builtin_conf(app):
+def test_builtin_conf(app: SphinxTestApp) -> None:
     warnings = app.warning.getvalue()
     assert 'root_doc' in warnings, (
         'override on builtin "root_doc" should raise a type warning'
@@ -591,7 +593,7 @@ nitpick_warnings = [
 
 
 @pytest.mark.sphinx('html', testroot='nitpicky-warnings')
-def test_nitpick_base(app):
+def test_nitpick_base(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     warning = app.warning.getvalue().strip().split('\n')
@@ -611,7 +613,7 @@ def test_nitpick_base(app):
         },
     },
 )
-def test_nitpick_ignore(app):
+def test_nitpick_ignore(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert not len(app.warning.getvalue().strip())
 
@@ -626,7 +628,7 @@ def test_nitpick_ignore(app):
         ],
     },
 )
-def test_nitpick_ignore_regex1(app):
+def test_nitpick_ignore_regex1(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert not len(app.warning.getvalue().strip())
 
@@ -641,7 +643,7 @@ def test_nitpick_ignore_regex1(app):
         ],
     },
 )
-def test_nitpick_ignore_regex2(app):
+def test_nitpick_ignore_regex2(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert not len(app.warning.getvalue().strip())
 
@@ -662,7 +664,7 @@ def test_nitpick_ignore_regex2(app):
         ],
     },
 )
-def test_nitpick_ignore_regex_fullmatch(app):
+def test_nitpick_ignore_regex_fullmatch(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     warning = app.warning.getvalue().strip().split('\n')

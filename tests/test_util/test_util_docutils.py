@@ -18,6 +18,7 @@ from sphinx.util.docutils import (
 
 if TYPE_CHECKING:
     from sphinx.builders import Builder
+    from sphinx.testing.util import SphinxTestApp
 
 
 def test_register_node() -> None:
@@ -69,7 +70,7 @@ def test_SphinxFileOutput(tmp_path):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_SphinxTranslator(app):
+def test_SphinxTranslator(app: SphinxTestApp) -> None:
     class CustomNode(nodes.inline):
         pass
 

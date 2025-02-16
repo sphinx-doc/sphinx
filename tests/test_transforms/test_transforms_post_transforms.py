@@ -10,7 +10,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import SIG_ELEMENTS
-from sphinx.testing.util import assert_node
+from sphinx.testing.util import SphinxTestApp, assert_node
 from sphinx.transforms.post_transforms import SigElementFallbackTransform
 from sphinx.util.docutils import new_document
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference')
-def test_nitpicky_warning(app):
+def test_nitpicky_warning(app: SphinxTestApp) -> None:
     app.build()
     assert (
         'index.rst:4: WARNING: py:class reference target not found: io.StringIO'
@@ -41,7 +41,7 @@ def test_nitpicky_warning(app):
     testroot='transforms-post_transforms-missing-reference',
     freshenv=True,
 )
-def test_missing_reference(app):
+def test_missing_reference(app: SphinxTestApp) -> None:
     def missing_reference(app_, env_, node_, contnode_):
         assert app_ is app
         assert env_ is app.env
@@ -64,7 +64,7 @@ def test_missing_reference(app):
     testroot='domain-py-python_use_unqualified_type_names',
     freshenv=True,
 )
-def test_missing_reference_conditional_pending_xref(app):
+def test_missing_reference_conditional_pending_xref(app: SphinxTestApp) -> None:
     def missing_reference(_app, _env, _node, contnode):
         return contnode
 
@@ -82,7 +82,7 @@ def test_missing_reference_conditional_pending_xref(app):
     testroot='transforms-post_transforms-keyboard',
     freshenv=True,
 )
-def test_keyboard_hyphen_spaces(app):
+def test_keyboard_hyphen_spaces(app: SphinxTestApp) -> None:
     # https://github.com/sphinx-doc/sphinx/issues/10495
     app.build()
     assert 'spanish' in (app.outdir / 'index.html').read_text(encoding='utf8')

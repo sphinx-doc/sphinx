@@ -6,6 +6,7 @@ import re
 import sys
 import zlib
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -16,10 +17,13 @@ from sphinx.ext.inheritance_diagram import (
 )
 from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='inheritance')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram(app):
+def test_inheritance_diagram(app: SphinxTestApp) -> None:
     # monkey-patch InheritaceDiagram.run() so we can get access to its
     # results.
     orig_run = InheritanceDiagram.run
@@ -32,12 +36,12 @@ def test_inheritance_diagram(app):
         graphs[source] = node['graph']
         return result
 
-    InheritanceDiagram.run = new_run
+    InheritanceDiagram.run = new_run  # type: ignore[method-assign]
 
     try:
         app.build(force_all=True)
     finally:
-        InheritanceDiagram.run = orig_run
+        InheritanceDiagram.run = orig_run  # type: ignore[method-assign]
 
     assert app.statuscode == 0
 
@@ -266,7 +270,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
 
 @pytest.mark.sphinx('latex', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_latex(app):
+def test_inheritance_diagram_latex(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')

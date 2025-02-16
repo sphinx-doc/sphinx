@@ -7,6 +7,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import babel
 import pytest
@@ -14,6 +15,9 @@ from babel.messages.mofile import read_mo
 
 from sphinx.errors import SphinxError
 from sphinx.util import i18n
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 def test_catalog_info_for_file_and_path() -> None:
@@ -121,7 +125,7 @@ def test_format_date_timezone() -> None:
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_filename_for_language(app):
+def test_get_filename_for_language(app: SphinxTestApp) -> None:
     get_filename = i18n.get_image_filename_for_language
     app.env.current_document.docname = 'index'
 

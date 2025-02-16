@@ -12,6 +12,8 @@ from unittest import mock
 
 import pytest
 
+from sphinx.testing.util import SphinxTestApp
+
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path

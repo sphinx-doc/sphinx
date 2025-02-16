@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx import addnodes
@@ -16,6 +18,9 @@ from sphinx.addnodes import (
 from sphinx.domains.rst import parse_directive
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 def test_parse_directive() -> None:
@@ -33,7 +38,7 @@ def test_parse_directive() -> None:
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_rst_directive(app):
+def test_rst_directive(app: SphinxTestApp) -> None:
     # bare
     text = '.. rst:directive:: toctree'
     doctree = restructuredtext.parse(app, text)
@@ -82,7 +87,7 @@ def test_rst_directive(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_rst_directive_with_argument(app):
+def test_rst_directive_with_argument(app: SphinxTestApp) -> None:
     text = '.. rst:directive:: .. toctree:: foo bar baz'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -116,7 +121,7 @@ def test_rst_directive_with_argument(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_rst_directive_option(app):
+def test_rst_directive_option(app: SphinxTestApp) -> None:
     text = '.. rst:directive:option:: foo'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -143,7 +148,7 @@ def test_rst_directive_option(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_rst_directive_option_with_argument(app):
+def test_rst_directive_option_with_argument(app: SphinxTestApp) -> None:
     text = '.. rst:directive:option:: foo: bar baz'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -179,7 +184,7 @@ def test_rst_directive_option_with_argument(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_rst_directive_option_type(app):
+def test_rst_directive_option_type(app: SphinxTestApp) -> None:
     text = '.. rst:directive:option:: foo\n   :type: directives.flags\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(
@@ -260,7 +265,7 @@ def test_rst_directive_and_directive_option(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_rst_role(app):
+def test_rst_role(app: SphinxTestApp) -> None:
     text = '.. rst:role:: ref'
     doctree = restructuredtext.parse(app, text)
     assert_node(
