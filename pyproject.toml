@@ -104,6 +104,10 @@ test = [
 ]
 
 [[project.authors]]
+name = "Adam Turner"
+email = "aa-turner@users.noreply.github.com"
+
+[[project.authors]]
 name = "Georg Brandl"
 email = "georg@python.org"
 
