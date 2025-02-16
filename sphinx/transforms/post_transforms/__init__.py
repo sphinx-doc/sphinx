@@ -125,7 +125,7 @@ class ReferencesResolver(SphinxPostTransform):
 
         try:
             # no new node found? try the missing-reference event
-            new_node = self.app.emit_firstresult(
+            new_node = self.app.events.emit_firstresult(
                 'missing-reference',
                 self.env,
                 node,
@@ -291,7 +291,7 @@ class ReferencesResolver(SphinxPostTransform):
         if not warn:
             return
 
-        if self.app.emit_firstresult('warn-missing-reference', domain, node):
+        if self.app.events.emit_firstresult('warn-missing-reference', domain, node):
             return
         elif domain and typ in domain.dangling_warnings:
             msg = domain.dangling_warnings[typ] % {'target': target}

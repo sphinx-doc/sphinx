@@ -276,7 +276,7 @@ class StandaloneHTMLBuilder(Builder):
         for filename in self._get_style_filenames():
             self.add_css_file(filename, priority=200)
 
-        for filename, attrs in self.app.registry.css_files:
+        for filename, attrs in self.env._registry.css_files:
             self.add_css_file(filename, **attrs)
 
         for filename, attrs in self.get_builder_config('css_files', 'html'):
@@ -303,7 +303,7 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('doctools.js', priority=200)
         self.add_js_file('sphinx_highlight.js', priority=200)
 
-        for filename, attrs in self.app.registry.js_files:
+        for filename, attrs in self.env._registry.js_files:
             self.add_js_file(filename or '', **attrs)
 
         for filename, attrs in self.get_builder_config('js_files', 'html'):
@@ -328,7 +328,7 @@ class StandaloneHTMLBuilder(Builder):
             return name
         else:
             # not given: choose a math_renderer from registered ones as possible
-            renderers = list(self.app.registry.html_inline_math_renderers)
+            renderers = list(self.env._registry.html_inline_math_renderers)
             if len(renderers) == 1:
                 # only default math_renderer (mathjax) is registered
                 return renderers[0]
@@ -516,9 +516,9 @@ class StandaloneHTMLBuilder(Builder):
                 ))
 
         # add assets registered after ``Builder.init()``.
-        for css_filename, attrs in self.app.registry.css_files:
+        for css_filename, attrs in self.env._registry.css_files:
             self.add_css_file(css_filename, **attrs)
-        for js_filename, attrs in self.app.registry.js_files:
+        for js_filename, attrs in self.env._registry.js_files:
             self.add_js_file(js_filename or '', **attrs)
 
         # back up _css_files and _js_files to allow adding CSS/JS files to a specific page.
@@ -1186,7 +1186,7 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files[:] = self._orig_js_files
 
         self.update_page_context(pagename, templatename, ctx, event_arg)
-        if new_template := self.app.emit_firstresult(
+        if new_template := self.events.emit_firstresult(
             'html-page-context', pagename, templatename, ctx, event_arg
         ):
             templatename = new_template

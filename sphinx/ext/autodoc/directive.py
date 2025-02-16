@@ -150,7 +150,7 @@ class AutodocDirective(SphinxDirective):
 
         # look up target Documenter
         objtype = self.name[4:]  # strip prefix (auto-).
-        doccls = self.env.app.registry.documenters[objtype]
+        doccls = self.env._registry.documenters[objtype]
 
         # process the options with the selected documenter's option_spec
         try:

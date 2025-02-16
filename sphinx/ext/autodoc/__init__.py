@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc.directive import DocumenterBridge
+    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata, OptionSpec, _RestifyMode
 
     _AutodocObjType = Literal[
@@ -380,7 +381,7 @@ class Documenter:
 
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
         """getattr() override for types such as Zope interfaces."""
-        return autodoc_attrgetter(self.env.app, obj, name, *defargs)
+        return autodoc_attrgetter(self.env._registry, obj, name, *defargs)
 
     @classmethod
     def can_document_member(
@@ -422,7 +423,7 @@ class Documenter:
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
         """Returns registered Documenter classes"""
-        return self.env.app.registry.documenters
+        return self.env._registry.documenters
 
     def add_line(self, line: str, source: str, *lineno: int) -> None:
         """Append one line of generated reST to the output."""
@@ -3137,9 +3138,11 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         return None
 
 
-def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
+def autodoc_attrgetter(
+    registry: SphinxComponentRegistry, obj: Any, name: str, *defargs: Any
+) -> Any:
     """Alternative getattr() for types"""
-    for typ, func in app.registry.autodoc_attrgetters.items():
+    for typ, func in registry.autodoc_attrgetters.items():
         if isinstance(obj, typ):
             return func(obj, name, *defargs)
 

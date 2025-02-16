@@ -109,6 +109,7 @@ def is_supported_builder(builder: Builder) -> bool:
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
     env = app.env
+    events = app.events
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore[attr-defined]
 
@@ -117,7 +118,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         if entry is False:
             return False
 
-        code_tags = app.emit_firstresult('viewcode-find-source', modname)
+        code_tags = events.emit_firstresult('viewcode-find-source', modname)
         if code_tags is None:
             try:
                 analyzer = ModuleAnalyzer.for_module(modname)
@@ -152,7 +153,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             fullname = signode.get('fullname')
             refname = modname
             if env.config.viewcode_follow_imported_members:
-                new_modname = app.emit_firstresult(
+                new_modname = events.emit_firstresult(
                     'viewcode-follow-imported', modname, fullname
                 )
                 if not new_modname:
@@ -239,7 +240,8 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
 
 def get_module_filename(app: Sphinx, modname: str) -> _StrPath | None:
     """Get module filename for *modname*."""
-    source_info = app.emit_firstresult('viewcode-find-source', modname)
+    events = app.events
+    source_info = events.emit_firstresult('viewcode-find-source', modname)
     if source_info:
         return None
     else:

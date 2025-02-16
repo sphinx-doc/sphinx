@@ -808,7 +808,7 @@ class StandardDomain(Domain):
         self.enumerable_nodes = copy(
             self.enumerable_nodes
         )  # create a copy for this instance
-        for node, settings in env.app.registry.enumerable_nodes.items():
+        for node, settings in env._registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
     def note_hyperlink_target(
