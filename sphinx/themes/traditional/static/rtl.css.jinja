@@ -1,7 +1,10 @@
 {% if theme_is_rtl|tobool %}
 
-/* Core RTL layout for Traditional theme */
-body {
+/* Core RTL layout */
+body,
+nav.contents,
+aside.topic,
+div.topic {
     direction: rtl !important;
 }
 
@@ -32,18 +35,9 @@ div.related li.right {
 }
 
 /* Text alignments */
-div.body p, 
-div.body dd, 
-div.body li {
-    text-align: right !important;
-}
-
-div.body td {
-    text-align: right !important;
-    padding: 0 0 2px 8px !important;
-}
-
-/* Headers */
+div.body p,
+div.body dd,
+div.body li,
 div.body h1,
 div.body h2,
 div.body h3,
@@ -51,6 +45,11 @@ div.body h4,
 div.body h5,
 div.body h6 {
     text-align: right !important;
+}
+
+div.body td {
+    text-align: right !important;
+    padding: 0 0 2px 8px !important;
 }
 
 /* Lists and margins */
@@ -112,15 +111,9 @@ p.admonition-title {
 }
 
 /* View code links */
-.viewcode-link, .viewcode-back {
+.viewcode-link,
+.viewcode-back {
     float: left !important;
-}
-
-/* Topic boxes */
-nav.contents,
-aside.topic,
-div.topic {
-    direction: rtl !important;
 }
 
 /* Equation numbers */

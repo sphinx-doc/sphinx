@@ -1,19 +1,34 @@
 {% if theme_is_rtl|tobool %}
 
 /* Core RTL layout for Epub theme */
-body {
+body,
+div.header div.rel,
+div.body p,
+div.body dd,
+div.body li,
+div.body blockquote,
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
     direction: rtl !important;
     text-align: right !important;
+}
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
+    border-bottom-color: {{ theme_headercolor2 }} !important;
 }
 
 /* Header adjustments */
 div.header .headertitle {
-    text-align: right !important;
     letter-spacing: 0 !important;
-}
-
-div.header div.rel {
-    direction: rtl !important;
 }
 
 p.logo {
@@ -47,25 +62,6 @@ aside.sidebar {
     {% endif %}
 }
 
-/* Content elements */
-div.body p, 
-div.body dd, 
-div.body li, 
-div.body blockquote {
-    direction: rtl !important;
-    text-align: right !important;
-}
-
-div.body h1,
-div.body h2,
-div.body h3,
-div.body h4,
-div.body h5,
-div.body h6 {
-    text-align: right !important;
-    border-bottom-color: {{ theme_headercolor2 }} !important;
-}
-
 /* Lists and margins */
 div.document ul {
     margin-right: 1.5em !important;
@@ -78,9 +74,8 @@ div.document dd {
 }
 
 /* Tables */
-table.docutils td, 
+table.docutils td,
 table.docutils th {
-    text-align: right !important;
     padding: 1px 5px 1px 8px !important;
 }
 
@@ -141,16 +136,16 @@ div.footer .left {
 }
 
 /* Image alignments */
-img.align-left, 
-.figure.align-left, 
+img.align-left,
+.figure.align-left,
 object.align-left {
     float: right !important;
     margin-left: 1em !important;
     margin-right: 0 !important;
 }
 
-img.align-right, 
-.figure.align-right, 
+img.align-right,
+.figure.align-right,
 object.align-right {
     float: left !important;
     margin-right: 1em !important;

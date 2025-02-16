@@ -1,8 +1,12 @@
 {% if theme_is_rtl|tobool %}
 
 /* Core RTL overrides for Agogo theme */
-body {
+body,
+div.header div.rel {
     direction: rtl !important;
+}
+
+body {
     text-align: right !important;
 }
 
@@ -10,10 +14,6 @@ body {
 div.header .headertitle {
     text-align: right !important;
     letter-spacing: 0 !important;
-}
-
-div.header div.rel {
-    direction: rtl !important;
 }
 
 p.logo {
@@ -127,20 +127,25 @@ aside.sidebar li.toctree-l3 a {
 }
 
 /* Image alignments */
-img.align-left, .figure.align-left, object.align-left {
+img.align-left,
+.figure.align-left,
+object.align-left {
     float: right !important;
     margin-left: 1em !important;
     margin-right: 0 !important;
 }
 
-img.align-right, .figure.align-right, object.align-right {
+img.align-right,
+.figure.align-right,
+object.align-right {
     float: left !important;
     margin-right: 1em !important;
     margin-left: 0 !important;
 }
 
 /* Viewcode extension */
-.viewcode-link, .viewcode-back {
+.viewcode-link,
+.viewcode-back {
     float: left !important;
 }
 
