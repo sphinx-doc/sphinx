@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core>=3.7"]
+requires = ["flit_core @ git+https://github.com/pypa/flit.git#subdirectory=flit_core"]
 build-backend = "flit_core.buildapi"
 
 # project metadata
@@ -13,7 +13,10 @@ urls.Documentation = "https://www.sphinx-doc.org/"
 urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
-license.text = "BSD-2-Clause"
+license = "BSD-2-Clause"
+license-files = [
+    "LICENSE.rst",
+]
 requires-python = ">=3.11"
 
 # Classifiers list: https://pypi.org/classifiers/
@@ -28,7 +31,6 @@ classifiers = [
     "Intended Audience :: Other Audience",
     "Intended Audience :: Science/Research",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
