@@ -187,7 +187,8 @@ Bugs fixed
   Patch by Akihiro Takizawa.
 * #13741: text builder: fix an infinite loop when processing CSV tables.
   Patch by Bénédikt Tran.
-
+* #13355: Don't include escaped title content in the search index.
+  Patch by Will Lachance.
 
 Testing
 -------

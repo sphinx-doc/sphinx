@@ -668,8 +668,9 @@ class StandaloneHTMLBuilder(Builder):
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
+        # get title as plain text
         title_node = self.env.longtitles.get(docname)
-        title = self.render_partial(title_node)['title'] if title_node else ''
+        title = title_node.astext() if title_node else ''
         self.index_page(docname, doctree, title)
 
     def finish(self) -> None:
