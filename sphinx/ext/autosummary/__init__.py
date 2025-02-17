@@ -180,6 +180,17 @@ class FakeDirective(DocumenterBridge):
         super().__init__(env, None, Options(), 0, state)
 
 
+def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
+    """Get an autodoc.Documenter class suitable for documenting the given
+    object.
+
+    *obj* is the Python object to be documented, and *parent* is an
+    another Python object (e.g. a module or a class) to which *obj*
+    belongs to.
+    """
+    return _get_documenter(obj, parent, registry=app.registry)
+
+
 def _get_documenter(
     obj: Any, parent: Any, *, registry: SphinxComponentRegistry
 ) -> type[Documenter]:
