@@ -191,11 +191,7 @@ strict_optional = false
 [[tool.mypy.overrides]]
 module = [
     "imagesize",
-    "pypi_attestations",
     "pyximport",
-    "sigstore.models",
-    "sigstore.verify",
-    "sigstore.verify.policy",
     "snowballstemmer",
 ]
 ignore_missing_imports = true
