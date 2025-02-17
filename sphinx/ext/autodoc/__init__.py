@@ -381,7 +381,7 @@ class Documenter:
 
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
         """getattr() override for types such as Zope interfaces."""
-        return autodoc_attrgetter(self.env._registry, obj, name, *defargs)
+        return autodoc_attrgetter(obj, name, *defargs, registry=self.env._registry)
 
     @classmethod
     def can_document_member(
@@ -3139,7 +3139,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
 
 
 def autodoc_attrgetter(
-    registry: SphinxComponentRegistry, obj: Any, name: str, *defargs: Any
+    obj: Any, name: str, *defargs: Any, registry: SphinxComponentRegistry
 ) -> Any:
     """Alternative getattr() for types"""
     for typ, func in registry.autodoc_attrgetters.items():
