@@ -35,14 +35,16 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'apidoc_exclude_patterns', (), 'env', types=frozenset({list, tuple})
     )
-    app.add_config_value('apidoc_maxdepth', 4, 'env', types=frozenset({int}))
-    app.add_config_value('apidoc_followlinks', False, 'env', types=frozenset({bool}))
+    app.add_config_value('apidoc_max_depth', 4, 'env', types=frozenset({int}))
+    app.add_config_value('apidoc_follow_links', False, 'env', types=frozenset({bool}))
     app.add_config_value(
-        'apidoc_separatemodules', False, 'env', types=frozenset({bool})
+        'apidoc_separate_modules', False, 'env', types=frozenset({bool})
     )
-    app.add_config_value('apidoc_includeprivate', False, 'env', types=frozenset({bool}))
-    app.add_config_value('apidoc_noheadings', False, 'env', types=frozenset({bool}))
-    app.add_config_value('apidoc_modulefirst', False, 'env', types=frozenset({bool}))
+    app.add_config_value(
+        'apidoc_include_private', False, 'env', types=frozenset({bool})
+    )
+    app.add_config_value('apidoc_no_headings', False, 'env', types=frozenset({bool}))
+    app.add_config_value('apidoc_module_first', False, 'env', types=frozenset({bool}))
     app.add_config_value(
         'apidoc_implicit_namespaces', False, 'env', types=frozenset({bool})
     )

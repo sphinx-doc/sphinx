@@ -63,8 +63,8 @@ def is_package_dir(
 
 def write_file(name: str, text: str, opts: ApidocOptions) -> Path:
     """Write the output file for module/package <name>."""
-    fname = Path(opts.destdir, f'{name}.{opts.suffix}')
-    if opts.dryrun:
+    fname = Path(opts.dest_dir, f'{name}.{opts.suffix}')
+    if opts.dry_run:
         if not opts.quiet:
             LOGGER.info(__('Would create file %s.'), fname)
         return fname
@@ -87,12 +87,12 @@ def create_module_file(
 ) -> Path:
     """Build the text of the file and write the file."""
     options = set(OPTIONS if not opts.automodule_options else opts.automodule_options)
-    if opts.includeprivate:
+    if opts.include_private:
         options.add('private-members')
 
     qualname = module_join(package, basename)
     context = {
-        'show_headings': not opts.noheadings,
+        'show_headings': not opts.no_headings,
         'basename': basename,
         'qualname': qualname,
         'automodule_options': sorted(options),
@@ -140,7 +140,7 @@ def create_package_file(
         module_join(master_package, subroot, modname) for modname in submodules
     ]
     options = OPTIONS.copy()
-    if opts.includeprivate:
+    if opts.include_private:
         options.add('private-members')
 
     pkgname = module_join(master_package, subroot)
@@ -149,11 +149,11 @@ def create_package_file(
         'subpackages': subpackages,
         'submodules': submodules,
         'is_namespace': is_namespace,
-        'modulefirst': opts.modulefirst,
-        'separatemodules': opts.separatemodules,
+        'modulefirst': opts.module_first,
+        'separatemodules': opts.separate_modules,
         'automodule_options': sorted(options),
-        'show_headings': not opts.noheadings,
-        'maxdepth': opts.maxdepth,
+        'show_headings': not opts.no_headings,
+        'maxdepth': opts.max_depth,
     }
     if user_template_dir is not None:
         template_path = [user_template_dir, template_dir]
@@ -165,7 +165,7 @@ def create_package_file(
     text = ReSTRenderer(template_path).render('package.rst.jinja', context)
     written.append(write_file(pkgname, text, opts))
 
-    if submodules and opts.separatemodules:
+    if submodules and opts.separate_modules:
         written.extend([
             create_module_file(None, submodule, opts, user_template_dir)
             for submodule in submodules
@@ -192,7 +192,7 @@ def create_modules_toc_file(
 
     context = {
         'header': opts.header,
-        'maxdepth': opts.maxdepth,
+        'maxdepth': opts.max_depth,
         'docnames': modules,
     }
     template_path: Sequence[str | os.PathLike[str]]
@@ -230,7 +230,7 @@ def is_skipped_module(
         # skip if the file doesn't exist
         return True
     # skip if the module has a "private" name
-    return filename.name.startswith('_') and not opts.includeprivate
+    return filename.name.startswith('_') and not opts.include_private
 
 
 def walk(
@@ -239,7 +239,7 @@ def walk(
     opts: ApidocOptions,
 ) -> Iterator[tuple[str, list[str], list[str]]]:
     """Walk through the directory and list files and subdirectories up."""
-    for root, subs, files in os.walk(root_path, followlinks=opts.followlinks):
+    for root, subs, files in os.walk(root_path, followlinks=opts.follow_links):
         # document only Python module files (that aren't excluded)
         files = sorted(
             f
@@ -249,7 +249,7 @@ def walk(
 
         # remove hidden ('.') and private ('_') directories, as well as
         # excluded dirs
-        if opts.includeprivate:
+        if opts.include_private:
             exclude_prefixes: tuple[str, ...] = ('.',)
         else:
             exclude_prefixes = ('.', '_')

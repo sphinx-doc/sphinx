@@ -24,11 +24,11 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 _BOOL_KEYS = frozenset({
-    'followlinks',
-    'separatemodules',
-    'includeprivate',
-    'noheadings',
-    'modulefirst',
+    'follow_links',
+    'separate_modules',
+    'include_private',
+    'no_headings',
+    'module_first',
     'implicit_namespaces',
 })
 _ALLOWED_KEYS = _BOOL_KEYS | frozenset({
@@ -36,7 +36,7 @@ _ALLOWED_KEYS = _BOOL_KEYS | frozenset({
     'destination',
     'exclude_patterns',
     'automodule_options',
-    'maxdepth',
+    'max_depth',
 })
 
 
@@ -80,14 +80,14 @@ def _run_apidoc_module(
     ]
 
     written_files, modules = recurse_tree(
-        args.module_path, exclude_patterns_compiled, args, args.templatedir
+        args.module_path, exclude_patterns_compiled, args, args.template_dir
     )
-    if args.tocfile:
+    if args.toc_file:
         written_files.append(
-            create_modules_toc_file(modules, args, args.tocfile, args.templatedir)
+            create_modules_toc_file(modules, args, args.toc_file, args.template_dir)
         )
     if args.remove_old:
-        _remove_old_files(written_files, args.destdir, args.suffix)
+        _remove_old_files(written_files, args.dest_dir, args.suffix)
 
 
 def _parse_module_options(
@@ -171,17 +171,17 @@ def _parse_module_options(
 
     # TODO template_dir
 
-    maxdepth = defaults.maxdepth
-    if 'maxdepth' in options:
-        if not isinstance(options['maxdepth'], int):
+    max_depth = defaults.max_depth
+    if 'max_depth' in options:
+        if not isinstance(options['max_depth'], int):
             LOGGER.warning(
                 __("apidoc_modules item %i '%s' must be an int"),
                 i,
-                'maxdepth',
+                'max_depth',
                 type='apidoc',
             )
         else:
-            maxdepth = options['maxdepth']
+            max_depth = options['max_depth']
 
     bool_options: dict[str, bool] = {}
     for key in sorted(_BOOL_KEYS):
@@ -214,17 +214,17 @@ def _parse_module_options(
         )
 
     return ApidocOptions(
-        destdir=dest_path,
+        dest_dir=dest_path,
         module_path=module_path,
         exclude_pattern=exclude_patterns,
         automodule_options=automodule_options,
-        maxdepth=maxdepth,
+        max_depth=max_depth,
         quiet=True,
-        followlinks=bool_options['followlinks'],
-        separatemodules=bool_options['separatemodules'],
-        includeprivate=bool_options['includeprivate'],
-        noheadings=bool_options['noheadings'],
-        modulefirst=bool_options['modulefirst'],
+        follow_links=bool_options['follow_links'],
+        separate_modules=bool_options['separate_modules'],
+        include_private=bool_options['include_private'],
+        no_headings=bool_options['no_headings'],
+        module_first=bool_options['module_first'],
         implicit_namespaces=bool_options['implicit_namespaces'],
     )
 
@@ -234,8 +234,8 @@ def _check_collection_of_strings(
     options: dict[str, Any],
     *,
     key: str,
-    default: Collection[str] | None = None,
-) -> Collection[str] | None:
+    default: Collection[str],
+) -> Collection[str]:
     """Check that a key's value is a collection of strings in the options.
 
     :returns: The value of the key, or None if invalid.

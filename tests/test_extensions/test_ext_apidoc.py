@@ -777,7 +777,7 @@ def test_remove_old_files(tmp_path: Path):
 
 
 @pytest.mark.sphinx(testroot='ext-apidoc')
-def test_sphinx_extension(app: SphinxTestApp):
+def test_sphinx_extension(app: SphinxTestApp) -> None:
     """Test running apidoc as an extension."""
     app.build()
     assert app.warning.getvalue() == ''

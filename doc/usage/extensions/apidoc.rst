@@ -58,12 +58,12 @@ The apidoc extension uses the following configuration values:
               'path': 'path/to/another_module',
               'destination': 'source/',
               'exclude_patterns': ['**/test*'],
-              'maxdepth': 4,
-              'followlinks': False,
-              'separatemodules': False,
-              'includeprivate': False,
-              'noheadings': False,
-              'modulefirst': False,
+              'max_depth': 4,
+              'follow_links': False,
+              'separate_modules': False,
+              'include_private': False,
+              'no_headings': False,
+              'module_first': False,
               'implicit_namespaces': False,
               'automodule_options': {
                   'members', 'show-inheritance', 'undoc-members'
@@ -86,23 +86,23 @@ The apidoc extension uses the following configuration values:
    :code-py:`'exclude_patterns'`
      See :confval:`apidoc_exclude_patterns`.
 
-   :code-py:`'maxdepth'`
-     See :confval:`apidoc_maxdepth`.
+   :code-py:`'max_depth'`
+     See :confval:`apidoc_max_depth`.
 
-   :code-py:`'followlinks'`
-     See :confval:`apidoc_followlinks`.
+   :code-py:`'follow_links'`
+     See :confval:`apidoc_follow_links`.
 
-   :code-py:`'separatemodules'`
-     See :confval:`apidoc_separatemodules`.
+   :code-py:`'separate_modules'`
+     See :confval:`apidoc_separate_modules`.
 
-   :code-py:`'includeprivate'`
-     See :confval:`apidoc_includeprivate`.
+   :code-py:`'include_private'`
+     See :confval:`apidoc_include_private`.
 
-   :code-py:`'noheadings'`
-     See :confval:`apidoc_noheadings`.
+   :code-py:`'no_headings'`
+     See :confval:`apidoc_no_headings`.
 
-   :code-py:`'modulefirst'`
-     See :confval:`apidoc_modulefirst`.
+   :code-py:`'module_first'`
+     See :confval:`apidoc_module_first`.
 
    :code-py:`'implicit_namespaces'`
      See :confval:`apidoc_implicit_namespaces`.
@@ -117,38 +117,38 @@ The apidoc extension uses the following configuration values:
    A sequence of patterns to exclude from generation.
    These may be literal paths or :py:mod:`fnmatch`-style patterns.
 
-.. confval:: apidoc_maxdepth
+.. confval:: apidoc_max_depth
    :type: :code-py:`int`
    :default: :code-py:`4`
 
    The maximum depth of submodules to show in the generated table of contents.
 
-.. confval:: apidoc_followlinks
+.. confval:: apidoc_follow_links
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
    Follow symbolic links.
 
-.. confval:: apidoc_separatemodules
+.. confval:: apidoc_separate_modules
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
    Put documentation for each module on an individual page.
 
-.. confval:: apidoc_includeprivate
+.. confval:: apidoc_include_private
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
    Generate documentation for '_private' modules with leading underscores.
 
-.. confval:: apidoc_noheadings
+.. confval:: apidoc_no_headings
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
    Do not create headings for the modules/packages.
    Useful when source docstrings already contain headings.
 
-.. confval:: apidoc_modulefirst
+.. confval:: apidoc_module_first
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
