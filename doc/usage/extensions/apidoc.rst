@@ -41,10 +41,12 @@ Configuration
 The apidoc extension uses the following configuration values:
 
 .. confval:: apidoc_modules
-   :type: :code-py:`Sequence[dict[str, Any]]`
+   :type: :code-py:`Sequence[dict[str, str | int | bool | Sequence[str] | Set[str]]`
    :default: :code-py:`()`
 
    A list or sequence of dictionaries describing modules to document.
+   If a value is left unspecified in any dictionary,
+   the general configuration value is used as the default.
 
    For example:
 
@@ -108,10 +110,8 @@ The apidoc extension uses the following configuration values:
    :code-py:`'automodule_options'`
      See :confval:`apidoc_automodule_options`.
 
-The following configuration values are used as the defaults for all modules:
-
 .. confval:: apidoc_exclude_patterns
-   :type: :code-py:`Sequence[dict[str, Any]]`
+   :type: :code-py:`Sequence[str]`
    :default: :code-py:`()`
 
    A sequence of patterns to exclude from generation.
@@ -166,7 +166,7 @@ The following configuration values are used as the defaults for all modules:
    Interpret module paths using :pep:`420` implicit namespaces.
 
 .. confval:: apidoc_automodule_options
-   :type: :code-py:`set[str]`
+   :type: :code-py:`Set[str]`
    :default: :code-py:`{'members', 'show-inheritance', 'undoc-members'}`
 
    Options to pass to generated :rst:dir:`automodule` directives.

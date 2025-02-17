@@ -73,8 +73,8 @@ class ApidocDefaults(TypedDict):
 def _collect_defaults(app: Sphinx) -> ApidocDefaults:
     """Collect the default values for apidoc options."""
     return {
-        'exclude_patterns': list(app.config.apidoc_exclude_patterns),
-        'automodule_options': set(app.config.apidoc_automodule_options),
+        'exclude_patterns': app.config.apidoc_exclude_patterns,
+        'automodule_options': frozenset(app.config.apidoc_automodule_options),
         'maxdepth': app.config.apidoc_maxdepth,
         'followlinks': app.config.apidoc_followlinks,
         'separatemodules': app.config.apidoc_separatemodules,

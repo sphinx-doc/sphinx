@@ -30,30 +30,35 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     # Require autodoc
     app.setup_extension('sphinx.ext.autodoc')
+
+    # Configuration values
     app.add_config_value(
         'apidoc_exclude_patterns', (), 'env', types=frozenset({list, tuple})
     )
-    app.add_config_value('apidoc_maxdepth', 4, 'env', types=int)
-    app.add_config_value('apidoc_followlinks', False, 'env', types=bool)
-    app.add_config_value('apidoc_separatemodules', False, 'env', types=bool)
-    app.add_config_value('apidoc_includeprivate', False, 'env', types=bool)
-    app.add_config_value('apidoc_noheadings', False, 'env', types=bool)
-    app.add_config_value('apidoc_modulefirst', False, 'env', types=bool)
-    app.add_config_value('apidoc_implicit_namespaces', False, 'env', types=bool)
+    app.add_config_value('apidoc_maxdepth', 4, 'env', types=frozenset({int}))
+    app.add_config_value('apidoc_followlinks', False, 'env', types=frozenset({bool}))
+    app.add_config_value(
+        'apidoc_separatemodules', False, 'env', types=frozenset({bool})
+    )
+    app.add_config_value('apidoc_includeprivate', False, 'env', types=frozenset({bool}))
+    app.add_config_value('apidoc_noheadings', False, 'env', types=frozenset({bool}))
+    app.add_config_value('apidoc_modulefirst', False, 'env', types=frozenset({bool}))
+    app.add_config_value(
+        'apidoc_implicit_namespaces', False, 'env', types=frozenset({bool})
+    )
     app.add_config_value(
         'apidoc_automodule_options',
-        ('members', 'undoc-members', 'show-inheritance'),
+        frozenset(('members', 'undoc-members', 'show-inheritance')),
         'env',
-        types=frozenset({list, set, tuple}),
+        types=frozenset({frozenset, list, set, tuple}),
     )
-    app.add_config_value(
-        'apidoc_modules',
-        (),
-        'env',
-        types=frozenset((list, set, tuple)),
-    )
+    app.add_config_value('apidoc_modules', (), 'env', types=frozenset({list, tuple}))
+
+    # Entry point to run apidoc
     app.connect('builder-inited', run_apidoc)
+
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,
+        'parallel_write_safe': True,
     }
