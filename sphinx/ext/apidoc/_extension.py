@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import fnmatch
-import os
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -105,7 +104,7 @@ def _parse_module_options(
 
     # module path should be absolute or relative to the conf directory
     try:
-        path = Path(os.fspath(options['path']))
+        path = Path(options['path'])
     except KeyError:
         LOGGER.warning(
             __("apidoc_modules item %i must have a 'path' key"), i, type='apidoc'
@@ -128,7 +127,7 @@ def _parse_module_options(
 
     # destination path should be relative to the source directory
     try:
-        destination = Path(os.fspath(options['destination']))
+        destination = Path(options['destination'])
     except KeyError:
         LOGGER.warning(
             __("apidoc_modules item %i must have a 'destination' key"),
