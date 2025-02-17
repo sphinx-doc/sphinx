@@ -6,7 +6,7 @@ import fnmatch
 import os
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypedDict, get_args
 
 from sphinx._cli.util.colour import bold
 from sphinx.ext.apidoc._generate import create_modules_toc_file, recurse_tree
@@ -15,19 +15,19 @@ from sphinx.locale import __
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, TypeAlias
 
     from sphinx.application import Sphinx
 
-_BOOL_KEYS = frozenset({
+_BOOL_KEYS: TypeAlias = Literal[
     'followlinks',
     'separatemodules',
     'includeprivate',
     'noheadings',
     'modulefirst',
     'implicit_namespaces',
-})
-_ALLOWED_KEYS = _BOOL_KEYS | frozenset({
+]
+_ALLOWED_KEYS = frozenset(get_args(_BOOL_KEYS)) | frozenset({
     'path',
     'destination',
     'exclude_patterns',
@@ -38,39 +38,65 @@ _ALLOWED_KEYS = _BOOL_KEYS | frozenset({
 
 def run_apidoc(app: Sphinx) -> None:
     """Run the apidoc extension."""
-    apidoc_defaults: dict[str, Any] = app.config.apidoc_defaults
+    defaults = _collect_defaults(app)
     apidoc_modules: Sequence[dict[str, Any]] = app.config.apidoc_modules
     srcdir: Path = app.srcdir
     confdir: Path = app.confdir
 
     LOGGER.info(bold(__('Running apidoc')))
 
-    if not isinstance(apidoc_defaults, dict):
-        LOGGER.warning(__('apidoc_defaults must be a dict'), type='apidoc')
-        return
-
     module_options: dict[str, Any]
     for i, module_options in enumerate(apidoc_modules):
         _run_apidoc_module(
             i,
-            defaults=apidoc_defaults,
             options=module_options,
+            defaults=defaults,
             srcdir=srcdir,
             confdir=confdir,
         )
 
 
+class ApidocDefaults(TypedDict):
+    """Default values for apidoc options."""
+
+    exclude_patterns: list[str]
+    automodule_options: set[str]
+    maxdepth: int
+    followlinks: bool
+    separatemodules: bool
+    includeprivate: bool
+    noheadings: bool
+    modulefirst: bool
+    implicit_namespaces: bool
+
+
+def _collect_defaults(app: Sphinx) -> ApidocDefaults:
+    """Collect the default values for apidoc options."""
+    return {
+        'exclude_patterns': list(app.config.apidoc_exclude_patterns),
+        'automodule_options': set(app.config.apidoc_automodule_options),
+        'maxdepth': app.config.apidoc_maxdepth,
+        'followlinks': app.config.apidoc_followlinks,
+        'separatemodules': app.config.apidoc_separatemodules,
+        'includeprivate': app.config.apidoc_includeprivate,
+        'noheadings': app.config.apidoc_noheadings,
+        'modulefirst': app.config.apidoc_modulefirst,
+        'implicit_namespaces': app.config.apidoc_implicit_namespaces,
+    }
+
+
 def _run_apidoc_module(
     i: int,
     *,
-    defaults: dict[str, Any],
     options: dict[str, Any],
+    defaults: ApidocDefaults,
     srcdir: Path,
     confdir: Path,
 ) -> None:
     """Run apidoc for a single module."""
-    options = defaults | options
-    args = _parse_module_options(i, options=options, srcdir=srcdir, confdir=confdir)
+    args = _parse_module_options(
+        i, options=options, defaults=defaults, srcdir=srcdir, confdir=confdir
+    )
     if args is None:
         return
 
@@ -90,7 +116,12 @@ def _run_apidoc_module(
 
 
 def _parse_module_options(
-    i: int, *, options: dict[str, Any], srcdir: Path, confdir: Path
+    i: int,
+    *,
+    options: dict[str, Any],
+    defaults: ApidocDefaults,
+    srcdir: Path,
+    confdir: Path,
 ) -> ApidocOptions | None:
     if not isinstance(options, dict):
         LOGGER.warning(__('apidoc_modules item %i must be a dict'), i, type='apidoc')
@@ -156,14 +187,19 @@ def _parse_module_options(
         return None
 
     # exclude patterns should be absolute or relative to the conf directory
+    if (
+        exclude_patterns_rel := _check_list_of_strings(
+            i, options, key='exclude_patterns'
+        )
+    ) is None:
+        exclude_patterns_rel = defaults['exclude_patterns']
     exclude_patterns: list[str] = [
-        str(confdir / pattern)
-        for pattern in _check_list_of_strings(i, options, key='exclude_patterns')
+        str(confdir / pattern) for pattern in exclude_patterns_rel
     ]
 
     # TODO template_dir
 
-    maxdepth = 4
+    maxdepth = defaults['maxdepth']
     if 'maxdepth' in options:
         if not isinstance(options['maxdepth'], int):
             LOGGER.warning(
@@ -175,25 +211,29 @@ def _parse_module_options(
         else:
             maxdepth = options['maxdepth']
 
-    extra_options = {}
-    for key in sorted(_BOOL_KEYS):
+    bool_options: dict[_BOOL_KEYS, bool] = {}
+    key: _BOOL_KEYS
+    for key in sorted(get_args(_BOOL_KEYS)):
         if key not in options:
-            continue
-        if not isinstance(options[key], bool):
+            bool_options[key] = defaults[key]
+        elif not isinstance(options[key], bool):
             LOGGER.warning(
                 __("apidoc_modules item %i '%s' must be a boolean"),
                 i,
                 key,
                 type='apidoc',
             )
-            continue
-        extra_options[key] = options[key]
+            bool_options[key] = defaults[key]
+        else:
+            bool_options[key] = options[key]
 
-    if _options := _check_list_of_strings(i, options, key='automodule_options'):
+    if (
+        _options := _check_list_of_strings(i, options, key='automodule_options')
+    ) is not None:
+        # TODO per-module automodule_options
         automodule_options = set(_options)
     else:
-        # TODO per-module automodule_options
-        automodule_options = {'members', 'undoc-members', 'show-inheritance'}
+        automodule_options = defaults['automodule_options']
 
     if diff := set(options) - _ALLOWED_KEYS:
         LOGGER.warning(
@@ -203,26 +243,26 @@ def _parse_module_options(
             type='apidoc',
         )
 
-    return ApidocOptions(
+    return ApidocOptions(  # type: ignore[misc]
         destdir=dest_path,
         module_path=module_path,
         exclude_pattern=exclude_patterns,
         automodule_options=automodule_options,
         maxdepth=maxdepth,
         quiet=True,
-        **extra_options,
+        **bool_options,  # type: ignore[arg-type]
     )
 
 
 def _check_list_of_strings(
     index: int, options: dict[str, Any], *, key: str
-) -> list[str]:
+) -> list[str] | None:
     """Check that a key's value is a list of strings in the options.
 
     :returns: the value of the key, or the empty list if invalid.
     """
     if key not in options:
-        return []
+        return None
     if not isinstance(options[key], list | tuple | set | frozenset):
         LOGGER.warning(
             __("apidoc_modules item %i '%s' must be a sequence"),
@@ -230,7 +270,7 @@ def _check_list_of_strings(
             key,
             type='apidoc',
         )
-        return []
+        return None
     for item in options[key]:
         if not isinstance(item, str):
             LOGGER.warning(
@@ -239,5 +279,5 @@ def _check_list_of_strings(
                 key,
                 type='apidoc',
             )
-            return []
+            return None
     return options[key]

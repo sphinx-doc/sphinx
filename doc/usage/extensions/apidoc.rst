@@ -82,53 +82,91 @@ The apidoc extension uses the following configuration values:
      and will be created if it does not exist.
 
    :code-py:`'exclude_patterns'`
-     A sequence of patterns to exclude from generation.
-     These may be literal paths or :py:mod:`fnmatch`-style patterns.
-     Defaults to :code-py:`()`.
+     See :confval:`apidoc_exclude_patterns`.
 
    :code-py:`'maxdepth'`
-     The maximum depth of submodules to show in the generated table of contents.
-     Defaults to :code-py:`4`.
+     See :confval:`apidoc_maxdepth`.
 
    :code-py:`'followlinks'`
-     Follow symbolic links.
-     Defaults to :code-py:`False`.
+     See :confval:`apidoc_followlinks`.
 
    :code-py:`'separatemodules'`
-     Put documentation for each module on an individual page.
-     Defaults to :code-py:`False`.
+     See :confval:`apidoc_separatemodules`.
 
    :code-py:`'includeprivate'`
-     Generate documentation for '_private' modules with leading underscores.
-     Defaults to :code-py:`False`.
+     See :confval:`apidoc_includeprivate`.
 
    :code-py:`'noheadings'`
-     Do not create headings for the modules/packages.
-     Useful when source docstrings already contain headings.
-     Defaults to :code-py:`False`.
+     See :confval:`apidoc_noheadings`.
 
    :code-py:`'modulefirst'`
-     Place module documentation before submodule documentation.
-     Defaults to :code-py:`False`.
+     See :confval:`apidoc_modulefirst`.
 
    :code-py:`'implicit_namespaces'`
-     By default sphinx-apidoc processes sys.path searching for modules only.
-     Python 3.3 introduced :pep:`420` implicit namespaces that allow module path
-     structures such as ``foo/bar/module.py`` or ``foo/bar/baz/__init__.py``
-     (notice that ``bar`` and ``foo`` are namespaces, not modules).
-
-     Interpret module paths using :pep:`420` implicit namespaces.
-     Defaults to :code-py:`False`.
+     See :confval:`apidoc_implicit_namespaces`  
 
    :code-py:`'automodule_options'`
-     Options to pass to generated :rst:dir:`automodule` directives.
-     Defaults to :code-py:`{'members', 'show-inheritance', 'undoc-members'}`.
+     See :confval:`apidoc_automodule_options`.  
 
+The following configuration values are used as the defaults for all modules:
 
-.. confval:: apidoc_defaults
-   :type: :code-py:`dict[str, Any]`
-   :default: :code-py:`{}`
+.. confval:: apidoc_exclude_patterns
+   :type: :code-py:`Sequence[dict[str, Any]]`
+   :default: :code-py:`()`
 
-    This dict contains the same keys as :confval:`apidoc_modules`,
-    and is used as a default for all modules.
-    Keys specified in :confval:`apidoc_modules` take precedence when merging.
+   A sequence of patterns to exclude from generation.
+   These may be literal paths or :py:mod:`fnmatch`-style patterns.
+
+.. confval:: apidoc_maxdepth
+   :type: :code-py:`int`
+   :default: :code-py:`4`
+
+   The maximum depth of submodules to show in the generated table of contents.
+
+.. confval:: apidoc_followlinks
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   Follow symbolic links.
+
+.. confval:: apidoc_separatemodules
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   Put documentation for each module on an individual page.
+
+.. confval:: apidoc_includeprivate
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   Generate documentation for '_private' modules with leading underscores.
+
+.. confval:: apidoc_noheadings
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   Do not create headings for the modules/packages.
+   Useful when source docstrings already contain headings.
+
+.. confval:: apidoc_modulefirst
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   Place module documentation before submodule documentation.
+
+.. confval:: apidoc_implicit_namespaces
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   By default sphinx-apidoc processes sys.path searching for modules only.
+   Python 3.3 introduced :pep:`420` implicit namespaces that allow module path
+   structures such as ``foo/bar/module.py`` or ``foo/bar/baz/__init__.py``
+   (notice that ``bar`` and ``foo`` are namespaces, not modules).
+
+   Interpret module paths using :pep:`420` implicit namespaces.
+
+.. confval:: apidoc_automodule_options
+   :type: :code-py:`set[str]`
+   :default: :code-py:`{'members', 'show-inheritance', 'undoc-members'}`
+
+   Options to pass to generated :rst:dir:`automodule` directives.

@@ -5,13 +5,11 @@ sys.path.insert(0, str(Path.cwd().resolve() / 'src'))
 
 extensions = ['sphinx.ext.apidoc']
 
-apidoc_defaults = {
-    'includeprivate': True,
-    'followlinks': False,
-    'separatemodules': True,
-    'noheadings': False,
-    'modulefirst': True,
-}
+apidoc_includeprivate = True
+apidoc_followlinks = False
+apidoc_separatemodules = True
+apidoc_noheadings = False
+apidoc_modulefirst = True
 apidoc_modules = [
     {
         'path': 'src',
