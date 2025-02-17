@@ -12,20 +12,18 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import pending_xref, pending_xref_condition
+from sphinx.locale import _
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.util.inspect import signature_from_str
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
-    from typing import Any, Final
+    from typing import Any
 
     from docutils.nodes import Element, Node
 
     from sphinx.addnodes import desc_signature
     from sphinx.environment import BuildEnvironment
-
-ABBREVIATION_POSITIONAL_ONLY: Final = 'Positional-only parameter separator (PEP 570)'
-ABBREVIATION_KEYWORD_ONLY: Final = 'Keyword-only parameters separator (PEP 3102)'
 
 
 def parse_reftarget(
@@ -528,7 +526,7 @@ def _parse_arglist(
 def _positional_only_separator() -> addnodes.desc_parameter:
     # PEP 570: Separator for positional only parameters: /
     positional_only_abbr = nodes.abbreviation(
-        '/', '/', explanation=ABBREVIATION_POSITIONAL_ONLY
+        '/', '/', explanation=_('Positional-only parameter separator (PEP 570)')
     )
     positional_only_op = addnodes.desc_sig_operator(
         '/', '', positional_only_abbr, classes=['positional-only-separator']
@@ -539,7 +537,7 @@ def _positional_only_separator() -> addnodes.desc_parameter:
 def _keyword_only_separator() -> addnodes.desc_parameter:
     # PEP 3102: Separator for keyword only parameters: *
     keyword_only_abbr = nodes.abbreviation(
-        '*', '*', explanation=ABBREVIATION_KEYWORD_ONLY
+        '*', '*', explanation=_('Keyword-only parameters separator (PEP 3102)')
     )
     keyword_only_op = addnodes.desc_sig_operator(
         '*', '', keyword_only_abbr, classes=['keyword-only-separator']
