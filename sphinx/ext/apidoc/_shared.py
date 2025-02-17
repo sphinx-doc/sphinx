@@ -7,7 +7,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Sequence, Set
     from pathlib import Path
     from typing import Final
 
@@ -47,7 +47,7 @@ class ApidocOptions:
     noheadings: bool = False
     modulefirst: bool = False
     implicit_namespaces: bool = False
-    automodule_options: set[str] = dataclasses.field(default_factory=set)
+    automodule_options: Set[str] = dataclasses.field(default_factory=set)
     suffix: str = 'rst'
 
     remove_old: bool = True
