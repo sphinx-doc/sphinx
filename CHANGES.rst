@@ -111,6 +111,9 @@ Features added
   Patch by Adam Turner.
 * #13335: Use ``misc.highlighting_failure`` subtype for Pygments unknown lexers.
   Patch by Bart Kamphorst.
+* #13354: Insert abbreviation nodes (hover text) for positional- and keyword-only
+  separators in Python signatures.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------

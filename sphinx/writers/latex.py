@@ -2082,11 +2082,12 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}}')
 
     def visit_abbreviation(self, node: Element) -> None:
+        explanation = node.get('explanation', '')
         abbr = node.astext()
         self.body.append(r'\sphinxstyleabbreviation{')
         # spell out the explanation once
-        if node.hasattr('explanation') and abbr not in self.handled_abbrs:
-            self.context.append('} (%s)' % self.encode(node['explanation']))
+        if explanation and abbr not in self.handled_abbrs:
+            self.context.append('} (%s)' % self.encode(explanation))
             self.handled_abbrs.add(abbr)
         else:
             self.context.append('}')

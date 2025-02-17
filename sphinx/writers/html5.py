@@ -906,8 +906,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def visit_abbreviation(self, node: Element) -> None:
         attrs = {}
-        if node.hasattr('explanation'):
-            attrs['title'] = node['explanation']
+        if explanation := node.get('explanation', ''):
+            attrs['title'] = explanation
         self.body.append(self.starttag(node, 'abbr', '', **attrs))
 
     def depart_abbreviation(self, node: Element) -> None:

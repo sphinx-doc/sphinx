@@ -12,6 +12,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import pending_xref, pending_xref_condition
+from sphinx.locale import _
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.util.inspect import signature_from_str
 
@@ -479,19 +480,13 @@ def _parse_arglist(
     last_kind = None
     for param in sig.parameters.values():
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
-            # PEP-570: Separator for Positional Only Parameter: /
-            params += addnodes.desc_parameter(
-                '', '', addnodes.desc_sig_operator('', '/')
-            )
+            params += _positional_only_separator()
         if param.kind == param.KEYWORD_ONLY and last_kind in {
             param.POSITIONAL_OR_KEYWORD,
             param.POSITIONAL_ONLY,
             None,
         }:
-            # PEP-3102: Separator for Keyword Only Parameter: *
-            params += addnodes.desc_parameter(
-                '', '', addnodes.desc_sig_operator('', '*')
-            )
+            params += _keyword_only_separator()
 
         node = addnodes.desc_parameter()
         if param.kind == param.VAR_POSITIONAL:
@@ -523,10 +518,31 @@ def _parse_arglist(
         last_kind = param.kind
 
     if last_kind == Parameter.POSITIONAL_ONLY:
-        # PEP-570: Separator for Positional Only Parameter: /
-        params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
+        params += _positional_only_separator()
 
     return params
+
+
+def _positional_only_separator() -> addnodes.desc_parameter:
+    # PEP 570: Separator for positional only parameters: /
+    positional_only_abbr = nodes.abbreviation(
+        '/', '/', explanation=_('Positional-only parameter separator (PEP 570)')
+    )
+    positional_only_op = addnodes.desc_sig_operator(
+        '/', '', positional_only_abbr, classes=['positional-only-separator']
+    )
+    return addnodes.desc_parameter('/', '', positional_only_op)
+
+
+def _keyword_only_separator() -> addnodes.desc_parameter:
+    # PEP 3102: Separator for keyword only parameters: *
+    keyword_only_abbr = nodes.abbreviation(
+        '*', '*', explanation=_('Keyword-only parameters separator (PEP 3102)')
+    )
+    keyword_only_op = addnodes.desc_sig_operator(
+        '*', '', keyword_only_abbr, classes=['keyword-only-separator']
+    )
+    return addnodes.desc_parameter('*', '', keyword_only_op)
 
 
 def _pseudo_parse_arglist(

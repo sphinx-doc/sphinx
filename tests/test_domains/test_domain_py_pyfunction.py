@@ -259,7 +259,10 @@ def test_pyfunction_signature_full(app):
         doctree[1][0][1],
         [
             desc_parameterlist,
-            ([desc_parameter, nodes.inline, '*'], [desc_parameter, desc_sig_name, 'a']),
+            (
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '*'],
+                [desc_parameter, desc_sig_name, 'a'],
+            ),
         ],
     )
 
@@ -272,9 +275,9 @@ def test_pyfunction_signature_full(app):
             desc_parameterlist,
             (
                 [desc_parameter, desc_sig_name, 'a'],
-                [desc_parameter, desc_sig_operator, '/'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '/'],
                 [desc_parameter, desc_sig_name, 'b'],
-                [desc_parameter, desc_sig_operator, '*'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '*'],
                 [desc_parameter, desc_sig_name, 'c'],
             ),
         ],
@@ -289,8 +292,8 @@ def test_pyfunction_signature_full(app):
             desc_parameterlist,
             (
                 [desc_parameter, desc_sig_name, 'a'],
-                [desc_parameter, desc_sig_operator, '/'],
-                [desc_parameter, desc_sig_operator, '*'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '/'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '*'],
                 [desc_parameter, desc_sig_name, 'b'],
             ),
         ],
@@ -305,7 +308,7 @@ def test_pyfunction_signature_full(app):
             desc_parameterlist,
             (
                 [desc_parameter, desc_sig_name, 'a'],
-                [desc_parameter, desc_sig_operator, '/'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '/'],
             ),
         ],
     )
