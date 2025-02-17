@@ -103,10 +103,10 @@ The apidoc extension uses the following configuration values:
      See :confval:`apidoc_modulefirst`.
 
    :code-py:`'implicit_namespaces'`
-     See :confval:`apidoc_implicit_namespaces`  
+     See :confval:`apidoc_implicit_namespaces`.
 
    :code-py:`'automodule_options'`
-     See :confval:`apidoc_automodule_options`.  
+     See :confval:`apidoc_automodule_options`.
 
 The following configuration values are used as the defaults for all modules:
 
