@@ -352,11 +352,14 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                     multi_line_parameter_list,
                     trailing_comma,
                 )
-            except SyntaxError:
+            except SyntaxError as exc:
                 # fallback to parse arglist original parser
                 # (this may happen if the argument list is incorrectly used
                 # as a list of bases when documenting a class)
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
+                logger.debug(
+                    'syntax error in arglist (%r): %s', arglist, exc, location=signode
+                )
                 _pseudo_parse_arglist(
                     signode,
                     arglist,

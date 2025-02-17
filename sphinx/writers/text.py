@@ -1237,8 +1237,8 @@ class TextTranslator(SphinxTranslator):
         self.add_text('')
 
     def depart_abbreviation(self, node: Element) -> None:
-        if node.hasattr('explanation'):
-            self.add_text(' (%s)' % node['explanation'])
+        if explanation := node.get('explanation', ''):
+            self.add_text(f' ({explanation})')
 
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)

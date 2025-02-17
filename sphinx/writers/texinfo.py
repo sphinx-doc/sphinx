@@ -1537,10 +1537,11 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_abbreviation(self, node: Element) -> None:
+        explanation = node.get('explanation', '')
         abbr = node.astext()
         self.body.append('@abbr{')
-        if node.hasattr('explanation') and abbr not in self.handled_abbrs:
-            self.context.append(',%s}' % self.escape_arg(node['explanation']))
+        if explanation and abbr not in self.handled_abbrs:
+            self.context.append(',%s}' % self.escape_arg(explanation))
             self.handled_abbrs.add(abbr)
         else:
             self.context.append('}')
