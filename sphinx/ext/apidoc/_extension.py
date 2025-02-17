@@ -163,13 +163,11 @@ def _parse_module_options(
         return None
 
     # exclude patterns should be absolute or relative to the conf directory
-    exclude_patterns_rel = _check_collection_of_strings(
-        i, options, key='exclude_patterns'
-    )
-    if exclude_patterns_rel is None:
-        exclude_patterns_rel = defaults.exclude_patterns
     exclude_patterns: list[str] = [
-        str(confdir / pattern) for pattern in exclude_patterns_rel
+        str(confdir / pattern)
+        for pattern in _check_collection_of_strings(
+            i, options, key='exclude_patterns', default=defaults.exclude_patterns
+        )
     ]
 
     # TODO template_dir
@@ -201,16 +199,14 @@ def _parse_module_options(
         else:
             bool_options[key] = options[key]
 
-    automodule_options_ = _check_collection_of_strings(
-        i, options, key='automodule_options'
+    # TODO per-module automodule_options
+    automodule_options = frozenset(
+        _check_collection_of_strings(
+            i, options, key='automodule_options', default=defaults.automodule_options
+        )
     )
-    if automodule_options_ is not None:
-        # TODO per-module automodule_options
-        automodule_options = frozenset(automodule_options_)
-    else:
-        automodule_options = defaults.automodule_options
 
-    if diff := set(options) - _ALLOWED_KEYS:
+    if diff := options.keys() - _ALLOWED_KEYS:
         LOGGER.warning(
             __('apidoc_modules item %i has unexpected keys: %s'),
             i,
@@ -235,14 +231,18 @@ def _parse_module_options(
 
 
 def _check_collection_of_strings(
-    index: int, options: dict[str, Any], *, key: str
+    index: int,
+    options: dict[str, Any],
+    *,
+    key: str,
+    default: Collection[str] | None = None,
 ) -> Collection[str] | None:
     """Check that a key's value is a collection of strings in the options.
 
     :returns: The value of the key, or None if invalid.
     """
     if key not in options:
-        return None
+        return default
     if not isinstance(options[key], list | tuple | set | frozenset):
         LOGGER.warning(
             __("apidoc_modules item %i '%s' must be a sequence"),
@@ -250,7 +250,7 @@ def _check_collection_of_strings(
             key,
             type='apidoc',
         )
-        return None
+        return default
     for item in options[key]:
         if not isinstance(item, str):
             LOGGER.warning(
@@ -259,5 +259,5 @@ def _check_collection_of_strings(
                 key,
                 type='apidoc',
             )
-            return None
+            return default
     return options[key]
