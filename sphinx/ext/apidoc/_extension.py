@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import dataclasses
 import fnmatch
 import os
 import re
@@ -11,15 +10,19 @@ from typing import TYPE_CHECKING
 
 from sphinx._cli.util.colour import bold
 from sphinx.ext.apidoc._generate import create_modules_toc_file, recurse_tree
-from sphinx.ext.apidoc._shared import LOGGER, ApidocOptions, _remove_old_files
+from sphinx.ext.apidoc._shared import (
+    LOGGER,
+    ApidocDefaults,
+    ApidocOptions,
+    _remove_old_files,
+)
 from sphinx.locale import __
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Sequence
-    from typing import Any, Self
+    from typing import Any
 
     from sphinx.application import Sphinx
-    from sphinx.config import Config
 
 _BOOL_KEYS = frozenset({
     'followlinks',
@@ -55,36 +58,6 @@ def run_apidoc(app: Sphinx) -> None:
             defaults=defaults,
             srcdir=srcdir,
             confdir=confdir,
-        )
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
-class ApidocDefaults:
-    """Default values for apidoc options."""
-
-    exclude_patterns: list[str]
-    automodule_options: frozenset[str]
-    maxdepth: int
-    followlinks: bool
-    separatemodules: bool
-    includeprivate: bool
-    noheadings: bool
-    modulefirst: bool
-    implicit_namespaces: bool
-
-    @classmethod
-    def from_config(cls, config: Config, /) -> Self:
-        """Collect the default values for apidoc options."""
-        return cls(
-            exclude_patterns=config.apidoc_exclude_patterns,
-            automodule_options=frozenset(config.apidoc_automodule_options),
-            maxdepth=config.apidoc_maxdepth,
-            followlinks=config.apidoc_followlinks,
-            separatemodules=config.apidoc_separatemodules,
-            includeprivate=config.apidoc_includeprivate,
-            noheadings=config.apidoc_noheadings,
-            modulefirst=config.apidoc_modulefirst,
-            implicit_namespaces=config.apidoc_implicit_namespaces,
         )
 
 

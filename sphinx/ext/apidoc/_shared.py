@@ -9,7 +9,9 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from collections.abc import Sequence, Set
     from pathlib import Path
-    from typing import Final
+    from typing import Final, Self
+
+    from sphinx.config import Config
 
 LOGGER: Final[logging.SphinxLoggerAdapter] = logging.getLogger('sphinx.ext.apidoc')
 
@@ -65,3 +67,33 @@ class ApidocOptions:
     release: str | None = None
     extensions: Sequence[str] | None = None
     templatedir: str | None = None
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class ApidocDefaults:
+    """Default values for apidoc options."""
+
+    exclude_patterns: list[str]
+    automodule_options: frozenset[str]
+    maxdepth: int
+    followlinks: bool
+    separatemodules: bool
+    includeprivate: bool
+    noheadings: bool
+    modulefirst: bool
+    implicit_namespaces: bool
+
+    @classmethod
+    def from_config(cls, config: Config, /) -> Self:
+        """Collect the default values for apidoc options."""
+        return cls(
+            exclude_patterns=config.apidoc_exclude_patterns,
+            automodule_options=frozenset(config.apidoc_automodule_options),
+            maxdepth=config.apidoc_maxdepth,
+            followlinks=config.apidoc_followlinks,
+            separatemodules=config.apidoc_separatemodules,
+            includeprivate=config.apidoc_includeprivate,
+            noheadings=config.apidoc_noheadings,
+            modulefirst=config.apidoc_modulefirst,
+            implicit_namespaces=config.apidoc_implicit_namespaces,
+        )
