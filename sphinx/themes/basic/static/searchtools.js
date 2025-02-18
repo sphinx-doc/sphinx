@@ -324,6 +324,14 @@ const Search = {
     const titles = Search._index.titles;
     const allTitles = Search._index.alltitles;
     const indexEntries = Search._index.indexentries;
+    const htmlEscape = (text) => {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
 
     // Collect multiple result groups to be sorted separately and then ordered.
     // Each is an array of [docname, title, anchor, descr, score, filename, kind].
@@ -340,7 +348,9 @@ const Search = {
           const boost = titles[file] === title ? 1 : 0;  // add a boost for document titles
           normalResults.push([
             docNames[file],
-            titles[file] !== title ? `${titles[file]} > ${title}` : title,
+            htmlEscape(
+              titles[file] !== title ? `${titles[file]} > ${title}` : title
+            ),
             id !== null ? "#" + id : "",
             null,
             score + boost,
@@ -358,7 +368,7 @@ const Search = {
           const score = Math.round(100 * queryLower.length / entry.length);
           const result = [
             docNames[file],
-            titles[file],
+            htmlEscape(titles[file]),
             id ? "#" + id : "",
             null,
             score,
