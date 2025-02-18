@@ -1,11 +1,6 @@
-"""Test the autodoc extension.
-
-This tests mainly the Documenters; the auto directives are tested in a test
-source file translated by test_build.
-"""
-
 from __future__ import annotations
 
+import types
 from functools import singledispatchmethod
 
 import pytest
@@ -40,8 +35,8 @@ class Foo:
 
 
 def test_is_singledispatch_method():
-    obj = Foo.__dict__['meth']
-    assert isinstance(obj, singledispatchmethod)
+    assert isinstance(Foo.__dict__['meth'], singledispatchmethod)
+    assert isinstance(Foo.meth, types.FunctionType)
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
