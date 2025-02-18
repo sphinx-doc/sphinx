@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -11,13 +13,16 @@ from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
     def __init__(self) -> None:
         super().__init__()
         builder = mock.Mock()
         builder.config.templates_path = []
-        builder.app.translator = None
+        builder._translator = None
         self.init(builder)
 
 
@@ -123,7 +128,7 @@ def test_copy_asset(tmp_path):
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_copy_asset_template(app):
+def test_copy_asset_template(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     expected_msg = r'^Writing evaluated template result to [^\n]*\bAPI.html$'
@@ -132,7 +137,7 @@ def test_copy_asset_template(app):
 
 
 @pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
-def test_copy_asset_overwrite(app):
+def test_copy_asset_overwrite(app: SphinxTestApp) -> None:
     app.build()
     src = app.srcdir / 'myext_static' / 'custom-styles.css'
     dst = app.outdir / '_static' / 'custom-styles.css'
@@ -143,11 +148,11 @@ def test_copy_asset_overwrite(app):
     )
 
 
-def test_template_basename():
-    assert _template_basename('asset.txt') is None
-    assert _template_basename('asset.txt.jinja') == 'asset.txt'
-    assert _template_basename('sidebar.html.jinja') == 'sidebar.html'
+def test_template_basename() -> None:
+    assert _template_basename(Path('asset.txt')) is None
+    assert _template_basename(Path('asset.txt.jinja')) == Path('asset.txt')
+    assert _template_basename(Path('sidebar.html.jinja')) == Path('sidebar.html')
 
 
-def test_legacy_template_basename():
-    assert _template_basename('asset.txt_t') == 'asset.txt'
+def test_legacy_template_basename() -> None:
+    assert _template_basename(Path('asset.txt_t')) == Path('asset.txt')

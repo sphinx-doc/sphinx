@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import codecs
-import os.path
 import pickle
 import re
 import time
 from contextlib import nullcontext
+from pathlib import Path
 from typing import TYPE_CHECKING, final
 
 from docutils import nodes
@@ -33,7 +33,7 @@ from sphinx.util.build_phase import BuildPhase
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
-from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
+from sphinx.util.osutil import ensuredir, relative_uri, relpath
 from sphinx.util.parallel import (
     ParallelTasks,
     SerialTasks,
@@ -47,7 +47,7 @@ from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
-    from pathlib import Path
+    from gettext import NullTranslations
     from typing import Any, Literal
 
     from docutils.nodes import Node
@@ -136,9 +136,13 @@ class Builder:
         self.parallel_ok = False
         self.finish_tasks: Any = None
 
+    @property
+    def _translator(self) -> NullTranslations | None:
+        return self.app.translator
+
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
-        return self.app.registry.get_translator_class(self)
+        return self.env._registry.get_translator_class(self)
 
     def create_translator(self, *args: Any) -> nodes.NodeVisitor:
         """Return an instance of translator.
@@ -146,7 +150,7 @@ class Builder:
         This method returns an instance of ``default_translator_class`` by default.
         Users can replace the translator class with ``app.set_translator()`` API.
         """
-        return self.app.registry.create_translator(self, *args)
+        return self.env._registry.create_translator(self, *args)
 
     # helper methods
     def init(self) -> None:
@@ -246,7 +250,7 @@ class Builder:
             return
 
         def cat2relpath(cat: CatalogInfo, srcdir: Path = self.srcdir) -> str:
-            return relpath(cat.mo_path, srcdir).replace(os.path.sep, SEP)
+            return Path(relpath(cat.mo_path, srcdir)).as_posix()
 
         logger.info(bold(__('building [mo]: ')) + message)  # NoQA: G003
         for catalog in status_iterator(
@@ -271,16 +275,16 @@ class Builder:
         message = __('all of %d po files') % len(list(repo.catalogs))
         self.compile_catalogs(set(repo.catalogs), message)
 
-    def compile_specific_catalogs(self, specified_files: list[str]) -> None:
-        def to_domain(fpath: str) -> str | None:
-            docname = self.env.path2doc(os.path.abspath(fpath))
-            if docname:
-                return docname_to_domain(docname, self.config.gettext_compact)
-            else:
-                return None
+    def compile_specific_catalogs(self, specified_files: Iterable[Path]) -> None:
+        env = self.env
+        gettext_compact = self.config.gettext_compact
 
+        domains = {
+            docname_to_domain(docname, gettext_compact) if docname else None
+            for file in specified_files
+            if (docname := env.path2doc(file))
+        }
         catalogs = set()
-        domains = set(map(to_domain, specified_files))
         repo = CatalogRepository(
             self.srcdir,
             self.config.locale_dirs,
@@ -315,20 +319,19 @@ class Builder:
         self.build(None, summary=__('all source files'), method='all')
 
     @final
-    def build_specific(self, filenames: list[str]) -> None:
+    def build_specific(self, filenames: Sequence[Path]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
         docnames: list[str] = []
 
+        filenames = [Path(filename).resolve() for filename in filenames]
         for filename in filenames:
-            filename = os.path.normpath(os.path.abspath(filename))
-
-            if not os.path.isfile(filename):
+            if not filename.is_file():
                 logger.warning(
                     __('file %r given on command line does not exist, '), filename
                 )
                 continue
 
-            if not filename.startswith(str(self.srcdir)):
+            if not filename.is_relative_to(self.srcdir):
                 logger.warning(
                     __(
                         'file %r given on command line is not under the '
@@ -520,7 +523,7 @@ class Builder:
             from sphinx.util.matching import _translate_pattern
 
             master_doc_path = self.env.doc2path(self.config.master_doc)
-            master_doc_canon = canon_path(master_doc_path)
+            master_doc_canon = master_doc_path.as_posix()
             for pat in EXCLUDE_PATHS:
                 if not re.match(_translate_pattern(pat), master_doc_canon):
                     continue
@@ -622,13 +625,13 @@ class Builder:
         env.prepare_settings(docname)
 
         # Add confdir/docutils.conf to dependencies list if exists
-        docutilsconf = self.confdir / 'docutils.conf'
-        if os.path.isfile(docutilsconf):
-            env.note_dependency(docutilsconf)
+        docutils_conf = self.confdir / 'docutils.conf'
+        if docutils_conf.is_file():
+            env.note_dependency(docutils_conf)
 
         filename = str(env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
-        publisher = self.app.registry.get_publisher(self.app, filetype)
+        publisher = self.env._registry.get_publisher(self.app, filetype)
         self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
@@ -663,7 +666,7 @@ class Builder:
         _cache: bool = True,
     ) -> None:
         """Write the doctree to a file, to be used as a cache by re-builds."""
-        # make it picklable
+        # make it pickleable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
 
@@ -675,7 +678,7 @@ class Builder:
         doctree.settings.record_dependencies = None
 
         doctree_filename = self.doctreedir / f'{docname}.doctree'
-        ensuredir(os.path.dirname(doctree_filename))
+        doctree_filename.parent.mkdir(parents=True, exist_ok=True)
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 

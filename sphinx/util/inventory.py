@@ -47,7 +47,7 @@ class InventoryFile:
         content: bytes,
         *,
         uri: str,
-    ) -> Inventory:
+    ) -> _Inventory:
         format_line, _, content = content.partition(b'\n')
         format_line = format_line.rstrip()  # remove trailing \r or spaces
         if format_line == b'# Sphinx inventory version 2':
@@ -64,14 +64,14 @@ class InventoryFile:
 
     @classmethod
     def load(cls, stream: _SupportsRead, uri: str, joinfunc: _JoinFunc) -> Inventory:
-        return cls.loads(stream.read(), uri=uri)
+        return cls.loads(stream.read(), uri=uri).data
 
     @classmethod
-    def _loads_v1(cls, lines: Sequence[str], *, uri: str) -> Inventory:
+    def _loads_v1(cls, lines: Sequence[str], *, uri: str) -> _Inventory:
         if len(lines) < 2:
             msg = 'invalid inventory header: missing project name or version'
             raise ValueError(msg)
-        invdata: Inventory = {}
+        inv = _Inventory({})
         projname = lines[0].rstrip()[11:]  # Project name
         version = lines[1].rstrip()[11:]  # Project version
         for line in lines[2:]:
@@ -84,25 +84,25 @@ class InventoryFile:
             else:
                 item_type = f'py:{item_type}'
                 location += f'#{name}'
-            invdata.setdefault(item_type, {})[name] = _InventoryItem(
+            inv[item_type, name] = _InventoryItem(
                 project_name=projname,
                 project_version=version,
                 uri=location,
                 display_name='-',
             )
-        return invdata
+        return inv
 
     @classmethod
-    def _loads_v2(cls, inv_data: bytes, *, uri: str) -> Inventory:
+    def _loads_v2(cls, inv_data: bytes, *, uri: str) -> _Inventory:
         try:
             line_1, line_2, check_line, compressed = inv_data.split(b'\n', maxsplit=3)
         except ValueError:
             msg = 'invalid inventory header: missing project name or version'
             raise ValueError(msg) from None
-        invdata: Inventory = {}
+        inv = _Inventory({})
         projname = line_1.rstrip()[11:].decode()  # Project name
         version = line_2.rstrip()[11:].decode()  # Project version
-        # definition -> priority, location, display name
+        # definition -> (priority, location, display name)
         potential_ambiguities: dict[str, tuple[str, str, str]] = {}
         actual_ambiguities = set()
         if b'zlib' not in check_line:  # '... compressed using zlib'
@@ -123,9 +123,10 @@ class InventoryFile:
             if ':' not in type:
                 # wrong type value. type should be in the form of "{domain}:{objtype}"
                 #
-                # Note: To avoid the regex DoS, this is implemented in python (refs: #8175)
+                # Note: To avoid the regex DoS, this is implemented in Python
+                # See: https://github.com/sphinx-doc/sphinx/issues/8175
                 continue
-            if type == 'py:module' and type in invdata and name in invdata[type]:
+            if type == 'py:module' and (type, name) in inv:
                 # due to a bug in 1.1 and below,
                 # two inventory entries are created
                 # for Python modules, and the first
@@ -154,7 +155,7 @@ class InventoryFile:
             if location.endswith('$'):
                 location = location[:-1] + name
             location = posixpath.join(uri, location)
-            invdata.setdefault(type, {})[name] = _InventoryItem(
+            inv[type, name] = _InventoryItem(
                 project_name=projname,
                 project_version=version,
                 uri=location,
@@ -168,7 +169,7 @@ class InventoryFile:
                 type='intersphinx',
                 subtype='external',
             )
-        return invdata
+        return inv
 
     @classmethod
     def dump(
@@ -204,6 +205,41 @@ class InventoryFile:
                     entry = f'{fullname} {domain.name}:{type} {prio} {uri} {dispname}\n'
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())
+
+
+class _Inventory:
+    """Inventory data in memory."""
+
+    __slots__ = ('data',)
+
+    data: dict[str, dict[str, _InventoryItem]]
+
+    def __init__(self, data: dict[str, dict[str, _InventoryItem]], /) -> None:
+        # type -> name -> _InventoryItem
+        self.data: dict[str, dict[str, _InventoryItem]] = data
+
+    def __repr__(self) -> str:
+        return f'_Inventory({self.data!r})'
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, _Inventory):
+            return NotImplemented
+        return self.data == other.data
+
+    def __hash__(self) -> int:
+        return hash(self.data)
+
+    def __getitem__(self, item: tuple[str, str]) -> _InventoryItem:
+        obj_type, name = item
+        return self.data.setdefault(obj_type, {})[name]
+
+    def __setitem__(self, item: tuple[str, str], value: _InventoryItem) -> None:
+        obj_type, name = item
+        self.data.setdefault(obj_type, {})[name] = value
+
+    def __contains__(self, item: tuple[str, str]) -> bool:
+        obj_type, name = item
+        return obj_type in self.data and name in self.data[obj_type]
 
 
 class _InventoryItem:

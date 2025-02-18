@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+from types import NoneType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -109,6 +110,10 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             and (len(sig) > max_len > 0)
         )
 
+        trailing_comma = (
+            self.env.config.javascript_trailing_comma_in_multi_line_signatures
+        )
+
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
@@ -129,7 +134,12 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
         return fullname, prefix
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
@@ -146,8 +156,8 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     def add_target_and_index(
         self, name_obj: tuple[str, str], sig: str, signode: desc_signature
     ) -> None:
-        mod_name = self.env.ref_context.get('js:module')
-        fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
+        mod_name = self.env.ref_context.get('js:module', '')
+        fullname = (f'{mod_name}.' if mod_name else '') + name_obj[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
@@ -156,11 +166,10 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
-            indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
-            if indextext:
+            if index_text := self.get_index_text(mod_name, name_obj):
                 self.indexnode['entries'].append((
                     'single',
-                    indextext,
+                    index_text,
                     node_id,
                     '',
                     None,
@@ -324,6 +333,7 @@ class JSModule(SphinxDirective):
     final_argument_whitespace = False
     option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
+        'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
         'noindex': directives.flag,
@@ -356,9 +366,12 @@ class JSModule(SphinxDirective):
             )
 
             # The node order is: index node first, then target node
-            indextext = _('%s (module)') % mod_name
-            inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
-            ret.append(inode)
+            if 'no-index-entry' not in self.options:
+                index_text = _('%s (module)') % mod_name
+                inode = addnodes.index(
+                    entries=[('single', index_text, node_id, '', None)]
+                )
+                ret.append(inode)
             target = nodes.target('', '', ids=[node_id], ismod=True)
             self.state.document.note_explicit_target(target)
             ret.append(target)
@@ -562,7 +575,13 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'javascript_maximum_signature_line_length',
         None,
         'env',
-        types=frozenset({int, type(None)}),
+        types=frozenset({int, NoneType}),
+    )
+    app.add_config_value(
+        'javascript_trailing_comma_in_multi_line_signatures',
+        True,
+        'env',
+        types=frozenset({bool}),
     )
     return {
         'version': 'builtin',

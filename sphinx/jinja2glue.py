@@ -24,6 +24,10 @@ if TYPE_CHECKING:
     from jinja2.environment import Environment
 
     from sphinx.builders import Builder
+    from sphinx.environment.adapters.indexentries import (
+        _RealIndexEntries,
+        _RealIndexEntry,
+    )
     from sphinx.theming import Theme
 
 
@@ -57,7 +61,9 @@ def _todim(val: int | str) -> str:
     return val  # type: ignore[return-value]
 
 
-def _slice_index(values: list, slices: int) -> Iterator[list]:
+def _slice_index(
+    values: _RealIndexEntries, slices: int
+) -> Iterator[list[_RealIndexEntry]]:
     seq = values.copy()
     length = 0
     for value in values:
@@ -192,7 +198,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         # make the paths into loaders
         self.loaders = [SphinxFileSystemLoader(x) for x in loaderchain]
 
-        use_i18n = builder.app.translator is not None
+        use_i18n = builder._translator is not None
         extensions = ['jinja2.ext.i18n'] if use_i18n else []
         self.environment = SandboxedEnvironment(loader=self, extensions=extensions)
         self.environment.filters['tobool'] = _tobool
@@ -205,9 +211,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.globals['idgen'] = idgen
         if use_i18n:
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
-            self.environment.install_gettext_translations(  # type: ignore[attr-defined]
-                builder.app.translator
-            )
+            self.environment.install_gettext_translations(builder._translator)  # type: ignore[attr-defined]
 
     def render(self, template: str, context: dict[str, Any]) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)

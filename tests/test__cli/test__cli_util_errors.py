@@ -63,7 +63,7 @@ def test_strip_escape_sequences() -> None:
             assert strip_escape_sequences(ansi_string) == text_string
 
 
-def test_strip_ansi_short_forms():
+def test_strip_ansi_short_forms() -> None:
     # In Sphinx, we always "normalize" the color codes so that they
     # match "\x1b\[(\d\d;){0,2}(\d\d)m" but it might happen that
     # some messages use '\x1b[0m' instead of ``reset(s)``, so we

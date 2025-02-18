@@ -28,7 +28,7 @@ from sphinx.ext.intersphinx._load import (
 )
 from sphinx.ext.intersphinx._resolve import missing_reference
 from sphinx.ext.intersphinx._shared import _IntersphinxProject
-from sphinx.util.inventory import _InventoryItem
+from sphinx.util.inventory import _Inventory, _InventoryItem
 
 from tests.test_util.intersphinx_data import (
     INVENTORY_V2,
@@ -37,8 +37,15 @@ from tests.test_util.intersphinx_data import (
 )
 from tests.utils import http_server
 
+if TYPE_CHECKING:
+    from typing import NoReturn
 
-class FakeList(list):  # NoQA: FURB189
+    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
+    from sphinx.testing.util import SphinxTestApp
+    from sphinx.util.typing import Inventory
+
+
+class FakeList(list[str]):
     def __iter__(self) -> NoReturn:
         raise NotImplementedError
 
@@ -64,6 +71,7 @@ def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
+    app.config.intersphinx_resolve_self = ''
     app.config.intersphinx_timeout = None
 
 
@@ -154,7 +162,7 @@ def test_missing_reference(tmp_path, app):
     # load the inventory and check if it's done correctly
     validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
-    inv = app.env.intersphinx_inventory
+    inv: Inventory = app.env.intersphinx_inventory
 
     assert inv['py:module']['module2'] == _InventoryItem(
         project_name='foo',
@@ -500,7 +508,7 @@ def test_inventory_not_having_version(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_validate_intersphinx_mapping_warnings(app):
+def test_validate_intersphinx_mapping_warnings(app: SphinxTestApp) -> None:
     """Check warnings in :func:`sphinx.ext.intersphinx.validate_intersphinx_mapping`."""
     bad_intersphinx_mapping = {
         '':                 ('789.example', None),     # invalid project name (value)
@@ -619,7 +627,7 @@ class TestStripBasicAuth:
         assert actual == expected
 
 
-def test_getsafeurl_authed():
+def test_getsafeurl_authed() -> None:
     """_get_safe_url() with a url with basic auth"""
     url = 'https://user:12345@domain.com/project/objects.inv'
     expected = 'https://user@domain.com/project/objects.inv'
@@ -627,7 +635,7 @@ def test_getsafeurl_authed():
     assert actual == expected
 
 
-def test_getsafeurl_authed_having_port():
+def test_getsafeurl_authed_having_port() -> None:
     """_get_safe_url() with a url with basic auth having port"""
     url = 'https://user:12345@domain.com:8080/project/objects.inv'
     expected = 'https://user@domain.com:8080/project/objects.inv'
@@ -635,7 +643,7 @@ def test_getsafeurl_authed_having_port():
     assert actual == expected
 
 
-def test_getsafeurl_unauthed():
+def test_getsafeurl_unauthed() -> None:
     """_get_safe_url() with a url without basic auth"""
     url = 'https://domain.com/project/objects.inv'
     expected = 'https://domain.com/project/objects.inv'
@@ -690,8 +698,8 @@ def test_inspect_main_url(capsys):
     assert stderr == ''
 
 
-@pytest.mark.sphinx('html', testroot='ext-intersphinx-role')
-def test_intersphinx_role(app):
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-role', copy_test_root=True)
+def test_intersphinx_role(app: SphinxTestApp) -> None:
     inv_file = app.srcdir / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     app.config.intersphinx_mapping = {
@@ -739,20 +747,14 @@ def test_intersphinx_role(app):
     assert html.format('index.html#foons') in content
 
 
-if TYPE_CHECKING:
-    from typing import NoReturn
-
-    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
-
-
 @pytest.mark.sphinx('html', testroot='root')
 @pytest.mark.parametrize(
     ('cache_limit', 'expected_expired'),
     [
-        (5, False),
-        (1, True),
-        (0, True),
-        (-1, False),
+        (5, False),  # cache for 5 days
+        (1, True),  # cache for 1 day
+        (0, True),  # cache for 0 days
+        (-1, False),  # cache forever
     ],
 )
 def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired):
@@ -775,7 +777,8 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
     # `_fetch_inventory_group` calls `_fetch_inventory`.
     # We replace it with a mock to test whether it has been called.
     # If it has been called, it means the cache had expired.
-    mock_fetch_inventory = mock.Mock(return_value=('inv', now, {}))
+    mock_fake_inventory = _Inventory({})  # must be truthy
+    mock_fetch_inventory = mock.Mock(return_value=mock_fake_inventory)
     monkeypatch.setattr(
         'sphinx.ext.intersphinx._load._fetch_inventory', mock_fetch_inventory
     )

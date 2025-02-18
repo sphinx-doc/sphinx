@@ -6,6 +6,7 @@ import importlib.util
 import operator
 import posixpath
 import traceback
+from types import NoneType
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -108,6 +109,7 @@ def is_supported_builder(builder: Builder) -> bool:
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
     env = app.env
+    events = app.events
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore[attr-defined]
 
@@ -116,7 +118,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         if entry is False:
             return False
 
-        code_tags = app.emit_firstresult('viewcode-find-source', modname)
+        code_tags = events.emit_firstresult('viewcode-find-source', modname)
         if code_tags is None:
             try:
                 analyzer = ModuleAnalyzer.for_module(modname)
@@ -151,7 +153,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             fullname = signode.get('fullname')
             refname = modname
             if env.config.viewcode_follow_imported_members:
-                new_modname = app.emit_firstresult(
+                new_modname = events.emit_firstresult(
                     'viewcode-follow-imported', modname, fullname
                 )
                 if not new_modname:
@@ -238,7 +240,8 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
 
 def get_module_filename(app: Sphinx, modname: str) -> _StrPath | None:
     """Get module filename for *modname*."""
-    source_info = app.emit_firstresult('viewcode-find-source', modname)
+    events = app.events
+    source_info = events.emit_firstresult('viewcode-find-source', modname)
     if source_info:
         return None
     else:
@@ -382,16 +385,22 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('viewcode_import', None, '')
-    app.add_config_value('viewcode_enable_epub', False, '')
-    app.add_config_value('viewcode_follow_imported_members', True, '')
+    app.add_config_value('viewcode_import', None, '', types=frozenset({NoneType}))
+    app.add_config_value('viewcode_enable_epub', False, '', types=frozenset({bool}))
+    app.add_config_value(
+        'viewcode_follow_imported_members', True, '', types=frozenset({bool})
+    )
     app.add_config_value('viewcode_line_numbers', False, 'env', types=frozenset({bool}))
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)
     app.connect('html-collect-pages', collect_pages)
-    # app.add_config_value('viewcode_include_modules', [], 'env')
-    # app.add_config_value('viewcode_exclude_modules', [], 'env')
+    # app.add_config_value(
+    #     'viewcode_include_modules', [], 'env', types=frozenset({list, tuple})
+    # )
+    # app.add_config_value(
+    #     'viewcode_exclude_modules', [], 'env', types=frozenset({list, tuple})
+    # )
     app.add_event('viewcode-find-source')
     app.add_event('viewcode-follow-imported')
     app.add_post_transform(ViewcodeAnchorTransform)

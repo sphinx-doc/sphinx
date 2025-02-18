@@ -305,9 +305,11 @@ def resolve_reference_detect_inventory(
 
     Resolution is tried first with the target as is in any inventory.
     If this does not succeed, then the target is split by the first ``:``,
-    to form ``inv_name:newtarget``. If ``inv_name`` is a named inventory, then resolution
+    to form ``inv_name:new_target``. If ``inv_name`` is a named inventory, then resolution
     is tried in that inventory with the new target.
     """
+    resolve_self = env.config.intersphinx_resolve_self
+
     # ordinary direct lookup, use data as is
     res = resolve_reference_any_inventory(env, True, node, contnode)
     if res is not None:
@@ -317,10 +319,18 @@ def resolve_reference_detect_inventory(
     target = node['reftarget']
     if ':' not in target:
         return None
-    inv_name, newtarget = target.split(':', 1)
+    inv_name, _, new_target = target.partition(':')
+
+    # check if the target is self-referential
+    self_referential = bool(resolve_self) and resolve_self == inv_name
+    if self_referential:
+        node['reftarget'] = new_target
+        node['intersphinx_self_referential'] = True
+        return None
+
     if not inventory_exists(env, inv_name):
         return None
-    node['reftarget'] = newtarget
+    node['reftarget'] = new_target
     res_inv = resolve_reference_in_inventory(env, inv_name, node, contnode)
     node['reftarget'] = target
     return res_inv
@@ -364,11 +374,16 @@ class IntersphinxRole(SphinxRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
-        if inventory and not inventory_exists(self.env, inventory):
-            self._emit_warning(
-                __('inventory for external cross-reference not found: %r'), inventory
-            )
-            return [], []
+        resolve_self = self.env.config.intersphinx_resolve_self
+        self_referential = bool(resolve_self) and resolve_self == inventory
+
+        if not self_referential:
+            if inventory and not inventory_exists(self.env, inventory):
+                self._emit_warning(
+                    __('inventory for external cross-reference not found: %r'),
+                    inventory,
+                )
+                return [], []
 
         domain_name, role_name = self._get_domain_role(name_suffix)
 
@@ -453,10 +468,14 @@ class IntersphinxRole(SphinxRole):
             self.content,
         )
 
-        for node in result:
-            if isinstance(node, pending_xref):
-                node['intersphinx'] = True
-                node['inventory'] = inventory
+        if not self_referential:
+            # We do the intersphinx resolution by inserting our
+            # 'intersphinx' and 'inventory' attributes into the nodes.
+            # Only do this when it is an external reference.
+            for node in result:
+                if isinstance(node, pending_xref):
+                    node['intersphinx'] = True
+                    node['inventory'] = inventory
 
         return result, messages
 

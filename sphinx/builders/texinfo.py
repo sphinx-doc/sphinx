@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import os
 import os.path
 import warnings
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -36,7 +34,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
-template_dir = Path(package_dir, 'templates', 'texinfo')
+template_dir = package_dir.joinpath('templates', 'texinfo')
 
 
 class TexinfoBuilder(Builder):
@@ -186,8 +184,6 @@ class TexinfoBuilder(Builder):
                         nodes.Text(')'),
                     ))
                     break
-            else:
-                pass
             pendingnode.replace_self(newnodes)
         return largetree
 
@@ -255,15 +251,23 @@ def default_texinfo_documents(
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TexinfoBuilder)
 
-    app.add_config_value('texinfo_documents', default_texinfo_documents, '')
-    app.add_config_value('texinfo_appendices', [], '')
-    app.add_config_value('texinfo_elements', {}, '')
     app.add_config_value(
-        'texinfo_domain_indices', True, '', types=frozenset({set, list})
+        'texinfo_documents',
+        default_texinfo_documents,
+        '',
+        types=frozenset({list, tuple}),
     )
-    app.add_config_value('texinfo_show_urls', 'footnote', '')
-    app.add_config_value('texinfo_no_detailmenu', False, '')
-    app.add_config_value('texinfo_cross_references', True, '')
+    app.add_config_value('texinfo_appendices', [], '', types=frozenset({list, tuple}))
+    app.add_config_value('texinfo_elements', {}, '', types=frozenset({dict}))
+    app.add_config_value(
+        'texinfo_domain_indices',
+        True,
+        '',
+        types=frozenset({frozenset, list, set, tuple}),
+    )
+    app.add_config_value('texinfo_show_urls', 'footnote', '', types=frozenset({str}))
+    app.add_config_value('texinfo_no_detailmenu', False, '', types=frozenset({bool}))
+    app.add_config_value('texinfo_cross_references', True, '', types=frozenset({bool}))
 
     return {
         'version': 'builtin',

@@ -100,6 +100,24 @@ It adds this directive:
    .. versionchanged:: 1.7
       Added ``top-classes`` option to limit the scope of inheritance graphs.
 
+   .. rst:directive:option:: include-subclasses
+      :type: no value
+
+      .. versionadded:: 8.2
+
+      If given, any subclass of the classes will be added to the diagram too.
+
+      Given the Python module from above, you can specify
+      your inheritance diagram like this:
+
+      .. code-block:: rst
+
+         .. inheritance-diagram:: dummy.test.A
+            :include-subclasses:
+
+      This will include the classes A, B, C, D, E and F in the inheritance diagram
+      but no other classes in the module ``dummy.test``.
+
 
 Examples
 --------

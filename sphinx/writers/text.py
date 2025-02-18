@@ -408,6 +408,7 @@ class TextTranslator(SphinxTranslator):
         self.sectionlevel = 0
         self.lineblocklevel = 0
         self.table: Table
+        self.in_production_list = False
 
         self.context: list[str] = []
         """Heterogeneous stack.
@@ -648,6 +649,7 @@ class TextTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = ', '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.param_separator = self.param_separator.rstrip()
         self.context.append(sig_close_paren)
@@ -699,7 +701,8 @@ class TextTranslator(SphinxTranslator):
                 or is_required
                 and (is_last_group or next_is_required)
             ):
-                self.add_text(self.param_separator)
+                if not is_last_group or opt_param_left_at_level or self.trailing_comma:
+                    self.add_text(self.param_separator)
                 self.end_state(wrap=False, end=None)
 
         elif self.required_params_left:
@@ -740,20 +743,27 @@ class TextTranslator(SphinxTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
             # If it's the first time we go down one level, add the separator before the
-            # bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.add_text(self.param_separator)
             self.add_text(']')
             # End the line if we have just closed the last bracket of this group of
             # optional parameters.
-            if self.optional_param_level == 0:
+            if level == 0:
                 self.end_state(wrap=False, end=None)
 
         else:
             self.add_text(']')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
@@ -778,19 +788,17 @@ class TextTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.new_state()
-        productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
-        lastname = None
-        for production in productionlist:
-            if production['tokenname']:
-                self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
-                lastname = production['tokenname']
-            elif lastname is not None:
-                self.add_text('%s    ' % (' ' * len(lastname)))
-            self.add_text(production.astext() + self.nl)
+        self.in_production_list = True
+
+    def depart_productionlist(self, node: Element) -> None:
+        self.in_production_list = False
         self.end_state(wrap=False)
-        raise nodes.SkipNode
+
+    def visit_production(self, node: Element) -> None:
+        pass
+
+    def depart_production(self, node: Element) -> None:
+        pass
 
     def visit_footnote(self, node: Element) -> None:
         label = cast('nodes.label', node[0])
@@ -1216,17 +1224,21 @@ class TextTranslator(SphinxTranslator):
         self.add_text('**')
 
     def visit_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('**')
 
     def depart_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('**')
 
     def visit_abbreviation(self, node: Element) -> None:
         self.add_text('')
 
     def depart_abbreviation(self, node: Element) -> None:
-        if node.hasattr('explanation'):
-            self.add_text(' (%s)' % node['explanation'])
+        if explanation := node.get('explanation', ''):
+            self.add_text(f' ({explanation})')
 
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)
@@ -1241,9 +1253,13 @@ class TextTranslator(SphinxTranslator):
         self.add_text('*')
 
     def visit_literal(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('"')
 
     def depart_literal(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('"')
 
     def visit_subscript(self, node: Element) -> None:
@@ -1318,14 +1334,14 @@ class TextTranslator(SphinxTranslator):
             self.end_state(wrap=False)
         raise nodes.SkipNode
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         pass
 
-    def depart_math(self, node: Element) -> None:
+    def depart_math(self, node: nodes.math) -> None:
         pass
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         self.new_state()
 
-    def depart_math_block(self, node: Element) -> None:
+    def depart_math_block(self, node: nodes.math_block) -> None:
         self.end_state()

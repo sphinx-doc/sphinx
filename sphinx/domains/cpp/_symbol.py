@@ -604,7 +604,8 @@ class Symbol:
                     return None
             # We have now matched part of a nested name, and need to match more
             # so even if we should match_self before, we definitely shouldn't
-            # even more. (see also issue #2666)
+            # even more.
+            # See: https://github.com/sphinx-doc/sphinx/issues/2666
             match_self = False
             parent_symbol = symbol
 

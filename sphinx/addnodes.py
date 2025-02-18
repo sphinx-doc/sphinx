@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from docutils import nodes
+from docutils.nodes import document  # NoQA: F401
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -14,22 +15,6 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
-
-
-class document(nodes.document):
-    """The document root element patched by Sphinx.
-
-    This fixes that document.set_id() does not support a node having multiple node Ids.
-    see https://sourceforge.net/p/docutils/patches/167/
-
-    .. important:: This is only for Sphinx internal use.  Please don't use this
-                   in your extensions.  It will be removed without deprecation period.
-    """
-
-    def set_id(
-        self, node: Element, msgnode: Element | None = None, suggested_prefix: str = ''
-    ) -> str:
-        return super().set_id(node, msgnode, suggested_prefix)
 
 
 class translatable(nodes.Node):
@@ -259,6 +244,8 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     As default the parameter list is written in line with the rest of the signature.
     Set ``multi_line_parameter_list = True`` to describe a multi-line parameter list.
     In that case each parameter will then be written on its own, indented line.
+    A trailing comma will be added on the last line
+    if ``multi_line_trailing_comma`` is True.
     """
 
     child_text_separator = ', '
@@ -273,6 +260,8 @@ class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement)
     As default the type parameters list is written in line with the rest of the signature.
     Set ``multi_line_parameter_list = True`` to describe a multi-line type parameters list.
     In that case each type parameter will then be written on its own, indented line.
+    A trailing comma will be added on the last line
+    if ``multi_line_trailing_comma`` is True.
     """
 
     child_text_separator = ', '
@@ -447,7 +436,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
     *key* is categorization characters (usually a single character) for
     general index page. For the details of this, please see also:
-    :rst:dir:`glossary` and issue #2320.
+    :rst:dir:`glossary` and https://github.com/sphinx-doc/sphinx/pull/2320.
     """
 
 

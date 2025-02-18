@@ -11,7 +11,7 @@ from sphinx.roles import EmphasizedLiteral, _format_rfc_target
 from sphinx.testing.util import assert_node
 
 
-def test_samp():
+def test_samp() -> None:
     emph_literal_role = EmphasizedLiteral()
 
     # normal case

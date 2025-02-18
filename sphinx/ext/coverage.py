@@ -170,8 +170,8 @@ class CoverageBuilder(Builder):
     name = 'coverage'
     epilog = __(
         'Testing of coverage in the sources finished, look at the '
-        'results in %(outdir)s' + os.path.sep + 'python.txt.'
-    )
+        'results in %(outdir)s{sep}python.txt.'
+    ).format(sep=os.path.sep)
 
     def init(self) -> None:
         self.c_sourcefiles: list[str] = []
@@ -253,7 +253,7 @@ class CoverageBuilder(Builder):
             for filename, undoc in self.c_undoc.items():
                 write_header(op, filename)
                 for typ, name in sorted(undoc):
-                    op.write(' * %-50s [%9s]\n' % (name, typ))
+                    op.write(f' * {name:<50} [{typ:>9}]\n')
                     if self.config.coverage_show_missing_items:
                         if self.app.quiet:
                             logger.warning(
@@ -415,8 +415,7 @@ class CoverageBuilder(Builder):
         else:
             table.append(['TOTAL', '100', '0'])
 
-        for line in _write_table(table):
-            op.write(f'{line}\n')
+        op.writelines(f'{line}\n' for line in _write_table(table))
 
     def write_py_coverage(self) -> None:
         output_file = self.outdir / 'python.txt'
@@ -445,7 +444,7 @@ class CoverageBuilder(Builder):
                     write_header(op, name)
                     if undoc['funcs']:
                         op.write('Functions:\n')
-                        op.writelines(' * %s\n' % x for x in undoc['funcs'])
+                        op.writelines(f' * {x}\n' for x in undoc['funcs'])
                         if self.config.coverage_show_missing_items:
                             if self.app.quiet:
                                 for func in undoc['funcs']:
@@ -467,7 +466,7 @@ class CoverageBuilder(Builder):
                         op.write('Classes:\n')
                         for class_name, methods in sorted(undoc['classes'].items()):
                             if not methods:
-                                op.write(' * %s\n' % class_name)
+                                op.write(f' * {class_name}\n')
                                 if self.config.coverage_show_missing_items:
                                     if self.app.quiet:
                                         logger.warning(
@@ -483,8 +482,8 @@ class CoverageBuilder(Builder):
                                             + name
                                         )
                             else:
-                                op.write(' * %s -- missing methods:\n\n' % class_name)
-                                op.writelines('   - %s\n' % x for x in methods)
+                                op.write(f' * {class_name} -- missing methods:\n\n')
+                                op.writelines(f'   - {x}\n' for x in methods)
                                 if self.config.coverage_show_missing_items:
                                     if self.app.quiet:
                                         for meth in methods:
@@ -523,23 +522,35 @@ class CoverageBuilder(Builder):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CoverageBuilder)
-    app.add_config_value('coverage_modules', (), '', types=frozenset({tuple, list}))
-    app.add_config_value('coverage_ignore_modules', [], '')
-    app.add_config_value('coverage_ignore_functions', [], '')
-    app.add_config_value('coverage_ignore_classes', [], '')
-    app.add_config_value('coverage_ignore_pyobjects', [], '')
-    app.add_config_value('coverage_c_path', [], '')
-    app.add_config_value('coverage_c_regexes', {}, '')
-    app.add_config_value('coverage_ignore_c_items', {}, '')
-    app.add_config_value('coverage_write_headline', True, '')
+    app.add_config_value('coverage_modules', (), '', types=frozenset({list, tuple}))
+    app.add_config_value(
+        'coverage_ignore_modules', [], '', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'coverage_ignore_functions', [], '', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'coverage_ignore_classes', [], '', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'coverage_ignore_pyobjects', [], '', types=frozenset({list, tuple})
+    )
+    app.add_config_value('coverage_c_path', [], '', types=frozenset({list, tuple}))
+    app.add_config_value('coverage_c_regexes', {}, '', types=frozenset({dict}))
+    app.add_config_value('coverage_ignore_c_items', {}, '', types=frozenset({dict}))
+    app.add_config_value('coverage_write_headline', True, '', types=frozenset({bool}))
     app.add_config_value(
         'coverage_statistics_to_report', True, '', types=frozenset({bool})
     )
     app.add_config_value(
         'coverage_statistics_to_stdout', True, '', types=frozenset({bool})
     )
-    app.add_config_value('coverage_skip_undoc_in_source', False, '')
-    app.add_config_value('coverage_show_missing_items', False, '')
+    app.add_config_value(
+        'coverage_skip_undoc_in_source', False, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'coverage_show_missing_items', False, '', types=frozenset({bool})
+    )
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,

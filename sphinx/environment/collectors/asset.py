@@ -169,7 +169,7 @@ class DownloadFileCollector(EnvironmentCollector):
                     continue
                 node['filename'] = app.env.dlfiles.add_file(
                     app.env.docname, rel_filename
-                )
+                ).as_posix()
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

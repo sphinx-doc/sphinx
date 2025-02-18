@@ -409,7 +409,7 @@ class DoctreeReadEvent(SphinxTransform):
     default_priority = 880
 
     def apply(self, **kwargs: Any) -> None:
-        self.app.emit('doctree-read', self.document)
+        self.app.events.emit('doctree-read', self.document)
 
 
 class GlossarySorter(SphinxTransform):

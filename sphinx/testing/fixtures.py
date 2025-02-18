@@ -73,8 +73,8 @@ def app_params(
     request: Any,
     test_params: dict[str, Any],
     shared_result: SharedResult,
-    sphinx_test_tempdir: str,
-    rootdir: Path,
+    sphinx_test_tempdir: Path,
+    rootdir: Path | None,
 ) -> _app_params:
     """Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -102,13 +102,21 @@ def app_params(
 
     # ##### prepare Application params
 
-    testroot = kwargs.pop('testroot', 'root')
-    kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', testroot)
+    test_root = kwargs.pop('testroot', 'root')
+    kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', test_root)
+    copy_test_root = not {'srcdir', 'copy_test_root'}.isdisjoint(kwargs)
 
     # special support for sphinx/tests
-    if rootdir and not srcdir.exists():
-        testroot_path = rootdir / ('test-' + testroot)
-        shutil.copytree(testroot_path, srcdir)
+    if rootdir is not None:
+        test_root_path = rootdir / f'test-{test_root}'
+        if copy_test_root:
+            if test_root_path.is_dir():
+                shutil.copytree(test_root_path, srcdir, dirs_exist_ok=True)
+        else:
+            kwargs['srcdir'] = test_root_path
+
+    # always write to the temporary directory
+    kwargs.setdefault('builddir', srcdir / '_build')
 
     return _app_params(args, kwargs)
 

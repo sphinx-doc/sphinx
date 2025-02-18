@@ -229,18 +229,16 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 appeared.add(node['refuri'])
 
     def get_toc(self) -> None:
-        """Get the total table of contents, containing the root_doc
-        and pre and post files not managed by sphinx.
+        """Get the total table of contents, containing the master_doc
+        and pre and post files not managed by Sphinx.
         """
         doctree = self.env.get_and_resolve_doctree(
-            self.config.root_doc, self, prune_toctrees=False, includehidden=True
+            self.config.master_doc, self, prune_toctrees=False, includehidden=True
         )
         self.refnodes = self.get_refnodes(doctree, [])
-        master_dir = os.path.dirname(self.config.root_doc)
-        if master_dir:
-            master_dir += '/'  # XXX or os.sep?
-            for item in self.refnodes:
-                item['refuri'] = master_dir + item['refuri']
+        master_dir = Path(self.config.master_doc).parent
+        for item in self.refnodes:
+            item['refuri'] = str(master_dir / item['refuri'])
         self.toc_add_files(self.refnodes)
 
     def toc_add_files(self, refnodes: list[dict[str, Any]]) -> None:

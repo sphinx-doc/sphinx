@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from types import NoneType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -46,7 +47,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 # re-export objects for backwards compatibility
-# xref https://github.com/sphinx-doc/sphinx/issues/12295
+# See: https://github.com/sphinx-doc/sphinx/issues/12295
 from sphinx.domains.c._ast import (  # NoQA: F401
     ASTAlignofExpr,
     ASTArray,
@@ -213,7 +214,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
         return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(
-        self, signode: TextElement, ast: ASTDeclaration, options: dict
+        self, signode: TextElement, ast: ASTDeclaration, options: dict[str, Any]
     ) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
@@ -472,7 +473,7 @@ class AliasNode(nodes.Element):
     def __init__(
         self,
         sig: str,
-        aliasOptions: dict,
+        aliasOptions: dict[str, bool],
         document: Any,
         env: BuildEnvironment | None = None,
         parentKey: LookupKey | None = None,
@@ -509,8 +510,8 @@ class AliasTransform(SphinxTransform):
         s: Symbol,
         maxdepth: int,
         skip_this: bool,
-        alias_options: dict,
-        render_options: dict,
+        alias_options: dict[str, bool],
+        render_options: dict[str, bool],
         document: Any,
     ) -> list[Node]:
         if maxdepth == 0:
@@ -629,7 +630,7 @@ class AliasTransform(SphinxTransform):
             node.replace_self(nodes)
 
 
-class CAliasObject(ObjectDescription):
+class CAliasObject(ObjectDescription[str]):
     option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
@@ -948,13 +949,16 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'c_paren_attributes', [], 'env', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'c_extra_keywords', _macro_keywords, 'env', types=frozenset({set, list})
+        'c_extra_keywords',
+        _macro_keywords,
+        'env',
+        types=frozenset({frozenset, list, set, tuple}),
     )
     app.add_config_value(
         'c_maximum_signature_line_length',
         None,
         'env',
-        types=frozenset({int, type(None)}),
+        types=frozenset({int, NoneType}),
     )
     app.add_post_transform(AliasTransform)
 

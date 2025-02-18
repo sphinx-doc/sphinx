@@ -3,8 +3,6 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import locale
-import os
-import os.path
 import re
 import sys
 from pathlib import Path
@@ -57,7 +55,7 @@ Note: By default this script will not overwrite already created files."""),
         '-o',
         '--output-dir',
         action='store',
-        dest='destdir',
+        dest='dest_dir',
         required=True,
         help=__('directory to place all output'),
     )
@@ -71,7 +69,7 @@ Note: By default this script will not overwrite already created files."""),
         '-d',
         '--maxdepth',
         action='store',
-        dest='maxdepth',
+        dest='max_depth',
         type=int,
         default=4,
         help=__('maximum depth of submodules to show in the TOC (default: 4)'),
@@ -87,7 +85,7 @@ Note: By default this script will not overwrite already created files."""),
         '-l',
         '--follow-links',
         action='store_true',
-        dest='followlinks',
+        dest='follow_links',
         default=False,
         help=__(
             'follow symbolic links. Powerful when combined with collective.recipe.omelette.'
@@ -97,27 +95,27 @@ Note: By default this script will not overwrite already created files."""),
         '-n',
         '--dry-run',
         action='store_true',
-        dest='dryrun',
+        dest='dry_run',
         help=__('run the script without creating files'),
     )
     parser.add_argument(
         '-e',
         '--separate',
         action='store_true',
-        dest='separatemodules',
+        dest='separate_modules',
         help=__('put documentation for each module on its own page'),
     )
     parser.add_argument(
         '-P',
         '--private',
         action='store_true',
-        dest='includeprivate',
+        dest='include_private',
         help=__('include "_private" modules'),
     )
     parser.add_argument(
         '--tocfile',
         action='store',
-        dest='tocfile',
+        dest='toc_file',
         default='modules',
         help=__('filename of table of contents (default: modules)'),
     )
@@ -125,14 +123,14 @@ Note: By default this script will not overwrite already created files."""),
         '-T',
         '--no-toc',
         action='store_false',
-        dest='tocfile',
+        dest='toc_file',
         help=__("don't create a table of contents file"),
     )
     parser.add_argument(
         '-E',
         '--no-headings',
         action='store_true',
-        dest='noheadings',
+        dest='no_headings',
         help=__(
             "don't create headings for the module/package "
             'packages (e.g. when the docstrings already '
@@ -143,7 +141,7 @@ Note: By default this script will not overwrite already created files."""),
         '-M',
         '--module-first',
         action='store_true',
-        dest='modulefirst',
+        dest='module_first',
         help=__('put module documentation before submodule documentation'),
     )
     parser.add_argument(
@@ -247,7 +245,7 @@ Note: By default this script will not overwrite already created files."""),
         '-t',
         '--templatedir',
         metavar='TEMPLATEDIR',
-        dest='templatedir',
+        dest='template_dir',
         help=__('template directory for template files'),
     )
 
@@ -262,21 +260,21 @@ def main(argv: Sequence[str] = (), /) -> int:
     opts = _parse_args(argv)
     rootpath = opts.module_path
     excludes = tuple(
-        re.compile(fnmatch.translate(os.path.abspath(exclude)))
+        re.compile(fnmatch.translate(str(Path(exclude).resolve())))
         for exclude in dict.fromkeys(opts.exclude_pattern)
     )
 
-    written_files, modules = recurse_tree(rootpath, excludes, opts, opts.templatedir)
+    written_files, modules = recurse_tree(rootpath, excludes, opts, opts.template_dir)
 
     if opts.full:
         _full_quickstart(opts, modules=modules)
-    elif opts.tocfile:
+    elif opts.toc_file:
         written_files.append(
-            create_modules_toc_file(modules, opts, opts.tocfile, opts.templatedir)
+            create_modules_toc_file(modules, opts, opts.toc_file, opts.template_dir)
         )
 
-    if opts.remove_old and not opts.dryrun:
-        _remove_old_files(written_files, opts.destdir, opts.suffix)
+    if opts.remove_old and not opts.dry_run:
+        _remove_old_files(written_files, opts.dest_dir, opts.suffix)
 
     return 0
 
@@ -288,7 +286,7 @@ def _parse_args(argv: Sequence[str], /) -> ApidocOptions:
     # normalise options
 
     args.module_path = root_path = Path(args.module_path).resolve()
-    args.destdir = Path(args.destdir)
+    args.dest_dir = Path(args.dest_dir)
     if not root_path.is_dir():
         LOGGER.error(__('%s is not a directory.'), root_path)
         raise SystemExit(1)
@@ -297,13 +295,13 @@ def _parse_args(argv: Sequence[str], /) -> ApidocOptions:
         args.header = root_path.name
     args.suffix = args.suffix.removeprefix('.')
 
-    if not args.dryrun:
-        ensuredir(args.destdir)
+    if not args.dry_run:
+        ensuredir(args.dest_dir)
 
     if not args.automodule_options:
-        args.automodule_options = set()
+        args.automodule_options = frozenset()
     elif isinstance(args.automodule_options, str):
-        args.automodule_options = set(args.automodule_options.split(','))
+        args.automodule_options = frozenset(args.automodule_options.split(','))
 
     return ApidocOptions(**args.__dict__)
 
@@ -320,7 +318,7 @@ def _full_quickstart(opts: ApidocOptions, /, *, modules: list[str]) -> None:
         prev_module = module
         text += f'   {module}\n'
     d: dict[str, Any] = {
-        'path': str(opts.destdir),
+        'path': str(opts.dest_dir),
         'sep': False,
         'dot': '_',
         'project': opts.header,
@@ -338,7 +336,7 @@ def _full_quickstart(opts: ApidocOptions, /, *, modules: list[str]) -> None:
         'makefile': True,
         'batchfile': True,
         'make_mode': True,
-        'mastertocmaxdepth': opts.maxdepth,
+        'mastertocmaxdepth': opts.max_depth,
         'mastertoctree': text,
         'language': 'en',
         'module_path': str(opts.module_path),
@@ -354,5 +352,5 @@ def _full_quickstart(opts: ApidocOptions, /, *, modules: list[str]) -> None:
             d['extensions'].remove(ext)
             d['extensions'].extend(ext.split(','))
 
-    if not opts.dryrun:
-        qs.generate(d, silent=True, overwrite=opts.force, templatedir=opts.templatedir)
+    if not opts.dry_run:
+        qs.generate(d, silent=True, overwrite=opts.force, templatedir=opts.template_dir)

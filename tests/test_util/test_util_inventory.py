@@ -21,15 +21,15 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def test_read_inventory_v1():
-    invdata = InventoryFile.loads(INVENTORY_V1, uri='/util')
-    assert invdata['py:module']['module'] == _InventoryItem(
+def test_read_inventory_v1() -> None:
+    inv = InventoryFile.loads(INVENTORY_V1, uri='/util')
+    assert inv['py:module', 'module'] == _InventoryItem(
         project_name='foo',
         project_version='1.0',
         uri='/util/foo.html#module-module',
         display_name='-',
     )
-    assert invdata['py:class']['module.cls'] == _InventoryItem(
+    assert inv['py:class', 'module.cls'] == _InventoryItem(
         project_name='foo',
         project_version='1.0',
         uri='/util/foo.html#module.cls',
@@ -37,35 +37,33 @@ def test_read_inventory_v1():
     )
 
 
-def test_read_inventory_v2():
-    invdata = InventoryFile.loads(INVENTORY_V2, uri='/util')
+def test_read_inventory_v2() -> None:
+    inv = InventoryFile.loads(INVENTORY_V2, uri='/util')
 
-    assert len(invdata['py:module']) == 2
-    assert invdata['py:module']['module1'] == _InventoryItem(
+    assert len(inv.data['py:module']) == 2
+    assert inv['py:module', 'module1'] == _InventoryItem(
         project_name='foo',
         project_version='2.0',
         uri='/util/foo.html#module-module1',
         display_name='Long Module desc',
     )
-    assert invdata['py:module']['module2'] == _InventoryItem(
+    assert inv['py:module', 'module2'] == _InventoryItem(
         project_name='foo',
         project_version='2.0',
         uri='/util/foo.html#module-module2',
         display_name='-',
     )
-    assert invdata['py:function']['module1.func'].uri == (
-        '/util/sub/foo.html#module1.func'
-    )
-    assert invdata['c:function']['CFunc'].uri == '/util/cfunc.html#CFunc'
-    assert invdata['std:term']['a term'].uri == '/util/glossary.html#term-a-term'
-    assert invdata['std:term']['a term including:colon'].uri == (
+    assert inv['py:function', 'module1.func'].uri == ('/util/sub/foo.html#module1.func')
+    assert inv['c:function', 'CFunc'].uri == '/util/cfunc.html#CFunc'
+    assert inv['std:term', 'a term'].uri == '/util/glossary.html#term-a-term'
+    assert inv['std:term', 'a term including:colon'].uri == (
         '/util/glossary.html#term-a-term-including-colon'
     )
 
 
-def test_read_inventory_v2_not_having_version():
-    invdata = InventoryFile.loads(INVENTORY_V2_NO_VERSION, uri='/util')
-    assert invdata['py:module']['module1'] == _InventoryItem(
+def test_read_inventory_v2_not_having_version() -> None:
+    inv = InventoryFile.loads(INVENTORY_V2_NO_VERSION, uri='/util')
+    assert inv['py:module', 'module1'] == _InventoryItem(
         project_name='foo',
         project_version='',
         uri='/util/foo.html#module-module1',
@@ -74,13 +72,14 @@ def test_read_inventory_v2_not_having_version():
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_ambiguous_definition_warning(app):
+def test_ambiguous_definition_warning(app: SphinxTestApp) -> None:
     InventoryFile.loads(INVENTORY_V2_AMBIGUOUS_TERMS, uri='/util')
 
     def _multiple_defs_notice_for(entity: str) -> str:
         return f'contains multiple definitions for {entity}'
 
-    # was warning-level; reduced to info-level - see https://github.com/sphinx-doc/sphinx/issues/12613
+    # was warning-level; reduced to info-level
+    # See: https://github.com/sphinx-doc/sphinx/issues/12613
     mult_defs_a, mult_defs_b = (
         _multiple_defs_notice_for('std:term:a'),
         _multiple_defs_notice_for('std:term:b'),

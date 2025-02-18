@@ -146,7 +146,8 @@ def _resolve_toctree(
     # </ul>
     #
     # The transformation is made in two passes in order to avoid
-    # interactions between marking and pruning the tree (see bug #1046).
+    # interactions between marking and pruning the tree.
+    # See: https://github.com/sphinx-doc/sphinx/issues/1046
 
     toctree_ancestors = _get_toctree_ancestors(env.toctree_includes, docname)
     included = Matcher(env.config.include_patterns)
@@ -358,12 +359,15 @@ def _toctree_entry(
         ref_path = str(env.doc2path(ref, False))
         if excluded(ref_path):
             message = __('toctree contains reference to excluded document %r')
+            subtype = 'excluded'
         elif not included(ref_path):
             message = __('toctree contains reference to non-included document %r')
+            subtype = 'not_included'
         else:
-            message = __('toctree contains reference to nonexisting document %r')
+            message = __('toctree contains reference to non-existing document %r')
+            subtype = 'not_readable'
 
-        logger.warning(message, ref, location=toctreenode)
+        logger.warning(message, ref, location=toctreenode, type='toc', subtype=subtype)
         raise
     return toc, refdoc
 
@@ -570,7 +574,7 @@ class TocTree:
         return [*_get_toctree_ancestors(self.env.toctree_includes, docname)]
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
-        return document_toc(self.env, docname, self.env.app.tags)
+        return document_toc(self.env, docname, self.env._tags)
 
     def get_toctree_for(
         self,

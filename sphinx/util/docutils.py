@@ -7,7 +7,7 @@ import re
 from contextlib import contextmanager
 from copy import copy
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import docutils
 from docutils import nodes
@@ -27,9 +27,9 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Iterator, Sequence
     from types import ModuleType, TracebackType
-    from typing import IO, Any
+    from typing import Any, Protocol
 
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
@@ -40,6 +40,30 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import RoleFunction
+
+    class _LanguageModule(Protocol):
+        labels: dict[str, str]
+        author_separators: list[str]
+        bibliographic_fields: list[str]
+
+    class _DirectivesDispatcher(Protocol):
+        def __call__(
+            self,
+            directive_name: str,
+            language_module: _LanguageModule,
+            document: nodes.document,
+            /,
+        ) -> tuple[type[Directive] | None, list[system_message]]: ...
+
+    class _RolesDispatcher(Protocol):
+        def __call__(
+            self,
+            role_name: str,
+            language_module: _LanguageModule,
+            lineno: int,
+            reporter: Reporter,
+            /,
+        ) -> tuple[RoleFunction | None, list[system_message]]: ...
 
 
 additional_nodes: set[type[Element]] = set()
@@ -128,7 +152,7 @@ def patched_get_language() -> Iterator[None]:
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
-    refs: https://github.com/sphinx-doc/sphinx/issues/3788
+    See: https://github.com/sphinx-doc/sphinx/issues/3788
     """
     from docutils.languages import get_language
 
@@ -154,7 +178,7 @@ def patched_rst_get_language() -> Iterator[None]:
     This should also work for old versions of docutils,
     because reporter is none by default.
 
-    refs: https://github.com/sphinx-doc/sphinx/issues/10179
+    See: https://github.com/sphinx-doc/sphinx/issues/10179
     """
     from docutils.parsers.rst.languages import get_language
 
@@ -206,8 +230,8 @@ class CustomReSTDispatcher:
     """
 
     def __init__(self) -> None:
-        self.directive_func: Callable = lambda *args: (None, [])
-        self.roles_func: Callable = lambda *args: (None, [])
+        self.directive_func: _DirectivesDispatcher = lambda *args: (None, [])
+        self.roles_func: _RolesDispatcher = lambda *args: (None, [])
 
     def __enter__(self) -> None:
         self.enable()
@@ -228,7 +252,7 @@ class CustomReSTDispatcher:
         roles.role = self.role  # type: ignore[assignment]
 
     def disable(self) -> None:
-        directives.directive = self.directive_func
+        directives.directive = self.directive_func  # type: ignore[assignment]
         roles.role = self.role_func
 
     def directive(
@@ -373,7 +397,7 @@ class LoggingReporter(Reporter):
         debug: bool = False,
         error_handler: str = 'backslashreplace',
     ) -> None:
-        stream = cast('IO', WarningStream())
+        stream = WarningStream()
         super().__init__(
             source, report_level, halt_level, stream, debug, error_handler=error_handler
         )
@@ -387,7 +411,7 @@ class NullReporter(Reporter):
 
 
 @contextmanager
-def switch_source_input(state: State, content: StringList) -> Iterator[None]:
+def switch_source_input(state: State[list[str]], content: StringList) -> Iterator[None]:
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
@@ -592,7 +616,7 @@ class SphinxRole:
         text: str,
         lineno: int,
         inliner: Inliner,
-        options: dict | None = None,
+        options: dict[str, Any] | None = None,
         content: Sequence[str] = (),
     ) -> tuple[list[Node], list[system_message]]:
         self.rawtext = rawtext
@@ -686,7 +710,7 @@ class ReferenceRole(SphinxRole):
         text: str,
         lineno: int,
         inliner: Inliner,
-        options: dict | None = None,
+        options: dict[str, Any] | None = None,
         content: Sequence[str] = (),
     ) -> tuple[list[Node], list[system_message]]:
         if options is None:
@@ -789,8 +813,6 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
         settings = copy(cached_settings)
 
     # Create a new instance of nodes.document using cached reporter
-    from sphinx import addnodes
-
-    document = addnodes.document(settings, reporter, source=source_path)
+    document = nodes.document(settings, reporter, source=source_path)
     document.note_source(source_path, -1)
     return document

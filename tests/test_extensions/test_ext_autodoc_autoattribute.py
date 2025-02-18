@@ -6,13 +6,18 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute(app):
+def test_autoattribute(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.Class.attr')
     assert list(actual) == [
         '',
@@ -26,7 +31,7 @@ def test_autoattribute(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_novalue(app):
+def test_autoattribute_novalue(app: SphinxTestApp) -> None:
     options = {'no-value': None}
     actual = do_autodoc(app, 'attribute', 'target.Class.attr', options)
     assert list(actual) == [
@@ -40,7 +45,7 @@ def test_autoattribute_novalue(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_typed_variable(app):
+def test_autoattribute_typed_variable(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Class.attr2')
     assert list(actual) == [
         '',
@@ -52,7 +57,7 @@ def test_autoattribute_typed_variable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_typed_variable_in_alias(app):
+def test_autoattribute_typed_variable_in_alias(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Alias.attr2')
     assert list(actual) == [
         '',
@@ -64,7 +69,7 @@ def test_autoattribute_typed_variable_in_alias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_instance_variable(app):
+def test_autoattribute_instance_variable(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Class.attr4')
     assert list(actual) == [
         '',
@@ -78,7 +83,7 @@ def test_autoattribute_instance_variable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_instance_variable_in_alias(app):
+def test_autoattribute_instance_variable_in_alias(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Alias.attr4')
     assert list(actual) == [
         '',
@@ -92,7 +97,7 @@ def test_autoattribute_instance_variable_in_alias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_instance_variable_without_comment(app):
+def test_autoattribute_instance_variable_without_comment(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.instance_variable.Bar.attr4')
     assert list(actual) == [
         '',
@@ -103,7 +108,7 @@ def test_autoattribute_instance_variable_without_comment(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_slots_variable_list(app):
+def test_autoattribute_slots_variable_list(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.slots.Foo.attr')
     assert list(actual) == [
         '',
@@ -114,7 +119,7 @@ def test_autoattribute_slots_variable_list(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_slots_variable_dict(app):
+def test_autoattribute_slots_variable_dict(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.slots.Bar.attr1')
     assert list(actual) == [
         '',
@@ -128,7 +133,7 @@ def test_autoattribute_slots_variable_dict(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_slots_variable_str(app):
+def test_autoattribute_slots_variable_str(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.slots.Baz.attr')
     assert list(actual) == [
         '',
@@ -139,7 +144,7 @@ def test_autoattribute_slots_variable_str(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_GenericAlias(app):
+def test_autoattribute_GenericAlias(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.genericalias.Class.T')
     assert list(actual) == [
         '',
@@ -170,7 +175,7 @@ def test_autoattribute_TypeVar(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_hide_value(app):
+def test_autoattribute_hide_value(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'attribute', 'target.hide_value.Foo.SENTINEL1')
     assert list(actual) == [
         '',

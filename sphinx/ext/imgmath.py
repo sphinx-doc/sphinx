@@ -25,7 +25,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
-from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
@@ -41,7 +40,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-templates_path = Path(package_dir, 'templates', 'imgmath')
+templates_path = package_dir.joinpath('templates', 'imgmath')
 
 
 class MathExtError(SphinxError):
@@ -266,7 +265,7 @@ def render_math(
         f'{sha1(latex.encode(), usedforsecurity=False).hexdigest()}.{image_format}'
     )
     generated_path = self.builder.outdir / self.builder.imagedir / 'math' / filename
-    ensuredir(os.path.dirname(generated_path))
+    generated_path.parent.mkdir(parents=True, exist_ok=True)
     if generated_path.is_file():
         if image_format == 'png':
             depth = read_png_depth(generated_path)
@@ -366,7 +365,7 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
 
 
 def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> None:
-    if node['nowrap']:
+    if node.get('no-wrap', node.get('nowrap', False)):
         latex = node.astext()
     else:
         latex = wrap_displaymath(node.astext(), None, False)
@@ -412,21 +411,26 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         block_renderers=(html_visit_displaymath, None),
     )
 
-    app.add_config_value('imgmath_image_format', 'png', 'html')
-    app.add_config_value('imgmath_dvipng', 'dvipng', 'html')
-    app.add_config_value('imgmath_dvisvgm', 'dvisvgm', 'html')
-    app.add_config_value('imgmath_latex', 'latex', 'html')
-    app.add_config_value('imgmath_use_preview', False, 'html')
+    app.add_config_value('imgmath_image_format', 'png', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_dvipng', 'dvipng', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_dvisvgm', 'dvisvgm', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_latex', 'latex', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_use_preview', False, 'html', types=frozenset({bool}))
     app.add_config_value(
         'imgmath_dvipng_args',
         ['-gamma', '1.5', '-D', '110', '-bg', 'Transparent'],
         'html',
+        types=frozenset({list}),
     )
-    app.add_config_value('imgmath_dvisvgm_args', ['--no-fonts'], 'html')
-    app.add_config_value('imgmath_latex_args', [], 'html')
-    app.add_config_value('imgmath_latex_preamble', '', 'html')
-    app.add_config_value('imgmath_add_tooltips', True, 'html')
-    app.add_config_value('imgmath_font_size', 12, 'html')
+    app.add_config_value(
+        'imgmath_dvisvgm_args', ['--no-fonts'], 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'imgmath_latex_args', [], 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value('imgmath_latex_preamble', '', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_add_tooltips', True, 'html', types=frozenset({bool}))
+    app.add_config_value('imgmath_font_size', 12, 'html', types=frozenset({int}))
     app.add_config_value('imgmath_embed', False, 'html', types=frozenset({bool}))
     app.connect('build-finished', clean_up_files)
     return {

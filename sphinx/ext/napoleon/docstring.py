@@ -1095,8 +1095,13 @@ class GoogleDocstring:
                     )
                     self._annotations = get_type_hints(self._obj, None, localns)
                 if _name in self._annotations:
+                    short_literals = getattr(
+                        self._config, 'python_display_short_literal_types', False
+                    )
                     return stringify_annotation(
-                        self._annotations[_name], 'fully-qualified-except-typing'
+                        self._annotations[_name],
+                        mode='fully-qualified-except-typing',
+                        short_literals=short_literals,
                     )
         # No annotation found
         return ''

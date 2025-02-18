@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
     from jinja2.environment import Environment
 
-_TEMPLATES_PATH = Path(package_dir, 'templates')
+_TEMPLATES_PATH = package_dir / 'templates'
 _LATEX_TEMPLATES_PATH = _TEMPLATES_PATH / 'latex'
 
 

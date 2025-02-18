@@ -133,6 +133,33 @@ linking:
                   ('../../otherbook/build/html/objects.inv', None)),
       }
 
+.. confval:: intersphinx_resolve_self
+   :type: :code-py:`str`
+   :default: :code-py:`''`
+
+   If provided, :confval:`!intersphinx_resolve_self` overrides intersphinx's
+   resolution mechanism to resolve all references to the current project,
+   rather than an external reference.
+   This is useful when documentation is shared between projects,
+   with the 'upstream' or 'parent' project using intersphinx-style references
+   in its documentation.
+   For example, a project such as *Astropy* might set:
+
+   .. code-block:: python
+
+      intersphinx_resolve_self = 'astropy'
+
+   Projects re-using *Astropy*'s documentation or inheriting their docstrings
+   would then configure their :confval:`!intersphinx_mapping` with
+   an :code-py:`'astropy'` key, pointing to *astropy*'s :file:`objects.inv`.
+   For example:
+
+   .. code-block:: python
+
+      intersphinx_mapping = {
+          'astropy': ('https://docs.astropy.org/en/stable/', None),
+      }
+
 .. confval:: intersphinx_cache_limit
    :type: :code-py:`int`
    :default: :code-py:`5` (five days)
@@ -220,10 +247,12 @@ Showing all links of an Intersphinx mapping file
 ------------------------------------------------
 
 To show all Intersphinx links and their targets of an Intersphinx mapping file,
-run ``python -msphinx.ext.intersphinx url-or-path``.  This is helpful when
+run ``python -m sphinx.ext.intersphinx url-or-path``.  This is helpful when
 searching for the root cause of a broken Intersphinx link in a documentation
-project. The following example prints the Intersphinx mapping of the Python 3
-documentation::
+project.
+The following example prints the Intersphinx mapping of the Python documentation:
+
+.. code-block:: console
 
    $ python -m sphinx.ext.intersphinx https://docs.python.org/3/objects.inv
 

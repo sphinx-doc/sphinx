@@ -5,7 +5,7 @@ from __future__ import annotations
 import posixpath
 import re
 import urllib.parse
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
@@ -17,8 +17,6 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -174,6 +172,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = node.child_text_separator
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))
@@ -200,10 +199,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that
-    # signatures like the following render correctly (see issue #1001):
+    # signatures like the following render correctly:
     #
     #     foo([a, ]b, c[, d])
     #
+    # See: https://github.com/sphinx-doc/sphinx/issues/1001
     def visit_desc_parameter(self, node: Element) -> None:
         on_separate_line = self.multi_line_parameter_list
         if on_separate_line and not (
@@ -238,7 +238,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 or is_required
                 and (is_last_group or next_is_required)
             ):
-                self.body.append(self.param_separator)
+                if not is_last_group or opt_param_left_at_level or self.trailing_comma:
+                    self.body.append(self.param_separator)
                 self.body.append('</dd>\n')
 
         elif self.required_params_left:
@@ -281,19 +282,26 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
-            # If it's the first time we go down one level, add the separator
-            # before the bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
+            # If it's the first time we go down one level, add the separator before the
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.body.append(self.param_separator)
             self.body.append('<span class="optional">]</span>')
             # End the line if we have just closed the last bracket of this
             # optional parameter group.
-            if self.optional_param_level == 0:
+            if level == 0:
                 self.body.append('</dd>\n')
         else:
             self.body.append('<span class="optional">]</span>')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
@@ -358,12 +366,21 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     # overwritten
     def visit_admonition(self, node: Element, name: str = '') -> None:
-        self.body.append(self.starttag(node, 'div', CLASS=('admonition ' + name)))
+        attributes = {}
+        tag_name = 'div'
+        if collapsible := node.get('collapsible'):
+            tag_name = 'details'
+            if collapsible == 'open':
+                attributes['open'] = 'open'
+        self.body.append(
+            self.starttag(node, tag_name, CLASS=f'admonition {name}', **attributes)
+        )
+        self.context.append(f'</{tag_name}>\n')
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
     def depart_admonition(self, node: Element | None = None) -> None:
-        self.body.append('</div>\n')
+        self.body.append(self.context.pop())
 
     def visit_seealso(self, node: Element) -> None:
         self.visit_admonition(node, 'seealso')
@@ -491,6 +508,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             )
             self.body.append('<span class="caption-text">')
             self.context.append('</span></p>\n')
+        elif (
+            isinstance(node.parent, nodes.Admonition)
+            and isinstance(node.parent, nodes.Element)
+            and 'collapsible' in node.parent
+        ):
+            self.body.append(
+                self.starttag(node, 'summary', '', CLASS='admonition-title')
+            )
+            self.context.append('</summary>\n')
         else:
             super().visit_title(node)
         self.add_secnumber(node)
@@ -668,24 +694,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
-        productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
-        lastname = None
-        for production in productionlist:
-            if production['tokenname']:
-                lastname = production['tokenname'].ljust(maxlen)
-                self.body.append(self.starttag(production, 'strong', ''))
-                self.body.append(lastname + '</strong> ::= ')
-            elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
-            production.walkabout(self)
-            self.body.append('\n')
-        self.body.append('</pre>\n')
-        raise nodes.SkipNode
 
     def depart_productionlist(self, node: Element) -> None:
-        pass
+        self.body.append('</pre>\n')
 
     def visit_production(self, node: Element) -> None:
         pass
@@ -895,8 +906,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def visit_abbreviation(self, node: Element) -> None:
         attrs = {}
-        if node.hasattr('explanation'):
-            attrs['title'] = node['explanation']
+        if explanation := node.get('explanation', ''):
+            attrs['title'] = explanation
         self.body.append(self.starttag(node, 'abbr', '', **attrs))
 
     def depart_abbreviation(self, node: Element) -> None:
@@ -953,33 +964,33 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         else:
             node['classes'].append('field-odd')
 
-    def visit_math(self, node: Element, math_env: str = '') -> None:
+    def visit_math(self, node: nodes.math, math_env: str = '') -> None:
         self._has_maths_elements = True
 
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
-        visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
+        visit, _ = self.builder.env._registry.html_inline_math_renderers[name]
         visit(self, node)
 
-    def depart_math(self, node: Element, math_env: str = '') -> None:
+    def depart_math(self, node: nodes.math, math_env: str = '') -> None:
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
-        _, depart = self.builder.app.registry.html_inline_math_renderers[name]
+        _, depart = self.builder.env._registry.html_inline_math_renderers[name]
         if depart:
             depart(self, node)
 
-    def visit_math_block(self, node: Element, math_env: str = '') -> None:
+    def visit_math_block(self, node: nodes.math_block, math_env: str = '') -> None:
         self._has_maths_elements = True
 
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
-        visit, _ = self.builder.app.registry.html_block_math_renderers[name]
+        visit, _ = self.builder.env._registry.html_block_math_renderers[name]
         visit(self, node)
 
-    def depart_math_block(self, node: Element, math_env: str = '') -> None:
+    def depart_math_block(self, node: nodes.math_block, math_env: str = '') -> None:
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
-        _, depart = self.builder.app.registry.html_block_math_renderers[name]
+        _, depart = self.builder.env._registry.html_block_math_renderers[name]
         if depart:
             depart(self, node)
 

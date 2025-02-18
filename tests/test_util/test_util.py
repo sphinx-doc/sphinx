@@ -39,7 +39,7 @@ def test_ensuredir(tmp_path):
     assert path.is_dir()
 
 
-def test_exported_attributes():
+def test_exported_attributes() -> None:
     # RemovedInSphinx90Warning
     with pytest.warns(
         RemovedInSphinx90Warning,
@@ -69,12 +69,11 @@ def test_exported_attributes():
         assert sphinx.util.FilenameUniqDict is FilenameUniqDict
     with pytest.warns(RemovedInSphinx10Warning, match=r'deprecated.'):
         assert sphinx.util.DownloadFiles is DownloadFiles
-    with pytest.warns(RemovedInSphinx10Warning, match=r'deprecated.'):
-        assert sphinx.util.import_object is import_object
 
     # Re-exported for backwards compatibility,
     # but not currently deprecated
     assert sphinx.util.encode_uri is encode_uri
+    assert sphinx.util.import_object is import_object
     assert sphinx.util.isurl is is_url
     assert sphinx.util.parselinenos is parse_line_num_spec
     assert sphinx.util.patfilter is patfilter

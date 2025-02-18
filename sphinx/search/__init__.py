@@ -10,7 +10,6 @@ import os
 import pickle
 import re
 from importlib import import_module
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -22,14 +21,25 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from typing import IO, Any
+    from typing import Any, Protocol, TypeVar
 
     from docutils.nodes import Node
 
     from sphinx.environment import BuildEnvironment
 
-_NON_MINIFIED_JS_PATH = Path(package_dir, 'search', 'non-minified-js')
-_MINIFIED_JS_PATH = Path(package_dir, 'search', 'minified-js')
+    _T_co = TypeVar('_T_co', covariant=True)
+    _T_contra = TypeVar('_T_contra', contravariant=True)
+
+    class _ReadableStream(Protocol[_T_co]):
+        def read(self, n: int = ..., /) -> _T_co: ...
+        def readline(self, n: int = ..., /) -> _T_co: ...
+
+    class _WritableStream(Protocol[_T_contra]):
+        def write(self, s: _T_contra, /) -> object: ...
+
+
+_NON_MINIFIED_JS_PATH = package_dir.joinpath('search', 'non-minified-js')
+_MINIFIED_JS_PATH = package_dir.joinpath('search', 'minified-js')
 
 
 class SearchLanguage:
@@ -173,10 +183,10 @@ class _JavaScriptIndex:
             raise ValueError(msg)
         return json.loads(data)
 
-    def dump(self, data: Any, f: IO[str]) -> None:
+    def dump(self, data: Any, f: _WritableStream[str]) -> None:
         f.write(self.dumps(data))
 
-    def load(self, f: IO[str]) -> Any:
+    def load(self, f: _ReadableStream[str]) -> Any:
         return self.loads(f.read())
 
 
@@ -215,6 +225,9 @@ class WordCollector(nodes.NodeVisitor):
 
     def dispatch_visit(self, node: Node) -> None:
         if isinstance(node, nodes.comment):
+            raise nodes.SkipNode
+        elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
+            # skip nodes marked with a 'no-search' class
             raise nodes.SkipNode
         elif isinstance(node, nodes.raw):
             if 'html' in node.get('format', '').split():
@@ -310,7 +323,7 @@ class IndexBuilder:
             self.js_scorer_code = ''
         self.js_splitter_code = ''
 
-    def load(self, stream: IO, format: Any) -> None:
+    def load(self, stream: _ReadableStream[str | bytes], format: Any) -> None:
         """Reconstruct from frozen data."""
         if isinstance(format, str):
             format = self.formats[format]
@@ -346,7 +359,9 @@ class IndexBuilder:
         self._title_mapping = load_terms(frozen['titleterms'])
         # no need to load keywords/objtypes
 
-    def dump(self, stream: IO, format: Any) -> None:
+    def dump(
+        self, stream: _WritableStream[str] | _WritableStream[bytes], format: Any
+    ) -> None:
         """Dump the frozen index to a stream."""
         if isinstance(format, str):
             format = self.formats[format]
@@ -589,6 +604,9 @@ def _feed_visit_nodes(
     language: str,
 ) -> None:
     if isinstance(node, nodes.comment):
+        return
+    elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
+        # skip nodes marked with a 'no-search' class
         return
     elif isinstance(node, nodes.raw):
         if 'html' in node.get('format', '').split():

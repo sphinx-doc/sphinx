@@ -135,11 +135,15 @@ The following directives are provided for module and class contents:
 
       This will be parsed as a Python expression for cross-referencing
       the type annotation.
-      As such, the argument to ``:type:`` should be a valid Python expression.
+      As such, the argument to ``:type:`` should be a valid `annotation expression`_.
 
-      .. caution:: The valid syntax for the ``:type:`` directive option
-                   differs from the syntax for the ``:type:`` `info field
-                   <info-field-lists_>`__.
+      .. caution::
+         The valid syntax for the ``:type:`` directive option differs from
+         the syntax for the ``:type:`` `info field <info-field-lists_>`__.
+         The ``:type:`` directive option does not understand
+         reStructuredText markup or the ``or`` or ``of`` keywords,
+         meaning unions must use ``|`` and sequences must use square brackets,
+         and roles such as ``:ref:`...``` cannot be used.
 
       .. versionadded:: 2.4
 
@@ -226,6 +230,20 @@ The following directives are provided for module and class contents:
 
    .. rubric:: options
 
+   .. rst:directive:option:: abstract
+      :type: no value
+
+      Indicate that the class is an abstract base class.
+      This produces the following output:
+
+      .. py:class:: Cheese
+         :no-index:
+         :abstract:
+
+         A cheesy representation.
+
+      .. versionadded:: 8.2
+
    .. rst:directive:option:: canonical
       :type: full qualified name including module name
 
@@ -277,11 +295,15 @@ The following directives are provided for module and class contents:
 
       This will be parsed as a Python expression for cross-referencing
       the type annotation.
-      As such, the argument to ``:type:`` should be a valid Python expression.
+      As such, the argument to ``:type:`` should be a valid `annotation expression`_.
 
-      .. caution:: The valid syntax for the ``:type:`` directive option
-                   differs from the syntax for the ``:type:`` `info field
-                   <info-field-lists_>`__.
+      .. caution::
+         The valid syntax for the ``:type:`` directive option differs from
+         the syntax for the ``:type:`` `info field <info-field-lists_>`__.
+         The ``:type:`` directive option does not understand
+         reStructuredText markup or the ``or`` or ``of`` keywords,
+         meaning unions must use ``|`` and sequences must use square brackets,
+         and roles such as ``:ref:`...``` cannot be used.
 
       .. versionadded:: 2.4
 
@@ -312,10 +334,22 @@ The following directives are provided for module and class contents:
 
    .. rubric:: options
 
-   .. rst:directive:option:: abstractmethod
+   .. rst:directive:option:: abstract
+                             abstractmethod
       :type: no value
 
       Indicate the property is abstract.
+      This produces the following output:
+
+      .. py:property:: Cheese.amount_in_stock
+         :no-index:
+         :abstractmethod:
+
+         Cheese levels at the *National Cheese Emporium*.
+
+      .. versionchanged:: 8.2
+
+         The ``:abstract:`` alias is also supported.
 
    .. rst:directive:option:: classmethod
       :type: no value
@@ -329,11 +363,15 @@ The following directives are provided for module and class contents:
 
       This will be parsed as a Python expression for cross-referencing
       the type annotation.
-      As such, the argument to ``:type:`` should be a valid Python expression.
+      As such, the argument to ``:type:`` should be a valid `annotation expression`_.
 
-      .. caution:: The valid syntax for the ``:type:`` directive option
-                   differs from the syntax for the ``:type:`` `info field
-                   <info-field-lists_>`__.
+      .. caution::
+         The valid syntax for the ``:type:`` directive option differs from
+         the syntax for the ``:type:`` `info field <info-field-lists_>`__.
+         The ``:type:`` directive option does not understand
+         reStructuredText markup or the ``or`` or ``of`` keywords,
+         meaning unions must use ``|`` and sequences must use square brackets,
+         and roles such as ``:ref:`...``` cannot be used.
 
    .. rst::directive:option:: module
       :type: text
@@ -400,12 +438,23 @@ The following directives are provided for module and class contents:
 
    .. rubric:: options
 
-   .. rst:directive:option:: abstractmethod
+   .. rst:directive:option:: abstract
+                             abstractmethod
       :type: no value
 
       Indicate the method is an abstract method.
+      This produces the following output:
+
+      .. py:method:: Cheese.order_more_stock
+         :no-index:
+         :abstractmethod:
+
+         Order more cheese (we're fresh out!).
 
       .. versionadded:: 2.1
+      .. versionchanged:: 8.2
+
+         The ``:abstract:`` alias is also supported.
 
    .. rst:directive:option:: async
       :type: no value
@@ -513,8 +562,7 @@ The following directives are provided for module and class contents:
 
    (as opposed to ``.. py:decorator:: removename(func)``.)
 
-   There is no ``py:deco`` role to link to a decorator that is marked up with
-   this directive; rather, use the :rst:role:`py:func` role.
+   Refer to a decorator function using the :rst:role:`py:deco` role.
 
    .. rst:directive:option:: single-line-parameter-list
       :type: no value
@@ -540,7 +588,9 @@ The following directives are provided for module and class contents:
 
    Same as :rst:dir:`py:decorator`, but for decorators that are methods.
 
-   Refer to a decorator method using the :rst:role:`py:meth` role.
+   Refer to a decorator method using the :rst:role:`py:deco` role.
+
+.. _annotation expression: https://typing.readthedocs.io/en/latest/spec/annotations.html#type-and-annotation-expressions
 
 .. _signatures:
 
@@ -549,35 +599,46 @@ Python Signatures
 
 Signatures of functions, methods and class constructors can be given like they
 would be written in Python.
+This can include default values, positional-only or keyword-only parameters,
+type annotations, and type parameters.
+For example:
 
-Default values for optional arguments can be given (but if they contain commas,
-they will confuse the signature parser).  Python 3-style argument annotations
-can also be given as well as return type annotations::
+.. code-block:: rst
 
-   .. py:function:: compile(source : string, filename, symbol='file') -> ast object
+   .. py:function:: compile(source: str, filename: Path, symbol: str = 'file') -> ast.AST
+
+.. py:function:: compile(source: str, filename: Path, symbol: str = 'file') -> ast.AST
+   :no-index:
 
 For functions with optional parameters that don't have default values
 (typically functions implemented in C extension modules without keyword
-argument support), you can use brackets to specify the optional parts:
+argument support),
+you can list multiple versions of the same signature in a single directive:
+
+.. py:function:: compile(source)
+                 compile(source, filename)
+                 compile(source, filename, symbol)
+   :no-index:
+
+Another approach is to use square brackets to specify the optional parts.
+When using square brackets, it is customary to place
+the opening bracket before the comma (``[,``).
 
 .. py:function:: compile(source[, filename[, symbol]])
-   :no-contents-entry:
-   :no-index-entry:
-
-It is customary to put the opening bracket before the comma.
+   :no-index:
 
 Python 3.12 introduced *type parameters*, which are type variables
-declared directly  within the class or function definition:
+declared directly within the class or function definition:
 
 .. code-block:: python
 
    class AnimalList[AnimalT](list[AnimalT]):
-      ...
+       ...
 
    def add[T](a: T, b: T) -> T:
-      return a + b
+       return a + b
 
-The corresponding reStructuredText documentation would be:
+The corresponding reStructuredText markup would be:
 
 .. code-block:: rst
 
@@ -585,7 +646,10 @@ The corresponding reStructuredText documentation would be:
 
    .. py:function:: add[T](a: T, b: T) -> T
 
-See :pep:`695` and :pep:`696` for details and the full specification.
+.. seealso::
+
+   :pep:`695` and :pep:`696`, for details and the full specification.
+
 
 .. _info-field-lists:
 
@@ -703,6 +767,17 @@ a matching identifier is found:
    not include trailing parentheses to enhance readability; they will be added
    automatically by Sphinx if the :confval:`add_function_parentheses` config
    value is ``True`` (the default).
+
+.. rst:role:: py:deco
+
+   Reference a Python decorator; dotted names may be used.
+   The rendered output will be prepended with an at-sign (``@``),
+   for example: ``:py:deco:`removename``` produces :py:deco:`removename`.
+
+   .. py:decorator:: removename
+      :no-contents-entry:
+      :no-index-entry:
+      :no-typesetting:
 
 .. rst:role:: py:data
 

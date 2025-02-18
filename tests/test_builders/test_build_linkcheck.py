@@ -27,6 +27,7 @@ from sphinx.builders.linkcheck import (
     RateLimit,
     compile_linkcheck_allowed_redirects,
 )
+from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
 
@@ -257,6 +258,7 @@ def test_too_many_retries(app: SphinxTestApp) -> None:
     'linkcheck',
     testroot='linkcheck-raw-node',
     freshenv=True,
+    copy_test_root=True,
 )
 def test_raw_node(app: SphinxTestApp) -> None:
     with serve_application(app, OKHandler) as address:
@@ -437,7 +439,7 @@ def test_raises_for_invalid_status(app: SphinxTestApp) -> None:
     testroot='linkcheck-localserver-anchor',
     freshenv=True,
 )
-def test_incomplete_html_anchor(app):
+def test_incomplete_html_anchor(app: SphinxTestApp) -> None:
     class IncompleteHTMLDocumentHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
@@ -463,7 +465,7 @@ def test_incomplete_html_anchor(app):
     testroot='linkcheck-localserver-anchor',
     freshenv=True,
 )
-def test_decoding_error_anchor_ignored(app):
+def test_decoding_error_anchor_ignored(app: SphinxTestApp) -> None:
     class NonASCIIHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
@@ -968,7 +970,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
-def test_ignore_local_redirection(app):
+def test_ignore_local_redirection(app: SphinxTestApp) -> None:
     with serve_application(app, InfiniteRedirectOnHeadHandler) as address:
         app.config.linkcheck_ignore = [f'http://{address}/redirected']
         app.build()
@@ -999,7 +1001,7 @@ class RemoteDomainRedirectHandler(InfiniteRedirectOnHeadHandler):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
-def test_ignore_remote_redirection(app):
+def test_ignore_remote_redirection(app: SphinxTestApp) -> None:
     with serve_application(app, RemoteDomainRedirectHandler) as address:
         app.config.linkcheck_ignore = ['http://example.test']
         app.build()

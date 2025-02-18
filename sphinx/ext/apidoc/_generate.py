@@ -33,7 +33,7 @@ else:
 
 PY_SUFFIXES = ('.py', '.pyx', *EXTENSION_SUFFIXES)
 
-template_dir = Path(package_dir, 'templates', 'apidoc')
+template_dir = package_dir.joinpath('templates', 'apidoc')
 
 
 def is_initpy(filename: str | Path) -> bool:
@@ -50,22 +50,21 @@ def module_join(*modnames: str | None) -> str:
     return '.'.join(filter(None, modnames))
 
 
-def is_packagedir(
-    dirname: str | None = None, files: Iterable[str | Path] | None = None
+def is_package_dir(
+    files: Iterable[Path | str] = (), *, dir_path: Path | None = None
 ) -> bool:
     """Check given *files* contains __init__ file."""
-    if files is None and dirname is None:
-        return False
-
-    if files is None:
-        files = Path(dirname or '.').iterdir()
-    return any(f for f in files if is_initpy(f))
+    if files != ():
+        return any(map(is_initpy, files))
+    if dir_path is not None:
+        return any(map(is_initpy, dir_path.iterdir()))
+    return False
 
 
 def write_file(name: str, text: str, opts: ApidocOptions) -> Path:
     """Write the output file for module/package <name>."""
-    fname = Path(opts.destdir, f'{name}.{opts.suffix}')
-    if opts.dryrun:
+    fname = Path(opts.dest_dir, f'{name}.{opts.suffix}')
+    if opts.dry_run:
         if not opts.quiet:
             LOGGER.info(__('Would create file %s.'), fname)
         return fname
@@ -88,12 +87,12 @@ def create_module_file(
 ) -> Path:
     """Build the text of the file and write the file."""
     options = set(OPTIONS if not opts.automodule_options else opts.automodule_options)
-    if opts.includeprivate:
+    if opts.include_private:
         options.add('private-members')
 
     qualname = module_join(package, basename)
     context = {
-        'show_headings': not opts.noheadings,
+        'show_headings': not opts.no_headings,
         'basename': basename,
         'qualname': qualname,
         'automodule_options': sorted(options),
@@ -141,7 +140,7 @@ def create_package_file(
         module_join(master_package, subroot, modname) for modname in submodules
     ]
     options = OPTIONS.copy()
-    if opts.includeprivate:
+    if opts.include_private:
         options.add('private-members')
 
     pkgname = module_join(master_package, subroot)
@@ -150,11 +149,11 @@ def create_package_file(
         'subpackages': subpackages,
         'submodules': submodules,
         'is_namespace': is_namespace,
-        'modulefirst': opts.modulefirst,
-        'separatemodules': opts.separatemodules,
+        'modulefirst': opts.module_first,
+        'separatemodules': opts.separate_modules,
         'automodule_options': sorted(options),
-        'show_headings': not opts.noheadings,
-        'maxdepth': opts.maxdepth,
+        'show_headings': not opts.no_headings,
+        'maxdepth': opts.max_depth,
     }
     if user_template_dir is not None:
         template_path = [user_template_dir, template_dir]
@@ -166,7 +165,7 @@ def create_package_file(
     text = ReSTRenderer(template_path).render('package.rst.jinja', context)
     written.append(write_file(pkgname, text, opts))
 
-    if submodules and opts.separatemodules:
+    if submodules and opts.separate_modules:
         written.extend([
             create_module_file(None, submodule, opts, user_template_dir)
             for submodule in submodules
@@ -193,7 +192,7 @@ def create_modules_toc_file(
 
     context = {
         'header': opts.header,
-        'maxdepth': opts.maxdepth,
+        'maxdepth': opts.max_depth,
         'docnames': modules,
     }
     template_path: Sequence[str | os.PathLike[str]]
@@ -231,16 +230,16 @@ def is_skipped_module(
         # skip if the file doesn't exist
         return True
     # skip if the module has a "private" name
-    return filename.name.startswith('_') and not opts.includeprivate
+    return filename.name.startswith('_') and not opts.include_private
 
 
 def walk(
-    rootpath: str,
+    root_path: str | Path,
     excludes: Sequence[re.Pattern[str]],
     opts: ApidocOptions,
 ) -> Iterator[tuple[str, list[str], list[str]]]:
     """Walk through the directory and list files and subdirectories up."""
-    for root, subs, files in os.walk(rootpath, followlinks=opts.followlinks):
+    for root, subs, files in os.walk(root_path, followlinks=opts.follow_links):
         # document only Python module files (that aren't excluded)
         files = sorted(
             f
@@ -250,7 +249,7 @@ def walk(
 
         # remove hidden ('.') and private ('_') directories, as well as
         # excluded dirs
-        if opts.includeprivate:
+        if opts.include_private:
             exclude_prefixes: tuple[str, ...] = ('.',)
         else:
             exclude_prefixes = ('.', '_')
@@ -266,14 +265,14 @@ def walk(
 
 
 def has_child_module(
-    rootpath: str, excludes: Sequence[re.Pattern[str]], opts: ApidocOptions
+    root_path: str | Path, excludes: Sequence[re.Pattern[str]], opts: ApidocOptions
 ) -> bool:
     """Check the given directory contains child module/s (at least one)."""
-    return any(files for _root, _subs, files in walk(rootpath, excludes, opts))
+    return any(files for _root, _subs, files in walk(root_path, excludes, opts))
 
 
 def recurse_tree(
-    rootpath: str | os.PathLike[str],
+    root_path: str | os.PathLike[str],
     excludes: Sequence[re.Pattern[str]],
     opts: ApidocOptions,
     user_template_dir: str | os.PathLike[str] | None = None,
@@ -282,24 +281,24 @@ def recurse_tree(
     ReST files.
     """
     # check if the base directory is a package and get its name
-    rootpath = os.fspath(rootpath)
-    if is_packagedir(rootpath) or opts.implicit_namespaces:
-        root_package = rootpath.split(os.path.sep)[-1]
+    root_path = Path(root_path)
+    if is_package_dir(dir_path=root_path) or opts.implicit_namespaces:
+        root_package = root_path.name
     else:
         # otherwise, the base is a directory with packages
         root_package = None
 
     toplevels = []
     written_files = []
-    for root, subs, files in walk(rootpath, excludes, opts):
-        is_pkg = is_packagedir(None, files)
+    for root, subs, files in walk(root_path, excludes, opts):
+        is_pkg = is_package_dir(files)
         is_namespace = not is_pkg and opts.implicit_namespaces
         if is_pkg:
             for f in files.copy():
                 if is_initpy(f):
                     files.remove(f)
                     files.insert(0, f)
-        elif root != rootpath:
+        elif root != str(root_path):
             # only accept non-package at toplevel unless using implicit namespaces
             if not opts.implicit_namespaces:
                 subs.clear()
@@ -309,7 +308,9 @@ def recurse_tree(
             # we are in a package with something to document
             if subs or len(files) > 1 or not is_skipped_package(root, opts):
                 subpackage = (
-                    root[len(rootpath) :].lstrip(os.path.sep).replace(os.path.sep, '.')
+                    root.removeprefix(str(root_path))
+                    .lstrip(os.path.sep)
+                    .replace(os.path.sep, '.')
                 )
                 # if this is not a namespace or
                 # a namespace and there is something there to document
@@ -330,10 +331,10 @@ def recurse_tree(
                     toplevels.append(module_join(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package
-            assert root == rootpath
+            assert root == str(root_path)
             assert root_package is None
             for py_file in files:
-                if not is_skipped_module(Path(rootpath, py_file), opts, excludes):
+                if not is_skipped_module(Path(root_path, py_file), opts, excludes):
                     module = py_file.split('.')[0]
                     written_files.append(
                         create_module_file(

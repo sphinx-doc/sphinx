@@ -1364,38 +1364,46 @@ Options for warning control
 
    A list of warning codes to suppress arbitrary warning messages.
 
+   .. versionadded:: 1.4
+
    By default, Sphinx supports the following warning codes:
 
-   * ``app.add_node``
    * ``app.add_directive``
-   * ``app.add_role``
    * ``app.add_generic_role``
+   * ``app.add_node``
+   * ``app.add_role``
    * ``app.add_source_parser``
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
    * ``duplicate_declaration.c``
    * ``duplicate_declaration.cpp``
-   * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
+   * ``epub.unknown_project_files``
+   * ``i18n.babel``
    * ``i18n.inconsistent_references``
-   * ``index``
+   * ``i18n.not_readable``
+   * ``i18n.not_writeable``
    * ``image.not_readable``
-   * ``ref.term``
-   * ``ref.ref``
-   * ``ref.numref``
-   * ``ref.keyword``
-   * ``ref.option``
-   * ``ref.citation``
-   * ``ref.footnote``
-   * ``ref.doc``
-   * ``ref.python``
+   * ``index``
    * ``misc.copy_overwrite``
    * ``misc.highlighting_failure``
+   * ``ref.any``
+   * ``ref.citation``
+   * ``ref.doc``
+   * ``ref.footnote``
+   * ``ref.keyword``
+   * ``ref.numref``
+   * ``ref.option``
+   * ``ref.python``
+   * ``ref.ref``
+   * ``ref.term``
    * ``toc.circular``
+   * ``toc.duplicate_entry``
    * ``toc.empty_glob``
    * ``toc.excluded``
    * ``toc.no_title``
+   * ``toc.not_included``
    * ``toc.not_readable``
    * ``toc.secnum``
 
@@ -1404,6 +1412,7 @@ Options for warning control
 
    * ``autodoc``
    * ``autodoc.import_object``
+   * ``autodoc.mocked_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
@@ -1413,45 +1422,65 @@ Options for warning control
    component to exclude all warnings attached to it.
 
    .. versionadded:: 1.4
+      ``ref.citation``, ``ref.doc``, ``ref.keyword``,
+      ``ref.numref``, ``ref.option``, ``ref.ref``, and ``ref.term``.
 
-   .. versionchanged:: 1.5
-      Added ``misc.highlighting_failure``
+   .. versionadded:: 1.4.2
+      ``app.add_directive``, ``app.add_generic_role``,
+      ``app.add_node``, ``app.add_role``, and ``app.add_source_parser``.
 
-   .. versionchanged:: 1.5.1
-      Added ``epub.unknown_project_files``
+   .. versionadded:: 1.5
+      ``misc.highlighting_failure``.
 
-   .. versionchanged:: 1.6
-      Added ``ref.footnote``
+   .. versionadded:: 1.5.1
+      ``epub.unknown_project_files``.
 
-   .. versionchanged:: 2.1
-      Added ``autosectionlabel.<document name>``
+   .. versionadded:: 1.5.2
+      ``toc.secnum``.
 
-   .. versionchanged:: 3.3.0
-      Added ``epub.duplicated_toc_entry``
+   .. versionadded:: 1.6
+      ``ref.footnote``, ``download.not_readable``, and ``image.not_readable``.
 
-   .. versionchanged:: 4.3
-      Added ``toc.excluded`` and ``toc.not_readable``
+   .. versionadded:: 1.7
+      ``ref.python``.
+
+   .. versionadded:: 2.0
+      ``autodoc.import_object``.
+
+   .. versionadded:: 2.1
+      ``autosectionlabel.<document name>``.
+
+   .. versionadded:: 3.1
+      ``toc.circular``.
+
+   .. versionadded:: 3.3
+      ``epub.duplicated_toc_entry``.
+
+   .. versionadded:: 4.3
+      ``toc.excluded`` and ``toc.not_readable``.
 
    .. versionadded:: 4.5
-      Added ``i18n.inconsistent_references``
+      ``i18n.inconsistent_references``.
 
    .. versionadded:: 7.1
-      Added ``index``.
+      ``index``.
 
    .. versionadded:: 7.3
-      Added ``config.cache``.
+      ``config.cache``, ``intersphinx.external``, and ``toc.no_title``.
 
-   .. versionadded:: 7.3
-      Added ``toc.no_title``.
+   .. versionadded:: 7.4
+      ``docutils`` and ``autosummary.import_cycle``.
 
    .. versionadded:: 8.0
-      Added ``misc.copy_overwrite``.
+      ``misc.copy_overwrite``.
 
    .. versionadded:: 8.2
-      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
+      ``autodoc.mocked_object``,
+      ``duplicate_declaration.c``, ``duplicate_declaration.cpp``,
+      ``i18n.babel``, ``i18n.not_readable``, ``i18n.not_writeable``,
+      ``ref.any``,
+      ``toc.duplicate_entry``, ``toc.empty_glob``, and ``toc.not_included``.
 
-   .. versionadded:: 8.2
-      Added ``toc.empty_glob``.
 
 Builder options
 ===============
@@ -4057,6 +4086,14 @@ Options for the Javascript domain
 
    .. versionadded:: 7.1
 
+.. confval:: javascript_trailing_comma_in_multi_line_signatures
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
+
+   .. versionadded:: 8.2
+
 
 Options for the Python domain
 -----------------------------
@@ -4145,6 +4182,14 @@ Options for the Python domain
       .. py:function:: add[T: VERY_LONG_SUPER_TYPE, U: VERY_LONG_SUPER_TYPE](a: T, b: U)
 
    .. versionadded:: 7.1
+
+.. confval:: python_trailing_comma_in_multi_line_signatures
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
+
+   .. versionadded:: 8.2
 
 .. confval:: python_use_unqualified_type_names
    :type: :code-py:`bool`

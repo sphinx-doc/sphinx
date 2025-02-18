@@ -239,13 +239,13 @@ class TestCode:
         type: str,
         filename: str,
         lineno: int,
-        options: dict | None = None,
+        options: dict[int, bool] | None = None,
     ) -> None:
         self.code = code
         self.type = type
         self.filename = filename
         self.lineno = lineno
-        self.options = options or {}
+        self.options: dict[int, bool] = options or {}
 
     def __repr__(self) -> str:
         return (
@@ -256,7 +256,7 @@ class TestCode:
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
     def summarize(  # type: ignore[override]
-        self, out: Callable, verbose: bool | None = None
+        self, out: Callable[[str], None], verbose: bool | None = None
     ) -> tuple[int, int]:
         string_io = StringIO()
         old_stdout = sys.stdout
@@ -524,7 +524,7 @@ Doctest summary
         return compile(code, name, self.type, flags, dont_inherit)
 
     def test_group(self, group: TestGroup) -> None:
-        ns: dict = {}
+        ns: dict[str, Any] = {}
 
         def run_setup_cleanup(
             runner: Any, testcodes: list[TestCode], what: Any
@@ -624,16 +624,19 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
     app.add_config_value('doctest_show_successes', True, '', types=frozenset({bool}))
-    app.add_config_value('doctest_path', (), '')
-    app.add_config_value('doctest_test_doctest_blocks', 'default', '')
-    app.add_config_value('doctest_global_setup', '', '')
-    app.add_config_value('doctest_global_cleanup', '', '')
+    app.add_config_value('doctest_path', (), '', types=frozenset({list, tuple}))
+    app.add_config_value(
+        'doctest_test_doctest_blocks', 'default', '', types=frozenset({str})
+    )
+    app.add_config_value('doctest_global_setup', '', '', types=frozenset({str}))
+    app.add_config_value('doctest_global_cleanup', '', '', types=frozenset({str}))
     app.add_config_value(
         'doctest_default_flags',
         doctest.DONT_ACCEPT_TRUE_FOR_1
         | doctest.ELLIPSIS
         | doctest.IGNORE_EXCEPTION_DETAIL,
         '',
+        types=frozenset({int}),
     )
     return {
         'version': sphinx.__display_version__,

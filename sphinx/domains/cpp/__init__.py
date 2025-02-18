@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from types import NoneType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -50,7 +51,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 # re-export objects for backwards compatibility
-# xref https://github.com/sphinx-doc/sphinx/issues/12295
+# See: https://github.com/sphinx-doc/sphinx/issues/12295
 from sphinx.domains.cpp._ast import (  # NoQA: F401
     ASTAlignofExpr,
     ASTArray,
@@ -304,7 +305,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(
-        self, signode: desc_signature, ast: ASTDeclaration, options: dict
+        self, signode: desc_signature, ast: ASTDeclaration, options: dict[str, Any]
     ) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
@@ -316,7 +317,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             env.ref_context['cpp:parent_key'] = root.get_lookup_key()
 
         # The lookup keys assume that no nested scopes exists inside overloaded functions.
-        # (see also #5191)
+        # See: https://github.com/sphinx-doc/sphinx/issues/5191
         # Example:
         # .. cpp:function:: void f(int)
         # .. cpp:function:: void f(double)
@@ -621,7 +622,7 @@ class AliasNode(nodes.Element):
     def __init__(
         self,
         sig: str,
-        aliasOptions: dict,
+        aliasOptions: dict[str, bool],
         env: BuildEnvironment | None = None,
         parentKey: LookupKey | None = None,
     ) -> None:
@@ -653,8 +654,8 @@ class AliasTransform(SphinxTransform):
         s: Symbol,
         maxdepth: int,
         skip_this: bool,
-        alias_options: dict,
-        render_options: dict,
+        alias_options: dict[str, bool],
+        render_options: dict[str, bool],
         document: Any,
     ) -> list[Node]:
         if maxdepth == 0:
@@ -799,7 +800,7 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(nodes)
 
 
-class CPPAliasObject(ObjectDescription):
+class CPPAliasObject(ObjectDescription[str]):
     option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
@@ -1300,7 +1301,7 @@ class CPPDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
-    app.add_config_value('cpp_index_common_prefix', [], 'env')
+    app.add_config_value('cpp_index_common_prefix', [], 'env', types=frozenset({list}))
     app.add_config_value('cpp_id_attributes', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(
         'cpp_paren_attributes', [], 'env', types=frozenset({list, tuple})
@@ -1309,13 +1310,13 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'cpp_maximum_signature_line_length',
         None,
         'env',
-        types=frozenset({int, type(None)}),
+        types=frozenset({int, NoneType}),
     )
     app.add_post_transform(AliasTransform)
 
     # debug stuff
-    app.add_config_value('cpp_debug_lookup', False, '')
-    app.add_config_value('cpp_debug_show_tree', False, '')
+    app.add_config_value('cpp_debug_lookup', False, '', types=frozenset({bool}))
+    app.add_config_value('cpp_debug_show_tree', False, '', types=frozenset({bool}))
 
     def init_stuff(app: Sphinx) -> None:
         Symbol.debug_lookup = app.config.cpp_debug_lookup

@@ -143,10 +143,17 @@ class MathDirective(SphinxDirective):
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,
+        'no-wrap': directives.flag,
         'nowrap': directives.flag,
     }
 
     def run(self) -> list[Node]:
+        # Copy the old option name to the new one
+        # xref RemovedInSphinx90Warning
+        # deprecate nowrap in Sphinx 9.0
+        if 'no-wrap' not in self.options and 'nowrap' in self.options:
+            self.options['no-wrap'] = self.options['nowrap']
+
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
@@ -158,8 +165,8 @@ class MathDirective(SphinxDirective):
             docname=self.env.docname,
             number=None,
             label=label,
-            nowrap='nowrap' in self.options,
         )
+        node['no-wrap'] = node['nowrap'] = 'no-wrap' in self.options
         self.add_name(node)
         self.set_source_info(node)
 

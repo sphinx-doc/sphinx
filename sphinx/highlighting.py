@@ -129,7 +129,7 @@ class PygmentsBridge:
         else:
             return get_style_by_name(stylename)
 
-    def get_formatter(self, **kwargs: Any) -> Formatter:
+    def get_formatter(self, **kwargs: Any) -> Formatter[str]:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
@@ -137,7 +137,7 @@ class PygmentsBridge:
         self,
         source: str,
         lang: str,
-        opts: dict | None = None,
+        opts: dict[str, Any] | None = None,
         force: bool = False,
         location: Any = None,
     ) -> Lexer:
@@ -167,7 +167,11 @@ class PygmentsBridge:
                     lexer = get_lexer_by_name(lang, **opts)
             except ClassNotFound:
                 logger.warning(
-                    __('Pygments lexer name %r is not known'), lang, location=location
+                    __('Pygments lexer name %r is not known'),
+                    lang,
+                    location=location,
+                    type='misc',
+                    subtype='higlighting_failure',
                 )
                 lexer = lexer_classes['none'](**opts)
 
@@ -180,7 +184,7 @@ class PygmentsBridge:
         self,
         source: str,
         lang: str,
-        opts: dict | None = None,
+        opts: dict[str, Any] | None = None,
         force: bool = False,
         location: Any = None,
         **kwargs: Any,

@@ -176,7 +176,7 @@ def test_domain_cpp_ast_fundamental_types(type_, id_v2):
             check('function', input, {1: id1, 2: id2})
 
 
-def test_domain_cpp_ast_expressions():
+def test_domain_cpp_ast_expressions() -> None:
     def expr_check(expr, id, id4=None):
         ids = 'IE1CIA%s_1aE'
         # call .format() on the expr to unescape double curly braces
@@ -314,7 +314,7 @@ def test_domain_cpp_ast_expressions():
         for c, val in chars:
             expr_check(f"{p}'{c}'_udl", 'clL_Zli4_udlE' + t + val + 'E')
     expr_check('"abc"_udl', 'clL_Zli4_udlELA3_KcEE')
-    # from issue #7294
+    # from https://github.com/sphinx-doc/sphinx/issues/7294
     expr_check('6.62607015e-34q_J', 'clL_Zli3q_JEL6.62607015e-34EE')
 
     # fold expressions, paren, name
@@ -450,7 +450,7 @@ def test_domain_cpp_ast_expressions():
     expr_check('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
 
 
-def test_domain_cpp_ast_type_definitions():
+def test_domain_cpp_ast_type_definitions() -> None:
     check('type', 'public bool b', {1: 'b', 2: '1b'}, '{key}bool b', key='typedef')
     check('type', '{key}bool A::b', {1: 'A::b', 2: 'N1A1bE'}, key='typedef')
     check('type', '{key}bool *b', {1: 'b', 2: '1b'}, key='typedef')
@@ -503,7 +503,8 @@ def test_domain_cpp_ast_type_definitions():
     check('type', '{key}A = B', {2: '1A'}, key='using')
     check('type', '{key}A = decltype(b)', {2: '1A'}, key='using')
 
-    # from breathe#267 (named function parameters for function pointers
+    # from https://github.com/breathe-doc/breathe/issues/267
+    # (named function parameters for function pointers
     check(
         'type',
         '{key}void (*gpio_callback_t)(struct device *port, uint32_t pin)',
@@ -529,7 +530,7 @@ def test_domain_cpp_ast_type_definitions():
     check('type', '{key}T = Q<A::operator bool>', {2: '1T'}, key='using')
 
 
-def test_domain_cpp_ast_concept_definitions():
+def test_domain_cpp_ast_concept_definitions() -> None:
     check(
         'concept',
         'template<typename Param> {key}A::B::Concept',
@@ -546,7 +547,7 @@ def test_domain_cpp_ast_concept_definitions():
         parse('concept', 'template<typename T> template<typename U> {key}Foo')
 
 
-def test_domain_cpp_ast_member_definitions():
+def test_domain_cpp_ast_member_definitions() -> None:
     check(
         'member',
         '  const  std::string  &  name = 42',
@@ -597,7 +598,7 @@ def test_domain_cpp_ast_member_definitions():
     check('member', 'constinit int n', {1: 'n__i', 2: '1n'})
 
 
-def test_domain_cpp_ast_function_definitions():
+def test_domain_cpp_ast_function_definitions() -> None:
     check('function', 'void f(volatile int)', {1: 'f__iV', 2: '1fVi'})
     check('function', 'void f(std::size_t)', {1: 'f__std::s', 2: '1fNSt6size_tE'})
     check('function', 'operator bool() const', {1: 'castto-b-operatorC', 2: 'NKcvbEv'})
@@ -828,7 +829,8 @@ def test_domain_cpp_ast_function_definitions():
         {1: 'result__i.std::error_categoryCR', 2: '6resultiRKNSt14error_categoryE'},
     )
     check('function', 'int *f()', {1: 'f', 2: '1fv'})
-    # tests derived from issue #1753 (skip to keep sanity)
+    # tests derived from https://github.com/sphinx-doc/sphinx/issues/1753
+    # (skip to keep sanity)
     check('function', 'f(int (&array)[10])', {2: '1fRA10_i', 3: '1fRAL10E_i'})
     check('function', 'void f(int (&array)[10])', {2: '1fRA10_i', 3: '1fRAL10E_i'})
     check('function', 'void f(float *q(double))', {2: '1fFPfdE'})
@@ -865,7 +867,7 @@ def test_domain_cpp_ast_function_definitions():
         {1: 'f__osR.i', 2: '1fRNSt7ostreamEi'},
     )
 
-    # from breathe#223
+    # from https://github.com/breathe-doc/breathe/issues/223
     check('function', 'void f(struct E e)', {1: 'f__E', 2: '1f1E'})
     check('function', 'void f(class E e)', {1: 'f__E', 2: '1f1E'})
     check('function', 'void f(typename E e)', {1: 'f__E', 2: '1f1E'})
@@ -912,21 +914,21 @@ def test_domain_cpp_ast_function_definitions():
     check('function', 'template<typename T> int f()', ids)
     check('function', 'template<typename T> f() -> int', ids)
 
-    # from breathe#441
+    # from https://github.com/breathe-doc/breathe/issues/441
     check(
         'function',
         'auto MakeThingy() -> Thingy*',
         {1: 'MakeThingy', 2: '10MakeThingyv'},
     )
 
-    # from #8960
+    # from https://github.com/sphinx-doc/sphinx/issues/8960
     check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
 
-    # from #9535 comment
+    # from https://github.com/sphinx-doc/sphinx/issues/9535 comment
     check('function', 'void f(void (*p)(int) = &foo)', {2: '1fPFviE'})
 
 
-def test_domain_cpp_ast_operators():
+def test_domain_cpp_ast_operators() -> None:
     check('function', 'void operator new()', {1: 'new-operator', 2: 'nwv'})
     check('function', 'void operator new[]()', {1: 'new-array-operator', 2: 'nav'})
     check('function', 'void operator delete()', {1: 'delete-operator', 2: 'dlv'})
@@ -990,14 +992,14 @@ def test_domain_cpp_ast_operators():
     check('function', 'void operator[]()', {1: 'subscript-operator', 2: 'ixv'})
 
 
-def test_domain_cpp_ast_nested_name():
+def test_domain_cpp_ast_nested_name() -> None:
     check('class', '{key}::A', {1: 'A', 2: '1A'})
     check('class', '{key}::A::B', {1: 'A::B', 2: 'N1A1BE'})
     check('function', 'void f(::A a)', {1: 'f__A', 2: '1f1A'})
     check('function', 'void f(::A::B a)', {1: 'f__A::B', 2: '1fN1A1BE'})
 
 
-def test_domain_cpp_ast_class_definitions():
+def test_domain_cpp_ast_class_definitions() -> None:
     check('class', 'public A', {1: 'A', 2: '1A'}, output='{key}A')
     check('class', 'private {key}A', {1: 'A', 2: '1A'})
     check('class', '{key}A final', {1: 'A', 2: '1A'})
@@ -1022,7 +1024,7 @@ def test_domain_cpp_ast_class_definitions():
     check('class', '{key}A : B, C...', {1: 'A', 2: '1A'})
     check('class', '{key}A : B..., C', {1: 'A', 2: '1A'})
 
-    # from #4094
+    # from https://github.com/sphinx-doc/sphinx/issues/4094
     check(
         'class',
         'template<class, class = std::void_t<>> {key}has_var',
@@ -1046,11 +1048,11 @@ def test_domain_cpp_ast_class_definitions():
     )
 
 
-def test_domain_cpp_ast_union_definitions():
+def test_domain_cpp_ast_union_definitions() -> None:
     check('union', '{key}A', {2: '1A'})
 
 
-def test_domain_cpp_ast_enum_definitions():
+def test_domain_cpp_ast_enum_definitions() -> None:
     check('enum', '{key}A', {2: '1A'})
     check('enum', '{key}A : std::underlying_type<B>::type', {2: '1A'})
     check('enum', '{key}A : unsigned int', {2: '1A'})
@@ -1061,7 +1063,7 @@ def test_domain_cpp_ast_enum_definitions():
     check('enumerator', '{key}A = std::numeric_limits<unsigned long>::max()', {2: '1A'})
 
 
-def test_domain_cpp_ast_anon_definitions():
+def test_domain_cpp_ast_anon_definitions() -> None:
     check('class', '@a', {3: 'Ut1_a'}, as_text_output='class [anonymous]')
     check('union', '@a', {3: 'Ut1_a'}, as_text_output='union [anonymous]')
     check('enum', '@a', {3: 'Ut1_a'}, as_text_output='enum [anonymous]')
@@ -1076,7 +1078,7 @@ def test_domain_cpp_ast_anon_definitions():
     )
 
 
-def test_domain_cpp_ast_templates():
+def test_domain_cpp_ast_templates() -> None:
     check('class', 'A<T>', {2: 'IE1AI1TE'}, output='template<> {key}A<T>')
     # first just check which objects support templating
     check('class', 'template<> {key}A', {2: 'IE1A'})
@@ -1121,7 +1123,7 @@ def test_domain_cpp_ast_templates():
 
     check('class', 'template<typename A<B>::C> {key}A', {2: 'I_N1AI1BE1CEE1A'})
     check('class', 'template<typename A<B>::C = 42> {key}A', {2: 'I_N1AI1BE1CEE1A'})
-    # from #7944
+    # from https://github.com/sphinx-doc/sphinx/issues/7944
     check(
         'function',
         'template<typename T, '
@@ -1136,7 +1138,7 @@ def test_domain_cpp_ast_templates():
 
     check('class', 'template<> {key}A<NS::B<>>', {2: 'IE1AIN2NS1BIEEE'})
 
-    # from #2058
+    # from https://github.com/sphinx-doc/sphinx/issues/2058
     check(
         'function',
         'template<typename Char, typename Traits> '
@@ -1266,7 +1268,7 @@ def test_domain_cpp_ast_templates():
     )
 
 
-def test_domain_cpp_ast_placeholder_types():
+def test_domain_cpp_ast_placeholder_types() -> None:
     check(
         'function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'}
     )
@@ -1293,7 +1295,7 @@ def test_domain_cpp_ast_placeholder_types():
     )
 
 
-def test_domain_cpp_ast_requires_clauses():
+def test_domain_cpp_ast_requires_clauses() -> None:
     check(
         'function',
         'template<typename T> requires A auto f() -> void requires B',
@@ -1348,8 +1350,8 @@ def test_domain_cpp_ast_requires_clauses():
     )
 
 
-def test_domain_cpp_ast_template_args():
-    # from breathe#218
+def test_domain_cpp_ast_template_args() -> None:
+    # from https://github.com/breathe-doc/breathe/issues/218
     check(
         'function',
         'template<typename F> void allow(F *f, typename func<F, B, G != 1>::type tt)',
@@ -1359,7 +1361,7 @@ def test_domain_cpp_ast_template_args():
             4: 'I0E5allowvP1FN4funcI1F1BXne1GL1EEE4typeE',
         },
     )
-    # from #3542
+    # from https://github.com/sphinx-doc/sphinx/issues/3542
     check(
         'type',
         'template<typename T> {key}'
@@ -1369,7 +1371,7 @@ def test_domain_cpp_ast_template_args():
     )
 
 
-def test_domain_cpp_ast_initializers():
+def test_domain_cpp_ast_initializers() -> None:
     ids_member = {1: 'v__T', 2: '1v'}
     ids_function = {1: 'f__T', 2: '1f1T'}
     ids_template = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
@@ -1403,7 +1405,7 @@ def test_domain_cpp_ast_initializers():
     check('member', 'T v = T{}', ids_member)
 
 
-def test_domain_cpp_ast_attributes():
+def test_domain_cpp_ast_attributes() -> None:
     # style: C++
     check('member', '[[]] int f', {1: 'f__i', 2: '1f'})
     check(
@@ -1480,7 +1482,7 @@ def check_ast_xref_parsing(target):
     parser.assert_end()
 
 
-def test_domain_cpp_ast_xref_parsing():
+def test_domain_cpp_ast_xref_parsing() -> None:
     check_ast_xref_parsing('f')
     check_ast_xref_parsing('f()')
     check_ast_xref_parsing('void f()')
@@ -1522,7 +1524,7 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
     assert ast.isPack == is_pack
 
 
-# def test_print():
+# def test_print() -> None:
 #     # used for getting all the ids out for checking
 #     for a in ids:
 #         print(a)
@@ -1909,7 +1911,7 @@ _var cpp:member 1 index.html#_CPPv44$ -
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_cpp_parse_no_index_entry(app):
     text = (
         '.. cpp:function:: void f()\n.. cpp:function:: void g()\n   :no-index-entry:\n'
@@ -1924,7 +1926,7 @@ def test_domain_cpp_parse_no_index_entry(app):
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_domain_cpp_parse_mix_decl_duplicate(app):
     # Issue 8270
     text = '.. cpp:struct:: A\n.. cpp:function:: void A()\n.. cpp:struct:: A\n'
@@ -2426,7 +2428,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app):
 <dd>\
 <span class="n"><span class="pre">str</span></span>\
 <span class="w"> </span>\
-<span class="n sig-param"><span class="pre">name</span></span>,\
+<span class="n sig-param"><span class="pre">name</span></span>\
 </dd>
 </dl>
 
@@ -2445,6 +2447,6 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app):
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
 
-    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name,'))
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name'))
 
     assert expected_parameter_list_hello in content

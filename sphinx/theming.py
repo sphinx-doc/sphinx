@@ -159,7 +159,7 @@ class HTMLThemeFactory:
 
     def _load_builtin_themes(self) -> None:
         """Load built-in themes."""
-        themes = self._find_themes(Path(package_dir, 'themes'))
+        themes = self._find_themes(package_dir / 'themes')
         for name, theme in themes.items():
             self._themes[name] = _StrPath(theme)
 

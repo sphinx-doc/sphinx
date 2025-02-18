@@ -8,7 +8,6 @@ import subprocess
 import xml.etree.ElementTree as ET
 from hashlib import sha1
 from itertools import chain
-from pathlib import Path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
@@ -24,7 +23,6 @@ from sphinx.util._pathlib import _StrPath
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar
@@ -277,7 +275,7 @@ def fix_svg_relative_paths(
 def render_dot(
     self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
     code: str,
-    options: dict,
+    options: dict[str, Any],
     format: str,
     prefix: str = 'graphviz',
     filename: str | None = None,
@@ -299,13 +297,13 @@ def render_dot(
     relfn = _StrPath(self.builder.imgpath, fname)
     outfn = self.builder.outdir / self.builder.imagedir / fname
 
-    if os.path.isfile(outfn):
+    if outfn.is_file():
         return relfn, outfn
 
     if getattr(self.builder, '_graphviz_warned_dot', {}).get(graphviz_dot):
         return None, None
 
-    ensuredir(os.path.dirname(outfn))
+    outfn.parent.mkdir(parents=True, exist_ok=True)
 
     dot_args = [graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
@@ -313,9 +311,9 @@ def render_dot(
 
     docname = options.get('docname', 'index')
     if filename:
-        cwd = os.path.dirname(self.builder.srcdir / filename)
+        cwd = (self.builder.srcdir / filename).parent
     else:
-        cwd = os.path.dirname(self.builder.srcdir / docname)
+        cwd = (self.builder.srcdir / docname).parent
 
     if format == 'png':
         dot_args.extend(['-Tcmapx', f'-o{outfn}.map'])
@@ -341,7 +339,7 @@ def render_dot(
             __('dot exited with error:\n[stderr]\n%r\n[stdout]\n%r')
             % (exc.stderr, exc.stdout)
         ) from exc
-    if not os.path.isfile(outfn):
+    if not outfn.is_file():
         raise GraphvizError(
             __('dot did not produce an output file:\n[stderr]\n%r\n[stdout]\n%r')
             % (ret.stderr, ret.stdout)
@@ -357,7 +355,7 @@ def render_dot_html(
     self: HTML5Translator,
     node: graphviz,
     code: str,
-    options: dict,
+    options: dict[str, Any],
     prefix: str = 'graphviz',
     imgcls: str | None = None,
     alt: str | None = None,
@@ -428,7 +426,7 @@ def render_dot_latex(
     self: LaTeXTranslator,
     node: graphviz,
     code: str,
-    options: dict,
+    options: dict[str, Any],
     prefix: str = 'graphviz',
     filename: str | None = None,
 ) -> None:
@@ -473,7 +471,7 @@ def render_dot_texinfo(
     self: TexinfoTranslator,
     node: graphviz,
     code: str,
-    options: dict,
+    options: dict[str, Any],
     prefix: str = 'graphviz',
 ) -> None:
     try:
@@ -507,7 +505,7 @@ def man_visit_graphviz(self: ManualPageTranslator, node: graphviz) -> None:
 
 
 def on_config_inited(_app: Sphinx, config: Config) -> None:
-    css_path = Path(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
+    css_path = sphinx.package_dir.joinpath('templates', 'graphviz', 'graphviz.css')
     config.html_static_path.append(str(css_path))
 
 
@@ -523,9 +521,13 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('graphviz', Graphviz)
     app.add_directive('graph', GraphvizSimple)
     app.add_directive('digraph', GraphvizSimple)
-    app.add_config_value('graphviz_dot', 'dot', 'html')
-    app.add_config_value('graphviz_dot_args', (), 'html')
-    app.add_config_value('graphviz_output_format', 'png', 'html')
+    app.add_config_value('graphviz_dot', 'dot', 'html', types=frozenset({str}))
+    app.add_config_value(
+        'graphviz_dot_args', (), 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'graphviz_output_format', 'png', 'html', types=frozenset({str})
+    )
     app.add_css_file('graphviz.css')
     app.connect('config-inited', on_config_inited)
     return {

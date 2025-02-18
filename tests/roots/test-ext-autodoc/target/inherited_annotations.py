@@ -1,5 +1,6 @@
-"""Test case for #11387 corner case involving inherited
-members with type annotations on python 3.9 and earlier
+"""Test case for https://github.com/sphinx-doc/sphinx/issues/11387,
+corner case involving inherited members with type annotations
+on python 3.9 and earlier
 """
 
 
