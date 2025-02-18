@@ -56,35 +56,3 @@ jobs:
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
-
-  deadsnakes-free-threaded:
-    runs-on: ubuntu-latest
-    name: Python ${{ matrix.python }} (free-threaded)
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        python:
-        - "3.14"
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v3.2.0
-      with:
-        python-version: ${{ matrix.python }}-dev
-        nogil: true
-    - name: Check Python version
-      run: python --version --version
-    - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install .[test]
-    - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
-      env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
