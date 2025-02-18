@@ -64,7 +64,7 @@ const _escapeHTML = (text) => {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    .replaceAll("'", "&apos;");
 }
 
 const _displayItem = (item, searchTerms, highlightTerms) => {
