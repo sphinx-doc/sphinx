@@ -114,7 +114,7 @@ Features added
 * #13354: Insert abbreviation nodes (hover text) for positional- and keyword-only
   separators in Python signatures.
   Patch by Adam Turner.
-* #13333: Add the :mod:`sphinx.ext.autodoc` extension,
+* #13333: Add the :mod:`sphinx.ext.apidoc` extension,
   to automate API documentation generation from Python modules.
   Patch by Chris Sewell and Adam Turner.
 
