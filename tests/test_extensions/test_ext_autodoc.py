@@ -37,6 +37,9 @@ class Foo:
 def test_is_singledispatch_method():
     assert isinstance(Foo.__dict__['meth'], singledispatchmethod)
     assert isinstance(Foo.meth, types.FunctionType)
+    meth = Foo.__dict__['meth']
+    assert len(meth.dispatcher.registry) == 5
+    assert list(meth.dispatcher.registry) == [object, float, int, str, dict]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
