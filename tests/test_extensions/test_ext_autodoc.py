@@ -7,21 +7,10 @@ source file translated by test_build.
 from __future__ import annotations
 
 from functools import singledispatchmethod
-from typing import TYPE_CHECKING
-from unittest.mock import Mock
 
 import pytest
 
-from sphinx.ext.autodoc import Options
-
-# NEVER import these objects from sphinx.ext.autodoc directly
-from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.util.inspect import is_singledispatch_method
-
 from tests.test_extensions.autodoc_util import do_autodoc
-
-if TYPE_CHECKING:
-    from sphinx.environment import BuildEnvironment
 
 
 class Foo:
@@ -53,40 +42,6 @@ class Foo:
 def test_is_singledispatch_method():
     obj = Foo.__dict__['meth']
     assert isinstance(obj, singledispatchmethod)
-
-
-def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
-    options = Options(
-        inherited_members=False,
-        undoc_members=False,
-        private_members=False,
-        special_members=False,
-        imported_members=False,
-        show_inheritance=False,
-        no_index=False,
-        annotation=None,
-        synopsis='',
-        platform='',
-        deprecated=False,
-        members=[],
-        member_order='alphabetical',
-        exclude_members=set(),
-        ignore_module_all=False,
-    )
-
-    directive = DocumenterBridge(
-        env=env,
-        reporter=None,
-        options=options,
-        lineno=0,
-        state=Mock(),
-    )
-    directive.state.document.settings.tab_width = 8
-
-    return directive
-
-
-processed_signatures = []
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
