@@ -7,7 +7,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Sequence, Set
     from pathlib import Path
     from typing import Final
 
@@ -15,10 +15,10 @@ LOGGER: Final[logging.SphinxLoggerAdapter] = logging.getLogger('sphinx.ext.apido
 
 
 def _remove_old_files(
-    written_files: Sequence[Path], destdir: Path, suffix: str
+    written_files: Sequence[Path], dest_dir: Path, suffix: str
 ) -> None:
     files_to_keep = frozenset(written_files)
-    for existing in destdir.rglob(f'*.{suffix}'):
+    for existing in dest_dir.rglob(f'*.{suffix}'):
         if existing not in files_to_keep:
             try:
                 existing.unlink()
@@ -36,21 +36,21 @@ class ApidocOptions:
     """Options for apidoc."""
 
     module_path: Path
-    destdir: Path
+    dest_dir: Path
 
     exclude_pattern: Sequence[str] = ()
     quiet: bool = False
-    maxdepth: int = 4
+    max_depth: int = 4
     force: bool = False
-    followlinks: bool = False
-    dryrun: bool = False
-    separatemodules: bool = False
-    includeprivate: bool = False
-    tocfile: str = 'modules'
-    noheadings: bool = False
-    modulefirst: bool = False
+    follow_links: bool = False
+    dry_run: bool = False
+    separate_modules: bool = False
+    include_private: bool = False
+    toc_file: str = 'modules'
+    no_headings: bool = False
+    module_first: bool = False
     implicit_namespaces: bool = False
-    automodule_options: set[str] = dataclasses.field(default_factory=set)
+    automodule_options: Set[str] = dataclasses.field(default_factory=set)
     suffix: str = 'rst'
 
     remove_old: bool = False
@@ -63,4 +63,4 @@ class ApidocOptions:
     version: str | None = None
     release: str | None = None
     extensions: Sequence[str] | None = None
-    templatedir: str | None = None
+    template_dir: str | None = None
