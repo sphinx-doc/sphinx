@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_COLOR: "1"
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
+
 jobs:
   push:
     if: github.repository_owner == 'sphinx-doc'
