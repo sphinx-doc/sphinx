@@ -99,10 +99,10 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   let linkEl = listItem.appendChild(document.createElement("a"));
   linkEl.href = linkUrl + anchor;
   linkEl.dataset.score = score;
-  linkEl.innerHTML = title;
+  linkEl.innerHTML = _escapeHTML(title);
   if (descr) {
     listItem.appendChild(document.createElement("span")).innerHTML =
-      " (" + descr + ")";
+      " (" + _escapeHTML(descr) + ")";
     // highlight search terms in the description
     if (SPHINX_HIGHLIGHT_ENABLED)  // set in sphinx_highlight.js
       highlightTerms.forEach((term) => _highlightText(listItem, term, "highlighted"));
@@ -349,9 +349,7 @@ const Search = {
           const boost = titles[file] === title ? 1 : 0;  // add a boost for document titles
           normalResults.push([
             docNames[file],
-            _escapeHTML(
-              titles[file] !== title ? `${titles[file]} > ${title}` : title
-            ),
+            titles[file] !== title ? `${titles[file]} > ${title}` : title,
             id !== null ? "#" + id : "",
             null,
             score + boost,
@@ -369,7 +367,7 @@ const Search = {
           const score = Math.round(100 * queryLower.length / entry.length);
           const result = [
             docNames[file],
-            _escapeHTML(titles[file]),
+            titles[file],
             id ? "#" + id : "",
             null,
             score,
