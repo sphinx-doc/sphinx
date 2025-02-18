@@ -103,7 +103,7 @@ lint = [
     "pyright==1.1.394",
     "pytest>=8.0",
     "pypi-attestations==0.0.21",
-    "betterproto==2.0.0b6",
+    "betterproto==2.0.0b7",
 ]
 test = [
     "pytest>=8.0",
