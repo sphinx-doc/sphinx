@@ -38,10 +38,10 @@ class Foo:
 def test_is_singledispatch_method():
     print(sys.version_info)
     assert isinstance(Foo.__dict__['meth'], functools.singledispatchmethod)
-    if sys.version_info < (3, 14, 0, 'alpha', 5):
-        assert isinstance(Foo.meth, types.FunctionType)
-    else:
+    if sys.version_info >= (3, 14, 0, 'alpha', 6):
         assert isinstance(Foo.meth, functools._singledispatchmethod_get)
+    else:
+        assert isinstance(Foo.meth, types.FunctionType)
     meth = Foo.__dict__['meth']
     assert len(meth.dispatcher.registry) == 5
     assert list(meth.dispatcher.registry) == [object, float, int, str, dict]
