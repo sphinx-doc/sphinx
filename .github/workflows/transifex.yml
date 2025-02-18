@@ -1,6 +1,10 @@
 name: Synchronise translations
 
 on:
+  push:
+    paths:
+      - ".github/workflows/transifex.yml"
+      - "utils/babel_runner.py"
   schedule:
   # 22:38 GMT, every Sunday. Chosen to be a random time.
   - cron: "38 22 * * SUN"
