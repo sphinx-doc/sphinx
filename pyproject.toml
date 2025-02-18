@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core>=3.7"]
+requires = ["flit_core>=3.10"]
 build-backend = "flit_core.buildapi"
 
 # project metadata
