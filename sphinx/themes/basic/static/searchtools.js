@@ -58,6 +58,15 @@ const _removeChildren = (element) => {
 const _escapeRegExp = (string) =>
   string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 
+const _escapeHTML = (text) => {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 const _displayItem = (item, searchTerms, highlightTerms) => {
   const docBuilder = DOCUMENTATION_OPTIONS.BUILDER;
   const docFileSuffix = DOCUMENTATION_OPTIONS.FILE_SUFFIX;
@@ -324,14 +333,6 @@ const Search = {
     const titles = Search._index.titles;
     const allTitles = Search._index.alltitles;
     const indexEntries = Search._index.indexentries;
-    const htmlEscape = (text) => {
-      return String(text)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-    }
 
     // Collect multiple result groups to be sorted separately and then ordered.
     // Each is an array of [docname, title, anchor, descr, score, filename, kind].
@@ -348,7 +349,7 @@ const Search = {
           const boost = titles[file] === title ? 1 : 0;  // add a boost for document titles
           normalResults.push([
             docNames[file],
-            htmlEscape(
+            _escapeHTML(
               titles[file] !== title ? `${titles[file]} > ${title}` : title
             ),
             id !== null ? "#" + id : "",
@@ -368,7 +369,7 @@ const Search = {
           const score = Math.round(100 * queryLower.length / entry.length);
           const result = [
             docNames[file],
-            htmlEscape(titles[file]),
+            _escapeHTML(titles[file]),
             id ? "#" + id : "",
             null,
             score,
