@@ -115,8 +115,7 @@ Features added
   separators in Python signatures.
   Patch by Adam Turner.
 * #13333: Add the :mod:`sphinx.ext.autodoc` extension,
-  to automate API documentation generation
-  from Python modules.
+  to automate API documentation generation from Python modules.
   Patch by Chris Sewell and Adam Turner.
 
 Bugs fixed

@@ -3,4 +3,4 @@ Heading
 
 .. toctree::
 
-    generated/modules
+   generated/modules
