@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__version__ = '8.2.0'
+__version__ = '8.2.0rc2'
 __display_version__ = __version__  # used for command line version
 
 # Keep this file executable as-is in Python 3!
@@ -38,7 +38,7 @@ version_info = (8, 2, 0, 'candidate', 2)
 
 package_dir = _StrPath(__file__).resolve().parent
 
-_in_development = True
+_in_development = False
 if _in_development:
     # Only import subprocess if needed
     import subprocess
