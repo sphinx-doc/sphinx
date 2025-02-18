@@ -184,7 +184,7 @@ describe('Basic html theme search', function() {
 
       expectedRanking = [
         ['index', 'Main Page', '#index-0'],  /* index entry */
-        ['index', 'Main Page > Result Scoring', '#result-scoring'],  /* title */
+        ['index', 'Main Page &gt; Result Scoring', '#result-scoring'],  /* title */
       ];
 
       searchParameters = Search._parseQuery('scoring');
@@ -198,7 +198,7 @@ describe('Basic html theme search', function() {
 
       expectedRanking = [
         ['relevance', 'Relevance', ''],  /* main title */
-        ['index', 'Main Page > Relevance', '#relevance'],  /* subsection heading title */
+        ['index', 'Main Page &gt; Relevance', '#relevance'],  /* subsection heading title */
       ];
 
       searchParameters = Search._parseQuery('relevance');
