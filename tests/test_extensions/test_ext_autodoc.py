@@ -71,8 +71,26 @@ def test_is_singledispatch_method():
     assert len(meth.dispatcher.registry) == 5
     assert list(meth.dispatcher.registry) == [object, float, int, str, dict]
 
+    sigs = []
+    for typ, func in meth.dispatcher.registry.items():
+        if typ is object:
+            pass  # default implementation. skipped.
+        else:
+            if inspect.isclassmethod(func):
+                func = func.__func__
+            dispatch_meth = annotate_to_first_argument(func, typ)
+            if dispatch_meth:
+                sig = inspect.signature(dispatch_meth, bound_method=True)
+                sigs.append(inspect.stringify_signature(sig))
+    assert sigs == [
+        '(arg, kwarg=None)',
+        '(arg, kwarg=None)',
+        '(arg, kwarg=None)',
+        '(arg: dict, kwarg=None)',
+    ]
+
     dispatch_methods = [annotate_to_first_argument(func, typ) for typ, func in meth.dispatcher.registry.items()]
-    dispatch_method_signatures = [str(Signature.from_callable(m)) for m in dispatch_methods]
+    dispatch_method_signatures = [inspect.stringify_signature(Signature.from_callable(m)) for m in dispatch_methods]
     assert dispatch_method_signatures == [
         '(self: object, arg, kwarg=None)',
         '(self: float, arg, kwarg=None)',
