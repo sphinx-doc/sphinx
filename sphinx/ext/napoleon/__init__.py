@@ -12,6 +12,7 @@ from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any
 
     from sphinx.config import _ConfigRebuild
@@ -271,27 +272,27 @@ class Config:
 
     """
 
-    _config_values: dict[str, tuple[Any, _ConfigRebuild]] = {
-        'napoleon_google_docstring': (True, 'env'),
-        'napoleon_numpy_docstring': (True, 'env'),
-        'napoleon_include_init_with_doc': (False, 'env'),
-        'napoleon_include_private_with_doc': (False, 'env'),
-        'napoleon_include_special_with_doc': (False, 'env'),
-        'napoleon_use_admonition_for_examples': (False, 'env'),
-        'napoleon_use_admonition_for_notes': (False, 'env'),
-        'napoleon_use_admonition_for_references': (False, 'env'),
-        'napoleon_use_ivar': (False, 'env'),
-        'napoleon_use_param': (True, 'env'),
-        'napoleon_use_rtype': (True, 'env'),
-        'napoleon_use_keyword': (True, 'env'),
-        'napoleon_preprocess_types': (False, 'env'),
-        'napoleon_type_aliases': (None, 'env'),
-        'napoleon_custom_sections': (None, 'env'),
-        'napoleon_attr_annotations': (True, 'env'),
-    }
+    _config_values: Sequence[tuple[str, bool | None, _ConfigRebuild]] = (
+        ('napoleon_google_docstring', True, 'env'),
+        ('napoleon_numpy_docstring', True, 'env'),
+        ('napoleon_include_init_with_doc', False, 'env'),
+        ('napoleon_include_private_with_doc', False, 'env'),
+        ('napoleon_include_special_with_doc', False, 'env'),
+        ('napoleon_use_admonition_for_examples', False, 'env'),
+        ('napoleon_use_admonition_for_notes', False, 'env'),
+        ('napoleon_use_admonition_for_references', False, 'env'),
+        ('napoleon_use_ivar', False, 'env'),
+        ('napoleon_use_param', True, 'env'),
+        ('napoleon_use_rtype', True, 'env'),
+        ('napoleon_use_keyword', True, 'env'),
+        ('napoleon_preprocess_types', False, 'env'),
+        ('napoleon_type_aliases', None, 'env'),
+        ('napoleon_custom_sections', None, 'env'),
+        ('napoleon_attr_annotations', True, 'env'),
+    )
 
     def __init__(self, **settings: Any) -> None:
-        for name, (default, _rebuild) in self._config_values.items():
+        for name, default, _rebuild in self._config_values:
             setattr(self, name, default)
         for name, value in settings.items():
             setattr(self, name, value)
@@ -332,7 +333,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('autodoc-process-docstring', _process_docstring)
     app.connect('autodoc-skip-member', _skip_member)
 
-    for name, (default, rebuild) in Config._config_values.items():
+    for name, default, rebuild in Config._config_values:
         if isinstance(default, bool):
             app.add_config_value(name, default, rebuild, types=frozenset({bool}))
         else:
