@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core @ git+https://github.com/pypa/flit.git#subdirectory=flit_core"]
+requires = ["flit_core>=3.11"]
 build-backend = "flit_core.buildapi"
 
 # project metadata
