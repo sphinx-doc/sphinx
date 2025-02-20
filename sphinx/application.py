@@ -1116,7 +1116,7 @@ class Sphinx:
         logger.debug('[app] adding directive: %r', (name, cls))
         if not override and docutils.is_directive_registered(name):
             logger.warning(
-                __('directive %r is already registered, it will be overridden'),
+                __('directive %r is already registered and will not be overridden'),
                 name,
                 type='app',
                 subtype='add_directive',
@@ -1142,7 +1142,7 @@ class Sphinx:
         logger.debug('[app] adding role: %r', (name, role))
         if not override and docutils.is_role_registered(name):
             logger.warning(
-                __('role %r is already registered, it will be overridden'),
+                __('role %r is already registered and will not be overridden'),
                 name,
                 type='app',
                 subtype='add_role',
@@ -1170,7 +1170,7 @@ class Sphinx:
         logger.debug('[app] adding generic role: %r', (name, nodeclass))
         if not override and docutils.is_role_registered(name):
             logger.warning(
-                __('role %r is already registered, it will be overridden'),
+                __('role %r is already registered and will not be overridden'),
                 name,
                 type='app',
                 subtype='add_generic_role',

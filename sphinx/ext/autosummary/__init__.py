@@ -188,6 +188,19 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     another Python object (e.g. a module or a class) to which *obj*
     belongs to.
     """
+    return _get_documenter(obj, parent, registry=app.registry)
+
+
+def _get_documenter(
+    obj: Any, parent: Any, *, registry: SphinxComponentRegistry
+) -> type[Documenter]:
+    """Get an autodoc.Documenter class suitable for documenting the given
+    object.
+
+    *obj* is the Python object to be documented, and *parent* is an
+    another Python object (e.g. a module or a class) to which *obj*
+    belongs to.
+    """
     from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
 
     if inspect.ismodule(obj):
@@ -196,7 +209,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
 
     # Construct a fake documenter for *parent*
     if parent is not None:
-        parent_doc_cls = get_documenter(app, parent, None)
+        parent_doc_cls = _get_documenter(parent, None, registry=registry)
     else:
         parent_doc_cls = ModuleDocumenter
 
@@ -208,7 +221,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     # Get the correct documenter class for *obj*
     classes = [
         cls
-        for cls in app.registry.documenters.values()
+        for cls in registry.documenters.values()
         if cls.can_document_member(obj, '', False, parent_doc)
     ]
     if classes:
@@ -318,14 +331,19 @@ class Autosummary(SphinxDirective):
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
     def create_documenter(
-        self, app: Sphinx, obj: Any, parent: Any, full_name: str
+        self,
+        obj: Any,
+        parent: Any,
+        full_name: str,
+        *,
+        registry: SphinxComponentRegistry,
     ) -> Documenter:
         """Get an autodoc.Documenter class suitable for documenting the given
         object.
 
-        Wraps get_documenter and is meant as a hook for extensions.
+        Wraps _get_documenter and is meant as a hook for extensions.
         """
-        doccls = get_documenter(app, obj, parent)
+        doccls = _get_documenter(obj, parent, registry=registry)
         return doccls(self.bridge, full_name)
 
     def get_items(self, names: list[str]) -> list[tuple[str, str | None, str, str]]:
@@ -378,7 +396,9 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1 :]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = self.create_documenter(self.env.app, obj, parent, full_name)
+            documenter = self.create_documenter(
+                obj, parent, full_name, registry=self.env._registry
+            )
             if not documenter.parse_name():
                 logger.warning(
                     __('failed to parse name %s'),

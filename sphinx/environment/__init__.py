@@ -48,6 +48,8 @@ if TYPE_CHECKING:
     from sphinx.events import EventManager
     from sphinx.extension import Extension
     from sphinx.project import Project
+    from sphinx.registry import SphinxComponentRegistry
+    from sphinx.util.tags import Tags
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +133,7 @@ class BuildEnvironment:
         self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
-        self.dependencies: dict[str, set[_StrPath]] = {}
+        self.dependencies: dict[str, set[_StrPath]] = defaultdict(set)
         # docname -> set of included file
         # docnames included from other documents
         self.included: dict[str, set[str]] = defaultdict(set)
@@ -281,6 +283,14 @@ class BuildEnvironment:
 
         # initialize settings
         self._update_settings(app.config)
+
+    @property
+    def _registry(self) -> SphinxComponentRegistry:
+        return self.app.registry
+
+    @property
+    def _tags(self) -> Tags:
+        return self.app.tags
 
     @staticmethod
     def _config_status(
@@ -629,7 +639,7 @@ class BuildEnvironment:
         """
         doc = self.path2doc(filename)
         if doc:
-            self.included[self.docname].add(doc)
+            self.included.setdefault(self.docname, set()).add(doc)
 
     def note_reread(self) -> None:
         """Add the current document to the list of documents that will
@@ -759,7 +769,7 @@ class BuildEnvironment:
 
             transformer = SphinxTransformer(doctree)
             transformer.set_environment(self)
-            transformer.add_transforms(self.app.registry.get_post_transforms())
+            transformer.add_transforms(self._registry.get_post_transforms())
             transformer.apply_transforms()
         finally:
             self.current_document = backup

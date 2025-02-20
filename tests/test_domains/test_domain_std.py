@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 def test_process_doc_handle_figure_caption() -> None:
     env = mock.Mock(domaindata={})
-    env.app.registry.enumerable_nodes = {}
+    env._registry.enumerable_nodes = {}
     figure_node = nodes.figure(
         '',
         nodes.caption('caption text', 'caption text'),
@@ -53,7 +53,7 @@ def test_process_doc_handle_figure_caption() -> None:
 
 def test_process_doc_handle_table_title() -> None:
     env = mock.Mock(domaindata={})
-    env.app.registry.enumerable_nodes = {}
+    env._registry.enumerable_nodes = {}
     table_node = nodes.table(
         '',
         nodes.title('title text', 'title text'),
@@ -76,7 +76,7 @@ def test_process_doc_handle_table_title() -> None:
 
 def test_get_full_qualified_name() -> None:
     env = mock.Mock(domaindata={})
-    env.app.registry.enumerable_nodes = {}
+    env._registry.enumerable_nodes = {}
     domain = StandardDomain(env)
 
     # normal references

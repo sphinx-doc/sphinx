@@ -253,9 +253,11 @@ def test_autosummary_generate_content_for_module(app):
         template,
         None,
         False,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -314,9 +316,11 @@ def test_autosummary_generate_content_for_module___all__(app):
         template,
         None,
         False,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -364,9 +368,11 @@ def test_autosummary_generate_content_for_module_skipped(app):
         template,
         None,
         False,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     context = template.render.call_args[0][1]
     assert context['members'] == [
@@ -404,9 +410,11 @@ def test_autosummary_generate_content_for_module_imported_members(app):
         template,
         None,
         True,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -470,9 +478,11 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
         template,
         None,
         True,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 

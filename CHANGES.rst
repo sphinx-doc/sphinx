@@ -1,5 +1,5 @@
-Release 8.2.0 (in development)
-==============================
+Release 8.2.0 (released Feb 18, 2025)
+=====================================
 
 Dependencies
 ------------
@@ -111,6 +111,12 @@ Features added
   Patch by Adam Turner.
 * #13335: Use ``misc.highlighting_failure`` subtype for Pygments unknown lexers.
   Patch by Bart Kamphorst.
+* #13354: Insert abbreviation nodes (hover text) for positional- and keyword-only
+  separators in Python signatures.
+  Patch by Adam Turner.
+* #13333: Add the :mod:`sphinx.ext.apidoc` extension,
+  to automate API documentation generation from Python modules.
+  Patch by Chris Sewell and Adam Turner.
 
 Bugs fixed
 ----------

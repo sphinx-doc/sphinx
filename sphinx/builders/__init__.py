@@ -47,6 +47,7 @@ from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
+    from gettext import NullTranslations
     from typing import Any, Literal
 
     from docutils.nodes import Node
@@ -135,9 +136,13 @@ class Builder:
         self.parallel_ok = False
         self.finish_tasks: Any = None
 
+    @property
+    def _translator(self) -> NullTranslations | None:
+        return self.app.translator
+
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
-        return self.app.registry.get_translator_class(self)
+        return self.env._registry.get_translator_class(self)
 
     def create_translator(self, *args: Any) -> nodes.NodeVisitor:
         """Return an instance of translator.
@@ -145,7 +150,7 @@ class Builder:
         This method returns an instance of ``default_translator_class`` by default.
         Users can replace the translator class with ``app.set_translator()`` API.
         """
-        return self.app.registry.create_translator(self, *args)
+        return self.env._registry.create_translator(self, *args)
 
     # helper methods
     def init(self) -> None:
@@ -626,7 +631,7 @@ class Builder:
 
         filename = str(env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
-        publisher = self.app.registry.get_publisher(self.app, filetype)
+        publisher = self.env._registry.get_publisher(self.app, filetype)
         self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document

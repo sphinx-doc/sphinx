@@ -49,6 +49,8 @@ class MathDomain(Domain):
 
     initial_data: dict[str, Any] = {
         'objects': {},  # labelid -> (docname, eqno)
+        # backwards compatibility
+        'has_equations': {},  # https://github.com/sphinx-doc/sphinx/issues/13346
     }
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
