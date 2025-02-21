@@ -37,11 +37,6 @@ if TYPE_CHECKING:
 
     from sphinx.environment import BuildEnvironment
 
-xfail_singledispatchmethod_py314a6 = pytest.mark.xfail(
-    sys.version_info >= (3, 14, 0, 'alpha', 5),
-    reason='https://github.com/sphinx-doc/sphinx/issues/13359',
-)
-
 
 def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
     options = Options(
@@ -2661,7 +2656,6 @@ def test_singledispatch(app):
     ]
 
 
-@xfail_singledispatchmethod_py314a6
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod(app):
     options = {'members': None}
@@ -2689,7 +2683,6 @@ def test_singledispatchmethod(app):
     ]
 
 
-@xfail_singledispatchmethod_py314a6
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_automethod(app):
     options = {}
@@ -2708,7 +2701,6 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
-@xfail_singledispatchmethod_py314a6
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_classmethod(app):
     options = {'members': None}
@@ -2740,7 +2732,6 @@ def test_singledispatchmethod_classmethod(app):
     ]
 
 
-@xfail_singledispatchmethod_py314a6
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_classmethod_automethod(app):
     options = {}
