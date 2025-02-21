@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #13377: Restore support for using ``sphinx.testing.path`` paths with
+  ``sphinx.testing.fixtures``.
+  Patch by Kazuya Takei.
 * #13380: viewcode: Fix importing modules more than once.
   Patch by Dave Hoese.
 
