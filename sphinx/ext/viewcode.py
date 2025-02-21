@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import importlib
-import importlib.util
 import operator
 import posixpath
 import traceback
@@ -64,10 +63,16 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
         for i in range(num_parts, 0, -1):
             mod_root = '.'.join(module_path[:i])
             try:
+                # import_module() caches the module in sys.modules
                 module = importlib.import_module(mod_root)
                 break
             except ModuleNotFoundError:
                 continue
+            except BaseException as exc:
+                # Importing modules may cause any side effects, including
+                # SystemExit, so we need to catch all errors.
+                msg = f"viewcode failed to import '{mod_root}'."
+                raise ImportError(msg) from exc
         else:
             return None
 
