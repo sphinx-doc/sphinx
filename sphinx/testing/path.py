@@ -58,6 +58,8 @@ class path(str):  # NoQA: FURB189
         """Returns ``True`` if the path is a directory."""
         return os.path.isdir(self)
 
+    is_dir = isdir
+
     def isfile(self) -> bool:
         """Returns ``True`` if the path is a file."""
         return os.path.isfile(self)
