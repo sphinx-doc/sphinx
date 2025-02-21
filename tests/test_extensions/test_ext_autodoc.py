@@ -221,7 +221,7 @@ def test_format_signature(app):
             pass
 
     class FNew:
-        def __new__(cls, a, b=None):
+        def __new__(cls, a, b=None):  # NoQA: ARG004
             return super().__new__(cls)
 
     class FMeta(metaclass=SomeMeta):

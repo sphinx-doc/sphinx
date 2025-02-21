@@ -291,7 +291,7 @@ def between(
 # This class is used only in ``sphinx.ext.autodoc.directive``,
 # But we define this class here to keep compatibility
 # See: https://github.com/sphinx-doc/sphinx/issues/4538
-class Options(dict[str, Any]):
+class Options(dict[str, Any]):  # NoQA: FURB189
     """A dict/attribute hybrid that returns None on nonexisting keys."""
 
     def copy(self) -> Options:
