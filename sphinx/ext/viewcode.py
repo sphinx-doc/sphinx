@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import importlib.util
 import operator
 import posixpath
@@ -62,16 +63,14 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
         num_parts = len(module_path)
         for i in range(num_parts, 0, -1):
             mod_root = '.'.join(module_path[:i])
-            module_spec = importlib.util.find_spec(mod_root)
-            if module_spec is not None:
+            try:
+                module = importlib.import_module(mod_root)
                 break
+            except ModuleNotFoundError:
+                continue
         else:
             return None
-        # Load and execute the module
-        module = importlib.util.module_from_spec(module_spec)
-        if module_spec.loader is None:
-            return None
-        module_spec.loader.exec_module(module)
+
         if i != num_parts:
             for mod in module_path[i:]:
                 module = getattr(module, mod)
