@@ -16,8 +16,8 @@ Features added
 Bugs fixed
 ----------
 
-* #13377: ``sphinx.testing.fixtures`` still also works
-  when type of ``rootdir`` is ``sphinx.testing.path``.
+* #13377: Restore support for using ``sphinx.testing.path`` paths with
+  ``sphinx.testing.fixtures``.
   Patch by Kazuya Takei.
 
 Testing
