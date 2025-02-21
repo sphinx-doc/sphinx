@@ -74,6 +74,7 @@ Contributors
 * Juan Luis Cano Rodríguez -- new tutorial (2021)
 * Julien Palard -- Colspan and rowspan in text builder
 * Justus Magin -- napoleon improvements
+* Kazuya Take (attakei) -- testings components used by other extensions
 * Kevin Dunn -- MathJax extension
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Kurt McKee -- documentation updates

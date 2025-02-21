@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #13377: ``sphinx.testing.fixtures`` still also works
+  when type of ``rootdir`` is ``sphinx.testing.path``.
+  Patch by Kazuya Takei.
+
 Testing
 -------
 
