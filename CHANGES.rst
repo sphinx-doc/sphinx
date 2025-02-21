@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #13377: Restore support for using ``sphinx.testing.path`` paths with
+  ``sphinx.testing.fixtures``.
+  Patch by Kazuya Takei.
+
 Testing
 -------
 
