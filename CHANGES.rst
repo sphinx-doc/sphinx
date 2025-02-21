@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #13367: Correct spelling of ``highlighting_failure`` in warning sub-type.
+  Patch by Bart Kamphorst.
 * #13377: Restore support for using ``sphinx.testing.path`` paths with
   ``sphinx.testing.fixtures``.
   Patch by Kazuya Takei.
