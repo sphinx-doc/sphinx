@@ -21,6 +21,8 @@ Bugs fixed
   Patch by Kazuya Takei.
 * #13380: viewcode: Fix importing modules more than once.
   Patch by Dave Hoese.
+* #13382: Napoleon: Use the right valid types for configuration values.
+  Patch by Adam Turner.
 
 Testing
 -------
