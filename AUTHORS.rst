@@ -45,6 +45,7 @@ Contributors
 * Daniel Eades -- improved static typing
 * Daniel Hahler -- testing and CI improvements
 * Daniel Pizetta -- inheritance diagram improvements
+* Dave Hoese -- ``sphinx.ext.viewcode`` bug fix
 * Dave Kuhlman -- original LaTeX writer
 * Dimitri Papadopoulos Orfanos -- linting and spelling
 * Dmitry Shachnev -- modernisation and reproducibility
@@ -74,6 +75,7 @@ Contributors
 * Juan Luis Cano Rodríguez -- new tutorial (2021)
 * Julien Palard -- Colspan and rowspan in text builder
 * Justus Magin -- napoleon improvements
+* Kazuya Take -- ``sphinx.testing.path`` bug fix
 * Kevin Dunn -- MathJax extension
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Kurt McKee -- documentation updates
