@@ -177,9 +177,14 @@ def _relative_path(path: Path, root: Path, /) -> Path:
     It returns the original path if *path* and *root* are on different drives,
     which may happen on Windows.
     """
+    # Path.relative_to() requires fully-resolved paths (no '..').
+    if '..' in path.parts:
+        path = path.resolve()
+    if '..' in root.parts:
+        root = root.resolve()
+
     if path.anchor != root.anchor or '..' in root.parts:
         # If the drives are different, no relative path exists.
-        # Path.relative_to() requires fully-resolved paths (no '..').
         return path
     if sys.version_info[:2] < (3, 12):
         return Path(os.path.relpath(path, root))

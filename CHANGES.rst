@@ -25,6 +25,8 @@ Bugs fixed
   Patch by Dave Hoese.
 * #13382: Napoleon: Use the right valid types for configuration values.
   Patch by Adam Turner.
+* 13376: Fix copying assets from a relative :confval:`html_static_path` entry.
+  Patch by Adam Turner.
 
 Testing
 -------
