@@ -64,13 +64,19 @@ class path(str):  # NoQA: FURB189
         """Returns ``True`` if the path is a file."""
         return os.path.isfile(self)
 
+    is_file = isfile
+
     def islink(self) -> bool:
         """Returns ``True`` if the path is a symbolic link."""
         return os.path.islink(self)
 
+    is_symlink = islink
+
     def ismount(self) -> bool:
         """Returns ``True`` if the path is a mount point."""
         return os.path.ismount(self)
+
+    is_mount = ismount
 
     def rmtree(
         self,
