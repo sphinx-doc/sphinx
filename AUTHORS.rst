@@ -45,6 +45,7 @@ Contributors
 * Daniel Eades -- improved static typing
 * Daniel Hahler -- testing and CI improvements
 * Daniel Pizetta -- inheritance diagram improvements
+* Dave Hoese -- viewcode extension improvements
 * Dave Kuhlman -- original LaTeX writer
 * Dimitri Papadopoulos Orfanos -- linting and spelling
 * Dmitry Shachnev -- modernisation and reproducibility

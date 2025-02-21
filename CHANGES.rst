@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #13380: viewcode: Fix importing modules more than once.
+  Patch by Dave Hoese.
+
 Testing
 -------
 
