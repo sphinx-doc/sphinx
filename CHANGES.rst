@@ -1,17 +1,5 @@
-Release 8.2.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 8.2.1 (released Feb 21, 2025)
+=====================================
 
 Bugs fixed
 ----------
@@ -27,10 +15,6 @@ Bugs fixed
   Patch by Adam Turner.
 * 13376: Fix copying assets from a relative :confval:`html_static_path` entry.
   Patch by Adam Turner.
-
-Testing
--------
-
 
 Release 8.2.0 (released Feb 18, 2025)
 =====================================
