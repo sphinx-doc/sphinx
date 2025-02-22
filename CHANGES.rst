@@ -177,6 +177,8 @@ Bugs fixed
   Patch by Adam Turner.
 * #13328: Fix parsing of PEP 695 functions with return annotations.
   Patch by Bénédikt Tran. Initial work by Arash Badie-Modiri.
+* #13355: Don't include escaped title content in the search index.
+  Patch by Will Lachance.
 
 Testing
 -------

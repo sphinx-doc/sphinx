@@ -58,6 +58,15 @@ const _removeChildren = (element) => {
 const _escapeRegExp = (string) =>
   string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 
+const _escapeHTML = (text) => {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
 const _displayItem = (item, searchTerms, highlightTerms) => {
   const docBuilder = DOCUMENTATION_OPTIONS.BUILDER;
   const docFileSuffix = DOCUMENTATION_OPTIONS.FILE_SUFFIX;
@@ -90,10 +99,10 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   let linkEl = listItem.appendChild(document.createElement("a"));
   linkEl.href = linkUrl + anchor;
   linkEl.dataset.score = score;
-  linkEl.innerHTML = title;
+  linkEl.innerHTML = _escapeHTML(title);
   if (descr) {
     listItem.appendChild(document.createElement("span")).innerHTML =
-      " (" + descr + ")";
+      " (" + _escapeHTML(descr) + ")";
     // highlight search terms in the description
     if (SPHINX_HIGHLIGHT_ENABLED)  // set in sphinx_highlight.js
       highlightTerms.forEach((term) => _highlightText(listItem, term, "highlighted"));

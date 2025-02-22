@@ -34,7 +34,7 @@ describe('Basic html theme search', function() {
 
       hits = [[
         "index",
-        "&lt;no title&gt;",
+        "<no title>",
         "",
         null,
         5,
