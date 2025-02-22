@@ -103,7 +103,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
@@ -170,7 +169,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25

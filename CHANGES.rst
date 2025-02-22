@@ -1,5 +1,23 @@
-Release 8.2.0 (in development)
-==============================
+Release 8.2.1 (released Feb 21, 2025)
+=====================================
+
+Bugs fixed
+----------
+
+* #13367: Correct spelling of ``highlighting_failure`` in warning sub-type.
+  Patch by Bart Kamphorst.
+* #13377: Restore support for using ``sphinx.testing.path`` paths with
+  ``sphinx.testing.fixtures``.
+  Patch by Kazuya Takei.
+* #13380: viewcode: Fix importing modules more than once.
+  Patch by Dave Hoese.
+* #13382: Napoleon: Use the right valid types for configuration values.
+  Patch by Adam Turner.
+* 13376: Fix copying assets from a relative :confval:`html_static_path` entry.
+  Patch by Adam Turner.
+
+Release 8.2.0 (released Feb 18, 2025)
+=====================================
 
 Dependencies
 ------------
@@ -114,7 +132,7 @@ Features added
 * #13354: Insert abbreviation nodes (hover text) for positional- and keyword-only
   separators in Python signatures.
   Patch by Adam Turner.
-* #13333: Add the :mod:`sphinx.ext.autodoc` extension,
+* #13333: Add the :mod:`sphinx.ext.apidoc` extension,
   to automate API documentation generation from Python modules.
   Patch by Chris Sewell and Adam Turner.
 

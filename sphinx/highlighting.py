@@ -171,7 +171,7 @@ class PygmentsBridge:
                     lang,
                     location=location,
                     type='misc',
-                    subtype='higlighting_failure',
+                    subtype='highlighting_failure',
                 )
                 lexer = lexer_classes['none'](**opts)
 

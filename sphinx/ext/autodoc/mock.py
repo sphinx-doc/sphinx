@@ -30,7 +30,7 @@ class _MockObject:
     __sphinx_mock__ = True
     __sphinx_decorator_args__: tuple[Any, ...] = ()
 
-    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:  # NoQA: ARG004
         if len(args) == 3 and isinstance(args[1], tuple):
             superclass = args[1][-1].__class__
             if superclass is cls:

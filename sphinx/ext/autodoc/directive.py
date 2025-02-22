@@ -52,7 +52,7 @@ AUTODOC_EXTENDABLE_OPTIONS = frozenset({
 })
 
 
-class DummyOptionSpec(dict[str, Callable[[str], str]]):
+class DummyOptionSpec(dict[str, Callable[[str], str]]):  # NoQA: FURB189
     """An option_spec allows any options."""
 
     def __bool__(self) -> bool:
