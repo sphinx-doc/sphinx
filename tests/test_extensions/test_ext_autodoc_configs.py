@@ -1361,7 +1361,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '',
         '   .. py:attribute:: Foo.attr1',
         '      :module: target.autodoc_type_aliases',
-        '      :type: int',
+        '      :type: ~fractions.Fraction | int',
         '',
         '      docstring',
         '',
@@ -1373,8 +1373,35 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '      docstring',
         '',
         '',
+        '   .. py:method:: Foo.method1(x: ~fractions.Fraction | float) -> ~fractions.Fraction | float',
+        '      :module: target.autodoc_type_aliases',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.method2(x: ~fractions.Fraction) -> ~fractions.Fraction',
+        '                  Foo.method2(x: float) -> float',
+        '                  Foo.method2(x: ~fractions.Fraction | float) -> ~fractions.Fraction | float',
+        '      :module: target.autodoc_type_aliases',
+        '',
+        '      docstring',
+        '',
+        '',
         '.. py:function:: mult(x: int, y: int) -> int',
         '                 mult(x: float, y: float) -> float',
+        '   :module: target.autodoc_type_aliases',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:function:: print_value(x: ~fractions.Fraction | float) -> None',
+        '   :module: target.autodoc_type_aliases',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:function:: prod(x: tuple[float, float]) -> float',
+        '                 prod(x: tuple[~fractions.Fraction, float]) -> ~fractions.Fraction',
         '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
@@ -1386,7 +1413,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '   docstring',
         '',
         '',
-        '.. py:function:: sum(x: int, y: int) -> int',
+        '.. py:function:: sum(x: float, y: float) -> float',
         '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
@@ -1418,6 +1445,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
     # define aliases
     app.config.autodoc_type_aliases = {
         'myint': 'myint',
+        'myfrac': 'my.module.myfrac',
         'io.StringIO': 'my.module.StringIO',
     }
     actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
@@ -1434,7 +1462,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '',
         '   .. py:attribute:: Foo.attr1',
         '      :module: target.autodoc_type_aliases',
-        '      :type: myint',
+        "      :type: ~fractions.Fraction | TypeAliasForwardRef('myint')",
         '',
         '      docstring',
         '',
@@ -1446,8 +1474,35 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '      docstring',
         '',
         '',
-        '.. py:function:: mult(x: myint, y: myint) -> myint',
-        '                 mult(x: float, y: float) -> float',
+        "   .. py:method:: Foo.method1(x: ~fractions.Fraction | TypeAliasForwardRef('my.module.myfrac')) -> ~fractions.Fraction | TypeAliasForwardRef('my.module.myfrac')",
+        '      :module: target.autodoc_type_aliases',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.method2(x: ~fractions.Fraction) -> ~fractions.Fraction',
+        '                  Foo.method2(x: my.module.myfrac) -> my.module.myfrac',
+        "                  Foo.method2(x: ~fractions.Fraction | TypeAliasForwardRef('my.module.myfrac')) -> ~fractions.Fraction | TypeAliasForwardRef('my.module.myfrac')",
+        '      :module: target.autodoc_type_aliases',
+        '',
+        '      docstring',
+        '',
+        '',
+        '.. py:function:: mult(x: int, y: int) -> int',
+        '                 mult(x: my.module.myfrac, y: my.module.myfrac) -> my.module.myfrac',
+        '   :module: target.autodoc_type_aliases',
+        '',
+        '   docstring',
+        '',
+        '',
+        ".. py:function:: print_value(x: ~fractions.Fraction | TypeAliasForwardRef('my.module.myfrac')) -> None",
+        '   :module: target.autodoc_type_aliases',
+        '',
+        '   docstring',
+        '',
+        '',
+        ".. py:function:: prod(x: tuple[float, TypeAliasForwardRef('my.module.myfrac')]) -> float",
+        "                 prod(x: tuple[~fractions.Fraction, TypeAliasForwardRef('my.module.myfrac')]) -> ~fractions.Fraction",
         '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
@@ -1459,7 +1514,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '   docstring',
         '',
         '',
-        '.. py:function:: sum(x: myint, y: myint) -> myint',
+        '.. py:function:: sum(x: my.module.myfrac, y: my.module.myfrac) -> my.module.myfrac',
         '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
@@ -1495,7 +1550,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
     srcdir='autodoc_typehints_description_and_type_aliases',
     confoverrides={
         'autodoc_typehints': 'description',
-        'autodoc_type_aliases': {'myint': 'myint'},
+        'autodoc_type_aliases': {'myfrac': 'my.module.myfrac'},
     },
 )
 def test_autodoc_typehints_description_and_type_aliases(app: SphinxTestApp) -> None:
@@ -1511,12 +1566,12 @@ def test_autodoc_typehints_description_and_type_aliases(app: SphinxTestApp) -> N
         '   docstring\n'
         '\n'
         '   Parameters:\n'
-        '      * **x** (*myint*)\n'
+        '      * **x** (*my.module.myfrac*)\n'
         '\n'
-        '      * **y** (*myint*)\n'
+        '      * **y** (*my.module.myfrac*)\n'
         '\n'
         '   Return type:\n'
-        '      myint\n'
+        '      my.module.myfrac\n'
     )
 
 

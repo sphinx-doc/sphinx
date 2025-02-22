@@ -27,6 +27,7 @@ Contributors
 * Andi Albrecht -- agogo theme
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Antti Kaihola -- doctest extension (skipif option)
+* Barak Katzir -- autodoc improvements
 * Barry Warsaw -- setup command improvements
 * Bart Kamphorst -- warning improvements
 * Ben Egan -- Napoleon improvements & viewcode improvements
