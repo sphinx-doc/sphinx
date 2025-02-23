@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 18:26+0000\n"
+"POT-Creation-Date: 2025-02-23 22:39+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Besnik Bleta <besnik@programeshqip.org>, 2021-2025\n"
 "Language-Team: Albanian (http://app.transifex.com/sphinx-doc/sphinx-1/language/sq/)\n"
@@ -606,32 +606,32 @@ msgstr "numër PEP i pavlefshëm %s"
 msgid "invalid RFC number %s"
 msgstr "numër RFC i pavlefshëm %s"
 
-#: ext/linkcode.py:86 ext/viewcode.py:226
+#: ext/linkcode.py:86 ext/viewcode.py:230
 msgid "[source]"
 msgstr "[burim]"
 
-#: ext/viewcode.py:289
+#: ext/viewcode.py:293
 msgid "highlighting module code... "
 msgstr "po theksohet kod moduli… "
 
-#: ext/viewcode.py:320
+#: ext/viewcode.py:324
 msgid "[docs]"
 msgstr "[dokumente]"
 
-#: ext/viewcode.py:346
+#: ext/viewcode.py:350
 msgid "Module code"
 msgstr "Kod moduli"
 
-#: ext/viewcode.py:353
+#: ext/viewcode.py:357
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>Kod burim për %s</h1>"
 
-#: ext/viewcode.py:380
+#: ext/viewcode.py:384
 msgid "Overview: module code"
 msgstr "Përmbledhje: kod moduli"
 
-#: ext/viewcode.py:381
+#: ext/viewcode.py:385
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>Krejt modulet për të cilët ka kod të gatshëm</h1>"
 
@@ -1999,43 +1999,43 @@ msgstr "citim i përsëdytur %s, tjetër instancë te %s"
 msgid "Citation [%s] is not referenced."
 msgstr "Përmendja [%s] s’është në referencë."
 
-#: locale/__init__.py:228
+#: locale/__init__.py:229
 msgid "Attention"
 msgstr "Vëmendje"
 
-#: locale/__init__.py:229
+#: locale/__init__.py:230
 msgid "Caution"
 msgstr "Kujdes"
 
-#: locale/__init__.py:230
+#: locale/__init__.py:231
 msgid "Danger"
 msgstr "Rrezik"
 
-#: locale/__init__.py:231
+#: locale/__init__.py:232
 msgid "Error"
 msgstr "Gabim"
 
-#: locale/__init__.py:232
+#: locale/__init__.py:233
 msgid "Hint"
 msgstr "Ndihmëz"
 
-#: locale/__init__.py:233
+#: locale/__init__.py:234
 msgid "Important"
 msgstr "E rëndësishme"
 
-#: locale/__init__.py:234
+#: locale/__init__.py:235
 msgid "Note"
 msgstr "Shënim"
 
-#: locale/__init__.py:235
+#: locale/__init__.py:236
 msgid "See also"
 msgstr "Shihni edhe"
 
-#: locale/__init__.py:236
+#: locale/__init__.py:237
 msgid "Tip"
 msgstr "Ndihmëz"
 
-#: locale/__init__.py:237
+#: locale/__init__.py:238
 msgid "Warning"
 msgstr "Sinjalizim"
 
@@ -3588,7 +3588,7 @@ msgstr "Numra"
 msgid "page"
 msgstr "faqe"
 
-#: ext/napoleon/__init__.py:356 ext/napoleon/docstring.py:940
+#: ext/napoleon/__init__.py:355 ext/napoleon/docstring.py:940
 msgid "Keyword Arguments"
 msgstr "Argumente Fjalëkyçi"
 
