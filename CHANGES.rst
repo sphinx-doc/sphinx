@@ -1,3 +1,15 @@
+Release 8.3.0 (in development)
+==============================
+
+Features added
+--------------
+
+* #13384: Add Unicode normalization option for search indexing.
+  This allows users to specify the type of Unicode normalization
+  (NFC, NFD, NFKC, NFKD) to apply during searches, improving the
+  accuracy and reliability of search results.
+  Patch by Tokuhiro Matsuno.
+
 Release 8.2.1 (released Feb 21, 2025)
 =====================================
 

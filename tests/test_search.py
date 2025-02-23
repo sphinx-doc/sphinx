@@ -484,3 +484,16 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
         f'Search index fixture {existing_searchindex} does not match regenerated copy.'
     )
     assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='search',
+    confoverrides={'html_search_unicode_normalization': 'NFKC'},
+    srcdir='search_normalize',
+)
+def test_search_index_unicode_normalize(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    index = load_searchindex(app.outdir / 'searchindex.js')
+    assert 'Ｐｙｔｈｏｎ' not in index['terms']
+    assert 'python' in index['terms']

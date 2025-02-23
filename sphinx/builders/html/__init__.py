@@ -440,6 +440,7 @@ class StandaloneHTMLBuilder(Builder):
                 lang,
                 self.config.html_search_options,
                 self.config.html_search_scorer,
+                self.config.html_search_unicode_normalization,
             )
             self.load_indexer(docnames)
 
@@ -544,6 +545,7 @@ class StandaloneHTMLBuilder(Builder):
             'has_source': self.config.html_copy_source,
             'show_source': self.config.html_show_sourcelink,
             'sourcelink_suffix': self.config.html_sourcelink_suffix,
+            'search_unicode_normalization': self.config.html_search_unicode_normalization,
             'file_suffix': self.out_suffix,
             'link_suffix': self.link_suffix,
             'script_files': self._js_files,
@@ -1489,6 +1491,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_show_copyright', True, 'html', types=frozenset({bool}))
     app.add_config_value(
         'html_show_search_summary', True, 'html', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'html_search_unicode_normalization', None, 'html', types=frozenset({str})
     )
     app.add_config_value('html_show_sphinx', True, 'html', types=frozenset({bool}))
     app.add_config_value('html_context', {}, 'html', types=frozenset({dict}))

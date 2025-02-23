@@ -413,6 +413,9 @@ const Search = {
   },
 
   query: (query) => {
+    if (DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION) {
+        query = query.normalize(DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION);
+    }
     const [searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms] = Search._parseQuery(query);
     const results = Search._performSearch(searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms);
 
