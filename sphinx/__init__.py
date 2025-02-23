@@ -11,7 +11,7 @@ import warnings
 try:
     from sphinx.util._pathlib import _StrPath
 except ImportError:
-    from pathlib import Path as _StrPath
+    from pathlib import Path as _StrPath  # type: ignore[assignment]
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
