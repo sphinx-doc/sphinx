@@ -39,11 +39,11 @@ if _in_development:
     try:
         if ret := subprocess.run(
             ('git', 'rev-parse', '--short', 'HEAD'),
+            check=True,
             cwd=package_dir,
-            check=False,
             encoding='utf-8',
             errors='surrogateescape',
-            stdout=True,
+            stdout=subprocess.PIPE,
         ).stdout:
             __display_version__ += f'+/{ret.strip()}'
         del ret
