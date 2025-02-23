@@ -84,6 +84,10 @@ def test_copy_asset(tmp_path):
     (source / '_templates' / 'sidebar.html.jinja').write_text(
         'sidebar: {{var2}}', encoding='utf8'
     )
+    sibling = tmp_path / 'sibling'
+    sibling.mkdir(parents=True, exist_ok=True)
+    sibling.joinpath('spam').mkdir(parents=True, exist_ok=True)
+    sibling.joinpath('spam', 'ham').touch()
 
     # copy a single file
     assert not (tmp_path / 'test1').exists()
@@ -125,6 +129,14 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_static' / 'basic.css').exists()
     assert (destdir / '_templates' / 'layout.html').exists()
     assert not (destdir / '_templates' / 'sidebar.html').exists()
+
+    # copy sibling
+    assert not (tmp_path / 'test4').exists()
+    copy_asset(source / '../sibling', tmp_path / 'test4')
+    assert (tmp_path / 'test4').is_dir()
+    assert (tmp_path / 'test4' / 'spam').is_dir()
+    assert (tmp_path / 'test4' / 'spam' / 'ham').is_file()
+    assert (tmp_path / 'test4' / 'spam' / 'ham').read_bytes() == b''
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
