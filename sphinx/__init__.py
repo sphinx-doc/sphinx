@@ -38,14 +38,14 @@ if _in_development:
 
     try:
         if ret := subprocess.run(
-            ['git', 'rev-parse', '--short', 'HEAD'],  # NoQA: S607
+            ('git', 'rev-parse', '--short', 'HEAD'),
             cwd=package_dir,
-            capture_output=True,
             check=False,
-            encoding='ascii',
+            encoding='utf-8',
             errors='surrogateescape',
+            stdout=True,
         ).stdout:
-            __display_version__ += '+/' + ret.strip()
+            __display_version__ += f'+/{ret.strip()}'
         del ret
     finally:
         del subprocess
