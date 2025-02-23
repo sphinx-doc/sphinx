@@ -1,24 +1,17 @@
 """The Sphinx documentation toolchain."""
 
-from __future__ import annotations
-
-__version__ = '8.3.0'
-__display_version__ = __version__  # used for command line version
-
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it when packaging is impossible.)
 
-import os
+from __future__ import annotations
+
 import warnings
 
 from sphinx.util._pathlib import _StrPath
 
-# by default, all DeprecationWarning under sphinx package will be emit.
-# Users can avoid this by using environment variable: PYTHONWARNINGS=
-if 'PYTHONWARNINGS' not in os.environ:
-    from sphinx.deprecation import RemovedInNextVersionWarning
+__version__ = '8.3.0'
+__display_version__ = __version__  # used for command line version
 
-    warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
 warnings.filterwarnings(
     'ignore',
     'The frontend.Option class .*',
