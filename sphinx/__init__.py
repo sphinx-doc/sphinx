@@ -9,8 +9,12 @@ import warnings
 
 from sphinx.util._pathlib import _StrPath
 
-__version__ = '8.3.0'
-__display_version__ = __version__  # used for command line version
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from typing import Final
+
+__version__: Final = '8.3.0'
+__display_version__: Final = __version__  # used for command line version
 
 warnings.filterwarnings(
     'ignore',
@@ -27,9 +31,9 @@ warnings.filterwarnings(
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (8, 3, 0, 'final', 0)
+version_info: Final = (8, 3, 0, 'beta', 0)
 
-package_dir = _StrPath(__file__).resolve().parent
+package_dir: Final = _StrPath(__file__).resolve().parent
 
 _in_development = True
 if _in_development:
@@ -45,7 +49,7 @@ if _in_development:
             encoding='utf-8',
             errors='surrogateescape',
         ).stdout:
-            __display_version__ += f'+/{ret.strip()}'
+            __display_version__ += f'+/{ret.strip()}'  # type: ignore[misc]
         del ret
     finally:
         del subprocess
