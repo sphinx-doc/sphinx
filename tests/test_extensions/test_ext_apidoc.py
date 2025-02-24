@@ -786,6 +786,16 @@ def test_sphinx_extension(app: SphinxTestApp) -> None:
         app.srcdir / 'generated' / 'modules.rst',
         app.srcdir / 'generated' / 'my_package.rst',
     }
+    modules_content = (app.srcdir / 'generated' / 'modules.rst').read_text(encoding='utf8')
+    assert modules_content == (
+        'src\n'
+        '===\n'
+        '\n'
+        '.. toctree::\n'
+        '   :maxdepth: 3\n'
+        '\n'
+        '   my_package\n'
+    )
     assert 'show-inheritance' not in (
         app.srcdir / 'generated' / 'my_package.rst'
     ).read_text(encoding='utf8')
