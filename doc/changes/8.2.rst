@@ -18,7 +18,8 @@ Bugs fixed
   Patch by Dave Hoese.
 * #13382: Napoleon: Use the right valid types for configuration values.
   Patch by Adam Turner.
-* 13376: Fix copying assets from a relative :confval:`html_static_path` entry.
+* #13376: Fix copying assets from relative :confval:`html_static_path` and
+  :confval:`html_extra_path` entries.
   Patch by Adam Turner.
 
 Release 8.2.0 (released Feb 18, 2025)
