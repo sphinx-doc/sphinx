@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 00:33+0000\n"
+"POT-Creation-Date: 2025-02-23 22:39+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>, 2021\n"
 "Language-Team: Danish (http://app.transifex.com/sphinx-doc/sphinx-1/language/da/)\n"
@@ -609,32 +609,32 @@ msgstr ""
 msgid "invalid RFC number %s"
 msgstr ""
 
-#: ext/linkcode.py:86 ext/viewcode.py:226
+#: ext/linkcode.py:86 ext/viewcode.py:230
 msgid "[source]"
 msgstr "[kilde]"
 
-#: ext/viewcode.py:289
+#: ext/viewcode.py:293
 msgid "highlighting module code... "
 msgstr ""
 
-#: ext/viewcode.py:320
+#: ext/viewcode.py:324
 msgid "[docs]"
 msgstr "[dok]"
 
-#: ext/viewcode.py:346
+#: ext/viewcode.py:350
 msgid "Module code"
 msgstr "Modulkode"
 
-#: ext/viewcode.py:353
+#: ext/viewcode.py:357
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>Kildekode for %s</h1>"
 
-#: ext/viewcode.py:380
+#: ext/viewcode.py:384
 msgid "Overview: module code"
 msgstr "Oversigt: modulkode"
 
-#: ext/viewcode.py:381
+#: ext/viewcode.py:385
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>Alle moduler, der er kode tilgængelig for</h1>"
 
@@ -2002,43 +2002,43 @@ msgstr ""
 msgid "Citation [%s] is not referenced."
 msgstr ""
 
-#: locale/__init__.py:228
+#: locale/__init__.py:229
 msgid "Attention"
 msgstr "Vær opmærksom"
 
-#: locale/__init__.py:229
+#: locale/__init__.py:230
 msgid "Caution"
 msgstr "Forsigtig"
 
-#: locale/__init__.py:230
+#: locale/__init__.py:231
 msgid "Danger"
 msgstr "Fare"
 
-#: locale/__init__.py:231
+#: locale/__init__.py:232
 msgid "Error"
 msgstr "Fejl"
 
-#: locale/__init__.py:232
+#: locale/__init__.py:233
 msgid "Hint"
 msgstr "Fif"
 
-#: locale/__init__.py:233
+#: locale/__init__.py:234
 msgid "Important"
 msgstr "Vigtigt"
 
-#: locale/__init__.py:234
+#: locale/__init__.py:235
 msgid "Note"
 msgstr "Bemærk"
 
-#: locale/__init__.py:235
+#: locale/__init__.py:236
 msgid "See also"
 msgstr "Se også"
 
-#: locale/__init__.py:236
+#: locale/__init__.py:237
 msgid "Tip"
 msgstr "Tip"
 
-#: locale/__init__.py:237
+#: locale/__init__.py:238
 msgid "Warning"
 msgstr "Advarsel"
 
@@ -3591,7 +3591,7 @@ msgstr ""
 msgid "page"
 msgstr "side"
 
-#: ext/napoleon/__init__.py:356 ext/napoleon/docstring.py:940
+#: ext/napoleon/__init__.py:355 ext/napoleon/docstring.py:940
 msgid "Keyword Arguments"
 msgstr "Nøgleordsargumenter"
 
