@@ -94,11 +94,11 @@ def bump_version(
         lines = f.read().splitlines(keepends=True)
 
     for i, line in enumerate(lines):
-        if line.startswith('__version__ = '):
-            lines[i] = f"__version__ = '{version}'\n"
+        if line.startswith('__version__: Final = '):
+            lines[i] = f"__version__: Final = '{version}'\n"
             continue
-        if line.startswith('version_info = '):
-            lines[i] = f'version_info = {version_info.release_tuple}\n'
+        if line.startswith('version_info: Final = '):
+            lines[i] = f'version_info: Final = {version_info.release_tuple}\n'
             continue
         if line.startswith('_in_development = '):
             lines[i] = f'_in_development = {in_develop}\n'

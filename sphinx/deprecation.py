@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import warnings
 
 
@@ -14,6 +15,12 @@ class RemovedInSphinx10Warning(PendingDeprecationWarning):
 
 
 RemovedInNextVersionWarning = RemovedInSphinx90Warning
+
+
+# By default, all Sphinx deprecation warnings will be emitted.
+# To avoid this, set the environment variable: PYTHONWARNINGS=
+if 'PYTHONWARNINGS' not in os.environ:
+    warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
 
 
 def _deprecation_warning(
