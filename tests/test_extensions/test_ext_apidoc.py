@@ -782,10 +782,15 @@ def test_sphinx_extension(app: SphinxTestApp) -> None:
     app.build()
     assert app.warning.getvalue() == ''
 
+    toc_file = app.srcdir / 'generated' / 'modules.rst'
     assert set((app.srcdir / 'generated').iterdir()) == {
-        app.srcdir / 'generated' / 'modules.rst',
+        toc_file,
         app.srcdir / 'generated' / 'my_package.rst',
     }
+    modules_content = toc_file.read_text(encoding='utf8')
+    assert modules_content == (
+        'src\n===\n\n.. toctree::\n   :maxdepth: 3\n\n   my_package\n'
+    )
     assert 'show-inheritance' not in (
         app.srcdir / 'generated' / 'my_package.rst'
     ).read_text(encoding='utf8')

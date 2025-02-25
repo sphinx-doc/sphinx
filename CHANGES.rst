@@ -16,5 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #13391: apidoc: Fix TOC file not having a title.
+  Patch by Dave Hoese.
+
 Testing
 -------

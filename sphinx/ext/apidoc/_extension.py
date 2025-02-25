@@ -220,6 +220,7 @@ def _parse_module_options(
         automodule_options=automodule_options,
         max_depth=max_depth,
         quiet=True,
+        header=module_path.name,
         follow_links=bool_options['follow_links'],
         separate_modules=bool_options['separate_modules'],
         include_private=bool_options['include_private'],
