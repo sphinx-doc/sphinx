@@ -2030,6 +2030,25 @@ and also make use of these options.
 
    .. versionadded:: 1.0
 
+.. confval:: html_search_unicode_normalization
+   :type: :code-py:`str`
+   :default: :code-py:`None`
+
+    html_search_unicode_normalization is a setting that specifies the type
+    of Unicode normalization to apply during searches. It can take one of
+    the following values:
+
+    * **NFD** -- Decomposes characters into their canonical decomposed form.
+    * **NFC** -- Composes characters into their canonical composed form.
+    * **NFKD** -- Decomposes characters into their compatibility decomposed form.
+    * **NFKC** -- Composes characters into their compatibility composed form.
+
+    This setting ensures that text is consistently normalized, improving the
+    accuracy and reliability of search results by handling different Unicode
+    representations of the same characters.
+
+   .. versionadded:: 8.3
+
 .. confval:: html_search_language
    :type: :code-py:`str`
    :default: The value of **language**
