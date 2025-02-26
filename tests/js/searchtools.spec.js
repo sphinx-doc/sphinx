@@ -98,6 +98,33 @@ describe('Basic html theme search', function() {
   });
 
   describe('unicode normalization', function() {
+    it('should find documents indexed with half-width characters using a half-width query', function() {
+      eval(loadFixture("normalization/searchindex.js"));
+
+      const orig = DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION;
+      try {
+        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = 'NFKC';
+        [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('Sphinx');
+
+        terms = Search._index.terms;
+        titleterms = Search._index.titleterms;
+
+        hits = [[
+            "index",
+            "Sphinx",
+            "",
+            null,
+            15,
+            "index.rst",
+            "text"],
+        ];
+
+        expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      } finally {
+        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = orig; // restore
+      }
+    });
+
     it('should find documents indexed with half-width characters using a full-width query', function() {
       eval(loadFixture("normalization/searchindex.js"));
 
@@ -111,19 +138,12 @@ describe('Basic html theme search', function() {
 
         hits = [[
             "index",
-            "Main Page",
-            "",
-            null,
-            5,
-            "index.rst",
-            "text"],[
-            "sphinx",
             "Sphinx",
             "",
             null,
             15,
-            "sphinx.rst",
-            "text"]
+            "index.rst",
+            "text"],
         ];
 
         expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
