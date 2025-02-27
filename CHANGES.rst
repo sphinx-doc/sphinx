@@ -16,7 +16,7 @@ Features added
 Bugs fixed
 ----------
 
-* #13392: HTML Search: make sure the parameter that passed to jieba.load_userdict() is string_types
+* #13392: HTML Search: make sure jieba.load_userdict got a string param.
 
 Testing
 -------
