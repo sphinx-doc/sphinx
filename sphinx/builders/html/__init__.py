@@ -1493,7 +1493,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'html_show_search_summary', True, 'html', types=frozenset({bool})
     )
     app.add_config_value(
-        'html_search_unicode_normalization', None, 'html', types=frozenset({str})
+        'html_search_unicode_normalization', 'NFKD', 'html', types=frozenset({str})
     )
     app.add_config_value('html_show_sphinx', True, 'html', types=frozenset({bool}))
     app.add_config_value('html_context', {}, 'html', types=frozenset({dict}))
