@@ -102,7 +102,7 @@ lint = [
     "types-Pygments==2.19.0.20250219",
     "types-requests==2.32.0.20241016",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.394",
+    "pyright==1.1.395",
     "pytest>=8.0",
     "pypi-attestations==0.0.21",
     "betterproto==2.0.0b6",
