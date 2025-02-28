@@ -277,6 +277,10 @@ const Search = {
   },
 
   _parseQuery: (query) => {
+    if (DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION) {
+        query = query.normalize(DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION);
+    }
+
     // stem the search terms and add them to the correct list
     const stemmer = new Stemmer();
     const searchTerms = new Set();

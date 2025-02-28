@@ -95,7 +95,21 @@ describe('Basic html theme search', function() {
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
+  });
 
+  describe('unicode normalization', function() {
+    it('should parse queries with half-width and full-width characters equivalently', function() {
+      const orig = DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION;
+      try {
+        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = 'NFKC';
+        const halfWidthQuery = Search._parseQuery('Sphinx');
+        const fullWidthQuery = Search._parseQuery('Ｓｐｈｉｎｘ');
+
+        expect(halfWidthQuery).toEqual(fullWidthQuery);
+      } finally {
+        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = orig; // restore
+      }
+    });
   });
 
   describe('aggregation of search results', function() {
