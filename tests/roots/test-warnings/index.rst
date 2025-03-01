@@ -43,3 +43,7 @@ This used to crash: :option:`&option`
 .. missing citation
 
 [missing]_ citation
+
+.. _ambiguous_hyperlink:
+
+This hyperlink target is declared with the same name in two files.
