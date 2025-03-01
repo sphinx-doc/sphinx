@@ -232,9 +232,9 @@ class SearchChinese(SearchLanguage):
 
     def init(self, options: dict[str, str]) -> None:
         if JIEBA:
-            dict_path = options.get('dict', JIEBA_DEFAULT_DICT.as_posix())
+            dict_path = options.get('dict', JIEBA_DEFAULT_DICT)
             if dict_path and Path(dict_path).is_file():
-                jieba.load_userdict(dict_path)
+                jieba.load_userdict(str(dict_path))
 
         self.stemmer = snowballstemmer.stemmer('english')
 
