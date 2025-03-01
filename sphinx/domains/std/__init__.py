@@ -947,6 +947,13 @@ class StandardDomain(Domain):
                 # indirect hyperlink targets
                 node = document.ids.get(node['refid'])  # type: ignore[assignment]
                 labelid = node['names'][0]
+            if name in self.anonlabels:
+                logger.warning(
+                    __('duplicate label %s, other instance in %s'),
+                    name,
+                    env.doc2path(self.anonlabels[name][0]),
+                    location=node,
+                )
             if (
                 node.tagname == 'footnote'
                 or 'refuri' in node

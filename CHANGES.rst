@@ -16,5 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #13383: Emit a warning for duplicate internal hyperlink declarations.
+  Patch by James Addison.
+
 Testing
 -------
