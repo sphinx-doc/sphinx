@@ -92,7 +92,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.9.8",
+    "ruff==0.9.9",
     "mypy==1.15.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
