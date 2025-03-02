@@ -1510,7 +1510,7 @@ class Sphinx:
         self.registry.add_js_file(filename, priority=priority, **kwargs)
         with contextlib.suppress(AttributeError):
             self.builder.add_js_file(  # type: ignore[attr-defined]
-                filename, priority=priority, **kwargs
+                filename or '', priority=priority, **kwargs
             )
 
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
