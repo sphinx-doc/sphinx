@@ -217,7 +217,6 @@ def _parse_module_options(
         dest_dir=dest_path,
         module_path=module_path,
         exclude_pattern=exclude_patterns,
-        automodule_options=automodule_options,
         max_depth=max_depth,
         quiet=True,
         follow_links=bool_options['follow_links'],
@@ -226,6 +225,8 @@ def _parse_module_options(
         no_headings=bool_options['no_headings'],
         module_first=bool_options['module_first'],
         implicit_namespaces=bool_options['implicit_namespaces'],
+        automodule_options=automodule_options,
+        header=module_path.name,
     )
 
 
