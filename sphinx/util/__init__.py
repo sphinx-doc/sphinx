@@ -62,6 +62,13 @@ def __getattr__(name: str) -> Any:
     obj: Callable[..., Any]
     mod: ModuleType
 
+    if name == 'console':
+        # Explicit temporary workaround for nbsphinx implicit imports.
+        # https://github.com/sphinx-doc/sphinx/issues/13352
+        import sphinx.util.console as mod
+
+        return mod
+
     # RemovedInSphinx90Warning
     if name == 'split_index_msg':
         from sphinx.util.index_entries import split_index_msg as obj
