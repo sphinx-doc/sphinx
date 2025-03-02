@@ -363,11 +363,12 @@ class DocTestBuilder(Builder):
             self.app.statuscode = 1
             if self.config.doctest_fail_fast:
                 header = f'{header} (exiting after first failed test)'
+        underline = '=' * len(header)
 
         self._out(
             f"""
 {header}
-{'=' * len(header)}
+{underline}
 {self.total_tries:5} test{s(self.total_tries)}
 {self.total_failures:5} failure{s(self.total_failures)} in tests
 {self.setup_failures:5} failure{s(self.setup_failures)} in setup code
