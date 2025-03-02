@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 00:33+0000\n"
+"POT-Creation-Date: 2025-03-02 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Slavko <linux@slavino.sk>, 2013-2019,2021\n"
 "Language-Team: Slovak (http://app.transifex.com/sphinx-doc/sphinx-1/language/sk/)\n"
@@ -21,19 +21,263 @@ msgstr ""
 "Language: sk\n"
 "Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
 
-#: extension.py:58
+#: roles.py:206
 #, python-format
-msgid ""
-"The %s extension is required by needs_extensions settings, but it is not "
-"loaded."
-msgstr "Rozšírenie %s je vyžadované nastavením needs_extensions, ale nie je načítané."
+msgid "Common Vulnerabilities and Exposures; CVE %s"
+msgstr ""
 
-#: extension.py:79
+#: roles.py:229
+#, python-format
+msgid "invalid CVE number %s"
+msgstr ""
+
+#: roles.py:251
+#, python-format
+msgid "Common Weakness Enumeration; CWE %s"
+msgstr ""
+
+#: roles.py:274
+#, python-format
+msgid "invalid CWE number %s"
+msgstr ""
+
+#: roles.py:294
+#, python-format
+msgid "Python Enhancement Proposals; PEP %s"
+msgstr "Python Enhancement Proposals; PEP %s"
+
+#: roles.py:317
+#, python-format
+msgid "invalid PEP number %s"
+msgstr ""
+
+#: roles.py:355
+#, python-format
+msgid "invalid RFC number %s"
+msgstr ""
+
+#: theming.py:115
 #, python-format
 msgid ""
-"This project needs the extension %s at least in version %s and therefore "
-"cannot be built with the loaded version (%s)."
-msgstr "Tento projekt vyžaduje rozšírenie %s s verziou minimálne %s, a teda ho nemožno zostaviť s načítanou verziou (%s)."
+"Theme configuration sections other than [theme] and [options] are not "
+"supported (tried to get a value from %r)."
+msgstr ""
+
+#: theming.py:120
+#, python-format
+msgid "setting %s.%s occurs in none of the searched theme configs"
+msgstr "nastavenie %s.%s nenájdené v žiadnom z nastavení témy"
+
+#: theming.py:135
+#, python-format
+msgid "unsupported theme option %r given"
+msgstr "zadaná nepodporovaná voľba témy %r"
+
+#: theming.py:208
+#, python-format
+msgid "file %r on theme path is not a valid zipfile or contains no theme"
+msgstr "súbor %r v ceste témy nie je platný súbor ZIP alebo neobsahuje tému"
+
+#: theming.py:228
+#, python-format
+msgid "no theme named %r found (missing theme.toml?)"
+msgstr ""
+
+#: theming.py:268
+#, python-format
+msgid "The %r theme has circular inheritance"
+msgstr ""
+
+#: theming.py:276
+#, python-format
+msgid ""
+"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
+"are: %s"
+msgstr ""
+
+#: theming.py:282
+#, python-format
+msgid "The %r theme has too many ancestors"
+msgstr ""
+
+#: theming.py:310
+#, python-format
+msgid "no theme configuration file found in %r"
+msgstr ""
+
+#: theming.py:335 theming.py:388
+#, python-format
+msgid "theme %r doesn't have the \"theme\" table"
+msgstr ""
+
+#: theming.py:339
+#, python-format
+msgid "The %r theme \"[theme]\" table is not a table"
+msgstr ""
+
+#: theming.py:343 theming.py:391
+#, python-format
+msgid "The %r theme must define the \"theme.inherit\" setting"
+msgstr ""
+
+#: theming.py:347
+#, python-format
+msgid "The %r theme \"[options]\" table is not a table"
+msgstr ""
+
+#: theming.py:366
+#, python-format
+msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
+msgstr ""
+
+#: project.py:72
+#, python-format
+msgid ""
+"multiple files found for the document \"%s\": %s\n"
+"Use %r for the build."
+msgstr ""
+
+#: project.py:87
+#, python-format
+msgid "Ignored unreadable document %r."
+msgstr ""
+
+#: registry.py:167
+#, python-format
+msgid "Builder class %s has no \"name\" attribute"
+msgstr "Trieda builder %s nemá atribút „name”"
+
+#: registry.py:171
+#, python-format
+msgid "Builder %r already exists (in module %s)"
+msgstr "Builder %r už existuje (v module %s)"
+
+#: registry.py:187
+#, python-format
+msgid "Builder name %s not registered or available through entry point"
+msgstr "Builder s menom %s nie je registrovaný ani dostupný cez vstupný bod"
+
+#: registry.py:197
+#, python-format
+msgid "Builder name %s not registered"
+msgstr "Builder s menom %s nie je registrovaný"
+
+#: registry.py:204
+#, python-format
+msgid "domain %s already registered"
+msgstr "doména %s už je zaregistrovaná"
+
+#: registry.py:228 registry.py:249 registry.py:262
+#, python-format
+msgid "domain %s not yet registered"
+msgstr "doména %s ešte nie je zaregistrovaná"
+
+#: registry.py:235
+#, python-format
+msgid "The %r directive is already registered to domain %s"
+msgstr "Direktíva %r už je registrovaná v doméne %s"
+
+#: registry.py:253
+#, python-format
+msgid "The %r role is already registered to domain %s"
+msgstr "Rola %r už je registrovaná v doméne %s"
+
+#: registry.py:266
+#, python-format
+msgid "The %r index is already registered to domain %s"
+msgstr "Index %r už je registrovaný v doméne %s"
+
+#: registry.py:313
+#, python-format
+msgid "The %r object_type is already registered"
+msgstr " object_type %r už je registrovaný"
+
+#: registry.py:344
+#, python-format
+msgid "The %r crossref_type is already registered"
+msgstr "crossref_type %r už je registrovaný"
+
+#: registry.py:353
+#, python-format
+msgid "source_suffix %r is already registered"
+msgstr "source_suffix %r  už je registrovaný"
+
+#: registry.py:363
+#, python-format
+msgid "source_parser for %r is already registered"
+msgstr "source_parser pre %r už je registrovaný"
+
+#: registry.py:372
+#, python-format
+msgid "Source parser for %s not registered"
+msgstr "Analyzátor pre %s nie je registrovaný"
+
+#: registry.py:390
+#, python-format
+msgid "Translator for %r already exists"
+msgstr "Translator pre %r už existuje"
+
+#: registry.py:407
+#, python-format
+msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
+msgstr ""
+
+#: registry.py:496
+#, python-format
+msgid "enumerable_node %r already registered"
+msgstr "enumerable_node %r  už je registrovaný"
+
+#: registry.py:512
+#, python-format
+msgid "math renderer %s is already registered"
+msgstr ""
+
+#: registry.py:529
+#, python-format
+msgid ""
+"the extension %r was already merged with Sphinx since version %s; this "
+"extension is ignored."
+msgstr "rozšírenie %r bolo zlúčené so Sphinx od verzie %s; toto rozšírenie je ignorované."
+
+#: application.py:302 registry.py:538
+#, python-format
+msgid "while setting up extension %s:"
+msgstr "pri nastavovaní rozšírenia %s:"
+
+#: registry.py:543
+msgid "Original exception:\n"
+msgstr "Pôvodná výnimka:\n"
+
+#: registry.py:545
+#, python-format
+msgid "Could not import extension %s"
+msgstr "Nemožno importovať rozšírenie %s"
+
+#: registry.py:552
+#, python-format
+msgid ""
+"extension %r has no setup() function; is it really a Sphinx extension "
+"module?"
+msgstr "rozšírenie %r nemá funkciu setup(); je to naozaj modul rozšírenia Sphinx?"
+
+#: registry.py:565
+#, python-format
+msgid ""
+"The %s extension used by this project needs at least Sphinx v%s; it "
+"therefore cannot be built with this version."
+msgstr "Rozšírenie %s použité týmto projektom vyžaduje aspoň Sphinx v%s; takže ho nemožno zostaviť s touto verziou."
+
+#: registry.py:577
+#, python-format
+msgid ""
+"extension %r returned an unsupported object from its setup() function; it "
+"should return None or a metadata dictionary"
+msgstr "rozšírenie %r vrátilo so svojej funkcie setup() nepodporovaný objekt; musí vrátiť None alebo slovník metadát"
+
+#: registry.py:612
+#, python-format
+msgid "`None` is not a valid filetype for %r."
+msgstr ""
 
 #: application.py:212
 #, python-format
@@ -64,11 +308,6 @@ msgstr "Tento projekt vyžaduje aspoň Sphinx v%s a preto s touto verziou nemô�
 #: application.py:297
 msgid "making output directory"
 msgstr "vytváranie výstupnej zložky"
-
-#: application.py:302 registry.py:538
-#, python-format
-msgid "while setting up extension %s:"
-msgstr "pri nastavovaní rozšírenia %s:"
 
 #: application.py:309
 msgid ""
@@ -155,7 +394,7 @@ msgstr ""
 msgid "role %r is already registered and will not be overridden"
 msgstr ""
 
-#: application.py:1770
+#: application.py:1771
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -163,12 +402,12 @@ msgid ""
 "explicit"
 msgstr "rozšírenie %s nedeklaruje, či je bezpečné pri paralelnom čítaní, predpokladá sa, že nie - prosím, požiadajte autora aby to skontroloval a explicitne to nastavil"
 
-#: application.py:1775
+#: application.py:1776
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "rozšírenie %s nie je bezpečné pre paralelné zostavenie"
 
-#: application.py:1779
+#: application.py:1780
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -176,15 +415,29 @@ msgid ""
 "explicit"
 msgstr "rozšírenie %s nedeklaruje, či je bezpečné pri paralelnom čítaní, predpokladáme, že nie je – prosím, požiadajte autora aby to skontroloval a explicitne to nastavil"
 
-#: application.py:1784
+#: application.py:1785
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "rozšírenie %s nie je bezpečné pre paralelné zostavenie"
 
-#: application.py:1792 application.py:1796
+#: application.py:1793 application.py:1797
 #, python-format
 msgid "doing serial %s"
 msgstr "sériové spracovanie %s"
+
+#: extension.py:58
+#, python-format
+msgid ""
+"The %s extension is required by needs_extensions settings, but it is not "
+"loaded."
+msgstr "Rozšírenie %s je vyžadované nastavením needs_extensions, ale nie je načítané."
+
+#: extension.py:79
+#, python-format
+msgid ""
+"This project needs the extension %s at least in version %s and therefore "
+"cannot be built with the loaded version (%s)."
+msgstr "Tento projekt vyžaduje rozšírenie %s s verziou minimálne %s, a teda ho nemožno zostaviť s načítanou verziou (%s)."
 
 #: config.py:355
 #, python-format
@@ -328,92 +581,6 @@ msgid ""
 " behaviour, set \"master_doc = 'contents'\"."
 msgstr ""
 
-#: highlighting.py:170
-#, python-format
-msgid "Pygments lexer name %r is not known"
-msgstr "Neznáme meno lexera Pygments %r"
-
-#: highlighting.py:209
-#, python-format
-msgid ""
-"Lexing literal_block %r as \"%s\" resulted in an error at token: %r. "
-"Retrying in relaxed mode."
-msgstr ""
-
-#: theming.py:115
-#, python-format
-msgid ""
-"Theme configuration sections other than [theme] and [options] are not "
-"supported (tried to get a value from %r)."
-msgstr ""
-
-#: theming.py:120
-#, python-format
-msgid "setting %s.%s occurs in none of the searched theme configs"
-msgstr "nastavenie %s.%s nenájdené v žiadnom z nastavení témy"
-
-#: theming.py:135
-#, python-format
-msgid "unsupported theme option %r given"
-msgstr "zadaná nepodporovaná voľba témy %r"
-
-#: theming.py:208
-#, python-format
-msgid "file %r on theme path is not a valid zipfile or contains no theme"
-msgstr "súbor %r v ceste témy nie je platný súbor ZIP alebo neobsahuje tému"
-
-#: theming.py:228
-#, python-format
-msgid "no theme named %r found (missing theme.toml?)"
-msgstr ""
-
-#: theming.py:268
-#, python-format
-msgid "The %r theme has circular inheritance"
-msgstr ""
-
-#: theming.py:276
-#, python-format
-msgid ""
-"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
-"are: %s"
-msgstr ""
-
-#: theming.py:282
-#, python-format
-msgid "The %r theme has too many ancestors"
-msgstr ""
-
-#: theming.py:310
-#, python-format
-msgid "no theme configuration file found in %r"
-msgstr ""
-
-#: theming.py:335 theming.py:388
-#, python-format
-msgid "theme %r doesn't have the \"theme\" table"
-msgstr ""
-
-#: theming.py:339
-#, python-format
-msgid "The %r theme \"[theme]\" table is not a table"
-msgstr ""
-
-#: theming.py:343 theming.py:391
-#, python-format
-msgid "The %r theme must define the \"theme.inherit\" setting"
-msgstr ""
-
-#: theming.py:347
-#, python-format
-msgid "The %r theme \"[options]\" table is not a table"
-msgstr ""
-
-#: theming.py:366
-#, python-format
-msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
-msgstr ""
-
 #: events.py:77
 #, python-format
 msgid "Event %r already present"
@@ -429,558 +596,96 @@ msgstr "Neznáme meno udalosti %s"
 msgid "Handler %r for event %r threw an exception"
 msgstr "Obsluha %r udalosti %r vyvolala výnimku"
 
-#: project.py:72
+#: highlighting.py:170
+#, python-format
+msgid "Pygments lexer name %r is not known"
+msgstr "Neznáme meno lexera Pygments %r"
+
+#: highlighting.py:209
 #, python-format
 msgid ""
-"multiple files found for the document \"%s\": %s\n"
-"Use %r for the build."
+"Lexing literal_block %r as \"%s\" resulted in an error at token: %r. "
+"Retrying in relaxed mode."
 msgstr ""
 
-#: project.py:87
+#: builders/linkcheck.py:77
 #, python-format
-msgid "Ignored unreadable document %r."
+msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
+msgstr "Hľadajte akékoľvek chyby v predošlom výstupe alebo v %(outdir)s/output.txt"
+
+#: builders/linkcheck.py:149
+#, python-format
+msgid "broken link: %s (%s)"
+msgstr "poškodený odkaz: %s (%s)"
+
+#: builders/linkcheck.py:548
+#, python-format
+msgid "Anchor '%s' not found"
+msgstr "Kotva „%s” nenájdená"
+
+#: builders/linkcheck.py:758
+#, python-format
+msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr ""
 
-#: registry.py:167
+#: builders/texinfo.py:45
 #, python-format
-msgid "Builder class %s has no \"name\" attribute"
-msgstr "Trieda builder %s nemá atribút „name”"
+msgid "The Texinfo files are in %(outdir)s."
+msgstr "Súbory Texinfo sú v %(outdir)s."
 
-#: registry.py:171
-#, python-format
-msgid "Builder %r already exists (in module %s)"
-msgstr "Builder %r už existuje (v module %s)"
-
-#: registry.py:187
-#, python-format
-msgid "Builder name %s not registered or available through entry point"
-msgstr "Builder s menom %s nie je registrovaný ani dostupný cez vstupný bod"
-
-#: registry.py:197
-#, python-format
-msgid "Builder name %s not registered"
-msgstr "Builder s menom %s nie je registrovaný"
-
-#: registry.py:204
-#, python-format
-msgid "domain %s already registered"
-msgstr "doména %s už je zaregistrovaná"
-
-#: registry.py:228 registry.py:249 registry.py:262
-#, python-format
-msgid "domain %s not yet registered"
-msgstr "doména %s ešte nie je zaregistrovaná"
-
-#: registry.py:235
-#, python-format
-msgid "The %r directive is already registered to domain %s"
-msgstr "Direktíva %r už je registrovaná v doméne %s"
-
-#: registry.py:253
-#, python-format
-msgid "The %r role is already registered to domain %s"
-msgstr "Rola %r už je registrovaná v doméne %s"
-
-#: registry.py:266
-#, python-format
-msgid "The %r index is already registered to domain %s"
-msgstr "Index %r už je registrovaný v doméne %s"
-
-#: registry.py:313
-#, python-format
-msgid "The %r object_type is already registered"
-msgstr " object_type %r už je registrovaný"
-
-#: registry.py:344
-#, python-format
-msgid "The %r crossref_type is already registered"
-msgstr "crossref_type %r už je registrovaný"
-
-#: registry.py:353
-#, python-format
-msgid "source_suffix %r is already registered"
-msgstr "source_suffix %r  už je registrovaný"
-
-#: registry.py:363
-#, python-format
-msgid "source_parser for %r is already registered"
-msgstr "source_parser pre %r už je registrovaný"
-
-#: registry.py:372
-#, python-format
-msgid "Source parser for %s not registered"
-msgstr "Analyzátor pre %s nie je registrovaný"
-
-#: registry.py:390
-#, python-format
-msgid "Translator for %r already exists"
-msgstr "Translator pre %r už existuje"
-
-#: registry.py:407
-#, python-format
-msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
-msgstr ""
-
-#: registry.py:496
-#, python-format
-msgid "enumerable_node %r already registered"
-msgstr "enumerable_node %r  už je registrovaný"
-
-#: registry.py:512
-#, python-format
-msgid "math renderer %s is already registered"
-msgstr ""
-
-#: registry.py:529
-#, python-format
+#: builders/texinfo.py:48
 msgid ""
-"the extension %r was already merged with Sphinx since version %s; this "
-"extension is ignored."
-msgstr "rozšírenie %r bolo zlúčené so Sphinx od verzie %s; toto rozšírenie je ignorované."
-
-#: registry.py:543
-msgid "Original exception:\n"
-msgstr "Pôvodná výnimka:\n"
-
-#: registry.py:545
-#, python-format
-msgid "Could not import extension %s"
-msgstr "Nemožno importovať rozšírenie %s"
-
-#: registry.py:552
-#, python-format
-msgid ""
-"extension %r has no setup() function; is it really a Sphinx extension "
-"module?"
-msgstr "rozšírenie %r nemá funkciu setup(); je to naozaj modul rozšírenia Sphinx?"
-
-#: registry.py:565
-#, python-format
-msgid ""
-"The %s extension used by this project needs at least Sphinx v%s; it "
-"therefore cannot be built with this version."
-msgstr "Rozšírenie %s použité týmto projektom vyžaduje aspoň Sphinx v%s; takže ho nemožno zostaviť s touto verziou."
-
-#: registry.py:577
-#, python-format
-msgid ""
-"extension %r returned an unsupported object from its setup() function; it "
-"should return None or a metadata dictionary"
-msgstr "rozšírenie %r vrátilo so svojej funkcie setup() nepodporovaný objekt; musí vrátiť None alebo slovník metadát"
-
-#: registry.py:612
-#, python-format
-msgid "`None` is not a valid filetype for %r."
-msgstr ""
-
-#: roles.py:206
-#, python-format
-msgid "Common Vulnerabilities and Exposures; CVE %s"
-msgstr ""
-
-#: roles.py:229
-#, python-format
-msgid "invalid CVE number %s"
-msgstr ""
-
-#: roles.py:251
-#, python-format
-msgid "Common Weakness Enumeration; CWE %s"
-msgstr ""
-
-#: roles.py:274
-#, python-format
-msgid "invalid CWE number %s"
-msgstr ""
-
-#: roles.py:294
-#, python-format
-msgid "Python Enhancement Proposals; PEP %s"
-msgstr "Python Enhancement Proposals; PEP %s"
-
-#: roles.py:317
-#, python-format
-msgid "invalid PEP number %s"
-msgstr ""
-
-#: roles.py:355
-#, python-format
-msgid "invalid RFC number %s"
-msgstr ""
-
-#: ext/linkcode.py:86 ext/viewcode.py:226
-msgid "[source]"
-msgstr "[zdroj]"
-
-#: ext/viewcode.py:289
-msgid "highlighting module code... "
-msgstr "zvýrazňovanie syntaxe kódu modulu... "
-
-#: ext/viewcode.py:320
-msgid "[docs]"
-msgstr "[dokumenty]"
-
-#: ext/viewcode.py:346
-msgid "Module code"
-msgstr "Kód modulu"
-
-#: ext/viewcode.py:353
-#, python-format
-msgid "<h1>Source code for %s</h1>"
-msgstr "<h1>Zdrojový kód %s</h1>"
-
-#: ext/viewcode.py:380
-msgid "Overview: module code"
-msgstr "Prehľad: kód modulu"
-
-#: ext/viewcode.py:381
-msgid "<h1>All modules for which code is available</h1>"
-msgstr "<h1>Všetky moduly, pre ktoré je dostupný kód</h1>"
-
-#: ext/extlinks.py:82
-#, python-format
-msgid ""
-"hardcoded link %r could be replaced by an extlink (try using %r instead)"
-msgstr ""
-
-#: ext/autosectionlabel.py:52
-#, python-format
-msgid "section \"%s\" gets labeled as \"%s\""
-msgstr ""
-
-#: domains/std/__init__.py:833 domains/std/__init__.py:960
-#: ext/autosectionlabel.py:61
-#, python-format
-msgid "duplicate label %s, other instance in %s"
-msgstr "duplicitná menovka  %s, ďalší výskyt v %s"
-
-#: ext/imgmath.py:387 ext/mathjax.py:60
-msgid "Link to this equation"
-msgstr ""
-
-#: ext/duration.py:90
-msgid ""
-"====================== slowest reading durations ======================="
-msgstr ""
-
-#: ext/doctest.py:118
-#, python-format
-msgid "missing '+' or '-' in '%s' option."
-msgstr "chýbajúce „+” alebo „-” vo voľbe „%s”."
-
-#: ext/doctest.py:124
-#, python-format
-msgid "'%s' is not a valid option."
-msgstr "'%s' nie je platná voľba."
-
-#: ext/doctest.py:139
-#, python-format
-msgid "'%s' is not a valid pyversion option"
-msgstr "„%s” nie je platná voľba pyversion"
-
-#: ext/doctest.py:226
-msgid "invalid TestCode type"
-msgstr "neplatný typ TestCode"
-
-#: ext/doctest.py:297
-#, python-format
-msgid ""
-"Testing of doctests in the sources finished, look at the results in "
-"%(outdir)s/output.txt."
-msgstr ""
-
-#: ext/doctest.py:457
-#, python-format
-msgid "no code/output in %s block at %s:%s"
-msgstr ""
-
-#: ext/doctest.py:568
-#, python-format
-msgid "ignoring invalid doctest code: %r"
-msgstr ""
-
-#: ext/imgmath.py:162
-#, python-format
-msgid ""
-"LaTeX command %r cannot be run (needed for math display), check the "
-"imgmath_latex setting"
-msgstr "Nemožno spustiť príkaz LaTeX %r (potrebný na zobrazenie math), skontrolujte nastavenia imgmath_latex"
-
-#: ext/imgmath.py:181
-#, python-format
-msgid ""
-"%s command %r cannot be run (needed for math display), check the imgmath_%s "
-"setting"
-msgstr ""
-
-#: ext/imgmath.py:344
-#, python-format
-msgid "display latex %r: %s"
-msgstr "zobrazený latex %r: %s"
-
-#: ext/imgmath.py:380
-#, python-format
-msgid "inline latex %r: %s"
-msgstr "vnorený latex %r: %s"
-
-#: ext/coverage.py:48
-#, python-format
-msgid "invalid regex %r in %s"
-msgstr "neplatný regulárny výraz %r v %s"
-
-#: ext/coverage.py:140 ext/coverage.py:301
-#, python-format
-msgid "module %s could not be imported: %s"
-msgstr "modul %s nemožno importovať: %s"
-
-#: ext/coverage.py:148
-#, python-format
-msgid ""
-"the following modules are documented but were not specified in "
-"coverage_modules: %s"
-msgstr ""
-
-#: ext/coverage.py:158
-msgid ""
-"the following modules are specified in coverage_modules but were not "
-"documented"
-msgstr ""
-
-#: ext/coverage.py:172
-#, python-brace-format, python-format
-msgid ""
-"Testing of coverage in the sources finished, look at the results in "
-"%(outdir)s{sep}python.txt."
-msgstr ""
-
-#: ext/coverage.py:187
-#, python-format
-msgid "invalid regex %r in coverage_c_regexes"
-msgstr "neplatný regulárny výraz %r v coverage_c_regexes"
-
-#: ext/coverage.py:260
-#, python-format
-msgid "undocumented c api: %s [%s] in file %s"
-msgstr "nedokumentované API C: %s [%s] v súbore %s"
-
-#: ext/coverage.py:452
-#, python-format
-msgid "undocumented python function: %s :: %s"
-msgstr "nedokumentovaná funkcia Python: %s :: %s"
-
-#: ext/coverage.py:473
-#, python-format
-msgid "undocumented python class: %s :: %s"
-msgstr "nedokumentovaná trieda Python: %s :: %s"
-
-#: ext/coverage.py:492
-#, python-format
-msgid "undocumented python method: %s :: %s :: %s"
-msgstr "nedokumentovaná metóda Python: %s :: %s :: %s"
-
-#: ext/imgconverter.py:44
-#, python-format
-msgid ""
-"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
 "\n"
-"Traceback: %s"
-msgstr ""
+"Run 'make' in that directory to run these through makeinfo\n"
+"(use 'make info' here to do that automatically)."
+msgstr "\nSpustite v tomto adresári 'make' na ich spustenie pomocou makeinfo\n(použite tu 'make info' aby to bolo spustené automaticky)."
 
-#: ext/imgconverter.py:56 ext/imgconverter.py:90
+#: builders/texinfo.py:77
+msgid "no \"texinfo_documents\" config value found; no documents will be written"
+msgstr "nebola nájdená konfiguračná voľba „texinfo_documents”; dokumenty nebudú zapísané"
+
+#: builders/texinfo.py:89
 #, python-format
-msgid ""
-"convert exited with error:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
-msgstr "convert skončil chybou:\n[stderr]\n%r\n[stdout]\n%r"
+msgid "\"texinfo_documents\" config value references unknown document %s"
+msgstr "konfiguračná voľba „texinfo_documents” odkazuje na neznámy dokument %s"
 
-#: ext/imgconverter.py:83
+#: builders/latex/__init__.py:325 builders/texinfo.py:113
 #, python-format
-msgid "convert command %r cannot be run, check the image_converter setting"
-msgstr "príkaz convert %r nemožno spustiť, skontrolujte nastavenie image_converter"
+msgid "processing %s"
+msgstr "spracovanie %s"
 
-#: ext/graphviz.py:138
-msgid "Graphviz directive cannot have both content and a filename argument"
-msgstr "Direktíva graphviz nemôže mať naraz argumenty content a filename"
+#: builders/latex/__init__.py:347 builders/manpage.py:54
+#: builders/singlehtml.py:176 builders/texinfo.py:119
+msgid "writing"
+msgstr "zapisovanie"
 
-#: ext/graphviz.py:153
+#: builders/latex/__init__.py:405 builders/texinfo.py:172
+msgid "resolving references..."
+msgstr "riešenie odkazov…"
+
+#: builders/latex/__init__.py:416 builders/texinfo.py:182
+msgid " (in "
+msgstr "(v"
+
+#: builders/_epub_base.py:422 builders/html/__init__.py:779
+#: builders/latex/__init__.py:481 builders/texinfo.py:198
+msgid "copying images... "
+msgstr "kopírovanie obrázkov…"
+
+#: builders/_epub_base.py:444 builders/latex/__init__.py:496
+#: builders/texinfo.py:215
 #, python-format
-msgid "External Graphviz file %r not found or reading it failed"
-msgstr "Externý súbor Graphviz %r nebol nájdený alebo zlyhalo jeho čítanie"
+msgid "cannot copy image file %r: %s"
+msgstr "nemožno kopírovať súbor obrázka %r: %s"
 
-#: ext/graphviz.py:164
-msgid "Ignoring \"graphviz\" directive without content."
-msgstr "Ignorovaná direktíva „graphviz” bez obsahu."
+#: builders/texinfo.py:222
+msgid "copying Texinfo support files"
+msgstr "kopírovanie podporných súborov Texinfo"
 
-#: ext/graphviz.py:287
+#: builders/texinfo.py:230
 #, python-format
-msgid "graphviz_dot executable path must be set! %r"
-msgstr ""
-
-#: ext/graphviz.py:328
-#, python-format
-msgid ""
-"dot command %r cannot be run (needed for graphviz output), check the "
-"graphviz_dot setting"
-msgstr "príkaz dot %r nemožno spustiť (nutný kvôli výstupu graphviz), skontrolujte nastavenie graphviz_dot"
-
-#: ext/graphviz.py:339
-#, python-format
-msgid ""
-"dot exited with error:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
-msgstr "dot skončil chybou:\n[stderr]\n%r\n[stdout]\n%r"
-
-#: ext/graphviz.py:344
-#, python-format
-msgid ""
-"dot did not produce an output file:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
-msgstr "dot nevytvoril výstupný súbor:\n[stderr]\n%r\n[stdout]\n%r"
-
-#: ext/graphviz.py:367
-#, python-format
-msgid "graphviz_output_format must be either 'png' or 'svg', but is %r"
-msgstr ""
-
-#: ext/graphviz.py:373 ext/graphviz.py:436 ext/graphviz.py:480
-#, python-format
-msgid "dot code %r: %s"
-msgstr "kód dot %r: %s"
-
-#: ext/graphviz.py:493 ext/graphviz.py:501
-#, python-format
-msgid "[graph: %s]"
-msgstr "[graf: %s]"
-
-#: ext/graphviz.py:495 ext/graphviz.py:503
-msgid "[graph]"
-msgstr "[graf]"
-
-#: ext/todo.py:61
-msgid "Todo"
-msgstr "ToDo"
-
-#: ext/todo.py:94
-#, python-format
-msgid "TODO entry found: %s"
-msgstr "Nájdená položka TODO: %s"
-
-#: ext/todo.py:152
-msgid "<<original entry>>"
-msgstr "<<pôvodná položka>>"
-
-#: ext/todo.py:154
-#, python-format
-msgid "(The <<original entry>> is located in %s, line %d.)"
-msgstr "(<<original entry>> je umiestnená v %s, riadok %d.)"
-
-#: ext/todo.py:166
-msgid "original entry"
-msgstr "pôvodná položka"
-
-#: directives/code.py:66
-msgid "non-whitespace stripped by dedent"
-msgstr ""
-
-#: directives/code.py:87
-#, python-format
-msgid "Invalid caption: %s"
-msgstr "Neplatný popis: %s"
-
-#: directives/code.py:131 directives/code.py:297 directives/code.py:483
-#, python-format
-msgid "line number spec is out of range(1-%d): %r"
-msgstr "špecifikácia čísla riadku je mimo rozsahu (1-%d): %r"
-
-#: directives/code.py:216
-#, python-format
-msgid "Cannot use both \"%s\" and \"%s\" options"
-msgstr "Nemožno použiť obe voľby „%s” a „%s”"
-
-#: directives/code.py:231
-#, python-format
-msgid "Include file '%s' not found or reading it failed"
-msgstr ""
-
-#: directives/code.py:235
-#, python-format
-msgid ""
-"Encoding %r used for reading included file '%s' seems to be wrong, try "
-"giving an :encoding: option"
-msgstr ""
-
-#: directives/code.py:276
-#, python-format
-msgid "Object named %r not found in include file %r"
-msgstr "Objekt s menom %r nebol nájdený vo vloženom súbore %r"
-
-#: directives/code.py:309
-msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
-msgstr "Nemožno použiť „lineno-match” s rozdelenou množinou „lines”"
-
-#: directives/code.py:314
-#, python-format
-msgid "Line spec %r: no lines pulled from include file %r"
-msgstr "Riadok %r: žiadne riadky z vloženého súboru %r"
-
-#: directives/patches.py:71
-msgid ""
-"\":file:\" option for csv-table directive now recognizes an absolute path as"
-" a relative path from source directory. Please update your document."
-msgstr "voľba \":file:\" direktívy csv-table teraz rozpoznáva absolútnu cestu ako relatívnu k zdrojovému adresáru. Prosím, aktualizujte svoj dokument."
-
-#: directives/other.py:119
-#, python-format
-msgid "toctree glob pattern %r didn't match any documents"
-msgstr ""
-
-#: directives/other.py:153 environment/adapters/toctree.py:361
-#, python-format
-msgid "toctree contains reference to excluded document %r"
-msgstr "strom obsahu obsahuje odkaz na vylúčený dokument %r"
-
-#: directives/other.py:156
-#, python-format
-msgid "toctree contains reference to nonexisting document %r"
-msgstr "strom obsahu obsahuje odkaz na neexistujúci dokument %r"
-
-#: directives/other.py:169
-#, python-format
-msgid "duplicated entry found in toctree: %s"
-msgstr ""
-
-#: directives/other.py:203
-msgid "Section author: "
-msgstr "Autor sekcie:"
-
-#: directives/other.py:205
-msgid "Module author: "
-msgstr "Autor modulu:"
-
-#: directives/other.py:207
-msgid "Code author: "
-msgstr "Autor kódu:"
-
-#: directives/other.py:209
-msgid "Author: "
-msgstr "Autor:"
-
-#: directives/other.py:269
-msgid ".. acks content is not a list"
-msgstr ""
-
-#: directives/other.py:292
-msgid ".. hlist content is not a list"
-msgstr ""
+msgid "error writing file Makefile: %s"
+msgstr "chyba zápisu súboru Makefile: %s"
 
 #: builders/changes.py:29
 #, python-format
@@ -1013,6 +718,21 @@ msgstr "kopírovanie zdrojových súborov…"
 msgid "could not read %r for changelog creation"
 msgstr "nemožno čítať %r na vytvorenie položky záznamu zmien"
 
+#: builders/xml.py:31
+#, python-format
+msgid "The XML files are in %(outdir)s."
+msgstr "Súbory XML sú v %(outdir)s."
+
+#: builders/html/__init__.py:1241 builders/text.py:76 builders/xml.py:90
+#, python-format
+msgid "error writing file %s: %s"
+msgstr "chyba zápisu súboru %s: %s"
+
+#: builders/xml.py:101
+#, python-format
+msgid "The pseudo-XML files are in %(outdir)s."
+msgstr "Súbory pseudo-XML sú v %(outdir)s."
+
 #: builders/manpage.py:37
 #, python-format
 msgid "The manual pages are in %(outdir)s."
@@ -1022,15 +742,135 @@ msgstr "Manuálové stránky sú v %(outdir)s."
 msgid "no \"man_pages\" config value found; no manual pages will be written"
 msgstr "nebola nájdená konfiguračná voľba „man_pages”; manuálové stránky nebudú zapísané"
 
-#: builders/latex/__init__.py:347 builders/manpage.py:54
-#: builders/singlehtml.py:176 builders/texinfo.py:119
-msgid "writing"
-msgstr "zapisovanie"
-
 #: builders/manpage.py:71
 #, python-format
 msgid "\"man_pages\" config value references unknown document %s"
 msgstr "konfiguračná voľba „man_pages” odkazuje na neznámy dokument %s"
+
+#: builders/singlehtml.py:35
+#, python-format
+msgid "The HTML page is in %(outdir)s."
+msgstr "Stránky HTML sú v %(outdir)s."
+
+#: builders/singlehtml.py:171
+msgid "assembling single document"
+msgstr "zostavovanie spoločného dokumentu"
+
+#: builders/singlehtml.py:189
+msgid "writing additional files"
+msgstr "zapisovanie dodatočných súborov"
+
+#: builders/_epub_base.py:223
+#, python-format
+msgid "duplicated ToC entry found: %s"
+msgstr "nájdená duplicitná položka Obsahu: %s"
+
+#: builders/_epub_base.py:433
+#, python-format
+msgid "cannot read image file %r: copying it instead"
+msgstr "nemožno čítať súbor obrázku %r: jeho kopírovanie namiesto toho"
+
+#: builders/_epub_base.py:464
+#, python-format
+msgid "cannot write image file %r: %s"
+msgstr "nemožno zapísať súbor obrázka %r: %s"
+
+#: builders/_epub_base.py:476
+msgid "Pillow not found - copying image files"
+msgstr "Pillow nenájdené – kopírovanie súborov obrázkov"
+
+#: builders/_epub_base.py:511
+msgid "writing mimetype file..."
+msgstr "zapisovanie súboru mimetype…"
+
+#: builders/_epub_base.py:520
+msgid "writing META-INF/container.xml file..."
+msgstr "zapisovanie súboru META-INF/container.xml…"
+
+#: builders/_epub_base.py:558
+msgid "writing content.opf file..."
+msgstr "zapisovanie súboru content.opf..."
+
+#: builders/_epub_base.py:591
+#, python-format
+msgid "unknown mimetype for %s, ignoring"
+msgstr "neznámy typ MIME pre %s, ignorovaný"
+
+#: builders/_epub_base.py:745
+msgid "node has an invalid level"
+msgstr ""
+
+#: builders/_epub_base.py:765
+msgid "writing toc.ncx file..."
+msgstr "zapisovanie súboru toc.ncx..."
+
+#: builders/_epub_base.py:794
+#, python-format
+msgid "writing %s file..."
+msgstr "zapisovanie súboru %s…"
+
+#: builders/epub3.py:84
+#, python-format
+msgid "The ePub file is in %(outdir)s."
+msgstr "Súbory ePub sú v %(outdir)s."
+
+#: builders/epub3.py:189
+msgid "writing nav.xhtml file..."
+msgstr "zapisovanie súboru nav.xhtml..."
+
+#: builders/epub3.py:221
+msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „epub_language” (alebo „language”) nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:227
+msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
+msgstr "konfiguračná hodnota „epub_uid” má byť XML NAME pre EPUB3"
+
+#: builders/epub3.py:232
+msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „epub_title” (alebo „html_title”) nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:238
+msgid "conf value \"epub_author\" should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „epub_author” nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:242
+msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „epub_contributor” nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:247
+msgid "conf value \"epub_description\" should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „epub_description” nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:251
+msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „epub_publisher” nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:256
+msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „epub_copyright” (alebo „copyright”) nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:262
+msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „epub_identifier” nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:265
+msgid "conf value \"version\" should not be empty for EPUB3"
+msgstr "konfiguračná hodnota „version” nesmie byť prázdna pri EPUB3"
+
+#: builders/epub3.py:279 builders/html/__init__.py:1291
+#, python-format
+msgid "invalid css_file: %r, ignored"
+msgstr "neplatný css_file: %r, ignorovaný"
+
+#: builders/dummy.py:19
+msgid "The dummy builder generates no files."
+msgstr "Zostavovač dummy negeneruje žiadne súbory."
+
+#: builders/text.py:29
+#, python-format
+msgid "The text files are in %(outdir)s."
+msgstr "Textové súbory sú  v %(outdir)s."
 
 #: builders/__init__.py:224
 #, python-format
@@ -1191,182 +1031,6 @@ msgstr ""
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "nedekódovateľné zdrojové znaky, nahradené „?”: %r"
 
-#: builders/epub3.py:84
-#, python-format
-msgid "The ePub file is in %(outdir)s."
-msgstr "Súbory ePub sú v %(outdir)s."
-
-#: builders/epub3.py:189
-msgid "writing nav.xhtml file..."
-msgstr "zapisovanie súboru nav.xhtml..."
-
-#: builders/epub3.py:221
-msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „epub_language” (alebo „language”) nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:227
-msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
-msgstr "konfiguračná hodnota „epub_uid” má byť XML NAME pre EPUB3"
-
-#: builders/epub3.py:232
-msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „epub_title” (alebo „html_title”) nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:238
-msgid "conf value \"epub_author\" should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „epub_author” nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:242
-msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „epub_contributor” nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:247
-msgid "conf value \"epub_description\" should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „epub_description” nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:251
-msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „epub_publisher” nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:256
-msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „epub_copyright” (alebo „copyright”) nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:262
-msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „epub_identifier” nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:265
-msgid "conf value \"version\" should not be empty for EPUB3"
-msgstr "konfiguračná hodnota „version” nesmie byť prázdna pri EPUB3"
-
-#: builders/epub3.py:279 builders/html/__init__.py:1291
-#, python-format
-msgid "invalid css_file: %r, ignored"
-msgstr "neplatný css_file: %r, ignorovaný"
-
-#: builders/xml.py:31
-#, python-format
-msgid "The XML files are in %(outdir)s."
-msgstr "Súbory XML sú v %(outdir)s."
-
-#: builders/html/__init__.py:1241 builders/text.py:76 builders/xml.py:90
-#, python-format
-msgid "error writing file %s: %s"
-msgstr "chyba zápisu súboru %s: %s"
-
-#: builders/xml.py:101
-#, python-format
-msgid "The pseudo-XML files are in %(outdir)s."
-msgstr "Súbory pseudo-XML sú v %(outdir)s."
-
-#: builders/texinfo.py:45
-#, python-format
-msgid "The Texinfo files are in %(outdir)s."
-msgstr "Súbory Texinfo sú v %(outdir)s."
-
-#: builders/texinfo.py:48
-msgid ""
-"\n"
-"Run 'make' in that directory to run these through makeinfo\n"
-"(use 'make info' here to do that automatically)."
-msgstr "\nSpustite v tomto adresári 'make' na ich spustenie pomocou makeinfo\n(použite tu 'make info' aby to bolo spustené automaticky)."
-
-#: builders/texinfo.py:77
-msgid "no \"texinfo_documents\" config value found; no documents will be written"
-msgstr "nebola nájdená konfiguračná voľba „texinfo_documents”; dokumenty nebudú zapísané"
-
-#: builders/texinfo.py:89
-#, python-format
-msgid "\"texinfo_documents\" config value references unknown document %s"
-msgstr "konfiguračná voľba „texinfo_documents” odkazuje na neznámy dokument %s"
-
-#: builders/latex/__init__.py:325 builders/texinfo.py:113
-#, python-format
-msgid "processing %s"
-msgstr "spracovanie %s"
-
-#: builders/latex/__init__.py:405 builders/texinfo.py:172
-msgid "resolving references..."
-msgstr "riešenie odkazov…"
-
-#: builders/latex/__init__.py:416 builders/texinfo.py:182
-msgid " (in "
-msgstr "(v"
-
-#: builders/_epub_base.py:422 builders/html/__init__.py:779
-#: builders/latex/__init__.py:481 builders/texinfo.py:198
-msgid "copying images... "
-msgstr "kopírovanie obrázkov…"
-
-#: builders/_epub_base.py:444 builders/latex/__init__.py:496
-#: builders/texinfo.py:215
-#, python-format
-msgid "cannot copy image file %r: %s"
-msgstr "nemožno kopírovať súbor obrázka %r: %s"
-
-#: builders/texinfo.py:222
-msgid "copying Texinfo support files"
-msgstr "kopírovanie podporných súborov Texinfo"
-
-#: builders/texinfo.py:230
-#, python-format
-msgid "error writing file Makefile: %s"
-msgstr "chyba zápisu súboru Makefile: %s"
-
-#: builders/_epub_base.py:223
-#, python-format
-msgid "duplicated ToC entry found: %s"
-msgstr "nájdená duplicitná položka Obsahu: %s"
-
-#: builders/_epub_base.py:433
-#, python-format
-msgid "cannot read image file %r: copying it instead"
-msgstr "nemožno čítať súbor obrázku %r: jeho kopírovanie namiesto toho"
-
-#: builders/_epub_base.py:464
-#, python-format
-msgid "cannot write image file %r: %s"
-msgstr "nemožno zapísať súbor obrázka %r: %s"
-
-#: builders/_epub_base.py:476
-msgid "Pillow not found - copying image files"
-msgstr "Pillow nenájdené – kopírovanie súborov obrázkov"
-
-#: builders/_epub_base.py:511
-msgid "writing mimetype file..."
-msgstr "zapisovanie súboru mimetype…"
-
-#: builders/_epub_base.py:520
-msgid "writing META-INF/container.xml file..."
-msgstr "zapisovanie súboru META-INF/container.xml…"
-
-#: builders/_epub_base.py:558
-msgid "writing content.opf file..."
-msgstr "zapisovanie súboru content.opf..."
-
-#: builders/_epub_base.py:591
-#, python-format
-msgid "unknown mimetype for %s, ignoring"
-msgstr "neznámy typ MIME pre %s, ignorovaný"
-
-#: builders/_epub_base.py:745
-msgid "node has an invalid level"
-msgstr ""
-
-#: builders/_epub_base.py:765
-msgid "writing toc.ncx file..."
-msgstr "zapisovanie súboru toc.ncx..."
-
-#: builders/_epub_base.py:794
-#, python-format
-msgid "writing %s file..."
-msgstr "zapisovanie súboru %s…"
-
-#: builders/dummy.py:19
-msgid "The dummy builder generates no files."
-msgstr "Zostavovač dummy negeneruje žiadne súbory."
-
 #: builders/gettext.py:244
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
@@ -1385,661 +1049,167 @@ msgstr "čítanie šablón… "
 msgid "writing message catalogs... "
 msgstr "zapisovanie katalógov správ…"
 
-#: builders/singlehtml.py:35
-#, python-format
-msgid "The HTML page is in %(outdir)s."
-msgstr "Stránky HTML sú v %(outdir)s."
+#: cmd/build.py:64
+msgid "job number should be a positive number"
+msgstr "počet úloh musí byť kladné číslo"
 
-#: builders/singlehtml.py:171
-msgid "assembling single document"
-msgstr "zostavovanie spoločného dokumentu"
-
-#: builders/singlehtml.py:189
-msgid "writing additional files"
-msgstr "zapisovanie dodatočných súborov"
-
-#: builders/linkcheck.py:77
-#, python-format
-msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
-msgstr "Hľadajte akékoľvek chyby v predošlom výstupe alebo v %(outdir)s/output.txt"
-
-#: builders/linkcheck.py:149
-#, python-format
-msgid "broken link: %s (%s)"
-msgstr "poškodený odkaz: %s (%s)"
-
-#: builders/linkcheck.py:548
-#, python-format
-msgid "Anchor '%s' not found"
-msgstr "Kotva „%s” nenájdená"
-
-#: builders/linkcheck.py:758
-#, python-format
-msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
+#: cmd/build.py:73 cmd/quickstart.py:581 ext/apidoc/_cli.py:27
+#: ext/autosummary/generate.py:835
+msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr ""
 
-#: builders/text.py:29
-#, python-format
-msgid "The text files are in %(outdir)s."
-msgstr "Textové súbory sú  v %(outdir)s."
-
-#: transforms/i18n.py:227 transforms/i18n.py:302
-#, python-brace-format
+#: cmd/build.py:74
 msgid ""
-"inconsistent footnote references in translated message. original: {0}, "
-"translated: {1}"
-msgstr ""
+"\n"
+"Generate documentation from source files.\n"
+"\n"
+"sphinx-build generates documentation from the files in SOURCEDIR and places it\n"
+"in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration\n"
+"settings. The 'sphinx-quickstart' tool may be used to generate template files,\n"
+"including 'conf.py'\n"
+"\n"
+"sphinx-build can create documentation in different formats. A format is\n"
+"selected by specifying the builder name on the command line; it defaults to\n"
+"HTML. Builders can also perform other tasks related to documentation\n"
+"processing.\n"
+"\n"
+"By default, everything that is outdated is built. Output only for selected\n"
+"files can be built by specifying individual filenames.\n"
+msgstr "\nGeneruje dokumentáciu zo zdrojových súborov.\n\nsphinx-build generuje dokumentáciu zo súborov v SOURCEDIR a umiestni ju\nv OUTPUTDIR. Konfiguračné voľby hľadá v 'conf.py' v SOURCEDIR.\nNa generovanie súborov šablón, vrátane 'conf.py' možno použiť nástroj\n'sphinx-quickstart'\n\nsphinx-build dokáže vytvoriť dokumentáciu v rôznych formátoch. Formát je\nzvolený zadaním mena zostavovača v príkazovom riadku; predvolene\nHTML. Zostavovače môžu vykonávať aj iné úlohy, ktoré súvisia so spracovaním\ndokuemntácie.\n\nPredvolene je zostavené všetko, čo bolo zmenené. Výstup len zvolených súborov\nmôže byť zostavený zadaním jednotlivých mien súborov.\n"
 
-#: transforms/i18n.py:272
-#, python-brace-format
+#: cmd/build.py:100
+msgid "path to documentation source files"
+msgstr "cesta k zdrojovým súborom dokumentácie"
+
+#: cmd/build.py:103
+msgid "path to output directory"
+msgstr "cesta k výstupnej zložke"
+
+#: cmd/build.py:109
 msgid ""
-"inconsistent references in translated message. original: {0}, translated: "
-"{1}"
+"(optional) a list of specific files to rebuild. Ignored if --write-all is "
+"specified"
 msgstr ""
 
-#: transforms/i18n.py:322
-#, python-brace-format
+#: cmd/build.py:114
+msgid "general options"
+msgstr "všeobecné voľby"
+
+#: cmd/build.py:121
+msgid "builder to use (default: 'html')"
+msgstr ""
+
+#: cmd/build.py:131
 msgid ""
-"inconsistent citation references in translated message. original: {0}, "
-"translated: {1}"
+"run in parallel with N processes, when possible. 'auto' uses the number of "
+"CPU cores"
 msgstr ""
 
-#: transforms/i18n.py:344
-#, python-brace-format
+#: cmd/build.py:140
+msgid "write all files (default: only write new and changed files)"
+msgstr "zapísať všetky súbory (predvolene: zapísať len nové a zmenené súbory)"
+
+#: cmd/build.py:147
+msgid "don't use a saved environment, always read all files"
+msgstr "nepoužívať uložené prostredie, vždy čítať všetky súbory"
+
+#: cmd/build.py:150
+msgid "path options"
+msgstr ""
+
+#: cmd/build.py:157
 msgid ""
-"inconsistent term references in translated message. original: {0}, "
-"translated: {1}"
+"directory for doctree and environment files (default: OUTPUT_DIR/.doctrees)"
 msgstr ""
 
-#: builders/html/__init__.py:486 builders/latex/__init__.py:199
-#: transforms/__init__.py:129 writers/manpage.py:98 writers/texinfo.py:220
-#, python-format
-msgid "%b %d, %Y"
-msgstr "%d. %b  %Y"
-
-#: transforms/__init__.py:139
-msgid "could not calculate translation progress!"
+#: cmd/build.py:166
+msgid "directory for the configuration file (conf.py) (default: SOURCE_DIR)"
 msgstr ""
 
-#: transforms/__init__.py:144
-msgid "no translated elements!"
+#: cmd/build.py:175
+msgid "use no configuration file, only use settings from -D options"
 msgstr ""
 
-#: transforms/__init__.py:253
-#, python-format
-msgid ""
-"4 column based index found. It might be a bug of extensions you use: %r"
+#: cmd/build.py:184
+msgid "override a setting in configuration file"
+msgstr "prepíše nastavenie konfiguračného súboru"
+
+#: cmd/build.py:193
+msgid "pass a value into HTML templates"
+msgstr "pošle hodnotu do šablón HTML"
+
+#: cmd/build.py:202
+msgid "define tag: include \"only\" blocks with TAG"
 msgstr ""
 
-#: transforms/__init__.py:294
-#, python-format
-msgid "Footnote [%s] is not referenced."
-msgstr "Poznámka pod čiarou [%s] nie je odkazovaná."
-
-#: transforms/__init__.py:303
-msgid "Footnote [*] is not referenced."
+#: cmd/build.py:209
+msgid "nitpicky mode: warn about all missing references"
 msgstr ""
 
-#: transforms/__init__.py:314
-msgid "Footnote [#] is not referenced."
-msgstr "Poznámka pod čiarou [#] nie je odkazovaná."
+#: cmd/build.py:212
+msgid "console output options"
+msgstr "voľby výstupu konzoly"
 
-#: _cli/__init__.py:73
-msgid "Usage:"
+#: cmd/build.py:219
+msgid "increase verbosity (can be repeated)"
+msgstr "zvýšiť rozvláčnosť (možno opakovať)"
+
+#: cmd/build.py:226 ext/apidoc/_cli.py:66
+msgid "no output on stdout, just warnings on stderr"
+msgstr "žiadny výstup, len upozornenia na stderr"
+
+#: cmd/build.py:233
+msgid "no output at all, not even warnings"
+msgstr "vôbec žiadny výstup, ani upozornenia"
+
+#: cmd/build.py:241
+msgid "do emit colored output (default: auto-detect)"
+msgstr "generovať farebný výstup (predvolene: automaticky detegovať)"
+
+#: cmd/build.py:249
+msgid "do not emit colored output (default: auto-detect)"
+msgstr "negenerovať farebný výstup (predvolene: automaticky detegovať)"
+
+#: cmd/build.py:252
+msgid "warning control options"
 msgstr ""
 
-#: _cli/__init__.py:75
-#, python-brace-format
-msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
+#: cmd/build.py:258
+msgid "write warnings (and errors) to given file"
+msgstr "zapísať varovania  (a chyby) do zadaného súboru"
+
+#: cmd/build.py:265
+msgid "turn warnings into errors"
+msgstr "prepnúť upozornenia na chyby"
+
+#: cmd/build.py:273
+msgid "show full traceback on exception"
+msgstr "pri výnimke zobraziť úplné chybové hlásenie"
+
+#: cmd/build.py:276
+msgid "run Pdb on exception"
+msgstr "pri výnimke spustiť Pdb"
+
+#: cmd/build.py:282
+msgid "raise an exception on warnings"
 msgstr ""
 
-#: _cli/__init__.py:78
-msgid "  The Sphinx documentation generator."
+#: cmd/build.py:325
+msgid "cannot combine -a option and filenames"
+msgstr "nemožno kombinovať voľbu -a a mená súborov"
+
+#: cmd/build.py:357
+#, python-format
+msgid "cannot open warning file '%s': %s"
 msgstr ""
 
-#: _cli/__init__.py:87
-msgid "Commands:"
-msgstr ""
-
-#: _cli/__init__.py:98
-msgid "Options"
-msgstr ""
-
-#: _cli/__init__.py:113 _cli/__init__.py:181
-msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
-msgstr ""
-
-#: _cli/__init__.py:171
-#, python-brace-format
-msgid ""
-"{0}: error: {1}\n"
-"Run '{0} --help' for information"
-msgstr ""
-
-#: _cli/__init__.py:179
-msgid "   Manage documentation with Sphinx."
-msgstr ""
-
-#: _cli/__init__.py:191
-msgid "Show the version and exit."
-msgstr ""
-
-#: _cli/__init__.py:199
-msgid "Show this message and exit."
-msgstr ""
-
-#: _cli/__init__.py:203
-msgid "Logging"
-msgstr ""
-
-#: _cli/__init__.py:210
-msgid "Increase verbosity (can be repeated)"
-msgstr ""
-
-#: _cli/__init__.py:218
-msgid "Only print errors and warnings."
-msgstr ""
-
-#: _cli/__init__.py:225
-msgid "No output at all"
-msgstr ""
-
-#: _cli/__init__.py:231
-msgid "<command>"
-msgstr ""
-
-#: _cli/__init__.py:263
-msgid "See 'sphinx --help'.\n"
-msgstr ""
-
-#: environment/__init__.py:86
-msgid "new config"
-msgstr "nová konfigurácia"
-
-#: environment/__init__.py:87
-msgid "config changed"
-msgstr "zmenená konfigurácia"
-
-#: environment/__init__.py:88
-msgid "extensions changed"
-msgstr "zmenené rozšírenie"
-
-#: environment/__init__.py:253
-msgid "build environment version not current"
-msgstr "prostredie zostavenia nie je aktuálne"
-
-#: environment/__init__.py:255
-msgid "source directory has changed"
-msgstr "zdrojový adresár zmenený"
-
-#: environment/__init__.py:325
-#, python-format
-msgid "The configuration has changed (1 option: %r)"
-msgstr ""
-
-#: environment/__init__.py:330
-#, python-format
-msgid "The configuration has changed (%d options: %s)"
-msgstr ""
-
-#: environment/__init__.py:336
-#, python-format
-msgid "The configuration has changed (%d options: %s, ...)"
-msgstr ""
-
-#: environment/__init__.py:379
-msgid ""
-"This environment is incompatible with the selected builder, please choose "
-"another doctree directory."
-msgstr "Toto prostredie nie je kompatibilné zo zvoleným zostavovačom, prosím, zvoľte iný adresár doctree."
-
-#: environment/__init__.py:493
-#, python-format
-msgid "Failed to scan documents in %s: %r"
-msgstr "Zlyhalo skenovanie dokumentov v %s: %r"
-
-#: environment/__init__.py:658 ext/intersphinx/_resolve.py:234
-#, python-format
-msgid "Domain %r is not registered"
-msgstr "Doména %r nie je zaregistrovaná"
-
-#: environment/__init__.py:813
-msgid "document isn't included in any toctree"
-msgstr "dokument nie je zahrnutý v žiadnom strome obsahu"
-
-#: environment/__init__.py:859
-msgid "self referenced toctree found. Ignored."
-msgstr "nájdený na seba odkazujúci strom obsahu. Ignorované."
-
-#: environment/__init__.py:889
-#, python-format
-msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
-msgstr ""
-
-#: util/i18n.py:100
-#, python-format
-msgid "reading error: %s, %s"
-msgstr "chyba čítania: %s, %s"
-
-#: util/i18n.py:113
-#, python-format
-msgid "writing error: %s, %s"
-msgstr "chyba zápisu: %s: %s"
-
-#: util/i18n.py:146
-#, python-format
-msgid "locale_dir %s does not exist"
-msgstr ""
-
-#: util/i18n.py:236
-#, python-format
-msgid "Invalid Babel locale: %r."
-msgstr ""
-
-#: util/i18n.py:245
-#, python-format
-msgid ""
-"Invalid date format. Quote the string by single quote if you want to output "
-"it directly: %s"
-msgstr "Neplatný formát dátumu. Použije jednoduché úvodzovky, ak ho chcete priamo vo výstupe: %s"
-
-#: util/docfields.py:103
-#, python-format
-msgid ""
-"Problem in %s domain: field is supposed to use role '%s', but that role is "
-"not in the domain."
-msgstr ""
-
-#: util/nodes.py:423
-#, python-format
-msgid ""
-"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
-msgstr ""
-
-#: util/nodes.py:490
-#, python-format
-msgid "toctree contains ref to nonexisting file %r"
-msgstr "strom obsahu obsahuje neexistujúci súbor %r"
-
-#: util/nodes.py:706
-#, python-format
-msgid "exception while evaluating only directive expression: %s"
-msgstr ""
-
-#: util/display.py:82
-msgid "skipped"
-msgstr "preskočené"
-
-#: util/display.py:87
-msgid "failed"
-msgstr "zlyhalo"
-
-#: util/osutil.py:131
-#, python-format
-msgid ""
-"Aborted attempted copy from %s to %s (the destination path has existing "
-"data)."
-msgstr ""
-
-#: util/docutils.py:309
-#, python-format
-msgid "unknown directive name: %s"
-msgstr ""
-
-#: util/docutils.py:345
-#, python-format
-msgid "unknown role name: %s"
-msgstr ""
-
-#: util/docutils.py:789
-#, python-format
-msgid "unknown node type: %r"
-msgstr "neznámy typ uzla: %r"
-
-#: util/fileutil.py:76
-#, python-format
-msgid ""
-"Aborted attempted copy from rendered template %s to %s (the destination path"
-" has existing data)."
-msgstr ""
-
-#: util/fileutil.py:89
-#, python-format
-msgid "Writing evaluated template result to %s"
-msgstr ""
-
-#: util/rst.py:73
-#, python-format
-msgid "default role %s not found"
-msgstr "predvolená rola  %s nenájdená"
-
-#: util/inventory.py:147
-#, python-format
-msgid "inventory <%s> contains duplicate definitions of %s"
-msgstr ""
-
-#: util/inventory.py:166
-#, python-format
-msgid "inventory <%s> contains multiple definitions for %s"
-msgstr ""
-
-#: writers/latex.py:1097 writers/manpage.py:259 writers/texinfo.py:663
-msgid "Footnotes"
-msgstr "Poznámky pod čiarou"
-
-#: writers/manpage.py:289 writers/text.py:945
-#, python-format
-msgid "[image: %s]"
-msgstr "[obrázok: %s]"
-
-#: writers/manpage.py:290 writers/text.py:946
-msgid "[image]"
-msgstr "[obrázok]"
-
-#: builders/latex/__init__.py:206 domains/std/__init__.py:771
-#: domains/std/__init__.py:784 templates/latex/latex.tex.jinja:106
-#: themes/basic/genindex-single.html:22 themes/basic/genindex-single.html:48
-#: themes/basic/genindex-split.html:3 themes/basic/genindex-split.html:6
-#: themes/basic/genindex.html:3 themes/basic/genindex.html:26
-#: themes/basic/genindex.html:59 themes/basic/layout.html:127
-#: writers/texinfo.py:514
-msgid "Index"
-msgstr "Index"
-
-#: writers/latex.py:743 writers/texinfo.py:646
-msgid ""
-"encountered title node not in section, topic, table, admonition or sidebar"
-msgstr ""
-
-#: writers/texinfo.py:1217
-msgid "caption not inside a figure."
-msgstr "titulok nie je vo vnútri figure."
-
-#: writers/texinfo.py:1303
-#, python-format
-msgid "unimplemented node type: %r"
-msgstr "neimplementovaný typ uzla: %r"
-
-#: writers/latex.py:361
-#, python-format
-msgid "unknown %r toplevel_sectioning for class %r"
-msgstr ""
-
-#: builders/latex/__init__.py:224 writers/latex.py:411
-#, python-format
-msgid "no Babel option known for language %r"
-msgstr "žiadna známa voľba Babel pre jazyk %r"
-
-#: writers/latex.py:429
-msgid "too large :maxdepth:, ignored."
-msgstr "príliš veľké :maxdepth:, ignorované."
-
-#: writers/latex.py:591
-#, python-format
-msgid "template %s not found; loading from legacy %s instead"
-msgstr ""
-
-#: writers/latex.py:707
-msgid "document title is not a single Text node"
-msgstr "názov dokumentu nie je jeden uzol Text"
-
-#: writers/html5.py:572 writers/latex.py:1106
-#, python-format
-msgid "unsupported rubric heading level: %s"
-msgstr ""
-
-#: writers/latex.py:1183
-msgid ""
-"both tabularcolumns and :widths: option are given. :widths: is ignored."
-msgstr "sú zadané obe, tabularcolumns aj voľba :widths:. :widths: je ignorované."
-
-#: writers/latex.py:1580
-#, python-format
-msgid "dimension unit %s is invalid. Ignored."
-msgstr ""
-
-#: writers/latex.py:1939
-#, python-format
-msgid "unknown index entry type %s found"
-msgstr ""
-
-#: domains/math.py:128 writers/latex.py:2495
-#, python-format
-msgid "Invalid math_eqref_format: %r"
-msgstr "neplatný math_eqref_format: %r"
-
-#: writers/html5.py:96 writers/html5.py:105
-msgid "Link to this definition"
-msgstr ""
-
-#: writers/html5.py:431
-#, python-format
-msgid "numfig_format is not defined for %s"
-msgstr "nie je definovaný numfig_format pre %s"
-
-#: writers/html5.py:441
-#, python-format
-msgid "Any IDs not assigned for %s node"
-msgstr "Žiadne ID nie je priradené uzlu %s"
-
-#: writers/html5.py:496
-msgid "Link to this term"
-msgstr ""
-
-#: writers/html5.py:548 writers/html5.py:553
-msgid "Link to this heading"
-msgstr ""
-
-#: writers/html5.py:558
-msgid "Link to this table"
-msgstr ""
-
-#: writers/html5.py:636
-msgid "Link to this code"
-msgstr ""
-
-#: writers/html5.py:638
-msgid "Link to this image"
-msgstr ""
-
-#: writers/html5.py:640
-msgid "Link to this toctree"
-msgstr ""
-
-#: writers/html5.py:766
-msgid "Could not obtain image size. :scale: option is ignored."
-msgstr "Nemožno získať veľkosť obrázku. voľba :scale: je ignorovaná."
-
-#: domains/__init__.py:322
-#, python-format
-msgid "%s %s"
-msgstr "%s %s"
-
-#: domains/math.py:73
-#, python-format
-msgid "duplicate label of equation %s, other instance in %s"
-msgstr "duplicitná menovka vzorca %s, ďalší výskyt v %s"
-
-#: domains/javascript.py:182
-#, python-format
-msgid "%s() (built-in function)"
-msgstr "%s() (zabudovaná funkcia)"
-
-#: domains/javascript.py:183 domains/python/__init__.py:287
-#, python-format
-msgid "%s() (%s method)"
-msgstr "%s() (metóda %s)"
-
-#: domains/javascript.py:185
-#, python-format
-msgid "%s() (class)"
-msgstr "%s() (trieda)"
-
-#: domains/javascript.py:187
-#, python-format
-msgid "%s (global variable or constant)"
-msgstr "%s (globálna premenná alebo konštanta)"
-
-#: domains/javascript.py:189 domains/python/__init__.py:378
-#, python-format
-msgid "%s (%s attribute)"
-msgstr "%s (atribút %s)"
-
-#: domains/javascript.py:273
-msgid "Arguments"
-msgstr "Argumenty"
-
-#: domains/cpp/__init__.py:489 domains/javascript.py:280
-msgid "Throws"
-msgstr "Vyvoláva"
-
-#: domains/c/__init__.py:339 domains/cpp/__init__.py:502
-#: domains/javascript.py:287 domains/python/_object.py:221
-msgid "Returns"
-msgstr "Vracia"
-
-#: domains/c/__init__.py:345 domains/javascript.py:293
-#: domains/python/_object.py:227
-msgid "Return type"
-msgstr "Návratový typ"
-
-#: domains/javascript.py:370
-#, python-format
-msgid "%s (module)"
-msgstr "%s (modul)"
-
-#: domains/c/__init__.py:751 domains/cpp/__init__.py:941
-#: domains/javascript.py:415 domains/python/__init__.py:740
-msgid "function"
-msgstr "funkcia"
-
-#: domains/javascript.py:416 domains/python/__init__.py:744
-msgid "method"
-msgstr "metóda"
-
-#: domains/cpp/__init__.py:939 domains/javascript.py:417
-#: domains/python/__init__.py:742
-msgid "class"
-msgstr "trieda"
-
-#: domains/javascript.py:418 domains/python/__init__.py:741
-msgid "data"
-msgstr "dáta"
-
-#: domains/javascript.py:419 domains/python/__init__.py:747
-msgid "attribute"
-msgstr "atribút"
-
-#: domains/javascript.py:420 domains/python/__init__.py:750
-msgid "module"
-msgstr "modul"
-
-#: domains/javascript.py:454
-#, python-format
-msgid "duplicate %s description of %s, other %s in %s"
-msgstr "duplicitný %s popis %s, ďalší výskyt%s v %s"
-
-#: domains/changeset.py:26
-#, python-format
-msgid "Added in version %s"
-msgstr ""
-
-#: domains/changeset.py:27
-#, python-format
-msgid "Changed in version %s"
-msgstr "Zmenené vo verzii %s"
-
-#: domains/changeset.py:28
-#, python-format
-msgid "Deprecated since version %s"
-msgstr "Zastarané od verzie %s"
-
-#: domains/changeset.py:29
-#, python-format
-msgid "Removed in version %s"
-msgstr ""
-
-#: domains/rst.py:131 domains/rst.py:190
-#, python-format
-msgid "%s (directive)"
-msgstr "%s (direktíva)"
-
-#: domains/rst.py:191 domains/rst.py:202
-#, python-format
-msgid ":%s: (directive option)"
-msgstr "%s (voľba direktívy)"
-
-#: domains/rst.py:224
-#, python-format
-msgid "%s (role)"
-msgstr "%s (rola)"
-
-#: domains/rst.py:234
-msgid "directive"
-msgstr "direktíva"
-
-#: domains/rst.py:235
-msgid "directive-option"
-msgstr ""
-
-#: domains/rst.py:236
-msgid "role"
-msgstr "rola"
-
-#: domains/rst.py:262
-#, python-format
-msgid "duplicate description of %s %s, other instance in %s"
-msgstr "duplicitný popis %s %s, ďalší výskyt v %s"
-
-#: domains/citation.py:75
-#, python-format
-msgid "duplicate citation %s, other instance in %s"
-msgstr "duplicitná citácia  %s, ďalší výskyt v %s"
-
-#: domains/citation.py:92
-#, python-format
-msgid "Citation [%s] is not referenced."
-msgstr "Citácia [%s] nie je odkazovaná."
-
-#: locale/__init__.py:228
-msgid "Attention"
-msgstr "Výstraha"
-
-#: locale/__init__.py:229
-msgid "Caution"
-msgstr "Upozornenie"
-
-#: locale/__init__.py:230
-msgid "Danger"
-msgstr "Nebezpečné"
-
-#: locale/__init__.py:231
-msgid "Error"
-msgstr "Chyba"
-
-#: locale/__init__.py:232
-msgid "Hint"
-msgstr "Rada"
-
-#: locale/__init__.py:233
-msgid "Important"
-msgstr "Dôležité"
-
-#: locale/__init__.py:234
-msgid "Note"
-msgstr "Poznámka"
-
-#: locale/__init__.py:235
-msgid "See also"
-msgstr "Viď aj"
-
-#: locale/__init__.py:236
-msgid "Tip"
-msgstr "Tip"
-
-#: locale/__init__.py:237
-msgid "Warning"
-msgstr "Varovanie"
+#: cmd/build.py:376
+msgid "-D option argument must be in the form name=value"
+msgstr "argument voľby -D musí byť v tvare meno=hodnota"
+
+#: cmd/build.py:383
+msgid "-A option argument must be in the form name=value"
+msgstr "argument voľby -A musí byť v tvare meno=hodnota"
 
 #: cmd/quickstart.py:52
 msgid "automatically insert docstrings from modules"
@@ -2316,11 +1486,6 @@ msgid ""
 "Makefile to be used with sphinx-build.\n"
 msgstr "\nGenereuje požadované súbory projektu Sphinx.\n\nsphinx-quickstart je interaktívny nástroj, ktorý kladie niekoľko otázok o  Vašom\nprojekte a potom generuje kompletný adresár dokumentácie a vzorový\nMakefile, na použitie so sphinx-build.\n"
 
-#: cmd/build.py:73 cmd/quickstart.py:581 ext/apidoc/_cli.py:27
-#: ext/autosummary/generate.py:835
-msgid "For more information, visit <https://www.sphinx-doc.org/>."
-msgstr ""
-
 #: cmd/quickstart.py:591
 msgid "quiet mode"
 msgstr "tichý režim"
@@ -2450,408 +1615,1172 @@ msgstr "sphinx-quickstart generuje len do prázdneho adresára. Prosím, zadajte
 msgid "Invalid template variable: %s"
 msgstr "Neplatná premenná šablóny: %s"
 
-#: cmd/build.py:64
-msgid "job number should be a positive number"
-msgstr "počet úloh musí byť kladné číslo"
+#: ext/graphviz.py:138
+msgid "Graphviz directive cannot have both content and a filename argument"
+msgstr "Direktíva graphviz nemôže mať naraz argumenty content a filename"
 
-#: cmd/build.py:74
-msgid ""
-"\n"
-"Generate documentation from source files.\n"
-"\n"
-"sphinx-build generates documentation from the files in SOURCEDIR and places it\n"
-"in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration\n"
-"settings. The 'sphinx-quickstart' tool may be used to generate template files,\n"
-"including 'conf.py'\n"
-"\n"
-"sphinx-build can create documentation in different formats. A format is\n"
-"selected by specifying the builder name on the command line; it defaults to\n"
-"HTML. Builders can also perform other tasks related to documentation\n"
-"processing.\n"
-"\n"
-"By default, everything that is outdated is built. Output only for selected\n"
-"files can be built by specifying individual filenames.\n"
-msgstr "\nGeneruje dokumentáciu zo zdrojových súborov.\n\nsphinx-build generuje dokumentáciu zo súborov v SOURCEDIR a umiestni ju\nv OUTPUTDIR. Konfiguračné voľby hľadá v 'conf.py' v SOURCEDIR.\nNa generovanie súborov šablón, vrátane 'conf.py' možno použiť nástroj\n'sphinx-quickstart'\n\nsphinx-build dokáže vytvoriť dokumentáciu v rôznych formátoch. Formát je\nzvolený zadaním mena zostavovača v príkazovom riadku; predvolene\nHTML. Zostavovače môžu vykonávať aj iné úlohy, ktoré súvisia so spracovaním\ndokuemntácie.\n\nPredvolene je zostavené všetko, čo bolo zmenené. Výstup len zvolených súborov\nmôže byť zostavený zadaním jednotlivých mien súborov.\n"
-
-#: cmd/build.py:100
-msgid "path to documentation source files"
-msgstr "cesta k zdrojovým súborom dokumentácie"
-
-#: cmd/build.py:103
-msgid "path to output directory"
-msgstr "cesta k výstupnej zložke"
-
-#: cmd/build.py:109
-msgid ""
-"(optional) a list of specific files to rebuild. Ignored if --write-all is "
-"specified"
-msgstr ""
-
-#: cmd/build.py:114
-msgid "general options"
-msgstr "všeobecné voľby"
-
-#: cmd/build.py:121
-msgid "builder to use (default: 'html')"
-msgstr ""
-
-#: cmd/build.py:131
-msgid ""
-"run in parallel with N processes, when possible. 'auto' uses the number of "
-"CPU cores"
-msgstr ""
-
-#: cmd/build.py:140
-msgid "write all files (default: only write new and changed files)"
-msgstr "zapísať všetky súbory (predvolene: zapísať len nové a zmenené súbory)"
-
-#: cmd/build.py:147
-msgid "don't use a saved environment, always read all files"
-msgstr "nepoužívať uložené prostredie, vždy čítať všetky súbory"
-
-#: cmd/build.py:150
-msgid "path options"
-msgstr ""
-
-#: cmd/build.py:157
-msgid ""
-"directory for doctree and environment files (default: OUTPUT_DIR/.doctrees)"
-msgstr ""
-
-#: cmd/build.py:166
-msgid "directory for the configuration file (conf.py) (default: SOURCE_DIR)"
-msgstr ""
-
-#: cmd/build.py:175
-msgid "use no configuration file, only use settings from -D options"
-msgstr ""
-
-#: cmd/build.py:184
-msgid "override a setting in configuration file"
-msgstr "prepíše nastavenie konfiguračného súboru"
-
-#: cmd/build.py:193
-msgid "pass a value into HTML templates"
-msgstr "pošle hodnotu do šablón HTML"
-
-#: cmd/build.py:202
-msgid "define tag: include \"only\" blocks with TAG"
-msgstr ""
-
-#: cmd/build.py:209
-msgid "nitpicky mode: warn about all missing references"
-msgstr ""
-
-#: cmd/build.py:212
-msgid "console output options"
-msgstr "voľby výstupu konzoly"
-
-#: cmd/build.py:219
-msgid "increase verbosity (can be repeated)"
-msgstr "zvýšiť rozvláčnosť (možno opakovať)"
-
-#: cmd/build.py:226 ext/apidoc/_cli.py:66
-msgid "no output on stdout, just warnings on stderr"
-msgstr "žiadny výstup, len upozornenia na stderr"
-
-#: cmd/build.py:233
-msgid "no output at all, not even warnings"
-msgstr "vôbec žiadny výstup, ani upozornenia"
-
-#: cmd/build.py:241
-msgid "do emit colored output (default: auto-detect)"
-msgstr "generovať farebný výstup (predvolene: automaticky detegovať)"
-
-#: cmd/build.py:249
-msgid "do not emit colored output (default: auto-detect)"
-msgstr "negenerovať farebný výstup (predvolene: automaticky detegovať)"
-
-#: cmd/build.py:252
-msgid "warning control options"
-msgstr ""
-
-#: cmd/build.py:258
-msgid "write warnings (and errors) to given file"
-msgstr "zapísať varovania  (a chyby) do zadaného súboru"
-
-#: cmd/build.py:265
-msgid "turn warnings into errors"
-msgstr "prepnúť upozornenia na chyby"
-
-#: cmd/build.py:273
-msgid "show full traceback on exception"
-msgstr "pri výnimke zobraziť úplné chybové hlásenie"
-
-#: cmd/build.py:276
-msgid "run Pdb on exception"
-msgstr "pri výnimke spustiť Pdb"
-
-#: cmd/build.py:282
-msgid "raise an exception on warnings"
-msgstr ""
-
-#: cmd/build.py:325
-msgid "cannot combine -a option and filenames"
-msgstr "nemožno kombinovať voľbu -a a mená súborov"
-
-#: cmd/build.py:357
+#: ext/graphviz.py:153
 #, python-format
-msgid "cannot open warning file '%s': %s"
+msgid "External Graphviz file %r not found or reading it failed"
+msgstr "Externý súbor Graphviz %r nebol nájdený alebo zlyhalo jeho čítanie"
+
+#: ext/graphviz.py:164
+msgid "Ignoring \"graphviz\" directive without content."
+msgstr "Ignorovaná direktíva „graphviz” bez obsahu."
+
+#: ext/graphviz.py:287
+#, python-format
+msgid "graphviz_dot executable path must be set! %r"
 msgstr ""
 
-#: cmd/build.py:376
-msgid "-D option argument must be in the form name=value"
-msgstr "argument voľby -D musí byť v tvare meno=hodnota"
-
-#: cmd/build.py:383
-msgid "-A option argument must be in the form name=value"
-msgstr "argument voľby -A musí byť v tvare meno=hodnota"
-
-#: themes/classic/layout.html:12 themes/classic/static/sidebar.js.jinja:51
-msgid "Collapse sidebar"
-msgstr "Zbaliť bočný panel"
-
-#: themes/agogo/layout.html:29 themes/basic/globaltoc.html:2
-#: themes/basic/localtoc.html:4 themes/scrolls/layout.html:32
-msgid "Table of Contents"
-msgstr "Obsah"
-
-#: themes/agogo/layout.html:34 themes/basic/layout.html:130
-#: themes/basic/search.html:3 themes/basic/search.html:15
-msgid "Search"
-msgstr "Hľadať"
-
-#: themes/agogo/layout.html:37 themes/basic/searchbox.html:8
-#: themes/basic/searchfield.html:12
-msgid "Go"
-msgstr "OK"
-
-#: themes/agogo/layout.html:81 themes/basic/sourcelink.html:7
-msgid "Show Source"
-msgstr "Zobraziť zdroj"
-
-#: themes/haiku/layout.html:16
-msgid "Contents"
-msgstr "Obsah"
-
-#: themes/basic/opensearch.xml:4
+#: ext/graphviz.py:328
 #, python-format
-msgid "Search %(docstitle)s"
-msgstr "Hľadať v %(docstitle)s"
+msgid ""
+"dot command %r cannot be run (needed for graphviz output), check the "
+"graphviz_dot setting"
+msgstr "príkaz dot %r nemožno spustiť (nutný kvôli výstupu graphviz), skontrolujte nastavenie graphviz_dot"
 
-#: themes/basic/defindex.html:4
-msgid "Overview"
-msgstr "Prehľad"
+#: ext/graphviz.py:339
+#, python-format
+msgid ""
+"dot exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "dot skončil chybou:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: themes/basic/defindex.html:8
-msgid "Welcome! This is"
-msgstr "Vitajte! Toto je"
+#: ext/graphviz.py:344
+#, python-format
+msgid ""
+"dot did not produce an output file:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "dot nevytvoril výstupný súbor:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: themes/basic/defindex.html:9
-msgid "the documentation for"
-msgstr "dokumentácia"
+#: ext/graphviz.py:367
+#, python-format
+msgid "graphviz_output_format must be either 'png' or 'svg', but is %r"
+msgstr ""
 
-#: themes/basic/defindex.html:10
-msgid "last updated"
-msgstr "posledná aktualizácia"
+#: ext/graphviz.py:373 ext/graphviz.py:436 ext/graphviz.py:480
+#, python-format
+msgid "dot code %r: %s"
+msgstr "kód dot %r: %s"
 
-#: themes/basic/defindex.html:13
-msgid "Indices and tables:"
-msgstr "Indexy a tabuľky"
+#: ext/graphviz.py:493 ext/graphviz.py:501
+#, python-format
+msgid "[graph: %s]"
+msgstr "[graf: %s]"
 
-#: themes/basic/defindex.html:16
-msgid "Complete Table of Contents"
-msgstr "Celkový obsah"
+#: ext/graphviz.py:495 ext/graphviz.py:503
+msgid "[graph]"
+msgstr "[graf]"
 
-#: themes/basic/defindex.html:17
-msgid "lists all sections and subsections"
-msgstr "zoznam všetkých sekcií a podsekcií"
+#: ext/duration.py:90
+msgid ""
+"====================== slowest reading durations ======================="
+msgstr ""
+
+#: ext/doctest.py:118
+#, python-format
+msgid "missing '+' or '-' in '%s' option."
+msgstr "chýbajúce „+” alebo „-” vo voľbe „%s”."
+
+#: ext/doctest.py:124
+#, python-format
+msgid "'%s' is not a valid option."
+msgstr "'%s' nie je platná voľba."
+
+#: ext/doctest.py:139
+#, python-format
+msgid "'%s' is not a valid pyversion option"
+msgstr "„%s” nie je platná voľba pyversion"
+
+#: ext/doctest.py:226
+msgid "invalid TestCode type"
+msgstr "neplatný typ TestCode"
+
+#: ext/doctest.py:297
+#, python-format
+msgid ""
+"Testing of doctests in the sources finished, look at the results in "
+"%(outdir)s/output.txt."
+msgstr ""
+
+#: ext/doctest.py:457
+#, python-format
+msgid "no code/output in %s block at %s:%s"
+msgstr ""
+
+#: ext/doctest.py:568
+#, python-format
+msgid "ignoring invalid doctest code: %r"
+msgstr ""
+
+#: ext/linkcode.py:86 ext/viewcode.py:230
+msgid "[source]"
+msgstr "[zdroj]"
+
+#: ext/imgconverter.py:44
+#, python-format
+msgid ""
+"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
+"\n"
+"Traceback: %s"
+msgstr ""
+
+#: ext/imgconverter.py:56 ext/imgconverter.py:90
+#, python-format
+msgid ""
+"convert exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "convert skončil chybou:\n[stderr]\n%r\n[stdout]\n%r"
+
+#: ext/imgconverter.py:83
+#, python-format
+msgid "convert command %r cannot be run, check the image_converter setting"
+msgstr "príkaz convert %r nemožno spustiť, skontrolujte nastavenie image_converter"
+
+#: ext/viewcode.py:293
+msgid "highlighting module code... "
+msgstr "zvýrazňovanie syntaxe kódu modulu... "
+
+#: ext/viewcode.py:324
+msgid "[docs]"
+msgstr "[dokumenty]"
+
+#: ext/viewcode.py:350
+msgid "Module code"
+msgstr "Kód modulu"
+
+#: ext/viewcode.py:357
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr "<h1>Zdrojový kód %s</h1>"
+
+#: ext/viewcode.py:384
+msgid "Overview: module code"
+msgstr "Prehľad: kód modulu"
+
+#: ext/viewcode.py:385
+msgid "<h1>All modules for which code is available</h1>"
+msgstr "<h1>Všetky moduly, pre ktoré je dostupný kód</h1>"
+
+#: ext/extlinks.py:82
+#, python-format
+msgid ""
+"hardcoded link %r could be replaced by an extlink (try using %r instead)"
+msgstr ""
+
+#: ext/autosectionlabel.py:52
+#, python-format
+msgid "section \"%s\" gets labeled as \"%s\""
+msgstr ""
+
+#: domains/std/__init__.py:833 domains/std/__init__.py:960
+#: ext/autosectionlabel.py:61
+#, python-format
+msgid "duplicate label %s, other instance in %s"
+msgstr "duplicitná menovka  %s, ďalší výskyt v %s"
+
+#: ext/todo.py:61
+msgid "Todo"
+msgstr "ToDo"
+
+#: ext/todo.py:94
+#, python-format
+msgid "TODO entry found: %s"
+msgstr "Nájdená položka TODO: %s"
+
+#: ext/todo.py:152
+msgid "<<original entry>>"
+msgstr "<<pôvodná položka>>"
+
+#: ext/todo.py:154
+#, python-format
+msgid "(The <<original entry>> is located in %s, line %d.)"
+msgstr "(<<original entry>> je umiestnená v %s, riadok %d.)"
+
+#: ext/todo.py:166
+msgid "original entry"
+msgstr "pôvodná položka"
+
+#: ext/coverage.py:48
+#, python-format
+msgid "invalid regex %r in %s"
+msgstr "neplatný regulárny výraz %r v %s"
+
+#: ext/coverage.py:140 ext/coverage.py:301
+#, python-format
+msgid "module %s could not be imported: %s"
+msgstr "modul %s nemožno importovať: %s"
+
+#: ext/coverage.py:148
+#, python-format
+msgid ""
+"the following modules are documented but were not specified in "
+"coverage_modules: %s"
+msgstr ""
+
+#: ext/coverage.py:158
+msgid ""
+"the following modules are specified in coverage_modules but were not "
+"documented"
+msgstr ""
+
+#: ext/coverage.py:172
+#, python-brace-format, python-format
+msgid ""
+"Testing of coverage in the sources finished, look at the results in "
+"%(outdir)s{sep}python.txt."
+msgstr ""
+
+#: ext/coverage.py:187
+#, python-format
+msgid "invalid regex %r in coverage_c_regexes"
+msgstr "neplatný regulárny výraz %r v coverage_c_regexes"
+
+#: ext/coverage.py:260
+#, python-format
+msgid "undocumented c api: %s [%s] in file %s"
+msgstr "nedokumentované API C: %s [%s] v súbore %s"
+
+#: ext/coverage.py:452
+#, python-format
+msgid "undocumented python function: %s :: %s"
+msgstr "nedokumentovaná funkcia Python: %s :: %s"
+
+#: ext/coverage.py:473
+#, python-format
+msgid "undocumented python class: %s :: %s"
+msgstr "nedokumentovaná trieda Python: %s :: %s"
+
+#: ext/coverage.py:492
+#, python-format
+msgid "undocumented python method: %s :: %s :: %s"
+msgstr "nedokumentovaná metóda Python: %s :: %s :: %s"
+
+#: ext/imgmath.py:162
+#, python-format
+msgid ""
+"LaTeX command %r cannot be run (needed for math display), check the "
+"imgmath_latex setting"
+msgstr "Nemožno spustiť príkaz LaTeX %r (potrebný na zobrazenie math), skontrolujte nastavenia imgmath_latex"
+
+#: ext/imgmath.py:181
+#, python-format
+msgid ""
+"%s command %r cannot be run (needed for math display), check the imgmath_%s "
+"setting"
+msgstr ""
+
+#: ext/imgmath.py:344
+#, python-format
+msgid "display latex %r: %s"
+msgstr "zobrazený latex %r: %s"
+
+#: ext/imgmath.py:380
+#, python-format
+msgid "inline latex %r: %s"
+msgstr "vnorený latex %r: %s"
+
+#: ext/imgmath.py:387 ext/mathjax.py:60
+msgid "Link to this equation"
+msgstr ""
+
+#: builders/html/__init__.py:486 builders/latex/__init__.py:199
+#: transforms/__init__.py:129 writers/manpage.py:98 writers/texinfo.py:220
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%d. %b  %Y"
+
+#: builders/latex/__init__.py:206 domains/std/__init__.py:771
+#: domains/std/__init__.py:784 templates/latex/latex.tex.jinja:106
+#: themes/basic/genindex-single.html:22 themes/basic/genindex-single.html:48
+#: themes/basic/genindex-split.html:3 themes/basic/genindex-split.html:6
+#: themes/basic/genindex.html:3 themes/basic/genindex.html:26
+#: themes/basic/genindex.html:59 themes/basic/layout.html:127
+#: writers/texinfo.py:514
+msgid "Index"
+msgstr "Index"
+
+#: writers/latex.py:743 writers/texinfo.py:646
+msgid ""
+"encountered title node not in section, topic, table, admonition or sidebar"
+msgstr ""
+
+#: writers/latex.py:1097 writers/manpage.py:259 writers/texinfo.py:663
+msgid "Footnotes"
+msgstr "Poznámky pod čiarou"
+
+#: writers/texinfo.py:1217
+msgid "caption not inside a figure."
+msgstr "titulok nie je vo vnútri figure."
+
+#: writers/texinfo.py:1303
+#, python-format
+msgid "unimplemented node type: %r"
+msgstr "neimplementovaný typ uzla: %r"
+
+#: writers/manpage.py:289 writers/text.py:945
+#, python-format
+msgid "[image: %s]"
+msgstr "[obrázok: %s]"
+
+#: writers/manpage.py:290 writers/text.py:946
+msgid "[image]"
+msgstr "[obrázok]"
+
+#: writers/html5.py:96 writers/html5.py:105
+msgid "Link to this definition"
+msgstr ""
+
+#: writers/html5.py:431
+#, python-format
+msgid "numfig_format is not defined for %s"
+msgstr "nie je definovaný numfig_format pre %s"
+
+#: writers/html5.py:441
+#, python-format
+msgid "Any IDs not assigned for %s node"
+msgstr "Žiadne ID nie je priradené uzlu %s"
+
+#: writers/html5.py:496
+msgid "Link to this term"
+msgstr ""
+
+#: writers/html5.py:548 writers/html5.py:553
+msgid "Link to this heading"
+msgstr ""
+
+#: writers/html5.py:558
+msgid "Link to this table"
+msgstr ""
+
+#: writers/html5.py:572 writers/latex.py:1106
+#, python-format
+msgid "unsupported rubric heading level: %s"
+msgstr ""
+
+#: writers/html5.py:636
+msgid "Link to this code"
+msgstr ""
+
+#: writers/html5.py:638
+msgid "Link to this image"
+msgstr ""
+
+#: writers/html5.py:640
+msgid "Link to this toctree"
+msgstr ""
+
+#: writers/html5.py:766
+msgid "Could not obtain image size. :scale: option is ignored."
+msgstr "Nemožno získať veľkosť obrázku. voľba :scale: je ignorovaná."
+
+#: writers/latex.py:361
+#, python-format
+msgid "unknown %r toplevel_sectioning for class %r"
+msgstr ""
+
+#: builders/latex/__init__.py:224 writers/latex.py:411
+#, python-format
+msgid "no Babel option known for language %r"
+msgstr "žiadna známa voľba Babel pre jazyk %r"
+
+#: writers/latex.py:429
+msgid "too large :maxdepth:, ignored."
+msgstr "príliš veľké :maxdepth:, ignorované."
+
+#: writers/latex.py:591
+#, python-format
+msgid "template %s not found; loading from legacy %s instead"
+msgstr ""
+
+#: writers/latex.py:707
+msgid "document title is not a single Text node"
+msgstr "názov dokumentu nie je jeden uzol Text"
+
+#: writers/latex.py:1183
+msgid ""
+"both tabularcolumns and :widths: option are given. :widths: is ignored."
+msgstr "sú zadané obe, tabularcolumns aj voľba :widths:. :widths: je ignorované."
+
+#: writers/latex.py:1580
+#, python-format
+msgid "dimension unit %s is invalid. Ignored."
+msgstr ""
+
+#: writers/latex.py:1939
+#, python-format
+msgid "unknown index entry type %s found"
+msgstr ""
+
+#: domains/math.py:128 writers/latex.py:2495
+#, python-format
+msgid "Invalid math_eqref_format: %r"
+msgstr "neplatný math_eqref_format: %r"
+
+#: _cli/__init__.py:73
+msgid "Usage:"
+msgstr ""
+
+#: _cli/__init__.py:75
+#, python-brace-format
+msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
+msgstr ""
+
+#: _cli/__init__.py:78
+msgid "  The Sphinx documentation generator."
+msgstr ""
+
+#: _cli/__init__.py:87
+msgid "Commands:"
+msgstr ""
+
+#: _cli/__init__.py:98
+msgid "Options"
+msgstr ""
+
+#: _cli/__init__.py:113 _cli/__init__.py:181
+msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
+msgstr ""
+
+#: _cli/__init__.py:171
+#, python-brace-format
+msgid ""
+"{0}: error: {1}\n"
+"Run '{0} --help' for information"
+msgstr ""
+
+#: _cli/__init__.py:179
+msgid "   Manage documentation with Sphinx."
+msgstr ""
+
+#: _cli/__init__.py:191
+msgid "Show the version and exit."
+msgstr ""
+
+#: _cli/__init__.py:199
+msgid "Show this message and exit."
+msgstr ""
+
+#: _cli/__init__.py:203
+msgid "Logging"
+msgstr ""
+
+#: _cli/__init__.py:210
+msgid "Increase verbosity (can be repeated)"
+msgstr ""
+
+#: _cli/__init__.py:218
+msgid "Only print errors and warnings."
+msgstr ""
+
+#: _cli/__init__.py:225
+msgid "No output at all"
+msgstr ""
+
+#: _cli/__init__.py:231
+msgid "<command>"
+msgstr ""
+
+#: _cli/__init__.py:263
+msgid "See 'sphinx --help'.\n"
+msgstr ""
+
+#: util/docutils.py:309
+#, python-format
+msgid "unknown directive name: %s"
+msgstr ""
+
+#: util/docutils.py:345
+#, python-format
+msgid "unknown role name: %s"
+msgstr ""
+
+#: util/docutils.py:789
+#, python-format
+msgid "unknown node type: %r"
+msgstr "neznámy typ uzla: %r"
+
+#: util/nodes.py:423
+#, python-format
+msgid ""
+"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
+msgstr ""
+
+#: util/nodes.py:490
+#, python-format
+msgid "toctree contains ref to nonexisting file %r"
+msgstr "strom obsahu obsahuje neexistujúci súbor %r"
+
+#: util/nodes.py:706
+#, python-format
+msgid "exception while evaluating only directive expression: %s"
+msgstr ""
+
+#: util/rst.py:73
+#, python-format
+msgid "default role %s not found"
+msgstr "predvolená rola  %s nenájdená"
+
+#: util/docfields.py:103
+#, python-format
+msgid ""
+"Problem in %s domain: field is supposed to use role '%s', but that role is "
+"not in the domain."
+msgstr ""
+
+#: util/inventory.py:147
+#, python-format
+msgid "inventory <%s> contains duplicate definitions of %s"
+msgstr ""
+
+#: util/inventory.py:166
+#, python-format
+msgid "inventory <%s> contains multiple definitions for %s"
+msgstr ""
+
+#: util/fileutil.py:76
+#, python-format
+msgid ""
+"Aborted attempted copy from rendered template %s to %s (the destination path"
+" has existing data)."
+msgstr ""
+
+#: util/fileutil.py:89
+#, python-format
+msgid "Writing evaluated template result to %s"
+msgstr ""
+
+#: util/i18n.py:100
+#, python-format
+msgid "reading error: %s, %s"
+msgstr "chyba čítania: %s, %s"
+
+#: util/i18n.py:113
+#, python-format
+msgid "writing error: %s, %s"
+msgstr "chyba zápisu: %s: %s"
+
+#: util/i18n.py:146
+#, python-format
+msgid "locale_dir %s does not exist"
+msgstr ""
+
+#: util/i18n.py:236
+#, python-format
+msgid "Invalid Babel locale: %r."
+msgstr ""
+
+#: util/i18n.py:245
+#, python-format
+msgid ""
+"Invalid date format. Quote the string by single quote if you want to output "
+"it directly: %s"
+msgstr "Neplatný formát dátumu. Použije jednoduché úvodzovky, ak ho chcete priamo vo výstupe: %s"
+
+#: util/osutil.py:131
+#, python-format
+msgid ""
+"Aborted attempted copy from %s to %s (the destination path has existing "
+"data)."
+msgstr ""
+
+#: util/display.py:82
+msgid "skipped"
+msgstr "preskočené"
+
+#: util/display.py:87
+msgid "failed"
+msgstr "zlyhalo"
+
+#: directives/code.py:66
+msgid "non-whitespace stripped by dedent"
+msgstr ""
+
+#: directives/code.py:87
+#, python-format
+msgid "Invalid caption: %s"
+msgstr "Neplatný popis: %s"
+
+#: directives/code.py:131 directives/code.py:297 directives/code.py:483
+#, python-format
+msgid "line number spec is out of range(1-%d): %r"
+msgstr "špecifikácia čísla riadku je mimo rozsahu (1-%d): %r"
+
+#: directives/code.py:216
+#, python-format
+msgid "Cannot use both \"%s\" and \"%s\" options"
+msgstr "Nemožno použiť obe voľby „%s” a „%s”"
+
+#: directives/code.py:231
+#, python-format
+msgid "Include file '%s' not found or reading it failed"
+msgstr ""
+
+#: directives/code.py:235
+#, python-format
+msgid ""
+"Encoding %r used for reading included file '%s' seems to be wrong, try "
+"giving an :encoding: option"
+msgstr ""
+
+#: directives/code.py:276
+#, python-format
+msgid "Object named %r not found in include file %r"
+msgstr "Objekt s menom %r nebol nájdený vo vloženom súbore %r"
+
+#: directives/code.py:309
+msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
+msgstr "Nemožno použiť „lineno-match” s rozdelenou množinou „lines”"
+
+#: directives/code.py:314
+#, python-format
+msgid "Line spec %r: no lines pulled from include file %r"
+msgstr "Riadok %r: žiadne riadky z vloženého súboru %r"
+
+#: directives/other.py:119
+#, python-format
+msgid "toctree glob pattern %r didn't match any documents"
+msgstr ""
+
+#: directives/other.py:153 environment/adapters/toctree.py:361
+#, python-format
+msgid "toctree contains reference to excluded document %r"
+msgstr "strom obsahu obsahuje odkaz na vylúčený dokument %r"
+
+#: directives/other.py:156
+#, python-format
+msgid "toctree contains reference to nonexisting document %r"
+msgstr "strom obsahu obsahuje odkaz na neexistujúci dokument %r"
+
+#: directives/other.py:169
+#, python-format
+msgid "duplicated entry found in toctree: %s"
+msgstr ""
+
+#: directives/other.py:203
+msgid "Section author: "
+msgstr "Autor sekcie:"
+
+#: directives/other.py:205
+msgid "Module author: "
+msgstr "Autor modulu:"
+
+#: directives/other.py:207
+msgid "Code author: "
+msgstr "Autor kódu:"
+
+#: directives/other.py:209
+msgid "Author: "
+msgstr "Autor:"
+
+#: directives/other.py:269
+msgid ".. acks content is not a list"
+msgstr ""
+
+#: directives/other.py:292
+msgid ".. hlist content is not a list"
+msgstr ""
+
+#: directives/patches.py:71
+msgid ""
+"\":file:\" option for csv-table directive now recognizes an absolute path as"
+" a relative path from source directory. Please update your document."
+msgstr "voľba \":file:\" direktívy csv-table teraz rozpoznáva absolútnu cestu ako relatívnu k zdrojovému adresáru. Prosím, aktualizujte svoj dokument."
+
+#: locale/__init__.py:229
+msgid "Attention"
+msgstr "Výstraha"
+
+#: locale/__init__.py:230
+msgid "Caution"
+msgstr "Upozornenie"
+
+#: locale/__init__.py:231
+msgid "Danger"
+msgstr "Nebezpečné"
+
+#: locale/__init__.py:232
+msgid "Error"
+msgstr "Chyba"
+
+#: locale/__init__.py:233
+msgid "Hint"
+msgstr "Rada"
+
+#: locale/__init__.py:234
+msgid "Important"
+msgstr "Dôležité"
+
+#: locale/__init__.py:235
+msgid "Note"
+msgstr "Poznámka"
+
+#: locale/__init__.py:236
+msgid "See also"
+msgstr "Viď aj"
+
+#: locale/__init__.py:237
+msgid "Tip"
+msgstr "Tip"
+
+#: locale/__init__.py:238
+msgid "Warning"
+msgstr "Varovanie"
+
+#: environment/__init__.py:86
+msgid "new config"
+msgstr "nová konfigurácia"
+
+#: environment/__init__.py:87
+msgid "config changed"
+msgstr "zmenená konfigurácia"
+
+#: environment/__init__.py:88
+msgid "extensions changed"
+msgstr "zmenené rozšírenie"
+
+#: environment/__init__.py:253
+msgid "build environment version not current"
+msgstr "prostredie zostavenia nie je aktuálne"
+
+#: environment/__init__.py:255
+msgid "source directory has changed"
+msgstr "zdrojový adresár zmenený"
+
+#: environment/__init__.py:325
+#, python-format
+msgid "The configuration has changed (1 option: %r)"
+msgstr ""
+
+#: environment/__init__.py:330
+#, python-format
+msgid "The configuration has changed (%d options: %s)"
+msgstr ""
+
+#: environment/__init__.py:336
+#, python-format
+msgid "The configuration has changed (%d options: %s, ...)"
+msgstr ""
+
+#: environment/__init__.py:379
+msgid ""
+"This environment is incompatible with the selected builder, please choose "
+"another doctree directory."
+msgstr "Toto prostredie nie je kompatibilné zo zvoleným zostavovačom, prosím, zvoľte iný adresár doctree."
+
+#: environment/__init__.py:493
+#, python-format
+msgid "Failed to scan documents in %s: %r"
+msgstr "Zlyhalo skenovanie dokumentov v %s: %r"
+
+#: environment/__init__.py:658 ext/intersphinx/_resolve.py:234
+#, python-format
+msgid "Domain %r is not registered"
+msgstr "Doména %r nie je zaregistrovaná"
+
+#: environment/__init__.py:813
+msgid "document isn't included in any toctree"
+msgstr "dokument nie je zahrnutý v žiadnom strome obsahu"
+
+#: environment/__init__.py:859
+msgid "self referenced toctree found. Ignored."
+msgstr "nájdený na seba odkazujúci strom obsahu. Ignorované."
+
+#: environment/__init__.py:889
+#, python-format
+msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
+msgstr ""
+
+#: transforms/i18n.py:227 transforms/i18n.py:302
+#, python-brace-format
+msgid ""
+"inconsistent footnote references in translated message. original: {0}, "
+"translated: {1}"
+msgstr ""
+
+#: transforms/i18n.py:272
+#, python-brace-format
+msgid ""
+"inconsistent references in translated message. original: {0}, translated: "
+"{1}"
+msgstr ""
+
+#: transforms/i18n.py:322
+#, python-brace-format
+msgid ""
+"inconsistent citation references in translated message. original: {0}, "
+"translated: {1}"
+msgstr ""
+
+#: transforms/i18n.py:344
+#, python-brace-format
+msgid ""
+"inconsistent term references in translated message. original: {0}, "
+"translated: {1}"
+msgstr ""
+
+#: transforms/__init__.py:139
+msgid "could not calculate translation progress!"
+msgstr ""
+
+#: transforms/__init__.py:144
+msgid "no translated elements!"
+msgstr ""
+
+#: transforms/__init__.py:253
+#, python-format
+msgid ""
+"4 column based index found. It might be a bug of extensions you use: %r"
+msgstr ""
+
+#: transforms/__init__.py:294
+#, python-format
+msgid "Footnote [%s] is not referenced."
+msgstr "Poznámka pod čiarou [%s] nie je odkazovaná."
+
+#: transforms/__init__.py:303
+msgid "Footnote [*] is not referenced."
+msgstr ""
+
+#: transforms/__init__.py:314
+msgid "Footnote [#] is not referenced."
+msgstr "Poznámka pod čiarou [#] nie je odkazovaná."
+
+#: domains/rst.py:131 domains/rst.py:190
+#, python-format
+msgid "%s (directive)"
+msgstr "%s (direktíva)"
+
+#: domains/rst.py:191 domains/rst.py:202
+#, python-format
+msgid ":%s: (directive option)"
+msgstr "%s (voľba direktívy)"
+
+#: domains/rst.py:224
+#, python-format
+msgid "%s (role)"
+msgstr "%s (rola)"
+
+#: domains/rst.py:234
+msgid "directive"
+msgstr "direktíva"
+
+#: domains/rst.py:235
+msgid "directive-option"
+msgstr ""
+
+#: domains/rst.py:236
+msgid "role"
+msgstr "rola"
+
+#: domains/rst.py:262
+#, python-format
+msgid "duplicate description of %s %s, other instance in %s"
+msgstr "duplicitný popis %s %s, ďalší výskyt v %s"
+
+#: domains/javascript.py:182
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (zabudovaná funkcia)"
+
+#: domains/javascript.py:183 domains/python/__init__.py:287
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (metóda %s)"
+
+#: domains/javascript.py:185
+#, python-format
+msgid "%s() (class)"
+msgstr "%s() (trieda)"
+
+#: domains/javascript.py:187
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s (globálna premenná alebo konštanta)"
+
+#: domains/javascript.py:189 domains/python/__init__.py:378
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (atribút %s)"
+
+#: domains/javascript.py:273
+msgid "Arguments"
+msgstr "Argumenty"
+
+#: domains/cpp/__init__.py:489 domains/javascript.py:280
+msgid "Throws"
+msgstr "Vyvoláva"
+
+#: domains/c/__init__.py:339 domains/cpp/__init__.py:502
+#: domains/javascript.py:287 domains/python/_object.py:221
+msgid "Returns"
+msgstr "Vracia"
+
+#: domains/c/__init__.py:345 domains/javascript.py:293
+#: domains/python/_object.py:227
+msgid "Return type"
+msgstr "Návratový typ"
+
+#: domains/javascript.py:370
+#, python-format
+msgid "%s (module)"
+msgstr "%s (modul)"
+
+#: domains/c/__init__.py:751 domains/cpp/__init__.py:941
+#: domains/javascript.py:415 domains/python/__init__.py:740
+msgid "function"
+msgstr "funkcia"
+
+#: domains/javascript.py:416 domains/python/__init__.py:744
+msgid "method"
+msgstr "metóda"
+
+#: domains/cpp/__init__.py:939 domains/javascript.py:417
+#: domains/python/__init__.py:742
+msgid "class"
+msgstr "trieda"
+
+#: domains/javascript.py:418 domains/python/__init__.py:741
+msgid "data"
+msgstr "dáta"
+
+#: domains/javascript.py:419 domains/python/__init__.py:747
+msgid "attribute"
+msgstr "atribút"
+
+#: domains/javascript.py:420 domains/python/__init__.py:750
+msgid "module"
+msgstr "modul"
+
+#: domains/javascript.py:454
+#, python-format
+msgid "duplicate %s description of %s, other %s in %s"
+msgstr "duplicitný %s popis %s, ďalší výskyt%s v %s"
+
+#: domains/citation.py:75
+#, python-format
+msgid "duplicate citation %s, other instance in %s"
+msgstr "duplicitná citácia  %s, ďalší výskyt v %s"
+
+#: domains/citation.py:92
+#, python-format
+msgid "Citation [%s] is not referenced."
+msgstr "Citácia [%s] nie je odkazovaná."
+
+#: domains/__init__.py:322
+#, python-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#: domains/changeset.py:26
+#, python-format
+msgid "Added in version %s"
+msgstr ""
+
+#: domains/changeset.py:27
+#, python-format
+msgid "Changed in version %s"
+msgstr "Zmenené vo verzii %s"
+
+#: domains/changeset.py:28
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "Zastarané od verzie %s"
+
+#: domains/changeset.py:29
+#, python-format
+msgid "Removed in version %s"
+msgstr ""
+
+#: domains/math.py:73
+#, python-format
+msgid "duplicate label of equation %s, other instance in %s"
+msgstr "duplicitná menovka vzorca %s, ďalší výskyt v %s"
+
+#: domains/std/__init__.py:91 domains/std/__init__.py:111
+#, python-format
+msgid "environment variable; %s"
+msgstr "premenná prostredia; %s"
+
+#: domains/std/__init__.py:119
+#, python-format
+msgid "%s; configuration value"
+msgstr ""
+
+#: domains/std/__init__.py:175
+msgid "Type"
+msgstr ""
+
+#: domains/std/__init__.py:185
+msgid "Default"
+msgstr ""
+
+#: domains/std/__init__.py:242
+#, python-format
+msgid ""
+"Malformed option description %r, should look like \"opt\", \"-opt args\", \""
+"--opt args\", \"/opt args\" or \"+opt args\""
+msgstr "Nesprávny popis voľby %r, má vyzerať ako „opt”, „-opt argumenty”, „--opt argumenty”, „/opt argumenty” alebo „+opt argumenty”"
+
+#: domains/std/__init__.py:319
+#, python-format
+msgid "%s command line option"
+msgstr "%s voľba príkazového riadka"
+
+#: domains/std/__init__.py:321
+msgid "command line option"
+msgstr "voľba príkazového riadka"
+
+#: domains/std/__init__.py:461
+msgid "glossary term must be preceded by empty line"
+msgstr "položke glosára musí predchádzať prázdny riadok"
+
+#: domains/std/__init__.py:474
+msgid "glossary terms must not be separated by empty lines"
+msgstr "položky glosára nesmú byť oddelené prázdnymi riadkami"
+
+#: domains/std/__init__.py:486 domains/std/__init__.py:504
+msgid "glossary seems to be misformatted, check indentation"
+msgstr "glosár vyzerá byť zle naformátovaný, skontrolujte odsadenie"
+
+#: domains/std/__init__.py:729
+msgid "glossary term"
+msgstr "termín glosára"
+
+#: domains/std/__init__.py:730
+msgid "grammar token"
+msgstr "jazykový token"
+
+#: domains/std/__init__.py:731
+msgid "reference label"
+msgstr "menovka odkazu"
+
+#: domains/std/__init__.py:733
+msgid "environment variable"
+msgstr "premenná prostredia"
+
+#: domains/std/__init__.py:734
+msgid "program option"
+msgstr "voľba programu"
+
+#: domains/std/__init__.py:735
+msgid "document"
+msgstr "dokument"
+
+#: domains/std/__init__.py:772 domains/std/__init__.py:785
+msgid "Module Index"
+msgstr "Index modulov"
 
 #: domains/std/__init__.py:773 domains/std/__init__.py:786
 #: themes/basic/defindex.html:18
 msgid "Search Page"
 msgstr "Stránka hľadania"
 
-#: themes/basic/defindex.html:19
-msgid "search this documentation"
-msgstr "hľadať v tejto dokumentácii"
-
-#: themes/basic/defindex.html:21
-msgid "Global Module Index"
-msgstr "Celkový index modulov"
-
-#: themes/basic/defindex.html:22
-msgid "quick access to all modules"
-msgstr "rýchly prístup ku všetkým modulom"
-
-#: builders/html/__init__.py:507 themes/basic/defindex.html:23
-msgid "General Index"
-msgstr "Všeobecný index"
-
-#: themes/basic/defindex.html:24
-msgid "all functions, classes, terms"
-msgstr "všetky funkcie, triedy, termíny"
-
-#: themes/basic/sourcelink.html:4
-msgid "This Page"
-msgstr "Táto stránka"
-
-#: themes/basic/genindex-single.html:26
+#: domains/std/__init__.py:857
 #, python-format
-msgid "Index &#x2013; %(key)s"
+msgid "duplicate %s description of %s, other instance in %s"
+msgstr "duplicitný %s popis %s, ďalší výskyt v %s"
+
+#: domains/std/__init__.py:1113
+msgid "numfig is disabled. :numref: is ignored."
+msgstr "numfig je vypnutý, :numref: je ignorované."
+
+#: domains/std/__init__.py:1124
+#, python-format
+msgid "Failed to create a cross reference. Any number is not assigned: %s"
+msgstr "Zlyhalo vytvorenie krížového odkazu. Nie je priradené žiadne číslo: %s"
+
+#: domains/std/__init__.py:1138
+#, python-format
+msgid "the link has no caption: %s"
+msgstr "odkaz nemá popisok: %s"
+
+#: domains/std/__init__.py:1153
+#, python-format
+msgid "invalid numfig_format: %s (%r)"
+msgstr "neplatný numfig_format: %s (%r)"
+
+#: domains/std/__init__.py:1157
+#, python-format
+msgid "invalid numfig_format: %s"
+msgstr "neplatný numfig_format: %s"
+
+#: domains/std/__init__.py:1453
+#, python-format
+msgid "undefined label: %r"
 msgstr ""
 
-#: themes/basic/genindex-single.html:54 themes/basic/genindex-split.html:16
-#: themes/basic/genindex-split.html:30 themes/basic/genindex.html:65
-msgid "Full index on one page"
-msgstr "Celý index na jednej strane"
-
-#: themes/basic/searchbox.html:4
-msgid "Quick search"
-msgstr "Rýchle hľadanie"
-
-#: themes/basic/genindex-split.html:8
-msgid "Index pages by letter"
-msgstr "Indexové stránky po písmenách"
-
-#: themes/basic/genindex-split.html:17
-msgid "can be huge"
-msgstr "môže byť rozsiahle"
-
-#: themes/basic/relations.html:4
-msgid "Previous topic"
-msgstr "Predošlá téma"
-
-#: themes/basic/relations.html:6
-msgid "previous chapter"
-msgstr "predošlá kapitola"
-
-#: themes/basic/relations.html:11
-msgid "Next topic"
-msgstr "Ďalšia téma"
-
-#: themes/basic/relations.html:13
-msgid "next chapter"
-msgstr "ďalšia kapitola"
-
-#: themes/basic/layout.html:18
-msgid "Navigation"
-msgstr "Navigácia"
-
-#: themes/basic/layout.html:115
+#: domains/std/__init__.py:1456
 #, python-format
-msgid "Search within %(docstitle)s"
-msgstr "Hľadať v %(docstitle)s"
-
-#: themes/basic/layout.html:124
-msgid "About these documents"
-msgstr "O dokumentácii"
-
-#: themes/basic/layout.html:133 themes/basic/layout.html:177
-#: themes/basic/layout.html:179
-msgid "Copyright"
-msgstr "Autorské právo"
-
-#: themes/basic/layout.html:183 themes/basic/layout.html:189
-#, python-format
-msgid "&#169; %(copyright_prefix)s %(copyright)s."
+msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr ""
 
-#: themes/basic/layout.html:201
-#, python-format
-msgid "Last updated on %(last_updated)s."
-msgstr "Naposledy aktualizované %(last_updated)s."
-
-#: themes/basic/layout.html:204
+#: domains/cpp/__init__.py:392 domains/cpp/_symbol.py:942
 #, python-format
 msgid ""
-"Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> "
-"%(sphinx_version)s."
-msgstr "Vytvorené pomocou <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s."
+"Duplicate C++ declaration, also defined at %s:%s.\n"
+"Declaration is '.. cpp:%s:: %s'."
+msgstr "Duplicitná deklarácia C++, definovaná aj v %s:%s.\nDeklarácia je '.. cpp:%s:: %s'."
 
-#: themes/basic/search.html:20
-msgid ""
-"Please activate JavaScript to enable the search\n"
-"    functionality."
-msgstr "Prosím, na zapnutie funkcie hľadania,aktivujte\nJavaScript ."
+#: domains/cpp/__init__.py:159
+msgid "Template Parameters"
+msgstr "Parametre šablóny"
 
-#: themes/basic/search.html:28
-msgid ""
-"Searching for multiple words only shows matches that contain\n"
-"    all words."
-msgstr "Hľadanie viacerých slov vracia len zhody, ktoré obsahujú\n    všetky slová."
-
-#: themes/basic/search.html:35
-msgid "search"
-msgstr "hľadať"
-
-#: themes/basic/static/sphinx_highlight.js:112
-msgid "Hide Search Matches"
-msgstr "Skryť výsledky hľadania"
-
-#: themes/basic/static/searchtools.js:117
-msgid "Search Results"
-msgstr "Výsledky hľadania"
-
-#: themes/basic/static/searchtools.js:119
-msgid ""
-"Your search did not match any documents. Please make sure that all words are"
-" spelled correctly and that you've selected enough categories."
-msgstr "Vášmu hľadaniu nezodpovedá žiadny dokument. Prosím, skontrolujte, že všetky zadané slová sú správne napísané a že ste zvolili vhodné kategórie."
-
-#: themes/basic/static/searchtools.js:123
-#, python-brace-format
-msgid "Search finished, found one page matching the search query."
-msgid_plural ""
-"Search finished, found ${resultCount} pages matching the search query."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-
-#: themes/basic/static/searchtools.js:253
-msgid "Searching"
-msgstr "Hľadanie"
-
-#: themes/basic/static/searchtools.js:270
-msgid "Preparing search..."
-msgstr "Príprava hľadania..."
-
-#: themes/basic/static/searchtools.js:474
-msgid ", in "
-msgstr ", v "
-
-#: themes/basic/changes/rstsource.html:5
+#: domains/cpp/__init__.py:302
 #, python-format
-msgid "%(filename)s &#8212; %(docstitle)s"
-msgstr "%(filename)s &#8212; %(docstitle)s"
+msgid "%s (C++ %s)"
+msgstr "%s (C++ %s)"
 
-#: themes/basic/changes/frameset.html:5
-#: themes/basic/changes/versionchanges.html:12
-#, python-format
-msgid "Changes in Version %(version)s &#8212; %(docstitle)s"
-msgstr "Zmeny vo verzii %(version)s &#8212; %(docstitle)s"
+#: domains/c/__init__.py:326 domains/cpp/__init__.py:483
+#: domains/python/_object.py:190 ext/napoleon/docstring.py:974
+msgid "Parameters"
+msgstr "Parametre"
 
-#: themes/basic/changes/versionchanges.html:17
-#, python-format
-msgid "Automatically generated list of changes in version %(version)s"
-msgstr "Automaticky generovaný zoznam zmien vo verzii %(version)s"
+#: domains/c/__init__.py:333 domains/cpp/__init__.py:496
+msgid "Return values"
+msgstr ""
 
-#: themes/basic/changes/versionchanges.html:18
-msgid "Library changes"
-msgstr "Zmeny knižnice"
+#: domains/c/__init__.py:754 domains/cpp/__init__.py:940
+msgid "union"
+msgstr ""
 
-#: themes/basic/changes/versionchanges.html:23
-msgid "C API changes"
-msgstr "Zmeny API C"
+#: domains/c/__init__.py:749 domains/cpp/__init__.py:942
+msgid "member"
+msgstr "člen"
 
-#: themes/basic/changes/versionchanges.html:25
-msgid "Other changes"
-msgstr "Ostatné zmeny"
+#: domains/c/__init__.py:757 domains/cpp/__init__.py:943
+msgid "type"
+msgstr "typ"
 
-#: themes/classic/static/sidebar.js.jinja:42
-msgid "Expand sidebar"
-msgstr "Rozbaliť bočný panel"
+#: domains/cpp/__init__.py:944
+msgid "concept"
+msgstr "koncept"
+
+#: domains/c/__init__.py:755 domains/cpp/__init__.py:945
+msgid "enum"
+msgstr "enum"
+
+#: domains/c/__init__.py:756 domains/cpp/__init__.py:946
+msgid "enumerator"
+msgstr "enumerátor"
+
+#: domains/c/__init__.py:760 domains/cpp/__init__.py:949
+msgid "function parameter"
+msgstr "parameter funkcie"
+
+#: domains/cpp/__init__.py:952
+msgid "template parameter"
+msgstr "parameter šablóny"
 
 #: domains/python/_annotations.py:529
 msgid "Positional-only parameter separator (PEP 570)"
@@ -2860,6 +2789,14 @@ msgstr ""
 #: domains/python/_annotations.py:540
 msgid "Keyword-only parameters separator (PEP 3102)"
 msgstr ""
+
+#: domains/python/_object.py:206
+msgid "Variables"
+msgstr "Premenné"
+
+#: domains/python/_object.py:214
+msgid "Raises"
+msgstr "Vyzdvihuje"
 
 #: domains/python/__init__.py:113 domains/python/__init__.py:278
 #, python-format
@@ -2955,82 +2892,17 @@ msgstr "nájdený viac ako jeden cieľ krížového odkazu %r: %s"
 msgid " (deprecated)"
 msgstr " (zastarané)"
 
-#: domains/c/__init__.py:326 domains/cpp/__init__.py:483
-#: domains/python/_object.py:190 ext/napoleon/docstring.py:974
-msgid "Parameters"
-msgstr "Parametre"
-
-#: domains/python/_object.py:206
-msgid "Variables"
-msgstr "Premenné"
-
-#: domains/python/_object.py:214
-msgid "Raises"
-msgstr "Vyzdvihuje"
-
-#: domains/cpp/__init__.py:159
-msgid "Template Parameters"
-msgstr "Parametre šablóny"
-
-#: domains/cpp/__init__.py:302
-#, python-format
-msgid "%s (C++ %s)"
-msgstr "%s (C++ %s)"
-
-#: domains/cpp/__init__.py:392 domains/cpp/_symbol.py:942
-#, python-format
-msgid ""
-"Duplicate C++ declaration, also defined at %s:%s.\n"
-"Declaration is '.. cpp:%s:: %s'."
-msgstr "Duplicitná deklarácia C++, definovaná aj v %s:%s.\nDeklarácia je '.. cpp:%s:: %s'."
-
-#: domains/c/__init__.py:333 domains/cpp/__init__.py:496
-msgid "Return values"
-msgstr ""
-
-#: domains/c/__init__.py:754 domains/cpp/__init__.py:940
-msgid "union"
-msgstr ""
-
-#: domains/c/__init__.py:749 domains/cpp/__init__.py:942
-msgid "member"
-msgstr "člen"
-
-#: domains/c/__init__.py:757 domains/cpp/__init__.py:943
-msgid "type"
-msgstr "typ"
-
-#: domains/cpp/__init__.py:944
-msgid "concept"
-msgstr "koncept"
-
-#: domains/c/__init__.py:755 domains/cpp/__init__.py:945
-msgid "enum"
-msgstr "enum"
-
-#: domains/c/__init__.py:756 domains/cpp/__init__.py:946
-msgid "enumerator"
-msgstr "enumerátor"
-
-#: domains/c/__init__.py:760 domains/cpp/__init__.py:949
-msgid "function parameter"
-msgstr "parameter funkcie"
-
-#: domains/cpp/__init__.py:952
-msgid "template parameter"
-msgstr "parameter šablóny"
-
-#: domains/c/__init__.py:211
-#, python-format
-msgid "%s (C %s)"
-msgstr "%s (C %s)"
-
 #: domains/c/__init__.py:277 domains/c/_symbol.py:557
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr "Duplicitná deklarácia C, definovaná aj v %s:%s.\nDeklarácia je '.. c:%s:: %s'."
+
+#: domains/c/__init__.py:211
+#, python-format
+msgid "%s (C %s)"
+msgstr "%s (C %s)"
 
 #: domains/c/__init__.py:750
 msgid "variable"
@@ -3044,118 +2916,333 @@ msgstr "makro"
 msgid "struct"
 msgstr ""
 
-#: domains/std/__init__.py:91 domains/std/__init__.py:111
+#: templates/latex/longtable.tex.jinja:52
+#: templates/latex/sphinxmessages.sty.jinja:8
+msgid "continued from previous page"
+msgstr "pokračovanie z predošlej strany"
+
+#: templates/latex/longtable.tex.jinja:63
+#: templates/latex/sphinxmessages.sty.jinja:9
+msgid "continues on next page"
+msgstr "pokračuje na ďalšej strane"
+
+#: templates/latex/sphinxmessages.sty.jinja:10
+msgid "Non-alphabetical"
+msgstr ""
+
+#: environment/adapters/indexentries.py:268
+#: templates/latex/sphinxmessages.sty.jinja:11
+msgid "Symbols"
+msgstr "Symboly"
+
+#: templates/latex/sphinxmessages.sty.jinja:12
+msgid "Numbers"
+msgstr "Čísla"
+
+#: templates/latex/sphinxmessages.sty.jinja:13
+msgid "page"
+msgstr "strana"
+
+#: builders/latex/__init__.py:209 templates/latex/latex.tex.jinja:91
+msgid "Release"
+msgstr "Vydanie"
+
+#: themes/agogo/layout.html:29 themes/basic/globaltoc.html:2
+#: themes/basic/localtoc.html:4 themes/scrolls/layout.html:32
+msgid "Table of Contents"
+msgstr "Obsah"
+
+#: themes/agogo/layout.html:34 themes/basic/layout.html:130
+#: themes/basic/search.html:3 themes/basic/search.html:15
+msgid "Search"
+msgstr "Hľadať"
+
+#: themes/agogo/layout.html:37 themes/basic/searchbox.html:8
+#: themes/basic/searchfield.html:12
+msgid "Go"
+msgstr "OK"
+
+#: themes/agogo/layout.html:81 themes/basic/sourcelink.html:7
+msgid "Show Source"
+msgstr "Zobraziť zdroj"
+
+#: themes/basic/opensearch.xml:4
 #, python-format
-msgid "environment variable; %s"
-msgstr "premenná prostredia; %s"
+msgid "Search %(docstitle)s"
+msgstr "Hľadať v %(docstitle)s"
 
-#: domains/std/__init__.py:119
+#: themes/basic/genindex-single.html:26
 #, python-format
-msgid "%s; configuration value"
+msgid "Index &#x2013; %(key)s"
 msgstr ""
 
-#: domains/std/__init__.py:175
-msgid "Type"
+#: themes/basic/genindex-single.html:54 themes/basic/genindex-split.html:16
+#: themes/basic/genindex-split.html:30 themes/basic/genindex.html:65
+msgid "Full index on one page"
+msgstr "Celý index na jednej strane"
+
+#: themes/basic/genindex-split.html:8
+msgid "Index pages by letter"
+msgstr "Indexové stránky po písmenách"
+
+#: themes/basic/genindex-split.html:17
+msgid "can be huge"
+msgstr "môže byť rozsiahle"
+
+#: themes/basic/relations.html:4
+msgid "Previous topic"
+msgstr "Predošlá téma"
+
+#: themes/basic/relations.html:6
+msgid "previous chapter"
+msgstr "predošlá kapitola"
+
+#: themes/basic/relations.html:11
+msgid "Next topic"
+msgstr "Ďalšia téma"
+
+#: themes/basic/relations.html:13
+msgid "next chapter"
+msgstr "ďalšia kapitola"
+
+#: themes/basic/sourcelink.html:4
+msgid "This Page"
+msgstr "Táto stránka"
+
+#: themes/basic/search.html:20
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr "Prosím, na zapnutie funkcie hľadania,aktivujte\nJavaScript ."
+
+#: themes/basic/search.html:28
+msgid ""
+"Searching for multiple words only shows matches that contain\n"
+"    all words."
+msgstr "Hľadanie viacerých slov vracia len zhody, ktoré obsahujú\n    všetky slová."
+
+#: themes/basic/search.html:35
+msgid "search"
+msgstr "hľadať"
+
+#: themes/basic/searchbox.html:4
+msgid "Quick search"
+msgstr "Rýchle hľadanie"
+
+#: themes/basic/defindex.html:4
+msgid "Overview"
+msgstr "Prehľad"
+
+#: themes/basic/defindex.html:8
+msgid "Welcome! This is"
+msgstr "Vitajte! Toto je"
+
+#: themes/basic/defindex.html:9
+msgid "the documentation for"
+msgstr "dokumentácia"
+
+#: themes/basic/defindex.html:10
+msgid "last updated"
+msgstr "posledná aktualizácia"
+
+#: themes/basic/defindex.html:13
+msgid "Indices and tables:"
+msgstr "Indexy a tabuľky"
+
+#: themes/basic/defindex.html:16
+msgid "Complete Table of Contents"
+msgstr "Celkový obsah"
+
+#: themes/basic/defindex.html:17
+msgid "lists all sections and subsections"
+msgstr "zoznam všetkých sekcií a podsekcií"
+
+#: themes/basic/defindex.html:19
+msgid "search this documentation"
+msgstr "hľadať v tejto dokumentácii"
+
+#: themes/basic/defindex.html:21
+msgid "Global Module Index"
+msgstr "Celkový index modulov"
+
+#: themes/basic/defindex.html:22
+msgid "quick access to all modules"
+msgstr "rýchly prístup ku všetkým modulom"
+
+#: builders/html/__init__.py:507 themes/basic/defindex.html:23
+msgid "General Index"
+msgstr "Všeobecný index"
+
+#: themes/basic/defindex.html:24
+msgid "all functions, classes, terms"
+msgstr "všetky funkcie, triedy, termíny"
+
+#: themes/basic/layout.html:18
+msgid "Navigation"
+msgstr "Navigácia"
+
+#: themes/basic/layout.html:115
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "Hľadať v %(docstitle)s"
+
+#: themes/basic/layout.html:124
+msgid "About these documents"
+msgstr "O dokumentácii"
+
+#: themes/basic/layout.html:133 themes/basic/layout.html:177
+#: themes/basic/layout.html:179
+msgid "Copyright"
+msgstr "Autorské právo"
+
+#: themes/basic/layout.html:183 themes/basic/layout.html:189
+#, python-format
+msgid "&#169; %(copyright_prefix)s %(copyright)s."
 msgstr ""
 
-#: domains/std/__init__.py:185
-msgid "Default"
-msgstr ""
+#: themes/basic/layout.html:201
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "Naposledy aktualizované %(last_updated)s."
 
-#: domains/std/__init__.py:242
+#: themes/basic/layout.html:204
 #, python-format
 msgid ""
-"Malformed option description %r, should look like \"opt\", \"-opt args\", \""
-"--opt args\", \"/opt args\" or \"+opt args\""
-msgstr "Nesprávny popis voľby %r, má vyzerať ako „opt”, „-opt argumenty”, „--opt argumenty”, „/opt argumenty” alebo „+opt argumenty”"
+"Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr "Vytvorené pomocou <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s."
 
-#: domains/std/__init__.py:319
+#: themes/classic/layout.html:12 themes/classic/static/sidebar.js.jinja:51
+msgid "Collapse sidebar"
+msgstr "Zbaliť bočný panel"
+
+#: themes/haiku/layout.html:16
+msgid "Contents"
+msgstr "Obsah"
+
+#: themes/classic/static/sidebar.js.jinja:42
+msgid "Expand sidebar"
+msgstr "Rozbaliť bočný panel"
+
+#: themes/basic/changes/frameset.html:5
+#: themes/basic/changes/versionchanges.html:12
 #, python-format
-msgid "%s command line option"
-msgstr "%s voľba príkazového riadka"
+msgid "Changes in Version %(version)s &#8212; %(docstitle)s"
+msgstr "Zmeny vo verzii %(version)s &#8212; %(docstitle)s"
 
-#: domains/std/__init__.py:321
-msgid "command line option"
-msgstr "voľba príkazového riadka"
-
-#: domains/std/__init__.py:461
-msgid "glossary term must be preceded by empty line"
-msgstr "položke glosára musí predchádzať prázdny riadok"
-
-#: domains/std/__init__.py:474
-msgid "glossary terms must not be separated by empty lines"
-msgstr "položky glosára nesmú byť oddelené prázdnymi riadkami"
-
-#: domains/std/__init__.py:486 domains/std/__init__.py:504
-msgid "glossary seems to be misformatted, check indentation"
-msgstr "glosár vyzerá byť zle naformátovaný, skontrolujte odsadenie"
-
-#: domains/std/__init__.py:729
-msgid "glossary term"
-msgstr "termín glosára"
-
-#: domains/std/__init__.py:730
-msgid "grammar token"
-msgstr "jazykový token"
-
-#: domains/std/__init__.py:731
-msgid "reference label"
-msgstr "menovka odkazu"
-
-#: domains/std/__init__.py:733
-msgid "environment variable"
-msgstr "premenná prostredia"
-
-#: domains/std/__init__.py:734
-msgid "program option"
-msgstr "voľba programu"
-
-#: domains/std/__init__.py:735
-msgid "document"
-msgstr "dokument"
-
-#: domains/std/__init__.py:772 domains/std/__init__.py:785
-msgid "Module Index"
-msgstr "Index modulov"
-
-#: domains/std/__init__.py:857
+#: themes/basic/changes/versionchanges.html:17
 #, python-format
-msgid "duplicate %s description of %s, other instance in %s"
-msgstr "duplicitný %s popis %s, ďalší výskyt v %s"
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "Automaticky generovaný zoznam zmien vo verzii %(version)s"
 
-#: domains/std/__init__.py:1113
-msgid "numfig is disabled. :numref: is ignored."
-msgstr "numfig je vypnutý, :numref: je ignorované."
+#: themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "Zmeny knižnice"
 
-#: domains/std/__init__.py:1124
+#: themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "Zmeny API C"
+
+#: themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "Ostatné zmeny"
+
+#: themes/basic/changes/rstsource.html:5
 #, python-format
-msgid "Failed to create a cross reference. Any number is not assigned: %s"
-msgstr "Zlyhalo vytvorenie krížového odkazu. Nie je priradené žiadne číslo: %s"
+msgid "%(filename)s &#8212; %(docstitle)s"
+msgstr "%(filename)s &#8212; %(docstitle)s"
 
-#: domains/std/__init__.py:1138
-#, python-format
-msgid "the link has no caption: %s"
-msgstr "odkaz nemá popisok: %s"
+#: themes/basic/static/searchtools.js:117
+msgid "Search Results"
+msgstr "Výsledky hľadania"
 
-#: domains/std/__init__.py:1153
-#, python-format
-msgid "invalid numfig_format: %s (%r)"
-msgstr "neplatný numfig_format: %s (%r)"
+#: themes/basic/static/searchtools.js:119
+msgid ""
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "Vášmu hľadaniu nezodpovedá žiadny dokument. Prosím, skontrolujte, že všetky zadané slová sú správne napísané a že ste zvolili vhodné kategórie."
 
-#: domains/std/__init__.py:1157
-#, python-format
-msgid "invalid numfig_format: %s"
-msgstr "neplatný numfig_format: %s"
+#: themes/basic/static/searchtools.js:123
+#, python-brace-format
+msgid "Search finished, found one page matching the search query."
+msgid_plural ""
+"Search finished, found ${resultCount} pages matching the search query."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
-#: domains/std/__init__.py:1453
+#: themes/basic/static/searchtools.js:253
+msgid "Searching"
+msgstr "Hľadanie"
+
+#: themes/basic/static/searchtools.js:270
+msgid "Preparing search..."
+msgstr "Príprava hľadania..."
+
+#: themes/basic/static/searchtools.js:474
+msgid ", in "
+msgstr ", v "
+
+#: themes/basic/static/sphinx_highlight.js:112
+msgid "Hide Search Matches"
+msgstr "Skryť výsledky hľadania"
+
+#: transforms/post_transforms/images.py:79
 #, python-format
-msgid "undefined label: %r"
+msgid "Could not fetch remote image: %s [%s]"
+msgstr "Nemožno získať vzdialený obrázok: %s [%s]"
+
+#: transforms/post_transforms/images.py:96
+#, python-format
+msgid "Could not fetch remote image: %s [%d]"
+msgstr "Nemožno získať vzdialený obrázok: %s [%d]"
+
+#: transforms/post_transforms/images.py:143
+#, python-format
+msgid "Unknown image format: %s..."
+msgstr "Neznámy formát obrázku: %s..."
+
+#: transforms/post_transforms/__init__.py:88
+msgid ""
+"Could not determine the fallback text for the cross-reference. Might be a "
+"bug."
 msgstr ""
 
-#: domains/std/__init__.py:1456
+#: transforms/post_transforms/__init__.py:237
 #, python-format
-msgid "Failed to create a cross reference. A title or caption not found: %r"
+msgid "more than one target found for 'any' cross-reference %r: could be %s"
+msgstr "viac ako jeden cieľ krížového odkazu %r: môže byť %s"
+
+#: transforms/post_transforms/__init__.py:299
+#, python-format
+msgid "%s:%s reference target not found: %s"
 msgstr ""
+
+#: transforms/post_transforms/__init__.py:305
+#, python-format
+msgid "%r reference target not found: %s"
+msgstr "%r cieľ odkazu nenájdený: %s"
+
+#: environment/collectors/asset.py:98
+#, python-format
+msgid "image file not readable: %s"
+msgstr "súbor obrázku nemožno čítať: %s"
+
+#: environment/collectors/asset.py:126
+#, python-format
+msgid "image file %s not readable: %s"
+msgstr " Súbor obrázku %s nemožno čítať: %s"
+
+#: environment/collectors/asset.py:163
+#, python-format
+msgid "download file not readable: %s"
+msgstr "súbor na stiahnutie nemožno čítať: %s"
+
+#: environment/collectors/toctree.py:259
+#, python-format
+msgid "%s is already assigned section numbers (nested numbered toctree?)"
+msgstr "%s už je priradené číslo sekcie (vnorený číslovaný strom obsahu?)"
 
 #: environment/adapters/toctree.py:324
 #, python-format
@@ -3193,31 +3280,6 @@ msgstr "viď aj %s"
 #, python-format
 msgid "unknown index entry type %r"
 msgstr "neznámy typ položky indexu %r"
-
-#: environment/adapters/indexentries.py:268
-#: templates/latex/sphinxmessages.sty.jinja:11
-msgid "Symbols"
-msgstr "Symboly"
-
-#: environment/collectors/asset.py:98
-#, python-format
-msgid "image file not readable: %s"
-msgstr "súbor obrázku nemožno čítať: %s"
-
-#: environment/collectors/asset.py:126
-#, python-format
-msgid "image file %s not readable: %s"
-msgstr " Súbor obrázku %s nemožno čítať: %s"
-
-#: environment/collectors/asset.py:163
-#, python-format
-msgid "download file not readable: %s"
-msgstr "súbor na stiahnutie nemožno čítať: %s"
-
-#: environment/collectors/toctree.py:259
-#, python-format
-msgid "%s is already assigned section numbers (nested numbered toctree?)"
-msgstr "%s už je priradené číslo sekcie (vnorený číslovaný strom obsahu?)"
 
 #: _cli/util/errors.py:190
 msgid "Interrupted!"
@@ -3261,392 +3323,6 @@ msgid ""
 "Please also report this if it was a user error, so that a better error "
 "message can be provided next time."
 msgstr "Prosím, nahláste to, i keď to bola chyba používateľa, aby mohla byť nabudúce poskytnutá lepšia chybová správa."
-
-#: transforms/post_transforms/__init__.py:88
-msgid ""
-"Could not determine the fallback text for the cross-reference. Might be a "
-"bug."
-msgstr ""
-
-#: transforms/post_transforms/__init__.py:237
-#, python-format
-msgid "more than one target found for 'any' cross-reference %r: could be %s"
-msgstr "viac ako jeden cieľ krížového odkazu %r: môže byť %s"
-
-#: transforms/post_transforms/__init__.py:299
-#, python-format
-msgid "%s:%s reference target not found: %s"
-msgstr ""
-
-#: transforms/post_transforms/__init__.py:305
-#, python-format
-msgid "%r reference target not found: %s"
-msgstr "%r cieľ odkazu nenájdený: %s"
-
-#: transforms/post_transforms/images.py:79
-#, python-format
-msgid "Could not fetch remote image: %s [%s]"
-msgstr "Nemožno získať vzdialený obrázok: %s [%s]"
-
-#: transforms/post_transforms/images.py:96
-#, python-format
-msgid "Could not fetch remote image: %s [%d]"
-msgstr "Nemožno získať vzdialený obrázok: %s [%d]"
-
-#: transforms/post_transforms/images.py:143
-#, python-format
-msgid "Unknown image format: %s..."
-msgstr "Neznámy formát obrázku: %s..."
-
-#: builders/html/__init__.py:113
-#, python-format
-msgid "The HTML pages are in %(outdir)s."
-msgstr "Stránky HTML sú v %(outdir)s."
-
-#: builders/html/__init__.py:348
-#, python-format
-msgid "Failed to read build info file: %r"
-msgstr "Čítanie súboru zostavenia info zlyhalo: %r"
-
-#: builders/html/__init__.py:364
-msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
-msgstr ""
-
-#: builders/html/__init__.py:366
-msgid "building [html]: "
-msgstr ""
-
-#: builders/html/__init__.py:383
-#, python-format
-msgid ""
-"template %s has been changed since the previous build, all docs will be "
-"rebuilt"
-msgstr ""
-
-#: builders/html/__init__.py:507
-msgid "index"
-msgstr "index"
-
-#: builders/html/__init__.py:560
-#, python-format
-msgid "Logo of %s"
-msgstr ""
-
-#: builders/html/__init__.py:589
-msgid "next"
-msgstr "ďalší"
-
-#: builders/html/__init__.py:598
-msgid "previous"
-msgstr "predošlý"
-
-#: builders/html/__init__.py:696
-msgid "generating indices"
-msgstr "generovanie indexov"
-
-#: builders/html/__init__.py:711
-msgid "writing additional pages"
-msgstr "zapisovanie dodatočných stránok"
-
-#: builders/html/__init__.py:794
-#, python-format
-msgid "cannot copy image file '%s': %s"
-msgstr ""
-
-#: builders/html/__init__.py:806
-msgid "copying downloadable files... "
-msgstr "kopírovanie súborov na stiahnutie…"
-
-#: builders/html/__init__.py:818
-#, python-format
-msgid "cannot copy downloadable file %r: %s"
-msgstr "nemožno kopírovať súbor na stiahnutie %r: %s"
-
-#: builders/html/__init__.py:864
-#, python-format
-msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
-msgstr ""
-
-#: builders/html/__init__.py:882
-#, python-format
-msgid "Failed to copy a file in html_static_file: %s: %r"
-msgstr "Kopírovanie súboru v html_static_file zlyhalo: %s: %r"
-
-#: builders/html/__init__.py:917
-msgid "copying static files"
-msgstr "kopírovanie statických súborov"
-
-#: builders/html/__init__.py:934
-#, python-format
-msgid "cannot copy static file %r"
-msgstr "nemožno kopírovať statický súbor %r"
-
-#: builders/html/__init__.py:939
-msgid "copying extra files"
-msgstr "kopírovanie extra súborov"
-
-#: builders/html/__init__.py:949
-#, python-format
-msgid "cannot copy extra file %r"
-msgstr "nemožno kopírovať extra súbor %r"
-
-#: builders/html/__init__.py:955
-#, python-format
-msgid "Failed to write build info file: %r"
-msgstr "Zápis súboru zostavenia info zlyhal: %r"
-
-#: builders/html/__init__.py:1005
-msgid ""
-"search index couldn't be loaded, but not all documents will be built: the "
-"index will be incomplete."
-msgstr "index hľadania nemožno načítať, ale nebudú zostavované všetky dokumenty, takže index nebude kompletný."
-
-#: builders/html/__init__.py:1052
-#, python-format
-msgid "page %s matches two patterns in html_sidebars: %r and %r"
-msgstr "stránka %s vyhovuje dvom vzorom v html_sidebars: %r a %r"
-
-#: builders/html/__init__.py:1216
-#, python-format
-msgid ""
-"a Unicode error occurred when rendering the page %s. Please make sure all "
-"config values that contain non-ASCII content are Unicode strings."
-msgstr "pri spracovaní stránky %s nastala chyba Unicode. Prosím, zaistite, že všetky konfiguračné hodnoty, ktoré obsahujú nieASCII hodnotu sú reťazce Unicode."
-
-#: builders/html/__init__.py:1224
-#, python-format
-msgid ""
-"An error happened in rendering the page %s.\n"
-"Reason: %r"
-msgstr "Nastala chyba pri spracovaní stránky %s.\nPríčina: %r"
-
-#: builders/html/__init__.py:1257
-msgid "dumping object inventory"
-msgstr "generovanie inventára objektov…"
-
-#: builders/html/__init__.py:1265
-#, python-format
-msgid "dumping search index in %s"
-msgstr "generovanie indexu hľadania v %s"
-
-#: builders/html/__init__.py:1308
-#, python-format
-msgid "invalid js_file: %r, ignored"
-msgstr "neplatné js_file: %r, ignorované"
-
-#: builders/html/__init__.py:1342
-msgid "Many math_renderers are registered. But no math_renderer is selected."
-msgstr "Zaregistrovaných je viac math_renderer, ale žiadny nie je zvolený."
-
-#: builders/html/__init__.py:1346
-#, python-format
-msgid "Unknown math_renderer %r is given."
-msgstr "Zdaný neznámy math_renderer %r."
-
-#: builders/html/__init__.py:1360
-#, python-format
-msgid "html_extra_path entry %r is placed inside outdir"
-msgstr "položka html_extra_path %r je umiestnené vo vnútri výstupného adresára"
-
-#: builders/html/__init__.py:1365
-#, python-format
-msgid "html_extra_path entry %r does not exist"
-msgstr "položka „html_extra_path entry” %r neexistuje"
-
-#: builders/html/__init__.py:1380
-#, python-format
-msgid "html_static_path entry %r is placed inside outdir"
-msgstr "položka html_static_path %r je umiestnené vo vnútri výstupného adresára"
-
-#: builders/html/__init__.py:1385
-#, python-format
-msgid "html_static_path entry %r does not exist"
-msgstr "položka „html_static_path” %r neexistuje"
-
-#: builders/html/__init__.py:1396 builders/latex/__init__.py:504
-#, python-format
-msgid "logo file %r does not exist"
-msgstr "súbor loga %r neexistuje"
-
-#: builders/html/__init__.py:1407
-#, python-format
-msgid "favicon file %r does not exist"
-msgstr "súbor favicon %r neexistuje"
-
-#: builders/html/__init__.py:1420
-#, python-format
-msgid ""
-"Values in 'html_sidebars' must be a list of strings. At least one pattern "
-"has a string value: %s. Change to `html_sidebars = %r`."
-msgstr ""
-
-#: builders/html/__init__.py:1433
-msgid ""
-"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
-"configuration options)"
-msgstr ""
-
-#: builders/html/__init__.py:1449
-#, python-format
-msgid "%s %s documentation"
-msgstr "Dokumentácia %s %s"
-
-#: builders/html/_build_info.py:32
-msgid "failed to read broken build info file (unknown version)"
-msgstr ""
-
-#: builders/html/_build_info.py:36
-msgid "failed to read broken build info file (missing config entry)"
-msgstr ""
-
-#: builders/html/_build_info.py:39
-msgid "failed to read broken build info file (missing tags entry)"
-msgstr ""
-
-#: builders/latex/__init__.py:118
-#, python-format
-msgid "The LaTeX files are in %(outdir)s."
-msgstr "Súbory LaTeX sú v %(outdir)s."
-
-#: builders/latex/__init__.py:121
-msgid ""
-"\n"
-"Run 'make' in that directory to run these through (pdf)latex\n"
-"(use `make latexpdf' here to do that automatically)."
-msgstr "\nSpustite v tomto adresári 'make' na ich spustenie pomocou  (pdf)latex\n(použite tu 'make latexpdf' aby to bolo spustené automaticky)."
-
-#: builders/latex/__init__.py:159
-msgid "no \"latex_documents\" config value found; no documents will be written"
-msgstr "nebola nájdená konfiguračná voľba „latex_documents”; dokmenty nebudú zapísané"
-
-#: builders/latex/__init__.py:170
-#, python-format
-msgid "\"latex_documents\" config value references unknown document %s"
-msgstr "konfiguračná voľba „latex_documents” odkazuje na neznámy dokument %s"
-
-#: builders/latex/__init__.py:209 templates/latex/latex.tex.jinja:91
-msgid "Release"
-msgstr "Vydanie"
-
-#: builders/latex/__init__.py:428
-msgid "copying TeX support files"
-msgstr "kopírovanie podporných súborov Tex"
-
-#: builders/latex/__init__.py:465
-msgid "copying additional files"
-msgstr "kopírovanie dodatočných súborov"
-
-#: builders/latex/__init__.py:536
-#, python-format
-msgid "Unknown configure key: latex_elements[%r], ignored."
-msgstr "Neznámy konfiguračný kľúč: latex_elements[%r], ignorovaný."
-
-#: builders/latex/__init__.py:544
-#, python-format
-msgid "Unknown theme option: latex_theme_options[%r], ignored."
-msgstr "Neznáma voľba témy: latex_theme_options[%r], ignorovaná."
-
-#: builders/latex/transforms.py:120
-msgid "Failed to get a docname!"
-msgstr ""
-
-#: builders/latex/transforms.py:121
-#, python-format
-msgid "Failed to get a docname for source %r!"
-msgstr ""
-
-#: builders/latex/transforms.py:487
-#, python-format
-msgid "No footnote was found for given reference node %r"
-msgstr ""
-
-#: builders/latex/theming.py:88
-#, python-format
-msgid "%r doesn't have \"theme\" setting"
-msgstr "%r nemá nastavenia „theme”"
-
-#: builders/latex/theming.py:91
-#, python-format
-msgid "%r doesn't have \"%s\" setting"
-msgstr "téma %r nemá nastavenie „1%s”"
-
-#: templates/latex/longtable.tex.jinja:52
-#: templates/latex/sphinxmessages.sty.jinja:8
-msgid "continued from previous page"
-msgstr "pokračovanie z predošlej strany"
-
-#: templates/latex/longtable.tex.jinja:63
-#: templates/latex/sphinxmessages.sty.jinja:9
-msgid "continues on next page"
-msgstr "pokračuje na ďalšej strane"
-
-#: templates/latex/sphinxmessages.sty.jinja:10
-msgid "Non-alphabetical"
-msgstr ""
-
-#: templates/latex/sphinxmessages.sty.jinja:12
-msgid "Numbers"
-msgstr "Čísla"
-
-#: templates/latex/sphinxmessages.sty.jinja:13
-msgid "page"
-msgstr "strana"
-
-#: ext/napoleon/__init__.py:356 ext/napoleon/docstring.py:940
-msgid "Keyword Arguments"
-msgstr "Argumenty kľúčových slov"
-
-#: ext/napoleon/docstring.py:176
-#, python-format
-msgid "invalid value set (missing closing brace): %s"
-msgstr "neplatná hodnota množiny (chýba koncová zátvorka): %s"
-
-#: ext/napoleon/docstring.py:183
-#, python-format
-msgid "invalid value set (missing opening brace): %s"
-msgstr "neplatná hodnota množiny (chýba začiatočná zátvorka): %s"
-
-#: ext/napoleon/docstring.py:190
-#, python-format
-msgid "malformed string literal (missing closing quote): %s"
-msgstr "neplatná textová konštanta (chýba koncová úvodzovka): %s"
-
-#: ext/napoleon/docstring.py:197
-#, python-format
-msgid "malformed string literal (missing opening quote): %s"
-msgstr "neplatná textová konštanta (chýba začiatočná úvodzovka): %s"
-
-#: ext/napoleon/docstring.py:895
-msgid "Example"
-msgstr "Príklad"
-
-#: ext/napoleon/docstring.py:896
-msgid "Examples"
-msgstr "Príklady"
-
-#: ext/napoleon/docstring.py:956
-msgid "Notes"
-msgstr "Poznámky"
-
-#: ext/napoleon/docstring.py:965
-msgid "Other Parameters"
-msgstr "Ostatné parametre"
-
-#: ext/napoleon/docstring.py:1001
-msgid "Receives"
-msgstr ""
-
-#: ext/napoleon/docstring.py:1005
-msgid "References"
-msgstr ""
-
-#: ext/napoleon/docstring.py:1037
-msgid "Warns"
-msgstr "Varovania"
-
-#: ext/napoleon/docstring.py:1041
-msgid "Yields"
-msgstr ""
 
 #: ext/autosummary/__init__.py:284
 #, python-format
@@ -3776,6 +3452,306 @@ msgstr ""
 #: ext/apidoc/_shared.py:29 ext/autosummary/generate.py:944
 #, python-format
 msgid "Failed to remove %s: %s"
+msgstr ""
+
+#: ext/autodoc/preserve_defaults.py:195
+#, python-format
+msgid "Failed to parse a default argument value for %r: %s"
+msgstr "Zlyhalo spracovanie predvolenej hodnoty argumentu %r: %s"
+
+#: ext/autodoc/type_comment.py:151
+#, python-format
+msgid "Failed to update signature for %r: parameter not found: %s"
+msgstr ""
+
+#: ext/autodoc/type_comment.py:154
+#, python-format
+msgid "Failed to parse type_comment for %r: %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:150
+#, python-format
+msgid "invalid value for member-order option: %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:158
+#, python-format
+msgid "invalid value for class-doc-from option: %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:460
+#, python-format
+msgid "invalid signature for auto%s (%r)"
+msgstr ""
+
+#: ext/autodoc/__init__.py:579
+#, python-format
+msgid "error while formatting arguments for %s: %s"
+msgstr "chyba formátovania argumentov %s: %s"
+
+#: ext/autodoc/__init__.py:898
+#, python-format
+msgid ""
+"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
+"%s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1021
+#, python-format
+msgid ""
+"don't know which module to import for autodocumenting %r (try placing a "
+"\"module\" or \"currentmodule\" directive in the document, or giving an "
+"explicit module name)"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1080
+#, python-format
+msgid "A mocked object is detected: %r"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1103
+#, python-format
+msgid "error while formatting signature for %s: %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1177
+msgid "\"::\" in automodule name doesn't make sense"
+msgstr "„::” v automodule nedáva zmysel"
+
+#: ext/autodoc/__init__.py:1185
+#, python-format
+msgid "signature arguments or return annotation given for automodule %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1201
+#, python-format
+msgid ""
+"__all__ should be a list of strings, not %r (in module %s) -- ignoring "
+"__all__"
+msgstr "__all__ má byť zoznam reťazcov, nie %r (v module %s) -- ignorované __all__"
+
+#: ext/autodoc/__init__.py:1278
+#, python-format
+msgid ""
+"missing attribute mentioned in :members: option: module %s, attribute %s"
+msgstr "chýbajúci atribút spomenutý vo voľbe :members: : modul %s, atribút %s"
+
+#: ext/autodoc/__init__.py:1505 ext/autodoc/__init__.py:1593
+#: ext/autodoc/__init__.py:3127
+#, python-format
+msgid "Failed to get a function signature for %s: %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1828
+#, python-format
+msgid "Failed to get a constructor signature for %s: %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1966
+#, python-format
+msgid "Bases: %s"
+msgstr "Základ: %s"
+
+#: ext/autodoc/__init__.py:1985
+#, python-format
+msgid "missing attribute %s in object %s"
+msgstr "chýba atribút %s objektu %s"
+
+#: ext/autodoc/__init__.py:2081 ext/autodoc/__init__.py:2110
+#: ext/autodoc/__init__.py:2204
+#, python-format
+msgid "alias of %s"
+msgstr "alias pre %s"
+
+#: ext/autodoc/__init__.py:2097
+#, python-format
+msgid "alias of TypeVar(%s)"
+msgstr "alias pre TypeVar(%s)"
+
+#: ext/autodoc/__init__.py:2456 ext/autodoc/__init__.py:2576
+#, python-format
+msgid "Failed to get a method signature for %s: %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:2720
+#, python-format
+msgid "Invalid __slots__ found on %s. Ignored."
+msgstr "Neplatné __slots__ nájdené v %s. Ignorované."
+
+#: ext/intersphinx/_load.py:60
+#, python-format
+msgid ""
+"Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
+"identifiers must be non-empty strings."
+msgstr ""
+
+#: ext/intersphinx/_load.py:71
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
+"or list."
+msgstr ""
+
+#: ext/intersphinx/_load.py:82
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
+" inventory locations) pair."
+msgstr ""
+
+#: ext/intersphinx/_load.py:93
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique non-empty strings."
+msgstr ""
+
+#: ext/intersphinx/_load.py:102
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique (other instance in intersphinx_mapping[%r])."
+msgstr ""
+
+#: ext/intersphinx/_load.py:121
+#, python-format
+msgid ""
+"Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
+"Inventory locations must be non-empty strings or None."
+msgstr ""
+
+#: ext/intersphinx/_load.py:131
+msgid "Invalid `intersphinx_mapping` configuration (1 error)."
+msgstr ""
+
+#: ext/intersphinx/_load.py:134
+#, python-format
+msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
+msgstr ""
+
+#: ext/intersphinx/_load.py:157
+msgid "An invalid intersphinx_mapping entry was added after normalisation."
+msgstr ""
+
+#: ext/intersphinx/_load.py:261
+#, python-format
+msgid "loading intersphinx inventory '%s' from %s ..."
+msgstr ""
+
+#: ext/intersphinx/_load.py:287
+msgid ""
+"encountered some issues with some of the inventories, but they had working "
+"alternatives:"
+msgstr "nastali problémy s niektorými inventármi, ale boli nájdené funkčné alternatívy:"
+
+#: ext/intersphinx/_load.py:297
+msgid "failed to reach any of the inventories with the following issues:"
+msgstr "nemožno získať žiadne inventáre kvôli týmto problémom:"
+
+#: ext/intersphinx/_load.py:361
+#, python-format
+msgid "intersphinx inventory has moved: %s -> %s"
+msgstr "inventár intersphinx bol presunutý: %s -> %s"
+
+#: ext/intersphinx/_resolve.py:49
+#, python-format
+msgid "(in %s v%s)"
+msgstr "(v %s v%s)"
+
+#: ext/intersphinx/_resolve.py:51
+#, python-format
+msgid "(in %s)"
+msgstr "(v %s)"
+
+#: ext/intersphinx/_resolve.py:108
+#, python-format
+msgid "inventory '%s': duplicate matches found for %s:%s"
+msgstr ""
+
+#: ext/intersphinx/_resolve.py:118
+#, python-format
+msgid "inventory '%s': multiple matches found for %s:%s"
+msgstr ""
+
+#: ext/intersphinx/_resolve.py:383
+#, python-format
+msgid "inventory for external cross-reference not found: %r"
+msgstr ""
+
+#: ext/intersphinx/_resolve.py:392
+#, python-format
+msgid "invalid external cross-reference suffix: %r"
+msgstr ""
+
+#: ext/intersphinx/_resolve.py:403
+#, python-format
+msgid "domain for external cross-reference not found: %r"
+msgstr ""
+
+#: ext/intersphinx/_resolve.py:619
+#, python-format
+msgid "external %s:%s reference target not found: %s"
+msgstr ""
+
+#: ext/napoleon/__init__.py:355 ext/napoleon/docstring.py:940
+msgid "Keyword Arguments"
+msgstr "Argumenty kľúčových slov"
+
+#: ext/napoleon/docstring.py:176
+#, python-format
+msgid "invalid value set (missing closing brace): %s"
+msgstr "neplatná hodnota množiny (chýba koncová zátvorka): %s"
+
+#: ext/napoleon/docstring.py:183
+#, python-format
+msgid "invalid value set (missing opening brace): %s"
+msgstr "neplatná hodnota množiny (chýba začiatočná zátvorka): %s"
+
+#: ext/napoleon/docstring.py:190
+#, python-format
+msgid "malformed string literal (missing closing quote): %s"
+msgstr "neplatná textová konštanta (chýba koncová úvodzovka): %s"
+
+#: ext/napoleon/docstring.py:197
+#, python-format
+msgid "malformed string literal (missing opening quote): %s"
+msgstr "neplatná textová konštanta (chýba začiatočná úvodzovka): %s"
+
+#: ext/napoleon/docstring.py:895
+msgid "Example"
+msgstr "Príklad"
+
+#: ext/napoleon/docstring.py:896
+msgid "Examples"
+msgstr "Príklady"
+
+#: ext/napoleon/docstring.py:956
+msgid "Notes"
+msgstr "Poznámky"
+
+#: ext/napoleon/docstring.py:965
+msgid "Other Parameters"
+msgstr "Ostatné parametre"
+
+#: ext/napoleon/docstring.py:1001
+msgid "Receives"
+msgstr ""
+
+#: ext/napoleon/docstring.py:1005
+msgid "References"
+msgstr ""
+
+#: ext/napoleon/docstring.py:1037
+msgid "Warns"
+msgstr "Varovania"
+
+#: ext/napoleon/docstring.py:1041
+msgid "Yields"
+msgstr ""
+
+#: ext/apidoc/_generate.py:69
+#, python-format
+msgid "Would create file %s."
 msgstr ""
 
 #: ext/apidoc/_cli.py:28
@@ -3964,256 +3940,280 @@ msgstr ""
 msgid "apidoc_modules item %i has unexpected keys: %s"
 msgstr ""
 
-#: ext/apidoc/_extension.py:247
+#: ext/apidoc/_extension.py:248
 #, python-format
 msgid "apidoc_modules item %i '%s' must be a sequence"
 msgstr ""
 
-#: ext/apidoc/_extension.py:256
+#: ext/apidoc/_extension.py:257
 #, python-format
 msgid "apidoc_modules item %i '%s' must contain strings"
 msgstr ""
 
-#: ext/apidoc/_generate.py:69
+#: builders/latex/theming.py:88
 #, python-format
-msgid "Would create file %s."
+msgid "%r doesn't have \"theme\" setting"
+msgstr "%r nemá nastavenia „theme”"
+
+#: builders/latex/theming.py:91
+#, python-format
+msgid "%r doesn't have \"%s\" setting"
+msgstr "téma %r nemá nastavenie „1%s”"
+
+#: builders/latex/transforms.py:120
+msgid "Failed to get a docname!"
 msgstr ""
 
-#: ext/intersphinx/_resolve.py:49
+#: builders/latex/transforms.py:121
 #, python-format
-msgid "(in %s v%s)"
-msgstr "(v %s v%s)"
-
-#: ext/intersphinx/_resolve.py:51
-#, python-format
-msgid "(in %s)"
-msgstr "(v %s)"
-
-#: ext/intersphinx/_resolve.py:108
-#, python-format
-msgid "inventory '%s': duplicate matches found for %s:%s"
+msgid "Failed to get a docname for source %r!"
 msgstr ""
 
-#: ext/intersphinx/_resolve.py:118
+#: builders/latex/transforms.py:487
 #, python-format
-msgid "inventory '%s': multiple matches found for %s:%s"
+msgid "No footnote was found for given reference node %r"
 msgstr ""
 
-#: ext/intersphinx/_resolve.py:383
+#: builders/latex/__init__.py:118
 #, python-format
-msgid "inventory for external cross-reference not found: %r"
+msgid "The LaTeX files are in %(outdir)s."
+msgstr "Súbory LaTeX sú v %(outdir)s."
+
+#: builders/latex/__init__.py:121
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through (pdf)latex\n"
+"(use `make latexpdf' here to do that automatically)."
+msgstr "\nSpustite v tomto adresári 'make' na ich spustenie pomocou  (pdf)latex\n(použite tu 'make latexpdf' aby to bolo spustené automaticky)."
+
+#: builders/latex/__init__.py:159
+msgid "no \"latex_documents\" config value found; no documents will be written"
+msgstr "nebola nájdená konfiguračná voľba „latex_documents”; dokmenty nebudú zapísané"
+
+#: builders/latex/__init__.py:170
+#, python-format
+msgid "\"latex_documents\" config value references unknown document %s"
+msgstr "konfiguračná voľba „latex_documents” odkazuje na neznámy dokument %s"
+
+#: builders/latex/__init__.py:428
+msgid "copying TeX support files"
+msgstr "kopírovanie podporných súborov Tex"
+
+#: builders/latex/__init__.py:465
+msgid "copying additional files"
+msgstr "kopírovanie dodatočných súborov"
+
+#: builders/html/__init__.py:1396 builders/latex/__init__.py:504
+#, python-format
+msgid "logo file %r does not exist"
+msgstr "súbor loga %r neexistuje"
+
+#: builders/latex/__init__.py:536
+#, python-format
+msgid "Unknown configure key: latex_elements[%r], ignored."
+msgstr "Neznámy konfiguračný kľúč: latex_elements[%r], ignorovaný."
+
+#: builders/latex/__init__.py:544
+#, python-format
+msgid "Unknown theme option: latex_theme_options[%r], ignored."
+msgstr "Neznáma voľba témy: latex_theme_options[%r], ignorovaná."
+
+#: builders/html/_build_info.py:32
+msgid "failed to read broken build info file (unknown version)"
 msgstr ""
 
-#: ext/intersphinx/_resolve.py:392
-#, python-format
-msgid "invalid external cross-reference suffix: %r"
+#: builders/html/_build_info.py:36
+msgid "failed to read broken build info file (missing config entry)"
 msgstr ""
 
-#: ext/intersphinx/_resolve.py:403
-#, python-format
-msgid "domain for external cross-reference not found: %r"
+#: builders/html/_build_info.py:39
+msgid "failed to read broken build info file (missing tags entry)"
 msgstr ""
 
-#: ext/intersphinx/_resolve.py:619
+#: builders/html/__init__.py:113
 #, python-format
-msgid "external %s:%s reference target not found: %s"
+msgid "The HTML pages are in %(outdir)s."
+msgstr "Stránky HTML sú v %(outdir)s."
+
+#: builders/html/__init__.py:348
+#, python-format
+msgid "Failed to read build info file: %r"
+msgstr "Čítanie súboru zostavenia info zlyhalo: %r"
+
+#: builders/html/__init__.py:364
+msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
 msgstr ""
 
-#: ext/intersphinx/_load.py:60
+#: builders/html/__init__.py:366
+msgid "building [html]: "
+msgstr ""
+
+#: builders/html/__init__.py:383
 #, python-format
 msgid ""
-"Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
-"identifiers must be non-empty strings."
+"template %s has been changed since the previous build, all docs will be "
+"rebuilt"
 msgstr ""
 
-#: ext/intersphinx/_load.py:71
+#: builders/html/__init__.py:507
+msgid "index"
+msgstr "index"
+
+#: builders/html/__init__.py:560
+#, python-format
+msgid "Logo of %s"
+msgstr ""
+
+#: builders/html/__init__.py:589
+msgid "next"
+msgstr "ďalší"
+
+#: builders/html/__init__.py:598
+msgid "previous"
+msgstr "predošlý"
+
+#: builders/html/__init__.py:696
+msgid "generating indices"
+msgstr "generovanie indexov"
+
+#: builders/html/__init__.py:711
+msgid "writing additional pages"
+msgstr "zapisovanie dodatočných stránok"
+
+#: builders/html/__init__.py:794
+#, python-format
+msgid "cannot copy image file '%s': %s"
+msgstr ""
+
+#: builders/html/__init__.py:806
+msgid "copying downloadable files... "
+msgstr "kopírovanie súborov na stiahnutie…"
+
+#: builders/html/__init__.py:818
+#, python-format
+msgid "cannot copy downloadable file %r: %s"
+msgstr "nemožno kopírovať súbor na stiahnutie %r: %s"
+
+#: builders/html/__init__.py:864
+#, python-format
+msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
+msgstr ""
+
+#: builders/html/__init__.py:882
+#, python-format
+msgid "Failed to copy a file in html_static_file: %s: %r"
+msgstr "Kopírovanie súboru v html_static_file zlyhalo: %s: %r"
+
+#: builders/html/__init__.py:917
+msgid "copying static files"
+msgstr "kopírovanie statických súborov"
+
+#: builders/html/__init__.py:934
+#, python-format
+msgid "cannot copy static file %r"
+msgstr "nemožno kopírovať statický súbor %r"
+
+#: builders/html/__init__.py:939
+msgid "copying extra files"
+msgstr "kopírovanie extra súborov"
+
+#: builders/html/__init__.py:949
+#, python-format
+msgid "cannot copy extra file %r"
+msgstr "nemožno kopírovať extra súbor %r"
+
+#: builders/html/__init__.py:955
+#, python-format
+msgid "Failed to write build info file: %r"
+msgstr "Zápis súboru zostavenia info zlyhal: %r"
+
+#: builders/html/__init__.py:1005
+msgid ""
+"search index couldn't be loaded, but not all documents will be built: the "
+"index will be incomplete."
+msgstr "index hľadania nemožno načítať, ale nebudú zostavované všetky dokumenty, takže index nebude kompletný."
+
+#: builders/html/__init__.py:1052
+#, python-format
+msgid "page %s matches two patterns in html_sidebars: %r and %r"
+msgstr "stránka %s vyhovuje dvom vzorom v html_sidebars: %r a %r"
+
+#: builders/html/__init__.py:1216
 #, python-format
 msgid ""
-"Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
-"or list."
-msgstr ""
+"a Unicode error occurred when rendering the page %s. Please make sure all "
+"config values that contain non-ASCII content are Unicode strings."
+msgstr "pri spracovaní stránky %s nastala chyba Unicode. Prosím, zaistite, že všetky konfiguračné hodnoty, ktoré obsahujú nieASCII hodnotu sú reťazce Unicode."
 
-#: ext/intersphinx/_load.py:82
+#: builders/html/__init__.py:1224
 #, python-format
 msgid ""
-"Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
-" inventory locations) pair."
-msgstr ""
+"An error happened in rendering the page %s.\n"
+"Reason: %r"
+msgstr "Nastala chyba pri spracovaní stránky %s.\nPríčina: %r"
 
-#: ext/intersphinx/_load.py:93
+#: builders/html/__init__.py:1257
+msgid "dumping object inventory"
+msgstr "generovanie inventára objektov…"
+
+#: builders/html/__init__.py:1265
+#, python-format
+msgid "dumping search index in %s"
+msgstr "generovanie indexu hľadania v %s"
+
+#: builders/html/__init__.py:1308
+#, python-format
+msgid "invalid js_file: %r, ignored"
+msgstr "neplatné js_file: %r, ignorované"
+
+#: builders/html/__init__.py:1342
+msgid "Many math_renderers are registered. But no math_renderer is selected."
+msgstr "Zaregistrovaných je viac math_renderer, ale žiadny nie je zvolený."
+
+#: builders/html/__init__.py:1346
+#, python-format
+msgid "Unknown math_renderer %r is given."
+msgstr "Zdaný neznámy math_renderer %r."
+
+#: builders/html/__init__.py:1360
+#, python-format
+msgid "html_extra_path entry %r is placed inside outdir"
+msgstr "položka html_extra_path %r je umiestnené vo vnútri výstupného adresára"
+
+#: builders/html/__init__.py:1365
+#, python-format
+msgid "html_extra_path entry %r does not exist"
+msgstr "položka „html_extra_path entry” %r neexistuje"
+
+#: builders/html/__init__.py:1380
+#, python-format
+msgid "html_static_path entry %r is placed inside outdir"
+msgstr "položka html_static_path %r je umiestnené vo vnútri výstupného adresára"
+
+#: builders/html/__init__.py:1385
+#, python-format
+msgid "html_static_path entry %r does not exist"
+msgstr "položka „html_static_path” %r neexistuje"
+
+#: builders/html/__init__.py:1407
+#, python-format
+msgid "favicon file %r does not exist"
+msgstr "súbor favicon %r neexistuje"
+
+#: builders/html/__init__.py:1420
 #, python-format
 msgid ""
-"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
-"must be unique non-empty strings."
+"Values in 'html_sidebars' must be a list of strings. At least one pattern "
+"has a string value: %s. Change to `html_sidebars = %r`."
 msgstr ""
 
-#: ext/intersphinx/_load.py:102
-#, python-format
+#: builders/html/__init__.py:1433
 msgid ""
-"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
-"must be unique (other instance in intersphinx_mapping[%r])."
+"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
+"configuration options)"
 msgstr ""
 
-#: ext/intersphinx/_load.py:121
+#: builders/html/__init__.py:1449
 #, python-format
-msgid ""
-"Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
-"Inventory locations must be non-empty strings or None."
-msgstr ""
-
-#: ext/intersphinx/_load.py:131
-msgid "Invalid `intersphinx_mapping` configuration (1 error)."
-msgstr ""
-
-#: ext/intersphinx/_load.py:134
-#, python-format
-msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
-msgstr ""
-
-#: ext/intersphinx/_load.py:157
-msgid "An invalid intersphinx_mapping entry was added after normalisation."
-msgstr ""
-
-#: ext/intersphinx/_load.py:261
-#, python-format
-msgid "loading intersphinx inventory '%s' from %s ..."
-msgstr ""
-
-#: ext/intersphinx/_load.py:287
-msgid ""
-"encountered some issues with some of the inventories, but they had working "
-"alternatives:"
-msgstr "nastali problémy s niektorými inventármi, ale boli nájdené funkčné alternatívy:"
-
-#: ext/intersphinx/_load.py:297
-msgid "failed to reach any of the inventories with the following issues:"
-msgstr "nemožno získať žiadne inventáre kvôli týmto problémom:"
-
-#: ext/intersphinx/_load.py:361
-#, python-format
-msgid "intersphinx inventory has moved: %s -> %s"
-msgstr "inventár intersphinx bol presunutý: %s -> %s"
-
-#: ext/autodoc/__init__.py:150
-#, python-format
-msgid "invalid value for member-order option: %s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:158
-#, python-format
-msgid "invalid value for class-doc-from option: %s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:460
-#, python-format
-msgid "invalid signature for auto%s (%r)"
-msgstr ""
-
-#: ext/autodoc/__init__.py:579
-#, python-format
-msgid "error while formatting arguments for %s: %s"
-msgstr "chyba formátovania argumentov %s: %s"
-
-#: ext/autodoc/__init__.py:898
-#, python-format
-msgid ""
-"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
-"%s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1021
-#, python-format
-msgid ""
-"don't know which module to import for autodocumenting %r (try placing a "
-"\"module\" or \"currentmodule\" directive in the document, or giving an "
-"explicit module name)"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1080
-#, python-format
-msgid "A mocked object is detected: %r"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1103
-#, python-format
-msgid "error while formatting signature for %s: %s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1177
-msgid "\"::\" in automodule name doesn't make sense"
-msgstr "„::” v automodule nedáva zmysel"
-
-#: ext/autodoc/__init__.py:1185
-#, python-format
-msgid "signature arguments or return annotation given for automodule %s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1201
-#, python-format
-msgid ""
-"__all__ should be a list of strings, not %r (in module %s) -- ignoring "
-"__all__"
-msgstr "__all__ má byť zoznam reťazcov, nie %r (v module %s) -- ignorované __all__"
-
-#: ext/autodoc/__init__.py:1278
-#, python-format
-msgid ""
-"missing attribute mentioned in :members: option: module %s, attribute %s"
-msgstr "chýbajúci atribút spomenutý vo voľbe :members: : modul %s, atribút %s"
-
-#: ext/autodoc/__init__.py:1505 ext/autodoc/__init__.py:1593
-#: ext/autodoc/__init__.py:3127
-#, python-format
-msgid "Failed to get a function signature for %s: %s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1828
-#, python-format
-msgid "Failed to get a constructor signature for %s: %s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1966
-#, python-format
-msgid "Bases: %s"
-msgstr "Základ: %s"
-
-#: ext/autodoc/__init__.py:1985
-#, python-format
-msgid "missing attribute %s in object %s"
-msgstr "chýba atribút %s objektu %s"
-
-#: ext/autodoc/__init__.py:2081 ext/autodoc/__init__.py:2110
-#: ext/autodoc/__init__.py:2204
-#, python-format
-msgid "alias of %s"
-msgstr "alias pre %s"
-
-#: ext/autodoc/__init__.py:2097
-#, python-format
-msgid "alias of TypeVar(%s)"
-msgstr "alias pre TypeVar(%s)"
-
-#: ext/autodoc/__init__.py:2456 ext/autodoc/__init__.py:2576
-#, python-format
-msgid "Failed to get a method signature for %s: %s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:2720
-#, python-format
-msgid "Invalid __slots__ found on %s. Ignored."
-msgstr "Neplatné __slots__ nájdené v %s. Ignorované."
-
-#: ext/autodoc/preserve_defaults.py:195
-#, python-format
-msgid "Failed to parse a default argument value for %r: %s"
-msgstr "Zlyhalo spracovanie predvolenej hodnoty argumentu %r: %s"
-
-#: ext/autodoc/type_comment.py:151
-#, python-format
-msgid "Failed to update signature for %r: parameter not found: %s"
-msgstr ""
-
-#: ext/autodoc/type_comment.py:154
-#, python-format
-msgid "Failed to parse type_comment for %r: %s"
-msgstr ""
+msgid "%s %s documentation"
+msgstr "Dokumentácia %s %s"
