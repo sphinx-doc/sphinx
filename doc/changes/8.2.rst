@@ -3,7 +3,7 @@ Sphinx 8.2
 ==========
 
 
-Release 8.2.2 (released Mar 01, 2025)
+Release 8.2.2 (released Mar 02, 2025)
 =====================================
 
 Bugs fixed
