@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 00:33+0000\n"
+"POT-Creation-Date: 2025-02-23 22:39+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Steven Hsu <hsuhaochun@gmail.com>, 2021-2024\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
@@ -613,32 +613,32 @@ msgstr "無效的 PEP 號碼 %s"
 msgid "invalid RFC number %s"
 msgstr "無效的 RFC 號碼 %s"
 
-#: ext/linkcode.py:86 ext/viewcode.py:226
+#: ext/linkcode.py:86 ext/viewcode.py:230
 msgid "[source]"
 msgstr "[原始碼]"
 
-#: ext/viewcode.py:289
+#: ext/viewcode.py:293
 msgid "highlighting module code... "
 msgstr "正在 highlight 模組程式碼..."
 
-#: ext/viewcode.py:320
+#: ext/viewcode.py:324
 msgid "[docs]"
 msgstr "[文件]"
 
-#: ext/viewcode.py:346
+#: ext/viewcode.py:350
 msgid "Module code"
 msgstr "模組原始碼"
 
-#: ext/viewcode.py:353
+#: ext/viewcode.py:357
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>%s 的原始碼</h1>"
 
-#: ext/viewcode.py:380
+#: ext/viewcode.py:384
 msgid "Overview: module code"
 msgstr "概要：模組原始碼"
 
-#: ext/viewcode.py:381
+#: ext/viewcode.py:385
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>所有可得程式碼的模組</h1>"
 
@@ -2006,43 +2006,43 @@ msgstr "重複的引用 %s，亦出現於 %s"
 msgid "Citation [%s] is not referenced."
 msgstr "引用 [%s] 未被參照。"
 
-#: locale/__init__.py:228
+#: locale/__init__.py:229
 msgid "Attention"
 msgstr "注意"
 
-#: locale/__init__.py:229
+#: locale/__init__.py:230
 msgid "Caution"
 msgstr "警示"
 
-#: locale/__init__.py:230
+#: locale/__init__.py:231
 msgid "Danger"
 msgstr "危險"
 
-#: locale/__init__.py:231
+#: locale/__init__.py:232
 msgid "Error"
 msgstr "錯誤"
 
-#: locale/__init__.py:232
+#: locale/__init__.py:233
 msgid "Hint"
 msgstr "提示"
 
-#: locale/__init__.py:233
+#: locale/__init__.py:234
 msgid "Important"
 msgstr "重要"
 
-#: locale/__init__.py:234
+#: locale/__init__.py:235
 msgid "Note"
 msgstr "備註"
 
-#: locale/__init__.py:235
+#: locale/__init__.py:236
 msgid "See also"
 msgstr "也參考"
 
-#: locale/__init__.py:236
+#: locale/__init__.py:237
 msgid "Tip"
 msgstr "小訣竅"
 
-#: locale/__init__.py:237
+#: locale/__init__.py:238
 msgid "Warning"
 msgstr "警告"
 
@@ -3594,7 +3594,7 @@ msgstr "數字"
 msgid "page"
 msgstr "頁"
 
-#: ext/napoleon/__init__.py:356 ext/napoleon/docstring.py:940
+#: ext/napoleon/__init__.py:355 ext/napoleon/docstring.py:940
 msgid "Keyword Arguments"
 msgstr "關鍵字引數"
 

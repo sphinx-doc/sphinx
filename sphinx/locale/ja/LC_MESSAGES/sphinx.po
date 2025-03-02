@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 00:33+0000\n"
+"POT-Creation-Date: 2025-02-23 22:39+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2016-2017,2019,2024\n"
 "Language-Team: Japanese (http://app.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
@@ -622,32 +622,32 @@ msgstr "無効なPEP番号 %s"
 msgid "invalid RFC number %s"
 msgstr "無効なRFC番号 %s"
 
-#: ext/linkcode.py:86 ext/viewcode.py:226
+#: ext/linkcode.py:86 ext/viewcode.py:230
 msgid "[source]"
 msgstr "[ソース]"
 
-#: ext/viewcode.py:289
+#: ext/viewcode.py:293
 msgid "highlighting module code... "
 msgstr "モジュールコードをハイライトしています..."
 
-#: ext/viewcode.py:320
+#: ext/viewcode.py:324
 msgid "[docs]"
 msgstr "[ドキュメント]"
 
-#: ext/viewcode.py:346
+#: ext/viewcode.py:350
 msgid "Module code"
 msgstr "モジュールコード"
 
-#: ext/viewcode.py:353
+#: ext/viewcode.py:357
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>%s のソースコード</h1>"
 
-#: ext/viewcode.py:380
+#: ext/viewcode.py:384
 msgid "Overview: module code"
 msgstr "概要: モジュールコード"
 
-#: ext/viewcode.py:381
+#: ext/viewcode.py:385
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>全モジュールのうち、コードを読めるもの</h1>"
 
@@ -2015,43 +2015,43 @@ msgstr "引用 %s はすでに %s で使われています"
 msgid "Citation [%s] is not referenced."
 msgstr "引用 [%s] は参照されていません。"
 
-#: locale/__init__.py:228
+#: locale/__init__.py:229
 msgid "Attention"
 msgstr "注意"
 
-#: locale/__init__.py:229
+#: locale/__init__.py:230
 msgid "Caution"
 msgstr "注意"
 
-#: locale/__init__.py:230
+#: locale/__init__.py:231
 msgid "Danger"
 msgstr "危険"
 
-#: locale/__init__.py:231
+#: locale/__init__.py:232
 msgid "Error"
 msgstr "エラー"
 
-#: locale/__init__.py:232
+#: locale/__init__.py:233
 msgid "Hint"
 msgstr "ヒント"
 
-#: locale/__init__.py:233
+#: locale/__init__.py:234
 msgid "Important"
 msgstr "重要"
 
-#: locale/__init__.py:234
+#: locale/__init__.py:235
 msgid "Note"
 msgstr "注釈"
 
-#: locale/__init__.py:235
+#: locale/__init__.py:236
 msgid "See also"
 msgstr "参考"
 
-#: locale/__init__.py:236
+#: locale/__init__.py:237
 msgid "Tip"
 msgstr "Tip"
 
-#: locale/__init__.py:237
+#: locale/__init__.py:238
 msgid "Warning"
 msgstr "警告"
 
@@ -3603,7 +3603,7 @@ msgstr "番号"
 msgid "page"
 msgstr "ページ"
 
-#: ext/napoleon/__init__.py:356 ext/napoleon/docstring.py:940
+#: ext/napoleon/__init__.py:355 ext/napoleon/docstring.py:940
 msgid "Keyword Arguments"
 msgstr "キーワード引数"
 
