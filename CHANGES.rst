@@ -19,5 +19,7 @@ Features added
 Bugs fixed
 ----------
 
+* #13392: Fix argument type for ``jieba.load_userdict()``.
+
 Testing
 -------
