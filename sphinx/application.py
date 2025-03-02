@@ -1507,10 +1507,11 @@ class Sphinx:
         elif loading_method == 'defer':
             kwargs['defer'] = 'defer'
 
+        filename = filename or ''
         self.registry.add_js_file(filename, priority=priority, **kwargs)
         with contextlib.suppress(AttributeError):
             self.builder.add_js_file(  # type: ignore[attr-defined]
-                filename or '', priority=priority, **kwargs
+                filename, priority=priority, **kwargs
             )
 
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
