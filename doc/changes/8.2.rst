@@ -3,6 +3,17 @@ Sphinx 8.2
 ==========
 
 
+Release 8.2.3 (in development)
+==============================
+
+Bugs fixed
+----------
+
+* #13403: Define ``_StrPath.__radd__()``.
+  Patch by Adam Turner.
+* #13399: Fix _CurrentDocument membership testing with '{c,cpp}:parent_symbol'.
+  Patch by Adam Turner.
+
 Release 8.2.2 (released Mar 02, 2025)
 =====================================
 
@@ -11,9 +22,11 @@ Bugs fixed
 
 * #13392: Fix argument type for ``jieba.load_userdict()``.
 * Add workaround for ``nbsphinx`` implicit imports.
+  Patch by Adam Turner.
 * #13402: Ensure inline ``<script/>`` tags are written exactly once.
+  Patch by Dmitry Shachnev and Adam Turner.
 * #13391: apidoc: Fix TOC file not having a title.
-  Patch by Dave Hoese.
+  Patch by Dave Hoese and Adam Turner.
 
 Release 8.2.1 (released Feb 21, 2025)
 =====================================
