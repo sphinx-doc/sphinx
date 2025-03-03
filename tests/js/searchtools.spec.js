@@ -98,14 +98,55 @@ describe('Basic html theme search', function() {
   });
 
   describe('unicode normalization', function() {
-    it('should parse queries with half-width and full-width characters equivalently', function() {
+    it('should find documents indexed with half-width characters using a half-width query', function() {
+      eval(loadFixture("normalization/searchindex.js"));
+
       const orig = DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION;
       try {
         DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = 'NFKC';
-        const halfWidthQuery = Search._parseQuery('Sphinx');
-        const fullWidthQuery = Search._parseQuery('Ｓｐｈｉｎｘ');
+        [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('Sphinx');
 
-        expect(halfWidthQuery).toEqual(fullWidthQuery);
+        terms = Search._index.terms;
+        titleterms = Search._index.titleterms;
+
+        hits = [[
+            "index",
+            "Sphinx",
+            "",
+            null,
+            15,
+            "index.rst",
+            "text"],
+        ];
+
+        expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      } finally {
+        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = orig; // restore
+      }
+    });
+
+    it('should find documents indexed with half-width characters using a full-width query', function() {
+      eval(loadFixture("normalization/searchindex.js"));
+
+      const orig = DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION;
+      try {
+        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = 'NFKC';
+        [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('Ｓｐｈｉｎｘ');
+
+        terms = Search._index.terms;
+        titleterms = Search._index.titleterms;
+
+        hits = [[
+            "index",
+            "Sphinx",
+            "",
+            null,
+            15,
+            "index.rst",
+            "text"],
+        ];
+
+        expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
       } finally {
         DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = orig; // restore
       }
