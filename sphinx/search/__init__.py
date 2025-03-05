@@ -9,6 +9,7 @@ import json
 import os
 import pickle
 import re
+import unicodedata
 from importlib import import_module
 from typing import TYPE_CHECKING
 
@@ -21,7 +22,7 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from typing import Any, Protocol, TypeVar
+    from typing import Any, Literal, Protocol, TypeVar
 
     from docutils.nodes import Node
 
@@ -275,7 +276,12 @@ class IndexBuilder:
     }
 
     def __init__(
-        self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str
+        self,
+        env: BuildEnvironment,
+        lang: str,
+        options: dict[str, str],
+        scoring: str,
+        normalization: Literal['NFC', 'NFKC', 'NFD', 'NFKD'] | None = None,
     ) -> None:
         self._domains = env.domains
         self._env_version = env.version
@@ -301,6 +307,7 @@ class IndexBuilder:
         self._objnames: dict[int, tuple[str, str, str]] = env._search_index_objnames
         # add language-specific SearchLanguage instance
         lang_class = languages.get(lang)
+        self._unicode_normalization = normalization
 
         # fallback; try again with language-code
         if lang_class is None and '_' in lang:
@@ -552,7 +559,11 @@ class IndexBuilder:
         split = self.lang.split
         language = self.lang.lang
         _feed_visit_nodes(
-            doctree, word_store=word_store, split=split, language=language
+            doctree,
+            word_store=word_store,
+            split=split,
+            language=language,
+            normalization=self._unicode_normalization,
         )
         return word_store
 
@@ -602,7 +613,14 @@ def _feed_visit_nodes(
     word_store: WordStore,
     split: Callable[[str], list[str]],
     language: str,
+    normalization: Literal['NFC', 'NFKC', 'NFD', 'NFKD'] | None,
 ) -> None:
+    def normalize(text: str) -> str:
+        if normalization:
+            return unicodedata.normalize(normalization, text)
+        else:
+            return text
+
     if isinstance(node, nodes.comment):
         return
     elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
@@ -626,18 +644,26 @@ def _feed_visit_nodes(
                 flags=re.IGNORECASE | re.DOTALL,
             )
             nodetext = re.sub(r'<[^<]+?>', '', nodetext)
-            word_store.words.extend(split(nodetext))
+            word_store.words.extend(split(normalize(nodetext)))
         return
     elif isinstance(node, nodes.meta) and _is_meta_keywords(node, language):
-        keywords = [keyword.strip() for keyword in node['content'].split(',')]
+        keywords = [
+            normalize(keyword.strip()) for keyword in node['content'].split(',')
+        ]
         word_store.words.extend(keywords)
     elif isinstance(node, nodes.Text):
-        word_store.words.extend(split(node.astext()))
+        word_store.words.extend(split(normalize(node.astext())))
     elif isinstance(node, nodes.title):
         title, is_main_title = node.astext(), len(word_store.titles) == 0
         ids = node.parent['ids']
         title_node_id = None if is_main_title else ids[0] if ids else None
-        word_store.titles.append((title, title_node_id))
-        word_store.title_words.extend(split(title))
+        word_store.titles.append((normalize(title), title_node_id))
+        word_store.title_words.extend(split(normalize(title)))
     for child in node.children:
-        _feed_visit_nodes(child, word_store=word_store, split=split, language=language)
+        _feed_visit_nodes(
+            child,
+            word_store=word_store,
+            split=split,
+            language=language,
+            normalization=normalization,
+        )
