@@ -204,7 +204,6 @@ ignore_missing_imports = true
 module = [
     # tests/
     "tests.test_addnodes",
-    "tests.test_application",
     "tests.test_events",
     "tests.test_highlighting",
     "tests.test_project",
