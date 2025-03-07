@@ -203,7 +203,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.conftest",
     "tests.test_addnodes",
     "tests.test_application",
     "tests.test_events",
