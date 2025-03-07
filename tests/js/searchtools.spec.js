@@ -99,43 +99,39 @@ describe('Basic html theme search', function() {
 
   describe('unicode normalization', function() {
     it('should find documents indexed with half-width characters using a full-width query', function() {
+      DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = 'NFKC';
+
       eval(loadFixture("normalization/searchindex.js"));
 
-      const orig = DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION;
-      try {
-        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = 'NFKC';
-        [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('Ｓｐｈｉｎｘ');
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('Ｓｐｈｉｎｘ');
 
-        terms = Search._index.terms;
-        titleterms = Search._index.titleterms;
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
 
-        hits = [[
-            "index",
-            "Sphinx",
-            "",
-            null,
-            15,
-            "index.rst",
-            "text"],
-        ];
+      hits = [[
+          "index",
+          "Sphinx",
+          "",
+          null,
+          15,
+          "index.rst",
+          "text"],
+      ];
 
-        expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
-      } finally {
-        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = orig; // restore
-      }
+      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
 
     it('should parse queries with half-width and full-width characters equivalently', function() {
-      const orig = DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION;
-      try {
-        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = 'NFKC';
-        const halfWidthQuery = Search._parseQuery('Sphinx');
-        const fullWidthQuery = Search._parseQuery('Ｓｐｈｉｎｘ');
+      const halfWidthQuery = Search._normalizeQuery('Sphinx', 'NFKC');
+      const fullWidthQuery = Search._normalizeQuery('Ｓｐｈｉｎｘ', 'NFKC');
 
-        expect(halfWidthQuery).toEqual(fullWidthQuery);
-      } finally {
-        DOCUMENTATION_OPTIONS.SEARCH_UNICODE_NORMALIZATION = orig; // restore
-      }
+      expect(halfWidthQuery).toEqual(fullWidthQuery);
+    });
+
+    afterEach(() => {
+      Object.keys(DOCUMENTATION_OPTIONS).forEach(key => {
+        delete DOCUMENTATION_OPTIONS[key];
+      });
     });
   });
 
