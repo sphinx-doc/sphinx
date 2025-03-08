@@ -168,7 +168,7 @@ __ https://www.macports.org/ports.php?by=library&substr=py313-sphinx
 Windows
 ~~~~~~~
 
-Sphinx can be install using `Chocolatey`__.
+Sphinx can be installed using `Chocolatey`__.
 
 __ https://chocolatey.org/
 
