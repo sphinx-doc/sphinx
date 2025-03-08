@@ -20,6 +20,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     import os
+    from typing import Any
 
 
 def test_instantiation(
@@ -50,7 +51,7 @@ def test_instantiation(
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_events(app: SphinxTestApp) -> None:
-    def empty():
+    def empty() -> None:
         pass
 
     with pytest.raises(ExtensionError) as excinfo:
@@ -62,7 +63,7 @@ def test_events(app: SphinxTestApp) -> None:
         app.add_event('my_event')
     assert "Event 'my_event' already present" in str(excinfo.value)
 
-    def mock_callback(a_app, *args):
+    def mock_callback(a_app: SphinxTestApp, *args: Any) -> str:
         assert a_app is app
         assert emit_args == args
         return 'ret'
