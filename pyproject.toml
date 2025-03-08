@@ -205,7 +205,6 @@ module = [
     # tests/
     "tests.test_addnodes",
     "tests.test_application",
-    "tests.test_events",
     "tests.test_highlighting",
     "tests.test_project",
     "tests.test_versioning",

@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.errors import ExtensionError
 from sphinx.events import EventManager
+
+if TYPE_CHECKING:
+    from typing import NoReturn
+
+    from sphinx.application import Sphinx
 
 
 def test_event_priority() -> None:
@@ -27,7 +33,7 @@ def test_event_priority() -> None:
 
 
 def test_event_allowed_exceptions() -> None:
-    def raise_error(app):
+    def raise_error(app: Sphinx) -> NoReturn:
         raise RuntimeError
 
     app = SimpleNamespace(pdb=False)  # pass a dummy object as an app
@@ -44,7 +50,7 @@ def test_event_allowed_exceptions() -> None:
 
 
 def test_event_pdb() -> None:
-    def raise_error(app):
+    def raise_error(app: Sphinx) -> NoReturn:
         raise RuntimeError
 
     app = SimpleNamespace(pdb=True)  # pass a dummy object as an app
