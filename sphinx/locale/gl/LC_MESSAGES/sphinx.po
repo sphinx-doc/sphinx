@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 18:26+0000\n"
+"POT-Creation-Date: 2025-02-23 22:39+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>, 2023,2025\n"
 "Language-Team: Galician (http://app.transifex.com/sphinx-doc/sphinx-1/language/gl/)\n"
@@ -146,12 +146,12 @@ msgstr "a clase de nodo %r xa está rexistrada, os seus visitantes van ser subst
 #: application.py:1119
 #, python-format
 msgid "directive %r is already registered and will not be overridden"
-msgstr ""
+msgstr "a directiva %r xa está rexistrada e non vai ser substituída"
 
 #: application.py:1145 application.py:1173
 #, python-format
 msgid "role %r is already registered and will not be overridden"
-msgstr ""
+msgstr "o rol %r xa está rexistrado e non vai ser substituído"
 
 #: application.py:1770
 #, python-format
@@ -198,7 +198,7 @@ msgstr "Atopouse un valor de configuración non válido: «language = None». Ac
 #: config.py:394
 #, python-format
 msgid "'%s' must be '0' or '1', got '%s'"
-msgstr ""
+msgstr "«%s» debe ser «0» ou «1», obtívose «%s»"
 
 #: config.py:399
 #, python-format
@@ -225,7 +225,7 @@ msgstr "valor de configuración descoñecido %r na substitución, é ignorado"
 #: config.py:496
 #, python-format
 msgid "No such config value: %r"
-msgstr ""
+msgstr "Non existe o valor de configuración: %r"
 
 #: config.py:524
 #, python-format
@@ -237,7 +237,7 @@ msgstr "O valor de configuración %r xa está presente"
 msgid ""
 "cannot cache unpickleable configuration value: %r (because it contains a "
 "function, class, or module object)"
-msgstr ""
+msgstr "non é posíbel gardar na memoria tobo un valor de configuración non seleccionábel: %r (porque contén unha función, clase ou obxecto módulo)"
 
 #: config.py:603
 #, python-format
@@ -260,19 +260,19 @@ msgstr "Hai un erro programábel no seu ficheiro de configuración:\n\n%s"
 #: config.py:637
 #, python-format
 msgid "Failed to convert %r to a frozenset"
-msgstr ""
+msgstr "Produciuse un fallo ao converter %r nun «frozenset»"
 
 #: config.py:655 config.py:663
 #, python-format
 msgid "Converting `source_suffix = %r` to `source_suffix = %r`."
-msgstr ""
+msgstr "Convertendo «source_suffix = %r» a «source_suffix = %r»."
 
 #: config.py:669
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a dictionary, a string, or a list "
 "of strings. Got `%r' instead (type %s)."
-msgstr ""
+msgstr "O valor de configuración «source_suffix» agarda un dicionario, unha cadea ou unha lista de cadeas. En troques obtívose «%r»  (tipo %s)."
 
 #: config.py:690
 #, python-format
@@ -299,7 +299,7 @@ msgstr "Listaxe %s"
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
-msgstr "O valor de configuración «{name}» ten que ser un de {candidates}, mais Vde. da «{current}»."
+msgstr "O valor de configuración «{name}» ten que ser un de {candidates}, mais Vde. indica «{current}»."
 
 #: config.py:833
 #, python-brace-format
@@ -324,7 +324,7 @@ msgstr "Non se atopou primary_domain %r non atopado, é ignorado."
 msgid ""
 "Sphinx now uses \"index\" as the master document by default. To keep pre-2.0"
 " behaviour, set \"master_doc = 'contents'\"."
-msgstr ""
+msgstr "Sphinx agora usa o «índice» como documento principal de xeito predeterminado. Para manter o comportamento pre-2.0, configure «master_doc = 'contents'»."
 
 #: highlighting.py:170
 #, python-format
@@ -343,7 +343,7 @@ msgstr "A analise léxica de literal_block %r como «%s» provocou un erro no te
 msgid ""
 "Theme configuration sections other than [theme] and [options] are not "
 "supported (tried to get a value from %r)."
-msgstr ""
+msgstr "As seccións de configuración do tema distintas de [theme] e [options] non son compatíbeis (tentou obter un valor de %r)."
 
 #: theming.py:120
 #, python-format
@@ -363,54 +363,54 @@ msgstr "o ficheiro %r na ruta do tema non é un ficheiro zip válido ou non cont
 #: theming.py:228
 #, python-format
 msgid "no theme named %r found (missing theme.toml?)"
-msgstr ""
+msgstr "non se atopou ningún tema chamado %r (falta theme.toml?)"
 
 #: theming.py:268
 #, python-format
 msgid "The %r theme has circular inheritance"
-msgstr ""
+msgstr "O tema %r ten herdanza circular"
 
 #: theming.py:276
 #, python-format
 msgid ""
 "The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
 "are: %s"
-msgstr ""
+msgstr "O tema %r herda de %r, que non é un tema cargado. Os temas cargados son: %s"
 
 #: theming.py:282
 #, python-format
 msgid "The %r theme has too many ancestors"
-msgstr ""
+msgstr "O tema %r ten demasiados antecesores"
 
 #: theming.py:310
 #, python-format
 msgid "no theme configuration file found in %r"
-msgstr ""
+msgstr "non se atopou ningún ficheiro de configuración do tema en %r"
 
 #: theming.py:335 theming.py:388
 #, python-format
 msgid "theme %r doesn't have the \"theme\" table"
-msgstr ""
+msgstr "o tema %r non ten a táboa «tema»"
 
 #: theming.py:339
 #, python-format
 msgid "The %r theme \"[theme]\" table is not a table"
-msgstr ""
+msgstr "A táboa «[theme]» do tema %r non é unha táboa"
 
 #: theming.py:343 theming.py:391
 #, python-format
 msgid "The %r theme must define the \"theme.inherit\" setting"
-msgstr ""
+msgstr "O tema %r debe definir o axuste «theme.inherit»"
 
 #: theming.py:347
 #, python-format
 msgid "The %r theme \"[options]\" table is not a table"
-msgstr ""
+msgstr "A táboa «[options]» do tema %r non é unha táboa"
 
 #: theming.py:366
 #, python-format
 msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
-msgstr ""
+msgstr "O axuste «theme.pygments_style» debe ser unha táboa. Suxestión: «%s»"
 
 #: events.py:77
 #, python-format
@@ -432,7 +432,7 @@ msgstr "O controlador %r do evento %r lanzou unha excepción"
 msgid ""
 "multiple files found for the document \"%s\": %s\n"
 "Use %r for the build."
-msgstr ""
+msgstr "atopáronse varios ficheiros para o documento «%s»: %s\nEmpregue %r para a construción."
 
 #: project.py:87
 #, python-format
@@ -507,7 +507,7 @@ msgstr "source_parser para %r xa está rexistrado"
 #: registry.py:372
 #, python-format
 msgid "Source parser for %s not registered"
-msgstr "O analizador de fontes para %s non está rexistrado"
+msgstr "O analizador da fonte para %s non está rexistrado"
 
 #: registry.py:390
 #, python-format
@@ -569,27 +569,27 @@ msgstr "a extensión %r devolveu un obxecto non compatíbel dende a súa funció
 #: registry.py:612
 #, python-format
 msgid "`None` is not a valid filetype for %r."
-msgstr ""
+msgstr "«None» non é un tipo de ficheiro válido para %r."
 
 #: roles.py:206
 #, python-format
 msgid "Common Vulnerabilities and Exposures; CVE %s"
-msgstr ""
+msgstr "Common Vulnerabilities and Exposures; CVE %s"
 
 #: roles.py:229
 #, python-format
 msgid "invalid CVE number %s"
-msgstr ""
+msgstr "número CVE non válido %s"
 
 #: roles.py:251
 #, python-format
 msgid "Common Weakness Enumeration; CWE %s"
-msgstr ""
+msgstr "Common Weakness Enumeration; CWE %s"
 
 #: roles.py:274
 #, python-format
 msgid "invalid CWE number %s"
-msgstr ""
+msgstr "número CWE non válido %s"
 
 #: roles.py:294
 #, python-format
@@ -606,32 +606,32 @@ msgstr "número PEP non válido %s"
 msgid "invalid RFC number %s"
 msgstr "número RFC non válido %s"
 
-#: ext/linkcode.py:86 ext/viewcode.py:226
+#: ext/linkcode.py:86 ext/viewcode.py:230
 msgid "[source]"
-msgstr "[fontes]"
+msgstr "[fonte]"
 
-#: ext/viewcode.py:289
+#: ext/viewcode.py:293
 msgid "highlighting module code... "
 msgstr "destacando o código do módulo..."
 
-#: ext/viewcode.py:320
+#: ext/viewcode.py:324
 msgid "[docs]"
 msgstr "[documentos]"
 
-#: ext/viewcode.py:346
+#: ext/viewcode.py:350
 msgid "Module code"
 msgstr "Código do módulo"
 
-#: ext/viewcode.py:353
+#: ext/viewcode.py:357
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>Código fonte para %s</h1>"
 
-#: ext/viewcode.py:380
+#: ext/viewcode.py:384
 msgid "Overview: module code"
 msgstr "Vista xeral: código do módulo"
 
-#: ext/viewcode.py:381
+#: ext/viewcode.py:385
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>Todos os módulos para os que está dispoñíbel o código</h1>"
 
@@ -639,7 +639,7 @@ msgstr "<h1>Todos os módulos para os que está dispoñíbel o código</h1>"
 #, python-format
 msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
-msgstr "a ligazón con codificación forte %r podería substituírse por unha ligazón externa (probe a usar %r no seu lugar)"
+msgstr "a ligazón con codificación forte %r podería substituírse por unha ligazón externa (probe a empregar %r en troques)"
 
 #: ext/autosectionlabel.py:52
 #, python-format
@@ -736,20 +736,20 @@ msgstr "non foi posíbel importar o módulo %s: %s"
 msgid ""
 "the following modules are documented but were not specified in "
 "coverage_modules: %s"
-msgstr ""
+msgstr "os seguintes módulos están documentados mais non foron especificados nos «coverage_modules»: %s"
 
 #: ext/coverage.py:158
 msgid ""
 "the following modules are specified in coverage_modules but were not "
 "documented"
-msgstr ""
+msgstr "os seguintes módulos están especificados nos «coverage_modules» mais non foron documentados"
 
 #: ext/coverage.py:172
 #, python-brace-format, python-format
 msgid ""
 "Testing of coverage in the sources finished, look at the results in "
 "%(outdir)s{sep}python.txt."
-msgstr ""
+msgstr "Rematada a proba de cobertura nas fontes, vexa os resultados en %(outdir)s{sep}python.txt."
 
 #: ext/coverage.py:187
 #, python-format
@@ -806,7 +806,7 @@ msgstr "A directiva Graphviz non pode ter como argumento tanto o contido como o 
 #: ext/graphviz.py:153
 #, python-format
 msgid "External Graphviz file %r not found or reading it failed"
-msgstr "Non se atopou o ficheiro Graphviz externo %r ou fallou a súa lectura"
+msgstr "Non foi atopado ficheiro Graphviz externo %r ou fallou a súa lectura"
 
 #: ext/graphviz.py:164
 msgid "Ignoring \"graphviz\" directive without content."
@@ -847,7 +847,7 @@ msgstr "«dot» non produciu un ficheiro de saída:\n[stderr]\n%r\n[stdout]\n%r"
 #: ext/graphviz.py:367
 #, python-format
 msgid "graphviz_output_format must be either 'png' or 'svg', but is %r"
-msgstr ""
+msgstr "«graphviz_output_format» debe ser «png» ou «svg», mais é %r"
 
 #: ext/graphviz.py:373 ext/graphviz.py:436 ext/graphviz.py:480
 #, python-format
@@ -874,12 +874,12 @@ msgstr "Atopouse a entrada de tarefa pendente: %s"
 
 #: ext/todo.py:152
 msgid "<<original entry>>"
-msgstr "<<original entry>>"
+msgstr "«entrada orixinal»"
 
 #: ext/todo.py:154
 #, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
-msgstr "(O <<original entry>> está situado en %s, liña %d.)"
+msgstr "(A «entrada orixinal» está situada en %s, liña %d.)"
 
 #: ext/todo.py:166
 msgid "original entry"
@@ -902,19 +902,19 @@ msgstr "o número de liña especificado está fóra do intervalo (1-%d): %r"
 #: directives/code.py:216
 #, python-format
 msgid "Cannot use both \"%s\" and \"%s\" options"
-msgstr "Non é posíbel usar as opcións «%s» e «%s»."
+msgstr "Non é posíbel empregar as opcións «%s» e «%s»."
 
 #: directives/code.py:231
 #, python-format
 msgid "Include file '%s' not found or reading it failed"
-msgstr ""
+msgstr "Non foi atopado o ficheiro incluido «%s» ou fallou a lectura"
 
 #: directives/code.py:235
 #, python-format
 msgid ""
 "Encoding %r used for reading included file '%s' seems to be wrong, try "
 "giving an :encoding: option"
-msgstr ""
+msgstr "A codificación de %r utilizada para ler o ficheiro incluído «%s» semella ser incorrecta, probe a dar unha opción «:encoding:»"
 
 #: directives/code.py:276
 #, python-format
@@ -923,7 +923,7 @@ msgstr "Non se atopou o obxecto chamado %r no ficheiro incluído %r"
 
 #: directives/code.py:309
 msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
-msgstr "Non é posíbel usar «lineno-match» cun conxunto disxunto de «liñas»"
+msgstr "Non é posíbel empregar «lineno-match» cun conxunto disxunto de «liñas»"
 
 #: directives/code.py:314
 #, python-format
@@ -1138,7 +1138,7 @@ msgid ""
 "Sphinx is unable to load the master document (%s) because it matches a "
 "built-in exclude pattern %r. Please move your master document to a different"
 " location."
-msgstr ""
+msgstr "Sphinx non é quen de cargar o documento principal (%s) porque coincide cun patrón excluído integrado %r. Mova o seu documento principal cara a outro lugar."
 
 #: builders/__init__.py:540
 #, python-format
@@ -1146,7 +1146,7 @@ msgid ""
 "Sphinx is unable to load the master document (%s) because it matches an "
 "exclude pattern specified in conf.py, %r. Please remove this pattern from "
 "conf.py."
-msgstr ""
+msgstr "Sphinx non é quen de cargar o documento principal (%s) porque coincide cun patrón excluído especificado en conf.py, %r Retire este patrón de conf.py."
 
 #: builders/__init__.py:551
 #, python-format
@@ -1154,14 +1154,14 @@ msgid ""
 "Sphinx is unable to load the master document (%s) because it is not included"
 " in the custom include_patterns = %r. Ensure that a pattern in "
 "include_patterns matches the master document."
-msgstr ""
+msgstr "Sphinx non é quen de cargar o documento principal (%s) porque non está incluído nos include_patterns = %r personalizados. Asegúrese de que un patrón en include_patterns coincida co documento principal."
 
 #: builders/__init__.py:558
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s). The master document must "
 "be within the source directory or a subdirectory of it."
-msgstr ""
+msgstr "Sphinx non é quen de cargar o documento principal (%s). O documento principal debe estar dentro do directorio fonte ou nun subdirectorio del."
 
 #: builders/__init__.py:576 builders/__init__.py:592
 msgid "reading sources... "
@@ -1174,7 +1174,7 @@ msgstr "nomes de documentos –docnames– para escribir: %s"
 
 #: builders/__init__.py:715
 msgid "no docnames to write!"
-msgstr ""
+msgstr "non hai nomes de documentos –docnames– para escribir!"
 
 #: builders/__init__.py:728
 msgid "preparing documents"
@@ -1350,7 +1350,7 @@ msgstr "tipo MIME descoñecido para %s, é ignorado"
 
 #: builders/_epub_base.py:745
 msgid "node has an invalid level"
-msgstr ""
+msgstr "o nodo ten un nivel non válido"
 
 #: builders/_epub_base.py:765
 msgid "writing toc.ncx file..."
@@ -1409,7 +1409,7 @@ msgstr "ligazón rachada: %s (%s)"
 #: builders/linkcheck.py:548
 #, python-format
 msgid "Anchor '%s' not found"
-msgstr ""
+msgstr "Non se atopou a áncora «%s»"
 
 #: builders/linkcheck.py:758
 #, python-format
@@ -1453,7 +1453,7 @@ msgstr "referencias de termos inconsistentes na mensaxe traducida. orixinal: {0}
 #: transforms/__init__.py:129 writers/manpage.py:98 writers/texinfo.py:220
 #, python-format
 msgid "%b %d, %Y"
-msgstr " %d.%b.%Y"
+msgstr "%d de %b de %Y"
 
 #: transforms/__init__.py:139
 msgid "could not calculate translation progress!"
@@ -1476,7 +1476,7 @@ msgstr "A nota a rodapé [%s] non está referenciada."
 
 #: transforms/__init__.py:303
 msgid "Footnote [*] is not referenced."
-msgstr ""
+msgstr "A nota a rodapé [*] non está referenciada."
 
 #: transforms/__init__.py:314
 msgid "Footnote [#] is not referenced."
@@ -1484,20 +1484,20 @@ msgstr "A nota a rodapé [#] non está referenciada."
 
 #: _cli/__init__.py:73
 msgid "Usage:"
-msgstr ""
+msgstr "Emprego:"
 
 #: _cli/__init__.py:75
 #, python-brace-format
 msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
-msgstr ""
+msgstr "{0} [OPCIÓNS] <ORDE> [<ARGUMENTOS>]"
 
 #: _cli/__init__.py:78
 msgid "  The Sphinx documentation generator."
-msgstr ""
+msgstr "  O xerador de documentación de Sphinx."
 
 #: _cli/__init__.py:87
 msgid "Commands:"
-msgstr ""
+msgstr "Ordes:"
 
 #: _cli/__init__.py:98
 msgid "Options"
@@ -1505,50 +1505,50 @@ msgstr "Opcións"
 
 #: _cli/__init__.py:113 _cli/__init__.py:181
 msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
-msgstr ""
+msgstr "Para obter máis información, visite https://www.sphinx-doc.org/en/master/man/."
 
 #: _cli/__init__.py:171
 #, python-brace-format
 msgid ""
 "{0}: error: {1}\n"
 "Run '{0} --help' for information"
-msgstr ""
+msgstr "{0}: erro: {1}\nExecute «{0} --help» para obter información"
 
 #: _cli/__init__.py:179
 msgid "   Manage documentation with Sphinx."
-msgstr ""
+msgstr "   Xestionar a documentación con Sphinx."
 
 #: _cli/__init__.py:191
 msgid "Show the version and exit."
-msgstr ""
+msgstr "Amosar a versión e saír"
 
 #: _cli/__init__.py:199
 msgid "Show this message and exit."
-msgstr ""
+msgstr "Amosar esta mensaxe e saír"
 
 #: _cli/__init__.py:203
 msgid "Logging"
-msgstr ""
+msgstr "Rexistro"
 
 #: _cli/__init__.py:210
 msgid "Increase verbosity (can be repeated)"
-msgstr ""
+msgstr "Aumentar o detalle (pódese repetir)"
 
 #: _cli/__init__.py:218
 msgid "Only print errors and warnings."
-msgstr ""
+msgstr "Imprimir só os erros e as advertencias"
 
 #: _cli/__init__.py:225
 msgid "No output at all"
-msgstr ""
+msgstr "Non hai ningunha saída"
 
 #: _cli/__init__.py:231
 msgid "<command>"
-msgstr ""
+msgstr "<orde>"
 
 #: _cli/__init__.py:263
 msgid "See 'sphinx --help'.\n"
-msgstr ""
+msgstr "Consulte «sphinx --help».\n"
 
 #: environment/__init__.py:86
 msgid "new config"
@@ -1573,17 +1573,17 @@ msgstr "o directorio fonte cambiou"
 #: environment/__init__.py:325
 #, python-format
 msgid "The configuration has changed (1 option: %r)"
-msgstr ""
+msgstr "A configuración cambiou (1 opción: %r)"
 
 #: environment/__init__.py:330
 #, python-format
 msgid "The configuration has changed (%d options: %s)"
-msgstr ""
+msgstr "A configuración cambiou (%d opcións: %s)"
 
 #: environment/__init__.py:336
 #, python-format
 msgid "The configuration has changed (%d options: %s, ...)"
-msgstr ""
+msgstr "A configuración cambiou (%d opcións: %s, …)"
 
 #: environment/__init__.py:379
 msgid ""
@@ -1612,7 +1612,7 @@ msgstr "atopouse unha árbore de índice –toctree– auto referenciada. É ign
 #: environment/__init__.py:889
 #, python-format
 msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
-msgstr ""
+msgstr "o documento está referenciado en varios árbores de índice –toctrees– %s:, seleccionando: %s <- %s"
 
 #: util/i18n.py:100
 #, python-format
@@ -1632,7 +1632,7 @@ msgstr "«local_dir» %s non existe"
 #: util/i18n.py:236
 #, python-format
 msgid "Invalid Babel locale: %r."
-msgstr ""
+msgstr "Babel local non válido: %r."
 
 #: util/i18n.py:245
 #, python-format
@@ -1677,17 +1677,17 @@ msgstr "produciuse un fallo"
 msgid ""
 "Aborted attempted copy from %s to %s (the destination path has existing "
 "data)."
-msgstr ""
+msgstr "Interrompeuse o intento de copia desde %s en %s (a ruta de destino ten datos existentes)."
 
 #: util/docutils.py:309
 #, python-format
 msgid "unknown directive name: %s"
-msgstr ""
+msgstr "nome descoñecido da directiva: %s"
 
 #: util/docutils.py:345
 #, python-format
 msgid "unknown role name: %s"
-msgstr ""
+msgstr "nome descoñecido do rol: %s"
 
 #: util/docutils.py:789
 #, python-format
@@ -1699,12 +1699,12 @@ msgstr "tipo de nodo descoñecido: %r"
 msgid ""
 "Aborted attempted copy from rendered template %s to %s (the destination path"
 " has existing data)."
-msgstr ""
+msgstr "Interrompeuse o intento de copia desde o modelo representado %s en %s (a ruta de destino ten datos existentes)."
 
 #: util/fileutil.py:89
 #, python-format
 msgid "Writing evaluated template result to %s"
-msgstr ""
+msgstr "Escribindo o resultado do modelo avaliado en %s"
 
 #: util/rst.py:73
 #, python-format
@@ -1714,12 +1714,12 @@ msgstr "non se atopou o rol predeterminado %s"
 #: util/inventory.py:147
 #, python-format
 msgid "inventory <%s> contains duplicate definitions of %s"
-msgstr ""
+msgstr "inventario <%s>: contén definicións duplicadas para %s"
 
 #: util/inventory.py:166
 #, python-format
 msgid "inventory <%s> contains multiple definitions for %s"
-msgstr ""
+msgstr "inventario <%s>: contén varias definicións para %s"
 
 #: writers/latex.py:1097 writers/manpage.py:259 writers/texinfo.py:663
 msgid "Footnotes"
@@ -1775,7 +1775,7 @@ msgstr "«:maxdepth:» é demasiado grande, é ignorado."
 #: writers/latex.py:591
 #, python-format
 msgid "template %s not found; loading from legacy %s instead"
-msgstr ""
+msgstr "non se atopou o modelo %s; foi cargado en troques do antigo %s"
 
 #: writers/latex.py:707
 msgid "document title is not a single Text node"
@@ -1784,7 +1784,7 @@ msgstr "o título do documento non é un único nodo de tipo «Text»"
 #: writers/html5.py:572 writers/latex.py:1106
 #, python-format
 msgid "unsupported rubric heading level: %s"
-msgstr ""
+msgstr "nivel de título de rúbrica non admitido: %s"
 
 #: writers/latex.py:1183
 msgid ""
@@ -1955,7 +1955,7 @@ msgstr "Obsoleto dende a versión %s"
 #: domains/changeset.py:29
 #, python-format
 msgid "Removed in version %s"
-msgstr ""
+msgstr "Retirado na versión %s"
 
 #: domains/rst.py:131 domains/rst.py:190
 #, python-format
@@ -1999,43 +1999,43 @@ msgstr "cita duplicada %s, outra instancia en %s"
 msgid "Citation [%s] is not referenced."
 msgstr "A cita [%s] non está referenciada."
 
-#: locale/__init__.py:228
+#: locale/__init__.py:229
 msgid "Attention"
 msgstr "Atención"
 
-#: locale/__init__.py:229
+#: locale/__init__.py:230
 msgid "Caution"
 msgstr "Precaución"
 
-#: locale/__init__.py:230
+#: locale/__init__.py:231
 msgid "Danger"
 msgstr "Perigo"
 
-#: locale/__init__.py:231
+#: locale/__init__.py:232
 msgid "Error"
 msgstr "Erro"
 
-#: locale/__init__.py:232
+#: locale/__init__.py:233
 msgid "Hint"
 msgstr "Suxestión"
 
-#: locale/__init__.py:233
+#: locale/__init__.py:234
 msgid "Important"
 msgstr "Importante"
 
-#: locale/__init__.py:234
+#: locale/__init__.py:235
 msgid "Note"
 msgstr "Nota"
 
-#: locale/__init__.py:235
+#: locale/__init__.py:236
 msgid "See also"
 msgstr "Ver tamén"
 
-#: locale/__init__.py:236
+#: locale/__init__.py:237
 msgid "Tip"
 msgstr "Truco"
 
-#: locale/__init__.py:237
+#: locale/__init__.py:238
 msgid "Warning"
 msgstr "Advertencia"
 
@@ -2228,7 +2228,7 @@ msgstr "Nome do documento principal (sen sufixo)"
 #, python-format
 msgid ""
 "Error: the master file %s has already been found in the selected root path."
-msgstr "Erro: o ficheiro mestre %s xa existe na ruta raíz seleccionada."
+msgstr "Erro: o ficheiro principal %s xa existe na ruta raíz seleccionada."
 
 #: cmd/quickstart.py:373
 msgid "sphinx-quickstart will not overwrite the existing file."
@@ -2312,7 +2312,7 @@ msgid ""
 "sphinx-quickstart is an interactive tool that asks some questions about your\n"
 "project and then generates a complete documentation directory and sample\n"
 "Makefile to be used with sphinx-build.\n"
-msgstr "\nXerar os ficheiros necesarios para un proxecto Sphinx.\n\n«sphinx-quickstart» é unha ferramenta interactiva que fai algunhas preguntas sobre o seu proxecto e após xera un directorio da documentación completa e un «Makefile» de mostra para usar con «sphinx-build».\n"
+msgstr "\nXerar os ficheiros necesarios para un proxecto Sphinx.\n\n«sphinx-quickstart» é unha ferramenta interactiva que fai algunhas preguntas sobre o seu proxecto e após xera un directorio da documentación completa e un «Makefile» de mostra para empregar con «sphinx-build».\n"
 
 #: cmd/build.py:73 cmd/quickstart.py:581 ext/apidoc/_cli.py:27
 #: ext/autosummary/generate.py:835
@@ -2373,11 +2373,11 @@ msgstr "sufixo do ficheiro fonte"
 
 #: cmd/quickstart.py:657
 msgid "master document name"
-msgstr "nome do documento mestre"
+msgstr "nome do documento principal"
 
 #: cmd/quickstart.py:660
 msgid "use epub"
-msgstr "usar epub"
+msgstr "empregar epub"
 
 #: cmd/quickstart.py:663
 msgid "Extension options"
@@ -2414,7 +2414,7 @@ msgstr "non crear o «batchfile»"
 
 #: cmd/quickstart.py:714
 msgid "use make-mode for Makefile/make.bat"
-msgstr "usar «make-mode» para Makefile/make.bat"
+msgstr "empregar «make-mode» para Makefile/make.bat"
 
 #: cmd/quickstart.py:717 ext/apidoc/_cli.py:243
 msgid "Project templating"
@@ -2469,7 +2469,7 @@ msgid ""
 "\n"
 "By default, everything that is outdated is built. Output only for selected\n"
 "files can be built by specifying individual filenames.\n"
-msgstr "\nXerar documentación a partir de ficheiros fonte.\n\n«sphinx-build» xera a documentación a partir dos ficheiros en SOURCEDIR e colócaa en OUTPUTDIR. Busca «conf.py» en SOURCEDIR para os axustes de configuración. A ferramenta «sphinx-quickstart» pódese usar para xerar ficheiros de modelos, incluído «conf.py»\n\n«sphinx-build» pode crear documentación en diferentes formatos. Selecciónase un formato especificando o nome do construtor na liña de ordes; o predeterminado é HTML. Os construtores tamén poden realizar outras tarefas relacionadas co procesamento da documentación.\n\nDe xeito predeterminado, todo o que está desactualizado está compilado. Pódese compilar só a saída para os ficheiros seleccionados especificando os nomes de ficheiro individuais.\n"
+msgstr "\nXerar documentación a partir de ficheiros fonte.\n\n«sphinx-build» xera a documentación a partir dos ficheiros en SOURCEDIR e colócaa en OUTPUTDIR. Busca «conf.py» en SOURCEDIR para os axustes de configuración. A ferramenta «sphinx-quickstart» pódese empregar para xerar ficheiros de modelos, incluído «conf.py»\n\n«sphinx-build» pode crear documentación en diferentes formatos. Selecciónase un formato especificando o nome do construtor na liña de ordes; o predeterminado é HTML. Os construtores tamén poden realizar outras tarefas relacionadas co procesamento da documentación.\n\nDe xeito predeterminado, todo o que está desactualizado está compilado. Pódese compilar só a saída para os ficheiros seleccionados especificando os nomes de ficheiro individuais.\n"
 
 #: cmd/build.py:100
 msgid "path to documentation source files"
@@ -2483,7 +2483,7 @@ msgstr "ruta ao directorio de saída"
 msgid ""
 "(optional) a list of specific files to rebuild. Ignored if --write-all is "
 "specified"
-msgstr ""
+msgstr "(opcional) unha lista de ficheiros específicos para reconstruír. Ignorarase se se especifica --write-all"
 
 #: cmd/build.py:114
 msgid "general options"
@@ -2491,13 +2491,13 @@ msgstr "opcións xerais"
 
 #: cmd/build.py:121
 msgid "builder to use (default: 'html')"
-msgstr ""
+msgstr "construtor a empregar (predeterminado: «html»)"
 
 #: cmd/build.py:131
 msgid ""
 "run in parallel with N processes, when possible. 'auto' uses the number of "
 "CPU cores"
-msgstr ""
+msgstr "executar en paralelo con N procesos, cando sexa posíbel. «auto» emprega o número de núcleos da CPU"
 
 #: cmd/build.py:140
 msgid "write all files (default: only write new and changed files)"
@@ -2509,20 +2509,20 @@ msgstr "non use un contorno gardado, lea sempre todos os ficheiros"
 
 #: cmd/build.py:150
 msgid "path options"
-msgstr ""
+msgstr "opcións da ruta"
 
 #: cmd/build.py:157
 msgid ""
 "directory for doctree and environment files (default: OUTPUT_DIR/.doctrees)"
-msgstr ""
+msgstr "directorio para os ficheiros de árbore de documentos –doctree– e de contorno (predeterminado: OUTPUT_DIR/.doctrees)"
 
 #: cmd/build.py:166
 msgid "directory for the configuration file (conf.py) (default: SOURCE_DIR)"
-msgstr ""
+msgstr "directorio do ficheiro de configuración (conf.py) (predeterminado: SOURCE_DIR)"
 
 #: cmd/build.py:175
 msgid "use no configuration file, only use settings from -D options"
-msgstr ""
+msgstr "non empregar ningún ficheiro de configuración, empregar só os axustes das opcións -D"
 
 #: cmd/build.py:184
 msgid "override a setting in configuration file"
@@ -2538,7 +2538,7 @@ msgstr "definir etiqueta: inclúír «só» bloques con TAG"
 
 #: cmd/build.py:209
 msgid "nitpicky mode: warn about all missing references"
-msgstr ""
+msgstr "modo esixente –nitpicky–, avisa sobre todas as referencias que faltan"
 
 #: cmd/build.py:212
 msgid "console output options"
@@ -2546,7 +2546,7 @@ msgstr "opcións de saída da consola"
 
 #: cmd/build.py:219
 msgid "increase verbosity (can be repeated)"
-msgstr "aumenta a verbosidade (pódese repetir)"
+msgstr "aumentar o detalle (pódese repetir)"
 
 #: cmd/build.py:226 ext/apidoc/_cli.py:66
 msgid "no output on stdout, just warnings on stderr"
@@ -2566,7 +2566,7 @@ msgstr "non emite unha saída de cor (predeterminado: detección automática)"
 
 #: cmd/build.py:252
 msgid "warning control options"
-msgstr ""
+msgstr "opcións de control de advertencia"
 
 #: cmd/build.py:258
 msgid "write warnings (and errors) to given file"
@@ -2586,7 +2586,7 @@ msgstr "executar Pdb nunha excepción"
 
 #: cmd/build.py:282
 msgid "raise an exception on warnings"
-msgstr ""
+msgstr "erguer unha excepción nas advertencias"
 
 #: cmd/build.py:325
 msgid "cannot combine -a option and filenames"
@@ -2595,7 +2595,7 @@ msgstr "non é posíbel combinar a opción -a e os nomes de ficheiro"
 #: cmd/build.py:357
 #, python-format
 msgid "cannot open warning file '%s': %s"
-msgstr ""
+msgstr "non é posíbel abrir o ficheiro de advertencia «%s»: %s"
 
 #: cmd/build.py:376
 msgid "-D option argument must be in the form name=value"
@@ -2697,7 +2697,7 @@ msgstr "Esta páxina"
 #: themes/basic/genindex-single.html:26
 #, python-format
 msgid "Index &#x2013; %(key)s"
-msgstr ""
+msgstr "Índice &#x2013; %(key)s"
 
 #: themes/basic/genindex-single.html:54 themes/basic/genindex-split.html:16
 #: themes/basic/genindex-split.html:30 themes/basic/genindex.html:65
@@ -2802,8 +2802,8 @@ msgstr "A súa busca non coincide con ningún documento. Asegúrese de que todas
 msgid "Search finished, found one page matching the search query."
 msgid_plural ""
 "Search finished, found ${resultCount} pages matching the search query."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Busca finalizada, atopouse unha páxina coincidente coa consulta de busca."
+msgstr[1] "Busca finalizada, atoparonse ${resultCount} páxinas coincidentes coa consulta de busca."
 
 #: themes/basic/static/searchtools.js:253
 msgid "Searching"
@@ -2851,11 +2851,11 @@ msgstr "Expandir a barra lateral"
 
 #: domains/python/_annotations.py:529
 msgid "Positional-only parameter separator (PEP 570)"
-msgstr ""
+msgstr "Separador de parámetros só de posción (PEP 570)"
 
 #: domains/python/_annotations.py:540
 msgid "Keyword-only parameters separator (PEP 3102)"
-msgstr ""
+msgstr "Separador de parámetros só de palabra clave (PEP 3102)"
 
 #: domains/python/__init__.py:113 domains/python/__init__.py:278
 #, python-format
@@ -2901,11 +2901,11 @@ msgstr "%s (%s propiedade)"
 #: domains/python/__init__.py:478
 #, python-format
 msgid "%s (type alias in %s)"
-msgstr ""
+msgstr "%s (alias de tipo en %s)"
 
 #: domains/python/__init__.py:638
 msgid "Python Module Index"
-msgstr " Índice de módulos Python"
+msgstr "Índice de módulos Python"
 
 #: domains/python/__init__.py:639
 msgid "modules"
@@ -2933,7 +2933,7 @@ msgstr "propiedade"
 
 #: domains/python/__init__.py:749
 msgid "type alias"
-msgstr ""
+msgstr "alias de tipo"
 
 #: domains/python/__init__.py:818
 #, python-format
@@ -2962,7 +2962,7 @@ msgstr "Variábeis"
 
 #: domains/python/_object.py:214
 msgid "Raises"
-msgstr "Eleva"
+msgstr "Ergue"
 
 #: domains/cpp/__init__.py:159
 msgid "Template Parameters"
@@ -3048,15 +3048,15 @@ msgstr "variábel de contorno; %s"
 #: domains/std/__init__.py:119
 #, python-format
 msgid "%s; configuration value"
-msgstr ""
+msgstr "%s; valor de configuración"
 
 #: domains/std/__init__.py:175
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: domains/std/__init__.py:185
 msgid "Default"
-msgstr ""
+msgstr "Predeterminado"
 
 #: domains/std/__init__.py:242
 #, python-format
@@ -3173,7 +3173,7 @@ msgstr "A arbore de índice –toctree– contén referencia ao documento non in
 #: environment/adapters/toctree.py:367
 #, python-format
 msgid "toctree contains reference to non-existing document %r"
-msgstr ""
+msgstr "A árbore de índice –toctree– contén referencia a un documento que non existe %r"
 
 #: environment/adapters/indexentries.py:123
 #, python-format
@@ -3221,36 +3221,36 @@ msgstr "Interrompido!"
 
 #: _cli/util/errors.py:194
 msgid "reStructuredText markup error!"
-msgstr ""
+msgstr "Erro de marcación reStructuredText"
 
 #: _cli/util/errors.py:200
 msgid "Encoding error!"
-msgstr ""
+msgstr "Produciuse un erro de codificación!"
 
 #: _cli/util/errors.py:203
 msgid "Recursion error!"
-msgstr ""
+msgstr "Produciuse un erro de recursividade!"
 
 #: _cli/util/errors.py:207
 msgid ""
 "This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1,000 in conf.py "
 "with e.g.:"
-msgstr ""
+msgstr "Isto pode ocorrer con ficheiros fonte moi grandes ou profundamente aniñados. Pode aumentar coidadosamente o límite de recursividade predeterminado de Python de 1.000 en conf.py, p. ex.:"
 
 #: _cli/util/errors.py:227
 msgid "Starting debugger:"
-msgstr ""
+msgstr "Iniciando o depurador:"
 
 #: _cli/util/errors.py:235
 msgid "The full traceback has been saved in:"
-msgstr ""
+msgstr "O rastrexado completo foi gardado en:"
 
 #: _cli/util/errors.py:240
 msgid ""
 "To report this error to the developers, please open an issue at "
 "<https://github.com/sphinx-doc/sphinx/issues/>. Thanks!"
-msgstr ""
+msgstr "Para informar deste erro aos desenvolvedores, abra un incidente <https://github.com/sphinx-doc/sphinx/issues/>. Grazas!"
 
 #: _cli/util/errors.py:246
 msgid ""
@@ -3306,18 +3306,18 @@ msgstr "Produciuse un fallo ao ler o ficheiro de información da construción: %
 
 #: builders/html/__init__.py:364
 msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
-msgstr ""
+msgstr "build_info non concorda, copiando .buildinfo cara a .buildinfo.bak"
 
 #: builders/html/__init__.py:366
 msgid "building [html]: "
-msgstr ""
+msgstr "construíndo [html]: "
 
 #: builders/html/__init__.py:383
 #, python-format
 msgid ""
 "template %s has been changed since the previous build, all docs will be "
 "rebuilt"
-msgstr ""
+msgstr "O modelo %s foi cambiado desde a compilación anterior, reconstruiranse todos os documentos"
 
 #: builders/html/__init__.py:507
 msgid "index"
@@ -3326,7 +3326,7 @@ msgstr "índice"
 #: builders/html/__init__.py:560
 #, python-format
 msgid "Logo of %s"
-msgstr ""
+msgstr "Logotipo de %s"
 
 #: builders/html/__init__.py:589
 msgid "next"
@@ -3347,7 +3347,7 @@ msgstr "escribindo as páxinas adicionais"
 #: builders/html/__init__.py:794
 #, python-format
 msgid "cannot copy image file '%s': %s"
-msgstr ""
+msgstr "non é posíbel copiar o ficheiro de imaxe «%s»: %s"
 
 #: builders/html/__init__.py:806
 msgid "copying downloadable files... "
@@ -3361,7 +3361,7 @@ msgstr "non é posíbel copiar o ficheiro descargábel %r: %s"
 #: builders/html/__init__.py:864
 #, python-format
 msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
-msgstr ""
+msgstr "Produciuse un fallo ao copiar un ficheiro no directorio «static» do tema: %s: %r"
 
 #: builders/html/__init__.py:882
 #, python-format
@@ -3474,7 +3474,7 @@ msgstr "o ficheiro de favicon %r non existe"
 msgid ""
 "Values in 'html_sidebars' must be a list of strings. At least one pattern "
 "has a string value: %s. Change to `html_sidebars = %r`."
-msgstr ""
+msgstr "Os valores en «html_sidebars» deben ser unha lista de cadeas. Polo menos un patrón ten un valor de cadea %s:. Cambie a «html_sidebars = %r»."
 
 #: builders/html/__init__.py:1433
 msgid ""
@@ -3489,15 +3489,15 @@ msgstr "Documentación %s %s"
 
 #: builders/html/_build_info.py:32
 msgid "failed to read broken build info file (unknown version)"
-msgstr ""
+msgstr "produciuse un fallo ao ler o ficheiro de información de compilación estragada (versión descoñecida)"
 
 #: builders/html/_build_info.py:36
 msgid "failed to read broken build info file (missing config entry)"
-msgstr ""
+msgstr "produciuse un fallo ao ler o ficheiro de información de compilación estragada (falta a entrada de configuración)"
 
 #: builders/html/_build_info.py:39
 msgid "failed to read broken build info file (missing tags entry)"
-msgstr ""
+msgstr "produciuse un fallo ao ler o ficheiro de información de compilación estragada (falta a entrada de etiquetas)"
 
 #: builders/latex/__init__.py:118
 #, python-format
@@ -3544,12 +3544,12 @@ msgstr "Opción de tema descoñecida: latex_theme_options[%r], é ignorada."
 
 #: builders/latex/transforms.py:120
 msgid "Failed to get a docname!"
-msgstr "Produciuse un fallo ao obter un nome de documento «docname»!"
+msgstr "Produciuse un fallo ao obter un nome de documento –docname–!"
 
 #: builders/latex/transforms.py:121
 #, python-format
 msgid "Failed to get a docname for source %r!"
-msgstr ""
+msgstr "Produciuse un fallo ao obter un nome de documento –docname– para a fonte %r!"
 
 #: builders/latex/transforms.py:487
 #, python-format
@@ -3588,7 +3588,7 @@ msgstr "Números"
 msgid "page"
 msgstr "páxina"
 
-#: ext/napoleon/__init__.py:356 ext/napoleon/docstring.py:940
+#: ext/napoleon/__init__.py:355 ext/napoleon/docstring.py:940
 msgid "Keyword Arguments"
 msgstr "Argumentos de palabras clave"
 
@@ -3682,7 +3682,7 @@ msgstr "produciuse un fallo ao importar o obxecto %s"
 #, python-format
 msgid ""
 "Summarised items should not include the current module. Replace %r with %r."
-msgstr ""
+msgstr "Os elementos resumidos non deben incluír o módulo actual. Substituír %r con %r."
 
 #: ext/autosummary/__init__.py:927
 #, python-format
@@ -3693,14 +3693,14 @@ msgstr "autosummary_generate: non se atopou o ficheiro: %s"
 msgid ""
 "autosummary generates .rst files internally. But your source_suffix does not"
 " contain .rst. Skipped."
-msgstr ""
+msgstr "«autosummary» xera ficheiros «.rst» internamente. Mais o seu «source_suffix» non contén «.rst». Omítese."
 
 #: ext/autosummary/generate.py:232 ext/autosummary/generate.py:450
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
-msgstr "autosummary: non foi posíbel determinar se %r foi documentado, produciuse a seguinte excepción:\n%s"
+msgstr "autosummary: non foi posíbel determinar se %r foi documentado, ergueuse a seguinte excepción:\n%s"
 
 #: ext/autosummary/generate.py:588
 #, python-format
@@ -3767,12 +3767,12 @@ msgstr "documentar exactamente os membros no atributo __all__ do módulo. (prede
 
 #: ext/apidoc/_cli.py:178 ext/autosummary/generate.py:909
 msgid "Remove existing files in the output directory that were not generated"
-msgstr ""
+msgstr "Retirar os ficheiros existentes no directorio de saída que non foron xerados"
 
 #: ext/apidoc/_shared.py:29 ext/autosummary/generate.py:944
 #, python-format
 msgid "Failed to remove %s: %s"
-msgstr ""
+msgstr "Produciuse un fallo ao retirar %s: %s"
 
 #: ext/apidoc/_cli.py:28
 msgid ""
@@ -3853,7 +3853,7 @@ msgstr "interpretar as rutas dos módulos segundo a especificación de espazos d
 msgid ""
 "Comma-separated list of options to pass to automodule directive (or use "
 "SPHINX_APIDOC_OPTIONS)."
-msgstr ""
+msgstr "Lista de opcións separadas por comas para pasar á directiva «automodule» (ou empregar SPHINX_APIDOC_OPTIONS)."
 
 #: ext/apidoc/_cli.py:170
 msgid "file suffix (default: rst)"
@@ -3865,7 +3865,7 @@ msgstr "xerar un proxecto completo con «sphinx-quickstart»"
 
 #: ext/apidoc/_cli.py:193
 msgid "append module_path to sys.path, used when --full is given"
-msgstr "engadir module_path a sys.path, úsase cando se indica --full"
+msgstr "engadir module_path a sys.path, empregase cando se indica --full"
 
 #: ext/apidoc/_cli.py:200
 msgid "project name (default: root module name)"
@@ -3873,15 +3873,15 @@ msgstr "nome do proxecto (predeterminado: nome do módulo raíz)"
 
 #: ext/apidoc/_cli.py:207
 msgid "project author(s), used when --full is given"
-msgstr "autor(es) do proxecto, úsase cando se indica --full"
+msgstr "autor(es) do proxecto, empregase cando se indica --full"
 
 #: ext/apidoc/_cli.py:214
 msgid "project version, used when --full is given"
-msgstr "versión do proxecto, úsase cando se indica --full"
+msgstr "versión do proxecto, empregase cando se indica --full"
 
 #: ext/apidoc/_cli.py:222
 msgid "project release, used when --full is given, defaults to --doc-version"
-msgstr "publicación do proxecto, úsase cando se indica --full, o predeterminado é --doc-version"
+msgstr "publicación do proxecto, empregase cando se indica --full, o predeterminado é --doc-version"
 
 #: ext/apidoc/_cli.py:226
 msgid "extension options"
@@ -3889,12 +3889,12 @@ msgstr "opcións de extensión"
 
 #: ext/apidoc/_cli.py:232
 msgid "enable arbitrary extensions, used when --full is given"
-msgstr ""
+msgstr "activar as extensións arbitrarias, empregase cando se indica --full"
 
 #: ext/apidoc/_cli.py:240
 #, python-format
 msgid "enable %s extension, used when --full is given"
-msgstr ""
+msgstr "activar a extensión %s, empregase cando se indica --full"
 
 #: ext/apidoc/_cli.py:291
 #, python-format
@@ -3903,72 +3903,72 @@ msgstr "%s non é un directorio."
 
 #: ext/apidoc/_extension.py:50
 msgid "Running apidoc"
-msgstr ""
+msgstr "Executando apidoc"
 
 #: ext/apidoc/_extension.py:102
 #, python-format
 msgid "apidoc_modules item %i must be a dict"
-msgstr ""
+msgstr "O elemento %i de apidoc_modules debe ser un diccionario"
 
 #: ext/apidoc/_extension.py:110
 #, python-format
 msgid "apidoc_modules item %i must have a 'path' key"
-msgstr ""
+msgstr "O elemento %i de apidoc_modules debe ter unha clave «path»"
 
 #: ext/apidoc/_extension.py:115
 #, python-format
 msgid "apidoc_modules item %i 'path' must be a string"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules debe ser unha cadea"
 
 #: ext/apidoc/_extension.py:121
 #, python-format
 msgid "apidoc_modules item %i 'path' is not an existing folder: %s"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules «path» non é un cartafol existente: %s"
 
 #: ext/apidoc/_extension.py:133
 #, python-format
 msgid "apidoc_modules item %i must have a 'destination' key"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules debe ter unha clave «destination»"
 
 #: ext/apidoc/_extension.py:140
 #, python-format
 msgid "apidoc_modules item %i 'destination' must be a string"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules «destination» debe ser unha cadea"
 
 #: ext/apidoc/_extension.py:147
 #, python-format
 msgid "apidoc_modules item %i 'destination' should be a relative path"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules «destination» debe ser unha ruta relativa"
 
 #: ext/apidoc/_extension.py:157
 #, python-format
 msgid "apidoc_modules item %i cannot create destination directory: %s"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules non pode crear o directorio de destino: %s"
 
 #: ext/apidoc/_extension.py:178
 #, python-format
 msgid "apidoc_modules item %i '%s' must be an int"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules «%s» debe ser un enteiro"
 
 #: ext/apidoc/_extension.py:192
 #, python-format
 msgid "apidoc_modules item %i '%s' must be a boolean"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules «%s» debe ser booleano"
 
 #: ext/apidoc/_extension.py:210
 #, python-format
 msgid "apidoc_modules item %i has unexpected keys: %s"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules ten claves non agardadas: %s"
 
 #: ext/apidoc/_extension.py:247
 #, python-format
 msgid "apidoc_modules item %i '%s' must be a sequence"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules «%s» debe unha secuencia"
 
 #: ext/apidoc/_extension.py:256
 #, python-format
 msgid "apidoc_modules item %i '%s' must contain strings"
-msgstr ""
+msgstr "o elemento %i de apidoc_modules «%s» debe conter cadeas"
 
 #: ext/apidoc/_generate.py:69
 #, python-format
@@ -3988,27 +3988,27 @@ msgstr "(en %s)"
 #: ext/intersphinx/_resolve.py:108
 #, python-format
 msgid "inventory '%s': duplicate matches found for %s:%s"
-msgstr ""
+msgstr "inventario «%s»: atopáronse coincidencias duplicadas para %s:%s"
 
 #: ext/intersphinx/_resolve.py:118
 #, python-format
 msgid "inventory '%s': multiple matches found for %s:%s"
-msgstr ""
+msgstr "inventario «%s»: atopáronse varias coincidencias para %s:%s"
 
 #: ext/intersphinx/_resolve.py:383
 #, python-format
 msgid "inventory for external cross-reference not found: %r"
-msgstr ""
+msgstr "non foi atopado o inventario para a referencia cruzada externa: %r"
 
 #: ext/intersphinx/_resolve.py:392
 #, python-format
 msgid "invalid external cross-reference suffix: %r"
-msgstr ""
+msgstr "sufixo de referencia cruzada externa non válido: %r"
 
 #: ext/intersphinx/_resolve.py:403
 #, python-format
 msgid "domain for external cross-reference not found: %r"
-msgstr ""
+msgstr "non foi atopado o dominio para a referencia cruzada externa:"
 
 #: ext/intersphinx/_resolve.py:619
 #, python-format
@@ -4020,60 +4020,60 @@ msgstr "obxectivo de referencia externo %s:%s non atopado: %s"
 msgid ""
 "Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
 "identifiers must be non-empty strings."
-msgstr ""
+msgstr "O identificador do proxecto intersphinx %r«» non é válido en «intersphinx_mapping». Os identificadores de proxecto deben ser cadeas non baleiras."
 
 #: ext/intersphinx/_load.py:71
 #, python-format
 msgid ""
 "Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
 "or list."
-msgstr ""
+msgstr "O valor «%r» non é válido en intersphinx_mapping[%r]. Agardábase unha tupla ou lista de dous elementos."
 
 #: ext/intersphinx/_load.py:82
 #, python-format
 msgid ""
 "Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
 " inventory locations) pair."
-msgstr ""
+msgstr "O valor «%r» non é válido en intersphinx_mapping[%r]. Os valores deben ser un par (URI de destino, localizacións de inventario)."
 
 #: ext/intersphinx/_load.py:93
 #, python-format
 msgid ""
 "Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
 "must be unique non-empty strings."
-msgstr ""
+msgstr "O valor do URI de destino «%r» non é válido en intersphinx_mapping[%r][0]. Os URI de destino deben ser cadeas únicas non baleiras."
 
 #: ext/intersphinx/_load.py:102
 #, python-format
 msgid ""
 "Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
 "must be unique (other instance in intersphinx_mapping[%r])."
-msgstr ""
+msgstr "O valor do URI de destino «%r» non é válido en intersphinx_mapping[%r][0]. Os URI de destino deben ser cadeas únicas (outra instancia en intersphinx_mapping[%r])."
 
 #: ext/intersphinx/_load.py:121
 #, python-format
 msgid ""
 "Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
 "Inventory locations must be non-empty strings or None."
-msgstr ""
+msgstr "O valor de localización do inventario «%r» en intersphinx_mapping[%r][1] non é válido. As localizacións do inventario deben ser cadeas non baleiras ou «None»."
 
 #: ext/intersphinx/_load.py:131
 msgid "Invalid `intersphinx_mapping` configuration (1 error)."
-msgstr ""
+msgstr "A configuración «intersphinx_mapping» non é válida (1 erro)."
 
 #: ext/intersphinx/_load.py:134
 #, python-format
 msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
-msgstr ""
+msgstr "A configuración «intersphinx_mapping» non é válida (%s erros)."
 
 #: ext/intersphinx/_load.py:157
 msgid "An invalid intersphinx_mapping entry was added after normalisation."
-msgstr ""
+msgstr "Engadiuse unha entrada intersphinx_mapping non válida após a normalización."
 
 #: ext/intersphinx/_load.py:261
 #, python-format
 msgid "loading intersphinx inventory '%s' from %s ..."
-msgstr ""
+msgstr "cargando o inventario «intersphinx» «%s» desde %s…"
 
 #: ext/intersphinx/_load.py:287
 msgid ""
@@ -4115,7 +4115,7 @@ msgstr "produciuse un erro ao formatar argumentos para %s: %s"
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
-msgstr "autodoc: non foi posíbel determinar %s.%s (%r) para documentarse, presentouse a seguinte excepción:\n%s"
+msgstr "autodoc: non foi posíbel determinar %s.%s (%r) para documentarse, ergueuse a seguinte excepción:\n%s"
 
 #: ext/autodoc/__init__.py:1021
 #, python-format
