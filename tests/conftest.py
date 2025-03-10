@@ -16,7 +16,10 @@ import sphinx.pycode
 from sphinx.testing.util import _clean_up_global_state
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
+    from typing import Any
+
+    from sphinx.testing.util import SphinxTestApp
 
 _TESTS_ROOT = Path(__file__).resolve().parent
 if 'CI' in os.environ and (_TESTS_ROOT / 'roots-read-only').is_dir():
@@ -83,7 +86,7 @@ def _http_teapot(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418
     response = SimpleNamespace(status_code=418)
 
-    def _request(*args, **kwargs):
+    def _request(*args: Any, **kwargs: Any) -> SimpleNamespace:
         return response
 
     with monkeypatch.context() as m:
@@ -92,10 +95,13 @@ def _http_teapot(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
 
 
 @pytest.fixture
-def make_app_with_empty_project(make_app, tmp_path):
+def make_app_with_empty_project(
+    make_app: Callable[..., SphinxTestApp],
+    tmp_path: Path,
+) -> Callable[..., SphinxTestApp]:
     (tmp_path / 'conf.py').touch()
 
-    def _make_app(*args, **kw):
+    def _make_app(*args: Any, **kw: Any) -> SphinxTestApp:
         kw.setdefault('srcdir', Path(tmp_path))
         return make_app(*args, **kw)
 
