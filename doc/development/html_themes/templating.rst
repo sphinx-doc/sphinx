@@ -10,7 +10,7 @@ What Is Templating?
 -------------------
 
 Templating is a method of generating HTML pages by using template files that provide,
-not only the static parts of the desired HTML output, but also provides some special
+not only the static parts of the desired HTML output, but also provide some special
 syntax describing how content will be inserted.  Since template files function
 similar to Cascading Style Sheets, generating HTML pages this way provides a flexible
 way for Sphinx extensions (such as themes) to "inherit from" and modify basic
