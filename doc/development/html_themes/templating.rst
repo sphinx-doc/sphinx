@@ -6,6 +6,24 @@
 Templating
 ==========
 
+What Is Templating?
+-------------------
+
+Templating is a method of generating HTML pages by using template files that provide,
+not only the static parts of the desired HTML output, but also provides some special
+syntax describing how content will be inserted.  Since template files function
+similar to Cascading Style Sheets, generating HTML pages this way provides a flexible
+way for Sphinx extensions (such as themes) to "inherit from" and modify basic
+templates, or replace them altogether, to achieve customized HTML page layout.
+Similarly, an individual documentation project can customize the theme it is using
+through the same mechanism, using locally-provided custom HTML templates.  Templates
+can be maintained by anyone with an understanding of HTML; no knowledge of Python is
+required.
+
+
+Sphinx Templating
+-----------------
+
 Sphinx uses the `Jinja <https://jinja.palletsprojects.com/>`_ templating engine
 for its HTML templates.  Jinja is a text-based engine, inspired by Django
 templates, so anyone having used Django will already be familiar with it. It
