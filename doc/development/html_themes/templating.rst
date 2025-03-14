@@ -10,10 +10,10 @@ What Is Templating?
 -------------------
 
 Templating is a method of generating HTML pages by combining data and static
-templates. The template files contain the static parts of the desired HTML output and
-include special syntax describing how variable content will be inserted. For example,
-this can be used to insert the current date in the footer of each page, or to
-surround the main content of the document with a scaffold of HTML for layout and
+templates.  The template files contain the static parts of the desired HTML output
+and include special syntax describing how variable content will be inserted. For
+example, this can be used to insert the current date in the footer of each page, or
+to surround the main content of the document with a scaffold of HTML for layout and
 formatting purposes.
 
 Using templates to generate HTML means that the content can be changed without
