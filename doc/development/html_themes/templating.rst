@@ -9,19 +9,21 @@ Templating
 What Is Templating?
 -------------------
 
-Templating is a method of generating HTML pages by combining data and static templates.
-The template files contain the static parts of the desired HTML output
-and include special syntax describing how variable content will be inserted.
-For example, this can be used to insert the current date in the footer of each page,
-or to surround the main content of the document with a scaffold of HTML for layout
-and formatting purposes.
-Using templates to generate HTML means that the content can be changed without altering
-Sphinx's source code, meaning that the Sphinx core can provide basic HTML generation,
-independent of the final output.
-Since template files function similar to Cascading Style Sheets,
-generating HTML pages this way provides a flexible way for Sphinx themes
-to "inherit from" and modify basic templates, or replace them altogether,
-to achieve customised HTML page layout.
+Templating is a method of generating HTML pages by combining data and static
+templates. The template files contain the static parts of the desired HTML output and
+include special syntax describing how variable content will be inserted. For example,
+this can be used to insert the current date in the footer of each page, or to
+surround the main content of the document with a scaffold of HTML for layout and
+formatting purposes.
+
+Using templates to generate HTML means that the content can be changed without
+altering Sphinx's source code, meaning that the Sphinx core can provide basic HTML
+generation, independent of the final output.
+
+Since template files function similar to Cascading Style Sheets, generating HTML
+pages this way provides a flexible way for Sphinx themes to "inherit from" and modify
+basic templates, or replace them altogether, to achieve customised HTML page layout.
+
 Similarly, any project can customise the theme it is using by the same mechanism,
 using locally-provided HTML templates, overriding those from the theme and Sphinx.
 Templates can be maintained by anyone with an understanding of HTML;
