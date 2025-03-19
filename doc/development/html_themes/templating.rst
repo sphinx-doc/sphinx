@@ -9,20 +9,22 @@ Templating
 What Is Templating?
 -------------------
 
-Templating is a method of generating HTML pages by combining data and static
-templates.  The template files contain the static parts of the desired HTML output
-and include special syntax describing how variable content will be inserted.  For
-example, this can be used to insert the current date in the footer of each page, or
-to surround the main content of the document with a scaffold of HTML for layout and
-formatting purposes.  Doing so only requires an understanding of HTML and the
-templating syntax.  Knowledge of Python is helpful, but not required.
+Templating is a method of generating HTML pages by combining static templates
+with variable data.
+The template files contain the static parts of the desired HTML output
+and include special syntax describing how variable content will be inserted.
+For example, this can be used to insert the current date in the footer of each page,
+or to surround the main content of the document with a scaffold of HTML for layout
+and formatting purposes.
+Doing so only requires an understanding of HTML and the templating syntax.
+Knowledge of Python can be helpful, but is not required.
 
-Templating uses an inheritance mechanism which allows child templates files (e.g.
-in a theme) to override as much (or as little) of Sphinx templates as desired.
+Templating uses an inheritance mechanism which allows child templates files
+(e.g. in a theme) to override as much (or as little) of their 'parents' as desired.
 Likewise, content authors can use their own local templates to override as much (or
 as little) of the theme templates as desired.
 
-The result is that the Sphinx core, wihtout needing to be changed, provides basic
+The result is that the Sphinx core, without needing to be changed, provides basic
 HTML generation, independent of the structure and appearance of the final output,
 while granting a great deal of flexibility to theme and content authors.
 
