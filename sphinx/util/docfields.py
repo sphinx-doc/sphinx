@@ -118,7 +118,7 @@ class Field:
         if location is not None:
             with contextlib.suppress(ValueError):
                 lineno = get_node_line(location)
-        ns, messages = role(rolename, target, target, lineno, inliner, {}, [])
+        ns, _messages = role(rolename, target, target, lineno, inliner, {}, [])
         return nodes.inline(target, '', *ns)
 
     def make_xrefs(

@@ -719,7 +719,7 @@ def find_autosummary_in_docstring(
     See `find_autosummary_in_lines`.
     """
     try:
-        real_name, obj, parent, modname = import_by_name(name)
+        _real_name, obj, _parent, _modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
         return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:

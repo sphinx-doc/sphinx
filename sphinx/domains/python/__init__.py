@@ -108,7 +108,7 @@ class PyFunction(PyObject):
             modname = self.options.get('module', self.env.ref_context.get('py:module'))
             node_id = signode['ids'][0]
 
-            name, cls = name_cls
+            name, _cls = name_cls
             if modname:
                 text = _('%s() (in module %s)') % (name, modname)
                 self.indexnode['entries'].append(('single', text, node_id, '', None))
@@ -175,7 +175,7 @@ class PyVariable(PyObject):
         return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
-        name, cls = name_cls
+        name, _cls = name_cls
         if modname:
             return _('%s (in module %s)') % (name, modname)
         else:
@@ -268,7 +268,7 @@ class PyMethod(PyObject):
         return prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
-        name, cls = name_cls
+        name, _cls = name_cls
         try:
             clsname, methname = name.rsplit('.', 1)
             if modname and self.config.add_module_names:
@@ -364,7 +364,7 @@ class PyAttribute(PyObject):
         return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
-        name, cls = name_cls
+        name, _cls = name_cls
         try:
             clsname, attrname = name.rsplit('.', 1)
             if modname and self.config.add_module_names:
@@ -424,7 +424,7 @@ class PyProperty(PyObject):
         return prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
-        name, cls = name_cls
+        name, _cls = name_cls
         try:
             clsname, attrname = name.rsplit('.', 1)
             if modname and self.config.add_module_names:
@@ -464,7 +464,7 @@ class PyTypeAlias(PyObject):
         return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
-        name, cls = name_cls
+        name, _cls = name_cls
         try:
             clsname, attrname = name.rsplit('.', 1)
             if modname and self.config.add_module_names:
