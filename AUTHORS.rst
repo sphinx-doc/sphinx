@@ -107,6 +107,7 @@ Contributors
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes
 * Tim Hoffmann -- theme improvements
+* Tokuhiro Matsuno -- search unicode normalization
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
