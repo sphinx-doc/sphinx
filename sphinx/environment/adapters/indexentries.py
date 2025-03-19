@@ -253,7 +253,7 @@ def _key_func_2(entry: tuple[str, _IndexEntryTargets]) -> str:
 
 def _group_by_func(entry: tuple[str, _IndexEntry]) -> str:
     """Group the entries by letter or category key."""
-    key, (targets, sub_items, category_key) = entry
+    key, (_targets, _sub_items, category_key) = entry
 
     if category_key is not None:
         return category_key

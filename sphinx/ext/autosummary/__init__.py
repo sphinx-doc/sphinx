@@ -814,7 +814,7 @@ def import_ivar_by_name(
     """
     try:
         name, attr = name.rsplit('.', 1)
-        real_name, obj, parent, modname = import_by_name(name, prefixes)
+        real_name, obj, _parent, modname = import_by_name(name, prefixes)
 
         # Get ancestors of the object (class.__mro__ includes the class itself as
         # the first entry)

@@ -431,7 +431,7 @@ def render_dot_latex(
     filename: str | None = None,
 ) -> None:
     try:
-        fname, outfn = render_dot(self, code, options, 'pdf', prefix, filename)
+        fname, _outfn = render_dot(self, code, options, 'pdf', prefix, filename)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
@@ -475,7 +475,7 @@ def render_dot_texinfo(
     prefix: str = 'graphviz',
 ) -> None:
     try:
-        fname, outfn = render_dot(self, code, options, 'png', prefix)
+        fname, _outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc

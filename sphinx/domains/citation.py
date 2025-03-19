@@ -106,7 +106,7 @@ class CitationDomain(Domain):
         node: pending_xref,
         contnode: Element,
     ) -> nodes.reference | None:
-        docname, labelid, lineno = self.citations.get(target, ('', '', 0))
+        docname, labelid, _lineno = self.citations.get(target, ('', '', 0))
         if not docname:
             return None
 
