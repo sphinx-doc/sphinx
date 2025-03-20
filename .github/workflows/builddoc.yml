@@ -36,7 +36,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install .[docs]
+      run: uv pip install . --group docs
     - name: Render the documentation
       run: >
         sphinx-build
