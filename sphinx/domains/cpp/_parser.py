@@ -365,7 +365,7 @@ class DefinitionParser(BaseParser):
         #
         # expression-list
         # -> initializer-list
-        exprs, trailing_comma = self._parse_initializer_list(
+        exprs, _trailing_comma = self._parse_initializer_list(
             'parenthesized expression-list', '(', ')'
         )
         if exprs is None:

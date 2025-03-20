@@ -115,7 +115,7 @@ class XRefRole(ReferenceRole):
         text = utils.unescape(self.text[1:])
         if self.fix_parens:
             self.has_explicit_title = False  # treat as implicit
-            text, target = self.update_title_and_target(text, '')
+            text, _target = self.update_title_and_target(text, '')
 
         node = self.innernodeclass(self.rawtext, text, classes=self.classes)
         return self.result_nodes(self.inliner.document, self.env, node, is_ref=False)

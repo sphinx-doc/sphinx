@@ -200,7 +200,7 @@ def convert_dvi_to_png(dvipath: Path, builder: Builder, out_path: Path) -> int |
         command.append('--depth')
     command.append(dvipath)
 
-    stdout, stderr = convert_dvi_to_image(command, name)
+    stdout, _stderr = convert_dvi_to_image(command, name)
 
     depth = None
     if builder.config.imgmath_use_preview:
@@ -221,7 +221,7 @@ def convert_dvi_to_svg(dvipath: Path, builder: Builder, out_path: Path) -> int |
     command.extend(builder.config.imgmath_dvisvgm_args)
     command.append(dvipath)
 
-    stdout, stderr = convert_dvi_to_image(command, name)
+    _stdout, stderr = convert_dvi_to_image(command, name)
 
     depth = None
     if builder.config.imgmath_use_preview:
@@ -370,7 +370,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     else:
         latex = wrap_displaymath(node.astext(), None, False)
     try:
-        rendered_path, depth = render_math(self, latex)
+        rendered_path, _depth = render_math(self, latex)
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(

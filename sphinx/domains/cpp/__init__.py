@@ -744,7 +744,7 @@ class AliasTransform(SphinxTransform):
                     template_decls = ns.templatePrefix.templates
                 else:
                     template_decls = []
-                symbols, fail_reason = parent_symbol.find_name(
+                symbols, _fail_reason = parent_symbol.find_name(
                     nestedName=name,
                     templateDecls=template_decls,
                     typ='any',

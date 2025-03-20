@@ -92,19 +92,19 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.9.9",
+    "ruff==0.11.0",
     "mypy==1.15.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20240218",
     "types-docutils==0.21.0.20241128",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250219",
-    "types-requests==2.32.0.20250301",  # align with requests
+    "types-Pygments==2.19.0.20250305",
+    "types-requests==2.32.0.20250306",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.396",
+    "pyright==1.1.397",
     "pytest>=8.0",
-    "pypi-attestations==0.0.21",
+    "pypi-attestations==0.0.22",
     "betterproto==2.0.0b6",
 ]
 test = [
@@ -129,6 +129,48 @@ sphinx-build = "sphinx.cmd.build:main"
 sphinx-quickstart = "sphinx.cmd.quickstart:main"
 sphinx-apidoc = "sphinx.ext.apidoc:main"
 sphinx-autogen = "sphinx.ext.autosummary.generate:main"
+
+[dependency-groups]
+docs = [
+    "sphinxcontrib-websupport",
+]
+lint = [
+    "ruff==0.11.0",
+    "sphinx-lint>=0.9",
+]
+package = [
+    "betterproto==2.0.0b6",  # resolution fails without betterproto
+    "build",
+    "pypi-attestations==0.0.22",
+    "twine>=5.1",
+]
+test = [
+    "pytest>=8.0",
+    "pytest-xdist[psutil]>=3.4",
+    "cython>=3.0",  # for Cython compilation
+    "defusedxml>=0.7.1",  # for secure XML/HTML parsing
+    "setuptools>=70.0",  # for Cython compilation
+    "typing_extensions>=4.9",  # for typing_extensions.Unpack
+]
+translations = [
+    "babel>=2.13",
+    "Jinja2>=3.1",
+]
+types = [
+    "mypy==1.15.0",
+    "pyright==1.1.397",
+    { include-group = "type-stubs" },
+]
+type-stubs = [
+    # align with versions used elsewhere
+    "types-colorama==0.4.15.20240311",
+    "types-defusedxml==0.7.0.20240218",
+    "types-docutils==0.21.0.20241128",
+    "types-Pillow==10.2.0.20240822",
+    "types-Pygments==2.19.0.20250305",
+    "types-requests==2.32.0.20250306",
+    "types-urllib3==1.26.25.14",
+]
 
 [tool.flit.module]
 name = "sphinx"
@@ -203,8 +245,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_addnodes",
-    "tests.test_events",
     "tests.test_highlighting",
     "tests.test_project",
     "tests.test_versioning",
@@ -421,3 +461,6 @@ reportUnusedFunction = "none"
 reportUnusedImport = "none"
 reportUnusedVariable = "none"
 reportWildcardImportFromLibrary = "none"
+
+[tool.uv]
+default-groups = "all"

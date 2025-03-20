@@ -370,7 +370,7 @@ class WarningStream:
         if not matched:
             logger.warning(text.rstrip('\r\n'), type='docutils')
         else:
-            location, type, level = matched.groups()
+            location, type, _level = matched.groups()
             message = report_re.sub('', text).rstrip()
             logger.log(type, message, location=location, type='docutils')
 

@@ -4,12 +4,10 @@ from __future__ import annotations
 
 import datetime
 import os
-import sys
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import babel
 import pytest
 from babel.messages.mofile import read_mo
 
@@ -60,11 +58,6 @@ def test_catalog_write_mo(tmp_path):
         assert read_mo(f) is not None
 
 
-# https://github.com/python-babel/babel/issues/1183
-@pytest.mark.xfail(
-    sys.platform == 'win32' and babel.__version__ == '2.17.0',
-    reason='Windows tests fail with Babel 2.17',
-)
 def test_format_date():
     date = datetime.date(2016, 2, 7)
 

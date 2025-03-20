@@ -242,7 +242,7 @@ def test_load_mappings_cache(tmp_path):
     item = dict((project.normalise(entry),))
     inventories = InventoryAdapter(app.env)
     assert list(inventories.cache) == ['http://localhost:9341/a']
-    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/a']
+    e_name, _e_time, e_inv = inventories.cache['http://localhost:9341/a']
     assert e_name == 'spam'
     assert e_inv == {'py:module': item}
     assert inventories.named_inventory == {'spam': {'py:module': item}}
@@ -273,7 +273,7 @@ def test_load_mappings_cache_update(tmp_path):
     inventories = InventoryAdapter(app2.env)
     # check that the URLs were changed accordingly
     assert list(inventories.cache) == ['http://localhost:9341/new']
-    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/new']
+    e_name, _e_time, e_inv = inventories.cache['http://localhost:9341/new']
     assert e_name == 'spam'
     assert e_inv == {'py:module': item}
     assert inventories.named_inventory == {'spam': {'py:module': item}}
@@ -310,7 +310,7 @@ def test_load_mappings_cache_revert_update(tmp_path):
     inventories = InventoryAdapter(app3.env)
     # check that the URLs were changed accordingly
     assert list(inventories.cache) == ['http://localhost:9341/old']
-    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/old']
+    e_name, _e_time, e_inv = inventories.cache['http://localhost:9341/old']
     assert e_name == 'spam'
     assert e_inv == {'py:module': item}
     assert inventories.named_inventory == {'spam': {'py:module': item}}

@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 import docutils.readers.doctree
+import jinja2.exceptions
 from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import OptionParser
@@ -1221,6 +1222,19 @@ class StandaloneHTMLBuilder(Builder):
             )
             return
         except Exception as exc:
+            if (
+                isinstance(exc, jinja2.exceptions.UndefinedError)
+                and exc.message == "'style' is undefined"
+            ):
+                msg = __(
+                    "The '%s' theme does not support this version of Sphinx, "
+                    "because it uses the 'style' field in HTML templates, "
+                    'which was  was deprecated in Sphinx 5.1 and removed in Sphinx 7.0. '
+                    "The theme must be updated to use the 'styles' field instead. "
+                    'See https://www.sphinx-doc.org/en/master/development/html_themes/templating.html#styles'
+                )
+                raise ThemeError(msg % self.config.html_theme) from None
+
             msg = __('An error happened in rendering the page %s.\nReason: %r') % (
                 pagename,
                 exc,

@@ -83,7 +83,7 @@ class ReSTMarkup(ObjectDescription[str]):
             return ''
 
         objtype = sig_node.parent.get('objtype')
-        *parents, name = sig_node['_toc_parts']
+        *_parents, name = sig_node['_toc_parts']
         if objtype == 'directive:option':
             return f':{name}:'
         if self.config.toc_object_entries_show_parents in {'domain', 'all'}:
