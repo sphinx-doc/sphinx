@@ -104,7 +104,7 @@ lint = [
     "types-urllib3==1.26.25.14",
     "pyright==1.1.397",
     "pytest>=8.0",
-    "pypi-attestations==0.0.21",
+    "pypi-attestations==0.0.22",
     "betterproto==2.0.0b6",
 ]
 test = [

@@ -44,7 +44,7 @@ jobs:
         run: |
           uv pip install build "twine>=5.1"
           # resolution fails without betterproto
-          uv pip install pypi-attestations==0.0.21 betterproto==2.0.0b6
+          uv pip install pypi-attestations==0.0.22 betterproto==2.0.0b6
 
       - name: Build distribution
         run: python -m build
