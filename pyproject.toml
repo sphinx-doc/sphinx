@@ -88,33 +88,10 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-docs = [
-    "sphinxcontrib-websupport",
-]
-lint = [
-    "ruff==0.11.0",
-    "mypy==1.15.0",
-    "sphinx-lint>=0.9",
-    "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20241128",
-    "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250305",
-    "types-requests==2.32.0.20250306",  # align with requests
-    "types-urllib3==1.26.25.14",
-    "pyright==1.1.397",
-    "pytest>=8.0",
-    "pypi-attestations==0.0.22",
-    "betterproto==2.0.0b6",
-]
-test = [
-    "pytest>=8.0",
-    "pytest-xdist[psutil]>=3.4",
-    "defusedxml>=0.7.1", # for secure XML/HTML parsing
-    "cython>=3.0",
-    "setuptools>=70.0",  # for Cython compilation
-    "typing_extensions>=4.9",  # for typing_extensions.Unpack
-]
+# retained to not break installing 'sphinx[…]'
+docs = []
+lint = []
+test = []
 
 [[project.authors]]
 name = "Adam Turner"
