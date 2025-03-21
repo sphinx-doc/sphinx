@@ -164,6 +164,7 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
     if modname in sys.modules:
         return sys.modules[modname]
 
+    skip_pyi = bool(os.getenv('SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS', ''))
     original_module_names = frozenset(sys.modules)
     try:
         spec = find_spec(modname)
@@ -171,7 +172,7 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
             msg = f'No module named {modname!r}'
             raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
         spec, pyi_path = _find_type_stub_spec(spec, modname)
-        if pyi_path is None:
+        if skip_pyi or pyi_path is None:
             module = importlib.import_module(modname)
         else:
             if spec.loader is None:
