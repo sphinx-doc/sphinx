@@ -292,7 +292,6 @@ module = [
     "tests.test_util.test_util_docutils",
     "tests.test_util.test_util_images",
     "tests.test_util.test_util_inventory",
-    "tests.test_util.test_util_matching",
     # tests/test_writers
     "tests.test_writers.test_docutilsconf",
 ]
