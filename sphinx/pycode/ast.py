@@ -202,5 +202,8 @@ class _UnparseVisitor(ast.NodeVisitor):
         else:
             return '(' + ', '.join(self.visit(e) for e in node.elts) + ')'
 
+    def visit_Starred(self, node: ast.Starred) -> str:
+        return f'*{self.visit(node.value)}'
+
     def generic_visit(self, node: ast.AST) -> NoReturn:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)

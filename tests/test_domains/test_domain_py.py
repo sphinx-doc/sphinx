@@ -508,6 +508,28 @@ def test_parse_annotation(app):
         ),
     )
 
+    doctree = _parse_annotation('*tuple[str, int]', app.env)
+    assert_node(
+        doctree,
+        (
+            [desc_sig_operator, '*'],
+            [pending_xref, 'tuple'],
+            [desc_sig_punctuation, '['],
+            [pending_xref, 'str'],
+            [desc_sig_punctuation, ','],
+            desc_sig_space,
+            [pending_xref, 'int'],
+            [desc_sig_punctuation, ']'],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        pending_xref,
+        refdomain='py',
+        reftype='class',
+        reftarget='tuple',
+    )
+
 
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_suppress(app):
