@@ -411,7 +411,7 @@ class Include(BaseInclude, SphinxDirective):
         if self.arguments[0].startswith('<') and self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
             return super().run()
-        rel_filename, filename = self.env.relfn2path(self.arguments[0])
+        _rel_filename, filename = self.env.relfn2path(self.arguments[0])
         self.arguments[0] = str(filename)
         self.env.note_included(filename)
         return super().run()

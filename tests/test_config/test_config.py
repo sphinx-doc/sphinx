@@ -68,7 +68,7 @@ def test_config_opt_deprecated(recwarn):
     opt = _Opt('default', '', ())
 
     with pytest.warns(RemovedInSphinx90Warning):
-        default, rebuild, valid_types = opt
+        _default, _rebuild, _valid_types = opt
 
     with pytest.warns(RemovedInSphinx90Warning):
         _ = opt[0]

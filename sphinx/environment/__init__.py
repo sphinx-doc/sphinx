@@ -1069,7 +1069,7 @@ class _CurrentDocument:
 
     def __contains__(self, item: str) -> bool:
         if item in {'c:parent_symbol', 'cpp:parent_symbol'}:
-            return getattr(self, item) is not None
+            return getattr(self, self.__attr_map[item]) is not None
         return item in self.__attr_map or item in self._extension_data
 
     def __iter__(self) -> Iterator[str]:

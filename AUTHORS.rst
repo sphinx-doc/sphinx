@@ -45,7 +45,7 @@ Contributors
 * Daniel Eades -- improved static typing
 * Daniel Hahler -- testing and CI improvements
 * Daniel Pizetta -- inheritance diagram improvements
-* Dave Hoese -- ``sphinx.ext.viewcode`` bug fix
+* Dave Hoese -- ``sphinx.ext.viewcode`` and ``sphinx.ext.apidoc`` bug fixes
 * Dave Kuhlman -- original LaTeX writer
 * Dimitri Papadopoulos Orfanos -- linting and spelling
 * Dmitry Shachnev -- modernisation and reproducibility
@@ -107,6 +107,7 @@ Contributors
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes
 * Tim Hoffmann -- theme improvements
+* Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance

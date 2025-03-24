@@ -205,7 +205,7 @@ def env_purge_doc(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         if entry is False:
             continue
 
-        code, tags, used, refname = entry
+        _code, _tags, used, _refname = entry
         for fullname in list(used):
             if used[fullname] == docname:
                 used.pop(fullname)
@@ -250,7 +250,7 @@ def get_module_filename(app: Sphinx, modname: str) -> _StrPath | None:
         return None
     else:
         try:
-            filename, source = ModuleAnalyzer.get_module_source(modname)
+            filename, _source = ModuleAnalyzer.get_module_source(modname)
             return filename
         except Exception:
             return None
@@ -323,7 +323,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
         max_index = len(lines) - 1
         link_text = _('[docs]')
         for name, docname in used.items():
-            type, start, end = tags[name]
+            _type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (
                 f'<div class="viewcode-block" id="{name}">\n'

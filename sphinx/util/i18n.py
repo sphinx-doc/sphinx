@@ -228,6 +228,14 @@ def babel_format_date(
     if not hasattr(date, 'tzinfo'):
         formatter = babel.dates.format_date
 
+    if not locale:
+        # Babel would not accept a falsy locale
+        # (or would try to fall back to the LC_TIME
+        # locale, which would be not what was requested),
+        # so we can just short-cut to English, as we
+        # would for the `"fallback to English"` case.
+        locale = 'en'
+
     try:
         return formatter(date, format, locale=locale)
     except (ValueError, babel.core.UnknownLocaleError):

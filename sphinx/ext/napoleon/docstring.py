@@ -476,7 +476,7 @@ class GoogleDocstring:
     ) -> tuple[str, str, list[str]]:
         line = self._lines.next()
 
-        before, colon, after = self._partition_field_on_colon(line)
+        before, _colon, after = self._partition_field_on_colon(line)
         _name, _type, _desc = before, '', after
 
         if parse_type:

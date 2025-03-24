@@ -463,7 +463,7 @@ class Documenter:
                 type='autodoc',
             )
             return False
-        explicit_modname, path, base, tp_list, args, retann = matched.groups()
+        explicit_modname, path, base, _tp_list, args, retann = matched.groups()
 
         # support explicit module and class name separation via ::
         if explicit_modname is not None:
@@ -1359,7 +1359,7 @@ class ClassLevelDocumenter(Documenter):
                 # ... if still falsy, there's no way to know
                 if not mod_cls:
                     return None, []
-        modname, sep, cls = mod_cls.rpartition('.')
+        modname, _sep, cls = mod_cls.rpartition('.')
         parents = [cls]
         # if the module name is still missing, get it like above
         if not modname:
@@ -1405,7 +1405,7 @@ class DocstringSignatureMixin:
                 match = py_ext_sig_re.match(line)
                 if not match:
                     break
-                exmod, path, base, tp_list, args, retann = match.groups()
+                _exmod, _path, base, _tp_list, args, retann = match.groups()
 
                 # the base name must match ours
                 if base not in valid_names:
@@ -2295,7 +2295,7 @@ class DataDocumenter(
             return True
         else:
             doc = self.get_doc() or []
-            docstring, metadata = separate_metadata(
+            _docstring, metadata = separate_metadata(
                 '\n'.join(functools.reduce(operator.iadd, doc, []))
             )
             if 'hide-value' in metadata:
@@ -2947,7 +2947,7 @@ class AttributeDocumenter(  # type: ignore[misc]
         else:
             doc = self.get_doc()
             if doc:
-                docstring, metadata = separate_metadata(
+                _docstring, metadata = separate_metadata(
                     '\n'.join(functools.reduce(operator.iadd, doc, []))
                 )
                 if 'hide-value' in metadata:

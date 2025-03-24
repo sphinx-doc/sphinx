@@ -886,7 +886,7 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_footnote_reference(self, node: Element) -> None:
         num = node.astext().strip()
         try:
-            footnode, used = self.footnotestack[-1][num]
+            footnode, _used = self.footnotestack[-1][num]
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference

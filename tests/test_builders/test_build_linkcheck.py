@@ -713,7 +713,7 @@ def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]
 def test_follows_redirects_on_HEAD(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=True)) as address:
         app.build()
-    stdout, stderr = capsys.readouterr()
+    _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         'index.rst:1: [redirected with Found] '
@@ -736,7 +736,7 @@ def test_follows_redirects_on_HEAD(app, capsys):
 def test_follows_redirects_on_GET(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
         app.build()
-    stdout, stderr = capsys.readouterr()
+    _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         'index.rst:1: [redirected with Found] '
