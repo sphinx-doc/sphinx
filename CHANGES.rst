@@ -14,7 +14,8 @@ Features added
 --------------
 
 * #13332: Add :confval:`doctest_fail_fast` option to exit after the first failed
-  test. Patch by Till Hoffmann.
+  test.
+  Patch by Till Hoffmann.
 
 Bugs fixed
 ----------
