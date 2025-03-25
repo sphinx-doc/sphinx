@@ -19,6 +19,7 @@ warnings.filterwarnings(
     DeprecationWarning,
     module='docutils.frontend',
 )
+del warnings
 
 __version__: Final = '8.3.0'
 __display_version__: Final = __version__  # used for command line version
@@ -34,6 +35,7 @@ __display_version__: Final = __version__  # used for command line version
 version_info: Final = (8, 3, 0, 'beta', 0)
 
 package_dir: Final = _StrPath(__file__).resolve().parent
+del _StrPath
 
 _in_development = True
 if _in_development:
