@@ -13,15 +13,15 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     from typing import Final
 
-__version__: Final = '8.3.0'
-__display_version__: Final = __version__  # used for command line version
-
 warnings.filterwarnings(
     'ignore',
     'The frontend.Option class .*',
     DeprecationWarning,
     module='docutils.frontend',
 )
+
+__version__: Final = '8.3.0'
+__display_version__: Final = __version__  # used for command line version
 
 #: Version info for better programmatic use.
 #:
