@@ -7,11 +7,7 @@ from __future__ import annotations
 
 import warnings
 
-# work around flit error in parsing annotated assignments
-try:
-    from sphinx.util._pathlib import _StrPath
-except ImportError:
-    from pathlib import Path as _StrPath  # type: ignore[assignment]
+from sphinx.util._pathlib import _StrPath
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
