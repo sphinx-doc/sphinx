@@ -16,6 +16,9 @@ Features added
 * #13332: Add :confval:`doctest_fail_fast` option to exit after the first failed
   test.
   Patch by Till Hoffmann.
+* #13439: linkcheck: Permit warning on every redirect with
+  ``linkcheck_allowed_redirects = {}``.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------

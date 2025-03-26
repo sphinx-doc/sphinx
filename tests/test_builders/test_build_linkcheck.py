@@ -10,6 +10,7 @@ import time
 import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
+from io import StringIO
 from queue import Queue
 from typing import TYPE_CHECKING
 from unittest import mock
@@ -27,6 +28,7 @@ from sphinx.builders.linkcheck import (
     RateLimit,
     compile_linkcheck_allowed_redirects,
 )
+from sphinx.errors import ConfigError
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
@@ -37,6 +39,7 @@ ts_re = re.compile(r'.*\[(?P<ts>.*)\].*')
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
+    from pathlib import Path
     from typing import Any
 
     from urllib3 import HTTPConnectionPool
@@ -750,6 +753,34 @@ def test_follows_redirects_on_GET(app, capsys):
         """,
     )
     assert app.warning.getvalue() == ''
+
+
+def test_linkcheck_allowed_redirects_config(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
+    tmp_path.joinpath('conf.py').touch()
+    tmp_path.joinpath('index.rst').touch()
+
+    # ``linkcheck_allowed_redirects = None`` is rejected
+    warning_stream = StringIO()
+    with pytest.raises(ConfigError):
+        make_app(
+            'linkcheck',
+            srcdir=tmp_path,
+            confoverrides={'linkcheck_allowed_redirects': None},
+            warning=warning_stream,
+        )
+    assert strip_escape_sequences(warning_stream.getvalue()).splitlines() == [
+        "WARNING: The config value `linkcheck_allowed_redirects' has type `NoneType'; expected `dict'."
+    ]
+
+    # ``linkcheck_allowed_redirects = {}`` is permitted
+    app = make_app(
+        'linkcheck',
+        srcdir=tmp_path,
+        confoverrides={'linkcheck_allowed_redirects': {}},
+    )
+    assert strip_escape_sequences(app.warning.getvalue()) == ''
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
