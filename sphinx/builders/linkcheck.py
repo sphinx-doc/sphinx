@@ -808,7 +808,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     app.add_event('linkcheck-process-uri')
 
-    app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=800)
+    # priority 900 to happen after ``check_confval_types()``
+    app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=900)
 
     # FIXME: Disable URL rewrite handler for github.com temporarily.
     # See: https://github.com/sphinx-doc/sphinx/issues/9435
