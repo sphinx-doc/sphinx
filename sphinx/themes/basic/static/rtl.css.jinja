@@ -1,0 +1,118 @@
+{% if theme_is_rtl|tobool %}
+
+/* Core RTL layout */
+body,
+div.document,
+div.documentwrapper,
+div.body p,
+div.body dd,
+div.body li,
+div.body blockquote {
+    direction: rtl !important;
+}
+
+/* Text alignments */
+body,
+div.body p,
+div.body dd,
+div.body li,
+div.body blockquote,
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6,
+th,
+table.docutils td {
+    text-align: right !important;
+}
+
+/* Layout adjustments */
+div.sphinxsidebar {
+    float: right !important;
+    margin-right: -100% !important;
+}
+
+div.bodywrapper {
+    margin: 0 {{ theme_sidebarwidth|todim }} 0 0 !important;
+}
+
+/* Headers padding */
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
+    padding: 3px 10px 3px 0 !important;
+}
+
+/* Lists */
+ul,
+ol {
+    padding-right: 30px !important;
+    padding-left: 0 !important;
+}
+
+/* Left-aligned elements */
+div.related li.right,
+#sidebarbutton {
+    float: left !important;
+}
+
+div.related li.right {
+    margin-left: 10px !important;
+    margin-right: 0 !important;
+}
+
+/* Form and search elements */
+div.sphinxsidebar input,
+div.sphinxsidebar #searchbox input[type="text"],
+div.sphinxsidebar #searchbox input[type="submit"] {
+    float: right !important;
+    text-align: right !important;
+}
+
+/* Footnotes */
+.footnote-reference {
+    float: right !important;
+}
+
+.footnote {
+    direction: rtl !important;
+    text-align: right !important;
+}
+
+/* Code blocks - keep LTR */
+pre {
+    direction: ltr !important;
+    text-align: left !important;
+    border-right: 4px solid #ac9 !important;
+    border-left: none !important;
+}
+
+/* Admonitions */
+div.admonition {
+    padding: 7px 10px 7px 7px !important;
+}
+
+/* References and links */
+a.reference.internal,
+a.reference.external {
+    unicode-bidi: bidi-override !important;
+}
+
+/* Sidebar collapsible button */
+{% if theme_collapsiblesidebar|tobool %}
+#sidebarbutton {
+    border-right: 1px solid {{ theme_relbarbgcolor }} !important;
+    border-left: none !important;
+}
+{% endif %}
+
+/* Topic boxes and sidebars */
+div.topic {
+    margin: 0 0 0.5em 1em !important;
+}
+{% endif %}
