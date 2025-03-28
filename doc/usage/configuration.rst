@@ -3642,7 +3642,7 @@ and which failures and redirects it ignores.
 
 .. confval:: linkcheck_allowed_redirects
    :type: :code-py:`dict[str, str]`
-   :default: :code-py:`{}`
+   :default: :code-py:`None`
 
    A dictionary that maps a pattern of the source URI
    to a pattern of the canonical URI.
