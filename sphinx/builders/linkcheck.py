@@ -754,7 +754,11 @@ def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
         config.linkcheck_allowed_redirects = None
         return
     if not isinstance(config.linkcheck_allowed_redirects, dict):
-        raise ConfigError
+        msg = __(
+            f'Invalid value `{config.linkcheck_allowed_redirects!r}` in '
+            'linkcheck_allowed_redirects. Expected a dictionary.'
+        )
+        raise ConfigError(msg)
     allowed_redirects = {}
     for url, pattern in config.linkcheck_allowed_redirects.items():
         try:
