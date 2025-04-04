@@ -25,7 +25,6 @@ from requests.exceptions import Timeout as RequestTimeout
 
 from sphinx._cli.util.colour import darkgray, darkgreen, purple, red, turquoise
 from sphinx.builders.dummy import DummyBuilder
-from sphinx.errors import ConfigError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging, requests
@@ -387,7 +386,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         )
         self.check_anchors: bool = config.linkcheck_anchors
         self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
-        self.allowed_redirects = config.linkcheck_allowed_redirects or {}
+        self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
@@ -722,10 +721,13 @@ class AnchorCheckParser(HTMLParser):
 def _allowed_redirect(
     url: str, new_url: str, allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
 ) -> bool:
-    return any(
-        from_url.match(url) and to_url.match(new_url)
-        for from_url, to_url in allowed_redirects.items()
-    )
+    if allowed_redirects is None:  # no restrictions configured
+        return True
+    else:
+        return any(
+            from_url.match(url) and to_url.match(new_url)
+            for from_url, to_url in allowed_redirects.items()
+        )
 
 
 class RateLimit(NamedTuple):
@@ -750,29 +752,18 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
 
 def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     """Compile patterns to the regexp objects."""
-    if config.linkcheck_allowed_redirects is _sentinel_lar:
-        config.linkcheck_allowed_redirects = None
-        return
-    if not isinstance(config.linkcheck_allowed_redirects, dict):
-        msg = __(
-            f'Invalid value `{config.linkcheck_allowed_redirects!r}` in '
-            'linkcheck_allowed_redirects. Expected a dictionary.'
-        )
-        raise ConfigError(msg)
-    allowed_redirects = {}
-    for url, pattern in config.linkcheck_allowed_redirects.items():
-        try:
-            allowed_redirects[re.compile(url)] = re.compile(pattern)
-        except re.error as exc:
-            logger.warning(
-                __('Failed to compile regex in linkcheck_allowed_redirects: %r %s'),
-                exc.pattern,
-                exc.msg,
-            )
-    config.linkcheck_allowed_redirects = allowed_redirects
-
-
-_sentinel_lar = object()
+    if config.linkcheck_allowed_redirects is not None:
+        allowed_redirects = {}
+        for url, pattern in config.linkcheck_allowed_redirects.items():
+            try:
+                allowed_redirects[re.compile(url)] = re.compile(pattern)
+            except re.error as exc:
+                logger.warning(
+                    __('Failed to compile regex in linkcheck_allowed_redirects: %r %s'),
+                    exc.pattern,
+                    exc.msg,
+                )
+        config.linkcheck_allowed_redirects = allowed_redirects
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
@@ -784,7 +775,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'linkcheck_exclude_documents', [], '', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'linkcheck_allowed_redirects', _sentinel_lar, '', types=frozenset({dict})
+        'linkcheck_allowed_redirects', None, '', types=frozenset({dict, type(None)})
     )
     app.add_config_value('linkcheck_auth', [], '', types=frozenset({list, tuple}))
     app.add_config_value('linkcheck_request_headers', {}, '', types=frozenset({dict}))

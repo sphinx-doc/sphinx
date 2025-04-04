@@ -3642,6 +3642,7 @@ and which failures and redirects it ignores.
 
 .. confval:: linkcheck_allowed_redirects
    :type: :code-py:`dict[str, str]`
+   :default: :code-py:`{}` (do not follow)
 
    A dictionary that maps a pattern of the source URI
    to a pattern of the canonical URI.
@@ -3654,6 +3655,10 @@ and which failures and redirects it ignores.
    it finds redirected links that don't meet the rules above.
    It can be useful to detect unexpected redirects when using
    :option:`the fail-on-warnings mode <sphinx-build --fail-on-warning>`.
+
+   To deny all redirects, configure an empty dictionary (the default).
+
+   To follow all redirections, configure a value of :code-py:`None`.
 
    Example:
 

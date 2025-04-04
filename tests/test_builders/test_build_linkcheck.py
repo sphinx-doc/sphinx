@@ -10,7 +10,6 @@ import time
 import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
-from io import StringIO
 from queue import Queue
 from typing import TYPE_CHECKING
 from unittest import mock
@@ -28,7 +27,6 @@ from sphinx.builders.linkcheck import (
     RateLimit,
     compile_linkcheck_allowed_redirects,
 )
-from sphinx.errors import ConfigError
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
@@ -680,7 +678,7 @@ def test_linkcheck_request_headers_default(app: SphinxTestApp) -> None:
     assert content['status'] == 'working'
 
 
-def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]:
+def make_redirect_handler(*, support_head: bool = True) -> type[BaseHTTPRequestHandler]:
     class RedirectOnceHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
@@ -712,16 +710,15 @@ def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
+    confoverrides={'linkcheck_allowed_redirects': None},
 )
 def test_follows_redirects_on_HEAD(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=True)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
     _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
-    assert content == (
-        'index.rst:1: [redirected with Found] '
-        f'http://{address}/ to http://{address}/?redirected=1\n'
-    )
+    assert content == ''
     assert stderr == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
@@ -735,16 +732,15 @@ def test_follows_redirects_on_HEAD(app, capsys):
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
+    confoverrides={'linkcheck_allowed_redirects': None},
 )
 def test_follows_redirects_on_GET(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
     _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
-    assert content == (
-        'index.rst:1: [redirected with Found] '
-        f'http://{address}/ to http://{address}/?redirected=1\n'
-    )
+    assert content == ''
     assert stderr == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
@@ -755,24 +751,36 @@ def test_follows_redirects_on_GET(app, capsys):
     assert app.warning.getvalue() == ''
 
 
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
+    confoverrides={'linkcheck_allowed_redirects': {}},  # do not follow any redirects
+)
+def test_warns_redirects_on_GET(app, capsys):
+    with serve_application(app, make_redirect_handler()) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
+        app.build()
+    _stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    assert content == (
+        'index.rst:1: [redirected with Found] '
+        f'http://{address}/ to http://{address}/?redirected=1\n'
+    )
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
+        """,
+    )
+    assert len(app.warning.getvalue().splitlines()) == 1
+
+
 def test_linkcheck_allowed_redirects_config(
     make_app: Callable[..., SphinxTestApp], tmp_path: Path
 ) -> None:
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').touch()
-
-    # ``linkcheck_allowed_redirects = None`` is rejected
-    warning_stream = StringIO()
-    with pytest.raises(ConfigError):
-        make_app(
-            'linkcheck',
-            srcdir=tmp_path,
-            confoverrides={'linkcheck_allowed_redirects': None},
-            warning=warning_stream,
-        )
-    assert strip_escape_sequences(warning_stream.getvalue()).splitlines() == [
-        "WARNING: The config value `linkcheck_allowed_redirects' has type `NoneType'; expected `dict'."
-    ]
 
     # ``linkcheck_allowed_redirects = {}`` is permitted
     app = make_app(
