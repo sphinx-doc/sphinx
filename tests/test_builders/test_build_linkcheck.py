@@ -714,6 +714,7 @@ def make_redirect_handler(*, support_head: bool = True) -> type[BaseHTTPRequestH
 )
 def test_follows_redirects_on_HEAD(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=True)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
     _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
@@ -735,6 +736,7 @@ def test_follows_redirects_on_HEAD(app, capsys):
 )
 def test_follows_redirects_on_GET(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
     _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
