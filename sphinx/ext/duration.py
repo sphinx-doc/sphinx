@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import time
+from datetime import datetime, timedelta
 from itertools import islice
 from operator import itemgetter
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import sphinx
@@ -24,7 +26,27 @@ if TYPE_CHECKING:
         reading_durations: dict[str, float]
 
 
-DEFAULT_OPTIONS = {'n_durations' : 5}
+DEFAULT_OPTIONS = {
+    'n_durations' : 5,
+    'write_durations' : True,
+}
+
+DURATION_REF = 'sphinx_reading_times'
+
+ORPHAN_FORMAT = """
+:orphan:
+
+.. _{}:
+
+"""
+
+HEADER_FORMAT = (
+        ORPHAN_FORMAT
+        + """
+Computation times
+=================
+"""
+)
 logger = logging.getLogger(__name__)
 
 
@@ -80,10 +102,11 @@ def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
 def on_build_finished(app: Sphinx, error: Exception) -> None:
     """Display duration ranking on the current build."""
     domain = app.env.domains['duration']
-    if not domain.reading_durations:
+    reading_durations = domain.reading_durations
+    if not reading_durations:
         return
-    durations = sorted(
-        domain.reading_durations.items(), key=itemgetter(1), reverse=True
+    sorted_durations = sorted(
+        reading_durations.items(), key=itemgetter(1), reverse=True
     )
 
     logger.info('')
@@ -95,11 +118,16 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
     user_options = getattr(app.config, 'duration_options', DEFAULT_OPTIONS)
     options.update(user_options)
 
-    # Print durations, show all if `-1`
+    # Log the durations
     n_durations = options['n_durations']
-    n_durations = len(durations) if n_durations == -1 else n_durations
-    for docname, d in islice(durations, n_durations):
-        logger.info(f'{d:.3f} {docname}')  # NoQA: G004
+    durations_out = {}
+    n_durations = len(sorted_durations) if n_durations == -1 else n_durations
+    for docname, d in islice(sorted_durations, n_durations):
+        durations_out[docname] = d
+        logger.info(f'{_sec_to_readable(d)} {docname}')  # NoQA: G004
+
+    if options['write_durations']:
+        write_durations(app.builder.srcdir, reading_durations)
 
 
 def setup(app: Sphinx) -> dict[str, bool | str]:
@@ -114,3 +142,44 @@ def setup(app: Sphinx) -> dict[str, bool | str]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
+
+
+def _sec_to_readable(t):
+    """Convert a number of seconds to a more readable representation."""
+    # This will only work for < 1 day execution time
+    # And we reserve 2 digits for minutes because presumably
+    # there aren't many > 99 minute scripts, but occasionally some
+    # > 9 minute ones
+    t = datetime(1, 1, 1) + timedelta(seconds=t)
+    t = f'{t.hour * 60 + t.minute:02d}:{t.second:02d}.{int(round(t.microsecond / 1000.0)):03d}'
+    return t
+
+
+def write_durations(target_dir, reading_durations):
+    """Write durations to `sphinx_reading_times.rst`."""
+    total_time = sum(reading_durations.values())
+    out_file = Path(target_dir) / f'{DURATION_REF}.rst'
+    if out_file.is_file() and total_time == 0:  # a re-run
+        return
+    with out_file.open('w', encoding='utf-8') as fid:
+        fid.write(HEADER_FORMAT.format(DURATION_REF))
+        fid.write(
+            f'**{_sec_to_readable(total_time)}** total reading time for '
+            f'{len(reading_durations)} file{"s" if len(reading_durations) != 1 else ""}:\n\n'
+        )
+        fid.write("""\
+.. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - File
+     - Time (mm:ss.SSS)
+""")
+        # Need at least one entry or Sphinx complains
+        for file, duration in reading_durations.items() or [['N/A', 'N/A']]:
+            fid.write(
+                f"""\
+   * - {file}
+     - {_sec_to_readable(duration)}
+"""
+            )
