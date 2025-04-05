@@ -24,6 +24,7 @@ if TYPE_CHECKING:
         reading_durations: dict[str, float]
 
 
+DEFAULT_OPTIONS = {'n_durations' : 5}
 logger = logging.getLogger(__name__)
 
 
@@ -89,7 +90,15 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
     logger.info(
         __('====================== slowest reading durations =======================')
     )
-    for docname, d in islice(durations, 5):
+    # Get default options and update with user-specified values
+    options = DEFAULT_OPTIONS.copy()
+    user_options = getattr(app.config, 'duration_options', DEFAULT_OPTIONS)
+    options.update(user_options)
+
+    # Print durations, show all if `-1`
+    n_durations = options['n_durations']
+    n_durations = len(durations) if n_durations == -1 else n_durations
+    for docname, d in islice(durations, n_durations):
         logger.info(f'{d:.3f} {docname}')  # NoQA: G004
 
 
