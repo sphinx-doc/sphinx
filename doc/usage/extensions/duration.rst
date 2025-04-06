@@ -41,7 +41,7 @@ Configure this extension using a ``duration_options`` dictionary.
 
 .. confval:: print_slowest
    :type: :code-py:`bool`
-   :default: :code-py:`True
+   :default: :code-py:`True`
 
    Show the slowest durations in the build summary.
 
