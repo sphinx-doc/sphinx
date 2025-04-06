@@ -101,7 +101,9 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
     if options['print_total']:
         logger.info('')
         logger.info(
-            __('====================== total reading duration ==========================')
+            __(
+                '====================== total reading duration =========================='
+            )
         )
 
         n_files = len(reading_durations)
@@ -114,9 +116,13 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
     if options['print_slowest']:
         logger.info('')
         logger.info(
-            __('====================== slowest reading durations =======================')
+            __(
+                '====================== slowest reading durations ======================='
+            )
         )
-        sorted_durations = sorted(reading_durations.items(), key=itemgetter(1), reverse=True)
+        sorted_durations = sorted(
+            reading_durations.items(), key=itemgetter(1), reverse=True
+        )
         n_slowest = options['n_slowest']
         n_slowest = len(sorted_durations) if n_slowest == -1 else n_slowest
         for docname, d in islice(sorted_durations, n_slowest):
