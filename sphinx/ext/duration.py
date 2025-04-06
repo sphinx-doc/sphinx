@@ -130,7 +130,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
 
     if options['write_durations']:
         # Write to JSON
-        out_file = Path(app.builder.outdir) / 'sphinx_reading_durations.json'
+        out_file = Path(app.builder.outdir) / 'sphinx_durations.json'
         with out_file.open('w', encoding='utf-8') as fid:
             json.dump(reading_durations, fid, indent=4)  # indent makes it more readable
 
