@@ -19,6 +19,7 @@ Features added
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner.
+* Extend duration extension with new configuration options.
 
 Bugs fixed
 ----------
