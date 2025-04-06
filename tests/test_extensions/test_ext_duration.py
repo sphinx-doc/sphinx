@@ -48,6 +48,34 @@ def test_duration(app: SphinxTestApp) -> None:
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
+def test_n_slowest_value(app: SphinxTestApp) -> None:
+    options = {'n_slowest': 0}
+    app.add_config_value('duration_options', options, 'env')
+    app.build()
+
+    assert 'slowest reading durations' in app.status.getvalue()
+    assert re.search('\\d+\\.\\d{3} index\n', app.status.getvalue()) is None
+
+
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='basic',
+    confoverrides={'extensions': ['sphinx.ext.duration']},
+)
+def test_n_slowest_all(app: SphinxTestApp) -> None:
+    options = {'n_slowest': -1}
+    app.add_config_value('duration_options', options, 'env')
+    app.build()
+
+    assert 'slowest reading durations' in app.status.getvalue()
+    assert re.search('\\d+\\.\\d{3} index\n', app.status.getvalue())
+
+
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='basic',
+    confoverrides={'extensions': ['sphinx.ext.duration']},
+)
 def test_print_slowest_false(app: SphinxTestApp) -> None:
     options = {'print_slowest': False}
     app.add_config_value('duration_options', options, 'env')
