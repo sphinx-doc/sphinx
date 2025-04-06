@@ -45,7 +45,7 @@ def test_duration(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='basic',
+    testroot='intl',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_n_slowest_value(app: SphinxTestApp) -> None:
@@ -59,7 +59,7 @@ def test_n_slowest_value(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='basic',
+    testroot='root',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_n_slowest_all(app: SphinxTestApp) -> None:
@@ -99,7 +99,7 @@ def test_print_total_false(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='basic',
+    testroot='search',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_write_durations_false(app: SphinxTestApp) -> None:
