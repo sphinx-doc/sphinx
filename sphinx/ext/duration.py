@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from itertools import islice
 from operator import itemgetter
 from pathlib import Path
@@ -151,7 +151,7 @@ def setup(app: Sphinx) -> dict[str, bool | str]:
 
 def _format_seconds(seconds: float, multiline: bool = False) -> str:
     """Convert seconds to a formatted string."""
-    dt = datetime(1, 1, 1, tzinfo=datetime.UTC) + timedelta(seconds=seconds)
+    dt = datetime(1, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds)  # noqa: UP017
     minutes = dt.hour * 60 + dt.minute
     seconds = dt.second
     milliseconds = round(dt.microsecond / 1000.0)
