@@ -29,9 +29,9 @@ if TYPE_CHECKING:
 
 DEFAULT_OPTIONS = {
     'print_total': True,
-    'print_slowest' : True,
-    'n_slowest' : 5,
-    'write_durations' : True,
+    'print_slowest': True,
+    'n_slowest': 5,
+    'write_durations': True,
 }
 
 logger = logging.getLogger(__name__)
@@ -100,23 +100,27 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
 
     if options['print_total']:
         logger.info('')
-        logger.info(__('====================== total reading duration =========================='))
+        logger.info(
+            __('====================== total reading duration ==========================')
+        )
 
         n_files = len(reading_durations)
         s = '' if n_files == 1 else 's'
 
         total = sum(reading_durations.values())
-        logger.info(f'Total time reading {n_files} file{s}:\n')
+        logger.info('Total time reading %d file%s:\n', n_files, s)
         logger.info(_format_seconds(total, multiline=True))
 
     if options['print_slowest']:
         logger.info('')
-        logger.info(__('====================== slowest reading durations ======================='))
+        logger.info(
+            __('====================== slowest reading durations =======================')
+        )
         sorted_durations = sorted(reading_durations.items(), key=itemgetter(1), reverse=True)
         n_slowest = options['n_slowest']
         n_slowest = len(sorted_durations) if n_slowest == -1 else n_slowest
         for docname, d in islice(sorted_durations, n_slowest):
-            logger.info(f'{_format_seconds(d)} {docname}')
+            logger.info('%s %s', _format_seconds(d), docname)
 
     if options['write_durations']:
         # Write to JSON
@@ -139,9 +143,9 @@ def setup(app: Sphinx) -> dict[str, bool | str]:
     }
 
 
-def _format_seconds(t, multiline=False):
+def _format_seconds(seconds: float, multiline: bool=False) -> str:
     """Convert seconds to a formatted string."""
-    dt = datetime(1, 1, 1) + timedelta(seconds=t)
+    dt = datetime(1, 1, 1) + timedelta(seconds=seconds)
     minutes = dt.hour * 60 + dt.minute
     seconds = dt.second
     milliseconds = int(round(dt.microsecond / 1000.0))
