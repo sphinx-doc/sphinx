@@ -529,6 +529,7 @@ def test_autoattribute_TypeVar_module_level(app: SphinxTestApp) -> None:
         '',
         '.. py:class:: Class.T1',
         '   :module: target.typevar',
+        '   :canonical: target.typevar.T1',
         '',
         '   T1',
         '',
