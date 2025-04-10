@@ -53,6 +53,7 @@ Contributors
 * Eric Larson -- better error messages
 * Eric N. Vander Weele -- autodoc improvements
 * Eric Wieser -- autodoc improvements
+* Erik Bedard -- config options for duration extension
 * Etienne Desautels -- apidoc module
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Filip Vavera -- napoleon todo directive

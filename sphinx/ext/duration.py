@@ -28,10 +28,10 @@ if TYPE_CHECKING:
 
 
 DEFAULT_OPTIONS = {
-    'print_total': True,
-    'print_slowest': True,
-    'n_slowest': 5,
-    'write_json': True,
+    'duration_print_total': True,
+    'duration_print_slowest': True,
+    'duration_n_slowest': 5,
+    'duration_write_json': True,
 }
 
 logger = logging.getLogger(__name__)
@@ -95,10 +95,10 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
 
     # Get default options and update with user-specified values
     options = DEFAULT_OPTIONS.copy()
-    user_options = getattr(app.config, 'duration_options', DEFAULT_OPTIONS)
-    options.update(user_options)
+    for key in options:
+        options[key] = getattr(app.config, key, DEFAULT_OPTIONS[key])
 
-    if options['print_total']:
+    if options['duration_print_total']:
         logger.info('')
         logger.info(
             __(
@@ -113,15 +113,15 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         logger.info('Total time reading %d file%s:\n', n_files, s)
         logger.info(_format_seconds(total, multiline=True))
 
-    if options['print_slowest']:
+    if options['duration_print_slowest']:
         sorted_durations = sorted(
             reading_durations.items(), key=itemgetter(1), reverse=True
         )
-        n_slowest = options['n_slowest']
+        n_slowest = options['duration_n_slowest']
 
         if n_slowest == 0:
-            fmt = ' '
             n_slowest = len(sorted_durations)
+            fmt = ' '
         else:
             n_slowest = min(n_slowest, len(sorted_durations))
             fmt = f' {n_slowest} '
@@ -138,9 +138,9 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
 
         logger.info(__(''))
 
-    if options['write_json']:
+    if options['duration_write_json']:
         # Write to JSON
-        out_file = Path(app.builder.outdir) / 'sphinx_durations.json'
+        out_file = Path(app.builder.outdir) / 'sphinx_reading_durations.json'
         with out_file.open('w', encoding='utf-8') as fid:
             json.dump(reading_durations, fid, indent=4)  # indent makes it more readable
 

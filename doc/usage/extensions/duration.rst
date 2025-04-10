@@ -37,25 +37,23 @@ In ``conf.py``:
 Configuration
 =============
 
-Configure this extension using a ``duration_options`` dictionary.
-
-.. confval:: print_slowest
+.. confval:: duration_print_slowest
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
    Show the slowest durations in the build summary.
 
-.. confval:: durations
+.. confval:: duration_n_slowest
    :type: :code-py:`int`
    :default: :code-py:`5`
 
    Maximum number of slowest durations to show in the build summary.
    The durations are sorted in order from slow to fast. Only the ``5`` slowest
-   durations are shown by default. Set this to ``-1`` to show all durations.
+   durations are shown by default. Set this to ``0`` to show all durations.
 
    .. versionadded:: 8.3
 
-.. confval:: print_total
+.. confval:: duration_print_total
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
@@ -63,11 +61,11 @@ Configure this extension using a ``duration_options`` dictionary.
 
    .. versionadded:: 8.3
 
-.. confval:: write_json
+.. confval:: duration_write_json
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   Write all reading durations to a JSON file ``sphinx_reading_durations.json``
+   Write all reading durations to a JSON file ``reading_durations.json``
    in the build directory. File paths and durations (in seconds) are saved as
    keys and values, respectively.
 

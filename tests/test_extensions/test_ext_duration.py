@@ -31,7 +31,7 @@ def test_duration(app: SphinxTestApp) -> None:
         r'minutes:\s*\d+\s*seconds:\s*\d+\s*milliseconds:\s*\d+', app.status.getvalue()
     )
 
-    fname = 'sphinx_durations.json'
+    fname = 'sphinx_reading_durations.json'
     assert fname in os.listdir(app.outdir)  # noqa: PTH208
     with (Path(app.outdir) / fname).open() as f:
         data = json.load(f)
@@ -49,9 +49,9 @@ def test_duration(app: SphinxTestApp) -> None:
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_n_slowest_value(app: SphinxTestApp) -> None:
+    option = 'duration_n_slowest'
     n_slowest = 2
-    options = {'n_slowest': n_slowest}
-    app.add_config_value('duration_options', options, 'env')
+    app.add_config_value(option, n_slowest, 'env')
     app.build()
 
     assert f'slowest {n_slowest} reading durations' in app.status.getvalue()
@@ -65,9 +65,9 @@ def test_n_slowest_value(app: SphinxTestApp) -> None:
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_n_slowest_all(app: SphinxTestApp) -> None:
+    option = 'duration_n_slowest'
     n_slowest = 0
-    options = {'n_slowest': n_slowest}
-    app.add_config_value('duration_options', options, 'env')
+    app.add_config_value(option, n_slowest, 'env')
     app.build()
 
     assert 'slowest reading durations' in app.status.getvalue()
@@ -81,8 +81,9 @@ def test_n_slowest_all(app: SphinxTestApp) -> None:
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_print_slowest_false(app: SphinxTestApp) -> None:
-    options = {'print_slowest': False}
-    app.add_config_value('duration_options', options, 'env')
+    option = 'duration_print_slowest'
+    print_slowest = False
+    app.add_config_value(option, print_slowest, 'env')
     app.build()
 
     assert 'slowest reading durations' not in app.status.getvalue()
@@ -94,8 +95,9 @@ def test_print_slowest_false(app: SphinxTestApp) -> None:
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_print_total_false(app: SphinxTestApp) -> None:
-    options = {'print_total': False}
-    app.add_config_value('duration_options', options, 'env')
+    option = 'duration_print_total'
+    print_total = False
+    app.add_config_value(option, print_total, 'env')
     app.build()
 
     assert 'total reading duration' not in app.status.getvalue()
@@ -107,8 +109,9 @@ def test_print_total_false(app: SphinxTestApp) -> None:
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_write_json_false(app: SphinxTestApp) -> None:
-    options = {'write_json': False}
-    app.add_config_value('duration_options', options, 'env')
+    option = 'duration_write_json'
+    write_json = False
+    app.add_config_value(option, write_json, 'env')
     app.build()
 
-    assert 'sphinx_durations.json' not in os.listdir(app.outdir)  # noqa: PTH208
+    assert 'sphinx_reading_durations.json' not in os.listdir(app.outdir)  # noqa: PTH208
