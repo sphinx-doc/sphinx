@@ -102,8 +102,8 @@ def test_print_total_false(app: SphinxTestApp) -> None:
     testroot='search',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
-def test_write_durations_false(app: SphinxTestApp) -> None:
-    options = {'write_durations': False}
+def test_write_json_false(app: SphinxTestApp) -> None:
+    options = {'write_json': False}
     app.add_config_value('duration_options', options, 'env')
     app.build()
 

@@ -27,7 +27,7 @@ In ``conf.py``:
        'print_total': False,
        'print_slowest' : True,
        'n_slowest': 10,
-       'write_durations' : False,
+       'write_json' : False,
    }
 
    def setup(app):
@@ -63,7 +63,7 @@ Configure this extension using a ``duration_options`` dictionary.
 
    .. versionadded:: 8.3
 
-.. confval:: write_durations
+.. confval:: write_json
    :type: :code-py:`bool`
    :default: :code-py:`True`
 

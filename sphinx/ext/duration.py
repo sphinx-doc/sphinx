@@ -31,7 +31,7 @@ DEFAULT_OPTIONS = {
     'print_total': True,
     'print_slowest': True,
     'n_slowest': 5,
-    'write_durations': True,
+    'write_json': True,
 }
 
 logger = logging.getLogger(__name__)
@@ -128,7 +128,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         for docname, d in islice(sorted_durations, n_slowest):
             logger.info('%s %s', _format_seconds(d), docname)
 
-    if options['write_durations']:
+    if options['write_json']:
         # Write to JSON
         out_file = Path(app.builder.outdir) / 'sphinx_durations.json'
         with out_file.open('w', encoding='utf-8') as fid:
