@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 def test_duration(app: SphinxTestApp) -> None:
     app.build()
 
-    assert 'slowest reading durations' in app.status.getvalue()
+    assert 'slowest 1 reading durations' in app.status.getvalue()
     assert re.search('\\d+\\.\\d{3} index\n', app.status.getvalue())
 
     assert 'total reading duration' in app.status.getvalue()
@@ -49,12 +49,14 @@ def test_duration(app: SphinxTestApp) -> None:
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_n_slowest_value(app: SphinxTestApp) -> None:
-    options = {'n_slowest': 0}
+    n_slowest = 2
+    options = {'n_slowest': n_slowest}
     app.add_config_value('duration_options', options, 'env')
     app.build()
 
-    assert 'slowest reading durations' in app.status.getvalue()
-    assert re.search('\\d+\\.\\d{3} index\n', app.status.getvalue()) is None
+    assert f'slowest {n_slowest} reading durations' in app.status.getvalue()
+    matches = re.findall(r'\d+\.\d{3}\s+[A-Za-z0-9]+\n', app.status.getvalue())
+    assert len(matches) == n_slowest
 
 
 @pytest.mark.sphinx(
@@ -63,12 +65,14 @@ def test_n_slowest_value(app: SphinxTestApp) -> None:
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_n_slowest_all(app: SphinxTestApp) -> None:
-    options = {'n_slowest': -1}
+    n_slowest = 0
+    options = {'n_slowest': n_slowest}
     app.add_config_value('duration_options', options, 'env')
     app.build()
 
     assert 'slowest reading durations' in app.status.getvalue()
-    assert re.search('\\d+\\.\\d{3} index\n', app.status.getvalue())
+    matches = re.findall(r'\d+\.\d{3}\s+[A-Za-z0-9]+\n', app.status.getvalue())
+    assert len(matches) > n_slowest
 
 
 @pytest.mark.sphinx(

@@ -26,7 +26,7 @@ In ``conf.py``:
    duration_options = {
        'print_total': False,
        'print_slowest' : True,
-       'n_slowest': 10,
+       'durations': 10,
        'write_json' : False,
    }
 
@@ -45,7 +45,7 @@ Configure this extension using a ``duration_options`` dictionary.
 
    Show the slowest durations in the build summary.
 
-.. confval:: n_slowest
+.. confval:: durations
    :type: :code-py:`int`
    :default: :code-py:`5`
 

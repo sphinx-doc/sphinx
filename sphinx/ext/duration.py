@@ -114,19 +114,29 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         logger.info(_format_seconds(total, multiline=True))
 
     if options['print_slowest']:
-        logger.info('')
-        logger.info(
-            __(
-                '====================== slowest reading durations ======================='
-            )
-        )
         sorted_durations = sorted(
             reading_durations.items(), key=itemgetter(1), reverse=True
         )
         n_slowest = options['n_slowest']
-        n_slowest = len(sorted_durations) if n_slowest == -1 else n_slowest
+
+        if n_slowest == 0:
+            fmt = ' '
+            n_slowest = len(sorted_durations)
+        else:
+            n_slowest = min(n_slowest, len(sorted_durations))
+            fmt = f' {n_slowest} '
+
+        logger.info('')
+        logger.info(
+            __(
+                f'====================== slowest{fmt}reading durations ======================='
+            )
+        )
+
         for docname, d in islice(sorted_durations, n_slowest):
             logger.info('%s %s', _format_seconds(d), docname)
+
+        logger.info(__(''))
 
     if options['write_json']:
         # Write to JSON
