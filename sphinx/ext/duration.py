@@ -143,7 +143,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         relpath = (
             Path(write_json)
             if isinstance(write_json, (Path, str))
-            else Path(DEFAULT_OPTIONS['duration_write_json'])
+            else Path(cast('Path | str', DEFAULT_OPTIONS['duration_write_json']))
         )
         out_file = Path(app.builder.outdir) / relpath
         # Make sure all parent dirs exist
