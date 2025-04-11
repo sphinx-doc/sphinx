@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from itertools import islice
 from operator import itemgetter
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import sphinx
 from sphinx.domains import Domain
@@ -117,7 +117,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         sorted_durations = sorted(
             reading_durations.items(), key=itemgetter(1), reverse=True
         )
-        n_slowest = int(options['duration_n_slowest'])
+        n_slowest = cast('int', options['duration_n_slowest'])
 
         if n_slowest == 0:
             n_slowest = len(sorted_durations)
