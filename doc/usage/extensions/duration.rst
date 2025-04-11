@@ -11,12 +11,15 @@ for inspecting what document is slowly built. Durations are printed
 to console at the end of the build and saved to a JSON file in the
 :attr:`~sphinx.application.Sphinx.outdir` by default.
 
-Enable this extension by adding it to ``conf.py``:
+Enable this extension by adding it to your :confval:`extensions`
+configuration.
 
 .. code-block:: python
 
-   extensions = ['sphinx.ext.duration']
-
+    extensions = [
+        ...
+        'sphinx.ext.duration',
+    ]
 
 Configuration
 =============
