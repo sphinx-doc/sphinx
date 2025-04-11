@@ -121,7 +121,7 @@ def test_write_json_false(app: SphinxTestApp, write_json) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='search',
+    testroot='html_assets',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_write_json_path(app: SphinxTestApp) -> None:
