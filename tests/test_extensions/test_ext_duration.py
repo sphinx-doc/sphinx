@@ -61,7 +61,7 @@ def test_n_slowest_value(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='root',
+    testroot='html_assets',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_n_slowest_all(app: SphinxTestApp) -> None:
@@ -121,7 +121,7 @@ def test_write_json_false(app: SphinxTestApp, write_json) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='html_assets',
+    testroot='smartquotes',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_write_json_path(app: SphinxTestApp) -> None:
