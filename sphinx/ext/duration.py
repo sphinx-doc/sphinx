@@ -138,9 +138,17 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
 
         logger.info(__(''))
 
-    if options['duration_write_json']:
+    if write_json := options['duration_write_json']:
         # Write to JSON
-        out_file = Path(app.builder.outdir) / 'sphinx_reading_durations.json'
+        relpath = (
+            Path(write_json)
+            if isinstance(write_json, (Path, str))
+            else Path('sphinx_reading_durations.json')
+        )
+        out_file = Path(app.builder.outdir) / relpath
+        # Make sure all parent dirs exist
+        for parent in out_file.parents[: len(relpath.parents) - 1]:
+            parent.mkdir(exist_ok=True)
         with out_file.open('w', encoding='utf-8') as fid:
             json.dump(reading_durations, fid, indent=4)  # indent makes it more readable
 

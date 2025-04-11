@@ -8,8 +8,8 @@
 
 This extension measures durations of Sphinx processing and is useful
 for inspecting what document is slowly built. Durations are printed
-to console at end of the build and a JSON file ``sphinx_reading_durations.json``
-with durations is also saved to the output directory by default.
+to console at the end of the build and saved to a JSON file by
+default.
 
 Enable this extension by adding it to ``conf.py``:
 
@@ -64,19 +64,14 @@ Configuration
    .. versionadded:: 8.3
 
 .. confval:: duration_write_json
-   :type: :code-py:`bool`
-   :default: :code-py:`True`
+   :type: :code-py:`str | bool`
+   :default: :code-py:`'sphinx_reading_durations.json'`
 
    Write the reading durations ``dict`` to a JSON file in the output directory.
-   The ``dict`` contains file paths relative to ``outdir`` and durations in seconds.
+   The ``dict`` contains the document file paths (relative to ``outdir``) and
+   reading durations in seconds. Set this value to an empty string or ``False``
+   to disable this option, or set it to a relative path to customize it.
 
-   The file may be read and used for testing purposes, e.g.:
-
-   .. code-block:: python
-
-      import json
-
-      with open( 'sphinx_reading_durations.json', 'r') as file:
-          reading_durations = json.load(file)
+   This may be useful for testing and setting a limit on reading times.
 
    .. versionadded:: 8.3

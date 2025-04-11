@@ -115,3 +115,23 @@ def test_write_json_false(app: SphinxTestApp) -> None:
     app.build()
 
     assert 'sphinx_reading_durations.json' not in os.listdir(app.outdir)  # noqa: PTH208
+
+
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='search',
+    confoverrides={'extensions': ['sphinx.ext.duration']},
+)
+def test_write_json_path(app: SphinxTestApp) -> None:
+    option = 'duration_write_json'
+    parent_name = 'durations'
+    file_name = 'durations.json'
+    write_json = str(Path(parent_name) / file_name)
+    app.add_config_value(option, write_json, 'env')
+    app.build()
+
+    expected_path = Path(app.outdir) / write_json
+    assert expected_path.parent.is_dir()
+    assert expected_path.is_file()
+    assert expected_path.parent.name == parent_name
+    assert expected_path.name == file_name
