@@ -9,7 +9,7 @@
 This extension measures durations of Sphinx processing and is useful
 for inspecting what document is slowly built. Durations are printed
 to console at the end of the build and saved to a JSON file in the
-:attr:`Sphinx.outdir` by default.
+:attr:`~sphinx.application.Sphinx.outdir` by default.
 
 Enable this extension by adding it to ``conf.py``:
 
