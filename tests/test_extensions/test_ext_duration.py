@@ -45,7 +45,7 @@ def test_duration(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='intl',
+    testroot='root',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_n_slowest_value(app: SphinxTestApp) -> None:
