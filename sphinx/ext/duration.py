@@ -150,7 +150,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         for parent in out_file.parents[: len(relpath.parents) - 1]:
             parent.mkdir(exist_ok=True)
         with out_file.open('w', encoding='utf-8') as fid:
-            json.dump(reading_durations, fid, indent=4)  # indent makes it more readable
+            json.dump(reading_durations, fid, indent=4)
 
 
 def setup(app: Sphinx) -> dict[str, bool | str]:
