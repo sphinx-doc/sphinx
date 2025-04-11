@@ -31,7 +31,7 @@ DEFAULT_OPTIONS = {
     'duration_print_total': True,
     'duration_print_slowest': True,
     'duration_n_slowest': 5,
-    'duration_write_json': True,
+    'duration_write_json': 'sphinx_reading_durations.json',
 }
 
 logger = logging.getLogger(__name__)
@@ -143,7 +143,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         relpath = (
             Path(write_json)
             if isinstance(write_json, (Path, str))
-            else Path('sphinx_reading_durations.json')
+            else Path(DEFAULT_OPTIONS['duration_write_json'])
         )
         out_file = Path(app.builder.outdir) / relpath
         # Make sure all parent dirs exist

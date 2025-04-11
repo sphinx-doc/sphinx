@@ -103,18 +103,20 @@ def test_print_total_false(app: SphinxTestApp) -> None:
     assert 'total reading duration' not in app.status.getvalue()
 
 
+@pytest.mark.parametrize('write_json', [True, False])
 @pytest.mark.sphinx(
     'dummy',
     testroot='search',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
-def test_write_json_false(app: SphinxTestApp) -> None:
+def test_write_json_false(app: SphinxTestApp, write_json) -> None:
     option = 'duration_write_json'
-    write_json = False
     app.add_config_value(option, write_json, 'env')
     app.build()
 
-    assert 'sphinx_reading_durations.json' not in os.listdir(app.outdir)  # noqa: PTH208
+    expected = Path(app.outdir) / 'sphinx_reading_durations.json'
+    assert expected.is_file() == write_json
+    expected.unlink(missing_ok=not write_json)
 
 
 @pytest.mark.sphinx(
