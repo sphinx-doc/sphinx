@@ -23,7 +23,7 @@ def test_duration(app: SphinxTestApp) -> None:
     app.build()
 
     assert 'slowest 1 reading durations' in app.status.getvalue()
-    assert re.search('\\d+\\.\\d{3} index\n', app.status.getvalue())
+    assert re.search('\\d+\\.\\d{3}s index\n', app.status.getvalue())
 
     assert 'total reading duration' in app.status.getvalue()
     assert 'Total time reading 1 file:' in app.status.getvalue()
@@ -55,7 +55,7 @@ def test_n_slowest_value(app: SphinxTestApp) -> None:
     app.build()
 
     assert f'slowest {n_slowest} reading durations' in app.status.getvalue()
-    matches = re.findall(r'\d+\.\d{3}\s+[A-Za-z0-9]+\n', app.status.getvalue())
+    matches = re.findall(r'\d+\.\d{3}s\s+[A-Za-z0-9]+\n', app.status.getvalue())
     assert len(matches) == n_slowest
 
 
@@ -71,7 +71,7 @@ def test_n_slowest_all(app: SphinxTestApp) -> None:
     app.build()
 
     assert 'slowest reading durations' in app.status.getvalue()
-    matches = re.findall(r'\d+\.\d{3}\s+[A-Za-z0-9]+\n', app.status.getvalue())
+    matches = re.findall(r'\d+\.\d{3}s\s+[A-Za-z0-9]+\n', app.status.getvalue())
     assert len(matches) > n_slowest
 
 

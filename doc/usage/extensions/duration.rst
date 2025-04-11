@@ -6,32 +6,16 @@
 
 .. versionadded:: 2.4
 
-This extension measures durations of Sphinx processing and show its
-result at end of the build. It is useful for inspecting what document
-is slowly built. Enable this extension by adding it to ``conf.py``:
+This extension measures durations of Sphinx processing and is useful
+for inspecting what document is slowly built. Durations are printed
+to console at end of the build and a JSON file ``sphinx_reading_durations.json``
+with durations is also saved to the output directory by default.
+
+Enable this extension by adding it to ``conf.py``:
 
 .. code-block:: python
 
    extensions = ['sphinx.ext.duration']
-
-Optionally, configure the extension by adding ``duration_options`` as a config value.
-In ``conf.py``:
-
-.. code-block:: python
-
-   extensions = ['sphinx.ext.duration']
-
-   # disable printing totals and writing durations
-   # and only show the 10 slowest times
-   duration_options = {
-       'print_total': False,
-       'print_slowest' : True,
-       'durations': 10,
-       'write_json' : False,
-   }
-
-   def setup(app):
-       app.add_config_value('duration_options', duration_options, 'env')
 
 
 Configuration
@@ -41,7 +25,16 @@ Configuration
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   Show the slowest durations in the build summary.
+   Show the slowest durations in the build summary, e.g.:
+
+    .. code-block:: shell
+
+        ====================== slowest 5 reading durations =======================
+        0.012s toctree
+        0.011s admonitions
+        0.011s refs
+        0.006s docfields
+        0.005s figure
 
 .. confval:: duration_n_slowest
    :type: :code-py:`int`
@@ -57,7 +50,16 @@ Configuration
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   Show the total reading duration in the build summary.
+   Show the total reading duration in the build summary, e.g.:
+
+   .. code-block:: shell
+
+      ====================== total reading duration ==========================
+      Total time reading 31 files:
+
+      minutes:        0
+      seconds:        3
+      milliseconds: 142
 
    .. versionadded:: 8.3
 
@@ -65,8 +67,16 @@ Configuration
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   Write all reading durations to a JSON file ``reading_durations.json``
-   in the build directory. File paths and durations (in seconds) are saved as
-   keys and values, respectively.
+   Write the reading durations ``dict`` to a JSON file in the output directory.
+   The ``dict`` contains file paths relative to ``outdir`` and durations in seconds.
+
+   The file may be read and used for testing purposes, e.g.:
+
+   .. code-block:: python
+
+      import json
+
+      with open( 'sphinx_reading_durations.json', 'r') as file:
+          reading_durations = json.load(file)
 
    .. versionadded:: 8.3

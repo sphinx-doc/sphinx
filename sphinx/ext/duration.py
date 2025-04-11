@@ -161,15 +161,14 @@ def setup(app: Sphinx) -> dict[str, bool | str]:
 
 def _format_seconds(seconds: float, multiline: bool = False) -> str:
     """Convert seconds to a formatted string."""
+    if not multiline:
+        return f'{seconds:.3f}s'
     dt = datetime(1, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds)  # noqa: UP017
     minutes = dt.hour * 60 + dt.minute
     seconds = dt.second
     milliseconds = round(dt.microsecond / 1000.0)
-    if multiline:
-        return (
-            f'minutes:      {minutes:>3}\n'
-            f'seconds:      {seconds:>3}\n'
-            f'milliseconds: {milliseconds:>3}'
-        )
-    else:
-        return f'{minutes:02d}:{seconds:02d}.{milliseconds:03d}'
+    return (
+        f'minutes:      {minutes:>3}\n'
+        f'seconds:      {seconds:>3}\n'
+        f'milliseconds: {milliseconds:>3}'
+    )
