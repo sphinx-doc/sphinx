@@ -117,7 +117,7 @@ def on_build_finished(app: Sphinx, error: Exception) -> None:
         sorted_durations = sorted(
             reading_durations.items(), key=itemgetter(1), reverse=True
         )
-        n_slowest = options['duration_n_slowest']
+        n_slowest = int(options['duration_n_slowest'])
 
         if n_slowest == 0:
             n_slowest = len(sorted_durations)
