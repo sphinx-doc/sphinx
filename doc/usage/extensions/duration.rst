@@ -91,5 +91,7 @@ Configuration
    :type: :code-py:`float | None`
    :default: :code-py:`None`
 
-   Set a duration limit for reading a document. If any duration exceeds
-   this value, a warning is emitted.
+   Set a duration limit (in seconds) for reading a document. If any
+   duration exceeds this value, a warning is emitted.
+
+   .. versionadded:: 8.3
