@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     'dummy',
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
+    freshenv=True,
 )
 def test_duration(app: SphinxTestApp) -> None:
     app.build()
@@ -47,6 +48,7 @@ def test_duration(app: SphinxTestApp) -> None:
     'dummy',
     testroot='root',
     confoverrides={'extensions': ['sphinx.ext.duration']},
+    freshenv=True,
 )
 def test_n_slowest_value(app: SphinxTestApp) -> None:
     option = 'duration_n_slowest'
@@ -80,6 +82,7 @@ def test_n_slowest_all(app: SphinxTestApp) -> None:
     'dummy',
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
+    freshenv=True,
 )
 def test_print_slowest_false(app: SphinxTestApp) -> None:
     option = 'duration_print_slowest'
@@ -94,6 +97,7 @@ def test_print_slowest_false(app: SphinxTestApp) -> None:
     'dummy',
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
+    freshenv=True,
 )
 def test_print_total_false(app: SphinxTestApp) -> None:
     option = 'duration_print_total'
@@ -109,6 +113,7 @@ def test_print_total_false(app: SphinxTestApp) -> None:
     'dummy',
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
+    freshenv=True,
 )
 def test_write_json_false(app: SphinxTestApp, write_json: bool) -> None:
     option = 'duration_write_json'
