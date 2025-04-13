@@ -61,8 +61,9 @@ def test_n_slowest_value(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='html_assets',
+    testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
+    freshenv=True,
 )
 def test_n_slowest_all(app: SphinxTestApp) -> None:
     option = 'duration_n_slowest'
@@ -106,7 +107,7 @@ def test_print_total_false(app: SphinxTestApp) -> None:
 @pytest.mark.parametrize('write_json', [True, False])
 @pytest.mark.sphinx(
     'dummy',
-    testroot='search',
+    testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
 )
 def test_write_json_false(app: SphinxTestApp, write_json: bool) -> None:
@@ -121,8 +122,9 @@ def test_write_json_false(app: SphinxTestApp, write_json: bool) -> None:
 
 @pytest.mark.sphinx(
     'dummy',
-    testroot='smartquotes',
+    testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.duration']},
+    freshenv=True,
 )
 def test_write_json_path(app: SphinxTestApp) -> None:
     option = 'duration_write_json'
@@ -137,3 +139,23 @@ def test_write_json_path(app: SphinxTestApp) -> None:
     assert expected_path.is_file()
     assert expected_path.parent.name == parent_name
     assert expected_path.name == file_name
+
+
+@pytest.mark.parametrize(
+    ('duration_limit', 'expect_warning'), [(0.0, True), (1.0, False)]
+)
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='basic',
+    confoverrides={'extensions': ['sphinx.ext.duration']},
+    freshenv=True,
+)
+def test_duration_limit(
+    app: SphinxTestApp, duration_limit: float, expect_warning
+) -> None:
+    app.add_config_value('duration_limit', duration_limit, 'env')
+    app.build()
+
+    match = r'index\.rst: WARNING: Reading duration \d+\.\d{3}s exceeded the duration limit 0\.000s \[duration\]'
+    has_warning = re.search(match, app.warning.getvalue()) is not None
+    assert has_warning == expect_warning

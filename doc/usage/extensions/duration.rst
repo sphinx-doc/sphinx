@@ -86,3 +86,10 @@ Configuration
    This may be useful for testing and setting a limit on reading times.
 
    .. versionadded:: 8.3
+
+.. confval:: duration_limit
+   :type: :code-py:`float | None`
+   :default: :code-py:`None`
+
+   Set a duration limit for reading a document. If any duration exceeds
+   this value, a warning is emitted.

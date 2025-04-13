@@ -19,7 +19,7 @@ Features added
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner.
-* #13468: Add config options to duration extension.
+* #13468: Add config options to :mod:`sphinx.ext.duration`.
 
 Bugs fixed
 ----------

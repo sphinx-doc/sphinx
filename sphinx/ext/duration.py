@@ -32,6 +32,7 @@ DEFAULT_OPTIONS = {
     'duration_print_slowest': True,
     'duration_n_slowest': 5,
     'duration_write_json': 'sphinx_reading_durations.json',
+    'duration_limit': None,
 }
 
 logger = logging.getLogger(__name__)
@@ -48,6 +49,15 @@ class DurationDomain(Domain):
 
     def note_reading_duration(self, duration: float) -> None:
         self.reading_durations[self.env.docname] = duration
+
+    def warn_reading_duration(self, duration: float, duration_limit: float) -> None:
+        logger.warning(
+            __('Reading duration %s exceeded the duration limit %s'),
+            _format_seconds(duration),
+            _format_seconds(duration_limit),
+            type='duration',
+            location=self.env.docname,
+        )
 
     def clear(self) -> None:
         self.reading_durations.clear()
@@ -84,6 +94,12 @@ def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     duration = time.monotonic() - app.env.current_document.reading_started_at
     domain = app.env.domains['duration']
     domain.note_reading_duration(duration)
+
+    duration_limit = getattr(
+        app.config, 'duration_limit', DEFAULT_OPTIONS['duration_limit']
+    )
+    if duration_limit is not None and duration > duration_limit:
+        domain.warn_reading_duration(duration, duration_limit)
 
 
 def on_build_finished(app: Sphinx, error: Exception) -> None:
