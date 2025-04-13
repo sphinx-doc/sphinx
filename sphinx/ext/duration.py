@@ -95,8 +95,9 @@ def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     domain = app.env.domains['duration']
     domain.note_reading_duration(duration)
 
-    duration_limit = getattr(
-        app.config, 'duration_limit', DEFAULT_OPTIONS['duration_limit']
+    duration_limit = cast(
+        'float | None',
+        getattr(app.config, 'duration_limit', DEFAULT_OPTIONS['duration_limit']),
     )
     if duration_limit is not None and duration > duration_limit:
         domain.warn_reading_duration(duration, duration_limit)

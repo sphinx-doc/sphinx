@@ -151,7 +151,7 @@ def test_write_json_path(app: SphinxTestApp) -> None:
     freshenv=True,
 )
 def test_duration_limit(
-    app: SphinxTestApp, duration_limit: float, expect_warning
+    app: SphinxTestApp, duration_limit: float, expect_warning: bool
 ) -> None:
     app.add_config_value('duration_limit', duration_limit, 'env')
     app.build()
