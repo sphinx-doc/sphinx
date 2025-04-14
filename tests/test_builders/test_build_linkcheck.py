@@ -680,7 +680,7 @@ def test_linkcheck_request_headers_default(app: SphinxTestApp) -> None:
     assert content['status'] == 'working'
 
 
-def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]:
+def make_redirect_handler(*, support_head: bool = True) -> type[BaseHTTPRequestHandler]:
     class RedirectOnceHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
@@ -712,10 +712,53 @@ def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
-    confoverrides={'linkcheck_allowed_redirects': {}},  # do not follow any redirects
 )
 def test_follows_redirects_on_HEAD(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=True)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
+        app.build()
+    _stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    assert content == ''
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
+        """,
+    )
+    assert app.warning.getvalue() == ''
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
+)
+def test_follows_redirects_on_GET(app, capsys):
+    with serve_application(app, make_redirect_handler(support_head=False)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
+        app.build()
+    _stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    assert content == ''
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
+        127.0.0.1 - - [] "GET / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
+        """,
+    )
+    assert app.warning.getvalue() == ''
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
+    confoverrides={'linkcheck_allowed_redirects': {}},  # do not follow any redirects
+)
+def test_warns_disallowed_redirects(app, capsys):
+    with serve_application(app, make_redirect_handler()) as address:
         compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
     _stdout, stderr = capsys.readouterr()
@@ -730,39 +773,7 @@ def test_follows_redirects_on_HEAD(app, capsys):
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
         """,
     )
-    assert (
-        f'WARNING: redirect  http://{address}/'
-        f' - with Found to http://{address}/?redirected=1'
-    ) in strip_escape_sequences(app.warning.getvalue())
-
-
-@pytest.mark.sphinx(
-    'linkcheck',
-    testroot='linkcheck-localserver',
-    freshenv=True,
-    confoverrides={'linkcheck_allowed_redirects': {}},  # do not follow any redirects
-)
-def test_follows_redirects_on_GET(app, capsys):
-    with serve_application(app, make_redirect_handler(support_head=False)) as address:
-        compile_linkcheck_allowed_redirects(app, app.config)
-        app.build()
-    _stdout, stderr = capsys.readouterr()
-    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
-    assert content == (
-        'index.rst:1: [redirected with Found] '
-        f'http://{address}/ to http://{address}/?redirected=1\n'
-    )
-    assert stderr == textwrap.dedent(
-        """\
-        127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
-        127.0.0.1 - - [] "GET / HTTP/1.1" 302 -
-        127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
-        """,
-    )
-    assert (
-        f'WARNING: redirect  http://{address}/'
-        f' - with Found to http://{address}/?redirected=1'
-    ) in strip_escape_sequences(app.warning.getvalue())
+    assert len(app.warning.getvalue().splitlines()) == 1
 
 
 def test_linkcheck_allowed_redirects_config(
