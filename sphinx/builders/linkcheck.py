@@ -179,7 +179,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         text = 'with unknown code'
                 linkstat['text'] = text
                 redirection = f'{text} to {result.message}'
-                if self.config.linkcheck_allowed_redirects is not None:
+                if self.config.linkcheck_allowed_redirects is not _sentinel_lar:
                     msg = f'redirect  {res_uri} - {redirection}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
@@ -387,7 +387,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         )
         self.check_anchors: bool = config.linkcheck_anchors
         self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
-        self.allowed_redirects = config.linkcheck_allowed_redirects or {}
+        self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
@@ -722,6 +722,8 @@ class AnchorCheckParser(HTMLParser):
 def _allowed_redirect(
     url: str, new_url: str, allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
 ) -> bool:
+    if allowed_redirects is _sentinel_lar:
+        return True
     return any(
         from_url.match(url) and to_url.match(new_url)
         for from_url, to_url in allowed_redirects.items()
@@ -751,7 +753,6 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
 def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     """Compile patterns to the regexp objects."""
     if config.linkcheck_allowed_redirects is _sentinel_lar:
-        config.linkcheck_allowed_redirects = None
         return
     if not isinstance(config.linkcheck_allowed_redirects, dict):
         raise ConfigError

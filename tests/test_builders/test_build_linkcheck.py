@@ -712,6 +712,7 @@ def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
+    confoverrides={'linkcheck_allowed_redirects': {}},  # do not follow any redirects
 )
 def test_follows_redirects_on_HEAD(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=True)) as address:
@@ -729,13 +730,17 @@ def test_follows_redirects_on_HEAD(app, capsys):
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
         """,
     )
-    assert app.warning.getvalue() == ''
+    assert (
+        f'WARNING: redirect  http://{address}/'
+        f' - with Found to http://{address}/?redirected=1'
+    ) in strip_escape_sequences(app.warning.getvalue())
 
 
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
+    confoverrides={'linkcheck_allowed_redirects': {}},  # do not follow any redirects
 )
 def test_follows_redirects_on_GET(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
@@ -754,7 +759,10 @@ def test_follows_redirects_on_GET(app, capsys):
         127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
         """,
     )
-    assert app.warning.getvalue() == ''
+    assert (
+        f'WARNING: redirect  http://{address}/'
+        f' - with Found to http://{address}/?redirected=1'
+    ) in strip_escape_sequences(app.warning.getvalue())
 
 
 def test_linkcheck_allowed_redirects_config(
