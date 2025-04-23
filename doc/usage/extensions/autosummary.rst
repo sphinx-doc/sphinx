@@ -301,9 +301,6 @@ Autosummary uses the following Jinja template files:
 - :file:`autosummary/base.rst` -- fallback template
 - :file:`autosummary/module.rst` -- template for modules
 - :file:`autosummary/class.rst` -- template for classes
-- :file:`autosummary/function.rst` -- template for functions
-- :file:`autosummary/attribute.rst` -- template for class attributes
-- :file:`autosummary/method.rst` -- template for class methods
 
 The following variables are available in the templates:
 
