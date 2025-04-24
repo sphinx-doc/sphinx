@@ -67,7 +67,7 @@
    Footnote rendering may have had problems, due to extra package or
    document class; check latex log for instructions}%
 \@namedef{sphinx_buildwarning_badiconpackage}{%
-   You have set iconpackage=\spx@opt@iconpackage, but this LaTeX package
+   You have set iconpackage=\spx@usr@iconpackage, but this LaTeX package
    is not found}%
 
 %% OPTION HANDLING
@@ -907,10 +907,11 @@
       \IfFileExists{\spx@opt@iconpackage.sty}
          {\RequirePackage{\spx@opt@iconpackage}}%
          {%
+          \let\spx@usr@iconpackage\spx@opt@iconpackage
           \sphinxbuildwarning{badiconpackage}%
           \PackageWarningNoLine{sphinx}{%
-            You have set iconpackage=\spx@opt@iconpackage\MessageBreak
-            But \spx@opt@iconpackage.sty is not found by LaTeX}
+            You have set iconpackage=\spx@usr@iconpackage\MessageBreak
+            But \spx@usr@iconpackage.sty is not found by LaTeX}
           \let\spx@opt@iconpackage\spxstring@none
          }%
   \fi
