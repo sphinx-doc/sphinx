@@ -19,6 +19,8 @@ Features added
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner.
+* #13500: LaTeX: add support for ``fontawesome6`` package.
+  Patch by Jean-François B.
 
 Bugs fixed
 ----------
