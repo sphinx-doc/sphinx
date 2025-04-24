@@ -1,7 +1,7 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexadmonitions}[2024/10/11 v8.1.1 admonitions]
+\ProvidesPackage{sphinxlatexadmonitions}[2025/04/24 v8.3.0 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -342,8 +342,7 @@
           \textcolor{sphinx#1TtlFgColor}{%
             \@nameuse{sphinx#1TtlIcon}%
             % The next macro is located here for legacy reasons of earlier
-            % functioning of \spx@faIcon.  When fontawesome{5,}.sty both
-            % are unavailable, it (formerly) gobbled this next macro.
+            % functioning of sphinx.sty now removed \spx@faIcon macro.
             % We leave it here now although it could be moved to after
             % the closing brace.
             \sphinxtitlerowaftericonspacecmd
