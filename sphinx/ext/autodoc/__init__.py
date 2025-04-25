@@ -54,6 +54,11 @@ if TYPE_CHECKING:
         [Sphinx, _AutodocObjType, str, Any, dict[str, bool], list[str]], None
     ]
 
+if sys.version_info[:2] < (3, 12):
+    from typing_extensions import TypeAliasType
+else:
+    from typing import TypeAliasType
+
 logger = logging.getLogger(__name__)
 
 
@@ -1690,11 +1695,13 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     @classmethod
     def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
+        cls, member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
-        return isinstance(member, type) or (
-            isattr and isinstance(member, NewType | TypeVar)
-        )
+        return isinstance(member, type) or (isattr and cls._is_typelike(member))
+
+    @staticmethod
+    def _is_typelike(obj: Any) -> bool:
+        return isinstance(obj, NewType | TypeVar | TypeAliasType)
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
@@ -1705,7 +1712,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = self.objpath[-1] != self.object.__name__
             else:
                 self.doc_as_attr = True
-            if isinstance(self.object, NewType | TypeVar):
+            if self._is_typelike(self.object):
                 modname = getattr(self.object, '__module__', self.modname)
                 if modname != self.modname and self.modname.startswith(modname):
                     bases = self.modname[len(modname) :].strip('.').split('.')
@@ -1714,7 +1721,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return ret
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if isinstance(self.object, NewType | TypeVar):
+        if self._is_typelike(self.object):
             # Suppress signature
             return None, None, None
 
@@ -1925,6 +1932,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.doc_as_attr:
             self.directivetype = 'attribute'
+        if isinstance(self.object, TypeAliasType):
+            self.directivetype = 'type'
         super().add_directive_header(sig)
 
         if isinstance(self.object, NewType | TypeVar):
@@ -1941,6 +1950,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             and self.fullname != canonical_fullname
         ):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
+
+        if isinstance(self.object, TypeAliasType):
+            aliased = stringify_annotation(self.object.__value__)
+            self.add_line('   :canonical: %s' % aliased, sourcename)
+            return
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:

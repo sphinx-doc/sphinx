@@ -25,6 +25,8 @@ Features added
 * #13704: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
   and :py:func:`~typing.final` decorators.
   Patch by Spencer Brown.
+* #13508: Initial support for PEP 695 type aliases.
+  Patch by Martin Matouš.
 
 Bugs fixed
 ----------

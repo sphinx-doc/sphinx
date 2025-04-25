@@ -9,6 +9,7 @@ import inspect
 import itertools
 import operator
 import re
+import sys
 import tokenize
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
@@ -332,6 +333,48 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
+    def collect_doc_comment(
+        self,
+        # exists for >= 3.12, irrelevant for runtime
+        node: ast.Assign | ast.TypeAlias,  # type: ignore[name-defined]
+        varnames: list[str],
+        current_line: str,
+    ) -> None:
+        # check comments after assignment
+        parser = AfterCommentParser([
+            current_line[node.col_offset :],
+            *self.buffers[node.lineno :],
+        ])
+        parser.parse()
+        if parser.comment and comment_re.match(parser.comment):
+            for varname in varnames:
+                self.add_variable_comment(
+                    varname, comment_re.sub('\\1', parser.comment)
+                )
+                self.add_entry(varname)
+            return
+
+        # check comments before assignment
+        if indent_re.match(current_line[: node.col_offset]):
+            comment_lines = []
+            for i in range(node.lineno - 1):
+                before_line = self.get_line(node.lineno - 1 - i)
+                if comment_re.match(before_line):
+                    comment_lines.append(comment_re.sub('\\1', before_line))
+                else:
+                    break
+
+            if comment_lines:
+                comment = dedent_docstring('\n'.join(reversed(comment_lines)))
+                for varname in varnames:
+                    self.add_variable_comment(varname, comment)
+                    self.add_entry(varname)
+                return
+
+        # not commented (record deforders only)
+        for varname in varnames:
+            self.add_entry(varname)
+
     def visit(self, node: ast.AST) -> None:
         """Updates self.previous to the given node."""
         super().visit(node)
@@ -381,41 +424,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         elif hasattr(node, 'type_comment') and node.type_comment:
             for varname in varnames:
                 self.add_variable_annotation(varname, node.type_comment)  # type: ignore[arg-type]
-
-        # check comments after assignment
-        parser = AfterCommentParser([
-            current_line[node.col_offset :],
-            *self.buffers[node.lineno :],
-        ])
-        parser.parse()
-        if parser.comment and comment_re.match(parser.comment):
-            for varname in varnames:
-                self.add_variable_comment(
-                    varname, comment_re.sub('\\1', parser.comment)
-                )
-                self.add_entry(varname)
-            return
-
-        # check comments before assignment
-        if indent_re.match(current_line[: node.col_offset]):
-            comment_lines = []
-            for i in range(node.lineno - 1):
-                before_line = self.get_line(node.lineno - 1 - i)
-                if comment_re.match(before_line):
-                    comment_lines.append(comment_re.sub('\\1', before_line))
-                else:
-                    break
-
-            if comment_lines:
-                comment = dedent_docstring('\n'.join(reversed(comment_lines)))
-                for varname in varnames:
-                    self.add_variable_comment(varname, comment)
-                    self.add_entry(varname)
-                return
-
-        # not commented (record deforders only)
-        for varname in varnames:
-            self.add_entry(varname)
+        self.collect_doc_comment(node, varnames, current_line)
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         """Handles AnnAssign node and pick up a variable comment."""
@@ -423,11 +432,11 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
-        if (
-            isinstance(self.previous, ast.Assign | ast.AnnAssign)
-            and isinstance(node.value, ast.Constant)
-            and isinstance(node.value.value, str)
+        if not (
+            isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)
         ):
+            return
+        if isinstance(self.previous, ast.Assign | ast.AnnAssign):
             try:
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
@@ -441,6 +450,13 @@ class VariableCommentPicker(ast.NodeVisitor):
                     self.add_entry(varname)
             except TypeError:
                 pass  # this assignment is not new definition!
+        if (sys.version_info[:2] >= (3, 12)) and isinstance(
+            self.previous, ast.TypeAlias
+        ):
+            varname = self.previous.name.id
+            docstring = node.value.value
+            self.add_variable_comment(varname, dedent_docstring(docstring))
+            self.add_entry(varname)
 
     def visit_Try(self, node: ast.Try) -> None:
         """Handles Try node and processes body and else-clause.
@@ -484,6 +500,17 @@ class VariableCommentPicker(ast.NodeVisitor):
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Handles AsyncFunctionDef node and set context."""
         self.visit_FunctionDef(node)  # type: ignore[arg-type]
+
+    if sys.version_info[:2] >= (3, 12):
+
+        def visit_TypeAlias(self, node: ast.TypeAlias) -> None:
+            """Handles TypeAlias node and picks up a variable comment.
+
+            .. note:: TypeAlias node refers to `type Foo = Bar` (PEP 695) assignment,
+                      NOT `Foo: TypeAlias = Bar` (PEP 613).
+            """
+            current_line = self.get_line(node.lineno)
+            self.collect_doc_comment(node, [node.name.id], current_line)
 
 
 class DefinitionFinder(TokenProcessor):

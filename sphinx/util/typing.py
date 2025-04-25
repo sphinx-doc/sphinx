@@ -33,6 +33,11 @@ if TYPE_CHECKING:
         'smart',
     ]
 
+if sys.version_info[:2] < (3, 12):
+    from typing_extensions import TypeAliasType
+else:
+    from typing import TypeAliasType
+
 logger = logging.getLogger(__name__)
 
 
@@ -309,6 +314,8 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # are printed natively and ``None``-like types are kept as is.
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
+        elif isinstance(cls, TypeAliasType):
+            return f':py:type:`{module_prefix}{cls.__module__}.{cls.__name__}`'
         elif cls.__module__ in {'__builtin__', 'builtins'}:
             if hasattr(cls, '__args__'):
                 if not cls.__args__:  # Empty tuple, list, ...
@@ -440,7 +447,9 @@ def stringify_annotation(
         annotation_module_is_typing = True
 
     # Extract the annotation's base type by considering formattable cases
-    if isinstance(annotation, typing.TypeVar) and not _is_unpack_form(annotation):
+    if isinstance(annotation, typing.TypeVar | TypeAliasType) and not _is_unpack_form(
+        annotation
+    ):
         # typing_extensions.Unpack is incorrectly determined as a TypeVar
         if annotation_module_is_typing and mode in {
             'fully-qualified-except-typing',
