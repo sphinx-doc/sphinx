@@ -87,6 +87,7 @@ Contributors
 * Martin Larralde -- additional napoleon admonitions
 * Martin Liška -- option directive and role improvements
 * Martin Mahner -- nature theme
+* Martin Matouš -- initial support for PEP 695
 * Matthew Fernandez -- todo extension fix
 * Matthew Woodcraft -- text output improvements
 * Matthias Geier -- style improvements
