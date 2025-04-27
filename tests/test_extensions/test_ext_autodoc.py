@@ -2893,6 +2893,26 @@ def test_overload2(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload3(app):
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.overload3', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload3',
+        '',
+        '',
+        '.. py:function:: test(x: int) -> int',
+        '                 test(x: bool) -> bool',
+        '                 test(x: str) -> str',
+        '                 test(x: float) -> float',
+        '   :module: target.overload3',
+        '',
+        '   Documentation.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_pymodule_for_ModuleLevelDocumenter(app):
     app.env.ref_context['py:module'] = 'target.classes'
     actual = do_autodoc(app, 'class', 'Foo')
