@@ -93,13 +93,15 @@ These are the basic steps needed to start developing on Sphinx.
       git clone https://github.com/<USERNAME>/sphinx
       cd sphinx
 
-#. Install the [UV package manager](https://docs.astral.sh/uv/).
+#. Install the `UV package manager <https://docs.astral.sh/uv/>__.
 
-   See <https://docs.astral.sh/uv/getting-started/installation/>
+   See https://docs.astral.sh/uv/getting-started/installation/
 
-   UV will manage your development environment for you. You can run commands inside your development environment by prefixing them with `uv run`.
+   UV will manage your development environment for you.
+   You can run commands inside your development environment
+   by prefixing them with `uv run`.
 
-   See the [UV documentation](https://docs.astral.sh/uv/guides/) for more tips.
+   See the `UV documentation <https://docs.astral.sh/uv/guides/>`__ for more tips.
 
    .. tip::
 

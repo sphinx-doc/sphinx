@@ -6,7 +6,6 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "Sphinx"
 description = "Python documentation generator"
-authors = [{ name = "Georg Brandl", email = "georg@python.org" }]
 readme = "README.rst"
 urls.Changelog = "https://www.sphinx-doc.org/en/master/changes.html"
 urls.Code = "https://github.com/sphinx-doc/sphinx"
@@ -67,7 +66,6 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-dynamic = ["version"]
 dependencies = [
     "sphinxcontrib-applehelp>=1.0.7",
     "sphinxcontrib-devhelp>=1.0.6",
@@ -87,9 +85,10 @@ dependencies = [
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
 ]
-[dependency-groups]
-dev = [
-    # docs
+dynamic = ["version"]
+
+[project.optional-dependencies]
+docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
@@ -236,8 +235,11 @@ module = [
 strict_optional = false
 
 [[tool.mypy.overrides]]
-module = ["imagesize", "pyximport",
-    "snowballstemmer"]
+module = [
+    "imagesize",
+    "pyximport",
+    "snowballstemmer",
+]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
@@ -362,7 +364,7 @@ minversion = "6.0"
 addopts = [
     "-ra",
     "--import-mode=prepend",
-    #    "--pythonwarnings=error",
+#    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
 ]
@@ -376,7 +378,9 @@ filterwarnings = [
     "ignore::ImportWarning:importlib._bootstrap",
 ]
 log_cli_level = "INFO"
-markers = ["apidoc"]
+markers = [
+    "apidoc",
+]
 testpaths = ["tests"]
 xfail_strict = true
 
