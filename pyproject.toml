@@ -84,7 +84,6 @@ dependencies = [
     "roman-numerals-py>=1.0.0",
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
-    "filelock>=3.0",
 ]
 dynamic = ["version"]
 
@@ -107,6 +106,9 @@ lint = [
     "pytest>=8.0",
     "pypi-attestations==0.0.25",
     "betterproto==2.0.0b6",
+]
+package = [
+"filelock>=3.0",
 ]
 test = [
     "pytest>=8.0",
