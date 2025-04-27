@@ -343,11 +343,11 @@ class VariableCommentPicker(ast.NodeVisitor):
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
-            if name.name in ('typing', 'typing_extensions'):
+            if name.name in {'typing', 'typing_extensions'}:
                 self.typing_mods.append(name.asname or name.name)
-            elif name.name in ('typing.final', 'typing_extensions.final'):
+            elif name.name in {'typing.final', 'typing_extensions.final'}:
                 self.typing_final_names.append(name.asname or name.name)
-            elif name.name in ('typing.overload', 'typing_extensions.overload'):
+            elif name.name in {'typing.overload', 'typing_extensions.overload'}:
                 self.typing_overload_names.append(name.asname or name.name)
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
@@ -355,7 +355,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
-            if node.module not in ('typing', 'typing_extensions'):
+            if node.module not in {'typing', 'typing_extensions'}:
                 continue
             if name.name == 'final':
                 self.typing_final_names.append(name.asname or name.name)

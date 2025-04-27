@@ -2916,7 +2916,7 @@ def test_overload3(app):
         '',
         '',
         '.. py:function:: test(x: int) -> int',
-        '                 test(x: bool) -> bool',
+        '                 test(x: list[int]) -> list[int]',
         '                 test(x: str) -> str',
         '                 test(x: float) -> float',
         '   :module: target.overload3',
