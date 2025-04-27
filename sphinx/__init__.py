@@ -7,18 +7,11 @@ from __future__ import annotations
 
 import warnings
 
-# work around flit error in parsing annotated assignments
-try:
-    from sphinx.util._pathlib import _StrPath
-except ImportError:
-    from pathlib import Path as _StrPath  # type: ignore[assignment]
+from sphinx.util._pathlib import _StrPath
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     from typing import Final
-
-__version__: Final = '8.3.0'
-__display_version__: Final = __version__  # used for command line version
 
 warnings.filterwarnings(
     'ignore',
@@ -26,6 +19,10 @@ warnings.filterwarnings(
     DeprecationWarning,
     module='docutils.frontend',
 )
+del warnings
+
+__version__: Final = '8.3.0'
+__display_version__: Final = __version__  # used for command line version
 
 #: Version info for better programmatic use.
 #:
@@ -38,6 +35,7 @@ warnings.filterwarnings(
 version_info: Final = (8, 3, 0, 'beta', 0)
 
 package_dir: Final = _StrPath(__file__).resolve().parent
+del _StrPath
 
 _in_development = True
 if _in_development:

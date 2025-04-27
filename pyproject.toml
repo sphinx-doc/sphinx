@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core>=3.11"]
+requires = ["flit_core>=3.12"]
 build-backend = "flit_core.buildapi"
 
 # project metadata
@@ -112,14 +112,14 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.0",
+    "ruff==0.11.7",
     "sphinx-lint>=0.9",
 ]
 package = [
     "betterproto==2.0.0b6",  # resolution fails without betterproto
     "build",
-    "pypi-attestations==0.0.22",
-    "twine>=5.1",
+    "pypi-attestations==0.0.25",
+    "twine>=6.1",
 ]
 test = [
     "pytest>=8.0",
@@ -135,7 +135,7 @@ translations = [
 ]
 types = [
     "mypy==1.15.0",
-    "pyright==1.1.397",
+    "pyright==1.1.400",
     { include-group = "type-stubs" },
 ]
 type-stubs = [
@@ -145,7 +145,7 @@ type-stubs = [
     "types-docutils==0.21.0.20241128",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250305",
-    "types-requests==2.32.0.20250306",
+    "types-requests==2.32.0.20250328",
     "types-urllib3==1.26.25.14",
 ]
 
@@ -222,7 +222,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_application",
     "tests.test_highlighting",
     "tests.test_project",
     "tests.test_versioning",
@@ -270,7 +269,6 @@ module = [
     "tests.test_util.test_util_docutils",
     "tests.test_util.test_util_images",
     "tests.test_util.test_util_inventory",
-    "tests.test_util.test_util_matching",
     # tests/test_writers
     "tests.test_writers.test_docutilsconf",
 ]

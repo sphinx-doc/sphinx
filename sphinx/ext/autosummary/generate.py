@@ -583,7 +583,7 @@ def generate_autosummary_docs(
 
     showed_sources = sorted(sources)
     if len(showed_sources) > 20:
-        showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
+        showed_sources = [*showed_sources[:10], '...', *showed_sources[-10:]]
     logger.info(
         __('[autosummary] generating autosummary for: %s'), ', '.join(showed_sources)
     )

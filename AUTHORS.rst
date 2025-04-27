@@ -106,6 +106,7 @@ Contributors
 * Taku Shimizu -- epub3 builder
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes
+* Till Hoffmann -- doctest option to exit after first failed test
 * Tim Hoffmann -- theme improvements
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements

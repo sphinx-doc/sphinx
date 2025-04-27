@@ -217,7 +217,7 @@ class SortIds(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(nodes.section):
             if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
-                node['ids'] = node['ids'][1:] + [node['ids'][0]]
+                node['ids'] = [*node['ids'][1:], node['ids'][0]]
 
 
 TRANSLATABLE_NODES = {
