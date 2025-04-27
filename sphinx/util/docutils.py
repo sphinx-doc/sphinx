@@ -4,18 +4,16 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import Sequence  # NoQA: TC003
 from contextlib import contextmanager
 from copy import copy
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 import docutils
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner  # NoQA: TC002
-from docutils.statemachine import State, StateMachine, StringList
+from docutils.statemachine import StateMachine
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
@@ -29,16 +27,43 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Iterator, Sequence
     from types import ModuleType, TracebackType
+    from typing import Any, Protocol
 
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
+    from docutils.parsers.rst.states import Inliner
+    from docutils.statemachine import State, StringList
 
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import RoleFunction
+
+    class _LanguageModule(Protocol):
+        labels: dict[str, str]
+        author_separators: list[str]
+        bibliographic_fields: list[str]
+
+    class _DirectivesDispatcher(Protocol):
+        def __call__(
+            self,
+            directive_name: str,
+            language_module: _LanguageModule,
+            document: nodes.document,
+            /,
+        ) -> tuple[type[Directive] | None, list[system_message]]: ...
+
+    class _RolesDispatcher(Protocol):
+        def __call__(
+            self,
+            role_name: str,
+            language_module: _LanguageModule,
+            lineno: int,
+            reporter: Reporter,
+            /,
+        ) -> tuple[RoleFunction | None, list[system_message]]: ...
 
 
 additional_nodes: set[type[Element]] = set()
@@ -127,7 +152,7 @@ def patched_get_language() -> Iterator[None]:
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
-    refs: https://github.com/sphinx-doc/sphinx/issues/3788
+    See: https://github.com/sphinx-doc/sphinx/issues/3788
     """
     from docutils.languages import get_language
 
@@ -153,7 +178,7 @@ def patched_rst_get_language() -> Iterator[None]:
     This should also work for old versions of docutils,
     because reporter is none by default.
 
-    refs: https://github.com/sphinx-doc/sphinx/issues/10179
+    See: https://github.com/sphinx-doc/sphinx/issues/10179
     """
     from docutils.parsers.rst.languages import get_language
 
@@ -205,8 +230,8 @@ class CustomReSTDispatcher:
     """
 
     def __init__(self) -> None:
-        self.directive_func: Callable = lambda *args: (None, [])
-        self.roles_func: Callable = lambda *args: (None, [])
+        self.directive_func: _DirectivesDispatcher = lambda *args: (None, [])
+        self.roles_func: _RolesDispatcher = lambda *args: (None, [])
 
     def __enter__(self) -> None:
         self.enable()
@@ -227,7 +252,7 @@ class CustomReSTDispatcher:
         roles.role = self.role  # type: ignore[assignment]
 
     def disable(self) -> None:
-        directives.directive = self.directive_func
+        directives.directive = self.directive_func  # type: ignore[assignment]
         roles.role = self.role_func
 
     def directive(
@@ -345,7 +370,7 @@ class WarningStream:
         if not matched:
             logger.warning(text.rstrip('\r\n'), type='docutils')
         else:
-            location, type, level = matched.groups()
+            location, type, _level = matched.groups()
             message = report_re.sub('', text).rstrip()
             logger.log(type, message, location=location, type='docutils')
 
@@ -372,7 +397,7 @@ class LoggingReporter(Reporter):
         debug: bool = False,
         error_handler: str = 'backslashreplace',
     ) -> None:
-        stream = cast('IO', WarningStream())
+        stream = WarningStream()
         super().__init__(
             source, report_level, halt_level, stream, debug, error_handler=error_handler
         )
@@ -386,7 +411,7 @@ class NullReporter(Reporter):
 
 
 @contextmanager
-def switch_source_input(state: State, content: StringList) -> Iterator[None]:
+def switch_source_input(state: State[list[str]], content: StringList) -> Iterator[None]:
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
@@ -591,7 +616,7 @@ class SphinxRole:
         text: str,
         lineno: int,
         inliner: Inliner,
-        options: dict | None = None,
+        options: dict[str, Any] | None = None,
         content: Sequence[str] = (),
     ) -> tuple[list[Node], list[system_message]]:
         self.rawtext = rawtext
@@ -685,7 +710,7 @@ class ReferenceRole(SphinxRole):
         text: str,
         lineno: int,
         inliner: Inliner,
-        options: dict | None = None,
+        options: dict[str, Any] | None = None,
         content: Sequence[str] = (),
     ) -> tuple[list[Node], list[system_message]]:
         if options is None:
@@ -729,8 +754,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         self._domains = builder.env.domains
 
     def dispatch_visit(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate visitor method.
+        """Dispatch node to appropriate visitor method.
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
@@ -746,8 +770,7 @@ class SphinxTranslator(nodes.NodeVisitor):
             super().dispatch_visit(node)
 
     def dispatch_departure(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate departure method.
+        """Dispatch node to appropriate departure method.
         The priority of departure method is:
 
         1. ``self.depart_{node_class}()``
@@ -790,8 +813,6 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
         settings = copy(cached_settings)
 
     # Create a new instance of nodes.document using cached reporter
-    from sphinx import addnodes
-
-    document = addnodes.document(settings, reporter, source=source_path)
+    document = nodes.document(settings, reporter, source=source_path)
     document.note_source(source_path, -1)
     return document

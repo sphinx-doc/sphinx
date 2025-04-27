@@ -197,7 +197,9 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('autodoc_preserve_defaults', False, 'env')
+    app.add_config_value(
+        'autodoc_preserve_defaults', False, 'env', types=frozenset({bool})
+    )
     app.connect('autodoc-before-process-signature', update_defvalue)
 
     return {

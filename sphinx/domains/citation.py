@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -15,6 +15,7 @@ from sphinx.util.nodes import copy_source_info, make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any
 
     from docutils.nodes import Element
 
@@ -105,7 +106,7 @@ class CitationDomain(Domain):
         node: pending_xref,
         contnode: Element,
     ) -> nodes.reference | None:
-        docname, labelid, lineno = self.citations.get(target, ('', '', 0))
+        docname, labelid, _lineno = self.citations.get(target, ('', '', 0))
         if not docname:
             return None
 
@@ -147,8 +148,7 @@ class CitationDefinitionTransform(SphinxTransform):
 
 
 class CitationReferenceTransform(SphinxTransform):
-    """
-    Replace citation references by pending_xref nodes before the default
+    """Replace citation references by pending_xref nodes before the default
     docutils transform tries to resolve them.
     """
 

@@ -13,6 +13,7 @@ from sphinx.addnodes import (
     desc_content,
     desc_name,
     desc_parameterlist,
+    desc_sig_keyword,
     desc_sig_punctuation,
     desc_sig_space,
     desc_signature,
@@ -22,7 +23,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyexception_signature(app):
     text = '.. py:exception:: builtins.IOError'
     doctree = restructuredtext.parse(app, text)
@@ -36,7 +37,10 @@ def test_pyexception_signature(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('exception', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'exception'], desc_sig_space),
+                            ],
                             [desc_addname, 'builtins.'],
                             [desc_name, 'IOError'],
                         ),
@@ -56,7 +60,7 @@ def test_pyexception_signature(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata_signature(app):
     text = '.. py:data:: version\n   :type: int\n   :value: 1\n'
     doctree = restructuredtext.parse(app, text)
@@ -105,7 +109,7 @@ def test_pydata_signature(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata_signature_old(app):
     text = '.. py:data:: version\n   :annotation: = 1\n'
     doctree = restructuredtext.parse(app, text)
@@ -138,7 +142,7 @@ def test_pydata_signature_old(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata_with_union_type_operator(app):
     text = '.. py:data:: version\n   :type: int | str'
     doctree = restructuredtext.parse(app, text)
@@ -162,7 +166,7 @@ def test_pydata_with_union_type_operator(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyobject_prefix(app):
     text = (
         '.. py:class:: Foo\n\n   .. py:method:: Foo.say\n   .. py:method:: FooBar.say'
@@ -178,7 +182,10 @@ def test_pyobject_prefix(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Foo'],
                         ),
                     ],
@@ -193,7 +200,7 @@ def test_pyobject_prefix(app):
     assert doctree[1][1][3].astext().strip() == 'FooBar.say()'
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata(app):
     text = '.. py:module:: example\n.. py:data:: var\n   :type: int\n'
     domain = app.env.domains.python_domain
@@ -232,7 +239,7 @@ def test_pydata(app):
     assert domain.objects['example.var'] == ('index', 'example.var', 'data', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyclass_options(app):
     text = '.. py:class:: Class1\n.. py:class:: Class2\n   :final:\n'
     domain = app.env.domains.python_domain
@@ -247,7 +254,10 @@ def test_pyclass_options(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class1'],
                         ),
                     ],
@@ -263,7 +273,12 @@ def test_pyclass_options(app):
                         (
                             [
                                 desc_annotation,
-                                ('final', desc_sig_space, 'class', desc_sig_space),
+                                (
+                                    [desc_sig_keyword, 'final'],
+                                    desc_sig_space,
+                                    [desc_sig_keyword, 'class'],
+                                    desc_sig_space,
+                                ),
                             ],
                             [desc_name, 'Class2'],
                         ),
@@ -293,7 +308,7 @@ def test_pyclass_options(app):
     assert domain.objects['Class2'] == ('index', 'Class2', 'class', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pymethod_options(app):
     text = (
         '.. py:class:: Class\n'
@@ -322,7 +337,10 @@ def test_pymethod_options(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -376,7 +394,10 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('classmethod', desc_sig_space)],
+                    [
+                        desc_annotation,
+                        ([desc_sig_keyword, 'classmethod'], desc_sig_space),
+                    ],
                     [desc_name, 'meth2'],
                     [desc_parameterlist, ()],
                 ),
@@ -399,7 +420,7 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('static', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'static'], desc_sig_space)],
                     [desc_name, 'meth3'],
                     [desc_parameterlist, ()],
                 ),
@@ -422,7 +443,7 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('async', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'async'], desc_sig_space)],
                     [desc_name, 'meth4'],
                     [desc_parameterlist, ()],
                 ),
@@ -445,7 +466,10 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('abstract', desc_sig_space)],
+                    [
+                        desc_annotation,
+                        ([desc_sig_keyword, 'abstractmethod'], desc_sig_space),
+                    ],
                     [desc_name, 'meth5'],
                     [desc_parameterlist, ()],
                 ),
@@ -468,7 +492,7 @@ def test_pymethod_options(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('final', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'final'], desc_sig_space)],
                     [desc_name, 'meth6'],
                     [desc_parameterlist, ()],
                 ),
@@ -480,7 +504,7 @@ def test_pymethod_options(app):
     assert domain.objects['Class.meth6'] == ('index', 'Class.meth6', 'method', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyclassmethod(app):
     text = '.. py:class:: Class\n\n   .. py:classmethod:: meth\n'
     domain = app.env.domains.python_domain
@@ -495,7 +519,10 @@ def test_pyclassmethod(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -515,7 +542,10 @@ def test_pyclassmethod(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('classmethod', desc_sig_space)],
+                    [
+                        desc_annotation,
+                        ([desc_sig_keyword, 'classmethod'], desc_sig_space),
+                    ],
                     [desc_name, 'meth'],
                     [desc_parameterlist, ()],
                 ),
@@ -527,7 +557,7 @@ def test_pyclassmethod(app):
     assert domain.objects['Class.meth'] == ('index', 'Class.meth', 'method', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pystaticmethod(app):
     text = '.. py:class:: Class\n\n   .. py:staticmethod:: meth\n'
     domain = app.env.domains.python_domain
@@ -542,7 +572,10 @@ def test_pystaticmethod(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -562,7 +595,7 @@ def test_pystaticmethod(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('static', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'static'], desc_sig_space)],
                     [desc_name, 'meth'],
                     [desc_parameterlist, ()],
                 ),
@@ -574,7 +607,7 @@ def test_pystaticmethod(app):
     assert domain.objects['Class.meth'] == ('index', 'Class.meth', 'method', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyattribute(app):
     text = (
         '.. py:class:: Class\n'
@@ -595,7 +628,10 @@ def test_pyattribute(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -648,7 +684,7 @@ def test_pyattribute(app):
     assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pyproperty(app):
     text = (
         '.. py:class:: Class\n'
@@ -673,7 +709,10 @@ def test_pyproperty(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                         ),
                     ],
@@ -695,7 +734,12 @@ def test_pyproperty(app):
                 (
                     [
                         desc_annotation,
-                        ('abstract', desc_sig_space, 'property', desc_sig_space),
+                        (
+                            [desc_sig_keyword, 'abstract'],
+                            desc_sig_space,
+                            [desc_sig_keyword, 'property'],
+                            desc_sig_space,
+                        ),
                     ],
                     [desc_name, 'prop1'],
                     [
@@ -724,7 +768,12 @@ def test_pyproperty(app):
                 (
                     [
                         desc_annotation,
-                        ('class', desc_sig_space, 'property', desc_sig_space),
+                        (
+                            [desc_sig_keyword, 'class'],
+                            desc_sig_space,
+                            [desc_sig_keyword, 'property'],
+                            desc_sig_space,
+                        ),
                     ],
                     [desc_name, 'prop2'],
                     [
@@ -746,7 +795,7 @@ def test_pyproperty(app):
     assert domain.objects['Class.prop2'] == ('index', 'Class.prop2', 'property', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_py_type_alias(app):
     text = (
         '.. py:module:: example\n'
@@ -772,7 +821,10 @@ def test_py_type_alias(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('type', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'type'], desc_sig_space),
+                            ],
                             [desc_addname, 'example.'],
                             [desc_name, 'Alias1'],
                             [
@@ -803,7 +855,10 @@ def test_py_type_alias(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'example.'],
                             [desc_name, 'Class'],
                         ),
@@ -832,7 +887,7 @@ def test_py_type_alias(app):
             [
                 desc_signature,
                 (
-                    [desc_annotation, ('type', desc_sig_space)],
+                    [desc_annotation, ([desc_sig_keyword, 'type'], desc_sig_space)],
                     [desc_name, 'Alias2'],
                     [
                         desc_annotation,
@@ -870,7 +925,7 @@ def test_domain_py_type_alias(app):
 
     content = (app.outdir / 'type_alias.html').read_text(encoding='utf8')
     assert (
-        '<em class="property"><span class="pre">type</span><span class="w"> </span></em>'
+        '<em class="property"><span class="k"><span class="pre">type</span></span><span class="w"> </span></em>'
         '<span class="sig-prename descclassname"><span class="pre">module_one.</span></span>'
         '<span class="sig-name descname"><span class="pre">MyAlias</span></span>'
         '<em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span>'
@@ -885,7 +940,7 @@ def test_domain_py_type_alias(app):
     assert app.warning.getvalue() == ''
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydecorator_signature(app):
     text = '.. py:decorator:: deco'
     domain = app.env.domains.python_domain
@@ -916,7 +971,7 @@ def test_pydecorator_signature(app):
     assert domain.objects['deco'] == ('index', 'deco', 'function', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydecoratormethod_signature(app):
     text = '.. py:decoratormethod:: deco'
     domain = app.env.domains.python_domain
@@ -947,7 +1002,7 @@ def test_pydecoratormethod_signature(app):
     assert domain.objects['deco'] == ('index', 'deco', 'method', False)
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pycurrentmodule(app):
     text = (
         '.. py:module:: Other\n'
@@ -982,7 +1037,10 @@ def test_pycurrentmodule(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'Module.'],
                             [desc_name, 'A'],
                         ),
@@ -1029,7 +1087,10 @@ def test_pycurrentmodule(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'Other.'],
                             [desc_name, 'B'],
                         ),

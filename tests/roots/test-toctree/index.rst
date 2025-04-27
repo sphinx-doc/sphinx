@@ -34,8 +34,9 @@ subsection
 subsubsection
 -------------
 
-Test for issue #1157
-====================
+Test for combination of 'globaltoc.html' and hidden toctree
+===========================================================
+.. https://github.com/sphinx-doc/sphinx/issues/1157
 
 This used to crash:
 

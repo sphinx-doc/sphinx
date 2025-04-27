@@ -7,7 +7,8 @@ import os
 import pickle
 from collections import defaultdict
 from copy import deepcopy
-from typing import TYPE_CHECKING, Final
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from sphinx import addnodes
 from sphinx.domains._domains_container import _DomainsContainer
@@ -22,17 +23,17 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
-from sphinx.util._pathlib import _StrPathProperty
+from sphinx.util._pathlib import _StrPath, _StrPathProperty
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
+from sphinx.util.osutil import _last_modified_time, _relative_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
-    from typing import Any, Literal
+    from collections.abc import Callable, Iterable, Iterator, Mapping
+    from typing import Any, Final, Literal
 
     from docutils import nodes
     from docutils.nodes import Node
@@ -45,8 +46,10 @@ if TYPE_CHECKING:
     from sphinx.domains.c._symbol import Symbol as CSymbol
     from sphinx.domains.cpp._symbol import Symbol as CPPSymbol
     from sphinx.events import EventManager
+    from sphinx.extension import Extension
     from sphinx.project import Project
-    from sphinx.util._pathlib import _StrPath
+    from sphinx.registry import SphinxComponentRegistry
+    from sphinx.util.tags import Tags
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +73,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 64
+ENV_VERSION = 65
 
 # config status
 CONFIG_UNSET = -1
@@ -93,8 +96,7 @@ versioning_conditions: dict[str, Literal[False] | Callable[[Node], bool]] = {
 
 
 class BuildEnvironment:
-    """
-    The environment in which the ReST files are translated.
+    """The environment in which the ReST files are translated.
     Stores an inventory of cross-file targets and provides doctree
     transformations to resolve links to them.
     """
@@ -113,7 +115,7 @@ class BuildEnvironment:
         self.config_status_extra: str = ''
         self.events: EventManager = app.events
         self.project: Project = app.project
-        self.version: dict[str, int] = app.registry.get_envversion(app)
+        self.version: Mapping[str, int] = _get_env_version(app.extensions)
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: Literal[False] | Callable[[Node], bool] | None = None
@@ -131,7 +133,7 @@ class BuildEnvironment:
         self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
-        self.dependencies: dict[str, set[str]] = defaultdict(set)
+        self.dependencies: dict[str, set[_StrPath]] = defaultdict(set)
         # docname -> set of included file
         # docnames included from other documents
         self.included: dict[str, set[str]] = defaultdict(set)
@@ -234,7 +236,7 @@ class BuildEnvironment:
     def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        # clear unpickable attributes
+        # clear unpickleable attributes
         __dict__.update(app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files
@@ -247,7 +249,7 @@ class BuildEnvironment:
 
     def setup(self, app: Sphinx) -> None:
         """Set up BuildEnvironment object."""
-        if self.version and self.version != app.registry.get_envversion(app):
+        if self.version and self.version != _get_env_version(app.extensions):
             raise BuildEnvironmentError(__('build environment version not current'))
         if self.srcdir and self.srcdir != app.srcdir:
             raise BuildEnvironmentError(__('source directory has changed'))
@@ -260,7 +262,7 @@ class BuildEnvironment:
         self.events = app.events
         self.srcdir = app.srcdir
         self.project = app.project
-        self.version = app.registry.get_envversion(app)
+        self.version = _get_env_version(app.extensions)
 
         # initialise domains
         if self.domains is None:
@@ -281,6 +283,14 @@ class BuildEnvironment:
 
         # initialize settings
         self._update_settings(app.config)
+
+    @property
+    def _registry(self) -> SphinxComponentRegistry:
+        return self.app.registry
+
+    @property
+    def _tags(self) -> Tags:
+        return self.app.tags
 
     @staticmethod
     def _config_status(
@@ -416,7 +426,9 @@ class BuildEnvironment:
         """
         return self.project.doc2path(docname, absolute=base)
 
-    def relfn2path(self, filename: str, docname: str | None = None) -> tuple[str, str]:
+    def relfn2path(
+        self, filename: str | Path, docname: str | None = None
+    ) -> tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -424,9 +436,9 @@ class BuildEnvironment:
         source dir, while relative filenames are relative to the dir of the
         containing document.
         """
-        filename = canon_path(filename)
-        if filename.startswith('/'):
-            abs_fn = (self.srcdir / filename[1:]).resolve()
+        file_name = Path(filename)
+        if file_name.parts[:1] in {('/',), ('\\',)}:
+            abs_fn = self.srcdir.joinpath(*file_name.parts[1:]).resolve()
         else:
             if not docname:
                 if self.docname:
@@ -435,10 +447,10 @@ class BuildEnvironment:
                     msg = 'docname'
                     raise KeyError(msg)
             doc_dir = self.doc2path(docname, base=False).parent
-            abs_fn = (self.srcdir / doc_dir / filename).resolve()
+            abs_fn = self.srcdir.joinpath(doc_dir, file_name).resolve()
 
         rel_fn = _relative_path(abs_fn, self.srcdir)
-        return canon_path(rel_fn), os.fspath(abs_fn)
+        return rel_fn.as_posix(), os.fspath(abs_fn)
 
     @property
     def found_docs(self) -> set[str]:
@@ -524,6 +536,8 @@ class BuildEnvironment:
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
+                if docname not in self.dependencies:
+                    continue
                 for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
@@ -614,7 +628,7 @@ class BuildEnvironment:
         """
         if docname is None:
             docname = self.docname
-        self.dependencies[docname].add(os.fspath(filename))
+        self.dependencies.setdefault(docname, set()).add(_StrPath(filename))
 
     def note_included(self, filename: str | os.PathLike[str]) -> None:
         """Add *filename* as a included from other document.
@@ -625,7 +639,7 @@ class BuildEnvironment:
         """
         doc = self.path2doc(filename)
         if doc:
-            self.included[self.docname].add(doc)
+            self.included.setdefault(self.docname, set()).add(doc)
 
     def note_reread(self) -> None:
         """Add the current document to the list of documents that will
@@ -755,7 +769,7 @@ class BuildEnvironment:
 
             transformer = SphinxTransformer(doctree)
             transformer.set_environment(self)
-            transformer.add_transforms(self.app.registry.get_post_transforms())
+            transformer.add_transforms(self._registry.get_post_transforms())
             transformer.apply_transforms()
         finally:
             self.current_document = backup
@@ -796,7 +810,10 @@ class BuildEnvironment:
                 if 'orphan' in self.metadata[docname]:
                     continue
                 logger.warning(
-                    __("document isn't included in any toctree"), location=docname
+                    __("document isn't included in any toctree"),
+                    location=docname,
+                    type='toc',
+                    subtype='not_included',
                 )
         # Call _check_toc_parents here rather than in  _get_toctree_ancestors()
         # because that method is called multiple times per document and would
@@ -806,6 +823,16 @@ class BuildEnvironment:
         # call check-consistency for all extensions
         self.domains._check_consistency()
         self.events.emit('env-check-consistency', self)
+
+
+def _get_env_version(extensions: Mapping[str, Extension]) -> Mapping[str, int]:
+    env_version = {
+        ext.name: ext_env_version
+        for ext in extensions.values()
+        if (ext_env_version := ext.metadata.get('env_version'))
+    }
+    env_version['sphinx'] = ENV_VERSION
+    return env_version
 
 
 def _differing_config_keys(old: Config, new: Config) -> frozenset[str]:
@@ -1042,7 +1069,7 @@ class _CurrentDocument:
 
     def __contains__(self, item: str) -> bool:
         if item in {'c:parent_symbol', 'cpp:parent_symbol'}:
-            return getattr(self, item) is not None
+            return getattr(self, self.__attr_map[item]) is not None
         return item in self.__attr_map or item in self._extension_data
 
     def __iter__(self) -> Iterator[str]:

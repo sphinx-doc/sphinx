@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, ClassVar
+from types import NoneType
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -38,6 +39,7 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -49,7 +51,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 # re-export objects for backwards compatibility
-# xref https://github.com/sphinx-doc/sphinx/issues/12295
+# See: https://github.com/sphinx-doc/sphinx/issues/12295
 from sphinx.domains.cpp._ast import (  # NoQA: F401
     ASTAlignofExpr,
     ASTArray,
@@ -303,7 +305,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(
-        self, signode: desc_signature, ast: ASTDeclaration, options: dict
+        self, signode: desc_signature, ast: ASTDeclaration, options: dict[str, Any]
     ) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
@@ -315,7 +317,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             env.ref_context['cpp:parent_key'] = root.get_lookup_key()
 
         # The lookup keys assume that no nested scopes exists inside overloaded functions.
-        # (see also #5191)
+        # See: https://github.com/sphinx-doc/sphinx/issues/5191
         # Example:
         # .. cpp:function:: void f(int)
         # .. cpp:function:: void f(double)
@@ -527,8 +529,7 @@ class CPPEnumeratorObject(CPPObject):
 
 
 class CPPNamespaceObject(SphinxDirective):
-    """
-    This directive is just to tell Sphinx that we're documenting stuff in
+    """This directive is just to tell Sphinx that we're documenting stuff in
     namespace foo.
     """
 
@@ -621,13 +622,14 @@ class AliasNode(nodes.Element):
     def __init__(
         self,
         sig: str,
-        aliasOptions: dict,
+        aliasOptions: dict[str, bool],
         env: BuildEnvironment | None = None,
         parentKey: LookupKey | None = None,
     ) -> None:
         super().__init__()
         self.sig = sig
         self.aliasOptions = aliasOptions
+        self.parentKey: LookupKey
         if env is not None:
             if env.current_document.cpp_parent_symbol is None:
                 root = env.domaindata['cpp']['root_symbol']
@@ -652,8 +654,8 @@ class AliasTransform(SphinxTransform):
         s: Symbol,
         maxdepth: int,
         skip_this: bool,
-        alias_options: dict,
-        render_options: dict,
+        alias_options: dict[str, bool],
+        render_options: dict[str, bool],
         document: Any,
     ) -> list[Node]:
         if maxdepth == 0:
@@ -742,7 +744,7 @@ class AliasTransform(SphinxTransform):
                     template_decls = ns.templatePrefix.templates
                 else:
                     template_decls = []
-                symbols, fail_reason = parent_symbol.find_name(
+                symbols, _fail_reason = parent_symbol.find_name(
                     nestedName=name,
                     templateDecls=template_decls,
                     typ='any',
@@ -798,15 +800,14 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(nodes)
 
 
-class CPPAliasObject(ObjectDescription):
+class CPPAliasObject(ObjectDescription[str]):
     option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
     }
 
     def run(self) -> list[Node]:
-        """
-        On purpose this doesn't call the ObjectDescription version, but is based on it.
+        """On purpose this doesn't call the ObjectDescription version, but is based on it.
         Each alias signature may expand into multiple real signatures (an overload set).
         The code is therefore based on the ObjectDescription version.
         """
@@ -1092,7 +1093,7 @@ class CPPDomain(Domain):
                 'Unparseable C++ cross-reference: %r\n%s', target, ex, location=node
             )
             return None, None
-        parent_key: LookupKey = node.get('cpp:parent_key', None)
+        parent_key: LookupKey | None = node.get('cpp:parent_key', None)
         root_symbol = self.data['root_symbol']
         if parent_key:
             parent_symbol: Symbol = root_symbol.direct_lookup(parent_key)
@@ -1288,7 +1289,7 @@ class CPPDomain(Domain):
         target = node.get('reftarget', None)
         if target is None:
             return None
-        parent_key: LookupKey = node.get('cpp:parent_key', None)
+        parent_key: LookupKey | None = node.get('cpp:parent_key', None)
         if parent_key is None or len(parent_key.data) <= 0:
             return None
 
@@ -1300,17 +1301,22 @@ class CPPDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
-    app.add_config_value('cpp_index_common_prefix', [], 'env')
-    app.add_config_value('cpp_id_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('cpp_paren_attributes', [], 'env', types={list, tuple})
+    app.add_config_value('cpp_index_common_prefix', [], 'env', types=frozenset({list}))
+    app.add_config_value('cpp_id_attributes', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(
-        'cpp_maximum_signature_line_length', None, 'env', types={int, type(None)}
+        'cpp_paren_attributes', [], 'env', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'cpp_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, NoneType}),
     )
     app.add_post_transform(AliasTransform)
 
     # debug stuff
-    app.add_config_value('cpp_debug_lookup', False, '')
-    app.add_config_value('cpp_debug_show_tree', False, '')
+    app.add_config_value('cpp_debug_lookup', False, '', types=frozenset({bool}))
+    app.add_config_value('cpp_debug_show_tree', False, '', types=frozenset({bool}))
 
     def init_stuff(app: Sphinx) -> None:
         Symbol.debug_lookup = app.config.cpp_debug_lookup

@@ -12,6 +12,7 @@ from sphinx.addnodes import (
     desc_annotation,
     desc_content,
     desc_name,
+    desc_sig_keyword,
     desc_sig_punctuation,
     desc_sig_space,
     desc_signature,
@@ -21,7 +22,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_info_field_list(app):
     text = (
         '.. py:module:: example\n'
@@ -51,7 +52,10 @@ def test_info_field_list(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'example.'],
                             [desc_name, 'Class'],
                         ),
@@ -197,7 +201,7 @@ def test_info_field_list(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_info_field_list_piped_type(app):
     text = (
         '.. py:module:: example\n'
@@ -220,7 +224,10 @@ def test_info_field_list_piped_type(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'example.'],
                             [desc_name, 'Class'],
                         ),
@@ -271,7 +278,7 @@ def test_info_field_list_piped_type(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_info_field_list_Literal(app):
     text = (
         '.. py:module:: example\n'
@@ -294,7 +301,10 @@ def test_info_field_list_Literal(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_addname, 'example.'],
                             [desc_name, 'Class'],
                         ),
@@ -342,7 +352,7 @@ def test_info_field_list_Literal(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_info_field_list_var(app):
     text = '.. py:class:: Class\n\n   :var int attr: blah blah\n'
     doctree = restructuredtext.parse(app, text)
@@ -381,7 +391,7 @@ def test_info_field_list_var(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_info_field_list_napoleon_deliminator_of(app):
     text = (
         '.. py:module:: example\n'
@@ -427,7 +437,7 @@ def test_info_field_list_napoleon_deliminator_of(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_info_field_list_napoleon_deliminator_or(app):
     text = (
         '.. py:module:: example\n'
@@ -473,7 +483,7 @@ def test_info_field_list_napoleon_deliminator_or(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_type_field(app):
     text = (
         '.. py:data:: var1\n'

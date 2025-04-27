@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.writers.manpage import Translator as BaseTranslator
@@ -17,6 +17,7 @@ from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any
 
     from docutils.nodes import Element
 
@@ -40,8 +41,7 @@ class ManualPageWriter(Writer):  # type: ignore[misc]
 
 
 class NestedInlineTransform:
-    """
-    Flatten nested inline nodes:
+    """Flatten nested inline nodes:
 
     Before:
         <strong>foo=<emphasis>1</emphasis>
@@ -72,16 +72,12 @@ class NestedInlineTransform:
 
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
-    """
-    Custom man page translator.
-    """
+    """Custom man page translator."""
 
     _docinfo: dict[str, Any] = {}
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
-
-        self.in_productionlist = 0
 
         # first title is the manpage title
         self.section_level = -1
@@ -276,26 +272,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
 
     def visit_productionlist(self, node: Element) -> None:
         self.ensure_eol()
-        self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
-        productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
-        lastname = None
-        for production in productionlist:
-            if production['tokenname']:
-                lastname = production['tokenname'].ljust(maxlen)
-                self.body.append(self.defs['strong'][0])
-                self.body.append(self.deunicode(lastname))
-                self.body.append(self.defs['strong'][1])
-                self.body.append(' ::= ')
-            elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
-            production.walkabout(self)
-            self.body.append('\n')
+
+    def depart_productionlist(self, node: Element) -> None:
         self.body.append('\n.fi\n')
-        self.in_productionlist -= 1
-        raise nodes.SkipNode
 
     def visit_production(self, node: Element) -> None:
         pass
@@ -478,14 +458,14 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     def depart_inline(self, node: Element) -> None:
         pass
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         pass
 
-    def depart_math(self, node: Element) -> None:
+    def depart_math(self, node: nodes.math) -> None:
         pass
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         self.visit_centered(node)
 
-    def depart_math_block(self, node: Element) -> None:
+    def depart_math_block(self, node: nodes.math_block) -> None:
         self.depart_centered(node)

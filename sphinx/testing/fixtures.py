@@ -73,11 +73,10 @@ def app_params(
     request: Any,
     test_params: dict[str, Any],
     shared_result: SharedResult,
-    sphinx_test_tempdir: str,
-    rootdir: Path,
+    sphinx_test_tempdir: Path,
+    rootdir: Path | None,
 ) -> _app_params:
-    """
-    Parameters that are specified by 'pytest.mark.sphinx' for
+    """Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
     """
     # ##### process pytest.mark.sphinx
@@ -103,13 +102,21 @@ def app_params(
 
     # ##### prepare Application params
 
-    testroot = kwargs.pop('testroot', 'root')
-    kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', testroot)
+    test_root = kwargs.pop('testroot', 'root')
+    kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', test_root)
+    copy_test_root = not {'srcdir', 'copy_test_root'}.isdisjoint(kwargs)
 
     # special support for sphinx/tests
-    if rootdir and not srcdir.exists():
-        testroot_path = rootdir / ('test-' + testroot)
-        shutil.copytree(testroot_path, srcdir)
+    if rootdir is not None:
+        test_root_path = rootdir / f'test-{test_root}'
+        if copy_test_root:
+            if test_root_path.is_dir():
+                shutil.copytree(test_root_path, srcdir, dirs_exist_ok=True)
+        else:
+            kwargs['srcdir'] = test_root_path
+
+    # always write to the temporary directory
+    kwargs.setdefault('builddir', srcdir / '_build')
 
     return _app_params(args, kwargs)
 
@@ -119,8 +126,7 @@ _app_params = namedtuple('_app_params', 'args,kwargs')  # NoQA: PYI024
 
 @pytest.fixture
 def test_params(request: Any) -> dict[str, Any]:
-    """
-    Test parameters that are specified by 'pytest.mark.test_params'
+    """Test parameters that are specified by 'pytest.mark.test_params'
 
     :param Union[str] shared_result:
        If the value is provided, app._status and app._warning objects will be
@@ -148,9 +154,7 @@ def app(
     make_app: Callable[[], SphinxTestApp],
     shared_result: SharedResult,
 ) -> Iterator[SphinxTestApp]:
-    """
-    Provides the 'sphinx.application.Sphinx' object
-    """
+    """Provides the 'sphinx.application.Sphinx' object"""
     args, kwargs = app_params
     app_ = make_app(*args, **kwargs)
     yield app_
@@ -168,24 +172,19 @@ def app(
 
 @pytest.fixture
 def status(app: SphinxTestApp) -> StringIO:
-    """
-    Back-compatibility for testing with previous @with_app decorator
-    """
+    """Back-compatibility for testing with previous @with_app decorator"""
     return app.status
 
 
 @pytest.fixture
 def warning(app: SphinxTestApp) -> StringIO:
-    """
-    Back-compatibility for testing with previous @with_app decorator
-    """
+    """Back-compatibility for testing with previous @with_app decorator"""
     return app.warning
 
 
 @pytest.fixture
 def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp]]:
-    """
-    Provides make_app function to initialize SphinxTestApp instance.
+    """Provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
@@ -223,8 +222,7 @@ def _shared_result_cache() -> None:
 
 @pytest.fixture
 def if_graphviz_found(app: SphinxTestApp) -> None:
-    """
-    The test will be skipped when using 'if_graphviz_found' fixture and graphviz
+    """The test will be skipped when using 'if_graphviz_found' fixture and graphviz
     dot command is not found.
     """
     graphviz_dot = getattr(app.config, 'graphviz_dot', '')
@@ -247,8 +245,7 @@ def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 @pytest.fixture
 def rollback_sysmodules() -> Iterator[None]:
-    """
-    Rollback sys.modules to its value before testing to unload modules
+    """Rollback sys.modules to its value before testing to unload modules
     during tests.
 
     For example, used in test_ext_autosummary.py to permit unloading the

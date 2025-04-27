@@ -6,20 +6,23 @@ import operator
 import token
 from collections import deque
 from inspect import Parameter
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
+from sphinx.addnodes import pending_xref, pending_xref_condition
+from sphinx.locale import _
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.util.inspect import signature_from_str
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+    from typing import Any
 
     from docutils.nodes import Element, Node
 
+    from sphinx.addnodes import desc_signature
     from sphinx.environment import BuildEnvironment
 
 
@@ -121,6 +124,10 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
                 return [nodes.Text(repr(node.value))]
         if isinstance(node, ast.Expr):
             return unparse(node.value)
+        if isinstance(node, ast.Starred):
+            result = [addnodes.desc_sig_operator('', '*')]
+            result.extend(unparse(node.value))
+            return result
         if isinstance(node, ast.Invert):
             return [addnodes.desc_sig_punctuation('', '~')]
         if isinstance(node, ast.USub):
@@ -398,11 +405,15 @@ class _TypeParameterListParser(TokenProcessor):
 
 
 def _parse_type_list(
-    tp_list: str, env: BuildEnvironment, multi_line_parameter_list: bool = False
+    tp_list: str,
+    env: BuildEnvironment,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> addnodes.desc_type_parameter_list:
     """Parse a list of type parameters according to PEP 695."""
     type_params = addnodes.desc_type_parameter_list(tp_list)
     type_params['multi_line_parameter_list'] = multi_line_parameter_list
+    type_params['multi_line_trailing_comma'] = trailing_comma
     # formal parameter names are interpreted as type parameter names and
     # type annotations are interpreted as type parameter bound or constraints
     parser = _TypeParameterListParser(tp_list)
@@ -460,28 +471,26 @@ def _parse_type_list(
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False
+    arglist: str,
+    env: BuildEnvironment,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     params['multi_line_parameter_list'] = multi_line_parameter_list
+    params['multi_line_trailing_comma'] = trailing_comma
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
-            # PEP-570: Separator for Positional Only Parameter: /
-            params += addnodes.desc_parameter(
-                '', '', addnodes.desc_sig_operator('', '/')
-            )
+            params += _positional_only_separator()
         if param.kind == param.KEYWORD_ONLY and last_kind in {
             param.POSITIONAL_OR_KEYWORD,
             param.POSITIONAL_ONLY,
             None,
         }:
-            # PEP-3102: Separator for Keyword Only Parameter: *
-            params += addnodes.desc_parameter(
-                '', '', addnodes.desc_sig_operator('', '*')
-            )
+            params += _keyword_only_separator()
 
         node = addnodes.desc_parameter()
         if param.kind == param.VAR_POSITIONAL:
@@ -513,14 +522,38 @@ def _parse_arglist(
         last_kind = param.kind
 
     if last_kind == Parameter.POSITIONAL_ONLY:
-        # PEP-570: Separator for Positional Only Parameter: /
-        params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
+        params += _positional_only_separator()
 
     return params
 
 
+def _positional_only_separator() -> addnodes.desc_parameter:
+    # PEP 570: Separator for positional only parameters: /
+    positional_only_abbr = nodes.abbreviation(
+        '/', '/', explanation=_('Positional-only parameter separator (PEP 570)')
+    )
+    positional_only_op = addnodes.desc_sig_operator(
+        '/', '', positional_only_abbr, classes=['positional-only-separator']
+    )
+    return addnodes.desc_parameter('/', '', positional_only_op)
+
+
+def _keyword_only_separator() -> addnodes.desc_parameter:
+    # PEP 3102: Separator for keyword only parameters: *
+    keyword_only_abbr = nodes.abbreviation(
+        '*', '*', explanation=_('Keyword-only parameters separator (PEP 3102)')
+    )
+    keyword_only_op = addnodes.desc_sig_operator(
+        '*', '', keyword_only_abbr, classes=['keyword-only-separator']
+    )
+    return addnodes.desc_parameter('*', '', keyword_only_op)
+
+
 def _pseudo_parse_arglist(
-    signode: desc_signature, arglist: str, multi_line_parameter_list: bool = False
+    signode: desc_signature,
+    arglist: str,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> None:
     """'Parse' a list of arguments separated by commas.
 
@@ -530,6 +563,7 @@ def _pseudo_parse_arglist(
     """
     paramlist = addnodes.desc_parameterlist()
     paramlist['multi_line_parameter_list'] = multi_line_parameter_list
+    paramlist['multi_line_trailing_comma'] = trailing_comma
     stack: list[Element] = [paramlist]
     try:
         for argument in arglist.split(','):
@@ -560,7 +594,7 @@ def _pseudo_parse_arglist(
                 stack.pop()
                 ends_close -= 1
         if len(stack) != 1:
-            raise IndexError
+            raise IndexError  # NoQA: TRY301
     except IndexError:
         # if there are too few or too many elements on the stack, just give up
         # and treat the whole argument list as one argument, discarding the

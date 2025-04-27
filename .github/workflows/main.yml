@@ -50,6 +50,16 @@ jobs:
     - uses: actions/checkout@v4
       with:
         persist-credentials: false
+    - name: Mount the test roots as read-only
+      run: |
+        mkdir -p ./tests/roots-read-only
+        sudo mount -v --bind --read-only ./tests/roots ./tests/roots-read-only
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Check Python version
+      run: python --version --version
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
@@ -325,7 +335,7 @@ jobs:
   #       version: latest
   #       enable-cache: false
   #   - name: Install dependencies
-  #     run: uv pip install .[test] pytest-cov
+  #     run: uv pip install . --group test pytest-cov
   #   - name: Test with pytest
   #     run: python -m pytest -vv --cov . --cov-append --cov-config pyproject.toml
   #     env:

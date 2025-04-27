@@ -7,8 +7,7 @@ See https://github.com/trailofbits/pypi-attestations.
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
-#     "pypi-attestations~=0.0.12",
-#     "sigstore-protobuf-specs==0.3.2",
+#     "pypi-attestations==0.0.22",
 #     "betterproto==2.0.0b6",
 # ]
 # ///
@@ -22,10 +21,10 @@ from pathlib import Path
 
 from pypi_attestations import Attestation, Distribution
 from sigstore.models import Bundle
-from sigstore.verify import Verifier
 from sigstore.verify.policy import Identity
 
-DIST = Path('dist')
+ROOT = Path(__file__).resolve().parent.parent
+DIST = ROOT / 'dist'
 bundle_path = Path(sys.argv[1])
 signer_identity = sys.argv[2]
 
@@ -48,7 +47,6 @@ for line in bundle_path.read_bytes().splitlines():
         # Validate attestation
         dist = Distribution.from_file(DIST / filename)
         attestation = Attestation.model_validate_json(attestation_path.read_bytes())
-        verifier = Verifier.production()
-        policy = Identity(identity=signer_identity)
-        attestation.verify(verifier, policy, dist)
+        identity = Identity(identity=signer_identity)
+        attestation.verify(identity=identity, dist=dist)
         print(f'Verified {attestation_path}')

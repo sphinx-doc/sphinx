@@ -11,7 +11,7 @@ import re
 import sys
 import time
 from io import StringIO
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -19,15 +19,16 @@ from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
 import sphinx
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement
 
@@ -63,9 +64,7 @@ def is_allowed_version(spec: str, version: str) -> bool:
 
 
 class TestDirective(SphinxDirective):
-    """
-    Base class for doctest-related directives.
-    """
+    """Base class for doctest-related directives."""
 
     has_content = True
     required_arguments = 0
@@ -240,13 +239,13 @@ class TestCode:
         type: str,
         filename: str,
         lineno: int,
-        options: dict | None = None,
+        options: dict[int, bool] | None = None,
     ) -> None:
         self.code = code
         self.type = type
         self.filename = filename
         self.lineno = lineno
-        self.options = options or {}
+        self.options: dict[int, bool] = options or {}
 
     def __repr__(self) -> str:
         return (
@@ -257,7 +256,7 @@ class TestCode:
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
     def summarize(  # type: ignore[override]
-        self, out: Callable, verbose: bool | None = None
+        self, out: Callable[[str], None], verbose: bool | None = None
     ) -> tuple[int, int]:
         string_io = StringIO()
         old_stdout = sys.stdout
@@ -291,9 +290,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
 
 
 class DocTestBuilder(Builder):
-    """
-    Runs test snippets in the documentation.
-    """
+    """Runs test snippets in the documentation."""
 
     name = 'doctest'
     epilog = __(
@@ -361,10 +358,17 @@ class DocTestBuilder(Builder):
         def s(v: int) -> str:
             return 's' if v != 1 else ''
 
+        header = 'Doctest summary'
+        if self.total_failures or self.setup_failures or self.cleanup_failures:
+            self.app.statuscode = 1
+            if self.config.doctest_fail_fast:
+                header = f'{header} (exiting after first failed test)'
+        underline = '=' * len(header)
+
         self._out(
             f"""
-Doctest summary
-===============
+{header}
+{underline}
 {self.total_tries:5} test{s(self.total_tries)}
 {self.total_failures:5} failure{s(self.total_failures)} in tests
 {self.setup_failures:5} failure{s(self.setup_failures)} in setup code
@@ -373,15 +377,14 @@ Doctest summary
         )
         self.outfile.close()
 
-        if self.total_failures or self.setup_failures or self.cleanup_failures:
-            self.app.statuscode = 1
-
     def write_documents(self, docnames: Set[str]) -> None:
         logger.info(bold('running tests...'))
         for docname in sorted(docnames):
             # no need to resolve the doctree
             doctree = self.env.get_doctree(docname)
-            self.test_doc(docname, doctree)
+            success = self.test_doc(docname, doctree)
+            if not success and self.config.doctest_fail_fast:
+                break
 
     def get_filename_for_node(self, node: Node, docname: str) -> str:
         """Try to get the file which actually contains the doctest, not the
@@ -422,7 +425,7 @@ Doctest summary
                 exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
             return should_skip
 
-    def test_doc(self, docname: str, doctree: Node) -> None:
+    def test_doc(self, docname: str, doctree: Node) -> bool:
         groups: dict[str, TestGroup] = {}
         add_to_all_groups = []
         self.setup_runner = SphinxDocTestRunner(verbose=False, optionflags=self.opt)
@@ -499,13 +502,17 @@ Doctest summary
             for group in groups.values():
                 group.add_code(code)
         if not groups:
-            return
+            return True
 
         show_successes = self.config.doctest_show_successes
         if show_successes:
             self._out(f'\nDocument: {docname}\n----------{"-" * len(docname)}\n')
+        success = True
         for group in groups.values():
-            self.test_group(group)
+            if not self.test_group(group):
+                success = False
+                if self.config.doctest_fail_fast:
+                    break
         # Separately count results from setup code
         res_f, res_t = self.setup_runner.summarize(self._out, verbose=False)
         self.setup_failures += res_f
@@ -520,14 +527,15 @@ Doctest summary
             )
             self.cleanup_failures += res_f
             self.cleanup_tries += res_t
+        return success
 
     def compile(
         self, code: str, name: str, type: str, flags: Any, dont_inherit: bool
     ) -> Any:
         return compile(code, name, self.type, flags, dont_inherit)
 
-    def test_group(self, group: TestGroup) -> None:
-        ns: dict = {}
+    def test_group(self, group: TestGroup) -> bool:
+        ns: dict[str, Any] = {}
 
         def run_setup_cleanup(
             runner: Any, testcodes: list[TestCode], what: Any
@@ -556,9 +564,10 @@ Doctest summary
         # run the setup code
         if not run_setup_cleanup(self.setup_runner, group.setup, 'setup'):
             # if setup failed, don't run the group
-            return
+            return False
 
         # run the tests
+        success = True
         for code in group.tests:
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
@@ -611,11 +620,19 @@ Doctest summary
                 self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
+            old_f = self.test_runner.failures
             # also don't clear the globs namespace after running the doctest
             self.test_runner.run(test, out=self._warn_out, clear_globs=False)
+            if self.test_runner.failures > old_f:
+                success = False
+                if self.config.doctest_fail_fast:
+                    break
 
         # run the cleanup
-        run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
+        if not run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup'):
+            return False
+
+        return success
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
@@ -626,16 +643,23 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('testoutput', TestoutputDirective)
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
-    app.add_config_value('doctest_show_successes', True, '', bool)
-    app.add_config_value('doctest_path', [], '')
-    app.add_config_value('doctest_test_doctest_blocks', 'default', '')
-    app.add_config_value('doctest_global_setup', '', '')
-    app.add_config_value('doctest_global_cleanup', '', '')
+    app.add_config_value('doctest_show_successes', True, '', types=frozenset({bool}))
+    app.add_config_value('doctest_path', (), '', types=frozenset({list, tuple}))
+    app.add_config_value(
+        'doctest_test_doctest_blocks', 'default', '', types=frozenset({str})
+    )
+    app.add_config_value('doctest_global_setup', '', '', types=frozenset({str}))
+    app.add_config_value('doctest_global_cleanup', '', '', types=frozenset({str}))
     app.add_config_value(
         'doctest_default_flags',
         doctest.DONT_ACCEPT_TRUE_FOR_1
         | doctest.ELLIPSIS
         | doctest.IGNORE_EXCEPTION_DETAIL,
         '',
+        types=frozenset({int}),
     )
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    app.add_config_value('doctest_fail_fast', False, '', types=frozenset({bool}))
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

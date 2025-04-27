@@ -3,20 +3,20 @@
 from __future__ import annotations
 
 import codecs
-import os.path
 import pickle
 import re
 import time
 from contextlib import nullcontext
-from typing import TYPE_CHECKING, Any, Literal, final
+from pathlib import Path
+from typing import TYPE_CHECKING, final
 
 from docutils import nodes
 from docutils.utils import DependencyList
 
+from sphinx._cli.util.colour import bold
 from sphinx.environment import (
     CONFIG_CHANGED_REASON,
     CONFIG_OK,
-    BuildEnvironment,
     _CurrentDocument,
 )
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -30,11 +30,10 @@ from sphinx.util import (
 from sphinx.util._importer import import_object
 from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
-from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
-from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
+from sphinx.util.i18n import CatalogRepository, docname_to_domain
+from sphinx.util.osutil import ensuredir, relative_uri, relpath
 from sphinx.util.parallel import (
     ParallelTasks,
     SerialTasks,
@@ -48,13 +47,18 @@ from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
-    from pathlib import Path
+    from gettext import NullTranslations
+    from typing import Any, Literal
 
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.environment import (
+        BuildEnvironment,
+    )
     from sphinx.events import EventManager
+    from sphinx.util.i18n import CatalogInfo
     from sphinx.util.tags import Tags
 
 
@@ -62,9 +66,7 @@ logger = logging.getLogger(__name__)
 
 
 class Builder:
-    """
-    Builds target formats from the reST sources.
-    """
+    """Builds target formats from the reST sources."""
 
     #: The builder's name.
     #: This is the value used to select builders on the command line.
@@ -134,9 +136,13 @@ class Builder:
         self.parallel_ok = False
         self.finish_tasks: Any = None
 
+    @property
+    def _translator(self) -> NullTranslations | None:
+        return self.app.translator
+
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
-        return self.app.registry.get_translator_class(self)
+        return self.env._registry.get_translator_class(self)
 
     def create_translator(self, *args: Any) -> nodes.NodeVisitor:
         """Return an instance of translator.
@@ -144,7 +150,7 @@ class Builder:
         This method returns an instance of ``default_translator_class`` by default.
         Users can replace the translator class with ``app.set_translator()`` API.
         """
-        return self.app.registry.create_translator(self, *args)
+        return self.env._registry.create_translator(self, *args)
 
     # helper methods
     def init(self) -> None:
@@ -244,9 +250,9 @@ class Builder:
             return
 
         def cat2relpath(cat: CatalogInfo, srcdir: Path = self.srcdir) -> str:
-            return relpath(cat.mo_path, srcdir).replace(os.path.sep, SEP)
+            return Path(relpath(cat.mo_path, srcdir)).as_posix()
 
-        logger.info(bold(__('building [mo]: ')) + message)
+        logger.info(bold(__('building [mo]: ')) + message)  # NoQA: G003
         for catalog in status_iterator(
             catalogs,
             __('writing output... '),
@@ -269,16 +275,16 @@ class Builder:
         message = __('all of %d po files') % len(list(repo.catalogs))
         self.compile_catalogs(set(repo.catalogs), message)
 
-    def compile_specific_catalogs(self, specified_files: list[str]) -> None:
-        def to_domain(fpath: str) -> str | None:
-            docname = self.env.path2doc(os.path.abspath(fpath))
-            if docname:
-                return docname_to_domain(docname, self.config.gettext_compact)
-            else:
-                return None
+    def compile_specific_catalogs(self, specified_files: Iterable[Path]) -> None:
+        env = self.env
+        gettext_compact = self.config.gettext_compact
 
+        domains = {
+            docname_to_domain(docname, gettext_compact) if docname else None
+            for file in specified_files
+            if (docname := env.path2doc(file))
+        }
         catalogs = set()
-        domains = set(map(to_domain, specified_files))
         repo = CatalogRepository(
             self.srcdir,
             self.config.locale_dirs,
@@ -313,20 +319,19 @@ class Builder:
         self.build(None, summary=__('all source files'), method='all')
 
     @final
-    def build_specific(self, filenames: list[str]) -> None:
+    def build_specific(self, filenames: Sequence[Path]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
         docnames: list[str] = []
 
+        filenames = [Path(filename).resolve() for filename in filenames]
         for filename in filenames:
-            filename = os.path.normpath(os.path.abspath(filename))
-
-            if not os.path.isfile(filename):
+            if not filename.is_file():
                 logger.warning(
                     __('file %r given on command line does not exist, '), filename
                 )
                 continue
 
-            if not filename.startswith(str(self.srcdir)):
+            if not filename.is_relative_to(self.srcdir):
                 logger.warning(
                     __(
                         'file %r given on command line is not under the '
@@ -353,8 +358,8 @@ class Builder:
 
         self.build(
             docnames,
-            method='specific',
             summary=__('%d source files given on command line') % len(docnames),
+            method='specific',
         )
 
     @final
@@ -364,13 +369,14 @@ class Builder:
 
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
-            self.build(['__all__'], to_build)
+            self.build(['__all__'], summary=to_build, method='update')
         else:
-            to_build = list(to_build)
+            to_build = set(to_build)
             self.build(
                 to_build,
                 summary=__('targets for %d source files that are out of date')
                 % len(to_build),
+                method='update',
             )
 
     @final
@@ -386,7 +392,7 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ')) + summary, self.name)
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)  # NoQA: G003
 
         # while reading, collect all warnings from docutils
         with (
@@ -411,7 +417,7 @@ class Builder:
 
             with (
                 progress_message(__('pickling environment')),
-                open(os.path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f,
+                open(self.doctreedir / ENV_PICKLE_FILENAME, 'wb') as f,
             ):
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
@@ -422,7 +428,6 @@ class Builder:
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
-                return
 
         self.app.phase = BuildPhase.RESOLVING
 
@@ -446,7 +451,7 @@ class Builder:
         self.finish_tasks = SerialTasks()
 
         # write all "normal" documents (or everything for some builders)
-        self.write(docnames, list(updated_docnames), method)
+        self.write(docnames, updated_docnames, method)
 
         # finish (write static files etc.)
         self.finish()
@@ -518,7 +523,7 @@ class Builder:
             from sphinx.util.matching import _translate_pattern
 
             master_doc_path = self.env.doc2path(self.config.master_doc)
-            master_doc_canon = canon_path(master_doc_path)
+            master_doc_canon = master_doc_path.as_posix()
             for pat in EXCLUDE_PATHS:
                 if not re.match(_translate_pattern(pat), master_doc_canon):
                     continue
@@ -620,13 +625,13 @@ class Builder:
         env.prepare_settings(docname)
 
         # Add confdir/docutils.conf to dependencies list if exists
-        docutilsconf = os.path.join(self.confdir, 'docutils.conf')
-        if os.path.isfile(docutilsconf):
-            env.note_dependency(docutilsconf)
+        docutils_conf = self.confdir / 'docutils.conf'
+        if docutils_conf.is_file():
+            env.note_dependency(docutils_conf)
 
         filename = str(env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
-        publisher = self.app.registry.get_publisher(self.app, filetype)
+        publisher = self.env._registry.get_publisher(self.app, filetype)
         self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
@@ -661,7 +666,7 @@ class Builder:
         _cache: bool = True,
     ) -> None:
         """Write the doctree to a file, to be used as a cache by re-builds."""
-        # make it picklable
+        # make it pickleable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
 
@@ -672,8 +677,8 @@ class Builder:
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
 
-        doctree_filename = os.path.join(self.doctreedir, docname + '.doctree')
-        ensuredir(os.path.dirname(doctree_filename))
+        doctree_filename = self.doctreedir / f'{docname}.doctree'
+        doctree_filename.parent.mkdir(parents=True, exist_ok=True)
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
@@ -687,33 +692,38 @@ class Builder:
     def write(
         self,
         build_docnames: Iterable[str] | None,
-        updated_docnames: Sequence[str],
+        updated_docnames: Iterable[str],
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         """Write builder specific output files."""
+        env = self.env
+
         # Allow any extensions to perform setup for writing
         self.events.emit('write-started', self)
 
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
-            build_docnames = self.env.found_docs
+            build_docnames = env.found_docs
         if method == 'update':
             # build updated ones as well
             docnames = set(build_docnames) | set(updated_docnames)
         else:
             docnames = set(build_docnames)
-        logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
+        if docnames:
+            logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
+        else:
+            logger.debug(__('no docnames to write!'))
 
         # add all toctree-containing files that may have changed
-        extra = {self.config.root_doc}
-        for docname in docnames:
-            for tocdocname in self.env.files_to_rebuild.get(docname, set()):
-                if tocdocname in self.env.found_docs:
-                    extra.add(tocdocname)
-        docnames |= extra
+        docnames |= {
+            toc_docname
+            for docname in docnames
+            for toc_docname in env.files_to_rebuild.get(docname, ())
+            if toc_docname in env.found_docs
+        }
 
         # sort to ensure deterministic toctree generation
-        self.env.toctree_includes = dict(sorted(self.env.toctree_includes.items()))
+        env.toctree_includes = dict(sorted(env.toctree_includes.items()))
 
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
@@ -721,7 +731,8 @@ class Builder:
         with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
-        self.write_documents(docnames)
+        if docnames:
+            self.write_documents(docnames)
 
     def write_documents(self, docnames: Set[str]) -> None:
         """Write all documents in *docnames*.
@@ -808,8 +819,7 @@ class Builder:
         pass
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        """
-        Write the output file for the document
+        """Write the output file for the document
 
         :param docname: the :term:`docname <document name>`.
         :param doctree: defines the content to be written.

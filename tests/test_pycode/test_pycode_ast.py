@@ -62,6 +62,7 @@ from sphinx.pycode.ast import unparse as ast_unparse
          'x[:, np.newaxis, :, :]'),                # Index, Subscript, numpy extended syntax
         ('y[:, 1:3][np.array([0, 2, 4]), :]',
          'y[:, 1:3][np.array([0, 2, 4]), :]'),     # Index, 2x Subscript, numpy extended syntax
+        ('*tuple[str, int]', '*tuple[str, int]'),  # Starred
     ],
 )  # fmt: skip
 def test_unparse(source, expected):
@@ -69,5 +70,5 @@ def test_unparse(source, expected):
     assert ast_unparse(module.body[0].value, source) == expected
 
 
-def test_unparse_None():
+def test_unparse_None() -> None:
     assert ast_unparse(None) is None

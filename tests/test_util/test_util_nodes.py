@@ -160,9 +160,8 @@ def test_extract_messages(rst, node_cls, count):
     assert_node_count(msg, node_cls, count)
 
 
-def test_extract_messages_without_rawsource():
-    """
-    Check node.rawsource is fall-backed by using node.astext() value.
+def test_extract_messages_without_rawsource() -> None:
+    """Check node.rawsource is fall-backed by using node.astext() value.
 
     `extract_message` which is used from Sphinx i18n feature drop ``not node.rawsource``
     nodes. So, all nodes which want to translate must have ``rawsource`` value.
@@ -170,7 +169,7 @@ def test_extract_messages_without_rawsource():
 
     For example: recommonmark-0.2.0 doesn't set rawsource to `paragraph` node.
 
-    refs #1994: Fall back to node's astext() during i18n message extraction.
+    See https://github.com/sphinx-doc/sphinx/pull/1994
     """
     p = nodes.paragraph()
     p.append(nodes.Text('test'))
@@ -252,8 +251,8 @@ def test_split_explicit_target(title, expected):
     assert split_explicit_title(title) == expected
 
 
-def test_apply_source_workaround_literal_block_no_source():
-    """Regression test for #11091.
+def test_apply_source_workaround_literal_block_no_source() -> None:
+    """Regression test for https://github.com/sphinx-doc/sphinx/issues/11091.
 
     Test that apply_source_workaround doesn't raise.
     """

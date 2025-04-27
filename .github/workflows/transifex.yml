@@ -1,6 +1,10 @@
 name: Synchronise translations
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/transifex.yml"
+      - "utils/babel_runner.py"
   schedule:
   # 22:38 GMT, every Sunday. Chosen to be a random time.
   - cron: "38 22 * * SUN"
@@ -8,6 +12,10 @@ on:
 
 permissions:
   contents: read
+
+env:
+  FORCE_COLOR: "1"
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   push:
@@ -33,7 +41,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install --upgrade babel jinja2
+      run: uv pip install --group translations
     - name: Extract translations from source code
       run: python utils/babel_runner.py extract
     - name: Push translations to transifex.com
@@ -69,7 +77,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install --upgrade babel jinja2
+      run: uv pip install --group translations
     - name: Extract translations from source code
       run: python utils/babel_runner.py extract
     - name: Pull translations from transifex.com

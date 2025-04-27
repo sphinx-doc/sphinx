@@ -31,21 +31,18 @@ if TYPE_CHECKING:
         _IndexEntryCategoryKey,
     ]
     _IndexEntryMap: TypeAlias = dict[str, _IndexEntry]
-    _Index: TypeAlias = list[
+
+    # Used by ``create_index()`` for 'the real index'
+    _RealIndexEntry: TypeAlias = tuple[
+        str,
         tuple[
-            str,
-            list[
-                tuple[
-                    str,
-                    tuple[
-                        _IndexEntryTargets,
-                        list[tuple[str, _IndexEntryTargets]],
-                        _IndexEntryCategoryKey,
-                    ],
-                ]
-            ],
-        ]
+            _IndexEntryTargets,
+            list[tuple[str, _IndexEntryTargets]],
+            _IndexEntryCategoryKey,
+        ],
     ]
+    _RealIndexEntries: TypeAlias = list[_RealIndexEntry]
+    _Index: TypeAlias = list[tuple[str, _RealIndexEntries]]
 
 logger = logging.getLogger(__name__)
 
@@ -144,9 +141,10 @@ class IndexEntries:
                             __('unknown index entry type %r'),
                             entry_type,
                             location=docname,
+                            type='index',
                         )
                 except ValueError as err:
-                    logger.warning(str(err), location=docname)
+                    logger.warning(str(err), location=docname, type='index')
 
         for targets, sub_items, _category_key in new.values():
             targets.sort(key=_key_func_0)
@@ -255,7 +253,7 @@ def _key_func_2(entry: tuple[str, _IndexEntryTargets]) -> str:
 
 def _group_by_func(entry: tuple[str, _IndexEntry]) -> str:
     """Group the entries by letter or category key."""
-    key, (targets, sub_items, category_key) = entry
+    key, (_targets, _sub_items, category_key) = entry
 
     if category_key is not None:
         return category_key

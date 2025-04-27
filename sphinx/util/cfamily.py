@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -13,7 +13,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any, TypeAlias
+    from typing import Any, NoReturn, TypeAlias
 
     from docutils.nodes import TextElement
 

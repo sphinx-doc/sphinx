@@ -37,11 +37,6 @@ The following is a list of deprecated interfaces.
      - 10.0
      - N/A
 
-   * - ``sphinx.util.import_object``
-     - 8.1
-     - 10.0
-     - ``importlib.import_module``
-
    * - ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
      - 8.0
      - 10.0

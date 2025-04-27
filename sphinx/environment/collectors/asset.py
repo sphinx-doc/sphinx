@@ -112,12 +112,12 @@ class ImageCollector(EnvironmentCollector):
         node: Node,
     ) -> None:
         globbed: dict[str, list[str]] = {}
-        for filename in glob(imgpath):
+        for filename in glob(imgpath):  # NoQA: PTH207
             new_imgpath = _relative_path(Path(filename), srcdir)
             try:
                 mimetype = guess_mimetype(filename)
                 if mimetype is None:
-                    basename, suffix = os.path.splitext(filename)
+                    _basename, suffix = os.path.splitext(filename)
                     mimetype = 'image/x-' + suffix[1:]
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath.as_posix())
@@ -169,7 +169,7 @@ class DownloadFileCollector(EnvironmentCollector):
                     continue
                 node['filename'] = app.env.dlfiles.add_file(
                     app.env.docname, rel_filename
-                )
+                ).as_posix()
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

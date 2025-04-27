@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.builders import Builder
 
 

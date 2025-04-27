@@ -5,7 +5,7 @@ from __future__ import annotations
 import os.path
 import re
 import textwrap
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 
@@ -18,6 +18,7 @@ from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, Text
 
@@ -188,6 +189,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.escape_hyphens = 0
         self.curfilestack: list[str] = []
         self.footnotestack: list[dict[str, list[collected_footnote | bool]]] = []
+        self.in_production_list = False
         self.in_footnote = 0
         self.in_samp = 0
         self.handled_abbrs: set[str] = set()
@@ -884,7 +886,7 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_footnote_reference(self, node: Element) -> None:
         num = node.astext().strip()
         try:
-            footnode, used = self.footnotestack[-1][num]
+            footnode, _used = self.footnotestack[-1][num]
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
@@ -1171,7 +1173,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_topic(self, node: Element) -> None:
         # ignore TOC's since we have to have a "menu" anyway
-        if 'contents' in node.get('classes', []):
+        if 'contents' in node.get('classes', ()):
             raise nodes.SkipNode
         title = cast('nodes.title', node[0])
         self.visit_rubric(title)
@@ -1307,21 +1309,11 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.visit_literal_block(None)
-        productionlist = cast('Iterable[addnodes.production]', node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
+        self.in_production_list = True
 
-        for production in productionlist:
-            if production['tokenname']:
-                for id in production.get('ids'):
-                    self.add_anchor(id, production)
-                s = production['tokenname'].ljust(maxlen) + ' ::='
-            else:
-                s = '%s    ' % (' ' * maxlen)
-            self.body.append(self.escape(s))
-            self.body.append(self.escape(production.astext() + '\n'))
+    def depart_productionlist(self, node: Element) -> None:
+        self.in_production_list = False
         self.depart_literal_block(None)
-        raise nodes.SkipNode
 
     def visit_production(self, node: Element) -> None:
         pass
@@ -1336,9 +1328,15 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('}')
 
     def visit_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            for id_ in node['ids']:
+                self.add_anchor(id_, node)
+            return
         self.body.append('@code{')
 
     def depart_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.body.append('}')
 
     def visit_index(self, node: Element) -> None:
@@ -1502,7 +1500,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.first_param = 0
         text = self.escape(node.astext())
         # replace no-break spaces with normal ones
-        text = text.replace(' ', '@w{ }')
+        text = text.replace('\N{NO-BREAK SPACE}', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
 
@@ -1539,10 +1537,11 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_abbreviation(self, node: Element) -> None:
+        explanation = node.get('explanation', '')
         abbr = node.astext()
         self.body.append('@abbr{')
-        if node.hasattr('explanation') and abbr not in self.handled_abbrs:
-            self.context.append(',%s}' % self.escape_arg(node['explanation']))
+        if explanation and abbr not in self.handled_abbrs:
+            self.context.append(',%s}' % self.escape_arg(explanation))
             self.handled_abbrs.add(abbr)
         else:
             self.context.append('}')
@@ -1580,11 +1579,11 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_pending_xref(self, node: Element) -> None:
         pass
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         self.body.append('@math{' + self.escape_arg(node.astext()) + '}')
         raise nodes.SkipNode
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         if node.get('label'):
             self.add_anchor(node['label'], node)
         self.body.append(

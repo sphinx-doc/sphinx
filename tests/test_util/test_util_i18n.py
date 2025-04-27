@@ -6,6 +6,7 @@ import datetime
 import os
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from babel.messages.mofile import read_mo
@@ -13,8 +14,11 @@ from babel.messages.mofile import read_mo
 from sphinx.errors import SphinxError
 from sphinx.util import i18n
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
-def test_catalog_info_for_file_and_path():
+
+def test_catalog_info_for_file_and_path() -> None:
     cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
     assert cat.po_file == 'domain.po'
     assert cat.mo_file == 'domain.mo'
@@ -22,7 +26,7 @@ def test_catalog_info_for_file_and_path():
     assert cat.mo_path == Path('path', 'domain.mo')
 
 
-def test_catalog_info_for_sub_domain_file_and_path():
+def test_catalog_info_for_sub_domain_file_and_path() -> None:
     cat = i18n.CatalogInfo('path', 'sub/domain', 'utf-8')
     assert cat.po_file == 'sub/domain.po'
     assert cat.mo_file == 'sub/domain.mo'
@@ -39,7 +43,7 @@ def test_catalog_outdated(tmp_path):
     mo_file.write_text('#', encoding='utf8')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
-    new_mtime = os.stat(mo_file).st_mtime_ns - 10_000_000_000
+    new_mtime = mo_file.stat().st_mtime_ns - 10_000_000_000
     os.utime(mo_file, ns=(new_mtime, new_mtime))  # to be outdated
     assert cat.is_outdated()  # if mo is exist and older than po
 
@@ -95,10 +99,10 @@ def test_format_date():
     assert i18n.format_date(format, date=datet, language='en') == '+0000'
 
 
-def test_format_date_timezone():
+def test_format_date_timezone() -> None:
     dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.UTC)
     if time.localtime(dt.timestamp()).tm_gmtoff == 0:
-        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101
+        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101,TRY003
 
     fmt = '%Y-%m-%d %H:%M:%S'
 
@@ -114,7 +118,7 @@ def test_format_date_timezone():
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_filename_for_language(app):
+def test_get_filename_for_language(app: SphinxTestApp) -> None:
     get_filename = i18n.get_image_filename_for_language
     app.env.current_document.docname = 'index'
 

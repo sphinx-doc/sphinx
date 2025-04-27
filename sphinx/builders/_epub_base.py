@@ -7,7 +7,8 @@ import os
 import os.path
 import re
 import time
-from typing import TYPE_CHECKING, Any, NamedTuple
+from pathlib import Path
+from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
@@ -19,12 +20,13 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.html._build_info import BuildInfo
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.display import status_iterator
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import copyfile, ensuredir, relpath
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    from typing import Any
 
     from docutils.nodes import Element, Node
 
@@ -125,8 +127,7 @@ ssp = sphinx_smarty_pants
 
 
 class EpubBuilder(StandaloneHTMLBuilder):
-    """
-    Builder that outputs epub files.
+    """Builder that outputs epub files.
 
     It creates the metainfo files container.opf, toc.ncx, mimetype, and
     META-INF/container.xml.  Afterwards, all necessary files are zipped to an
@@ -158,7 +159,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     guide_titles = GUIDE_TITLES
     media_types = MEDIA_TYPES
     refuri_re = REFURI_RE
-    template_dir = ''
+    template_dir: _StrPath = _StrPath()
     doctype = ''
 
     def init(self) -> None:
@@ -228,18 +229,16 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 appeared.add(node['refuri'])
 
     def get_toc(self) -> None:
-        """Get the total table of contents, containing the root_doc
-        and pre and post files not managed by sphinx.
+        """Get the total table of contents, containing the master_doc
+        and pre and post files not managed by Sphinx.
         """
         doctree = self.env.get_and_resolve_doctree(
-            self.config.root_doc, self, prune_toctrees=False, includehidden=True
+            self.config.master_doc, self, prune_toctrees=False, includehidden=True
         )
         self.refnodes = self.get_refnodes(doctree, [])
-        master_dir = os.path.dirname(self.config.root_doc)
-        if master_dir:
-            master_dir += '/'  # XXX or os.sep?
-            for item in self.refnodes:
-                item['refuri'] = master_dir + item['refuri']
+        master_dir = Path(self.config.master_doc).parent
+        for item in self.refnodes:
+            item['refuri'] = str(master_dir / item['refuri'])
         self.toc_add_files(self.refnodes)
 
     def toc_add_files(self, refnodes: list[dict[str, Any]]) -> None:
@@ -417,7 +416,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         The method tries to read and write the files with Pillow, converting
         the format and resizing the image if necessary/possible.
         """
-        ensuredir(os.path.join(self.outdir, self.imagedir))
+        ensuredir(self.outdir / self.imagedir)
         for src in status_iterator(
             self.images,
             __('copying images... '),
@@ -427,12 +426,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         ):
             dest = self.images[src]
             try:
-                img = Image.open(os.path.join(self.srcdir, src))
+                img = Image.open(self.srcdir / src)
             except OSError:
                 if not self.is_vector_graphics(src):
                     logger.warning(
                         __('cannot read image file %r: copying it instead'),
-                        os.path.join(self.srcdir, src),
+                        self.srcdir / src,
                     )
                 try:
                     copyfile(
@@ -443,7 +442,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 except OSError as err:
                     logger.warning(
                         __('cannot copy image file %r: %s'),
-                        os.path.join(self.srcdir, src),
+                        self.srcdir / src,
                         err,
                     )
                 continue
@@ -459,11 +458,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     nh = round((height * nw) / width)
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
-                img.save(os.path.join(self.outdir, self.imagedir, dest))
+                img.save(self.outdir / self.imagedir / dest)
             except OSError as err:
                 logger.warning(
                     __('cannot write image file %r: %s'),
-                    os.path.join(self.srcdir, src),
+                    self.srcdir / src,
                     err,
                 )
 
@@ -511,7 +510,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Write the metainfo file mimetype."""
         logger.info(__('writing mimetype file...'))
         copyfile(
-            os.path.join(self.template_dir, 'mimetype'),
+            self.template_dir / 'mimetype',
             self.outdir / 'mimetype',
             force=True,
         )
@@ -522,7 +521,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         outdir = self.outdir / 'META-INF'
         ensuredir(outdir)
         copyfile(
-            os.path.join(self.template_dir, 'container.xml'),
+            self.template_dir / 'container.xml',
             outdir / 'container.xml',
             force=True,
         )
@@ -577,9 +576,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if not self.use_index:
             self.ignored_files.append('genindex' + self.out_suffix)
         for root, dirs, files in os.walk(self.outdir):
+            root_path = Path(root)
             dirs.sort()
             for fn in sorted(files):
-                filename = relpath(os.path.join(root, fn), self.outdir)
+                filename = relpath(root_path / fn, self.outdir)
                 if filename in self.ignored_files:
                     continue
                 ext = os.path.splitext(filename)[-1]
@@ -684,7 +684,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         # write the project file
         copy_asset_file(
-            os.path.join(self.template_dir, 'content.opf.jinja'),
+            self.template_dir / 'content.opf.jinja',
             self.outdir,
             context=metadata,
             force=True,
@@ -778,7 +778,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
         copy_asset_file(
-            os.path.join(self.template_dir, 'toc.ncx.jinja'),
+            self.template_dir / 'toc.ncx.jinja',
             self.outdir,
             context=self.toc_metadata(level, navpoints),
             force=True,
@@ -792,10 +792,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         outname = self.config.epub_basename + '.epub'
         logger.info(__('writing %s file...'), outname)
-        epub_filename = os.path.join(self.outdir, outname)
+        epub_filename = self.outdir / outname
         with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
-            epub.write(os.path.join(self.outdir, 'mimetype'), 'mimetype', ZIP_STORED)
+            epub.write(self.outdir / 'mimetype', 'mimetype', ZIP_STORED)
             for filename in ('META-INF/container.xml', 'content.opf', 'toc.ncx'):
-                epub.write(os.path.join(self.outdir, filename), filename, ZIP_DEFLATED)
+                epub.write(self.outdir / filename, filename, ZIP_DEFLATED)
             for filename in self.files:
-                epub.write(os.path.join(self.outdir, filename), filename, ZIP_DEFLATED)
+                epub.write(self.outdir / filename, filename, ZIP_DEFLATED)

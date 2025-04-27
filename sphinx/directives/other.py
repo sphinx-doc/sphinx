@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import re
-from os.path import abspath, relpath
+from os.path import relpath
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 from docutils.statemachine import StateMachine
@@ -22,6 +21,7 @@ from sphinx.util.nodes import explicit_title_re
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -40,8 +40,7 @@ def int_or_nothing(argument: str) -> int:
 
 
 class TocTree(SphinxDirective):
-    """
-    Directive to notify Sphinx about the hierarchical structure of the docs,
+    """Directive to notify Sphinx about the hierarchical structure of the docs,
     and to include a table-of-contents like tree in the current document.
     """
 
@@ -88,9 +87,7 @@ class TocTree(SphinxDirective):
         return [wrappernode]
 
     def parse_content(self, toctree: addnodes.toctree) -> None:
-        """
-        Populate ``toctree['entries']`` and ``toctree['includefiles']`` from content.
-        """
+        """Populate ``toctree['entries']`` and ``toctree['includefiles']`` from content."""
         generated_docnames = frozenset(StandardDomain._virtual_doc_names)
         suffixes = self.config.source_suffix
         current_docname = self.env.docname
@@ -122,6 +119,7 @@ class TocTree(SphinxDirective):
                         __("toctree glob pattern %r didn't match any documents"),
                         entry,
                         location=toctree,
+                        subtype='empty_glob',
                     )
 
                 for docname in doc_names:
@@ -159,7 +157,7 @@ class TocTree(SphinxDirective):
                     subtype = 'not_readable'
 
                 logger.warning(
-                    msg, docname, type='toc', subtype=subtype, location=toctree
+                    msg, docname, location=toctree, type='toc', subtype=subtype
                 )
                 self.env.note_reread()
                 continue
@@ -171,6 +169,8 @@ class TocTree(SphinxDirective):
                     __('duplicated entry found in toctree: %s'),
                     docname,
                     location=toctree,
+                    type='toc',
+                    subtype='duplicate_entry',
                 )
 
             toctree['entries'].append((title, docname))
@@ -183,8 +183,7 @@ class TocTree(SphinxDirective):
 
 
 class Author(SphinxDirective):
-    """
-    Directive to give the name of the author of the current document
+    """Directive to give the name of the author of the current document
     or section. Shown in the output only if the show_authors option is on.
     """
 
@@ -217,18 +216,8 @@ class Author(SphinxDirective):
         return ret
 
 
-class SeeAlso(BaseAdmonition):
-    """
-    An admonition mentioning things to look at as reference.
-    """
-
-    node_class = addnodes.seealso
-
-
 class TabularColumns(SphinxDirective):
-    """
-    Directive to give an explicit tabulary column definition to LaTeX.
-    """
+    """Directive to give an explicit tabulary column definition to LaTeX."""
 
     has_content = False
     required_arguments = 1
@@ -244,9 +233,7 @@ class TabularColumns(SphinxDirective):
 
 
 class Centered(SphinxDirective):
-    """
-    Directive to create a centered line of bold text.
-    """
+    """Directive to create a centered line of bold text."""
 
     has_content = False
     required_arguments = 1
@@ -267,9 +254,7 @@ class Centered(SphinxDirective):
 
 
 class Acks(SphinxDirective):
-    """
-    Directive for a list of names.
-    """
+    """Directive for a list of names."""
 
     has_content = True
     required_arguments = 0
@@ -289,9 +274,7 @@ class Acks(SphinxDirective):
 
 
 class HList(SphinxDirective):
-    """
-    Directive for a list that gets compacted horizontally.
-    """
+    """Directive for a list that gets compacted horizontally."""
 
     has_content = True
     required_arguments = 0
@@ -326,9 +309,7 @@ class HList(SphinxDirective):
 
 
 class Only(SphinxDirective):
-    """
-    Directive to only include text if the given tag(s) are enabled.
-    """
+    """Directive to only include text if the given tag(s) are enabled."""
 
     has_content = True
     required_arguments = 1
@@ -388,8 +369,7 @@ class Only(SphinxDirective):
 
 
 class Include(BaseInclude, SphinxDirective):
-    """
-    Like the standard "Include" directive, but interprets absolute paths
+    """Like the standard "Include" directive, but interprets absolute paths
     "correctly", i.e. relative to source directory.
     """
 
@@ -407,7 +387,7 @@ class Include(BaseInclude, SphinxDirective):
             # We must preserve them and leave them out of the include-read event:
             text = '\n'.join(include_lines[:-2])
 
-            path = Path(relpath(abspath(source), start=self.env.srcdir))
+            path = Path(relpath(Path(source).resolve(), start=self.env.srcdir))
             docname = self.env.docname
 
             # Emit the "include-read" event
@@ -431,8 +411,8 @@ class Include(BaseInclude, SphinxDirective):
         if self.arguments[0].startswith('<') and self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
             return super().run()
-        rel_filename, filename = self.env.relfn2path(self.arguments[0])
-        self.arguments[0] = filename
+        _rel_filename, filename = self.env.relfn2path(self.arguments[0])
+        self.arguments[0] = str(filename)
         self.env.note_included(filename)
         return super().run()
 
@@ -442,7 +422,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)
     directives.register_directive('codeauthor', Author)
-    directives.register_directive('seealso', SeeAlso)
     directives.register_directive('tabularcolumns', TabularColumns)
     directives.register_directive('centered', Centered)
     directives.register_directive('acks', Acks)

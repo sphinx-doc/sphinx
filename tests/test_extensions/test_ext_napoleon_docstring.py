@@ -8,11 +8,12 @@ from collections import namedtuple
 from inspect import cleandoc
 from itertools import product
 from textwrap import dedent
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
 
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (
     GoogleDocstring,
@@ -26,6 +27,9 @@ from sphinx.testing.util import etree_parse
 
 from tests.test_extensions.ext_napoleon_pep526_data_google import PEP526GoogleClass
 from tests.test_extensions.ext_napoleon_pep526_data_numpy import PEP526NumpyClass
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):  # NoQA: PYI024
@@ -2819,7 +2823,7 @@ Sample class with PEP 526 annotations and numpy docstring
         'autodoc_typehints_description_target': 'all',
     },
 )
-def test_napoleon_and_autodoc_typehints_description_all(app):
+def test_napoleon_and_autodoc_typehints_description_all(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
     assert content == (
@@ -2848,7 +2852,9 @@ def test_napoleon_and_autodoc_typehints_description_all(app):
         'autodoc_typehints_description_target': 'documented_params',
     },
 )
-def test_napoleon_and_autodoc_typehints_description_documented_params(app):
+def test_napoleon_and_autodoc_typehints_description_documented_params(
+    app: SphinxTestApp,
+) -> None:
     app.build()
     content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
     assert content == (

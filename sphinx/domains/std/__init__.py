@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
+import operator
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref
+from sphinx.addnodes import pending_xref
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
@@ -22,10 +23,13 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Set
+    from collections.abc import Callable, Iterable, Iterator, MutableSequence, Set
+    from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
+    from docutils.parsers.rst import Directive
 
+    from sphinx.addnodes import desc_signature
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -47,9 +51,7 @@ samp_role = EmphasizedLiteral()
 
 
 class GenericObject(ObjectDescription[str]):
-    """
-    A generic x-ref directive registered with Sphinx.add_object_type().
-    """
+    """A generic x-ref directive registered with Sphinx.add_object_type()."""
 
     indextemplate: str = ''
     parse_node: Callable[[BuildEnvironment, str, desc_signature], str] | None = None
@@ -90,9 +92,7 @@ class EnvVar(GenericObject):
 
 
 class EnvVarXRefRole(XRefRole):
-    """
-    Cross-referencing role for environment variables (adds an index entry).
-    """
+    """Cross-referencing role for environment variables (adds an index entry)."""
 
     def result_nodes(
         self,
@@ -189,9 +189,7 @@ class ConfigurationValue(ObjectDescription[str]):
 
 
 class Target(SphinxDirective):
-    """
-    Generic target for user-defined cross-reference types.
-    """
+    """Generic target for user-defined cross-reference types."""
 
     indextemplate = ''
 
@@ -229,9 +227,7 @@ class Target(SphinxDirective):
 
 
 class Cmdoption(ObjectDescription[str]):
-    """
-    Description of a command-line option (.. option).
-    """
+    """Description of a command-line option (.. option)."""
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         """Transform an option description into RST nodes."""
@@ -313,7 +309,7 @@ class Cmdoption(ObjectDescription[str]):
         self.state.document.note_explicit_target(signode)
 
         domain = self.env.domains.standard_domain
-        for optname in signode.get('allnames', []):
+        for optname in signode.get('allnames', ()):
             domain.add_program_option(
                 currprogram, optname, self.env.docname, signode['ids'][0]
             )
@@ -323,7 +319,7 @@ class Cmdoption(ObjectDescription[str]):
             descr = _('%s command line option') % currprogram
         else:
             descr = _('command line option')
-        for option in signode.get('allnames', []):  # type: ignore[var-annotated]
+        for option in signode.get('allnames', ()):  # type: ignore[var-annotated]
             entry = f'{descr}; {option}'
             self.indexnode['entries'].append((
                 'pair',
@@ -335,9 +331,7 @@ class Cmdoption(ObjectDescription[str]):
 
 
 class Program(SphinxDirective):
-    """
-    Directive to name the program for which options are documented.
-    """
+    """Directive to name the program for which options are documented."""
 
     has_content = False
     required_arguments = 1
@@ -414,8 +408,7 @@ def make_glossary_term(
 
 
 class Glossary(SphinxDirective):
-    """
-    Directive to create a glossary with cross-reference targets for :term:
+    """Directive to create a glossary with cross-reference targets for :term:
     roles.
     """
 
@@ -561,7 +554,7 @@ class Glossary(SphinxDirective):
         return [*messages, node]
 
 
-def token_xrefs(text: str, *, production_group: str = '') -> list[Node]:
+def token_xrefs(text: str, production_group: str = '') -> Iterable[Node]:
     if len(production_group) != 0:
         production_group += ':'
     retnodes: list[Node] = []
@@ -596,9 +589,7 @@ def token_xrefs(text: str, *, production_group: str = '') -> list[Node]:
 
 
 class ProductionList(SphinxDirective):
-    """
-    Directive to list grammar productions.
-    """
+    """Directive to list grammar productions."""
 
     has_content = False
     required_arguments = 1
@@ -606,42 +597,106 @@ class ProductionList(SphinxDirective):
     final_argument_whitespace = True
     option_spec: ClassVar[OptionSpec] = {}
 
+    # The backslash handling is from ObjectDescription.get_signatures
+    _nl_escape_re: Final = re.compile(r'\\\n')
+
+    # Get 'name' from triples of rawsource, name, definition (tokens)
+    _name_getter = operator.itemgetter(1)
+
     def run(self) -> list[Node]:
-        domain = self.env.domains.standard_domain
-        node: Element = addnodes.productionlist()
+        name_getter = self._name_getter
+        lines = self._nl_escape_re.sub('', self.arguments[0]).splitlines()
+
+        # Extract production_group argument.
+        # Must be before extracting production definition triples.
+        production_group = self.production_group(lines=lines, options=self.options)
+        production_lines = list(self.production_definitions(lines))
+        max_name_len = max(map(len, map(name_getter, production_lines)))
+        node_location = self.get_location()
+
+        productions = [
+            self.make_production(
+                rawsource=rule,
+                name=name,
+                tokens=tokens,
+                production_group=production_group,
+                max_len=max_name_len,
+                location=node_location,
+            )
+            for rule, name, tokens in production_lines
+        ]
+        node = addnodes.productionlist('', *productions)
         self.set_source_info(node)
-        # The backslash handling is from ObjectDescription.get_signatures
-        nl_escape_re = re.compile(r'\\\n')
-        lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
-
-        production_group = ''
-        first_rule_seen = False
-        for rule in lines:
-            if not first_rule_seen and ':' not in rule:
-                production_group = rule.strip()
-                continue
-            first_rule_seen = True
-            try:
-                name, tokens = rule.split(':', 1)
-            except ValueError:
-                break
-            subnode = addnodes.production(rule)
-            name = name.strip()
-            subnode['tokenname'] = name
-            if subnode['tokenname']:
-                prefix = 'grammar-token-%s' % production_group
-                node_id = make_id(self.env, self.state.document, prefix, name)
-                subnode['ids'].append(node_id)
-                self.state.document.note_implicit_target(subnode, subnode)
-
-                if len(production_group) != 0:
-                    obj_name = f'{production_group}:{name}'
-                else:
-                    obj_name = name
-                domain.note_object('token', obj_name, node_id, location=node)
-            subnode.extend(token_xrefs(tokens, production_group=production_group))
-            node.append(subnode)
         return [node]
+
+    @staticmethod
+    def production_group(
+        *,
+        lines: MutableSequence[str],
+        options: dict[str, Any],  # NoQA: ARG004
+    ) -> str:
+        # get production_group
+        if not lines or ':' in lines[0]:
+            return ''
+        production_group = lines[0].strip()
+        lines[:] = lines[1:]
+        return production_group
+
+    @staticmethod
+    def production_definitions(
+        lines: Iterable[str], /
+    ) -> Iterator[tuple[str, str, str]]:
+        """Yield triples of rawsource, name, definition (tokens)."""
+        for line in lines:
+            if ':' not in line:
+                break
+            name, _, tokens = line.partition(':')
+            yield line, name.strip(), tokens.strip()
+
+    def make_production(
+        self,
+        *,
+        rawsource: str,
+        name: str,
+        tokens: str,
+        production_group: str,
+        max_len: int,
+        location: str,
+    ) -> addnodes.production:
+        production_node = addnodes.production(rawsource, tokenname=name)
+        if name:
+            production_node += self.make_name_target(
+                name=name, production_group=production_group, location=location
+            )
+        production_node.append(self.separator_node(name=name, max_len=max_len))
+        production_node += token_xrefs(text=tokens, production_group=production_group)
+        production_node.append(nodes.Text('\n'))
+        return production_node
+
+    def make_name_target(
+        self,
+        *,
+        name: str,
+        production_group: str,
+        location: str,
+    ) -> addnodes.literal_strong:
+        """Make a link target for the given production."""
+        name_node = addnodes.literal_strong(name, name)
+        prefix = f'grammar-token-{production_group}'
+        node_id = make_id(self.env, self.state.document, prefix, name)
+        name_node['ids'].append(node_id)
+        self.state.document.note_implicit_target(name_node, name_node)
+        obj_name = f'{production_group}:{name}' if production_group else name
+        std = self.env.domains.standard_domain
+        std.note_object('token', obj_name, node_id, location=location)
+        return name_node
+
+    @staticmethod
+    def separator_node(*, name: str, max_len: int) -> nodes.Text:
+        """Return seperator between 'name' and 'tokens'."""
+        if name:
+            return nodes.Text(' ::= '.rjust(max_len - len(name) + 5))
+        return nodes.Text(' ' * (max_len + 5))
 
 
 class TokenXRefRole(XRefRole):
@@ -663,8 +718,7 @@ class TokenXRefRole(XRefRole):
 
 
 class StandardDomain(Domain):
-    """
-    Domain for all objects that don't fit into another domain or are added
+    """Domain for all objects that don't fit into another domain or are added
     via the application interface.
     """
 
@@ -754,7 +808,7 @@ class StandardDomain(Domain):
         self.enumerable_nodes = copy(
             self.enumerable_nodes
         )  # create a copy for this instance
-        for node, settings in env.app.registry.enumerable_nodes.items():
+        for node, settings in env._registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
     def note_hyperlink_target(

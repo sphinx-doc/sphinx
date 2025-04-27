@@ -14,6 +14,8 @@ from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    import os
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -57,17 +59,19 @@ class ImagemagickConverter(ImageConverter):
             )
             return False
 
-    def convert(self, _from: str, _to: str) -> bool:
+    def convert(
+        self, _from: str | os.PathLike[str], _to: str | os.PathLike[str]
+    ) -> bool:
         """Converts the image to expected one."""
         try:
             # append an index 0 to source filename to pick up the first frame
             # (or first page) of image (ex. Animation GIF, PDF)
-            _from += '[0]'
+            from_ = f'{_from}[0]'
 
             args = [
                 self.config.image_converter,
                 *self.config.image_converter_args,
-                _from,
+                from_,
                 _to,
             ]
             logger.debug('Invoking %r ...', args)
@@ -93,14 +97,20 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     if sys.platform == 'win32':
         # On Windows, we use Imagemagik v7 by default to avoid the trouble for
         # convert.exe bundled with Windows.
-        app.add_config_value('image_converter', 'magick', 'env')
-        app.add_config_value('image_converter_args', ['convert'], 'env')
+        app.add_config_value('image_converter', 'magick', 'env', types=frozenset({str}))
+        app.add_config_value(
+            'image_converter_args', ['convert'], 'env', types=frozenset({list, tuple})
+        )
     else:
         # On other platform, we use Imagemagick v6 by default.  Especially,
         # Debian/Ubuntu are still based of v6.  So we can't use "magick" command
         # for these platforms.
-        app.add_config_value('image_converter', 'convert', 'env')
-        app.add_config_value('image_converter_args', [], 'env')
+        app.add_config_value(
+            'image_converter', 'convert', 'env', types=frozenset({str})
+        )
+        app.add_config_value(
+            'image_converter_args', [], 'env', types=frozenset({list, tuple})
+        )
 
     return {
         'version': sphinx.__display_version__,

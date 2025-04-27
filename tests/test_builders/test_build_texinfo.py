@@ -6,6 +6,7 @@ import re
 import subprocess
 from pathlib import Path
 from subprocess import CalledProcessError
+from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
 import pytest
@@ -15,9 +16,12 @@ from sphinx.config import Config
 from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('texinfo', testroot='root')
-def test_texinfo(app):
+def test_texinfo(app: SphinxTestApp) -> None:
     TexinfoTranslator.ignore_missing_images = True
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
@@ -41,7 +45,7 @@ def test_texinfo(app):
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')
-def test_texinfo_rubric(app):
+def test_texinfo_rubric(app: SphinxTestApp) -> None:
     app.build()
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
@@ -51,7 +55,7 @@ def test_texinfo_rubric(app):
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-citation')
-def test_texinfo_citation(app):
+def test_texinfo_citation(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
@@ -64,7 +68,7 @@ def test_texinfo_citation(app):
     ) in output
 
 
-def test_default_texinfo_documents():
+def test_default_texinfo_documents() -> None:
     config = Config({
         'project': 'STASI™ Documentation',
         'author': "Wolfgang Schäuble & G'Beckstein",
@@ -84,10 +88,11 @@ def test_default_texinfo_documents():
 
 
 @pytest.mark.sphinx('texinfo', testroot='root')
-def test_texinfo_escape_id(app):
+def test_texinfo_escape_id(app: SphinxTestApp) -> None:
     settings = Mock(title='', texinfo_dir_entry='', texinfo_elements={})
     document = new_document('', settings)
     translator = app.builder.create_translator(document, app.builder)
+    assert isinstance(translator, TexinfoTranslator)  # type-checking
 
     assert translator.escape_id('Hello world') == 'Hello world'
     assert translator.escape_id('Hello    world') == 'Hello world'
@@ -99,7 +104,7 @@ def test_texinfo_escape_id(app):
 
 
 @pytest.mark.sphinx('texinfo', testroot='footnotes')
-def test_texinfo_footnote(app):
+def test_texinfo_footnote(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
@@ -107,7 +112,7 @@ def test_texinfo_footnote(app):
 
 
 @pytest.mark.sphinx('texinfo', testroot='root')
-def test_texinfo_xrefs(app):
+def test_texinfo_xrefs(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert re.search(r'@ref{\w+,,--plugin\.option}', output)
@@ -123,7 +128,7 @@ def test_texinfo_xrefs(app):
 
 
 @pytest.mark.sphinx('texinfo', testroot='root')
-def test_texinfo_samp_with_variable(app):
+def test_texinfo_samp_with_variable(app: SphinxTestApp) -> None:
     app.build()
 
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
@@ -135,7 +140,7 @@ def test_texinfo_samp_with_variable(app):
 
 @pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('texinfo', testroot='images')
-def test_copy_images(app):
+def test_copy_images(app: SphinxTestApp) -> None:
     app.build()
 
     images_dir = Path(app.outdir) / 'projectnamenotset-figures'
