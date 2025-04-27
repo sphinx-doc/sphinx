@@ -19,6 +19,8 @@ Features added
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner.
+* #13704: Autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>` and :py:func:`~typing.final` decorators.
+  Patch by Spencer Brown.
 
 Bugs fixed
 ----------
