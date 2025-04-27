@@ -37,6 +37,7 @@ jobs:
         - "3.11"
         - "3.12"
         - "3.13"
+        - "3.13t"
         docutils:
         - "0.20"
         - "0.21"
@@ -68,8 +69,12 @@ jobs:
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
+      env:
+        UV_PYTHON: "python${{ matrix.python }}"
     - name: Install Docutils ${{ matrix.docutils }}
       run: uv pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
+      env:
+        UV_PYTHON: "python${{ matrix.python }}"
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
@@ -106,38 +111,6 @@ jobs:
         python -m pip install . --group test
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
-    - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
-      env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
-
-  free-threaded:
-    runs-on: ubuntu-latest
-    name: Python ${{ matrix.python }} (free-threaded)
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        python:
-        - "3.13"
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v3.2.0
-      with:
-        python-version: ${{ matrix.python }}
-        nogil: true
-    - name: Check Python version
-      run: python --version --version
-    - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install . --group test
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
