@@ -1368,7 +1368,6 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '',
         '   .. py:attribute:: Foo.attr2',
         '      :module: target.autodoc_type_aliases',
-        '      :type: int',
         '',
         '      docstring',
         '',
