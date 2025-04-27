@@ -154,6 +154,14 @@ jobs:
     timeout-minutes: 15
 
     steps:
+    # https://github.com/actions/runner-images/issues/8755
+    # On standard runners, the D: drive is much faster.
+    - name: Set %TMP% and %TEMP% to D:\\Temp
+      run: |
+        mkdir "D:\\Tmp"
+        echo "TMP=D:\\Tmp" >> $env:GITHUB_ENV
+        echo "TEMP=D:\\Tmp" >> $env:GITHUB_ENV
+
     - uses: actions/checkout@v4
       with:
         persist-credentials: false
