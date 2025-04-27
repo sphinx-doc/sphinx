@@ -142,7 +142,7 @@ package = [
     "betterproto==2.0.0b6",  # resolution fails without betterproto
     "build",
     "pypi-attestations==0.0.22",
-    "twine>=5.1",
+    "twine>=6.1",
 ]
 test = [
     "pytest>=8.0",
