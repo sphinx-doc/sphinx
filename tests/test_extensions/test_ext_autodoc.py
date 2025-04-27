@@ -2819,6 +2819,20 @@ def test_final(app):
         '',
         '      docstring',
         '',
+        '',
+        '   .. py:method:: Class.meth3()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth4()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
     ]
 
 
