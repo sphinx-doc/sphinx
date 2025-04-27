@@ -143,7 +143,7 @@ Looking first at the ``TodolistDirective`` directive:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 24-27
+   :lines: 25-29
 
 It's very simple, creating and returning an instance of our ``todolist`` node
 class.  The ``TodolistDirective`` directive itself has neither content nor
@@ -153,7 +153,7 @@ directive:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 30-53
+   :lines: 30-54
 
 Several important things are covered here. First, as you can see, we're now
 subclassing the :class:`~sphinx.util.docutils.SphinxDirective` helper class
@@ -168,9 +168,8 @@ new unique integer on each call and therefore leads to unique target names. The
 target node is instantiated without any text (the first two arguments).
 
 On creating admonition node, the content body of the directive are parsed using
-``self.state.nested_parse``.  The first argument gives the content body, and
-the second one gives content offset.  The third argument gives the parent node
-of parsed result, in our case the ``todo`` node. Following this, the ``todo``
+``self.parse_content_to_nodes()``.  It has one optional argument
+``allow_section_headings`` that defaults to ``False``.  Following this, the ``todo``
 node is added to the environment.  This is needed to be able to create a list of
 all todo entries throughout the documentation, in the place where the author
 puts a ``todolist`` directive.  For this case, the environment attribute
@@ -211,7 +210,7 @@ the :event:`env-purge-doc` event:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 56-61
+   :lines: 55-63
 
 Since we store information from source files in the environment, which is
 persistent, it may become out of date when the source file changes.  Therefore,
@@ -229,7 +228,7 @@ to be merged:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 64-68
+   :lines: 64-70
 
 
 The other handler belongs to the :event:`doctree-resolved` event:
@@ -237,11 +236,12 @@ The other handler belongs to the :event:`doctree-resolved` event:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 71-113
+   :lines: 71-118
 
-The :event:`doctree-resolved` event is emitted at the end of :ref:`phase 3
-(resolving) <build-phases>` and allows custom resolving to be done. The handler
-we have written for this event is a bit more involved. If the
+The :event:`doctree-resolved` event is emitted for each document that is about to
+be written at the end of :ref:`phase 3 (resolving) <build-phases>` and allows
+custom resolving to be done on that document.  The handler we have written for
+this event is a bit more involved.  If the
 ``todo_include_todos`` config value (which we'll describe shortly) is false,
 all ``todo`` and ``todolist`` nodes are removed from the documents. If not,
 ``todo`` nodes just stay where and how they are.  ``todolist`` nodes are
@@ -266,7 +266,7 @@ the other parts of our extension. Let's look at our ``setup`` function:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 116-
+   :lines: 119-
 
 The calls in this function refer to the classes and functions we added earlier.
 What the individual calls do is the following:
