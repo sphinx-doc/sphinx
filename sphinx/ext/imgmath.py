@@ -17,7 +17,6 @@ from pathlib import Path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 
-import filelock
 from docutils import nodes
 
 import sphinx
@@ -258,7 +257,12 @@ def render_math(
     lock: Any = contextlib.nullcontext()
     if self.builder.parallel_ok:
         lockfile = generated_path.with_suffix(generated_path.suffix + '.lock')
-        lock = filelock.FileLock(lockfile)
+        try:
+            import filelock  # type: ignore[import-not-found]
+
+            lock = filelock.FileLock(lockfile)
+        except ImportError:
+            pass
 
     with lock:
         if not generated_path.is_file():
