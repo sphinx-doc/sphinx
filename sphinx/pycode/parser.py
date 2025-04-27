@@ -247,9 +247,9 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.deforders: dict[str, int] = {}
         self.finals: list[str] = []
         self.overloads: dict[str, list[Signature]] = {}
-        self.typing: str | None = None
-        self.typing_final: str | None = None
-        self.typing_overload: str | None = None
+        self.typing: list[str] = []
+        self.typing_final: list[str] = []
+        self.typing_overload: list[str] = []
         super().__init__()
 
     def get_qualname_for(self, name: str) -> list[str] | None:
@@ -295,12 +295,9 @@ class VariableCommentPicker(ast.NodeVisitor):
             self.annotations[basename, name] = ast_unparse(annotation)
 
     def is_final(self, decorators: list[ast.expr]) -> bool:
-        final = []
-        if self.typing:
-            final.append('%s.final' % self.typing)
-        if self.typing_final:
-            final.append(self.typing_final)
-
+        final = self.typing_final.copy()
+        for modname in self.typing:
+            final.append(f'{modname}.final')
         for decorator in decorators:
             try:
                 if ast_unparse(decorator) in final:
@@ -311,11 +308,9 @@ class VariableCommentPicker(ast.NodeVisitor):
         return False
 
     def is_overload(self, decorators: list[ast.expr]) -> bool:
-        overload = []
-        if self.typing:
-            overload.append('%s.overload' % self.typing)
-        if self.typing_overload:
-            overload.append(self.typing_overload)
+        overload = self.typing_overload.copy()
+        for modname in self.typing:
+            overload.append(f'{modname}.overload')
 
         for decorator in decorators:
             try:
@@ -348,22 +343,24 @@ class VariableCommentPicker(ast.NodeVisitor):
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
-            if name.name == 'typing':
-                self.typing = name.asname or name.name
-            elif name.name == 'typing.final':
-                self.typing_final = name.asname or name.name
-            elif name.name == 'typing.overload':
-                self.typing_overload = name.asname or name.name
+            if name.name in ('typing', 'typing_extensions'):
+                self.typing.append(name.asname or name.name)
+            elif name.name in ('typing.final', 'typing_extensions.final'):
+                self.typing_final.append(name.asname or name.name)
+            elif name.name in ('typing.overload', 'typing_extensions.overload'):
+                self.typing_overload.append(name.asname or name.name)
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Handles Import node and record the order of definitions."""
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
-            if node.module == 'typing' and name.name == 'final':
-                self.typing_final = name.asname or name.name
-            elif node.module == 'typing' and name.name == 'overload':
-                self.typing_overload = name.asname or name.name
+            if node.module not in ('typing', 'typing_extensions'):
+                continue
+            if name.name == 'final':
+                self.typing_final.append(name.asname or name.name)
+            elif name.name == 'overload':
+                self.typing_overload.append(name.asname or name.name)
 
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
