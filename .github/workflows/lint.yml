@@ -92,10 +92,8 @@ jobs:
       with:
         version: latest
         enable-cache: false
-    - name: Install dependencies
-      run: uv sync --group lint
     - name: Lint documentation with sphinx-lint
-      run: make doclinter
+      run: uv run make doclinter
 
   twine:
     runs-on: ubuntu-latest
