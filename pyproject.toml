@@ -92,7 +92,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.2",
+    "ruff==0.11.7",
     "mypy==1.15.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -102,9 +102,9 @@ lint = [
     "types-Pygments==2.19.0.20250305",
     "types-requests==2.32.0.20250328",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.397",
+    "pyright==1.1.400",
     "pytest>=8.0",
-    "pypi-attestations==0.0.22",
+    "pypi-attestations==0.0.25",
     "betterproto==2.0.0b6",
 ]
 test = [
@@ -135,14 +135,14 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.2",
+    "ruff==0.11.7",
     "sphinx-lint>=0.9",
 ]
 package = [
     "betterproto==2.0.0b6",  # resolution fails without betterproto
     "build",
-    "pypi-attestations==0.0.22",
-    "twine>=5.1",
+    "pypi-attestations==0.0.25",
+    "twine>=6.1",
 ]
 test = [
     "pytest>=8.0",
@@ -158,7 +158,7 @@ translations = [
 ]
 types = [
     "mypy==1.15.0",
-    "pyright==1.1.397",
+    "pyright==1.1.400",
     { include-group = "type-stubs" },
 ]
 type-stubs = [
