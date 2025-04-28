@@ -87,12 +87,6 @@ dependencies = [
 ]
 dynamic = ["version"]
 
-[project.optional-dependencies]
-# retained to not break installing 'sphinx[…]'
-docs = []
-lint = []
-test = []
-
 [[project.authors]]
 name = "Adam Turner"
 email = "aa-turner@users.noreply.github.com"
