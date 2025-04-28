@@ -24,7 +24,6 @@ env:
   PYTHONDEVMODE: "1"  # -X dev
   PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
   UV_SYSTEM_PYTHON: "1"  # make uv do global installs
-  UV_FROZEN: "1"  # make uv respect the lockfile
 
 jobs:
   ubuntu:
@@ -66,7 +65,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -177,7 +175,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -206,7 +203,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -241,7 +237,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -274,7 +269,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Install dependencies
       run: |
@@ -305,7 +299,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -336,7 +329,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test pytest-cov
