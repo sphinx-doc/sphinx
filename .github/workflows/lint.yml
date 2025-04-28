@@ -30,7 +30,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Lint with Ruff
       run: uv run ruff check --output-format=github
@@ -47,7 +46,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Type check with mypy
       run: uv run mypy
@@ -62,7 +60,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Type check with pyright
       run: uv run pyright
@@ -77,7 +74,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Lint documentation with sphinx-lint
       run: uv run make doclinter
@@ -92,7 +88,6 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
         enable-cache: false
     - name: Lint with twine
       run: |
