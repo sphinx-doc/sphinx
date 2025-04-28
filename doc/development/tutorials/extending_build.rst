@@ -272,10 +272,10 @@ The calls in this function refer to the classes and functions we added earlier.
 What the individual calls do is the following:
 
 * :meth:`~Sphinx.add_config_value` lets Sphinx know that it should recognize the
-  new *config value* ``todo_include_todos``, whose default value should be
-  ``False`` (this also tells Sphinx that it is a boolean value).
+  new *config value* ``todo_include_todos``, whose default value is
+  ``False`` (which also tells Sphinx that it is a boolean value).
 
-  If the third argument was ``'html'``, HTML documents would be full rebuild if the
+  If the third argument was ``'html'``, HTML documents would be fully rebuilt if the
   config value changed its value.  This is needed for config values that
   influence reading (build :ref:`phase 1 (reading) <build-phases>`).
 
