@@ -15,6 +15,7 @@ concurrency:
 env:
   FORCE_COLOR: "1"
   UV_SYSTEM_PYTHON: "1"  # make uv do global installs
+  UV_FROZEN: "1"  # make uv use the frozen lockfile
 
 jobs:
   # If you update any of these commands, don't forget to update the equivalent
@@ -32,9 +33,9 @@ jobs:
         version: latest
         enable-cache: false
     - name: Lint with Ruff
-      run: uv run --frozen ruff check --output-format=github
+      run: uv run ruff check --output-format=github
     - name: Format with Ruff
-      run: uv run --frozen ruff format --diff
+      run: uv run ruff format --diff
 
   mypy:
     runs-on: ubuntu-latest
@@ -49,7 +50,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Type check with mypy
-      run: uv run --frozen mypy
+      run: uv run mypy
 
   pyright:
     runs-on: ubuntu-latest
@@ -64,7 +65,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Type check with pyright
-      run: uv run --frozen pyright
+      run: uv run pyright
 
   docs-lint:
     runs-on: ubuntu-latest
@@ -79,7 +80,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Lint documentation with sphinx-lint
-      run: uv run --frozen make doclinter
+      run: uv run make doclinter
 
   twine:
     runs-on: ubuntu-latest
@@ -96,4 +97,4 @@ jobs:
     - name: Lint with twine
       run: |
         uv build
-        uv run --frozen twine check dist/*
+        uv run twine check dist/*
