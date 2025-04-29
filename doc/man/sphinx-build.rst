@@ -278,7 +278,7 @@ Options
    .. versionadded:: 1.8
    .. versionchanged:: 8.1
       :program:`sphinx-build` no longer exits on the first warning,
-      meaning that in effect :option:`!--fail-on-warning` is always enabled.
+      meaning that in effect :option:`!--keep-going` is always enabled.
       The option is retained for compatibility, but may be removed at some
       later date.
 
