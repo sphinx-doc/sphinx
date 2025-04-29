@@ -6,6 +6,9 @@
 *.png binary
 *.zip binary
 
+# lockfiles
+uv.lock -diff
+
 # Unix-style line endings
 [attr]unix text eol=lf
 
