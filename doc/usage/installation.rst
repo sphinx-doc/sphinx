@@ -57,6 +57,8 @@ Run the following command::
    place the dependencies in the `pyproject.toml file`__::
 
       $ pip install .[docs]
+      # or
+      $ pip install . --group docs
 
    __ https://pip.pypa.io/en/stable/reference/requirements-file-format/
    __ https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies

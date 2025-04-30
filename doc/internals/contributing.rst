@@ -201,7 +201,7 @@ You can also test by installing dependencies in your local environment:
 
   .. code-block:: shell
 
-     pip install .[test]
+     pip install . --group test
 
 To run JavaScript tests, use :program:`npm`:
 
