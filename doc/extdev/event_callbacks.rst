@@ -70,8 +70,8 @@ Below is an overview of the core event that happens during a build.
       14. apply post-transforms (by priority): docutils.document -> docutils.document
       15. event.doctree-resolved(app, doctree, docname)
           - In the event that any reference nodes fail to resolve, the following may emit:
-          - event.missing-reference(env, node, contnode)
-          - event.warn-missing-reference(domain, node)
+          - event.missing-reference(app, env, node, contnode)
+          - event.warn-missing-reference(app, domain, node)
 
    16. Generate output files
    17. event.build-finished(app, exception)
