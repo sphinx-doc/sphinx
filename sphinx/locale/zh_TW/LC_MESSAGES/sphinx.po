@@ -11,13 +11,14 @@
 # Liang-Bo Wang <me@liang2.tw>, 2016
 # Liang-Bo Wang <me@liang2.tw>, 2016-2017
 # Steven Hsu <hsuhaochun@gmail.com>, 2021-2024
+# Tony Ng, 2025
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 00:33+0000\n"
+"POT-Creation-Date: 2025-04-27 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
-"Last-Translator: Steven Hsu <hsuhaochun@gmail.com>, 2021-2024\n"
+"Last-Translator: Tony Ng, 2025\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -40,156 +41,20 @@ msgid ""
 "cannot be built with the loaded version (%s)."
 msgstr "這個專案需要擴充套件 %s 的最低版本是 %s，所以無法以載入的版本 (%s) 被建立。"
 
-#: application.py:212
+#: events.py:77
 #, python-format
-msgid "Cannot find source directory (%s)"
-msgstr "找不到來源資料夾 (%s)"
+msgid "Event %r already present"
+msgstr "事件 %r 已經存在"
 
-#: application.py:217
+#: events.py:370
 #, python-format
-msgid "Output directory (%s) is not a directory"
-msgstr "輸出資料夾 (%s) 不是一個資料夾"
+msgid "Unknown event name: %s"
+msgstr "未知的事件名稱：%s"
 
-#: application.py:222
-msgid "Source directory and destination directory cannot be identical"
-msgstr "來源資料夾與目的資料夾不能為相同"
-
-#: application.py:252
+#: events.py:416
 #, python-format
-msgid "Running Sphinx v%s"
-msgstr "正在執行 Sphinx v%s 版本"
-
-#: application.py:278
-#, python-format
-msgid ""
-"This project needs at least Sphinx v%s and therefore cannot be built with "
-"this version."
-msgstr "本專案需要 Sphinx v%s 版或以上，故無法以現版本編譯。"
-
-#: application.py:297
-msgid "making output directory"
-msgstr "正在建立輸出目錄"
-
-#: application.py:302 registry.py:538
-#, python-format
-msgid "while setting up extension %s:"
-msgstr "正在設置擴充套件 %s 時："
-
-#: application.py:309
-msgid ""
-"'setup' as currently defined in conf.py isn't a Python callable. Please "
-"modify its definition to make it a callable function. This is needed for "
-"conf.py to behave as a Sphinx extension."
-msgstr "目前在 conf.py 裡定義的 'setup' 並非一個 Python 的可呼叫物件。請將其定義修改為一個可呼叫的函式。若要使 conf.py 以 Sphinx 擴充套件的方式運作，這個修改是必須的。"
-
-#: application.py:346
-#, python-format
-msgid "loading translations [%s]... "
-msgstr "正在載入翻譯 [%s]..."
-
-#: application.py:370 util/display.py:89
-msgid "done"
-msgstr "完成"
-
-#: application.py:372
-msgid "not available for built-in messages"
-msgstr "不是有效的內建訊息"
-
-#: application.py:386
-msgid "loading pickled environment"
-msgstr "正在載入已 pickle 的環境"
-
-#: application.py:394
-#, python-format
-msgid "failed: %s"
-msgstr "失敗：%s"
-
-#: application.py:407
-msgid "No builder selected, using default: html"
-msgstr "沒有指定 builder，使用預設：html"
-
-#: application.py:439
-msgid "build finished with problems."
-msgstr ""
-
-#: application.py:441
-msgid "build succeeded."
-msgstr ""
-
-#: application.py:446
-msgid ""
-"build finished with problems, 1 warning (with warnings treated as errors)."
-msgstr ""
-
-#: application.py:450
-msgid "build finished with problems, 1 warning."
-msgstr ""
-
-#: application.py:452
-msgid "build succeeded, 1 warning."
-msgstr ""
-
-#: application.py:458
-#, python-format
-msgid ""
-"build finished with problems, %s warnings (with warnings treated as errors)."
-msgstr ""
-
-#: application.py:462
-#, python-format
-msgid "build finished with problems, %s warnings."
-msgstr ""
-
-#: application.py:464
-#, python-format
-msgid "build succeeded, %s warnings."
-msgstr ""
-
-#: application.py:1026
-#, python-format
-msgid "node class %r is already registered, its visitors will be overridden"
-msgstr "node class %r 已經被註冊，它的訪客將會被覆寫"
-
-#: application.py:1119
-#, python-format
-msgid "directive %r is already registered and will not be overridden"
-msgstr ""
-
-#: application.py:1145 application.py:1173
-#, python-format
-msgid "role %r is already registered and will not be overridden"
-msgstr ""
-
-#: application.py:1770
-#, python-format
-msgid ""
-"the %s extension does not declare if it is safe for parallel reading, "
-"assuming it isn't - please ask the extension author to check and make it "
-"explicit"
-msgstr "%s 擴充套件並未宣告平行讀取是否安全，假設為否 - 請尋求擴充套件作者以檢查並明確表示"
-
-#: application.py:1775
-#, python-format
-msgid "the %s extension is not safe for parallel reading"
-msgstr "%s 擴充套件對於平行讀取是不安全的"
-
-#: application.py:1779
-#, python-format
-msgid ""
-"the %s extension does not declare if it is safe for parallel writing, "
-"assuming it isn't - please ask the extension author to check and make it "
-"explicit"
-msgstr "%s 擴充套件並未宣告平行寫入是否安全，假設為否 - 請尋求擴充套件作者以檢查並明確表示"
-
-#: application.py:1784
-#, python-format
-msgid "the %s extension is not safe for parallel writing"
-msgstr "%s 擴充套件對於平行寫入是不安全的"
-
-#: application.py:1792 application.py:1796
-#, python-format
-msgid "doing serial %s"
-msgstr "執行串列 %s"
+msgid "Handler %r for event %r threw an exception"
+msgstr "對於事件 %r 的 handler %r 拋出了一個例外"
 
 #: config.py:355
 #, python-format
@@ -333,118 +198,40 @@ msgid ""
 " behaviour, set \"master_doc = 'contents'\"."
 msgstr ""
 
-#: highlighting.py:170
+#: roles.py:206
 #, python-format
-msgid "Pygments lexer name %r is not known"
-msgstr "Pygments lexer 名稱 %r 不是已知的"
-
-#: highlighting.py:209
-#, python-format
-msgid ""
-"Lexing literal_block %r as \"%s\" resulted in an error at token: %r. "
-"Retrying in relaxed mode."
-msgstr "將 literal_block %r lex 為 \"%s\" 時，在 token %r 造成錯誤。正在以 relaxed 模式重試中。"
-
-#: theming.py:115
-#, python-format
-msgid ""
-"Theme configuration sections other than [theme] and [options] are not "
-"supported (tried to get a value from %r)."
+msgid "Common Vulnerabilities and Exposures; CVE %s"
 msgstr ""
 
-#: theming.py:120
+#: roles.py:229
 #, python-format
-msgid "setting %s.%s occurs in none of the searched theme configs"
-msgstr "設定 %s。%s 不在已被搜尋的主題組態中出現"
-
-#: theming.py:135
-#, python-format
-msgid "unsupported theme option %r given"
-msgstr "未支援的主題選項 %r 被給予"
-
-#: theming.py:208
-#, python-format
-msgid "file %r on theme path is not a valid zipfile or contains no theme"
-msgstr "主題路徑中的檔案 %r 不是有效的 zipfile 或未包含主題"
-
-#: theming.py:228
-#, python-format
-msgid "no theme named %r found (missing theme.toml?)"
-msgstr "找不到名稱為 %r 的主題（遺失 theme.toml？）"
-
-#: theming.py:268
-#, python-format
-msgid "The %r theme has circular inheritance"
-msgstr "%r 主題有循環繼承"
-
-#: theming.py:276
-#, python-format
-msgid ""
-"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
-"are: %s"
-msgstr "%r 主題是從 %r 繼承的，而它不是一個已載入的主題。已載入的主題是：%s"
-
-#: theming.py:282
-#, python-format
-msgid "The %r theme has too many ancestors"
-msgstr "%r 主題有太多上代 (ancestor)"
-
-#: theming.py:310
-#, python-format
-msgid "no theme configuration file found in %r"
-msgstr "在 %r 中找不到主題的組態檔"
-
-#: theming.py:335 theming.py:388
-#, python-format
-msgid "theme %r doesn't have the \"theme\" table"
-msgstr "主題 %r 內沒有 \"theme\" 表格"
-
-#: theming.py:339
-#, python-format
-msgid "The %r theme \"[theme]\" table is not a table"
-msgstr "%r 主題的 \"[theme]\" 表格不是一個表格"
-
-#: theming.py:343 theming.py:391
-#, python-format
-msgid "The %r theme must define the \"theme.inherit\" setting"
-msgstr "%r 主題必須定義 \"theme.inherit\" 的設定"
-
-#: theming.py:347
-#, python-format
-msgid "The %r theme \"[options]\" table is not a table"
-msgstr "%r 主題的 \"[options]\" 表格不是一個表格"
-
-#: theming.py:366
-#, python-format
-msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
-msgstr "\"theme.pygments_style\" 設定必須是一個表格。提示：\"%s\""
-
-#: events.py:77
-#, python-format
-msgid "Event %r already present"
-msgstr "事件 %r 已經存在"
-
-#: events.py:370
-#, python-format
-msgid "Unknown event name: %s"
-msgstr "未知的事件名稱：%s"
-
-#: events.py:416
-#, python-format
-msgid "Handler %r for event %r threw an exception"
-msgstr "對於事件 %r 的 handler %r 拋出了一個例外"
-
-#: project.py:72
-#, python-format
-msgid ""
-"multiple files found for the document \"%s\": %s\n"
-"Use %r for the build."
+msgid "invalid CVE number %s"
 msgstr ""
 
-#: project.py:87
+#: roles.py:251
 #, python-format
-msgid "Ignored unreadable document %r."
-msgstr "已略過無法讀取的文件 %r 。"
+msgid "Common Weakness Enumeration; CWE %s"
+msgstr ""
+
+#: roles.py:274
+#, python-format
+msgid "invalid CWE number %s"
+msgstr ""
+
+#: roles.py:294
+#, python-format
+msgid "Python Enhancement Proposals; PEP %s"
+msgstr "Python Enhancement Proposals; PEP %s"
+
+#: roles.py:317
+#, python-format
+msgid "invalid PEP number %s"
+msgstr "無效的 PEP 號碼 %s"
+
+#: roles.py:355
+#, python-format
+msgid "invalid RFC number %s"
+msgstr "無效的 RFC 號碼 %s"
 
 #: registry.py:167
 #, python-format
@@ -543,6 +330,11 @@ msgid ""
 "extension is ignored."
 msgstr "擴充套件 %r 已被併入 %s 版以上的 Sphinx：此擴充套件已略過。"
 
+#: application.py:302 registry.py:538
+#, python-format
+msgid "while setting up extension %s:"
+msgstr "正在設置擴充套件 %s 時："
+
 #: registry.py:543
 msgid "Original exception:\n"
 msgstr "原始的例外：\n"
@@ -578,1168 +370,255 @@ msgstr "擴充套件 %r 從它的 setup() 函式回傳一個未支援物件；�
 msgid "`None` is not a valid filetype for %r."
 msgstr ""
 
-#: roles.py:206
+#: highlighting.py:170
 #, python-format
-msgid "Common Vulnerabilities and Exposures; CVE %s"
+msgid "Pygments lexer name %r is not known"
+msgstr "Pygments lexer 名稱 %r 不是已知的"
+
+#: highlighting.py:209
+#, python-format
+msgid ""
+"Lexing literal_block %r as \"%s\" resulted in an error at token: %r. "
+"Retrying in relaxed mode."
+msgstr "將 literal_block %r lex 為 \"%s\" 時，在 token %r 造成錯誤。正在以 relaxed 模式重試中。"
+
+#: project.py:72
+#, python-format
+msgid ""
+"multiple files found for the document \"%s\": %s\n"
+"Use %r for the build."
 msgstr ""
 
-#: roles.py:229
+#: project.py:87
 #, python-format
-msgid "invalid CVE number %s"
+msgid "Ignored unreadable document %r."
+msgstr "已略過無法讀取的文件 %r 。"
+
+#: theming.py:115
+#, python-format
+msgid ""
+"Theme configuration sections other than [theme] and [options] are not "
+"supported (tried to get a value from %r)."
 msgstr ""
 
-#: roles.py:251
+#: theming.py:120
 #, python-format
-msgid "Common Weakness Enumeration; CWE %s"
+msgid "setting %s.%s occurs in none of the searched theme configs"
+msgstr "設定 %s。%s 不在已被搜尋的主題組態中出現"
+
+#: theming.py:135
+#, python-format
+msgid "unsupported theme option %r given"
+msgstr "未支援的主題選項 %r 被給予"
+
+#: theming.py:208
+#, python-format
+msgid "file %r on theme path is not a valid zipfile or contains no theme"
+msgstr "主題路徑中的檔案 %r 不是有效的 zipfile 或未包含主題"
+
+#: theming.py:228
+#, python-format
+msgid "no theme named %r found (missing theme.toml?)"
+msgstr "找不到名稱為 %r 的主題（遺失 theme.toml？）"
+
+#: theming.py:268
+#, python-format
+msgid "The %r theme has circular inheritance"
+msgstr "%r 主題有循環繼承"
+
+#: theming.py:276
+#, python-format
+msgid ""
+"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
+"are: %s"
+msgstr "%r 主題是從 %r 繼承的，而它不是一個已載入的主題。已載入的主題是：%s"
+
+#: theming.py:282
+#, python-format
+msgid "The %r theme has too many ancestors"
+msgstr "%r 主題有太多上代 (ancestor)"
+
+#: theming.py:310
+#, python-format
+msgid "no theme configuration file found in %r"
+msgstr "在 %r 中找不到主題的組態檔"
+
+#: theming.py:335 theming.py:388
+#, python-format
+msgid "theme %r doesn't have the \"theme\" table"
+msgstr "主題 %r 內沒有 \"theme\" 表格"
+
+#: theming.py:339
+#, python-format
+msgid "The %r theme \"[theme]\" table is not a table"
+msgstr "%r 主題的 \"[theme]\" 表格不是一個表格"
+
+#: theming.py:343 theming.py:391
+#, python-format
+msgid "The %r theme must define the \"theme.inherit\" setting"
+msgstr "%r 主題必須定義 \"theme.inherit\" 的設定"
+
+#: theming.py:347
+#, python-format
+msgid "The %r theme \"[options]\" table is not a table"
+msgstr "%r 主題的 \"[options]\" 表格不是一個表格"
+
+#: theming.py:366
+#, python-format
+msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
+msgstr "\"theme.pygments_style\" 設定必須是一個表格。提示：\"%s\""
+
+#: application.py:212
+#, python-format
+msgid "Cannot find source directory (%s)"
+msgstr "找不到來源資料夾 (%s)"
+
+#: application.py:217
+#, python-format
+msgid "Output directory (%s) is not a directory"
+msgstr "輸出資料夾 (%s) 不是一個資料夾"
+
+#: application.py:222
+msgid "Source directory and destination directory cannot be identical"
+msgstr "來源資料夾與目的資料夾不能為相同"
+
+#: application.py:252
+#, python-format
+msgid "Running Sphinx v%s"
+msgstr "正在執行 Sphinx v%s 版本"
+
+#: application.py:278
+#, python-format
+msgid ""
+"This project needs at least Sphinx v%s and therefore cannot be built with "
+"this version."
+msgstr "本專案需要 Sphinx v%s 版或以上，故無法以現版本編譯。"
+
+#: application.py:297
+msgid "making output directory"
+msgstr "正在建立輸出目錄"
+
+#: application.py:309
+msgid ""
+"'setup' as currently defined in conf.py isn't a Python callable. Please "
+"modify its definition to make it a callable function. This is needed for "
+"conf.py to behave as a Sphinx extension."
+msgstr "目前在 conf.py 裡定義的 'setup' 並非一個 Python 的可呼叫物件。請將其定義修改為一個可呼叫的函式。若要使 conf.py 以 Sphinx 擴充套件的方式運作，這個修改是必須的。"
+
+#: application.py:346
+#, python-format
+msgid "loading translations [%s]... "
+msgstr "正在載入翻譯 [%s]..."
+
+#: application.py:370 util/display.py:89
+msgid "done"
+msgstr "完成"
+
+#: application.py:372
+msgid "not available for built-in messages"
+msgstr "不是有效的內建訊息"
+
+#: application.py:386
+msgid "loading pickled environment"
+msgstr "正在載入已 pickle 的環境"
+
+#: application.py:394
+#, python-format
+msgid "failed: %s"
+msgstr "失敗：%s"
+
+#: application.py:407
+msgid "No builder selected, using default: html"
+msgstr "沒有指定 builder，使用預設：html"
+
+#: application.py:439
+msgid "build finished with problems."
 msgstr ""
 
-#: roles.py:274
-#, python-format
-msgid "invalid CWE number %s"
+#: application.py:441
+msgid "build succeeded."
 msgstr ""
 
-#: roles.py:294
-#, python-format
-msgid "Python Enhancement Proposals; PEP %s"
-msgstr "Python Enhancement Proposals; PEP %s"
-
-#: roles.py:317
-#, python-format
-msgid "invalid PEP number %s"
-msgstr "無效的 PEP 號碼 %s"
-
-#: roles.py:355
-#, python-format
-msgid "invalid RFC number %s"
-msgstr "無效的 RFC 號碼 %s"
-
-#: ext/linkcode.py:86 ext/viewcode.py:226
-msgid "[source]"
-msgstr "[原始碼]"
-
-#: ext/viewcode.py:289
-msgid "highlighting module code... "
-msgstr "正在 highlight 模組程式碼..."
-
-#: ext/viewcode.py:320
-msgid "[docs]"
-msgstr "[文件]"
-
-#: ext/viewcode.py:346
-msgid "Module code"
-msgstr "模組原始碼"
-
-#: ext/viewcode.py:353
-#, python-format
-msgid "<h1>Source code for %s</h1>"
-msgstr "<h1>%s 的原始碼</h1>"
-
-#: ext/viewcode.py:380
-msgid "Overview: module code"
-msgstr "概要：模組原始碼"
-
-#: ext/viewcode.py:381
-msgid "<h1>All modules for which code is available</h1>"
-msgstr "<h1>所有可得程式碼的模組</h1>"
-
-#: ext/extlinks.py:82
-#, python-format
+#: application.py:446
 msgid ""
-"hardcoded link %r could be replaced by an extlink (try using %r instead)"
-msgstr "hardcoded link %r 可以被一個 extlink 所取代（試試改用 %r）"
-
-#: ext/autosectionlabel.py:52
-#, python-format
-msgid "section \"%s\" gets labeled as \"%s\""
-msgstr "段落 \"%s\" 取得標籤 \"%s\""
-
-#: domains/std/__init__.py:833 domains/std/__init__.py:960
-#: ext/autosectionlabel.py:61
-#, python-format
-msgid "duplicate label %s, other instance in %s"
-msgstr "重複的標籤 %s，亦出現於 %s"
-
-#: ext/imgmath.py:387 ext/mathjax.py:60
-msgid "Link to this equation"
-msgstr "連結到這個方程式"
-
-#: ext/duration.py:90
-msgid ""
-"====================== slowest reading durations ======================="
-msgstr "====================== 最慢的讀取歷時 ======================="
-
-#: ext/doctest.py:118
-#, python-format
-msgid "missing '+' or '-' in '%s' option."
-msgstr "在 '%s' 選項中遺漏 '+' 或 '-'。"
-
-#: ext/doctest.py:124
-#, python-format
-msgid "'%s' is not a valid option."
-msgstr "'%s' 不是有效的選項"
-
-#: ext/doctest.py:139
-#, python-format
-msgid "'%s' is not a valid pyversion option"
-msgstr "'%s' 不是有效的 pyversion 選項"
-
-#: ext/doctest.py:226
-msgid "invalid TestCode type"
-msgstr "無效的 TestCode 型別"
-
-#: ext/doctest.py:297
-#, python-format
-msgid ""
-"Testing of doctests in the sources finished, look at the results in "
-"%(outdir)s/output.txt."
-msgstr "來源的 doctests 測試已結束，在 %(outdir)s/output.txt 中查看結果。"
-
-#: ext/doctest.py:457
-#, python-format
-msgid "no code/output in %s block at %s:%s"
-msgstr "在 %s 區塊中的 %s:%s 沒有程式碼/輸出"
-
-#: ext/doctest.py:568
-#, python-format
-msgid "ignoring invalid doctest code: %r"
-msgstr "正在忽略無效的 doctest 碼： %r"
-
-#: ext/imgmath.py:162
-#, python-format
-msgid ""
-"LaTeX command %r cannot be run (needed for math display), check the "
-"imgmath_latex setting"
-msgstr "LaTeX 命令 %r 無法被執行（數學顯示所需要），請檢查 imgmath_latex 設定"
-
-#: ext/imgmath.py:181
-#, python-format
-msgid ""
-"%s command %r cannot be run (needed for math display), check the imgmath_%s "
-"setting"
-msgstr "%s 命令 %r 無法被執行（數學顯示所需要），請檢查 imgmath_%s 設定"
-
-#: ext/imgmath.py:344
-#, python-format
-msgid "display latex %r: %s"
-msgstr "顯示 latex %r: %s"
-
-#: ext/imgmath.py:380
-#, python-format
-msgid "inline latex %r: %s"
-msgstr "行內 latex %r: %s"
-
-#: ext/coverage.py:48
-#, python-format
-msgid "invalid regex %r in %s"
-msgstr "無效的 regex %r 在 %s"
-
-#: ext/coverage.py:140 ext/coverage.py:301
-#, python-format
-msgid "module %s could not be imported: %s"
-msgstr "模組 %s 無法被 import： %s"
-
-#: ext/coverage.py:148
-#, python-format
-msgid ""
-"the following modules are documented but were not specified in "
-"coverage_modules: %s"
+"build finished with problems, 1 warning (with warnings treated as errors)."
 msgstr ""
 
-#: ext/coverage.py:158
-msgid ""
-"the following modules are specified in coverage_modules but were not "
-"documented"
+#: application.py:450
+msgid "build finished with problems, 1 warning."
 msgstr ""
 
-#: ext/coverage.py:172
-#, python-brace-format, python-format
-msgid ""
-"Testing of coverage in the sources finished, look at the results in "
-"%(outdir)s{sep}python.txt."
+#: application.py:452
+msgid "build succeeded, 1 warning."
 msgstr ""
 
-#: ext/coverage.py:187
-#, python-format
-msgid "invalid regex %r in coverage_c_regexes"
-msgstr "無效的 regex %r 在 coverage_c_regexes"
-
-#: ext/coverage.py:260
-#, python-format
-msgid "undocumented c api: %s [%s] in file %s"
-msgstr "未文件化的 c api： %s [%s] 在檔案 %s 中"
-
-#: ext/coverage.py:452
-#, python-format
-msgid "undocumented python function: %s :: %s"
-msgstr "未文件化的 python 函式： %s :: %s"
-
-#: ext/coverage.py:473
-#, python-format
-msgid "undocumented python class: %s :: %s"
-msgstr "未文件化的 python class： %s :: %s"
-
-#: ext/coverage.py:492
-#, python-format
-msgid "undocumented python method: %s :: %s :: %s"
-msgstr "未文件化的 python method： %s :: %s :: %s"
-
-#: ext/imgconverter.py:44
+#: application.py:458
 #, python-format
 msgid ""
-"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
-"\n"
-"Traceback: %s"
-msgstr "無法執行影像轉換命令 %r。 'sphinx.ext.imgconverter' 預設為需要 ImageMagick。請確認它已被安裝，或是設定 'image_converter' 選項為一個自訂轉換命令。\n\n回溯: %s"
-
-#: ext/imgconverter.py:56 ext/imgconverter.py:90
-#, python-format
-msgid ""
-"convert exited with error:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
-msgstr "退出轉換，發生錯誤：\n[stderr]\n%r\n[stdout]\n%r"
-
-#: ext/imgconverter.py:83
-#, python-format
-msgid "convert command %r cannot be run, check the image_converter setting"
-msgstr "轉換命令 %r 無法被執行，請檢查 image_converter 設定"
-
-#: ext/graphviz.py:138
-msgid "Graphviz directive cannot have both content and a filename argument"
-msgstr "Graphviz 指令不能同時有內容及檔名引數"
-
-#: ext/graphviz.py:153
-#, python-format
-msgid "External Graphviz file %r not found or reading it failed"
-msgstr "外部的 Graphviz 檔案 %r 未找到或是讀取失敗"
-
-#: ext/graphviz.py:164
-msgid "Ignoring \"graphviz\" directive without content."
-msgstr "正在略過沒有內容的 \"graphviz\" 指令"
-
-#: ext/graphviz.py:287
-#, python-format
-msgid "graphviz_dot executable path must be set! %r"
-msgstr "graphviz_dot 可執行路徑必須設定！ %r"
-
-#: ext/graphviz.py:328
-#, python-format
-msgid ""
-"dot command %r cannot be run (needed for graphviz output), check the "
-"graphviz_dot setting"
-msgstr "dot 命令 %r 無法被執行（graphviz 輸出所需要），請檢查 graphviz_dot 設定"
-
-#: ext/graphviz.py:339
-#, python-format
-msgid ""
-"dot exited with error:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
-msgstr "退出 dot，發生錯誤：\n[stderr]\n%r\n[stdout]\n%r"
-
-#: ext/graphviz.py:344
-#, python-format
-msgid ""
-"dot did not produce an output file:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
-msgstr "dot 並未製作一個輸出檔案：\n[stderr]\n%r\n[stdout]\n%r"
-
-#: ext/graphviz.py:367
-#, python-format
-msgid "graphviz_output_format must be either 'png' or 'svg', but is %r"
+"build finished with problems, %s warnings (with warnings treated as errors)."
 msgstr ""
 
-#: ext/graphviz.py:373 ext/graphviz.py:436 ext/graphviz.py:480
+#: application.py:462
 #, python-format
-msgid "dot code %r: %s"
-msgstr "點碼 %r: %s"
-
-#: ext/graphviz.py:493 ext/graphviz.py:501
-#, python-format
-msgid "[graph: %s]"
-msgstr "[圖：%s]"
-
-#: ext/graphviz.py:495 ext/graphviz.py:503
-msgid "[graph]"
-msgstr "[圖]"
-
-#: ext/todo.py:61
-msgid "Todo"
-msgstr "Todo"
-
-#: ext/todo.py:94
-#, python-format
-msgid "TODO entry found: %s"
-msgstr "找到 TODO 項目： %s"
-
-#: ext/todo.py:152
-msgid "<<original entry>>"
-msgstr "<<original entry>>"
-
-#: ext/todo.py:154
-#, python-format
-msgid "(The <<original entry>> is located in %s, line %d.)"
-msgstr "(<<original entry>> 見 %s ，第 %d 行)"
-
-#: ext/todo.py:166
-msgid "original entry"
-msgstr "原始記錄"
-
-#: directives/code.py:66
-msgid "non-whitespace stripped by dedent"
-msgstr "非空白字元被凸排去除"
-
-#: directives/code.py:87
-#, python-format
-msgid "Invalid caption: %s"
-msgstr "無效標題：%s"
-
-#: directives/code.py:131 directives/code.py:297 directives/code.py:483
-#, python-format
-msgid "line number spec is out of range(1-%d): %r"
-msgstr "列號規格超出範圍 (1-%d)： %r"
-
-#: directives/code.py:216
-#, python-format
-msgid "Cannot use both \"%s\" and \"%s\" options"
-msgstr "不能使用 \"%s\" 及 \"%s\" 兩個選項"
-
-#: directives/code.py:231
-#, python-format
-msgid "Include file '%s' not found or reading it failed"
+msgid "build finished with problems, %s warnings."
 msgstr ""
 
-#: directives/code.py:235
+#: application.py:464
 #, python-format
-msgid ""
-"Encoding %r used for reading included file '%s' seems to be wrong, try "
-"giving an :encoding: option"
+msgid "build succeeded, %s warnings."
 msgstr ""
 
-#: directives/code.py:276
+#: application.py:1026
 #, python-format
-msgid "Object named %r not found in include file %r"
-msgstr "名為 %r 的物件在 include 檔案 %r 中未找到"
+msgid "node class %r is already registered, its visitors will be overridden"
+msgstr "node class %r 已經被註冊，它的訪客將會被覆寫"
 
-#: directives/code.py:309
-msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
-msgstr "無法以一個 \"lines\" 的互斥集使用 \"lineno-match\" "
-
-#: directives/code.py:314
+#: application.py:1119
 #, python-format
-msgid "Line spec %r: no lines pulled from include file %r"
-msgstr "Line spec %r: 從 include 檔案 %r 沒有提取任何一行"
-
-#: directives/patches.py:71
-msgid ""
-"\":file:\" option for csv-table directive now recognizes an absolute path as"
-" a relative path from source directory. Please update your document."
-msgstr "對 csv-table 指令的 \":file:\" 選項現在會將絕對路徑辨識為基於來源資料夾的相對路徑。請更新您的文件。"
-
-#: directives/other.py:119
-#, python-format
-msgid "toctree glob pattern %r didn't match any documents"
-msgstr "toctree glob 型樣 %r 未匹配任何文件"
-
-#: directives/other.py:153 environment/adapters/toctree.py:361
-#, python-format
-msgid "toctree contains reference to excluded document %r"
-msgstr "toctree 包含了指向已排除文件的參照 %r"
-
-#: directives/other.py:156
-#, python-format
-msgid "toctree contains reference to nonexisting document %r"
-msgstr "toctree 包含了指向不存在文件的參照 %r"
-
-#: directives/other.py:169
-#, python-format
-msgid "duplicated entry found in toctree: %s"
-msgstr "在 toctree 中找到重複的項目： %s"
-
-#: directives/other.py:203
-msgid "Section author: "
-msgstr "章節作者："
-
-#: directives/other.py:205
-msgid "Module author: "
-msgstr "模組作者："
-
-#: directives/other.py:207
-msgid "Code author: "
-msgstr "程式作者："
-
-#: directives/other.py:209
-msgid "Author: "
-msgstr "作者："
-
-#: directives/other.py:269
-msgid ".. acks content is not a list"
-msgstr ".. acks 的內容不是一個列表"
-
-#: directives/other.py:292
-msgid ".. hlist content is not a list"
-msgstr ".. hlist 的內容不是一個列表"
-
-#: builders/changes.py:29
-#, python-format
-msgid "The overview file is in %(outdir)s."
-msgstr "概觀檔案是在 %(outdir)s 。"
-
-#: builders/changes.py:56
-#, python-format
-msgid "no changes in version %s."
-msgstr "在 %s 版中無變更"
-
-#: builders/changes.py:58
-msgid "writing summary file..."
-msgstr "正在寫入摘要檔案..."
-
-#: builders/changes.py:70
-msgid "Builtins"
-msgstr "內建"
-
-#: builders/changes.py:72
-msgid "Module level"
-msgstr "模組層次"
-
-#: builders/changes.py:124
-msgid "copying source files..."
-msgstr "正在複製原始檔案..."
-
-#: builders/changes.py:133
-#, python-format
-msgid "could not read %r for changelog creation"
-msgstr "在變更日誌建立時無法讀取 %r"
-
-#: builders/manpage.py:37
-#, python-format
-msgid "The manual pages are in %(outdir)s."
-msgstr "手冊頁面在 %(outdir)s"
-
-#: builders/manpage.py:45
-msgid "no \"man_pages\" config value found; no manual pages will be written"
-msgstr "未找到 \"man_pages\" 組態值：不會編寫任何手冊頁面"
-
-#: builders/latex/__init__.py:347 builders/manpage.py:54
-#: builders/singlehtml.py:176 builders/texinfo.py:119
-msgid "writing"
-msgstr "編寫中"
-
-#: builders/manpage.py:71
-#, python-format
-msgid "\"man_pages\" config value references unknown document %s"
-msgstr "\"man_pages\" 組態值引用未知的文件 %s"
-
-#: builders/__init__.py:224
-#, python-format
-msgid "a suitable image for %s builder not found: %s (%s)"
-msgstr "未找到對於 %s builder 適用的圖片：%s (%s)"
-
-#: builders/__init__.py:232
-#, python-format
-msgid "a suitable image for %s builder not found: %s"
-msgstr "未找到對於 %s builder 適用的圖片：%s"
-
-#: builders/__init__.py:255
-msgid "building [mo]: "
-msgstr "建立 [mo]："
-
-#: builders/__init__.py:258 builders/__init__.py:759 builders/__init__.py:791
-msgid "writing output... "
-msgstr "編寫輸出..."
-
-#: builders/__init__.py:275
-#, python-format
-msgid "all of %d po files"
-msgstr "所有的 %d po 檔"
-
-#: builders/__init__.py:297
-#, python-format
-msgid "targets for %d po files that are specified"
-msgstr "對於指定的 po 檔 %d 的目標"
-
-#: builders/__init__.py:309
-#, python-format
-msgid "targets for %d po files that are out of date"
-msgstr "對於已過期 po 檔 %d 的目標"
-
-#: builders/__init__.py:319
-msgid "all source files"
-msgstr "所有原始檔案"
-
-#: builders/__init__.py:330
-#, python-format
-msgid "file %r given on command line does not exist, "
-msgstr "在命令列給的檔案 %r 不存在，"
-
-#: builders/__init__.py:337
-#, python-format
-msgid ""
-"file %r given on command line is not under the source directory, ignoring"
-msgstr "在命令列給的檔案 %r 不在來源資料夾下，忽略中"
-
-#: builders/__init__.py:348
-#, python-format
-msgid "file %r given on command line is not a valid document, ignoring"
-msgstr "在命令列給的檔案 %r 不是有效的文件，忽略中"
-
-#: builders/__init__.py:361
-#, python-format
-msgid "%d source files given on command line"
-msgstr "在命令列給了 %d 個原始檔案"
-
-#: builders/__init__.py:377
-#, python-format
-msgid "targets for %d source files that are out of date"
-msgstr "%d 個過時原始檔案的目標"
-
-#: builders/__init__.py:395 builders/gettext.py:265
-#, python-format
-msgid "building [%s]: "
-msgstr "正在建立 [%s]："
-
-#: builders/__init__.py:406
-msgid "looking for now-outdated files... "
-msgstr "正在尋找目前已過期的檔案..."
-
-#: builders/__init__.py:410
-#, python-format
-msgid "%d found"
-msgstr "已找到 %d"
-
-#: builders/__init__.py:412
-msgid "none found"
-msgstr "找不到任何結果"
-
-#: builders/__init__.py:419
-msgid "pickling environment"
-msgstr "正在 pickle 環境"
-
-#: builders/__init__.py:426
-msgid "checking consistency"
-msgstr "正在檢查一致性"
-
-#: builders/__init__.py:430
-msgid "no targets are out of date."
-msgstr "沒有過時的目標。"
-
-#: builders/__init__.py:469
-msgid "updating environment: "
-msgstr "正在更新環境："
-
-#: builders/__init__.py:494
-#, python-format
-msgid "%s added, %s changed, %s removed"
-msgstr "%s 已新增， %s 已變更， %s 已移除"
-
-#: builders/__init__.py:531
-#, python-format
-msgid ""
-"Sphinx is unable to load the master document (%s) because it matches a "
-"built-in exclude pattern %r. Please move your master document to a different"
-" location."
+msgid "directive %r is already registered and will not be overridden"
 msgstr ""
 
-#: builders/__init__.py:540
+#: application.py:1145 application.py:1173
 #, python-format
-msgid ""
-"Sphinx is unable to load the master document (%s) because it matches an "
-"exclude pattern specified in conf.py, %r. Please remove this pattern from "
-"conf.py."
+msgid "role %r is already registered and will not be overridden"
 msgstr ""
 
-#: builders/__init__.py:551
+#: application.py:1771
 #, python-format
 msgid ""
-"Sphinx is unable to load the master document (%s) because it is not included"
-" in the custom include_patterns = %r. Ensure that a pattern in "
-"include_patterns matches the master document."
-msgstr ""
+"the %s extension does not declare if it is safe for parallel reading, "
+"assuming it isn't - please ask the extension author to check and make it "
+"explicit"
+msgstr "%s 擴充套件並未宣告平行讀取是否安全，假設為否 - 請尋求擴充套件作者以檢查並明確表示"
 
-#: builders/__init__.py:558
+#: application.py:1776
+#, python-format
+msgid "the %s extension is not safe for parallel reading"
+msgstr "%s 擴充套件對於平行讀取是不安全的"
+
+#: application.py:1780
 #, python-format
 msgid ""
-"Sphinx is unable to load the master document (%s). The master document must "
-"be within the source directory or a subdirectory of it."
-msgstr ""
+"the %s extension does not declare if it is safe for parallel writing, "
+"assuming it isn't - please ask the extension author to check and make it "
+"explicit"
+msgstr "%s 擴充套件並未宣告平行寫入是否安全，假設為否 - 請尋求擴充套件作者以檢查並明確表示"
 
-#: builders/__init__.py:576 builders/__init__.py:592
-msgid "reading sources... "
-msgstr "正在讀取來源..."
-
-#: builders/__init__.py:713
+#: application.py:1785
 #, python-format
-msgid "docnames to write: %s"
-msgstr "待寫入的 docname: %s"
+msgid "the %s extension is not safe for parallel writing"
+msgstr "%s 擴充套件對於平行寫入是不安全的"
 
-#: builders/__init__.py:715
-msgid "no docnames to write!"
-msgstr ""
-
-#: builders/__init__.py:728
-msgid "preparing documents"
-msgstr "正在準備文件"
-
-#: builders/__init__.py:731
-msgid "copying assets"
-msgstr "正在複製資產 (asset)"
-
-#: builders/__init__.py:883
+#: application.py:1793 application.py:1797
 #, python-format
-msgid "undecodable source characters, replacing with \"?\": %r"
-msgstr "無法解碼的原始字元，以 \"?\" 取代： %r"
+msgid "doing serial %s"
+msgstr "執行串列 %s"
 
-#: builders/epub3.py:84
-#, python-format
-msgid "The ePub file is in %(outdir)s."
-msgstr "ePub 檔案是在 %(outdir)s 。"
-
-#: builders/epub3.py:189
-msgid "writing nav.xhtml file..."
-msgstr "正在寫入 nav.xhtml 檔案..."
-
-#: builders/epub3.py:221
-msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
-msgstr "conf 值 \"epub_language\" (或 \"language\") 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:227
-msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
-msgstr "conf 值  \"epub_uid\" 在 EPUB3 應該是 XML NAME"
-
-#: builders/epub3.py:232
-msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
-msgstr "conf 值 \"epub_title\" (或 \"html_title\") 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:238
-msgid "conf value \"epub_author\" should not be empty for EPUB3"
-msgstr "conf 值  \"epub_author\" 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:242
-msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
-msgstr "conf 值 \"epub_contributor\" 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:247
-msgid "conf value \"epub_description\" should not be empty for EPUB3"
-msgstr "conf 值  \"epub_description\" 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:251
-msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
-msgstr "conf 值 \"epub_publisher\" 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:256
-msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
-msgstr "conf 值 \"epub_copyright\" (或 \"copyright\") 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:262
-msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
-msgstr "conf 值 \"epub_identifier\" 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:265
-msgid "conf value \"version\" should not be empty for EPUB3"
-msgstr "conf 值 \"version\" 在 EPUB3 不應該為空"
-
-#: builders/epub3.py:279 builders/html/__init__.py:1291
-#, python-format
-msgid "invalid css_file: %r, ignored"
-msgstr "無效的 css_file: %r, 已略過"
-
-#: builders/xml.py:31
-#, python-format
-msgid "The XML files are in %(outdir)s."
-msgstr "XML 檔案在 %(outdir)s 。"
-
-#: builders/html/__init__.py:1241 builders/text.py:76 builders/xml.py:90
-#, python-format
-msgid "error writing file %s: %s"
-msgstr "錯誤寫入檔案 %s: %s"
-
-#: builders/xml.py:101
-#, python-format
-msgid "The pseudo-XML files are in %(outdir)s."
-msgstr "pseudo-XML 檔案在 %(outdir)s 。"
-
-#: builders/texinfo.py:45
-#, python-format
-msgid "The Texinfo files are in %(outdir)s."
-msgstr "Texinfo 檔案在 %(outdir)s 。"
-
-#: builders/texinfo.py:48
-msgid ""
-"\n"
-"Run 'make' in that directory to run these through makeinfo\n"
-"(use 'make info' here to do that automatically)."
-msgstr "\n在該目錄中執行 'make' 以透過 makeinfo 執行這些\n（在此使用 'make info' 以自動執行）"
-
-#: builders/texinfo.py:77
-msgid "no \"texinfo_documents\" config value found; no documents will be written"
-msgstr "未找到 \"texinfo_documents\" 組態值；不會編寫任何文件"
-
-#: builders/texinfo.py:89
-#, python-format
-msgid "\"texinfo_documents\" config value references unknown document %s"
-msgstr "\"texinfo_documents\" 組態值引用未知的文件 %s"
-
-#: builders/latex/__init__.py:325 builders/texinfo.py:113
-#, python-format
-msgid "processing %s"
-msgstr "正在處理 %s"
-
-#: builders/latex/__init__.py:405 builders/texinfo.py:172
-msgid "resolving references..."
-msgstr "正在解析參照..."
-
-#: builders/latex/__init__.py:416 builders/texinfo.py:182
-msgid " (in "
-msgstr " (於 "
-
-#: builders/_epub_base.py:422 builders/html/__init__.py:779
-#: builders/latex/__init__.py:481 builders/texinfo.py:198
-msgid "copying images... "
-msgstr "正在複製圖片..."
-
-#: builders/_epub_base.py:444 builders/latex/__init__.py:496
-#: builders/texinfo.py:215
-#, python-format
-msgid "cannot copy image file %r: %s"
-msgstr "無法複製圖片檔 %r: %s"
-
-#: builders/texinfo.py:222
-msgid "copying Texinfo support files"
-msgstr "正在複製 Texinfo 支援檔案"
-
-#: builders/texinfo.py:230
-#, python-format
-msgid "error writing file Makefile: %s"
-msgstr "錯誤寫入檔案 Makefile： %s"
-
-#: builders/_epub_base.py:223
-#, python-format
-msgid "duplicated ToC entry found: %s"
-msgstr "找到了重複的 ToC 項目： %s"
-
-#: builders/_epub_base.py:433
-#, python-format
-msgid "cannot read image file %r: copying it instead"
-msgstr "無法讀取圖片檔 %r: 正在複製它做為替代"
-
-#: builders/_epub_base.py:464
-#, python-format
-msgid "cannot write image file %r: %s"
-msgstr "無法寫入圖片檔 %r: %s"
-
-#: builders/_epub_base.py:476
-msgid "Pillow not found - copying image files"
-msgstr "未找到 Pillow - 正在複製圖片檔"
-
-#: builders/_epub_base.py:511
-msgid "writing mimetype file..."
-msgstr "正在寫入 mimetype 檔案..."
-
-#: builders/_epub_base.py:520
-msgid "writing META-INF/container.xml file..."
-msgstr "正在寫入 META-INF/container.xml 檔案..."
-
-#: builders/_epub_base.py:558
-msgid "writing content.opf file..."
-msgstr "正在寫入 content.opf 檔案..."
-
-#: builders/_epub_base.py:591
-#, python-format
-msgid "unknown mimetype for %s, ignoring"
-msgstr "對於 %s 未知的 mimetype，忽略中"
-
-#: builders/_epub_base.py:745
-msgid "node has an invalid level"
-msgstr ""
-
-#: builders/_epub_base.py:765
-msgid "writing toc.ncx file..."
-msgstr "正在寫入 toc.ncx 檔案..."
-
-#: builders/_epub_base.py:794
-#, python-format
-msgid "writing %s file..."
-msgstr "正在寫入 %s 檔案..."
-
-#: builders/dummy.py:19
-msgid "The dummy builder generates no files."
-msgstr "虛擬建立器未產生任何檔案。"
-
-#: builders/gettext.py:244
-#, python-format
-msgid "The message catalogs are in %(outdir)s."
-msgstr "訊息目錄是在 %(outdir)s"
-
-#: builders/gettext.py:266
-#, python-format
-msgid "targets for %d template files"
-msgstr "模板檔 %d 的目標"
-
-#: builders/gettext.py:271
-msgid "reading templates... "
-msgstr "正在讀取模板..."
-
-#: builders/gettext.py:307
-msgid "writing message catalogs... "
-msgstr "正在寫入訊息目錄..."
-
-#: builders/singlehtml.py:35
-#, python-format
-msgid "The HTML page is in %(outdir)s."
-msgstr "HTML 頁面在 %(outdir)s 。"
-
-#: builders/singlehtml.py:171
-msgid "assembling single document"
-msgstr "正在組合單一文件"
-
-#: builders/singlehtml.py:189
-msgid "writing additional files"
-msgstr "正在寫入附加檔案"
-
-#: builders/linkcheck.py:77
-#, python-format
-msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
-msgstr "尋找以上輸出或 %(outdir)s/output.txt 中的任何錯誤"
-
-#: builders/linkcheck.py:149
-#, python-format
-msgid "broken link: %s (%s)"
-msgstr "錯誤連結： %s (%s)"
-
-#: builders/linkcheck.py:548
-#, python-format
-msgid "Anchor '%s' not found"
-msgstr "未找到錨 '%s'"
-
-#: builders/linkcheck.py:758
-#, python-format
-msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
-msgstr "在 linkcheck_allowed_redirects 編譯 regex 失敗： %r %s"
-
-#: builders/text.py:29
-#, python-format
-msgid "The text files are in %(outdir)s."
-msgstr "文字檔案在 %(outdir)s 。"
-
-#: transforms/i18n.py:227 transforms/i18n.py:302
-#, python-brace-format
-msgid ""
-"inconsistent footnote references in translated message. original: {0}, "
-"translated: {1}"
-msgstr "被翻譯訊息中有不一致的註腳參照。原文： {0}，譯文： {1}"
-
-#: transforms/i18n.py:272
-#, python-brace-format
-msgid ""
-"inconsistent references in translated message. original: {0}, translated: "
-"{1}"
-msgstr "被翻譯訊息中有不一致的參照。原文： {0}，譯文： {1}"
-
-#: transforms/i18n.py:322
-#, python-brace-format
-msgid ""
-"inconsistent citation references in translated message. original: {0}, "
-"translated: {1}"
-msgstr "被翻譯訊息中有不一致的參照。原文： {0}，譯文： {1}"
-
-#: transforms/i18n.py:344
-#, python-brace-format
-msgid ""
-"inconsistent term references in translated message. original: {0}, "
-"translated: {1}"
-msgstr "被翻譯訊息中有不一致的術語參照。原文： {0}，譯文： {1}"
-
-#: builders/html/__init__.py:486 builders/latex/__init__.py:199
+#: builders/html/__init__.py:487 builders/latex/__init__.py:199
 #: transforms/__init__.py:129 writers/manpage.py:98 writers/texinfo.py:220
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
-
-#: transforms/__init__.py:139
-msgid "could not calculate translation progress!"
-msgstr "無法計算翻譯進度！"
-
-#: transforms/__init__.py:144
-msgid "no translated elements!"
-msgstr "沒有已翻譯的元素！"
-
-#: transforms/__init__.py:253
-#, python-format
-msgid ""
-"4 column based index found. It might be a bug of extensions you use: %r"
-msgstr "找到基於 4 欄位的索引。它可能是您使用的擴充套件的一個錯誤： %r"
-
-#: transforms/__init__.py:294
-#, python-format
-msgid "Footnote [%s] is not referenced."
-msgstr "註腳 [%s] 未被參照。"
-
-#: transforms/__init__.py:303
-msgid "Footnote [*] is not referenced."
-msgstr ""
-
-#: transforms/__init__.py:314
-msgid "Footnote [#] is not referenced."
-msgstr "註腳 [#] 未被參照。"
-
-#: _cli/__init__.py:73
-msgid "Usage:"
-msgstr "使用："
-
-#: _cli/__init__.py:75
-#, python-brace-format
-msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
-msgstr "{0} [OPTIONS] <COMMAND> [<ARGS>]"
-
-#: _cli/__init__.py:78
-msgid "  The Sphinx documentation generator."
-msgstr "Sphinx 說明文件產生器。"
-
-#: _cli/__init__.py:87
-msgid "Commands:"
-msgstr "指令："
-
-#: _cli/__init__.py:98
-msgid "Options"
-msgstr "選項"
-
-#: _cli/__init__.py:113 _cli/__init__.py:181
-msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
-msgstr "如需更多資訊，請參閱 https://www.sphinx-doc.org/en/master/man/。"
-
-#: _cli/__init__.py:171
-#, python-brace-format
-msgid ""
-"{0}: error: {1}\n"
-"Run '{0} --help' for information"
-msgstr "{0}: 錯誤: {1}\n執行 '{0} --help' 取得更多資訊"
-
-#: _cli/__init__.py:179
-msgid "   Manage documentation with Sphinx."
-msgstr "以 Sphinx 管理說明文件。"
-
-#: _cli/__init__.py:191
-msgid "Show the version and exit."
-msgstr "顯示版本並離開。"
-
-#: _cli/__init__.py:199
-msgid "Show this message and exit."
-msgstr "顯示此訊息並離開。"
-
-#: _cli/__init__.py:203
-msgid "Logging"
-msgstr "登錄"
-
-#: _cli/__init__.py:210
-msgid "Increase verbosity (can be repeated)"
-msgstr "增加詳細內容（可以重複）"
-
-#: _cli/__init__.py:218
-msgid "Only print errors and warnings."
-msgstr "只印出錯誤及警告。"
-
-#: _cli/__init__.py:225
-msgid "No output at all"
-msgstr "完全沒有輸出"
-
-#: _cli/__init__.py:231
-msgid "<command>"
-msgstr "<command>"
-
-#: _cli/__init__.py:263
-msgid "See 'sphinx --help'.\n"
-msgstr "請參閱 'sphinx --help'。\n"
-
-#: environment/__init__.py:86
-msgid "new config"
-msgstr "新的組態"
-
-#: environment/__init__.py:87
-msgid "config changed"
-msgstr "組態已變更"
-
-#: environment/__init__.py:88
-msgid "extensions changed"
-msgstr "擴充套件已變更"
-
-#: environment/__init__.py:253
-msgid "build environment version not current"
-msgstr "建立環境的版本不是目前的"
-
-#: environment/__init__.py:255
-msgid "source directory has changed"
-msgstr "來源資料夾已變更"
-
-#: environment/__init__.py:325
-#, python-format
-msgid "The configuration has changed (1 option: %r)"
-msgstr ""
-
-#: environment/__init__.py:330
-#, python-format
-msgid "The configuration has changed (%d options: %s)"
-msgstr ""
-
-#: environment/__init__.py:336
-#, python-format
-msgid "The configuration has changed (%d options: %s, ...)"
-msgstr ""
-
-#: environment/__init__.py:379
-msgid ""
-"This environment is incompatible with the selected builder, please choose "
-"another doctree directory."
-msgstr "這個環境與所選的 builder 不相容，請選擇另一個 doctree 資料夾。"
-
-#: environment/__init__.py:493
-#, python-format
-msgid "Failed to scan documents in %s: %r"
-msgstr "無法掃描 %s 中的文件： %r"
-
-#: environment/__init__.py:658 ext/intersphinx/_resolve.py:234
-#, python-format
-msgid "Domain %r is not registered"
-msgstr "Domain %r 未被註冊"
-
-#: environment/__init__.py:813
-msgid "document isn't included in any toctree"
-msgstr "文件未被包含於任何 toctree"
-
-#: environment/__init__.py:859
-msgid "self referenced toctree found. Ignored."
-msgstr "找到自我參照的 toctree。已略過。"
-
-#: environment/__init__.py:889
-#, python-format
-msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
-msgstr ""
-
-#: util/i18n.py:100
-#, python-format
-msgid "reading error: %s, %s"
-msgstr "讀取錯誤： %s, %s"
-
-#: util/i18n.py:113
-#, python-format
-msgid "writing error: %s, %s"
-msgstr "寫入錯誤： %s, %s"
-
-#: util/i18n.py:146
-#, python-format
-msgid "locale_dir %s does not exist"
-msgstr "locale_dir %s 不存在"
-
-#: util/i18n.py:236
-#, python-format
-msgid "Invalid Babel locale: %r."
-msgstr ""
-
-#: util/i18n.py:245
-#, python-format
-msgid ""
-"Invalid date format. Quote the string by single quote if you want to output "
-"it directly: %s"
-msgstr "無效的日期格式。如果您要直接將它輸出，則以單引號引用該字串： %s"
-
-#: util/docfields.py:103
-#, python-format
-msgid ""
-"Problem in %s domain: field is supposed to use role '%s', but that role is "
-"not in the domain."
-msgstr "在 %s domain 中的問題：欄位應該要用角色 '%s' ，但是那個角色並不在該 domain。"
-
-#: util/nodes.py:423
-#, python-format
-msgid ""
-"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
-msgstr "%r 已棄用於索引項目（從項目 %r）。請改用 'pair: %s'。"
-
-#: util/nodes.py:490
-#, python-format
-msgid "toctree contains ref to nonexisting file %r"
-msgstr "toctree 包含了不存在的檔案 %r 的參照 "
-
-#: util/nodes.py:706
-#, python-format
-msgid "exception while evaluating only directive expression: %s"
-msgstr "在評估只有指令的運算式時發生例外： %s"
-
-#: util/display.py:82
-msgid "skipped"
-msgstr "已省略"
-
-#: util/display.py:87
-msgid "failed"
-msgstr "失敗"
-
-#: util/osutil.py:131
-#, python-format
-msgid ""
-"Aborted attempted copy from %s to %s (the destination path has existing "
-"data)."
-msgstr ""
-
-#: util/docutils.py:309
-#, python-format
-msgid "unknown directive name: %s"
-msgstr ""
-
-#: util/docutils.py:345
-#, python-format
-msgid "unknown role name: %s"
-msgstr ""
-
-#: util/docutils.py:789
-#, python-format
-msgid "unknown node type: %r"
-msgstr "未知的節點型別： %r"
-
-#: util/fileutil.py:76
-#, python-format
-msgid ""
-"Aborted attempted copy from rendered template %s to %s (the destination path"
-" has existing data)."
-msgstr ""
-
-#: util/fileutil.py:89
-#, python-format
-msgid "Writing evaluated template result to %s"
-msgstr ""
-
-#: util/rst.py:73
-#, python-format
-msgid "default role %s not found"
-msgstr "預設角色 %s 未找到"
-
-#: util/inventory.py:147
-#, python-format
-msgid "inventory <%s> contains duplicate definitions of %s"
-msgstr ""
-
-#: util/inventory.py:166
-#, python-format
-msgid "inventory <%s> contains multiple definitions for %s"
-msgstr ""
-
-#: writers/latex.py:1097 writers/manpage.py:259 writers/texinfo.py:663
-msgid "Footnotes"
-msgstr "註腳"
-
-#: writers/manpage.py:289 writers/text.py:945
-#, python-format
-msgid "[image: %s]"
-msgstr "[圖片：%s]"
-
-#: writers/manpage.py:290 writers/text.py:946
-msgid "[image]"
-msgstr "[圖片]"
 
 #: builders/latex/__init__.py:206 domains/std/__init__.py:771
 #: domains/std/__init__.py:784 templates/latex/latex.tex.jinja:106
@@ -1755,6 +634,10 @@ msgstr "索引"
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "遇到的標題節點不是在段落、主題、表格、警告或側邊欄"
+
+#: writers/latex.py:1097 writers/manpage.py:259 writers/texinfo.py:663
+msgid "Footnotes"
+msgstr "註腳"
 
 #: writers/texinfo.py:1217
 msgid "caption not inside a figure."
@@ -1813,6 +696,15 @@ msgstr "找到了未知的索引條目型別 %s"
 msgid "Invalid math_eqref_format: %r"
 msgstr "無效的 math_eqref_format: %r"
 
+#: writers/manpage.py:289 writers/text.py:945
+#, python-format
+msgid "[image: %s]"
+msgstr "[圖片：%s]"
+
+#: writers/manpage.py:290 writers/text.py:946
+msgid "[image]"
+msgstr "[圖片]"
+
 #: writers/html5.py:96 writers/html5.py:105
 msgid "Link to this definition"
 msgstr "連結到這個定義"
@@ -1855,196 +747,140 @@ msgstr "連結到這個 toctree"
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "無法取得圖片大小。 :scale: 選項已略過。"
 
-#: domains/__init__.py:322
-#, python-format
-msgid "%s %s"
-msgstr "%s %s"
-
-#: domains/math.py:73
-#, python-format
-msgid "duplicate label of equation %s, other instance in %s"
-msgstr "重複公式標籤 %s，亦出現於 %s"
-
-#: domains/javascript.py:182
-#, python-format
-msgid "%s() (built-in function)"
-msgstr "%s() (內建函式)"
-
-#: domains/javascript.py:183 domains/python/__init__.py:287
-#, python-format
-msgid "%s() (%s method)"
-msgstr "%s() (%s 的方法)"
-
-#: domains/javascript.py:185
-#, python-format
-msgid "%s() (class)"
-msgstr "%s() (類別)"
-
-#: domains/javascript.py:187
-#, python-format
-msgid "%s (global variable or constant)"
-msgstr "%s (全域變數或常數)"
-
-#: domains/javascript.py:189 domains/python/__init__.py:378
-#, python-format
-msgid "%s (%s attribute)"
-msgstr "%s (%s 的屬性)"
-
-#: domains/javascript.py:273
-msgid "Arguments"
-msgstr "引數"
-
-#: domains/cpp/__init__.py:489 domains/javascript.py:280
-msgid "Throws"
-msgstr "拋出"
-
-#: domains/c/__init__.py:339 domains/cpp/__init__.py:502
-#: domains/javascript.py:287 domains/python/_object.py:221
-msgid "Returns"
-msgstr "回傳"
-
-#: domains/c/__init__.py:345 domains/javascript.py:293
-#: domains/python/_object.py:227
-msgid "Return type"
-msgstr "回傳型別"
-
-#: domains/javascript.py:370
-#, python-format
-msgid "%s (module)"
-msgstr "%s (模組)"
-
-#: domains/c/__init__.py:751 domains/cpp/__init__.py:941
-#: domains/javascript.py:415 domains/python/__init__.py:740
-msgid "function"
-msgstr "函式"
-
-#: domains/javascript.py:416 domains/python/__init__.py:744
-msgid "method"
-msgstr "方法"
-
-#: domains/cpp/__init__.py:939 domains/javascript.py:417
-#: domains/python/__init__.py:742
-msgid "class"
-msgstr "類別"
-
-#: domains/javascript.py:418 domains/python/__init__.py:741
-msgid "data"
-msgstr "資料"
-
-#: domains/javascript.py:419 domains/python/__init__.py:747
-msgid "attribute"
-msgstr "屬性"
-
-#: domains/javascript.py:420 domains/python/__init__.py:750
-msgid "module"
-msgstr "模組"
-
-#: domains/javascript.py:454
-#, python-format
-msgid "duplicate %s description of %s, other %s in %s"
-msgstr "%s 的重複 %s 敘述，其他的 %s 在 %s"
-
-#: domains/changeset.py:26
-#, python-format
-msgid "Added in version %s"
-msgstr "在 %s 版被加入"
-
-#: domains/changeset.py:27
-#, python-format
-msgid "Changed in version %s"
-msgstr "在 %s 版的變更"
-
-#: domains/changeset.py:28
-#, python-format
-msgid "Deprecated since version %s"
-msgstr "在 %s 版之後被棄用"
-
-#: domains/changeset.py:29
-#, python-format
-msgid "Removed in version %s"
-msgstr "在 %s 版被移除"
-
-#: domains/rst.py:131 domains/rst.py:190
-#, python-format
-msgid "%s (directive)"
-msgstr "%s （指令）"
-
-#: domains/rst.py:191 domains/rst.py:202
-#, python-format
-msgid ":%s: (directive option)"
-msgstr ":%s: （指令選項）"
-
-#: domains/rst.py:224
-#, python-format
-msgid "%s (role)"
-msgstr "%s （角色）"
-
-#: domains/rst.py:234
-msgid "directive"
-msgstr "指令"
-
-#: domains/rst.py:235
-msgid "directive-option"
-msgstr "指令選項"
-
-#: domains/rst.py:236
-msgid "role"
-msgstr "角色"
-
-#: domains/rst.py:262
-#, python-format
-msgid "duplicate description of %s %s, other instance in %s"
-msgstr "%s %s 的重複敘述，其他的實例在 %s"
-
-#: domains/citation.py:75
-#, python-format
-msgid "duplicate citation %s, other instance in %s"
-msgstr "重複的引用 %s，亦出現於 %s"
-
-#: domains/citation.py:92
-#, python-format
-msgid "Citation [%s] is not referenced."
-msgstr "引用 [%s] 未被參照。"
-
-#: locale/__init__.py:228
+#: locale/__init__.py:229
 msgid "Attention"
 msgstr "注意"
 
-#: locale/__init__.py:229
+#: locale/__init__.py:230
 msgid "Caution"
 msgstr "警示"
 
-#: locale/__init__.py:230
+#: locale/__init__.py:231
 msgid "Danger"
 msgstr "危險"
 
-#: locale/__init__.py:231
+#: locale/__init__.py:232
 msgid "Error"
 msgstr "錯誤"
 
-#: locale/__init__.py:232
+#: locale/__init__.py:233
 msgid "Hint"
 msgstr "提示"
 
-#: locale/__init__.py:233
+#: locale/__init__.py:234
 msgid "Important"
 msgstr "重要"
 
-#: locale/__init__.py:234
+#: locale/__init__.py:235
 msgid "Note"
 msgstr "備註"
 
-#: locale/__init__.py:235
-msgid "See also"
-msgstr "也參考"
-
 #: locale/__init__.py:236
+msgid "See also"
+msgstr "請參閱"
+
+#: locale/__init__.py:237
 msgid "Tip"
 msgstr "小訣竅"
 
-#: locale/__init__.py:237
+#: locale/__init__.py:238
 msgid "Warning"
 msgstr "警告"
+
+#: directives/other.py:119
+#, python-format
+msgid "toctree glob pattern %r didn't match any documents"
+msgstr "toctree glob 型樣 %r 未匹配任何文件"
+
+#: directives/other.py:153 environment/adapters/toctree.py:361
+#, python-format
+msgid "toctree contains reference to excluded document %r"
+msgstr "toctree 包含了指向已排除文件的參照 %r"
+
+#: directives/other.py:156
+#, python-format
+msgid "toctree contains reference to nonexisting document %r"
+msgstr "toctree 包含了指向不存在文件的參照 %r"
+
+#: directives/other.py:169
+#, python-format
+msgid "duplicated entry found in toctree: %s"
+msgstr "在 toctree 中找到重複的項目： %s"
+
+#: directives/other.py:203
+msgid "Section author: "
+msgstr "章節作者："
+
+#: directives/other.py:205
+msgid "Module author: "
+msgstr "模組作者："
+
+#: directives/other.py:207
+msgid "Code author: "
+msgstr "程式作者："
+
+#: directives/other.py:209
+msgid "Author: "
+msgstr "作者："
+
+#: directives/other.py:269
+msgid ".. acks content is not a list"
+msgstr ".. acks 的內容不是一個列表"
+
+#: directives/other.py:292
+msgid ".. hlist content is not a list"
+msgstr ".. hlist 的內容不是一個列表"
+
+#: directives/code.py:66
+msgid "non-whitespace stripped by dedent"
+msgstr "非空白字元被凸排去除"
+
+#: directives/code.py:87
+#, python-format
+msgid "Invalid caption: %s"
+msgstr "無效標題：%s"
+
+#: directives/code.py:131 directives/code.py:297 directives/code.py:483
+#, python-format
+msgid "line number spec is out of range(1-%d): %r"
+msgstr "列號規格超出範圍 (1-%d)： %r"
+
+#: directives/code.py:216
+#, python-format
+msgid "Cannot use both \"%s\" and \"%s\" options"
+msgstr "不能使用 \"%s\" 及 \"%s\" 兩個選項"
+
+#: directives/code.py:231
+#, python-format
+msgid "Include file '%s' not found or reading it failed"
+msgstr ""
+
+#: directives/code.py:235
+#, python-format
+msgid ""
+"Encoding %r used for reading included file '%s' seems to be wrong, try "
+"giving an :encoding: option"
+msgstr ""
+
+#: directives/code.py:276
+#, python-format
+msgid "Object named %r not found in include file %r"
+msgstr "名為 %r 的物件在 include 檔案 %r 中未找到"
+
+#: directives/code.py:309
+msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
+msgstr "無法以一個 \"lines\" 的互斥集使用 \"lineno-match\" "
+
+#: directives/code.py:314
+#, python-format
+msgid "Line spec %r: no lines pulled from include file %r"
+msgstr "Line spec %r: 從 include 檔案 %r 沒有提取任何一行"
+
+#: directives/patches.py:71
+msgid ""
+"\":file:\" option for csv-table directive now recognizes an absolute path as"
+" a relative path from source directory. Please update your document."
+msgstr "對 csv-table 指令的 \":file:\" 選項現在會將絕對路徑辨識為基於來源資料夾的相對路徑。請更新您的文件。"
 
 #: cmd/quickstart.py:52
 msgid "automatically insert docstrings from modules"
@@ -2612,6 +1448,1588 @@ msgstr "-D 選項引數必須是 name=value 的形式"
 msgid "-A option argument must be in the form name=value"
 msgstr "-A 選項引數必須是 name=value 的形式"
 
+#: util/docutils.py:309
+#, python-format
+msgid "unknown directive name: %s"
+msgstr ""
+
+#: util/docutils.py:345
+#, python-format
+msgid "unknown role name: %s"
+msgstr ""
+
+#: util/docutils.py:789
+#, python-format
+msgid "unknown node type: %r"
+msgstr "未知的節點型別： %r"
+
+#: util/osutil.py:131
+#, python-format
+msgid ""
+"Aborted attempted copy from %s to %s (the destination path has existing "
+"data)."
+msgstr ""
+
+#: util/rst.py:73
+#, python-format
+msgid "default role %s not found"
+msgstr "預設角色 %s 未找到"
+
+#: util/inventory.py:147
+#, python-format
+msgid "inventory <%s> contains duplicate definitions of %s"
+msgstr ""
+
+#: util/inventory.py:166
+#, python-format
+msgid "inventory <%s> contains multiple definitions for %s"
+msgstr ""
+
+#: util/docfields.py:103
+#, python-format
+msgid ""
+"Problem in %s domain: field is supposed to use role '%s', but that role is "
+"not in the domain."
+msgstr "在 %s domain 中的問題：欄位應該要用角色 '%s' ，但是那個角色並不在該 domain。"
+
+#: util/i18n.py:100
+#, python-format
+msgid "reading error: %s, %s"
+msgstr "讀取錯誤： %s, %s"
+
+#: util/i18n.py:113
+#, python-format
+msgid "writing error: %s, %s"
+msgstr "寫入錯誤： %s, %s"
+
+#: util/i18n.py:146
+#, python-format
+msgid "locale_dir %s does not exist"
+msgstr "locale_dir %s 不存在"
+
+#: util/i18n.py:244
+#, python-format
+msgid "Invalid Babel locale: %r."
+msgstr ""
+
+#: util/i18n.py:253
+#, python-format
+msgid ""
+"Invalid date format. Quote the string by single quote if you want to output "
+"it directly: %s"
+msgstr "無效的日期格式。如果您要直接將它輸出，則以單引號引用該字串： %s"
+
+#: util/fileutil.py:76
+#, python-format
+msgid ""
+"Aborted attempted copy from rendered template %s to %s (the destination path"
+" has existing data)."
+msgstr ""
+
+#: util/fileutil.py:89
+#, python-format
+msgid "Writing evaluated template result to %s"
+msgstr ""
+
+#: util/nodes.py:423
+#, python-format
+msgid ""
+"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
+msgstr "%r 已棄用於索引項目（從項目 %r）。請改用 'pair: %s'。"
+
+#: util/nodes.py:490
+#, python-format
+msgid "toctree contains ref to nonexisting file %r"
+msgstr "toctree 包含了不存在的檔案 %r 的參照 "
+
+#: util/nodes.py:706
+#, python-format
+msgid "exception while evaluating only directive expression: %s"
+msgstr "在評估只有指令的運算式時發生例外： %s"
+
+#: util/display.py:82
+msgid "skipped"
+msgstr "已省略"
+
+#: util/display.py:87
+msgid "failed"
+msgstr "失敗"
+
+#: domains/javascript.py:182
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (內建函式)"
+
+#: domains/javascript.py:183 domains/python/__init__.py:287
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s 的方法)"
+
+#: domains/javascript.py:185
+#, python-format
+msgid "%s() (class)"
+msgstr "%s() (類別)"
+
+#: domains/javascript.py:187
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s (全域變數或常數)"
+
+#: domains/javascript.py:189 domains/python/__init__.py:378
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s 的屬性)"
+
+#: domains/javascript.py:273
+msgid "Arguments"
+msgstr "引數"
+
+#: domains/cpp/__init__.py:489 domains/javascript.py:280
+msgid "Throws"
+msgstr "拋出"
+
+#: domains/c/__init__.py:339 domains/cpp/__init__.py:502
+#: domains/javascript.py:287 domains/python/_object.py:221
+msgid "Returns"
+msgstr "回傳"
+
+#: domains/c/__init__.py:345 domains/javascript.py:293
+#: domains/python/_object.py:227
+msgid "Return type"
+msgstr "回傳型別"
+
+#: domains/javascript.py:370
+#, python-format
+msgid "%s (module)"
+msgstr "%s (模組)"
+
+#: domains/c/__init__.py:751 domains/cpp/__init__.py:941
+#: domains/javascript.py:415 domains/python/__init__.py:740
+msgid "function"
+msgstr "函式"
+
+#: domains/javascript.py:416 domains/python/__init__.py:744
+msgid "method"
+msgstr "方法"
+
+#: domains/cpp/__init__.py:939 domains/javascript.py:417
+#: domains/python/__init__.py:742
+msgid "class"
+msgstr "類別"
+
+#: domains/javascript.py:418 domains/python/__init__.py:741
+msgid "data"
+msgstr "資料"
+
+#: domains/javascript.py:419 domains/python/__init__.py:747
+msgid "attribute"
+msgstr "屬性"
+
+#: domains/javascript.py:420 domains/python/__init__.py:750
+msgid "module"
+msgstr "模組"
+
+#: domains/javascript.py:454
+#, python-format
+msgid "duplicate %s description of %s, other %s in %s"
+msgstr "%s 的重複 %s 敘述，其他的 %s 在 %s"
+
+#: domains/citation.py:75
+#, python-format
+msgid "duplicate citation %s, other instance in %s"
+msgstr "重複的引用 %s，亦出現於 %s"
+
+#: domains/citation.py:92
+#, python-format
+msgid "Citation [%s] is not referenced."
+msgstr "引用 [%s] 未被參照。"
+
+#: domains/math.py:73
+#, python-format
+msgid "duplicate label of equation %s, other instance in %s"
+msgstr "重複公式標籤 %s，亦出現於 %s"
+
+#: domains/rst.py:131 domains/rst.py:190
+#, python-format
+msgid "%s (directive)"
+msgstr "%s （指令）"
+
+#: domains/rst.py:191 domains/rst.py:202
+#, python-format
+msgid ":%s: (directive option)"
+msgstr ":%s: （指令選項）"
+
+#: domains/rst.py:224
+#, python-format
+msgid "%s (role)"
+msgstr "%s （角色）"
+
+#: domains/rst.py:234
+msgid "directive"
+msgstr "指令"
+
+#: domains/rst.py:235
+msgid "directive-option"
+msgstr "指令選項"
+
+#: domains/rst.py:236
+msgid "role"
+msgstr "角色"
+
+#: domains/rst.py:262
+#, python-format
+msgid "duplicate description of %s %s, other instance in %s"
+msgstr "%s %s 的重複敘述，其他的實例在 %s"
+
+#: domains/changeset.py:26
+#, python-format
+msgid "Added in version %s"
+msgstr "在 %s 版被加入"
+
+#: domains/changeset.py:27
+#, python-format
+msgid "Changed in version %s"
+msgstr "在 %s 版的變更"
+
+#: domains/changeset.py:28
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "在 %s 版之後被棄用"
+
+#: domains/changeset.py:29
+#, python-format
+msgid "Removed in version %s"
+msgstr "在 %s 版被移除"
+
+#: domains/__init__.py:322
+#, python-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#: transforms/i18n.py:227 transforms/i18n.py:302
+#, python-brace-format
+msgid ""
+"inconsistent footnote references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "被翻譯訊息中有不一致的註腳參照。原文： {0}，譯文： {1}"
+
+#: transforms/i18n.py:272
+#, python-brace-format
+msgid ""
+"inconsistent references in translated message. original: {0}, translated: "
+"{1}"
+msgstr "被翻譯訊息中有不一致的參照。原文： {0}，譯文： {1}"
+
+#: transforms/i18n.py:322
+#, python-brace-format
+msgid ""
+"inconsistent citation references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "被翻譯訊息中有不一致的參照。原文： {0}，譯文： {1}"
+
+#: transforms/i18n.py:344
+#, python-brace-format
+msgid ""
+"inconsistent term references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "被翻譯訊息中有不一致的術語參照。原文： {0}，譯文： {1}"
+
+#: transforms/__init__.py:139
+msgid "could not calculate translation progress!"
+msgstr "無法計算翻譯進度！"
+
+#: transforms/__init__.py:144
+msgid "no translated elements!"
+msgstr "沒有已翻譯的元素！"
+
+#: transforms/__init__.py:253
+#, python-format
+msgid ""
+"4 column based index found. It might be a bug of extensions you use: %r"
+msgstr "找到基於 4 欄位的索引。它可能是您使用的擴充套件的一個錯誤： %r"
+
+#: transforms/__init__.py:294
+#, python-format
+msgid "Footnote [%s] is not referenced."
+msgstr "註腳 [%s] 未被參照。"
+
+#: transforms/__init__.py:303
+msgid "Footnote [*] is not referenced."
+msgstr ""
+
+#: transforms/__init__.py:314
+msgid "Footnote [#] is not referenced."
+msgstr "註腳 [#] 未被參照。"
+
+#: ext/imgconverter.py:44
+#, python-format
+msgid ""
+"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
+"\n"
+"Traceback: %s"
+msgstr "無法執行影像轉換命令 %r。 'sphinx.ext.imgconverter' 預設為需要 ImageMagick。請確認它已被安裝，或是設定 'image_converter' 選項為一個自訂轉換命令。\n\n回溯: %s"
+
+#: ext/imgconverter.py:56 ext/imgconverter.py:90
+#, python-format
+msgid ""
+"convert exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "退出轉換，發生錯誤：\n[stderr]\n%r\n[stdout]\n%r"
+
+#: ext/imgconverter.py:83
+#, python-format
+msgid "convert command %r cannot be run, check the image_converter setting"
+msgstr "轉換命令 %r 無法被執行，請檢查 image_converter 設定"
+
+#: ext/doctest.py:118
+#, python-format
+msgid "missing '+' or '-' in '%s' option."
+msgstr "在 '%s' 選項中遺漏 '+' 或 '-'。"
+
+#: ext/doctest.py:124
+#, python-format
+msgid "'%s' is not a valid option."
+msgstr "'%s' 不是有效的選項"
+
+#: ext/doctest.py:139
+#, python-format
+msgid "'%s' is not a valid pyversion option"
+msgstr "'%s' 不是有效的 pyversion 選項"
+
+#: ext/doctest.py:226
+msgid "invalid TestCode type"
+msgstr "無效的 TestCode 型別"
+
+#: ext/doctest.py:297
+#, python-format
+msgid ""
+"Testing of doctests in the sources finished, look at the results in "
+"%(outdir)s/output.txt."
+msgstr "來源的 doctests 測試已結束，在 %(outdir)s/output.txt 中查看結果。"
+
+#: ext/doctest.py:463
+#, python-format
+msgid "no code/output in %s block at %s:%s"
+msgstr "在 %s 區塊中的 %s:%s 沒有程式碼/輸出"
+
+#: ext/doctest.py:580
+#, python-format
+msgid "ignoring invalid doctest code: %r"
+msgstr "正在忽略無效的 doctest 碼： %r"
+
+#: ext/imgmath.py:162
+#, python-format
+msgid ""
+"LaTeX command %r cannot be run (needed for math display), check the "
+"imgmath_latex setting"
+msgstr "LaTeX 命令 %r 無法被執行（數學顯示所需要），請檢查 imgmath_latex 設定"
+
+#: ext/imgmath.py:181
+#, python-format
+msgid ""
+"%s command %r cannot be run (needed for math display), check the imgmath_%s "
+"setting"
+msgstr "%s 命令 %r 無法被執行（數學顯示所需要），請檢查 imgmath_%s 設定"
+
+#: ext/imgmath.py:344
+#, python-format
+msgid "display latex %r: %s"
+msgstr "顯示 latex %r: %s"
+
+#: ext/imgmath.py:380
+#, python-format
+msgid "inline latex %r: %s"
+msgstr "行內 latex %r: %s"
+
+#: ext/imgmath.py:387 ext/mathjax.py:60
+msgid "Link to this equation"
+msgstr "連結到這個方程式"
+
+#: ext/extlinks.py:82
+#, python-format
+msgid ""
+"hardcoded link %r could be replaced by an extlink (try using %r instead)"
+msgstr "hardcoded link %r 可以被一個 extlink 所取代（試試改用 %r）"
+
+#: ext/linkcode.py:86 ext/viewcode.py:230
+msgid "[source]"
+msgstr "[原始碼]"
+
+#: ext/viewcode.py:293
+msgid "highlighting module code... "
+msgstr "正在 highlight 模組程式碼..."
+
+#: ext/viewcode.py:324
+msgid "[docs]"
+msgstr "[文件]"
+
+#: ext/viewcode.py:350
+msgid "Module code"
+msgstr "模組原始碼"
+
+#: ext/viewcode.py:357
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr "<h1>%s 的原始碼</h1>"
+
+#: ext/viewcode.py:384
+msgid "Overview: module code"
+msgstr "概要：模組原始碼"
+
+#: ext/viewcode.py:385
+msgid "<h1>All modules for which code is available</h1>"
+msgstr "<h1>所有可得程式碼的模組</h1>"
+
+#: ext/duration.py:90
+msgid ""
+"====================== slowest reading durations ======================="
+msgstr "====================== 最慢的讀取歷時 ======================="
+
+#: ext/graphviz.py:138
+msgid "Graphviz directive cannot have both content and a filename argument"
+msgstr "Graphviz 指令不能同時有內容及檔名引數"
+
+#: ext/graphviz.py:153
+#, python-format
+msgid "External Graphviz file %r not found or reading it failed"
+msgstr "外部的 Graphviz 檔案 %r 未找到或是讀取失敗"
+
+#: ext/graphviz.py:164
+msgid "Ignoring \"graphviz\" directive without content."
+msgstr "正在略過沒有內容的 \"graphviz\" 指令"
+
+#: ext/graphviz.py:287
+#, python-format
+msgid "graphviz_dot executable path must be set! %r"
+msgstr "graphviz_dot 可執行路徑必須設定！ %r"
+
+#: ext/graphviz.py:328
+#, python-format
+msgid ""
+"dot command %r cannot be run (needed for graphviz output), check the "
+"graphviz_dot setting"
+msgstr "dot 命令 %r 無法被執行（graphviz 輸出所需要），請檢查 graphviz_dot 設定"
+
+#: ext/graphviz.py:339
+#, python-format
+msgid ""
+"dot exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "退出 dot，發生錯誤：\n[stderr]\n%r\n[stdout]\n%r"
+
+#: ext/graphviz.py:344
+#, python-format
+msgid ""
+"dot did not produce an output file:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "dot 並未製作一個輸出檔案：\n[stderr]\n%r\n[stdout]\n%r"
+
+#: ext/graphviz.py:367
+#, python-format
+msgid "graphviz_output_format must be either 'png' or 'svg', but is %r"
+msgstr ""
+
+#: ext/graphviz.py:373 ext/graphviz.py:436 ext/graphviz.py:480
+#, python-format
+msgid "dot code %r: %s"
+msgstr "點碼 %r: %s"
+
+#: ext/graphviz.py:493 ext/graphviz.py:501
+#, python-format
+msgid "[graph: %s]"
+msgstr "[圖：%s]"
+
+#: ext/graphviz.py:495 ext/graphviz.py:503
+msgid "[graph]"
+msgstr "[圖]"
+
+#: ext/autosectionlabel.py:52
+#, python-format
+msgid "section \"%s\" gets labeled as \"%s\""
+msgstr "段落 \"%s\" 取得標籤 \"%s\""
+
+#: domains/std/__init__.py:833 domains/std/__init__.py:960
+#: ext/autosectionlabel.py:61
+#, python-format
+msgid "duplicate label %s, other instance in %s"
+msgstr "重複的標籤 %s，亦出現於 %s"
+
+#: ext/coverage.py:48
+#, python-format
+msgid "invalid regex %r in %s"
+msgstr "無效的 regex %r 在 %s"
+
+#: ext/coverage.py:140 ext/coverage.py:301
+#, python-format
+msgid "module %s could not be imported: %s"
+msgstr "模組 %s 無法被 import： %s"
+
+#: ext/coverage.py:148
+#, python-format
+msgid ""
+"the following modules are documented but were not specified in "
+"coverage_modules: %s"
+msgstr ""
+
+#: ext/coverage.py:158
+msgid ""
+"the following modules are specified in coverage_modules but were not "
+"documented"
+msgstr ""
+
+#: ext/coverage.py:172
+#, python-brace-format, python-format
+msgid ""
+"Testing of coverage in the sources finished, look at the results in "
+"%(outdir)s{sep}python.txt."
+msgstr ""
+
+#: ext/coverage.py:187
+#, python-format
+msgid "invalid regex %r in coverage_c_regexes"
+msgstr "無效的 regex %r 在 coverage_c_regexes"
+
+#: ext/coverage.py:260
+#, python-format
+msgid "undocumented c api: %s [%s] in file %s"
+msgstr "未文件化的 c api： %s [%s] 在檔案 %s 中"
+
+#: ext/coverage.py:452
+#, python-format
+msgid "undocumented python function: %s :: %s"
+msgstr "未文件化的 python 函式： %s :: %s"
+
+#: ext/coverage.py:473
+#, python-format
+msgid "undocumented python class: %s :: %s"
+msgstr "未文件化的 python class： %s :: %s"
+
+#: ext/coverage.py:492
+#, python-format
+msgid "undocumented python method: %s :: %s :: %s"
+msgstr "未文件化的 python method： %s :: %s :: %s"
+
+#: ext/todo.py:61
+msgid "Todo"
+msgstr "Todo"
+
+#: ext/todo.py:94
+#, python-format
+msgid "TODO entry found: %s"
+msgstr "找到 TODO 項目： %s"
+
+#: ext/todo.py:152
+msgid "<<original entry>>"
+msgstr "<<original entry>>"
+
+#: ext/todo.py:154
+#, python-format
+msgid "(The <<original entry>> is located in %s, line %d.)"
+msgstr "(<<original entry>> 見 %s ，第 %d 行)"
+
+#: ext/todo.py:166
+msgid "original entry"
+msgstr "原始記錄"
+
+#: builders/texinfo.py:45
+#, python-format
+msgid "The Texinfo files are in %(outdir)s."
+msgstr "Texinfo 檔案在 %(outdir)s 。"
+
+#: builders/texinfo.py:48
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through makeinfo\n"
+"(use 'make info' here to do that automatically)."
+msgstr "\n在該目錄中執行 'make' 以透過 makeinfo 執行這些\n（在此使用 'make info' 以自動執行）"
+
+#: builders/texinfo.py:77
+msgid "no \"texinfo_documents\" config value found; no documents will be written"
+msgstr "未找到 \"texinfo_documents\" 組態值；不會編寫任何文件"
+
+#: builders/texinfo.py:89
+#, python-format
+msgid "\"texinfo_documents\" config value references unknown document %s"
+msgstr "\"texinfo_documents\" 組態值引用未知的文件 %s"
+
+#: builders/latex/__init__.py:325 builders/texinfo.py:113
+#, python-format
+msgid "processing %s"
+msgstr "正在處理 %s"
+
+#: builders/latex/__init__.py:347 builders/manpage.py:54
+#: builders/singlehtml.py:176 builders/texinfo.py:119
+msgid "writing"
+msgstr "編寫中"
+
+#: builders/latex/__init__.py:405 builders/texinfo.py:172
+msgid "resolving references..."
+msgstr "正在解析參照..."
+
+#: builders/latex/__init__.py:416 builders/texinfo.py:182
+msgid " (in "
+msgstr " (於 "
+
+#: builders/_epub_base.py:422 builders/html/__init__.py:780
+#: builders/latex/__init__.py:481 builders/texinfo.py:198
+msgid "copying images... "
+msgstr "正在複製圖片..."
+
+#: builders/_epub_base.py:444 builders/latex/__init__.py:496
+#: builders/texinfo.py:215
+#, python-format
+msgid "cannot copy image file %r: %s"
+msgstr "無法複製圖片檔 %r: %s"
+
+#: builders/texinfo.py:222
+msgid "copying Texinfo support files"
+msgstr "正在複製 Texinfo 支援檔案"
+
+#: builders/texinfo.py:230
+#, python-format
+msgid "error writing file Makefile: %s"
+msgstr "錯誤寫入檔案 Makefile： %s"
+
+#: builders/dummy.py:19
+msgid "The dummy builder generates no files."
+msgstr "虛擬建立器未產生任何檔案。"
+
+#: builders/linkcheck.py:78
+#, python-format
+msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
+msgstr "尋找以上輸出或 %(outdir)s/output.txt 中的任何錯誤"
+
+#: builders/linkcheck.py:150
+#, python-format
+msgid "broken link: %s (%s)"
+msgstr "錯誤連結： %s (%s)"
+
+#: builders/linkcheck.py:549
+#, python-format
+msgid "Anchor '%s' not found"
+msgstr "未找到錨 '%s'"
+
+#: builders/linkcheck.py:758
+msgid "linkcheck_allowed_redirects. Expected a dictionary."
+msgstr ""
+
+#: builders/linkcheck.py:768
+#, python-format
+msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
+msgstr "在 linkcheck_allowed_redirects 編譯 regex 失敗： %r %s"
+
+#: builders/changes.py:29
+#, python-format
+msgid "The overview file is in %(outdir)s."
+msgstr "概觀檔案是在 %(outdir)s 。"
+
+#: builders/changes.py:56
+#, python-format
+msgid "no changes in version %s."
+msgstr "在 %s 版中無變更"
+
+#: builders/changes.py:58
+msgid "writing summary file..."
+msgstr "正在寫入摘要檔案..."
+
+#: builders/changes.py:70
+msgid "Builtins"
+msgstr "內建"
+
+#: builders/changes.py:72
+msgid "Module level"
+msgstr "模組層次"
+
+#: builders/changes.py:124
+msgid "copying source files..."
+msgstr "正在複製原始檔案..."
+
+#: builders/changes.py:133
+#, python-format
+msgid "could not read %r for changelog creation"
+msgstr "在變更日誌建立時無法讀取 %r"
+
+#: builders/text.py:29
+#, python-format
+msgid "The text files are in %(outdir)s."
+msgstr "文字檔案在 %(outdir)s 。"
+
+#: builders/html/__init__.py:1255 builders/text.py:76 builders/xml.py:90
+#, python-format
+msgid "error writing file %s: %s"
+msgstr "錯誤寫入檔案 %s: %s"
+
+#: builders/epub3.py:84
+#, python-format
+msgid "The ePub file is in %(outdir)s."
+msgstr "ePub 檔案是在 %(outdir)s 。"
+
+#: builders/epub3.py:189
+msgid "writing nav.xhtml file..."
+msgstr "正在寫入 nav.xhtml 檔案..."
+
+#: builders/epub3.py:221
+msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
+msgstr "conf 值 \"epub_language\" (或 \"language\") 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:227
+msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
+msgstr "conf 值  \"epub_uid\" 在 EPUB3 應該是 XML NAME"
+
+#: builders/epub3.py:232
+msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
+msgstr "conf 值 \"epub_title\" (或 \"html_title\") 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:238
+msgid "conf value \"epub_author\" should not be empty for EPUB3"
+msgstr "conf 值  \"epub_author\" 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:242
+msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
+msgstr "conf 值 \"epub_contributor\" 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:247
+msgid "conf value \"epub_description\" should not be empty for EPUB3"
+msgstr "conf 值  \"epub_description\" 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:251
+msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
+msgstr "conf 值 \"epub_publisher\" 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:256
+msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
+msgstr "conf 值 \"epub_copyright\" (或 \"copyright\") 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:262
+msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
+msgstr "conf 值 \"epub_identifier\" 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:265
+msgid "conf value \"version\" should not be empty for EPUB3"
+msgstr "conf 值 \"version\" 在 EPUB3 不應該為空"
+
+#: builders/epub3.py:279 builders/html/__init__.py:1305
+#, python-format
+msgid "invalid css_file: %r, ignored"
+msgstr "無效的 css_file: %r, 已略過"
+
+#: builders/manpage.py:37
+#, python-format
+msgid "The manual pages are in %(outdir)s."
+msgstr "手冊頁面在 %(outdir)s"
+
+#: builders/manpage.py:45
+msgid "no \"man_pages\" config value found; no manual pages will be written"
+msgstr "未找到 \"man_pages\" 組態值：不會編寫任何手冊頁面"
+
+#: builders/manpage.py:71
+#, python-format
+msgid "\"man_pages\" config value references unknown document %s"
+msgstr "\"man_pages\" 組態值引用未知的文件 %s"
+
+#: builders/gettext.py:244
+#, python-format
+msgid "The message catalogs are in %(outdir)s."
+msgstr "訊息目錄是在 %(outdir)s"
+
+#: builders/__init__.py:395 builders/gettext.py:265
+#, python-format
+msgid "building [%s]: "
+msgstr "正在建立 [%s]："
+
+#: builders/gettext.py:266
+#, python-format
+msgid "targets for %d template files"
+msgstr "模板檔 %d 的目標"
+
+#: builders/gettext.py:271
+msgid "reading templates... "
+msgstr "正在讀取模板..."
+
+#: builders/gettext.py:307
+msgid "writing message catalogs... "
+msgstr "正在寫入訊息目錄..."
+
+#: builders/xml.py:31
+#, python-format
+msgid "The XML files are in %(outdir)s."
+msgstr "XML 檔案在 %(outdir)s 。"
+
+#: builders/xml.py:101
+#, python-format
+msgid "The pseudo-XML files are in %(outdir)s."
+msgstr "pseudo-XML 檔案在 %(outdir)s 。"
+
+#: builders/_epub_base.py:223
+#, python-format
+msgid "duplicated ToC entry found: %s"
+msgstr "找到了重複的 ToC 項目： %s"
+
+#: builders/_epub_base.py:433
+#, python-format
+msgid "cannot read image file %r: copying it instead"
+msgstr "無法讀取圖片檔 %r: 正在複製它做為替代"
+
+#: builders/_epub_base.py:464
+#, python-format
+msgid "cannot write image file %r: %s"
+msgstr "無法寫入圖片檔 %r: %s"
+
+#: builders/_epub_base.py:476
+msgid "Pillow not found - copying image files"
+msgstr "未找到 Pillow - 正在複製圖片檔"
+
+#: builders/_epub_base.py:511
+msgid "writing mimetype file..."
+msgstr "正在寫入 mimetype 檔案..."
+
+#: builders/_epub_base.py:520
+msgid "writing META-INF/container.xml file..."
+msgstr "正在寫入 META-INF/container.xml 檔案..."
+
+#: builders/_epub_base.py:558
+msgid "writing content.opf file..."
+msgstr "正在寫入 content.opf 檔案..."
+
+#: builders/_epub_base.py:591
+#, python-format
+msgid "unknown mimetype for %s, ignoring"
+msgstr "對於 %s 未知的 mimetype，忽略中"
+
+#: builders/_epub_base.py:745
+msgid "node has an invalid level"
+msgstr ""
+
+#: builders/_epub_base.py:765
+msgid "writing toc.ncx file..."
+msgstr "正在寫入 toc.ncx 檔案..."
+
+#: builders/_epub_base.py:794
+#, python-format
+msgid "writing %s file..."
+msgstr "正在寫入 %s 檔案..."
+
+#: builders/__init__.py:224
+#, python-format
+msgid "a suitable image for %s builder not found: %s (%s)"
+msgstr "未找到對於 %s builder 適用的圖片：%s (%s)"
+
+#: builders/__init__.py:232
+#, python-format
+msgid "a suitable image for %s builder not found: %s"
+msgstr "未找到對於 %s builder 適用的圖片：%s"
+
+#: builders/__init__.py:255
+msgid "building [mo]: "
+msgstr "建立 [mo]："
+
+#: builders/__init__.py:258 builders/__init__.py:759 builders/__init__.py:791
+msgid "writing output... "
+msgstr "編寫輸出..."
+
+#: builders/__init__.py:275
+#, python-format
+msgid "all of %d po files"
+msgstr "所有的 %d po 檔"
+
+#: builders/__init__.py:297
+#, python-format
+msgid "targets for %d po files that are specified"
+msgstr "對於指定的 po 檔 %d 的目標"
+
+#: builders/__init__.py:309
+#, python-format
+msgid "targets for %d po files that are out of date"
+msgstr "對於已過期 po 檔 %d 的目標"
+
+#: builders/__init__.py:319
+msgid "all source files"
+msgstr "所有原始檔案"
+
+#: builders/__init__.py:330
+#, python-format
+msgid "file %r given on command line does not exist, "
+msgstr "在命令列給的檔案 %r 不存在，"
+
+#: builders/__init__.py:337
+#, python-format
+msgid ""
+"file %r given on command line is not under the source directory, ignoring"
+msgstr "在命令列給的檔案 %r 不在來源資料夾下，忽略中"
+
+#: builders/__init__.py:348
+#, python-format
+msgid "file %r given on command line is not a valid document, ignoring"
+msgstr "在命令列給的檔案 %r 不是有效的文件，忽略中"
+
+#: builders/__init__.py:361
+#, python-format
+msgid "%d source files given on command line"
+msgstr "在命令列給了 %d 個原始檔案"
+
+#: builders/__init__.py:377
+#, python-format
+msgid "targets for %d source files that are out of date"
+msgstr "%d 個過時原始檔案的目標"
+
+#: builders/__init__.py:406
+msgid "looking for now-outdated files... "
+msgstr "正在尋找目前已過期的檔案..."
+
+#: builders/__init__.py:410
+#, python-format
+msgid "%d found"
+msgstr "已找到 %d"
+
+#: builders/__init__.py:412
+msgid "none found"
+msgstr "找不到任何結果"
+
+#: builders/__init__.py:419
+msgid "pickling environment"
+msgstr "正在 pickle 環境"
+
+#: builders/__init__.py:426
+msgid "checking consistency"
+msgstr "正在檢查一致性"
+
+#: builders/__init__.py:430
+msgid "no targets are out of date."
+msgstr "沒有過時的目標。"
+
+#: builders/__init__.py:469
+msgid "updating environment: "
+msgstr "正在更新環境："
+
+#: builders/__init__.py:494
+#, python-format
+msgid "%s added, %s changed, %s removed"
+msgstr "%s 已新增， %s 已變更， %s 已移除"
+
+#: builders/__init__.py:531
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it matches a "
+"built-in exclude pattern %r. Please move your master document to a different"
+" location."
+msgstr ""
+
+#: builders/__init__.py:540
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it matches an "
+"exclude pattern specified in conf.py, %r. Please remove this pattern from "
+"conf.py."
+msgstr ""
+
+#: builders/__init__.py:551
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it is not included"
+" in the custom include_patterns = %r. Ensure that a pattern in "
+"include_patterns matches the master document."
+msgstr ""
+
+#: builders/__init__.py:558
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s). The master document must "
+"be within the source directory or a subdirectory of it."
+msgstr ""
+
+#: builders/__init__.py:576 builders/__init__.py:592
+msgid "reading sources... "
+msgstr "正在讀取來源..."
+
+#: builders/__init__.py:713
+#, python-format
+msgid "docnames to write: %s"
+msgstr "待寫入的 docname: %s"
+
+#: builders/__init__.py:715
+msgid "no docnames to write!"
+msgstr ""
+
+#: builders/__init__.py:728
+msgid "preparing documents"
+msgstr "正在準備文件"
+
+#: builders/__init__.py:731
+msgid "copying assets"
+msgstr "正在複製資產 (asset)"
+
+#: builders/__init__.py:883
+#, python-format
+msgid "undecodable source characters, replacing with \"?\": %r"
+msgstr "無法解碼的原始字元，以 \"?\" 取代： %r"
+
+#: builders/singlehtml.py:35
+#, python-format
+msgid "The HTML page is in %(outdir)s."
+msgstr "HTML 頁面在 %(outdir)s 。"
+
+#: builders/singlehtml.py:171
+msgid "assembling single document"
+msgstr "正在組合單一文件"
+
+#: builders/singlehtml.py:189
+msgid "writing additional files"
+msgstr "正在寫入附加檔案"
+
+#: _cli/__init__.py:73
+msgid "Usage:"
+msgstr "使用："
+
+#: _cli/__init__.py:75
+#, python-brace-format
+msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
+msgstr "{0} [OPTIONS] <COMMAND> [<ARGS>]"
+
+#: _cli/__init__.py:78
+msgid "  The Sphinx documentation generator."
+msgstr "Sphinx 說明文件產生器。"
+
+#: _cli/__init__.py:87
+msgid "Commands:"
+msgstr "指令："
+
+#: _cli/__init__.py:98
+msgid "Options"
+msgstr "選項"
+
+#: _cli/__init__.py:113 _cli/__init__.py:181
+msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
+msgstr "如需更多資訊，請參閱 https://www.sphinx-doc.org/en/master/man/。"
+
+#: _cli/__init__.py:171
+#, python-brace-format
+msgid ""
+"{0}: error: {1}\n"
+"Run '{0} --help' for information"
+msgstr "{0}: 錯誤: {1}\n執行 '{0} --help' 取得更多資訊"
+
+#: _cli/__init__.py:179
+msgid "   Manage documentation with Sphinx."
+msgstr "以 Sphinx 管理說明文件。"
+
+#: _cli/__init__.py:191
+msgid "Show the version and exit."
+msgstr "顯示版本並離開。"
+
+#: _cli/__init__.py:199
+msgid "Show this message and exit."
+msgstr "顯示此訊息並離開。"
+
+#: _cli/__init__.py:203
+msgid "Logging"
+msgstr "登錄"
+
+#: _cli/__init__.py:210
+msgid "Increase verbosity (can be repeated)"
+msgstr "增加詳細內容（可以重複）"
+
+#: _cli/__init__.py:218
+msgid "Only print errors and warnings."
+msgstr "只印出錯誤及警告。"
+
+#: _cli/__init__.py:225
+msgid "No output at all"
+msgstr "完全沒有輸出"
+
+#: _cli/__init__.py:231
+msgid "<command>"
+msgstr "<command>"
+
+#: _cli/__init__.py:263
+msgid "See 'sphinx --help'.\n"
+msgstr "請參閱 'sphinx --help'。\n"
+
+#: environment/__init__.py:86
+msgid "new config"
+msgstr "新的組態"
+
+#: environment/__init__.py:87
+msgid "config changed"
+msgstr "組態已變更"
+
+#: environment/__init__.py:88
+msgid "extensions changed"
+msgstr "擴充套件已變更"
+
+#: environment/__init__.py:253
+msgid "build environment version not current"
+msgstr "建立環境的版本不是目前的"
+
+#: environment/__init__.py:255
+msgid "source directory has changed"
+msgstr "來源資料夾已變更"
+
+#: environment/__init__.py:325
+#, python-format
+msgid "The configuration has changed (1 option: %r)"
+msgstr ""
+
+#: environment/__init__.py:330
+#, python-format
+msgid "The configuration has changed (%d options: %s)"
+msgstr ""
+
+#: environment/__init__.py:336
+#, python-format
+msgid "The configuration has changed (%d options: %s, ...)"
+msgstr ""
+
+#: environment/__init__.py:379
+msgid ""
+"This environment is incompatible with the selected builder, please choose "
+"another doctree directory."
+msgstr "這個環境與所選的 builder 不相容，請選擇另一個 doctree 資料夾。"
+
+#: environment/__init__.py:493
+#, python-format
+msgid "Failed to scan documents in %s: %r"
+msgstr "無法掃描 %s 中的文件： %r"
+
+#: environment/__init__.py:658 ext/intersphinx/_resolve.py:234
+#, python-format
+msgid "Domain %r is not registered"
+msgstr "Domain %r 未被註冊"
+
+#: environment/__init__.py:813
+msgid "document isn't included in any toctree"
+msgstr "文件未被包含於任何 toctree"
+
+#: environment/__init__.py:859
+msgid "self referenced toctree found. Ignored."
+msgstr "找到自我參照的 toctree。已略過。"
+
+#: environment/__init__.py:889
+#, python-format
+msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
+msgstr ""
+
+#: environment/adapters/toctree.py:324
+#, python-format
+msgid "circular toctree references detected, ignoring: %s <- %s"
+msgstr "偵測到循環的 toctree 參照，忽略中： %s <- %s"
+
+#: environment/adapters/toctree.py:349
+#, python-format
+msgid ""
+"toctree contains reference to document %r that doesn't have a title: no link"
+" will be generated"
+msgstr "toctree 包含了到文件 %r 的參照，該文件沒有標題：不會產生任何鏈接"
+
+#: environment/adapters/toctree.py:364
+#, python-format
+msgid "toctree contains reference to non-included document %r"
+msgstr "toctree 包含了 non-included 文件 %r 的參照"
+
+#: environment/adapters/toctree.py:367
+#, python-format
+msgid "toctree contains reference to non-existing document %r"
+msgstr ""
+
+#: environment/adapters/indexentries.py:123
+#, python-format
+msgid "see %s"
+msgstr "參考 %s"
+
+#: environment/adapters/indexentries.py:133
+#, python-format
+msgid "see also %s"
+msgstr "請參閱 %s"
+
+#: environment/adapters/indexentries.py:141
+#, python-format
+msgid "unknown index entry type %r"
+msgstr "未知的索引項目型別 %r"
+
+#: environment/adapters/indexentries.py:268
+#: templates/latex/sphinxmessages.sty.jinja:11
+msgid "Symbols"
+msgstr "符號"
+
+#: environment/collectors/asset.py:98
+#, python-format
+msgid "image file not readable: %s"
+msgstr "影像檔案無法讀取： %s"
+
+#: environment/collectors/asset.py:126
+#, python-format
+msgid "image file %s not readable: %s"
+msgstr "影像檔案 %s 無法讀取： %s"
+
+#: environment/collectors/asset.py:163
+#, python-format
+msgid "download file not readable: %s"
+msgstr "下載檔案無法讀取： %s"
+
+#: environment/collectors/toctree.py:259
+#, python-format
+msgid "%s is already assigned section numbers (nested numbered toctree?)"
+msgstr "%s 已經被指定段落編號（巢狀編號的 toctree？）"
+
+#: templates/latex/longtable.tex.jinja:52
+#: templates/latex/sphinxmessages.sty.jinja:8
+msgid "continued from previous page"
+msgstr "繼續上一頁"
+
+#: templates/latex/longtable.tex.jinja:63
+#: templates/latex/sphinxmessages.sty.jinja:9
+msgid "continues on next page"
+msgstr "繼續下一頁"
+
+#: templates/latex/sphinxmessages.sty.jinja:10
+msgid "Non-alphabetical"
+msgstr "非依字母順序"
+
+#: templates/latex/sphinxmessages.sty.jinja:12
+msgid "Numbers"
+msgstr "數字"
+
+#: templates/latex/sphinxmessages.sty.jinja:13
+msgid "page"
+msgstr "頁"
+
+#: builders/latex/__init__.py:209 templates/latex/latex.tex.jinja:91
+msgid "Release"
+msgstr "發佈"
+
+#: _cli/util/errors.py:190
+msgid "Interrupted!"
+msgstr "已中斷！"
+
+#: _cli/util/errors.py:194
+msgid "reStructuredText markup error!"
+msgstr ""
+
+#: _cli/util/errors.py:200
+msgid "Encoding error!"
+msgstr ""
+
+#: _cli/util/errors.py:203
+msgid "Recursion error!"
+msgstr ""
+
+#: _cli/util/errors.py:207
+msgid ""
+"This can happen with very large or deeply nested source files. You can "
+"carefully increase the default Python recursion limit of 1,000 in conf.py "
+"with e.g.:"
+msgstr ""
+
+#: _cli/util/errors.py:227
+msgid "Starting debugger:"
+msgstr ""
+
+#: _cli/util/errors.py:235
+msgid "The full traceback has been saved in:"
+msgstr "完整的回溯已儲存於："
+
+#: _cli/util/errors.py:240
+msgid ""
+"To report this error to the developers, please open an issue at "
+"<https://github.com/sphinx-doc/sphinx/issues/>. Thanks!"
+msgstr "要向開發者回報此錯誤，請在 <https://github.com/sphinx-doc/sphinx/issues/> 開啟一個 issue。謝謝！"
+
+#: _cli/util/errors.py:246
+msgid ""
+"Please also report this if it was a user error, so that a better error "
+"message can be provided next time."
+msgstr "如果這是一個使用者錯誤，請一併回報，如此下次才能提供較佳的錯誤訊息。"
+
+#: builders/html/_build_info.py:32
+msgid "failed to read broken build info file (unknown version)"
+msgstr ""
+
+#: builders/html/_build_info.py:36
+msgid "failed to read broken build info file (missing config entry)"
+msgstr ""
+
+#: builders/html/_build_info.py:39
+msgid "failed to read broken build info file (missing tags entry)"
+msgstr ""
+
+#: builders/html/__init__.py:114
+#, python-format
+msgid "The HTML pages are in %(outdir)s."
+msgstr "HTML 頁面在 %(outdir)s 。"
+
+#: builders/html/__init__.py:349
+#, python-format
+msgid "Failed to read build info file: %r"
+msgstr "讀取 build info 檔失敗： %r"
+
+#: builders/html/__init__.py:365
+msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
+msgstr ""
+
+#: builders/html/__init__.py:367
+msgid "building [html]: "
+msgstr ""
+
+#: builders/html/__init__.py:384
+#, python-format
+msgid ""
+"template %s has been changed since the previous build, all docs will be "
+"rebuilt"
+msgstr ""
+
+#: builders/html/__init__.py:508 themes/basic/defindex.html:23
+msgid "General Index"
+msgstr "總索引"
+
+#: builders/html/__init__.py:508
+msgid "index"
+msgstr "索引"
+
+#: builders/html/__init__.py:561
+#, python-format
+msgid "Logo of %s"
+msgstr ""
+
+#: builders/html/__init__.py:590
+msgid "next"
+msgstr "下一頁"
+
+#: builders/html/__init__.py:599
+msgid "previous"
+msgstr "上一頁"
+
+#: builders/html/__init__.py:697
+msgid "generating indices"
+msgstr "正在產生索引"
+
+#: builders/html/__init__.py:712
+msgid "writing additional pages"
+msgstr "正在編寫附加頁面"
+
+#: builders/html/__init__.py:795
+#, python-format
+msgid "cannot copy image file '%s': %s"
+msgstr ""
+
+#: builders/html/__init__.py:807
+msgid "copying downloadable files... "
+msgstr "正在複製可下載的檔案..."
+
+#: builders/html/__init__.py:819
+#, python-format
+msgid "cannot copy downloadable file %r: %s"
+msgstr "無法複製可下載的檔案 %r: %s"
+
+#: builders/html/__init__.py:865
+#, python-format
+msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
+msgstr ""
+
+#: builders/html/__init__.py:883
+#, python-format
+msgid "Failed to copy a file in html_static_file: %s: %r"
+msgstr "在 html_static_file 中複製一個檔案失敗： %s: %r "
+
+#: builders/html/__init__.py:918
+msgid "copying static files"
+msgstr "正在複製靜態檔案"
+
+#: builders/html/__init__.py:935
+#, python-format
+msgid "cannot copy static file %r"
+msgstr "無法複製靜態檔案 %r"
+
+#: builders/html/__init__.py:940
+msgid "copying extra files"
+msgstr "正在複製額外檔案"
+
+#: builders/html/__init__.py:950
+#, python-format
+msgid "cannot copy extra file %r"
+msgstr "無法複製額外檔案 %r"
+
+#: builders/html/__init__.py:956
+#, python-format
+msgid "Failed to write build info file: %r"
+msgstr "寫入 build info 檔失敗： %r"
+
+#: builders/html/__init__.py:1006
+msgid ""
+"search index couldn't be loaded, but not all documents will be built: the "
+"index will be incomplete."
+msgstr "搜尋索引無法被載入，但不是所有的文件都會被建置：索引將會是不完全的。"
+
+#: builders/html/__init__.py:1053
+#, python-format
+msgid "page %s matches two patterns in html_sidebars: %r and %r"
+msgstr "頁面 %s 在 html_sidebars 中符合兩個型樣： %r 和 %r"
+
+#: builders/html/__init__.py:1217
+#, python-format
+msgid ""
+"a Unicode error occurred when rendering the page %s. Please make sure all "
+"config values that contain non-ASCII content are Unicode strings."
+msgstr "在呈現頁面 %s 時發生了一個 Unicode 錯誤。請確認所有包含 non-ASCII 內容的組態值都是 Unicode 字串。"
+
+#: builders/html/__init__.py:1230
+#, python-format
+msgid ""
+"The '%s' theme does not support this version of Sphinx, because it uses the "
+"'style' field in HTML templates, which was  was deprecated in Sphinx 5.1 and"
+" removed in Sphinx 7.0. The theme must be updated to use the 'styles' field "
+"instead. See https://www.sphinx-"
+"doc.org/en/master/development/html_themes/templating.html#styles"
+msgstr ""
+
+#: builders/html/__init__.py:1238
+#, python-format
+msgid ""
+"An error happened in rendering the page %s.\n"
+"Reason: %r"
+msgstr "在呈現頁面 %s 時發生了一個錯誤。\n原因： %r"
+
+#: builders/html/__init__.py:1271
+msgid "dumping object inventory"
+msgstr "正在傾印物件庫存"
+
+#: builders/html/__init__.py:1279
+#, python-format
+msgid "dumping search index in %s"
+msgstr "正在傾印搜尋索引於 %s"
+
+#: builders/html/__init__.py:1322
+#, python-format
+msgid "invalid js_file: %r, ignored"
+msgstr "無效的  js_file: %r, 已略過"
+
+#: builders/html/__init__.py:1356
+msgid "Many math_renderers are registered. But no math_renderer is selected."
+msgstr "多個 math_renderer 已被註冊。但是沒有 math_renderer 被選擇。"
+
+#: builders/html/__init__.py:1360
+#, python-format
+msgid "Unknown math_renderer %r is given."
+msgstr "未知的 math_renderer %r 被給予。"
+
+#: builders/html/__init__.py:1374
+#, python-format
+msgid "html_extra_path entry %r is placed inside outdir"
+msgstr "html_extra_path 項目 %r 被放入 outdir"
+
+#: builders/html/__init__.py:1379
+#, python-format
+msgid "html_extra_path entry %r does not exist"
+msgstr "html_extra_path 項目 %r 不存在"
+
+#: builders/html/__init__.py:1394
+#, python-format
+msgid "html_static_path entry %r is placed inside outdir"
+msgstr "html_static_path 項目 %r 被放入 outdir"
+
+#: builders/html/__init__.py:1399
+#, python-format
+msgid "html_static_path entry %r does not exist"
+msgstr "html_static_path 項目 %r 不存在"
+
+#: builders/html/__init__.py:1410 builders/latex/__init__.py:504
+#, python-format
+msgid "logo file %r does not exist"
+msgstr "標誌檔案 %r 不存在"
+
+#: builders/html/__init__.py:1421
+#, python-format
+msgid "favicon file %r does not exist"
+msgstr "favicon 檔案 %r 不存在"
+
+#: builders/html/__init__.py:1434
+#, python-format
+msgid ""
+"Values in 'html_sidebars' must be a list of strings. At least one pattern "
+"has a string value: %s. Change to `html_sidebars = %r`."
+msgstr ""
+
+#: builders/html/__init__.py:1447
+msgid ""
+"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
+"configuration options)"
+msgstr "HTML 4 已不再被 Sphinx 所支援。（在組態選項中偵測到 \"html4_writer=True\"）"
+
+#: builders/html/__init__.py:1463
+#, python-format
+msgid "%s %s documentation"
+msgstr "%s %s 說明文件"
+
+#: builders/latex/transforms.py:120
+msgid "Failed to get a docname!"
+msgstr "無法取得 docname！"
+
+#: builders/latex/transforms.py:121
+#, python-format
+msgid "Failed to get a docname for source %r!"
+msgstr ""
+
+#: builders/latex/transforms.py:487
+#, python-format
+msgid "No footnote was found for given reference node %r"
+msgstr "給定的參考節點 %r 找不到註腳"
+
+#: builders/latex/theming.py:88
+#, python-format
+msgid "%r doesn't have \"theme\" setting"
+msgstr "%r 沒有「主題」設定"
+
+#: builders/latex/theming.py:91
+#, python-format
+msgid "%r doesn't have \"%s\" setting"
+msgstr "%r 沒有 \"%s\" 設定"
+
+#: builders/latex/__init__.py:118
+#, python-format
+msgid "The LaTeX files are in %(outdir)s."
+msgstr "LaTeX 檔案在 %(outdir)s 。"
+
+#: builders/latex/__init__.py:121
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through (pdf)latex\n"
+"(use `make latexpdf' here to do that automatically)."
+msgstr "\n在該目錄中執行 'make' 以透過 (pdf)latex 執行這些\n（在此使用 'make latexpdf' 以自動執行）"
+
+#: builders/latex/__init__.py:159
+msgid "no \"latex_documents\" config value found; no documents will be written"
+msgstr "未找到 \"latex_documents\" 組態值；不會編寫任何文件"
+
+#: builders/latex/__init__.py:170
+#, python-format
+msgid "\"latex_documents\" config value references unknown document %s"
+msgstr "\"latex_documents\" 組態值引用未知的文件 %s"
+
+#: builders/latex/__init__.py:428
+msgid "copying TeX support files"
+msgstr "正在複製 TeX 支援檔案"
+
+#: builders/latex/__init__.py:465
+msgid "copying additional files"
+msgstr "正在複製附加檔案"
+
+#: builders/latex/__init__.py:536
+#, python-format
+msgid "Unknown configure key: latex_elements[%r], ignored."
+msgstr "未知的配置鍵： latex_elements[%r]，已略過。"
+
+#: builders/latex/__init__.py:544
+#, python-format
+msgid "Unknown theme option: latex_theme_options[%r], ignored."
+msgstr "未知的主題選項： latex_theme_options[%r],，已略過。"
+
 #: themes/classic/layout.html:12 themes/classic/static/sidebar.js.jinja:51
 msgid "Collapse sidebar"
 msgstr "收合側邊欄"
@@ -2634,15 +3052,6 @@ msgstr "前往"
 #: themes/agogo/layout.html:81 themes/basic/sourcelink.html:7
 msgid "Show Source"
 msgstr "顯示原始碼"
-
-#: themes/haiku/layout.html:16
-msgid "Contents"
-msgstr "內容"
-
-#: themes/basic/opensearch.xml:4
-#, python-format
-msgid "Search %(docstitle)s"
-msgstr "搜尋 %(docstitle)s"
 
 #: themes/basic/defindex.html:4
 msgid "Overview"
@@ -2689,17 +3098,9 @@ msgstr "全域模組索引"
 msgid "quick access to all modules"
 msgstr "迅速找到所有模組"
 
-#: builders/html/__init__.py:507 themes/basic/defindex.html:23
-msgid "General Index"
-msgstr "總索引"
-
 #: themes/basic/defindex.html:24
 msgid "all functions, classes, terms"
 msgstr "所有函式、類別、術語"
-
-#: themes/basic/sourcelink.html:4
-msgid "This Page"
-msgstr "本頁"
 
 #: themes/basic/genindex-single.html:26
 #, python-format
@@ -2711,33 +3112,25 @@ msgstr ""
 msgid "Full index on one page"
 msgstr "單頁完整索引"
 
-#: themes/basic/searchbox.html:4
-msgid "Quick search"
-msgstr "快速搜尋"
+#: themes/basic/search.html:20
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr "請啟用 Javascript 以開啟搜尋功能。"
 
-#: themes/basic/genindex-split.html:8
-msgid "Index pages by letter"
-msgstr "按字母索引頁面"
+#: themes/basic/search.html:28
+msgid ""
+"Searching for multiple words only shows matches that contain\n"
+"    all words."
+msgstr "搜尋多個關鍵字時，只會顯示包含所有關鍵字的結果。"
 
-#: themes/basic/genindex-split.html:17
-msgid "can be huge"
-msgstr "可能會很大"
+#: themes/basic/search.html:35
+msgid "search"
+msgstr "搜尋"
 
-#: themes/basic/relations.html:4
-msgid "Previous topic"
-msgstr "上個主題"
-
-#: themes/basic/relations.html:6
-msgid "previous chapter"
-msgstr "上一章"
-
-#: themes/basic/relations.html:11
-msgid "Next topic"
-msgstr "下個主題"
-
-#: themes/basic/relations.html:13
-msgid "next chapter"
-msgstr "下一章"
+#: themes/basic/sourcelink.html:4
+msgid "This Page"
+msgstr "本頁"
 
 #: themes/basic/layout.html:18
 msgid "Navigation"
@@ -2774,21 +3167,42 @@ msgid ""
 "%(sphinx_version)s."
 msgstr "使用 <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s 建立。"
 
-#: themes/basic/search.html:20
-msgid ""
-"Please activate JavaScript to enable the search\n"
-"    functionality."
-msgstr "請啟用 Javascript 以開啟搜尋功能。"
+#: themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "搜尋 %(docstitle)s"
 
-#: themes/basic/search.html:28
-msgid ""
-"Searching for multiple words only shows matches that contain\n"
-"    all words."
-msgstr "搜尋多個關鍵字時，只會顯示包含所有關鍵字的結果。"
+#: themes/basic/relations.html:4
+msgid "Previous topic"
+msgstr "上個主題"
 
-#: themes/basic/search.html:35
-msgid "search"
-msgstr "搜尋"
+#: themes/basic/relations.html:6
+msgid "previous chapter"
+msgstr "上一章"
+
+#: themes/basic/relations.html:11
+msgid "Next topic"
+msgstr "下個主題"
+
+#: themes/basic/relations.html:13
+msgid "next chapter"
+msgstr "下一章"
+
+#: themes/basic/searchbox.html:4
+msgid "Quick search"
+msgstr "快速搜尋"
+
+#: themes/basic/genindex-split.html:8
+msgid "Index pages by letter"
+msgstr "按字母索引頁面"
+
+#: themes/basic/genindex-split.html:17
+msgid "can be huge"
+msgstr "可能會很大"
+
+#: themes/haiku/layout.html:16
+msgid "Contents"
+msgstr "內容"
 
 #: themes/basic/static/sphinx_highlight.js:112
 msgid "Hide Search Matches"
@@ -2823,11 +3237,6 @@ msgstr "準備搜尋中…"
 msgid ", in "
 msgstr "，於 "
 
-#: themes/basic/changes/rstsource.html:5
-#, python-format
-msgid "%(filename)s &#8212; %(docstitle)s"
-msgstr "%(filename)s &#8212; %(docstitle)s"
-
 #: themes/basic/changes/frameset.html:5
 #: themes/basic/changes/versionchanges.html:12
 #, python-format
@@ -2851,752 +3260,14 @@ msgstr "C API 的變更"
 msgid "Other changes"
 msgstr "其他變更"
 
+#: themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &#8212; %(docstitle)s"
+msgstr "%(filename)s &#8212; %(docstitle)s"
+
 #: themes/classic/static/sidebar.js.jinja:42
 msgid "Expand sidebar"
 msgstr "展開側邊欄"
-
-#: domains/python/_annotations.py:529
-msgid "Positional-only parameter separator (PEP 570)"
-msgstr ""
-
-#: domains/python/_annotations.py:540
-msgid "Keyword-only parameters separator (PEP 3102)"
-msgstr ""
-
-#: domains/python/__init__.py:113 domains/python/__init__.py:278
-#, python-format
-msgid "%s() (in module %s)"
-msgstr "%s() (於 %s 模組中)"
-
-#: domains/python/__init__.py:180 domains/python/__init__.py:374
-#: domains/python/__init__.py:434 domains/python/__init__.py:474
-#, python-format
-msgid "%s (in module %s)"
-msgstr "%s (於 %s 模組中)"
-
-#: domains/python/__init__.py:182
-#, python-format
-msgid "%s (built-in variable)"
-msgstr "%s (內建變數)"
-
-#: domains/python/__init__.py:217
-#, python-format
-msgid "%s (built-in class)"
-msgstr "%s (內建類別)"
-
-#: domains/python/__init__.py:218
-#, python-format
-msgid "%s (class in %s)"
-msgstr "%s (%s 中的類別)"
-
-#: domains/python/__init__.py:283
-#, python-format
-msgid "%s() (%s class method)"
-msgstr "%s() (%s 的類別方法)"
-
-#: domains/python/__init__.py:285
-#, python-format
-msgid "%s() (%s static method)"
-msgstr "%s() (%s 的靜態方法)"
-
-#: domains/python/__init__.py:438
-#, python-format
-msgid "%s (%s property)"
-msgstr "%s (%s 的特性)"
-
-#: domains/python/__init__.py:478
-#, python-format
-msgid "%s (type alias in %s)"
-msgstr ""
-
-#: domains/python/__init__.py:638
-msgid "Python Module Index"
-msgstr "Python 模組索引"
-
-#: domains/python/__init__.py:639
-msgid "modules"
-msgstr "模組"
-
-#: domains/python/__init__.py:717
-msgid "Deprecated"
-msgstr "已棄用"
-
-#: domains/python/__init__.py:743
-msgid "exception"
-msgstr "例外"
-
-#: domains/python/__init__.py:745
-msgid "class method"
-msgstr "類別方法"
-
-#: domains/python/__init__.py:746
-msgid "static method"
-msgstr "靜態方法"
-
-#: domains/python/__init__.py:748
-msgid "property"
-msgstr "特性"
-
-#: domains/python/__init__.py:749
-msgid "type alias"
-msgstr ""
-
-#: domains/python/__init__.py:818
-#, python-format
-msgid ""
-"duplicate object description of %s, other instance in %s, use :no-index: for"
-" one of them"
-msgstr "重複的 %s 的物件描述，在 %s 有其他實例，請在它們其中之一使用 :no-index:"
-
-#: domains/python/__init__.py:978
-#, python-format
-msgid "more than one target found for cross-reference %r: %s"
-msgstr "為交互參照 %r 找到多於一個目標： %s"
-
-#: domains/python/__init__.py:1052
-msgid " (deprecated)"
-msgstr "（已棄用）"
-
-#: domains/c/__init__.py:326 domains/cpp/__init__.py:483
-#: domains/python/_object.py:190 ext/napoleon/docstring.py:974
-msgid "Parameters"
-msgstr "參數"
-
-#: domains/python/_object.py:206
-msgid "Variables"
-msgstr "變數"
-
-#: domains/python/_object.py:214
-msgid "Raises"
-msgstr "引發"
-
-#: domains/cpp/__init__.py:159
-msgid "Template Parameters"
-msgstr "模板參數"
-
-#: domains/cpp/__init__.py:302
-#, python-format
-msgid "%s (C++ %s)"
-msgstr "%s (C++ %s)"
-
-#: domains/cpp/__init__.py:392 domains/cpp/_symbol.py:942
-#, python-format
-msgid ""
-"Duplicate C++ declaration, also defined at %s:%s.\n"
-"Declaration is '.. cpp:%s:: %s'."
-msgstr "重複的 C++ 宣告，亦被定義於 %s:%s。\n宣告是 '.. cpp:%s:: %s'。"
-
-#: domains/c/__init__.py:333 domains/cpp/__init__.py:496
-msgid "Return values"
-msgstr "回傳值"
-
-#: domains/c/__init__.py:754 domains/cpp/__init__.py:940
-msgid "union"
-msgstr "union"
-
-#: domains/c/__init__.py:749 domains/cpp/__init__.py:942
-msgid "member"
-msgstr "成員函數"
-
-#: domains/c/__init__.py:757 domains/cpp/__init__.py:943
-msgid "type"
-msgstr "型別"
-
-#: domains/cpp/__init__.py:944
-msgid "concept"
-msgstr "概念"
-
-#: domains/c/__init__.py:755 domains/cpp/__init__.py:945
-msgid "enum"
-msgstr "enum"
-
-#: domains/c/__init__.py:756 domains/cpp/__init__.py:946
-msgid "enumerator"
-msgstr "enumerator"
-
-#: domains/c/__init__.py:760 domains/cpp/__init__.py:949
-msgid "function parameter"
-msgstr "函式參數"
-
-#: domains/cpp/__init__.py:952
-msgid "template parameter"
-msgstr "模板參數"
-
-#: domains/c/__init__.py:211
-#, python-format
-msgid "%s (C %s)"
-msgstr "%s (C %s)"
-
-#: domains/c/__init__.py:277 domains/c/_symbol.py:557
-#, python-format
-msgid ""
-"Duplicate C declaration, also defined at %s:%s.\n"
-"Declaration is '.. c:%s:: %s'."
-msgstr "重複的 C 宣告，亦被定義於 %s:%s。\n宣告是 '.. c:%s:: %s'。"
-
-#: domains/c/__init__.py:750
-msgid "variable"
-msgstr "變數"
-
-#: domains/c/__init__.py:752
-msgid "macro"
-msgstr "巨集"
-
-#: domains/c/__init__.py:753
-msgid "struct"
-msgstr "結構"
-
-#: domains/std/__init__.py:91 domains/std/__init__.py:111
-#, python-format
-msgid "environment variable; %s"
-msgstr "環境變數; %s"
-
-#: domains/std/__init__.py:119
-#, python-format
-msgid "%s; configuration value"
-msgstr ""
-
-#: domains/std/__init__.py:175
-msgid "Type"
-msgstr ""
-
-#: domains/std/__init__.py:185
-msgid "Default"
-msgstr ""
-
-#: domains/std/__init__.py:242
-#, python-format
-msgid ""
-"Malformed option description %r, should look like \"opt\", \"-opt args\", \""
-"--opt args\", \"/opt args\" or \"+opt args\""
-msgstr "異常的選項敘述 %r ，應該要看起來像 \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" 或 \"+opt args\""
-
-#: domains/std/__init__.py:319
-#, python-format
-msgid "%s command line option"
-msgstr "%s 命令列選項"
-
-#: domains/std/__init__.py:321
-msgid "command line option"
-msgstr "命令列選項"
-
-#: domains/std/__init__.py:461
-msgid "glossary term must be preceded by empty line"
-msgstr "術語表項目必須有空白行在前"
-
-#: domains/std/__init__.py:474
-msgid "glossary terms must not be separated by empty lines"
-msgstr "術語表項目不可以被空白行分隔"
-
-#: domains/std/__init__.py:486 domains/std/__init__.py:504
-msgid "glossary seems to be misformatted, check indentation"
-msgstr "術語表似乎有格式錯誤，請檢查縮排"
-
-#: domains/std/__init__.py:729
-msgid "glossary term"
-msgstr "雜項術語"
-
-#: domains/std/__init__.py:730
-msgid "grammar token"
-msgstr "語法單詞"
-
-#: domains/std/__init__.py:731
-msgid "reference label"
-msgstr "參照標籤"
-
-#: domains/std/__init__.py:733
-msgid "environment variable"
-msgstr "環境變數"
-
-#: domains/std/__init__.py:734
-msgid "program option"
-msgstr "程式選項"
-
-#: domains/std/__init__.py:735
-msgid "document"
-msgstr "文件"
-
-#: domains/std/__init__.py:772 domains/std/__init__.py:785
-msgid "Module Index"
-msgstr "模組索引"
-
-#: domains/std/__init__.py:857
-#, python-format
-msgid "duplicate %s description of %s, other instance in %s"
-msgstr "重複 %s 的描述 %s，亦出現於 %s"
-
-#: domains/std/__init__.py:1113
-msgid "numfig is disabled. :numref: is ignored."
-msgstr "numfig 已停用。 :numref: 已略過。"
-
-#: domains/std/__init__.py:1124
-#, python-format
-msgid "Failed to create a cross reference. Any number is not assigned: %s"
-msgstr "無法建立一個交互參照。任一數字未被指定： %s"
-
-#: domains/std/__init__.py:1138
-#, python-format
-msgid "the link has no caption: %s"
-msgstr "這個連結沒有標題： %s"
-
-#: domains/std/__init__.py:1153
-#, python-format
-msgid "invalid numfig_format: %s (%r)"
-msgstr "無效的 numfig_format: %s (%r)"
-
-#: domains/std/__init__.py:1157
-#, python-format
-msgid "invalid numfig_format: %s"
-msgstr "無效的 numfig_format: %s"
-
-#: domains/std/__init__.py:1453
-#, python-format
-msgid "undefined label: %r"
-msgstr "未定義的標籤： %r"
-
-#: domains/std/__init__.py:1456
-#, python-format
-msgid "Failed to create a cross reference. A title or caption not found: %r"
-msgstr "無法建立一個交互參照。未找到標題或說明： %r"
-
-#: environment/adapters/toctree.py:324
-#, python-format
-msgid "circular toctree references detected, ignoring: %s <- %s"
-msgstr "偵測到循環的 toctree 參照，忽略中： %s <- %s"
-
-#: environment/adapters/toctree.py:349
-#, python-format
-msgid ""
-"toctree contains reference to document %r that doesn't have a title: no link"
-" will be generated"
-msgstr "toctree 包含了到文件 %r 的參照，該文件沒有標題：不會產生任何鏈接"
-
-#: environment/adapters/toctree.py:364
-#, python-format
-msgid "toctree contains reference to non-included document %r"
-msgstr "toctree 包含了 non-included 文件 %r 的參照"
-
-#: environment/adapters/toctree.py:367
-#, python-format
-msgid "toctree contains reference to non-existing document %r"
-msgstr ""
-
-#: environment/adapters/indexentries.py:123
-#, python-format
-msgid "see %s"
-msgstr "參考 %s"
-
-#: environment/adapters/indexentries.py:133
-#, python-format
-msgid "see also %s"
-msgstr "也參考 %s"
-
-#: environment/adapters/indexentries.py:141
-#, python-format
-msgid "unknown index entry type %r"
-msgstr "未知的索引項目型別 %r"
-
-#: environment/adapters/indexentries.py:268
-#: templates/latex/sphinxmessages.sty.jinja:11
-msgid "Symbols"
-msgstr "符號"
-
-#: environment/collectors/asset.py:98
-#, python-format
-msgid "image file not readable: %s"
-msgstr "影像檔案無法讀取： %s"
-
-#: environment/collectors/asset.py:126
-#, python-format
-msgid "image file %s not readable: %s"
-msgstr "影像檔案 %s 無法讀取： %s"
-
-#: environment/collectors/asset.py:163
-#, python-format
-msgid "download file not readable: %s"
-msgstr "下載檔案無法讀取： %s"
-
-#: environment/collectors/toctree.py:259
-#, python-format
-msgid "%s is already assigned section numbers (nested numbered toctree?)"
-msgstr "%s 已經被指定段落編號（巢狀編號的 toctree？）"
-
-#: _cli/util/errors.py:190
-msgid "Interrupted!"
-msgstr "已中斷！"
-
-#: _cli/util/errors.py:194
-msgid "reStructuredText markup error!"
-msgstr ""
-
-#: _cli/util/errors.py:200
-msgid "Encoding error!"
-msgstr ""
-
-#: _cli/util/errors.py:203
-msgid "Recursion error!"
-msgstr ""
-
-#: _cli/util/errors.py:207
-msgid ""
-"This can happen with very large or deeply nested source files. You can "
-"carefully increase the default Python recursion limit of 1,000 in conf.py "
-"with e.g.:"
-msgstr ""
-
-#: _cli/util/errors.py:227
-msgid "Starting debugger:"
-msgstr ""
-
-#: _cli/util/errors.py:235
-msgid "The full traceback has been saved in:"
-msgstr "完整的回溯已儲存於："
-
-#: _cli/util/errors.py:240
-msgid ""
-"To report this error to the developers, please open an issue at "
-"<https://github.com/sphinx-doc/sphinx/issues/>. Thanks!"
-msgstr "要向開發者回報此錯誤，請在 <https://github.com/sphinx-doc/sphinx/issues/> 開啟一個 issue。謝謝！"
-
-#: _cli/util/errors.py:246
-msgid ""
-"Please also report this if it was a user error, so that a better error "
-"message can be provided next time."
-msgstr "如果這是一個使用者錯誤，請一併回報，如此下次才能提供較佳的錯誤訊息。"
-
-#: transforms/post_transforms/__init__.py:88
-msgid ""
-"Could not determine the fallback text for the cross-reference. Might be a "
-"bug."
-msgstr "無法為交互參照決定備用文字。可能是個錯誤。"
-
-#: transforms/post_transforms/__init__.py:237
-#, python-format
-msgid "more than one target found for 'any' cross-reference %r: could be %s"
-msgstr "為「任一個」交互參照 %r 找到多於一個目標：可能是 %s"
-
-#: transforms/post_transforms/__init__.py:299
-#, python-format
-msgid "%s:%s reference target not found: %s"
-msgstr "%s:%s 參照目標未找到： %s"
-
-#: transforms/post_transforms/__init__.py:305
-#, python-format
-msgid "%r reference target not found: %s"
-msgstr "%r 參照目標未找到： %s"
-
-#: transforms/post_transforms/images.py:79
-#, python-format
-msgid "Could not fetch remote image: %s [%s]"
-msgstr "無法提取遠端圖片： %s [%s]"
-
-#: transforms/post_transforms/images.py:96
-#, python-format
-msgid "Could not fetch remote image: %s [%d]"
-msgstr "無法提取遠端圖片： %s [%d]"
-
-#: transforms/post_transforms/images.py:143
-#, python-format
-msgid "Unknown image format: %s..."
-msgstr "未知的圖片格式： %s..."
-
-#: builders/html/__init__.py:113
-#, python-format
-msgid "The HTML pages are in %(outdir)s."
-msgstr "HTML 頁面在 %(outdir)s 。"
-
-#: builders/html/__init__.py:348
-#, python-format
-msgid "Failed to read build info file: %r"
-msgstr "讀取 build info 檔失敗： %r"
-
-#: builders/html/__init__.py:364
-msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
-msgstr ""
-
-#: builders/html/__init__.py:366
-msgid "building [html]: "
-msgstr ""
-
-#: builders/html/__init__.py:383
-#, python-format
-msgid ""
-"template %s has been changed since the previous build, all docs will be "
-"rebuilt"
-msgstr ""
-
-#: builders/html/__init__.py:507
-msgid "index"
-msgstr "索引"
-
-#: builders/html/__init__.py:560
-#, python-format
-msgid "Logo of %s"
-msgstr ""
-
-#: builders/html/__init__.py:589
-msgid "next"
-msgstr "下一頁"
-
-#: builders/html/__init__.py:598
-msgid "previous"
-msgstr "上一頁"
-
-#: builders/html/__init__.py:696
-msgid "generating indices"
-msgstr "正在產生索引"
-
-#: builders/html/__init__.py:711
-msgid "writing additional pages"
-msgstr "正在編寫附加頁面"
-
-#: builders/html/__init__.py:794
-#, python-format
-msgid "cannot copy image file '%s': %s"
-msgstr ""
-
-#: builders/html/__init__.py:806
-msgid "copying downloadable files... "
-msgstr "正在複製可下載的檔案..."
-
-#: builders/html/__init__.py:818
-#, python-format
-msgid "cannot copy downloadable file %r: %s"
-msgstr "無法複製可下載的檔案 %r: %s"
-
-#: builders/html/__init__.py:864
-#, python-format
-msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
-msgstr ""
-
-#: builders/html/__init__.py:882
-#, python-format
-msgid "Failed to copy a file in html_static_file: %s: %r"
-msgstr "在 html_static_file 中複製一個檔案失敗： %s: %r "
-
-#: builders/html/__init__.py:917
-msgid "copying static files"
-msgstr "正在複製靜態檔案"
-
-#: builders/html/__init__.py:934
-#, python-format
-msgid "cannot copy static file %r"
-msgstr "無法複製靜態檔案 %r"
-
-#: builders/html/__init__.py:939
-msgid "copying extra files"
-msgstr "正在複製額外檔案"
-
-#: builders/html/__init__.py:949
-#, python-format
-msgid "cannot copy extra file %r"
-msgstr "無法複製額外檔案 %r"
-
-#: builders/html/__init__.py:955
-#, python-format
-msgid "Failed to write build info file: %r"
-msgstr "寫入 build info 檔失敗： %r"
-
-#: builders/html/__init__.py:1005
-msgid ""
-"search index couldn't be loaded, but not all documents will be built: the "
-"index will be incomplete."
-msgstr "搜尋索引無法被載入，但不是所有的文件都會被建置：索引將會是不完全的。"
-
-#: builders/html/__init__.py:1052
-#, python-format
-msgid "page %s matches two patterns in html_sidebars: %r and %r"
-msgstr "頁面 %s 在 html_sidebars 中符合兩個型樣： %r 和 %r"
-
-#: builders/html/__init__.py:1216
-#, python-format
-msgid ""
-"a Unicode error occurred when rendering the page %s. Please make sure all "
-"config values that contain non-ASCII content are Unicode strings."
-msgstr "在呈現頁面 %s 時發生了一個 Unicode 錯誤。請確認所有包含 non-ASCII 內容的組態值都是 Unicode 字串。"
-
-#: builders/html/__init__.py:1224
-#, python-format
-msgid ""
-"An error happened in rendering the page %s.\n"
-"Reason: %r"
-msgstr "在呈現頁面 %s 時發生了一個錯誤。\n原因： %r"
-
-#: builders/html/__init__.py:1257
-msgid "dumping object inventory"
-msgstr "正在傾印物件庫存"
-
-#: builders/html/__init__.py:1265
-#, python-format
-msgid "dumping search index in %s"
-msgstr "正在傾印搜尋索引於 %s"
-
-#: builders/html/__init__.py:1308
-#, python-format
-msgid "invalid js_file: %r, ignored"
-msgstr "無效的  js_file: %r, 已略過"
-
-#: builders/html/__init__.py:1342
-msgid "Many math_renderers are registered. But no math_renderer is selected."
-msgstr "多個 math_renderer 已被註冊。但是沒有 math_renderer 被選擇。"
-
-#: builders/html/__init__.py:1346
-#, python-format
-msgid "Unknown math_renderer %r is given."
-msgstr "未知的 math_renderer %r 被給予。"
-
-#: builders/html/__init__.py:1360
-#, python-format
-msgid "html_extra_path entry %r is placed inside outdir"
-msgstr "html_extra_path 項目 %r 被放入 outdir"
-
-#: builders/html/__init__.py:1365
-#, python-format
-msgid "html_extra_path entry %r does not exist"
-msgstr "html_extra_path 項目 %r 不存在"
-
-#: builders/html/__init__.py:1380
-#, python-format
-msgid "html_static_path entry %r is placed inside outdir"
-msgstr "html_static_path 項目 %r 被放入 outdir"
-
-#: builders/html/__init__.py:1385
-#, python-format
-msgid "html_static_path entry %r does not exist"
-msgstr "html_static_path 項目 %r 不存在"
-
-#: builders/html/__init__.py:1396 builders/latex/__init__.py:504
-#, python-format
-msgid "logo file %r does not exist"
-msgstr "標誌檔案 %r 不存在"
-
-#: builders/html/__init__.py:1407
-#, python-format
-msgid "favicon file %r does not exist"
-msgstr "favicon 檔案 %r 不存在"
-
-#: builders/html/__init__.py:1420
-#, python-format
-msgid ""
-"Values in 'html_sidebars' must be a list of strings. At least one pattern "
-"has a string value: %s. Change to `html_sidebars = %r`."
-msgstr ""
-
-#: builders/html/__init__.py:1433
-msgid ""
-"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
-"configuration options)"
-msgstr "HTML 4 已不再被 Sphinx 所支援。（在組態選項中偵測到 \"html4_writer=True\"）"
-
-#: builders/html/__init__.py:1449
-#, python-format
-msgid "%s %s documentation"
-msgstr "%s %s 說明文件"
-
-#: builders/html/_build_info.py:32
-msgid "failed to read broken build info file (unknown version)"
-msgstr ""
-
-#: builders/html/_build_info.py:36
-msgid "failed to read broken build info file (missing config entry)"
-msgstr ""
-
-#: builders/html/_build_info.py:39
-msgid "failed to read broken build info file (missing tags entry)"
-msgstr ""
-
-#: builders/latex/__init__.py:118
-#, python-format
-msgid "The LaTeX files are in %(outdir)s."
-msgstr "LaTeX 檔案在 %(outdir)s 。"
-
-#: builders/latex/__init__.py:121
-msgid ""
-"\n"
-"Run 'make' in that directory to run these through (pdf)latex\n"
-"(use `make latexpdf' here to do that automatically)."
-msgstr "\n在該目錄中執行 'make' 以透過 (pdf)latex 執行這些\n（在此使用 'make latexpdf' 以自動執行）"
-
-#: builders/latex/__init__.py:159
-msgid "no \"latex_documents\" config value found; no documents will be written"
-msgstr "未找到 \"latex_documents\" 組態值；不會編寫任何文件"
-
-#: builders/latex/__init__.py:170
-#, python-format
-msgid "\"latex_documents\" config value references unknown document %s"
-msgstr "\"latex_documents\" 組態值引用未知的文件 %s"
-
-#: builders/latex/__init__.py:209 templates/latex/latex.tex.jinja:91
-msgid "Release"
-msgstr "發佈"
-
-#: builders/latex/__init__.py:428
-msgid "copying TeX support files"
-msgstr "正在複製 TeX 支援檔案"
-
-#: builders/latex/__init__.py:465
-msgid "copying additional files"
-msgstr "正在複製附加檔案"
-
-#: builders/latex/__init__.py:536
-#, python-format
-msgid "Unknown configure key: latex_elements[%r], ignored."
-msgstr "未知的配置鍵： latex_elements[%r]，已略過。"
-
-#: builders/latex/__init__.py:544
-#, python-format
-msgid "Unknown theme option: latex_theme_options[%r], ignored."
-msgstr "未知的主題選項： latex_theme_options[%r],，已略過。"
-
-#: builders/latex/transforms.py:120
-msgid "Failed to get a docname!"
-msgstr "無法取得 docname！"
-
-#: builders/latex/transforms.py:121
-#, python-format
-msgid "Failed to get a docname for source %r!"
-msgstr ""
-
-#: builders/latex/transforms.py:487
-#, python-format
-msgid "No footnote was found for given reference node %r"
-msgstr "給定的參考節點 %r 找不到註腳"
-
-#: builders/latex/theming.py:88
-#, python-format
-msgid "%r doesn't have \"theme\" setting"
-msgstr "%r 沒有「主題」設定"
-
-#: builders/latex/theming.py:91
-#, python-format
-msgid "%r doesn't have \"%s\" setting"
-msgstr "%r 沒有 \"%s\" 設定"
-
-#: templates/latex/longtable.tex.jinja:52
-#: templates/latex/sphinxmessages.sty.jinja:8
-msgid "continued from previous page"
-msgstr "繼續上一頁"
-
-#: templates/latex/longtable.tex.jinja:63
-#: templates/latex/sphinxmessages.sty.jinja:9
-msgid "continues on next page"
-msgstr "繼續下一頁"
-
-#: templates/latex/sphinxmessages.sty.jinja:10
-msgid "Non-alphabetical"
-msgstr "非依字母順序"
-
-#: templates/latex/sphinxmessages.sty.jinja:12
-msgid "Numbers"
-msgstr "數字"
-
-#: templates/latex/sphinxmessages.sty.jinja:13
-msgid "page"
-msgstr "頁"
-
-#: ext/napoleon/__init__.py:356 ext/napoleon/docstring.py:940
-msgid "Keyword Arguments"
-msgstr "關鍵字引數"
 
 #: ext/napoleon/docstring.py:176
 #, python-format
@@ -3626,6 +3297,10 @@ msgstr "範例"
 msgid "Examples"
 msgstr "範例"
 
+#: ext/napoleon/__init__.py:355 ext/napoleon/docstring.py:940
+msgid "Keyword Arguments"
+msgstr "關鍵字引數"
+
 #: ext/napoleon/docstring.py:956
 msgid "Notes"
 msgstr "備註"
@@ -3633,6 +3308,11 @@ msgstr "備註"
 #: ext/napoleon/docstring.py:965
 msgid "Other Parameters"
 msgstr "其他參數"
+
+#: domains/c/__init__.py:326 domains/cpp/__init__.py:483
+#: domains/python/_object.py:190 ext/napoleon/docstring.py:974
+msgid "Parameters"
+msgstr "參數"
 
 #: ext/napoleon/docstring.py:1001
 msgid "Receives"
@@ -3650,56 +3330,244 @@ msgstr "警告"
 msgid "Yields"
 msgstr "產出"
 
-#: ext/autosummary/__init__.py:284
+#: ext/autodoc/preserve_defaults.py:195
 #, python-format
-msgid "autosummary references excluded document %r. Ignored."
-msgstr "autosummary 參照已排除文件 %r 。已略過。"
+msgid "Failed to parse a default argument value for %r: %s"
+msgstr "無法為 %r 剖析一個預設引數： %s"
 
-#: ext/autosummary/__init__.py:288
+#: ext/autodoc/type_comment.py:151
+#, python-format
+msgid "Failed to update signature for %r: parameter not found: %s"
+msgstr "無法為 %r 更新簽名：未找到參數： %s"
+
+#: ext/autodoc/type_comment.py:154
+#, python-format
+msgid "Failed to parse type_comment for %r: %s"
+msgstr "無法為 %r 剖析 type_comment： %s"
+
+#: ext/autodoc/__init__.py:150
+#, python-format
+msgid "invalid value for member-order option: %s"
+msgstr "對於 member-order 選項無效的值： %s"
+
+#: ext/autodoc/__init__.py:158
+#, python-format
+msgid "invalid value for class-doc-from option: %s"
+msgstr "對於 class-doc-from 選項無效的值： %s"
+
+#: ext/autodoc/__init__.py:460
+#, python-format
+msgid "invalid signature for auto%s (%r)"
+msgstr "無效的簽章給 auto%s (%r)"
+
+#: ext/autodoc/__init__.py:579
+#, python-format
+msgid "error while formatting arguments for %s: %s"
+msgstr "在為 %s 格式化引數時有錯誤： %s"
+
+#: ext/autodoc/__init__.py:898
 #, python-format
 msgid ""
-"autosummary: stub file not found %r. Check your autosummary_generate "
-"setting."
-msgstr "autosummary: 未找到 stub 檔 %r 。請檢查您的 autosummary_generate 設定。"
-
-#: ext/autosummary/__init__.py:309
-msgid "A captioned autosummary requires :toctree: option. ignored."
-msgstr "一個有標題的 autosummary 需要 :toctree: 選項。已略過。 "
-
-#: ext/autosummary/__init__.py:384
-#, python-format
-msgid ""
-"autosummary: failed to import %s.\n"
-"Possible hints:\n"
+"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
-msgstr "autosummary: import %s 失敗。\n可能的提示：\n%s"
+msgstr "autodoc: 決定 %s.%s (%r) 被文件化失敗，引發以下的例外：\n%s"
 
-#: ext/autosummary/__init__.py:404
-#, python-format
-msgid "failed to parse name %s"
-msgstr "剖析名稱 %s 失敗"
-
-#: ext/autosummary/__init__.py:412
-#, python-format
-msgid "failed to import object %s"
-msgstr "import 物件 %s 失敗"
-
-#: ext/autosummary/__init__.py:730
+#: ext/autodoc/__init__.py:1021
 #, python-format
 msgid ""
-"Summarised items should not include the current module. Replace %r with %r."
+"don't know which module to import for autodocumenting %r (try placing a "
+"\"module\" or \"currentmodule\" directive in the document, or giving an "
+"explicit module name)"
+msgstr "不清楚要 import 哪個模組來 autodocument %r （試試看在文件中加入 \"module\" 或 \"currentmodule\" 指令，或是給予一個明確的模組名稱）"
+
+#: ext/autodoc/__init__.py:1080
+#, python-format
+msgid "A mocked object is detected: %r"
+msgstr "一個 mocked 物件被偵測到： %r"
+
+#: ext/autodoc/__init__.py:1103
+#, python-format
+msgid "error while formatting signature for %s: %s"
+msgstr "正在為 %s 格式化簽名時發生錯誤： %s"
+
+#: ext/autodoc/__init__.py:1177
+msgid "\"::\" in automodule name doesn't make sense"
+msgstr "\"::\" 在 automodule 的名稱中並不合理"
+
+#: ext/autodoc/__init__.py:1185
+#, python-format
+msgid "signature arguments or return annotation given for automodule %s"
+msgstr "簽名引數或回傳註釋給予 automodule %s"
+
+#: ext/autodoc/__init__.py:1201
+#, python-format
+msgid ""
+"__all__ should be a list of strings, not %r (in module %s) -- ignoring "
+"__all__"
+msgstr "__all__  應該是一個字串的列表，不是 %r （在 %s 模組中）-- 正在忽略 __all__"
+
+#: ext/autodoc/__init__.py:1278
+#, python-format
+msgid ""
+"missing attribute mentioned in :members: option: module %s, attribute %s"
+msgstr "缺少 :members: 選項中所述的屬性：模組 %s ，屬性 %s"
+
+#: ext/autodoc/__init__.py:1505 ext/autodoc/__init__.py:1593
+#: ext/autodoc/__init__.py:3127
+#, python-format
+msgid "Failed to get a function signature for %s: %s"
+msgstr "無法取得一個函式簽名給 %s: %s"
+
+#: ext/autodoc/__init__.py:1828
+#, python-format
+msgid "Failed to get a constructor signature for %s: %s"
+msgstr "無法取得一個 constructor 簽名給 %s: %s"
+
+#: ext/autodoc/__init__.py:1966
+#, python-format
+msgid "Bases: %s"
+msgstr "基礎類別：%s"
+
+#: ext/autodoc/__init__.py:1985
+#, python-format
+msgid "missing attribute %s in object %s"
+msgstr "遺漏屬性 %s 在物件 %s"
+
+#: ext/autodoc/__init__.py:2081 ext/autodoc/__init__.py:2110
+#: ext/autodoc/__init__.py:2204
+#, python-format
+msgid "alias of %s"
+msgstr "%s 的別名"
+
+#: ext/autodoc/__init__.py:2097
+#, python-format
+msgid "alias of TypeVar(%s)"
+msgstr "TypeVar(%s) 的別名"
+
+#: ext/autodoc/__init__.py:2456 ext/autodoc/__init__.py:2576
+#, python-format
+msgid "Failed to get a method signature for %s: %s"
+msgstr "無法取得一個 method 簽名給 %s: %s"
+
+#: ext/autodoc/__init__.py:2720
+#, python-format
+msgid "Invalid __slots__ found on %s. Ignored."
+msgstr "在 %s 找到無效的 __slots__。已略過。"
+
+#: ext/intersphinx/_resolve.py:49
+#, python-format
+msgid "(in %s v%s)"
+msgstr "(於 %s v%s)"
+
+#: ext/intersphinx/_resolve.py:51
+#, python-format
+msgid "(in %s)"
+msgstr "(於 %s)"
+
+#: ext/intersphinx/_resolve.py:108
+#, python-format
+msgid "inventory '%s': duplicate matches found for %s:%s"
 msgstr ""
 
-#: ext/autosummary/__init__.py:927
+#: ext/intersphinx/_resolve.py:118
 #, python-format
-msgid "autosummary_generate: file not found: %s"
-msgstr "autosummary_generate: 檔案未找到： %s"
+msgid "inventory '%s': multiple matches found for %s:%s"
+msgstr ""
 
-#: ext/autosummary/__init__.py:937
+#: ext/intersphinx/_resolve.py:383
+#, python-format
+msgid "inventory for external cross-reference not found: %r"
+msgstr "找不到外部交互參照的庫存：%r"
+
+#: ext/intersphinx/_resolve.py:392
+#, python-format
+msgid "invalid external cross-reference suffix: %r"
+msgstr "無效的外部交互參照後綴：%r"
+
+#: ext/intersphinx/_resolve.py:403
+#, python-format
+msgid "domain for external cross-reference not found: %r"
+msgstr "找不到外部交互參照的領域：%r"
+
+#: ext/intersphinx/_resolve.py:619
+#, python-format
+msgid "external %s:%s reference target not found: %s"
+msgstr "未找到外部的 %s:%s 參照目標： %s"
+
+#: ext/intersphinx/_load.py:60
+#, python-format
 msgid ""
-"autosummary generates .rst files internally. But your source_suffix does not"
-" contain .rst. Skipped."
-msgstr "autosummary 會在內部產生 .rst 檔。但是您的 source_suffix 並未包含 .rst。已跳過。"
+"Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
+"identifiers must be non-empty strings."
+msgstr ""
+
+#: ext/intersphinx/_load.py:71
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
+"or list."
+msgstr ""
+
+#: ext/intersphinx/_load.py:82
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
+" inventory locations) pair."
+msgstr ""
+
+#: ext/intersphinx/_load.py:93
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique non-empty strings."
+msgstr ""
+
+#: ext/intersphinx/_load.py:102
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique (other instance in intersphinx_mapping[%r])."
+msgstr ""
+
+#: ext/intersphinx/_load.py:121
+#, python-format
+msgid ""
+"Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
+"Inventory locations must be non-empty strings or None."
+msgstr ""
+
+#: ext/intersphinx/_load.py:131
+msgid "Invalid `intersphinx_mapping` configuration (1 error)."
+msgstr ""
+
+#: ext/intersphinx/_load.py:134
+#, python-format
+msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
+msgstr ""
+
+#: ext/intersphinx/_load.py:157
+msgid "An invalid intersphinx_mapping entry was added after normalisation."
+msgstr ""
+
+#: ext/intersphinx/_load.py:261
+#, python-format
+msgid "loading intersphinx inventory '%s' from %s ..."
+msgstr ""
+
+#: ext/intersphinx/_load.py:287
+msgid ""
+"encountered some issues with some of the inventories, but they had working "
+"alternatives:"
+msgstr "從一些庫存中遇到一些問題，但他們已在進行替代方案："
+
+#: ext/intersphinx/_load.py:297
+msgid "failed to reach any of the inventories with the following issues:"
+msgstr "無法到達任何的庫存，遇到以下問題："
+
+#: ext/intersphinx/_load.py:361
+#, python-format
+msgid "intersphinx inventory has moved: %s -> %s"
+msgstr "intersphinx 庫存已移動： %s -> %s"
 
 #: ext/autosummary/generate.py:232 ext/autosummary/generate.py:450
 #, python-format
@@ -3779,6 +3647,62 @@ msgstr ""
 #, python-format
 msgid "Failed to remove %s: %s"
 msgstr ""
+
+#: ext/autosummary/__init__.py:284
+#, python-format
+msgid "autosummary references excluded document %r. Ignored."
+msgstr "autosummary 參照已排除文件 %r 。已略過。"
+
+#: ext/autosummary/__init__.py:288
+#, python-format
+msgid ""
+"autosummary: stub file not found %r. Check your autosummary_generate "
+"setting."
+msgstr "autosummary: 未找到 stub 檔 %r 。請檢查您的 autosummary_generate 設定。"
+
+#: ext/autosummary/__init__.py:309
+msgid "A captioned autosummary requires :toctree: option. ignored."
+msgstr "一個有標題的 autosummary 需要 :toctree: 選項。已略過。 "
+
+#: ext/autosummary/__init__.py:384
+#, python-format
+msgid ""
+"autosummary: failed to import %s.\n"
+"Possible hints:\n"
+"%s"
+msgstr "autosummary: import %s 失敗。\n可能的提示：\n%s"
+
+#: ext/autosummary/__init__.py:404
+#, python-format
+msgid "failed to parse name %s"
+msgstr "剖析名稱 %s 失敗"
+
+#: ext/autosummary/__init__.py:412
+#, python-format
+msgid "failed to import object %s"
+msgstr "import 物件 %s 失敗"
+
+#: ext/autosummary/__init__.py:730
+#, python-format
+msgid ""
+"Summarised items should not include the current module. Replace %r with %r."
+msgstr ""
+
+#: ext/autosummary/__init__.py:927
+#, python-format
+msgid "autosummary_generate: file not found: %s"
+msgstr "autosummary_generate: 檔案未找到： %s"
+
+#: ext/autosummary/__init__.py:937
+msgid ""
+"autosummary generates .rst files internally. But your source_suffix does not"
+" contain .rst. Skipped."
+msgstr "autosummary 會在內部產生 .rst 檔。但是您的 source_suffix 並未包含 .rst。已跳過。"
+
+#: ext/apidoc/_generate.py:69
+#, python-format
+msgid "Would create file %s."
+msgstr "將會建立檔案 %s 。"
 
 #: ext/apidoc/_cli.py:28
 msgid ""
@@ -3966,256 +3890,347 @@ msgstr ""
 msgid "apidoc_modules item %i has unexpected keys: %s"
 msgstr ""
 
-#: ext/apidoc/_extension.py:247
+#: ext/apidoc/_extension.py:248
 #, python-format
 msgid "apidoc_modules item %i '%s' must be a sequence"
 msgstr ""
 
-#: ext/apidoc/_extension.py:256
+#: ext/apidoc/_extension.py:257
 #, python-format
 msgid "apidoc_modules item %i '%s' must contain strings"
 msgstr ""
 
-#: ext/apidoc/_generate.py:69
+#: transforms/post_transforms/images.py:79
 #, python-format
-msgid "Would create file %s."
-msgstr "將會建立檔案 %s 。"
+msgid "Could not fetch remote image: %s [%s]"
+msgstr "無法提取遠端圖片： %s [%s]"
 
-#: ext/intersphinx/_resolve.py:49
+#: transforms/post_transforms/images.py:96
 #, python-format
-msgid "(in %s v%s)"
-msgstr "(於 %s v%s)"
+msgid "Could not fetch remote image: %s [%d]"
+msgstr "無法提取遠端圖片： %s [%d]"
 
-#: ext/intersphinx/_resolve.py:51
+#: transforms/post_transforms/images.py:143
 #, python-format
-msgid "(in %s)"
-msgstr "(於 %s)"
+msgid "Unknown image format: %s..."
+msgstr "未知的圖片格式： %s..."
 
-#: ext/intersphinx/_resolve.py:108
+#: transforms/post_transforms/__init__.py:88
+msgid ""
+"Could not determine the fallback text for the cross-reference. Might be a "
+"bug."
+msgstr "無法為交互參照決定備用文字。可能是個錯誤。"
+
+#: transforms/post_transforms/__init__.py:237
 #, python-format
-msgid "inventory '%s': duplicate matches found for %s:%s"
-msgstr ""
+msgid "more than one target found for 'any' cross-reference %r: could be %s"
+msgstr "為「任一個」交互參照 %r 找到多於一個目標：可能是 %s"
 
-#: ext/intersphinx/_resolve.py:118
+#: transforms/post_transforms/__init__.py:299
 #, python-format
-msgid "inventory '%s': multiple matches found for %s:%s"
-msgstr ""
+msgid "%s:%s reference target not found: %s"
+msgstr "%s:%s 參照目標未找到： %s"
 
-#: ext/intersphinx/_resolve.py:383
+#: transforms/post_transforms/__init__.py:305
 #, python-format
-msgid "inventory for external cross-reference not found: %r"
-msgstr "找不到外部交互參照的庫存：%r"
+msgid "%r reference target not found: %s"
+msgstr "%r 參照目標未找到： %s"
 
-#: ext/intersphinx/_resolve.py:392
-#, python-format
-msgid "invalid external cross-reference suffix: %r"
-msgstr "無效的外部交互參照後綴：%r"
-
-#: ext/intersphinx/_resolve.py:403
-#, python-format
-msgid "domain for external cross-reference not found: %r"
-msgstr "找不到外部交互參照的領域：%r"
-
-#: ext/intersphinx/_resolve.py:619
-#, python-format
-msgid "external %s:%s reference target not found: %s"
-msgstr "未找到外部的 %s:%s 參照目標： %s"
-
-#: ext/intersphinx/_load.py:60
+#: domains/c/__init__.py:277 domains/c/_symbol.py:557
 #, python-format
 msgid ""
-"Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
-"identifiers must be non-empty strings."
-msgstr ""
+"Duplicate C declaration, also defined at %s:%s.\n"
+"Declaration is '.. c:%s:: %s'."
+msgstr "重複的 C 宣告，亦被定義於 %s:%s。\n宣告是 '.. c:%s:: %s'。"
 
-#: ext/intersphinx/_load.py:71
+#: domains/c/__init__.py:211
+#, python-format
+msgid "%s (C %s)"
+msgstr "%s (C %s)"
+
+#: domains/c/__init__.py:333 domains/cpp/__init__.py:496
+msgid "Return values"
+msgstr "回傳值"
+
+#: domains/c/__init__.py:749 domains/cpp/__init__.py:942
+msgid "member"
+msgstr "成員函數"
+
+#: domains/c/__init__.py:750
+msgid "variable"
+msgstr "變數"
+
+#: domains/c/__init__.py:752
+msgid "macro"
+msgstr "巨集"
+
+#: domains/c/__init__.py:753
+msgid "struct"
+msgstr "結構"
+
+#: domains/c/__init__.py:754 domains/cpp/__init__.py:940
+msgid "union"
+msgstr "union"
+
+#: domains/c/__init__.py:755 domains/cpp/__init__.py:945
+msgid "enum"
+msgstr "enum"
+
+#: domains/c/__init__.py:756 domains/cpp/__init__.py:946
+msgid "enumerator"
+msgstr "enumerator"
+
+#: domains/c/__init__.py:757 domains/cpp/__init__.py:943
+msgid "type"
+msgstr "型別"
+
+#: domains/c/__init__.py:760 domains/cpp/__init__.py:949
+msgid "function parameter"
+msgstr "函式參數"
+
+#: domains/cpp/__init__.py:392 domains/cpp/_symbol.py:942
 #, python-format
 msgid ""
-"Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
-"or list."
+"Duplicate C++ declaration, also defined at %s:%s.\n"
+"Declaration is '.. cpp:%s:: %s'."
+msgstr "重複的 C++ 宣告，亦被定義於 %s:%s。\n宣告是 '.. cpp:%s:: %s'。"
+
+#: domains/cpp/__init__.py:159
+msgid "Template Parameters"
+msgstr "模板參數"
+
+#: domains/cpp/__init__.py:302
+#, python-format
+msgid "%s (C++ %s)"
+msgstr "%s (C++ %s)"
+
+#: domains/cpp/__init__.py:944
+msgid "concept"
+msgstr "概念"
+
+#: domains/cpp/__init__.py:952
+msgid "template parameter"
+msgstr "模板參數"
+
+#: domains/python/_annotations.py:533
+msgid "Positional-only parameter separator (PEP 570)"
 msgstr ""
 
-#: ext/intersphinx/_load.py:82
-#, python-format
-msgid ""
-"Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
-" inventory locations) pair."
+#: domains/python/_annotations.py:544
+msgid "Keyword-only parameters separator (PEP 3102)"
 msgstr ""
 
-#: ext/intersphinx/_load.py:93
+#: domains/python/_object.py:206
+msgid "Variables"
+msgstr "變數"
+
+#: domains/python/_object.py:214
+msgid "Raises"
+msgstr "引發"
+
+#: domains/python/__init__.py:113 domains/python/__init__.py:278
 #, python-format
-msgid ""
-"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
-"must be unique non-empty strings."
+msgid "%s() (in module %s)"
+msgstr "%s() (於 %s 模組中)"
+
+#: domains/python/__init__.py:180 domains/python/__init__.py:374
+#: domains/python/__init__.py:434 domains/python/__init__.py:474
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (於 %s 模組中)"
+
+#: domains/python/__init__.py:182
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (內建變數)"
+
+#: domains/python/__init__.py:217
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (內建類別)"
+
+#: domains/python/__init__.py:218
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (%s 中的類別)"
+
+#: domains/python/__init__.py:283
+#, python-format
+msgid "%s() (%s class method)"
+msgstr "%s() (%s 的類別方法)"
+
+#: domains/python/__init__.py:285
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s 的靜態方法)"
+
+#: domains/python/__init__.py:438
+#, python-format
+msgid "%s (%s property)"
+msgstr "%s (%s 的特性)"
+
+#: domains/python/__init__.py:478
+#, python-format
+msgid "%s (type alias in %s)"
 msgstr ""
 
-#: ext/intersphinx/_load.py:102
-#, python-format
-msgid ""
-"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
-"must be unique (other instance in intersphinx_mapping[%r])."
+#: domains/python/__init__.py:638
+msgid "Python Module Index"
+msgstr "Python 模組索引"
+
+#: domains/python/__init__.py:639
+msgid "modules"
+msgstr "模組"
+
+#: domains/python/__init__.py:717
+msgid "Deprecated"
+msgstr "已棄用"
+
+#: domains/python/__init__.py:743
+msgid "exception"
+msgstr "例外"
+
+#: domains/python/__init__.py:745
+msgid "class method"
+msgstr "類別方法"
+
+#: domains/python/__init__.py:746
+msgid "static method"
+msgstr "靜態方法"
+
+#: domains/python/__init__.py:748
+msgid "property"
+msgstr "特性"
+
+#: domains/python/__init__.py:749
+msgid "type alias"
 msgstr ""
 
-#: ext/intersphinx/_load.py:121
+#: domains/python/__init__.py:818
 #, python-format
 msgid ""
-"Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
-"Inventory locations must be non-empty strings or None."
+"duplicate object description of %s, other instance in %s, use :no-index: for"
+" one of them"
+msgstr "重複的 %s 的物件描述，在 %s 有其他實例，請在它們其中之一使用 :no-index:"
+
+#: domains/python/__init__.py:978
+#, python-format
+msgid "more than one target found for cross-reference %r: %s"
+msgstr "為交互參照 %r 找到多於一個目標： %s"
+
+#: domains/python/__init__.py:1052
+msgid " (deprecated)"
+msgstr "（已棄用）"
+
+#: domains/std/__init__.py:91 domains/std/__init__.py:111
+#, python-format
+msgid "environment variable; %s"
+msgstr "環境變數; %s"
+
+#: domains/std/__init__.py:119
+#, python-format
+msgid "%s; configuration value"
 msgstr ""
 
-#: ext/intersphinx/_load.py:131
-msgid "Invalid `intersphinx_mapping` configuration (1 error)."
+#: domains/std/__init__.py:175
+msgid "Type"
 msgstr ""
 
-#: ext/intersphinx/_load.py:134
-#, python-format
-msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
+#: domains/std/__init__.py:185
+msgid "Default"
 msgstr ""
 
-#: ext/intersphinx/_load.py:157
-msgid "An invalid intersphinx_mapping entry was added after normalisation."
-msgstr ""
-
-#: ext/intersphinx/_load.py:261
-#, python-format
-msgid "loading intersphinx inventory '%s' from %s ..."
-msgstr ""
-
-#: ext/intersphinx/_load.py:287
-msgid ""
-"encountered some issues with some of the inventories, but they had working "
-"alternatives:"
-msgstr "從一些庫存中遇到一些問題，但他們已在進行替代方案："
-
-#: ext/intersphinx/_load.py:297
-msgid "failed to reach any of the inventories with the following issues:"
-msgstr "無法到達任何的庫存，遇到以下問題："
-
-#: ext/intersphinx/_load.py:361
-#, python-format
-msgid "intersphinx inventory has moved: %s -> %s"
-msgstr "intersphinx 庫存已移動： %s -> %s"
-
-#: ext/autodoc/__init__.py:150
-#, python-format
-msgid "invalid value for member-order option: %s"
-msgstr "對於 member-order 選項無效的值： %s"
-
-#: ext/autodoc/__init__.py:158
-#, python-format
-msgid "invalid value for class-doc-from option: %s"
-msgstr "對於 class-doc-from 選項無效的值： %s"
-
-#: ext/autodoc/__init__.py:460
-#, python-format
-msgid "invalid signature for auto%s (%r)"
-msgstr "無效的簽章給 auto%s (%r)"
-
-#: ext/autodoc/__init__.py:579
-#, python-format
-msgid "error while formatting arguments for %s: %s"
-msgstr "在為 %s 格式化引數時有錯誤： %s"
-
-#: ext/autodoc/__init__.py:898
+#: domains/std/__init__.py:242
 #, python-format
 msgid ""
-"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
-"%s"
-msgstr "autodoc: 決定 %s.%s (%r) 被文件化失敗，引發以下的例外：\n%s"
+"Malformed option description %r, should look like \"opt\", \"-opt args\", \""
+"--opt args\", \"/opt args\" or \"+opt args\""
+msgstr "異常的選項敘述 %r ，應該要看起來像 \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" 或 \"+opt args\""
 
-#: ext/autodoc/__init__.py:1021
+#: domains/std/__init__.py:319
 #, python-format
-msgid ""
-"don't know which module to import for autodocumenting %r (try placing a "
-"\"module\" or \"currentmodule\" directive in the document, or giving an "
-"explicit module name)"
-msgstr "不清楚要 import 哪個模組來 autodocument %r （試試看在文件中加入 \"module\" 或 \"currentmodule\" 指令，或是給予一個明確的模組名稱）"
+msgid "%s command line option"
+msgstr "%s 命令列選項"
 
-#: ext/autodoc/__init__.py:1080
+#: domains/std/__init__.py:321
+msgid "command line option"
+msgstr "命令列選項"
+
+#: domains/std/__init__.py:461
+msgid "glossary term must be preceded by empty line"
+msgstr "術語表項目必須有空白行在前"
+
+#: domains/std/__init__.py:474
+msgid "glossary terms must not be separated by empty lines"
+msgstr "術語表項目不可以被空白行分隔"
+
+#: domains/std/__init__.py:486 domains/std/__init__.py:504
+msgid "glossary seems to be misformatted, check indentation"
+msgstr "術語表似乎有格式錯誤，請檢查縮排"
+
+#: domains/std/__init__.py:729
+msgid "glossary term"
+msgstr "雜項術語"
+
+#: domains/std/__init__.py:730
+msgid "grammar token"
+msgstr "語法單詞"
+
+#: domains/std/__init__.py:731
+msgid "reference label"
+msgstr "參照標籤"
+
+#: domains/std/__init__.py:733
+msgid "environment variable"
+msgstr "環境變數"
+
+#: domains/std/__init__.py:734
+msgid "program option"
+msgstr "程式選項"
+
+#: domains/std/__init__.py:735
+msgid "document"
+msgstr "文件"
+
+#: domains/std/__init__.py:772 domains/std/__init__.py:785
+msgid "Module Index"
+msgstr "模組索引"
+
+#: domains/std/__init__.py:857
 #, python-format
-msgid "A mocked object is detected: %r"
-msgstr "一個 mocked 物件被偵測到： %r"
+msgid "duplicate %s description of %s, other instance in %s"
+msgstr "重複 %s 的描述 %s，亦出現於 %s"
 
-#: ext/autodoc/__init__.py:1103
+#: domains/std/__init__.py:1113
+msgid "numfig is disabled. :numref: is ignored."
+msgstr "numfig 已停用。 :numref: 已略過。"
+
+#: domains/std/__init__.py:1124
 #, python-format
-msgid "error while formatting signature for %s: %s"
-msgstr "正在為 %s 格式化簽名時發生錯誤： %s"
+msgid "Failed to create a cross reference. Any number is not assigned: %s"
+msgstr "無法建立一個交互參照。任一數字未被指定： %s"
 
-#: ext/autodoc/__init__.py:1177
-msgid "\"::\" in automodule name doesn't make sense"
-msgstr "\"::\" 在 automodule 的名稱中並不合理"
-
-#: ext/autodoc/__init__.py:1185
+#: domains/std/__init__.py:1138
 #, python-format
-msgid "signature arguments or return annotation given for automodule %s"
-msgstr "簽名引數或回傳註釋給予 automodule %s"
+msgid "the link has no caption: %s"
+msgstr "這個連結沒有標題： %s"
 
-#: ext/autodoc/__init__.py:1201
+#: domains/std/__init__.py:1153
 #, python-format
-msgid ""
-"__all__ should be a list of strings, not %r (in module %s) -- ignoring "
-"__all__"
-msgstr "__all__  應該是一個字串的列表，不是 %r （在 %s 模組中）-- 正在忽略 __all__"
+msgid "invalid numfig_format: %s (%r)"
+msgstr "無效的 numfig_format: %s (%r)"
 
-#: ext/autodoc/__init__.py:1278
+#: domains/std/__init__.py:1157
 #, python-format
-msgid ""
-"missing attribute mentioned in :members: option: module %s, attribute %s"
-msgstr "缺少 :members: 選項中所述的屬性：模組 %s ，屬性 %s"
+msgid "invalid numfig_format: %s"
+msgstr "無效的 numfig_format: %s"
 
-#: ext/autodoc/__init__.py:1505 ext/autodoc/__init__.py:1593
-#: ext/autodoc/__init__.py:3127
+#: domains/std/__init__.py:1453
 #, python-format
-msgid "Failed to get a function signature for %s: %s"
-msgstr "無法取得一個函式簽名給 %s: %s"
+msgid "undefined label: %r"
+msgstr "未定義的標籤： %r"
 
-#: ext/autodoc/__init__.py:1828
+#: domains/std/__init__.py:1456
 #, python-format
-msgid "Failed to get a constructor signature for %s: %s"
-msgstr "無法取得一個 constructor 簽名給 %s: %s"
-
-#: ext/autodoc/__init__.py:1966
-#, python-format
-msgid "Bases: %s"
-msgstr "基礎類別：%s"
-
-#: ext/autodoc/__init__.py:1985
-#, python-format
-msgid "missing attribute %s in object %s"
-msgstr "遺漏屬性 %s 在物件 %s"
-
-#: ext/autodoc/__init__.py:2081 ext/autodoc/__init__.py:2110
-#: ext/autodoc/__init__.py:2204
-#, python-format
-msgid "alias of %s"
-msgstr "%s 的別名"
-
-#: ext/autodoc/__init__.py:2097
-#, python-format
-msgid "alias of TypeVar(%s)"
-msgstr "TypeVar(%s) 的別名"
-
-#: ext/autodoc/__init__.py:2456 ext/autodoc/__init__.py:2576
-#, python-format
-msgid "Failed to get a method signature for %s: %s"
-msgstr "無法取得一個 method 簽名給 %s: %s"
-
-#: ext/autodoc/__init__.py:2720
-#, python-format
-msgid "Invalid __slots__ found on %s. Ignored."
-msgstr "在 %s 找到無效的 __slots__。已略過。"
-
-#: ext/autodoc/preserve_defaults.py:195
-#, python-format
-msgid "Failed to parse a default argument value for %r: %s"
-msgstr "無法為 %r 剖析一個預設引數： %s"
-
-#: ext/autodoc/type_comment.py:151
-#, python-format
-msgid "Failed to update signature for %r: parameter not found: %s"
-msgstr "無法為 %r 更新簽名：未找到參數： %s"
-
-#: ext/autodoc/type_comment.py:154
-#, python-format
-msgid "Failed to parse type_comment for %r: %s"
-msgstr "無法為 %r 剖析 type_comment： %s"
+msgid "Failed to create a cross reference. A title or caption not found: %r"
+msgstr "無法建立一個交互參照。未找到標題或說明： %r"
