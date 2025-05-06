@@ -18,7 +18,7 @@ Features added
   Patch by Till Hoffmann.
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
-  Patch by Adam Turner.
+  Patch by Adam Turner and James Addison.
 
 Bugs fixed
 ----------
