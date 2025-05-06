@@ -1372,7 +1372,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '',
         '   .. py:attribute:: Foo.attr2',
         '      :module: target.autodoc_type_aliases',
-    ] + attr2_typeinfo + [
+        *attr2_typeinfo,
         '',
         '      docstring',
         '',
@@ -1449,7 +1449,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '',
         '   .. py:attribute:: Foo.attr2',
         '      :module: target.autodoc_type_aliases',
-    ] + attr2_typeinfo + [
+        *attr2_typeinfo,
         '',
         '      docstring',
         '',
