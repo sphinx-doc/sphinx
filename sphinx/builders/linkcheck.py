@@ -179,7 +179,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         text = 'with unknown code'
                 linkstat['text'] = text
                 redirection = f'{text} to {result.message}'
-                if self.config.linkcheck_allowed_redirects is not _sentinel_lar:
+                if self.config.linkcheck_allowed_redirects is not True:
                     msg = f'redirect  {res_uri} - {redirection}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
@@ -722,7 +722,7 @@ class AnchorCheckParser(HTMLParser):
 def _allowed_redirect(
     url: str, new_url: str, allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
 ) -> bool:
-    if allowed_redirects is _sentinel_lar:
+    if allowed_redirects is True:
         return True
     return any(
         from_url.match(url) and to_url.match(new_url)
@@ -752,7 +752,7 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
 
 def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     """Compile patterns to the regexp objects."""
-    if config.linkcheck_allowed_redirects is _sentinel_lar:
+    if config.linkcheck_allowed_redirects is True:
         return
     if not isinstance(config.linkcheck_allowed_redirects, dict):
         msg = __(
@@ -773,9 +773,6 @@ def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     config.linkcheck_allowed_redirects = allowed_redirects
 
 
-_sentinel_lar = object()
-
-
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CheckExternalLinksBuilder)
     app.add_post_transform(HyperlinkCollector)
@@ -785,7 +782,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'linkcheck_exclude_documents', [], '', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'linkcheck_allowed_redirects', _sentinel_lar, '', types=frozenset({dict})
+        'linkcheck_allowed_redirects', True, '', types=frozenset({dict})
     )
     app.add_config_value('linkcheck_auth', [], '', types=frozenset({list, tuple}))
     app.add_config_value('linkcheck_request_headers', {}, '', types=frozenset({dict}))
