@@ -719,7 +719,10 @@ def test_follows_redirects_on_HEAD(app, capsys):
         app.build()
     _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
-    assert content == ''
+    assert content == (
+        'index.rst:1: [redirected with Found] '
+        f'http://{address}/ to http://{address}/?redirected=1\n'
+    )
     assert stderr == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
@@ -740,7 +743,10 @@ def test_follows_redirects_on_GET(app, capsys):
         app.build()
     _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
-    assert content == ''
+    assert content == (
+        'index.rst:1: [redirected with Found] '
+        f'http://{address}/ to http://{address}/?redirected=1\n'
+    )
     assert stderr == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
