@@ -761,7 +761,7 @@ def test_follows_redirects_on_GET(app, capsys):
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
-    confoverrides={'linkcheck_allowed_redirects': {}},  # do not follow any redirects
+    confoverrides={'linkcheck_allowed_redirects': {}},  # warn about any redirects
 )
 def test_warns_disallowed_redirects(app, capsys):
     with serve_application(app, make_redirect_handler()) as address:
