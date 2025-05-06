@@ -755,7 +755,11 @@ def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     if config.linkcheck_allowed_redirects is _sentinel_lar:
         return
     if not isinstance(config.linkcheck_allowed_redirects, dict):
-        raise ConfigError
+        msg = __(
+            f'Invalid value `{config.linkcheck_allowed_redirects!r}` in '
+            'linkcheck_allowed_redirects. Expected a dictionary.'
+        )
+        raise ConfigError(msg)
     allowed_redirects = {}
     for url, pattern in config.linkcheck_allowed_redirects.items():
         try:

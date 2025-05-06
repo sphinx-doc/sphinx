@@ -535,7 +535,7 @@ class GoogleDocstring:
 
             if colon:
                 if after:
-                    _desc = [after] + lines[1:]
+                    _desc = [after, *lines[1:]]
                 else:
                     _desc = lines[1:]
 
@@ -684,7 +684,7 @@ class GoogleDocstring:
         if has_desc:
             _desc = self._fix_field_desc(_desc)
             if _desc[0]:
-                return [field + _desc[0]] + _desc[1:]
+                return [field + _desc[0], *_desc[1:]]
             else:
                 return [field, *_desc]
         else:

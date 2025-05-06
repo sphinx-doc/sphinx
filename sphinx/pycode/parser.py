@@ -257,7 +257,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         if self.current_function:
             if self.current_classes and self.context[-1] == '__init__':
                 # store variable comments inside __init__ method of classes
-                return self.context[:-1] + [name]
+                return [*self.context[:-1], name]
             else:
                 return None
         else:
@@ -387,9 +387,10 @@ class VariableCommentPicker(ast.NodeVisitor):
                 self.add_variable_annotation(varname, node.type_comment)  # type: ignore[arg-type]
 
         # check comments after assignment
-        parser = AfterCommentParser(
-            [current_line[node.col_offset :]] + self.buffers[node.lineno :]
-        )
+        parser = AfterCommentParser([
+            current_line[node.col_offset :],
+            *self.buffers[node.lineno :],
+        ])
         parser.parse()
         if parser.comment and comment_re.match(parser.comment):
             for varname in varnames:
