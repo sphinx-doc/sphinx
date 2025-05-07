@@ -124,6 +124,10 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
                 return [nodes.Text(repr(node.value))]
         if isinstance(node, ast.Expr):
             return unparse(node.value)
+        if isinstance(node, ast.Starred):
+            result = [addnodes.desc_sig_operator('', '*')]
+            result.extend(unparse(node.value))
+            return result
         if isinstance(node, ast.Invert):
             return [addnodes.desc_sig_punctuation('', '~')]
         if isinstance(node, ast.USub):

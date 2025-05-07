@@ -13,9 +13,18 @@ Deprecated
 Features added
 --------------
 
+* #13332: Add :confval:`doctest_fail_fast` option to exit after the first failed
+  test.
+  Patch by Till Hoffmann.
+* #13439: linkcheck: Permit warning on every redirect with
+  ``linkcheck_allowed_redirects = {}``.
+  Patch by Adam Turner.
+
 Bugs fixed
 ----------
 
+* #13369: Correctly parse and cross-reference unpacked type annotations.
+  Patch by Alicia Garcia-Raboso.
 * #13383: Emit a warning for duplicate internal hyperlink declarations.
   Patch by James Addison.
 
