@@ -25,6 +25,8 @@ Bugs fixed
 
 * #13369: Correctly parse and cross-reference unpacked type annotations.
   Patch by Alicia Garcia-Raboso.
+* #13383: Emit a warning for duplicate internal hyperlink declarations.
+  Patch by James Addison.
 
 Testing
 -------
