@@ -1,6 +1,6 @@
 """The Sphinx documentation toolchain."""
 
-__version__ = '8.1.0+Linaro-241107a'
+__version__ = '8.1.0+Linaro-250508'
 __display_version__ = __version__  # used for command line version
 
 # Keep this file executable as-is in Python 3!
