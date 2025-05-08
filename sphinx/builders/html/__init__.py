@@ -1434,6 +1434,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_image_dir', None, 'html', [str])
     app.add_config_value('html_image_path', None, 'html', [str])
     app.add_config_value('html_project_name', None, 'html', [str])
+    app.add_config_value('html_link_mappings', None, 'html', dict)
 
     # events
     app.add_event('html-collect-pages')
