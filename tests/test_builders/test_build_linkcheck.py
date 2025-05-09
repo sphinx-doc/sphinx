@@ -1144,6 +1144,8 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
         """,
     )
 
+    # Teardown: the monkeypatch context manager clears the TZ environment variable, but
+    # we also need to reset Python's internal notion of the current timezone.
     if sys.platform != 'win32':
         time.tzset()
 
