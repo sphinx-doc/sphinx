@@ -23,7 +23,6 @@ def _get_publication_time() -> time.struct_time:
     Publication time cannot be projected into the future (beyond the local system
     clock time).
     """
-    time.tzset()
     system_time = time.localtime()
     if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is not None:
         if (rebuild_time := time.localtime(float(source_date_epoch))) < system_time:
