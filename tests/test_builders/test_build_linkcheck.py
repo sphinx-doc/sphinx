@@ -1144,6 +1144,9 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
         """,
     )
 
+    if sys.platform != 'win32':
+        time.tzset()
+
 
 @pytest.mark.sphinx(
     'linkcheck',
