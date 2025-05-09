@@ -552,6 +552,7 @@ def _keyword_only_separator() -> addnodes.desc_parameter:
 def _pseudo_parse_arglist(
     signode: desc_signature,
     arglist: str,
+    env: BuildEnvironment,
     multi_line_parameter_list: bool = False,
     trailing_comma: bool = True,
 ) -> None:
@@ -583,9 +584,29 @@ def _pseudo_parse_arglist(
                 ends_open += 1
                 argument = argument[:-1].strip()
             if argument:
-                stack[-1] += addnodes.desc_parameter(
-                    '', '', addnodes.desc_sig_name(argument, argument)
-                )
+                param_with_annotation, *default_value = argument.split('=', 1)
+                param_name, *annotation = param_with_annotation.split(':', 1)
+                node = addnodes.desc_parameter()
+                node += addnodes.desc_sig_name('', param_name.strip())
+                if len(annotation) > 0:
+                    children = _parse_annotation(annotation[0].strip(), env)
+                    node += addnodes.desc_sig_punctuation('', ':')
+                    node += addnodes.desc_sig_space()
+                    node += addnodes.desc_sig_name('', '', *children)  # type: ignore[arg-type]
+                if len(default_value) > 0:
+                    if len(annotation) > 0:
+                        node += addnodes.desc_sig_space()
+                        node += addnodes.desc_sig_operator('', '=')
+                        node += addnodes.desc_sig_space()
+                    else:
+                        node += addnodes.desc_sig_operator('', '=')
+                    node += nodes.inline(
+                        '',
+                        default_value[0].strip(),
+                        classes=['default_value'],
+                        support_smartquotes=False,
+                    )
+                stack[-1] += node
             while ends_open:
                 stack.append(addnodes.desc_optional())
                 stack[-2] += stack[-1]

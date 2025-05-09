@@ -487,6 +487,58 @@ def test_optional_pyfunction_signature(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_pyfunction_signature_with_bracket(app):
+    text = '.. py:function:: hello(a : ~typing.Any = <b>) -> None'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [desc_name, 'hello'],
+                            desc_parameterlist,
+                            [desc_returns, pending_xref, 'None'],
+                        ),
+                    ],
+                    desc_content,
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        addnodes.desc,
+        desctype='function',
+        domain='py',
+        objtype='function',
+        no_index=False,
+    )
+    assert_node(
+        doctree[1][0][1],
+        (
+            [
+                desc_parameter,
+                (
+                    [desc_sig_name, 'a'],
+                    [desc_sig_punctuation, ':'],
+                    desc_sig_space,
+                    [desc_sig_name, pending_xref, 'Any'],
+                    desc_sig_space,
+                    [desc_sig_operator, '='],
+                    desc_sig_space,
+                    [nodes.inline, '<b>'],
+                ),
+            ],
+        ),
+    )
+
+
 @pytest.mark.sphinx(
     'html',
     testroot='root',
