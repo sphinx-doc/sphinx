@@ -39,19 +39,19 @@ from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
 
 
-def parse(sig):
+def parse(sig, env):
     m = py_sig_re.match(sig)
     if m is None:
         raise ValueError
     _name_prefix, _tp_list, _name, arglist, _retann = m.groups()
     signode = addnodes.desc_signature(sig, '')
-    _pseudo_parse_arglist(signode, arglist)
+    _pseudo_parse_arglist(signode, arglist, env)
     return signode.astext()
 
 
-def test_function_signatures() -> None:
-    rv = parse("compile(source : string, filename, symbol='file')")
-    assert rv == "(source : string, filename, symbol='file')"
+def test_function_signatures(app) -> None:
+    rv = parse("compile(source : string, filename, symbol='file')", app.env)
+    assert rv == "(source: string, filename, symbol='file')"
 
     for params, expect in [
         ('(a=1)', '(a=1)'),
@@ -60,9 +60,9 @@ def test_function_signatures() -> None:
         ('(a=1[, b=None])', '(a=1, [b=None])'),
         ('(a=[], [b=None])', '(a=[], [b=None])'),
         ('(a=[][, b=None])', '(a=[], [b=None])'),
-        ('(a: Foo[Bar]=[][, b=None])', '(a: Foo[Bar]=[], [b=None])'),
+        ('(a: Foo[Bar]=[][, b=None])', '(a: Foo[Bar] = [], [b=None])'),
     ]:
-        rv = parse(f'func{params}')
+        rv = parse(f'func{params}', app.env)
         assert rv == expect
 
         # Note: 'def f[Foo[Bar]]()' is not valid Python but people might write
@@ -70,7 +70,7 @@ def test_function_signatures() -> None:
         # variable.
         for tparams in ['', '[Foo]', '[Foo[Bar]]']:
             for retann in ['', '-> Foo', '-> Foo[Bar]', '-> anything else']:
-                rv = parse(f'func{tparams}{params} {retann}'.rstrip())
+                rv = parse(f'func{tparams}{params} {retann}'.rstrip(), app.env)
                 assert rv == expect
 
 
