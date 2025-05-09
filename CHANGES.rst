@@ -25,6 +25,9 @@ Bugs fixed
 
 * #13369: Correctly parse and cross-reference unpacked type annotations.
   Patch by Alicia Garcia-Raboso.
+* #13526: Improve ``SOURCE_DATE_EPOCH`` support during ``%Y`` pattern
+  substition in :confval:`copyright` (and :confval:`project_copyright`).
+  Patch by James Addison.
 
 Testing
 -------
