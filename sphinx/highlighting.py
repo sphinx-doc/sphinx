@@ -229,9 +229,13 @@ class PygmentsBridge:
             # MEMO: this is done to escape Unicode chars with non-Unicode engines
             return texescape.hlescape(hlsource, self.latex_engine)
 
-    def get_stylesheet(self) -> str:
+    def get_stylesheet(self, selectors: Optional[List[int]] = None) -> str:
         formatter = self.get_formatter()
         if self.dest == 'html':
-            return formatter.get_style_defs('.highlight')
+            if selectors:
+                sel = ['.c{}'.format(item) for item in selectors]
+            else:
+                sel = '.highlight'
+            return formatter.get_style_defs(sel)
         else:
             return formatter.get_style_defs() + _LATEX_ADD_STYLES

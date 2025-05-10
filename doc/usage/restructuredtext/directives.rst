@@ -728,13 +728,15 @@ values are supported:
 * ... and any other `lexer alias that Pygments supports`__
 
 If highlighting with the selected language fails (i.e. Pygments emits an
-"Error" token), the block is not highlighted in any way.
+"Error" token), the block is not highlighted in any way. Per-block highlighting
+styles can be specified for directives :rst:dir:`code-block`,
+:rst:dir:`sourcecode`, :rst:dir:`literalinclude`, and :rst:dir:`code`.
 
 .. important::
 
-   The list of lexer aliases supported is tied to the Pygment version. If you
-   want to ensure consistent highlighting, you should fix your version of
-   Pygments.
+   The list of lexer and style aliases supported is tied to the Pygment
+   version. If you want to ensure consistent highlighting, you should fix your
+   version of Pygments.
 
 __ https://pygments.org/docs/lexers
 
@@ -902,6 +904,22 @@ __ https://pygments.org/docs/lexers
       .. versionadded:: 1.3
       .. versionchanged:: 3.5
          Support automatic dedent.
+   
+   .. rst:directive:option:: style-light: style name
+                             style-dark: style name
+      :type: the name of a style to use
+
+      Pygments includes `various highlighting styles
+      <https://pygments.org/styles/>`_, and supports `custom ones
+      <https://pygments.org/docs/styledevelopment/>`_ installed as
+      plugins. This option accepts any valid style name and will apply it to
+      this code block, overriding any default in :confval:`pygments_style`
+      config value. Some builder and theme configurations (e.g.
+      :ref:`HTML <builders>` & `furo <https://pypi.org/project/furo/>`_) will
+      accept both `light` and `dark` options, and switch appropriately; others
+      may support only one style (e.g. PDF), in which case `style-light` takes
+      precedence.
+
 
 .. rst:directive:: .. literalinclude:: filename
 

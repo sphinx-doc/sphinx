@@ -600,14 +600,51 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         if linenos and self.config.html_codeblock_linenos_style:
             linenos = self.config.html_codeblock_linenos_style
 
-        highlighted = self.highlighter.highlight_block(
-            node.rawsource,
-            lang,
-            opts=opts,
-            linenos=linenos,
-            location=node,
-            **highlight_args,
-        )
+        # As blocks are processed, we discover specified styles.
+        block_id = hash(node)
+        if node.get('style-dark'):
+            dark_style = node.get('style-dark')
+            self.builder.add_block_dark_style(style=dark_style, id=block_id)
+        else:
+            dark_style = None
+
+        if node.get('style-light'):
+            light_style = node.get('style-light')
+            self.builder.add_block_light_style(style=light_style, id=block_id)
+        else:
+            light_style = None
+
+        # If either dark or style were requested, use their specialized
+        # highlighter. If neither, use the default highlighter.
+        if dark_style:
+            highlighted = self.builder.get_bridge_for_style(dark_style).highlight_block(
+                node.rawsource,
+                lang,
+                opts=opts,
+                linenos=linenos,
+                location=node,
+                cssclass='highlight c{}'.format(block_id),     # option for Pygment's HTML formatter, sets selector
+                **highlight_args,
+            )
+        if light_style:
+            highlighted = self.builder.get_bridge_for_style(light_style).highlight_block(
+                node.rawsource,
+                lang,
+                opts=opts,
+                linenos=linenos,
+                location=node,
+                cssclass='highlight c{}'.format(block_id),     # option for Pygment's HTML formatter, sets selector
+                **highlight_args,
+            )
+        if not (dark_style or light_style):
+            highlighted = self.highlighter.highlight_block(
+                node.rawsource,
+                lang,
+                opts=opts,
+                linenos=linenos,
+                location=node,
+                **highlight_args,
+            )
         starttag = self.starttag(
             node, 'div', suffix='', CLASS='highlight-%s notranslate' % lang
         )
