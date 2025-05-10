@@ -8,6 +8,7 @@ from docutils.parsers.rst.states import (
     Inliner,
     RSTState,
     RSTStateMachine,
+    Struct,
     state_classes,
 )
 from docutils.statemachine import StringList
@@ -39,13 +40,16 @@ def make_directive_and_state(
     inliner.init_customizations(state.document.settings)
     state.inliner = inliner
     state.parent = None
-    state.memo = SimpleNamespace(
+    # https://repo.or.cz/docutils.git/blob/2310dd9b468e9f86b00401b1aa60d47aabc199ac:/docutils/docutils/parsers/rst/states.py#l162
+    state.memo = Struct(
         document=state.document,
-        language=english,
-        inliner=state.inliner,
         reporter=state.document.reporter,
-        section_level=0,
+        language=english,
         title_styles=[],
+        section_parents=[],
+        section_level=0,  # will be removed in Docutils 2.0
+        section_bubble_up_kludge=False,  # will be removed
+        inliner=inliner,
     )
     directive = SphinxDirective(
         name='test_directive',
