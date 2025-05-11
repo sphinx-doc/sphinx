@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-18 00:33+0000\n"
+"POT-Creation-Date: 2025-05-11 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Dunaevsky Maxim <dunmaksim@yandex.ru>, 2024\n"
 "Language-Team: Russian (http://app.transifex.com/sphinx-doc/sphinx-1/language/ru/)\n"
@@ -27,6 +27,158 @@ msgstr ""
 "Generated-By: Babel 2.17.0\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: events.py:77
+#, python-format
+msgid "Event %r already present"
+msgstr "Событие %r уже существует"
+
+#: events.py:370
+#, python-format
+msgid "Unknown event name: %s"
+msgstr "Неизвестное событие: %s"
+
+#: events.py:416
+#, python-format
+msgid "Handler %r for event %r threw an exception"
+msgstr "Обработчик %r для события %r возбудил исключение"
+
+#: registry.py:167
+#, python-format
+msgid "Builder class %s has no \"name\" attribute"
+msgstr "Отсутствует аттрибут \"name\" у класса сборщика %s."
+
+#: registry.py:171
+#, python-format
+msgid "Builder %r already exists (in module %s)"
+msgstr "Сборщик %r уже существует (в модуле %s)."
+
+#: registry.py:187
+#, python-format
+msgid "Builder name %s not registered or available through entry point"
+msgstr "Сборщик %s не зарегистрирован явно или через ресурсы пакетов."
+
+#: registry.py:197
+#, python-format
+msgid "Builder name %s not registered"
+msgstr "Сборщик %s не зарегистрирован."
+
+#: registry.py:204
+#, python-format
+msgid "domain %s already registered"
+msgstr "домен %s уже зарегистрирован"
+
+#: registry.py:228 registry.py:249 registry.py:262
+#, python-format
+msgid "domain %s not yet registered"
+msgstr "домен %s не зарегистрирован"
+
+#: registry.py:235
+#, python-format
+msgid "The %r directive is already registered to domain %s"
+msgstr "Директива %r уже зарегистрирована в домене %s"
+
+#: registry.py:253
+#, python-format
+msgid "The %r role is already registered to domain %s"
+msgstr "Роль %r уже зарегистрирована в домене %s"
+
+#: registry.py:266
+#, python-format
+msgid "The %r index is already registered to domain %s"
+msgstr "Индекс %r уже зарегистрирован в домене %s"
+
+#: registry.py:313
+#, python-format
+msgid "The %r object_type is already registered"
+msgstr "object_type %r уже зарегистрирован"
+
+#: registry.py:344
+#, python-format
+msgid "The %r crossref_type is already registered"
+msgstr "%r crossref_type уже зарегистрирован"
+
+#: registry.py:353
+#, python-format
+msgid "source_suffix %r is already registered"
+msgstr "source_suffix %r уже зарегистрирован"
+
+#: registry.py:363
+#, python-format
+msgid "source_parser for %r is already registered"
+msgstr "source_parser для %r уже зарегистрирован"
+
+#: registry.py:372
+#, python-format
+msgid "Source parser for %s not registered"
+msgstr "Парсер исходного кода %s не зарегистрирован"
+
+#: registry.py:390
+#, python-format
+msgid "Translator for %r already exists"
+msgstr "Перевод для %r уже существует"
+
+#: registry.py:407
+#, python-format
+msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
+msgstr "kwargs для функции add_node() должны быть кортежем (visit, depart): %r=%r"
+
+#: registry.py:496
+#, python-format
+msgid "enumerable_node %r already registered"
+msgstr "enumerable_node %r уже зарегистрирован"
+
+#: registry.py:512
+#, python-format
+msgid "math renderer %s is already registered"
+msgstr "Движок отрисовки math %s уже зарегистрирован"
+
+#: registry.py:529
+#, python-format
+msgid ""
+"the extension %r was already merged with Sphinx since version %s; this "
+"extension is ignored."
+msgstr "расширение %r является частью Sphinx начиная с версии %s; это расширение игнорируется."
+
+#: application.py:302 registry.py:538
+#, python-format
+msgid "while setting up extension %s:"
+msgstr "при настройку расширения %s:"
+
+#: registry.py:543
+msgid "Original exception:\n"
+msgstr "Изначальное исключение:\n"
+
+#: registry.py:545
+#, python-format
+msgid "Could not import extension %s"
+msgstr "Не удалось загрузить расширение %s"
+
+#: registry.py:552
+#, python-format
+msgid ""
+"extension %r has no setup() function; is it really a Sphinx extension "
+"module?"
+msgstr "расширение %r не определяет функцию setup(); это действительно модуль расширения Sphinx?"
+
+#: registry.py:565
+#, python-format
+msgid ""
+"The %s extension used by this project needs at least Sphinx v%s; it "
+"therefore cannot be built with this version."
+msgstr "Расширению %s, используемому в этом проекте, требуется версия Sphinx не ниже v%s, поэтому он не может быть собран с этой версией."
+
+#: registry.py:577
+#, python-format
+msgid ""
+"extension %r returned an unsupported object from its setup() function; it "
+"should return None or a metadata dictionary"
+msgstr "расширение %r вернуло неподдерживаемый объект из функции setup() function; оно должно вернуть None или словарь метаданных"
+
+#: registry.py:612
+#, python-format
+msgid "`None` is not a valid filetype for %r."
+msgstr "`None` не является корректным типом файла для %r."
 
 #: extension.py:58
 #, python-format
@@ -41,6 +193,80 @@ msgid ""
 "This project needs the extension %s at least in version %s and therefore "
 "cannot be built with the loaded version (%s)."
 msgstr "Проекту требуется расширение %s версии не ниже %s, и, следовательно, он не может быть собран с загруженной версией (%s)."
+
+#: theming.py:115
+#, python-format
+msgid ""
+"Theme configuration sections other than [theme] and [options] are not "
+"supported (tried to get a value from %r)."
+msgstr "Разделы конфигурации темы, отличные от [theme] и [option], не поддерживаются (попытка получения значения из %r)."
+
+#: theming.py:120
+#, python-format
+msgid "setting %s.%s occurs in none of the searched theme configs"
+msgstr "параметр %s.%s не встречается ни в одной из найденных настроек тем"
+
+#: theming.py:135
+#, python-format
+msgid "unsupported theme option %r given"
+msgstr "указана неподдерживаемая опция темы %r"
+
+#: theming.py:208
+#, python-format
+msgid "file %r on theme path is not a valid zipfile or contains no theme"
+msgstr "файл %r указанной темы не является корректным ZIP-архивов или не содержит тему"
+
+#: theming.py:228
+#, python-format
+msgid "no theme named %r found (missing theme.toml?)"
+msgstr "не найдена тема %r (потерян theme.toml?)"
+
+#: theming.py:268
+#, python-format
+msgid "The %r theme has circular inheritance"
+msgstr "Тема %r имеет циклическое наследование"
+
+#: theming.py:276
+#, python-format
+msgid ""
+"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
+"are: %s"
+msgstr "Тема %r наследуется от темы %r, которая не загружена. Загруженные темы: %s"
+
+#: theming.py:282
+#, python-format
+msgid "The %r theme has too many ancestors"
+msgstr "У темы %r слишком много предков"
+
+#: theming.py:310
+#, python-format
+msgid "no theme configuration file found in %r"
+msgstr "файл конфигурации темы не найден в %r"
+
+#: theming.py:335 theming.py:388
+#, python-format
+msgid "theme %r doesn't have the \"theme\" table"
+msgstr "тема %r не имеет таблицы \"theme\""
+
+#: theming.py:339
+#, python-format
+msgid "The %r theme \"[theme]\" table is not a table"
+msgstr "В теме %r \"[theme]\" не является таблицей"
+
+#: theming.py:343 theming.py:391
+#, python-format
+msgid "The %r theme must define the \"theme.inherit\" setting"
+msgstr "В теме %r должна быть определена настройка  \"theme.inherit\""
+
+#: theming.py:347
+#, python-format
+msgid "The %r theme \"[options]\" table is not a table"
+msgstr "В теме %r \"[options]\" не является таблицей"
+
+#: theming.py:366
+#, python-format
+msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
+msgstr "Настройка \"theme.pygments_style\" должна быть таблицей. Подсказка: \"%s\""
 
 #: application.py:212
 #, python-format
@@ -71,11 +297,6 @@ msgstr "Проект требует версию Sphinx не ниже v%s и н�
 #: application.py:297
 msgid "making output directory"
 msgstr "создание целевого каталога"
-
-#: application.py:302 registry.py:538
-#, python-format
-msgid "while setting up extension %s:"
-msgstr "при настройку расширения %s:"
 
 #: application.py:309
 msgid ""
@@ -162,7 +383,7 @@ msgstr ""
 msgid "role %r is already registered and will not be overridden"
 msgstr ""
 
-#: application.py:1770
+#: application.py:1771
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -170,12 +391,12 @@ msgid ""
 "explicit"
 msgstr "расширение %s не определено как безопасное для параллельного чтения; если вы полагаете что это не так - пожалуйста, попросите автора проверить и явно указать это"
 
-#: application.py:1775
+#: application.py:1776
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "расширение %s не безопасно для параллельного чтения"
 
-#: application.py:1779
+#: application.py:1780
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -183,15 +404,27 @@ msgid ""
 "explicit"
 msgstr "расширение %s не объявлено как безопасное для параллельное записи; если вы считаете что это не так - пожалуйста, попросите автора проверить и явно указать это"
 
-#: application.py:1784
+#: application.py:1785
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "расширение %s не безопасно использует параллельную записи"
 
-#: application.py:1792 application.py:1796
+#: application.py:1793 application.py:1797
 #, python-format
 msgid "doing serial %s"
 msgstr ""
+
+#: project.py:72
+#, python-format
+msgid ""
+"multiple files found for the document \"%s\": %s\n"
+"Use %r for the build."
+msgstr "найдено несколько файлов для документа \"%s\": %s\nДля сборки используется %r ."
+
+#: project.py:87
+#, python-format
+msgid "Ignored unreadable document %r."
+msgstr "Пропущен нечитаемый документ %r."
 
 #: config.py:355
 #, python-format
@@ -347,239 +580,6 @@ msgid ""
 "Retrying in relaxed mode."
 msgstr "Разбор literal_block %r как \"%s\" завершилось ошибкой на токене: %r. Перезапуск в relaxed mode."
 
-#: theming.py:115
-#, python-format
-msgid ""
-"Theme configuration sections other than [theme] and [options] are not "
-"supported (tried to get a value from %r)."
-msgstr "Разделы конфигурации темы, отличные от [theme] и [option], не поддерживаются (попытка получения значения из %r)."
-
-#: theming.py:120
-#, python-format
-msgid "setting %s.%s occurs in none of the searched theme configs"
-msgstr "параметр %s.%s не встречается ни в одной из найденных настроек тем"
-
-#: theming.py:135
-#, python-format
-msgid "unsupported theme option %r given"
-msgstr "указана неподдерживаемая опция темы %r"
-
-#: theming.py:208
-#, python-format
-msgid "file %r on theme path is not a valid zipfile or contains no theme"
-msgstr "файл %r указанной темы не является корректным ZIP-архивов или не содержит тему"
-
-#: theming.py:228
-#, python-format
-msgid "no theme named %r found (missing theme.toml?)"
-msgstr "не найдена тема %r (потерян theme.toml?)"
-
-#: theming.py:268
-#, python-format
-msgid "The %r theme has circular inheritance"
-msgstr "Тема %r имеет циклическое наследование"
-
-#: theming.py:276
-#, python-format
-msgid ""
-"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
-"are: %s"
-msgstr "Тема %r наследуется от темы %r, которая не загружена. Загруженные темы: %s"
-
-#: theming.py:282
-#, python-format
-msgid "The %r theme has too many ancestors"
-msgstr "У темы %r слишком много предков"
-
-#: theming.py:310
-#, python-format
-msgid "no theme configuration file found in %r"
-msgstr "файл конфигурации темы не найден в %r"
-
-#: theming.py:335 theming.py:388
-#, python-format
-msgid "theme %r doesn't have the \"theme\" table"
-msgstr "тема %r не имеет таблицы \"theme\""
-
-#: theming.py:339
-#, python-format
-msgid "The %r theme \"[theme]\" table is not a table"
-msgstr "В теме %r \"[theme]\" не является таблицей"
-
-#: theming.py:343 theming.py:391
-#, python-format
-msgid "The %r theme must define the \"theme.inherit\" setting"
-msgstr "В теме %r должна быть определена настройка  \"theme.inherit\""
-
-#: theming.py:347
-#, python-format
-msgid "The %r theme \"[options]\" table is not a table"
-msgstr "В теме %r \"[options]\" не является таблицей"
-
-#: theming.py:366
-#, python-format
-msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
-msgstr "Настройка \"theme.pygments_style\" должна быть таблицей. Подсказка: \"%s\""
-
-#: events.py:77
-#, python-format
-msgid "Event %r already present"
-msgstr "Событие %r уже существует"
-
-#: events.py:370
-#, python-format
-msgid "Unknown event name: %s"
-msgstr "Неизвестное событие: %s"
-
-#: events.py:416
-#, python-format
-msgid "Handler %r for event %r threw an exception"
-msgstr "Обработчик %r для события %r возбудил исключение"
-
-#: project.py:72
-#, python-format
-msgid ""
-"multiple files found for the document \"%s\": %s\n"
-"Use %r for the build."
-msgstr "найдено несколько файлов для документа \"%s\": %s\nДля сборки используется %r ."
-
-#: project.py:87
-#, python-format
-msgid "Ignored unreadable document %r."
-msgstr "Пропущен нечитаемый документ %r."
-
-#: registry.py:167
-#, python-format
-msgid "Builder class %s has no \"name\" attribute"
-msgstr "Отсутствует аттрибут \"name\" у класса сборщика %s."
-
-#: registry.py:171
-#, python-format
-msgid "Builder %r already exists (in module %s)"
-msgstr "Сборщик %r уже существует (в модуле %s)."
-
-#: registry.py:187
-#, python-format
-msgid "Builder name %s not registered or available through entry point"
-msgstr "Сборщик %s не зарегистрирован явно или через ресурсы пакетов."
-
-#: registry.py:197
-#, python-format
-msgid "Builder name %s not registered"
-msgstr "Сборщик %s не зарегистрирован."
-
-#: registry.py:204
-#, python-format
-msgid "domain %s already registered"
-msgstr "домен %s уже зарегистрирован"
-
-#: registry.py:228 registry.py:249 registry.py:262
-#, python-format
-msgid "domain %s not yet registered"
-msgstr "домен %s не зарегистрирован"
-
-#: registry.py:235
-#, python-format
-msgid "The %r directive is already registered to domain %s"
-msgstr "Директива %r уже зарегистрирована в домене %s"
-
-#: registry.py:253
-#, python-format
-msgid "The %r role is already registered to domain %s"
-msgstr "Роль %r уже зарегистрирована в домене %s"
-
-#: registry.py:266
-#, python-format
-msgid "The %r index is already registered to domain %s"
-msgstr "Индекс %r уже зарегистрирован в домене %s"
-
-#: registry.py:313
-#, python-format
-msgid "The %r object_type is already registered"
-msgstr "object_type %r уже зарегистрирован"
-
-#: registry.py:344
-#, python-format
-msgid "The %r crossref_type is already registered"
-msgstr "%r crossref_type уже зарегистрирован"
-
-#: registry.py:353
-#, python-format
-msgid "source_suffix %r is already registered"
-msgstr "source_suffix %r уже зарегистрирован"
-
-#: registry.py:363
-#, python-format
-msgid "source_parser for %r is already registered"
-msgstr "source_parser для %r уже зарегистрирован"
-
-#: registry.py:372
-#, python-format
-msgid "Source parser for %s not registered"
-msgstr "Парсер исходного кода %s не зарегистрирован"
-
-#: registry.py:390
-#, python-format
-msgid "Translator for %r already exists"
-msgstr "Перевод для %r уже существует"
-
-#: registry.py:407
-#, python-format
-msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
-msgstr "kwargs для функции add_node() должны быть кортежем (visit, depart): %r=%r"
-
-#: registry.py:496
-#, python-format
-msgid "enumerable_node %r already registered"
-msgstr "enumerable_node %r уже зарегистрирован"
-
-#: registry.py:512
-#, python-format
-msgid "math renderer %s is already registered"
-msgstr "Движок отрисовки math %s уже зарегистрирован"
-
-#: registry.py:529
-#, python-format
-msgid ""
-"the extension %r was already merged with Sphinx since version %s; this "
-"extension is ignored."
-msgstr "расширение %r является частью Sphinx начиная с версии %s; это расширение игнорируется."
-
-#: registry.py:543
-msgid "Original exception:\n"
-msgstr "Изначальное исключение:\n"
-
-#: registry.py:545
-#, python-format
-msgid "Could not import extension %s"
-msgstr "Не удалось загрузить расширение %s"
-
-#: registry.py:552
-#, python-format
-msgid ""
-"extension %r has no setup() function; is it really a Sphinx extension "
-"module?"
-msgstr "расширение %r не определяет функцию setup(); это действительно модуль расширения Sphinx?"
-
-#: registry.py:565
-#, python-format
-msgid ""
-"The %s extension used by this project needs at least Sphinx v%s; it "
-"therefore cannot be built with this version."
-msgstr "Расширению %s, используемому в этом проекте, требуется версия Sphinx не ниже v%s, поэтому он не может быть собран с этой версией."
-
-#: registry.py:577
-#, python-format
-msgid ""
-"extension %r returned an unsupported object from its setup() function; it "
-"should return None or a metadata dictionary"
-msgstr "расширение %r вернуло неподдерживаемый объект из функции setup() function; оно должно вернуть None или словарь метаданных"
-
-#: registry.py:612
-#, python-format
-msgid "`None` is not a valid filetype for %r."
-msgstr "`None` не является корректным типом файла для %r."
-
 #: roles.py:206
 #, python-format
 msgid "Common Vulnerabilities and Exposures; CVE %s"
@@ -615,198 +615,501 @@ msgstr "неправильный номер PEP %s"
 msgid "invalid RFC number %s"
 msgstr "неправильный номер RFC %s"
 
-#: ext/linkcode.py:86 ext/viewcode.py:226
+#: builders/html/__init__.py:487 builders/latex/__init__.py:199
+#: transforms/__init__.py:129 writers/manpage.py:98 writers/texinfo.py:220
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%b %d, %Y"
+
+#: writers/latex.py:1097 writers/manpage.py:259 writers/texinfo.py:663
+msgid "Footnotes"
+msgstr "Сноски"
+
+#: writers/manpage.py:289 writers/text.py:945
+#, python-format
+msgid "[image: %s]"
+msgstr "[рисунок: %s]"
+
+#: writers/manpage.py:290 writers/text.py:946
+msgid "[image]"
+msgstr "[рисунок]"
+
+#: writers/latex.py:361
+#, python-format
+msgid "unknown %r toplevel_sectioning for class %r"
+msgstr "неизвестный %r toplevel_sectioning для класса %r"
+
+#: builders/latex/__init__.py:224 writers/latex.py:411
+#, python-format
+msgid "no Babel option known for language %r"
+msgstr "неизвестная опция Babel для языка %r"
+
+#: writers/latex.py:429
+msgid "too large :maxdepth:, ignored."
+msgstr "слишком большое значение :maxdepth:, пропускается."
+
+#: writers/latex.py:591
+#, python-format
+msgid "template %s not found; loading from legacy %s instead"
+msgstr "шаблон %s не найден; вместо этого загружается унаследованный %s"
+
+#: writers/latex.py:707
+msgid "document title is not a single Text node"
+msgstr "заголовок документа не является одиночным Text node"
+
+#: writers/latex.py:743 writers/texinfo.py:646
+msgid ""
+"encountered title node not in section, topic, table, admonition or sidebar"
+msgstr ""
+
+#: writers/html5.py:572 writers/latex.py:1106
+#, python-format
+msgid "unsupported rubric heading level: %s"
+msgstr "неподдерживаемый уровень заголовка рубрики: %s"
+
+#: writers/latex.py:1183
+msgid ""
+"both tabularcolumns and :widths: option are given. :widths: is ignored."
+msgstr "заданы tabularcolumns и опция :widths:. :widths: пропускается."
+
+#: writers/latex.py:1580
+#, python-format
+msgid "dimension unit %s is invalid. Ignored."
+msgstr "неправильная единица измерения %s. Пропускается."
+
+#: writers/latex.py:1939
+#, python-format
+msgid "unknown index entry type %s found"
+msgstr "найдена запись неизвестного типа индекса %s"
+
+#: domains/math.py:128 writers/latex.py:2495
+#, python-format
+msgid "Invalid math_eqref_format: %r"
+msgstr "Неправильный math_eqref_format: %r"
+
+#: builders/latex/__init__.py:206 domains/std/__init__.py:771
+#: domains/std/__init__.py:784 templates/latex/latex.tex.jinja:106
+#: themes/basic/genindex-single.html:22 themes/basic/genindex-single.html:48
+#: themes/basic/genindex-split.html:3 themes/basic/genindex-split.html:6
+#: themes/basic/genindex.html:3 themes/basic/genindex.html:26
+#: themes/basic/genindex.html:59 themes/basic/layout.html:127
+#: writers/texinfo.py:514
+msgid "Index"
+msgstr "Алфавитный указатель"
+
+#: writers/texinfo.py:1217
+msgid "caption not inside a figure."
+msgstr "заголовок не внутри иллюстрации."
+
+#: writers/texinfo.py:1303
+#, python-format
+msgid "unimplemented node type: %r"
+msgstr "нереализованный тип узла: %r"
+
+#: writers/html5.py:96 writers/html5.py:105
+msgid "Link to this definition"
+msgstr "Ссылка на это определение"
+
+#: writers/html5.py:431
+#, python-format
+msgid "numfig_format is not defined for %s"
+msgstr "numfig_format не определён для %s"
+
+#: writers/html5.py:441
+#, python-format
+msgid "Any IDs not assigned for %s node"
+msgstr "Любые ID не разрешены для узла %s"
+
+#: writers/html5.py:496
+msgid "Link to this term"
+msgstr "Ссылка на этот термин"
+
+#: writers/html5.py:548 writers/html5.py:553
+msgid "Link to this heading"
+msgstr "Ссылка на этот заголовок"
+
+#: writers/html5.py:558
+msgid "Link to this table"
+msgstr "Ссылка на эту таблицу"
+
+#: writers/html5.py:636
+msgid "Link to this code"
+msgstr "Ссылка на этот код"
+
+#: writers/html5.py:638
+msgid "Link to this image"
+msgstr "Ссылка на это изображение"
+
+#: writers/html5.py:640
+msgid "Link to this toctree"
+msgstr "Ссылка на это оглавление"
+
+#: writers/html5.py:766
+msgid "Could not obtain image size. :scale: option is ignored."
+msgstr "Не удалось получить размеры изображения. Опция :scale: пропускается."
+
+#: environment/__init__.py:86
+msgid "new config"
+msgstr "новая конфигурация"
+
+#: environment/__init__.py:87
+msgid "config changed"
+msgstr "конфигурация изменена"
+
+#: environment/__init__.py:88
+msgid "extensions changed"
+msgstr "расширения изменились"
+
+#: environment/__init__.py:253
+msgid "build environment version not current"
+msgstr "версия окружения сборки отличается от текущей"
+
+#: environment/__init__.py:255
+msgid "source directory has changed"
+msgstr "каталог исходных файлов изменился"
+
+#: environment/__init__.py:325
+#, python-format
+msgid "The configuration has changed (1 option: %r)"
+msgstr "Конфигурация изменилась (1 опция: %r)"
+
+#: environment/__init__.py:330
+#, python-format
+msgid "The configuration has changed (%d options: %s)"
+msgstr "Конфигурация изменилась (%d опций: %s)"
+
+#: environment/__init__.py:336
+#, python-format
+msgid "The configuration has changed (%d options: %s, ...)"
+msgstr "Конфигурация изменилась (%d опций: %s, ...)"
+
+#: environment/__init__.py:379
+msgid ""
+"This environment is incompatible with the selected builder, please choose "
+"another doctree directory."
+msgstr "Это окружение несовместимо с выбранным сборщиком, пожалуйста, выберите другой каталог doctree."
+
+#: environment/__init__.py:493
+#, python-format
+msgid "Failed to scan documents in %s: %r"
+msgstr "Ошибка сканирования документов в %s: %r"
+
+#: environment/__init__.py:658 ext/intersphinx/_resolve.py:234
+#, python-format
+msgid "Domain %r is not registered"
+msgstr "Домен %r не зарегистрирован"
+
+#: environment/__init__.py:813
+msgid "document isn't included in any toctree"
+msgstr "документ не включен ни в одно оглавление"
+
+#: environment/__init__.py:859
+msgid "self referenced toctree found. Ignored."
+msgstr "найдено оглавление, ссылающееся на само себя. Пропускается."
+
+#: environment/__init__.py:889
+#, python-format
+msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
+msgstr ""
+
+#: locale/__init__.py:229
+msgid "Attention"
+msgstr "Внимание"
+
+#: locale/__init__.py:230
+msgid "Caution"
+msgstr "Осторожно"
+
+#: locale/__init__.py:231
+msgid "Danger"
+msgstr "Опасно"
+
+#: locale/__init__.py:232
+msgid "Error"
+msgstr "Ошибка"
+
+#: locale/__init__.py:233
+msgid "Hint"
+msgstr "Подсказка"
+
+#: locale/__init__.py:234
+msgid "Important"
+msgstr "Важно"
+
+#: locale/__init__.py:235
+msgid "Note"
+msgstr "Примечание"
+
+#: locale/__init__.py:236
+msgid "See also"
+msgstr "См. также"
+
+#: locale/__init__.py:237
+msgid "Tip"
+msgstr "Совет"
+
+#: locale/__init__.py:238
+msgid "Warning"
+msgstr "Предупреждение"
+
+#: transforms/__init__.py:139
+msgid "could not calculate translation progress!"
+msgstr "не удалось рассчитать прогресс перевода!"
+
+#: transforms/__init__.py:144
+msgid "no translated elements!"
+msgstr "нет переведённых элементов!"
+
+#: transforms/__init__.py:253
+#, python-format
+msgid ""
+"4 column based index found. It might be a bug of extensions you use: %r"
+msgstr "Найден четырёхстолбцовый индекс. Это может быть ошибкой используемого вами расширения: %r"
+
+#: transforms/__init__.py:294
+#, python-format
+msgid "Footnote [%s] is not referenced."
+msgstr "Сссылка на сноску [%s] не определена."
+
+#: transforms/__init__.py:303
+msgid "Footnote [*] is not referenced."
+msgstr "Ссылка на сноску [*] не определена."
+
+#: transforms/__init__.py:314
+msgid "Footnote [#] is not referenced."
+msgstr "Ссылка на сноску [#] отсутствует."
+
+#: transforms/i18n.py:227 transforms/i18n.py:302
+#, python-brace-format
+msgid ""
+"inconsistent footnote references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "противоречивые ссылки на сноску в переведённом сообщении. Оригинал: {0}, перевод: {1}"
+
+#: transforms/i18n.py:272
+#, python-brace-format
+msgid ""
+"inconsistent references in translated message. original: {0}, translated: "
+"{1}"
+msgstr "противоречивые ссылки в переведённом сообщении. Оригинал: {0}, перевод: {1}"
+
+#: transforms/i18n.py:322
+#, python-brace-format
+msgid ""
+"inconsistent citation references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "противоречивые ссылки на цитату в переведённом сообщении. Оригинал: {0}, перевод: {1}"
+
+#: transforms/i18n.py:344
+#, python-brace-format
+msgid ""
+"inconsistent term references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "противоречивая ссылка на термин в переведённом сообщении. Оригинал: {0}, перевод: {1}"
+
+#: _cli/__init__.py:73
+msgid "Usage:"
+msgstr "Использование:"
+
+#: _cli/__init__.py:75
+#, python-brace-format
+msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
+msgstr "{0} [ОПЦИИ] <COMMAND> [<ARGS>]"
+
+#: _cli/__init__.py:78
+msgid "  The Sphinx documentation generator."
+msgstr "Генератор документации Sphinx."
+
+#: _cli/__init__.py:87
+msgid "Commands:"
+msgstr "Команды:"
+
+#: _cli/__init__.py:98
+msgid "Options"
+msgstr "Опции"
+
+#: _cli/__init__.py:113 _cli/__init__.py:181
+msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
+msgstr "Для получения дополнительной информации посетите https://www.sphinx-doc.org/en/master/man/."
+
+#: _cli/__init__.py:171
+#, python-brace-format
+msgid ""
+"{0}: error: {1}\n"
+"Run '{0} --help' for information"
+msgstr "{0}: ошибка: {1}\nВыполните '{0} --help' для получения информации"
+
+#: _cli/__init__.py:179
+msgid "   Manage documentation with Sphinx."
+msgstr "Управление документацией со Sphinx."
+
+#: _cli/__init__.py:191
+msgid "Show the version and exit."
+msgstr "Показать версию и выйти."
+
+#: _cli/__init__.py:199
+msgid "Show this message and exit."
+msgstr "Показать это сообщение и выйти."
+
+#: _cli/__init__.py:203
+msgid "Logging"
+msgstr "Журналирование"
+
+#: _cli/__init__.py:210
+msgid "Increase verbosity (can be repeated)"
+msgstr "Увеличить подробность (можно указать несколько раз)"
+
+#: _cli/__init__.py:218
+msgid "Only print errors and warnings."
+msgstr "Выводить только ошибки и предупреждения."
+
+#: _cli/__init__.py:225
+msgid "No output at all"
+msgstr ""
+
+#: _cli/__init__.py:231
+msgid "<command>"
+msgstr "<command>"
+
+#: _cli/__init__.py:263
+msgid "See 'sphinx --help'.\n"
+msgstr "См. 'sphinx --help'.\n"
+
+#: util/nodes.py:423
+#, python-format
+msgid ""
+"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
+msgstr "%r считается устаревшим для записей индекса (из записи %r). Вместо этого используйте 'pair: %s'."
+
+#: util/nodes.py:490
+#, python-format
+msgid "toctree contains ref to nonexisting file %r"
+msgstr "оглавление содержит ссылку на несуществующий файл %r"
+
+#: util/nodes.py:706
+#, python-format
+msgid "exception while evaluating only directive expression: %s"
+msgstr "исключение при вычислении значения директивы only: %s"
+
+#: util/osutil.py:131
+#, python-format
+msgid ""
+"Aborted attempted copy from %s to %s (the destination path has existing "
+"data)."
+msgstr ""
+
+#: util/fileutil.py:76
+#, python-format
+msgid ""
+"Aborted attempted copy from rendered template %s to %s (the destination path"
+" has existing data)."
+msgstr ""
+
+#: util/fileutil.py:89
+#, python-format
+msgid "Writing evaluated template result to %s"
+msgstr "Запись результатов обработки шаблона в %s"
+
+#: util/docfields.py:103
+#, python-format
+msgid ""
+"Problem in %s domain: field is supposed to use role '%s', but that role is "
+"not in the domain."
+msgstr "Проблема в домене %s: предполагается, что в поле должна использоваться роль  '%s', но этой роли нет в домене."
+
+#: util/i18n.py:100
+#, python-format
+msgid "reading error: %s, %s"
+msgstr "ошибка чтения: %s, %s"
+
+#: util/i18n.py:113
+#, python-format
+msgid "writing error: %s, %s"
+msgstr "ошибка записи: %s, %s"
+
+#: util/i18n.py:146
+#, python-format
+msgid "locale_dir %s does not exist"
+msgstr "locale_dir %s не существует"
+
+#: util/i18n.py:244
+#, python-format
+msgid "Invalid Babel locale: %r."
+msgstr ""
+
+#: util/i18n.py:253
+#, python-format
+msgid ""
+"Invalid date format. Quote the string by single quote if you want to output "
+"it directly: %s"
+msgstr "Неправильный формат даты. Оберните строку в одинарные кавычки, если хоитет вывести её \"как есть\": %s"
+
+#: util/display.py:82
+msgid "skipped"
+msgstr "пропущено"
+
+#: util/display.py:87
+msgid "failed"
+msgstr "сбой"
+
+#: util/docutils.py:309
+#, python-format
+msgid "unknown directive name: %s"
+msgstr ""
+
+#: util/docutils.py:345
+#, python-format
+msgid "unknown role name: %s"
+msgstr ""
+
+#: util/docutils.py:789
+#, python-format
+msgid "unknown node type: %r"
+msgstr "неизвестный тип узла: %r"
+
+#: util/rst.py:73
+#, python-format
+msgid "default role %s not found"
+msgstr "роль по умолчанию %s не найдена"
+
+#: util/inventory.py:147
+#, python-format
+msgid "inventory <%s> contains duplicate definitions of %s"
+msgstr "инвентарь <%s> содержит повторяющиеся определения %s"
+
+#: util/inventory.py:166
+#, python-format
+msgid "inventory <%s> contains multiple definitions for %s"
+msgstr "инвентарь <%s> содержит множество определений для %s"
+
+#: ext/linkcode.py:86 ext/viewcode.py:230
 msgid "[source]"
 msgstr "[исходный код]"
 
-#: ext/viewcode.py:289
+#: ext/viewcode.py:293
 msgid "highlighting module code... "
 msgstr "подсветка кода модуля... "
 
-#: ext/viewcode.py:320
+#: ext/viewcode.py:324
 msgid "[docs]"
 msgstr "[документация]"
 
-#: ext/viewcode.py:346
+#: ext/viewcode.py:350
 msgid "Module code"
 msgstr "Код модуля"
 
-#: ext/viewcode.py:353
+#: ext/viewcode.py:357
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>Исходный код %s</h1>"
 
-#: ext/viewcode.py:380
+#: ext/viewcode.py:384
 msgid "Overview: module code"
 msgstr "Обзор: исходный код модуля"
 
-#: ext/viewcode.py:381
+#: ext/viewcode.py:385
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>Все модули, в которых есть код</h1>"
-
-#: ext/extlinks.py:82
-#, python-format
-msgid ""
-"hardcoded link %r could be replaced by an extlink (try using %r instead)"
-msgstr "прямая ссылка %r должна быть заменена на extlink (попробуйте использовать %r)"
-
-#: ext/autosectionlabel.py:52
-#, python-format
-msgid "section \"%s\" gets labeled as \"%s\""
-msgstr "секция \"%s\" отмечена как \"%s\""
-
-#: domains/std/__init__.py:833 domains/std/__init__.py:960
-#: ext/autosectionlabel.py:61
-#, python-format
-msgid "duplicate label %s, other instance in %s"
-msgstr "повтоярющаяся метка %s, другой экземпляр в %s"
-
-#: ext/imgmath.py:387 ext/mathjax.py:60
-msgid "Link to this equation"
-msgstr "Ссылка на эту формулу"
-
-#: ext/duration.py:90
-msgid ""
-"====================== slowest reading durations ======================="
-msgstr ""
-
-#: ext/doctest.py:118
-#, python-format
-msgid "missing '+' or '-' in '%s' option."
-msgstr "не указан '+' или '-' в опции '%s'."
-
-#: ext/doctest.py:124
-#, python-format
-msgid "'%s' is not a valid option."
-msgstr "'%s' — некорректная опция."
-
-#: ext/doctest.py:139
-#, python-format
-msgid "'%s' is not a valid pyversion option"
-msgstr "'%s' некорректная опция pyversion"
-
-#: ext/doctest.py:226
-msgid "invalid TestCode type"
-msgstr "неправильный тип TestCode"
-
-#: ext/doctest.py:297
-#, python-format
-msgid ""
-"Testing of doctests in the sources finished, look at the results in "
-"%(outdir)s/output.txt."
-msgstr "Тестирование doctests в исходном каталоге завершено, посмотрите результаты в %(outdir)s/output.txt."
-
-#: ext/doctest.py:457
-#, python-format
-msgid "no code/output in %s block at %s:%s"
-msgstr ""
-
-#: ext/doctest.py:568
-#, python-format
-msgid "ignoring invalid doctest code: %r"
-msgstr "пропускается некорректный код doctest: %r"
-
-#: ext/imgmath.py:162
-#, python-format
-msgid ""
-"LaTeX command %r cannot be run (needed for math display), check the "
-"imgmath_latex setting"
-msgstr "Команда LaTeX %r не может быть выполнена (требуется для отображения математики), проверьте настройку imgmath_latex"
-
-#: ext/imgmath.py:181
-#, python-format
-msgid ""
-"%s command %r cannot be run (needed for math display), check the imgmath_%s "
-"setting"
-msgstr "Команда %s %r не может быть выполнена (требуется для отображения математики), проверьте настройку imgmath_%s"
-
-#: ext/imgmath.py:344
-#, python-format
-msgid "display latex %r: %s"
-msgstr "отображение latex %r: %s"
-
-#: ext/imgmath.py:380
-#, python-format
-msgid "inline latex %r: %s"
-msgstr "встроенный LaTeX %r: %s"
-
-#: ext/coverage.py:48
-#, python-format
-msgid "invalid regex %r in %s"
-msgstr "некорректное регулярное выражение %r в %s"
-
-#: ext/coverage.py:140 ext/coverage.py:301
-#, python-format
-msgid "module %s could not be imported: %s"
-msgstr "модуль %s не может быть импортирован: %s"
-
-#: ext/coverage.py:148
-#, python-format
-msgid ""
-"the following modules are documented but were not specified in "
-"coverage_modules: %s"
-msgstr "следующие модули документированы но не указаны в coverage_modules: %s"
-
-#: ext/coverage.py:158
-msgid ""
-"the following modules are specified in coverage_modules but were not "
-"documented"
-msgstr "следующие модули указаны в coverage_modules но не документированы"
-
-#: ext/coverage.py:172
-#, python-brace-format, python-format
-msgid ""
-"Testing of coverage in the sources finished, look at the results in "
-"%(outdir)s{sep}python.txt."
-msgstr ""
-
-#: ext/coverage.py:187
-#, python-format
-msgid "invalid regex %r in coverage_c_regexes"
-msgstr "некорректное регулярное выражение %r в coverage_c_regexes"
-
-#: ext/coverage.py:260
-#, python-format
-msgid "undocumented c api: %s [%s] in file %s"
-msgstr "недокументированный C API: %s [%s] в файле %s"
-
-#: ext/coverage.py:452
-#, python-format
-msgid "undocumented python function: %s :: %s"
-msgstr "недокументированная функция Python: %s :: %s"
-
-#: ext/coverage.py:473
-#, python-format
-msgid "undocumented python class: %s :: %s"
-msgstr "недокументированный класс Python: %s :: %s"
-
-#: ext/coverage.py:492
-#, python-format
-msgid "undocumented python method: %s :: %s :: %s"
-msgstr "недокументированный метод Python: %s :: %s :: %s"
-
-#: ext/imgconverter.py:44
-#, python-format
-msgid ""
-"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
-"\n"
-"Traceback: %s"
-msgstr "Не удалось запустить команду преобразования изображений %r. По умолчанию  для 'sphinx.ext.imgconverter' требуется ImageMagick. Убедитесь, что он установлен, или укажите в опции 'image_converter' собственную команду преобразования.\n\nВывод: %s"
-
-#: ext/imgconverter.py:56 ext/imgconverter.py:90
-#, python-format
-msgid ""
-"convert exited with error:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
-msgstr "преобразование выполнено с ошибкой:\n[stderr]\n%r\n[stdout]\n%r"
-
-#: ext/imgconverter.py:83
-#, python-format
-msgid "convert command %r cannot be run, check the image_converter setting"
-msgstr "команда преобразования %r не может быть запущена, проверьте настройку image_converter"
 
 #: ext/graphviz.py:138
 msgid "Graphviz directive cannot have both content and a filename argument"
@@ -872,6 +1175,159 @@ msgstr "[иллюстрация: %s]"
 msgid "[graph]"
 msgstr "[иллюстрация]"
 
+#: ext/imgconverter.py:44
+#, python-format
+msgid ""
+"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
+"\n"
+"Traceback: %s"
+msgstr "Не удалось запустить команду преобразования изображений %r. По умолчанию  для 'sphinx.ext.imgconverter' требуется ImageMagick. Убедитесь, что он установлен, или укажите в опции 'image_converter' собственную команду преобразования.\n\nВывод: %s"
+
+#: ext/imgconverter.py:56 ext/imgconverter.py:90
+#, python-format
+msgid ""
+"convert exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "преобразование выполнено с ошибкой:\n[stderr]\n%r\n[stdout]\n%r"
+
+#: ext/imgconverter.py:83
+#, python-format
+msgid "convert command %r cannot be run, check the image_converter setting"
+msgstr "команда преобразования %r не может быть запущена, проверьте настройку image_converter"
+
+#: ext/imgmath.py:387 ext/mathjax.py:60
+msgid "Link to this equation"
+msgstr "Ссылка на эту формулу"
+
+#: ext/coverage.py:48
+#, python-format
+msgid "invalid regex %r in %s"
+msgstr "некорректное регулярное выражение %r в %s"
+
+#: ext/coverage.py:140 ext/coverage.py:301
+#, python-format
+msgid "module %s could not be imported: %s"
+msgstr "модуль %s не может быть импортирован: %s"
+
+#: ext/coverage.py:148
+#, python-format
+msgid ""
+"the following modules are documented but were not specified in "
+"coverage_modules: %s"
+msgstr "следующие модули документированы но не указаны в coverage_modules: %s"
+
+#: ext/coverage.py:158
+msgid ""
+"the following modules are specified in coverage_modules but were not "
+"documented"
+msgstr "следующие модули указаны в coverage_modules но не документированы"
+
+#: ext/coverage.py:172
+#, python-brace-format, python-format
+msgid ""
+"Testing of coverage in the sources finished, look at the results in "
+"%(outdir)s{sep}python.txt."
+msgstr ""
+
+#: ext/coverage.py:187
+#, python-format
+msgid "invalid regex %r in coverage_c_regexes"
+msgstr "некорректное регулярное выражение %r в coverage_c_regexes"
+
+#: ext/coverage.py:260
+#, python-format
+msgid "undocumented c api: %s [%s] in file %s"
+msgstr "недокументированный C API: %s [%s] в файле %s"
+
+#: ext/coverage.py:452
+#, python-format
+msgid "undocumented python function: %s :: %s"
+msgstr "недокументированная функция Python: %s :: %s"
+
+#: ext/coverage.py:473
+#, python-format
+msgid "undocumented python class: %s :: %s"
+msgstr "недокументированный класс Python: %s :: %s"
+
+#: ext/coverage.py:492
+#, python-format
+msgid "undocumented python method: %s :: %s :: %s"
+msgstr "недокументированный метод Python: %s :: %s :: %s"
+
+#: ext/doctest.py:118
+#, python-format
+msgid "missing '+' or '-' in '%s' option."
+msgstr "не указан '+' или '-' в опции '%s'."
+
+#: ext/doctest.py:124
+#, python-format
+msgid "'%s' is not a valid option."
+msgstr "'%s' — некорректная опция."
+
+#: ext/doctest.py:139
+#, python-format
+msgid "'%s' is not a valid pyversion option"
+msgstr "'%s' некорректная опция pyversion"
+
+#: ext/doctest.py:226
+msgid "invalid TestCode type"
+msgstr "неправильный тип TestCode"
+
+#: ext/doctest.py:297
+#, python-format
+msgid ""
+"Testing of doctests in the sources finished, look at the results in "
+"%(outdir)s/output.txt."
+msgstr "Тестирование doctests в исходном каталоге завершено, посмотрите результаты в %(outdir)s/output.txt."
+
+#: ext/doctest.py:463
+#, python-format
+msgid "no code/output in %s block at %s:%s"
+msgstr ""
+
+#: ext/doctest.py:580
+#, python-format
+msgid "ignoring invalid doctest code: %r"
+msgstr "пропускается некорректный код doctest: %r"
+
+#: ext/autosectionlabel.py:52
+#, python-format
+msgid "section \"%s\" gets labeled as \"%s\""
+msgstr "секция \"%s\" отмечена как \"%s\""
+
+#: domains/std/__init__.py:833 domains/std/__init__.py:960
+#: ext/autosectionlabel.py:61
+#, python-format
+msgid "duplicate label %s, other instance in %s"
+msgstr "повтоярющаяся метка %s, другой экземпляр в %s"
+
+#: ext/imgmath.py:162
+#, python-format
+msgid ""
+"LaTeX command %r cannot be run (needed for math display), check the "
+"imgmath_latex setting"
+msgstr "Команда LaTeX %r не может быть выполнена (требуется для отображения математики), проверьте настройку imgmath_latex"
+
+#: ext/imgmath.py:181
+#, python-format
+msgid ""
+"%s command %r cannot be run (needed for math display), check the imgmath_%s "
+"setting"
+msgstr "Команда %s %r не может быть выполнена (требуется для отображения математики), проверьте настройку imgmath_%s"
+
+#: ext/imgmath.py:344
+#, python-format
+msgid "display latex %r: %s"
+msgstr "отображение latex %r: %s"
+
+#: ext/imgmath.py:380
+#, python-format
+msgid "inline latex %r: %s"
+msgstr "встроенный LaTeX %r: %s"
+
 #: ext/todo.py:61
 msgid "Todo"
 msgstr "План"
@@ -893,6 +1349,218 @@ msgstr "(<<Исходная запись>> находится в %s, строк�
 #: ext/todo.py:166
 msgid "original entry"
 msgstr "исходный элемент"
+
+#: ext/extlinks.py:82
+#, python-format
+msgid ""
+"hardcoded link %r could be replaced by an extlink (try using %r instead)"
+msgstr "прямая ссылка %r должна быть заменена на extlink (попробуйте использовать %r)"
+
+#: ext/duration.py:90
+msgid ""
+"====================== slowest reading durations ======================="
+msgstr ""
+
+#: domains/math.py:73
+#, python-format
+msgid "duplicate label of equation %s, other instance in %s"
+msgstr "повторяющаяся метка уравнения %s, также используется в %s"
+
+#: domains/__init__.py:322
+#, python-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#: domains/rst.py:131 domains/rst.py:190
+#, python-format
+msgid "%s (directive)"
+msgstr "%s (директива)"
+
+#: domains/rst.py:191 domains/rst.py:202
+#, python-format
+msgid ":%s: (directive option)"
+msgstr ":%s: (опция директивы)"
+
+#: domains/rst.py:224
+#, python-format
+msgid "%s (role)"
+msgstr "%s (роль)"
+
+#: domains/rst.py:234
+msgid "directive"
+msgstr "директива"
+
+#: domains/rst.py:235
+msgid "directive-option"
+msgstr ""
+
+#: domains/rst.py:236
+msgid "role"
+msgstr "роль"
+
+#: domains/rst.py:262
+#, python-format
+msgid "duplicate description of %s %s, other instance in %s"
+msgstr "повторное описание %s %s, другой экземпляр в %s"
+
+#: domains/changeset.py:26
+#, python-format
+msgid "Added in version %s"
+msgstr "Добавлено в версии %s"
+
+#: domains/changeset.py:27
+#, python-format
+msgid "Changed in version %s"
+msgstr "Изменено в версии %s"
+
+#: domains/changeset.py:28
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "Устарело, начиная с версии %s"
+
+#: domains/changeset.py:29
+#, python-format
+msgid "Removed in version %s"
+msgstr "Удалено в версии %s"
+
+#: domains/javascript.py:182
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (встроенная функция)"
+
+#: domains/javascript.py:183 domains/python/__init__.py:287
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (метод %s)"
+
+#: domains/javascript.py:185
+#, python-format
+msgid "%s() (class)"
+msgstr "%s() (класс)"
+
+#: domains/javascript.py:187
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s (глобальная переменная или константа)"
+
+#: domains/javascript.py:189 domains/python/__init__.py:378
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (атрибут %s)"
+
+#: domains/javascript.py:273
+msgid "Arguments"
+msgstr "Аргументы"
+
+#: domains/cpp/__init__.py:489 domains/javascript.py:280
+msgid "Throws"
+msgstr "Бросает исключение"
+
+#: domains/c/__init__.py:339 domains/cpp/__init__.py:502
+#: domains/javascript.py:287 domains/python/_object.py:221
+msgid "Returns"
+msgstr "Результат"
+
+#: domains/c/__init__.py:345 domains/javascript.py:293
+#: domains/python/_object.py:227
+msgid "Return type"
+msgstr "Тип результата"
+
+#: domains/javascript.py:370
+#, python-format
+msgid "%s (module)"
+msgstr "%s (модуль)"
+
+#: domains/c/__init__.py:751 domains/cpp/__init__.py:941
+#: domains/javascript.py:415 domains/python/__init__.py:740
+msgid "function"
+msgstr "функция"
+
+#: domains/javascript.py:416 domains/python/__init__.py:744
+msgid "method"
+msgstr "метод"
+
+#: domains/cpp/__init__.py:939 domains/javascript.py:417
+#: domains/python/__init__.py:742
+msgid "class"
+msgstr "класс"
+
+#: domains/javascript.py:418 domains/python/__init__.py:741
+msgid "data"
+msgstr "данные"
+
+#: domains/javascript.py:419 domains/python/__init__.py:747
+msgid "attribute"
+msgstr "атрибут"
+
+#: domains/javascript.py:420 domains/python/__init__.py:750
+msgid "module"
+msgstr "модуль"
+
+#: domains/javascript.py:454
+#, python-format
+msgid "duplicate %s description of %s, other %s in %s"
+msgstr "повтор описания %s для %s, другое %s в %s"
+
+#: domains/citation.py:75
+#, python-format
+msgid "duplicate citation %s, other instance in %s"
+msgstr "повторное цитирование %s, другой экземпляр в %s"
+
+#: domains/citation.py:92
+#, python-format
+msgid "Citation [%s] is not referenced."
+msgstr "Ссылка на цитату [%s] отсутствует."
+
+#: directives/other.py:119
+#, python-format
+msgid "toctree glob pattern %r didn't match any documents"
+msgstr "глобальный шаблон toctree %r не соответствует ни одному документу"
+
+#: directives/other.py:153 environment/adapters/toctree.py:361
+#, python-format
+msgid "toctree contains reference to excluded document %r"
+msgstr "дерево оглавления содержит ссылку на исключённый документ %r"
+
+#: directives/other.py:156
+#, python-format
+msgid "toctree contains reference to nonexisting document %r"
+msgstr "дерево оглавления содержит ссылку на несуществующий документ %r"
+
+#: directives/other.py:169
+#, python-format
+msgid "duplicated entry found in toctree: %s"
+msgstr "повторяющееся значение в дереве оглавления: %s"
+
+#: directives/other.py:203
+msgid "Section author: "
+msgstr "Автор раздела: "
+
+#: directives/other.py:205
+msgid "Module author: "
+msgstr "Автор модуля: "
+
+#: directives/other.py:207
+msgid "Code author: "
+msgstr "Автор кода:"
+
+#: directives/other.py:209
+msgid "Author: "
+msgstr "Автор: "
+
+#: directives/other.py:269
+msgid ".. acks content is not a list"
+msgstr "содержимое .. acks не является списком"
+
+#: directives/other.py:292
+msgid ".. hlist content is not a list"
+msgstr "содержимое .. hlist не является списком"
+
+#: directives/patches.py:71
+msgid ""
+"\":file:\" option for csv-table directive now recognizes an absolute path as"
+" a relative path from source directory. Please update your document."
+msgstr "Опция \":file:\" директивы csv-table теперь рассчитывает абсолютный путь относительно исходного каталога. Пожалуйста, обновите свой документ."
 
 #: directives/code.py:66
 msgid "non-whitespace stripped by dedent"
@@ -939,87 +1607,6 @@ msgstr ""
 msgid "Line spec %r: no lines pulled from include file %r"
 msgstr "Указаны строки %r: ни одна строка не вставлена из файла %r"
 
-#: directives/patches.py:71
-msgid ""
-"\":file:\" option for csv-table directive now recognizes an absolute path as"
-" a relative path from source directory. Please update your document."
-msgstr "Опция \":file:\" директивы csv-table теперь рассчитывает абсолютный путь относительно исходного каталога. Пожалуйста, обновите свой документ."
-
-#: directives/other.py:119
-#, python-format
-msgid "toctree glob pattern %r didn't match any documents"
-msgstr "глобальный шаблон toctree %r не соответствует ни одному документу"
-
-#: directives/other.py:153 environment/adapters/toctree.py:361
-#, python-format
-msgid "toctree contains reference to excluded document %r"
-msgstr "дерево оглавления содержит ссылку на исключённый документ %r"
-
-#: directives/other.py:156
-#, python-format
-msgid "toctree contains reference to nonexisting document %r"
-msgstr "дерево оглавления содержит ссылку на несуществующий документ %r"
-
-#: directives/other.py:169
-#, python-format
-msgid "duplicated entry found in toctree: %s"
-msgstr "повторяющееся значение в дереве оглавления: %s"
-
-#: directives/other.py:203
-msgid "Section author: "
-msgstr "Автор раздела: "
-
-#: directives/other.py:205
-msgid "Module author: "
-msgstr "Автор модуля: "
-
-#: directives/other.py:207
-msgid "Code author: "
-msgstr "Автор кода:"
-
-#: directives/other.py:209
-msgid "Author: "
-msgstr "Автор: "
-
-#: directives/other.py:269
-msgid ".. acks content is not a list"
-msgstr "содержимое .. acks не является списком"
-
-#: directives/other.py:292
-msgid ".. hlist content is not a list"
-msgstr "содержимое .. hlist не является списком"
-
-#: builders/changes.py:29
-#, python-format
-msgid "The overview file is in %(outdir)s."
-msgstr "Обзорный файл находится в %(outdir)s."
-
-#: builders/changes.py:56
-#, python-format
-msgid "no changes in version %s."
-msgstr "нет изменений в версии %s."
-
-#: builders/changes.py:58
-msgid "writing summary file..."
-msgstr "запись итогового файла..."
-
-#: builders/changes.py:70
-msgid "Builtins"
-msgstr "Встроенные функции"
-
-#: builders/changes.py:72
-msgid "Module level"
-msgstr "Модуль"
-
-#: builders/changes.py:124
-msgid "copying source files..."
-msgstr "копирование исходных файлов..."
-
-#: builders/changes.py:133
-#, python-format
-msgid "could not read %r for changelog creation"
-msgstr "не удалось прочитать %r для создания журнала изменений"
-
 #: builders/manpage.py:37
 #, python-format
 msgid "The manual pages are in %(outdir)s."
@@ -1038,6 +1625,111 @@ msgstr "запись"
 #, python-format
 msgid "\"man_pages\" config value references unknown document %s"
 msgstr "Значение параметра \"man_pages\" ссылается на неизвестный документ %s"
+
+#: builders/texinfo.py:45
+#, python-format
+msgid "The Texinfo files are in %(outdir)s."
+msgstr "Файлы Texinfo находятся в %(outdir)s."
+
+#: builders/texinfo.py:48
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through makeinfo\n"
+"(use 'make info' here to do that automatically)."
+msgstr ""
+
+#: builders/texinfo.py:77
+msgid "no \"texinfo_documents\" config value found; no documents will be written"
+msgstr "не найдено значение настройки \"texinfo_documents\"; документы не были записаны"
+
+#: builders/texinfo.py:89
+#, python-format
+msgid "\"texinfo_documents\" config value references unknown document %s"
+msgstr "значение настройки \"texinfo_documents\" указывает на несуществующий документ %s"
+
+#: builders/latex/__init__.py:325 builders/texinfo.py:113
+#, python-format
+msgid "processing %s"
+msgstr "обработка %s"
+
+#: builders/latex/__init__.py:405 builders/texinfo.py:172
+msgid "resolving references..."
+msgstr "разрешение ссылок..."
+
+#: builders/latex/__init__.py:416 builders/texinfo.py:182
+msgid " (in "
+msgstr " (в "
+
+#: builders/_epub_base.py:422 builders/html/__init__.py:780
+#: builders/latex/__init__.py:481 builders/texinfo.py:198
+msgid "copying images... "
+msgstr "копирование изображений..."
+
+#: builders/_epub_base.py:444 builders/latex/__init__.py:496
+#: builders/texinfo.py:215
+#, python-format
+msgid "cannot copy image file %r: %s"
+msgstr "Не получается скопировать файл изображения %r: %s"
+
+#: builders/texinfo.py:222
+msgid "copying Texinfo support files"
+msgstr "копирование файлов поддержки Texinfo"
+
+#: builders/texinfo.py:230
+#, python-format
+msgid "error writing file Makefile: %s"
+msgstr "ошибка записи Makefile: %s"
+
+#: builders/linkcheck.py:78
+#, python-format
+msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
+msgstr ""
+
+#: builders/linkcheck.py:150
+#, python-format
+msgid "broken link: %s (%s)"
+msgstr "сломанная ссылка: %s (%s)"
+
+#: builders/linkcheck.py:549
+#, python-format
+msgid "Anchor '%s' not found"
+msgstr "Якорь '%s' не найден"
+
+#: builders/linkcheck.py:758
+msgid "linkcheck_allowed_redirects. Expected a dictionary."
+msgstr ""
+
+#: builders/linkcheck.py:768
+#, python-format
+msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
+msgstr "Ошибка компиляции регулярного выражения в linkcheck_allowed_redirects: %r %s"
+
+#: builders/text.py:29
+#, python-format
+msgid "The text files are in %(outdir)s."
+msgstr "Текстовые файлы находятся в %(outdir)s."
+
+#: builders/html/__init__.py:1255 builders/text.py:76 builders/xml.py:90
+#, python-format
+msgid "error writing file %s: %s"
+msgstr "ошибка записи файла %s: %s"
+
+#: builders/dummy.py:19
+msgid "The dummy builder generates no files."
+msgstr "Глупый сборщик не генерирует файлы."
+
+#: builders/singlehtml.py:35
+#, python-format
+msgid "The HTML page is in %(outdir)s."
+msgstr "Страница HTML находится в %(outdir)s."
+
+#: builders/singlehtml.py:171
+msgid "assembling single document"
+msgstr "сборка единого документа"
+
+#: builders/singlehtml.py:189
+msgid "writing additional files"
+msgstr "запись дополнительных файлов"
 
 #: builders/__init__.py:224
 #, python-format
@@ -1198,6 +1890,55 @@ msgstr "копирование материалов"
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "неперекодируемые исходные символы, заменены на \"?\": %r"
 
+#: builders/changes.py:29
+#, python-format
+msgid "The overview file is in %(outdir)s."
+msgstr "Обзорный файл находится в %(outdir)s."
+
+#: builders/changes.py:56
+#, python-format
+msgid "no changes in version %s."
+msgstr "нет изменений в версии %s."
+
+#: builders/changes.py:58
+msgid "writing summary file..."
+msgstr "запись итогового файла..."
+
+#: builders/changes.py:70
+msgid "Builtins"
+msgstr "Встроенные функции"
+
+#: builders/changes.py:72
+msgid "Module level"
+msgstr "Модуль"
+
+#: builders/changes.py:124
+msgid "copying source files..."
+msgstr "копирование исходных файлов..."
+
+#: builders/changes.py:133
+#, python-format
+msgid "could not read %r for changelog creation"
+msgstr "не удалось прочитать %r для создания журнала изменений"
+
+#: builders/gettext.py:244
+#, python-format
+msgid "The message catalogs are in %(outdir)s."
+msgstr "Каталоги сообщений находятся в %(outdir)s."
+
+#: builders/gettext.py:266
+#, python-format
+msgid "targets for %d template files"
+msgstr "цели для %d файлов шаблонов"
+
+#: builders/gettext.py:271
+msgid "reading templates... "
+msgstr "чтение шаблонов..."
+
+#: builders/gettext.py:307
+msgid "writing message catalogs... "
+msgstr "запись каталогов сообщений... "
+
 #: builders/epub3.py:84
 #, python-format
 msgid "The ePub file is in %(outdir)s."
@@ -1247,79 +1988,10 @@ msgstr "значение настройки \"epub_identifier\" должно б�
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "значение настройки \"version\" должно быть не пустым для EPUB3"
 
-#: builders/epub3.py:279 builders/html/__init__.py:1291
+#: builders/epub3.py:279 builders/html/__init__.py:1305
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "некорректный css_file: %r, пропускается"
-
-#: builders/xml.py:31
-#, python-format
-msgid "The XML files are in %(outdir)s."
-msgstr "Файлы XML находятся в %(outdir)s."
-
-#: builders/html/__init__.py:1241 builders/text.py:76 builders/xml.py:90
-#, python-format
-msgid "error writing file %s: %s"
-msgstr "ошибка записи файла %s: %s"
-
-#: builders/xml.py:101
-#, python-format
-msgid "The pseudo-XML files are in %(outdir)s."
-msgstr "Файлы pseudo-XML находятся в %(outdir)s."
-
-#: builders/texinfo.py:45
-#, python-format
-msgid "The Texinfo files are in %(outdir)s."
-msgstr "Файлы Texinfo находятся в %(outdir)s."
-
-#: builders/texinfo.py:48
-msgid ""
-"\n"
-"Run 'make' in that directory to run these through makeinfo\n"
-"(use 'make info' here to do that automatically)."
-msgstr ""
-
-#: builders/texinfo.py:77
-msgid "no \"texinfo_documents\" config value found; no documents will be written"
-msgstr "не найдено значение настройки \"texinfo_documents\"; документы не были записаны"
-
-#: builders/texinfo.py:89
-#, python-format
-msgid "\"texinfo_documents\" config value references unknown document %s"
-msgstr "значение настройки \"texinfo_documents\" указывает на несуществующий документ %s"
-
-#: builders/latex/__init__.py:325 builders/texinfo.py:113
-#, python-format
-msgid "processing %s"
-msgstr "обработка %s"
-
-#: builders/latex/__init__.py:405 builders/texinfo.py:172
-msgid "resolving references..."
-msgstr "разрешение ссылок..."
-
-#: builders/latex/__init__.py:416 builders/texinfo.py:182
-msgid " (in "
-msgstr " (в "
-
-#: builders/_epub_base.py:422 builders/html/__init__.py:779
-#: builders/latex/__init__.py:481 builders/texinfo.py:198
-msgid "copying images... "
-msgstr "копирование изображений..."
-
-#: builders/_epub_base.py:444 builders/latex/__init__.py:496
-#: builders/texinfo.py:215
-#, python-format
-msgid "cannot copy image file %r: %s"
-msgstr "Не получается скопировать файл изображения %r: %s"
-
-#: builders/texinfo.py:222
-msgid "copying Texinfo support files"
-msgstr "копирование файлов поддержки Texinfo"
-
-#: builders/texinfo.py:230
-#, python-format
-msgid "error writing file Makefile: %s"
-msgstr "ошибка записи Makefile: %s"
 
 #: builders/_epub_base.py:223
 #, python-format
@@ -1370,683 +2042,15 @@ msgstr "запись файла toc.ncx..."
 msgid "writing %s file..."
 msgstr "записывается %s файл..."
 
-#: builders/dummy.py:19
-msgid "The dummy builder generates no files."
-msgstr "Глупый сборщик не генерирует файлы."
-
-#: builders/gettext.py:244
-#, python-format
-msgid "The message catalogs are in %(outdir)s."
-msgstr "Каталоги сообщений находятся в %(outdir)s."
-
-#: builders/gettext.py:266
-#, python-format
-msgid "targets for %d template files"
-msgstr "цели для %d файлов шаблонов"
-
-#: builders/gettext.py:271
-msgid "reading templates... "
-msgstr "чтение шаблонов..."
-
-#: builders/gettext.py:307
-msgid "writing message catalogs... "
-msgstr "запись каталогов сообщений... "
-
-#: builders/singlehtml.py:35
-#, python-format
-msgid "The HTML page is in %(outdir)s."
-msgstr "Страница HTML находится в %(outdir)s."
-
-#: builders/singlehtml.py:171
-msgid "assembling single document"
-msgstr "сборка единого документа"
-
-#: builders/singlehtml.py:189
-msgid "writing additional files"
-msgstr "запись дополнительных файлов"
-
-#: builders/linkcheck.py:77
-#, python-format
-msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
-msgstr ""
-
-#: builders/linkcheck.py:149
-#, python-format
-msgid "broken link: %s (%s)"
-msgstr "сломанная ссылка: %s (%s)"
-
-#: builders/linkcheck.py:548
-#, python-format
-msgid "Anchor '%s' not found"
-msgstr "Якорь '%s' не найден"
-
-#: builders/linkcheck.py:758
-#, python-format
-msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
-msgstr "Ошибка компиляции регулярного выражения в linkcheck_allowed_redirects: %r %s"
-
-#: builders/text.py:29
-#, python-format
-msgid "The text files are in %(outdir)s."
-msgstr "Текстовые файлы находятся в %(outdir)s."
-
-#: transforms/i18n.py:227 transforms/i18n.py:302
-#, python-brace-format
-msgid ""
-"inconsistent footnote references in translated message. original: {0}, "
-"translated: {1}"
-msgstr "противоречивые ссылки на сноску в переведённом сообщении. Оригинал: {0}, перевод: {1}"
-
-#: transforms/i18n.py:272
-#, python-brace-format
-msgid ""
-"inconsistent references in translated message. original: {0}, translated: "
-"{1}"
-msgstr "противоречивые ссылки в переведённом сообщении. Оригинал: {0}, перевод: {1}"
-
-#: transforms/i18n.py:322
-#, python-brace-format
-msgid ""
-"inconsistent citation references in translated message. original: {0}, "
-"translated: {1}"
-msgstr "противоречивые ссылки на цитату в переведённом сообщении. Оригинал: {0}, перевод: {1}"
-
-#: transforms/i18n.py:344
-#, python-brace-format
-msgid ""
-"inconsistent term references in translated message. original: {0}, "
-"translated: {1}"
-msgstr "противоречивая ссылка на термин в переведённом сообщении. Оригинал: {0}, перевод: {1}"
-
-#: builders/html/__init__.py:486 builders/latex/__init__.py:199
-#: transforms/__init__.py:129 writers/manpage.py:98 writers/texinfo.py:220
-#, python-format
-msgid "%b %d, %Y"
-msgstr "%b %d, %Y"
-
-#: transforms/__init__.py:139
-msgid "could not calculate translation progress!"
-msgstr "не удалось рассчитать прогресс перевода!"
-
-#: transforms/__init__.py:144
-msgid "no translated elements!"
-msgstr "нет переведённых элементов!"
-
-#: transforms/__init__.py:253
-#, python-format
-msgid ""
-"4 column based index found. It might be a bug of extensions you use: %r"
-msgstr "Найден четырёхстолбцовый индекс. Это может быть ошибкой используемого вами расширения: %r"
-
-#: transforms/__init__.py:294
-#, python-format
-msgid "Footnote [%s] is not referenced."
-msgstr "Сссылка на сноску [%s] не определена."
-
-#: transforms/__init__.py:303
-msgid "Footnote [*] is not referenced."
-msgstr "Ссылка на сноску [*] не определена."
-
-#: transforms/__init__.py:314
-msgid "Footnote [#] is not referenced."
-msgstr "Ссылка на сноску [#] отсутствует."
-
-#: _cli/__init__.py:73
-msgid "Usage:"
-msgstr "Использование:"
-
-#: _cli/__init__.py:75
-#, python-brace-format
-msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
-msgstr "{0} [ОПЦИИ] <COMMAND> [<ARGS>]"
-
-#: _cli/__init__.py:78
-msgid "  The Sphinx documentation generator."
-msgstr "Генератор документации Sphinx."
-
-#: _cli/__init__.py:87
-msgid "Commands:"
-msgstr "Команды:"
-
-#: _cli/__init__.py:98
-msgid "Options"
-msgstr "Опции"
-
-#: _cli/__init__.py:113 _cli/__init__.py:181
-msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
-msgstr "Для получения дополнительной информации посетите https://www.sphinx-doc.org/en/master/man/."
-
-#: _cli/__init__.py:171
-#, python-brace-format
-msgid ""
-"{0}: error: {1}\n"
-"Run '{0} --help' for information"
-msgstr "{0}: ошибка: {1}\nВыполните '{0} --help' для получения информации"
-
-#: _cli/__init__.py:179
-msgid "   Manage documentation with Sphinx."
-msgstr "Управление документацией со Sphinx."
-
-#: _cli/__init__.py:191
-msgid "Show the version and exit."
-msgstr "Показать версию и выйти."
-
-#: _cli/__init__.py:199
-msgid "Show this message and exit."
-msgstr "Показать это сообщение и выйти."
-
-#: _cli/__init__.py:203
-msgid "Logging"
-msgstr "Журналирование"
-
-#: _cli/__init__.py:210
-msgid "Increase verbosity (can be repeated)"
-msgstr "Увеличить подробность (можно указать несколько раз)"
-
-#: _cli/__init__.py:218
-msgid "Only print errors and warnings."
-msgstr "Выводить только ошибки и предупреждения."
-
-#: _cli/__init__.py:225
-msgid "No output at all"
-msgstr ""
-
-#: _cli/__init__.py:231
-msgid "<command>"
-msgstr "<command>"
-
-#: _cli/__init__.py:263
-msgid "See 'sphinx --help'.\n"
-msgstr "См. 'sphinx --help'.\n"
-
-#: environment/__init__.py:86
-msgid "new config"
-msgstr "новая конфигурация"
-
-#: environment/__init__.py:87
-msgid "config changed"
-msgstr "конфигурация изменена"
-
-#: environment/__init__.py:88
-msgid "extensions changed"
-msgstr "расширения изменились"
-
-#: environment/__init__.py:253
-msgid "build environment version not current"
-msgstr "версия окружения сборки отличается от текущей"
-
-#: environment/__init__.py:255
-msgid "source directory has changed"
-msgstr "каталог исходных файлов изменился"
-
-#: environment/__init__.py:325
-#, python-format
-msgid "The configuration has changed (1 option: %r)"
-msgstr "Конфигурация изменилась (1 опция: %r)"
-
-#: environment/__init__.py:330
-#, python-format
-msgid "The configuration has changed (%d options: %s)"
-msgstr "Конфигурация изменилась (%d опций: %s)"
-
-#: environment/__init__.py:336
-#, python-format
-msgid "The configuration has changed (%d options: %s, ...)"
-msgstr "Конфигурация изменилась (%d опций: %s, ...)"
-
-#: environment/__init__.py:379
-msgid ""
-"This environment is incompatible with the selected builder, please choose "
-"another doctree directory."
-msgstr "Это окружение несовместимо с выбранным сборщиком, пожалуйста, выберите другой каталог doctree."
-
-#: environment/__init__.py:493
-#, python-format
-msgid "Failed to scan documents in %s: %r"
-msgstr "Ошибка сканирования документов в %s: %r"
-
-#: environment/__init__.py:658 ext/intersphinx/_resolve.py:234
-#, python-format
-msgid "Domain %r is not registered"
-msgstr "Домен %r не зарегистрирован"
-
-#: environment/__init__.py:813
-msgid "document isn't included in any toctree"
-msgstr "документ не включен ни в одно оглавление"
-
-#: environment/__init__.py:859
-msgid "self referenced toctree found. Ignored."
-msgstr "найдено оглавление, ссылающееся на само себя. Пропускается."
-
-#: environment/__init__.py:889
-#, python-format
-msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
-msgstr ""
-
-#: util/i18n.py:100
-#, python-format
-msgid "reading error: %s, %s"
-msgstr "ошибка чтения: %s, %s"
-
-#: util/i18n.py:113
-#, python-format
-msgid "writing error: %s, %s"
-msgstr "ошибка записи: %s, %s"
-
-#: util/i18n.py:146
-#, python-format
-msgid "locale_dir %s does not exist"
-msgstr "locale_dir %s не существует"
-
-#: util/i18n.py:236
-#, python-format
-msgid "Invalid Babel locale: %r."
-msgstr ""
-
-#: util/i18n.py:245
-#, python-format
-msgid ""
-"Invalid date format. Quote the string by single quote if you want to output "
-"it directly: %s"
-msgstr "Неправильный формат даты. Оберните строку в одинарные кавычки, если хоитет вывести её \"как есть\": %s"
-
-#: util/docfields.py:103
-#, python-format
-msgid ""
-"Problem in %s domain: field is supposed to use role '%s', but that role is "
-"not in the domain."
-msgstr "Проблема в домене %s: предполагается, что в поле должна использоваться роль  '%s', но этой роли нет в домене."
-
-#: util/nodes.py:423
-#, python-format
-msgid ""
-"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
-msgstr "%r считается устаревшим для записей индекса (из записи %r). Вместо этого используйте 'pair: %s'."
-
-#: util/nodes.py:490
-#, python-format
-msgid "toctree contains ref to nonexisting file %r"
-msgstr "оглавление содержит ссылку на несуществующий файл %r"
-
-#: util/nodes.py:706
-#, python-format
-msgid "exception while evaluating only directive expression: %s"
-msgstr "исключение при вычислении значения директивы only: %s"
-
-#: util/display.py:82
-msgid "skipped"
-msgstr "пропущено"
-
-#: util/display.py:87
-msgid "failed"
-msgstr "сбой"
-
-#: util/osutil.py:131
-#, python-format
-msgid ""
-"Aborted attempted copy from %s to %s (the destination path has existing "
-"data)."
-msgstr ""
-
-#: util/docutils.py:309
-#, python-format
-msgid "unknown directive name: %s"
-msgstr ""
-
-#: util/docutils.py:345
-#, python-format
-msgid "unknown role name: %s"
-msgstr ""
-
-#: util/docutils.py:789
-#, python-format
-msgid "unknown node type: %r"
-msgstr "неизвестный тип узла: %r"
-
-#: util/fileutil.py:76
-#, python-format
-msgid ""
-"Aborted attempted copy from rendered template %s to %s (the destination path"
-" has existing data)."
-msgstr ""
-
-#: util/fileutil.py:89
-#, python-format
-msgid "Writing evaluated template result to %s"
-msgstr "Запись результатов обработки шаблона в %s"
-
-#: util/rst.py:73
-#, python-format
-msgid "default role %s not found"
-msgstr "роль по умолчанию %s не найдена"
-
-#: util/inventory.py:147
-#, python-format
-msgid "inventory <%s> contains duplicate definitions of %s"
-msgstr "инвентарь <%s> содержит повторяющиеся определения %s"
-
-#: util/inventory.py:166
-#, python-format
-msgid "inventory <%s> contains multiple definitions for %s"
-msgstr "инвентарь <%s> содержит множество определений для %s"
-
-#: writers/latex.py:1097 writers/manpage.py:259 writers/texinfo.py:663
-msgid "Footnotes"
-msgstr "Сноски"
-
-#: writers/manpage.py:289 writers/text.py:945
-#, python-format
-msgid "[image: %s]"
-msgstr "[рисунок: %s]"
-
-#: writers/manpage.py:290 writers/text.py:946
-msgid "[image]"
-msgstr "[рисунок]"
-
-#: builders/latex/__init__.py:206 domains/std/__init__.py:771
-#: domains/std/__init__.py:784 templates/latex/latex.tex.jinja:106
-#: themes/basic/genindex-single.html:22 themes/basic/genindex-single.html:48
-#: themes/basic/genindex-split.html:3 themes/basic/genindex-split.html:6
-#: themes/basic/genindex.html:3 themes/basic/genindex.html:26
-#: themes/basic/genindex.html:59 themes/basic/layout.html:127
-#: writers/texinfo.py:514
-msgid "Index"
-msgstr "Алфавитный указатель"
-
-#: writers/latex.py:743 writers/texinfo.py:646
-msgid ""
-"encountered title node not in section, topic, table, admonition or sidebar"
-msgstr ""
-
-#: writers/texinfo.py:1217
-msgid "caption not inside a figure."
-msgstr "заголовок не внутри иллюстрации."
-
-#: writers/texinfo.py:1303
-#, python-format
-msgid "unimplemented node type: %r"
-msgstr "нереализованный тип узла: %r"
-
-#: writers/latex.py:361
-#, python-format
-msgid "unknown %r toplevel_sectioning for class %r"
-msgstr "неизвестный %r toplevel_sectioning для класса %r"
-
-#: builders/latex/__init__.py:224 writers/latex.py:411
-#, python-format
-msgid "no Babel option known for language %r"
-msgstr "неизвестная опция Babel для языка %r"
-
-#: writers/latex.py:429
-msgid "too large :maxdepth:, ignored."
-msgstr "слишком большое значение :maxdepth:, пропускается."
-
-#: writers/latex.py:591
-#, python-format
-msgid "template %s not found; loading from legacy %s instead"
-msgstr "шаблон %s не найден; вместо этого загружается унаследованный %s"
-
-#: writers/latex.py:707
-msgid "document title is not a single Text node"
-msgstr "заголовок документа не является одиночным Text node"
-
-#: writers/html5.py:572 writers/latex.py:1106
-#, python-format
-msgid "unsupported rubric heading level: %s"
-msgstr "неподдерживаемый уровень заголовка рубрики: %s"
-
-#: writers/latex.py:1183
-msgid ""
-"both tabularcolumns and :widths: option are given. :widths: is ignored."
-msgstr "заданы tabularcolumns и опция :widths:. :widths: пропускается."
-
-#: writers/latex.py:1580
-#, python-format
-msgid "dimension unit %s is invalid. Ignored."
-msgstr "неправильная единица измерения %s. Пропускается."
-
-#: writers/latex.py:1939
-#, python-format
-msgid "unknown index entry type %s found"
-msgstr "найдена запись неизвестного типа индекса %s"
-
-#: domains/math.py:128 writers/latex.py:2495
-#, python-format
-msgid "Invalid math_eqref_format: %r"
-msgstr "Неправильный math_eqref_format: %r"
-
-#: writers/html5.py:96 writers/html5.py:105
-msgid "Link to this definition"
-msgstr "Ссылка на это определение"
-
-#: writers/html5.py:431
-#, python-format
-msgid "numfig_format is not defined for %s"
-msgstr "numfig_format не определён для %s"
-
-#: writers/html5.py:441
-#, python-format
-msgid "Any IDs not assigned for %s node"
-msgstr "Любые ID не разрешены для узла %s"
-
-#: writers/html5.py:496
-msgid "Link to this term"
-msgstr "Ссылка на этот термин"
-
-#: writers/html5.py:548 writers/html5.py:553
-msgid "Link to this heading"
-msgstr "Ссылка на этот заголовок"
-
-#: writers/html5.py:558
-msgid "Link to this table"
-msgstr "Ссылка на эту таблицу"
-
-#: writers/html5.py:636
-msgid "Link to this code"
-msgstr "Ссылка на этот код"
-
-#: writers/html5.py:638
-msgid "Link to this image"
-msgstr "Ссылка на это изображение"
-
-#: writers/html5.py:640
-msgid "Link to this toctree"
-msgstr "Ссылка на это оглавление"
-
-#: writers/html5.py:766
-msgid "Could not obtain image size. :scale: option is ignored."
-msgstr "Не удалось получить размеры изображения. Опция :scale: пропускается."
-
-#: domains/__init__.py:322
-#, python-format
-msgid "%s %s"
-msgstr "%s %s"
-
-#: domains/math.py:73
-#, python-format
-msgid "duplicate label of equation %s, other instance in %s"
-msgstr "повторяющаяся метка уравнения %s, также используется в %s"
-
-#: domains/javascript.py:182
-#, python-format
-msgid "%s() (built-in function)"
-msgstr "%s() (встроенная функция)"
-
-#: domains/javascript.py:183 domains/python/__init__.py:287
+#: builders/xml.py:31
 #, python-format
-msgid "%s() (%s method)"
-msgstr "%s() (метод %s)"
+msgid "The XML files are in %(outdir)s."
+msgstr "Файлы XML находятся в %(outdir)s."
 
-#: domains/javascript.py:185
+#: builders/xml.py:101
 #, python-format
-msgid "%s() (class)"
-msgstr "%s() (класс)"
-
-#: domains/javascript.py:187
-#, python-format
-msgid "%s (global variable or constant)"
-msgstr "%s (глобальная переменная или константа)"
-
-#: domains/javascript.py:189 domains/python/__init__.py:378
-#, python-format
-msgid "%s (%s attribute)"
-msgstr "%s (атрибут %s)"
-
-#: domains/javascript.py:273
-msgid "Arguments"
-msgstr "Аргументы"
-
-#: domains/cpp/__init__.py:489 domains/javascript.py:280
-msgid "Throws"
-msgstr "Бросает исключение"
-
-#: domains/c/__init__.py:339 domains/cpp/__init__.py:502
-#: domains/javascript.py:287 domains/python/_object.py:221
-msgid "Returns"
-msgstr "Результат"
-
-#: domains/c/__init__.py:345 domains/javascript.py:293
-#: domains/python/_object.py:227
-msgid "Return type"
-msgstr "Тип результата"
-
-#: domains/javascript.py:370
-#, python-format
-msgid "%s (module)"
-msgstr "%s (модуль)"
-
-#: domains/c/__init__.py:751 domains/cpp/__init__.py:941
-#: domains/javascript.py:415 domains/python/__init__.py:740
-msgid "function"
-msgstr "функция"
-
-#: domains/javascript.py:416 domains/python/__init__.py:744
-msgid "method"
-msgstr "метод"
-
-#: domains/cpp/__init__.py:939 domains/javascript.py:417
-#: domains/python/__init__.py:742
-msgid "class"
-msgstr "класс"
-
-#: domains/javascript.py:418 domains/python/__init__.py:741
-msgid "data"
-msgstr "данные"
-
-#: domains/javascript.py:419 domains/python/__init__.py:747
-msgid "attribute"
-msgstr "атрибут"
-
-#: domains/javascript.py:420 domains/python/__init__.py:750
-msgid "module"
-msgstr "модуль"
-
-#: domains/javascript.py:454
-#, python-format
-msgid "duplicate %s description of %s, other %s in %s"
-msgstr "повтор описания %s для %s, другое %s в %s"
-
-#: domains/changeset.py:26
-#, python-format
-msgid "Added in version %s"
-msgstr "Добавлено в версии %s"
-
-#: domains/changeset.py:27
-#, python-format
-msgid "Changed in version %s"
-msgstr "Изменено в версии %s"
-
-#: domains/changeset.py:28
-#, python-format
-msgid "Deprecated since version %s"
-msgstr "Устарело, начиная с версии %s"
-
-#: domains/changeset.py:29
-#, python-format
-msgid "Removed in version %s"
-msgstr "Удалено в версии %s"
-
-#: domains/rst.py:131 domains/rst.py:190
-#, python-format
-msgid "%s (directive)"
-msgstr "%s (директива)"
-
-#: domains/rst.py:191 domains/rst.py:202
-#, python-format
-msgid ":%s: (directive option)"
-msgstr ":%s: (опция директивы)"
-
-#: domains/rst.py:224
-#, python-format
-msgid "%s (role)"
-msgstr "%s (роль)"
-
-#: domains/rst.py:234
-msgid "directive"
-msgstr "директива"
-
-#: domains/rst.py:235
-msgid "directive-option"
-msgstr ""
-
-#: domains/rst.py:236
-msgid "role"
-msgstr "роль"
-
-#: domains/rst.py:262
-#, python-format
-msgid "duplicate description of %s %s, other instance in %s"
-msgstr "повторное описание %s %s, другой экземпляр в %s"
-
-#: domains/citation.py:75
-#, python-format
-msgid "duplicate citation %s, other instance in %s"
-msgstr "повторное цитирование %s, другой экземпляр в %s"
-
-#: domains/citation.py:92
-#, python-format
-msgid "Citation [%s] is not referenced."
-msgstr "Ссылка на цитату [%s] отсутствует."
-
-#: locale/__init__.py:228
-msgid "Attention"
-msgstr "Внимание"
-
-#: locale/__init__.py:229
-msgid "Caution"
-msgstr "Осторожно"
-
-#: locale/__init__.py:230
-msgid "Danger"
-msgstr "Опасно"
-
-#: locale/__init__.py:231
-msgid "Error"
-msgstr "Ошибка"
-
-#: locale/__init__.py:232
-msgid "Hint"
-msgstr "Подсказка"
-
-#: locale/__init__.py:233
-msgid "Important"
-msgstr "Важно"
-
-#: locale/__init__.py:234
-msgid "Note"
-msgstr "Примечание"
-
-#: locale/__init__.py:235
-msgid "See also"
-msgstr "См. также"
-
-#: locale/__init__.py:236
-msgid "Tip"
-msgstr "Совет"
-
-#: locale/__init__.py:237
-msgid "Warning"
-msgstr "Предупреждение"
+msgid "The pseudo-XML files are in %(outdir)s."
+msgstr "Файлы pseudo-XML находятся в %(outdir)s."
 
 #: cmd/quickstart.py:52
 msgid "automatically insert docstrings from modules"
@@ -2614,38 +2618,6 @@ msgstr "аргументы с опцией -D должны быть указан
 msgid "-A option argument must be in the form name=value"
 msgstr "аргумент опции -A должен быть указан в виде пары название=значение"
 
-#: themes/classic/layout.html:12 themes/classic/static/sidebar.js.jinja:51
-msgid "Collapse sidebar"
-msgstr "Свернуть боковую панель"
-
-#: themes/agogo/layout.html:29 themes/basic/globaltoc.html:2
-#: themes/basic/localtoc.html:4 themes/scrolls/layout.html:32
-msgid "Table of Contents"
-msgstr "Оглавление"
-
-#: themes/agogo/layout.html:34 themes/basic/layout.html:130
-#: themes/basic/search.html:3 themes/basic/search.html:15
-msgid "Search"
-msgstr "Поиск"
-
-#: themes/agogo/layout.html:37 themes/basic/searchbox.html:8
-#: themes/basic/searchfield.html:12
-msgid "Go"
-msgstr "Искать"
-
-#: themes/agogo/layout.html:81 themes/basic/sourcelink.html:7
-msgid "Show Source"
-msgstr "Исходный текст"
-
-#: themes/haiku/layout.html:16
-msgid "Contents"
-msgstr "Содержание"
-
-#: themes/basic/opensearch.xml:4
-#, python-format
-msgid "Search %(docstitle)s"
-msgstr "Поиск в документе «%(docstitle)s»"
-
 #: themes/basic/defindex.html:4
 msgid "Overview"
 msgstr "Обзор"
@@ -2691,7 +2663,7 @@ msgstr "Алфавитный указатель модулей"
 msgid "quick access to all modules"
 msgstr "сводный список всех модулей"
 
-#: builders/html/__init__.py:507 themes/basic/defindex.html:23
+#: builders/html/__init__.py:508 themes/basic/defindex.html:23
 msgid "General Index"
 msgstr "Алфавитный указатель"
 
@@ -2699,47 +2671,40 @@ msgstr "Алфавитный указатель"
 msgid "all functions, classes, terms"
 msgstr "все функции, классы, переменные и константы"
 
-#: themes/basic/sourcelink.html:4
-msgid "This Page"
-msgstr "Эта страница"
+#: themes/agogo/layout.html:34 themes/basic/layout.html:130
+#: themes/basic/search.html:3 themes/basic/search.html:15
+msgid "Search"
+msgstr "Поиск"
 
-#: themes/basic/genindex-single.html:26
-#, python-format
-msgid "Index &#x2013; %(key)s"
-msgstr "Индекс &#x2013; %(key)s"
+#: themes/basic/search.html:20
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr "Для работы поиска включите JavaScript в браузере."
 
-#: themes/basic/genindex-single.html:54 themes/basic/genindex-split.html:16
-#: themes/basic/genindex-split.html:30 themes/basic/genindex.html:65
-msgid "Full index on one page"
-msgstr "Полный алфавитный указатель на одной странице"
+#: themes/basic/search.html:28
+msgid ""
+"Searching for multiple words only shows matches that contain\n"
+"    all words."
+msgstr "Поиск по нескольким словам отображает только результаты,\n    содержащие все слова."
+
+#: themes/basic/search.html:35
+msgid "search"
+msgstr "искать"
 
 #: themes/basic/searchbox.html:4
 msgid "Quick search"
 msgstr "Быстрый поиск"
 
-#: themes/basic/genindex-split.html:8
-msgid "Index pages by letter"
-msgstr "Указатели по буквам алфавита"
+#: themes/agogo/layout.html:37 themes/basic/searchbox.html:8
+#: themes/basic/searchfield.html:12
+msgid "Go"
+msgstr "Искать"
 
-#: themes/basic/genindex-split.html:17
-msgid "can be huge"
-msgstr "может быть очень большим"
-
-#: themes/basic/relations.html:4
-msgid "Previous topic"
-msgstr "Предыдущий раздел"
-
-#: themes/basic/relations.html:6
-msgid "previous chapter"
-msgstr "предыдущая глава"
-
-#: themes/basic/relations.html:11
-msgid "Next topic"
-msgstr "Следующий раздел"
-
-#: themes/basic/relations.html:13
-msgid "next chapter"
-msgstr "следующая глава"
+#: themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "Поиск в документе «%(docstitle)s»"
 
 #: themes/basic/layout.html:18
 msgid "Navigation"
@@ -2776,25 +2741,64 @@ msgid ""
 "%(sphinx_version)s."
 msgstr "Создано с использованием <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s."
 
-#: themes/basic/search.html:20
-msgid ""
-"Please activate JavaScript to enable the search\n"
-"    functionality."
-msgstr "Для работы поиска включите JavaScript в браузере."
+#: themes/agogo/layout.html:29 themes/basic/globaltoc.html:2
+#: themes/basic/localtoc.html:4 themes/scrolls/layout.html:32
+msgid "Table of Contents"
+msgstr "Оглавление"
 
-#: themes/basic/search.html:28
-msgid ""
-"Searching for multiple words only shows matches that contain\n"
-"    all words."
-msgstr "Поиск по нескольким словам отображает только результаты,\n    содержащие все слова."
+#: themes/basic/relations.html:4
+msgid "Previous topic"
+msgstr "Предыдущий раздел"
 
-#: themes/basic/search.html:35
-msgid "search"
-msgstr "искать"
+#: themes/basic/relations.html:6
+msgid "previous chapter"
+msgstr "предыдущая глава"
 
-#: themes/basic/static/sphinx_highlight.js:112
-msgid "Hide Search Matches"
-msgstr "Снять выделение"
+#: themes/basic/relations.html:11
+msgid "Next topic"
+msgstr "Следующий раздел"
+
+#: themes/basic/relations.html:13
+msgid "next chapter"
+msgstr "следующая глава"
+
+#: themes/basic/genindex-single.html:54 themes/basic/genindex-split.html:16
+#: themes/basic/genindex-split.html:30 themes/basic/genindex.html:65
+msgid "Full index on one page"
+msgstr "Полный алфавитный указатель на одной странице"
+
+#: themes/basic/genindex-split.html:8
+msgid "Index pages by letter"
+msgstr "Указатели по буквам алфавита"
+
+#: themes/basic/genindex-split.html:17
+msgid "can be huge"
+msgstr "может быть очень большим"
+
+#: themes/basic/sourcelink.html:4
+msgid "This Page"
+msgstr "Эта страница"
+
+#: themes/agogo/layout.html:81 themes/basic/sourcelink.html:7
+msgid "Show Source"
+msgstr "Исходный текст"
+
+#: themes/basic/genindex-single.html:26
+#, python-format
+msgid "Index &#x2013; %(key)s"
+msgstr "Индекс &#x2013; %(key)s"
+
+#: themes/haiku/layout.html:16
+msgid "Contents"
+msgstr "Содержание"
+
+#: themes/classic/layout.html:12 themes/classic/static/sidebar.js.jinja:51
+msgid "Collapse sidebar"
+msgstr "Свернуть боковую панель"
+
+#: themes/classic/static/sidebar.js.jinja:42
+msgid "Expand sidebar"
+msgstr "Развернуть боковую панель"
 
 #: themes/basic/static/searchtools.js:117
 msgid "Search Results"
@@ -2828,10 +2832,9 @@ msgstr "Подготовка поиска…"
 msgid ", in "
 msgstr ", в"
 
-#: themes/basic/changes/rstsource.html:5
-#, python-format
-msgid "%(filename)s &#8212; %(docstitle)s"
-msgstr "%(filename)s &#8212; %(docstitle)s"
+#: themes/basic/static/sphinx_highlight.js:112
+msgid "Hide Search Matches"
+msgstr "Снять выделение"
 
 #: themes/basic/changes/frameset.html:5
 #: themes/basic/changes/versionchanges.html:12
@@ -2856,17 +2859,305 @@ msgstr "Изменения в API C"
 msgid "Other changes"
 msgstr "Другие изменения"
 
-#: themes/classic/static/sidebar.js.jinja:42
-msgid "Expand sidebar"
-msgstr "Развернуть боковую панель"
+#: themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &#8212; %(docstitle)s"
+msgstr "%(filename)s &#8212; %(docstitle)s"
 
-#: domains/python/_annotations.py:529
-msgid "Positional-only parameter separator (PEP 570)"
+#: builders/latex/theming.py:88
+#, python-format
+msgid "%r doesn't have \"theme\" setting"
+msgstr "%r не имеет настройки \"theme\""
+
+#: builders/latex/theming.py:91
+#, python-format
+msgid "%r doesn't have \"%s\" setting"
+msgstr "%r не имеет настройки \"%s\""
+
+#: builders/latex/__init__.py:118
+#, python-format
+msgid "The LaTeX files are in %(outdir)s."
+msgstr "Файлы LaTeX находятся в %(outdir)s."
+
+#: builders/latex/__init__.py:121
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through (pdf)latex\n"
+"(use `make latexpdf' here to do that automatically)."
+msgstr "\nЗапустите 'make' в этом каталоге для выполнения с помощью (pdf)latex\n(используйте `make latexpdf' здесь, чтобы сделать это автоматически)."
+
+#: builders/latex/__init__.py:159
+msgid "no \"latex_documents\" config value found; no documents will be written"
+msgstr "не найдено значение настройки \"latex_documents\"; документы не будут записаны"
+
+#: builders/latex/__init__.py:170
+#, python-format
+msgid "\"latex_documents\" config value references unknown document %s"
+msgstr "значение настройки \"latex_documents\" ссылается на неизвестный документ %s"
+
+#: builders/latex/__init__.py:209 templates/latex/latex.tex.jinja:91
+msgid "Release"
+msgstr "Выпуск"
+
+#: builders/latex/__init__.py:428
+msgid "copying TeX support files"
+msgstr "копирование файлов поддержки TeX"
+
+#: builders/latex/__init__.py:465
+msgid "copying additional files"
+msgstr "копирование дополнительных файлов"
+
+#: builders/html/__init__.py:1410 builders/latex/__init__.py:504
+#, python-format
+msgid "logo file %r does not exist"
+msgstr "файл логотипа %r не существует"
+
+#: builders/latex/__init__.py:536
+#, python-format
+msgid "Unknown configure key: latex_elements[%r], ignored."
+msgstr "Неизвестный ключ конфигурации: latex_elements[%r], пропускается."
+
+#: builders/latex/__init__.py:544
+#, python-format
+msgid "Unknown theme option: latex_theme_options[%r], ignored."
+msgstr "Неизвестная опция темы: latex_theme_options[%r], пропускается."
+
+#: builders/latex/transforms.py:120
+msgid "Failed to get a docname!"
+msgstr "Ошибка получения названия документа!"
+
+#: builders/latex/transforms.py:121
+#, python-format
+msgid "Failed to get a docname for source %r!"
+msgstr "Сбой получения названия документа для источника %r!"
+
+#: builders/latex/transforms.py:487
+#, python-format
+msgid "No footnote was found for given reference node %r"
+msgstr "Не найдена сноска для указанного узла %r"
+
+#: builders/html/__init__.py:114
+#, python-format
+msgid "The HTML pages are in %(outdir)s."
+msgstr "Страницы HTML находятся в %(outdir)s."
+
+#: builders/html/__init__.py:349
+#, python-format
+msgid "Failed to read build info file: %r"
+msgstr "Ошибка чтения при сборке файла info: %r"
+
+#: builders/html/__init__.py:365
+msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
+msgstr "несоответствие build_info, копирование .buildinfo в .buildinfo.bak"
+
+#: builders/html/__init__.py:367
+msgid "building [html]: "
+msgstr "сборка [html]: "
+
+#: builders/html/__init__.py:384
+#, python-format
+msgid ""
+"template %s has been changed since the previous build, all docs will be "
+"rebuilt"
+msgstr "шаблон %s был изменён с момента предыдущей сборки, все документы будут пересобраны"
+
+#: builders/html/__init__.py:508
+msgid "index"
+msgstr "указатель"
+
+#: builders/html/__init__.py:561
+#, python-format
+msgid "Logo of %s"
+msgstr "Логотип %s"
+
+#: builders/html/__init__.py:590
+msgid "next"
+msgstr "вперёд"
+
+#: builders/html/__init__.py:599
+msgid "previous"
+msgstr "назад"
+
+#: builders/html/__init__.py:697
+msgid "generating indices"
+msgstr "генерация индексов"
+
+#: builders/html/__init__.py:712
+msgid "writing additional pages"
+msgstr "запись дополнительных страниц"
+
+#: builders/html/__init__.py:795
+#, python-format
+msgid "cannot copy image file '%s': %s"
+msgstr "не удалось скопировать файл изображения '%s': %s"
+
+#: builders/html/__init__.py:807
+msgid "copying downloadable files... "
+msgstr "копирование загружаемых файлов..."
+
+#: builders/html/__init__.py:819
+#, python-format
+msgid "cannot copy downloadable file %r: %s"
+msgstr "не удалось скопировать загружаемый файл %r: %s"
+
+#: builders/html/__init__.py:865
+#, python-format
+msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
+msgstr "Ошибка копирования файла в каталог 'static' темы: %s: %r"
+
+#: builders/html/__init__.py:883
+#, python-format
+msgid "Failed to copy a file in html_static_file: %s: %r"
+msgstr "Ошибка копирования файла в html_static_file: %s: %r"
+
+#: builders/html/__init__.py:918
+msgid "copying static files"
+msgstr "копирование файлов статики"
+
+#: builders/html/__init__.py:935
+#, python-format
+msgid "cannot copy static file %r"
+msgstr "не удалось копировать файл статики %r"
+
+#: builders/html/__init__.py:940
+msgid "copying extra files"
+msgstr "копирование дополнительных файлов"
+
+#: builders/html/__init__.py:950
+#, python-format
+msgid "cannot copy extra file %r"
+msgstr "не удалось скопировать дополнительный файл %r"
+
+#: builders/html/__init__.py:956
+#, python-format
+msgid "Failed to write build info file: %r"
+msgstr "Ошибка записи при сборке файла info: %r"
+
+#: builders/html/__init__.py:1006
+msgid ""
+"search index couldn't be loaded, but not all documents will be built: the "
+"index will be incomplete."
 msgstr ""
 
-#: domains/python/_annotations.py:540
-msgid "Keyword-only parameters separator (PEP 3102)"
+#: builders/html/__init__.py:1053
+#, python-format
+msgid "page %s matches two patterns in html_sidebars: %r and %r"
+msgstr "страница %s соответствует двум шаблонам в html_sidebars: %r и %r"
+
+#: builders/html/__init__.py:1217
+#, python-format
+msgid ""
+"a Unicode error occurred when rendering the page %s. Please make sure all "
+"config values that contain non-ASCII content are Unicode strings."
 msgstr ""
+
+#: builders/html/__init__.py:1230
+#, python-format
+msgid ""
+"The '%s' theme does not support this version of Sphinx, because it uses the "
+"'style' field in HTML templates, which was  was deprecated in Sphinx 5.1 and"
+" removed in Sphinx 7.0. The theme must be updated to use the 'styles' field "
+"instead. See https://www.sphinx-"
+"doc.org/en/master/development/html_themes/templating.html#styles"
+msgstr ""
+
+#: builders/html/__init__.py:1238
+#, python-format
+msgid ""
+"An error happened in rendering the page %s.\n"
+"Reason: %r"
+msgstr "Ошибка при рендере страницы %s.\nПричина: %r"
+
+#: builders/html/__init__.py:1271
+msgid "dumping object inventory"
+msgstr "выгрузка объекта инвентаря"
+
+#: builders/html/__init__.py:1279
+#, python-format
+msgid "dumping search index in %s"
+msgstr ""
+
+#: builders/html/__init__.py:1322
+#, python-format
+msgid "invalid js_file: %r, ignored"
+msgstr "некорректный js_file: %r, пропускается"
+
+#: builders/html/__init__.py:1356
+msgid "Many math_renderers are registered. But no math_renderer is selected."
+msgstr "Зарегистрировано несколько math_renderers. Однако, ни один math_renderer не выбран."
+
+#: builders/html/__init__.py:1360
+#, python-format
+msgid "Unknown math_renderer %r is given."
+msgstr "Передан неизвестный math_renderer %r ."
+
+#: builders/html/__init__.py:1374
+#, python-format
+msgid "html_extra_path entry %r is placed inside outdir"
+msgstr "элемент html_extra_path %r размещён внутри целевого каталога"
+
+#: builders/html/__init__.py:1379
+#, python-format
+msgid "html_extra_path entry %r does not exist"
+msgstr "элемент html_extra_path %r не существует"
+
+#: builders/html/__init__.py:1394
+#, python-format
+msgid "html_static_path entry %r is placed inside outdir"
+msgstr "элемент html_static_path %r размещён внутри целевого каталога"
+
+#: builders/html/__init__.py:1399
+#, python-format
+msgid "html_static_path entry %r does not exist"
+msgstr "элемент html_static_path %r не существует"
+
+#: builders/html/__init__.py:1421
+#, python-format
+msgid "favicon file %r does not exist"
+msgstr "Файл favicon %r не существует"
+
+#: builders/html/__init__.py:1434
+#, python-format
+msgid ""
+"Values in 'html_sidebars' must be a list of strings. At least one pattern "
+"has a string value: %s. Change to `html_sidebars = %r`."
+msgstr "Значения в 'html_sidebars' должны быть списком строк. По крайней мере один шаблон имеет строковое значение: %s. Замените на `html_sidebars = %r`."
+
+#: builders/html/__init__.py:1447
+msgid ""
+"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
+"configuration options)"
+msgstr "HTML 4 больше не поддерживается Sphinx. (строка \"html4_writer=True\" обнаружена в настройках)"
+
+#: builders/html/__init__.py:1463
+#, python-format
+msgid "%s %s documentation"
+msgstr "документация %s %s"
+
+#: builders/html/_build_info.py:32
+msgid "failed to read broken build info file (unknown version)"
+msgstr "ошибка чтения файла сборки info (неизвестная версия)"
+
+#: builders/html/_build_info.py:36
+msgid "failed to read broken build info file (missing config entry)"
+msgstr "сбой при чтении файла info для сломанной сборки (пропущено значение настройки)"
+
+#: builders/html/_build_info.py:39
+msgid "failed to read broken build info file (missing tags entry)"
+msgstr "ошибка чтения сломанной сборки файла info (отсутствует запись tags)"
+
+#: domains/c/__init__.py:326 domains/cpp/__init__.py:483
+#: domains/python/_object.py:190 ext/napoleon/docstring.py:974
+msgid "Parameters"
+msgstr "Параметры"
+
+#: domains/python/_object.py:206
+msgid "Variables"
+msgstr "Переменные"
+
+#: domains/python/_object.py:214
+msgid "Raises"
+msgstr "Исключение"
 
 #: domains/python/__init__.py:113 domains/python/__init__.py:278
 #, python-format
@@ -2962,75 +3253,13 @@ msgstr "найдено больше одной цели для перекрёс�
 msgid " (deprecated)"
 msgstr "(использование не рекомендуется)"
 
-#: domains/c/__init__.py:326 domains/cpp/__init__.py:483
-#: domains/python/_object.py:190 ext/napoleon/docstring.py:974
-msgid "Parameters"
-msgstr "Параметры"
+#: domains/python/_annotations.py:533
+msgid "Positional-only parameter separator (PEP 570)"
+msgstr ""
 
-#: domains/python/_object.py:206
-msgid "Variables"
-msgstr "Переменные"
-
-#: domains/python/_object.py:214
-msgid "Raises"
-msgstr "Исключение"
-
-#: domains/cpp/__init__.py:159
-msgid "Template Parameters"
-msgstr "Параметры шаблона"
-
-#: domains/cpp/__init__.py:302
-#, python-format
-msgid "%s (C++ %s)"
-msgstr "%s (C++ %s)"
-
-#: domains/cpp/__init__.py:392 domains/cpp/_symbol.py:942
-#, python-format
-msgid ""
-"Duplicate C++ declaration, also defined at %s:%s.\n"
-"Declaration is '.. cpp:%s:: %s'."
-msgstr "Повторная декларация C++, также определено как %s:%s.\nДекларация в '.. cpp:%s:: %s'."
-
-#: domains/c/__init__.py:333 domains/cpp/__init__.py:496
-msgid "Return values"
-msgstr "Возвращаемые значения"
-
-#: domains/c/__init__.py:754 domains/cpp/__init__.py:940
-msgid "union"
-msgstr "объединение"
-
-#: domains/c/__init__.py:749 domains/cpp/__init__.py:942
-msgid "member"
-msgstr "поле"
-
-#: domains/c/__init__.py:757 domains/cpp/__init__.py:943
-msgid "type"
-msgstr "тип"
-
-#: domains/cpp/__init__.py:944
-msgid "concept"
-msgstr "концепт"
-
-#: domains/c/__init__.py:755 domains/cpp/__init__.py:945
-msgid "enum"
-msgstr "перечисляемый тип"
-
-#: domains/c/__init__.py:756 domains/cpp/__init__.py:946
-msgid "enumerator"
-msgstr "перечислитель"
-
-#: domains/c/__init__.py:760 domains/cpp/__init__.py:949
-msgid "function parameter"
-msgstr "параметр функции"
-
-#: domains/cpp/__init__.py:952
-msgid "template parameter"
-msgstr "параметр шаблона"
-
-#: domains/c/__init__.py:211
-#, python-format
-msgid "%s (C %s)"
-msgstr "%s (C %s)"
+#: domains/python/_annotations.py:544
+msgid "Keyword-only parameters separator (PEP 3102)"
+msgstr ""
 
 #: domains/c/__init__.py:277 domains/c/_symbol.py:557
 #, python-format
@@ -3038,6 +3267,19 @@ msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr "Повторная декларация C, также определено как %s:%s.\nДекларация в '.. c:%s:: %s'."
+
+#: domains/c/__init__.py:211
+#, python-format
+msgid "%s (C %s)"
+msgstr "%s (C %s)"
+
+#: domains/c/__init__.py:333 domains/cpp/__init__.py:496
+msgid "Return values"
+msgstr "Возвращаемые значения"
+
+#: domains/c/__init__.py:749 domains/cpp/__init__.py:942
+msgid "member"
+msgstr "поле"
 
 #: domains/c/__init__.py:750
 msgid "variable"
@@ -3050,6 +3292,26 @@ msgstr "макрос"
 #: domains/c/__init__.py:753
 msgid "struct"
 msgstr "структура"
+
+#: domains/c/__init__.py:754 domains/cpp/__init__.py:940
+msgid "union"
+msgstr "объединение"
+
+#: domains/c/__init__.py:755 domains/cpp/__init__.py:945
+msgid "enum"
+msgstr "перечисляемый тип"
+
+#: domains/c/__init__.py:756 domains/cpp/__init__.py:946
+msgid "enumerator"
+msgstr "перечислитель"
+
+#: domains/c/__init__.py:757 domains/cpp/__init__.py:943
+msgid "type"
+msgstr "тип"
+
+#: domains/c/__init__.py:760 domains/cpp/__init__.py:949
+msgid "function parameter"
+msgstr "параметр функции"
 
 #: domains/std/__init__.py:91 domains/std/__init__.py:111
 #, python-format
@@ -3164,444 +3426,354 @@ msgstr "неопределённая метка: %r"
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr "Ошибка создания перекрёстной ссылки. Заголовок или подзаголовок не найдены: %r"
 
-#: environment/adapters/toctree.py:324
-#, python-format
-msgid "circular toctree references detected, ignoring: %s <- %s"
-msgstr "обнаружены циклические ссылки в оглавлении, пропускается: %s <- %s"
-
-#: environment/adapters/toctree.py:349
+#: domains/cpp/__init__.py:392 domains/cpp/_symbol.py:942
 #, python-format
 msgid ""
-"toctree contains reference to document %r that doesn't have a title: no link"
-" will be generated"
-msgstr "оглавление содержит ссылку на документ %r, у которого нет заголовка: ссылка не будет сгенерирована"
+"Duplicate C++ declaration, also defined at %s:%s.\n"
+"Declaration is '.. cpp:%s:: %s'."
+msgstr "Повторная декларация C++, также определено как %s:%s.\nДекларация в '.. cpp:%s:: %s'."
 
-#: environment/adapters/toctree.py:364
-#, python-format
-msgid "toctree contains reference to non-included document %r"
-msgstr "toctree содержит ссылку на не включенный документ %r"
+#: domains/cpp/__init__.py:159
+msgid "Template Parameters"
+msgstr "Параметры шаблона"
 
-#: environment/adapters/toctree.py:367
+#: domains/cpp/__init__.py:302
 #, python-format
-msgid "toctree contains reference to non-existing document %r"
+msgid "%s (C++ %s)"
+msgstr "%s (C++ %s)"
+
+#: domains/cpp/__init__.py:944
+msgid "concept"
+msgstr "концепт"
+
+#: domains/cpp/__init__.py:952
+msgid "template parameter"
+msgstr "параметр шаблона"
+
+#: ext/apidoc/_shared.py:29 ext/autosummary/generate.py:944
+#, python-format
+msgid "Failed to remove %s: %s"
+msgstr "Ошибка удаления %s: %s"
+
+#: ext/apidoc/_extension.py:50
+msgid "Running apidoc"
 msgstr ""
 
-#: environment/adapters/indexentries.py:123
+#: ext/apidoc/_extension.py:102
 #, python-format
-msgid "see %s"
-msgstr "см. %s"
-
-#: environment/adapters/indexentries.py:133
-#, python-format
-msgid "see also %s"
-msgstr "также см. %s"
-
-#: environment/adapters/indexentries.py:141
-#, python-format
-msgid "unknown index entry type %r"
-msgstr "неизвестная запись типа индекса %r"
-
-#: environment/adapters/indexentries.py:268
-#: templates/latex/sphinxmessages.sty.jinja:11
-msgid "Symbols"
-msgstr "Символы"
-
-#: environment/collectors/asset.py:98
-#, python-format
-msgid "image file not readable: %s"
-msgstr "нечитаемое изображение: %s"
-
-#: environment/collectors/asset.py:126
-#, python-format
-msgid "image file %s not readable: %s"
-msgstr "файл изображения %s не читается: %s"
-
-#: environment/collectors/asset.py:163
-#, python-format
-msgid "download file not readable: %s"
-msgstr "загружаемый файл не читается: %s"
-
-#: environment/collectors/toctree.py:259
-#, python-format
-msgid "%s is already assigned section numbers (nested numbered toctree?)"
+msgid "apidoc_modules item %i must be a dict"
 msgstr ""
 
-#: _cli/util/errors.py:190
-msgid "Interrupted!"
-msgstr "Прервано!"
-
-#: _cli/util/errors.py:194
-msgid "reStructuredText markup error!"
+#: ext/apidoc/_extension.py:110
+#, python-format
+msgid "apidoc_modules item %i must have a 'path' key"
 msgstr ""
 
-#: _cli/util/errors.py:200
-msgid "Encoding error!"
+#: ext/apidoc/_extension.py:115
+#, python-format
+msgid "apidoc_modules item %i 'path' must be a string"
 msgstr ""
 
-#: _cli/util/errors.py:203
-msgid "Recursion error!"
+#: ext/apidoc/_extension.py:121
+#, python-format
+msgid "apidoc_modules item %i 'path' is not an existing folder: %s"
 msgstr ""
 
-#: _cli/util/errors.py:207
-msgid ""
-"This can happen with very large or deeply nested source files. You can "
-"carefully increase the default Python recursion limit of 1,000 in conf.py "
-"with e.g.:"
+#: ext/apidoc/_extension.py:133
+#, python-format
+msgid "apidoc_modules item %i must have a 'destination' key"
 msgstr ""
 
-#: _cli/util/errors.py:227
-msgid "Starting debugger:"
+#: ext/apidoc/_extension.py:140
+#, python-format
+msgid "apidoc_modules item %i 'destination' must be a string"
 msgstr ""
 
-#: _cli/util/errors.py:235
-msgid "The full traceback has been saved in:"
-msgstr "Полный журнал будет сохранен в:"
-
-#: _cli/util/errors.py:240
-msgid ""
-"To report this error to the developers, please open an issue at "
-"<https://github.com/sphinx-doc/sphinx/issues/>. Thanks!"
-msgstr "Чтобы сообщить об этой ошибке разработчикам, пожалуйста, откройте запрос в <https://github.com/sphinx-doc/sphinx/issues/>. Спасибо!"
-
-#: _cli/util/errors.py:246
-msgid ""
-"Please also report this if it was a user error, so that a better error "
-"message can be provided next time."
+#: ext/apidoc/_extension.py:147
+#, python-format
+msgid "apidoc_modules item %i 'destination' should be a relative path"
 msgstr ""
 
-#: transforms/post_transforms/__init__.py:88
-msgid ""
-"Could not determine the fallback text for the cross-reference. Might be a "
-"bug."
+#: ext/apidoc/_extension.py:157
+#, python-format
+msgid "apidoc_modules item %i cannot create destination directory: %s"
 msgstr ""
 
-#: transforms/post_transforms/__init__.py:237
+#: ext/apidoc/_extension.py:178
 #, python-format
-msgid "more than one target found for 'any' cross-reference %r: could be %s"
-msgstr "для перекрёстной ссылки 'any' найдено больше одной цели %r: должно быть %s"
-
-#: transforms/post_transforms/__init__.py:299
-#, python-format
-msgid "%s:%s reference target not found: %s"
-msgstr "%s:%s цель перекрёстной ссылки не найдена: %s"
-
-#: transforms/post_transforms/__init__.py:305
-#, python-format
-msgid "%r reference target not found: %s"
-msgstr "%r цель перекрёстной ссылки не найдена: %s"
-
-#: transforms/post_transforms/images.py:79
-#, python-format
-msgid "Could not fetch remote image: %s [%s]"
-msgstr "Не удалось получить изображение из внешнего источника: %s [%s]"
-
-#: transforms/post_transforms/images.py:96
-#, python-format
-msgid "Could not fetch remote image: %s [%d]"
-msgstr "Не удалось получить изображение из внешнего источника: %s [%d]"
-
-#: transforms/post_transforms/images.py:143
-#, python-format
-msgid "Unknown image format: %s..."
-msgstr "Неизвестный формат изображения: %s..."
-
-#: builders/html/__init__.py:113
-#, python-format
-msgid "The HTML pages are in %(outdir)s."
-msgstr "Страницы HTML находятся в %(outdir)s."
-
-#: builders/html/__init__.py:348
-#, python-format
-msgid "Failed to read build info file: %r"
-msgstr "Ошибка чтения при сборке файла info: %r"
-
-#: builders/html/__init__.py:364
-msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
-msgstr "несоответствие build_info, копирование .buildinfo в .buildinfo.bak"
-
-#: builders/html/__init__.py:366
-msgid "building [html]: "
-msgstr "сборка [html]: "
-
-#: builders/html/__init__.py:383
-#, python-format
-msgid ""
-"template %s has been changed since the previous build, all docs will be "
-"rebuilt"
-msgstr "шаблон %s был изменён с момента предыдущей сборки, все документы будут пересобраны"
-
-#: builders/html/__init__.py:507
-msgid "index"
-msgstr "указатель"
-
-#: builders/html/__init__.py:560
-#, python-format
-msgid "Logo of %s"
-msgstr "Логотип %s"
-
-#: builders/html/__init__.py:589
-msgid "next"
-msgstr "вперёд"
-
-#: builders/html/__init__.py:598
-msgid "previous"
-msgstr "назад"
-
-#: builders/html/__init__.py:696
-msgid "generating indices"
-msgstr "генерация индексов"
-
-#: builders/html/__init__.py:711
-msgid "writing additional pages"
-msgstr "запись дополнительных страниц"
-
-#: builders/html/__init__.py:794
-#, python-format
-msgid "cannot copy image file '%s': %s"
-msgstr "не удалось скопировать файл изображения '%s': %s"
-
-#: builders/html/__init__.py:806
-msgid "copying downloadable files... "
-msgstr "копирование загружаемых файлов..."
-
-#: builders/html/__init__.py:818
-#, python-format
-msgid "cannot copy downloadable file %r: %s"
-msgstr "не удалось скопировать загружаемый файл %r: %s"
-
-#: builders/html/__init__.py:864
-#, python-format
-msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
-msgstr "Ошибка копирования файла в каталог 'static' темы: %s: %r"
-
-#: builders/html/__init__.py:882
-#, python-format
-msgid "Failed to copy a file in html_static_file: %s: %r"
-msgstr "Ошибка копирования файла в html_static_file: %s: %r"
-
-#: builders/html/__init__.py:917
-msgid "copying static files"
-msgstr "копирование файлов статики"
-
-#: builders/html/__init__.py:934
-#, python-format
-msgid "cannot copy static file %r"
-msgstr "не удалось копировать файл статики %r"
-
-#: builders/html/__init__.py:939
-msgid "copying extra files"
-msgstr "копирование дополнительных файлов"
-
-#: builders/html/__init__.py:949
-#, python-format
-msgid "cannot copy extra file %r"
-msgstr "не удалось скопировать дополнительный файл %r"
-
-#: builders/html/__init__.py:955
-#, python-format
-msgid "Failed to write build info file: %r"
-msgstr "Ошибка записи при сборке файла info: %r"
-
-#: builders/html/__init__.py:1005
-msgid ""
-"search index couldn't be loaded, but not all documents will be built: the "
-"index will be incomplete."
+msgid "apidoc_modules item %i '%s' must be an int"
 msgstr ""
 
-#: builders/html/__init__.py:1052
+#: ext/apidoc/_extension.py:192
 #, python-format
-msgid "page %s matches two patterns in html_sidebars: %r and %r"
-msgstr "страница %s соответствует двум шаблонам в html_sidebars: %r и %r"
-
-#: builders/html/__init__.py:1216
-#, python-format
-msgid ""
-"a Unicode error occurred when rendering the page %s. Please make sure all "
-"config values that contain non-ASCII content are Unicode strings."
+msgid "apidoc_modules item %i '%s' must be a boolean"
 msgstr ""
 
-#: builders/html/__init__.py:1224
+#: ext/apidoc/_extension.py:210
 #, python-format
-msgid ""
-"An error happened in rendering the page %s.\n"
-"Reason: %r"
-msgstr "Ошибка при рендере страницы %s.\nПричина: %r"
-
-#: builders/html/__init__.py:1257
-msgid "dumping object inventory"
-msgstr "выгрузка объекта инвентаря"
-
-#: builders/html/__init__.py:1265
-#, python-format
-msgid "dumping search index in %s"
+msgid "apidoc_modules item %i has unexpected keys: %s"
 msgstr ""
 
-#: builders/html/__init__.py:1308
+#: ext/apidoc/_extension.py:248
 #, python-format
-msgid "invalid js_file: %r, ignored"
-msgstr "некорректный js_file: %r, пропускается"
+msgid "apidoc_modules item %i '%s' must be a sequence"
+msgstr ""
 
-#: builders/html/__init__.py:1342
-msgid "Many math_renderers are registered. But no math_renderer is selected."
-msgstr "Зарегистрировано несколько math_renderers. Однако, ни один math_renderer не выбран."
-
-#: builders/html/__init__.py:1346
+#: ext/apidoc/_extension.py:257
 #, python-format
-msgid "Unknown math_renderer %r is given."
-msgstr "Передан неизвестный math_renderer %r ."
+msgid "apidoc_modules item %i '%s' must contain strings"
+msgstr ""
 
-#: builders/html/__init__.py:1360
+#: ext/apidoc/_generate.py:69
 #, python-format
-msgid "html_extra_path entry %r is placed inside outdir"
-msgstr "элемент html_extra_path %r размещён внутри целевого каталога"
+msgid "Would create file %s."
+msgstr "Нужно создать файл %s."
 
-#: builders/html/__init__.py:1365
-#, python-format
-msgid "html_extra_path entry %r does not exist"
-msgstr "элемент html_extra_path %r не существует"
-
-#: builders/html/__init__.py:1380
-#, python-format
-msgid "html_static_path entry %r is placed inside outdir"
-msgstr "элемент html_static_path %r размещён внутри целевого каталога"
-
-#: builders/html/__init__.py:1385
-#, python-format
-msgid "html_static_path entry %r does not exist"
-msgstr "элемент html_static_path %r не существует"
-
-#: builders/html/__init__.py:1396 builders/latex/__init__.py:504
-#, python-format
-msgid "logo file %r does not exist"
-msgstr "файл логотипа %r не существует"
-
-#: builders/html/__init__.py:1407
-#, python-format
-msgid "favicon file %r does not exist"
-msgstr "Файл favicon %r не существует"
-
-#: builders/html/__init__.py:1420
-#, python-format
-msgid ""
-"Values in 'html_sidebars' must be a list of strings. At least one pattern "
-"has a string value: %s. Change to `html_sidebars = %r`."
-msgstr "Значения в 'html_sidebars' должны быть списком строк. По крайней мере один шаблон имеет строковое значение: %s. Замените на `html_sidebars = %r`."
-
-#: builders/html/__init__.py:1433
-msgid ""
-"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
-"configuration options)"
-msgstr "HTML 4 больше не поддерживается Sphinx. (строка \"html4_writer=True\" обнаружена в настройках)"
-
-#: builders/html/__init__.py:1449
-#, python-format
-msgid "%s %s documentation"
-msgstr "документация %s %s"
-
-#: builders/html/_build_info.py:32
-msgid "failed to read broken build info file (unknown version)"
-msgstr "ошибка чтения файла сборки info (неизвестная версия)"
-
-#: builders/html/_build_info.py:36
-msgid "failed to read broken build info file (missing config entry)"
-msgstr "сбой при чтении файла info для сломанной сборки (пропущено значение настройки)"
-
-#: builders/html/_build_info.py:39
-msgid "failed to read broken build info file (missing tags entry)"
-msgstr "ошибка чтения сломанной сборки файла info (отсутствует запись tags)"
-
-#: builders/latex/__init__.py:118
-#, python-format
-msgid "The LaTeX files are in %(outdir)s."
-msgstr "Файлы LaTeX находятся в %(outdir)s."
-
-#: builders/latex/__init__.py:121
+#: ext/apidoc/_cli.py:28
 msgid ""
 "\n"
-"Run 'make' in that directory to run these through (pdf)latex\n"
-"(use `make latexpdf' here to do that automatically)."
-msgstr "\nЗапустите 'make' в этом каталоге для выполнения с помощью (pdf)latex\n(используйте `make latexpdf' здесь, чтобы сделать это автоматически)."
+"Look recursively in <MODULE_PATH> for Python modules and packages and create\n"
+"one reST file with automodule directives per package in the <OUTPUT_PATH>.\n"
+"\n"
+"The <EXCLUDE_PATTERN>s can be file and/or directory patterns that will be\n"
+"excluded from generation.\n"
+"\n"
+"Note: By default this script will not overwrite already created files."
+msgstr ""
 
-#: builders/latex/__init__.py:159
-msgid "no \"latex_documents\" config value found; no documents will be written"
-msgstr "не найдено значение настройки \"latex_documents\"; документы не будут записаны"
+#: ext/apidoc/_cli.py:45
+msgid "path to module to document"
+msgstr "путь к модулю в документе"
 
-#: builders/latex/__init__.py:170
+#: ext/apidoc/_cli.py:50
+msgid ""
+"fnmatch-style file and/or directory patterns to exclude from generation"
+msgstr "стиль fnmatch для шаблонов файлов и/или каталогов для исключения из генерации"
+
+#: ext/apidoc/_cli.py:60
+msgid "directory to place all output"
+msgstr "каталог для размещения всего вывода"
+
+#: ext/apidoc/_cli.py:75
+msgid "maximum depth of submodules to show in the TOC (default: 4)"
+msgstr "максимальная глубина субмодулей для отображения в оглавлении (по умолчанию: 4)"
+
+#: ext/apidoc/_cli.py:82
+msgid "overwrite existing files"
+msgstr "перезаписать существующие файлы"
+
+#: ext/apidoc/_cli.py:91
+msgid ""
+"follow symbolic links. Powerful when combined with "
+"collective.recipe.omelette."
+msgstr "следовать по символическим ссылкам. Эффективно сочетается с collective.recipe.omelette."
+
+#: ext/apidoc/_cli.py:99
+msgid "run the script without creating files"
+msgstr "запуск сценария без создания файлов"
+
+#: ext/apidoc/_cli.py:106
+msgid "put documentation for each module on its own page"
+msgstr "разместить документацию каждого модуля на его собственной странице"
+
+#: ext/apidoc/_cli.py:113
+msgid "include \"_private\" modules"
+msgstr "включая модули \"_private\""
+
+#: ext/apidoc/_cli.py:120
+msgid "filename of table of contents (default: modules)"
+msgstr "имя файла с оглавлением (по умолчанию: modules)"
+
+#: ext/apidoc/_cli.py:127
+msgid "don't create a table of contents file"
+msgstr "не создавать файл с оглавлением"
+
+#: ext/apidoc/_cli.py:135
+msgid ""
+"don't create headings for the module/package packages (e.g. when the "
+"docstrings already contain them)"
+msgstr "не создавать заголовки для модулей/пакета пакетов (например, если docstrings уже содержат их)"
+
+#: ext/apidoc/_cli.py:145
+msgid "put module documentation before submodule documentation"
+msgstr "разместить документацию модуля перед документацией подмодуля"
+
+#: ext/apidoc/_cli.py:152
+msgid ""
+"interpret module paths according to PEP-0420 implicit namespaces "
+"specification"
+msgstr ""
+
+#: ext/apidoc/_cli.py:160
+msgid ""
+"Comma-separated list of options to pass to automodule directive (or use "
+"SPHINX_APIDOC_OPTIONS)."
+msgstr ""
+
+#: ext/apidoc/_cli.py:170
+msgid "file suffix (default: rst)"
+msgstr "расширение файла (по умолчанию: rst)"
+
+#: ext/apidoc/_cli.py:178 ext/autosummary/generate.py:909
+msgid "Remove existing files in the output directory that were not generated"
+msgstr "Удалить из целевого каталога файлы, которые не были сгенерированы"
+
+#: ext/apidoc/_cli.py:186
+msgid "generate a full project with sphinx-quickstart"
+msgstr "генерация полного проекта с помощью sphinx-quickstart"
+
+#: ext/apidoc/_cli.py:193
+msgid "append module_path to sys.path, used when --full is given"
+msgstr "добавить module_path в sys.path, используется совместно с --full"
+
+#: ext/apidoc/_cli.py:200
+msgid "project name (default: root module name)"
+msgstr "название проекта (по умолчанию: название корневого модуля)"
+
+#: ext/apidoc/_cli.py:207
+msgid "project author(s), used when --full is given"
+msgstr "автор(ы) проекта, используется совместно с --full"
+
+#: ext/apidoc/_cli.py:214
+msgid "project version, used when --full is given"
+msgstr "версия проекта, используется совместно с --full"
+
+#: ext/apidoc/_cli.py:222
+msgid "project release, used when --full is given, defaults to --doc-version"
+msgstr "релиз проекта, используется совместно с --full, по умолчанию --doc-version"
+
+#: ext/apidoc/_cli.py:226
+msgid "extension options"
+msgstr "опции расширения"
+
+#: ext/apidoc/_cli.py:232
+msgid "enable arbitrary extensions, used when --full is given"
+msgstr ""
+
+#: ext/apidoc/_cli.py:240
 #, python-format
-msgid "\"latex_documents\" config value references unknown document %s"
-msgstr "значение настройки \"latex_documents\" ссылается на неизвестный документ %s"
+msgid "enable %s extension, used when --full is given"
+msgstr ""
 
-#: builders/latex/__init__.py:209 templates/latex/latex.tex.jinja:91
-msgid "Release"
-msgstr "Выпуск"
-
-#: builders/latex/__init__.py:428
-msgid "copying TeX support files"
-msgstr "копирование файлов поддержки TeX"
-
-#: builders/latex/__init__.py:465
-msgid "copying additional files"
-msgstr "копирование дополнительных файлов"
-
-#: builders/latex/__init__.py:536
+#: ext/apidoc/_cli.py:291
 #, python-format
-msgid "Unknown configure key: latex_elements[%r], ignored."
-msgstr "Неизвестный ключ конфигурации: latex_elements[%r], пропускается."
+msgid "%s is not a directory."
+msgstr "%s не каталог."
 
-#: builders/latex/__init__.py:544
+#: ext/intersphinx/_resolve.py:49
 #, python-format
-msgid "Unknown theme option: latex_theme_options[%r], ignored."
-msgstr "Неизвестная опция темы: latex_theme_options[%r], пропускается."
+msgid "(in %s v%s)"
+msgstr "(в %s v%s)"
 
-#: builders/latex/transforms.py:120
-msgid "Failed to get a docname!"
-msgstr "Ошибка получения названия документа!"
-
-#: builders/latex/transforms.py:121
+#: ext/intersphinx/_resolve.py:51
 #, python-format
-msgid "Failed to get a docname for source %r!"
-msgstr "Сбой получения названия документа для источника %r!"
+msgid "(in %s)"
+msgstr "(в %s)"
 
-#: builders/latex/transforms.py:487
+#: ext/intersphinx/_resolve.py:108
 #, python-format
-msgid "No footnote was found for given reference node %r"
-msgstr "Не найдена сноска для указанного узла %r"
+msgid "inventory '%s': duplicate matches found for %s:%s"
+msgstr "инвентарь '%s': найден повтор для %s:%s"
 
-#: builders/latex/theming.py:88
+#: ext/intersphinx/_resolve.py:118
 #, python-format
-msgid "%r doesn't have \"theme\" setting"
-msgstr "%r не имеет настройки \"theme\""
+msgid "inventory '%s': multiple matches found for %s:%s"
+msgstr "инвентарь '%s': найдено несколько совпадений для %s:%s"
 
-#: builders/latex/theming.py:91
+#: ext/intersphinx/_resolve.py:383
 #, python-format
-msgid "%r doesn't have \"%s\" setting"
-msgstr "%r не имеет настройки \"%s\""
+msgid "inventory for external cross-reference not found: %r"
+msgstr "инвентарь для внешних перекрёстных ссылок не найден: %r"
 
-#: templates/latex/longtable.tex.jinja:52
-#: templates/latex/sphinxmessages.sty.jinja:8
-msgid "continued from previous page"
-msgstr "продолжение с предыдущей страницы"
+#: ext/intersphinx/_resolve.py:392
+#, python-format
+msgid "invalid external cross-reference suffix: %r"
+msgstr "неправильный суффикс перекрёстной ссылки: %r"
 
-#: templates/latex/longtable.tex.jinja:63
-#: templates/latex/sphinxmessages.sty.jinja:9
-msgid "continues on next page"
-msgstr "продолжается на следующей странице"
+#: ext/intersphinx/_resolve.py:403
+#, python-format
+msgid "domain for external cross-reference not found: %r"
+msgstr "домен для внешней перекрёстной ссылки не найден: %r"
 
-#: templates/latex/sphinxmessages.sty.jinja:10
-msgid "Non-alphabetical"
-msgstr "Не-алфавитный"
+#: ext/intersphinx/_resolve.py:619
+#, python-format
+msgid "external %s:%s reference target not found: %s"
+msgstr ""
 
-#: templates/latex/sphinxmessages.sty.jinja:12
-msgid "Numbers"
-msgstr "Числа"
+#: ext/intersphinx/_load.py:60
+#, python-format
+msgid ""
+"Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
+"identifiers must be non-empty strings."
+msgstr "Неправильный идентификатор проекта intersphinx  `%r` d intersphinx_mapping. Идентификаторы проектов должны быть непустыми строками."
 
-#: templates/latex/sphinxmessages.sty.jinja:13
-msgid "page"
-msgstr "страница"
+#: ext/intersphinx/_load.py:71
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
+"or list."
+msgstr "Неправильное значение `%r` в intersphinx_mapping[%r]. Ожидается кортеж или список из двух элементов."
 
-#: ext/napoleon/__init__.py:356 ext/napoleon/docstring.py:940
-msgid "Keyword Arguments"
-msgstr "Именованные аргументы"
+#: ext/intersphinx/_load.py:82
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
+" inventory locations) pair."
+msgstr "Неправильное значение `%r` в intersphinx_mapping[%r]. Значения должны быть парами (целевой URI, расположение инвентаря)."
+
+#: ext/intersphinx/_load.py:93
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique non-empty strings."
+msgstr "Некорректное значение целевого URL `%r` в intersphinx_mapping[%r][0]. Целевые URI должны быть уникальными не пустыми строками."
+
+#: ext/intersphinx/_load.py:102
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique (other instance in intersphinx_mapping[%r])."
+msgstr "Неправильный целевой URI `%r` в intersphinx_mapping[%r][0]. Целевые URI должны быть уникальными (другой экземпляр в intersphinx_mapping[%r])."
+
+#: ext/intersphinx/_load.py:121
+#, python-format
+msgid ""
+"Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
+"Inventory locations must be non-empty strings or None."
+msgstr ""
+
+#: ext/intersphinx/_load.py:131
+msgid "Invalid `intersphinx_mapping` configuration (1 error)."
+msgstr "Некорректная настройка `intersphinx_mapping` (1 ошибка)."
+
+#: ext/intersphinx/_load.py:134
+#, python-format
+msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
+msgstr "Некорректная конфигурация `intersphinx_mapping` (%s ошибок)."
+
+#: ext/intersphinx/_load.py:157
+msgid "An invalid intersphinx_mapping entry was added after normalisation."
+msgstr "После нормализации была добьавлена некорректная запись intersphinx_mapping."
+
+#: ext/intersphinx/_load.py:261
+#, python-format
+msgid "loading intersphinx inventory '%s' from %s ..."
+msgstr "загрузка инвентаря intersphinx '%s' из %s ..."
+
+#: ext/intersphinx/_load.py:287
+msgid ""
+"encountered some issues with some of the inventories, but they had working "
+"alternatives:"
+msgstr ""
+
+#: ext/intersphinx/_load.py:297
+msgid "failed to reach any of the inventories with the following issues:"
+msgstr "не удалось получить доступ ни к одному из инвентарей по следующим причинам:"
+
+#: ext/intersphinx/_load.py:361
+#, python-format
+msgid "intersphinx inventory has moved: %s -> %s"
+msgstr "инвентарь intersphinx перемещён: %s -> %s"
 
 #: ext/napoleon/docstring.py:176
 #, python-format
@@ -3631,6 +3803,10 @@ msgstr "Пример"
 msgid "Examples"
 msgstr "Примеры"
 
+#: ext/napoleon/__init__.py:355 ext/napoleon/docstring.py:940
+msgid "Keyword Arguments"
+msgstr "Именованные аргументы"
+
 #: ext/napoleon/docstring.py:956
 msgid "Notes"
 msgstr "Заметки"
@@ -3654,6 +3830,130 @@ msgstr "Предупрждения"
 #: ext/napoleon/docstring.py:1041
 msgid "Yields"
 msgstr ""
+
+#: ext/autodoc/preserve_defaults.py:195
+#, python-format
+msgid "Failed to parse a default argument value for %r: %s"
+msgstr "Ошибка разбора значения по умолчанию для аргумента %r: %s"
+
+#: ext/autodoc/type_comment.py:151
+#, python-format
+msgid "Failed to update signature for %r: parameter not found: %s"
+msgstr "Ошибка обновления сигнатуры для %r: параметр не найден: %s"
+
+#: ext/autodoc/type_comment.py:154
+#, python-format
+msgid "Failed to parse type_comment for %r: %s"
+msgstr "Ошибка разбора type_comment для %r: %s"
+
+#: ext/autodoc/__init__.py:150
+#, python-format
+msgid "invalid value for member-order option: %s"
+msgstr "некорректное значение для опции member-order: %s"
+
+#: ext/autodoc/__init__.py:158
+#, python-format
+msgid "invalid value for class-doc-from option: %s"
+msgstr "некорректное значение для опции for class-doc-from: %s"
+
+#: ext/autodoc/__init__.py:460
+#, python-format
+msgid "invalid signature for auto%s (%r)"
+msgstr "неправильная сигнатура для auto%s (%r)"
+
+#: ext/autodoc/__init__.py:579
+#, python-format
+msgid "error while formatting arguments for %s: %s"
+msgstr "ошибка форматирования аргументов для %s: %s"
+
+#: ext/autodoc/__init__.py:898
+#, python-format
+msgid ""
+"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
+"%s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1021
+#, python-format
+msgid ""
+"don't know which module to import for autodocumenting %r (try placing a "
+"\"module\" or \"currentmodule\" directive in the document, or giving an "
+"explicit module name)"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1080
+#, python-format
+msgid "A mocked object is detected: %r"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1103
+#, python-format
+msgid "error while formatting signature for %s: %s"
+msgstr "ошибка при форматировании сигнатуры для %s: %s"
+
+#: ext/autodoc/__init__.py:1177
+msgid "\"::\" in automodule name doesn't make sense"
+msgstr "\"::\" в названии автомодуля не имеет смысла"
+
+#: ext/autodoc/__init__.py:1185
+#, python-format
+msgid "signature arguments or return annotation given for automodule %s"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1201
+#, python-format
+msgid ""
+"__all__ should be a list of strings, not %r (in module %s) -- ignoring "
+"__all__"
+msgstr ""
+
+#: ext/autodoc/__init__.py:1278
+#, python-format
+msgid ""
+"missing attribute mentioned in :members: option: module %s, attribute %s"
+msgstr "пропущен атрибут упомянутый в опции :members:: модуль %s, атрибут %s"
+
+#: ext/autodoc/__init__.py:1505 ext/autodoc/__init__.py:1593
+#: ext/autodoc/__init__.py:3127
+#, python-format
+msgid "Failed to get a function signature for %s: %s"
+msgstr "Ошибка получения сигнатуры функции для %s: %s"
+
+#: ext/autodoc/__init__.py:1828
+#, python-format
+msgid "Failed to get a constructor signature for %s: %s"
+msgstr "Ошибка получения сигнатуры конструктора для %s: %s"
+
+#: ext/autodoc/__init__.py:1966
+#, python-format
+msgid "Bases: %s"
+msgstr "Базовые классы: %s"
+
+#: ext/autodoc/__init__.py:1985
+#, python-format
+msgid "missing attribute %s in object %s"
+msgstr "не указан атрибут %s в объекте %s"
+
+#: ext/autodoc/__init__.py:2081 ext/autodoc/__init__.py:2110
+#: ext/autodoc/__init__.py:2204
+#, python-format
+msgid "alias of %s"
+msgstr "псевдоним для %s"
+
+#: ext/autodoc/__init__.py:2097
+#, python-format
+msgid "alias of TypeVar(%s)"
+msgstr "псевдоним для TypeVar(%s)"
+
+#: ext/autodoc/__init__.py:2456 ext/autodoc/__init__.py:2576
+#, python-format
+msgid "Failed to get a method signature for %s: %s"
+msgstr "Ошибка получения сигнатуры метода для %s: %s"
+
+#: ext/autodoc/__init__.py:2720
+#, python-format
+msgid "Invalid __slots__ found on %s. Ignored."
+msgstr "Некорректные __slots__ найдены в %s. Пропускается."
 
 #: ext/autosummary/__init__.py:284
 #, python-format
@@ -3776,451 +4076,165 @@ msgid ""
 "%(default)s)"
 msgstr ""
 
-#: ext/apidoc/_cli.py:178 ext/autosummary/generate.py:909
-msgid "Remove existing files in the output directory that were not generated"
-msgstr "Удалить из целевого каталога файлы, которые не были сгенерированы"
+#: _cli/util/errors.py:190
+msgid "Interrupted!"
+msgstr "Прервано!"
 
-#: ext/apidoc/_shared.py:29 ext/autosummary/generate.py:944
-#, python-format
-msgid "Failed to remove %s: %s"
-msgstr "Ошибка удаления %s: %s"
+#: _cli/util/errors.py:194
+msgid "reStructuredText markup error!"
+msgstr ""
 
-#: ext/apidoc/_cli.py:28
+#: _cli/util/errors.py:200
+msgid "Encoding error!"
+msgstr ""
+
+#: _cli/util/errors.py:203
+msgid "Recursion error!"
+msgstr ""
+
+#: _cli/util/errors.py:207
 msgid ""
-"\n"
-"Look recursively in <MODULE_PATH> for Python modules and packages and create\n"
-"one reST file with automodule directives per package in the <OUTPUT_PATH>.\n"
-"\n"
-"The <EXCLUDE_PATTERN>s can be file and/or directory patterns that will be\n"
-"excluded from generation.\n"
-"\n"
-"Note: By default this script will not overwrite already created files."
+"This can happen with very large or deeply nested source files. You can "
+"carefully increase the default Python recursion limit of 1,000 in conf.py "
+"with e.g.:"
 msgstr ""
 
-#: ext/apidoc/_cli.py:45
-msgid "path to module to document"
-msgstr "путь к модулю в документе"
+#: _cli/util/errors.py:227
+msgid "Starting debugger:"
+msgstr ""
 
-#: ext/apidoc/_cli.py:50
+#: _cli/util/errors.py:235
+msgid "The full traceback has been saved in:"
+msgstr "Полный журнал будет сохранен в:"
+
+#: _cli/util/errors.py:240
 msgid ""
-"fnmatch-style file and/or directory patterns to exclude from generation"
-msgstr "стиль fnmatch для шаблонов файлов и/или каталогов для исключения из генерации"
+"To report this error to the developers, please open an issue at "
+"<https://github.com/sphinx-doc/sphinx/issues/>. Thanks!"
+msgstr "Чтобы сообщить об этой ошибке разработчикам, пожалуйста, откройте запрос в <https://github.com/sphinx-doc/sphinx/issues/>. Спасибо!"
 
-#: ext/apidoc/_cli.py:60
-msgid "directory to place all output"
-msgstr "каталог для размещения всего вывода"
-
-#: ext/apidoc/_cli.py:75
-msgid "maximum depth of submodules to show in the TOC (default: 4)"
-msgstr "максимальная глубина субмодулей для отображения в оглавлении (по умолчанию: 4)"
-
-#: ext/apidoc/_cli.py:82
-msgid "overwrite existing files"
-msgstr "перезаписать существующие файлы"
-
-#: ext/apidoc/_cli.py:91
+#: _cli/util/errors.py:246
 msgid ""
-"follow symbolic links. Powerful when combined with "
-"collective.recipe.omelette."
-msgstr "следовать по символическим ссылкам. Эффективно сочетается с collective.recipe.omelette."
+"Please also report this if it was a user error, so that a better error "
+"message can be provided next time."
+msgstr ""
 
-#: ext/apidoc/_cli.py:99
-msgid "run the script without creating files"
-msgstr "запуск сценария без создания файлов"
+#: templates/latex/longtable.tex.jinja:52
+#: templates/latex/sphinxmessages.sty.jinja:8
+msgid "continued from previous page"
+msgstr "продолжение с предыдущей страницы"
 
-#: ext/apidoc/_cli.py:106
-msgid "put documentation for each module on its own page"
-msgstr "разместить документацию каждого модуля на его собственной странице"
+#: templates/latex/longtable.tex.jinja:63
+#: templates/latex/sphinxmessages.sty.jinja:9
+msgid "continues on next page"
+msgstr "продолжается на следующей странице"
 
-#: ext/apidoc/_cli.py:113
-msgid "include \"_private\" modules"
-msgstr "включая модули \"_private\""
+#: templates/latex/sphinxmessages.sty.jinja:10
+msgid "Non-alphabetical"
+msgstr "Не-алфавитный"
 
-#: ext/apidoc/_cli.py:120
-msgid "filename of table of contents (default: modules)"
-msgstr "имя файла с оглавлением (по умолчанию: modules)"
+#: environment/adapters/indexentries.py:268
+#: templates/latex/sphinxmessages.sty.jinja:11
+msgid "Symbols"
+msgstr "Символы"
 
-#: ext/apidoc/_cli.py:127
-msgid "don't create a table of contents file"
-msgstr "не создавать файл с оглавлением"
+#: templates/latex/sphinxmessages.sty.jinja:12
+msgid "Numbers"
+msgstr "Числа"
 
-#: ext/apidoc/_cli.py:135
+#: templates/latex/sphinxmessages.sty.jinja:13
+msgid "page"
+msgstr "страница"
+
+#: transforms/post_transforms/__init__.py:88
 msgid ""
-"don't create headings for the module/package packages (e.g. when the "
-"docstrings already contain them)"
-msgstr "не создавать заголовки для модулей/пакета пакетов (например, если docstrings уже содержат их)"
-
-#: ext/apidoc/_cli.py:145
-msgid "put module documentation before submodule documentation"
-msgstr "разместить документацию модуля перед документацией подмодуля"
-
-#: ext/apidoc/_cli.py:152
-msgid ""
-"interpret module paths according to PEP-0420 implicit namespaces "
-"specification"
+"Could not determine the fallback text for the cross-reference. Might be a "
+"bug."
 msgstr ""
 
-#: ext/apidoc/_cli.py:160
-msgid ""
-"Comma-separated list of options to pass to automodule directive (or use "
-"SPHINX_APIDOC_OPTIONS)."
-msgstr ""
-
-#: ext/apidoc/_cli.py:170
-msgid "file suffix (default: rst)"
-msgstr "расширение файла (по умолчанию: rst)"
-
-#: ext/apidoc/_cli.py:186
-msgid "generate a full project with sphinx-quickstart"
-msgstr "генерация полного проекта с помощью sphinx-quickstart"
-
-#: ext/apidoc/_cli.py:193
-msgid "append module_path to sys.path, used when --full is given"
-msgstr "добавить module_path в sys.path, используется совместно с --full"
-
-#: ext/apidoc/_cli.py:200
-msgid "project name (default: root module name)"
-msgstr "название проекта (по умолчанию: название корневого модуля)"
-
-#: ext/apidoc/_cli.py:207
-msgid "project author(s), used when --full is given"
-msgstr "автор(ы) проекта, используется совместно с --full"
-
-#: ext/apidoc/_cli.py:214
-msgid "project version, used when --full is given"
-msgstr "версия проекта, используется совместно с --full"
-
-#: ext/apidoc/_cli.py:222
-msgid "project release, used when --full is given, defaults to --doc-version"
-msgstr "релиз проекта, используется совместно с --full, по умолчанию --doc-version"
-
-#: ext/apidoc/_cli.py:226
-msgid "extension options"
-msgstr "опции расширения"
-
-#: ext/apidoc/_cli.py:232
-msgid "enable arbitrary extensions, used when --full is given"
-msgstr ""
-
-#: ext/apidoc/_cli.py:240
+#: transforms/post_transforms/__init__.py:237
 #, python-format
-msgid "enable %s extension, used when --full is given"
-msgstr ""
+msgid "more than one target found for 'any' cross-reference %r: could be %s"
+msgstr "для перекрёстной ссылки 'any' найдено больше одной цели %r: должно быть %s"
 
-#: ext/apidoc/_cli.py:291
+#: transforms/post_transforms/__init__.py:299
 #, python-format
-msgid "%s is not a directory."
-msgstr "%s не каталог."
+msgid "%s:%s reference target not found: %s"
+msgstr "%s:%s цель перекрёстной ссылки не найдена: %s"
 
-#: ext/apidoc/_extension.py:50
-msgid "Running apidoc"
-msgstr ""
-
-#: ext/apidoc/_extension.py:102
+#: transforms/post_transforms/__init__.py:305
 #, python-format
-msgid "apidoc_modules item %i must be a dict"
-msgstr ""
+msgid "%r reference target not found: %s"
+msgstr "%r цель перекрёстной ссылки не найдена: %s"
 
-#: ext/apidoc/_extension.py:110
+#: transforms/post_transforms/images.py:79
 #, python-format
-msgid "apidoc_modules item %i must have a 'path' key"
-msgstr ""
+msgid "Could not fetch remote image: %s [%s]"
+msgstr "Не удалось получить изображение из внешнего источника: %s [%s]"
 
-#: ext/apidoc/_extension.py:115
+#: transforms/post_transforms/images.py:96
 #, python-format
-msgid "apidoc_modules item %i 'path' must be a string"
-msgstr ""
+msgid "Could not fetch remote image: %s [%d]"
+msgstr "Не удалось получить изображение из внешнего источника: %s [%d]"
 
-#: ext/apidoc/_extension.py:121
+#: transforms/post_transforms/images.py:143
 #, python-format
-msgid "apidoc_modules item %i 'path' is not an existing folder: %s"
-msgstr ""
+msgid "Unknown image format: %s..."
+msgstr "Неизвестный формат изображения: %s..."
 
-#: ext/apidoc/_extension.py:133
+#: environment/adapters/indexentries.py:123
 #, python-format
-msgid "apidoc_modules item %i must have a 'destination' key"
-msgstr ""
+msgid "see %s"
+msgstr "см. %s"
 
-#: ext/apidoc/_extension.py:140
+#: environment/adapters/indexentries.py:133
 #, python-format
-msgid "apidoc_modules item %i 'destination' must be a string"
-msgstr ""
+msgid "see also %s"
+msgstr "также см. %s"
 
-#: ext/apidoc/_extension.py:147
+#: environment/adapters/indexentries.py:141
 #, python-format
-msgid "apidoc_modules item %i 'destination' should be a relative path"
-msgstr ""
+msgid "unknown index entry type %r"
+msgstr "неизвестная запись типа индекса %r"
 
-#: ext/apidoc/_extension.py:157
+#: environment/adapters/toctree.py:324
 #, python-format
-msgid "apidoc_modules item %i cannot create destination directory: %s"
-msgstr ""
+msgid "circular toctree references detected, ignoring: %s <- %s"
+msgstr "обнаружены циклические ссылки в оглавлении, пропускается: %s <- %s"
 
-#: ext/apidoc/_extension.py:178
-#, python-format
-msgid "apidoc_modules item %i '%s' must be an int"
-msgstr ""
-
-#: ext/apidoc/_extension.py:192
-#, python-format
-msgid "apidoc_modules item %i '%s' must be a boolean"
-msgstr ""
-
-#: ext/apidoc/_extension.py:210
-#, python-format
-msgid "apidoc_modules item %i has unexpected keys: %s"
-msgstr ""
-
-#: ext/apidoc/_extension.py:247
-#, python-format
-msgid "apidoc_modules item %i '%s' must be a sequence"
-msgstr ""
-
-#: ext/apidoc/_extension.py:256
-#, python-format
-msgid "apidoc_modules item %i '%s' must contain strings"
-msgstr ""
-
-#: ext/apidoc/_generate.py:69
-#, python-format
-msgid "Would create file %s."
-msgstr "Нужно создать файл %s."
-
-#: ext/intersphinx/_resolve.py:49
-#, python-format
-msgid "(in %s v%s)"
-msgstr "(в %s v%s)"
-
-#: ext/intersphinx/_resolve.py:51
-#, python-format
-msgid "(in %s)"
-msgstr "(в %s)"
-
-#: ext/intersphinx/_resolve.py:108
-#, python-format
-msgid "inventory '%s': duplicate matches found for %s:%s"
-msgstr "инвентарь '%s': найден повтор для %s:%s"
-
-#: ext/intersphinx/_resolve.py:118
-#, python-format
-msgid "inventory '%s': multiple matches found for %s:%s"
-msgstr "инвентарь '%s': найдено несколько совпадений для %s:%s"
-
-#: ext/intersphinx/_resolve.py:383
-#, python-format
-msgid "inventory for external cross-reference not found: %r"
-msgstr "инвентарь для внешних перекрёстных ссылок не найден: %r"
-
-#: ext/intersphinx/_resolve.py:392
-#, python-format
-msgid "invalid external cross-reference suffix: %r"
-msgstr "неправильный суффикс перекрёстной ссылки: %r"
-
-#: ext/intersphinx/_resolve.py:403
-#, python-format
-msgid "domain for external cross-reference not found: %r"
-msgstr "домен для внешней перекрёстной ссылки не найден: %r"
-
-#: ext/intersphinx/_resolve.py:619
-#, python-format
-msgid "external %s:%s reference target not found: %s"
-msgstr ""
-
-#: ext/intersphinx/_load.py:60
+#: environment/adapters/toctree.py:349
 #, python-format
 msgid ""
-"Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
-"identifiers must be non-empty strings."
-msgstr "Неправильный идентификатор проекта intersphinx  `%r` d intersphinx_mapping. Идентификаторы проектов должны быть непустыми строками."
+"toctree contains reference to document %r that doesn't have a title: no link"
+" will be generated"
+msgstr "оглавление содержит ссылку на документ %r, у которого нет заголовка: ссылка не будет сгенерирована"
 
-#: ext/intersphinx/_load.py:71
+#: environment/adapters/toctree.py:364
 #, python-format
-msgid ""
-"Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
-"or list."
-msgstr "Неправильное значение `%r` в intersphinx_mapping[%r]. Ожидается кортеж или список из двух элементов."
+msgid "toctree contains reference to non-included document %r"
+msgstr "toctree содержит ссылку на не включенный документ %r"
 
-#: ext/intersphinx/_load.py:82
+#: environment/adapters/toctree.py:367
 #, python-format
-msgid ""
-"Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
-" inventory locations) pair."
-msgstr "Неправильное значение `%r` в intersphinx_mapping[%r]. Значения должны быть парами (целевой URI, расположение инвентаря)."
-
-#: ext/intersphinx/_load.py:93
-#, python-format
-msgid ""
-"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
-"must be unique non-empty strings."
-msgstr "Некорректное значение целевого URL `%r` в intersphinx_mapping[%r][0]. Целевые URI должны быть уникальными не пустыми строками."
-
-#: ext/intersphinx/_load.py:102
-#, python-format
-msgid ""
-"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
-"must be unique (other instance in intersphinx_mapping[%r])."
-msgstr "Неправильный целевой URI `%r` в intersphinx_mapping[%r][0]. Целевые URI должны быть уникальными (другой экземпляр в intersphinx_mapping[%r])."
-
-#: ext/intersphinx/_load.py:121
-#, python-format
-msgid ""
-"Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
-"Inventory locations must be non-empty strings or None."
+msgid "toctree contains reference to non-existing document %r"
 msgstr ""
 
-#: ext/intersphinx/_load.py:131
-msgid "Invalid `intersphinx_mapping` configuration (1 error)."
-msgstr "Некорректная настройка `intersphinx_mapping` (1 ошибка)."
-
-#: ext/intersphinx/_load.py:134
+#: environment/collectors/asset.py:98
 #, python-format
-msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
-msgstr "Некорректная конфигурация `intersphinx_mapping` (%s ошибок)."
+msgid "image file not readable: %s"
+msgstr "нечитаемое изображение: %s"
 
-#: ext/intersphinx/_load.py:157
-msgid "An invalid intersphinx_mapping entry was added after normalisation."
-msgstr "После нормализации была добьавлена некорректная запись intersphinx_mapping."
-
-#: ext/intersphinx/_load.py:261
+#: environment/collectors/asset.py:126
 #, python-format
-msgid "loading intersphinx inventory '%s' from %s ..."
-msgstr "загрузка инвентаря intersphinx '%s' из %s ..."
+msgid "image file %s not readable: %s"
+msgstr "файл изображения %s не читается: %s"
 
-#: ext/intersphinx/_load.py:287
-msgid ""
-"encountered some issues with some of the inventories, but they had working "
-"alternatives:"
+#: environment/collectors/asset.py:163
+#, python-format
+msgid "download file not readable: %s"
+msgstr "загружаемый файл не читается: %s"
+
+#: environment/collectors/toctree.py:259
+#, python-format
+msgid "%s is already assigned section numbers (nested numbered toctree?)"
 msgstr ""
-
-#: ext/intersphinx/_load.py:297
-msgid "failed to reach any of the inventories with the following issues:"
-msgstr "не удалось получить доступ ни к одному из инвентарей по следующим причинам:"
-
-#: ext/intersphinx/_load.py:361
-#, python-format
-msgid "intersphinx inventory has moved: %s -> %s"
-msgstr "инвентарь intersphinx перемещён: %s -> %s"
-
-#: ext/autodoc/__init__.py:150
-#, python-format
-msgid "invalid value for member-order option: %s"
-msgstr "некорректное значение для опции member-order: %s"
-
-#: ext/autodoc/__init__.py:158
-#, python-format
-msgid "invalid value for class-doc-from option: %s"
-msgstr "некорректное значение для опции for class-doc-from: %s"
-
-#: ext/autodoc/__init__.py:460
-#, python-format
-msgid "invalid signature for auto%s (%r)"
-msgstr "неправильная сигнатура для auto%s (%r)"
-
-#: ext/autodoc/__init__.py:579
-#, python-format
-msgid "error while formatting arguments for %s: %s"
-msgstr "ошибка форматирования аргументов для %s: %s"
-
-#: ext/autodoc/__init__.py:898
-#, python-format
-msgid ""
-"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
-"%s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1021
-#, python-format
-msgid ""
-"don't know which module to import for autodocumenting %r (try placing a "
-"\"module\" or \"currentmodule\" directive in the document, or giving an "
-"explicit module name)"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1080
-#, python-format
-msgid "A mocked object is detected: %r"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1103
-#, python-format
-msgid "error while formatting signature for %s: %s"
-msgstr "ошибка при форматировании сигнатуры для %s: %s"
-
-#: ext/autodoc/__init__.py:1177
-msgid "\"::\" in automodule name doesn't make sense"
-msgstr "\"::\" в названии автомодуля не имеет смысла"
-
-#: ext/autodoc/__init__.py:1185
-#, python-format
-msgid "signature arguments or return annotation given for automodule %s"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1201
-#, python-format
-msgid ""
-"__all__ should be a list of strings, not %r (in module %s) -- ignoring "
-"__all__"
-msgstr ""
-
-#: ext/autodoc/__init__.py:1278
-#, python-format
-msgid ""
-"missing attribute mentioned in :members: option: module %s, attribute %s"
-msgstr "пропущен атрибут упомянутый в опции :members:: модуль %s, атрибут %s"
-
-#: ext/autodoc/__init__.py:1505 ext/autodoc/__init__.py:1593
-#: ext/autodoc/__init__.py:3127
-#, python-format
-msgid "Failed to get a function signature for %s: %s"
-msgstr "Ошибка получения сигнатуры функции для %s: %s"
-
-#: ext/autodoc/__init__.py:1828
-#, python-format
-msgid "Failed to get a constructor signature for %s: %s"
-msgstr "Ошибка получения сигнатуры конструктора для %s: %s"
-
-#: ext/autodoc/__init__.py:1966
-#, python-format
-msgid "Bases: %s"
-msgstr "Базовые классы: %s"
-
-#: ext/autodoc/__init__.py:1985
-#, python-format
-msgid "missing attribute %s in object %s"
-msgstr "не указан атрибут %s в объекте %s"
-
-#: ext/autodoc/__init__.py:2081 ext/autodoc/__init__.py:2110
-#: ext/autodoc/__init__.py:2204
-#, python-format
-msgid "alias of %s"
-msgstr "псевдоним для %s"
-
-#: ext/autodoc/__init__.py:2097
-#, python-format
-msgid "alias of TypeVar(%s)"
-msgstr "псевдоним для TypeVar(%s)"
-
-#: ext/autodoc/__init__.py:2456 ext/autodoc/__init__.py:2576
-#, python-format
-msgid "Failed to get a method signature for %s: %s"
-msgstr "Ошибка получения сигнатуры метода для %s: %s"
-
-#: ext/autodoc/__init__.py:2720
-#, python-format
-msgid "Invalid __slots__ found on %s. Ignored."
-msgstr "Некорректные __slots__ найдены в %s. Пропускается."
-
-#: ext/autodoc/preserve_defaults.py:195
-#, python-format
-msgid "Failed to parse a default argument value for %r: %s"
-msgstr "Ошибка разбора значения по умолчанию для аргумента %r: %s"
-
-#: ext/autodoc/type_comment.py:151
-#, python-format
-msgid "Failed to update signature for %r: parameter not found: %s"
-msgstr "Ошибка обновления сигнатуры для %r: параметр не найден: %s"
-
-#: ext/autodoc/type_comment.py:154
-#, python-format
-msgid "Failed to parse type_comment for %r: %s"
-msgstr "Ошибка разбора type_comment для %r: %s"
