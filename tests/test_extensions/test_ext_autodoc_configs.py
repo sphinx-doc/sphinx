@@ -1349,9 +1349,9 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
     if sys.version_info >= (3, 14, 0, 'alpha', 7):
-        attr2_typeinfo = []
+        attr2_typeinfo = ()
     else:
-        attr2_typeinfo = ['      :type: int']
+        attr2_typeinfo = ('      :type: int',)
     assert list(actual) == [
         '',
         '.. py:module:: target.autodoc_type_aliases',
@@ -1426,9 +1426,9 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
     }
     actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
     if sys.version_info >= (3, 14, 0, 'alpha', 7):
-        attr2_typeinfo = []
+        attr2_typeinfo = ()
     else:
-        attr2_typeinfo = ['      :type: myint']
+        attr2_typeinfo = ('      :type: myint',)
     assert list(actual) == [
         '',
         '.. py:module:: target.autodoc_type_aliases',
