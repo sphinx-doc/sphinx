@@ -3,7 +3,6 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import docutils
-import pytest
 from docutils import nodes
 from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
 from docutils.parsers.rst.states import (
@@ -15,11 +14,6 @@ from docutils.parsers.rst.states import (
 from docutils.statemachine import StringList
 
 from sphinx.util.docutils import SphinxDirective, new_document
-
-xfail_du_22 = pytest.mark.xfail(
-    docutils.__version_info__ >= (0, 22, 0, 'alpha', 0),
-    reason='expected failure on Docutils 0.22+',
-)
 
 
 def make_directive(
@@ -37,23 +31,30 @@ def make_directive_and_state(
     if input_lines is not None:
         sm.input_lines = input_lines
     state = RSTState(sm)
-    state.document = new_document('<tests>')
-    state.document.settings.env = env
-    state.document.settings.tab_width = 4
-    state.document.settings.pep_references = None
-    state.document.settings.rfc_references = None
+    document = state.document = new_document('<tests>')
+    document.settings.env = env
+    document.settings.tab_width = 4
+    document.settings.pep_references = None
+    document.settings.rfc_references = None
     inliner = Inliner()
-    inliner.init_customizations(state.document.settings)
+    inliner.init_customizations(document.settings)
     state.inliner = inliner
     state.parent = None
     state.memo = SimpleNamespace(
-        document=state.document,
+        document=document,
+        reporter=document.reporter,
         language=english,
-        inliner=state.inliner,
-        reporter=state.document.reporter,
-        section_level=0,
         title_styles=[],
+        # section_parents=[],  # Docutils 0.22+
+        section_level=0,
+        section_bubble_up_kludge=False,
+        inliner=inliner,
     )
+    if docutils.__version_info__ >= (0, 22, 0, 'alpha', 0):
+        # https://github.com/sphinx-doc/sphinx/issues/13539
+        # https://sourceforge.net/p/docutils/code/10093/
+        # https://sourceforge.net/p/docutils/patches/213/
+        state.memo.section_parents = []
     directive = SphinxDirective(
         name='test_directive',
         arguments=[],
@@ -111,7 +112,6 @@ def test_sphinx_directive_get_location() -> None:
     assert directive.get_location() == '<source>:1'
 
 
-@xfail_du_22
 def test_sphinx_directive_parse_content_to_nodes() -> None:
     directive = make_directive(env=SimpleNamespace())
     content = 'spam\n====\n\nEggs! *Lobster thermidor.*'
@@ -128,7 +128,6 @@ def test_sphinx_directive_parse_content_to_nodes() -> None:
     assert node.children[1].astext() == 'Eggs! Lobster thermidor.'
 
 
-@xfail_du_22
 def test_sphinx_directive_parse_text_to_nodes() -> None:
     directive = make_directive(env=SimpleNamespace())
     content = 'spam\n====\n\nEggs! *Lobster thermidor.*'
