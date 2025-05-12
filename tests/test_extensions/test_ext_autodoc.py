@@ -939,9 +939,9 @@ def test_autodoc_special_members(app):
     if sys.version_info >= (3, 13, 0, 'alpha', 5):
         options['exclude-members'] = '__static_attributes__,__firstlineno__'
     if sys.version_info >= (3, 14, 0, 'alpha', 7):
-        annotations_attributes = ['   .. py:attribute:: Class.__annotations_cache__']
+        annotations_attributes = ('   .. py:attribute:: Class.__annotations_cache__',)
     else:
-        annotations_attributes = ['   .. py:attribute:: Class.__annotations__']
+        annotations_attributes = ('   .. py:attribute:: Class.__annotations__',)
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
