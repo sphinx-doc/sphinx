@@ -46,6 +46,7 @@ def make_directive_and_state(
         reporter=state.document.reporter,
         section_level=0,
         title_styles=[],
+        section_parents=[],
     )
     directive = SphinxDirective(
         name='test_directive',
