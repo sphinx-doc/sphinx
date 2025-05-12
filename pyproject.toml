@@ -92,7 +92,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.7",
+    "ruff==0.11.9",
     "mypy==1.15.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -135,7 +135,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.7",
+    "ruff==0.11.9",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -290,7 +290,6 @@ module = [
     "tests.test_util.test_util",
     "tests.test_util.test_util_display",
     "tests.test_util.test_util_docutils",
-    "tests.test_util.test_util_images",
     "tests.test_util.test_util_inventory",
     # tests/test_writers
     "tests.test_writers.test_docutilsconf",
