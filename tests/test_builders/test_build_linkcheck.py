@@ -1127,6 +1127,12 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
         ) as address:
             app.build()
 
+    # Undo side-effects: the monkeypatch context manager clears the TZ environment
+    # variable, but we also need to reset Python's internal notion of the current
+    # timezone.
+    if sys.platform != 'win32':
+        time.tzset()
+
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         'filename': 'index.rst',
@@ -1143,11 +1149,6 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
         """,
     )
-
-    # Teardown: the monkeypatch context manager clears the TZ environment variable, but
-    # we also need to reset Python's internal notion of the current timezone.
-    if sys.platform != 'win32':
-        time.tzset()
 
 
 @pytest.mark.sphinx(
