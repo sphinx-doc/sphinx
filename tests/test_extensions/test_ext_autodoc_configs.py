@@ -1348,6 +1348,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
     # default
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
+    attr2_typeinfo: tuple[str, ...]
     if sys.version_info >= (3, 14, 0, 'alpha', 7):
         attr2_typeinfo = ()
     else:
