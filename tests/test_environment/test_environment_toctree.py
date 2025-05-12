@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import docutils
 import pytest
 from docutils import nodes
 from docutils.nodes import bullet_list, list_item, literal, reference, title
@@ -17,7 +18,13 @@ from sphinx.testing.util import assert_node
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
+xfail_du_22 = pytest.mark.xfail(
+    docutils.__version_info__ >= (0, 22, 0, 'alpha', 0),
+    reason='expected failure on Docutils 0.22+',
+)
 
+
+@xfail_du_22
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_process_doc(app):
@@ -464,6 +471,7 @@ def test_domain_objects_document_scoping(app: SphinxTestApp) -> None:
     )
 
 
+@xfail_du_22
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_document_toc(app):
@@ -521,6 +529,7 @@ def test_document_toc(app):
     assert_node(toctree[2][0], [compact_paragraph, reference, 'Indices and tables'])
 
 
+@xfail_du_22
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_document_toc_only(app):
