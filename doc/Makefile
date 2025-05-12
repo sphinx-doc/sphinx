@@ -2,6 +2,9 @@
 #
 PYTHON ?= python3
 
+# Let Python interpreter load Sphinx from local repository first.
+export PYTHONPATH=../:$$PYTHONPATH
+
 # You can set these variables from the command line.
 SPHINXOPTS   =
 SPHINXBUILD  = $(PYTHON) ../sphinx/cmd/build.py
