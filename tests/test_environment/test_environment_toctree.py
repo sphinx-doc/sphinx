@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 xfail_du_22 = pytest.mark.xfail(
     docutils.__version_info__ >= (0, 22, 0, 'alpha', 0),
-    'expected failure on Docutils 0.22+',
+    reason='expected failure on Docutils 0.22+',
 )
 
 
