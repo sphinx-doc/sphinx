@@ -1791,3 +1791,21 @@ def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
+
+
+def test_deco_role(app):
+    text = """:py:deco:`foo.bar`
+    .. py:decorator:: foo.bar
+       :no-contents-entry:
+       :no-index-entry:
+       :no-typesetting:"""
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == '@bar\n\n\n\n'
+
+    text = """:py:deco:`~foo.bar`
+    .. py:decorator:: foo.bar
+       :no-contents-entry:
+       :no-index-entry:
+       :no-typesetting:"""
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == '@bar\n\n\n\n'
