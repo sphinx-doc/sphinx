@@ -38,19 +38,24 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
-def parse(sig, env):
+
+def parse(sig: str, *, env: BuildEnvironment) -> str:
     m = py_sig_re.match(sig)
     if m is None:
         raise ValueError
     _name_prefix, _tp_list, _name, arglist, _retann = m.groups()
     signode = addnodes.desc_signature(sig, '')
-    _pseudo_parse_arglist(signode, arglist, env)
+    _pseudo_parse_arglist(signode, arglist, env=env)
     return signode.astext()
 
 
-def test_function_signatures(app) -> None:
-    rv = parse("compile(source : string, filename, symbol='file')", app.env)
+def test_function_signatures(app: Sphinx) -> None:
+    rv = parse("compile(source : string, filename, symbol='file')", env=app.env)
     assert rv == "(source: string, filename, symbol='file')"
 
     for params, expect in [
@@ -62,7 +67,7 @@ def test_function_signatures(app) -> None:
         ('(a=[][, b=None])', '(a=[], [b=None])'),
         ('(a: Foo[Bar]=[][, b=None])', '(a: Foo[Bar] = [], [b=None])'),
     ]:
-        rv = parse(f'func{params}', app.env)
+        rv = parse(f'func{params}', env=app.env)
         assert rv == expect
 
         # Note: 'def f[Foo[Bar]]()' is not valid Python but people might write
@@ -70,7 +75,7 @@ def test_function_signatures(app) -> None:
         # variable.
         for tparams in ['', '[Foo]', '[Foo[Bar]]']:
             for retann in ['', '-> Foo', '-> Foo[Bar]', '-> anything else']:
-                rv = parse(f'func{tparams}{params} {retann}'.rstrip(), app.env)
+                rv = parse(f'func{tparams}{params} {retann}'.rstrip(), env=app.env)
                 assert rv == expect
 
 

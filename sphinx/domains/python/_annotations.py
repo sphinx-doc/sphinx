@@ -552,9 +552,10 @@ def _keyword_only_separator() -> addnodes.desc_parameter:
 def _pseudo_parse_arglist(
     signode: desc_signature,
     arglist: str,
-    env: BuildEnvironment,
+    *,
     multi_line_parameter_list: bool = False,
     trailing_comma: bool = True,
+    env: BuildEnvironment,
 ) -> None:
     """'Parse' a list of arguments separated by commas.
 
@@ -562,6 +563,7 @@ def _pseudo_parse_arglist(
     brackets.  Currently, this will split at any comma, even if it's inside a
     string literal (e.g. default argument value).
     """
+    # TODO: decompose 'env' parameter into only the required bits
     paramlist = addnodes.desc_parameterlist()
     paramlist['multi_line_parameter_list'] = multi_line_parameter_list
     paramlist['multi_line_trailing_comma'] = trailing_comma
@@ -584,25 +586,26 @@ def _pseudo_parse_arglist(
                 ends_open += 1
                 argument = argument[:-1].strip()
             if argument:
-                param_with_annotation, *default_value = argument.split('=', 1)
-                param_name, *annotation = param_with_annotation.split(':', 1)
+                param_with_annotation, _, default_value = argument.partition('=')
+                param_name, _, annotation = param_with_annotation.partition(':')
+                del param_with_annotation
+
                 node = addnodes.desc_parameter()
                 node += addnodes.desc_sig_name('', param_name.strip())
-                if len(annotation) > 0:
-                    children = _parse_annotation(annotation[0].strip(), env)
+                if annotation:
+                    children = _parse_annotation(annotation.strip(), env=env)
                     node += addnodes.desc_sig_punctuation('', ':')
                     node += addnodes.desc_sig_space()
                     node += addnodes.desc_sig_name('', '', *children)  # type: ignore[arg-type]
-                if len(default_value) > 0:
-                    if len(annotation) > 0:
+                if default_value:
+                    if annotation:
                         node += addnodes.desc_sig_space()
-                        node += addnodes.desc_sig_operator('', '=')
+                    node += addnodes.desc_sig_operator('', '=')
+                    if annotation:
                         node += addnodes.desc_sig_space()
-                    else:
-                        node += addnodes.desc_sig_operator('', '=')
                     node += nodes.inline(
                         '',
-                        default_value[0].strip(),
+                        default_value.strip(),
                         classes=['default_value'],
                         support_smartquotes=False,
                     )

@@ -27,6 +27,10 @@ from sphinx.addnodes import (
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+
 
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction(app):
@@ -488,7 +492,7 @@ def test_optional_pyfunction_signature(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_pyfunction_signature_with_bracket(app):
+def test_pyfunction_signature_with_bracket(app: Sphinx) -> None:
     text = '.. py:function:: hello(a : ~typing.Any = <b>) -> None'
     doctree = restructuredtext.parse(app, text)
     assert_node(
