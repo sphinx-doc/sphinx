@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
-import docutils
 import pytest
 from docutils import nodes
 
