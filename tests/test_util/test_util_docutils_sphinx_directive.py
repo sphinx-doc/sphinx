@@ -41,16 +41,14 @@ def make_directive_and_state(
     state.inliner = inliner
     state.parent = None
     # https://repo.or.cz/docutils.git/blob/2310dd9b468e9f86b00401b1aa60d47aabc199ac:/docutils/docutils/parsers/rst/states.py#l162
-    state.memo = Struct(
-        document=state.document,
-        reporter=state.document.reporter,
-        language=english,
-        title_styles=[],
-        section_parents=[],
-        section_level=0,  # will be removed in Docutils 2.0
-        section_bubble_up_kludge=False,  # will be removed
-        inliner=inliner,
-    )
+    state.memo = Struct(document=state.document,
+                        reporter=state.document.reporter,
+                        language=english,
+                        title_styles=[],
+                        section_parents=[],
+                        section_level=0,  # will be removed in Docutils 2.0
+                        section_bubble_up_kludge=False,  # will be removed
+                        inliner=inliner)
     directive = SphinxDirective(
         name='test_directive',
         arguments=[],
