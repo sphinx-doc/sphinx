@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import docutils
+import pytest
 from docutils import nodes
 from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
 from docutils.parsers.rst.states import (
@@ -13,6 +15,11 @@ from docutils.parsers.rst.states import (
 from docutils.statemachine import StringList
 
 from sphinx.util.docutils import SphinxDirective, new_document
+
+xfail_du_22 = pytest.mark.xfail(
+    docutils.__version_info__ >= (0, 22, 0, 'alpha', 0),
+    'expected failure on Docutils 0.22+',
+)
 
 
 def make_directive(
@@ -104,6 +111,7 @@ def test_sphinx_directive_get_location() -> None:
     assert directive.get_location() == '<source>:1'
 
 
+@xfail_du_22
 def test_sphinx_directive_parse_content_to_nodes() -> None:
     directive = make_directive(env=SimpleNamespace())
     content = 'spam\n====\n\nEggs! *Lobster thermidor.*'
