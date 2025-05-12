@@ -524,7 +524,7 @@ def test_pyfunction_signature_with_bracket(app: Sphinx) -> None:
         no_index=False,
     )
     assert_node(
-        doctree[1][0][1],
+        doctree[1][0][1],  # type: ignore[index]
         (
             [
                 desc_parameter,
