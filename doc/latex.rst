@@ -500,7 +500,7 @@ Keys that don't need to be overridden unless in special cases are:
    .. hint::
 
       If the key value is set to
-      :code-tex:`r'\\newcommand\sphinxbackoftitlepage{<Extra
+      :code-tex:`r'\\newcommand\\sphinxbackoftitlepage{<Extra
       material>}\\sphinxmaketitle'`, then ``<Extra material>`` will be
       typeset on back of title page (``'manual'`` docclass only).
 
@@ -1694,7 +1694,7 @@ Macros
   .. hint::
 
      If adding to preamble the loading of ``tocloft`` package, also add to
-     preamble :code-tex:`\\renewcommand\sphinxtableofcontentshook{}` else it
+     preamble :code-tex:`\\renewcommand\\sphinxtableofcontentshook{}` else it
      will reset :code-tex:`\\l@section` and :code-tex:`\\l@subsection`
      cancelling ``tocloft`` customization.
 
