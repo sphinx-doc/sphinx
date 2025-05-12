@@ -25,7 +25,7 @@ Bugs fixed
 
 * #13369: Correctly parse and cross-reference unpacked type annotations.
   Patch by Alicia Garcia-Raboso.
-* #13550: Fix typographical mistake for `linkcheck_allowed_redirects`.
+* #13550: Fix typographical mistake for ``linkcheck_allowed_redirects``.
 
 Testing
 -------
