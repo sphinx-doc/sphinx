@@ -128,6 +128,7 @@ def test_sphinx_directive_parse_content_to_nodes() -> None:
     assert node.children[1].astext() == 'Eggs! Lobster thermidor.'
 
 
+@xfail_du_22
 def test_sphinx_directive_parse_text_to_nodes() -> None:
     directive = make_directive(env=SimpleNamespace())
     content = 'spam\n====\n\nEggs! *Lobster thermidor.*'
