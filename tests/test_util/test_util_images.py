@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from sphinx.util.images import (
@@ -12,6 +10,10 @@ from sphinx.util.images import (
     guess_mimetype,
     parse_data_uri,
 )
+
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from pathlib import Path
 
 GIF_FILENAME = 'img.gif'
 PNG_FILENAME = 'img.png'
