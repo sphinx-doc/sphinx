@@ -1348,6 +1348,10 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
     # default
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
+    if sys.version_info >= (3, 14, 0, 'alpha', 7):
+        attr2_typeinfo = ()
+    else:
+        attr2_typeinfo = ('      :type: int',)
     assert list(actual) == [
         '',
         '.. py:module:: target.autodoc_type_aliases',
@@ -1368,7 +1372,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '',
         '   .. py:attribute:: Foo.attr2',
         '      :module: target.autodoc_type_aliases',
-        '      :type: int',
+        *attr2_typeinfo,
         '',
         '      docstring',
         '',
@@ -1421,6 +1425,10 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         'io.StringIO': 'my.module.StringIO',
     }
     actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
+    if sys.version_info >= (3, 14, 0, 'alpha', 7):
+        attr2_typeinfo = ()
+    else:
+        attr2_typeinfo = ('      :type: myint',)
     assert list(actual) == [
         '',
         '.. py:module:: target.autodoc_type_aliases',
@@ -1441,7 +1449,7 @@ def test_autodoc_type_aliases(app: SphinxTestApp) -> None:
         '',
         '   .. py:attribute:: Foo.attr2',
         '      :module: target.autodoc_type_aliases',
-        '      :type: myint',
+        *attr2_typeinfo,
         '',
         '      docstring',
         '',
