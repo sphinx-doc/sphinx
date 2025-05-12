@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from sphinx.util.images import (
@@ -17,7 +19,7 @@ PDF_FILENAME = 'img.pdf'
 TXT_FILENAME = 'index.txt'
 
 
-def test_get_image_size(rootdir):
+def test_get_image_size(rootdir: Path) -> None:
     assert get_image_size(rootdir / 'test-root' / GIF_FILENAME) == (200, 181)
     assert get_image_size(rootdir / 'test-root' / PNG_FILENAME) == (200, 181)
     assert get_image_size(rootdir / 'test-root' / PDF_FILENAME) is None
