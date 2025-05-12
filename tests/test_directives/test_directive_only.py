@@ -12,13 +12,7 @@ from docutils import nodes
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
-xfail_du_22 = pytest.mark.xfail(
-    docutils.__version_info__ >= (0, 22, 0, 'alpha', 0),
-    reason='expected failure on Docutils 0.22+',
-)
 
-
-@xfail_du_22
 @pytest.mark.sphinx('text', testroot='directive-only')
 def test_sectioning(app: SphinxTestApp) -> None:
     def getsects(section):

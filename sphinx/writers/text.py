@@ -479,6 +479,7 @@ class TextTranslator(SphinxTranslator):
         # XXX header/footer?
 
     def visit_section(self, node: Element) -> None:
+        assert self.sectionlevel < 7, node.pformat('  ')
         self._title_char = self.sectionchars[self.sectionlevel]
         self.sectionlevel += 1
 
