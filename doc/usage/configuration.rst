@@ -3642,7 +3642,6 @@ and which failures and redirects it ignores.
 
 .. confval:: linkcheck_allowed_redirects
    :type: :code-py:`dict[str, str]`
-   :default: :code-py:`{}`
 
    A dictionary that maps a pattern of the source URI
    to a pattern of the canonical URI.
@@ -3669,7 +3668,7 @@ and which failures and redirects it ignores.
    .. versionadded:: 4.1
 
    .. versionchanged:: 8.3
-      Setting :confval:`!linkcheck_allowed_redirects` to the empty directory
+      Setting :confval:`!linkcheck_allowed_redirects` to an empty dictionary
       may now be used to warn on all redirects encountered
       by the *linkcheck* builder.
 
