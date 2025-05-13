@@ -283,7 +283,6 @@ module = [
     "tests.test_theming.test_templating",
     "tests.test_theming.test_theming",
     # tests/test_transforms
-    "tests.test_transforms.test_transforms_move_module_targets",
     "tests.test_transforms.test_transforms_post_transforms_images",
     "tests.test_transforms.test_transforms_reorder_nodes",
     # tests/test_util
