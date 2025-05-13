@@ -339,7 +339,6 @@ module = [
     # tests/test_transforms
     "tests.test_transforms.test_transforms_post_transforms",
     # tests/test_util
-    "tests.test_util.test_util_fileutil",
     "tests.test_util.test_util_i18n",
     "tests.test_util.test_util_inspect",
     "tests.test_util.test_util_logging",
