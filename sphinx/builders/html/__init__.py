@@ -866,20 +866,22 @@ class StandaloneHTMLBuilder(Builder):
         """Create style file(s) for Pygments."""
         pyg_path = self._static_dir / 'pygments.css'
         with open(pyg_path, 'w', encoding='utf-8') as f:
-            f.write(self.highlighter.get_stylesheet())
+            light_style_sheet = self.highlighter.get_stylesheet()
             if self.specialized_light_lighters:
                 for style_name, item in self.specialized_light_lighters.items():
-                    f.write('\n\n/* CSS for style: {} */\n'.format(style_name))
-                    f.write(item['bridge'].get_stylesheet(item['ids']))
+                    light_style_sheet += '\n\n/* CSS for style: {} */\n'.format(style_name)
+                    light_style_sheet += item['bridge'].get_stylesheet(item['ids'])
+            f.write('@media (prefers-color-scheme: light) {{\n\t{}\n}}'.format(light_style_sheet.replace('\n', '\n\t')))
 
         if self.dark_highlighter:
             dark_path = self._static_dir / 'pygments_dark.css'
             with open(dark_path, 'w', encoding='utf-8') as f:
-                f.write(self.dark_highlighter.get_stylesheet())
+                dark_style_sheet = self.dark_highlighter.get_stylesheet()
                 if self.specialized_dark_lighters:
                     for item in self.specialized_dark_lighters.values():
-                        f.write('/* CSS for style: {} */'.format(item['bridge'].formatter.style))
-                        f.write(item['bridge'].get_stylesheet(item['ids']))
+                        dark_style_sheet += ('\n\n/* CSS for style: {} */\n'.format(style_name))
+                        dark_style_sheet += (item['bridge'].get_stylesheet(item['ids']))
+                f.write('@media (prefers-color-scheme: dark) {{\n\t{}\n}}'.format(dark_style_sheet.replace('\n', '\n\t')))
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
