@@ -97,7 +97,7 @@ lint = [
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20241128",
+    "types-docutils==0.21.0.20250514",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250305",
     "types-requests==2.32.0.20250328",  # align with requests
@@ -165,7 +165,7 @@ type-stubs = [
     # align with versions used elsewhere
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20241128",
+    "types-docutils==0.21.0.20250514",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250305",
     "types-requests==2.32.0.20250328",
