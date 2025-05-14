@@ -5,14 +5,18 @@ from __future__ import annotations
 import contextlib
 from typing import TYPE_CHECKING
 
+import docutils
 from docutils.nodes import Element
 from docutils.statemachine import StringList, string2lines
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from typing import Final
 
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
+
+DU_22_PLUS: Final = docutils.__version_info__ >= (0, 22, 0, 'alpha', 0)
 
 
 def nested_parse_to_nodes(
@@ -75,15 +79,23 @@ def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
     memo = state.memo
     surrounding_title_styles: list[str | tuple[str, str]] = memo.title_styles
     surrounding_section_level: int = memo.section_level
+    if DU_22_PLUS:
+        surrounding_section_parents = memo.section_parents
+    else:
+        surrounding_section_parents = []
     # clear current title styles
     memo.title_styles = []
     memo.section_level = 0
+    if DU_22_PLUS:
+        memo.section_parents = []
     try:
         yield
     finally:
         # reset title styles
         memo.title_styles = surrounding_title_styles
         memo.section_level = surrounding_section_level
+        if DU_22_PLUS:
+            memo.section_parents = surrounding_section_parents
 
 
 def _text_to_string_list(

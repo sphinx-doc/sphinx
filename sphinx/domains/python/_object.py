@@ -363,8 +363,9 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 _pseudo_parse_arglist(
                     signode,
                     arglist,
-                    multi_line_parameter_list,
-                    trailing_comma,
+                    multi_line_parameter_list=multi_line_parameter_list,
+                    trailing_comma=trailing_comma,
+                    env=self.env,
                 )
             except (NotImplementedError, ValueError) as exc:
                 # duplicated parameter names raise ValueError and not a SyntaxError
@@ -374,8 +375,9 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 _pseudo_parse_arglist(
                     signode,
                     arglist,
-                    multi_line_parameter_list,
-                    trailing_comma,
+                    multi_line_parameter_list=multi_line_parameter_list,
+                    trailing_comma=trailing_comma,
+                    env=self.env,
                 )
         else:
             if self.needs_arglist():

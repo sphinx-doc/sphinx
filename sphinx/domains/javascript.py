@@ -137,8 +137,9 @@ class JSObject(ObjectDescription[tuple[str, str]]):
                 _pseudo_parse_arglist(
                     signode,
                     arglist,
-                    multi_line_parameter_list,
-                    trailing_comma,
+                    multi_line_parameter_list=multi_line_parameter_list,
+                    trailing_comma=trailing_comma,
+                    env=self.env,
                 )
         return fullname, prefix
 

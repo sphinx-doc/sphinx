@@ -552,8 +552,10 @@ def _keyword_only_separator() -> addnodes.desc_parameter:
 def _pseudo_parse_arglist(
     signode: desc_signature,
     arglist: str,
+    *,
     multi_line_parameter_list: bool = False,
     trailing_comma: bool = True,
+    env: BuildEnvironment,
 ) -> None:
     """'Parse' a list of arguments separated by commas.
 
@@ -561,6 +563,7 @@ def _pseudo_parse_arglist(
     brackets.  Currently, this will split at any comma, even if it's inside a
     string literal (e.g. default argument value).
     """
+    # TODO: decompose 'env' parameter into only the required bits
     paramlist = addnodes.desc_parameterlist()
     paramlist['multi_line_parameter_list'] = multi_line_parameter_list
     paramlist['multi_line_trailing_comma'] = trailing_comma
@@ -583,9 +586,30 @@ def _pseudo_parse_arglist(
                 ends_open += 1
                 argument = argument[:-1].strip()
             if argument:
-                stack[-1] += addnodes.desc_parameter(
-                    '', '', addnodes.desc_sig_name(argument, argument)
-                )
+                param_with_annotation, _, default_value = argument.partition('=')
+                param_name, _, annotation = param_with_annotation.partition(':')
+                del param_with_annotation
+
+                node = addnodes.desc_parameter()
+                node += addnodes.desc_sig_name('', param_name.strip())
+                if annotation:
+                    children = _parse_annotation(annotation.strip(), env=env)
+                    node += addnodes.desc_sig_punctuation('', ':')
+                    node += addnodes.desc_sig_space()
+                    node += addnodes.desc_sig_name('', '', *children)  # type: ignore[arg-type]
+                if default_value:
+                    if annotation:
+                        node += addnodes.desc_sig_space()
+                    node += addnodes.desc_sig_operator('', '=')
+                    if annotation:
+                        node += addnodes.desc_sig_space()
+                    node += nodes.inline(
+                        '',
+                        default_value.strip(),
+                        classes=['default_value'],
+                        support_smartquotes=False,
+                    )
+                stack[-1] += node
             while ends_open:
                 stack.append(addnodes.desc_optional())
                 stack[-2] += stack[-1]

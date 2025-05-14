@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: "3"
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
           version: latest
           enable-cache: false
@@ -47,8 +47,7 @@ jobs:
         run: python -m build
 
       - name: Check distribution
-        run: |
-          twine check dist/*
+        run: twine check dist/*
 
       - name: Create Sigstore attestations for built distributions
         uses: actions/attest@v1
@@ -87,39 +86,10 @@ jobs:
           name: attestation-bundles
           path: /tmp/attestation-bundles/
 
-      - name: Mint PyPI API token
-        id: mint-token
-        uses: actions/github-script@v7
-        with:
-          # language=JavaScript
-          script: |
-            // retrieve the ambient OIDC token
-            const oidc_request_token = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
-            const oidc_request_url = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
-            const oidc_resp = await fetch(`${oidc_request_url}&audience=pypi`, {
-              headers: {Authorization: `bearer ${oidc_request_token}`},
-            });
-            const oidc_token = (await oidc_resp.json()).value;
-
-            // exchange the OIDC token for an API token
-            const mint_resp = await fetch('https://pypi.org/_/oidc/github/mint-token', {
-              method: 'post',
-              body: `{"token": "${oidc_token}"}` ,
-              headers: {'Content-Type': 'application/json'},
-            });
-            const api_token = (await mint_resp.json()).token;
-
-            // mask the newly minted API token, so that we don't accidentally leak it
-            core.setSecret(api_token)
-            core.setOutput('api-token', api_token)
-
       - name: Upload to PyPI
         env:
           TWINE_NON_INTERACTIVE: "true"
-          TWINE_USERNAME: "__token__"
-          TWINE_PASSWORD: "${{ steps.mint-token.outputs.api-token }}"
-        run: |
-          twine upload dist/* --attestations
+        run: twine upload dist/* --attestations
 
   github-release:
     runs-on: ubuntu-latest

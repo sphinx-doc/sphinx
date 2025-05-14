@@ -143,7 +143,7 @@ def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_le
     }
     intersphinx_setup(app)
     app.config.latex_engine = engine
-    app.config.latex_documents = [app.config.latex_documents[0][:4] + (docclass,)]
+    app.config.latex_documents = [(*app.config.latex_documents[0][:4], docclass)]
     if engine == 'xelatex':
         app.config.latex_table_style = ['booktabs']
     elif engine == 'lualatex':

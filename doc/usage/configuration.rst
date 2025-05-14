@@ -3668,7 +3668,7 @@ and which failures and redirects it ignores.
    .. versionadded:: 4.1
 
    .. versionchanged:: 8.3
-      Setting :confval:`!linkcheck_allowed_redirects` to the empty directory
+      Setting :confval:`!linkcheck_allowed_redirects` to an empty dictionary
       may now be used to warn on all redirects encountered
       by the *linkcheck* builder.
 

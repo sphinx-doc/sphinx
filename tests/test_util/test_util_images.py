@@ -11,13 +11,17 @@ from sphinx.util.images import (
     parse_data_uri,
 )
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from pathlib import Path
+
 GIF_FILENAME = 'img.gif'
 PNG_FILENAME = 'img.png'
 PDF_FILENAME = 'img.pdf'
 TXT_FILENAME = 'index.txt'
 
 
-def test_get_image_size(rootdir):
+def test_get_image_size(rootdir: Path) -> None:
     assert get_image_size(rootdir / 'test-root' / GIF_FILENAME) == (200, 181)
     assert get_image_size(rootdir / 'test-root' / PNG_FILENAME) == (200, 181)
     assert get_image_size(rootdir / 'test-root' / PDF_FILENAME) is None

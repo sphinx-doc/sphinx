@@ -5,6 +5,7 @@ from os.path import relpath
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.misc import Class
@@ -21,7 +22,7 @@ from sphinx.util.nodes import explicit_title_re
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, ClassVar
+    from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node
 
@@ -29,6 +30,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
+DU_22_PLUS: Final = docutils.__version_info__ >= (0, 22, 0, 'alpha', 0)
 glob_re = re.compile(r'.*[*?\[].*')
 logger = logging.getLogger(__name__)
 
@@ -330,6 +332,14 @@ class Only(SphinxDirective):
         surrounding_section_level = memo.section_level
         memo.title_styles = []
         memo.section_level = 0
+        if DU_22_PLUS:
+            # https://github.com/sphinx-doc/sphinx/issues/13539
+            # https://sourceforge.net/p/docutils/code/10093/
+            # https://sourceforge.net/p/docutils/patches/213/
+            surrounding_section_parents = memo.section_parents
+            memo.section_parents = []
+        else:
+            surrounding_section_parents = []
         try:
             self.state.nested_parse(
                 self.content, self.content_offset, node, match_titles=True
@@ -365,6 +375,8 @@ class Only(SphinxDirective):
             return []
         finally:
             memo.title_styles = surrounding_title_styles
+            if DU_22_PLUS:
+                memo.section_parents = surrounding_section_parents
             memo.section_level = surrounding_section_level
 
 
