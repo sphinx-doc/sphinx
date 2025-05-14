@@ -500,7 +500,7 @@ Keys that don't need to be overridden unless in special cases are:
    .. hint::
 
       If the key value is set to
-      :code-tex:`r'\\newcommand\\sphinxbackoftitlepage{<Extra
+      :code-tex:`'\\newcommand\\sphinxbackoftitlepage{<Extra
       material>}\\sphinxmaketitle'`, then ``<Extra material>`` will be
       typeset on back of title page (``'manual'`` docclass only).
 
