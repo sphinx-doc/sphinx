@@ -107,7 +107,7 @@ def test_meta_keys_are_handled_for_language_en(app: SphinxTestApp) -> None:
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
-    assert is_registered_term(searchindex, 'findthiskei')
+    assert is_registered_term(searchindex, 'findthiskey')
     assert is_registered_term(searchindex, 'thistoo')
     assert not is_registered_term(searchindex, 'onlygerman')
     assert is_registered_term(searchindex, 'notgerman')
@@ -125,7 +125,7 @@ def test_meta_keys_are_handled_for_language_de(app: SphinxTestApp) -> None:
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
-    assert not is_registered_term(searchindex, 'findthiskei')
+    assert not is_registered_term(searchindex, 'findthiskey')
     assert not is_registered_term(searchindex, 'thistoo')
     assert is_registered_term(searchindex, 'onlygerman')
     assert not is_registered_term(searchindex, 'notgerman')
@@ -144,7 +144,7 @@ def test_stemmer(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
-    assert is_registered_term(searchindex, 'findthisstemmedkei')
+    assert is_registered_term(searchindex, 'findthisstemmedkey')
     assert is_registered_term(searchindex, 'intern')
 
 
@@ -219,7 +219,6 @@ def test_IndexBuilder():
     # dictionaries below may be iterated in arbitrary order by Python at
     # runtime.
     assert index._mapping == {
-        'ar': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'fermion': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'comment': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'non': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
@@ -250,7 +249,6 @@ def test_IndexBuilder():
         },
         'objtypes': {0: 'dummy1:objtype1', 1: 'dummy2:objtype1'},
         'terms': {
-            'ar': [0, 1, 2, 3],
             'comment': [0, 1, 2, 3],
             'fermion': [0, 1, 2, 3],
             'index': [0, 1, 2, 3],
@@ -309,7 +307,6 @@ def test_IndexBuilder():
         'docname2_2': 'filename2_2',
     }
     assert index._mapping == {
-        'ar': {'docname1_2', 'docname2_2'},
         'fermion': {'docname1_2', 'docname2_2'},
         'comment': {'docname1_2', 'docname2_2'},
         'non': {'docname1_2', 'docname2_2'},
@@ -338,7 +335,6 @@ def test_IndexBuilder():
         },
         'objtypes': {0: 'dummy1:objtype1', 1: 'dummy2:objtype1'},
         'terms': {
-            'ar': [0, 1],
             'comment': [0, 1],
             'fermion': [0, 1],
             'index': [0, 1],
