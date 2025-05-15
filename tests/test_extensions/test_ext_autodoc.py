@@ -2823,6 +2823,20 @@ def test_final(app):
         '',
         '      docstring',
         '',
+        '',
+        '   .. py:method:: Class.meth3()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth4()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
     ]
 
 
@@ -2892,6 +2906,26 @@ def test_overload2(app):
         '.. py:class:: Baz(x: int, y: int)',
         '              Baz(x: str, y: str)',
         '   :module: target.overload2',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload3(app):
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.overload3', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload3',
+        '',
+        '',
+        '.. py:function:: test(x: int) -> int',
+        '                 test(x: list[int]) -> list[int]',
+        '                 test(x: str) -> str',
+        '                 test(x: float) -> float',
+        '   :module: target.overload3',
+        '',
+        '   Documentation.',
         '',
     ]
 
