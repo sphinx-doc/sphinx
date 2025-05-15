@@ -7,7 +7,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 dutch_stopwords = parse_stop_word("""
-| source: https://snowball.tartarus.org/algorithms/dutch/stop.txt
+| source: https://snowballstem.org/algorithms/dutch/stop.txt
 de             |  the
 en             |  and
 van            |  of, from

@@ -7,7 +7,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 hungarian_stopwords = parse_stop_word("""
-| source: https://snowball.tartarus.org/algorithms/hungarian/stop.txt
+| source: https://snowballstem.org/algorithms/hungarian/stop.txt
 | prepared by Anna Tordai
 a
 ahogy

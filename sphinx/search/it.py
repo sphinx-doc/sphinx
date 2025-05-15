@@ -7,7 +7,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 italian_stopwords = parse_stop_word("""
-| source: https://snowball.tartarus.org/algorithms/italian/stop.txt
+| source: https://snowballstem.org/algorithms/italian/stop.txt
 ad             |  a (to) before vowel
 al             |  a + il
 allo           |  a + lo

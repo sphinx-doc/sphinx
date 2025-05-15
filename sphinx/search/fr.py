@@ -7,7 +7,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 french_stopwords = parse_stop_word("""
-| source: https://snowball.tartarus.org/algorithms/french/stop.txt
+| source: https://snowballstem.org/algorithms/french/stop.txt
 au             |  a + le
 aux            |  a + les
 avec           |  with
