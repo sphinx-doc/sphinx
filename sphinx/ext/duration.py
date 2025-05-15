@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import time
+from datetime import datetime, timedelta, timezone
 from itertools import islice
 from operator import itemgetter
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 import sphinx
 from sphinx.domains import Domain
@@ -24,6 +27,14 @@ if TYPE_CHECKING:
         reading_durations: dict[str, float]
 
 
+DEFAULT_OPTIONS = {
+    'duration_print_total': True,
+    'duration_print_slowest': True,
+    'duration_n_slowest': 5,
+    'duration_write_json': 'sphinx_reading_durations.json',
+    'duration_limit': None,
+}
+
 logger = logging.getLogger(__name__)
 
 
@@ -38,6 +49,15 @@ class DurationDomain(Domain):
 
     def note_reading_duration(self, duration: float) -> None:
         self.reading_durations[self.env.docname] = duration
+
+    def warn_reading_duration(self, duration: float, duration_limit: float) -> None:
+        logger.warning(
+            __('Reading duration %s exceeded the duration limit %s'),
+            _format_seconds(duration),
+            _format_seconds(duration_limit),
+            type='duration',
+            location=self.env.docname,
+        )
 
     def clear(self) -> None:
         self.reading_durations.clear()
@@ -75,22 +95,79 @@ def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     domain = app.env.domains['duration']
     domain.note_reading_duration(duration)
 
+    duration_limit = cast(
+        'float | None',
+        getattr(app.config, 'duration_limit', DEFAULT_OPTIONS['duration_limit']),
+    )
+    if duration_limit is not None and duration > duration_limit:
+        domain.warn_reading_duration(duration, duration_limit)
+
 
 def on_build_finished(app: Sphinx, error: Exception) -> None:
     """Display duration ranking on the current build."""
     domain = app.env.domains['duration']
-    if not domain.reading_durations:
+    reading_durations = domain.reading_durations
+    if not reading_durations:
         return
-    durations = sorted(
-        domain.reading_durations.items(), key=itemgetter(1), reverse=True
-    )
 
-    logger.info('')
-    logger.info(
-        __('====================== slowest reading durations =======================')
-    )
-    for docname, d in islice(durations, 5):
-        logger.info(f'{d:.3f} {docname}')  # NoQA: G004
+    # Get default options and update with user-specified values
+    options = DEFAULT_OPTIONS.copy()
+    for key in options:
+        options[key] = getattr(app.config, key, DEFAULT_OPTIONS[key])
+
+    if options['duration_print_total']:
+        logger.info('')
+        logger.info(
+            __(
+                '====================== total reading duration =========================='
+            )
+        )
+
+        n_files = len(reading_durations)
+        s = '' if n_files == 1 else 's'
+
+        total = sum(reading_durations.values())
+        logger.info('Total time reading %d file%s:\n', n_files, s)
+        logger.info(_format_seconds(total, multiline=True))
+
+    if options['duration_print_slowest']:
+        sorted_durations = sorted(
+            reading_durations.items(), key=itemgetter(1), reverse=True
+        )
+        n_slowest = cast('int', options['duration_n_slowest'])
+
+        if n_slowest == 0:
+            n_slowest = len(sorted_durations)
+            fmt = ' '
+        else:
+            n_slowest = min(n_slowest, len(sorted_durations))
+            fmt = f' {n_slowest} '
+
+        logger.info('')
+        logger.info(
+            __(
+                f'====================== slowest{fmt}reading durations ======================='
+            )
+        )
+
+        for docname, d in islice(sorted_durations, n_slowest):
+            logger.info('%s %s', _format_seconds(d), docname)
+
+        logger.info(__(''))
+
+    if write_json := options['duration_write_json']:
+        # Write to JSON
+        relpath = (
+            Path(write_json)
+            if isinstance(write_json, (Path, str))
+            else Path(cast('Path | str', DEFAULT_OPTIONS['duration_write_json']))
+        )
+        out_file = Path(app.builder.outdir) / relpath
+        # Make sure all parent dirs exist
+        for parent in out_file.parents[: len(relpath.parents) - 1]:
+            parent.mkdir(exist_ok=True)
+        with out_file.open('w', encoding='utf-8') as fid:
+            json.dump(reading_durations, fid, indent=4)
 
 
 def setup(app: Sphinx) -> dict[str, bool | str]:
@@ -105,3 +182,18 @@ def setup(app: Sphinx) -> dict[str, bool | str]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
+
+
+def _format_seconds(seconds: float, multiline: bool = False) -> str:
+    """Convert seconds to a formatted string."""
+    if not multiline:
+        return f'{seconds:.3f}s'
+    dt = datetime(1, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds)  # noqa: UP017
+    minutes = dt.hour * 60 + dt.minute
+    seconds = dt.second
+    milliseconds = round(dt.microsecond / 1000.0)
+    return (
+        f'minutes:      {minutes:>3}\n'
+        f'seconds:      {seconds:>3}\n'
+        f'milliseconds: {milliseconds:>3}'
+    )
