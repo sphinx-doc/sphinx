@@ -20,7 +20,7 @@ from sphinx.util._pathlib import _StrPath
 from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Set
     from typing import Any, Protocol, TypeVar
 
     from docutils.nodes import Node
@@ -74,7 +74,7 @@ class SearchLanguage:
 
     lang: str = ''
     language_name: str = ''
-    stopwords: set[str] = set()
+    stopwords: Set[str] = frozenset()
     js_splitter_code: str = ''
     js_stemmer_rawcode: str = ''
     js_stemmer_code = """
@@ -131,9 +131,11 @@ from sphinx.search.en import SearchEnglish  # NoQA: E402
 
 
 def parse_stop_word(source: str) -> set[str]:
-    """Parse snowball style word list like this:
+    """Collect the stopwords from a snowball style word list:
 
-    * https://snowballstem.org/algorithms/finnish/stop.txt
+    .. code:: text
+
+        list of space separated stop words | optional comment
     """
     result: set[str] = set()
     for line in source.splitlines():

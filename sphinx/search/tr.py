@@ -11,7 +11,7 @@ class SearchTurkish(SearchLanguage):
     lang = 'tr'
     language_name = 'Turkish'
     js_stemmer_rawcode = 'turkish-stemmer.js'
-    stopwords: set[str] = set()
+    stopwords = frozenset()
 
     def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('turkish')
