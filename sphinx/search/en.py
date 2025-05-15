@@ -212,7 +212,7 @@ class SearchEnglish(SearchLanguage):
     stopwords = english_stopwords
 
     def init(self, options: dict[str, str]) -> None:
-        self.stemmer = snowballstemmer.stemmer('porter')
+        self.stemmer = snowballstemmer.stemmer('english')
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())
