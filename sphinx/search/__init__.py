@@ -586,16 +586,16 @@ class IndexBuilder:
 
     def get_js_stemmer_code(self) -> str:
         """Returns JS code that will be inserted into language_data.js."""
-        if self.lang.js_stemmer_rawcode:
-            base_js_path = _NON_MINIFIED_JS_PATH / 'base-stemmer.js'
-            language_js_path = _NON_MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode
-            base_js = base_js_path.read_text(encoding='utf-8')
-            language_js = language_js_path.read_text(encoding='utf-8')
-            return (
-                f'{base_js}\n{language_js}\nStemmer = {self.lang.language_name}Stemmer;'
-            )
-        else:
+        if not self.lang.js_stemmer_rawcode:
             return self.lang.js_stemmer_code
+
+        base_js_path = _MINIFIED_JS_PATH / 'base-stemmer.js'
+        language_js_path = _MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode
+        return '\n'.join((
+            base_js_path.read_text(encoding='utf-8'),
+            language_js_path.read_text(encoding='utf-8'),
+            f'const Stemmer = {self.lang.language_name}Stemmer;',
+        ))
 
 
 def _feed_visit_nodes(

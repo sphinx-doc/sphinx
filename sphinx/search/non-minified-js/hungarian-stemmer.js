@@ -2,7 +2,6 @@
 
 /**@constructor*/
 var HungarianStemmer = function() {
-    /** @const */ var BaseStemmer = require('./base-stemmer.js');
     var base = new BaseStemmer();
 
     /** @const */ var a_0 = [
@@ -654,5 +653,3 @@ var HungarianStemmer = function() {
         return base.getCurrent();
     };
 };
-
-if (typeof module === 'object' && module.exports) module.exports = HungarianStemmer;

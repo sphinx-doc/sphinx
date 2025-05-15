@@ -2,7 +2,6 @@
 
 /**@constructor*/
 var CatalanStemmer = function() {
-    /** @const */ var BaseStemmer = require('./base-stemmer.js');
     var base = new BaseStemmer();
 
     /** @const */ var a_0 = [
@@ -885,5 +884,3 @@ var CatalanStemmer = function() {
         return base.getCurrent();
     };
 };
-
-if (typeof module === 'object' && module.exports) module.exports = CatalanStemmer;
