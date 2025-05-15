@@ -11,7 +11,7 @@ class SearchRomanian(SearchLanguage):
     lang = 'ro'
     language_name = 'Romanian'
     js_stemmer_rawcode = 'romanian-stemmer.js'
-    stopwords: set[str] = set()
+    stopwords = frozenset()
 
     def __init__(self, options: dict[str, str]) -> None:
         super().__init__(options)
