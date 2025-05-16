@@ -217,7 +217,8 @@ class SearchHungarian(SearchLanguage):
     js_stemmer_rawcode = 'hungarian-stemmer.js'
     stopwords = hungarian_stopwords
 
-    def init(self, options: dict[str, str]) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
+        super().__init__(options)
         self.stemmer = snowballstemmer.stemmer('hungarian')
 
     def stem(self, word: str) -> str:

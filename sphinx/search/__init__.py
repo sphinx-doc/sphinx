@@ -91,11 +91,8 @@ var Stemmer = function() {
     _word_re = re.compile(r'\w+')
 
     def __init__(self, options: dict[str, str]) -> None:
-        self.options = options
-        self.init(options)
-
-    def init(self, options: dict[str, str]) -> None:
         """Initialize the class with the options the user has given."""
+        self.options = options
 
     def split(self, input: str) -> list[str]:
         """This method splits a sentence into words.  Default splitter splits input

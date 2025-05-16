@@ -118,7 +118,8 @@ class SearchDutch(SearchLanguage):
     js_stemmer_rawcode = 'dutch-stemmer.js'
     stopwords = dutch_stopwords
 
-    def init(self, options: dict[str, str]) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
+        super().__init__(options)
         self.stemmer = snowballstemmer.stemmer('dutch')
 
     def stem(self, word: str) -> str:
