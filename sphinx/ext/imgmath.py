@@ -29,6 +29,8 @@ from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
@@ -82,7 +84,7 @@ def read_svg_depth(filename: str | os.PathLike[str]) -> int | None:
 def write_svg_depth(filename: Path, depth: int) -> None:
     """Write the depth to SVG file as a comment at end of file"""
     with open(filename, 'a', encoding='utf-8') as f:
-        f.write('\n<!-- DEPTH=%s -->' % depth)
+        f.write(f'\n<!-- DEPTH={depth} -->')
 
 
 def generate_latex_macro(
@@ -266,36 +268,51 @@ def render_math(
     )
     generated_path = self.builder.outdir / self.builder.imagedir / 'math' / filename
     generated_path.parent.mkdir(parents=True, exist_ok=True)
-    if generated_path.is_file():
-        if image_format == 'png':
-            depth = read_png_depth(generated_path)
-        elif image_format == 'svg':
-            depth = read_svg_depth(generated_path)
-        return generated_path, depth
 
-    # if latex or dvipng (dvisvgm) has failed once, don't bother to try again
-    latex_failed = hasattr(self.builder, '_imgmath_warned_latex')
-    trans_failed = hasattr(self.builder, '_imgmath_warned_image_translator')
-    if latex_failed or trans_failed:
-        return None, None
+    # ensure parallel workers do not try to write the image depth
+    # multiple times to achieve reproducible builds
+    lock: Any = contextlib.nullcontext()
+    if self.builder.parallel_ok:
+        lockfile = generated_path.with_suffix(generated_path.suffix + '.lock')
+        try:
+            import filelock  # type: ignore[import-not-found]
 
-    # .tex -> .dvi
-    try:
-        dvipath = compile_math(latex, self.builder)
-    except InvokeError:
-        self.builder._imgmath_warned_latex = True  # type: ignore[attr-defined]
-        return None, None
+            lock = filelock.FileLock(lockfile)
+        except ImportError:
+            pass
 
-    # .dvi -> .png/.svg
-    try:
-        if image_format == 'png':
-            depth = convert_dvi_to_png(dvipath, self.builder, generated_path)
-        elif image_format == 'svg':
-            depth = convert_dvi_to_svg(dvipath, self.builder, generated_path)
-    except InvokeError:
-        self.builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]
-        return None, None
+    with lock:
+        if not generated_path.is_file():
+            # if latex or dvipng (dvisvgm) has failed once, don't bother to try again
+            latex_failed = hasattr(self.builder, '_imgmath_warned_latex')
+            trans_failed = hasattr(self.builder, '_imgmath_warned_image_translator')
+            if latex_failed or trans_failed:
+                return None, None
 
+            # .tex -> .dvi
+            try:
+                dvipath = compile_math(latex, self.builder)
+            except InvokeError:
+                self.builder._imgmath_warned_latex = True  # type: ignore[attr-defined]
+                return None, None
+
+            # .dvi -> .png/.svg
+            try:
+                if image_format == 'png':
+                    depth = convert_dvi_to_png(dvipath, self.builder, generated_path)
+                elif image_format == 'svg':
+                    depth = convert_dvi_to_svg(dvipath, self.builder, generated_path)
+            except InvokeError:
+                self.builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]
+                return None, None
+
+            return generated_path, depth
+
+    # at this point it has been created
+    if image_format == 'png':
+        depth = read_png_depth(generated_path)
+    elif image_format == 'svg':
+        depth = read_svg_depth(generated_path)
     return generated_path, depth
 
 
@@ -319,11 +336,16 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
         with contextlib.suppress(Exception):
             shutil.rmtree(app.builder._imgmath_tempdir)
 
+    math_outdir = app.builder.outdir / app.builder.imagedir / 'math'
     if app.builder.config.imgmath_embed:
         # in embed mode, the images are still generated in the math output dir
         # to be shared across workers, but are not useful to the final document
         with contextlib.suppress(Exception):
-            shutil.rmtree(app.builder.outdir / app.builder.imagedir / 'math')
+            shutil.rmtree(math_outdir)
+    else:
+        # cleanup lock files when using parallel workers
+        for lockfile in math_outdir.glob('*.lock'):
+            Path.unlink(lockfile)
 
 
 def get_tooltip(self: HTML5Translator, node: Element) -> str:
@@ -383,7 +405,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     self.body.append('<p>')
     if node['number']:
         number = get_node_equation_number(self, node)
-        self.body.append('<span class="eqno">(%s)' % number)
+        self.body.append(f'<span class="eqno">({number})')
         self.add_permalink_ref(node, _('Link to this equation'))
         self.body.append('</span>')
 
