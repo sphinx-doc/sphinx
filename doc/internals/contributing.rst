@@ -337,13 +337,15 @@ Updating generated files
 ------------------------
 
 * JavaScript stemming algorithms in :file:`sphinx/search/non-minified-js/*.js`
-  are generated using `snowball <https://github.com/snowballstem/snowball>`_
-  by cloning the repository, executing ``make dist_libstemmer_js`` and then
-  unpacking the tarball which is generated in :file:`dist` directory.
+  and stopword files in :file:`sphinx/search/_stopwords/`
+  are generated from the `Snowball project`_
+  by running :file:`utils/generate_snowball.py`.
 
   Minified files in :file:`sphinx/search/minified-js/*.js` are generated from
-  non-minified ones using :program:`uglifyjs` (installed via npm), with ``-m``
-  option to enable mangling.
+  non-minified ones using :program:`uglifyjs` (installed via npm).
+  See :file:`sphinx/search/minified-js/README.rst`.
+
+  .. _Snowball project: https://snowballstem.org/
 
 * The :file:`searchindex.js` files found in
   the :file:`tests/js/fixtures/*` directories
