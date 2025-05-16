@@ -24,6 +24,7 @@ env:
   PYTHONDEVMODE: "1"  # -X dev
   PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
   UV_SYSTEM_PYTHON: "1"  # make uv do global installs
+  UV_VERSION: 0.5.14  # Pin the version of UV
 
 jobs:
   ubuntu:
@@ -39,8 +40,8 @@ jobs:
         - "3.13"
         - "3.13t"
         docutils:
-        - "0.20"
-        - "0.21"
+        - "0.20.0"
+        - "0.21.0"
 #        include:
 #        # test every supported Docutils version for the latest supported Python
 #        - python: "3.13"
@@ -65,18 +66,12 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
+        version: ${{ env.UV_VERSION }}
         enable-cache: false
-    - name: Install dependencies
-      run: uv pip install . --group test
-      env:
-        UV_PYTHON: "python${{ matrix.python }}"
     - name: Install Docutils ${{ matrix.docutils }}
-      run: uv pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
-      env:
-        UV_PYTHON: "python${{ matrix.python }}"
+      run: uv add "docutils~=${{ matrix.docutils }}"
     - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
+      run: uv run --python ${{ matrix.python }} pytest -n logical --dist=worksteal -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
@@ -176,7 +171,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
+        version: ${{ env.UV_VERSION }}
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -205,7 +200,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
+        version: ${{ env.UV_VERSION }}
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -240,7 +235,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
+        version: ${{ env.UV_VERSION }}
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -273,7 +268,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
+        version: ${{ env.UV_VERSION }}
         enable-cache: false
     - name: Install dependencies
       run: |
@@ -304,7 +299,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
+        version: ${{ env.UV_VERSION }}
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
@@ -335,7 +330,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: latest
+        version: ${{ env.UV_VERSION }}
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test pytest-cov
