@@ -20,6 +20,8 @@ Features added
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner.
 * #13497: Support C domain objects in the table of contents.
+* #13528: Add tilde modifier support for :rst:role:`py:deco`.
+  Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------

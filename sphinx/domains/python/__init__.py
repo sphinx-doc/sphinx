@@ -603,14 +603,24 @@ class _PyDecoXRefRole(PyXRefRole):
         warn_dangling: bool = False,
     ) -> None:
         super().__init__(
-            fix_parens=True,
+            fix_parens=fix_parens,
             lowercase=lowercase,
             nodeclass=nodeclass,
             innernodeclass=innernodeclass,
             warn_dangling=warn_dangling,
         )
 
-    def update_title_and_target(self, title: str, target: str) -> tuple[str, str]:
+    def process_link(
+        self,
+        env: BuildEnvironment,
+        refnode: Element,
+        has_explicit_title: bool,
+        title: str,
+        target: str,
+    ) -> tuple[str, str]:
+        title, target = super().process_link(
+            env, refnode, has_explicit_title, title, target
+        )
         return f'@{title}', target
 
 
