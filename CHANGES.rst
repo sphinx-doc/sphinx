@@ -20,6 +20,8 @@ Features added
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner.
 * #13497: Support C domain objects in the table of contents.
+* #13217: Remove extra parentheses from :rst:dir:`js:function` arguments and errors.
+  Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------
