@@ -7,7 +7,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 russian_stopwords = parse_stop_word("""
-| source: https://snowball.tartarus.org/algorithms/russian/stop.txt
+| source: https://snowballstem.org/algorithms/russian/stop.txt
 и              | and
 в              | in/into
 во             | alternative form

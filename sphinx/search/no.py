@@ -7,7 +7,7 @@ import snowballstemmer
 from sphinx.search import SearchLanguage, parse_stop_word
 
 norwegian_stopwords = parse_stop_word("""
-| source: https://snowball.tartarus.org/algorithms/norwegian/stop.txt
+| source: https://snowballstem.org/algorithms/norwegian/stop.txt
 og             | and
 i              | in
 jeg            | I

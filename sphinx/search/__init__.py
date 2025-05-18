@@ -130,7 +130,7 @@ from sphinx.search.en import SearchEnglish  # NoQA: E402
 def parse_stop_word(source: str) -> set[str]:
     """Parse snowball style word list like this:
 
-    * https://snowball.tartarus.org/algorithms/finnish/stop.txt
+    * https://snowballstem.org/algorithms/finnish/stop.txt
     """
     result: set[str] = set()
     for line in source.splitlines():
