@@ -46,8 +46,6 @@ class SearchChinese(SearchLanguage):
     def __init__(self, options: dict[str, str]) -> None:
         super().__init__(options)
         self.latin_terms: set[str] = set()
-
-    def init(self, options: dict[str, str]) -> None:
         dict_path = options.get('dict', JIEBA_DEFAULT_DICT)
         if dict_path and Path(dict_path).is_file():
             jieba_load_userdict(str(dict_path))
