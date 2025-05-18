@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import snowballstemmer
 
 from sphinx.search import SearchLanguage
+from sphinx.search._stopwords.en import ENGLISH_STOPWORDS
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -31,18 +32,6 @@ else:
         Path(jieba.__file__, '..', jieba.DEFAULT_DICT_NAME).resolve().as_posix()
     )
     del jieba
-
-english_stopwords = {
-    'a', 'and', 'are', 'as', 'at',
-    'be', 'but', 'by',
-    'for',
-    'if', 'in', 'into', 'is', 'it',
-    'near', 'no', 'not',
-    'of', 'on', 'or',
-    'such',
-    'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to',
-    'was', 'will', 'with',
-}  # fmt: skip
 
 js_porter_stemmer = """
 /**
@@ -237,14 +226,12 @@ class SearchChinese(SearchLanguage):
     lang = 'zh'
     language_name = 'Chinese'
     js_stemmer_code = js_porter_stemmer
-    stopwords = english_stopwords
+    stopwords = ENGLISH_STOPWORDS
     latin1_letters = re.compile(r'[a-zA-Z0-9_]+')
 
     def __init__(self, options: dict[str, str]) -> None:
         super().__init__(options)
         self.latin_terms: set[str] = set()
-
-    def init(self, options: dict[str, str]) -> None:
         dict_path = options.get('dict', JIEBA_DEFAULT_DICT)
         if dict_path and Path(dict_path).is_file():
             jieba_load_userdict(str(dict_path))
