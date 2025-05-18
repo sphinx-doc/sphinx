@@ -104,7 +104,7 @@ lint = [
     "types-urllib3==1.26.25.14",
     "pyright==1.1.400",
     "pytest>=8.0",
-    "pypi-attestations==0.0.25",
+    "pypi-attestations==0.0.26",
     "betterproto==2.0.0b6",
 ]
 test = [
@@ -141,7 +141,7 @@ lint = [
 package = [
     "betterproto==2.0.0b6",  # resolution fails without betterproto
     "build",
-    "pypi-attestations==0.0.25",
+    "pypi-attestations==0.0.26",
     "twine>=6.1",
 ]
 test = [
