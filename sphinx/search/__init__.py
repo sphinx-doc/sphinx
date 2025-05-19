@@ -588,7 +588,7 @@ class IndexBuilder:
         return '\n'.join((
             base_js_path.read_text(encoding='utf-8'),
             language_js_path.read_text(encoding='utf-8'),
-            f'globalThis.Stemmer = {self.lang.language_name}Stemmer;',
+            f'window.Stemmer = {self.lang.language_name}Stemmer;',
         ))
 
 
