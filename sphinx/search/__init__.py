@@ -117,7 +117,7 @@ var Stemmer = function() {
         """Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
-        return word == '' or not word.isdigit() or word not in self.stopwords
+        return not word.isdigit() and word not in self.stopwords
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
@@ -500,16 +500,11 @@ class IndexBuilder:
 
         _filter = self.lang.word_filter
         _stem = self.lang.stem
-        _mapping = self._mapping
 
         # memoise self.lang.stem
         @functools.cache
         def stem(word_to_stem: str) -> str:
             return _stem(word_to_stem).lower()
-
-        def add_term(term: str, /) -> None:
-            if _filter(term):
-                _mapping.setdefault(term, set()).add(docname)
 
         self._all_titles[docname] = word_store.titles
 
@@ -517,17 +512,20 @@ class IndexBuilder:
             # add stemmed and unstemmed as the stemmer must not remove words
             # from search index.
             stemmed_word = stem(word)
-            add_term(stemmed_word)
-            add_term(word)
+            if _filter(stemmed_word):
+                self._title_mapping.setdefault(stemmed_word, set()).add(docname)
+            elif _filter(word):
+                self._title_mapping.setdefault(word, set()).add(docname)
 
         for word in word_store.words:
             # add stemmed and unstemmed as the stemmer must not remove words
             # from search index.
             stemmed_word = stem(word)
+            if not _filter(stemmed_word) and _filter(word):
+                stemmed_word = word
             already_indexed = docname in self._title_mapping.get(stemmed_word, ())
-            if not already_indexed:
-                add_term(stemmed_word)
-                add_term(word)
+            if _filter(stemmed_word) and not already_indexed:
+                self._mapping.setdefault(stemmed_word, set()).add(docname)
 
         # find explicit entries within index directives
         _index_entries: set[tuple[str, str, str]] = set()
@@ -590,7 +588,6 @@ class IndexBuilder:
         return '\n'.join((
             base_js_path.read_text(encoding='utf-8'),
             language_js_path.read_text(encoding='utf-8'),
-            f'const Stemmer = {self.lang.language_name}Stemmer;',
             f'globalThis.Stemmer = {self.lang.language_name}Stemmer;',
         ))
 
