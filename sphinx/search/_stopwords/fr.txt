@@ -1,4 +1,7 @@
-| source: https://snowballstem.org/algorithms/french/stop.txt
+
+ | A French stop word list. Comments begin with vertical bar. Each stop
+ | word is at the start of a line.
+
 au             |  a + le
 aux            |  a + les
 avec           |  with
@@ -40,7 +43,7 @@ qui            |  who
 sa             |  his, her (fem)
 se             |  oneself
 ses            |  his (pl)
-son            |  his, her (masc)
+ | son            |  his, her (masc). Omitted because it is homonym of "sound"
 sur            |  on
 ta             |  thy (fem)
 te             |  thee
@@ -68,15 +71,15 @@ t              |  t'
 y              |  there
 
                | forms of être (not including the infinitive):
-été
+ | été - Omitted because it is homonym of "summer"
 étée
 étées
-étés
+ | étés - Omitted because it is homonym of "summers"
 étant
 suis
 es
-est
-sommes
+ | est - Omitted because it is homonym of "east"
+ | sommes - Omitted because it is homonym of "sums"
 êtes
 sont
 serai
@@ -107,7 +110,7 @@ soyez
 soient
 fusse
 fusses
-fût
+ | fût - Omitted because it is homonym of "tap", like in "beer on tap"
 fussions
 fussiez
 fussent
@@ -119,13 +122,13 @@ eue
 eues
 eus
 ai
-as
+ | as - Omitted because it is homonym of "ace"
 avons
 avez
 ont
 aurai
-auras
-aura
+ | auras - Omitted because it is also the name of a kind of wind
+ | aura - Omitted because it is also the name of a kind of wind and homonym of "aura"
 aurons
 aurez
 auront
@@ -136,7 +139,7 @@ auriez
 auraient
 avais
 avait
-avions
+ | avions - Omitted because it is homonym of "planes"
 aviez
 avaient
 eut
