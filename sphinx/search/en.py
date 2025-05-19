@@ -1,4 +1,4 @@
-"""English search language: includes the JS porter stemmer."""
+"""English search language."""
 
 from __future__ import annotations
 

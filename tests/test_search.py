@@ -462,7 +462,7 @@ def assert_is_sorted(
             assert_is_sorted(child, f'{path}[{i}]')
 
 
-@pytest.mark.parametrize('directory', JAVASCRIPT_TEST_ROOTS)
+@pytest.mark.parametrize('directory', JAVASCRIPT_TEST_ROOTS, ids=lambda p: p.name)
 def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
     app = make_app(
         'html',
