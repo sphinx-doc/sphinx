@@ -221,6 +221,12 @@ You can also separate the link and the target definition (:duref:`ref
 
    .. _a link: https://domain.invalid/
 
+If you want to set a custom target name::
+
+    This paragraph contains `a link with a custom target name <custom_>`_.
+
+    .. _custom: https://domain.invalid/
+
 Internal links
 ~~~~~~~~~~~~~~
 
