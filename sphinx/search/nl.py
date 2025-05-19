@@ -1,4 +1,4 @@
-"""Dutch search language: includes the JS porter stemmer."""
+"""Dutch search language."""
 
 from __future__ import annotations
 

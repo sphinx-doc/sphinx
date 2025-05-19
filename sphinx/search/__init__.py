@@ -117,10 +117,7 @@ var Stemmer = function() {
         """Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
-        return len(word) == 0 or not (
-            ((len(word) < 3) and (12353 < ord(word[0]) < 12436))
-            or (ord(word[0]) < 256 and (word in self.stopwords))
-        )
+        return not word.isdigit() and word not in self.stopwords
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
@@ -583,16 +580,16 @@ class IndexBuilder:
 
     def get_js_stemmer_code(self) -> str:
         """Returns JS code that will be inserted into language_data.js."""
-        if self.lang.js_stemmer_rawcode:
-            base_js_path = _NON_MINIFIED_JS_PATH / 'base-stemmer.js'
-            language_js_path = _NON_MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode
-            base_js = base_js_path.read_text(encoding='utf-8')
-            language_js = language_js_path.read_text(encoding='utf-8')
-            return (
-                f'{base_js}\n{language_js}\nStemmer = {self.lang.language_name}Stemmer;'
-            )
-        else:
+        if not self.lang.js_stemmer_rawcode:
             return self.lang.js_stemmer_code
+
+        base_js_path = _MINIFIED_JS_PATH / 'base-stemmer.js'
+        language_js_path = _MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode
+        return '\n'.join((
+            base_js_path.read_text(encoding='utf-8'),
+            language_js_path.read_text(encoding='utf-8'),
+            f'window.Stemmer = {self.lang.language_name}Stemmer;',
+        ))
 
 
 def _feed_visit_nodes(
