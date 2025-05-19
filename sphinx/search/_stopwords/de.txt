@@ -1,4 +1,11 @@
-|source: https://snowballstem.org/algorithms/german/stop.txt
+
+ | A German stop word list. Comments begin with vertical bar. Each stop
+ | word is at the start of a line.
+
+ | The number of forms in this list is reduced significantly by passing it
+ | through the German stemmer.
+
+
 aber           |  but
 
 alle           |  all

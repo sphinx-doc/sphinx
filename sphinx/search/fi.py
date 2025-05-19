@@ -1,4 +1,4 @@
-"""Finnish search language: includes the JS Finnish stemmer."""
+"""Finnish search language."""
 
 from __future__ import annotations
 
