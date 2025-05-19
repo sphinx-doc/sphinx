@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import shutil
 import subprocess
 import sys
@@ -23,6 +24,7 @@ import requests
 
 SNOWBALL_VERSION = '3.0.1'
 SNOWBALL_URL = f'https://github.com/snowballstem/snowball/archive/refs/tags/v{SNOWBALL_VERSION}.tar.gz'
+SNOWBALL_SHA256 = '80ac10ce40dc4fcfbfed8d085c457b5613da0e86a73611a3d5527d044a142d60'
 
 ROOT = Path(__file__).resolve().parent.parent
 SEARCH_DIR = ROOT / 'sphinx' / 'search'
@@ -90,10 +92,19 @@ def parse_stop_word(source: str) -> frozenset[str]:
 def regenerate_javascript() -> None:
     tmp_root = Path(tempfile.mkdtemp())
 
-    # Download and extract the snowball release
-    snowball_archive = BytesIO(requests.get(SNOWBALL_URL, timeout=60).content)
+    # Download and verify the snowball release
+    archive = requests.get(SNOWBALL_URL, timeout=60).content
+    digest = hashlib.sha256(archive).hexdigest()
+    if digest != SNOWBALL_SHA256:
+        msg = (
+            f'data does not match expected checksum '
+            f'(expected {SNOWBALL_SHA256}, saw {digest}).'
+        )
+        raise RuntimeError(msg)
+
+    # Extract the release archive
     with tarfile.TarFile.gzopen(
-        'snowball.tar.gz', mode='r', fileobj=snowball_archive
+        'snowball.tar.gz', mode='r', fileobj=BytesIO(archive)
     ) as tar:
         tar.extractall(tmp_root, filter='data')
     snowball_root = tmp_root / f'snowball-{SNOWBALL_VERSION}'
