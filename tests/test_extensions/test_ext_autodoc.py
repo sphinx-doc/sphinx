@@ -938,10 +938,14 @@ def test_autodoc_special_members(app):
     }
     if sys.version_info >= (3, 13, 0, 'alpha', 5):
         options['exclude-members'] = '__static_attributes__,__firstlineno__'
+    if sys.version_info >= (3, 14, 0, 'alpha', 7):
+        ann_attr_name = '__annotations_cache__'
+    else:
+        ann_attr_name = '__annotations__'
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:attribute:: Class.__annotations__',
+        f'   .. py:attribute:: Class.{ann_attr_name}',
         '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
@@ -2819,6 +2823,20 @@ def test_final(app):
         '',
         '      docstring',
         '',
+        '',
+        '   .. py:method:: Class.meth3()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth4()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
     ]
 
 
@@ -2888,6 +2906,26 @@ def test_overload2(app):
         '.. py:class:: Baz(x: int, y: int)',
         '              Baz(x: str, y: str)',
         '   :module: target.overload2',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload3(app):
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.overload3', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload3',
+        '',
+        '',
+        '.. py:function:: test(x: int) -> int',
+        '                 test(x: list[int]) -> list[int]',
+        '                 test(x: str) -> str',
+        '                 test(x: float) -> float',
+        '   :module: target.overload3',
+        '',
+        '   Documentation.',
         '',
     ]
 
