@@ -117,7 +117,7 @@ var Stemmer = function() {
         """Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
-        return not word.isdigit() and word not in self.stopwords
+        return word and not word.isdigit() and word not in self.stopwords
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
