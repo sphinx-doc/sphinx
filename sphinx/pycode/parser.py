@@ -295,9 +295,9 @@ class VariableCommentPicker(ast.NodeVisitor):
             self.annotations[basename, name] = ast_unparse(annotation)
 
     def is_final(self, decorators: list[ast.expr]) -> bool:
-        final = self.typing_final_names | {
-            f'{modname}.final' for modname in self.typing_mods
-        }
+        final = {f'{modname}.final' for modname in self.typing_mods}
+        final |= self.typing_final_names
+
         for decorator in decorators:
             try:
                 if ast_unparse(decorator) in final:
@@ -308,9 +308,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         return False
 
     def is_overload(self, decorators: list[ast.expr]) -> bool:
-        overload = self.typing_overload_names | {
-            f'{modname}.overload' for modname in self.typing_mods
-        }
+        overload = {f'{modname}.overload' for modname in self.typing_mods}
+        overload |= self.typing_overload_names
 
         for decorator in decorators:
             try:
