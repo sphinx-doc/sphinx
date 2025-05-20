@@ -62,4 +62,5 @@ tests/roots/test-pycode/cp_1251_coded.py working-tree-encoding=windows-1251
 
 tests/js/fixtures/**/*.js                           generated
 sphinx/search/minified-js/*.js                      generated
+sphinx/search/_stopwords/                           generated
 sphinx/themes/bizstyle/static/css3-mediaqueries.js  generated
