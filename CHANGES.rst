@@ -22,6 +22,9 @@ Features added
 * #13497: Support C domain objects in the table of contents.
 * #13535: html search: Update to the latest version of Snowball (v3.0.1).
   Patch by Adam Turner.
+* #10385: Add RTL (right-to-left) support for all Sphinx themes via the ``is_rtl``
+  theme option. Includes automatic layout mirroring, and bidirectional text support.
+  Patch by Alireza Shabani.
 
 Bugs fixed
 ----------
