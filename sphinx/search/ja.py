@@ -523,7 +523,8 @@ class SearchJapanese(SearchLanguage):
     lang = 'ja'
     language_name = 'Japanese'
 
-    def init(self, options: dict[str, str]) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
+        super().__init__(options)
         dotted_path = options.get('type')
         if dotted_path is None:
             self.splitter = DefaultSplitter(options)
