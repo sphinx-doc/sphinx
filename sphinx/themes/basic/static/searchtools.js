@@ -287,11 +287,8 @@ const Search = {
       const queryTermLower = queryTerm.toLowerCase();
 
       // maybe skip this "word"
-      // stopwords array is from language_data.js
-      if (
-        stopwords.indexOf(queryTermLower) !== -1 ||
-        queryTerm.match(/^\d+$/)
-      )
+      // stopwords set is from language_data.js
+      if (stopwords.has(queryTermLower) || queryTerm.match(/^\d+$/))
         return;
 
       // stem the word

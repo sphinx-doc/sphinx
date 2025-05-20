@@ -7,7 +7,7 @@ See https://github.com/trailofbits/pypi-attestations.
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
-#     "pypi-attestations==0.0.25",
+#     "pypi-attestations==0.0.26",
 #     "betterproto==2.0.0b6",
 # ]
 # ///
