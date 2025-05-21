@@ -1,4 +1,4 @@
-"""Turkish search language: includes the JS Turkish stemmer."""
+"""Turkish search language."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ class SearchTurkish(SearchLanguage):
     lang = 'tr'
     language_name = 'Turkish'
     js_stemmer_rawcode = 'turkish-stemmer.js'
-    stopwords: set[str] = set()
+    stopwords = frozenset()
 
     def __init__(self, options: dict[str, str]) -> None:
         super().__init__(options)
