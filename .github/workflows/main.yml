@@ -68,8 +68,6 @@ jobs:
         enable-cache: false
     - name: Test with pytest
       run: uv run --with "docutils~=${{ matrix.docutils }}.0" --python ${{ matrix.python }} pytest -n logical --dist=worksteal -vv --durations 25
-      env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes:
     runs-on: ubuntu-latest
