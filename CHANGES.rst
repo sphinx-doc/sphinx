@@ -31,6 +31,8 @@ Bugs fixed
 
 * #13369: Correctly parse and cross-reference unpacked type annotations.
   Patch by Alicia Garcia-Raboso.
+* #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
+  Patch by Shengyu Zhang and Adam Turner.
 
 Testing
 -------
