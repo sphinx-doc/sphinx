@@ -65,9 +65,11 @@ from sphinx.pycode.ast import unparse as ast_unparse
         ('*tuple[str, int]', '*tuple[str, int]'),  # Starred
     ],
 )  # fmt: skip
-def test_unparse(source, expected):
+def test_unparse(source: str, expected: str) -> None:
     module = ast.parse(source)
-    assert ast_unparse(module.body[0].value, source) == expected
+    expr = module.body[0]
+    assert isinstance(expr, ast.Expr)
+    assert ast_unparse(expr.value, source) == expected
 
 
 def test_unparse_None() -> None:

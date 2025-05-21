@@ -334,7 +334,6 @@ module = [
     "tests.test_intl.test_intl",
     # tests/test_pycode
     "tests.test_pycode.test_pycode",
-    "tests.test_pycode.test_pycode_ast",
     # tests/test_transforms
     "tests.test_transforms.test_transforms_post_transforms",
     # tests/test_util
