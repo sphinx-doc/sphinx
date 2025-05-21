@@ -81,11 +81,11 @@ class SearchLanguage:
 /**
  * Dummy stemmer for languages without stemming rules.
  */
-var Stemmer = function() {
-  this.stemWord = function(w) {
+var Stemmer = function () {
+  this.stemWord = function (w) {
     return w;
-  }
-}
+  };
+};
 """
 
     _word_re = re.compile(r'\w+')
