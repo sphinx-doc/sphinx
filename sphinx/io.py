@@ -153,5 +153,5 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     # Propagate exceptions by default when used programmatically:
     defaults = {'traceback': True, **app.env.settings}
     # Set default settings
-    pub.get_settings(**defaults)
+    pub.get_settings(**defaults)  # type: ignore[no-untyped-call]
     return pub
