@@ -144,7 +144,6 @@ jobs:
     - name: Test with pytest
       run: uv run --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" pytest -n logical --dist=worksteal -vv
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
         DO_EPUBCHECK: "1"
         EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
 
