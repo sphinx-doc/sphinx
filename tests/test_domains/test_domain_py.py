@@ -1794,18 +1794,15 @@ def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
 
 
 def test_deco_role(app):
-    text = """:py:deco:`foo.bar`
-    .. py:decorator:: foo.bar
-       :no-contents-entry:
-       :no-index-entry:
-       :no-typesetting:"""
-    doctree = restructuredtext.parse(app, text)
-    assert doctree.astext() == '@bar\n\n\n\n'
+    text = """\
+.. py:decorator:: foo.bar
+   :no-contents-entry:
+   :no-index-entry:
+   :no-typesetting:
+"""
 
-    text = """:py:deco:`~foo.bar`
-    .. py:decorator:: foo.bar
-       :no-contents-entry:
-       :no-index-entry:
-       :no-typesetting:"""
-    doctree = restructuredtext.parse(app, text)
-    assert doctree.astext() == '@bar\n\n\n\n'
+    doctree = restructuredtext.parse(app, text + '\n:py:deco:`foo.bar`')
+    assert doctree.astext() == '\n\n\n\n@foo.bar'
+
+    doctree = restructuredtext.parse(app, text + '\n:py:deco:`~foo.bar`')
+    assert doctree.astext() == '\n\n\n\n@bar'

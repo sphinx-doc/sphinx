@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence, Set
     from typing import Any, ClassVar
 
-    from docutils.nodes import Element, Node, TextElement
+    from docutils.nodes import Element, Node
 
     from sphinx.addnodes import desc_signature, pending_xref
     from sphinx.application import Sphinx
@@ -594,22 +594,6 @@ class PyXRefRole(XRefRole):
 
 
 class _PyDecoXRefRole(PyXRefRole):
-    def __init__(
-        self,
-        fix_parens: bool = False,
-        lowercase: bool = False,
-        nodeclass: type[Element] | None = None,
-        innernodeclass: type[TextElement] | None = None,
-        warn_dangling: bool = False,
-    ) -> None:
-        super().__init__(
-            fix_parens=fix_parens,
-            lowercase=lowercase,
-            nodeclass=nodeclass,
-            innernodeclass=innernodeclass,
-            warn_dangling=warn_dangling,
-        )
-
     def process_link(
         self,
         env: BuildEnvironment,
