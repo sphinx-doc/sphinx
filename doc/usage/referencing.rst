@@ -145,6 +145,9 @@ There is also a way to directly link to documents:
    If no explicit link text is given (like usual: ``:doc:`Monty Python members
    </people>```), the link caption will be the title of the given document.
 
+   Note that the string inside the single quotes must be a case-sensitive with
+   the file name, even on Windows.
+
 
 Referencing downloadable files
 ------------------------------
