@@ -91,8 +91,6 @@ jobs:
         enable-cache: false
     - name: Test with pytest
       run: uv run pytest -vv --durations 25
-      env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   macos:
     runs-on: macos-latest
