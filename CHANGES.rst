@@ -25,14 +25,14 @@ Features added
 * #13704: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
   and :py:func:`~typing.final` decorators.
   Patch by Spencer Brown.
-* #13528: Add tilde modifier support for :rst:role:`py:deco`.
-  Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------
 
 * #13369: Correctly parse and cross-reference unpacked type annotations.
   Patch by Alicia Garcia-Raboso.
+* #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
+  Patch by Shengyu Zhang and Adam Turner.
 
 Testing
 -------
