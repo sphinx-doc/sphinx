@@ -66,16 +66,8 @@ jobs:
       uses: astral-sh/setup-uv@v6
       with:
         enable-cache: false
-    - name: Install dependencies
-      run: uv pip install . --group test
-      env:
-        UV_PYTHON: "python${{ matrix.python }}"
-    - name: Install Docutils ${{ matrix.docutils }}
-      run: uv pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
-      env:
-        UV_PYTHON: "python${{ matrix.python }}"
     - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
+      run: uv run --with "docutils~=${{ matrix.docutils }}.0" --python ${{ matrix.python }} pytest -n logical --dist=worksteal -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
