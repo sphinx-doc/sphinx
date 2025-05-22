@@ -66,7 +66,7 @@ from sphinx.pycode.ast import unparse as ast_unparse
     ],
 )  # fmt: skip
 def test_unparse(source: str, expected: str) -> None:
-    module = ast.parse(source)
+    expr = ast.parse(source).body[0]
     expr = module.body[0]
     assert isinstance(expr, ast.Expr)
     assert ast_unparse(expr.value, source) == expected
