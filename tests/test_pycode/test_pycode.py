@@ -41,7 +41,7 @@ def test_ModuleAnalyzer_for_file() -> None:
     assert analyzer.srcname == str(SPHINX_MODULE_PATH)
 
 
-def test_ModuleAnalyzer_for_module(rootdir):
+def test_ModuleAnalyzer_for_module(rootdir: Path) -> None:
     analyzer = ModuleAnalyzer.for_module('sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname == str(SPHINX_MODULE_PATH)

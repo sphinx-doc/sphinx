@@ -41,7 +41,9 @@ def test_status_iterator_length_0(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
-def test_status_iterator_verbosity_0(app, monkeypatch):
+def test_status_iterator_verbosity_0(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
@@ -59,7 +61,9 @@ def test_status_iterator_verbosity_0(app, monkeypatch):
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
-def test_status_iterator_verbosity_1(app, monkeypatch):
+def test_status_iterator_verbosity_1(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
@@ -107,7 +111,7 @@ def test_progress_message(app: SphinxTestApp) -> None:
 
     # decorator
     @progress_message('testing')
-    def func():
+    def func() -> None:
         logger.info('in func ', nonl=True)
 
     func()

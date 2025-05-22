@@ -286,10 +286,7 @@ module = [
     "tests.test_transforms.test_transforms_post_transforms_images",
     "tests.test_transforms.test_transforms_reorder_nodes",
     # tests/test_util
-    "tests.test_util.test_util",
-    "tests.test_util.test_util_display",
     "tests.test_util.test_util_docutils",
-    "tests.test_util.test_util_inventory",
     # tests/test_writers
     "tests.test_writers.test_docutilsconf",
 ]
@@ -332,9 +329,6 @@ module = [
     "tests.test_extensions.test_ext_napoleon_docstring",
     # tests/test_intl
     "tests.test_intl.test_intl",
-    # tests/test_pycode
-    "tests.test_pycode.test_pycode",
-    "tests.test_pycode.test_pycode_ast",
     # tests/test_transforms
     "tests.test_transforms.test_transforms_post_transforms",
     # tests/test_util
