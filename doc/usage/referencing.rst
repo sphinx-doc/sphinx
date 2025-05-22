@@ -136,17 +136,14 @@ There is also a way to directly link to documents:
 
 .. rst:role:: doc
 
-   Link to the specified document; the document name can be specified in
-   absolute or relative fashion.  For example, if the reference
+   Link to the specified document; the document name is a case-sensitive
+   relative or absolute path.  For example, if the reference
    ``:doc:`parrot``` occurs in the document ``sketches/index``, then the link
    refers to ``sketches/parrot``.  If the reference is ``:doc:`/people``` or
    ``:doc:`../people```, the link refers to ``people``.
 
    If no explicit link text is given (like usual: ``:doc:`Monty Python members
    </people>```), the link caption will be the title of the given document.
-
-   Note that the string inside the single quotes must be a case-sensitive with
-   the file name, even on Windows.
 
 
 Referencing downloadable files
