@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 import sphinx.util
@@ -29,8 +31,11 @@ from sphinx.util.osutil import (
     relative_uri,
 )
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-def test_ensuredir(tmp_path):
+
+def test_ensuredir(tmp_path: Path) -> None:
     # Does not raise an exception for an existing directory.
     ensuredir(tmp_path)
 
