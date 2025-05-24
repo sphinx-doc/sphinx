@@ -56,6 +56,7 @@
 \newenvironment{sphinxlegend}{\par\small}{\par}
 % reduce hyperref "Token not allowed in a PDF string" warnings on PDF builds
 \AtBeginDocument{\pdfstringdefDisableCommands{%
+% all "protected" macros possibly ending up in section titles should be here
     \let\sphinxurl      \@firstofone
     \let\sphinxnolinkurl\@firstofone
     \let\sphinxhref     \@secondoftwo
