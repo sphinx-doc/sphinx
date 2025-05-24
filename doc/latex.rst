@@ -1006,18 +1006,20 @@ The color used in the above example is available from having passed the
 
 ``iconpackage``
 
-    The name of the LaTeX package used for icons in the admonition titles.  It
-    defaults to ``fontawesome5`` or to fall-back ``fontawesome``.  In case
-    neither one is available the option value will automatically default to
-    ``none``, which means that no attempt at loading a package is done.
-    Independently of this setting, arbitrary LaTeX code can be associated to
-    each admonition type via ``div.<type>_icon-title`` keys which are
-    described in the :ref:`additionalcss` section.  If these keys are not
-    used, Sphinx will either apply its default choices of icons (if
-    ``fontawesome{5,}`` is available) or not draw the icon at all.  Notice that
-    if fall-back ``fontawesome`` is used the common icon for :dudir:`caution`
-    and :dudir:`danger` will default to "bolt" not "radiation", which is only
-    found in ``fontawesome5``.
+    The name of the LaTeX package used for rendering icons in the admonition
+    titles.  Its default is set dynamically to either ``fontawesome6``,
+    ``fontawesome5``, or ``fontawesome``, or ``none``, depending on whether
+    packages with those names exist in the used LaTeX installation.  The LaTeX
+    code will use ``\faIcon`` command if with ``fontawesome6/fontawesome5``,
+    and ``\faicon`` if with ``fontawesome``.  In the latter case the icon used
+    both for :dudir:`caution` and :dudir:`danger` will default to "bolt" not
+    "radiation", which is only found in ``fontawesome6`` and ``fontawesome5``.
+    If no "Font Awesome" related package is found (or if the option is set
+    forcefully to ``none``) the icons are silently dropped.  User can set this
+    option to some specific package and must configure the
+    ``div.note_title-icon`` and similar keys to use then that LaTeX package
+    interface (see the :ref:`additionalcss` section for these extra
+    ``'sphinxsetup'`` keys).
 
     .. versionadded:: 7.4.0
 
@@ -1410,17 +1412,17 @@ The next keys, for admonitions, :dudir:`topic`, contents_, and
   (it applies only to the icon, not to the title of the admonition).
 
 - ``div.<type>_title-icon``: the LaTeX code responsible for producing the
-  icon.  For example, the default for :dudir:`note` is
-  ``div.note_title-icon=\faIcon{info-circle}``.  This uses a command from the
-  LaTeX ``fontawesome5`` package, which is loaded automatically if available.
-
-  If neither ``fontawesome5`` nor fall-back ``fontawesome`` (for which the
-  associated command is :code-tex:`\\faicon`, not :code-tex:`\\faIcon`) are
-  found, or if the ``iconpackage`` key of :ref:`'sphinxsetup'
-  <latexsphinxsetup>` is set to load some other user-chosen package, or no
-  package at all, all the ``title-icons`` default to empty LaTeX code.  It is
-  up to user to employ this interface to inject the icon (or anything else)
-  into the PDF output.
+  icon.  If you want to modify the icons used by Sphinx, employ in these keys
+  the ``\faIcon`` LaTeX command (assuming either ``fontawesome6`` or
+  ``fontawesome5`` LaTeX package is available on your system).  For example
+  the default for :dudir:`note` is
+  ``div.note_title-icon=\faIcon{info-circle}`` with ``fontawesome5`` and
+  ``div.note_title-icon=\faIcon{circle-info}`` with ``fontawesome6`` (which is
+  used automatically if available).  If your system only provides the
+  ``fontawesome`` package (automatically detected) use its command ``\faicon``
+  rather in order to modify the choice of icons.  The ``iconpackage`` key can
+  be used to use some other package providing icons, use then the commands
+  suitable to that package as values of the ``div.<type>_title-icon`` keys.
 
 .. note::
 
