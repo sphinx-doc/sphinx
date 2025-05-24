@@ -1,0 +1,27 @@
+# Configuration file for Pyrefly_.
+# n.b. Pyrefly is early in development.
+#      Sphinx's current primary/reference type-checker is mypy.
+#
+# .. _Pyrefly: https://pyrefly.org/en/docs/configuration/
+
+project_includes = [
+    "doc/conf.py",
+    "doc/development/tutorials/examples/autodoc_intenum.py",
+    "doc/development/tutorials/examples/helloworld.py",
+    "sphinx",
+    "tests",
+    "utils",
+]
+project_excludes = [
+    "**/tests/roots*",
+]
+python_version = "3.11"
+replace_imports_with_any = [
+    "imagesize",
+    "pyximport",
+    "snowballstemmer",
+]
+
+# https://pyrefly.org/en/docs/error-kinds/
+[errors]
+implicitly-defined-attribute = false  # many false positives
