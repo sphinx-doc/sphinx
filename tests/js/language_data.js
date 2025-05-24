@@ -4,17 +4,15 @@
  */
 
 const stopwords = new Set([]);
-window.stopwords = stopwords;  // Export to global scope
-
+window.stopwords = stopwords; // Export to global scope
 
 /* Non-minified versions are copied as separate JavaScript files, if available */
 
 /**
  * Dummy stemmer for languages without stemming rules.
  */
-var Stemmer = function() {
-  this.stemWord = function(w) {
+var Stemmer = function () {
+  this.stemWord = function (w) {
     return w;
-  }
-}
-
+  };
+};
