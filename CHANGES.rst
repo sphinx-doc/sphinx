@@ -18,7 +18,7 @@ Features added
   Patch by Till Hoffmann.
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
-  Patch by Adam Turner.
+  Patch by Adam Turner and James Addison.
 * #13497: Support C domain objects in the table of contents.
 * #13535: html search: Update to the latest version of Snowball (v3.0.1).
   Patch by Adam Turner.
