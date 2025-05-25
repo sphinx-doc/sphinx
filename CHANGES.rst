@@ -20,6 +20,8 @@ Features added
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner.
 * #13497: Support C domain objects in the table of contents.
+* #13500: LaTeX: add support for ``fontawesome6`` package.
+  Patch by Jean-François B.
 * #13535: html search: Update to the latest version of Snowball (v3.0.1).
   Patch by Adam Turner.
 * #13704: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
@@ -29,6 +31,8 @@ Features added
 Bugs fixed
 ----------
 
+* #12821: LaTeX: URLs/links in section titles should render in PDF.
+  Patch by Jean-François B.
 * #13369: Correctly parse and cross-reference unpacked type annotations.
   Patch by Alicia Garcia-Raboso.
 * #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
