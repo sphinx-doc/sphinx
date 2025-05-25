@@ -162,7 +162,7 @@ class StandaloneHTMLBuilder(Builder):
             source_class=DocTreeInput,
             destination=StringOutput(encoding='unicode'),
         )
-        pub.get_settings(output_encoding='unicode', traceback=True)  # type: ignore[no-untyped-call]
+        pub.get_settings(output_encoding='unicode', traceback=True)
         self._publisher = pub
 
     def init(self) -> None:
