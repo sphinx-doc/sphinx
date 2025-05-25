@@ -19,7 +19,21 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Any
 
-    from docutils.nodes import Element
+    from docutils.nodes import (
+        Element,
+        admonition,
+        bullet_list,
+        caption,
+        definition,
+        definition_list,
+        emphasis,
+        footnote,
+        paragraph,
+        reference,
+        strong,
+        term,
+        title,
+    )
 
     from sphinx.builders import Builder
 
@@ -71,7 +85,7 @@ class NestedInlineTransform:
                     node.parent.remove(node)
 
 
-class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
+class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     """Custom man page translator."""
 
     _docinfo: dict[str, Any] = {}
@@ -130,17 +144,17 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     # Top-level nodes for descriptions
     ##################################
 
-    def visit_desc(self, node: Element) -> None:
+    def visit_desc(self, node: definition_list) -> None:
         self.visit_definition_list(node)
 
-    def depart_desc(self, node: Element) -> None:
+    def depart_desc(self, node: definition_list) -> None:
         self.depart_definition_list(node)
 
-    def visit_desc_signature(self, node: Element) -> None:
-        self.visit_definition_list_item(node)
+    def visit_desc_signature(self, node: term) -> None:
+        self.visit_definition_list_item(node)  # type: ignore[arg-type]
         self.visit_term(node)
 
-    def depart_desc_signature(self, node: Element) -> None:
+    def depart_desc_signature(self, node: term) -> None:
         self.depart_term(node)
 
     def visit_desc_signature_line(self, node: Element) -> None:
@@ -149,10 +163,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     def depart_desc_signature_line(self, node: Element) -> None:
         self.body.append(' ')
 
-    def visit_desc_content(self, node: Element) -> None:
+    def visit_desc_content(self, node: definition) -> None:
         self.visit_definition(node)
 
-    def depart_desc_content(self, node: Element) -> None:
+    def depart_desc_content(self, node: definition) -> None:
         self.depart_definition(node)
 
     def visit_desc_inline(self, node: Element) -> None:
@@ -231,25 +245,25 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
 
     ##############################################
 
-    def visit_versionmodified(self, node: Element) -> None:
+    def visit_versionmodified(self, node: paragraph) -> None:
         self.visit_paragraph(node)
 
-    def depart_versionmodified(self, node: Element) -> None:
+    def depart_versionmodified(self, node: paragraph) -> None:
         self.depart_paragraph(node)
 
     # overwritten -- don't make whole of term bold if it includes strong node
-    def visit_term(self, node: Element) -> None:
+    def visit_term(self, node: term) -> None:
         if any(node.findall(nodes.strong)):
             self.body.append('\n')
         else:
             super().visit_term(node)
 
     # overwritten -- we don't want source comments to show up
-    def visit_comment(self, node: Element) -> None:
+    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
         raise nodes.SkipNode
 
     # overwritten -- added ensure_eol()
-    def visit_footnote(self, node: Element) -> None:
+    def visit_footnote(self, node: footnote) -> None:
         self.ensure_eol()
         super().visit_footnote(node)
 
@@ -264,10 +278,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     def depart_rubric(self, node: Element) -> None:
         self.body.append('\n')
 
-    def visit_seealso(self, node: Element) -> None:
+    def visit_seealso(self, node: admonition) -> None:
         self.visit_admonition(node, 'seealso')
 
-    def depart_seealso(self, node: Element) -> None:
+    def depart_seealso(self, node: admonition) -> None:
         self.depart_admonition(node)
 
     def visit_productionlist(self, node: Element) -> None:
@@ -291,7 +305,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         raise nodes.SkipNode
 
     # overwritten -- don't visit inner marked up nodes
-    def visit_reference(self, node: Element) -> None:
+    def visit_reference(self, node: reference) -> None:
         uri = node.get('refuri', '')
         is_safe_to_click = uri.startswith(('mailto:', 'http:', 'https:', 'ftp:'))
         if is_safe_to_click:
@@ -301,7 +315,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
-        self.visit_Text(node)
+        self.visit_Text(node)  # type: ignore[arg-type]
         self.body.append(self.defs['reference'][1])
 
         if uri and not uri.startswith('#'):
@@ -369,10 +383,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         self.body.append('\n')
         raise nodes.SkipNode
 
-    def visit_hlist(self, node: Element) -> None:
+    def visit_hlist(self, node: bullet_list) -> None:
         self.visit_bullet_list(node)
 
-    def depart_hlist(self, node: Element) -> None:
+    def depart_hlist(self, node: bullet_list) -> None:
         self.depart_bullet_list(node)
 
     def visit_hlistcol(self, node: Element) -> None:
@@ -381,16 +395,16 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     def depart_hlistcol(self, node: Element) -> None:
         pass
 
-    def visit_literal_emphasis(self, node: Element) -> None:
+    def visit_literal_emphasis(self, node: emphasis) -> None:
         return self.visit_emphasis(node)
 
-    def depart_literal_emphasis(self, node: Element) -> None:
+    def depart_literal_emphasis(self, node: emphasis) -> None:
         return self.depart_emphasis(node)
 
-    def visit_literal_strong(self, node: Element) -> None:
+    def visit_literal_strong(self, node: strong) -> None:
         return self.visit_strong(node)
 
-    def depart_literal_strong(self, node: Element) -> None:
+    def depart_literal_strong(self, node: strong) -> None:
         return self.depart_strong(node)
 
     def visit_abbreviation(self, node: Element) -> None:
@@ -399,14 +413,14 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     def depart_abbreviation(self, node: Element) -> None:
         pass
 
-    def visit_manpage(self, node: Element) -> None:
+    def visit_manpage(self, node: strong) -> None:
         return self.visit_strong(node)
 
-    def depart_manpage(self, node: Element) -> None:
+    def depart_manpage(self, node: strong) -> None:
         return self.depart_strong(node)
 
     # overwritten: handle section titles better than in 0.6 release
-    def visit_caption(self, node: Element) -> None:
+    def visit_caption(self, node: caption) -> None:
         if (
             isinstance(node.parent, nodes.container)
             and node.parent.get('literal_block')
@@ -415,7 +429,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         else:
             super().visit_caption(node)
 
-    def depart_caption(self, node: Element) -> None:
+    def depart_caption(self, node: caption) -> None:
         if (
             isinstance(node.parent, nodes.container)
             and node.parent.get('literal_block')
@@ -425,7 +439,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
             super().depart_caption(node)
 
     # overwritten: handle section titles better than in 0.6 release
-    def visit_title(self, node: Element) -> None:
+    def visit_title(self, node: title) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('.IP "')
             return None
@@ -438,7 +452,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
                 raise nodes.SkipNode
         return super().visit_title(node)
 
-    def depart_title(self, node: Element) -> None:
+    def depart_title(self, node: title) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
             return None
