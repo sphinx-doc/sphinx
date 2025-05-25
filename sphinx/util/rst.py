@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, cast
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
-from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
+from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.states import Body
 from docutils.utils import Reporter
 from jinja2 import pass_environment
@@ -66,7 +66,7 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
 def default_role(docname: str, name: str) -> Iterator[None]:
     if name:
         dummy_reporter = Reporter('', 4, 4)
-        role_fn, _ = roles.role(name, english, 0, dummy_reporter)
+        role_fn, _ = roles.role(name, english, 0, dummy_reporter)  # type: ignore[arg-type]
         if role_fn:
             docutils.register_role('', role_fn)  # type: ignore[arg-type]
         else:

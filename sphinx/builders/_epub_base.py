@@ -114,8 +114,8 @@ class NavPoint(NamedTuple):
 
 def sphinx_smarty_pants(t: str, language: str = 'en') -> str:
     t = t.replace('&quot;', '"')
-    t = smartquotes.educateDashesOldSchool(t)  # type: ignore[no-untyped-call]
-    t = smartquotes.educateQuotes(t, language)  # type: ignore[no-untyped-call]
+    t = smartquotes.educateDashesOldSchool(t)
+    t = smartquotes.educateQuotes(t, language)
     t = t.replace('"', '&quot;')
     return t
 
