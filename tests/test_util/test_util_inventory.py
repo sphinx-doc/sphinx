@@ -107,7 +107,7 @@ def _build_inventory(srcdir: Path) -> Path:
     return app.outdir / 'objects.inv'
 
 
-def test_inventory_localization(tmp_path):
+def test_inventory_localization(tmp_path: Path) -> None:
     # Build an app using Estonian (EE) locale
     srcdir_et = _write_appconfig(tmp_path, 'et')
     inventory_et = _build_inventory(srcdir_et)
