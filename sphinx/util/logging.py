@@ -583,13 +583,13 @@ class SafeEncodingWriter:
         self.stream = stream
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
 
-    def write(self, data: str) -> None:
+    def write(self, data: str) -> int:
         try:
-            self.stream.write(data)
+            return self.stream.write(data)
         except UnicodeEncodeError:
             # stream accept only str, not bytes.  So, we encode and replace
             # non-encodable characters, then decode them.
-            self.stream.write(
+            return self.stream.write(
                 data.encode(self.encoding, 'replace').decode(self.encoding)
             )
 
@@ -604,8 +604,9 @@ class LastMessagesWriter:
     def __init__(self, app: Sphinx, stream: IO[str]) -> None:
         self.app = app
 
-    def write(self, data: str) -> None:
+    def write(self, data: str) -> int:
         self.app.messagelog.append(data)
+        return len(data)
 
 
 def setup(app: Sphinx, status: IO[str], warning: IO[str]) -> None:
