@@ -9,6 +9,9 @@ extend-exclude = [
     "tests/roots/test-pycode/cp_1251_coded.py",  # Not UTF-8
 ]
 
+[per-file-target-version]
+"tests/roots/test-ext-autodoc/target/pep695.py" = "py312"
+
 [format]
 preview = true
 quote-style = "single"
