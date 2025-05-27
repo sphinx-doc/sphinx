@@ -412,3 +412,10 @@ the title of a page.
    Stub pages are generated also based on these directives.
 
 .. _`escape filter`: https://jinja.palletsprojects.com/en/3.0.x/templates/#jinja-filters.escape
+
+Autolink role
+-------------
+
+The ``:autolink:`` role functions as ``:obj:`` when the name referred can be
+resolved to a Python object, and otherwise it becomes simple emphasis.
+This can be used as the default role to make links 'smart'.
