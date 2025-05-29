@@ -111,6 +111,7 @@ class PygmentsBridge:
         self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
+        self.stylename = stylename
         self.formatter_args: dict[str, Any] = {'style': style}
         if dest == 'html':
             self.formatter: type[Formatter[str]] = self.html_formatter
