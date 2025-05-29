@@ -255,6 +255,11 @@ class StandaloneHTMLBuilder(Builder):
         self.dark_highlighter: PygmentsBridge | None
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
+            self.app.add_css_file(
+                'pygments_dark.css',
+                media='(prefers-color-scheme: dark)',
+                id='pygments_dark_css',
+            )
         else:
             self.dark_highlighter = None
 
@@ -858,39 +863,25 @@ class StandaloneHTMLBuilder(Builder):
             return None
 
     def create_pygments_style_file(self) -> None:
-        """Create style file for Pygments."""
+        """Create style file(s) for Pygments."""
         pyg_path = self._static_dir / 'pygments.css'
-        root_property = ''
-        dark_sheet = ''
         with open(pyg_path, 'w', encoding='utf-8') as f:
-            # Process light (or the only specified) highlighting
-            light_sheets = []
-            default_style_sheet = '/* CSS for style: {} */\n'.format(self.highlighter.stylename)
-            default_style_sheet += self.highlighter.get_stylesheet()
-            light_sheets.append(default_style_sheet)
+            light_style_sheet = self.highlighter.get_stylesheet()
             if self.specialized_light_lighters:
                 for style_name, item in self.specialized_light_lighters.items():
-                    some_sheet = '/* CSS for style: {} */\n'.format(style_name)
-                    some_sheet += item['bridge'].get_stylesheet(item['ids'])
-                    light_sheets.append(some_sheet)
-            light_sheet = '\n\n'.join(light_sheets)
-            # If there is a dark option, adjust the light sheet, then process the darkness
-            if self.dark_highlighter or self.specialized_dark_lighters:
-                root_property = ':root {\n\tcolor-scheme: light dark;\n}\n\n'
-                light_sheet = '@media (prefers-color-scheme: light) {{\n\t{}\n}}\n'.format(light_sheet.replace('\n', '\n\t'))
-                dark_sheets = []
-                if self.dark_highlighter:
-                    dark_style_sheet = '/* CSS for style: {} */\n'.format(self.dark_highlighter.stylename)
-                    dark_style_sheet += self.dark_highlighter.get_stylesheet()
-                    dark_sheets.append(dark_style_sheet)
+                    light_style_sheet += '\n\n/* CSS for style: {} */\n'.format(style_name)
+                    light_style_sheet += item['bridge'].get_stylesheet(item['ids'])
+            f.write('@media (prefers-color-scheme: light) {{\n\t{}\n}}'.format(light_style_sheet.replace('\n', '\n\t')))
+
+        if self.dark_highlighter:
+            dark_path = self._static_dir / 'pygments_dark.css'
+            with open(dark_path, 'w', encoding='utf-8') as f:
+                dark_style_sheet = self.dark_highlighter.get_stylesheet()
                 if self.specialized_dark_lighters:
-                    for style_name, item in self.specialized_dark_lighters.items():
-                        some_sheet = '/* CSS for style: {} */\n'.format(style_name)
-                        some_sheet += item['bridge'].get_stylesheet(item['ids'])
-                        dark_sheets.append(some_sheet)
-                dark_sheet = '\n\n'.join(dark_sheets)
-                dark_sheet = '@media (prefers-color-scheme: dark) {{\n\t{}\n}}'.format(dark_sheet.replace('\n', '\n\t'))
-            f.write(root_property + light_sheet + dark_sheet)
+                    for item in self.specialized_dark_lighters.values():
+                        dark_style_sheet += ('\n\n/* CSS for style: {} */\n'.format(style_name))
+                        dark_style_sheet += (item['bridge'].get_stylesheet(item['ids']))
+                f.write('@media (prefers-color-scheme: dark) {{\n\t{}\n}}'.format(dark_style_sheet.replace('\n', '\n\t')))
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""

@@ -153,22 +153,31 @@ def test_staticfiles(app: SphinxTestApp) -> None:
 def test_dark_style(app, monkeypatch):
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 
-    assert app.builder.dark_highlighter.stylename == 'monokai'
+    style = app.builder.dark_highlighter.formatter_args.get('style')
+    assert style.__name__ == 'MonokaiStyle'
 
     app.build()
-    assert (app.outdir / '_static' / 'pygments.css').exists()
+    assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
-    result = (app.outdir / '_static' / 'pygments.css').read_text(encoding='utf8')
-    assert '@media (prefers-color-scheme: dark)' in result
+    css_file, properties = app.registry.css_files[0]
+    assert css_file == 'pygments_dark.css'
+    assert 'media' in properties
+    assert properties['media'] == '(prefers-color-scheme: dark)'
 
     assert sorted(f.filename for f in app.builder._css_files) == [
         '_static/classic.css',
-        '_static/pygments.css'
+        '_static/pygments.css',
+        '_static/pygments_dark.css',
     ]
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
         '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />'
+    ) in result
+    assert (
+        '<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
+        'rel="stylesheet" type="text/css" '
+        'href="_static/pygments_dark.css" />'
     ) in result
 
 
