@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-import docutils
 from docutils import nodes
 from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
 from docutils.parsers.rst.states import (
@@ -45,16 +44,10 @@ def make_directive_and_state(
         reporter=document.reporter,
         language=english,
         title_styles=[],
-        # section_parents=[],  # Docutils 0.22+
         section_level=0,
         section_bubble_up_kludge=False,
         inliner=inliner,
     )
-    if docutils.__version_info__ >= (0, 22, 0, 'alpha', 0):
-        # https://github.com/sphinx-doc/sphinx/issues/13539
-        # https://sourceforge.net/p/docutils/code/10093/
-        # https://sourceforge.net/p/docutils/patches/213/
-        state.memo.section_parents = []
     directive = SphinxDirective(
         name='test_directive',
         arguments=[],

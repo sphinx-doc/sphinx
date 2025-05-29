@@ -1962,7 +1962,7 @@ class LaTeXTranslator(SphinxTranslator):
         uri = node.get('refuri', '')
         if not uri and node.get('refid'):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
-        if self.in_title or not uri:
+        if not uri:
             self.context.append('')
         elif uri.startswith('#'):
             # references to labels in the same document
