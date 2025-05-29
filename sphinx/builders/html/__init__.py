@@ -866,22 +866,24 @@ class StandaloneHTMLBuilder(Builder):
         """Create style file(s) for Pygments."""
         pyg_path = self._static_dir / 'pygments.css'
         with open(pyg_path, 'w', encoding='utf-8') as f:
-            light_style_sheet = self.highlighter.get_stylesheet()
+            light_style_sheet = '/* CSS for style: {} */\n'.format(self.highlighter.formatter_args.get('style').name)
+            light_style_sheet += self.highlighter.get_stylesheet()
             if self.specialized_light_lighters:
                 for style_name, item in self.specialized_light_lighters.items():
                     light_style_sheet += '\n\n/* CSS for style: {} */\n'.format(style_name)
                     light_style_sheet += item['bridge'].get_stylesheet(item['ids'])
-            f.write('@media (prefers-color-scheme: light) {{\n\t{}\n}}'.format(light_style_sheet.replace('\n', '\n\t')))
+            f.write(light_style_sheet)
 
         if self.dark_highlighter:
             dark_path = self._static_dir / 'pygments_dark.css'
             with open(dark_path, 'w', encoding='utf-8') as f:
-                dark_style_sheet = self.dark_highlighter.get_stylesheet()
+                dark_style_sheet = '/* CSS for style: {} */\n'.format(self.dark_highlighter.formatter_args.get('style').name)
+                dark_style_sheet += self.dark_highlighter.get_stylesheet()
                 if self.specialized_dark_lighters:
-                    for item in self.specialized_dark_lighters.values():
+                    for style_name, item in self.specialized_dark_lighters.items():
                         dark_style_sheet += ('\n\n/* CSS for style: {} */\n'.format(style_name))
                         dark_style_sheet += (item['bridge'].get_stylesheet(item['ids']))
-                f.write('@media (prefers-color-scheme: dark) {{\n\t{}\n}}'.format(dark_style_sheet.replace('\n', '\n\t')))
+                f.write(dark_style_sheet)
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
