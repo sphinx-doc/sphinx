@@ -881,8 +881,8 @@ class StandaloneHTMLBuilder(Builder):
                 dark_style_sheet += self.dark_highlighter.get_stylesheet()
                 if self.specialized_dark_lighters:
                     for style_name, item in self.specialized_dark_lighters.items():
-                        dark_style_sheet += ('\n\n/* CSS for style: {} */\n'.format(style_name))
-                        dark_style_sheet += (item['bridge'].get_stylesheet(item['ids']))
+                        dark_style_sheet += '\n\n/* CSS for style: {} */\n'.format(style_name)
+                        dark_style_sheet += item['bridge'].get_stylesheet(item['ids'])
                 f.write(dark_style_sheet)
 
     def copy_translation_js(self) -> None:
