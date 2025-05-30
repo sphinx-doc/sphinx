@@ -2210,14 +2210,27 @@ class LaTeXTranslator(SphinxTranslator):
             highlight_args['force'] = node.get('force', False)
             opts = self.config.highlight_options.get(lang, {})
 
-            hlcode = self.highlighter.highlight_block(
-                node.rawsource,
-                lang,
-                opts=opts,
-                linenos=linenos,
-                location=node,
-                **highlight_args,
-            )
+            # As blocks are processed, we discover specified styles.
+            if node.get('style-light'):
+                code_style = node.get('style-light')
+                self.builder.add_block_style(style=code_style)
+                hlcode = self.builder.get_bridge_for_style(code_style).highlight_block(
+                    node.rawsource,
+                    lang,
+                    opts=opts,
+                    linenos=linenos,
+                    location=node,
+                    **highlight_args,
+                )
+            else:
+                hlcode = self.highlighter.highlight_block(
+                    node.rawsource,
+                    lang,
+                    opts=opts,
+                    linenos=linenos,
+                    location=node,
+                    **highlight_args,
+                )
             if self.in_footnote:
                 self.body.append(CR + r'\sphinxSetupCodeBlockInFootnote')
                 hlcode = hlcode.replace(r'\begin{Verbatim}', r'\begin{sphinxVerbatim}')
