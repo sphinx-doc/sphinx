@@ -15,12 +15,14 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 ENV_WARNINGS = """\
+{root}/includes/shared-hyperlinks.rst:\\d+: WARNING: duplicate label ambiguous_shared_hyperlink, other instance in {root}/hyperlinks.rst
 {root}/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent. \\[docutils\\]
 {root}/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file '{root}/wrongenc.inc' seems to be wrong, try giving an :encoding: option \\[docutils\\]
 {root}/index.rst:\\d+: WARNING: invalid single index entry '' \\[index\\]
 {root}/index.rst:\\d+: WARNING: duplicate label ambiguous_hyperlink, other instance in {root}/hyperlinks.rst
+{root}/includes/shared-hyperlinks.rst:\\d+: WARNING: duplicate label ambiguous_shared_hyperlink, other instance in {root}/includes/shared-hyperlinks.rst
 {root}/index.rst:\\d+: WARNING: image file not readable: foo.png \\[image.not_readable\\]
 {root}/index.rst:\\d+: WARNING: download file not readable: {root}/nonexisting.png \\[download.not_readable\\]
 {root}/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
