@@ -12,6 +12,7 @@ from shutil import copyfile
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 
+import docutils
 import pygments
 import pytest
 
@@ -1959,10 +1960,16 @@ def test_latex_labels(app: SphinxTestApp) -> None:
 
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
+    # ref: docutils r10151
+    if docutils.__version_info__[:2] < (0, 22):
+        figure_id, table_id = 'id1', 'id2'
+    else:
+        figure_id, table_id = 'id2', 'id3'
+
     # figures
     assert (
         r'\caption{labeled figure}'
-        r'\label{\detokenize{index:id1}}'
+        r'\label{\detokenize{index:' + figure_id + '}}'
         r'\label{\detokenize{index:figure2}}'
         r'\label{\detokenize{index:figure1}}'
         r'\end{figure}'
@@ -1988,7 +1995,7 @@ def test_latex_labels(app: SphinxTestApp) -> None:
     # tables
     assert (
         r'\sphinxcaption{table caption}'
-        r'\label{\detokenize{index:id2}}'
+        r'\label{\detokenize{index:' + table_id + '}}'
         r'\label{\detokenize{index:table2}}'
         r'\label{\detokenize{index:table1}}'
     ) in result
