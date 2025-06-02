@@ -915,10 +915,39 @@ __ https://pygments.org/docs/lexers
       plugins. This option accepts any valid style name and will apply it to
       this code block, overriding any default in :confval:`pygments_style`
       config value. Some builder and theme configurations (e.g.
-      :ref:`HTML <builders>` & `furo <https://pypi.org/project/furo/>`_) will
+      :ref:`HTML <builders>` & `Python Docs Theme <https://pypi.org/project/python-docs-theme/>`_) will
       accept both `light` and `dark` options, and switch appropriately; others
       may support only one style (e.g. PDF), in which case `style-light` takes
-      precedence.
+      precedence. For example::
+
+         .. code-block:: python
+
+            print('Code with default styling')
+      
+
+      Renders as:
+
+         .. code-block:: python
+
+            print('Code with default styling')
+
+
+      While this code::
+
+         .. code-block:: python
+            :style-light: tango
+
+            print('Code with a style override')
+
+
+      Renders as:
+
+         .. code-block:: python
+            :style-light: tango
+
+            print('Code with a style override')
+
+      .. versionadded:: 8.3
 
 
 .. rst:directive:: .. literalinclude:: filename
