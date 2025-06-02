@@ -20,7 +20,7 @@ from sphinx.util._pathlib import _StrPath
 from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Set
     from typing import Any, Protocol, TypeVar
 
     from docutils.nodes import Node
@@ -74,28 +74,25 @@ class SearchLanguage:
 
     lang: str = ''
     language_name: str = ''
-    stopwords: set[str] = set()
+    stopwords: Set[str] = frozenset()
     js_splitter_code: str = ''
     js_stemmer_rawcode: str = ''
     js_stemmer_code = """
 /**
  * Dummy stemmer for languages without stemming rules.
  */
-var Stemmer = function() {
-  this.stemWord = function(w) {
+var Stemmer = function () {
+  this.stemWord = function (w) {
     return w;
-  }
-}
+  };
+};
 """
 
     _word_re = re.compile(r'\w+')
 
     def __init__(self, options: dict[str, str]) -> None:
-        self.options = options
-        self.init(options)
-
-    def init(self, options: dict[str, str]) -> None:
         """Initialize the class with the options the user has given."""
+        self.options = options
 
     def split(self, input: str) -> list[str]:
         """This method splits a sentence into words.  Default splitter splits input
@@ -120,10 +117,7 @@ var Stemmer = function() {
         """Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
-        return len(word) == 0 or not (
-            ((len(word) < 3) and (12353 < ord(word[0]) < 12436))
-            or (ord(word[0]) < 256 and (word in self.stopwords))
-        )
+        return not word.isdigit() and word not in self.stopwords
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
@@ -131,9 +125,11 @@ from sphinx.search.en import SearchEnglish  # NoQA: E402
 
 
 def parse_stop_word(source: str) -> set[str]:
-    """Parse snowball style word list like this:
+    """Collect the stopwords from a snowball style word list:
 
-    * https://snowball.tartarus.org/algorithms/finnish/stop.txt
+    .. code:: text
+
+        list of space separated stop words | optional comment
     """
     result: set[str] = set()
     for line in source.splitlines():
@@ -584,16 +580,16 @@ class IndexBuilder:
 
     def get_js_stemmer_code(self) -> str:
         """Returns JS code that will be inserted into language_data.js."""
-        if self.lang.js_stemmer_rawcode:
-            base_js_path = _NON_MINIFIED_JS_PATH / 'base-stemmer.js'
-            language_js_path = _NON_MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode
-            base_js = base_js_path.read_text(encoding='utf-8')
-            language_js = language_js_path.read_text(encoding='utf-8')
-            return (
-                f'{base_js}\n{language_js}\nStemmer = {self.lang.language_name}Stemmer;'
-            )
-        else:
+        if not self.lang.js_stemmer_rawcode:
             return self.lang.js_stemmer_code
+
+        base_js_path = _MINIFIED_JS_PATH / 'base-stemmer.js'
+        language_js_path = _MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode
+        return '\n'.join((
+            base_js_path.read_text(encoding='utf-8'),
+            language_js_path.read_text(encoding='utf-8'),
+            f'window.Stemmer = {self.lang.language_name}Stemmer;',
+        ))
 
 
 def _feed_visit_nodes(

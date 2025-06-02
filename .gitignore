@@ -3,6 +3,7 @@
 *.so
 *.swp
 
+.auto/
 .dir-locals.el
 .cache/
 .idea

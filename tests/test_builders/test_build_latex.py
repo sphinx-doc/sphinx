@@ -72,6 +72,17 @@ def compile_latex_document(app, filename='projectnamenotset.tex', docclass='manu
                 filename,
             ]
             subprocess.run(args, capture_output=True, check=True)
+            # Run a second time (if engine is pdflatex), to have a chance to
+            # detect problems caused on second LaTeX pass (for example, this
+            # is required for the TOC in PDF to show up, for internal
+            # hyperlinks to actually work).  Of course, this increases
+            # duration of test, but also its usefulness.
+            # TODO: in theory the correct way is to run Latexmk with options
+            # as configured in the Makefile and in presence of latexmkrc
+            # or latexmkjarc and also sphinx.xdy and other xindy support.
+            # And two passes are not enough except for simplest documents.
+            if app.config.latex_engine == 'pdflatex':
+                subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
         raise pytest.skip.Exception from exc
     except CalledProcessError as exc:
