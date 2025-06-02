@@ -387,7 +387,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         )
         self.check_anchors: bool = config.linkcheck_anchors
         self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
-        self.allowed_redirects = config.linkcheck_allowed_redirects
+        self.allowed_redirects = config.linkcheck_allowed_redirects or {}
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
@@ -722,8 +722,6 @@ class AnchorCheckParser(HTMLParser):
 def _allowed_redirect(
     url: str, new_url: str, allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
 ) -> bool:
-    if allowed_redirects is False:
-        return False
     return any(
         from_url.match(url) and to_url.match(new_url)
         for from_url, to_url in allowed_redirects.items()
