@@ -671,7 +671,7 @@ class PythonModuleIndex(Index):
 
             entries = content.setdefault(modname[0].lower(), [])
 
-            package = modname.split('.', maxsplit=1)[0]
+            package = modname.partition('.')[0]
             if package != modname:
                 # it's a submodule
                 if prev_modname == package:

@@ -812,7 +812,7 @@ class CPPAliasObject(ObjectDescription[str]):
         The code is therefore based on the ObjectDescription version.
         """
         if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+            self.domain, _, self.objtype = self.name.partition(':')
         else:
             self.domain, self.objtype = '', self.name
 
