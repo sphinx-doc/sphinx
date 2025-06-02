@@ -729,6 +729,9 @@ def test_follows_redirects_on_HEAD(app, capsys):
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
         """,
     )
+    assert (
+        f'redirect  http://{address}/ - with Found to http://{address}/?redirected=1\n'
+    ) in strip_escape_sequences(app.status.getvalue())
     assert app.warning.getvalue() == ''
 
 
@@ -754,6 +757,9 @@ def test_follows_redirects_on_GET(app, capsys):
         127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
         """,
     )
+    assert (
+        f'redirect  http://{address}/ - with Found to http://{address}/?redirected=1\n'
+    ) in strip_escape_sequences(app.status.getvalue())
     assert app.warning.getvalue() == ''
 
 
