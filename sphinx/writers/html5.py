@@ -623,7 +623,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 opts=opts,
                 linenos=linenos,
                 location=node,
-                cssclass='highlight c{}'.format(block_id),     # option for Pygment's HTML formatter, sets selector
+                cssclass='highlight c{}'.format(block_id),
                 **highlight_args,
             )
         if light_style:
@@ -633,7 +633,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 opts=opts,
                 linenos=linenos,
                 location=node,
-                cssclass='highlight c{}'.format(block_id),     # option for Pygment's HTML formatter, sets selector
+                cssclass='highlight c{}'.format(block_id),
                 **highlight_args,
             )
         if not (dark_style or light_style):

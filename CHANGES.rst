@@ -27,6 +27,11 @@ Features added
 * #13704: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
   and :py:func:`~typing.final` decorators.
   Patch by Spencer Brown.
+* Allow `Pygments style <https://pygments.org/styles/>`_ overriding on a per-block 
+  basis via new options (:rst:dir:`code-block:style-light` and 
+  :rst:dir:`code-block:style-dark`) for the :rst:dir:`code-block`,
+  :rst:dir:`sourcecode`, :rst:dir:`literalinclude` and :rst:dir:`code`.
+  Patch by Héctor Medina.
 
 Bugs fixed
 ----------

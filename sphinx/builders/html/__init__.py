@@ -268,9 +268,11 @@ class StandaloneHTMLBuilder(Builder):
         # the visit_literal_block method.
         # The information is also used in the selectors of the CSS file(s).
         if TYPE_CHECKING:
-            spec_highlighter = TypedDict('spec_highlighter', {'bridge': PygmentsBridge, 'ids': List[int]})
-        self.specialized_dark_lighters: Dict[str, spec_highlighter] = {}
-        self.specialized_light_lighters: Dict[str, spec_highlighter] = {}
+            class spec_highlighter(TypedDict):
+                bridge: PygmentsBridge
+                ids: list[int]
+        self.specialized_dark_lighters: dict[str, spec_highlighter] = {}
+        self.specialized_light_lighters: dict[str, spec_highlighter] = {}
 
     @property
     def css_files(self) -> list[_CascadingStyleSheet]:
@@ -831,26 +833,27 @@ class StandaloneHTMLBuilder(Builder):
                         err,
                     )
 
-    def add_block_dark_style(self, style: str, id: int):
+    def add_block_dark_style(self, style: str, id: int) -> None:
         """Add a code-block id to the tracker of dark highlighting styles."""
         if style in self.specialized_dark_lighters:
             self.specialized_dark_lighters[style]['ids'].append(id)
         else:
             pb = PygmentsBridge(dest='html', stylename=style)
             self.specialized_dark_lighters[style] = {'bridge': pb, 'ids': [id]}
-    
-    def add_block_light_style(self, style: str, id: int):
+
+    def add_block_light_style(self, style: str, id: int) -> None:
         """Add a code-block id to the tracker of light highlighting styles."""
         if style in self.specialized_light_lighters:
             self.specialized_light_lighters[style]['ids'].append(id)
         else:
             pb = PygmentsBridge(dest='html', stylename=style)
             self.specialized_light_lighters[style] = {'bridge': pb, 'ids': [id]}
-    
+
     def get_bridge_for_style(self, style: str) -> PygmentsBridge | None:
         """Returns the PygmentsBridge associated with a style, if any.
         Searches the dark list first, then the light list, then the default dark
-        and light styles."""
+        and light styles.
+        """
         if style in self.specialized_dark_lighters:
             return self.specialized_dark_lighters[style]['bridge']
         elif style in self.specialized_light_lighters:
@@ -866,7 +869,8 @@ class StandaloneHTMLBuilder(Builder):
         """Create style file(s) for Pygments."""
         pyg_path = self._static_dir / 'pygments.css'
         with open(pyg_path, 'w', encoding='utf-8') as f:
-            light_style_sheet = '/* CSS for style: {} */\n'.format(self.highlighter.formatter_args.get('style').name)
+            light_style_name = self.highlighter.formatter_args.get('style').name
+            light_style_sheet = '/* CSS for style: {} */\n'.format(light_style_name)
             light_style_sheet += self.highlighter.get_stylesheet()
             if self.specialized_light_lighters:
                 for style_name, item in self.specialized_light_lighters.items():
@@ -877,7 +881,8 @@ class StandaloneHTMLBuilder(Builder):
         if self.dark_highlighter:
             dark_path = self._static_dir / 'pygments_dark.css'
             with open(dark_path, 'w', encoding='utf-8') as f:
-                dark_style_sheet = '/* CSS for style: {} */\n'.format(self.dark_highlighter.formatter_args.get('style').name)
+                dark_style_name = self.dark_highlighter.formatter_args.get('style').name
+                dark_style_sheet = '/* CSS for style: {} */\n'.format(dark_style_name)
                 dark_style_sheet += self.dark_highlighter.get_stylesheet()
                 if self.specialized_dark_lighters:
                     for style_name, item in self.specialized_dark_lighters.items():

@@ -133,7 +133,7 @@ class LaTeXBuilder(Builder):
         self.docnames: Iterable[str] = {}
         self.document_data: list[tuple[str, str, str, str, str, bool]] = []
         self.themes = ThemeFactory(self.app)
-        self.specialized_highlighters: Dict[str, highlighting.PygmentsBridge] = {}
+        self.specialized_highlighters: dict[str, highlighting.PygmentsBridge] = {}
         texescape.init()
 
         self.init_context()
@@ -276,17 +276,18 @@ class LaTeXBuilder(Builder):
 
             self.context['multilingual'] = f'{self.context["polyglossia"]}\n{language}'
 
-    def add_block_style(self, style: str):
+    def add_block_style(self, style: str) -> None:
         """Add a styler to the tracker of highlighting styles."""
         if style not in self.specialized_highlighters:
             pb = highlighting.PygmentsBridge(dest='latex', stylename=style)
             pb.formatter_args['commandprefix'] = 'PYG' + style
             self.specialized_highlighters[style] = pb
-    
+
     def get_bridge_for_style(self, style: str) -> highlighting.PygmentsBridge | None:
         """Returns the PygmentsBridge associated with a style, if any.
         Since the default highlighter is initialized and discarded in self.write_stylesheet(),
-        it is not supported in this search."""
+        it is not supported in this search.
+        """
         if style in self.specialized_highlighters:
             return self.specialized_highlighters[style]
         else:
