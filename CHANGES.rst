@@ -37,6 +37,8 @@ Bugs fixed
   Patch by Alicia Garcia-Raboso.
 * #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
   Patch by Shengyu Zhang and Adam Turner.
+* #13383: Emit a warning for duplicate internal hyperlink declarations.
+  Patch by James Addison.
 
 Testing
 -------
