@@ -231,10 +231,10 @@ class PygmentsBridge:
 
     def get_stylesheet(self, selectors: list[int] | None = None) -> str:
         formatter = self.get_formatter()
-        if self.dest == 'html':
+        if isinstance(formatter, HtmlFormatter):
             if selectors:
-                return formatter.get_style_defs(['.c{}'.format(s) for s in selectors])
+                return formatter.get_style_defs(['.c{}'.format(s) for s in selectors])  # type: ignore [no-untyped-call]
             else:
-                return formatter.get_style_defs('.highlight')
+                return formatter.get_style_defs('.highlight')  # type: ignore [no-untyped-call]
         else:
             return formatter.get_style_defs() + _LATEX_ADD_STYLES
