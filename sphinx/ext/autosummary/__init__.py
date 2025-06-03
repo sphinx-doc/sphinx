@@ -511,7 +511,7 @@ class Autosummary(SphinxDirective):
 
 def strip_arg_typehint(s: str) -> str:
     """Strip a type hint from argument definition."""
-    return s.split(':')[0].strip()
+    return s.partition(':')[0].strip()
 
 
 def _cleanup_signature(s: str) -> str:

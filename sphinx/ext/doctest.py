@@ -392,7 +392,7 @@ class DocTestBuilder(Builder):
         """
         try:
             filename = relpath(node.source, self.env.srcdir)  # type: ignore[arg-type]
-            return filename.rsplit(':docstring of ', maxsplit=1)[0]
+            return filename.partition(':docstring of ')[0]
         except Exception:
             return str(self.env.doc2path(docname, False))
 

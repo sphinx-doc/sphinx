@@ -218,7 +218,7 @@ class Target(SphinxDirective):
             ret.insert(0, inode)
         name = self.name
         if ':' in self.name:
-            _, name = self.name.split(':', 1)
+            name = self.name.partition(':')[-1]
 
         std = self.env.domains.standard_domain
         std.note_object(name, fullname, node_id, location=node)
@@ -1235,7 +1235,7 @@ class StandardDomain(Domain):
         if not docname:
             commands = []
             while ws_re.search(target):
-                subcommand, target = ws_re.split(target, 1)
+                subcommand, target = ws_re.split(target, maxsplit=1)
                 commands.append(subcommand)
                 progname = '-'.join(commands)
 

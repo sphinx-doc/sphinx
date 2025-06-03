@@ -416,7 +416,7 @@ class TexinfoTranslator(SphinxTranslator):
             name = self.node_names[entry]
             # special formatting for entries that are divided by an em-dash
             try:
-                parts = reg.split(name, 1)
+                parts = reg.split(name, maxsplit=1)
             except TypeError:
                 # could be a gettext proxy
                 parts = [name]
@@ -748,7 +748,7 @@ class TexinfoTranslator(SphinxTranslator):
             uri = self.escape_arg(uri)
             id = 'Top'
             if '#' in uri:
-                uri, id = uri.split('#', 1)
+                uri, _, id = uri.partition('#')
             id = self.escape_id(id)
             name = self.escape_menu(name)
             if name == id:

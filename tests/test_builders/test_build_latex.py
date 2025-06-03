@@ -1566,7 +1566,7 @@ def test_latex_table_tabulars(app: SphinxTestApp) -> None:
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
-        sectname, content = chap.split('}', 1)
+        sectname, _, content = chap.partition('}')
         content = re.sub(r'\\sphinxstepscope', '', content)  # filter a separator
         tables[sectname] = content.strip()
 
@@ -1644,7 +1644,7 @@ def test_latex_table_longtable(app: SphinxTestApp) -> None:
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
-        sectname, content = chap.split('}', 1)
+        sectname, _, content = chap.partition('}')
         content = re.sub(r'\\sphinxstepscope', '', content)  # filter a separator
         tables[sectname] = content.strip()
 
@@ -1712,7 +1712,7 @@ def test_latex_table_complex_tables(app: SphinxTestApp) -> None:
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|renewcommand){', result)[1:]:
-        sectname, content = chap.split('}', 1)
+        sectname, _, content = chap.partition('}')
         tables[sectname] = content.strip()
 
     def get_expected(name):

@@ -75,7 +75,7 @@ class InventoryFile:
         projname = lines[0].rstrip()[11:]  # Project name
         version = lines[1].rstrip()[11:]  # Project version
         for line in lines[2:]:
-            name, item_type, location = line.rstrip().split(None, 2)
+            name, item_type, location = line.rstrip().split(None, maxsplit=2)
             location = posixpath.join(uri, location)
             # version 1 did not add anchors to the location
             if item_type == 'mod':

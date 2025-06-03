@@ -93,7 +93,7 @@ class PyXrefMixin:
                 children = result.children
                 result.clear()
 
-                shortname = target.split('.')[-1]
+                shortname = target.rpartition('.')[-1]
                 textnode = innernode('', shortname)  # type: ignore[call-arg]
                 contnodes = [
                     pending_xref_condition('', '', textnode, condition='resolved'),
