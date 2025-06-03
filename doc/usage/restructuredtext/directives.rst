@@ -904,7 +904,7 @@ __ https://pygments.org/docs/lexers
       .. versionadded:: 1.3
       .. versionchanged:: 3.5
          Support automatic dedent.
-   
+
    .. rst:directive:option:: style-light: style name
                              style-dark: style name
       :type: the name of a style to use
@@ -923,7 +923,7 @@ __ https://pygments.org/docs/lexers
          .. code-block:: python
 
             print('Code with default styling')
-      
+
 
       Renders as:
 
