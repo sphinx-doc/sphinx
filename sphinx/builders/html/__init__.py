@@ -858,9 +858,9 @@ class StandaloneHTMLBuilder(Builder):
             return self.specialized_dark_lighters[style]['bridge']
         elif style in self.specialized_light_lighters:
             return self.specialized_light_lighters[style]['bridge']
-        elif self.dark_highlighter and (style == self.dark_highlighter.get_style()):
+        elif self.dark_highlighter and (style == self.dark_highlighter.get_style(style).name):
             return self.dark_highlighter
-        elif style == self.highlighter.get_style():
+        elif style == self.highlighter.get_style(style).name:
             return self.highlighter
         else:
             return None
