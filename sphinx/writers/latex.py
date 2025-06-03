@@ -2216,7 +2216,8 @@ class LaTeXTranslator(SphinxTranslator):
                 self.builder.add_block_style(style=code_style)
                 pb = self.builder.get_bridge_for_style(code_style)
                 if pb is None:
-                    logger.warning(__("PygmentsBridge for style {} not found".format(code_style)))
+                    logger.warning(
+                        __('PygmentsBridge for style {} not found'.format(code_style)))
                 else:
                     hlcode = pb.highlight_block(
                         node.rawsource,
