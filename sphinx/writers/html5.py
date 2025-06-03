@@ -617,25 +617,35 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         # If either dark or style were requested, use their specialized
         # highlighter. If neither, use the default highlighter.
         if dark_style:
-            highlighted = self.builder.get_bridge_for_style(dark_style).highlight_block(
-                node.rawsource,
-                lang,
-                opts=opts,
-                linenos=linenos,
-                location=node,
-                cssclass='highlight c{}'.format(block_id),
-                **highlight_args,
-            )
+            pb = self.builder.get_bridge_for_style(dark_style)
+            if pb is None:
+                logger.warning(
+                    __("PygmentsBridge for style {} not found".format(dark_style)))
+            else:
+                highlighted = pb.highlight_block(
+                    node.rawsource,
+                    lang,
+                    opts=opts,
+                    linenos=linenos,
+                    location=node,
+                    cssclass='highlight c{}'.format(block_id),
+                    **highlight_args,
+                )
         if light_style:
-            highlighted = self.builder.get_bridge_for_style(light_style).highlight_block(
-                node.rawsource,
-                lang,
-                opts=opts,
-                linenos=linenos,
-                location=node,
-                cssclass='highlight c{}'.format(block_id),
-                **highlight_args,
-            )
+            pb = self.builder.get_bridge_for_style(light_style)
+            if pb is None:
+                logger.warning(
+                    __("PygmentsBridge for style {} not found".format(light_style)))
+            else:
+                highlighted = pb.highlight_block(
+                    node.rawsource,
+                    lang,
+                    opts=opts,
+                    linenos=linenos,
+                    location=node,
+                    cssclass='highlight c{}'.format(block_id),
+                    **highlight_args,
+                )
         if not (dark_style or light_style):
             highlighted = self.highlighter.highlight_block(
                 node.rawsource,

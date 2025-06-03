@@ -233,9 +233,8 @@ class PygmentsBridge:
         formatter = self.get_formatter()
         if self.dest == 'html':
             if selectors:
-                sel = ['.c{}'.format(item) for item in selectors]
+                return formatter.get_style_defs(['.c{}'.format(s) for s in selectors])
             else:
-                sel = '.highlight'
-            return formatter.get_style_defs(sel)
+                return formatter.get_style_defs('.highlight')
         else:
             return formatter.get_style_defs() + _LATEX_ADD_STYLES

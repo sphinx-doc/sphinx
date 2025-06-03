@@ -868,27 +868,35 @@ class StandaloneHTMLBuilder(Builder):
     def create_pygments_style_file(self) -> None:
         """Create style file(s) for Pygments."""
         pyg_path = self._static_dir / 'pygments.css'
-        with open(pyg_path, 'w', encoding='utf-8') as f:
-            light_style_name = self.highlighter.formatter_args.get('style').name
-            light_style_sheet = '/* CSS for style: {} */\n'.format(light_style_name)
-            light_style_sheet += self.highlighter.get_stylesheet()
-            if self.specialized_light_lighters:
-                for style_name, item in self.specialized_light_lighters.items():
-                    light_style_sheet += '\n\n/* CSS for style: {} */\n'.format(style_name)
-                    light_style_sheet += item['bridge'].get_stylesheet(item['ids'])
-            f.write(light_style_sheet)
+        light_style = self.highlighter.formatter_args.get('style')
+        if light_style is None:
+            logger.warning(__('Default highlighter has no set style'))
+        else:
+            with open(pyg_path, 'w', encoding='utf-8') as f:
+                light_style_name = light_style.name
+                light_style_sheet = '/* CSS for style: {} */\n'.format(light_style_name)
+                light_style_sheet += self.highlighter.get_stylesheet()
+                if self.specialized_light_lighters:
+                    for s_name, item in self.specialized_light_lighters.items():
+                        light_style_sheet += '\n\n/* CSS for style: {} */\n'.format(s_name)
+                        light_style_sheet += item['bridge'].get_stylesheet(item['ids'])
+                f.write(light_style_sheet)
 
         if self.dark_highlighter:
-            dark_path = self._static_dir / 'pygments_dark.css'
-            with open(dark_path, 'w', encoding='utf-8') as f:
-                dark_style_name = self.dark_highlighter.formatter_args.get('style').name
-                dark_style_sheet = '/* CSS for style: {} */\n'.format(dark_style_name)
-                dark_style_sheet += self.dark_highlighter.get_stylesheet()
-                if self.specialized_dark_lighters:
-                    for style_name, item in self.specialized_dark_lighters.items():
-                        dark_style_sheet += '\n\n/* CSS for style: {} */\n'.format(style_name)
-                        dark_style_sheet += item['bridge'].get_stylesheet(item['ids'])
-                f.write(dark_style_sheet)
+            dark_style = self.dark_highlighter.formatter_args.get('style')
+            if dark_style is None:
+                logger.warning(__('Default dark highlighter has no set style'))
+            else:
+                dark_path = self._static_dir / 'pygments_dark.css'
+                with open(dark_path, 'w', encoding='utf-8') as f:
+                    dark_style_name = dark_style.name
+                    dark_style_sheet = '/* CSS for style: {} */\n'.format(dark_style_name)
+                    dark_style_sheet += self.dark_highlighter.get_stylesheet()
+                    if self.specialized_dark_lighters:
+                        for s_name, item in self.specialized_dark_lighters.items():
+                            dark_style_sheet += '\n\n/* CSS for style: {} */\n'.format(s_name)
+                            dark_style_sheet += item['bridge'].get_stylesheet(item['ids'])
+                    f.write(dark_style_sheet)
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
