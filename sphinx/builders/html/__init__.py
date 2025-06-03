@@ -268,9 +268,11 @@ class StandaloneHTMLBuilder(Builder):
         # the visit_literal_block method.
         # The information is also used in the selectors of the CSS file(s).
         if TYPE_CHECKING:
+
             class spec_highlighter(TypedDict):
                 bridge: PygmentsBridge
                 ids: list[int]
+
         self.specialized_dark_lighters: dict[str, spec_highlighter] = {}
         self.specialized_light_lighters: dict[str, spec_highlighter] = {}
 
@@ -858,7 +860,9 @@ class StandaloneHTMLBuilder(Builder):
             return self.specialized_dark_lighters[style]['bridge']
         elif style in self.specialized_light_lighters:
             return self.specialized_light_lighters[style]['bridge']
-        elif self.dark_highlighter and (style == self.dark_highlighter.get_style(style).name):
+        elif self.dark_highlighter and (
+            style == self.dark_highlighter.get_style(style).name
+        ):
             return self.dark_highlighter
         elif style == self.highlighter.get_style(style).name:
             return self.highlighter
@@ -878,7 +882,9 @@ class StandaloneHTMLBuilder(Builder):
                 light_style_sheet += self.highlighter.get_stylesheet()
                 if self.specialized_light_lighters:
                     for s_name, item in self.specialized_light_lighters.items():
-                        light_style_sheet += '\n\n/* CSS for style: {} */\n'.format(s_name)
+                        light_style_sheet += '\n\n/* CSS for style: {} */\n'.format(
+                            s_name
+                        )
                         light_style_sheet += item['bridge'].get_stylesheet(item['ids'])
                 f.write(light_style_sheet)
 
@@ -890,12 +896,18 @@ class StandaloneHTMLBuilder(Builder):
                 dark_path = self._static_dir / 'pygments_dark.css'
                 with open(dark_path, 'w', encoding='utf-8') as f:
                     dark_style_name = dark_style.name
-                    dark_style_sheet = '/* CSS for style: {} */\n'.format(dark_style_name)
+                    dark_style_sheet = '/* CSS for style: {} */\n'.format(
+                        dark_style_name
+                    )
                     dark_style_sheet += self.dark_highlighter.get_stylesheet()
                     if self.specialized_dark_lighters:
                         for s_name, item in self.specialized_dark_lighters.items():
-                            dark_style_sheet += '\n\n/* CSS for style: {} */\n'.format(s_name)
-                            dark_style_sheet += item['bridge'].get_stylesheet(item['ids'])
+                            dark_style_sheet += '\n\n/* CSS for style: {} */\n'.format(
+                                s_name
+                            )
+                            dark_style_sheet += item['bridge'].get_stylesheet(
+                                item['ids']
+                            )
                     f.write(dark_style_sheet)
 
     def copy_translation_js(self) -> None:

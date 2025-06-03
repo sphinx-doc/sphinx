@@ -620,7 +620,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             pb = self.builder.get_bridge_for_style(dark_style)
             if pb is None:
                 logger.warning(
-                    __('PygmentsBridge for style {} not found'.format(dark_style)))
+                    __('PygmentsBridge for style {} not found'.format(dark_style))
+                )
             else:
                 highlighted = pb.highlight_block(
                     node.rawsource,
@@ -635,7 +636,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             pb = self.builder.get_bridge_for_style(light_style)
             if pb is None:
                 logger.warning(
-                    __('PygmentsBridge for style {} not found'.format(light_style)))
+                    __('PygmentsBridge for style {} not found'.format(light_style))
+                )
             else:
                 highlighted = pb.highlight_block(
                     node.rawsource,
