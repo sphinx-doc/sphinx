@@ -208,11 +208,32 @@ Hyperlinks
 External links
 ~~~~~~~~~~~~~~
 
-Use ```Link text <https://domain.invalid/>`_`` for inline web links.  If the
-link text should be the web address, you don't need special markup at all, the
-parser finds links and mail addresses in ordinary text.
+URLs and email addresses in text are automatically linked an do not need
+explicit markup at all.
 
-.. important:: There must be a space between the link text and the opening \< for the URL.
+To create text with a link, it's advisable to put the URL below the paragraph
+like this (:duref:`ref <hyperlink-targets>`)::
+
+   This is a paragraph that contains `a link`_.
+
+   .. _a link: https://domain.invalid/
+
+This keeps the paragraph more readable in source code.
+
+Alternatively, you can embed the URL using the syntax
+```Link text <https://domain.invalid/>`__``
+(:duref:`ref <embedded-uris-and-aliases>`).
+
+.. important::
+
+   There must be a space between the link text and the opening \< for the URL.
+
+   Use two trailing underscores when embedding the URL. - Technically, a
+   single underscore works as well, but that would create a named reference
+   instead of an anonymous one. Named references typically do not have a
+   benefit when the URL is embedded. However, they have the disadvantage that
+   you must make sure that you do not use "Link text" in another link in your
+   document.
 
 You can also separate the link and the target definition (:duref:`ref
 <hyperlink-targets>`), like this::
