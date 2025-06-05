@@ -37,6 +37,8 @@ Bugs fixed
   Patch by Alicia Garcia-Raboso.
 * #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
   Patch by Shengyu Zhang and Adam Turner.
+* linkcheck: Fix false "Anchor not found" errors for valid URLs with encoded
+  characters in fragment identifiers.
 
 Testing
 -------
