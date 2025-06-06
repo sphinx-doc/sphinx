@@ -1843,30 +1843,10 @@ class LaTeXTranslator(SphinxTranslator):
                 and node['refid'] == prev_node['refid']
             ):
                 # a target for a hyperlink reference having alias
-                pass
+                return
             else:
                 add_target(node['refid'])
-        # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
-        # TODO: investigate if a more elegant solution exists
-        # (see comments of https://github.com/sphinx-doc/sphinx/issues/11093)
-        if node.get('ismod', False):
-            # Detect if the previous nodes are label targets. If so, remove
-            # the refid thereof from node['ids'] to avoid duplicated ids.
-            def has_dup_label(sib: Node | None) -> bool:
-                return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
-
-            prev = get_prev_node(node)
-            if has_dup_label(prev):
-                ids = node['ids'][:]  # copy to avoid side-effects
-                while has_dup_label(prev):
-                    ids.remove(prev['refid'])  # type: ignore[index]
-                    prev = get_prev_node(prev)  # type: ignore[arg-type]
-            else:
-                ids = iter(node['ids'])  # read-only iterator
-        else:
-            ids = iter(node['ids'])  # read-only iterator
-
-        for id in ids:
+        for id in node['ids']:
             add_target(id)
 
     def depart_target(self, node: Element) -> None:
