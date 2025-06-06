@@ -20,7 +20,7 @@ def _setup_module(rootdir, sphinx_test_tempdir):
     if not srcdir.exists():
         shutil.copytree(rootdir / 'test-versioning', srcdir)
     app = SphinxTestApp(srcdir=srcdir)
-    app.builder.env.app = app
+    app.builder.env._app = app
     app.connect('doctree-resolved', on_doctree_resolved)
     app.build()
     original = doctrees['original']

@@ -114,7 +114,7 @@ class Builder:
         self.doctreedir = app.doctreedir
         ensuredir(self.doctreedir)
 
-        self.app: Sphinx = app
+        self._app: Sphinx = app
         self.env: BuildEnvironment = env
         self.env.set_versioning_method(self.versioning_method, self.versioning_compare)
         self.events: EventManager = app.events
@@ -137,8 +137,14 @@ class Builder:
         self.finish_tasks: Any = None
 
     @property
+    def app(self) -> Sphinx:
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(__name__, f'{cls_name}.app', remove=(10, 0))
+        return self._app
+
+    @property
     def _translator(self) -> NullTranslations | None:
-        return self.app.translator
+        return self._app.translator
 
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
@@ -258,7 +264,7 @@ class Builder:
             __('writing output... '),
             'darkgreen',
             len(catalogs),
-            self.app.verbosity,
+            self._app.verbosity,
             stringify_func=cat2relpath,
         ):
             catalog.write_mo(
@@ -397,14 +403,14 @@ class Builder:
         # while reading, collect all warnings from docutils
         with (
             nullcontext()
-            if self.app._exception_on_warning
+            if self._app._exception_on_warning
             else logging.pending_warnings()
         ):
             updated_docnames = set(self.read())
 
         doccount = len(updated_docnames)
         logger.info(bold(__('looking for now-outdated files... ')), nonl=True)
-        updated_docnames.update(self.env.check_dependents(self.app, updated_docnames))
+        updated_docnames.update(self.env.check_dependents(self._app, updated_docnames))
         outdated = len(updated_docnames) - doccount
         if outdated:
             logger.info(__('%d found'), outdated)
@@ -422,14 +428,14 @@ class Builder:
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
-            self.app.phase = BuildPhase.CONSISTENCY_CHECK
+            self._app.phase = BuildPhase.CONSISTENCY_CHECK
             with progress_message(__('checking consistency')):
                 self.env.check_consistency()
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
 
-        self.app.phase = BuildPhase.RESOLVING
+        self._app.phase = BuildPhase.RESOLVING
 
         # filter "docnames" (list of outdated files) by the updated
         # found_docs of the environment; this will remove docs that
@@ -438,14 +444,14 @@ class Builder:
             docnames = set(docnames) & self.env.found_docs
 
         # determine if we can write in parallel
-        if parallel_available and self.app.parallel > 1 and self.allow_parallel:
-            self.parallel_ok = self.app.is_parallel_allowed('write')
+        if parallel_available and self._app.parallel > 1 and self.allow_parallel:
+            self.parallel_ok = self._app.is_parallel_allowed('write')
         else:
             self.parallel_ok = False
 
         #  create a task executor to use for misc. "finish-up" tasks
         # if self.parallel_ok:
-        #     self.finish_tasks = ParallelTasks(self.app.parallel)
+        #     self.finish_tasks = ParallelTasks(self._app.parallel)
         # else:
         # for now, just execute them serially
         self.finish_tasks = SerialTasks()
@@ -508,13 +514,13 @@ class Builder:
         self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
-        if parallel_available and self.app.parallel > 1:
-            par_ok = self.app.is_parallel_allowed('read')
+        if parallel_available and self._app.parallel > 1:
+            par_ok = self._app.is_parallel_allowed('read')
         else:
             par_ok = False
 
         if par_ok:
-            self._read_parallel(docnames, nproc=self.app.parallel)
+            self._read_parallel(docnames, nproc=self._app.parallel)
         else:
             self._read_serial(docnames)
 
@@ -576,7 +582,7 @@ class Builder:
             __('reading sources... '),
             'purple',
             len(docnames),
-            self.app.verbosity,
+            self._app.verbosity,
         ):
             # remove all inventory entries for that file
             self.events.emit('env-purge-doc', self.env, docname)
@@ -589,7 +595,7 @@ class Builder:
         # create a status_iterator to step progressbar after reading a document
         # (see: ``merge()`` function)
         progress = status_iterator(
-            chunks, __('reading sources... '), 'purple', len(chunks), self.app.verbosity
+            chunks, __('reading sources... '), 'purple', len(chunks), self._app.verbosity
         )
 
         # clear all outdated docs at once
@@ -598,7 +604,7 @@ class Builder:
             self.env.clear_doc(docname)
 
         def read_process(docs: list[str]) -> bytes:
-            self.env.app = self.app
+            self.env._app = self._app
             for docname in docs:
                 self.read_doc(docname, _cache=False)
             # allow pickling self to send it back
@@ -606,7 +612,7 @@ class Builder:
 
         def merge(docs: list[str], otherenv: bytes) -> None:
             env = pickle.loads(otherenv)
-            self.env.merge_info_from(docs, env, self.app)
+            self.env.merge_info_from(docs, env, self._app)
 
             next(progress)
 
@@ -630,8 +636,8 @@ class Builder:
             env.note_dependency(docutils_conf)
 
         filename = str(env.doc2path(docname))
-        filetype = get_filetype(self.app.config.source_suffix, filename)
-        publisher = self.env._registry.get_publisher(self.app, filetype)
+        filetype = get_filetype(self._app.config.source_suffix, filename)
+        publisher = self.env._registry.get_publisher(self._app, filetype)
         self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
@@ -744,14 +750,14 @@ class Builder:
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
-            self._write_parallel(sorted_docnames, nproc=self.app.parallel - 1)
+            self._write_parallel(sorted_docnames, nproc=self._app.parallel - 1)
         else:
             self._write_serial(sorted_docnames)
 
     def _write_serial(self, docnames: Sequence[str]) -> None:
         with (
             nullcontext()
-            if self.app._exception_on_warning
+            if self._app._exception_on_warning
             else logging.pending_warnings()
         ):
             for docname in status_iterator(
@@ -759,19 +765,19 @@ class Builder:
                 __('writing output... '),
                 'darkgreen',
                 len(docnames),
-                self.app.verbosity,
+                self._app.verbosity,
             ):
-                _write_docname(docname, app=self.app, env=self.env, builder=self)
+                _write_docname(docname, app=self._app, env=self.env, builder=self)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
         def write_process(docs: list[tuple[str, nodes.document]]) -> None:
-            self.app.phase = BuildPhase.WRITING
+            self._app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
-        _write_docname(firstname, app=self.app, env=self.env, builder=self)
+        _write_docname(firstname, app=self._app, env=self.env, builder=self)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
@@ -783,13 +789,13 @@ class Builder:
             __('writing output... '),
             'darkgreen',
             len(chunks),
-            self.app.verbosity,
+            self._app.verbosity,
         )
 
         def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
             next(progress)
 
-        self.app.phase = BuildPhase.RESOLVING
+        self._app.phase = BuildPhase.RESOLVING
         for chunk in chunks:
             arg = []
             for docname in chunk:
