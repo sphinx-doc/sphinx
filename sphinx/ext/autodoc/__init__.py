@@ -363,15 +363,15 @@ class Documenter:
 
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
-    objtype = 'object'
+    objtype: ClassVar = 'object'
     #: indentation by which to indent the directive content
-    content_indent = '   '
+    content_indent: ClassVar = '   '
     #: priority if multiple documenters return True from can_document_member
-    priority = 0
+    priority: ClassVar = 0
     #: order if autodoc_member_order is set to 'groupwise'
-    member_order = 0
+    member_order: ClassVar = 0
     #: true if the generated content may contain titles
-    titles_allowed = True
+    titles_allowed: ClassVar = True
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
@@ -2407,11 +2407,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         obj = self.parent.__dict__.get(self.object_name, self.object)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             # document static members before regular methods
-            self.member_order -= 1
+            self.member_order -= 1  # type: ignore[misc]
         elif inspect.isclassmethod(obj):
             # document class methods before static methods as
             # they usually behave as alternative constructors
-            self.member_order -= 2
+            self.member_order -= 2  # type: ignore[misc]
         return ret
 
     def format_args(self, **kwargs: Any) -> str:

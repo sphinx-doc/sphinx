@@ -818,7 +818,7 @@ class CDomain(Domain):
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False),
     }
-    initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
+    initial_data: ClassVar[dict[str, Symbol | dict[str, tuple[str, str, str]]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
     }
