@@ -37,6 +37,9 @@ Bugs fixed
   Patch by Alicia Garcia-Raboso.
 * #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
   Patch by Shengyu Zhang and Adam Turner.
+* #13619: LaTeX: possible duplicated footnotes in PDF from object signatures
+  (typically if :confval:`latex_show_urls` ``= 'footnote'``).
+  Patch by Jean-François B.
 
 Testing
 -------
