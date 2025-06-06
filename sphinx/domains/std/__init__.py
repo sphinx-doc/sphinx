@@ -1378,16 +1378,12 @@ class StandardDomain(Domain):
 
     def get_enumerable_node_type(self, node: Node) -> str | None:
         """Get type of enumerable nodes."""
-
-        def has_child(node: Element, cls: type) -> bool:
-            return any(isinstance(child, cls) for child in node)
-
         if isinstance(node, nodes.section):
             return 'section'
         elif (
             isinstance(node, nodes.container)
             and 'literal_block' in node
-            and has_child(node, nodes.literal_block)
+            and _has_child(node, nodes.literal_block)
         ):
             # given node is a code-block having caption
             return 'code-block'
@@ -1438,6 +1434,10 @@ class StandardDomain(Domain):
                 return None
         else:
             return None
+
+
+def _has_child(node: Element, cls: type) -> bool:
+    return any(isinstance(child, cls) for child in node)
 
 
 def warn_missing_reference(

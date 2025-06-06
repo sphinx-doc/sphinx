@@ -1852,13 +1852,10 @@ class LaTeXTranslator(SphinxTranslator):
         if node.get('ismod', False):
             # Detect if the previous nodes are label targets. If so, remove
             # the refid thereof from node['ids'] to avoid duplicated ids.
-            def has_dup_label(sib: Node | None) -> bool:
-                return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
-
             prev = get_prev_node(node)
-            if has_dup_label(prev):
+            if self._has_dup_label(prev, node):
                 ids = node['ids'][:]  # copy to avoid side-effects
-                while has_dup_label(prev):
+                while self._has_dup_label(prev, node):
                     ids.remove(prev['refid'])  # type: ignore[index]
                     prev = get_prev_node(prev)  # type: ignore[arg-type]
             else:
@@ -1871,6 +1868,10 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_target(self, node: Element) -> None:
         pass
+
+    @staticmethod
+    def _has_dup_label(sib: Node | None, node: Element) -> bool:
+        return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
 
     def visit_attribution(self, node: Element) -> None:
         self.body.append(CR + r'\begin{flushright}' + CR)

@@ -227,12 +227,7 @@ class ReferencesResolver(SphinxPostTransform):
         if not results:
             return None
         if len(results) > 1:
-
-            def stringify(name: str, node: Element) -> str:
-                reftitle = node.get('reftitle', node.astext())
-                return f':{name}:`{reftitle}`'
-
-            candidates = ' or '.join(starmap(stringify, results))
+            candidates = ' or '.join(starmap(self._stringify, results))
             msg = __(
                 "more than one target found for 'any' cross-reference %r: could be %s"
             )
@@ -250,6 +245,11 @@ class ReferencesResolver(SphinxPostTransform):
         ):
             new_node[0]['classes'].extend((res_domain, res_role.replace(':', '-')))
         return new_node
+
+    @staticmethod
+    def _stringify(name: str, node: Element) -> str:
+        reftitle = node.get('reftitle', node.astext())
+        return f':{name}:`{reftitle}`'
 
     def warn_missing_reference(
         self,
@@ -273,21 +273,12 @@ class ReferencesResolver(SphinxPostTransform):
                 ):  # fmt: skip
                     warn = False
             if self.config.nitpick_ignore_regex:
-
-                def matches_ignore(entry_type: str, entry_target: str) -> bool:
-                    return any(
-                        (
-                            re.fullmatch(ignore_type, entry_type)
-                            and re.fullmatch(ignore_target, entry_target)
-                        )
-                        for ignore_type, ignore_target in self.config.nitpick_ignore_regex
-                    )
-
-                if matches_ignore(dtype, target):
+                if _matches_ignore(self.config.nitpick_ignore_regex, dtype, target):
                     warn = False
                 # for "std" types also try without domain name
-                if (not domain or domain.name == 'std') and matches_ignore(typ, target):
-                    warn = False
+                if not domain or domain.name == 'std':
+                    if _matches_ignore(self.config.nitpick_ignore_regex, typ, target):
+                        warn = False
         if not warn:
             return
 
@@ -315,6 +306,18 @@ class ReferencesResolver(SphinxPostTransform):
             if matched:
                 return matched.children
         return None
+
+
+def _matches_ignore(
+    ignore_patterns: Sequence[tuple[str, str]], entry_type: str, entry_target: str
+) -> bool:
+    return any(
+        (
+            re.fullmatch(ignore_type, entry_type)
+            and re.fullmatch(ignore_target, entry_target)
+        )
+        for ignore_type, ignore_target in ignore_patterns
+    )
 
 
 class OnlyNodeTransform(SphinxPostTransform):
