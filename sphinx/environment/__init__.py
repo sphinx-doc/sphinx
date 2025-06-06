@@ -701,6 +701,8 @@ class BuildEnvironment:
         self,
         docname: str,
         builder: Builder,
+        *,
+        tags: Tags,
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False,
@@ -770,7 +772,7 @@ class BuildEnvironment:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
-            tags=builder.tags,
+            tags=self._tags,
         )
 
     def resolve_references(

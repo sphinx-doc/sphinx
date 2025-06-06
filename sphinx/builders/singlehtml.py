@@ -84,7 +84,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         if kwargs.get('maxdepth') == '':  # NoQA: PLC1901
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(
-            self.env, docname, self, collapse=collapse, **kwargs
+            self.env, docname, self, tags=self.tags, collapse=collapse, **kwargs
         )
         return self.render_partial(toctree)['fragment']
 
@@ -141,7 +141,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         # no relation links...
         toctree = global_toctree_for_doc(
-            self.env, self.config.root_doc, self, collapse=False
+            self.env, self.config.root_doc, self, tags=self.tags, collapse=False
         )
         # if there is no toctree, toc is None
         if toctree:

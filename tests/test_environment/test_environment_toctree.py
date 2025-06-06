@@ -614,7 +614,9 @@ def test_document_toc_tocdepth(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_global_toctree_for_doc(app):
     app.build()
-    toctree = global_toctree_for_doc(app.env, 'index', app.builder, collapse=False)
+    toctree = global_toctree_for_doc(
+        app.env, 'index', app.builder, tags=app.tags, collapse=False
+    )
     assert_node(
         toctree,
         [
@@ -676,7 +678,9 @@ def test_global_toctree_for_doc(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_global_toctree_for_doc_collapse(app):
     app.build()
-    toctree = global_toctree_for_doc(app.env, 'index', app.builder, collapse=True)
+    toctree = global_toctree_for_doc(
+        app.env, 'index', app.builder, tags=app.tags, collapse=True
+    )
     assert_node(
         toctree,
         [
@@ -723,7 +727,7 @@ def test_global_toctree_for_doc_collapse(app):
 def test_global_toctree_for_doc_maxdepth(app):
     app.build()
     toctree = global_toctree_for_doc(
-        app.env, 'index', app.builder, collapse=False, maxdepth=3
+        app.env, 'index', app.builder, tags=app.tags, collapse=False, maxdepth=3
     )
     assert_node(
         toctree,
@@ -814,7 +818,12 @@ def test_global_toctree_for_doc_maxdepth(app):
 def test_global_toctree_for_doc_includehidden(app):
     app.build()
     toctree = global_toctree_for_doc(
-        app.env, 'index', app.builder, collapse=False, includehidden=False
+        app.env,
+        'index',
+        app.builder,
+        tags=app.tags,
+        collapse=False,
+        includehidden=False,
     )
     assert_node(
         toctree,
