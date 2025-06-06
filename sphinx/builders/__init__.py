@@ -761,11 +761,7 @@ class Builder:
                 len(docnames),
                 self.app.verbosity,
             ):
-                self.app.phase = BuildPhase.RESOLVING
-                doctree = self.env.get_and_resolve_doctree(docname, self)
-                self.app.phase = BuildPhase.WRITING
-                self.write_doc_serialized(docname, doctree)
-                self.write_doc(docname, doctree)
+                _write_docname(docname, app=self.app, env=self.env, builder=self)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
         def write_process(docs: list[tuple[str, nodes.document]]) -> None:
@@ -775,11 +771,7 @@ class Builder:
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
-        self.app.phase = BuildPhase.RESOLVING
-        doctree = self.env.get_and_resolve_doctree(firstname, self)
-        self.app.phase = BuildPhase.WRITING
-        self.write_doc_serialized(firstname, doctree)
-        self.write_doc(firstname, doctree)
+        _write_docname(firstname, app=self.app, env=self.env, builder=self)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
@@ -865,6 +857,17 @@ class Builder:
         except AttributeError:
             optname = f'{default}_{option}'
             return getattr(self.config, optname)
+
+
+def _write_docname(
+    docname: str, /, *, app: Sphinx, env: BuildEnvironment, builder: Builder
+) -> None:
+    """Write a single document."""
+    app.phase = BuildPhase.RESOLVING
+    doctree = env.get_and_resolve_doctree(docname, builder=builder)
+    app.phase = BuildPhase.WRITING
+    builder.write_doc_serialized(docname, doctree)
+    builder.write_doc(docname, doctree)
 
 
 class _UnicodeDecodeErrorHandler:

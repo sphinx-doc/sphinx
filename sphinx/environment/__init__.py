@@ -701,6 +701,7 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
+        tags = builder.tags
         for toctreenode in doctree.findall(addnodes.toctree):
             result = toctree_adapters._resolve_toctree(
                 self,
@@ -709,7 +710,7 @@ class BuildEnvironment:
                 toctreenode,
                 prune=prune_toctrees,
                 includehidden=includehidden,
-                tags=builder.tags,
+                tags=tags,
             )
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
