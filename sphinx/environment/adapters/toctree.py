@@ -191,9 +191,7 @@ def _resolve_toctree(
 
     # prune the tree to maxdepth, also set toc depth and current classes
     _toctree_add_classes(newnode, 1, docname)
-    newnode = _toctree_copy(
-        newnode, 1, maxdepth if prune else 0, collapse, builder.tags
-    )
+    newnode = _toctree_copy(newnode, 1, maxdepth if prune else 0, collapse, tags)
 
     if (
         isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0
