@@ -320,7 +320,7 @@ class Config:
 
         for name in list(self._overrides.keys()):
             if '.' in name:
-                real_name, key = name.split('.', 1)
+                real_name, _, key = name.partition('.')
                 raw_config.setdefault(real_name, {})[key] = self._overrides.pop(name)
 
         self.setup: _ExtensionSetupFunc | None = raw_config.get('setup')

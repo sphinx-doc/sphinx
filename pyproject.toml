@@ -92,7 +92,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.11",
+    "ruff==0.11.12",
     "mypy==1.15.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -100,7 +100,7 @@ lint = [
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250516",
-    "types-requests==2.32.0.20250515",  # align with requests
+    "types-requests==2.32.0.20250602",  # align with requests
     "types-urllib3==1.26.25.14",
     "pyright==1.1.400",
     "pytest>=8.0",
@@ -135,7 +135,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.11",
+    "ruff==0.11.12",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -169,7 +169,7 @@ type-stubs = [
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250516",
-    "types-requests==2.32.0.20250515",
+    "types-requests==2.32.0.20250602",
     "types-urllib3==1.26.25.14",
 ]
 

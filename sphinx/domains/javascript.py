@@ -70,7 +70,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         """
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
-            member, arglist = sig.split('(', 1)
+            member, _, arglist = sig.partition('(')
             member = member.strip()
             arglist = arglist[:-1].strip()
         else:
