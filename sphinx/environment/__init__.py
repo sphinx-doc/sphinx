@@ -107,6 +107,9 @@ class BuildEnvironment:
     srcdir = _StrPathProperty()
     doctreedir = _StrPathProperty()
 
+    # builder is created after the environment.
+    _builder_cls: type[Builder]
+
     def __init__(self, app: Sphinx) -> None:
         self._app: Sphinx = app
         self.doctreedir = app.doctreedir

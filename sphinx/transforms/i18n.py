@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 from re import DOTALL, match
 from textwrap import indent
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from docutils import nodes
@@ -13,6 +14,7 @@ from docutils.io import StringInput
 from sphinx import addnodes
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.errors import ConfigError
+from sphinx.io import SphinxI18nReader
 from sphinx.locale import __
 from sphinx.locale import init as init_locale
 from sphinx.transforms import SphinxTransform
@@ -32,6 +34,8 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
+    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata
 
 
@@ -48,16 +52,17 @@ N = TypeVar('N', bound=nodes.Node)
 
 
 def publish_msgstr(
-    app: Sphinx,
     source: str,
     source_path: str,
     source_line: int,
     config: Config,
     settings: Any,
+    *,
+    env: BuildEnvironment,
+    registry: SphinxComponentRegistry,
 ) -> nodes.Element:
     """Publish msgstr (single line) into docutils document
 
-    :param sphinx.application.Sphinx app: sphinx application
     :param str source: source text
     :param str source_path: source path for warning indication
     :param source_line: source line for warning indication
@@ -65,18 +70,18 @@ def publish_msgstr(
     :param docutils.frontend.Values settings: docutils settings
     :return: document
     :rtype: docutils.nodes.document
+    :param sphinx.environment.BuildEnvironment env: sphinx environment
+    :param sphinx.registry.SphinxComponentRegistry registry: sphinx registry
     """
     try:
         # clear rst_prolog temporarily
         rst_prolog = config.rst_prolog
         config.rst_prolog = None
 
-        from sphinx.io import SphinxI18nReader
-
-        reader = SphinxI18nReader()
-        reader.setup(app)
+        reader = SphinxI18nReader(registry=registry)
+        app = SimpleNamespace(config=config, env=env, registry=registry)
         filetype = get_filetype(config.source_suffix, source_path)
-        parser = app.registry.create_source_parser(app, filetype)
+        parser = registry.create_source_parser(app, filetype)  # type: ignore[arg-type]
         doc = reader.read(
             source=StringInput(
                 source=source, source_path=f'{source_path}:{source_line}:<translated>'
@@ -436,12 +441,13 @@ class Locale(SphinxTransform):
                 msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
             patch = publish_msgstr(
-                self.app,
                 msgstr,
                 source,
                 node.line,  # type: ignore[arg-type]
                 self.config,
                 settings,
+                env=self.env,
+                registry=self.env._registry,
             )
             # FIXME: no warnings about inconsistent references in this part
             # XXX doctest and other block markup
@@ -456,12 +462,13 @@ class Locale(SphinxTransform):
                 for _id in node['ids']:
                     term, first_classifier = split_term_classifiers(msgstr)
                     patch = publish_msgstr(
-                        self.app,
                         term or '',
                         source,
                         node.line,  # type: ignore[arg-type]
                         self.config,
                         settings,
+                        env=self.env,
+                        registry=self.env._registry,
                     )
                     updater.patch = make_glossary_term(
                         self.env,
@@ -533,12 +540,13 @@ class Locale(SphinxTransform):
                 msgstr = msgstr + '\n' + '=' * len(msgstr) * 2
 
             patch = publish_msgstr(
-                self.app,
                 msgstr,
                 source,
                 node.line,  # type: ignore[arg-type]
                 self.config,
                 settings,
+                env=self.env,
+                registry=self.env._registry,
             )
             # Structural Subelements phase2
             if isinstance(node, nodes.title):
@@ -612,7 +620,7 @@ class TranslationProgressTotaliser(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         total = translated = 0
@@ -635,7 +643,7 @@ class AddTranslationClasses(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         if not self.config.translation_progress_classes:
@@ -673,7 +681,7 @@ class RemoveTranslatableInline(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         matcher = NodeMatcher(nodes.inline, translatable=Any)

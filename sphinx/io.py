@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.registry import SphinxComponentRegistry
 
 
 logger = logging.getLogger(__name__)
@@ -121,22 +122,23 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    def setup(self, app: Sphinx) -> None:
-        super().setup(app)
-
-        self.transforms = self.transforms + app.registry.get_transforms()
-        unused = [
-            PreserveTranslatableMessages,
-            Locale,
-            RemoveTranslatableInline,
-            AutoIndexUpgrader,
-            SphinxDomains,
-            DoctreeReadEvent,
-            UIDTransform,
-        ]
-        for transform in unused:
-            if transform in self.transforms:
-                self.transforms.remove(transform)
+    def __init__(
+        self, *args: Any, registry: SphinxComponentRegistry, **kwargs: Any
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.transforms = [
+            transform
+            for transform in self.transforms + registry.get_transforms()
+            if transform not in {
+                PreserveTranslatableMessages,
+                Locale,
+                RemoveTranslatableInline,
+                AutoIndexUpgrader,
+                SphinxDomains,
+                DoctreeReadEvent,
+                UIDTransform,
+            }
+        ]  # fmt: skip
 
 
 class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
