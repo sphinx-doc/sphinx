@@ -48,7 +48,7 @@ from sphinx import roles  # NoQA: F401  isort:skip
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
     from gettext import NullTranslations
-    from typing import Any, Literal
+    from typing import Any, ClassVar, Literal
 
     from docutils.nodes import Node
 
@@ -70,37 +70,37 @@ class Builder:
 
     #: The builder's name.
     #: This is the value used to select builders on the command line.
-    name: str = ''
+    name: ClassVar[str] = ''
     #: The builder's output format, or '' if no document output is produced.
     #: This is commonly the file extension, e.g. "html",
     #: though any string value is accepted.
     #: The builder's format string can be used by various components
     #: such as :class:`.SphinxPostTransform` or extensions to determine
     #: their compatibility with the builder.
-    format: str = ''
+    format: ClassVar[str] = ''
     #: The message emitted upon successful build completion.
     #: This can be a printf-style template string
     #: with the following keys: ``outdir``, ``project``
-    epilog: str = ''
+    epilog: ClassVar[str] = ''
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
-    default_translator_class: type[nodes.NodeVisitor]
+    default_translator_class: ClassVar[type[nodes.NodeVisitor]]
     # doctree versioning method
-    versioning_method = 'none'
-    versioning_compare = False
+    versioning_method: ClassVar[str] = 'none'
+    versioning_compare: ClassVar[bool] = False
     #: Whether it is safe to make parallel :meth:`~.Builder.write_doc` calls.
-    allow_parallel: bool = False
+    allow_parallel: ClassVar[bool] = False
     # support translation
-    use_message_catalog = True
+    use_message_catalog: ClassVar[bool] = True
 
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
-    supported_image_types: list[str] = []
+    supported_image_types: ClassVar[list[str]] = []
     #: The builder can produce output documents that may fetch external images when opened.
-    supported_remote_images: bool = False
+    supported_remote_images: ClassVar[bool] = False
     #: The file format produced by the builder allows images to be embedded using data-URIs.
-    supported_data_uri_images: bool = False
+    supported_data_uri_images: ClassVar[bool] = False
 
     srcdir = _StrPathProperty()
     confdir = _StrPathProperty()

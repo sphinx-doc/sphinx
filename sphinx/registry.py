@@ -410,7 +410,9 @@ class SphinxComponentRegistry:
                     % (builder_name, handlers),
                 ) from exc
 
-    def get_translator_class(self, builder: Builder) -> type[nodes.NodeVisitor]:
+    def get_translator_class(
+        self, builder: type[Builder] | Builder
+    ) -> type[nodes.NodeVisitor]:
         try:
             return self.translators[builder.name]
         except KeyError:
@@ -420,7 +422,9 @@ class SphinxComponentRegistry:
                 msg = f'translator not found for {builder.name}'
                 raise AttributeError(msg) from err
 
-    def create_translator(self, builder: Builder, *args: Any) -> nodes.NodeVisitor:
+    def create_translator(
+        self, builder: type[Builder] | Builder, *args: Any
+    ) -> nodes.NodeVisitor:
         translator_class = self.get_translator_class(builder)
         translator = translator_class(*args)
 
