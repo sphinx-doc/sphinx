@@ -11,7 +11,7 @@ from enum import StrEnum
 from html.parser import HTMLParser
 from queue import PriorityQueue, Queue
 from threading import Thread
-from typing import TYPE_CHECKING, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
@@ -485,6 +485,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
     def _check_uri(self, uri: str, hyperlink: Hyperlink) -> _URIProperties:
         req_url, delimiter, anchor = uri.partition('#')
+        original_encoded_anchor = (
+            anchor  # Store the original encoded anchor before decoding
+        )
         if delimiter and anchor:
             for rex in self.anchors_ignore:
                 if rex.match(anchor):
@@ -536,7 +539,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if anchor and self.check_anchors and response.ok:
                         try:
-                            found = contains_anchor(response, anchor)
+                            found = contains_anchor(
+                                response, anchor, original_encoded_anchor
+                            )
                         except UnicodeDecodeError:
                             return (
                                 _Status.IGNORED,
@@ -686,11 +691,13 @@ def _get_request_headers(
     return {}
 
 
-def contains_anchor(response: Response, anchor: str) -> bool:
+def contains_anchor(
+    response: Response, anchor: str, original_encoded_anchor: str = ''
+) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
-    parser = AnchorCheckParser(anchor)
-    # Read file in chunks. If we find a matching anchor, we break
-    # the loop early in hopes not to have to download the whole thing.
+    parser = AnchorCheckParser(anchor, original_encoded_anchor)
+    # Read file in chunks. If we find a matching anchor, we break the loop early
+    # to avoid downloading the entire response body.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
         if isinstance(chunk, bytes):
             # requests failed to decode, manually try to decode it
@@ -706,15 +713,37 @@ def contains_anchor(response: Response, anchor: str) -> bool:
 class AnchorCheckParser(HTMLParser):
     """Specialised HTML parser that looks for a specific anchor."""
 
-    def __init__(self, search_anchor: str) -> None:
+    def __init__(self, search_anchor: str, original_encoded_anchor: str = '') -> None:
+        """Initialize the parser with multiple anchor variations.
+
+        Args:
+            search_anchor: The decoded anchor to search for
+                (e.g., "standard-input/output-stdio")
+            original_encoded_anchor: The original encoded anchor
+                (e.g., "standard-input%2Foutput-stdio")
+        """
         super().__init__()
 
-        self.search_anchor = search_anchor
+        # Create variations of the anchor to check
+        self.search_variations = {
+            search_anchor,  # decoded (current behavior)
+        }
+
+        # Add the original encoded version if provided
+        if original_encoded_anchor:
+            self.search_variations.add(original_encoded_anchor)
+
+        # Add a re-encoded version if the decoded anchor contains characters
+        # that would be encoded
+        if search_anchor != quote(search_anchor, safe=''):
+            self.search_variations.add(quote(search_anchor, safe=''))
+
         self.found = False
 
     def handle_starttag(self, tag: Any, attrs: Any) -> None:
         for key, value in attrs:
-            if key in {'id', 'name'} and value == self.search_anchor:
+            # Check if the attribute value matches any of our variations
+            if key in {'id', 'name'} and value in self.search_variations:
                 self.found = True
                 break
 
