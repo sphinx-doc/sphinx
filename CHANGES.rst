@@ -35,6 +35,8 @@ Features added
 * #13704: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
   and :py:func:`~typing.final` decorators.
   Patch by Spencer Brown.
+* #13217: Remove extra parentheses from :rst:dir:`js:function` arguments and errors.
+  Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------
