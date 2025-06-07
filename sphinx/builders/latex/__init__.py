@@ -513,9 +513,9 @@ class LaTeXBuilder(Builder):
         formats = self.config.numfig_format
         context = {
             'addtocaptions': r'\@iden',
-            'figurename': formats.get('figure', '').split('%s', 1),
-            'tablename': formats.get('table', '').split('%s', 1),
-            'literalblockname': formats.get('code-block', '').split('%s', 1),
+            'figurename': formats.get('figure', '').split('%s', maxsplit=1),
+            'tablename': formats.get('table', '').split('%s', maxsplit=1),
+            'literalblockname': formats.get('code-block', '').split('%s', maxsplit=1),
         }
 
         if self.context['babel'] or self.context['polyglossia']:

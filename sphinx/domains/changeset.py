@@ -121,7 +121,7 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data: dict[str, dict[str, list[ChangeSet]]] = {
+    initial_data: ClassVar[dict[str, dict[str, list[ChangeSet]]]] = {
         'changes': {},  # version -> list of ChangeSet
     }
 

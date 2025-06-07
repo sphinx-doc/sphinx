@@ -668,7 +668,7 @@ class CAliasObject(ObjectDescription[str]):
         The code is therefore based on the ObjectDescription version.
         """
         if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+            self.domain, _, self.objtype = self.name.partition(':')
         else:
             self.domain, self.objtype = '', self.name
 
@@ -818,7 +818,7 @@ class CDomain(Domain):
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False),
     }
-    initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
+    initial_data: ClassVar[dict[str, Symbol | dict[str, tuple[str, str, str]]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
     }

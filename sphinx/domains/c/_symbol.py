@@ -445,43 +445,19 @@ class Symbol:
         # First check if one of those with a declaration matches.
         # If it's a function, we need to compare IDs,
         # otherwise there should be only one symbol with a declaration.
-        def make_cand_symbol() -> Symbol:
-            if Symbol.debug_lookup:
-                Symbol.debug_print('begin: creating candidate symbol')
-            symbol = Symbol(
-                parent=lookup_result.parent_symbol,
-                ident=lookup_result.ident,
-                declaration=declaration,
-                docname=docname,
-                line=line,
-            )
-            if Symbol.debug_lookup:
-                Symbol.debug_print('end:   creating candidate symbol')
-            return symbol
 
         if len(with_decl) == 0:
             cand_symbol = None
         else:
-            cand_symbol = make_cand_symbol()
-
-            def handle_duplicate_declaration(
-                symbol: Symbol, cand_symbol: Symbol
-            ) -> None:
-                if Symbol.debug_lookup:
-                    Symbol.debug_indent += 1
-                    Symbol.debug_print('redeclaration')
-                    Symbol.debug_indent -= 1
-                    Symbol.debug_indent -= 2
-                # Redeclaration of the same symbol.
-                # Let the new one be there, but raise an error to the client
-                # so it can use the real symbol as subscope.
-                # This will probably result in a duplicate id warning.
-                cand_symbol.isRedeclaration = True
-                raise _DuplicateSymbolError(symbol, declaration)
+            cand_symbol = self._make_cand_symbol(
+                lookup_result, declaration, docname, line
+            )
 
             if declaration.objectType != 'function':
                 assert len(with_decl) <= 1
-                handle_duplicate_declaration(with_decl[0], cand_symbol)
+                self._handle_duplicate_declaration(
+                    with_decl[0], cand_symbol, declaration
+                )
                 # (not reachable)
 
             # a function, so compare IDs
@@ -493,7 +469,7 @@ class Symbol:
                 if Symbol.debug_lookup:
                     Symbol.debug_print('old_id: ', old_id)
                 if cand_id == old_id:
-                    handle_duplicate_declaration(symbol, cand_symbol)
+                    self._handle_duplicate_declaration(symbol, cand_symbol, declaration)
                     # (not reachable)
             # no candidate symbol found with matching ID
         # if there is an empty symbol, fill that one
@@ -507,7 +483,7 @@ class Symbol:
             if cand_symbol is not None:
                 return cand_symbol
             else:
-                return make_cand_symbol()
+                return self._make_cand_symbol(lookup_result, declaration, docname, line)
         else:
             if Symbol.debug_lookup:
                 Symbol.debug_print(
@@ -528,6 +504,42 @@ class Symbol:
             # .. class:: Test
             symbol._fill_empty(declaration, docname, line)
             return symbol
+
+    @staticmethod
+    def _make_cand_symbol(
+        lookup_result: SymbolLookupResult,
+        declaration: ASTDeclaration | None,
+        docname: str | None,
+        line: int | None,
+    ) -> Symbol:
+        if Symbol.debug_lookup:
+            Symbol.debug_print('begin: creating candidate symbol')
+        symbol = Symbol(
+            parent=lookup_result.parent_symbol,
+            ident=lookup_result.ident,
+            declaration=declaration,
+            docname=docname,
+            line=line,
+        )
+        if Symbol.debug_lookup:
+            Symbol.debug_print('end:   creating candidate symbol')
+        return symbol
+
+    @staticmethod
+    def _handle_duplicate_declaration(
+        symbol: Symbol, cand_symbol: Symbol, declaration: ASTDeclaration
+    ) -> None:
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print('redeclaration')
+            Symbol.debug_indent -= 1
+            Symbol.debug_indent -= 2
+        # Redeclaration of the same symbol.
+        # Let the new one be there, but raise an error to the client
+        # so it can use the real symbol as subscope.
+        # This will probably result in a duplicate id warning.
+        cand_symbol.isRedeclaration = True
+        raise _DuplicateSymbolError(symbol, declaration)
 
     def merge_with(
         self, other: Symbol, docnames: list[str], env: BuildEnvironment

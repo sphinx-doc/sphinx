@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
+from sphinx.deprecation import _deprecation_warning
 from sphinx.domains._domains_container import _DomainsContainer
 from sphinx.environment.adapters import toctree as toctree_adapters
 from sphinx.errors import (
@@ -106,8 +107,11 @@ class BuildEnvironment:
     srcdir = _StrPathProperty()
     doctreedir = _StrPathProperty()
 
+    # builder is created after the environment.
+    _builder_cls: type[Builder]
+
     def __init__(self, app: Sphinx) -> None:
-        self.app: Sphinx = app
+        self._app: Sphinx = app
         self.doctreedir = app.doctreedir
         self.srcdir = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
@@ -237,7 +241,7 @@ class BuildEnvironment:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
         # clear unpickleable attributes
-        __dict__.update(app=None, domains=None, events=None)
+        __dict__.update(_app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
@@ -257,7 +261,7 @@ class BuildEnvironment:
         if self.project:
             app.project.restore(self.project)
 
-        self.app = app
+        self._app = app
         self.doctreedir = app.doctreedir
         self.events = app.events
         self.srcdir = app.srcdir
@@ -285,12 +289,27 @@ class BuildEnvironment:
         self._update_settings(app.config)
 
     @property
+    def app(self) -> Sphinx:
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        return self._app
+
+    @app.setter
+    def app(self, app: Sphinx) -> None:
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        self._app = app
+
+    @app.deleter
+    def app(self) -> None:
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        del self._app
+
+    @property
     def _registry(self) -> SphinxComponentRegistry:
-        return self.app.registry
+        return self._app.registry
 
     @property
     def _tags(self) -> Tags:
-        return self.app.tags
+        return self._app.tags
 
     @staticmethod
     def _config_status(
@@ -682,6 +701,8 @@ class BuildEnvironment:
         self,
         docname: str,
         builder: Builder,
+        *,
+        tags: Tags,
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False,
@@ -701,6 +722,7 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
+        tags = builder.tags
         for toctreenode in doctree.findall(addnodes.toctree):
             result = toctree_adapters._resolve_toctree(
                 self,
@@ -709,7 +731,7 @@ class BuildEnvironment:
                 toctreenode,
                 prune=prune_toctrees,
                 includehidden=includehidden,
-                tags=builder.tags,
+                tags=tags,
             )
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
@@ -750,7 +772,7 @@ class BuildEnvironment:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
-            tags=builder.tags,
+            tags=self._tags,
         )
 
     def resolve_references(

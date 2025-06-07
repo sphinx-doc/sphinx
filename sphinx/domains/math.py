@@ -15,7 +15,7 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
-    from typing import Any
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, system_message
 
@@ -47,7 +47,7 @@ class MathDomain(Domain):
     name = 'math'
     label = 'mathematics'
 
-    initial_data: dict[str, Any] = {
+    initial_data: ClassVar[dict[str, Any]] = {
         'objects': {},  # labelid -> (docname, eqno)
         # backwards compatibility
         'has_equations': {},  # https://github.com/sphinx-doc/sphinx/issues/13346

@@ -259,11 +259,11 @@ class HyperlinkCollector(SphinxPostTransform):
         :param uri: URI to add
         :param node: A node class where the URI was found
         """
-        builder = cast('CheckExternalLinksBuilder', self.app.builder)
+        builder = cast('CheckExternalLinksBuilder', self.env._app.builder)
         hyperlinks = builder.hyperlinks
         docname = self.env.docname
 
-        if newuri := self.app.events.emit_firstresult('linkcheck-process-uri', uri):
+        if newuri := self.env.events.emit_firstresult('linkcheck-process-uri', uri):
             uri = newuri
 
         try:

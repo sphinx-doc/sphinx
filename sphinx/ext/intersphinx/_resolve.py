@@ -493,7 +493,7 @@ class IntersphinxRole(SphinxRole):
         assert name.startswith('external'), name
         suffix = name[9:]
         if name[8] == '+':
-            inv_name, suffix = suffix.split(':', 1)
+            inv_name, _, suffix = suffix.partition(':')
             return inv_name, suffix
         elif name[8] == ':':
             return None, suffix

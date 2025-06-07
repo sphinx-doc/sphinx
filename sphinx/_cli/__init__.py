@@ -64,7 +64,7 @@ def _load_subcommand_descriptions() -> Iterator[tuple[str, str]]:
             # log an error here, but don't fail the full enumeration
             print(f'Failed to load the description for {command}', file=sys.stderr)
         else:
-            yield command, description.split('\n\n', 1)[0]
+            yield command, description.partition('\n\n')[0]
 
 
 class _RootArgumentParser(argparse.ArgumentParser):
