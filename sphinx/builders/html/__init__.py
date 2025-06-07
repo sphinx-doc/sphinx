@@ -228,7 +228,12 @@ class StandaloneHTMLBuilder(Builder):
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self) -> None:
-        theme_factory = HTMLThemeFactory(self.app)
+        theme_factory = HTMLThemeFactory(
+            confdir=self.confdir,
+            app=self._app,
+            config=self.config,
+            registry=self.env._registry,
+        )
         theme_name, theme_options = self.get_theme_config()
         self.theme = theme_factory.create(theme_name)
         self.theme_options = theme_options
@@ -255,7 +260,7 @@ class StandaloneHTMLBuilder(Builder):
         self.dark_highlighter: PygmentsBridge | None
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
-            self.app.add_css_file(
+            self.add_css_file(
                 'pygments_dark.css',
                 media='(prefers-color-scheme: dark)',
                 id='pygments_dark_css',
@@ -780,7 +785,7 @@ class StandaloneHTMLBuilder(Builder):
                 __('copying images... '),
                 'brown',
                 len(self.images),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=stringify_func,
             ):
                 dest = self.images[src]
@@ -807,7 +812,7 @@ class StandaloneHTMLBuilder(Builder):
                 __('copying downloadable files... '),
                 'brown',
                 len(self.env.dlfiles),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=to_relpath,
             ):
                 try:
@@ -1128,7 +1133,7 @@ class StandaloneHTMLBuilder(Builder):
         # 'blah.html' should have content_root = './' not ''.
         ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
 
-        outdir = self.app.outdir
+        outdir = self.outdir
 
         def css_tag(css: _CascadingStyleSheet) -> str:
             attrs = [

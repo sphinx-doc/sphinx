@@ -165,7 +165,7 @@ class I18nBuilder(Builder):
     def init(self) -> None:
         super().init()
         self.env.set_versioning_method(self.versioning_method, self.config.gettext_uuid)
-        self.tags = self.app.tags = I18nTags()
+        self.tags = self._app.tags = I18nTags()
         self.catalogs: defaultdict[str, Catalog] = defaultdict(Catalog)
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
@@ -251,7 +251,7 @@ class MessageCatalogBuilder(I18nBuilder):
     def _collect_templates(self) -> set[str]:
         template_files = set()
         for template_path in self.config.templates_path:
-            tmpl_abs_path = self.app.srcdir / template_path
+            tmpl_abs_path = self.srcdir / template_path
             for dirpath, _dirs, files in walk(tmpl_abs_path):
                 for fn in files:
                     if fn.endswith('.html'):
@@ -268,7 +268,11 @@ class MessageCatalogBuilder(I18nBuilder):
         extract_translations = self.templates.environment.extract_translations
 
         for template in status_iterator(
-            files, __('reading templates... '), 'purple', len(files), self.app.verbosity
+            files,
+            __('reading templates... '),
+            'purple',
+            len(files),
+            self.config.verbosity,
         ):
             try:
                 with codecs.open(template, encoding='utf-8') as f:
@@ -307,7 +311,7 @@ class MessageCatalogBuilder(I18nBuilder):
             __('writing message catalogs... '),
             'darkgreen',
             len(self.catalogs),
-            self.app.verbosity,
+            self.config.verbosity,
             operator.itemgetter(0),
         ):
             # noop if config.gettext_compact is set
@@ -315,7 +319,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
             context['messages'] = list(catalog)
             template_path = [
-                self.app.srcdir / rel_path for rel_path in self.config.templates_path
+                self.srcdir / rel_path for rel_path in self.config.templates_path
             ]
             renderer = GettextRenderer(template_path, outdir=self.outdir)
             content = renderer.render('message.pot.jinja', context)

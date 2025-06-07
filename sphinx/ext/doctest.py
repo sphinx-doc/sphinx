@@ -341,7 +341,7 @@ class DocTestBuilder(Builder):
         self.outfile.write(text)
 
     def _warn_out(self, text: str) -> None:
-        if self.app.quiet:
+        if self.config.verbosity < 0:
             logger.warning(text)
         else:
             logger.info(text, nonl=True)
@@ -360,7 +360,7 @@ class DocTestBuilder(Builder):
 
         header = 'Doctest summary'
         if self.total_failures or self.setup_failures or self.cleanup_failures:
-            self.app.statuscode = 1
+            self._app.statuscode = 1
             if self.config.doctest_fail_fast:
                 header = f'{header} (exiting after first failed test)'
         underline = '=' * len(header)
