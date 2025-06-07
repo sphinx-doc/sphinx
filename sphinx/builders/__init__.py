@@ -14,6 +14,7 @@ from docutils import nodes
 from docutils.utils import DependencyList
 
 from sphinx._cli.util.colour import bold
+from sphinx.deprecation import _deprecation_warning
 from sphinx.environment import (
     CONFIG_CHANGED_REASON,
     CONFIG_OK,
@@ -595,7 +596,11 @@ class Builder:
         # create a status_iterator to step progressbar after reading a document
         # (see: ``merge()`` function)
         progress = status_iterator(
-            chunks, __('reading sources... '), 'purple', len(chunks), self._app.verbosity
+            chunks,
+            __('reading sources... '),
+            'purple',
+            len(chunks),
+            self._app.verbosity,
         )
 
         # clear all outdated docs at once
