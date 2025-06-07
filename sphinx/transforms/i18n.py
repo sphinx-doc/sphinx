@@ -66,8 +66,6 @@ class _SphinxI18nReader(SphinxBaseReader):
         self, *args: Any, registry: SphinxComponentRegistry, **kwargs: Any
     ) -> None:
         super().__init__(*args, **kwargs)
-
-        transforms = self.transforms + registry.get_transforms()
         unused = frozenset({
             PreserveTranslatableMessages,
             Locale,
@@ -77,6 +75,7 @@ class _SphinxI18nReader(SphinxBaseReader):
             DoctreeReadEvent,
             UIDTransform,
         })
+        transforms = self.transforms + registry.get_transforms()
         self.transforms = [
             transform for transform in transforms if transform not in unused
         ]
