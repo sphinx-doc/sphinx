@@ -438,9 +438,7 @@ class DefinitionParser(BaseParser):
             if not self.skip_string('('):
                 self.fail("Expected '(' in '%s'." % cast)
 
-            def parser() -> ASTExpression:
-                return self._parse_expression()
-
+            parser = self._parse_expression
             expr = self._parse_expression_fallback([')'], parser)
             self.skip_ws()
             if not self.skip_string(')'):
@@ -459,10 +457,7 @@ class DefinitionParser(BaseParser):
             except DefinitionError as e_type:
                 self.pos = pos
                 try:
-
-                    def parser() -> ASTExpression:
-                        return self._parse_expression()
-
+                    parser = self._parse_expression
                     expr = self._parse_expression_fallback([')'], parser)
                     prefix = ASTTypeId(expr, isType=False)
                     if not self.skip_string(')'):
@@ -1423,9 +1418,7 @@ class DefinitionParser(BaseParser):
                     array_ops.append(ASTArray(None))
                     continue
 
-                def parser() -> ASTExpression:
-                    return self._parse_expression()
-
+                parser = self._parse_expression
                 value = self._parse_expression_fallback([']'], parser)
                 if not self.skip_string(']'):
                     self.fail("Expected ']' in end of array operator.")

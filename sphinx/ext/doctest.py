@@ -436,21 +436,9 @@ class DocTestBuilder(Builder):
         self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
 
         if self.config.doctest_test_doctest_blocks:
-
-            def condition(node: Node) -> bool:
-                return (
-                    isinstance(node, nodes.literal_block | nodes.comment)
-                    and 'testnodetype' in node
-                ) or isinstance(node, nodes.doctest_block)
-
+            condition = _condition_with_doctest
         else:
-
-            def condition(node: Node) -> bool:
-                return (
-                    isinstance(node, nodes.literal_block | nodes.comment)
-                    and 'testnodetype' in node
-                )
-
+            condition = _condition_default
         for node in doctree.findall(condition):
             if self.skipped(node):  # type: ignore[arg-type]
                 continue
@@ -663,3 +651,14 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,
     }
+
+
+def _condition_default(node: Node) -> bool:
+    return (
+        isinstance(node, (nodes.literal_block, nodes.comment))
+        and 'testnodetype' in node
+    )
+
+
+def _condition_with_doctest(node: Node) -> bool:
+    return _condition_default(node) or isinstance(node, nodes.doctest_block)

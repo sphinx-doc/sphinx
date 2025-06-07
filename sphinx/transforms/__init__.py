@@ -15,6 +15,7 @@ from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
+from sphinx.deprecation import _deprecation_warning
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
@@ -62,6 +63,8 @@ class SphinxTransform(Transform):
     @property
     def app(self) -> Sphinx:
         """Reference to the :class:`.Sphinx` object."""
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(__name__, f'{cls_name}.app', remove=(10, 0))
         return self.env.app
 
     @property

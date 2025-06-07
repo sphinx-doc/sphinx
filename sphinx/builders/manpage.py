@@ -37,7 +37,7 @@ class ManualPageBuilder(Builder):
     epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
-    supported_image_types: list[str] = []
+    supported_image_types = []
 
     def init(self) -> None:
         if not self.config.man_pages:

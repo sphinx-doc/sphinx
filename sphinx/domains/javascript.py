@@ -436,7 +436,7 @@ class JavaScriptDomain(Domain):
         'attr': JSXRefRole(),
         'mod': JSXRefRole(),
     }
-    initial_data: dict[str, dict[str, tuple[str, str]]] = {
+    initial_data: ClassVar[dict[str, dict[str, tuple[str, str]]]] = {
         'objects': {},  # fullname -> docname, node_id, objtype
         'modules': {},  # modname  -> docname, node_id
     }

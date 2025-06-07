@@ -14,7 +14,7 @@ from sphinx.locale import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
-    from typing import Any
+    from typing import Any, ClassVar
 
     from docutils import nodes
     from docutils.nodes import Element, Node
@@ -82,27 +82,27 @@ class Domain:
     """
 
     #: domain name: should be short, but unique
-    name = ''
+    name: ClassVar[str] = ''
     #: domain label: longer, more descriptive (used in messages)
-    label = ''
+    label: ClassVar[str] = ''
     #: type (usually directive) name -> ObjType instance
-    object_types: dict[str, ObjType] = {}
+    object_types: ClassVar[dict[str, ObjType]] = {}
     #: directive name -> directive class
-    directives: dict[str, type[Directive]] = {}
+    directives: ClassVar[dict[str, type[Directive]]] = {}
     #: role name -> role callable
-    roles: dict[str, RoleFunction | XRefRole] = {}
+    roles: ClassVar[dict[str, RoleFunction | XRefRole]] = {}
     #: a list of Index subclasses
-    indices: list[type[Index]] = []
+    indices: ClassVar[list[type[Index]]] = []
     #: role name -> a warning message if reference is missing
-    dangling_warnings: dict[str, str] = {}
+    dangling_warnings: ClassVar[dict[str, str]] = {}
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {}
+    enumerable_nodes: ClassVar[dict[type[Node], tuple[str, TitleGetter | None]]] = {}
     #: data value for a fresh environment
-    initial_data: dict[str, Any] = {}
+    initial_data: ClassVar[dict[str, Any]] = {}
     #: data value
     data: dict[str, Any]
     #: data version, bump this when the format of `self.data` changes
-    data_version = 0
+    data_version: ClassVar[int] = 0
 
     def __init__(self, env: BuildEnvironment) -> None:
         domain_data: dict[str, dict[str, Any]] = env.domaindata
@@ -113,10 +113,10 @@ class Domain:
         self._type2role: dict[str, str] = {}
 
         # convert class variables to instance one (to enhance through API)
-        self.object_types = dict(self.object_types)
-        self.directives = dict(self.directives)
-        self.roles = dict(self.roles)
-        self.indices = list(self.indices)
+        self.object_types = dict(self.object_types)  # type: ignore[misc]
+        self.directives = dict(self.directives)  # type: ignore[misc]
+        self.roles = dict(self.roles)  # type: ignore[misc]
+        self.indices = list(self.indices)  # type: ignore[misc]
 
         if self.name not in domain_data:
             assert isinstance(self.initial_data, dict)
