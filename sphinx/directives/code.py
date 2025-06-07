@@ -114,6 +114,8 @@ class CodeBlock(SphinxDirective):
         'caption': directives.unchanged_required,
         'class': directives.class_option,
         'name': directives.unchanged,
+        'style-light': directives.unchanged,
+        'style-dark': directives.unchanged,
     }
 
     def run(self) -> list[Node]:
@@ -162,6 +164,8 @@ class CodeBlock(SphinxDirective):
                 self.env.current_document.highlight_language
                 or self.config.highlight_language
             )
+        literal['style-light'] = self.options.get('style-light')
+        literal['style-dark'] = self.options.get('style-dark')
         extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
@@ -425,6 +429,8 @@ class LiteralInclude(SphinxDirective):
         'lineno-match': directives.flag,
         'tab-width': int,
         'language': directives.unchanged_required,
+        'style-light': directives.unchanged,
+        'style-dark': directives.unchanged,
         'force': directives.flag,
         'encoding': directives.encoding,
         'pyobject': directives.unchanged_required,
@@ -468,6 +474,8 @@ class LiteralInclude(SphinxDirective):
                 retnode['language'] = 'udiff'
             elif 'language' in self.options:
                 retnode['language'] = self.options['language']
+            retnode['style-light'] = self.options.get('style-light')
+            retnode['style-dark'] = self.options.get('style-dark')
             if (
                 'linenos' in self.options
                 or 'lineno-start' in self.options
