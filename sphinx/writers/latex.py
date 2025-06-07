@@ -134,6 +134,7 @@ class Table:
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
+        self.entry_needs_linetrimming = 0
         self.caption: list[str] = []
         self.stubs: list[int] = []
 
@@ -327,7 +328,6 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_footnote = 0
         self.in_caption = 0
         self.in_term = 0
-        self.needs_linetrimming = 0
         self.in_minipage = 0
         # only used by figure inside an admonition
         self.no_latex_floats = 0
@@ -1331,7 +1331,7 @@ class LaTeXTranslator(SphinxTranslator):
                 r'\par' + CR + r'\vskip-\baselineskip'
                 r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context
             )
-            self.needs_linetrimming = 1
+            self.table.entry_needs_linetrimming = 1
         if len(list(node.findall(nodes.paragraph))) >= 2:
             self.table.has_oldproblematic = True
         if (
@@ -1346,13 +1346,14 @@ class LaTeXTranslator(SphinxTranslator):
                 pass
             else:
                 self.body.append(r'\sphinxstyletheadfamily ')
-        if self.needs_linetrimming:
+        if self.table.entry_needs_linetrimming:
             self.pushbody([])
         self.context.append(context)
 
     def depart_entry(self, node: Element) -> None:
-        if self.needs_linetrimming:
-            self.needs_linetrimming = 0
+        assert self.table is not None
+        if self.table.entry_needs_linetrimming:
+            self.table.entry_needs_linetrimming = 0
             body = self.popbody()
 
             # Remove empty lines from top of merged cell
@@ -1362,7 +1363,6 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.body.append(self.context.pop())
 
-        assert self.table is not None
         cell = self.table.cell()
         assert cell is not None
         self.table.col += cell.width
