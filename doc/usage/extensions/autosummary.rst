@@ -416,6 +416,23 @@ the title of a page.
 Autolink role
 -------------
 
-The ``:autolink:`` role functions as ``:obj:`` when the name referred can be
-resolved to a Python object, and otherwise it becomes simple emphasis.
-This can be used as the default role to make links 'smart', but must be used carefully. For example, in the case of multiple objects having the same name, `autolink` could resolve to the wrong object.
+.. rst:role:: autolink
+
+   The ``:autolink:`` role functions as ``:py:obj:`` when the referenced *name*
+   can be resolved to a Python object, and otherwise it becomes simple emphasis.
+
+   There are some known design flaws.
+   For example, in the case of multiple objects having the same name,
+   :rst:role:`!autolink` could resolve to the wrong object.
+   It will fail silently if the referenced object is not found,
+   for example due to a spelling mistake or renaming.
+   This is sometimes unwanted behaviour.
+
+   Some users choose to configure their :confval:`default_role` to ``autolink``
+   for 'smart' referencing using the default interpreted text role (```content```).
+
+   .. seealso::
+
+      :rst:role:`any`
+
+      :rst:role:`py:obj`
