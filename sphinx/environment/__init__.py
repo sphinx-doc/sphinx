@@ -238,7 +238,7 @@ class BuildEnvironment:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
         # clear unpickleable attributes
-        __dict__.update(app=None, domains=None, events=None)
+        __dict__.update(_app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
