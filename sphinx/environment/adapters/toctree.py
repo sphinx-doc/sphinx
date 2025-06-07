@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, TypeVar
 
 from docutils import nodes
 from docutils.nodes import Element
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
@@ -69,6 +71,8 @@ def global_toctree_for_doc(
     env: BuildEnvironment,
     docname: str,
     builder: Builder,
+    *,
+    tags: Tags = ...,  # type: ignore[assignment]
     collapse: bool = False,
     includehidden: bool = True,
     maxdepth: int = 0,
@@ -78,6 +82,15 @@ def global_toctree_for_doc(
 
     This gives the global ToC, with all ancestors and their siblings.
     """
+    if tags is ...:
+        warnings.warn(
+            "'tags' will become a required keyword argument "
+            'for global_toctree_for_doc() in Sphinx 10.0.',
+            RemovedInSphinx10Warning,
+            stacklevel=2,
+        )
+        tags = builder.tags
+
     resolved = (
         _resolve_toctree(
             env,
@@ -89,7 +102,7 @@ def global_toctree_for_doc(
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
-            tags=builder.tags,
+            tags=tags,
         )
         for toctree_node in env.master_doctree.findall(addnodes.toctree)
     )
@@ -582,5 +595,5 @@ class TocTree:
         **kwargs: Any,
     ) -> Element | None:
         return global_toctree_for_doc(
-            self.env, docname, builder, collapse=collapse, **kwargs
+            self.env, docname, builder, tags=builder.tags, collapse=collapse, **kwargs
         )

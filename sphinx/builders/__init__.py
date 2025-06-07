@@ -772,7 +772,9 @@ class Builder:
                 len(docnames),
                 self._app.verbosity,
             ):
-                _write_docname(docname, app=self._app, env=self.env, builder=self)
+                _write_docname(
+                    docname, app=self._app, env=self.env, builder=self, tags=self.tags
+                )
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
         def write_process(docs: list[tuple[str, nodes.document]]) -> None:
@@ -782,7 +784,9 @@ class Builder:
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
-        _write_docname(firstname, app=self._app, env=self.env, builder=self)
+        _write_docname(
+            firstname, app=self._app, env=self.env, builder=self, tags=self.tags
+        )
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
@@ -804,7 +808,9 @@ class Builder:
         for chunk in chunks:
             arg = []
             for docname in chunk:
-                doctree = self.env.get_and_resolve_doctree(docname, self)
+                doctree = self.env.get_and_resolve_doctree(
+                    docname, self, tags=self.tags
+                )
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
             tasks.add_task(write_process, arg, on_chunk_done)
@@ -871,11 +877,17 @@ class Builder:
 
 
 def _write_docname(
-    docname: str, /, *, app: Sphinx, env: BuildEnvironment, builder: Builder
+    docname: str,
+    /,
+    *,
+    app: Sphinx,
+    env: BuildEnvironment,
+    builder: Builder,
+    tags: Tags,
 ) -> None:
     """Write a single document."""
     app.phase = BuildPhase.RESOLVING
-    doctree = env.get_and_resolve_doctree(docname, builder=builder)
+    doctree = env.get_and_resolve_doctree(docname, builder=builder, tags=tags)
     app.phase = BuildPhase.WRITING
     builder.write_doc_serialized(docname, doctree)
     builder.write_doc(docname, doctree)
