@@ -333,6 +333,8 @@ class Config:
                 raw_config['extensions'] = extensions
         self.extensions: list[str] = raw_config.get('extensions', [])
 
+        self._verbosity: int = 0  # updated in Sphinx.__init__()
+
     @property
     def values(self) -> dict[str, _Opt]:
         return self._options
@@ -340,6 +342,10 @@ class Config:
     @property
     def overrides(self) -> dict[str, Any]:
         return self._overrides
+
+    @property
+    def verbosity(self) -> int:
+        return self._verbosity
 
     @classmethod
     def read(

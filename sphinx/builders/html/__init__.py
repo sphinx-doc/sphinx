@@ -260,11 +260,6 @@ class StandaloneHTMLBuilder(Builder):
         self.dark_highlighter: PygmentsBridge | None
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
-            self.add_css_file(
-                'pygments_dark.css',
-                media='(prefers-color-scheme: dark)',
-                id='pygments_dark_css',
-            )
         else:
             self.dark_highlighter = None
 
@@ -278,6 +273,13 @@ class StandaloneHTMLBuilder(Builder):
     def init_css_files(self) -> None:
         self._css_files = []
         self.add_css_file('pygments.css', priority=200)
+        if self.dark_highlighter is not None:
+            self.add_css_file(
+                'pygments_dark.css',
+                priority=200,
+                media='(prefers-color-scheme: dark)',
+                id='pygments_dark_css',
+            )
 
         for filename in self._get_style_filenames():
             self.add_css_file(filename, priority=200)

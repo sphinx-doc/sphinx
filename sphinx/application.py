@@ -264,7 +264,7 @@ class Sphinx:
         else:
             self.confdir = _StrPath(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
-        self.config.verbosity = -1 if self.quiet else self.verbosity
+        self.config._verbosity = -1 if self.quiet else self.verbosity
 
         # set up translation infrastructure
         self._init_i18n()
