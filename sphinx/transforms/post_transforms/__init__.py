@@ -47,9 +47,9 @@ class SphinxPostTransform(SphinxTransform):
 
     def is_supported(self) -> bool:
         """Check this transform working for current builder."""
-        if self.builders and self._builder_cls.name not in self.builders:
+        if self.builders and self.env._builder_cls.name not in self.builders:
             return False
-        return not self.formats or self._builder_cls.format in self.formats
+        return not self.formats or self.env._builder_cls.format in self.formats
 
     def run(self, **kwargs: Any) -> None:
         """Main method of post transforms.

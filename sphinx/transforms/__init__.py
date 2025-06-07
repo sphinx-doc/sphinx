@@ -382,7 +382,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         if self.config.smartquotes is False:
             # disabled by confval smartquotes
             return False
-        if self._builder_cls.name in builders:
+        if self.env._builder_cls.name in builders:
             # disabled by confval smartquotes_excludes['builders']
             return False
         if self.config.language in languages:
