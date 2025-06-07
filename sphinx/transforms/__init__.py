@@ -63,8 +63,9 @@ class SphinxTransform(Transform):
     @property
     def app(self) -> Sphinx:
         """Reference to the :class:`.Sphinx` object."""
+        cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(__name__, f'{cls_name}.app', remove=(10, 0))
+        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(10, 0))
         return self.env.app
 
     @property
@@ -382,7 +383,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         if self.config.smartquotes is False:
             # disabled by confval smartquotes
             return False
-        if self.app.builder.name in builders:
+        if self.env._builder_cls.name in builders:
             # disabled by confval smartquotes_excludes['builders']
             return False
         if self.config.language in languages:
@@ -412,7 +413,7 @@ class DoctreeReadEvent(SphinxTransform):
     default_priority = 880
 
     def apply(self, **kwargs: Any) -> None:
-        self.app.events.emit('doctree-read', self.document)
+        self.env.events.emit('doctree-read', self.document)
 
 
 class GlossarySorter(SphinxTransform):

@@ -399,6 +399,8 @@ class Sphinx:
         if self._fresh_env_used:
             self.env.find_files(self.config, self.builder)
 
+        self.env._builder_cls = self.builder.__class__
+
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
 
