@@ -19,21 +19,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Any
 
-    from docutils.nodes import (
-        Element,
-        admonition,
-        bullet_list,
-        caption,
-        definition,
-        definition_list,
-        emphasis,
-        footnote,
-        paragraph,
-        reference,
-        strong,
-        term,
-        title,
-    )
+    from docutils.nodes import Element
 
     from sphinx.builders import Builder
 
@@ -144,17 +130,17 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     # Top-level nodes for descriptions
     ##################################
 
-    def visit_desc(self, node: definition_list) -> None:
+    def visit_desc(self, node: nodes.definition_list) -> None:
         self.visit_definition_list(node)
 
-    def depart_desc(self, node: definition_list) -> None:
+    def depart_desc(self, node: nodes.definition_list) -> None:
         self.depart_definition_list(node)
 
-    def visit_desc_signature(self, node: term) -> None:
+    def visit_desc_signature(self, node: nodes.term) -> None:
         self.visit_definition_list_item(node)  # type: ignore[arg-type]
         self.visit_term(node)
 
-    def depart_desc_signature(self, node: term) -> None:
+    def depart_desc_signature(self, node: nodes.term) -> None:
         self.depart_term(node)
 
     def visit_desc_signature_line(self, node: Element) -> None:
@@ -163,10 +149,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_signature_line(self, node: Element) -> None:
         self.body.append(' ')
 
-    def visit_desc_content(self, node: definition) -> None:
+    def visit_desc_content(self, node: nodes.definition) -> None:
         self.visit_definition(node)
 
-    def depart_desc_content(self, node: definition) -> None:
+    def depart_desc_content(self, node: nodes.definition) -> None:
         self.depart_definition(node)
 
     def visit_desc_inline(self, node: Element) -> None:
@@ -245,14 +231,14 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     ##############################################
 
-    def visit_versionmodified(self, node: paragraph) -> None:
+    def visit_versionmodified(self, node: nodes.paragraph) -> None:
         self.visit_paragraph(node)
 
-    def depart_versionmodified(self, node: paragraph) -> None:
+    def depart_versionmodified(self, node: nodes.paragraph) -> None:
         self.depart_paragraph(node)
 
     # overwritten -- don't make whole of term bold if it includes strong node
-    def visit_term(self, node: term) -> None:
+    def visit_term(self, node: nodes.term) -> None:
         if any(node.findall(nodes.strong)):
             self.body.append('\n')
         else:
@@ -263,7 +249,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         raise nodes.SkipNode
 
     # overwritten -- added ensure_eol()
-    def visit_footnote(self, node: footnote) -> None:
+    def visit_footnote(self, node: nodes.footnote) -> None:
         self.ensure_eol()
         super().visit_footnote(node)
 
@@ -278,10 +264,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_rubric(self, node: Element) -> None:
         self.body.append('\n')
 
-    def visit_seealso(self, node: admonition) -> None:
+    def visit_seealso(self, node: nodes.admonition) -> None:
         self.visit_admonition(node, 'seealso')
 
-    def depart_seealso(self, node: admonition) -> None:
+    def depart_seealso(self, node: nodes.admonition) -> None:
         self.depart_admonition(node)
 
     def visit_productionlist(self, node: Element) -> None:
@@ -305,7 +291,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         raise nodes.SkipNode
 
     # overwritten -- don't visit inner marked up nodes
-    def visit_reference(self, node: reference) -> None:
+    def visit_reference(self, node: nodes.reference) -> None:
         uri = node.get('refuri', '')
         is_safe_to_click = uri.startswith(('mailto:', 'http:', 'https:', 'ftp:'))
         if is_safe_to_click:
@@ -383,10 +369,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append('\n')
         raise nodes.SkipNode
 
-    def visit_hlist(self, node: bullet_list) -> None:
+    def visit_hlist(self, node: nodes.bullet_list) -> None:
         self.visit_bullet_list(node)
 
-    def depart_hlist(self, node: bullet_list) -> None:
+    def depart_hlist(self, node: nodes.bullet_list) -> None:
         self.depart_bullet_list(node)
 
     def visit_hlistcol(self, node: Element) -> None:
@@ -395,16 +381,16 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_hlistcol(self, node: Element) -> None:
         pass
 
-    def visit_literal_emphasis(self, node: emphasis) -> None:
+    def visit_literal_emphasis(self, node: nodes.emphasis) -> None:
         return self.visit_emphasis(node)
 
-    def depart_literal_emphasis(self, node: emphasis) -> None:
+    def depart_literal_emphasis(self, node: nodes.emphasis) -> None:
         return self.depart_emphasis(node)
 
-    def visit_literal_strong(self, node: strong) -> None:
+    def visit_literal_strong(self, node: nodes.strong) -> None:
         return self.visit_strong(node)
 
-    def depart_literal_strong(self, node: strong) -> None:
+    def depart_literal_strong(self, node: nodes.strong) -> None:
         return self.depart_strong(node)
 
     def visit_abbreviation(self, node: Element) -> None:
@@ -413,14 +399,14 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_abbreviation(self, node: Element) -> None:
         pass
 
-    def visit_manpage(self, node: strong) -> None:
+    def visit_manpage(self, node: nodes.strong) -> None:
         return self.visit_strong(node)
 
-    def depart_manpage(self, node: strong) -> None:
+    def depart_manpage(self, node: nodes.strong) -> None:
         return self.depart_strong(node)
 
     # overwritten: handle section titles better than in 0.6 release
-    def visit_caption(self, node: caption) -> None:
+    def visit_caption(self, node: nodes.caption) -> None:
         if (
             isinstance(node.parent, nodes.container)
             and node.parent.get('literal_block')
@@ -429,7 +415,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         else:
             super().visit_caption(node)
 
-    def depart_caption(self, node: caption) -> None:
+    def depart_caption(self, node: nodes.caption) -> None:
         if (
             isinstance(node.parent, nodes.container)
             and node.parent.get('literal_block')
@@ -439,7 +425,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
             super().depart_caption(node)
 
     # overwritten: handle section titles better than in 0.6 release
-    def visit_title(self, node: title) -> None:
+    def visit_title(self, node: nodes.title) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('.IP "')
             return None
@@ -452,7 +438,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
                 raise nodes.SkipNode
         return super().visit_title(node)
 
-    def depart_title(self, node: title) -> None:
+    def depart_title(self, node: nodes.title) -> None:
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
             return None
