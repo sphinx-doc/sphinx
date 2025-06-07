@@ -14,10 +14,11 @@ from docutils.io import StringInput
 from sphinx import addnodes
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.errors import ConfigError
-from sphinx.io import SphinxI18nReader
+from sphinx.io import SphinxBaseReader
 from sphinx.locale import __
 from sphinx.locale import init as init_locale
-from sphinx.transforms import SphinxTransform
+from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransform
+from sphinx.transforms.references import SphinxDomains
 from sphinx.util import get_filetype, logging
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
@@ -28,6 +29,7 @@ from sphinx.util.nodes import (
     extract_messages,
     traverse_translatable_index,
 )
+from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -49,6 +51,35 @@ EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
 
 
 N = TypeVar('N', bound=nodes.Node)
+
+
+class _SphinxI18nReader(SphinxBaseReader):
+    """A document reader for internationalisation (i18n).
+
+    This returns the source line number of the original text
+    as the current source line number to let users know where
+    the error happened, because the translated texts are
+    partial and they don't have correct line numbers.
+    """
+
+    def __init__(
+        self, *args: Any, registry: SphinxComponentRegistry, **kwargs: Any
+    ) -> None:
+        super().__init__(*args, **kwargs)
+
+        transforms = self.transforms + registry.get_transforms()
+        unused = frozenset({
+            PreserveTranslatableMessages,
+            Locale,
+            RemoveTranslatableInline,
+            AutoIndexUpgrader,
+            SphinxDomains,
+            DoctreeReadEvent,
+            UIDTransform,
+        })
+        self.transforms = [
+            transform for transform in transforms if transform not in unused
+        ]
 
 
 def publish_msgstr(
@@ -78,7 +109,7 @@ def publish_msgstr(
         rst_prolog = config.rst_prolog
         config.rst_prolog = None
 
-        reader = SphinxI18nReader(registry=registry)
+        reader = _SphinxI18nReader(registry=registry)
         app = SimpleNamespace(config=config, env=env, registry=registry)
         filetype = get_filetype(config.source_suffix, source_path)
         parser = registry.create_source_parser(app, filetype)  # type: ignore[arg-type]

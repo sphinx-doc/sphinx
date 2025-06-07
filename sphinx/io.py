@@ -10,16 +10,9 @@ from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
-from sphinx.transforms.i18n import (
-    Locale,
-    PreserveTranslatableMessages,
-    RemoveTranslatableInline,
-)
-from sphinx.transforms.references import SphinxDomains
+from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
-from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
     from typing import Any
@@ -32,7 +25,6 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.registry import SphinxComponentRegistry
 
 
 logger = logging.getLogger(__name__)
@@ -112,33 +104,6 @@ class SphinxStandaloneReader(SphinxBaseReader):
         arg = [content]
         env.events.emit('source-read', env.docname, arg)
         return arg[0]
-
-
-class SphinxI18nReader(SphinxBaseReader):
-    """A document reader for i18n.
-
-    This returns the source line number of original text as current source line number
-    to let users know where the error happened.
-    Because the translated texts are partial and they don't have correct line numbers.
-    """
-
-    def __init__(
-        self, *args: Any, registry: SphinxComponentRegistry, **kwargs: Any
-    ) -> None:
-        super().__init__(*args, **kwargs)
-        self.transforms = [
-            transform
-            for transform in self.transforms + registry.get_transforms()
-            if transform not in {
-                PreserveTranslatableMessages,
-                Locale,
-                RemoveTranslatableInline,
-                AutoIndexUpgrader,
-                SphinxDomains,
-                DoctreeReadEvent,
-                UIDTransform,
-            }
-        ]  # fmt: skip
 
 
 class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
