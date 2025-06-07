@@ -29,6 +29,9 @@ Features added
   Patch by Jean-François B.
 * #13535: html search: Update to the latest version of Snowball (v3.0.1).
   Patch by Adam Turner.
+* #13597: LaTeX: table nested in a merged cell leads to invalid LaTeX mark-up
+  and PDF cannot be built.
+  Patch by Jean-François B.
 * #13704: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
   and :py:func:`~typing.final` decorators.
   Patch by Spencer Brown.

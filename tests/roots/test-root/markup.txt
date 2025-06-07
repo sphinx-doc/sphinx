@@ -223,6 +223,12 @@ Tables with multirow and multicol:
    |    |
    +----+
 
+   +---+---+
+   | +---+ |
+   | | h | |
+   | +---+ |
+   +---+---+
+
 .. list-table::
    :header-rows: 0
 
