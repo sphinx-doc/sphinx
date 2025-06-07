@@ -10,6 +10,11 @@ Incompatible changes
 Deprecated
 ----------
 
+* 13627: Deprecate remaining public :py:attr:`!.app` attributes,
+  including ``builder.app``, ``env.app``, ``events.app``,
+  and ``SphinxTransform.`app``.
+  Patch by Adam Turner.
+
 Features added
 --------------
 

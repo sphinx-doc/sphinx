@@ -430,7 +430,7 @@ class WarningSuppressor(logging.Filter):
     """Filter logs by `suppress_warnings`."""
 
     def __init__(self, app: Sphinx) -> None:
-        self.app = app
+        self._app = app
         super().__init__()
 
     def filter(self, record: logging.LogRecord) -> bool:
@@ -438,7 +438,7 @@ class WarningSuppressor(logging.Filter):
         subtype = getattr(record, 'subtype', '')
 
         try:
-            suppress_warnings = self.app.config.suppress_warnings
+            suppress_warnings = self._app.config.suppress_warnings
         except AttributeError:
             # config is not initialized yet (ex. in conf.py)
             suppress_warnings = ()
@@ -446,7 +446,7 @@ class WarningSuppressor(logging.Filter):
         if is_suppressed_warning(type, subtype, suppress_warnings):
             return False
         else:
-            self.app._warncount += 1
+            self._app._warncount += 1
             return True
 
 
@@ -496,7 +496,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     LogRecordClass: type[logging.LogRecord]
 
     def __init__(self, app: Sphinx) -> None:
-        self.app = app
+        self._app = app
         super().__init__()
 
     def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
@@ -509,15 +509,15 @@ class SphinxLogRecordTranslator(logging.Filter):
             docname, lineno = location
             if docname:
                 if lineno:
-                    record.location = f'{self.app.env.doc2path(docname)}:{lineno}'
+                    record.location = f'{self._app.env.doc2path(docname)}:{lineno}'
                 else:
-                    record.location = f'{self.app.env.doc2path(docname)}'
+                    record.location = f'{self._app.env.doc2path(docname)}'
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
             record.location = get_node_location(location)
         elif location and ':' not in location:
-            record.location = f'{self.app.env.doc2path(location)}'
+            record.location = f'{self._app.env.doc2path(location)}'
 
         return True
 
@@ -537,7 +537,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
         ret = super().filter(record)
 
         try:
-            show_warning_types = self.app.config.show_warning_types
+            show_warning_types = self._app.config.show_warning_types
         except AttributeError:
             # config is not initialized yet (ex. in conf.py)
             show_warning_types = False
@@ -602,10 +602,10 @@ class LastMessagesWriter:
     """Stream writer storing last 10 messages in memory to save trackback"""
 
     def __init__(self, app: Sphinx, stream: IO[str]) -> None:
-        self.app = app
+        self._app = app
 
     def write(self, data: str) -> None:
-        self.app.messagelog.append(data)
+        self._app.messagelog.append(data)
 
 
 def setup(app: Sphinx, status: IO[str], warning: IO[str]) -> None:
