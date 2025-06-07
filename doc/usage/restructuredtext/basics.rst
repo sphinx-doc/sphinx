@@ -208,11 +208,13 @@ Hyperlinks
 External links
 ~~~~~~~~~~~~~~
 
-URLs and email addresses in text are automatically linked an do not need
+URLs and email addresses in text are automatically linked and do not need
 explicit markup at all.
+For example, https://domain.invalid/ is written with no special markup
+in the source of this document, and is recognised as an external hyperlink.
 
-To create text with a link, it's advisable to put the URL below the paragraph
-like this (:duref:`ref <hyperlink-targets>`)::
+To create text with a link, the best approach is generally to put the URL
+below the paragraph as follows (:duref:`ref <hyperlink-targets>`)::
 
    This is a paragraph that contains `a link`_.
 
@@ -220,20 +222,25 @@ like this (:duref:`ref <hyperlink-targets>`)::
 
 This keeps the paragraph more readable in source code.
 
-Alternatively, you can embed the URL using the syntax
-```Link text <https://domain.invalid/>`__``
+Alternatively, you can embed the URL within the prose for an 'inline link'.
+This can lead to longer lines, but has the benefit of keeping the link text
+and the URL pointed to in the same place.
+This uses the following syntax: ```Link text <https://domain.invalid/>`__``
 (:duref:`ref <embedded-uris-and-aliases>`).
 
 .. important::
 
-   There must be a space between the link text and the opening \< for the URL.
+   There must be a space between the link text
+   and the opening angle bracket ('``<``') for the URL.
 
-   Use two trailing underscores when embedding the URL. - Technically, a
-   single underscore works as well, but that would create a named reference
-   instead of an anonymous one. Named references typically do not have a
-   benefit when the URL is embedded. However, they have the disadvantage that
-   you must make sure that you do not use "Link text" in another link in your
-   document.
+.. tip::
+
+   Use two trailing underscores when embedding the URL.
+   Technically, a single underscore works as well,
+   but that would create a named reference instead of an anonymous one.
+   Named references typically do not have a benefit when the URL is embedded.
+   Moreover, they have the disadvantage that you must make sure that you
+   do not use the same "Link text" for another link in your document.
 
 You can also separate the link and the target definition (:duref:`ref
 <hyperlink-targets>`), like this::
