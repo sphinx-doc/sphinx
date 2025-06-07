@@ -30,7 +30,12 @@ class ChangesBuilder(Builder):
 
     def init(self) -> None:
         self.create_template_bridge()
-        theme_factory = HTMLThemeFactory(self.app)
+        theme_factory = HTMLThemeFactory(
+            confdir=self.confdir,
+            app=self._app,
+            config=self.config,
+            registry=self.env._registry,
+        )
         self.theme = theme_factory.create('default')
         self.templates.init(self, self.theme)
 

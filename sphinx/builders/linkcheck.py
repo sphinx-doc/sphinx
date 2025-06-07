@@ -98,7 +98,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 self.process_result(result)
 
         if self.broken_hyperlinks or self.timed_out_hyperlinks:
-            self.app.statuscode = 1
+            self._app.statuscode = 1
 
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
@@ -130,7 +130,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             case _Status.WORKING:
                 logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # NoQA: G003
             case _Status.TIMEOUT:
-                if self.app.quiet:
+                if self.config.verbosity < 0:
                     msg = 'timeout   ' + f'{res_uri}{result.message}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
@@ -145,7 +145,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 )
                 self.timed_out_hyperlinks += 1
             case _Status.BROKEN:
-                if self.app.quiet:
+                if self.config.verbosity < 0:
                     logger.warning(
                         __('broken link: %s (%s)'),
                         res_uri,

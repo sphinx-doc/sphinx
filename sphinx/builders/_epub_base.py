@@ -425,7 +425,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             __('copying images... '),
             'brown',
             len(self.images),
-            self.app.verbosity,
+            self.config.verbosity,
         ):
             dest = self.images[src]
             try:

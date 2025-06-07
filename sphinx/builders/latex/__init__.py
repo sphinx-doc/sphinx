@@ -132,7 +132,7 @@ class LaTeXBuilder(Builder):
         self.context: dict[str, Any] = {}
         self.docnames: Iterable[str] = {}
         self.document_data: list[tuple[str, str, str, str, str, bool]] = []
-        self.themes = ThemeFactory(self.app)
+        self.themes = ThemeFactory(srcdir=self.srcdir, config=self.config)
         texescape.init()
 
         self.init_context()
@@ -481,7 +481,7 @@ class LaTeXBuilder(Builder):
                 __('copying images... '),
                 'brown',
                 len(self.images),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=stringify_func,
             ):
                 dest = self.images[src]
