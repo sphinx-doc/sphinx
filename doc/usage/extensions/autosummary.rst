@@ -418,4 +418,4 @@ Autolink role
 
 The ``:autolink:`` role functions as ``:obj:`` when the name referred can be
 resolved to a Python object, and otherwise it becomes simple emphasis.
-This can be used as the default role to make links 'smart'.
+This can be used as the default role to make links 'smart', but must be used carefully. For example, in the case of multiple objects having the same name, `autolink` could resolve to the wrong object.
