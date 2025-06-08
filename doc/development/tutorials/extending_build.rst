@@ -143,7 +143,7 @@ Looking first at the ``TodolistDirective`` directive:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 25-29
+   :pyobject: TodolistDirective
 
 It's very simple, creating and returning an instance of our ``todolist`` node
 class.  The ``TodolistDirective`` directive itself has neither content nor
@@ -153,7 +153,7 @@ directive:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 30-54
+   :pyobject: TodoDirective
 
 Several important things are covered here. First, as you can see, we're now
 subclassing the :class:`~sphinx.util.docutils.SphinxDirective` helper class
@@ -168,15 +168,16 @@ new unique integer on each call and therefore leads to unique target names. The
 target node is instantiated without any text (the first two arguments).
 
 On creating admonition node, the content body of the directive are parsed using
-``self.parse_content_to_nodes()``.  It has one optional argument
-``allow_section_headings`` that defaults to ``False``.  Following this, the ``todo``
-node is added to the environment.  This is needed to be able to create a list of
-all todo entries throughout the documentation, in the place where the author
-puts a ``todolist`` directive.  For this case, the environment attribute
-``todo_all_todos`` is used (again, the name should be unique, so it is prefixed
-by the extension name).  It does not exist when a new environment is created, so
-the directive must check and create it if necessary.  Various information about
-the todo entry's location are stored along with a copy of the node.
+``self.parse_content_to_nodes()``.
+Following this, the ``todo`` node is added to the environment.
+This is needed to be able to create a list of all todo entries throughout
+the documentation, in the place where the author puts a ``todolist`` directive.
+For this case, the environment attribute ``todo_all_todos`` is used
+(again, the name should be unique, so it is prefixed by the extension name).
+It does not exist when a new environment is created, so the directive must
+check and create it if necessary.
+Various information about the todo entry's location are stored along with
+a copy of the node.
 
 In the last line, the nodes that should be put into the doctree are returned:
 the target node and the admonition node.
@@ -210,7 +211,7 @@ the :event:`env-purge-doc` event:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 55-63
+   :pyobject: purge_todos
 
 Since we store information from source files in the environment, which is
 persistent, it may become out of date when the source file changes.  Therefore,
@@ -228,7 +229,7 @@ to be merged:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 64-70
+   :pyobject: merge_todos
 
 
 The other handler belongs to the :event:`doctree-resolved` event:
@@ -236,13 +237,13 @@ The other handler belongs to the :event:`doctree-resolved` event:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 71-118
+   :pyobject: process_todo_nodes
 
-The :event:`doctree-resolved` event is emitted for each document that is about to
-be written at the end of :ref:`phase 3 (resolving) <build-phases>` and allows
-custom resolving to be done on that document.  The handler we have written for
-this event is a bit more involved.  If the
-``todo_include_todos`` config value (which we'll describe shortly) is false,
+The :event:`doctree-resolved` event is emitted for each document that is
+about to be written at the end of :ref:`phase 3 (resolving) <build-phases>`
+and allows custom resolving to be done on that document.
+The handler we have written for this event is a bit more involved.
+If the ``todo_include_todos`` config value (which we'll describe shortly) is false,
 all ``todo`` and ``todolist`` nodes are removed from the documents. If not,
 ``todo`` nodes just stay where and how they are.  ``todolist`` nodes are
 replaced by a list of todo entries, complete with backlinks to the location
@@ -266,17 +267,17 @@ the other parts of our extension. Let's look at our ``setup`` function:
 .. literalinclude:: examples/todo.py
    :language: python
    :linenos:
-   :lines: 119-
+   :pyobject: setup
 
 The calls in this function refer to the classes and functions we added earlier.
 What the individual calls do is the following:
 
 * :meth:`~Sphinx.add_config_value` lets Sphinx know that it should recognize the
-  new *config value* ``todo_include_todos``, whose default value is
-  ``False`` (which also tells Sphinx that it is a boolean value).
+  new *config value* ``todo_include_todos``, whose default value is ``False``
+  (which also tells Sphinx that it is a boolean value).
 
-  If the third argument was ``'html'``, HTML documents would be fully rebuilt if the
-  config value changed its value.  This is needed for config values that
+  If the third argument was ``'html'``, HTML documents would be fully rebuilt
+  if the config value changed its value.  This is needed for config values that
   influence reading (build :ref:`phase 1 (reading) <build-phases>`).
 
 * :meth:`~Sphinx.add_node` adds a new *node class* to the build system.  It also
