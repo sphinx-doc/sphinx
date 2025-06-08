@@ -125,6 +125,7 @@ class Builder:
         self.tags.add(self.name)
         self.tags.add(f'format_{self.format}')
         self.tags.add(f'builder_{self.name}')
+        self._registry = app.registry
 
         # images that need to be copied over (source -> dest)
         self.images: dict[str, str] = {}
@@ -150,7 +151,7 @@ class Builder:
 
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
-        return self.env._registry.get_translator_class(self)
+        return self._registry.get_translator_class(self)
 
     def create_translator(self, *args: Any) -> nodes.NodeVisitor:
         """Return an instance of translator.
@@ -158,7 +159,7 @@ class Builder:
         This method returns an instance of ``default_translator_class`` by default.
         Users can replace the translator class with ``app.set_translator()`` API.
         """
-        return self.env._registry.create_translator(self, *args)
+        return self._registry.create_translator(self, *args)
 
     # helper methods
     def init(self) -> None:
@@ -643,7 +644,7 @@ class Builder:
 
         filename = str(env.doc2path(docname))
         filetype = get_filetype(self._app.config.source_suffix, filename)
-        publisher = self.env._registry.get_publisher(self._app, filetype)
+        publisher = self._registry.get_publisher(self._app, filetype)
         self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document

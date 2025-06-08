@@ -34,7 +34,7 @@ class ChangesBuilder(Builder):
             confdir=self.confdir,
             app=self._app,
             config=self.config,
-            registry=self.env._registry,
+            registry=self._registry,
         )
         self.theme = theme_factory.create('default')
         self.templates.init(self, self.theme)

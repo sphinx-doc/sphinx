@@ -211,7 +211,7 @@ class LaTeXBuilder(Builder):
     def update_context(self) -> None:
         """Update template variables for .tex file just before writing."""
         # Apply extension settings to context
-        registry = self.env._registry
+        registry = self._registry
         self.context['packages'] = registry.latex_packages
         self.context['packages_after_hyperref'] = registry.latex_packages_after_hyperref
 
