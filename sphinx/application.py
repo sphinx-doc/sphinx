@@ -255,15 +255,16 @@ class Sphinx:
         self.statuscode = 0
 
         # read config
+        overrides = confoverrides or {}
         self.tags = Tags(tags)
         if confdir is None:
             # set confdir to srcdir if -C given (!= no confdir); a few pieces
             # of code expect a confdir to be set
             self.confdir = self.srcdir
-            self.config = Config({}, confoverrides or {})
+            self.config = Config({}, overrides)
         else:
             self.confdir = _StrPath(confdir).resolve()
-            self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
+            self.config = Config.read(self.confdir, overrides=overrides, tags=self.tags)
         self.config._verbosity = -1 if self.quiet else self.verbosity
 
         # set up translation infrastructure
