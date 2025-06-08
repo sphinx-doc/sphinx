@@ -255,15 +255,17 @@ class Sphinx:
         self.statuscode = 0
 
         # read config
+        overrides = confoverrides or {}
         self.tags = Tags(tags)
         if confdir is None:
             # set confdir to srcdir if -C given (!= no confdir); a few pieces
             # of code expect a confdir to be set
             self.confdir = self.srcdir
-            self.config = Config({}, confoverrides or {})
+            self.config = Config({}, overrides)
         else:
             self.confdir = _StrPath(confdir).resolve()
-            self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
+            self.config = Config.read(self.confdir, overrides=overrides, tags=self.tags)
+        self.config._verbosity = -1 if self.quiet else self.verbosity
 
         # set up translation infrastructure
         self._init_i18n()
@@ -398,6 +400,8 @@ class Sphinx:
     def _post_init_env(self) -> None:
         if self._fresh_env_used:
             self.env.find_files(self.config, self.builder)
+
+        self.env._builder_cls = self.builder.__class__
 
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)

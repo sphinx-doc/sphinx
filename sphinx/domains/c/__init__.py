@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
-    from sphinx.addnodes import pending_xref
+    from sphinx.addnodes import desc_signature, pending_xref
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.domains.c._symbol import LookupKey
@@ -308,6 +308,32 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def after_content(self) -> None:
         self.env.current_document.c_parent_symbol = self.oldParentSymbol
         self.env.ref_context['c:parent_key'] = self.oldParentKey
+
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        last_symbol: Symbol = self.env.current_document.c_last_symbol
+        return tuple(map(str, last_symbol.get_full_nested_name().names))
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+
+        config = self.config
+        objtype = sig_node.parent.get('objtype')
+        if config.add_function_parentheses and (
+            objtype in {'function', 'method'}
+            or (objtype == 'macro' and '(' in sig_node.rawsource)
+        ):
+            parens = '()'
+        else:
+            parens = ''
+        *parents, name = sig_node['_toc_parts']
+        if config.toc_object_entries_show_parents == 'domain':
+            return '::'.join((name + parens,))
+        if config.toc_object_entries_show_parents == 'hide':
+            return name + parens
+        if config.toc_object_entries_show_parents == 'all':
+            return '::'.join([*parents, name + parens])
+        return ''
 
 
 class CMemberObject(CObject):
@@ -642,7 +668,7 @@ class CAliasObject(ObjectDescription[str]):
         The code is therefore based on the ObjectDescription version.
         """
         if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+            self.domain, _, self.objtype = self.name.partition(':')
         else:
             self.domain, self.objtype = '', self.name
 
@@ -792,7 +818,7 @@ class CDomain(Domain):
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False),
     }
-    initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
+    initial_data: ClassVar[dict[str, Symbol | dict[str, tuple[str, str, str]]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
     }

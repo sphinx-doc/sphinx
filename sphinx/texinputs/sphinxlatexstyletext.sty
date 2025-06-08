@@ -1,7 +1,7 @@
 %% TEXT STYLING
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexstyletext}[2024/07/28 v8.1.0 text styling]
+\ProvidesPackage{sphinxlatexstyletext}[2025/05/24 v8.3.0 text styling]
 
 % 7.4.0 has moved all that is related to admonitions to sphinxlatexadmonitions.sty
 % 8.1.0 has moved topic/contents/sidebar to sphinxlatexshadowbox.sty
@@ -57,7 +57,11 @@
 % reduce hyperref "Token not allowed in a PDF string" warnings on PDF builds
 \AtBeginDocument{\pdfstringdefDisableCommands{%
 % all "protected" macros possibly ending up in section titles should be here
-% TODO: examine if \sphinxhref, \sphinxurl, \sphinnolinkurl should be handled
+% next four were added so that URLs and internal links in titles can be allowed
+    \let\sphinxurl      \@firstofone
+    \let\sphinxnolinkurl\@firstofone
+    \let\sphinxhref     \@secondoftwo
+    \def\hyperref[#1]#2{#2}% for PDF bookmark to ignore #1
     \let\sphinxstyleemphasis        \@firstofone
     \let\sphinxstyleliteralemphasis \@firstofone
     \let\sphinxstylestrong          \@firstofone

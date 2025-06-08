@@ -11,13 +11,17 @@ from sphinx.util.images import (
     parse_data_uri,
 )
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from pathlib import Path
+
 GIF_FILENAME = 'img.gif'
 PNG_FILENAME = 'img.png'
 PDF_FILENAME = 'img.pdf'
 TXT_FILENAME = 'index.txt'
 
 
-def test_get_image_size(rootdir):
+def test_get_image_size(rootdir: Path) -> None:
     assert get_image_size(rootdir / 'test-root' / GIF_FILENAME) == (200, 181)
     assert get_image_size(rootdir / 'test-root' / PNG_FILENAME) == (200, 181)
     assert get_image_size(rootdir / 'test-root' / PDF_FILENAME) is None
@@ -80,8 +84,5 @@ def test_parse_data_uri() -> None:
         'data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4'
         '//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=='
     )
-    with pytest.raises(
-        ValueError,
-        match=r'not enough values to unpack \(expected 2, got 1\)',
-    ):
+    with pytest.raises(ValueError, match=r'malformed data URI'):
         parse_data_uri(uri)

@@ -50,7 +50,6 @@ logger = logging.getLogger(__name__)
 class IndexEntries:
     def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
-        self.builder: Builder
 
     def create_index(
         self,

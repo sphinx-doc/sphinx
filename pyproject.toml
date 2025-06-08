@@ -92,19 +92,19 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.7",
+    "ruff==0.11.13",
     "mypy==1.15.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20241128",
+    "types-defusedxml==0.7.0.20250516",
+    "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250305",
-    "types-requests==2.32.0.20250328",  # align with requests
+    "types-Pygments==2.19.0.20250516",
+    "types-requests==2.32.0.20250602",  # align with requests
     "types-urllib3==1.26.25.14",
     "pyright==1.1.400",
     "pytest>=8.0",
-    "pypi-attestations==0.0.25",
+    "pypi-attestations==0.0.26",
     "betterproto==2.0.0b6",
 ]
 test = [
@@ -135,13 +135,13 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.7",
+    "ruff==0.11.13",
     "sphinx-lint>=0.9",
 ]
 package = [
     "betterproto==2.0.0b6",  # resolution fails without betterproto
     "build",
-    "pypi-attestations==0.0.25",
+    "pypi-attestations==0.0.26",
     "twine>=6.1",
 ]
 test = [
@@ -158,17 +158,18 @@ translations = [
 ]
 types = [
     "mypy==1.15.0",
+    "pyrefly",
     "pyright==1.1.400",
     { include-group = "type-stubs" },
 ]
 type-stubs = [
     # align with versions used elsewhere
     "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20241128",
+    "types-defusedxml==0.7.0.20250516",
+    "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250305",
-    "types-requests==2.32.0.20250328",
+    "types-Pygments==2.19.0.20250516",
+    "types-requests==2.32.0.20250602",
     "types-urllib3==1.26.25.14",
 ]
 
@@ -283,15 +284,10 @@ module = [
     "tests.test_theming.test_templating",
     "tests.test_theming.test_theming",
     # tests/test_transforms
-    "tests.test_transforms.test_transforms_move_module_targets",
     "tests.test_transforms.test_transforms_post_transforms_images",
     "tests.test_transforms.test_transforms_reorder_nodes",
     # tests/test_util
-    "tests.test_util.test_util",
-    "tests.test_util.test_util_display",
     "tests.test_util.test_util_docutils",
-    "tests.test_util.test_util_images",
-    "tests.test_util.test_util_inventory",
     # tests/test_writers
     "tests.test_writers.test_docutilsconf",
 ]
@@ -334,13 +330,9 @@ module = [
     "tests.test_extensions.test_ext_napoleon_docstring",
     # tests/test_intl
     "tests.test_intl.test_intl",
-    # tests/test_pycode
-    "tests.test_pycode.test_pycode",
-    "tests.test_pycode.test_pycode_ast",
     # tests/test_transforms
     "tests.test_transforms.test_transforms_post_transforms",
     # tests/test_util
-    "tests.test_util.test_util_fileutil",
     "tests.test_util.test_util_i18n",
     "tests.test_util.test_util_inspect",
     "tests.test_util.test_util_logging",
