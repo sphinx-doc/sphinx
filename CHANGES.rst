@@ -37,9 +37,6 @@ Features added
   Patch by Jean-François B.
 * #13535: html search: Update to the latest version of Snowball (v3.0.1).
   Patch by Adam Turner.
-* #13597: LaTeX: table nested in a merged cell leads to invalid LaTeX mark-up
-  and PDF cannot be built.
-  Patch by Jean-François B.
 * #13704: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
   and :py:func:`~typing.final` decorators.
   Patch by Spencer Brown.
@@ -53,8 +50,14 @@ Bugs fixed
   Patch by Alicia Garcia-Raboso.
 * #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
   Patch by Shengyu Zhang and Adam Turner.
+* #13597: LaTeX: table nested in a merged cell leads to invalid LaTeX mark-up
+  and PDF cannot be built.
+  Patch by Jean-François B.
 * #13619: LaTeX: possible duplicated footnotes in PDF from object signatures
   (typically if :confval:`latex_show_urls` ``= 'footnote'``).
+  Patch by Jean-François B.
+* #13635: LaTeX: if a cell contains a table, row coloring is turned off for
+  the next table cells.
   Patch by Jean-François B.
 
 Testing
