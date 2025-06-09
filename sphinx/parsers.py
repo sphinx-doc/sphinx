@@ -10,6 +10,7 @@ from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
+from sphinx.deprecation import _deprecation_warning
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
@@ -44,7 +45,9 @@ class Parser(docutils.parsers.Parser):
 
         :param sphinx.application.Sphinx app: Sphinx application object
         """
-        self._app = app
+        cls_module = self.__class__.__module__
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(cls_module, f'{cls_name}.set_application', remove=(10, 0))
         self.config = app.config
         self.env = app.env
 

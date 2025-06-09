@@ -22,7 +22,8 @@ def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
         reader = SphinxStandaloneReader()
         reader.setup(app)
         parser = RSTParser()
-        parser.set_application(app)
+        parser.config = app.config
+        parser.env = app.env
         with sphinx_domains(env):
             return publish_doctree(
                 text,
