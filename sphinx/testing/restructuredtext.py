@@ -20,7 +20,7 @@ def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
     try:
         app.env.current_document.docname = docname
         reader = SphinxStandaloneReader()
-        reader.setup(app)
+        reader._setup_transforms(registry=app.registry)
         parser = RSTParser()
         parser.config = app.config
         parser.env = app.env

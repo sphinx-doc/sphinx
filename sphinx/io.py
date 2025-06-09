@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.registry import SphinxComponentRegistry
 
 
 logger = logging.getLogger(__name__)
@@ -37,20 +38,6 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
     """
 
     transforms: list[type[Transform]] = []
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        from sphinx.application import Sphinx
-
-        if len(args) > 0 and isinstance(args[0], Sphinx):
-            self._app = args[0]
-            self._env = self._app.env
-            args = args[1:]
-
-        super().__init__(*args, **kwargs)
-
-    def setup(self, app: Sphinx) -> None:
-        self._app = app  # hold application object only for compatibility
-        self._env = app.env
 
     def get_transforms(self) -> list[type[Transform]]:
         transforms = super().get_transforms() + self.transforms
@@ -83,9 +70,8 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
 class SphinxStandaloneReader(SphinxBaseReader):
     """A basic document reader for Sphinx."""
 
-    def setup(self, app: Sphinx) -> None:
-        self.transforms = self.transforms + app.registry.get_transforms()
-        super().setup(app)
+    def _setup_transforms(self, *, registry: SphinxComponentRegistry) -> None:
+        self.transforms = self.transforms + registry.get_transforms()
 
     def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
@@ -130,7 +116,7 @@ class SphinxFileInput(FileInput):
 
 def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     reader = SphinxStandaloneReader()
-    reader.setup(app)
+    reader._setup_transforms(registry=app.registry)
 
     parser = app.registry.create_source_parser(app, filetype)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
