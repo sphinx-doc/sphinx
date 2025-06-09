@@ -23,9 +23,7 @@ if TYPE_CHECKING:
     from docutils.parsers import Parser
     from docutils.transforms import Transform
 
-    from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.registry import SphinxComponentRegistry
 
 
 logger = logging.getLogger(__name__)
@@ -70,8 +68,8 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
 class SphinxStandaloneReader(SphinxBaseReader):
     """A basic document reader for Sphinx."""
 
-    def _setup_transforms(self, *, registry: SphinxComponentRegistry) -> None:
-        self.transforms = self.transforms + registry.get_transforms()
+    def _setup_transforms(self, transforms: list[type[Transform]], /) -> None:
+        self.transforms = self.transforms + transforms
 
     def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
@@ -114,21 +112,11 @@ class SphinxFileInput(FileInput):
         super().__init__(*args, **kwargs)
 
 
-def create_publisher(app: Sphinx, filetype: str) -> Publisher:
+def _create_publisher(
+    *, env: BuildEnvironment, parser: Parser, transforms: list[type[Transform]]
+) -> Publisher:
     reader = SphinxStandaloneReader()
-    reader._setup_transforms(registry=app.registry)
-
-    parser = app.registry.create_source_parser(filetype, config=app.config, env=app.env)
-    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
-        # a workaround for recommonmark
-        #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
-        #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
-        #   parser.  As a workaround, this copies settings_spec for RSTParser to the
-        #   CommonMarkParser.
-        from docutils.parsers.rst import Parser as RSTParser
-
-        parser.settings_spec = RSTParser.settings_spec  # type: ignore[misc]
-
+    reader._setup_transforms(transforms)
     pub = Publisher(
         reader=reader,
         parser=parser,
@@ -137,7 +125,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
         destination=NullOutput(),
     )
     # Propagate exceptions by default when used programmatically:
-    defaults = {'traceback': True, **app.env.settings}
+    defaults = {'traceback': True, **env.settings}
     # Set default settings
     pub.get_settings(**defaults)
     return pub

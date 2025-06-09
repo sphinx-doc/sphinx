@@ -12,7 +12,7 @@ from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
-from sphinx.io import create_publisher
+from sphinx.io import _create_publisher
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
@@ -601,7 +601,9 @@ class SphinxComponentRegistry:
             return self.publishers[filetype]
         except KeyError:
             pass
-        publisher = create_publisher(app, filetype)
+        parser = self.create_source_parser(filetype, config=app.config, env=app.env)
+        transforms = self.get_transforms()
+        publisher = _create_publisher(env=app.env, parser=parser, transforms=transforms)
         self.publishers[filetype] = publisher
         return publisher
 

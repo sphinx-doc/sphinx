@@ -9,7 +9,7 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.io import create_publisher
+from sphinx.io import _create_publisher
 from sphinx.testing import restructuredtext
 from sphinx.util.docutils import sphinx_domains
 
@@ -22,8 +22,13 @@ if TYPE_CHECKING:
 def _doctree_for_test(
     app: Sphinx, env: BuildEnvironment, docname: str
 ) -> nodes.document:
+    config = app.config
+    registry = app.registry
     env.prepare_settings(docname)
-    publisher = create_publisher(app, 'restructuredtext')
+    parser = registry.create_source_parser('restructuredtext', config=config, env=env)
+    publisher = _create_publisher(
+        env=env, parser=parser, transforms=registry.get_transforms()
+    )
     with sphinx_domains(env):
         publisher.set_source(source_path=str(env.doc2path(docname)))
         publisher.publish()
