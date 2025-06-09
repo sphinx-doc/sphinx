@@ -14,6 +14,10 @@ Deprecated
   including ``builder.app``, ``env.app``, ``events.app``,
   and ``SphinxTransform.`app``.
   Patch by Adam Turner.
+* #13637: Deprecate the :py:meth:`!set_application` method
+  of :py:class:`~sphinx.parsers.Parser` objects.
+  Sphinx now directly sets the :py:attr:`!config` and :py:attr:`!env` attributes.
+  Patch by Adam Turner.
 
 Features added
 --------------
