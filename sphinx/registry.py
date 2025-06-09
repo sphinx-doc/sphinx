@@ -375,12 +375,14 @@ class SphinxComponentRegistry:
     def get_source_parsers(self) -> dict[str, type[Parser]]:
         return self.source_parsers
 
-    def create_source_parser(self, app: Sphinx, filename: str) -> Parser:
+    def create_source_parser(
+        self, filename: str, *, config: Config, env: BuildEnvironment
+    ) -> Parser:
         parser_class = self.get_source_parser(filename)
         parser = parser_class()
         if isinstance(parser, SphinxParser):
-            parser.config = app.config
-            parser.env = app.env
+            parser.config = config
+            parser.env = env
         return parser
 
     def add_translator(

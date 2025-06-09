@@ -5,7 +5,6 @@ from __future__ import annotations
 import contextlib
 from re import DOTALL, match
 from textwrap import indent
-from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from docutils import nodes
@@ -109,9 +108,8 @@ def publish_msgstr(
         config.rst_prolog = None
 
         reader = _SphinxI18nReader(registry=registry)
-        app = SimpleNamespace(config=config, env=env, registry=registry)
         filetype = get_filetype(config.source_suffix, source_path)
-        parser = registry.create_source_parser(app, filetype)  # type: ignore[arg-type]
+        parser = registry.create_source_parser(filetype, config=config, env=env)
         doc = reader.read(
             source=StringInput(
                 source=source, source_path=f'{source_path}:{source_line}:<translated>'
