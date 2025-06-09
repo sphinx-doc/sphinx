@@ -7,6 +7,10 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #13639: :py:meth:`~sphinx.registry.SphinxComponentRegistry.create_source_parser`
+  no longer has an *app* parameter, instead taking *config* and *env*.
+  Patch by Adam Turner.
+
 Deprecated
 ----------
 

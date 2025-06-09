@@ -118,7 +118,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     reader = SphinxStandaloneReader()
     reader._setup_transforms(registry=app.registry)
 
-    parser = app.registry.create_source_parser(app, filetype)
+    parser = app.registry.create_source_parser(filetype, config=app.config, env=app.env)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
         # a workaround for recommonmark
         #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
