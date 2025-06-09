@@ -943,7 +943,12 @@
 % redefined by the cells of the nested table.  So this is the alternative
 % macro which is executed on exit of nested table.
 \def\spx@nestedtable@resetcolortbl{%
-    \spx@gpop@rownum
+    \ifx\spx@rownum@stack\@empty\else
+% The stack can be empty if this is executed on exit of a nested table,
+% and the parent table has received the "nocolorrows" class, but globally
+% colorrows are activated (default).  So we protected against that case.
+      \spx@gpop@rownum
+    \fi
     \sphinxSwitchCaseRowColor\rownum
 }
 \def\spx@table@reset@CT@everycr{%
