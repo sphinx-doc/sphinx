@@ -36,11 +36,13 @@ Features added
 * #13497: Support C domain objects in the table of contents.
 * #13500: LaTeX: add support for ``fontawesome6`` package.
   Patch by Jean-François B.
-* #13535: html search: Update to the latest version of Snowball (v3.0.1).
-  Patch by Adam Turner.
-* #13704: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
+* #13509: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
   and :py:func:`~typing.final` decorators.
   Patch by Spencer Brown.
+* #13535: html search: Update to the latest version of Snowball (v3.0.1).
+  Patch by Adam Turner.
+* #13647: LaTeX: allow more cases of table nesting.
+  Patch by Jean-François B.
 
 Bugs fixed
 ----------
