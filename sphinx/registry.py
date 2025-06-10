@@ -596,14 +596,16 @@ class SphinxComponentRegistry:
 
         return _get_env_version(app.extensions)
 
-    def get_publisher(self, app: Sphinx, filetype: str) -> Publisher:
+    def _get_publisher(
+        self, filetype: str, *, config: Config, env: BuildEnvironment
+    ) -> Publisher:
         try:
             return self.publishers[filetype]
         except KeyError:
             pass
-        parser = self.create_source_parser(filetype, config=app.config, env=app.env)
+        parser = self.create_source_parser(filetype, config=config, env=env)
         transforms = self.get_transforms()
-        publisher = _create_publisher(env=app.env, parser=parser, transforms=transforms)
+        publisher = _create_publisher(env=env, parser=parser, transforms=transforms)
         self.publishers[filetype] = publisher
         return publisher
 

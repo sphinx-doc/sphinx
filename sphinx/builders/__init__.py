@@ -644,7 +644,9 @@ class Builder:
 
         filename = str(env.doc2path(docname))
         filetype = get_filetype(self._app.config.source_suffix, filename)
-        publisher = self._registry.get_publisher(self._app, filetype)
+        publisher = self._registry._get_publisher(
+            filetype, config=self.config, env=self.env
+        )
         self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
