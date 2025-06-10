@@ -196,7 +196,6 @@ class Sphinx:
         :param pdb: If true, enable the Python debugger on an exception.
         :param exception_on_warning: If true, raise an exception on warnings.
         """
-        self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self._fresh_env_used: bool | None = None
         self.extensions: dict[str, Extension] = {}
@@ -340,6 +339,12 @@ class Sphinx:
         """
         return self._fresh_env_used
 
+    @property
+    def phase(self) -> BuildPhase:
+        if not hasattr(self, 'builder'):
+            return BuildPhase.INITIALIZATION
+        return self.builder.phase
+
     def _init_i18n(self) -> None:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
@@ -420,7 +425,7 @@ class Sphinx:
     # ---- main "build" method -------------------------------------------------
 
     def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
-        self.phase = BuildPhase.READING
+        self.builder.phase = BuildPhase.READING
         try:
             if force_all:
                 self.builder.build_all()
