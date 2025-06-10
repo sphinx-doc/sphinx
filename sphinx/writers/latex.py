@@ -171,7 +171,9 @@ class Table:
         elif self.has_verbatim:
             return 'tabular'
         elif self.colspec:
-            if any(c in 'LRCJT' for c in self.colspec):
+            assert len(self.colspec) > 2
+            _colspec = re.sub(r'\{.*?\}', '', self.colspec[1:-2])
+            if any(c in 'LRCJT' for c in _colspec):
                 # tabulary would complain "no suitable columns" if none of its
                 # column type were used so we ensure at least one matches.
                 # It is responsability of user to make sure not to use tabulary
@@ -1212,8 +1214,13 @@ class LaTeXTranslator(SphinxTranslator):
                 for _ in self.tables[:-1]:
                     _.has_problematic = True
         else:
+            # We try to catch a tabularcolumns using L, R, J, C, or T.
+            # We can not simply test for presence in the colspec of
+            # one of those letters due to syntax such as >{\RaggedRight}.
             if self.table.colspec:
-                if any(c in self.table.colspec for c in 'LRJCT'):
+                assert len(self.table.colspec) > 2
+                _colspec = re.sub(r'\{.*?\}', '', self.table.colspec[1:-2])
+                if any(c in _colspec for c in 'LRJCT'):
                     logger.warning(
                         __(
                             'colspec %s was given which uses '
