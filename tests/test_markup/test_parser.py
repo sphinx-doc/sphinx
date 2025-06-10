@@ -16,8 +16,8 @@ def test_RSTParser_prolog_epilog(RSTStateMachine, app):
     document = new_document('dummy.rst')
     document.settings = Mock(tab_width=8, language_code='')
     parser = RSTParser()
-    parser.config = app.config
-    parser.env = app.env
+    parser._config = app.config
+    parser._env = app.env
 
     # normal case
     text = 'hello Sphinx world\nSphinx is a document generator'

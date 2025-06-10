@@ -381,8 +381,8 @@ class SphinxComponentRegistry:
         parser_class = self.get_source_parser(filename)
         parser = parser_class()
         if isinstance(parser, SphinxParser):
-            parser.config = config
-            parser.env = env
+            parser._config = config
+            parser._env = env
         return parser
 
     def add_translator(

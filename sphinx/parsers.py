@@ -24,21 +24,31 @@ if TYPE_CHECKING:
 
 
 class Parser(docutils.parsers.Parser):
-    """A base class of source parsers.
+    """A base class for source parsers.
 
-    The additional parsers should inherit this class
-    instead of ``docutils.parsers.Parser``.
-    Compared with ``docutils.parsers.Parser``,
-    this class improves accessibility to Sphinx APIs.
-
-    The subclasses can access sphinx core runtime objects (app, config and env).
+    Additional parsers should inherit from this class instead of
+    ``docutils.parsers.Parser``.
+    This class provides access to core Sphinx objects; *config* and *env*.
     """
 
-    #: The config object
-    config: Config
+    _config: Config
+    _env: BuildEnvironment
 
-    #: The environment object
-    env: BuildEnvironment
+    @property
+    def config(self) -> Config:
+        """The config object."""
+        cls_module = self.__class__.__module__
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(cls_module, f'{cls_name}.config', remove=(9, 0))
+        return self._config
+
+    @property
+    def env(self) -> BuildEnvironment:
+        """The environment object."""
+        cls_module = self.__class__.__module__
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(cls_module, f'{cls_name}.env', remove=(9, 0))
+        return self._env
 
     def set_application(self, app: Sphinx) -> None:
         """set_application will be called from Sphinx to set app and other instance variables
@@ -47,9 +57,9 @@ class Parser(docutils.parsers.Parser):
         """
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.set_application', remove=(10, 0))
-        self.config = app.config
-        self.env = app.env
+        _deprecation_warning(cls_module, f'{cls_name}.set_application', remove=(9, 0))
+        self._config = app.config
+        self._env = app.env
 
 
 class RSTParser(docutils.parsers.rst.Parser, Parser):
