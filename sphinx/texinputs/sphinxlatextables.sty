@@ -47,6 +47,8 @@
 % The method here is with no changes to neither writer nor templates.
 \newif\ifspx@intable
 \newif\ifspx@thistableisnested
+% Try to allow nested tables in a longtable.  But tabulary causes problems.
+\newif\ifspx@longtable
 % 
 % Also provides user command (see docs)
 % - \sphixncolorblend
@@ -115,6 +117,7 @@
     \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}%
     \spx@inframedtrue % message to sphinxheavybox
     \spx@table@setnestedflags
+    \spx@longtabletrue
 }
 % Compatibility with caption package
 \def\sphinxthelongtablecaptionisattop{%
@@ -128,7 +131,10 @@
 \def\sphinxatlongtableend{\@nobreakfalse % latex3/latex2e#173
     \prevdepth\z@\vskip\sphinxtablepost\relax}%
 % B. Table with tabular or tabulary
-\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax
+\def\sphinxattablestart{\par
+    \ifvmode % guard agains being nested in a table cell
+      \vskip\dimexpr\sphinxtablepre\relax
+    \fi
                         \spx@inframedtrue % message to sphinxheavybox
                         \spx@table@setnestedflags
                         }%
@@ -142,7 +148,12 @@
         \spx@intabletrue
     \fi
    }%
-\let\sphinxattableend\sphinxatlongtableend
+\def\sphinxattableend{%
+    \@nobreakfalse % <- probably unneeded as this is not a longtable
+    \ifvmode       % guard against being nested in a table cell
+      \prevdepth\z@\vskip\sphinxtablepost\relax
+    \fi
+}%
 % This is used by tabular and tabulary templates
 \newcommand*\sphinxcapstartof[1]{%
    \vskip\parskip
@@ -1083,6 +1094,10 @@ local use of booktabs table style}%
 
 % borderless style
 \def\sphinxthistablewithborderlessstyle{%
+    \sphinxthistablewithnohlines
+    \def\spx@arrayrulewidth{\z@}%
+}%
+\def\sphinxthistablewithnohlines{%
     \let\sphinxhline      \@empty
     \let\sphinxcline      \@gobble
     \let\sphinxvlinecrossing\@gobble
@@ -1090,7 +1105,9 @@ local use of booktabs table style}%
     \let\spx@toprule      \@empty
     \let\sphinxmidrule    \@empty
     \let\sphinxbottomrule \@empty
-    \def\spx@arrayrulewidth{\z@}%
+}%
+\def\sphinxthistabularywithnohlinesifinlongtable{%
+  \ifspx@longtable\sphinxthistablewithnohlines\fi
 }%
 
 % colorrows style

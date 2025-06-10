@@ -134,6 +134,8 @@ class Table:
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
+        # cf https://github.com/sphinx-doc/sphinx/issues/13646#issuecomment-2958309632
+        self.is_nested = False
         self.entry_needs_linetrimming = 0
         self.caption: list[str] = []
         self.stubs: list[int] = []
@@ -147,29 +149,47 @@ class Table:
         self.cell_id = 0  # last assigned cell_id
 
     def is_longtable(self) -> bool:
-        """True if and only if table uses longtable environment."""
+        """True if and only if table uses longtable environment.
+
+        In absence of longtable class can only be used trustfully on departing
+        the table, as the number of rows is not known until then.
+        """
         return self.row > 30 or 'longtable' in self.classes
 
     def get_table_type(self) -> str:
         """Returns the LaTeX environment name for the table.
 
+        It is used at time of ``depart_table()`` and again via ``get_colspec()``.
         The class currently supports:
 
         * longtable
         * tabular
         * tabulary
         """
-        if self.is_longtable():
+        if self.is_longtable() and not self.is_nested:
             return 'longtable'
         elif self.has_verbatim:
             return 'tabular'
         elif self.colspec:
-            return 'tabulary'
+            if any(c in 'LRCJT' for c in self.colspec):
+                # tabulary would complain "no suitable columns" if none of its
+                # column type were used so we ensure at least one matches.
+                # It is responsability of user to make sure not to use tabulary
+                # column types for a column containing a problematic cell.
+                return 'tabulary'
+            else:
+                return 'tabular'
         elif self.has_problematic or (
             self.colwidths and 'colwidths-given' in self.classes
         ):
             return 'tabular'
         else:
+            # A nested tabulary in a longtable can not use any \hline's,
+            # i.e. it can not use "booktabs" or "standard" styles (due to a
+            # LaTeX upstream bug we do not try to solve).  But we can't know
+            # here if it ends up in a tabular or longtable.  So it is via
+            # LaTeX macros inserted by the tabulary template that the problem
+            # will be solved.
             return 'tabulary'
 
     def get_colspec(self) -> str:
@@ -179,6 +199,7 @@ class Table:
 
         .. note::
 
+           This is used by the template renderer at time of depart_table().
            The ``\\X`` and ``T`` column type specifiers are defined in
            ``sphinxlatextables.sty``.
         """
@@ -1146,23 +1167,17 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_table(self, node: Element) -> None:
-        if len(self.tables) == 1:
-            assert self.table is not None
-            if self.table.get_table_type() == 'longtable':
-                raise UnsupportedError(
-                    '%s:%s: longtable does not support nesting a table.'
-                    % (self.curfilestack[-1], node.line or '')
-                )
-            # change type of parent table to tabular
-            # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
-            self.table.has_problematic = True
-        elif len(self.tables) > 2:
+        table = Table(node)
+        assert table is not None
+        if len(self.tables) >= 1:
+            table.is_nested = True
+        # TODO: do we want > 2, > 1, or actually nothing here?
+        if len(self.tables) > 2:
             raise UnsupportedError(
                 '%s:%s: deeply nested tables are not implemented.'
                 % (self.curfilestack[-1], node.line or '')
             )
 
-        table = Table(node)
         self.tables.append(table)
         if table.colsep is None:
             table.colsep = '|' * (
@@ -1191,6 +1206,25 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
+        if table_type == 'tabulary':
+            if len(self.tables) > 1:
+                # tell parents to not be tabulary
+                for _ in self.tables[:-1]:
+                    _.has_problematic = True
+        else:
+            if self.table.colspec:
+                if any(c in self.table.colspec for c in 'LRJCT'):
+                    logger.warning(
+                        __(
+                            'colspec %s was given which uses '
+                            'tabulary syntax.  But this table can not be '
+                            'rendered as a tabulary; colspec will be ignored.'
+                        ),
+                        self.table.colspec[:-1],
+                        type='latex',
+                        location=node,
+                    )
+                    self.table.colspec = ''
         table = self.render(
             table_type + '.tex.jinja', {'table': self.table, 'labels': labels}
         )

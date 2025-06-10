@@ -229,6 +229,14 @@ Tables with multirow and multicol:
    | +---+ |
    +---+---+
 
+   .. rst-class:: longtable
+
+   +---+---+
+   | +---+ |
+   | | h | |
+   | +---+ |
+   +---+---+
+
 .. list-table::
    :header-rows: 0
 
