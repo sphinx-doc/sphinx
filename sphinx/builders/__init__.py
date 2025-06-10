@@ -103,6 +103,8 @@ class Builder:
     #: The file format produced by the builder allows images to be embedded using data-URIs.
     supported_data_uri_images: ClassVar[bool] = False
 
+    phase: BuildPhase = BuildPhase.INITIALIZATION
+
     srcdir = _StrPathProperty()
     confdir = _StrPathProperty()
     outdir = _StrPathProperty()
@@ -431,14 +433,14 @@ class Builder:
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
-            self._app.phase = BuildPhase.CONSISTENCY_CHECK
+            self.phase = BuildPhase.CONSISTENCY_CHECK
             with progress_message(__('checking consistency')):
                 self.env.check_consistency()
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
 
-        self._app.phase = BuildPhase.RESOLVING
+        self.phase = BuildPhase.RESOLVING
 
         # filter "docnames" (list of outdated files) by the updated
         # found_docs of the environment; this will remove docs that
@@ -776,21 +778,17 @@ class Builder:
                 len(docnames),
                 self._app.verbosity,
             ):
-                _write_docname(
-                    docname, app=self._app, env=self.env, builder=self, tags=self.tags
-                )
+                _write_docname(docname, env=self.env, builder=self, tags=self.tags)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
         def write_process(docs: list[tuple[str, nodes.document]]) -> None:
-            self._app.phase = BuildPhase.WRITING
+            self.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
-        _write_docname(
-            firstname, app=self._app, env=self.env, builder=self, tags=self.tags
-        )
+        _write_docname(firstname, env=self.env, builder=self, tags=self.tags)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
@@ -808,7 +806,7 @@ class Builder:
         def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
             next(progress)
 
-        self._app.phase = BuildPhase.RESOLVING
+        self.phase = BuildPhase.RESOLVING
         for chunk in chunks:
             arg = []
             for docname in chunk:
@@ -884,15 +882,14 @@ def _write_docname(
     docname: str,
     /,
     *,
-    app: Sphinx,
     env: BuildEnvironment,
     builder: Builder,
     tags: Tags,
 ) -> None:
     """Write a single document."""
-    app.phase = BuildPhase.RESOLVING
+    builder.phase = BuildPhase.RESOLVING
     doctree = env.get_and_resolve_doctree(docname, builder=builder, tags=tags)
-    app.phase = BuildPhase.WRITING
+    builder.phase = BuildPhase.WRITING
     builder.write_doc_serialized(docname, doctree)
     builder.write_doc(docname, doctree)
 
