@@ -55,7 +55,9 @@ def kpsetest(*filenames):
 
 
 # compile latex document with app.config.latex_engine
-def compile_latex_document(app, filename='projectnamenotset.tex', docclass='manual'):
+def compile_latex_document(
+    app, filename='projectnamenotset.tex', docclass='manual', runtwice=False
+):
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
@@ -82,7 +84,7 @@ def compile_latex_document(app, filename='projectnamenotset.tex', docclass='manu
             # as configured in the Makefile and in presence of latexmkrc
             # or latexmkjarc and also sphinx.xdy and other xindy support.
             # And two passes are not enough except for simplest documents.
-            if app.config.latex_engine == 'pdflatex':
+            if runtwice:
                 subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
         raise pytest.skip.Exception from exc
@@ -100,6 +102,10 @@ skip_if_requested = pytest.mark.skipif(
 skip_if_stylefiles_notfound = pytest.mark.skipif(
     not kpsetest(*STYLEFILES),
     reason='not running latex, the required styles do not seem to be installed',
+)
+skip_if_docutils_not_at_least_at_0_22 = pytest.mark.skipif(
+    docutils.__version_info__[:2] < (0, 22),
+    reason='this test requires Docutils at least at 0.22',
 )
 
 
@@ -128,17 +134,17 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
 @skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
-    ('engine', 'docclass', 'python_maximum_signature_line_length'),
+    ('engine', 'docclass', 'python_maximum_signature_line_length', 'runtwice'),
     # Only running test with `python_maximum_signature_line_length` not None with last
     # LaTeX engine to reduce testing time, as if this configuration does not fail with
     # one engine, it's almost impossible it would fail with another.
     [
-        ('pdflatex', 'manual', None),
-        ('pdflatex', 'howto', None),
-        ('lualatex', 'manual', None),
-        ('lualatex', 'howto', None),
-        ('xelatex', 'manual', 1),
-        ('xelatex', 'howto', 1),
+        ('pdflatex', 'manual', None, True),
+        ('pdflatex', 'howto', None, True),
+        ('lualatex', 'manual', None, False),
+        ('lualatex', 'howto', None, False),
+        ('xelatex', 'manual', 1, False),
+        ('xelatex', 'howto', 1, False),
     ],
 )
 @pytest.mark.sphinx(
@@ -146,7 +152,9 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
     testroot='root',
     freshenv=True,
 )
-def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_length):
+def test_build_latex_doc(
+    app, engine, docclass, python_maximum_signature_line_length, runtwice
+):
     app.config.python_maximum_signature_line_length = (
         python_maximum_signature_line_length
     )
@@ -170,7 +178,23 @@ def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_le
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').is_file()
 
-    compile_latex_document(app, 'sphinxtests.tex', docclass)
+    compile_latex_document(app, 'sphinxtests.tex', docclass, runtwice)
+
+
+@skip_if_requested
+@skip_if_stylefiles_notfound
+@skip_if_docutils_not_at_least_at_0_22
+@pytest.mark.parametrize('engine', ['pdflatex', 'lualatex', 'xelatex'])
+@pytest.mark.sphinx(
+    'latex',
+    testroot='latex-images-css3-lengths',
+)
+def test_build_latex_with_css3_lengths(app, engine):
+    app.config.latex_engine = engine
+    app.config.latex_documents = [(*app.config.latex_documents[0][:4], 'howto')]
+    app.builder.init()
+    app.build(force_all=True)
+    compile_latex_document(app, docclass='howto')
 
 
 @pytest.mark.sphinx('latex', testroot='root')
