@@ -239,7 +239,7 @@ class Sphinx:
         self._fail_on_warnings = bool(warningiserror)
         self.pdb = pdb
         self._exception_on_warning = exception_on_warning
-        logging.setup(self, self._status, self._warning)
+        logging.setup(self, self._status, self._warning, verbosity=verbosity)
 
         self.events = EventManager(self)
 

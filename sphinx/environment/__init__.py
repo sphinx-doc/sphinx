@@ -281,7 +281,9 @@ class BuildEnvironment:
         # The old config is self.config, restored from the pickled environment.
         # The new config is app.config, always recreated from ``conf.py``
         self.config_status, self.config_status_extra = self._config_status(
-            old_config=self.config, new_config=app.config, verbosity=app.verbosity
+            old_config=self.config,
+            new_config=app.config,
+            verbosity=app.config.verbosity,
         )
         self.config = app.config
 

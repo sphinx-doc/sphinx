@@ -295,7 +295,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
         __('highlighting module code... '),
         'blue',
         len(env._viewcode_modules),
-        app.verbosity,
+        app.config.verbosity,
         operator.itemgetter(0),
     ):
         if not entry:

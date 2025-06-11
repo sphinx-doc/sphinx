@@ -269,7 +269,7 @@ class Builder:
             __('writing output... '),
             'darkgreen',
             len(catalogs),
-            self._app.verbosity,
+            self.config.verbosity,
             stringify_func=cat2relpath,
         ):
             catalog.write_mo(
@@ -587,7 +587,7 @@ class Builder:
             __('reading sources... '),
             'purple',
             len(docnames),
-            self._app.verbosity,
+            self.config.verbosity,
         ):
             # remove all inventory entries for that file
             self.events.emit('env-purge-doc', self.env, docname)
@@ -604,7 +604,7 @@ class Builder:
             __('reading sources... '),
             'purple',
             len(chunks),
-            self._app.verbosity,
+            self.config.verbosity,
         )
 
         # clear all outdated docs at once
@@ -776,7 +776,7 @@ class Builder:
                 __('writing output... '),
                 'darkgreen',
                 len(docnames),
-                self._app.verbosity,
+                self.config.verbosity,
             ):
                 _write_docname(docname, env=self.env, builder=self, tags=self.tags)
 
@@ -800,7 +800,7 @@ class Builder:
             __('writing output... '),
             'darkgreen',
             len(chunks),
-            self._app.verbosity,
+            self.config.verbosity,
         )
 
         def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
