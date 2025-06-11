@@ -610,6 +610,8 @@ class LastMessagesWriter:
 
 def setup(app: Sphinx, status: IO[str], warning: IO[str]) -> None:
     """Setup root logger for Sphinx"""
+    log_level = VERBOSITY_MAP[min(app.config.verbosity, 0)]
+
     logger = logging.getLogger(NAMESPACE)
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
@@ -621,7 +623,7 @@ def setup(app: Sphinx, status: IO[str], warning: IO[str]) -> None:
     info_handler = NewLineStreamHandler(SafeEncodingWriter(status))
     info_handler.addFilter(InfoFilter())
     info_handler.addFilter(InfoLogRecordTranslator(app))
-    info_handler.setLevel(VERBOSITY_MAP[app.verbosity])
+    info_handler.setLevel(log_level)
     info_handler.setFormatter(ColorizeFormatter())
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
@@ -635,7 +637,7 @@ def setup(app: Sphinx, status: IO[str], warning: IO[str]) -> None:
 
     messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))
     messagelog_handler.addFilter(InfoFilter())
-    messagelog_handler.setLevel(VERBOSITY_MAP[app.verbosity])
+    messagelog_handler.setLevel(log_level)
 
     logger.addHandler(info_handler)
     logger.addHandler(warning_handler)

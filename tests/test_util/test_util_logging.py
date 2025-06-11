@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_info_and_warning(app: SphinxTestApp) -> None:
-    app.verbosity = 2
+    app.config._verbosity = 2
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def test_Exception(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx('html', testroot='root')
 def test_verbosity_filter(app: SphinxTestApp) -> None:
     # verbosity = 0: INFO
-    app.verbosity = 0
+    app.config._verbosity = 0
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ def test_verbosity_filter(app: SphinxTestApp) -> None:
     assert 'message4' not in app.status.getvalue()
 
     # verbosity = 1: VERBOSE
-    app.verbosity = 1
+    app.config._verbosity = 1
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ def test_verbosity_filter(app: SphinxTestApp) -> None:
     assert 'message4' not in app.status.getvalue()
 
     # verbosity = 2: DEBUG
-    app.verbosity = 2
+    app.config._verbosity = 2
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -312,7 +312,7 @@ def test_log_no_ansi_colors(tmp_path):
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_colored_logs(app: SphinxTestApp) -> None:
-    app.verbosity = 2
+    app.config._verbosity = 2
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
