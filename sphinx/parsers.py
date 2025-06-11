@@ -11,7 +11,7 @@ from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx.deprecation import _deprecation_warning
-from sphinx.util.rst import append_epilog, prepend_prolog
+from sphinx.util.rst import _append_epilogue, _prepend_prologue
 
 if TYPE_CHECKING:
     from docutils import nodes
@@ -100,9 +100,9 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         self.finish_parse()
 
     def decorate(self, content: StringList) -> None:
-        """Preprocess reST content before parsing."""
-        prepend_prolog(content, self.config.rst_prolog)
-        append_epilog(content, self.config.rst_epilog)
+        """Preprocess reStructuredText content before parsing."""
+        _prepend_prologue(content, self._config.rst_prolog)
+        _append_epilogue(content, self._config.rst_epilog)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
