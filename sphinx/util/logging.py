@@ -608,9 +608,11 @@ class LastMessagesWriter:
         self._app.messagelog.append(data)
 
 
-def setup(app: Sphinx, status: IO[str], warning: IO[str]) -> None:
+def setup(
+    app: Sphinx, status: IO[str], warning: IO[str], *, verbosity: int = 0
+) -> None:
     """Setup root logger for Sphinx"""
-    log_level = VERBOSITY_MAP[min(app.config.verbosity, 0)]
+    log_level = VERBOSITY_MAP[min(verbosity, 0)]
 
     logger = logging.getLogger(NAMESPACE)
     logger.setLevel(logging.DEBUG)
