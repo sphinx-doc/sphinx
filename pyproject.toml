@@ -100,7 +100,7 @@ lint = [
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250516",
-    "types-requests==2.32.0.20250602",  # align with requests
+    "types-requests==2.32.4.20250611",  # align with requests
     "types-urllib3==1.26.25.14",
     "pyright==1.1.400",
     "pytest>=8.0",
@@ -169,7 +169,7 @@ type-stubs = [
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250516",
-    "types-requests==2.32.0.20250602",
+    "types-requests==2.32.4.20250611",
     "types-urllib3==1.26.25.14",
 ]
 
