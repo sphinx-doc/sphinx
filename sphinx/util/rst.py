@@ -107,8 +107,6 @@ def _append_epilogue(content: StringList, epilogue: str) -> None:
         return
     if len(content) > 0:
         source, lineno = content.items[-1]
-        # lineno will never be None, since len(content) > 0
-        lineno = cast('int', lineno)
     else:
         source = '<generated>'
         lineno = 0
