@@ -1,4 +1,4 @@
-"""reST helper functions."""
+"""reStructuredText helper functions."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-FIELD_NAME_RE = re.compile(Body.patterns['field_marker'])
+_FIELD_NAME_RE = re.compile(Body.patterns['field_marker'])
 symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 SECTIONING_CHARS = ['=', '-', '~']
 
@@ -77,39 +77,41 @@ def default_role(docname: str, name: str) -> Iterator[None]:
     docutils.unregister_role('')
 
 
-def prepend_prolog(content: StringList, prolog: str) -> None:
-    """Prepend a string to content body as prolog."""
-    if prolog:
-        pos = 0
-        for line in content:
-            if FIELD_NAME_RE.match(line):
-                pos += 1
-            else:
-                break
-
-        if pos > 0:
-            # insert a blank line after docinfo
-            content.insert(pos, '', '<generated>', 0)
+def _prepend_prologue(content: StringList, prologue: str) -> None:
+    """Prepend a string to content body as a prologue."""
+    if not prologue:
+        return
+    pos = 0
+    for line in content:
+        if _FIELD_NAME_RE.match(line):
             pos += 1
-
-        # insert prolog (after docinfo if exists)
-        lineno = 0
-        for lineno, line in enumerate(prolog.splitlines()):
-            content.insert(pos + lineno, line, '<rst_prolog>', lineno)
-
-        content.insert(pos + lineno + 1, '', '<generated>', 0)
-
-
-def append_epilog(content: StringList, epilog: str) -> None:
-    """Append a string to content body as epilog."""
-    if epilog:
-        if len(content) > 0:
-            source, lineno = content.info(-1)
-            # lineno will never be None, since len(content) > 0
-            lineno = cast('int', lineno)
         else:
-            source = '<generated>'
-            lineno = 0
-        content.append('', source, lineno + 1)
-        for lineno, line in enumerate(epilog.splitlines()):
-            content.append(line, '<rst_epilog>', lineno)
+            break
+
+    if pos > 0:
+        # insert a blank line after docinfo
+        content.insert(pos, '', '<generated>', 0)
+        pos += 1
+
+    # insert prologue (after docinfo if exists)
+    lineno = 0
+    for lineno, line in enumerate(prologue.splitlines()):
+        content.insert(pos + lineno, line, '<rst_prologue>', lineno)
+
+    content.insert(pos + lineno + 1, '', '<generated>', 0)
+
+
+def _append_epilogue(content: StringList, epilogue: str) -> None:
+    """Append a string to content body as an epilogue."""
+    if not epilogue:
+        return
+    if len(content) > 0:
+        source, lineno = content.items[-1]
+        # lineno will never be None, since len(content) > 0
+        lineno = cast('int', lineno)
+    else:
+        source = '<generated>'
+        lineno = 0
+    content.append('', source, lineno + 1)
+    for lineno, line in enumerate(epilogue.splitlines()):
+        content.append(line, '<rst_epilogue>', lineno)
