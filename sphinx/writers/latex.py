@@ -171,13 +171,13 @@ class Table:
         elif self.has_verbatim:
             return 'tabular'
         elif self.colspec:
-            assert len(self.colspec) > 2
-            _colspec = re.sub(r'\{.*?\}', '', self.colspec[1:-2])
-            if any(c in 'LRCJT' for c in _colspec):
-                # tabulary would complain "no suitable columns" if none of its
-                # column type were used so we ensure at least one matches.
-                # It is responsability of user to make sure not to use tabulary
-                # column types for a column containing a problematic cell.
+            # tabulary complains (only a LaTeX warning) if none of its column
+            # types is used.  The next test will have false positive from
+            # syntax such as >{\RaggedRight} but it will catch *{3}{J} which
+            # does require tabulary and would crash tabular
+            # It is user responsability not to use a tabulary column type for
+            # a column having a problematic cell.
+            if any(c in 'LRCJT' for c in self.colspec):
                 return 'tabulary'
             else:
                 return 'tabular'
@@ -1217,17 +1217,22 @@ class LaTeXTranslator(SphinxTranslator):
             # We try to catch a tabularcolumns using L, R, J, C, or T.
             # We can not simply test for presence in the colspec of
             # one of those letters due to syntax such as >{\RaggedRight}.
+            # The test will not catch *{3}{J} syntax, but it would be
+            # overkill to try to implement LaTeX preamble mini-language.
             if self.table.colspec:
                 assert len(self.table.colspec) > 2
-                _colspec = re.sub(r'\{.*?\}', '', self.table.colspec[1:-2])
-                if any(c in _colspec for c in 'LRJCT'):
+                # cf how self.table.colspec got set in visit_table().
+                _colspec_as_given = self.table.colspec[1:-2]
+                _colspec_stripped = re.sub(r'\{.*?\}', '', _colspec_as_given)
+                if any(c in _colspec_stripped for c in 'LRJCT'):
                     logger.warning(
                         __(
-                            'colspec %s was given which uses '
+                            'colspec %s was given which appears to use '
                             'tabulary syntax.  But this table can not be '
-                            'rendered as a tabulary; colspec will be ignored.'
+                            'rendered as a tabulary; the given colspec will '
+                            'be ignored.'
                         ),
-                        self.table.colspec[:-1],
+                        _colspec_as_given,
                         type='latex',
                         location=node,
                     )

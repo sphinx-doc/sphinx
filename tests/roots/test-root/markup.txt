@@ -182,7 +182,7 @@ With
 Tables
 ------
 
-.. tabularcolumns:: |L|p{5cm}|R|
+.. tabularcolumns:: |*{1}{L|}p{5cm}|*{1}{R}|
 
 .. _my-table:
 
