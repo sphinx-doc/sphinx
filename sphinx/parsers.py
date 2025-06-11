@@ -10,7 +10,8 @@ from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
-from sphinx.util.rst import append_epilog, prepend_prolog
+from sphinx.deprecation import _deprecation_warning
+from sphinx.util.rst import _append_epilogue, _prepend_prologue
 
 if TYPE_CHECKING:
     from docutils import nodes
@@ -23,30 +24,42 @@ if TYPE_CHECKING:
 
 
 class Parser(docutils.parsers.Parser):
-    """A base class of source parsers.
+    """A base class for source parsers.
 
-    The additional parsers should inherit this class
-    instead of ``docutils.parsers.Parser``.
-    Compared with ``docutils.parsers.Parser``,
-    this class improves accessibility to Sphinx APIs.
-
-    The subclasses can access sphinx core runtime objects (app, config and env).
+    Additional parsers should inherit from this class instead of
+    ``docutils.parsers.Parser``.
+    This class provides access to core Sphinx objects; *config* and *env*.
     """
 
-    #: The config object
-    config: Config
+    _config: Config
+    _env: BuildEnvironment
 
-    #: The environment object
-    env: BuildEnvironment
+    @property
+    def config(self) -> Config:
+        """The config object."""
+        cls_module = self.__class__.__module__
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(cls_module, f'{cls_name}.config', remove=(9, 0))
+        return self._config
+
+    @property
+    def env(self) -> BuildEnvironment:
+        """The environment object."""
+        cls_module = self.__class__.__module__
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(cls_module, f'{cls_name}.env', remove=(9, 0))
+        return self._env
 
     def set_application(self, app: Sphinx) -> None:
         """set_application will be called from Sphinx to set app and other instance variables
 
         :param sphinx.application.Sphinx app: Sphinx application object
         """
-        self._app = app
-        self.config = app.config
-        self.env = app.env
+        cls_module = self.__class__.__module__
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(cls_module, f'{cls_name}.set_application', remove=(9, 0))
+        self._config = app.config
+        self._env = app.env
 
 
 class RSTParser(docutils.parsers.rst.Parser, Parser):
@@ -87,9 +100,9 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         self.finish_parse()
 
     def decorate(self, content: StringList) -> None:
-        """Preprocess reST content before parsing."""
-        prepend_prolog(content, self.config.rst_prolog)
-        append_epilog(content, self.config.rst_epilog)
+        """Preprocess reStructuredText content before parsing."""
+        _prepend_prologue(content, self._config.rst_prolog)
+        _append_epilogue(content, self._config.rst_epilog)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

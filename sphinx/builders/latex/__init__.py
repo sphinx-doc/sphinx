@@ -132,7 +132,7 @@ class LaTeXBuilder(Builder):
         self.context: dict[str, Any] = {}
         self.docnames: Iterable[str] = {}
         self.document_data: list[tuple[str, str, str, str, str, bool]] = []
-        self.themes = ThemeFactory(self.app)
+        self.themes = ThemeFactory(srcdir=self.srcdir, config=self.config)
         texescape.init()
 
         self.init_context()
@@ -211,7 +211,7 @@ class LaTeXBuilder(Builder):
     def update_context(self) -> None:
         """Update template variables for .tex file just before writing."""
         # Apply extension settings to context
-        registry = self.env._registry
+        registry = self._registry
         self.context['packages'] = registry.latex_packages
         self.context['packages_after_hyperref'] = registry.latex_packages_after_hyperref
 
@@ -481,7 +481,7 @@ class LaTeXBuilder(Builder):
                 __('copying images... '),
                 'brown',
                 len(self.images),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=stringify_func,
             ):
                 dest = self.images[src]
@@ -513,9 +513,9 @@ class LaTeXBuilder(Builder):
         formats = self.config.numfig_format
         context = {
             'addtocaptions': r'\@iden',
-            'figurename': formats.get('figure', '').split('%s', 1),
-            'tablename': formats.get('table', '').split('%s', 1),
-            'literalblockname': formats.get('code-block', '').split('%s', 1),
+            'figurename': formats.get('figure', '').split('%s', maxsplit=1),
+            'tablename': formats.get('table', '').split('%s', maxsplit=1),
+            'literalblockname': formats.get('code-block', '').split('%s', maxsplit=1),
         }
 
         if self.context['babel'] or self.context['polyglossia']:

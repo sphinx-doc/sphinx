@@ -52,6 +52,8 @@ from sphinx.domains.python._object import (  # NoQA: F401
     py_sig_re,
 )
 
+_TYPING_ALL = frozenset(typing.__all__)
+
 logger = logging.getLogger(__name__)
 
 pairindextypes = {
@@ -669,7 +671,7 @@ class PythonModuleIndex(Index):
 
             entries = content.setdefault(modname[0].lower(), [])
 
-            package = modname.split('.', maxsplit=1)[0]
+            package = modname.partition('.')[0]
             if package != modname:
                 # it's a submodule
                 if prev_modname == package:
@@ -730,7 +732,7 @@ class PythonDomain(Domain):
 
     name = 'py'
     label = 'Python'
-    object_types: dict[str, ObjType] = {
+    object_types = {
         'function': ObjType(_('function'), 'func', 'obj'),
         'data': ObjType(_('data'), 'data', 'obj'),
         'class': ObjType(_('class'), 'class', 'exc', 'obj'),
@@ -773,7 +775,7 @@ class PythonDomain(Domain):
         'mod': PyXRefRole(),
         'obj': PyXRefRole(),
     }
-    initial_data: dict[str, dict[str, tuple[Any]]] = {
+    initial_data: ClassVar[dict[str, dict[str, tuple[Any]]]] = {
         'objects': {},  # fullname -> docname, objtype
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
@@ -1076,13 +1078,6 @@ def builtin_resolver(
     app: Sphinx, env: BuildEnvironment, node: pending_xref, contnode: Element
 ) -> Element | None:
     """Do not emit nitpicky warnings for built-in types."""
-
-    def istyping(s: str) -> bool:
-        if s.startswith('typing.'):
-            s = s.split('.', 1)[1]
-
-        return s in typing.__all__
-
     if node.get('refdomain') != 'py':
         return None
     elif node.get('reftype') in {'class', 'obj'} and node.get('reftarget') == 'None':
@@ -1092,11 +1087,15 @@ def builtin_resolver(
         if inspect.isclass(getattr(builtins, reftarget, None)):
             # built-in class
             return contnode
-        if istyping(reftarget):
+        if _is_typing(reftarget):
             # typing class
             return contnode
 
     return None
+
+
+def _is_typing(s: str, /) -> bool:
+    return s.removeprefix('typing.') in _TYPING_ALL
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

@@ -1472,6 +1472,15 @@ Check the :confval:`latex_table_style`.
    complex contents such as multiple paragraphs, blockquotes, lists, literal
    blocks, will render correctly to LaTeX output.
 
+.. versionchanged:: 8.3.0
+   The partial support of the LaTeX builder for nesting a table in another
+   has been extended.
+   Formerly Sphinx would raise an error if ``longtable`` class was specified
+   for a table containing a nested table, and some cases would not raise an
+   error at Sphinx level but fail at LaTeX level during PDF build.  This is a
+   complex topic in LaTeX rendering and the output can sometimes be improved
+   via the :rst:dir:`tabularcolumns` directive.
+
 .. rst:directive:: .. tabularcolumns:: column spec
 
    This directive influences only the LaTeX output for the next table in
@@ -1489,40 +1498,38 @@ Check the :confval:`latex_table_style`.
       :rst:dir:`tabularcolumns` conflicts with ``:widths:`` option of table
       directives.  If both are specified, ``:widths:`` option will be ignored.
 
-   Sphinx will render tables with more than 30 rows with ``longtable``.
-   Besides the ``l``, ``r``, ``c`` and ``p{width}`` column specifiers, one can
-   also use ``\X{a}{b}`` (new in version 1.5) which configures the column
-   width to be a fraction ``a/b`` of the total line width and ``\Y{f}`` (new
-   in version 1.6) where ``f`` is a decimal: for example ``\Y{0.2}`` means that
-   the column will occupy ``0.2`` times the line width.
+   Sphinx renders tables with at most 30 rows using ``tabulary``, and those
+   with more rows with ``longtable``.
 
-   When this directive is used for a table with at most 30 rows, Sphinx will
-   render it with ``tabulary``.  One can then use specific column types ``L``
-   (left), ``R`` (right), ``C`` (centered) and ``J`` (justified).  They have
-   the effect of a ``p{width}`` (i.e. each cell is a LaTeX ``\parbox``) with
-   the specified internal text alignment and an automatically computed
-   ``width``.
+   ``tabulary`` tries to compute automatically (internally to LaTeX) suitable
+   column widths.  However, cells are then not allowed to contain
+   "problematic" elements such as lists, object descriptions,
+   blockquotes... Sphinx will fall back to using ``tabular`` if such a cell is
+   encountered (or a nested ``tabulary``).  In such a case the table will have
+   a tendency to try to fill the whole available line width.
 
-   .. warning::
+   :rst:dir:`tabularcolumns` can help in coercing the usage of ``tabulary`` if
+   one is careful to not employ the ``tabulary`` column types (``L``, ``R``,
+   ``C`` or ``J``) for those columns with at least one "problematic" cell, but
+   only LaTeX's ``p{<width>}`` or Sphinx ``\X`` and ``\Y`` (described next).
 
-      - Cells that contain list-like elements such as object descriptions,
-        blockquotes or any kind of lists are not compatible with the ``LRCJ``
-        column types.  The column type must then be some ``p{width}`` with an
-        explicit ``width`` (or ``\X{a}{b}`` or ``\Y{f}``).
+   Literal blocks do not work at all with ``tabulary``.  Sphinx will fall back
+   to ``tabular`` or ``longtable`` environments depending on the number of
+   rows.  It will employ the :rst:dir:`tabularcolumns` specification only if it
+   contains no usage of the ``tabulary`` specific types.
 
-      - Literal blocks do not work with ``tabulary`` at all.  Sphinx will
-        fall back to ``tabular`` or ``longtable`` environments and generate a
-        suitable column specification.
-
-In absence of the :rst:dir:`tabularcolumns` directive, and for a table with at
-most 30 rows and no problematic cells as described in the above warning,
-Sphinx uses ``tabulary`` and the ``J`` column-type for every column.
+   Besides the LaTeX ``l``, ``r``, ``c`` and ``p{width}`` column specifiers,
+   one can also use ``\X{a}{b}`` which configures the column width to be a
+   fraction ``a/b`` of the total line width and ``\Y{f}`` where ``f`` is a
+   decimal: for example ``\Y{0.2}`` means that the column will occupy ``0.2``
+   times the line width.
 
 .. versionchanged:: 1.6
 
-   Formerly, the ``L`` column-type was used (text is flushed-left).  To revert
-   to this, include ``\newcolumntype{T}{L}`` in the LaTeX preamble, as in fact
-   Sphinx uses ``T`` and sets it by default to be an alias of ``J``.
+   Use ``J`` (justified) by default with ``tabulary``, not ``L``
+   (flushed-left).  To revert, include ``\newcolumntype{T}{L}`` in the LaTeX
+   preamble, as in fact Sphinx uses ``T`` and sets it by default to be an
+   alias of ``J``.
 
 .. hint::
 

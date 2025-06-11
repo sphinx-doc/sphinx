@@ -39,6 +39,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Framework :: Sphinx",
@@ -92,15 +93,15 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.11",
+    "ruff==0.11.13",
     "mypy==1.15.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20250516",
-    "types-docutils==0.21.0.20250514",
+    "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250516",
-    "types-requests==2.32.0.20250515",  # align with requests
+    "types-requests==2.32.4.20250611",  # align with requests
     "types-urllib3==1.26.25.14",
     "pyright==1.1.400",
     "pytest>=8.0",
@@ -135,7 +136,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.11.11",
+    "ruff==0.11.13",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -166,10 +167,10 @@ type-stubs = [
     # align with versions used elsewhere
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20250516",
-    "types-docutils==0.21.0.20250514",
+    "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250516",
-    "types-requests==2.32.0.20250515",
+    "types-requests==2.32.4.20250611",
     "types-urllib3==1.26.25.14",
 ]
 

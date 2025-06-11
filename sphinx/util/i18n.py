@@ -168,7 +168,7 @@ def docname_to_domain(docname: str, compaction: bool | str) -> str:
     if isinstance(compaction, str):
         return compaction
     if compaction:
-        return docname.split(SEP, 1)[0]
+        return docname.partition(SEP)[0]
     else:
         return docname
 

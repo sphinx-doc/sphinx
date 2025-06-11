@@ -371,14 +371,14 @@ def _parse_confoverrides(
     val: Any
     for val in define:
         try:
-            key, val = val.split('=', 1)
+            key, _, val = val.partition('=')
         except ValueError:
             parser.error(__('-D option argument must be in the form name=value'))
         confoverrides[key] = val
 
     for val in htmldefine:
         try:
-            key, val = val.split('=')
+            key, _, val = val.partition('=')
         except ValueError:
             parser.error(__('-A option argument must be in the form name=value'))
         with contextlib.suppress(ValueError):
