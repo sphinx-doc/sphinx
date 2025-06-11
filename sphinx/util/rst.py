@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 from unicodedata import east_asian_width
 
 from docutils.parsers.rst import roles
