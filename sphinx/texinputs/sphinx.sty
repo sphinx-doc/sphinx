@@ -9,7 +9,7 @@
 % by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2025/04/24 v8.3.0 Sphinx LaTeX package (sphinx-doc)]
+\ProvidesPackage{sphinx}[2025/06/11 v8.3.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -1218,5 +1218,25 @@
 % FIXME: this line should be dropped, as "9" is default anyhow.
 \ifdefined\pdfcompresslevel\pdfcompresslevel = 9 \fi
 
-
+%%% SUPPORT FOR CSS3 EXTRA LENGTH UNITS
+% cf rstdim_to_latexdim in latex.py
+%
+\def\sphinxchdimen{\dimexpr\fontcharwd\font`0\relax}
+% TODO: decide if we want rather \textwidth/\textheight.
+\newdimen\sphinxvwdimen
+  \sphinxvwdimen=\dimexpr0.01\paperwidth\relax
+\newdimen\sphinxvhdimen
+  \sphinxvhdimen=\dimexpr0.01\paperheight\relax
+\newdimen\sphinxvmindimen
+  \sphinxvmindimen=\dimexpr
+     \ifdim\paperwidth<\paperheight\sphinxvwdimen\else\sphinxvhdimen\fi
+                   \relax
+\newdimen\sphinxvmaxdimen
+  \sphinxvmaxdimen=\dimexpr
+     \ifdim\paperwidth<\paperheight\sphinxvhdimen\else\sphinxvwdimen\fi
+                   \relax
+\newdimen\sphinxQdimen
+  \sphinxQdimen=0.25mm
+% MEMO: \sphinxremdimen is defined in the template as it needs
+% the config variable pointsize.
 \endinput

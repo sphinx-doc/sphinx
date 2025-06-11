@@ -305,6 +305,11 @@ def escape_abbr(text: str) -> str:
 
 def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
     """Convert `width_str` with rst length to LaTeX length."""
+    # MEMO: the percent unit is interpreted here as a percentage
+    # of \linewidth.  Let's keep in mind though that \linewidth
+    # is dynamic in LaTeX (e.g. smaller in lists), and may even
+    # be zero in some contexts (some table cells).  This is a legacy
+    # situation perhaps best not changed (2025/06/11).
     match = re.match(r'^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
         raise ValueError
@@ -318,6 +323,8 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = '%sbp' % amount  # convert to 'bp'
         elif unit == '%':
             res = r'%.3f\linewidth' % (float(amount) / 100.0)
+        elif unit in {'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax', 'Q'}:
+            res = rf'{amount}\sphinx{unit}dimen'
     else:
         amount_float = float(amount) * scale / 100.0
         if unit in {'', 'px'}:
@@ -326,8 +333,16 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = '%.5fbp' % amount_float
         elif unit == '%':
             res = r'%.5f\linewidth' % (amount_float / 100.0)
+        elif unit in {'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax', 'Q'}:
+            res = rf'{amount_float:.5f}\sphinx{unit}dimen'
         else:
             res = f'{amount_float:.5f}{unit}'
+    # MEMO: non-recognized units will in all probability end up causing
+    # a low-level TeX error.  The units not among those above which will
+    # be accepted by TeX are sp (all TeX dimensions are integer multiple
+    # of 1sp), em and ex (font dependent), bp, cm, mm, in, and pc.
+    # Non-CSS units are cc, nc, dd, and nd. Also the math only mu, which
+    # is not usable for example for LaTeX length assignments.
     return res
 
 
