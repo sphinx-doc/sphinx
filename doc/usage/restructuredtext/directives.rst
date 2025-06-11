@@ -1473,8 +1473,8 @@ Check the :confval:`latex_table_style`.
    blocks, will render correctly to LaTeX output.
 
 .. versionchanged:: 8.3.0
-
-   The partial support for nesting a table in another has been extended.
+   The partial support of the LaTeX builder for nesting a table in another
+   has been extended.
    Formerly Sphinx would raise an error if ``longtable`` class was specified
    for a table containing a nested table, and some cases would not raise an
    error at Sphinx level but fail at LaTeX level during PDF build.  This is a
