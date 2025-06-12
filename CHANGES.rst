@@ -43,8 +43,8 @@ Features added
   Patch by Adam Turner.
 * #13647: LaTeX: allow more cases of table nesting.
   Patch by Jean-François B.
-* #13611: Allow `Pygments style <https://pygments.org/styles/>`_ overriding on a per-block
-  basis via new options (:rst:dir:`code-block:style-light` and
+* #13611: Allow `Pygments style <https://pygments.org/styles/>`_ overriding on a
+  per-block basis via new options (:rst:dir:`code-block:style-light` and
   :rst:dir:`code-block:style-dark`) for the :rst:dir:`code-block`,
   :rst:dir:`sourcecode`, :rst:dir:`literalinclude` and :rst:dir:`code`.
   Patch by Héctor Medina Abarca.
