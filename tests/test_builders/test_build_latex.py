@@ -2019,9 +2019,11 @@ def test_latex_labels(app: SphinxTestApp) -> None:
         r'\label{\detokenize{otherdoc::doc}}'
     ) in result
 
-    # Embedded standalone hyperlink reference
+    # Named hyperlink reference with embedded alias reference
     # See: https://github.com/sphinx-doc/sphinx/issues/5948
     assert result.count(r'\label{\detokenize{index:section1}}') == 1
+    # https://github.com/sphinx-doc/sphinx/issues/13609
+    assert r'\phantomsection\label{\detokenize{index:id' not in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-figure-in-admonition')
