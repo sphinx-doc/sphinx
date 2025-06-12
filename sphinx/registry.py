@@ -12,7 +12,7 @@ from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
-from sphinx.io import create_publisher
+from sphinx.io import _create_publisher
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
@@ -375,11 +375,14 @@ class SphinxComponentRegistry:
     def get_source_parsers(self) -> dict[str, type[Parser]]:
         return self.source_parsers
 
-    def create_source_parser(self, app: Sphinx, filename: str) -> Parser:
+    def create_source_parser(
+        self, filename: str, *, config: Config, env: BuildEnvironment
+    ) -> Parser:
         parser_class = self.get_source_parser(filename)
         parser = parser_class()
         if isinstance(parser, SphinxParser):
-            parser.set_application(app)
+            parser._config = config
+            parser._env = env
         return parser
 
     def add_translator(
@@ -410,7 +413,9 @@ class SphinxComponentRegistry:
                     % (builder_name, handlers),
                 ) from exc
 
-    def get_translator_class(self, builder: Builder) -> type[nodes.NodeVisitor]:
+    def get_translator_class(
+        self, builder: type[Builder] | Builder
+    ) -> type[nodes.NodeVisitor]:
         try:
             return self.translators[builder.name]
         except KeyError:
@@ -420,7 +425,9 @@ class SphinxComponentRegistry:
                 msg = f'translator not found for {builder.name}'
                 raise AttributeError(msg) from err
 
-    def create_translator(self, builder: Builder, *args: Any) -> nodes.NodeVisitor:
+    def create_translator(
+        self, builder: type[Builder] | Builder, *args: Any
+    ) -> nodes.NodeVisitor:
         translator_class = self.get_translator_class(builder)
         translator = translator_class(*args)
 
@@ -589,12 +596,16 @@ class SphinxComponentRegistry:
 
         return _get_env_version(app.extensions)
 
-    def get_publisher(self, app: Sphinx, filetype: str) -> Publisher:
+    def _get_publisher(
+        self, filetype: str, *, config: Config, env: BuildEnvironment
+    ) -> Publisher:
         try:
             return self.publishers[filetype]
         except KeyError:
             pass
-        publisher = create_publisher(app, filetype)
+        parser = self.create_source_parser(filetype, config=config, env=env)
+        transforms = self.get_transforms()
+        publisher = _create_publisher(env=env, parser=parser, transforms=transforms)
         self.publishers[filetype] = publisher
         return publisher
 

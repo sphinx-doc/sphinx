@@ -228,7 +228,12 @@ class StandaloneHTMLBuilder(Builder):
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self) -> None:
-        theme_factory = HTMLThemeFactory(self.app)
+        theme_factory = HTMLThemeFactory(
+            confdir=self.confdir,
+            app=self._app,
+            config=self.config,
+            registry=self._registry,
+        )
         theme_name, theme_options = self.get_theme_config()
         self.theme = theme_factory.create(theme_name)
         self.theme_options = theme_options
@@ -255,11 +260,6 @@ class StandaloneHTMLBuilder(Builder):
         self.dark_highlighter: PygmentsBridge | None
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
-            self.app.add_css_file(
-                'pygments_dark.css',
-                media='(prefers-color-scheme: dark)',
-                id='pygments_dark_css',
-            )
         else:
             self.dark_highlighter = None
 
@@ -286,11 +286,18 @@ class StandaloneHTMLBuilder(Builder):
     def init_css_files(self) -> None:
         self._css_files = []
         self.add_css_file('pygments.css', priority=200)
+        if self.dark_highlighter is not None:
+            self.add_css_file(
+                'pygments_dark.css',
+                priority=200,
+                media='(prefers-color-scheme: dark)',
+                id='pygments_dark_css',
+            )
 
         for filename in self._get_style_filenames():
             self.add_css_file(filename, priority=200)
 
-        for filename, attrs in self.env._registry.css_files:
+        for filename, attrs in self._registry.css_files:
             self.add_css_file(filename, **attrs)
 
         for filename, attrs in self.get_builder_config('css_files', 'html'):
@@ -317,7 +324,7 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('doctools.js', priority=200)
         self.add_js_file('sphinx_highlight.js', priority=200)
 
-        for filename, attrs in self.env._registry.js_files:
+        for filename, attrs in self._registry.js_files:
             self.add_js_file(filename or '', **attrs)
 
         for filename, attrs in self.get_builder_config('js_files', 'html'):
@@ -342,7 +349,7 @@ class StandaloneHTMLBuilder(Builder):
             return name
         else:
             # not given: choose a math_renderer from registered ones as possible
-            renderers = list(self.env._registry.html_inline_math_renderers)
+            renderers = list(self._registry.html_inline_math_renderers)
             if len(renderers) == 1:
                 # only default math_renderer (mathjax) is registered
                 return renderers[0]
@@ -530,9 +537,9 @@ class StandaloneHTMLBuilder(Builder):
                 ))
 
         # add assets registered after ``Builder.init()``.
-        for css_filename, attrs in self.env._registry.css_files:
+        for css_filename, attrs in self._registry.css_files:
             self.add_css_file(css_filename, **attrs)
-        for js_filename, attrs in self.env._registry.js_files:
+        for js_filename, attrs in self._registry.js_files:
             self.add_js_file(js_filename or '', **attrs)
 
         # back up _css_files and _js_files to allow adding CSS/JS files to a specific page.
@@ -794,7 +801,7 @@ class StandaloneHTMLBuilder(Builder):
                 __('copying images... '),
                 'brown',
                 len(self.images),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=stringify_func,
             ):
                 dest = self.images[src]
@@ -821,7 +828,7 @@ class StandaloneHTMLBuilder(Builder):
                 __('copying downloadable files... '),
                 'brown',
                 len(self.env.dlfiles),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=to_relpath,
             ):
                 try:
@@ -1106,7 +1113,7 @@ class StandaloneHTMLBuilder(Builder):
         if kwargs.get('maxdepth') == '':  # NoQA: PLC1901
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(
-            self.env, docname, self, collapse=collapse, **kwargs
+            self.env, docname, self, tags=self.tags, collapse=collapse, **kwargs
         )
         return self.render_partial(toctree)['fragment']
 
@@ -1205,7 +1212,7 @@ class StandaloneHTMLBuilder(Builder):
         # 'blah.html' should have content_root = './' not ''.
         ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
 
-        outdir = self.app.outdir
+        outdir = self.outdir
 
         def css_tag(css: _CascadingStyleSheet) -> str:
             attrs = [

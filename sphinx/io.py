@@ -10,16 +10,9 @@ from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
-from sphinx.transforms.i18n import (
-    Locale,
-    PreserveTranslatableMessages,
-    RemoveTranslatableInline,
-)
-from sphinx.transforms.references import SphinxDomains
+from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
-from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
     from typing import Any
@@ -30,7 +23,6 @@ if TYPE_CHECKING:
     from docutils.parsers import Parser
     from docutils.transforms import Transform
 
-    from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
 
@@ -44,20 +36,6 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
     """
 
     transforms: list[type[Transform]] = []
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        from sphinx.application import Sphinx
-
-        if len(args) > 0 and isinstance(args[0], Sphinx):
-            self._app = args[0]
-            self._env = self._app.env
-            args = args[1:]
-
-        super().__init__(*args, **kwargs)
-
-    def setup(self, app: Sphinx) -> None:
-        self._app = app  # hold application object only for compatibility
-        self._env = app.env
 
     def get_transforms(self) -> list[type[Transform]]:
         transforms = super().get_transforms() + self.transforms
@@ -90,9 +68,8 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
 class SphinxStandaloneReader(SphinxBaseReader):
     """A basic document reader for Sphinx."""
 
-    def setup(self, app: Sphinx) -> None:
-        self.transforms = self.transforms + app.registry.get_transforms()
-        super().setup(app)
+    def _setup_transforms(self, transforms: list[type[Transform]], /) -> None:
+        self.transforms = self.transforms + transforms
 
     def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
@@ -111,32 +88,6 @@ class SphinxStandaloneReader(SphinxBaseReader):
         arg = [content]
         env.events.emit('source-read', env.docname, arg)
         return arg[0]
-
-
-class SphinxI18nReader(SphinxBaseReader):
-    """A document reader for i18n.
-
-    This returns the source line number of original text as current source line number
-    to let users know where the error happened.
-    Because the translated texts are partial and they don't have correct line numbers.
-    """
-
-    def setup(self, app: Sphinx) -> None:
-        super().setup(app)
-
-        self.transforms = self.transforms + app.registry.get_transforms()
-        unused = [
-            PreserveTranslatableMessages,
-            Locale,
-            RemoveTranslatableInline,
-            AutoIndexUpgrader,
-            SphinxDomains,
-            DoctreeReadEvent,
-            UIDTransform,
-        ]
-        for transform in unused:
-            if transform in self.transforms:
-                self.transforms.remove(transform)
 
 
 class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
@@ -161,21 +112,11 @@ class SphinxFileInput(FileInput):
         super().__init__(*args, **kwargs)
 
 
-def create_publisher(app: Sphinx, filetype: str) -> Publisher:
+def _create_publisher(
+    *, env: BuildEnvironment, parser: Parser, transforms: list[type[Transform]]
+) -> Publisher:
     reader = SphinxStandaloneReader()
-    reader.setup(app)
-
-    parser = app.registry.create_source_parser(app, filetype)
-    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
-        # a workaround for recommonmark
-        #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
-        #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
-        #   parser.  As a workaround, this copies settings_spec for RSTParser to the
-        #   CommonMarkParser.
-        from docutils.parsers.rst import Parser as RSTParser
-
-        parser.settings_spec = RSTParser.settings_spec  # type: ignore[misc]
-
+    reader._setup_transforms(transforms)
     pub = Publisher(
         reader=reader,
         parser=parser,
@@ -184,7 +125,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
         destination=NullOutput(),
     )
     # Propagate exceptions by default when used programmatically:
-    defaults = {'traceback': True, **app.env.settings}
+    defaults = {'traceback': True, **env.settings}
     # Set default settings
     pub.get_settings(**defaults)
     return pub

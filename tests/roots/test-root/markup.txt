@@ -182,7 +182,7 @@ With
 Tables
 ------
 
-.. tabularcolumns:: |L|p{5cm}|R|
+.. tabularcolumns:: |*{1}{L|}p{5cm}|*{1}{R}|
 
 .. _my-table:
 
@@ -222,6 +222,20 @@ Tables with multirow and multicol:
    +    +
    |    |
    +----+
+
+   +---+---+
+   | +---+ |
+   | | h | |
+   | +---+ |
+   +---+---+
+
+   .. rst-class:: longtable
+
+   +---+---+
+   | +---+ |
+   | | h | |
+   | +---+ |
+   +---+---+
 
 .. list-table::
    :header-rows: 0

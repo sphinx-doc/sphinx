@@ -134,6 +134,9 @@ class Table:
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
+        # cf https://github.com/sphinx-doc/sphinx/issues/13646#issuecomment-2958309632
+        self.is_nested = False
+        self.entry_needs_linetrimming = 0
         self.caption: list[str] = []
         self.stubs: list[int] = []
 
@@ -146,29 +149,49 @@ class Table:
         self.cell_id = 0  # last assigned cell_id
 
     def is_longtable(self) -> bool:
-        """True if and only if table uses longtable environment."""
+        """True if and only if table uses longtable environment.
+
+        In absence of longtable class can only be used trustfully on departing
+        the table, as the number of rows is not known until then.
+        """
         return self.row > 30 or 'longtable' in self.classes
 
     def get_table_type(self) -> str:
         """Returns the LaTeX environment name for the table.
 
+        It is used at time of ``depart_table()`` and again via ``get_colspec()``.
         The class currently supports:
 
         * longtable
         * tabular
         * tabulary
         """
-        if self.is_longtable():
+        if self.is_longtable() and not self.is_nested:
             return 'longtable'
         elif self.has_verbatim:
             return 'tabular'
         elif self.colspec:
-            return 'tabulary'
+            # tabulary complains (only a LaTeX warning) if none of its column
+            # types is used.  The next test will have false positive from
+            # syntax such as >{\RaggedRight} but it will catch *{3}{J} which
+            # does require tabulary and would crash tabular
+            # It is user responsability not to use a tabulary column type for
+            # a column having a problematic cell.
+            if any(c in 'LRCJT' for c in self.colspec):
+                return 'tabulary'
+            else:
+                return 'tabular'
         elif self.has_problematic or (
             self.colwidths and 'colwidths-given' in self.classes
         ):
             return 'tabular'
         else:
+            # A nested tabulary in a longtable can not use any \hline's,
+            # i.e. it can not use "booktabs" or "standard" styles (due to a
+            # LaTeX upstream bug we do not try to solve).  But we can't know
+            # here if it ends up in a tabular or longtable.  So it is via
+            # LaTeX macros inserted by the tabulary template that the problem
+            # will be solved.
             return 'tabulary'
 
     def get_colspec(self) -> str:
@@ -178,6 +201,7 @@ class Table:
 
         .. note::
 
+           This is used by the template renderer at time of depart_table().
            The ``\\X`` and ``T`` column type specifiers are defined in
            ``sphinxlatextables.sty``.
         """
@@ -327,7 +351,6 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_footnote = 0
         self.in_caption = 0
         self.in_term = 0
-        self.needs_linetrimming = 0
         self.in_minipage = 0
         # only used by figure inside an admonition
         self.no_latex_floats = 0
@@ -1146,23 +1169,17 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_table(self, node: Element) -> None:
-        if len(self.tables) == 1:
-            assert self.table is not None
-            if self.table.get_table_type() == 'longtable':
-                raise UnsupportedError(
-                    '%s:%s: longtable does not support nesting a table.'
-                    % (self.curfilestack[-1], node.line or '')
-                )
-            # change type of parent table to tabular
-            # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
-            self.table.has_problematic = True
-        elif len(self.tables) > 2:
+        table = Table(node)
+        assert table is not None
+        if len(self.tables) >= 1:
+            table.is_nested = True
+        # TODO: do we want > 2, > 1, or actually nothing here?
+        if len(self.tables) > 2:
             raise UnsupportedError(
                 '%s:%s: deeply nested tables are not implemented.'
                 % (self.curfilestack[-1], node.line or '')
             )
 
-        table = Table(node)
         self.tables.append(table)
         if table.colsep is None:
             table.colsep = '|' * (
@@ -1191,6 +1208,35 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
+        if table_type == 'tabulary':
+            if len(self.tables) > 1:
+                # tell parents to not be tabulary
+                for _ in self.tables[:-1]:
+                    _.has_problematic = True
+        else:
+            # We try to catch a tabularcolumns using L, R, J, C, or T.
+            # We can not simply test for presence in the colspec of
+            # one of those letters due to syntax such as >{\RaggedRight}.
+            # The test will not catch *{3}{J} syntax, but it would be
+            # overkill to try to implement LaTeX preamble mini-language.
+            if self.table.colspec:
+                assert len(self.table.colspec) > 2
+                # cf how self.table.colspec got set in visit_table().
+                _colspec_as_given = self.table.colspec[1:-2]
+                _colspec_stripped = re.sub(r'\{.*?\}', '', _colspec_as_given)
+                if any(c in _colspec_stripped for c in 'LRJCT'):
+                    logger.warning(
+                        __(
+                            'colspec %s was given which appears to use '
+                            'tabulary syntax.  But this table can not be '
+                            'rendered as a tabulary; the given colspec will '
+                            'be ignored.'
+                        ),
+                        _colspec_as_given,
+                        type='latex',
+                        location=node,
+                    )
+                    self.table.colspec = ''
         table = self.render(
             table_type + '.tex.jinja', {'table': self.table, 'labels': labels}
         )
@@ -1331,7 +1377,7 @@ class LaTeXTranslator(SphinxTranslator):
                 r'\par' + CR + r'\vskip-\baselineskip'
                 r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context
             )
-            self.needs_linetrimming = 1
+            self.table.entry_needs_linetrimming = 1
         if len(list(node.findall(nodes.paragraph))) >= 2:
             self.table.has_oldproblematic = True
         if (
@@ -1346,13 +1392,14 @@ class LaTeXTranslator(SphinxTranslator):
                 pass
             else:
                 self.body.append(r'\sphinxstyletheadfamily ')
-        if self.needs_linetrimming:
+        if self.table.entry_needs_linetrimming:
             self.pushbody([])
         self.context.append(context)
 
     def depart_entry(self, node: Element) -> None:
-        if self.needs_linetrimming:
-            self.needs_linetrimming = 0
+        assert self.table is not None
+        if self.table.entry_needs_linetrimming:
+            self.table.entry_needs_linetrimming = 0
             body = self.popbody()
 
             # Remove empty lines from top of merged cell
@@ -1362,7 +1409,6 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.body.append(self.context.pop())
 
-        assert self.table is not None
         cell = self.table.cell()
         assert cell is not None
         self.table.col += cell.width
@@ -1852,13 +1898,10 @@ class LaTeXTranslator(SphinxTranslator):
         if node.get('ismod', False):
             # Detect if the previous nodes are label targets. If so, remove
             # the refid thereof from node['ids'] to avoid duplicated ids.
-            def has_dup_label(sib: Node | None) -> bool:
-                return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
-
             prev = get_prev_node(node)
-            if has_dup_label(prev):
+            if self._has_dup_label(prev, node):
                 ids = node['ids'][:]  # copy to avoid side-effects
-                while has_dup_label(prev):
+                while self._has_dup_label(prev, node):
                     ids.remove(prev['refid'])  # type: ignore[index]
                     prev = get_prev_node(prev)  # type: ignore[arg-type]
             else:
@@ -1871,6 +1914,10 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_target(self, node: Element) -> None:
         pass
+
+    @staticmethod
+    def _has_dup_label(sib: Node | None, node: Element) -> bool:
+        return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
 
     def visit_attribution(self, node: Element) -> None:
         self.body.append(CR + r'\begin{flushright}' + CR)

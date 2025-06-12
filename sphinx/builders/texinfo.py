@@ -198,7 +198,7 @@ class TexinfoBuilder(Builder):
                 __('copying images... '),
                 'brown',
                 len(self.images),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=stringify_func,
             ):
                 dest = self.images[src]

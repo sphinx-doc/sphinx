@@ -412,3 +412,27 @@ the title of a page.
    Stub pages are generated also based on these directives.
 
 .. _`escape filter`: https://jinja.palletsprojects.com/en/3.0.x/templates/#jinja-filters.escape
+
+Autolink role
+-------------
+
+.. rst:role:: autolink
+
+   The ``:autolink:`` role functions as ``:py:obj:`` when the referenced *name*
+   can be resolved to a Python object, and otherwise it becomes simple emphasis.
+
+   There are some known design flaws.
+   For example, in the case of multiple objects having the same name,
+   :rst:role:`!autolink` could resolve to the wrong object.
+   It will fail silently if the referenced object is not found,
+   for example due to a spelling mistake or renaming.
+   This is sometimes unwanted behaviour.
+
+   Some users choose to configure their :confval:`default_role` to ``autolink``
+   for 'smart' referencing using the default interpreted text role (```content```).
+
+   .. seealso::
+
+      :rst:role:`any`
+
+      :rst:role:`py:obj`

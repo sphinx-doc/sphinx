@@ -13,9 +13,11 @@ from docutils.io import StringInput
 from sphinx import addnodes
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.errors import ConfigError
+from sphinx.io import SphinxBaseReader
 from sphinx.locale import __
 from sphinx.locale import init as init_locale
-from sphinx.transforms import SphinxTransform
+from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransform
+from sphinx.transforms.references import SphinxDomains
 from sphinx.util import get_filetype, logging
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
@@ -26,12 +28,15 @@ from sphinx.util.nodes import (
     extract_messages,
     traverse_translatable_index,
 )
+from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
+    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata
 
 
@@ -47,17 +52,46 @@ EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
 N = TypeVar('N', bound=nodes.Node)
 
 
+class _SphinxI18nReader(SphinxBaseReader):
+    """A document reader for internationalisation (i18n).
+
+    This returns the source line number of the original text
+    as the current source line number to let users know where
+    the error happened, because the translated texts are
+    partial and they don't have correct line numbers.
+    """
+
+    def __init__(
+        self, *args: Any, registry: SphinxComponentRegistry, **kwargs: Any
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        unused = frozenset({
+            PreserveTranslatableMessages,
+            Locale,
+            RemoveTranslatableInline,
+            AutoIndexUpgrader,
+            SphinxDomains,
+            DoctreeReadEvent,
+            UIDTransform,
+        })
+        transforms = self.transforms + registry.get_transforms()
+        self.transforms = [
+            transform for transform in transforms if transform not in unused
+        ]
+
+
 def publish_msgstr(
-    app: Sphinx,
     source: str,
     source_path: str,
     source_line: int,
     config: Config,
     settings: Any,
+    *,
+    env: BuildEnvironment,
+    registry: SphinxComponentRegistry,
 ) -> nodes.Element:
     """Publish msgstr (single line) into docutils document
 
-    :param sphinx.application.Sphinx app: sphinx application
     :param str source: source text
     :param str source_path: source path for warning indication
     :param source_line: source line for warning indication
@@ -65,18 +99,17 @@ def publish_msgstr(
     :param docutils.frontend.Values settings: docutils settings
     :return: document
     :rtype: docutils.nodes.document
+    :param sphinx.environment.BuildEnvironment env: sphinx environment
+    :param sphinx.registry.SphinxComponentRegistry registry: sphinx registry
     """
     try:
         # clear rst_prolog temporarily
         rst_prolog = config.rst_prolog
         config.rst_prolog = None
 
-        from sphinx.io import SphinxI18nReader
-
-        reader = SphinxI18nReader()
-        reader.setup(app)
+        reader = _SphinxI18nReader(registry=registry)
         filetype = get_filetype(config.source_suffix, source_path)
-        parser = app.registry.create_source_parser(app, filetype)
+        parser = registry.create_source_parser(filetype, config=config, env=env)
         doc = reader.read(
             source=StringInput(
                 source=source, source_path=f'{source_path}:{source_line}:<translated>'
@@ -436,12 +469,13 @@ class Locale(SphinxTransform):
                 msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
             patch = publish_msgstr(
-                self.app,
                 msgstr,
                 source,
                 node.line,  # type: ignore[arg-type]
                 self.config,
                 settings,
+                env=self.env,
+                registry=self.env._registry,
             )
             # FIXME: no warnings about inconsistent references in this part
             # XXX doctest and other block markup
@@ -456,12 +490,13 @@ class Locale(SphinxTransform):
                 for _id in node['ids']:
                     term, first_classifier = split_term_classifiers(msgstr)
                     patch = publish_msgstr(
-                        self.app,
                         term or '',
                         source,
                         node.line,  # type: ignore[arg-type]
                         self.config,
                         settings,
+                        env=self.env,
+                        registry=self.env._registry,
                     )
                     updater.patch = make_glossary_term(
                         self.env,
@@ -533,12 +568,13 @@ class Locale(SphinxTransform):
                 msgstr = msgstr + '\n' + '=' * len(msgstr) * 2
 
             patch = publish_msgstr(
-                self.app,
                 msgstr,
                 source,
                 node.line,  # type: ignore[arg-type]
                 self.config,
                 settings,
+                env=self.env,
+                registry=self.env._registry,
             )
             # Structural Subelements phase2
             if isinstance(node, nodes.title):
@@ -612,7 +648,7 @@ class TranslationProgressTotaliser(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         total = translated = 0
@@ -635,7 +671,7 @@ class AddTranslationClasses(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         if not self.config.translation_progress_classes:
@@ -673,7 +709,7 @@ class RemoveTranslatableInline(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         matcher = NodeMatcher(nodes.inline, translatable=Any)
