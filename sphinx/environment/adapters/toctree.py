@@ -482,56 +482,84 @@ def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
                     subnode = subnode.parent
 
 
-ET = TypeVar('ET', bound=Element)
+_ET = TypeVar('_ET', bound=Element)
 
 
 def _toctree_copy(
-    node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
-) -> ET:
+    node: _ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
+) -> _ET:
     """Utility: Cut and deep-copy a TOC at a specified depth."""
-    keep_bullet_list_sub_nodes = depth <= 1 or (
-        (depth <= maxdepth or maxdepth <= 0) and (not collapse or 'iscurrent' in node)
-    )
+    assert not isinstance(node, addnodes.only)
+    depth = max(depth - 1, 1)
+    copied = _toctree_copy_seq(node, depth, maxdepth, collapse, tags, initial_call=True)
+    assert len(copied) == 1
+    return copied[0]  # type: ignore[return-value]
 
-    copy = node.copy()
-    for subnode in node.children:
-        if isinstance(subnode, addnodes.compact_paragraph | nodes.list_item):
-            # for <p> and <li>, just recurse
-            copy.append(_toctree_copy(subnode, depth, maxdepth, collapse, tags))
-        elif isinstance(subnode, nodes.bullet_list):
-            # for <ul>, copy if the entry is top-level
-            # or, copy if the depth is within bounds and;
-            # collapsing is disabled or the sub-entry's parent is 'current'.
-            # The boolean is constant so is calculated outwith the loop.
-            if keep_bullet_list_sub_nodes:
-                copy.append(_toctree_copy(subnode, depth + 1, maxdepth, collapse, tags))
-        elif isinstance(subnode, addnodes.toctree):
-            # copy sub toctree nodes for later processing
-            copy.append(subnode.copy())
-        elif isinstance(subnode, addnodes.only):
-            # only keep children if the only node matches the tags
-            if _only_node_keep_children(subnode, tags):
-                for child in subnode.children:
-                    copy.append(
-                        _toctree_copy(
-                            child,
-                            depth,
-                            maxdepth,
-                            collapse,
-                            tags,  # type: ignore[type-var]
-                        )
-                    )
-        elif isinstance(subnode, nodes.reference | nodes.title):
-            # deep copy references and captions
-            sub_node_copy = subnode.copy()
-            sub_node_copy.children = [child.deepcopy() for child in subnode.children]
-            for child in sub_node_copy.children:
-                child.parent = sub_node_copy
-            copy.append(sub_node_copy)
-        else:
-            msg = f'Unexpected node type {subnode.__class__.__name__!r}!'
-            raise ValueError(msg)  # NoQA: TRY004
-    return copy
+
+def _toctree_copy_seq(
+    node: Node,
+    depth: int,
+    maxdepth: int,
+    collapse: bool,
+    tags: Tags,
+    *,
+    initial_call: bool = False,
+    is_current: bool = False,
+) -> list[Element]:
+    copy: Element
+    if isinstance(node, addnodes.compact_paragraph | nodes.list_item):
+        # for <p> and <li>, just recurse
+        copy = node.copy()
+        for subnode in node.children:
+            copy += _toctree_copy_seq(  # type: ignore[assignment,operator]
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        return [copy]
+
+    if isinstance(node, nodes.bullet_list):
+        # for <ul>, copy if the entry is top-level
+        # or, copy if the depth is within bounds and;
+        # collapsing is disabled or the sub-entry's parent is 'current'.
+        # The boolean is constant so is calculated outwith the loop.
+        keep_bullet_list_sub_nodes = depth <= 1 or (
+            (depth <= maxdepth or maxdepth <= 0)
+            and (not collapse or is_current or 'iscurrent' in node)
+        )
+        if not keep_bullet_list_sub_nodes and not initial_call:
+            return []
+        depth += 1
+        copy = node.copy()
+        for subnode in node.children:
+            copy += _toctree_copy_seq(
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        return [copy]
+
+    if isinstance(node, addnodes.toctree):
+        # copy sub toctree nodes for later processing
+        return [node.copy()]
+
+    if isinstance(node, addnodes.only):
+        # only keep children if the only node matches the tags
+        if not _only_node_keep_children(node, tags):
+            return []
+        copied: list[Element] = []
+        for subnode in node.children:
+            copied += _toctree_copy_seq(
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        return copied
+
+    if isinstance(node, nodes.reference | nodes.title):
+        # deep copy references and captions
+        sub_node_copy = node.copy()
+        sub_node_copy.children = [child.deepcopy() for child in node.children]
+        for child in sub_node_copy.children:
+            child.parent = sub_node_copy
+        return [sub_node_copy]
+
+    msg = f'Unexpected node type {node.__class__.__name__!r}!'
+    raise ValueError(msg)
 
 
 def _get_toctree_ancestors(
