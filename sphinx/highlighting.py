@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from functools import partial
 from importlib import import_module
 from typing import TYPE_CHECKING
@@ -73,24 +74,24 @@ _LATEX_ADD_STYLES = r"""
 % to fix problems for the 5.0.0 inline code highlighting (captions!).
 % The \text is from amstext, a dependency of sphinx.sty.  It is here only
 % to avoid build errors if for some reason expansion is in math mode.
-\def\PYGZbs{\text\textbackslash}
-\def\PYGZus{\_}
-\def\PYGZob{\{}
-\def\PYGZcb{\}}
-\def\PYGZca{\text\textasciicircum}
-\def\PYGZam{\&}
-\def\PYGZlt{\text\textless}
-\def\PYGZgt{\text\textgreater}
-\def\PYGZsh{\#}
-\def\PYGZpc{\%}
-\def\PYGZdl{\$}
-\def\PYGZhy{\sphinxhyphen}% defined in sphinxlatexstyletext.sty
-\def\PYGZsq{\text\textquotesingle}
-\def\PYGZdq{"}
-\def\PYGZti{\text\textasciitilde}
+\def\PYG{override}Zbs{{\text\textbackslash}}
+\def\PYG{override}Zus{{\_}}
+\def\PYG{override}Zob{{\{{}}
+\def\PYG{override}Zcb{{\}}}}
+\def\PYG{override}Zca{{\text\textasciicircum}}
+\def\PYG{override}Zam{{\&}}
+\def\PYG{override}Zlt{{\text\textless}}
+\def\PYG{override}Zgt{{\text\textgreater}}
+\def\PYG{override}Zsh{{\#}}
+\def\PYG{override}Zpc{{\%}}
+\def\PYG{override}Zdl{{\$}}
+\def\PYG{override}Zhy{{\sphinxhyphen}}% defined in sphinxlatexstyletext.sty
+\def\PYG{override}Zsq{{\text\textquotesingle}}
+\def\PYG{override}Zdq{{"}}
+\def\PYG{override}Zti{{\text\textasciitilde}}
 \makeatletter
 % use \protected to allow syntax highlighting in captions
-\protected\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+{\PYG@do{#2}}}
+\protected\def\PYG{override}#1#2{{\PYG{override}@reset\PYG{override}@toks#1+\relax+{{\PYG{override}@do{{#2}}}}}}
 \makeatother
 """
 
@@ -229,7 +230,13 @@ class PygmentsBridge:
             # MEMO: this is done to escape Unicode chars with non-Unicode engines
             return texescape.hlescape(hlsource, self.latex_engine)
 
-    def get_stylesheet(self, selectors: list[int] | None = None) -> str:
+    def get_stylesheet(self, selectors: list[int] | str | None = None) -> str:
+        """Return a string with the specification for the tokens yielded by the language
+        lexer, appropriate for the output formatter, using the style defined at
+        initialization. In an HTML context, `selectors` is a list of CSS class selectors. In a
+        LaTeX context, it modifies the command prefix used for macro definitions; see also
+        LaTeXBuilder.add_block_style()
+        """
         formatter = self.get_formatter()
         if isinstance(formatter, HtmlFormatter):
             if selectors:
@@ -237,4 +244,22 @@ class PygmentsBridge:
             else:
                 return formatter.get_style_defs('.highlight')  # type: ignore [no-untyped-call]
         else:
-            return formatter.get_style_defs() + _LATEX_ADD_STYLES
+            if selectors:
+                if isinstance(selectors, str):
+                    tex_name = re.sub(r'[^a-zA-Z]', 'Z', selectors)
+                else:
+                    logger.error(
+                        __('Encountered %s in selectors field; expected a string for the '
+                           'LaTeX formatter, using default values as fallback.\n'
+                           'Please report his error.'),
+                        type(selectors),
+                        type='misc',
+                        subtype='highlighting_failure'
+                    )
+                    tex_name = ''
+                stylesheet = self.formatter(commandprefix='PYG' + tex_name).get_style_defs()
+                sphinx_redefs = _LATEX_ADD_STYLES.format(override=tex_name)
+            else:
+                stylesheet = formatter.get_style_defs()
+                sphinx_redefs = _LATEX_ADD_STYLES.format(override='')
+            return stylesheet + sphinx_redefs
