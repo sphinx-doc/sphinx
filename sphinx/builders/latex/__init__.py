@@ -281,7 +281,9 @@ class LaTeXBuilder(Builder):
         """Add a styler to the tracker of highlighting styles."""
         if style not in self.specialized_highlighters:
             pb = highlighting.PygmentsBridge(dest='latex', stylename=style)
-            pb.formatter_args['commandprefix'] = 'PYG' + re.sub(r'[^a-zA-Z]', 'Z', style)
+            pb.formatter_args['commandprefix'] = 'PYG' + re.sub(
+                r'[^a-zA-Z]', 'Z', style
+            )
             self.specialized_highlighters[style] = pb
 
     def get_bridge_for_style(self, style: str) -> highlighting.PygmentsBridge | None:

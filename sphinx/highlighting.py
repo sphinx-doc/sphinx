@@ -249,15 +249,19 @@ class PygmentsBridge:
                     tex_name = re.sub(r'[^a-zA-Z]', 'Z', selectors)
                 else:
                     logger.error(
-                        __('Encountered %s in selectors field; expected a string for the '
-                           'LaTeX formatter, using default values as fallback.\n'
-                           'Please report his error.'),
+                        __(
+                            'Encountered %s in selectors field; expected a string for the '
+                            'LaTeX formatter, using default values as fallback.\n'
+                            'Please report his error.'
+                        ),
                         type(selectors),
                         type='misc',
-                        subtype='highlighting_failure'
+                        subtype='highlighting_failure',
                     )
                     tex_name = ''
-                stylesheet = self.formatter(commandprefix='PYG' + tex_name).get_style_defs()
+                stylesheet = self.formatter(
+                    commandprefix='PYG' + tex_name
+                ).get_style_defs()
                 sphinx_redefs = _LATEX_ADD_STYLES.format(override=tex_name)
             else:
                 stylesheet = formatter.get_style_defs()
