@@ -895,7 +895,21 @@ def check_master_doc(
     return changed
 
 
+def deprecate_source_encoding(_app: Sphinx, config: Config) -> None:
+    """Warn on non-UTF 8 source_encoding."""
+    # RemovedInSphinx10Warning
+    if config.source_encoding.lower() not in {'utf-8', 'utf-8-sig', 'utf8'}:
+        msg = _(
+            'Support for source encodings other than UTF-8 '
+            'is deprecated and will be removed in Sphinx 10. '
+            'Please comment at https://github.com/sphinx-doc/sphinx/issues/13665 '
+            'if this causes a problem.'
+        )
+        logger.warning(msg)
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
+    app.connect('config-inited', deprecate_source_encoding, priority=790)
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
