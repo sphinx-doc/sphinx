@@ -10,7 +10,7 @@ import jinja2.parser
 from sphinx.deprecation import RemovedInSphinx90Warning
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Collection, Iterator
     from typing import Literal
 
 _ENV = jinja2.environment.Environment()
@@ -42,7 +42,7 @@ class BooleanParser(jinja2.parser.Parser):
 
 
 class Tags:
-    def __init__(self, tags: Sequence[str] = ()) -> None:
+    def __init__(self, tags: Collection[str] = ()) -> None:
         self._tags = set(tags or ())
         self._condition_cache: dict[str, bool] = {}
 
