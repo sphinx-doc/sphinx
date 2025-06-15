@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import os.path
-import re
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -281,9 +280,6 @@ class LaTeXBuilder(Builder):
         """Add a styler to the tracker of highlighting styles."""
         if style not in self.specialized_highlighters:
             pb = highlighting.PygmentsBridge(dest='latex', stylename=style)
-            pb.formatter_args['commandprefix'] = 'PYG' + re.sub(
-                r'[^a-zA-Z]', 'Z', style
-            )
             self.specialized_highlighters[style] = pb
 
     def get_bridge_for_style(self, style: str) -> highlighting.PygmentsBridge | None:
@@ -303,10 +299,11 @@ class LaTeXBuilder(Builder):
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write(
                 '\\ProvidesPackage{sphinxhighlight}'
-                '[2022/06/30 stylesheet for highlighting with pygments]\n'
+                '[2025/06/15 stylesheet for highlighting with pygments]\n'
             )
             f.write(
-                '% Its contents depend on pygments_style configuration variable.\n\n'
+                '% Its contents depend on pygments_style configuration variable.\n'
+                '% And also on encountered code-blocks :style-light: options.\n\n'
             )
             f.write(highlighter.get_stylesheet())
             if self.specialized_highlighters:

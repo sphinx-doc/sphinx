@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import re
 from functools import partial
+from hashlib import md5
 from importlib import import_module
 from typing import TYPE_CHECKING
 
@@ -74,24 +74,26 @@ _LATEX_ADD_STYLES = r"""
 % to fix problems for the 5.0.0 inline code highlighting (captions!).
 % The \text is from amstext, a dependency of sphinx.sty.  It is here only
 % to avoid build errors if for some reason expansion is in math mode.
-\def\PYG{override}Zbs{{\text\textbackslash}}
-\def\PYG{override}Zus{{\_}}
-\def\PYG{override}Zob{{\{{}}
-\def\PYG{override}Zcb{{\}}}}
-\def\PYG{override}Zca{{\text\textasciicircum}}
-\def\PYG{override}Zam{{\&}}
-\def\PYG{override}Zlt{{\text\textless}}
-\def\PYG{override}Zgt{{\text\textgreater}}
-\def\PYG{override}Zsh{{\#}}
-\def\PYG{override}Zpc{{\%}}
-\def\PYG{override}Zdl{{\$}}
-\def\PYG{override}Zhy{{\sphinxhyphen}}% defined in sphinxlatexstyletext.sty
-\def\PYG{override}Zsq{{\text\textquotesingle}}
-\def\PYG{override}Zdq{{"}}
-\def\PYG{override}Zti{{\text\textasciitilde}}
+\def\PYGZbs{{\text\textbackslash}}
+\def\PYGZus{{\_}}
+\def\PYGZob{{\{{}}
+\def\PYGZcb{{\}}}}
+\def\PYGZca{{\text\textasciicircum}}
+\def\PYGZam{{\&}}
+\def\PYGZlt{{\text\textless}}
+\def\PYGZgt{{\text\textgreater}}
+\def\PYGZsh{{\#}}
+\def\PYGZpc{{\%}}
+\def\PYGZdl{{\$}}
+\def\PYGZhy{{\sphinxhyphen}}% defined in sphinxlatexstyletext.sty
+\def\PYGZsq{{\text\textquotesingle}}
+\def\PYGZdq{{"}}
+\def\PYGZti{{\text\textasciitilde}}
 \makeatletter
 % use \protected to allow syntax highlighting in captions
-\protected\def\PYG{override}#1#2{{\PYG{override}@reset\PYG{override}@toks#1+\relax+{{\PYG{override}@do{{#2}}}}}}
+\def\PYG@#1#2{{\PYG@reset\PYG@toks#1+\relax+{{\PYG@do{{#2}}}}}}
+\protected\def\PYG{\csname PYG\ifdefined\sphinxpygmentsstylename
+                   \sphinxpygmentsstylename\else @\fi\endcsname}
 \makeatother
 """
 
@@ -246,24 +248,37 @@ class PygmentsBridge:
         else:
             if selectors:
                 if isinstance(selectors, str):
-                    tex_name = re.sub(r'[^a-zA-Z]', 'Z', selectors)
+                    _tex_name = md5(selectors.encode()).hexdigest()[:6]  # noqa: S324
+                    for d, l in [
+                        ('0', 'G'),
+                        ('1', 'H'),
+                        ('2', 'I'),
+                        ('3', 'J'),
+                        ('4', 'K'),
+                        ('5', 'L'),
+                        ('6', 'M'),
+                        ('7', 'N'),
+                        ('8', 'O'),
+                        ('9', 'P'),
+                    ]:
+                        _tex_name = _tex_name.replace(d, l)
                 else:
                     logger.error(
                         __(
-                            'Encountered %s in selectors field; expected a string for the '
-                            'LaTeX formatter, using default values as fallback.\n'
-                            'Please report his error.'
+                            'Encountered %s in selectors field; expected a string '
+                            'for the LaTeX formatter.  Please report this error.'
                         ),
                         type(selectors),
                         type='misc',
                         subtype='highlighting_failure',
                     )
-                    tex_name = ''
+                    # not using '' as we don't want \PYG being overwritten.
+                    _tex_name = 'INVALID'
                 stylesheet = self.formatter(
-                    commandprefix='PYG' + tex_name
+                    style=selectors, commandprefix='PYG' + _tex_name
                 ).get_style_defs()
-                sphinx_redefs = _LATEX_ADD_STYLES.format(override=tex_name)
+                sphinx_redefs = ''
             else:
                 stylesheet = formatter.get_style_defs()
-                sphinx_redefs = _LATEX_ADD_STYLES.format(override='')
+                sphinx_redefs = _LATEX_ADD_STYLES
             return stylesheet + sphinx_redefs

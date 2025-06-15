@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from hashlib import md5
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
@@ -2258,6 +2259,7 @@ class LaTeXTranslator(SphinxTranslator):
             opts = self.config.highlight_options.get(lang, {})
 
             # As blocks are processed, we discover specified styles.
+            _texstylename = ''
             if node.get('style-light'):
                 code_style = node.get('style-light')
                 self.builder.add_block_style(style=code_style)
@@ -2275,6 +2277,20 @@ class LaTeXTranslator(SphinxTranslator):
                         location=node,
                         **highlight_args,
                     )
+                    _texstylename = md5(code_style.encode()).hexdigest()[:6]  # noqa: S324
+                    for d, l in [
+                        ('0', 'G'),
+                        ('1', 'H'),
+                        ('2', 'I'),
+                        ('3', 'J'),
+                        ('4', 'K'),
+                        ('5', 'L'),
+                        ('6', 'M'),
+                        ('7', 'N'),
+                        ('8', 'O'),
+                        ('9', 'P'),
+                    ]:
+                        _texstylename = _texstylename.replace(d, l)
             else:
                 hlcode = self.highlighter.highlight_block(
                     node.rawsource,
@@ -2283,6 +2299,10 @@ class LaTeXTranslator(SphinxTranslator):
                     linenos=linenos,
                     location=node,
                     **highlight_args,
+                )
+            if _texstylename:
+                self.body.append(
+                    CR + f'\\def\\sphinxpygmentsstylename{{{_texstylename}}}'
                 )
             if self.in_footnote:
                 self.body.append(CR + r'\sphinxSetupCodeBlockInFootnote')
@@ -2300,6 +2320,8 @@ class LaTeXTranslator(SphinxTranslator):
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
             if self.table and not self.in_footnote:
+                # TODO: probably add a % at end to avoid a space token if for a
+                #       block with style-light option
                 hlcode += r'\end{sphinxVerbatimintable}'
             else:
                 hlcode += r'\end{sphinxVerbatim}'
@@ -2310,6 +2332,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(CR + hlcode + CR)
             if hllines:
                 self.body.append(r'\sphinxresetverbatimhllines' + CR)
+            if _texstylename:
+                self.body.append(r'\let\sphinxpygmentsstylename\undefined' + CR)
             raise nodes.SkipNode
 
     def depart_literal_block(self, node: Element) -> None:
