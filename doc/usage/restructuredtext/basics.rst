@@ -647,8 +647,10 @@ Source encoding
 ---------------
 
 Sphinx supports source files that are encoded in UTF-8.
-This means that the full range of Unicode_ characters may be used
+This means that the full range of Unicode__ characters may be used
 directly in reStructuredText.
+
+__ https://www.unicode.org/
 
 
 Gotchas
