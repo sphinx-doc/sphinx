@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 import docutils.readers.doctree
+import docutils.utils
 import jinja2.exceptions
 from docutils import nodes
 from docutils.core import Publisher
@@ -429,12 +430,18 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
-
-        doc = new_document('<partial node>')
+        pub = self._publisher
+        doc = docutils.utils.new_document('<partial node>', pub.settings)
         doc.append(node)
-        self._publisher.set_source(doc)
-        self._publisher.publish()
-        return self._publisher.writer.parts
+        doc.transformer.populate_from_components((pub.reader, pub.parser, pub.writer))
+        doc.transformer.apply_transforms()
+        visitor: HTML5Translator = self.create_translator(doc, self)  # type: ignore[assignment]
+        doc.walkabout(visitor)
+        parts = {
+            'fragment': ''.join(visitor.fragment),
+            'title': ''.join(visitor.title),
+        }
+        return parts
 
     def prepare_writing(self, docnames: Set[str]) -> None:
         # create the search indexer
