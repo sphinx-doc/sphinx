@@ -23,6 +23,9 @@ Deprecated
   Patch by Adam Turner.
 * #13644: Deprecate the :py:attr:`!Parser.config` and :py:attr:`!env` attributes.
   Patch by Adam Turner.
+* #13665: Deprecate support for non-UTF 8 source encodings,
+  scheduled for removal in Sphinx 10.
+  Patch by Adam Turner.
 
 Features added
 --------------
