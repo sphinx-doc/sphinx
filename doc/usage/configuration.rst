@@ -3083,7 +3083,7 @@ These options influence LaTeX output.
          the :code-tex:`\\rowcolors` LaTeX command becomes a no-op
          (this command has limitations and has never correctly
          supported all types of tables Sphinx produces in LaTeX).
-         Please update your project to use the
+         Please use the
          :ref:`latex table color configuration <tablecolors>` keys instead.
 
    To customise the styles for a table,
@@ -3096,7 +3096,7 @@ These options influence LaTeX output.
    The latter two can be combined with any of the first three.
    The ``standard`` class produces tables with
    both horizontal and vertical lines
-   (as has been the default so far with Sphinx).
+   (as had been the default prior to Sphinx 6.0.0).
 
    A single-row multi-column merged cell will obey the row colour,
    if it is set.
