@@ -419,7 +419,9 @@ class Locale(SphinxTransform):
         settings, source = self.document.settings, self.document['source']
         msgstr = ''
 
-        textdomain = docname_to_domain(self.env.docname, self.config.gettext_compact)
+        textdomain = docname_to_domain(
+            self.env.current_document.docname, self.config.gettext_compact
+        )
 
         # fetch translations
         srcdir = self.env.srcdir

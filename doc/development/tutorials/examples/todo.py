@@ -44,7 +44,7 @@ class TodoDirective(SphinxDirective):
             self.env.todo_all_todos = []
 
         self.env.todo_all_todos.append({
-            'docname': self.env.docname,
+            'docname': self.env.current_document.docname,
             'lineno': self.lineno,
             'todo': todo_node.deepcopy(),
             'target': targetnode,

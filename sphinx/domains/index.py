@@ -47,7 +47,7 @@ class IndexDomain(Domain):
 
     def process_doc(self, env: BuildEnvironment, docname: str, document: Node) -> None:
         """Process a document after it is read by the environment."""
-        entries = self.entries.setdefault(env.docname, [])
+        entries = self.entries.setdefault(env.current_document.docname, [])
         for node in list(document.findall(addnodes.index)):
             node_entries = node['entries']
             try:

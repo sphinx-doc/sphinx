@@ -363,7 +363,10 @@ class JSModule(SphinxDirective):
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
             domain.note_object(
-                mod_name, 'module', node_id, location=(self.env.docname, self.lineno)
+                mod_name,
+                'module',
+                node_id,
+                location=(self.env.current_document.docname, self.lineno),
             )
 
             # The node order is: index node first, then target node
@@ -459,14 +462,14 @@ class JavaScriptDomain(Domain):
                 docname,
                 location=location,
             )
-        self.objects[fullname] = (self.env.docname, node_id, objtype)
+        self.objects[fullname] = (self.env.current_document.docname, node_id, objtype)
 
     @property
     def modules(self) -> dict[str, tuple[str, str]]:
         return self.data.setdefault('modules', {})  # modname -> docname, node_id
 
     def note_module(self, modname: str, node_id: str) -> None:
-        self.modules[modname] = (self.env.docname, node_id)
+        self.modules[modname] = (self.env.current_document.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
         for fullname, (pkg_docname, _node_id, _l) in list(self.objects.items()):

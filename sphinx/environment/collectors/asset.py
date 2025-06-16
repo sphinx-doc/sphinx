@@ -47,7 +47,7 @@ class ImageCollector(EnvironmentCollector):
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process and rewrite image URIs."""
-        docname = app.env.docname
+        docname = app.env.current_document.docname
 
         for node in doctree.findall(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
@@ -156,7 +156,9 @@ class DownloadFileCollector(EnvironmentCollector):
             if '://' in targetname:
                 node['refuri'] = targetname
             else:
-                rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
+                rel_filename, filename = app.env.relfn2path(
+                    targetname, app.env.current_document.docname
+                )
                 app.env.note_dependency(rel_filename)
                 if not os.access(filename, os.R_OK):
                     logger.warning(
@@ -168,7 +170,7 @@ class DownloadFileCollector(EnvironmentCollector):
                     )
                     continue
                 node['filename'] = app.env.dlfiles.add_file(
-                    app.env.docname, rel_filename
+                    app.env.current_document.docname, rel_filename
                 ).as_posix()
 
 

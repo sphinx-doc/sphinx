@@ -86,7 +86,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
         # emit "source-read" event
         arg = [content]
-        env.events.emit('source-read', env.docname, arg)
+        env.events.emit('source-read', env.current_document.docname, arg)
         return arg[0]
 
 

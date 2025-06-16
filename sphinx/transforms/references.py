@@ -36,7 +36,9 @@ class SphinxDomains(SphinxTransform):
     default_priority = 850
 
     def apply(self, **kwargs: Any) -> None:
-        self.env.domains._process_doc(self.env, self.env.docname, self.document)
+        self.env.domains._process_doc(
+            self.env, self.env.current_document.docname, self.document
+        )
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
