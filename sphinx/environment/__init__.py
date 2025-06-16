@@ -788,7 +788,7 @@ class BuildEnvironment:
         new = deepcopy(backup)
         new.docname = docname
         try:
-            # set env.docname during applying post-transforms
+            # set env.current_document.docname during applying post-transforms
             self.current_document = new
 
             transformer = SphinxTransformer(doctree)

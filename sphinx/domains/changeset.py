@@ -135,7 +135,7 @@ class ChangeSetDomain(Domain):
         objname = self.env.current_document.obj_desc_name
         changeset = ChangeSet(
             node['type'],
-            self.env.docname,
+            self.env.current_document.docname,
             node.line,  # type: ignore[arg-type]
             module,
             objname,

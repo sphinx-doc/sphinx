@@ -522,7 +522,7 @@ class IntersphinxRole(SphinxRole):
             *args,
             type='intersphinx',
             subtype='external',
-            location=(self.env.docname, self.lineno),
+            location=(self.env.current_document.docname, self.lineno),
         )
 
     def _concat_strings(self, strings: Iterable[str]) -> str:
