@@ -818,7 +818,9 @@ class PythonDomain(Domain):
                     other.docname,
                     location=location,
                 )
-        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, aliased)
+        self.objects[name] = ObjectEntry(
+            self.env.current_document.docname, node_id, objtype, aliased
+        )
 
     @property
     def modules(self) -> dict[str, ModuleEntry]:
@@ -832,7 +834,7 @@ class PythonDomain(Domain):
         .. versionadded:: 2.1
         """
         self.modules[name] = ModuleEntry(
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             node_id=node_id,
             synopsis=synopsis,
             platform=platform,

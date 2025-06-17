@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import warnings
 from contextlib import contextmanager
 from copy import copy
 from pathlib import Path
@@ -11,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import docutils
 from docutils import nodes
+from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
 from docutils.statemachine import StateMachine
@@ -27,10 +29,11 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterator, Mapping, Sequence
     from types import ModuleType, TracebackType
     from typing import Any, Protocol
 
+    from docutils import Component
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
     from docutils.parsers.rst.states import Inliner
@@ -816,3 +819,21 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     document = nodes.document(settings, reporter, source=source_path)
     document.note_source(source_path, -1)
     return document
+
+
+def _get_settings(
+    *components: Component | type[Component],
+    defaults: Mapping[str, Any],
+    read_config_files: bool = False,
+) -> Values:
+    with warnings.catch_warnings(action='ignore', category=DeprecationWarning):
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        # DeprecationWarning: The frontend.Option class will be removed
+        # in Docutils 0.21 or later.
+        option_parser = OptionParser(
+            components=components,
+            defaults=defaults,
+            read_config_files=read_config_files,
+        )
+    return option_parser.get_default_values()  # type: ignore[return-value]

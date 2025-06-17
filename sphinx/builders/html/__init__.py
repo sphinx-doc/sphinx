@@ -10,17 +10,16 @@ import posixpath
 import re
 import shutil
 import sys
-import warnings
 from pathlib import Path
 from types import NoneType
 from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 import docutils.readers.doctree
+import docutils.utils
 import jinja2.exceptions
 from docutils import nodes
 from docutils.core import Publisher
-from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 
 from sphinx import __display_version__, package_dir
@@ -49,7 +48,7 @@ from sphinx.util._pathlib import _StrPath
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util._uri import is_url
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
@@ -442,12 +441,18 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
-
-        doc = new_document('<partial node>')
+        pub = self._publisher
+        doc = docutils.utils.new_document('<partial node>', pub.settings)
         doc.append(node)
-        self._publisher.set_source(doc)
-        self._publisher.publish()
-        return self._publisher.writer.parts
+        doc.transformer.populate_from_components((pub.reader, pub.parser, pub.writer))
+        doc.transformer.apply_transforms()
+        visitor: HTML5Translator = self.create_translator(doc, self)  # type: ignore[assignment]
+        doc.walkabout(visitor)
+        parts = {
+            'fragment': ''.join(visitor.fragment),
+            'title': ''.join(visitor.title),
+        }
+        return parts
 
     def prepare_writing(self, docnames: Set[str]) -> None:
         # create the search indexer
@@ -465,15 +470,9 @@ class StandaloneHTMLBuilder(Builder):
             self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
-            # DeprecationWarning: The frontend.OptionParser class will be replaced
-            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-            self.docsettings: Any = OptionParser(
-                defaults=self.env.settings,
-                components=(self.docwriter,),
-                read_config_files=True,
-            ).get_default_values()
+        self.docsettings = _get_settings(
+            HTMLWriter, defaults=self.env.settings, read_config_files=True
+        )
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include

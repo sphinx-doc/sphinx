@@ -98,7 +98,7 @@ class ReferencesResolver(SphinxPostTransform):
         new_node: nodes.reference | None
         typ = node['reftype']
         target = node['reftarget']
-        ref_doc = node.setdefault('refdoc', self.env.docname)
+        ref_doc = node.setdefault('refdoc', self.env.current_document.docname)
         ref_domain = node.get('refdomain', '')
         domain: Domain | None
         if ref_domain:
