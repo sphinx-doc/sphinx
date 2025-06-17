@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import warnings
 from io import BytesIO
 from typing import TYPE_CHECKING
 
@@ -169,12 +168,7 @@ def test_term_in_raw_directive(app: SphinxTestApp) -> None:
 
 
 def test_IndexBuilder():
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        # DeprecationWarning: The frontend.OptionParser class will be replaced
-        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        optparser = frontend.OptionParser(components=(rst.Parser,))
-    settings = optparser.get_default_values()
+    settings = frontend.get_default_settings(rst.Parser)
     parser = rst.Parser()
 
     domain1 = DummyDomain(

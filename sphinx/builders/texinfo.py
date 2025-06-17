@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import os.path
-import warnings
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
 from sphinx import addnodes, package_dir
@@ -18,14 +16,13 @@ from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, copyfile, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
-    from typing import Any
 
     from docutils.nodes import Node
 
@@ -119,15 +116,9 @@ class TexinfoBuilder(Builder):
             with progress_message(__('writing')):
                 self.post_process_images(doctree)
                 docwriter = TexinfoWriter(self)
-                with warnings.catch_warnings():
-                    warnings.filterwarnings('ignore', category=DeprecationWarning)
-                    # DeprecationWarning: The frontend.OptionParser class will be replaced
-                    # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-                    settings: Any = OptionParser(
-                        defaults=self.env.settings,
-                        components=(docwriter,),
-                        read_config_files=True,
-                    ).get_default_values()
+                settings = _get_settings(
+                    TexinfoWriter, defaults=self.env.settings, read_config_files=True
+                )
                 settings.author = author
                 settings.title = title
                 settings.texinfo_filename = targetname[:-5] + '.info'
