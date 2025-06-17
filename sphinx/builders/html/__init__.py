@@ -10,7 +10,6 @@ import posixpath
 import re
 import shutil
 import sys
-import warnings
 from pathlib import Path
 from types import NoneType
 from typing import TYPE_CHECKING
@@ -21,7 +20,6 @@ import docutils.utils
 import jinja2.exceptions
 from docutils import nodes
 from docutils.core import Publisher
-from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 
 from sphinx import __display_version__, package_dir
@@ -50,7 +48,7 @@ from sphinx.util._pathlib import _StrPath
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util._uri import is_url
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
@@ -459,15 +457,9 @@ class StandaloneHTMLBuilder(Builder):
             self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
-            # DeprecationWarning: The frontend.OptionParser class will be replaced
-            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-            self.docsettings: Any = OptionParser(
-                defaults=self.env.settings,
-                components=(self.docwriter,),
-                read_config_files=True,
-            ).get_default_values()
+        self.docsettings = _get_settings(
+            HTMLWriter, defaults=self.env.settings, read_config_files=True
+        )
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include

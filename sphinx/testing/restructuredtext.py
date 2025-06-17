@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-import warnings
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.frontend import OptionParser
 
 from sphinx.io import SphinxBaseReader
 from sphinx.parsers import RSTParser
 from sphinx.transforms import SphinxTransformer
-from sphinx.util.docutils import LoggingReporter, sphinx_domains
+from sphinx.util.docutils import LoggingReporter, _get_settings, sphinx_domains
 
 if TYPE_CHECKING:
-    from docutils.frontend import Values
-
     from sphinx.application import Sphinx
 
 
@@ -33,12 +29,7 @@ def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
         'output_encoding': 'unicode',
         'traceback': True,
     }
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        option_parser = OptionParser(
-            components=(RSTParser, SphinxBaseReader), defaults=settings_overrides
-        )
-    settings: Values = option_parser.get_default_values()  # type: ignore[assignment]
+    settings = _get_settings(SphinxBaseReader, RSTParser, defaults=settings_overrides)
     settings._source = source_path
     settings.env = env
 

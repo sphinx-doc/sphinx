@@ -4,11 +4,8 @@ from __future__ import annotations
 
 import os
 import os.path
-import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
-
-from docutils.frontend import OptionParser
 
 import sphinx.builders.latex.nodes  # NoQA: F401  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
@@ -27,7 +24,7 @@ from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import SphinxFileOutput, new_document
+from sphinx.util.docutils import SphinxFileOutput, _get_settings, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
@@ -301,15 +298,9 @@ class LaTeXBuilder(Builder):
 
     def write_documents(self, _docnames: Set[str]) -> None:
         docwriter = LaTeXWriter(self)
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
-            # DeprecationWarning: The frontend.OptionParser class will be replaced
-            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-            docsettings: Any = OptionParser(
-                defaults=self.env.settings,
-                components=(docwriter,),
-                read_config_files=True,
-            ).get_default_values()
+        docsettings = _get_settings(
+            LaTeXWriter, defaults=self.env.settings, read_config_files=True
+        )
 
         for entry in self.document_data:
             docname, targetname, title, author, themename = entry[:5]
