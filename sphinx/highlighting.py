@@ -74,21 +74,21 @@ _LATEX_ADD_STYLES = r"""
 % to fix problems for the 5.0.0 inline code highlighting (captions!).
 % The \text is from amstext, a dependency of sphinx.sty.  It is here only
 % to avoid build errors if for some reason expansion is in math mode.
-\def\PYGZbs{{\text\textbackslash}}
-\def\PYGZus{{\_}}
-\def\PYGZob{{\{{}}
-\def\PYGZcb{{\}}}}
-\def\PYGZca{{\text\textasciicircum}}
-\def\PYGZam{{\&}}
-\def\PYGZlt{{\text\textless}}
-\def\PYGZgt{{\text\textgreater}}
-\def\PYGZsh{{\#}}
-\def\PYGZpc{{\%}}
-\def\PYGZdl{{\$}}
-\def\PYGZhy{{\sphinxhyphen}}% defined in sphinxlatexstyletext.sty
-\def\PYGZsq{{\text\textquotesingle}}
-\def\PYGZdq{{"}}
-\def\PYGZti{{\text\textasciitilde}}
+\def\PYGZbs{\text\textbackslash}
+\def\PYGZus{\_}
+\def\PYGZob{\{}
+\def\PYGZcb{\}}
+\def\PYGZca{\text\textasciicircum}
+\def\PYGZam{\&}
+\def\PYGZlt{\text\textless}
+\def\PYGZgt{\text\textgreater}
+\def\PYGZsh{\#}
+\def\PYGZpc{\%}
+\def\PYGZdl{\$}
+\def\PYGZhy{\sphinxhyphen}% defined in sphinxlatexstyletext.sty
+\def\PYGZsq{\text\textquotesingle}
+\def\PYGZdq{"}
+\def\PYGZti{\text\textasciitilde}
 \makeatletter
 % use \protected to allow syntax highlighting in captions
 \def\PYG@#1#2{{\PYG@reset\PYG@toks#1+\relax+{{\PYG@do{{#2}}}}}}
