@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import re
 import warnings
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from copy import copy
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -15,12 +15,15 @@ from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
+from docutils.readers import standalone
 from docutils.statemachine import StateMachine
+from docutils.transforms.references import DanglingReferences
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.util import logging
+from sphinx.transforms import SphinxTransformer
+from sphinx.util import logging, rst
 from sphinx.util.parsing import nested_parse_to_nodes
 
 logger = logging.getLogger(__name__)
@@ -36,8 +39,10 @@ if TYPE_CHECKING:
     from docutils import Component
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
+    from docutils.parsers import Parser
     from docutils.parsers.rst.states import Inliner
     from docutils.statemachine import State, StringList
+    from docutils.transforms import Transform
 
     from sphinx.builders import Builder
     from sphinx.config import Config
@@ -67,6 +72,13 @@ if TYPE_CHECKING:
             reporter: Reporter,
             /,
         ) -> tuple[RoleFunction | None, list[system_message]]: ...
+
+
+_READER_TRANSFORMS = [
+    transform
+    for transform in standalone.Reader().get_transforms()
+    if transform is not DanglingReferences
+]
 
 
 additional_nodes: set[type[Element]] = set()
@@ -818,6 +830,55 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     # Create a new instance of nodes.document using cached reporter
     document = nodes.document(settings, reporter, source=source_path)
     document.note_source(source_path, -1)
+    return document
+
+
+def _parse_str_to_doctree(
+    content: str,
+    *,
+    filename: Path,
+    default_role: str = '',
+    default_settings: Mapping[str, Any],
+    env: BuildEnvironment,
+    parser: Parser,
+    transforms: Sequence[type[Transform]] = (),
+) -> nodes.document:
+    env.current_document._parser = parser
+
+    # Propagate exceptions by default when used programmatically:
+    defaults = {'traceback': True, **default_settings}
+    settings = _get_settings(standalone.Reader, parser, defaults=defaults)
+    settings._source = str(filename)
+
+    # Create root document node
+    reporter = LoggingReporter(
+        source=str(filename),
+        report_level=settings.report_level,
+        halt_level=settings.halt_level,
+        debug=settings.debug,
+        error_handler=settings.error_encoding_error_handler,
+    )
+    document = nodes.document(settings, reporter, source=str(filename))
+    document.note_source(str(filename), -1)
+
+    # substitute transformer
+    document.transformer = transformer = SphinxTransformer(document)
+    transformer.add_transforms(_READER_TRANSFORMS)
+    transformer.add_transforms(transforms)
+    transformer.add_transforms(parser.get_transforms())
+
+    if default_role:
+        default_role_cm = rst.default_role(env.current_document.docname, default_role)
+    else:
+        default_role_cm = nullcontext()  # type: ignore[assignment]
+    with sphinx_domains(env), default_role_cm:
+        # parse content to abstract syntax tree
+        parser.parse(content, document)
+        document.current_source = document.current_line = None
+
+        # run transforms
+        transformer.apply_transforms()
+
     return document
 
 
