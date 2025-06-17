@@ -826,10 +826,11 @@ def _get_settings(
     defaults: Mapping[str, Any],
     read_config_files: bool = False,
 ) -> Values:
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
+    with warnings.catch_warnings(action='ignore', category=DeprecationWarning):
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        # DeprecationWarning: The frontend.Option class will be removed
+        # in Docutils 0.21 or later.
         option_parser = OptionParser(
             components=components,
             defaults=defaults,
