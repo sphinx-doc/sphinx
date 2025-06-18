@@ -9,9 +9,8 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.io import _create_publisher
 from sphinx.testing import restructuredtext
-from sphinx.util.docutils import sphinx_domains
+from sphinx.util.docutils import _parse_str_to_doctree
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -24,15 +23,20 @@ def _doctree_for_test(
 ) -> nodes.document:
     config = app.config
     registry = app.registry
+
+    filename = env.doc2path(docname)
+    content = filename.read_text(encoding='utf-8')
+
     env.prepare_settings(docname)
     parser = registry.create_source_parser('restructuredtext', config=config, env=env)
-    publisher = _create_publisher(
-        env=env, parser=parser, transforms=registry.get_transforms()
+    return _parse_str_to_doctree(
+        content,
+        filename=env.doc2path(docname),
+        default_settings={'env': env},
+        env=env,
+        parser=parser,
+        transforms=registry.get_transforms(),
     )
-    with sphinx_domains(env):
-        publisher.set_source(source_path=str(env.doc2path(docname)))
-        publisher.publish()
-        return publisher.document
 
 
 @pytest.mark.sphinx('text', testroot='object-description-sections')
