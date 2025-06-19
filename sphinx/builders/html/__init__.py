@@ -841,39 +841,27 @@ class StandaloneHTMLBuilder(Builder):
                         err,
                     )
 
-    def add_block_dark_style(self, style: str, id: int) -> None:
-        """Add a code-block id to the tracker of dark highlighting styles."""
+    def update_override_styles_dark(self, style: str, id: int) -> PygmentsBridge:
+        """Update the tracker of highlighting styles with a possibly new dark-mode style;
+        return the PygmentsBridge object associated with said style.
+        """
         if style in self.specialized_dark_lighters:
             self.specialized_dark_lighters[style]['ids'].append(id)
         else:
             pb = PygmentsBridge(dest='html', stylename=style)
             self.specialized_dark_lighters[style] = {'bridge': pb, 'ids': [id]}
+        return self.specialized_dark_lighters[style]['bridge']
 
-    def add_block_light_style(self, style: str, id: int) -> None:
-        """Add a code-block id to the tracker of light highlighting styles."""
+    def update_override_styles_light(self, style: str, id: int) -> PygmentsBridge:
+        """Update the tracker of highlighting styles with a possibly new light-mode style;
+        return the PygmentsBridge object associated with said style.
+        """
         if style in self.specialized_light_lighters:
             self.specialized_light_lighters[style]['ids'].append(id)
         else:
             pb = PygmentsBridge(dest='html', stylename=style)
             self.specialized_light_lighters[style] = {'bridge': pb, 'ids': [id]}
-
-    def get_bridge_for_style(self, style: str) -> PygmentsBridge | None:
-        """Returns the PygmentsBridge associated with a style, if any.
-        Searches the dark list first, then the light list, then the default dark
-        and light styles.
-        """
-        if style in self.specialized_dark_lighters:
-            return self.specialized_dark_lighters[style]['bridge']
-        elif style in self.specialized_light_lighters:
-            return self.specialized_light_lighters[style]['bridge']
-        elif self.dark_highlighter and (
-            style == self.dark_highlighter.get_style(style).name
-        ):
-            return self.dark_highlighter
-        elif style == self.highlighter.get_style(style).name:
-            return self.highlighter
-        else:
-            return None
+        return self.specialized_light_lighters[style]['bridge']
 
     def create_pygments_style_file(self) -> None:
         """Create style file(s) for Pygments."""
