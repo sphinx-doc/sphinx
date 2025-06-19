@@ -23,7 +23,7 @@ file '{root}/wrongenc.inc' seems to be wrong, try giving an :encoding: option \\
 {root}/index.rst:\\d+: WARNING: image file not readable: foo.png \\[image.not_readable\\]
 {root}/index.rst:\\d+: WARNING: download file not readable: {root}/nonexisting.png \\[download.not_readable\\]
 {root}/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
-with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
+with '\\?': 'here: >>>(\\\\|/)xbb<<<'
 """
 
 HTML_WARNINGS = (

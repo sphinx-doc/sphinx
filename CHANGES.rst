@@ -26,6 +26,9 @@ Deprecated
 * #13665: Deprecate support for non-UTF 8 source encodings,
   scheduled for removal in Sphinx 10.
   Patch by Adam Turner.
+* #13679: Non-decodable characters in source files will raise an error in Sphinx 9.
+  Currently, such bytes are replaced with '?' along with logging a warning.
+  Patch by Adam Turner.
 
 Features added
 --------------
