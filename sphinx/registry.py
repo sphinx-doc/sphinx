@@ -12,7 +12,6 @@ from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
-from sphinx.io import _create_publisher
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
@@ -26,7 +25,6 @@ if TYPE_CHECKING:
     from typing import Any, TypeAlias
 
     from docutils import nodes
-    from docutils.core import Publisher
     from docutils.nodes import Element, Node, TextElement
     from docutils.parsers import Parser
     from docutils.parsers.rst import Directive
@@ -152,9 +150,6 @@ class SphinxComponentRegistry:
 
         #: additional transforms; list of transforms
         self.transforms: list[type[Transform]] = []
-
-        # private cache of Docutils Publishers (file type -> publisher object)
-        self.publishers: dict[str, Publisher] = {}
 
     @property
     def autodoc_attrgettrs(self) -> dict[type, Callable[[Any, str, Any], Any]]:
@@ -595,19 +590,6 @@ class SphinxComponentRegistry:
         from sphinx.environment import _get_env_version
 
         return _get_env_version(app.extensions)
-
-    def _get_publisher(
-        self, filetype: str, *, config: Config, env: BuildEnvironment
-    ) -> Publisher:
-        try:
-            return self.publishers[filetype]
-        except KeyError:
-            pass
-        parser = self.create_source_parser(filetype, config=config, env=env)
-        transforms = self.get_transforms()
-        publisher = _create_publisher(env=env, parser=parser, transforms=transforms)
-        self.publishers[filetype] = publisher
-        return publisher
 
 
 def merge_source_suffix(app: Sphinx, config: Config) -> None:

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from docutils.core import Publisher
-from docutils.io import FileInput, NullOutput
+from docutils.io import FileInput
 from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
@@ -110,22 +109,3 @@ class SphinxFileInput(FileInput):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
-
-
-def _create_publisher(
-    *, env: BuildEnvironment, parser: Parser, transforms: list[type[Transform]]
-) -> Publisher:
-    reader = SphinxStandaloneReader()
-    reader._setup_transforms(transforms)
-    pub = Publisher(
-        reader=reader,
-        parser=parser,
-        writer=SphinxDummyWriter(),
-        source_class=SphinxFileInput,
-        destination=NullOutput(),
-    )
-    # Propagate exceptions by default when used programmatically:
-    defaults = {'traceback': True, **env.settings}
-    # Set default settings
-    pub.get_settings(**defaults)
-    return pub
