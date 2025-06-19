@@ -29,6 +29,11 @@ Deprecated
 * #13679: Non-decodable characters in source files will raise an error in Sphinx 9.
   Currently, such bytes are replaced with '?' along with logging a warning.
   Patch by Adam Turner.
+* #13682: Deprecate :py:mod:`!sphinx.io`.
+  Sphinx no longer uses the :py:mod:`!sphinx.io` classes,
+  having replaced them with standard Python I/O.
+  The entire :py:mod:`!sphinx.io` module will be removed in Sphinx 10.
+  Patch by Adam Turner.
 
 Features added
 --------------
