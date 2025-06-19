@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING
 
-from docutils.core import Publisher
-from docutils.io import FileInput, NullOutput
+from docutils.io import FileInput
 from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
+from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
@@ -28,12 +29,22 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+warnings.warn('sphinx.io is deprecated', RemovedInSphinx10Warning, stacklevel=2)
+
 
 class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
     """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
     """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        warnings.warn(
+            'sphinx.io.SphinxBaseReader is deprecated',
+            RemovedInSphinx10Warning,
+            stacklevel=2,
+        )
 
     transforms: list[type[Transform]] = []
 
@@ -68,6 +79,14 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
 class SphinxStandaloneReader(SphinxBaseReader):
     """A basic document reader for Sphinx."""
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        warnings.warn(
+            'sphinx.io.SphinxStandaloneReader is deprecated',
+            RemovedInSphinx10Warning,
+            stacklevel=2,
+        )
+
     def _setup_transforms(self, transforms: list[type[Transform]], /) -> None:
         self.transforms = self.transforms + transforms
 
@@ -93,6 +112,14 @@ class SphinxStandaloneReader(SphinxBaseReader):
 class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
     """Dummy writer module used for generating doctree."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        warnings.warn(
+            'sphinx.io.SphinxDummyWriter is deprecated',
+            RemovedInSphinx10Warning,
+            stacklevel=2,
+        )
+
     supported = ('html',)  # needed to keep "meta" nodes
 
     def translate(self) -> None:
@@ -101,6 +128,11 @@ class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
 
 def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
     """Bypass source object as is to cheat Publisher."""
+    warnings.warn(
+        'sphinx.io.SphinxDummySourceClass is deprecated',
+        RemovedInSphinx10Warning,
+        stacklevel=2,
+    )
     return source
 
 
@@ -110,22 +142,8 @@ class SphinxFileInput(FileInput):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
-
-
-def _create_publisher(
-    *, env: BuildEnvironment, parser: Parser, transforms: list[type[Transform]]
-) -> Publisher:
-    reader = SphinxStandaloneReader()
-    reader._setup_transforms(transforms)
-    pub = Publisher(
-        reader=reader,
-        parser=parser,
-        writer=SphinxDummyWriter(),
-        source_class=SphinxFileInput,
-        destination=NullOutput(),
-    )
-    # Propagate exceptions by default when used programmatically:
-    defaults = {'traceback': True, **env.settings}
-    # Set default settings
-    pub.get_settings(**defaults)
-    return pub
+        warnings.warn(
+            'sphinx.io.SphinxFileInput is deprecated',
+            RemovedInSphinx10Warning,
+            stacklevel=2,
+        )
