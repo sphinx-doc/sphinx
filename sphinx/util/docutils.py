@@ -47,6 +47,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
+    from sphinx.events import EventManager
     from sphinx.util.typing import RoleFunction
 
     class _LanguageModule(Protocol):
@@ -840,6 +841,7 @@ def _parse_str_to_doctree(
     default_role: str = '',
     default_settings: Mapping[str, Any],
     env: BuildEnvironment,
+    events: EventManager | None = None,
     parser: Parser,
     transforms: Sequence[type[Transform]] = (),
 ) -> nodes.document:
@@ -847,7 +849,9 @@ def _parse_str_to_doctree(
 
     # Propagate exceptions by default when used programmatically:
     defaults = {'traceback': True, **default_settings}
-    settings = _get_settings(standalone.Reader, parser, defaults=defaults)
+    settings = _get_settings(
+        standalone.Reader, parser, defaults=defaults, read_config_files=True
+    )
     settings._source = str(filename)
 
     # Create root document node
@@ -872,6 +876,16 @@ def _parse_str_to_doctree(
     else:
         default_role_cm = nullcontext()  # type: ignore[assignment]
     with sphinx_domains(env), default_role_cm:
+        # TODO: Move the stanza below to Builder.read_doc(), within
+        #       a sphinx_domains() context manager.
+        #       This will require changes to IntersphinxDispatcher and/or
+        #       CustomReSTDispatcher.
+        if events is not None:
+            # emit "source-read" event
+            arg = [content]
+            events.emit('source-read', env.current_document.docname, arg)
+            content = arg[0]
+
         # parse content to abstract syntax tree
         parser.parse(content, document)
         document.current_source = document.current_line = None
