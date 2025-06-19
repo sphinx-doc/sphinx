@@ -642,6 +642,7 @@ class Builder:
         filename = env.doc2path(docname)
 
         # set up error_handler for the target document
+        # xref RemovedInSphinx90Warning
         error_handler = _UnicodeDecodeErrorHandler(docname)
         codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
 
@@ -903,20 +904,21 @@ class _UnicodeDecodeErrorHandler:
         self.docname = docname
 
     def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
-        line_start = error.object.rfind(b'\n', 0, error.start)
-        line_end = error.object.find(b'\n', error.start)
+        obj = error.object
+        line_start = obj.rfind(b'\n', 0, error.start)
+        line_end = obj.find(b'\n', error.start)
         if line_end == -1:
-            line_end = len(error.object)
-        line_num = error.object.count(b'\n', 0, error.start) + 1
+            line_end = len(obj)
+        line_num = obj.count(b'\n', 0, error.start) + 1
         logger.warning(
-            __('undecodable source characters, replacing with "?": %r'),
-            (
-                error.object[line_start + 1 : error.start]
-                + b'>>>'
-                + error.object[error.start : error.end]
-                + b'<<<'
-                + error.object[error.end : line_end]
+            __(
+                "undecodable source characters, replacing with '?': '%s>>>%s<<<%s'. "
+                'This will become an error in Sphinx 9.0.'
+                # xref RemovedInSphinx90Warning
             ),
+            obj[line_start + 1 : error.start].decode(errors='backslashreplace'),
+            obj[error.start : error.end].decode(errors='backslashreplace'),
+            obj[error.end : line_end].decode(errors='backslashreplace'),
             location=(self.docname, line_num),
         )
         return '?', error.end
