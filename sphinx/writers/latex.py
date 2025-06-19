@@ -2262,35 +2262,29 @@ class LaTeXTranslator(SphinxTranslator):
             _texstylename = ''
             if node.get('style-light'):
                 code_style = node.get('style-light')
-                self.builder.add_block_style(style=code_style)
-                pb = self.builder.get_bridge_for_style(code_style)
-                if pb is None:
-                    logger.warning(
-                        __('PygmentsBridge for style {} not found'.format(code_style))
-                    )
-                else:
-                    hlcode = pb.highlight_block(
-                        node.rawsource,
-                        lang,
-                        opts=opts,
-                        linenos=linenos,
-                        location=node,
-                        **highlight_args,
-                    )
-                    _texstylename = md5(code_style.encode()).hexdigest()[:6]  # noqa: S324
-                    for d, l in [
-                        ('0', 'G'),
-                        ('1', 'H'),
-                        ('2', 'I'),
-                        ('3', 'J'),
-                        ('4', 'K'),
-                        ('5', 'L'),
-                        ('6', 'M'),
-                        ('7', 'N'),
-                        ('8', 'O'),
-                        ('9', 'P'),
-                    ]:
-                        _texstylename = _texstylename.replace(d, l)
+                pb = self.builder.update_override_styles(style=code_style)
+                hlcode = pb.highlight_block(
+                    node.rawsource,
+                    lang,
+                    opts=opts,
+                    linenos=linenos,
+                    location=node,
+                    **highlight_args,
+                )
+                _texstylename = md5(code_style.encode()).hexdigest()[:6]  # noqa: S324
+                for d, l in [
+                    ('0', 'G'),
+                    ('1', 'H'),
+                    ('2', 'I'),
+                    ('3', 'J'),
+                    ('4', 'K'),
+                    ('5', 'L'),
+                    ('6', 'M'),
+                    ('7', 'N'),
+                    ('8', 'O'),
+                    ('9', 'P'),
+                ]:
+                    _texstylename = _texstylename.replace(d, l)
             else:
                 hlcode = self.highlighter.highlight_block(
                     node.rawsource,

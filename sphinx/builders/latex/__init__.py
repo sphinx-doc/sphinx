@@ -273,21 +273,16 @@ class LaTeXBuilder(Builder):
 
             self.context['multilingual'] = f'{self.context["polyglossia"]}\n{language}'
 
-    def add_block_style(self, style: str) -> None:
-        """Add a styler to the tracker of highlighting styles."""
-        if style not in self.specialized_highlighters:
-            pb = highlighting.PygmentsBridge(dest='latex', stylename=style)
-            self.specialized_highlighters[style] = pb
-
-    def get_bridge_for_style(self, style: str) -> highlighting.PygmentsBridge | None:
-        """Returns the PygmentsBridge associated with a style, if any.
-        Since the default highlighter is initialized and discarded in self.write_stylesheet(),
-        it is not supported in this search.
+    def update_override_styles(self, style: str) -> highlighting.PygmentsBridge:
+        """Update the tracker of highlighting styles with a possibly new style;
+        return the PygmentsBridge object associated with said style.
         """
         if style in self.specialized_highlighters:
             return self.specialized_highlighters[style]
         else:
-            return None
+            pb = highlighting.PygmentsBridge(dest='latex', stylename=style)
+            self.specialized_highlighters[style] = pb
+            return pb
 
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
