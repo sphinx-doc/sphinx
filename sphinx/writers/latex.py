@@ -2295,8 +2295,19 @@ class LaTeXTranslator(SphinxTranslator):
                     **highlight_args,
                 )
             if _texstylename:
+                # There is no a priori "VerbatimTextColor" set, except is user employed
+                # the sphinxsetup with pre_TeXcolor.  We could query the TeX boolean
+                # ifspx@opt@pre@withtextcolor but the @ letter is annoying here.  So
+                # let's simply add a group level and not worry about testing if this
+                # or other things pre-exist so we don't have to reset.
                 self.body.append(
-                    CR + f'\\def\\sphinxpygmentsstylename{{{_texstylename}}}'
+                    f'{CR}\\begingroup\\def\\sphinxpygmentsstylename{{{_texstylename}}}%'
+                    f'{CR}\\ifdefined\\sphinxPYG{_texstylename}bc'
+                    f'{CR}    \\sphinxsetup{{VerbatimColor={{HTML}}'
+                    f'{{\\sphinxPYG{_texstylename}bc}}}}%{CR}\\fi'
+                    f'{CR}\\ifdefined\\sphinxPYG{_texstylename}tc'
+                    f'{CR}    \\sphinxsetup{{pre_TeXcolor={{HTML}}'
+                    f'{{\\sphinxPYG{_texstylename}tc}}}}%{CR}\\fi'
                 )
             if self.in_footnote:
                 self.body.append(CR + r'\sphinxSetupCodeBlockInFootnote')
@@ -2314,8 +2325,6 @@ class LaTeXTranslator(SphinxTranslator):
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
             if self.table and not self.in_footnote:
-                # TODO: probably add a % at end to avoid a space token if for a
-                #       block with style-light option
                 hlcode += r'\end{sphinxVerbatimintable}'
             else:
                 hlcode += r'\end{sphinxVerbatim}'
@@ -2327,7 +2336,7 @@ class LaTeXTranslator(SphinxTranslator):
             if hllines:
                 self.body.append(r'\sphinxresetverbatimhllines' + CR)
             if _texstylename:
-                self.body.append(r'\let\sphinxpygmentsstylename\undefined' + CR)
+                self.body.append(r'\endgroup' + CR)
             raise nodes.SkipNode
 
     def depart_literal_block(self, node: Element) -> None:
