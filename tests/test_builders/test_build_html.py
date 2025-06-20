@@ -8,7 +8,12 @@ import re
 from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
+from docutils.parsers import rst
+from docutils.readers import standalone
+from docutils.writers import html5_polyglot
 
+from sphinx import addnodes
 from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.html import (
     StandaloneHTMLBuilder,
@@ -17,7 +22,9 @@ from sphinx.builders.html import (
 )
 from sphinx.errors import ConfigError
 from sphinx.testing.util import etree_parse
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.inventory import InventoryFile, _InventoryItem
+from sphinx.writers.html5 import HTML5Translator
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
@@ -146,11 +153,38 @@ def test_html_parallel(app: SphinxTestApp) -> None:
     app.build()
 
 
-@pytest.mark.sphinx('html', testroot='build-html-translator')
+class ConfHTMLTranslator(HTML5Translator):
+    depart_with_node = 0
+
+    def depart_admonition(self, node: nodes.Element | None = None) -> None:
+        if node is not None:
+            self.depart_with_node += 1
+        super().depart_admonition(node)
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_html_translator(app: SphinxTestApp) -> None:
-    app.build()
-    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
-    assert app.builder.docwriter.visitor.depart_with_node == 10
+    settings = _get_settings(
+        standalone.Reader, rst.Parser, html5_polyglot.Writer, defaults={}
+    )
+    doctree = new_document(__file__, settings)
+    doctree.append(addnodes.seealso('test', nodes.Text('test')))
+    doctree.append(nodes.note('test', nodes.Text('test')))
+    doctree.append(nodes.warning('test', nodes.Text('test')))
+    doctree.append(nodes.attention('test', nodes.Text('test')))
+    doctree.append(nodes.caution('test', nodes.Text('test')))
+    doctree.append(nodes.danger('test', nodes.Text('test')))
+    doctree.append(nodes.error('test', nodes.Text('test')))
+    doctree.append(nodes.hint('test', nodes.Text('test')))
+    doctree.append(nodes.important('test', nodes.Text('test')))
+    doctree.append(nodes.tip('test', nodes.Text('test')))
+
+    visitor = ConfHTMLTranslator(doctree, app.builder)
+    assert isinstance(visitor, ConfHTMLTranslator)
+    assert isinstance(visitor, HTML5Translator)
+    doctree.walkabout(visitor)
+
+    assert visitor.depart_with_node == 10
 
 
 @pytest.mark.parametrize(

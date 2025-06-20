@@ -5,8 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.writers.manpage import Translator as BaseTranslator
-from docutils.writers.manpage import Writer
+from docutils.writers import manpage
 
 from sphinx import addnodes
 from sphinx.locale import _, admonitionlabels
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ManualPageWriter(Writer):  # type: ignore[misc]
+class ManualPageWriter(manpage.Writer):  # type: ignore[misc]
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
@@ -71,7 +70,7 @@ class NestedInlineTransform:
                     node.parent.remove(node)
 
 
-class ManualPageTranslator(SphinxTranslator, BaseTranslator):
+class ManualPageTranslator(SphinxTranslator, manpage.Translator):
     """Custom man page translator."""
 
     _docinfo: dict[str, Any] = {}
