@@ -108,6 +108,9 @@ lint = [
     "pypi-attestations==0.0.26",
     "betterproto==2.0.0b6",
 ]
+package = [
+"filelock>=3.0",
+]
 test = [
     "pytest>=8.0",
     "pytest-xdist[psutil]>=3.4",
