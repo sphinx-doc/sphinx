@@ -600,14 +600,43 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         if linenos and self.config.html_codeblock_linenos_style:
             linenos = self.config.html_codeblock_linenos_style
 
-        highlighted = self.highlighter.highlight_block(
-            node.rawsource,
-            lang,
-            opts=opts,
-            linenos=linenos,
-            location=node,
-            **highlight_args,
-        )
+        # As blocks are processed, we discover specified styles.
+        # If either dark or style were requested, use their specialized
+        # highlighter. If neither, use the default highlighter.
+        block_id = hash(node)
+        dark_style = node.get('style-dark', None)
+        light_style = node.get('style-light', None)
+        if dark_style:
+            pb = self.builder.update_override_styles_dark(dark_style, block_id)
+            highlighted = pb.highlight_block(
+                node.rawsource,
+                lang,
+                opts=opts,
+                linenos=linenos,
+                location=node,
+                cssclass='highlight c{}'.format(block_id),
+                **highlight_args,
+            )
+        if light_style:
+            pb = self.builder.update_override_styles_light(light_style, block_id)
+            highlighted = pb.highlight_block(
+                node.rawsource,
+                lang,
+                opts=opts,
+                linenos=linenos,
+                location=node,
+                cssclass='highlight c{}'.format(block_id),
+                **highlight_args,
+            )
+        if not (dark_style or light_style):
+            highlighted = self.highlighter.highlight_block(
+                node.rawsource,
+                lang,
+                opts=opts,
+                linenos=linenos,
+                location=node,
+                **highlight_args,
+            )
         starttag = self.starttag(
             node, 'div', suffix='', CLASS='highlight-%s notranslate' % lang
         )

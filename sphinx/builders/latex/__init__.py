@@ -130,6 +130,7 @@ class LaTeXBuilder(Builder):
         self.docnames: Iterable[str] = {}
         self.document_data: list[tuple[str, str, str, str, str, bool]] = []
         self.themes = ThemeFactory(srcdir=self.srcdir, config=self.config)
+        self.specialized_highlighters: dict[str, highlighting.PygmentsBridge] = {}
         texescape.init()
 
         self.init_context()
@@ -272,6 +273,17 @@ class LaTeXBuilder(Builder):
 
             self.context['multilingual'] = f'{self.context["polyglossia"]}\n{language}'
 
+    def update_override_styles(self, style: str) -> highlighting.PygmentsBridge:
+        """Update the tracker of highlighting styles with a possibly new style;
+        return the PygmentsBridge object associated with said style.
+        """
+        if style in self.specialized_highlighters:
+            return self.specialized_highlighters[style]
+        else:
+            pb = highlighting.PygmentsBridge(dest='latex', stylename=style)
+            self.specialized_highlighters[style] = pb
+            return pb
+
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         stylesheet = self.outdir / 'sphinxhighlight.sty'
@@ -279,16 +291,23 @@ class LaTeXBuilder(Builder):
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write(
                 '\\ProvidesPackage{sphinxhighlight}'
-                '[2022/06/30 stylesheet for highlighting with pygments]\n'
+                '[2025/06/15 stylesheet for highlighting with pygments]\n'
             )
             f.write(
-                '% Its contents depend on pygments_style configuration variable.\n\n'
+                '% Its contents depend on pygments_style configuration variable.\n'
+                '% And also on encountered code-blocks :style-light: options.\n\n'
             )
             f.write(highlighter.get_stylesheet())
+            if self.specialized_highlighters:
+                specialized_styles = []
+                for style_name, pyg_bridge in self.specialized_highlighters.items():
+                    specialized_style = '\n% Stylesheet for style {}'.format(style_name)
+                    specialized_style += pyg_bridge.get_stylesheet(style_name)
+                    specialized_styles.append(specialized_style)
+                f.write('\n'.join(specialized_styles))
 
     def prepare_writing(self, docnames: Set[str]) -> None:
         self.init_document_data()
-        self.write_stylesheet()
 
     def copy_assets(self) -> None:
         self.copy_support_files()
@@ -415,6 +434,7 @@ class LaTeXBuilder(Builder):
         return largetree
 
     def finish(self) -> None:
+        self.write_stylesheet()
         self.copy_image_files()
         self.write_message_catalog()
 

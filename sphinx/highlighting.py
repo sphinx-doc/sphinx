@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import re
 from functools import partial
+from hashlib import md5
 from importlib import import_module
 from typing import TYPE_CHECKING
 
@@ -20,6 +22,7 @@ from pygments.lexers import (
     guess_lexer,
 )
 from pygments.styles import get_style_by_name
+from pygments.token import Token
 from pygments.util import ClassNotFound
 
 from sphinx.locale import __
@@ -90,7 +93,9 @@ _LATEX_ADD_STYLES = r"""
 \def\PYGZti{\text\textasciitilde}
 \makeatletter
 % use \protected to allow syntax highlighting in captions
-\protected\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+{\PYG@do{#2}}}
+\def\PYG@#1#2{{\PYG@reset\PYG@toks#1+\relax+{{\PYG@do{{#2}}}}}}
+\protected\def\PYG{\csname PYG\ifdefined\sphinxpygmentsstylename
+                   \sphinxpygmentsstylename\else @\fi\endcsname}
 \makeatother
 """
 
@@ -229,9 +234,95 @@ class PygmentsBridge:
             # MEMO: this is done to escape Unicode chars with non-Unicode engines
             return texescape.hlescape(hlsource, self.latex_engine)
 
-    def get_stylesheet(self) -> str:
+    def get_stylesheet(self, selectors: list[int] | str | None = None) -> str:
+        """Return a string with the specification for the tokens yielded by the language
+        lexer, appropriate for the output formatter, using the style defined at
+        initialization. In an HTML context, `selectors` is a list of CSS class selectors. In a
+        LaTeX context, it modifies the command prefix used for macro definitions; see also
+        LaTeXBuilder.add_block_style()
+        """
         formatter = self.get_formatter()
-        if self.dest == 'html':
-            return formatter.get_style_defs('.highlight')
+        if isinstance(formatter, HtmlFormatter):
+            if selectors:
+                return formatter.get_style_defs(['.c{}'.format(s) for s in selectors])  # type: ignore [no-untyped-call]
+            else:
+                return formatter.get_style_defs('.highlight')  # type: ignore [no-untyped-call]
         else:
-            return formatter.get_style_defs() + _LATEX_ADD_STYLES
+            if selectors:
+                if not isinstance(selectors, str):
+                    logger.error(
+                        __(
+                            'Encountered %s in selectors field; expected a string '
+                            'for the LaTeX formatter.  Please report this error.'
+                        ),
+                        type(selectors),
+                        type='misc',
+                        subtype='highlighting_failure',
+                    )
+                    # not using '' as we don't want \PYG being overwritten.
+                    _tex_name = 'INVALID'
+                    selectors = 'default'  # TODO: make more informed choice?
+                _tex_name = md5(selectors.encode()).hexdigest()[:6]  # noqa: S324
+                for d, l in [
+                    ('0', 'G'),
+                    ('1', 'H'),
+                    ('2', 'I'),
+                    ('3', 'J'),
+                    ('4', 'K'),
+                    ('5', 'L'),
+                    ('6', 'M'),
+                    ('7', 'N'),
+                    ('8', 'O'),
+                    ('9', 'P'),
+                ]:
+                    _tex_name = _tex_name.replace(d, l)
+                stylesheet = self.formatter(
+                    style=selectors, commandprefix='PYG' + _tex_name
+                ).get_style_defs()
+                sphinx_redefs = ''
+                bc = self.get_style(selectors).background_color
+                if bc is not None:
+                    bc = bc.lstrip('#').lower()
+                    # The xcolor LaTeX package requires 6 hexadecimal digits
+                    if len(bc) == 3:
+                        bc = bc[0] * 2 + bc[1] * 2 + bc[2] * 2
+                    # We intercept a purely white background, so that PDF will use Sphinx
+                    # light gray default, rather, or the user VerbatimColor global choice.
+                    # TODO: argue pros and cons.
+                    if bc != 'ffffff':
+                        sphinx_redefs = (
+                            '% background color for above style, "HTML" syntax\n'
+                            f'\\def\\sphinxPYG{_tex_name}bc{{{bc}}}\n'
+                        )
+                # TODO: THIS MAY NOT BE THE RIGHT THING TO DO.
+                # TODO: REMOVE NEXT COMMENTS.
+                # I wanted to try with
+                # solarized-light which will use #657b83 but my sample code-block
+                # has no token not using a color so I could not confirm it does work.
+                # (indeed solarized-light uses \textcolor everywhere in its stylesheet,
+                #  so I modified manually LaTeX output to confirm the whole thing
+                #  actually worked as expected).
+                # I have not for lack of time searched for a pygments style defining
+                # such a color and not using \textcolor everywhere.
+                # The idea is to avoid invisible text on dark background which I believe
+                # I have experienced in the past when using dark background via injection
+                # of \sphinxsetup using raw:: latex directive.
+                base_style = self.get_style(selectors).styles[Token]
+                if base_style:  # could look like 'italic #000 bg:#ffffff'
+                    match = re.match(
+                        r'#([0-9a-fA-F]{3,6})(?:\s+bg:#([0-9a-fA-F]{3,6}))?', base_style
+                    )
+                    if match is not None:
+                        tc = match.group(1)
+                        if len(tc) == 3:
+                            tc = tc[0] * 2 + tc[1] * 2 + tc[2] * 2
+                        sphinx_redefs += (
+                            '% text default color for above style, "HTML" syntax\n'
+                            f'\\def\\sphinxPYG{_tex_name}tc{{{tc}}}\n'
+                        )
+                # TODO: what should we do for the color used to emphasize lines?
+                # It is VerbatimHightlightColor.
+            else:
+                stylesheet = formatter.get_style_defs()
+                sphinx_redefs = _LATEX_ADD_STYLES
+            return stylesheet + sphinx_redefs

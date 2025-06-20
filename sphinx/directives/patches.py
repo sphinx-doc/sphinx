@@ -93,6 +93,8 @@ class Code(SphinxDirective):
         'class': directives.class_option,
         'force': directives.flag,
         'name': directives.unchanged,
+        'style-light': directives.unchanged,
+        'style-dark': directives.unchanged,
         'number-lines': optional_int,
     }
     has_content = True
@@ -123,6 +125,9 @@ class Code(SphinxDirective):
                 self.env.current_document.highlight_language
                 or self.config.highlight_language
             )
+
+        node['style-light'] = self.options.get('style-light')
+        node['style-dark'] = self.options.get('style-dark')
 
         if 'number-lines' in self.options:
             node['linenos'] = True

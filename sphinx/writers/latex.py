@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from hashlib import md5
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
@@ -2257,14 +2258,57 @@ class LaTeXTranslator(SphinxTranslator):
             highlight_args['force'] = node.get('force', False)
             opts = self.config.highlight_options.get(lang, {})
 
-            hlcode = self.highlighter.highlight_block(
-                node.rawsource,
-                lang,
-                opts=opts,
-                linenos=linenos,
-                location=node,
-                **highlight_args,
-            )
+            # As blocks are processed, we discover specified styles.
+            _texstylename = ''
+            if node.get('style-light'):
+                code_style = node.get('style-light')
+                pb = self.builder.update_override_styles(style=code_style)
+                hlcode = pb.highlight_block(
+                    node.rawsource,
+                    lang,
+                    opts=opts,
+                    linenos=linenos,
+                    location=node,
+                    **highlight_args,
+                )
+                _texstylename = md5(code_style.encode()).hexdigest()[:6]  # noqa: S324
+                for d, l in [
+                    ('0', 'G'),
+                    ('1', 'H'),
+                    ('2', 'I'),
+                    ('3', 'J'),
+                    ('4', 'K'),
+                    ('5', 'L'),
+                    ('6', 'M'),
+                    ('7', 'N'),
+                    ('8', 'O'),
+                    ('9', 'P'),
+                ]:
+                    _texstylename = _texstylename.replace(d, l)
+            else:
+                hlcode = self.highlighter.highlight_block(
+                    node.rawsource,
+                    lang,
+                    opts=opts,
+                    linenos=linenos,
+                    location=node,
+                    **highlight_args,
+                )
+            if _texstylename:
+                # There is no a priori "VerbatimTextColor" set, except is user employed
+                # the sphinxsetup with pre_TeXcolor.  We could query the TeX boolean
+                # ifspx@opt@pre@withtextcolor but the @ letter is annoying here.  So
+                # let's simply add a group level and not worry about testing if this
+                # or other things pre-exist so we don't have to reset.
+                self.body.append(
+                    f'{CR}\\begingroup\\def\\sphinxpygmentsstylename{{{_texstylename}}}%'
+                    f'{CR}\\ifdefined\\sphinxPYG{_texstylename}bc'
+                    f'{CR}    \\sphinxsetup{{VerbatimColor={{HTML}}'
+                    f'{{\\sphinxPYG{_texstylename}bc}}}}%{CR}\\fi'
+                    f'{CR}\\ifdefined\\sphinxPYG{_texstylename}tc'
+                    f'{CR}    \\sphinxsetup{{pre_TeXcolor={{HTML}}'
+                    f'{{\\sphinxPYG{_texstylename}tc}}}}%{CR}\\fi'
+                )
             if self.in_footnote:
                 self.body.append(CR + r'\sphinxSetupCodeBlockInFootnote')
                 hlcode = hlcode.replace(r'\begin{Verbatim}', r'\begin{sphinxVerbatim}')
@@ -2291,6 +2335,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(CR + hlcode + CR)
             if hllines:
                 self.body.append(r'\sphinxresetverbatimhllines' + CR)
+            if _texstylename:
+                self.body.append(r'\endgroup' + CR)
             raise nodes.SkipNode
 
     def depart_literal_block(self, node: Element) -> None:
