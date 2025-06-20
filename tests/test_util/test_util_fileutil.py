@@ -12,12 +12,13 @@ import pytest
 from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
+from sphinx.util.template import BaseRenderer
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
-class DummyTemplateLoader(BuiltinTemplateLoader):
+class DummyTemplateLoader(BuiltinTemplateLoader, BaseRenderer):
     def __init__(self) -> None:
         super().__init__()
         builder = mock.Mock()
@@ -26,7 +27,7 @@ class DummyTemplateLoader(BuiltinTemplateLoader):
         self.init(builder)
 
 
-def test_copy_asset_file(tmp_path):
+def test_copy_asset_file(tmp_path: Path) -> None:
     renderer = DummyTemplateLoader()
 
     # copy normal file
@@ -69,7 +70,7 @@ def test_copy_asset_file(tmp_path):
     assert (subdir2 / 'asset.txt.jinja').read_text(encoding='utf8') == '# {{var1}} data'
 
 
-def test_copy_asset(tmp_path):
+def test_copy_asset(tmp_path: Path) -> None:
     renderer = DummyTemplateLoader()
 
     # prepare source files
@@ -113,7 +114,7 @@ def test_copy_asset(tmp_path):
     assert sidebar == 'sidebar: baz'
 
     # copy with exclusion
-    def excluded(path):
+    def excluded(path: str) -> bool:
         return 'sidebar.html' in path or 'basic.css' in path
 
     destdir = tmp_path / 'test3'

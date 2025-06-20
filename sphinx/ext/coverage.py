@@ -255,7 +255,7 @@ class CoverageBuilder(Builder):
                 for typ, name in sorted(undoc):
                     op.write(f' * {name:<50} [{typ:>9}]\n')
                     if self.config.coverage_show_missing_items:
-                        if self.app.quiet:
+                        if self.config.verbosity < 0:
                             logger.warning(
                                 __('undocumented c api: %s [%s] in file %s'),
                                 name,
@@ -446,7 +446,7 @@ class CoverageBuilder(Builder):
                         op.write('Functions:\n')
                         op.writelines(f' * {x}\n' for x in undoc['funcs'])
                         if self.config.coverage_show_missing_items:
-                            if self.app.quiet:
+                            if self.config.verbosity < 0:
                                 for func in undoc['funcs']:
                                     logger.warning(
                                         __('undocumented python function: %s :: %s'),
@@ -468,7 +468,7 @@ class CoverageBuilder(Builder):
                             if not methods:
                                 op.write(f' * {class_name}\n')
                                 if self.config.coverage_show_missing_items:
-                                    if self.app.quiet:
+                                    if self.config.verbosity < 0:
                                         logger.warning(
                                             __('undocumented python class: %s :: %s'),
                                             name,
@@ -485,7 +485,7 @@ class CoverageBuilder(Builder):
                                 op.write(f' * {class_name} -- missing methods:\n\n')
                                 op.writelines(f'   - {x}\n' for x in methods)
                                 if self.config.coverage_show_missing_items:
-                                    if self.app.quiet:
+                                    if self.config.verbosity < 0:
                                         for meth in methods:
                                             logger.warning(
                                                 __(

@@ -386,7 +386,7 @@ class DocFieldTransformer:
         field_body = cast('nodes.field_body', field[1])
         try:
             # split into field type and argument
-            fieldtype_name, fieldarg = field_name.astext().split(None, 1)
+            fieldtype_name, fieldarg = field_name.astext().split(None, maxsplit=1)
         except ValueError:
             # maybe an argument-less field type?
             fieldtype_name, fieldarg = field_name.astext(), ''

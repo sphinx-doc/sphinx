@@ -165,7 +165,7 @@ class RecipeDomain(Domain):
             name,
             signature,
             'Recipe',
-            self.env.docname,
+            self.env.current_document.docname,
             anchor,
             0,
         ))

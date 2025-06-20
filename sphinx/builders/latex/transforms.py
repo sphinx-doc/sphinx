@@ -40,7 +40,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(*self.TARGET_NODES)
         for node in matcher.findall(self.document):
-            node['docname'] = self.env.docname
+            node['docname'] = self.env.current_document.docname
 
 
 class SubstitutionDefinitionsRemover(SphinxPostTransform):

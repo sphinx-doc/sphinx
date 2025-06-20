@@ -321,7 +321,7 @@ class Config:
 
         for name in list(self._overrides.keys()):
             if '.' in name:
-                real_name, key = name.split('.', 1)
+                real_name, _, key = name.partition('.')
                 raw_config.setdefault(real_name, {})[key] = self._overrides.pop(name)
 
         self.setup: _ExtensionSetupFunc | None = raw_config.get('setup')
@@ -334,6 +334,8 @@ class Config:
                 raw_config['extensions'] = extensions
         self.extensions: list[str] = raw_config.get('extensions', [])
 
+        self._verbosity: int = 0  # updated in Sphinx.__init__()
+
     @property
     def values(self) -> dict[str, _Opt]:
         return self._options
@@ -342,12 +344,17 @@ class Config:
     def overrides(self) -> dict[str, Any]:
         return self._overrides
 
+    @property
+    def verbosity(self) -> int:
+        return self._verbosity
+
     @classmethod
     def read(
         cls: type[Config],
         confdir: str | os.PathLike[str],
-        overrides: dict[str, Any] | None = None,
-        tags: Tags | None = None,
+        *,
+        overrides: dict[str, Any],
+        tags: Tags,
     ) -> Config:
         """Create a Config object from configuration file."""
         filename = Path(confdir, CONFIG_FILENAME)
@@ -355,23 +362,7 @@ class Config:
             raise ConfigError(
                 __("config directory doesn't contain a conf.py file (%s)") % confdir
             )
-        namespace = eval_config_file(filename, tags)
-
-        # Note: Old sphinx projects have been configured as "language = None" because
-        #       sphinx-quickstart previously generated this by default.
-        #       To keep compatibility, they should be fallback to 'en' for a while
-        #       (This conversion should not be removed before 2025-01-01).
-        if namespace.get('language', ...) is None:
-            logger.warning(
-                __(
-                    "Invalid configuration value found: 'language = None'. "
-                    'Update your configuration to a valid language code. '
-                    "Falling back to 'en' (English)."
-                )
-            )
-            namespace['language'] = 'en'
-
-        return cls(namespace, overrides)
+        return _read_conf_py(filename, overrides=overrides, tags=tags)
 
     def convert_overrides(self, name: str, value: str) -> Any:
         opt = self._options[name]
@@ -584,12 +575,28 @@ class Config:
         self.__dict__.update(state)
 
 
-def eval_config_file(
-    filename: str | os.PathLike[str], tags: Tags | None
-) -> dict[str, Any]:
-    """Evaluate a config file."""
-    filename = Path(filename)
+def _read_conf_py(conf_path: Path, *, overrides: dict[str, Any], tags: Tags) -> Config:
+    """Create a Config object from a conf.py file."""
+    namespace = eval_config_file(conf_path, tags)
 
+    # Note: Old sphinx projects have been configured as "language = None" because
+    #       sphinx-quickstart previously generated this by default.
+    #       To keep compatibility, they should be fallback to 'en' for a while
+    #       (This conversion should not be removed before 2025-01-01).
+    if namespace.get('language', ...) is None:
+        logger.warning(
+            __(
+                "Invalid configuration value found: 'language = None'. "
+                'Update your configuration to a valid language code. '
+                "Falling back to 'en' (English)."
+            )
+        )
+        namespace['language'] = 'en'
+    return Config(namespace, overrides)
+
+
+def eval_config_file(filename: Path, tags: Tags) -> dict[str, Any]:
+    """Evaluate a config file."""
     namespace: dict[str, Any] = {
         '__file__': str(filename),
         'tags': tags,
@@ -890,7 +897,21 @@ def check_master_doc(
     return changed
 
 
+def deprecate_source_encoding(_app: Sphinx, config: Config) -> None:
+    """Warn on non-UTF 8 source_encoding."""
+    # RemovedInSphinx10Warning
+    if config.source_encoding.lower() not in {'utf-8', 'utf-8-sig', 'utf8'}:
+        msg = _(
+            'Support for source encodings other than UTF-8 '
+            'is deprecated and will be removed in Sphinx 10. '
+            'Please comment at https://github.com/sphinx-doc/sphinx/issues/13665 '
+            'if this causes a problem.'
+        )
+        logger.warning(msg)
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
+    app.connect('config-inited', deprecate_source_encoding, priority=790)
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)

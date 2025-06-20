@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import warnings
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any
 
@@ -30,11 +29,7 @@ def _transform(doctree) -> None:
 
 
 def create_new_document() -> document:
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        # DeprecationWarning: The frontend.OptionParser class will be replaced
-        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        settings = frontend.OptionParser(components=(rst.Parser,)).get_default_values()
+    settings = frontend.get_default_settings(rst.Parser)
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document

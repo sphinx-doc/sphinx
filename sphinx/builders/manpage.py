@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import warnings
 from typing import TYPE_CHECKING
 
-from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
 from sphinx import addnodes
@@ -14,13 +12,13 @@ from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.display import progress_message
+from sphinx.util.docutils import _get_settings
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
 from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 
 if TYPE_CHECKING:
     from collections.abc import Set
-    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -37,7 +35,7 @@ class ManualPageBuilder(Builder):
     epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
-    supported_image_types: list[str] = []
+    supported_image_types = []
 
     def init(self) -> None:
         if not self.config.man_pages:
@@ -54,15 +52,9 @@ class ManualPageBuilder(Builder):
     @progress_message(__('writing'))
     def write_documents(self, _docnames: Set[str]) -> None:
         docwriter = ManualPageWriter(self)
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
-            # DeprecationWarning: The frontend.OptionParser class will be replaced
-            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-            docsettings: Any = OptionParser(
-                defaults=self.env.settings,
-                components=(docwriter,),
-                read_config_files=True,
-            ).get_default_values()
+        docsettings = _get_settings(
+            ManualPageWriter, defaults=self.env.settings, read_config_files=True
+        )
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info

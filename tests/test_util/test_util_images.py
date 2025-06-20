@@ -84,8 +84,5 @@ def test_parse_data_uri() -> None:
         'data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4'
         '//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=='
     )
-    with pytest.raises(
-        ValueError,
-        match=r'not enough values to unpack \(expected 2, got 1\)',
-    ):
+    with pytest.raises(ValueError, match=r'malformed data URI'):
         parse_data_uri(uri)
