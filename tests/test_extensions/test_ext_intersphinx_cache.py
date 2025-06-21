@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+import shutil
 import zlib
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
@@ -261,12 +262,14 @@ def test_load_mappings_cache_update(tmp_path):
         app1 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides1)
         app1.build()
         app1.cleanup()
+        shutil.rmtree(app1.doctreedir / '__intersphinx_cache__', ignore_errors=True)
 
         # switch to new url and assert that the old URL is no more stored
         confoverrides2 = BASE_CONFIG | {'intersphinx_mapping': new_project.record}
         app2 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides2)
         app2.build()
         app2.cleanup()
+        shutil.rmtree(app2.doctreedir / '__intersphinx_cache__', ignore_errors=True)
 
     entry = new_project.make_entry()
     item = dict((new_project.normalise(entry),))
