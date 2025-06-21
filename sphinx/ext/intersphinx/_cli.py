@@ -5,7 +5,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from sphinx.ext.intersphinx._load import _fetch_inventory, _InvConfig
+from sphinx.ext.intersphinx._load import (
+    _fetch_inventory_data,
+    _InvConfig,
+    _load_inventory,
+)
 
 
 def inspect_main(argv: list[str], /) -> int:
@@ -28,12 +32,14 @@ def inspect_main(argv: list[str], /) -> int:
     )
 
     try:
-        inv = _fetch_inventory(
+        raw_data = _fetch_inventory_data(
             target_uri='',
             inv_location=filename,
             config=config,
             srcdir=Path(),
+            cache_path=None,
         )
+        inv = _load_inventory(raw_data, target_uri='')
         for key in sorted(inv.data):
             print(key)
             inv_entries = sorted(inv.data[key].items())
