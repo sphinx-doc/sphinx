@@ -73,6 +73,8 @@ Bugs fixed
 * #13635: LaTeX: if a cell contains a table, row coloring is turned off for
   the next table cells.
   Patch by Jean-François B.
+* #13685: gettext: Correctly ignore trailing backslashes.
+  Patch by Bénédikt Tran.
 
 Testing
 -------

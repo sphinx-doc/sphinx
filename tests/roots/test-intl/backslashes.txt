@@ -1,0 +1,38 @@
+:tocdepth: 2
+
+i18n with backslashes
+=====================
+
+line 1\
+line 2 \
+line 3  \
+line 4a \ and 4b \
+line       with spaces after backslash     \    
+last line       with spaces     \
+and done 1
+
+.. gettext parses the following lines as "a<space>b<space>c",
+   while a C pre-processor would have produced "a<space>bc".
+
+a \
+b\
+c   \
+
+last trailing \ \ \
+is ignored
+
+
+See [#]_
+
+.. [#] footnote with backslashes \
+   and done 2
+
+
+.. note:: directive with \
+   backslashes
+
+
+.. function:: foo(a,    \
+                  b, \
+                  c, d, e, f)
+   the foo
