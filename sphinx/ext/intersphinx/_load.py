@@ -233,7 +233,7 @@ def _fetch_inventory_group(
     now: int,
     config: _InvConfig,
     srcdir: Path,
-    cache_dir: Path,
+    cache_dir: Path | None,
 ) -> bool:
     if config.intersphinx_cache_limit >= 0:
         # Positive value: cache is expired if its timestamp is below
@@ -254,9 +254,14 @@ def _fetch_inventory_group(
         else:
             inv_location = location
 
-        cache_path = cache_dir / f'{project.name}_{INVENTORY_FILENAME}'
+        if cache_dir is not None:
+            cache_path = cache_dir / f'{project.name}_{INVENTORY_FILENAME}'
+        else:
+            cache_path = None
+
         if (
-            '://' in inv_location
+            cache_path is not None
+            and '://' in inv_location
             and project.target_uri not in cache
             and cache_path.is_file()
             # the saved 'objects.inv' is not older than the cache expiry time
@@ -282,14 +287,14 @@ def _fetch_inventory_group(
             )
 
             try:
-                raw_data = _fetch_inventory_data(
+                raw_data, target_uri = _fetch_inventory_data(
                     target_uri=project.target_uri,
                     inv_location=inv_location,
                     config=config,
                     srcdir=srcdir,
                     cache_path=cache_path,
                 )
-                inv = _load_inventory(raw_data, target_uri=project.target_uri)
+                inv = _load_inventory(raw_data, target_uri=target_uri)
             except Exception as err:
                 failures.append(err.args)
                 continue
@@ -321,7 +326,7 @@ def _fetch_inventory_group(
 
 def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
-    raw_data = _fetch_inventory_data(
+    raw_data, uri = _fetch_inventory_data(
         target_uri=uri,
         inv_location=inv,
         config=_InvConfig.from_config(app.config),
@@ -338,7 +343,7 @@ def _fetch_inventory_data(
     config: _InvConfig,
     srcdir: Path,
     cache_path: Path | None,
-) -> bytes:
+) -> tuple[bytes, str]:
     """Fetch inventory data from a local or remote source."""
     # both *target_uri* (base URI of the links to generate)
     # and *inv_location* (actual location of the inventory file)
@@ -355,7 +360,7 @@ def _fetch_inventory_data(
             cache_path.write_bytes(raw_data)
     else:
         raw_data = _fetch_inventory_file(inv_location=inv_location, srcdir=srcdir)
-    return raw_data
+    return raw_data, target_uri
 
 
 def _load_inventory(raw_data: bytes, /, *, target_uri: InventoryURI) -> _Inventory:

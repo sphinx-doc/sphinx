@@ -32,7 +32,7 @@ def inspect_main(argv: list[str], /) -> int:
     )
 
     try:
-        raw_data = _fetch_inventory_data(
+        raw_data, _ = _fetch_inventory_data(
             target_uri='',
             inv_location=filename,
             config=config,
