@@ -54,6 +54,10 @@ Features added
   Patch by Adam Turner.
 * #13647: LaTeX: allow more cases of table nesting.
   Patch by Jean-François B.
+* #13684: intersphinx: Add a file-based cache for remote inventories.
+  The location of the cache directory must not be relied upon externally,
+  as it may change without notice or warning in future releases.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
