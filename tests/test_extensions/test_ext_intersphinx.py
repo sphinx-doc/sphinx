@@ -791,7 +791,8 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
     # We replace it with a mock to test whether it has been called.
     # If it has been called, it means the cache had expired.
     monkeypatch.setattr(
-        'sphinx.ext.intersphinx._load._fetch_inventory_data', mock.Mock()
+        'sphinx.ext.intersphinx._load._fetch_inventory_data',
+        mock.Mock(return_value=(b'', '')),
     )
     mock_fetch_inventory = mock.Mock(return_value=_Inventory({}))
     monkeypatch.setattr(
