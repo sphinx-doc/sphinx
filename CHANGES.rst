@@ -77,6 +77,9 @@ Bugs fixed
 * #13635: LaTeX: if a cell contains a table, row coloring is turned off for
   the next table cells.
   Patch by Jean-François B.
+* #13526: Improve ``SOURCE_DATE_EPOCH`` support during ``%Y`` pattern
+  substition in :confval:`copyright` (and :confval:`project_copyright`).
+  Patch by James Addison.
 
 Testing
 -------
