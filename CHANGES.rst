@@ -62,6 +62,10 @@ Features added
 Bugs fixed
 ----------
 
+* #11498: LaTeX: Table in cell fails to build if it has many rows.
+  Patch by Jean-François B.
+* #11515: LaTeX: longtable does not allow nested table.
+  Patch by Jean-François B.
 * #12821: LaTeX: URLs/links in section titles should render in PDF.
   Patch by Jean-François B.
 * #13369: Correctly parse and cross-reference unpacked type annotations.
