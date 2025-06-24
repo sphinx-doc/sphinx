@@ -84,6 +84,8 @@ Other domains may be found on the Python Package Index
 `GitHub <https://github.com/search?q=sphinx%20domain&type=repositories>`__, or
 `GitLab <https://gitlab.com/explore/projects?name=sphinx%20domain>`__.
 
+__ https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Domain
+
 ..
 
   NOTE: The following all seem unmaintained, last released 2018 or earlier.
