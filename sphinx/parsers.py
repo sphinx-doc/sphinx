@@ -70,7 +70,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
 
         refs: sphinx.io.SphinxStandaloneReader
         """
-        transforms = super().get_transforms()
+        transforms = super(RSTParser, RSTParser()).get_transforms()
         transforms.remove(SmartQuotes)
         return transforms
 

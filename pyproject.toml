@@ -304,7 +304,6 @@ module = [
     # tests/test_config
     "tests.test_config.test_config",
     # tests/test_directives
-    "tests.test_directives.test_directive_only",
     "tests.test_directives.test_directive_other",
     "tests.test_directives.test_directive_patch",
     # tests/test_domains

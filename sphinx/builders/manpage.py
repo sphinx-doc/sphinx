@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from docutils.io import FileOutput
-
 from sphinx import addnodes
 from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder
@@ -15,7 +13,11 @@ from sphinx.util.display import progress_message
 from sphinx.util.docutils import _get_settings
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
-from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
+from sphinx.writers.manpage import (
+    ManualPageTranslator,
+    ManualPageWriter,
+    NestedInlineTransform,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -51,7 +53,6 @@ class ManualPageBuilder(Builder):
 
     @progress_message(__('writing'))
     def write_documents(self, _docnames: Set[str]) -> None:
-        docwriter = ManualPageWriter(self)
         docsettings = _get_settings(
             ManualPageWriter, defaults=self.env.settings, read_config_files=True
         )
@@ -83,10 +84,6 @@ class ManualPageBuilder(Builder):
                 targetname = f'{name}.{section}'
 
             logger.info('%s { ', darkgreen(targetname))
-            destination = FileOutput(
-                destination_path=self.outdir / targetname,
-                encoding='utf-8',
-            )
 
             tree = self.env.get_doctree(docname)
             docnames: set[str] = set()
@@ -100,7 +97,11 @@ class ManualPageBuilder(Builder):
             for pendingnode in largetree.findall(addnodes.pending_xref):
                 pendingnode.replace_self(pendingnode.children)
 
-            docwriter.write(largetree, destination)
+            transform = NestedInlineTransform(largetree)
+            transform.apply()
+            visitor: ManualPageTranslator = self.create_translator(largetree, self)  # type: ignore[assignment]
+            largetree.walkabout(visitor)
+            (self.outdir / targetname).write_text(visitor.astext(), encoding='utf-8')
 
     def finish(self) -> None:
         pass

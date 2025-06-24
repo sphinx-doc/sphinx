@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.io`` (entire module)
+     - 8.3
+     - 10.0
+     - ``docutils.io`` or standard Python I/O
+
    * - ``sphinx.builders.Builder.app``
      - 8.3
      - 10.0

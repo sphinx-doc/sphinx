@@ -32,6 +32,7 @@ CONTENTS
    translation_progress
    topic
    markup
+   backslashes
 
 .. toctree::
    :maxdepth: 2

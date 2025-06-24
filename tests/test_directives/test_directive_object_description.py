@@ -31,7 +31,7 @@ def _doctree_for_test(
     parser = registry.create_source_parser('restructuredtext', config=config, env=env)
     return _parse_str_to_doctree(
         content,
-        filename=env.doc2path(docname),
+        filename=filename,
         default_settings={'env': env},
         env=env,
         parser=parser,
