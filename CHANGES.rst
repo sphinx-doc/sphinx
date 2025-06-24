@@ -23,6 +23,17 @@ Deprecated
   Patch by Adam Turner.
 * #13644: Deprecate the :py:attr:`!Parser.config` and :py:attr:`!env` attributes.
   Patch by Adam Turner.
+* #13665: Deprecate support for non-UTF 8 source encodings,
+  scheduled for removal in Sphinx 10.
+  Patch by Adam Turner.
+* #13679: Non-decodable characters in source files will raise an error in Sphinx 9.
+  Currently, such bytes are replaced with '?' along with logging a warning.
+  Patch by Adam Turner.
+* #13682: Deprecate :py:mod:`!sphinx.io`.
+  Sphinx no longer uses the :py:mod:`!sphinx.io` classes,
+  having replaced them with standard Python I/O.
+  The entire :py:mod:`!sphinx.io` module will be removed in Sphinx 10.
+  Patch by Adam Turner.
 
 Features added
 --------------
@@ -43,6 +54,10 @@ Features added
   Patch by Adam Turner.
 * #13647: LaTeX: allow more cases of table nesting.
   Patch by Jean-François B.
+* #13684: intersphinx: Add a file-based cache for remote inventories.
+  The location of the cache directory must not be relied upon externally,
+  as it may change without notice or warning in future releases.
+  Patch by Adam Turner.
 * #13668: :mod:`sphinx.ext.apidoc`: Support :confval:`apidoc_remove_old`
   and :code:`'remove_old'` key of :confval:`apidoc_modules` when using apidoc as
   an extension, like :option:`sphinx-apidoc --remove-old`.
@@ -51,6 +66,10 @@ Features added
 Bugs fixed
 ----------
 
+* #11498: LaTeX: Table in cell fails to build if it has many rows.
+  Patch by Jean-François B.
+* #11515: LaTeX: longtable does not allow nested table.
+  Patch by Jean-François B.
 * #12821: LaTeX: URLs/links in section titles should render in PDF.
   Patch by Jean-François B.
 * #13369: Correctly parse and cross-reference unpacked type annotations.
@@ -66,6 +85,8 @@ Bugs fixed
 * #13635: LaTeX: if a cell contains a table, row coloring is turned off for
   the next table cells.
   Patch by Jean-François B.
+* #13685: gettext: Correctly ignore trailing backslashes.
+  Patch by Bénédikt Tran.
 
 Testing
 -------

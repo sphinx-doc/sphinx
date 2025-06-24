@@ -646,10 +646,11 @@ configurations:
 Source encoding
 ---------------
 
-Since the easiest way to include special characters like em dashes or copyright
-signs in reStructuredText is to directly write them as Unicode characters, one has to
-specify an encoding.  Sphinx assumes source files to be encoded in UTF-8 by
-default; you can change this with the :confval:`source_encoding` config value.
+Sphinx supports source files that are encoded in UTF-8.
+This means that the full range of Unicode__ characters may be used
+directly in reStructuredText.
+
+__ https://www.unicode.org/
 
 
 Gotchas

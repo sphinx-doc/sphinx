@@ -156,7 +156,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             parent=target_symbol,
             ident=symbol.ident,
             declaration=decl_clone,
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             line=self.get_source_info()[1],
         )
 
@@ -259,7 +259,9 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
         try:
             symbol = parent_symbol.add_declaration(
-                ast, docname=self.env.docname, line=self.get_source_info()[1]
+                ast,
+                docname=self.env.current_document.docname,
+                line=self.get_source_info()[1],
             )
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None

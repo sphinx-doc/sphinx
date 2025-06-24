@@ -1157,6 +1157,9 @@ Options for source files
    The recommended encoding is ``'utf-8-sig'``.
 
    .. versionadded:: 0.5
+   .. deprecated:: 8.3
+      Support for source encodings other than UTF-8 is deprecated.
+      Sphinx 10 will only support UTF-8 files.
 
 .. confval:: source_suffix
    :type: :code-py:`dict[str, str] | Sequence[str] | str`

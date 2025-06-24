@@ -971,7 +971,7 @@ __ https://pygments.org/docs/lexers
       :type: text
 
       Explicitly specify the encoding of the file.
-      This overwrites the default encoding (:confval:`source_encoding`).
+      This overwrites the default encoding (UTF-8).
       For example:
 
       .. code-block:: rst
