@@ -86,19 +86,17 @@ Other domains may be found on the Python Package Index
 
 __ https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Domain
 
-..
+.. NOTE: The following all seem unmaintained, last released 2018 or earlier.
+         The links are preserved in this comment for reference.
 
-  NOTE: The following all seem unmaintained, last released 2018 or earlier.
-        The links are preserved in this comment for reference.
-
-  * `CoffeeScript <https://pypi.org/project/sphinxcontrib-coffee/>`__
-  * `DotNET <https://pypi.org/project/sphinxcontrib-dotnetdomain/>`__
-  * `dqn <https://pypi.org/project/sphinxcontrib-dqndomain/>`__
-  * `Jinja <https://pypi.org/project/sphinxcontrib-jinjadomain/>`__
-  * `JSON <https://pypi.org/project/sphinx-jsondomain/>`__
-  * `Lasso <https://pypi.org/project/sphinxcontrib-lassodomain/>`__
-  * `Operation <https://pypi.org/project/sphinxcontrib-operationdomain/>`__
-  * `Scala <https://pypi.org/project/sphinxcontrib-scaladomain/>`__
+   * `CoffeeScript <https://pypi.org/project/sphinxcontrib-coffee/>`__
+   * `DotNET <https://pypi.org/project/sphinxcontrib-dotnetdomain/>`__
+   * `dqn <https://pypi.org/project/sphinxcontrib-dqndomain/>`__
+   * `Jinja <https://pypi.org/project/sphinxcontrib-jinjadomain/>`__
+   * `JSON <https://pypi.org/project/sphinx-jsondomain/>`__
+   * `Lasso <https://pypi.org/project/sphinxcontrib-lassodomain/>`__
+   * `Operation <https://pypi.org/project/sphinxcontrib-operationdomain/>`__
+   * `Scala <https://pypi.org/project/sphinxcontrib-scaladomain/>`__
 
 
 .. _basic-domain-markup:
