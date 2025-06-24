@@ -103,7 +103,7 @@ lint = [
     "types-Pygments==2.19.0.20250516",
     "types-requests==2.32.4.20250611",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.400",
+    "pyright==1.1.402",
     "pytest>=8.0",
     "pypi-attestations==0.0.26",
     "betterproto==2.0.0b6",
@@ -160,7 +160,7 @@ translations = [
 types = [
     "mypy==1.16.1",
     "pyrefly",
-    "pyright==1.1.400",
+    "pyright==1.1.402",
     { include-group = "type-stubs" },
 ]
 type-stubs = [
