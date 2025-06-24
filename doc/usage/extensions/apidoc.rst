@@ -92,6 +92,9 @@ The apidoc extension uses the following configuration values:
    :code-py:`'follow_links'`
      See :confval:`apidoc_follow_links`.
 
+   :code-py:`'remove_old'`
+     See :confval:`apidoc_remove_old`.
+
    :code-py:`'separate_modules'`
      See :confval:`apidoc_separate_modules`.
 
@@ -128,6 +131,12 @@ The apidoc extension uses the following configuration values:
    :default: :code-py:`False`
 
    Follow symbolic links.
+
+.. confval:: apidoc_remove_old
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Remove existing files in the output directory that are not created anymore.
 
 .. confval:: apidoc_separate_modules
    :type: :code-py:`bool`
