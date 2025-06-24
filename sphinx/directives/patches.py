@@ -73,11 +73,11 @@ class CSVTable(tables.CSVTable):
                         'an absolute path as a relative path from source directory. '
                         'Please update your document.'
                     ),
-                    location=(env.docname, self.lineno),
+                    location=(env.current_document.docname, self.lineno),
                 )
             else:
                 abspath = env.srcdir / self.options['file'][1:]
-                doc_dir = env.doc2path(env.docname).parent
+                doc_dir = env.doc2path(env.current_document.docname).parent
                 self.options['file'] = relpath(abspath, doc_dir)
 
         return super().run()
@@ -163,7 +163,7 @@ class MathDirective(SphinxDirective):
             latex,
             latex,
             classes=self.options.get('class', []),
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             number=None,
             label=label,
         )
@@ -181,7 +181,7 @@ class MathDirective(SphinxDirective):
         # assign label automatically if math_number_all enabled
         if node['label'] == '' or (self.config.math_number_all and not node['label']):  # NoQA: PLC1901
             seq = self.env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = f'{self.env.docname}:{seq}'
+            node['label'] = f'{self.env.current_document.docname}:{seq}'
 
         # no targets and numbers are needed
         if not node['label']:
@@ -189,7 +189,9 @@ class MathDirective(SphinxDirective):
 
         # register label to domain
         domain = self.env.domains.math_domain
-        domain.note_equation(self.env.docname, node['label'], location=node)
+        domain.note_equation(
+            self.env.current_document.docname, node['label'], location=node
+        )
         node['number'] = domain.get_equation_number_for(node['label'])
 
         # add target node

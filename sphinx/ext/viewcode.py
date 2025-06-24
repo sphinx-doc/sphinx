@@ -166,7 +166,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             if not modname:
                 continue
             fullname = signode.get('fullname')
-            if not has_tag(modname, fullname, env.docname, refname):
+            if not has_tag(modname, fullname, env.current_document.docname, refname):
                 continue
             if fullname in names:
                 # only one link per name, please
@@ -174,7 +174,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             names.add(fullname)
             pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
             signode += viewcode_anchor(
-                reftarget=pagename, refid=fullname, refdoc=env.docname
+                reftarget=pagename, refid=fullname, refdoc=env.current_document.docname
             )
 
 

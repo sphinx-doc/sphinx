@@ -59,7 +59,7 @@ class Todo(SphinxAdmonition):
             return [todo]
 
         todo.insert(0, nodes.title(text=_('Todo')))
-        todo['docname'] = self.env.docname
+        todo['docname'] = self.env.current_document.docname
         self.add_name(todo)
         self.set_source_info(todo)
         self.state.document.note_explicit_target(todo)

@@ -18,7 +18,6 @@ from sphinx import addnodes
 from sphinx.deprecation import _deprecation_warning
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
@@ -97,6 +96,8 @@ class SphinxTransformer(Transformer):
         else:
             # wrap the target node by document node during transforming
             try:
+                from sphinx.util.docutils import new_document
+
                 document = new_document('')
                 if self.env:
                     document.settings.env = self.env

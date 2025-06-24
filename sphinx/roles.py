@@ -130,7 +130,7 @@ class XRefRole(ReferenceRole):
 
         # create the reference node
         options = {
-            'refdoc': self.env.docname,
+            'refdoc': self.env.current_document.docname,
             'refdomain': self.refdomain,
             'reftype': self.reftype,
             'refexplicit': self.has_explicit_title,

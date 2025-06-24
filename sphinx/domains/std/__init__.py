@@ -308,7 +308,10 @@ class Cmdoption(ObjectDescription[str]):
         domain = self.env.domains.standard_domain
         for optname in signode.get('allnames', ()):
             domain.add_program_option(
-                currprogram, optname, self.env.docname, signode['ids'][0]
+                currprogram,
+                optname,
+                self.env.current_document.docname,
+                signode['ids'][0],
             )
 
         # create an index entry
@@ -857,7 +860,7 @@ class StandardDomain(Domain):
                 docname,
                 location=location,
             )
-        self.objects[objtype, name] = (self.env.docname, labelid)
+        self.objects[objtype, name] = (self.env.current_document.docname, labelid)
 
     @property
     def _terms(self) -> dict[str, tuple[str, str]]:
@@ -871,7 +874,7 @@ class StandardDomain(Domain):
         """
         self.note_object('term', term, labelid, location)
 
-        self._terms[term.lower()] = (self.env.docname, labelid)
+        self._terms[term.lower()] = (self.env.current_document.docname, labelid)
 
     @property
     def progoptions(self) -> dict[tuple[str | None, str], tuple[str, str]]:

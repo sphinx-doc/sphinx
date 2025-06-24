@@ -56,8 +56,8 @@ def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(
 
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_transforms_reorder_consecutive_target_and_index_nodes_no_merge_across_other_nodes(
-    app,
-):
+    app: SphinxTestApp,
+) -> None:
     text = (
         '.. index:: abc\n'
         '.. index:: def\n'
