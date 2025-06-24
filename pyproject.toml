@@ -269,7 +269,6 @@ module = [
     # tests/test_extensions
     "tests.test_extensions.test_ext_autodoc_autoclass",
     "tests.test_extensions.test_ext_autosummary_imports",
-    "tests.test_extensions.test_ext_imgconverter",
     "tests.test_extensions.test_ext_intersphinx_cache",
     "tests.test_extensions.test_ext_math",
     "tests.test_extensions.test_ext_napoleon",
