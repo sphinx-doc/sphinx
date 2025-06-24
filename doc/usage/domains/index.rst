@@ -62,7 +62,7 @@ Several third-party domains are available as extensions, including:
 * `Bazel <https://pypi.org/project/sphinx-bazel/>`__
 * `BibTex <https://pypi.org/project/sphinxcontrib-bibtex/>`__
 * `Chapel <https://pypi.org/project/sphinxcontrib-chapeldomain/>`__
-* `CMake <https://pypi.org/project/https://pypi.org/project/sphinxcontrib-moderncmakedomain/>`__
+* `CMake <https://pypi.org/project/sphinxcontrib-moderncmakedomain/>`__
 * `Common Lisp <https://pypi.org/project/sphinxcontrib-cldomain/>`__
 * `Erlang <https://pypi.org/project/sphinxcontrib-erlangdomain/>`__
 * `Fortran <https://pypi.org/project/sphinx-fortran/>`__
