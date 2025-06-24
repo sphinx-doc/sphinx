@@ -19,6 +19,7 @@ from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import ClassVar
 
     from docutils.nodes import Node
@@ -35,7 +36,7 @@ class Figure(images.Figure):
     instead of the image node.
     """
 
-    def run(self) -> list[Node]:
+    def run(self) -> Sequence[Node]:
         name = self.options.pop('name', None)
         result = super().run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
