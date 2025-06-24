@@ -285,7 +285,6 @@ module = [
     "tests.test_theming.test_theming",
     # tests/test_transforms
     "tests.test_transforms.test_transforms_post_transforms_images",
-    "tests.test_transforms.test_transforms_reorder_nodes",
     # tests/test_util
     "tests.test_util.test_util_docutils",
     # tests/test_writers
