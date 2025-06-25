@@ -83,6 +83,9 @@ Bugs fixed
   Patch by Jean-François B.
 * #13685: gettext: Correctly ignore trailing backslashes.
   Patch by Bénédikt Tran.
+* #12797: Fix
+  ``TypeError: Some type variables (...) are not listed in Generic[...]``
+  when inheriting from both Generic and autodoc mocked class.
 
 Testing
 -------
