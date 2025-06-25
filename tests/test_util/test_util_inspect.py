@@ -8,7 +8,7 @@ import enum
 import functools
 import types
 from inspect import Parameter
-from typing import Callable, List, Optional, Union  # NoQA: UP035
+from typing import TYPE_CHECKING, Callable, List, Optional, Union  # NoQA: UP035
 
 import pytest
 
@@ -19,6 +19,9 @@ from sphinx.util.inspect import (
     stringify_signature,
 )
 from sphinx.util.typing import stringify_annotation
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class Base:
@@ -98,7 +101,7 @@ class _Callable:
         pass
 
 
-def _decorator(f):
+def _decorator(f: Callable[[], Any]) -> Callable[[], Any]:
     @functools.wraps(f)
     def wrapper():
         return f()
@@ -658,10 +661,10 @@ def test_recursive_collection_description():
 
 def test_dict_customtype() -> None:
     class CustomType:
-        def __init__(self, value):
+        def __init__(self, value: int) -> None:
             self._value = value
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return '<CustomType(%r)>' % self._value
 
     dictionary = {CustomType(2): 2, CustomType(1): 1}
@@ -985,8 +988,8 @@ def test_is_builtin_class_method() -> None:
     assert not inspect.is_builtin_class_method(MyInt, 'does_not_exist')
     assert not inspect.is_builtin_class_method(4, 'still does not crash')
 
-    class ObjectWithMroAttr:
-        def __init__(self, mro_attr):
+    class ObjectWithMroAttr:  # noqa: B903
+        def __init__(self, mro_attr: list[int]) -> None:
             self.__mro__ = mro_attr
 
     assert not inspect.is_builtin_class_method(

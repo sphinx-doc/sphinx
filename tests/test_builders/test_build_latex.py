@@ -46,7 +46,7 @@ STYLEFILES = [
 
 
 # only run latex if all needed packages are there
-def kpsetest(*filenames):
+def kpsetest(*filenames: str) -> bool:
     try:
         subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)  # NoQA: S607
         return True
@@ -55,7 +55,11 @@ def kpsetest(*filenames):
 
 
 # compile latex document with app.config.latex_engine
-def compile_latex_document(app, filename='projectnamenotset.tex', docclass='manual'):
+def compile_latex_document(
+    app: SphinxTestApp,
+    filename: str = 'projectnamenotset.tex',
+    docclass: str = 'manual',
+) -> None:
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
@@ -1570,7 +1574,7 @@ def test_latex_table_tabulars(app: SphinxTestApp) -> None:
         content = re.sub(r'\\sphinxstepscope', '', content)  # filter a separator
         tables[sectname] = content.strip()
 
-    def get_expected(name):
+    def get_expected(name: str) -> str:
         return (
             (app.srcdir / 'expects' / (name + '.tex'))
             .read_text(encoding='utf8')
@@ -1648,7 +1652,7 @@ def test_latex_table_longtable(app: SphinxTestApp) -> None:
         content = re.sub(r'\\sphinxstepscope', '', content)  # filter a separator
         tables[sectname] = content.strip()
 
-    def get_expected(name):
+    def get_expected(name: str) -> str:
         return (
             (app.srcdir / 'expects' / (name + '.tex'))
             .read_text(encoding='utf8')
@@ -1715,7 +1719,7 @@ def test_latex_table_complex_tables(app: SphinxTestApp) -> None:
         sectname, _, content = chap.partition('}')
         tables[sectname] = content.strip()
 
-    def get_expected(name):
+    def get_expected(name: str) -> str:
         return (
             (app.srcdir / 'expects' / (name + '.tex'))
             .read_text(encoding='utf8')

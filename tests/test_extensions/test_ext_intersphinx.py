@@ -51,7 +51,9 @@ class FakeList(list[str]):  # NoQA: FURB189
         raise NotImplementedError
 
 
-def fake_node(domain, type, target, content, **attrs):
+def fake_node(
+    domain: str, type: str, target: str, content: str, **attrs
+) -> tuple[addnodes.pending_xref, nodes.emphasis]:
     contnode = nodes.emphasis(content, content)
     node = addnodes.pending_xref('')
     node['reftarget'] = target
@@ -62,12 +64,14 @@ def fake_node(domain, type, target, content, **attrs):
     return node, contnode
 
 
-def reference_check(app, *args, **kwds):
+def reference_check(app: SphinxTestApp, *args, **kwds):
     node, contnode = fake_node(*args, **kwds)
     return missing_reference(app, app.env, node, contnode)
 
 
-def set_config(app, mapping):
+def set_config(
+    app: SphinxTestApp, mapping: dict[str, tuple[str, str | list[str]]]
+) -> None:
     # copy *mapping* so that normalization does not alter it
     app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
@@ -544,7 +548,7 @@ def test_validate_intersphinx_mapping_warnings(app: SphinxTestApp) -> None:
         'good-target-1':    ('e.example', None),       # valid inventory location (None)
         'good-target-2':    ('f.example', ('x',)),     # valid inventory location (sequence input)
     }  # fmt: skip
-    set_config(app, bad_intersphinx_mapping)
+    set_config(app, bad_intersphinx_mapping)  # type: ignore[arg-type]
 
     # normalise the inventory and check if it's done correctly
     with pytest.raises(

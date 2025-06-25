@@ -342,7 +342,6 @@ disable_error_code = [
     "annotation-unchecked",
 ]
 disallow_incomplete_defs = false
-disallow_untyped_calls = false
 disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
