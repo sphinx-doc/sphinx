@@ -173,7 +173,7 @@ def bool_option(arg: Any) -> bool:
     """Used to convert flag options to auto directives.  (Instead of
     directives.flag(), which returns None).
     """
-    return True
+    return arg
 
 
 def merge_members_option(options: dict[str, Any]) -> None:
