@@ -1,13 +1,9 @@
-\label{\detokenize{tabular:table-having-caption}}
+\label{\detokenize{tabular:table-having-widths-and-formerly-problematic}}
 
 \begin{savenotes}\sphinxattablestart
 \sphinxthistablewithglobalstyle
 \centering
-\sphinxcapstartof{table}
-\sphinxthecaptionisattop
-\sphinxcaption{caption for table}\label{\detokenize{tabular:id1}}
-\sphinxaftertopcaption
-\begin{tabulary}{\linewidth}[t]{|T|T|}
+\begin{tabular}[t]{|\X{30}{100}|\X{70}{100}|}
 \sphinxtoprule
 \begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
 \sphinxstyletheadfamily \sphinxAtStartPar
@@ -22,8 +18,16 @@ header2
 \\
 \sphinxmidrule
 \sphinxtableatstartofbodyhook\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+\begin{itemize}
+\item {} 
 \sphinxAtStartPar
-cell1\sphinxhyphen{}1
+item1
+
+\item {} 
+\sphinxAtStartPar
+item2
+
+\end{itemize}
 \sphinxbeforeendvarwidth
 \end{varwidth}%
 &\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
@@ -55,6 +59,6 @@ cell3\sphinxhyphen{}2
 \end{varwidth}%
 \\
 \sphinxbottomrule
-\end{tabulary}
+\end{tabular}
 \sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}

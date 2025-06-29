@@ -1483,9 +1483,9 @@ Check the :confval:`latex_table_style`.
 
 .. rst:directive:: .. tabularcolumns:: column spec
 
-   This directive influences only the LaTeX output for the next table in
-   source.  The mandatory argument is a column specification (known as an
-   "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
+   This directive influences only the LaTeX output, and only for the next
+   table in source.  The mandatory argument is a column specification (known
+   as an "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
    documentation, such as the `wiki page`_, for basics of such a column
    specification.
 
@@ -1493,50 +1493,62 @@ Check the :confval:`latex_table_style`.
 
    .. versionadded:: 0.3
 
+   Sphinx renders tables with at most 30 rows using ``tabulary`` (or
+   ``tabular`` if at least one cell contains either a code-block or a nested
+   table), and those with more rows with ``longtable``.  The advantage of
+   using ``tabulary`` is that it tries to compute automatically (internally to
+   LaTeX) suitable column widths.
+
+   :rst:dir:`tabularcolumns` can serve to provide one's own "colspec" choice.
+   Here is an advanced example:
+
+   .. code-block:: latex
+
+      .. tabularcolumns:: >{\raggedright}\Y{.4}>{\centering}\Y{.1}>{\sphinxcolorblend{!95!red}\centering\noindent\bfseries\color{red}}\Y{.12}>{\raggedright\arraybackslash}\Y{.38}
+
+   This is used in Sphinx own PDF docs at :ref:`dev-deprecated-apis`.
+   Regarding column widths, this "colspec" achieves the same as would
+   ``:widths:`` option set to ``40 10 12 38`` but it injects extra effects.
+
    .. note::
 
-      :rst:dir:`tabularcolumns` conflicts with ``:widths:`` option of table
-      directives.  If both are specified, ``:widths:`` option will be ignored.
+      In case both :rst:dir:`tabularcolumns` and ``:widths:`` option of table
+      directives are used, ``:widths:`` option will be ignored by the LaTeX
+      builder.  Of course it is obeyed by other builders.
 
-   Sphinx renders tables with at most 30 rows using ``tabulary``, and those
-   with more rows with ``longtable``.
-
-   ``tabulary`` tries to compute automatically (internally to LaTeX) suitable
-   column widths.  However, cells are then not allowed to contain
-   "problematic" elements such as lists, object descriptions,
-   blockquotes... Sphinx will fall back to using ``tabular`` if such a cell is
-   encountered (or a nested ``tabulary``).  In such a case the table will have
-   a tendency to try to fill the whole available line width.
-
-   :rst:dir:`tabularcolumns` can help in coercing the usage of ``tabulary`` if
-   one is careful to not employ the ``tabulary`` column types (``L``, ``R``,
-   ``C`` or ``J``) for those columns with at least one "problematic" cell, but
-   only LaTeX's ``p{<width>}`` or Sphinx ``\X`` and ``\Y`` (described next).
-
-   Literal blocks do not work at all with ``tabulary``.  Sphinx will fall back
-   to ``tabular`` or ``longtable`` environments depending on the number of
-   rows.  It will employ the :rst:dir:`tabularcolumns` specification only if it
-   contains no usage of the ``tabulary`` specific types.
+   Literal blocks do not work at all with ``tabulary`` and Sphinx will then
+   fall back to ``tabular`` LaTeX environment.  It will employ the
+   :rst:dir:`tabularcolumns` specification in that case only if it contains no
+   usage of the ``tabulary`` specific column types (which are ``L``, ``R``,
+   ``C`` and ``J``).
 
    Besides the LaTeX ``l``, ``r``, ``c`` and ``p{width}`` column specifiers,
-   one can also use ``\X{a}{b}`` which configures the column width to be a
-   fraction ``a/b`` of the total line width and ``\Y{f}`` where ``f`` is a
-   decimal: for example ``\Y{0.2}`` means that the column will occupy ``0.2``
-   times the line width.
+   and the ``tabulary`` specific ``L``, ``R``, ``C`` and ``J``, one can also
+   use (with all table types) ``\X{a}{b}`` which configures the column width
+   to be a fraction ``a/b`` of the total line width and ``\Y{f}`` where ``f``
+   is a decimal: for example ``\Y{0.2}`` means that the column will occupy
+   ``0.2`` times the line width.
 
 .. versionchanged:: 1.6
 
-   Use ``J`` (justified) by default with ``tabulary``, not ``L``
+   Sphinx uses ``J`` (justified) by default with ``tabulary``, not ``L``
    (flushed-left).  To revert, include ``\newcolumntype{T}{L}`` in the LaTeX
    preamble, as in fact Sphinx uses ``T`` and sets it by default to be an
    alias of ``J``.
 
-.. hint::
+.. versionchanged:: 8.3.0
 
-   A frequent issue with ``tabulary`` is that columns with little contents
-   appear to be "squeezed".  One can add to the LaTeX preamble for example
-   ``\setlength{\tymin}{40pt}`` to ensure a minimal column width of ``40pt``,
-   the ``tabulary`` default of ``10pt`` being too small.
+   Formerly, Sphinx did not use ``tabulary`` if the table had at least one
+   cell containing "problematic" elements such as lists, object descriptions,
+   blockquotes (etc...) because such contents are not out-of-the-box
+   compatible with ``tabulary``.  At ``8.3.0`` a technique, which was already
+   in use for merged cells, was extended to such cases, and the sole
+   "problematic" contents are code-blocks and nested tables.  So tables
+   containing (only) cells with mutliple paragraphs, bullet or enumerated
+   lists, or line blocks, will now better fit to their contents (if not
+   rendered by ``longtable``).  Cells with object descriptions or admonitions
+   will still have a tendency to induce the table to fill the full text area
+   width, but columns in that table with no such contents will be tighter.
 
 .. hint::
 
