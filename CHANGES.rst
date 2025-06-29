@@ -62,6 +62,12 @@ Features added
 Bugs fixed
 ----------
 
+* #3447: LaTeX: when assigning longtable class to table for PDF, it may render
+  "horizontally" and overflow in right margin.
+  Patch by Jean-François B.
+* #8828: LaTeX: adding a footnote to a longtable cell causes table to occupy
+  full width.
+  Patch by Jean-François B.
 * #11498: LaTeX: Table in cell fails to build if it has many rows.
   Patch by Jean-François B.
 * #11515: LaTeX: longtable does not allow nested table.
