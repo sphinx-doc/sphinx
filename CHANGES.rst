@@ -72,6 +72,8 @@ Bugs fixed
   Patch by Jean-François B.
 * #11515: LaTeX: longtable does not allow nested table.
   Patch by Jean-François B.
+* #11973: LaTeX: links in table captions do not work in PDF.
+  Patch by Jean-François B.
 * #12821: LaTeX: URLs/links in section titles should render in PDF.
   Patch by Jean-François B.
 * #13369: Correctly parse and cross-reference unpacked type annotations.
