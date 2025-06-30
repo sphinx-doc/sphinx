@@ -801,7 +801,7 @@ def main(argv: Sequence[str] = (), /) -> int:
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
 
-    for variable in d.get('variables', []):
+    for variable in d.get('variables', []):  # type: ignore[union-attr]
         try:
             name, value = variable.split('=')
             d[name] = value

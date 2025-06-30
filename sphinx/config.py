@@ -636,7 +636,7 @@ def _validate_valid_types(
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
     if valid_types is Any:
-        return frozenset({Any})  # type: ignore[arg-type]
+        return frozenset({Any})
     if isinstance(valid_types, set):
         return frozenset(valid_types)
     try:

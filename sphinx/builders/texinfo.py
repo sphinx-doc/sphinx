@@ -6,7 +6,6 @@ import os.path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.io import FileOutput
 
 from sphinx import addnodes, package_dir
 from sphinx._cli.util.colour import darkgreen
@@ -103,10 +102,6 @@ class TexinfoBuilder(Builder):
             toctree_only = False
             if len(entry) > 7:
                 toctree_only = entry[7]
-            destination = FileOutput(
-                destination_path=self.outdir / targetname,
-                encoding='utf-8',
-            )
             with progress_message(__('processing %s') % targetname, nonl=False):
                 appendices = self.config.texinfo_appendices or []
                 doctree = self.assemble_doctree(
@@ -115,7 +110,6 @@ class TexinfoBuilder(Builder):
 
             with progress_message(__('writing')):
                 self.post_process_images(doctree)
-                docwriter = TexinfoWriter(self)
                 settings = _get_settings(
                     TexinfoWriter, defaults=self.env.settings, read_config_files=True
                 )
@@ -128,7 +122,10 @@ class TexinfoBuilder(Builder):
                 settings.texinfo_dir_description = description or ''
                 settings.docname = docname
                 doctree.settings = settings
-                docwriter.write(doctree, destination)
+                visitor: TexinfoTranslator = self.create_translator(doctree, self)  # type: ignore[assignment]
+                doctree.walkabout(visitor)
+                visitor.finish()
+                (self.outdir / targetname).write_text(visitor.output, encoding='utf-8')
                 self.copy_image_files(targetname[:-5])
 
     def assemble_doctree(

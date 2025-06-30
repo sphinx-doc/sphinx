@@ -15,12 +15,11 @@ from types import NoneType
 from typing import TYPE_CHECKING
 from urllib.parse import quote
 
+import docutils.parsers.rst
 import docutils.readers.doctree
 import docutils.utils
 import jinja2.exceptions
 from docutils import nodes
-from docutils.core import Publisher
-from docutils.io import DocTreeInput, StringOutput
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
@@ -69,7 +68,6 @@ if TYPE_CHECKING:
     from typing import Any, TypeAlias
 
     from docutils.nodes import Node
-    from docutils.readers import Reader
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -92,6 +90,10 @@ DOMAIN_INDEX_TYPE: TypeAlias = tuple[
     # whether sub-entries should start collapsed
     bool,
 ]
+
+_READER_TRANSFORMS = docutils.readers.doctree.Reader().get_transforms()
+_PARSER_TRANSFORMS = docutils.parsers.rst.Parser().get_transforms()
+_WRITER_TRANSFORMS = HTMLWriter(None).get_transforms()  # type: ignore[arg-type]
 
 
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
@@ -150,19 +152,13 @@ class StandaloneHTMLBuilder(Builder):
         # JS files
         self._js_files: list[_JavaScript] = []
 
-        # Cached Publisher for writing doctrees to HTML
-        reader: Reader[DocTreeInput] = docutils.readers.doctree.Reader(
-            parser_name='restructuredtext'
+        # Cached settings for render_partial()
+        self._settings = _get_settings(
+            docutils.readers.doctree.Reader,
+            docutils.parsers.rst.Parser,
+            HTMLWriter,
+            defaults={'output_encoding': 'unicode', 'traceback': True},
         )
-        pub = Publisher(
-            reader=reader,
-            parser=reader.parser,
-            writer=HTMLWriter(self),
-            source_class=DocTreeInput,
-            destination=StringOutput(encoding='unicode'),
-        )
-        pub.get_settings(output_encoding='unicode', traceback=True)
-        self._publisher = pub
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
@@ -428,10 +424,11 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
-        pub = self._publisher
-        doc = docutils.utils.new_document('<partial node>', pub.settings)
+        doc = docutils.utils.new_document('<partial node>', self._settings)
         doc.append(node)
-        doc.transformer.populate_from_components((pub.reader, pub.parser, pub.writer))
+        doc.transformer.add_transforms(_READER_TRANSFORMS)
+        doc.transformer.add_transforms(_PARSER_TRANSFORMS)
+        doc.transformer.add_transforms(_WRITER_TRANSFORMS)
         doc.transformer.apply_transforms()
         visitor: HTML5Translator = self.create_translator(doc, self)  # type: ignore[assignment]
         doc.walkabout(visitor)
@@ -456,7 +453,6 @@ class StandaloneHTMLBuilder(Builder):
             )
             self.load_indexer(docnames)
 
-        self.docwriter = HTMLWriter(self)
         self.docsettings = _get_settings(
             HTMLWriter, defaults=self.env.settings, read_config_files=True
         )
@@ -666,7 +662,6 @@ class StandaloneHTMLBuilder(Builder):
         self.finish_tasks.join()
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
@@ -674,13 +669,13 @@ class StandaloneHTMLBuilder(Builder):
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
-        self.docwriter.write(doctree, destination)
-        self.docwriter.assemble_parts()
-        body = self.docwriter.parts['fragment']
-        metatags = self.docwriter.clean_meta
+        visitor: HTML5Translator = self.create_translator(doctree, self)  # type: ignore[assignment]
+        doctree.walkabout(visitor)
+        body = ''.join(visitor.fragment)
+        clean_meta = ''.join(visitor.meta[2:])
 
-        ctx = self.get_doc_context(docname, body, metatags)
-        ctx['has_maths_elements'] = self.docwriter._has_maths_elements
+        ctx = self.get_doc_context(docname, body, clean_meta)
+        ctx['has_maths_elements'] = getattr(visitor, '_has_maths_elements', False)
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:

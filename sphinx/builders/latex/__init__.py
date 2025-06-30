@@ -24,7 +24,7 @@ from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import SphinxFileOutput, _get_settings, new_document
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
@@ -297,7 +297,6 @@ class LaTeXBuilder(Builder):
             self.copy_latex_additional_files()
 
     def write_documents(self, _docnames: Set[str]) -> None:
-        docwriter = LaTeXWriter(self)
         docsettings = _get_settings(
             LaTeXWriter, defaults=self.env.settings, read_config_files=True
         )
@@ -308,11 +307,6 @@ class LaTeXBuilder(Builder):
             toctree_only = False
             if len(entry) > 5:
                 toctree_only = entry[5]
-            destination = SphinxFileOutput(
-                destination_path=self.outdir / targetname,
-                encoding='utf-8',
-                overwrite_if_changed=True,
-            )
             with progress_message(__('processing %s') % targetname, nonl=False):
                 doctree = self.env.get_doctree(docname)
                 toctree = next(doctree.findall(addnodes.toctree), None)
@@ -343,8 +337,16 @@ class LaTeXBuilder(Builder):
                 docsettings._docclass = theme.name
 
                 doctree.settings = docsettings
-                docwriter.theme = theme
-                docwriter.write(doctree, destination)
+                visitor: LaTeXTranslator = self.create_translator(doctree, self, theme)  # type: ignore[assignment]
+                doctree.walkabout(visitor)
+                output = visitor.astext()
+                destination_path = self.outdir / targetname
+                # https://github.com/sphinx-doc/sphinx/issues/4362
+                if (
+                    not destination_path.is_file()
+                    or destination_path.read_bytes() != output.encode()
+                ):
+                    destination_path.write_text(output, encoding='utf-8')
 
     def get_contentsname(self, indexfile: str) -> str:
         tree = self.env.get_doctree(indexfile)
