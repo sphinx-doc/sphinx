@@ -62,6 +62,10 @@ Features added
 Bugs fixed
 ----------
 
+* #1327: LaTeX: tables using longtable raise error if
+  :rst:dir:`tabularcolumns` specifies automatic widths
+  (``L``, ``R``, ``C``, or ``J``).
+  Patch by Jean-François B.
 * #3447: LaTeX: when assigning longtable class to table for PDF, it may render
   "horizontally" and overflow in right margin.
   Patch by Jean-François B.
