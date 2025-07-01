@@ -47,7 +47,16 @@
 % At 8.3.0, ALL table cell contents are wrapped into a varwidth environment.
 % This helps solve issues such as #3447, #8828, and helps use tabulary
 % in many more cases hence obtain better looking tables.
-\def\sphinxbeforeendvarwidth{\par\vskip-\baselineskip\vbox{\hbox{\strut}}}
+\def\sphinxbeforeendvarwidth{\par\vskip-\baselineskip\hbox{\strut}}
+% MEMO: Mark-up uses the above macro right before all \end{varwdith} so that
+% if the cell in a row extends lower than the others, its last line acquires
+% standard "depth". Else it may lack any depth if without descenders such as
+% "p" or "q" letters and the horizontal line or color panel will look strange.
+% It originates in PR #3435 from 2017 which solved *many* table issues for
+% merged cells (and injected the varwidth technique now at 8.3.0 applied to
+% all cells).  The original used \vbox{\hbox{\strut}} but that \vbox appears
+% to do nothing, and it was decided after some testing (July 2025) to remove
+% it, the original rationale for it being now lost.
 
 % These conditionals added at 8.3.0 for nested tables not to break row colors
 % (#13635).  Nested tables are only partially supported by Sphinx LaTeX.
