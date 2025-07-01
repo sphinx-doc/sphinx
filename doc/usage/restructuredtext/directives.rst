@@ -1499,8 +1499,31 @@ Check the :confval:`latex_table_style`.
    using ``tabulary`` is that it tries to compute automatically (internally to
    LaTeX) suitable column widths.
 
-   :rst:dir:`tabularcolumns` can serve to provide one's own "colspec" choice.
-   Here is an advanced example:
+   The ``tabulary`` algorithm often works well, but in some cases when a cell
+   contains long paragraphs, the column will be given a large width and other
+   columns whose cells contain only single words may end up too narrow.  The
+   :rst:dir:`tabularcolumns` can help solve this via providing to LaTeX a
+   custom "alignment preamble" (aka "colspec").  For example ``lJJ`` will be
+   suitable for a three-columns table whose first column contains only single
+   words and the other two have cells with long paragraphs.
+
+   .. note::
+
+      Of course, a fully automated solution would be better, and it is still
+      hoped for, but it is an intrinsic aspect of ``tabulary``, and the latter
+      is in use by Sphinx ever since ``0.3``...  It looks as if solving the
+      problem of squeezed columns could require substantial changes to that
+      LaTeX package.  And no good alternative appears to exist, as of 2025.
+
+   .. hint::
+
+      A way to solve the issue for all tables at once, is to inject in the
+      LaTeX preamble (see :confval:`latex_elements`) a command such as
+      ``\setlength{\tymin}{1cm}`` which causes all columns to be at least
+      ``1cm`` wide (not counting inter-column whitespace).  Currently, Sphinx
+      configures ``\tymin`` to allow room for three characters at least.
+
+   Here is a more sophisticated "colspec", for a 4-columns table:
 
    .. code-block:: latex
 
