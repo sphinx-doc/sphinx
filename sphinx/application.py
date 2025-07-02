@@ -196,7 +196,6 @@ class Sphinx:
         :param pdb: If true, enable the Python debugger on an exception.
         :param exception_on_warning: If true, raise an exception on warnings.
         """
-        self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self._fresh_env_used: bool | None = None
         self.extensions: dict[str, Extension] = {}
@@ -240,7 +239,7 @@ class Sphinx:
         self._fail_on_warnings = bool(warningiserror)
         self.pdb = pdb
         self._exception_on_warning = exception_on_warning
-        logging.setup(self, self._status, self._warning)
+        logging.setup(self, self._status, self._warning, verbosity=verbosity)
 
         self.events = EventManager(self)
 
@@ -255,15 +254,17 @@ class Sphinx:
         self.statuscode = 0
 
         # read config
+        overrides = confoverrides or {}
         self.tags = Tags(tags)
         if confdir is None:
             # set confdir to srcdir if -C given (!= no confdir); a few pieces
             # of code expect a confdir to be set
             self.confdir = self.srcdir
-            self.config = Config({}, confoverrides or {})
+            self.config = Config({}, overrides)
         else:
             self.confdir = _StrPath(confdir).resolve()
-            self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
+            self.config = Config.read(self.confdir, overrides=overrides, tags=self.tags)
+        self.config._verbosity = -1 if self.quiet else self.verbosity
 
         # set up translation infrastructure
         self._init_i18n()
@@ -338,6 +339,12 @@ class Sphinx:
         """
         return self._fresh_env_used
 
+    @property
+    def phase(self) -> BuildPhase:
+        if not hasattr(self, 'builder'):
+            return BuildPhase.INITIALIZATION
+        return self.builder.phase
+
     def _init_i18n(self) -> None:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
@@ -399,6 +406,8 @@ class Sphinx:
         if self._fresh_env_used:
             self.env.find_files(self.config, self.builder)
 
+        self.env._builder_cls = self.builder.__class__
+
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
 
@@ -416,7 +425,7 @@ class Sphinx:
     # ---- main "build" method -------------------------------------------------
 
     def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
-        self.phase = BuildPhase.READING
+        self.builder.phase = BuildPhase.READING
         try:
             if force_all:
                 self.builder.build_all()

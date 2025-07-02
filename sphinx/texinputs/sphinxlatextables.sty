@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatextables}[2024/07/01 v7.4.0 tables]%
+\ProvidesPackage{sphinxlatextables}[2025/06/30 v8.3.0 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -42,6 +42,29 @@
 % - \sphinxthistablewithnocolorrowsstyle
 % - \sphinxthistablewithvlinesstyle
 % - \sphinxthistablewithnovlinesstyle
+% - \sphinxbeforeendvarwidth
+
+% At 8.3.0, ALL table cell contents are wrapped into a varwidth environment.
+% This helps solve issues such as #3447, #8828, and helps use tabulary
+% in many more cases hence obtain better looking tables.
+\def\sphinxbeforeendvarwidth{\par\vskip-\baselineskip\hbox{\strut}}
+% MEMO: Mark-up uses the above macro right before all \end{varwdith} so that
+% if the cell in a row extends lower than the others, its last line acquires
+% standard "depth". Else it may lack any depth if without descenders such as
+% "p" or "q" letters and the horizontal line or color panel will look strange.
+% It originates in PR #3435 from 2017 which solved *many* table issues for
+% merged cells (and injected the varwidth technique now at 8.3.0 applied to
+% all cells).  The original used \vbox{\hbox{\strut}} but that \vbox appears
+% to do nothing, and it was decided after some testing (July 2025) to remove
+% it, the original rationale for it being now lost.
+
+% These conditionals added at 8.3.0 for nested tables not to break row colors
+% (#13635).  Nested tables are only partially supported by Sphinx LaTeX.
+% The method here is with no changes to neither writer nor templates.
+\newif\ifspx@intable
+\newif\ifspx@thistableisnested
+% Try to allow nested tables in a longtable.  But tabulary causes problems.
+\newif\ifspx@longtable
 % 
 % Also provides user command (see docs)
 % - \sphixncolorblend
@@ -62,8 +85,8 @@
 \RequirePackage{tabulary}
 % tabulary has a bug with its re-definition of \multicolumn in its first pass
 % which is not \long. But now Sphinx does not use LaTeX's \multicolumn but its
-% own macro. Hence we don't even need to patch tabulary. See
-% sphinxpackagemulticell.sty
+% own macro. Hence we don't even need to patch tabulary.
+%
 % X or S (Sphinx) may have meanings if some table package is loaded hence
 % \X was chosen to avoid possibility of conflict
 \newcolumntype{\X}[2]{p{\dimexpr
@@ -109,7 +132,9 @@
     \LTpre\z@skip\LTpost\z@skip % set to zero longtable's own skips
     \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}%
     \spx@inframedtrue % message to sphinxheavybox
-   }%
+    \spx@table@setnestedflags
+    \spx@longtabletrue
+}
 % Compatibility with caption package
 \def\sphinxthelongtablecaptionisattop{%
     \spx@ifcaptionpackage{\noalign{\vskip-\belowcaptionskip}}{}%
@@ -122,10 +147,29 @@
 \def\sphinxatlongtableend{\@nobreakfalse % latex3/latex2e#173
     \prevdepth\z@\vskip\sphinxtablepost\relax}%
 % B. Table with tabular or tabulary
-\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax
+\def\sphinxattablestart{\par
+    \ifvmode % guard agains being nested in a table cell
+      \vskip\dimexpr\sphinxtablepre\relax
+    \fi
                         \spx@inframedtrue % message to sphinxheavybox
+                        \spx@table@setnestedflags
                         }%
-\let\sphinxattableend\sphinxatlongtableend
+% MEMO: this happens inside a savenotes environment and hence flags
+% are reset on exit of it.
+\def\spx@table@setnestedflags{% Issue #13635
+    \ifspx@intable
+        \let\spx@table@resetcolortbl\spx@nestedtable@resetcolortbl
+        \spx@thistableisnestedtrue
+    \else
+        \spx@intabletrue
+    \fi
+   }%
+\def\sphinxattableend{%
+    \@nobreakfalse % <- probably unneeded as this is not a longtable
+    \ifvmode       % guard against being nested in a table cell
+      \prevdepth\z@\vskip\sphinxtablepost\relax
+    \fi
+}%
 % This is used by tabular and tabulary templates
 \newcommand*\sphinxcapstartof[1]{%
    \vskip\parskip
@@ -223,7 +267,32 @@
 %
 % configuration of tabulary
 \setlength{\tymin}{3\fontcharwd\font`0 }% minimal width of "squeezed" columns
-\setlength{\tymax}{10000pt}% allow enough room for paragraphs to "compete"
+\setlength{\tymax}{3000pt}% allow enough room for paragraphs to "compete"
+%
+% MEMO: tabulary initially renders cell contents "horizontally" to measure
+%       them and compare their relative importance.  Its goal is to choose the
+%       column width so that, roughly, all columns will look about evenly
+%       filled.  "Horizontal" rendering is incompatible with many LaTeX
+%       structures such as lists, so prior to Sphinx 8.3.0 cells with such
+%       "problematic" contents caused Sphinx to use tabular not tabulary; the
+%       tabular would then render each column in absence of :widths: option or
+%       tabularcolumns directive the same width equal to available text width
+%       divided by number of columns.  At 8.3.0, "problematic" contents is
+%       wrapped into a "varwidth" environment, as was already done formerly
+%       for merged cells, and this avoids tabulary causing errors such as
+%       "incompatible with LR mode"; \sphinxcolwidth is used which sets
+%       the initial horizontal width for "varwidth". In the first tabulary
+%       pass, \sphinxcolwidth is configured (by us) to use \tymax.
+%
+%       During testing, it was determined that the former 10000pt setting for
+%       \tymax would cause "Dimension too large" TeX error if two columns or
+%       more had cells containing admonitions (such contents does not allow
+%       "varwidth" to reduce the width automatically).  So we use now 3000pt
+%       which allows up to 5 such columns while being large enough for
+%       tabulary algorithm to give good results for cells containing a few
+%       dozen words.  The tabulary default of 2\textwidth proves to be too
+%       small for that.
+%
 % we need access to tabulary's final computed width. \@tempdima is too volatile
 % to hope it has kept tabulary's value when \sphinxcolwidth needs it.
 \newdimen\sphinx@TY@tablewidth
@@ -270,10 +339,11 @@
 % cells (the code does inserts & tokens, see TN1b). It was decided to keep it
 % simple with \sphinxstartmulticolumn...\sphinxstopmulticolumn.
 %
+% **** ATTENTION: Sphinx does generate at least some nested tables in LaTeX
+% ****            TODO: clarify if next paragraph means we must raise an
+% ****            if LaTeX writer detects a merged cell inside nested table.
 % MEMO about nesting: if sphinxmulticolumn is encountered in a nested tabular
-% inside a tabulary it will think to be at top level in the tabulary. But
-% Sphinx generates no nested tables, and if some LaTeX macro uses internally a
-% tabular this will not have a \sphinxstartmulticolumn within it!
+% inside a tabulary it will think to be at top level in the tabulary.
 %
 % 5.3.0 adds a check for multirow as single-row multi-column will allow a row
 % colour but multi-row multi-column should not.
@@ -376,8 +446,7 @@
 }%
 \newcommand*\sphinxcolwidth[2]{%
   % this dimension will always be used for varwidth, and serves as maximum
-  % width when cells are merged either via multirow or multicolumn or both,
-  % as always their contents is wrapped in varwidth environment.
+  % width for cells whose contents are wrapped in varwidth environment.
   \ifnum#1>\@ne % multi-column (and possibly also multi-row)
   % we wrote our own multicolumn code especially to handle that (and allow
   % verbatim contents)
@@ -857,7 +926,32 @@
                   }%
           \the\everycr
        }%
-       \global\rownum\@ne % is done from inside table so ok with tabulary two passes
+       \ifspx@thistableisnested
+         % Attention that tabulary does two passes so we need to push the
+         % initial rownum and, after the first pass, we must reset it!
+         % Fortunately Sphinx LaTeX writer makes parent table tabular or
+         % longtable if a nested table is a tabulary.  So we don't need to
+         % worry about distinguishing if this or parent is tabulary.
+         \ifx\TY@final\@undefined  % tabular
+            \spx@gpush@rownum
+         \else
+           \ifx\equation$% tabulary, first pass
+             \spx@gpush@rownum
+           \else % tabulary, second pass
+             \spx@gpop@rownum % reset \rownum
+             \spx@gpush@rownum% and push it again.
+           \fi
+         \fi
+         % To make nested tables stand out in a color row, we toggle the parity.
+         % TODO: Double-check if compatible with method for color of header
+         %       row.
+         % TODO: Perhaps better to use specific colors for nested tables?
+         %       This would mean though adding new sphinxsetup parameters
+         %       and extending the documentation...
+         \ifodd\rownum\global\rownum\z@\else\global\rownum\@ne\fi
+       \else
+         \global\rownum\@ne
+       \fi
        \sphinxSwitchCaseRowColor\rownum % set up color for the first body row
        \sphinxrowcolorON  % has been done from \sphinxtoprule location but let's do
                           % it again in case  \sphinxtabletoprulehook has been used
@@ -883,20 +977,39 @@
 \let\sphinxtabledecrementrownum\@empty
 
 % \sphinxtableafterendhook will be modified by colorrows class to execute
-% this after the table
+% this after the table.
 \def\spx@table@resetcolortbl{%
     \sphinxrowcolorOFF
-    \spx@table@reset@CTeverycr
+    \spx@table@reset@CT@everycr
 % this last bit is done in order for the \sphinxbottomrule from the "foot"
-% longtable template to be able to use same code as the \sphinxbottomrule
-% at end of table body; see \sphinxbooktabsspecialbottomrule code
+% part of the longtable template to be able to use same code as the
+% \sphinxbottomrule at end of table body; see \sphinxbooktabsspecialbottomrule.
     \global\rownum\z@
+    \global\let\spx@rownum@stack\@empty
 }
-\def\spx@table@reset@CTeverycr{%
+% Most of \spx@table@resetcolortbl must be avoided if the table is nested.
+% Besides the sphinxTableRowColor must be reset because it has been
+% redefined by the cells of the nested table.  So this is the alternative
+% macro which is executed on exit of nested table.
+\def\spx@nestedtable@resetcolortbl{%
+    \ifx\spx@rownum@stack\@empty\else
+% The stack can be empty if this is executed on exit of a nested table,
+% and the parent table has received the "nocolorrows" class, but globally
+% colorrows are activated (default).  So we protected against that case.
+      \spx@gpop@rownum
+    \fi
+    \sphinxSwitchCaseRowColor\rownum
+}
+\def\spx@table@reset@CT@everycr{%
 % we should probably be more cautious and not hard-code here the colortbl
-% set-up; so the macro is defined without @ to fac
+% set-up.
     \global\CT@everycr{\noalign{\global\let\CT@row@color\relax}\the\everycr}%
 }
+\let\spx@rownum@stack\@empty
+\def\spx@gpush@rownum{\xdef\spx@rownum@stack{\the\rownum.\spx@rownum@stack}}%
+\def\spx@gpop@rownum{\afterassignment\spx@gpop@rownum@i
+                     \global\rownum=\spx@rownum@stack\relax}
+\def\spx@gpop@rownum@i.#1\relax{\gdef\spx@rownum@stack{#1}}
 
 % At last the style macros \sphinxthistablewithstandardstyle etc...
 
@@ -1019,6 +1132,10 @@ local use of booktabs table style}%
 
 % borderless style
 \def\sphinxthistablewithborderlessstyle{%
+    \sphinxthistablewithnohlines
+    \def\spx@arrayrulewidth{\z@}%
+}%
+\def\sphinxthistablewithnohlines{%
     \let\sphinxhline      \@empty
     \let\sphinxcline      \@gobble
     \let\sphinxvlinecrossing\@gobble
@@ -1026,7 +1143,9 @@ local use of booktabs table style}%
     \let\spx@toprule      \@empty
     \let\sphinxmidrule    \@empty
     \let\sphinxbottomrule \@empty
-    \def\spx@arrayrulewidth{\z@}%
+}%
+\def\sphinxthistabularywithnohlinesifinlongtable{%
+  \ifspx@longtable\sphinxthistablewithnohlines\fi
 }%
 
 % colorrows style
@@ -1047,10 +1166,13 @@ local use of booktabs table style}%
 %
 % this one is not set to \@empty by nocolorrows, because it looks harmless
 % to execute it always, as it simply resets to standard colortbl state after
-% the table; so we don't need an @@ version for this one
+% the table [^1]; so we don't need an @@ version for this one.
+% .. [1]: which is bad if nested in another table.  This is taken care of
+%         at level of \sphinxattablestart and \sphinxatlongtablestart.
     \spx@prepend\spx@table@resetcolortbl\to\sphinxtableafterendhook
 }
 \def\spx@prepend#1\to#2{% attention about using this only with #2 "storage macro"
+% MEMO: #1 is prepended with no expansion, i.e. "as is".
     \toks@{#1}%
     \toks@\expandafter\expandafter\expandafter{\expandafter\the\expandafter\toks@#2}%
     \edef#2{\the\toks@}%
@@ -1064,9 +1186,10 @@ local use of booktabs table style}%
     \let\spx@table@startbodycolorrows\@empty
     \let\sphinxtabledecrementrownum  \@empty
 % we don't worry about \sphinxtableafterendhook as the \spx@table@resetcolortbl
-% done at end can not do harm; and we could also have not bothered with the
+% done at end can not do harm [^1]; and we could also have not bothered with the
 % \sphinxtabledecrementrownum as its \rownum decrement, if active, is harmless
-% in non-colorrows context
+% in non-colorrows context.
+% .. [1]: if nested in another table it is modified to do no harm.
 }
 
 % (not so easy) implementation of the booktabscolorgaps option.  This option

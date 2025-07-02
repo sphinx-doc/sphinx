@@ -9,6 +9,7 @@ from sphinx.errors import SphinxError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import ClassVar
 
     from sphinx.domains import Domain
 
@@ -73,9 +74,9 @@ class Index(ABC):
        :rst:role:`ref` role.
     """
 
-    name: str
-    localname: str
-    shortname: str | None = None
+    name: ClassVar[str]
+    localname: ClassVar[str]
+    shortname: ClassVar[str | None] = None
 
     def __init__(self, domain: Domain) -> None:
         if not self.name or self.localname is None:

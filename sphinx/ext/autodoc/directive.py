@@ -163,7 +163,7 @@ class AutodocDirective(SphinxDirective):
                 'An option to %s is either unknown or has an invalid value: %s',
                 self.name,
                 exc,
-                location=(self.env.docname, lineno),
+                location=(self.env.current_document.docname, lineno),
             )
             return []
 

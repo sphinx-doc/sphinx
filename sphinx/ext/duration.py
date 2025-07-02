@@ -48,7 +48,7 @@ class DurationDomain(Domain):
         return self.data.setdefault('reading_durations', {})
 
     def note_reading_duration(self, duration: float) -> None:
-        self.reading_durations[self.env.docname] = duration
+        self.reading_durations[self.env.current_document.docname] = duration
 
     def warn_reading_duration(self, duration: float, duration_limit: float) -> None:
         logger.warning(

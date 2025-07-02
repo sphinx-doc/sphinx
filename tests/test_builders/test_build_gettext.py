@@ -323,3 +323,29 @@ def test_gettext_literalblock_additional(app: SphinxTestApp) -> None:
         "stdout object\\n>>>\\n>>> if __name__ == '__main__':  # if run this py "
         'file as python script\\n...     main()  # call main',
     ]
+
+
+@pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
+def test_gettext_trailing_backslashes(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    assert (app.outdir / 'backslashes.pot').is_file()
+    pot = (app.outdir / 'backslashes.pot').read_text(encoding='utf8')
+    msg_ids = get_msgids(pot)
+    assert msg_ids == [
+        'i18n with backslashes',
+        (
+            'line 1 line 2 line 3 '
+            # middle backslashes are escaped normally
+            'line 4a \\\\ and 4b '
+            # whitespaces after backslashes are dropped
+            'line       with spaces after backslash '
+            'last line       with spaces '
+            'and done 1'
+        ),
+        'a b c',
+        'last trailing \\\\ \\\\ is ignored',
+        'See [#]_',
+        'footnote with backslashes and done 2',
+        'directive with backslashes',
+    ]

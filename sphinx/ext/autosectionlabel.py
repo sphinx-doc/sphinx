@@ -39,7 +39,7 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
         ):
             continue
         labelid = node['ids'][0]
-        docname = app.env.docname
+        docname = app.env.current_document.docname
         title = cast('nodes.title', node[0])
         ref_name = getattr(title, 'rawsource', title.astext())
         if app.config.autosectionlabel_prefix_document:

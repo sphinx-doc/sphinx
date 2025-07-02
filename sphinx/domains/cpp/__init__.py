@@ -219,7 +219,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             templateParams=None,
             templateArgs=None,
             declaration=decl_clone,
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             line=self.get_source_info()[1],
         )
 
@@ -374,7 +374,9 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
 
         try:
             symbol = parent_symbol.add_declaration(
-                ast, docname=self.env.docname, line=self.get_source_info()[1]
+                ast,
+                docname=self.env.current_document.docname,
+                line=self.get_source_info()[1],
             )
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
@@ -812,7 +814,7 @@ class CPPAliasObject(ObjectDescription[str]):
         The code is therefore based on the ObjectDescription version.
         """
         if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+            self.domain, _, self.objtype = self.name.partition(':')
         else:
             self.domain, self.objtype = '', self.name
 
@@ -1056,6 +1058,15 @@ class CPPDomain(Domain):
             logger.debug('\tresult end')
             logger.debug('merge_domaindata end')
 
+    def _check_type(self, typ: str, decl_typ: str) -> bool:
+        if typ == 'any':
+            return True
+        objtypes = self.objtypes_for_role(typ)
+        if objtypes:
+            return decl_typ in objtypes
+        logger.debug(f'Type is {typ}, declaration type is {decl_typ}')  # NoQA: G004
+        raise AssertionError
+
     def _resolve_xref_inner(
         self,
         env: BuildEnvironment,
@@ -1150,16 +1161,7 @@ class CPPDomain(Domain):
         typ = typ.removeprefix('cpp:')
         decl_typ = s.declaration.objectType
 
-        def check_type() -> bool:
-            if typ == 'any':
-                return True
-            objtypes = self.objtypes_for_role(typ)
-            if objtypes:
-                return decl_typ in objtypes
-            logger.debug(f'Type is {typ}, declaration type is {decl_typ}')  # NoQA: G004
-            raise AssertionError
-
-        if not check_type():
+        if not self._check_type(typ, decl_typ):
             logger.warning(
                 'cpp:%s targets a %s (%s).',
                 typ,
@@ -1299,6 +1301,12 @@ class CPPDomain(Domain):
         return f'{parent_name}::{target}'
 
 
+def _init_stuff(app: Sphinx) -> None:
+    Symbol.debug_lookup = app.config.cpp_debug_lookup
+    Symbol.debug_show_tree = app.config.cpp_debug_show_tree
+    app.config.cpp_index_common_prefix.sort(reverse=True)
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
     app.add_config_value('cpp_index_common_prefix', [], 'env', types=frozenset({list}))
@@ -1318,12 +1326,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('cpp_debug_lookup', False, '', types=frozenset({bool}))
     app.add_config_value('cpp_debug_show_tree', False, '', types=frozenset({bool}))
 
-    def init_stuff(app: Sphinx) -> None:
-        Symbol.debug_lookup = app.config.cpp_debug_lookup
-        Symbol.debug_show_tree = app.config.cpp_debug_show_tree
-        app.config.cpp_index_common_prefix.sort(reverse=True)
-
-    app.connect('builder-inited', init_stuff)
+    app.connect('builder-inited', _init_stuff)
 
     return {
         'version': 'builtin',

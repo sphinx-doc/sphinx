@@ -1,7 +1,7 @@
 %% MODULE RELEASE DATA AND OBJECT DESCRIPTIONS
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexobjects}[2025/02/11 documentation environments]
+\ProvidesPackage{sphinxlatexobjects}[2025/06/06 documentation environments]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -155,20 +155,23 @@
   \pysigadjustitemsep
 }
 \newcommand{\pysiglinewithargsret}[3]{%
-  % as #1 may contain a footnote using \label we need to make \label
-  % a no-op here to avoid LaTeX complaining about duplicates
-\let\spx@label\label\let\label\@gobble
-  \settowidth{\py@argswidth}{#1\pysigarglistopen}%
-\let\label\spx@label
+  % #1 may contain a footnote (especially with latex_show_urls='footnote'
+  % and some intersphinx added hyperlinking).  Here we want to measure
+  % a width but not typeset such a footnote (else #13619).
+  % Miraculously a sphinxpackagefootnote.sty tabulary compatibility
+  % layer employing the amsmath \ifmeasuring@ can be used here to let
+  % a footnote influence the actual width up to opening brace but not
+  % actually get typeset at this stage...
+  % MEMO: "argswidth" is misleading here, this code measures the name
+  % not the arguments.
+  \settowidth{\py@argswidth}{\measuring@true#1\pysigarglistopen}%
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
   \item[{#1\pysigarglistopen\py@sigparams{#2}{#3}\strut}]
   \pysigadjustitemsep
 }
-\newcommand{\pysiglinewithargsretwithtypelist}[4]{
-% #1 = name, #2 = typelist, #3 = arglist, #4 = retann
-\let\spx@label\label\let\label\@gobble
-  \settowidth{\py@argswidth}{#1\pysigtypelistopen}%
-\let\label\spx@label
+\newcommand{\pysiglinewithargsretwithtypelist}[4]{%
+  % same comment as in \pysiglinewithargsret
+  \settowidth{\py@argswidth}{\measuring@true#1\pysigtypelistopen}%
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
   \item[{#1\pysigtypelistopen\py@sigparamswithtypelist{#2}{#3}{#4}\strut}]
   \pysigadjustitemsep
@@ -244,9 +247,8 @@
 \newcommand{\pysigwithonelineperargwithtypelist}[4]{
   % #1 = name, #2 = typelist, #3 = arglist, #4 = retann
   % render the type parameters list on one line, but each argument is rendered on its own line
-\let\spx@label\label\let\label\@gobble
-  \settowidth{\py@argswidth}{#1\pysigtypelistopen}%
-\let\label\spx@label
+  % for \measuring@true see comment in \pysiglinewithargsret
+  \settowidth{\py@argswidth}{\measuring@true#1\pysigtypelistopen}%
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
   \item[{#1\pysigtypelistopen\parbox[t]{\py@argswidth}{%
     \raggedright #2\pysigtypelistclose\pysigarglistopen\strut}\strut}]
