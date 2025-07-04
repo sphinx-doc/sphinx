@@ -83,6 +83,7 @@ Contributors
 * Louis Maddox -- better docstrings
 * Łukasz Langa -- partial support for autodoc
 * Marco Buttu -- doctest extension (pyversion option)
+* Mark Ostroth -- semantic HTML contributions
 * Martin Hans -- autodoc improvements
 * Martin Larralde -- additional napoleon admonitions
 * Martin Liška -- option directive and role improvements
