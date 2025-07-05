@@ -216,7 +216,10 @@ def _resolve_toctree(
     for refnode in newnode.findall(nodes.reference):
         if url_re.match(refnode['refuri']) is None:
             rel_uri = builder.get_relative_uri(docname, refnode['refuri'])
-            refnode['refuri'] = rel_uri + refnode['anchorname']
+            if len(refnode['anchorname']):
+                refnode['refuri'] = refnode['anchorname']
+            else:
+                refnode['refuri'] = rel_uri
     return newnode
 
 
