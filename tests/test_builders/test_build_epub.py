@@ -257,13 +257,13 @@ def test_nested_toc(app: SphinxTestApp) -> None:
     assert toc_navpoint_navinfo(navchildren[2]) == (
         'navPoint5',
         '4',
-        '#foo-1',
+        'foo.xhtml#foo-1',
         'foo.1',
     )
     assert toc_navpoint_navinfo(navchildren[3]) == (
         'navPoint8',
         '6',
-        '#foo-2',
+        'foo.xhtml#foo-2',
         'foo.2',
     )
 
@@ -286,12 +286,12 @@ def test_nested_toc(app: SphinxTestApp) -> None:
     tocchildren = tocs[1].findall('./xhtml:ol/xhtml:li')
     assert len(tocchildren) == 3
     assert nav_nav_navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
-    assert nav_nav_navinfo(tocchildren[1]) == ('#foo-1', 'foo.1')
-    assert nav_nav_navinfo(tocchildren[2]) == ('#foo-2', 'foo.2')
+    assert nav_nav_navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo.1')
+    assert nav_nav_navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
 
     grandchild = tocchildren[1].findall('./xhtml:ol/xhtml:li')
     assert len(grandchild) == 1
-    assert nav_nav_navinfo(grandchild[0]) == ('#foo-1-1', 'foo.1-1')
+    assert nav_nav_navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
 
 
 @pytest.mark.sphinx('epub', testroot='need-escaped')
@@ -330,13 +330,13 @@ def test_escaped_toc(app: SphinxTestApp) -> None:
     assert navpoint_navinfo(navchildren[2]) == (
         'navPoint5',
         '4',
-        '#foo-1',
+        'foo.xhtml#foo-1',
         'foo “1”',
     )
     assert navpoint_navinfo(navchildren[3]) == (
         'navPoint8',
         '6',
-        '#foo-2',
+        'foo.xhtml#foo-2',
         'foo.2',
     )
 
@@ -359,12 +359,12 @@ def test_escaped_toc(app: SphinxTestApp) -> None:
     tocchildren = tocs[1].findall('./xhtml:ol/xhtml:li')
     assert len(tocchildren) == 3
     assert nav_navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
-    assert nav_navinfo(tocchildren[1]) == ('#foo-1', 'foo “1”')
-    assert nav_navinfo(tocchildren[2]) == ('#foo-2', 'foo.2')
+    assert nav_navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo “1”')
+    assert nav_navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
 
     grandchild = tocchildren[1].findall('./xhtml:ol/xhtml:li')
     assert len(grandchild) == 1
-    assert nav_navinfo(grandchild[0]) == ('#foo-1-1', 'foo.1-1')
+    assert nav_navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
 
 
 @pytest.mark.sphinx('epub', testroot='basic')
