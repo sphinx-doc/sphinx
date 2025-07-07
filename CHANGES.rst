@@ -95,6 +95,9 @@ Bugs fixed
   Patch by Jean-François B.
 * #13685: gettext: Correctly ignore trailing backslashes.
   Patch by Bénédikt Tran.
+* #13526: Improve ``SOURCE_DATE_EPOCH`` support during ``%Y`` pattern
+  substition in :confval:`copyright` (and :confval:`project_copyright`).
+  Patch by James Addison.
 
 Testing
 -------
