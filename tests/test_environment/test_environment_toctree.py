@@ -657,10 +657,10 @@ def test_global_toctree_for_doc(app):
     assert_node(toctree[1][0][0][0], reference, refuri='foo', secnumber=[1])
     assert_node(toctree[1][0][1][0][0][0], reference, refuri='quux', secnumber=[1, 1])
     assert_node(
-        toctree[1][0][1][1][0][0], reference, refuri='#foo-1', secnumber=[1, 2]
+        toctree[1][0][1][1][0][0], reference, refuri='foo#foo-1', secnumber=[1, 2]
     )
     assert_node(
-        toctree[1][0][1][2][0][0], reference, refuri='#foo-2', secnumber=[1, 3]
+        toctree[1][0][1][2][0][0], reference, refuri='foo#foo-2', secnumber=[1, 3]
     )
     assert_node(toctree[1][1][0][0], reference, refuri='bar', secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri='https://sphinx-doc.org/')
@@ -790,16 +790,16 @@ def test_global_toctree_for_doc_maxdepth(app):
     assert_node(toctree[1][0][0][0], reference, refuri='foo', secnumber=[1])
     assert_node(toctree[1][0][1][0][0][0], reference, refuri='quux', secnumber=[1, 1])
     assert_node(
-        toctree[1][0][1][1][0][0], reference, refuri='#foo-1', secnumber=[1, 2]
+        toctree[1][0][1][1][0][0], reference, refuri='foo#foo-1', secnumber=[1, 2]
     )
     assert_node(
         toctree[1][0][1][1][1][0][0][0],
         reference,
-        refuri='#foo-1-1',
+        refuri='foo#foo-1-1',
         secnumber=[1, 2, 1],
     )
     assert_node(
-        toctree[1][0][1][2][0][0], reference, refuri='#foo-2', secnumber=[1, 3]
+        toctree[1][0][1][2][0][0], reference, refuri='foo#foo-2', secnumber=[1, 3]
     )
     assert_node(toctree[1][1][0][0], reference, refuri='bar', secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri='https://sphinx-doc.org/')
@@ -875,10 +875,10 @@ def test_global_toctree_for_doc_includehidden(app):
     assert_node(toctree[1][0][0][0], reference, refuri='foo', secnumber=[1])
     assert_node(toctree[1][0][1][0][0][0], reference, refuri='quux', secnumber=[1, 1])
     assert_node(
-        toctree[1][0][1][1][0][0], reference, refuri='#foo-1', secnumber=[1, 2]
+        toctree[1][0][1][1][0][0], reference, refuri='foo#foo-1', secnumber=[1, 2]
     )
     assert_node(
-        toctree[1][0][1][2][0][0], reference, refuri='#foo-2', secnumber=[1, 3]
+        toctree[1][0][1][2][0][0], reference, refuri='foo#foo-2', secnumber=[1, 3]
     )
     assert_node(toctree[1][1][0][0], reference, refuri='bar', secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri='https://sphinx-doc.org/')
