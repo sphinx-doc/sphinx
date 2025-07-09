@@ -29,6 +29,7 @@ from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
 if TYPE_CHECKING:
+    from types import TracebackType
     from typing import Any
 
     from docutils.nodes import Element
@@ -59,6 +60,35 @@ class MathExtError(SphinxError):
 
 class InvokeError(SphinxError):
     """errors on invoking converters."""
+
+
+class FileLock:
+    """Locks a file from concurrent access."""
+
+    def __init__(self, path: str | os.PathLike[str]) -> None:
+        self.fd = os.open(path, os.O_RDWR | os.O_CREAT)
+
+    def __enter__(self) -> None:
+        if os.name == 'posix':
+            os.lockf(self.fd, os.F_LOCK, 0)
+        elif os.name == 'nt':
+            import msvcrt
+
+            msvcrt.locking(self.fd, msvcrt.LK_NBLCK, 1)  # type: ignore[attr-defined]
+
+    def __exit__(
+        self,
+        typ: type[BaseException] | None,
+        val: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
+        if os.name == 'posix':
+            os.lockf(self.fd, os.F_ULOCK, 0)
+        elif os.name == 'nt':
+            import msvcrt
+
+            msvcrt.locking(self.fd, msvcrt.LK_UNLCK, 1)  # type: ignore[attr-defined]
+        os.close(self.fd)
 
 
 SUPPORT_FORMAT = ('png', 'svg')
@@ -257,12 +287,7 @@ def render_math(
     lock: Any = contextlib.nullcontext()
     if self.builder.parallel_ok:
         lockfile = generated_path.with_suffix(generated_path.suffix + '.lock')
-        try:
-            import filelock  # type: ignore[import-not-found]
-
-            lock = filelock.FileLock(lockfile)
-        except ImportError:
-            pass
+        lock = FileLock(lockfile)
 
     with lock:
         if not generated_path.is_file():
