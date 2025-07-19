@@ -50,7 +50,7 @@ def _create_element_from_result(
             # Do not append 'v' to non-numeric version
             version = inv_item.project_version
         else:
-            version = 'v%s' % inv_item.project_version
+            version = f'v{inv_item.project_version}'
         reftitle = _('(in %s %s)') % (inv_item.project_name, version)
     else:
         reftitle = _('(in %s)') % (inv_item.project_name,)
