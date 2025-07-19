@@ -95,7 +95,7 @@ Bugs fixed
   Patch by Jean-François B.
 * #13685: gettext: Correctly ignore trailing backslashes.
   Patch by Bénédikt Tran.
-* #13712: intersphinx: Don't add `v` prefix to non-numeric versions.
+* #13712: intersphinx: Don't add "v" prefix to non-numeric versions.
   Patch by Szymon Karpinski.
 
 Testing
