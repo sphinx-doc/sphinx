@@ -347,6 +347,7 @@ def test_logging_in_ParallelTasks(app: SphinxTestApp) -> None:
 
     tasks = ParallelTasks(1)
     tasks.add_task(child_process)
+    tasks.start()
     tasks.join()
     assert 'message1' in app.status.getvalue()
     assert 'index.txt: WARNING: message2' in app.warning.getvalue()

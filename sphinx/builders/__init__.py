@@ -624,6 +624,7 @@ class Builder:
         for chunk in chunks:
             tasks.add_task(read_process, chunk, merge)
 
+        tasks.start()
         # make sure all threads have finished
         tasks.join()
         logger.info('')
@@ -820,6 +821,7 @@ class Builder:
                 arg.append((docname, doctree))
             tasks.add_task(write_process, arg, on_chunk_done)
 
+        tasks.start()
         # make sure all threads have finished
         tasks.join()
         logger.info('')
