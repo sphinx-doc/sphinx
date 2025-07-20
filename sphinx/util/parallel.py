@@ -119,7 +119,7 @@ class ParallelTasks:
                     else:
                         raise SphinxParallelError(
                             message=f'Result function for task {tid} not found. '
-                                    f'This is a bug in Sphinx.',
+                            f'This is a bug in Sphinx.',
                             traceback='',
                         )
                 for num, proc in list(self._procs.items()):
@@ -167,8 +167,8 @@ def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> lis
 
 
 def process_data_chunks(
-        queue_in: multiprocessing.Queue[InQueueArg],
-        queue_out: multiprocessing.Queue[OutQueueArg]
+    queue_in: multiprocessing.Queue[InQueueArg],
+    queue_out: multiprocessing.Queue[OutQueueArg],
 ) -> None:
     """Process data chunks from the queue using the given function."""
     while True:
