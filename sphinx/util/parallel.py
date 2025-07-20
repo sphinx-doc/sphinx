@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import os
-import traceback
-import time
 import queue
+import time
+import traceback
 from typing import TYPE_CHECKING
 
 try:
@@ -20,9 +20,11 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from logging import LogRecord
     from typing import Any
 
-    InQueueArg = tuple[int, Callable, Any]
+    InQueueArg = tuple[int, Callable[..., Any], Any]
+    OutQueueArg = tuple[int, tuple[bool, list[LogRecord], Any]]
 
 logger = logging.getLogger(__name__)
 
@@ -91,11 +93,8 @@ class ParallelTasks:
         self._args_queue.put((tid, task_func, arg))
 
     def start(self) -> None:
-        if not parallel_available:
-            raise SphinxParallelError('Parallel tasks are not available on this platform.')
-
         # start the worker processes
-        for i in range(self._pworking, self.nproc+self._pworking):
+        for i in range(self._pworking, self.nproc + self._pworking):
             proc = multiprocessing.Process(
                 target=process_data_chunks,
                 args=(self._args_queue, self._result_queue),
@@ -119,7 +118,9 @@ class ParallelTasks:
                         self._result_funcs[tid](self._args.pop(tid), res)
                     else:
                         raise SphinxParallelError(
-                            f'Result function for task {tid} not found. This is a bug in Sphinx.'
+                            message=f'Result function for task {tid} not found. '
+                                    f'This is a bug in Sphinx.',
+                            traceback='',
                         )
                 for num, proc in list(self._procs.items()):
                     if not proc.is_alive():
@@ -157,11 +158,7 @@ def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> lis
     # determine how many documents to read in one go
     nargs = len(arguments)
     chunksize = nargs // nproc
-    if chunksize >= maxbatch:
-        # try to improve batch size vs. number of batches
-        chunksize = maxbatch
-    if chunksize == 0:
-        chunksize = 1
+    chunksize = max(min(chunksize, maxbatch), 1)
     nchunks, rest = divmod(nargs, chunksize)
     if rest:
         nchunks += 1
@@ -169,7 +166,10 @@ def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> lis
     return [arguments[i * chunksize : (i + 1) * chunksize] for i in range(nchunks)]
 
 
-def process_data_chunks(queue_in: multiprocessing.Queue[InQueueArg], queue_out: multiprocessing.Queue) -> None:
+def process_data_chunks(
+        queue_in: multiprocessing.Queue[InQueueArg],
+        queue_out: multiprocessing.Queue[OutQueueArg]
+) -> None:
     """Process data chunks from the queue using the given function."""
     while True:
         try:
@@ -180,9 +180,9 @@ def process_data_chunks(queue_in: multiprocessing.Queue[InQueueArg], queue_out: 
         try:
             with collector.collect():
                 if arg is not None:
-                    result = func(arg)  # type: ignore[call-arg]
+                    result = func(arg)
                 else:
-                    result = func()  # type: ignore[call-arg]
+                    result = func()
             failed = False
         except BaseException as err:
             failed = True
@@ -190,4 +190,3 @@ def process_data_chunks(queue_in: multiprocessing.Queue[InQueueArg], queue_out: 
             result = (errmsg, traceback.format_exc())
         logging.convert_serializable(collector.logs)
         queue_out.put((task_id, (failed, collector.logs, result)))
-
