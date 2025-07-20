@@ -58,6 +58,8 @@ Features added
   The location of the cache directory must not be relied upon externally,
   as it may change without notice or warning in future releases.
   Patch by Adam Turner.
+*  #13738: Improve parallelism by dynamic assign of tasks to workers.
+  Patch by Grzegorz Bokota
 
 Bugs fixed
 ----------
