@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
-class XMLWriter(docutils_xml.Writer):  # type: ignore[misc]
+class XMLWriter(docutils_xml.Writer):
     output: str
 
     def __init__(self, builder: Builder) -> None:
@@ -34,7 +34,7 @@ class XMLWriter(docutils_xml.Writer):  # type: ignore[misc]
         self.output = ''.join(visitor.output)  # type: ignore[attr-defined]
 
 
-class PseudoXMLWriter(docutils_xml.Writer):  # type: ignore[misc]
+class PseudoXMLWriter(docutils_xml.Writer):
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""
 

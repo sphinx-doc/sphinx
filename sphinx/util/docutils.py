@@ -911,4 +911,4 @@ def _get_settings(
             defaults=defaults,
             read_config_files=read_config_files,
         )
-    return option_parser.get_default_values()  # type: ignore[return-value]
+    return option_parser.get_default_values()

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ManualPageWriter(manpage.Writer):  # type: ignore[misc]
+class ManualPageWriter(manpage.Writer):
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
