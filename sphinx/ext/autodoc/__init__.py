@@ -64,11 +64,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-# This type isn't exposed directly in any modules, but can be found
-# here in most Python versions
-MethodDescriptorType = type(type.__subclasses__)
-
-
 #: extended signature RE: with explicit module name separated by ::
 py_ext_sig_re = re.compile(
     r"""^ ([\w.]+::)?            # explicit module name
