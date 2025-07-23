@@ -19,6 +19,8 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx.config import ENUM
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._event_listeners import between as between
+from sphinx.ext.autodoc._event_listeners import cut_lines as cut_lines
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
@@ -37,7 +39,7 @@ from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
-    from typing import ClassVar, Literal, TypeAlias
+    from typing import ClassVar, Literal
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -46,13 +48,6 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata, OptionSpec, _RestifyMode
-
-    _AutodocObjType = Literal[
-        'module', 'class', 'exception', 'function', 'method', 'attribute'
-    ]
-    _AutodocProcessDocstringListener: TypeAlias = Callable[
-        [Sphinx, _AutodocObjType, str, Any, dict[str, bool], list[str]], None
-    ]
 
 logger = logging.getLogger(__name__)
 
@@ -191,101 +186,6 @@ def merge_members_option(options: dict[str, Any]) -> None:
             for member in other_members:
                 if member not in members:
                     members.append(member)
-
-
-# Some useful event listener factories for autodoc-process-docstring.
-
-
-def cut_lines(
-    pre: int, post: int = 0, what: Sequence[str] | None = None
-) -> _AutodocProcessDocstringListener:
-    """Return a listener that removes the first *pre* and last *post*
-    lines of every docstring.  If *what* is a sequence of strings,
-    only docstrings of a type in *what* will be processed.
-
-    Use like this (e.g. in the ``setup()`` function of :file:`conf.py`)::
-
-       from sphinx.ext.autodoc import cut_lines
-
-       app.connect('autodoc-process-docstring', cut_lines(4, what={'module'}))
-
-    This can (and should) be used in place of :confval:`automodule_skip_lines`.
-    """
-    if not what:
-        what_unique: frozenset[str] = frozenset()
-    elif isinstance(what, str):  # strongly discouraged
-        what_unique = frozenset({what})
-    else:
-        what_unique = frozenset(what)
-
-    def process(
-        app: Sphinx,
-        what_: _AutodocObjType,
-        name: str,
-        obj: Any,
-        options: dict[str, bool],
-        lines: list[str],
-    ) -> None:
-        if what_unique and what_ not in what_unique:
-            return
-        del lines[:pre]
-        if post:
-            # remove one trailing blank line.
-            if lines and not lines[-1]:
-                lines.pop(-1)
-            del lines[-post:]
-        # make sure there is a blank line at the end
-        if lines and lines[-1]:
-            lines.append('')
-
-    return process
-
-
-def between(
-    marker: str,
-    what: Sequence[str] | None = None,
-    keepempty: bool = False,
-    exclude: bool = False,
-) -> _AutodocProcessDocstringListener:
-    """Return a listener that either keeps, or if *exclude* is True excludes,
-    lines between lines that match the *marker* regular expression.  If no line
-    matches, the resulting docstring would be empty, so no change will be made
-    unless *keepempty* is true.
-
-    If *what* is a sequence of strings, only docstrings of a type in *what* will
-    be processed.
-    """
-    marker_re = re.compile(marker)
-
-    def process(
-        app: Sphinx,
-        what_: _AutodocObjType,
-        name: str,
-        obj: Any,
-        options: dict[str, bool],
-        lines: list[str],
-    ) -> None:
-        if what and what_ not in what:
-            return
-        deleted = 0
-        delete = not exclude
-        orig_lines = lines.copy()
-        for i, line in enumerate(orig_lines):
-            if delete:
-                lines.pop(i - deleted)
-                deleted += 1
-            if marker_re.match(line):
-                delete = not delete
-                if delete:
-                    lines.pop(i - deleted)
-                    deleted += 1
-        if not lines and not keepempty:
-            lines[:] = orig_lines
-        # make sure there is a blank line at the end
-        if lines and lines[-1]:
-            lines.append('')
-
-    return process
 
 
 # This class is used only in ``sphinx.ext.autodoc.directive``,
