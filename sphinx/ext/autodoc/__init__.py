@@ -21,6 +21,18 @@ from sphinx.config import ENUM
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._event_listeners import between as between
 from sphinx.ext.autodoc._event_listeners import cut_lines as cut_lines
+from sphinx.ext.autodoc._sentinels import (
+    ALL,
+    EMPTY,
+    SUPPRESS,
+    UNINITIALIZED_ATTR,
+)
+from sphinx.ext.autodoc._sentinels import (
+    INSTANCE_ATTR as INSTANCEATTR,
+)
+from sphinx.ext.autodoc._sentinels import (
+    SLOTS_ATTR as SLOTSATTR,
+)
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
@@ -84,30 +96,6 @@ def identity(x: Any) -> Any:
     return x
 
 
-class _All:
-    """A special value for :*-members: that matches to any member."""
-
-    def __contains__(self, item: Any) -> bool:
-        return True
-
-    def append(self, item: Any) -> None:
-        pass  # nothing
-
-
-class _Empty:
-    """A special value for :exclude-members: that never matches to any member."""
-
-    def __contains__(self, item: Any) -> bool:
-        return False
-
-
-ALL = _All()
-EMPTY = _Empty()
-UNINITIALIZED_ATTR = object()
-INSTANCEATTR = object()
-SLOTSATTR = object()
-
-
 def members_option(arg: Any) -> object | list[str]:
     """Used to convert the :members: option to auto directives."""
     if arg in {None, True}:
@@ -151,9 +139,6 @@ def class_doc_from_option(arg: Any) -> str | None:
         return arg
     else:
         raise ValueError(__('invalid value for class-doc-from option: %s') % arg)
-
-
-SUPPRESS = object()
 
 
 def annotation_option(arg: Any) -> Any:
