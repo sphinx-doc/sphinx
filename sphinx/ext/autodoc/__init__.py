@@ -12,20 +12,39 @@ import operator
 import re
 import sys
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, NewType, TypeVar
+from typing import TYPE_CHECKING, NewType, TypeVar
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.config import ENUM
 from sphinx.errors import PycodeError
+# This class is only used in ``sphinx.ext.autodoc.directive``,
+# but we define it class here for compatibility.
+# See: https://github.com/sphinx-doc/sphinx/issues/4538
+from sphinx.ext.autodoc._directive_options import (
+    Options as Options,
+)
+from sphinx.ext.autodoc._directive_options import (
+    annotation_option,
+    bool_option,
+    class_doc_from_option,
+    exclude_members_option,
+    identity,
+    inherited_members_option,
+    member_order_option,
+    members_option,
+    merge_members_option,
+)
 from sphinx.ext.autodoc._event_listeners import between as between
 from sphinx.ext.autodoc._event_listeners import cut_lines as cut_lines
 from sphinx.ext.autodoc._sentinels import (
     ALL,
-    EMPTY,
     SUPPRESS,
     UNINITIALIZED_ATTR,
+)
+from sphinx.ext.autodoc._sentinels import (
+    EMPTY as EMPTY,
 )
 from sphinx.ext.autodoc._sentinels import (
     INSTANCE_ATTR as INSTANCEATTR,
@@ -51,7 +70,7 @@ from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
-    from typing import ClassVar, Literal
+    from typing import Any, ClassVar, Literal
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -85,103 +104,6 @@ def _get_render_mode(
     if typehints_format == 'short':
         return 'smart'
     return 'fully-qualified-except-typing'
-
-
-def identity(x: Any) -> Any:
-    return x
-
-
-def members_option(arg: Any) -> object | list[str]:
-    """Used to convert the :members: option to auto directives."""
-    if arg in {None, True}:
-        return ALL
-    elif arg is False:
-        return None
-    else:
-        return [x.strip() for x in arg.split(',') if x.strip()]
-
-
-def exclude_members_option(arg: Any) -> object | set[str]:
-    """Used to convert the :exclude-members: option."""
-    if arg in {None, True}:
-        return EMPTY
-    return {x.strip() for x in arg.split(',') if x.strip()}
-
-
-def inherited_members_option(arg: Any) -> set[str]:
-    """Used to convert the :inherited-members: option to auto directives."""
-    if arg in {None, True}:
-        return {'object'}
-    elif arg:
-        return {x.strip() for x in arg.split(',')}
-    else:
-        return set()
-
-
-def member_order_option(arg: Any) -> str | None:
-    """Used to convert the :member-order: option to auto directives."""
-    if arg in {None, True}:
-        return None
-    elif arg in {'alphabetical', 'bysource', 'groupwise'}:
-        return arg
-    else:
-        raise ValueError(__('invalid value for member-order option: %s') % arg)
-
-
-def class_doc_from_option(arg: Any) -> str | None:
-    """Used to convert the :class-doc-from: option to autoclass directives."""
-    if arg in {'both', 'class', 'init'}:
-        return arg
-    else:
-        raise ValueError(__('invalid value for class-doc-from option: %s') % arg)
-
-
-def annotation_option(arg: Any) -> Any:
-    if arg in {None, True}:
-        # suppress showing the representation of the object
-        return SUPPRESS
-    else:
-        return arg
-
-
-def bool_option(arg: Any) -> bool:
-    """Used to convert flag options to auto directives.  (Instead of
-    directives.flag(), which returns None).
-    """
-    return True
-
-
-def merge_members_option(options: dict[str, Any]) -> None:
-    """Merge :private-members: and :special-members: options to the
-    :members: option.
-    """
-    if options.get('members') is ALL:
-        # merging is not needed when members: ALL
-        return
-
-    members = options.setdefault('members', [])
-    for key in ('private-members', 'special-members'):
-        other_members = options.get(key)
-        if other_members is not None and other_members is not ALL:
-            for member in other_members:
-                if member not in members:
-                    members.append(member)
-
-
-# This class is used only in ``sphinx.ext.autodoc.directive``,
-# But we define this class here to keep compatibility
-# See: https://github.com/sphinx-doc/sphinx/issues/4538
-class Options(dict[str, Any]):  # NoQA: FURB189
-    """A dict/attribute hybrid that returns None on nonexisting keys."""
-
-    def copy(self) -> Options:
-        return Options(super().copy())
-
-    def __getattr__(self, name: str) -> Any:
-        try:
-            return self[name.replace('_', '-')]
-        except KeyError:
-            return None
 
 
 class ObjectMember:
