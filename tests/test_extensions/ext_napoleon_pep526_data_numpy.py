@@ -23,8 +23,7 @@ class PEP526NumpyClass:
 
 
 class PEP526NumpyDontUseAttrTypeForParam:
-    """
-    A Class
+    """A Class
 
     Parameters
     ----------
