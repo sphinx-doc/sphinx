@@ -1,4 +1,4 @@
-\label{\detokenize{longtable:longtable-having-caption}}
+\label{\detokenize{longtable:longtable-having-stub-columns-and-formerly-problematic}}
 
 \begin{savenotes}
 \sphinxatlongtablestart
@@ -7,36 +7,44 @@
   \LTleft \@totalleftmargin plus1fill
   \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill
 \makeatother
-\begin{longtable}{|l|l|}
-\sphinxthelongtablecaptionisattop
-\caption{caption for longtable\strut}\label{\detokenize{longtable:id1}}\\*[\sphinxlongtablecapskipadjust]
+\begin{longtable}{|l|l|l|}
 \sphinxtoprule
-\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
 \sphinxstyletheadfamily \sphinxAtStartPar
 header1
 \sphinxbeforeendvarwidth
 \end{varwidth}%
-&\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+&\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
 \sphinxstyletheadfamily \sphinxAtStartPar
 header2
+\sphinxbeforeendvarwidth
+\end{varwidth}%
+&\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
+\sphinxstyletheadfamily \sphinxAtStartPar
+header3
 \sphinxbeforeendvarwidth
 \end{varwidth}%
 \\
 \sphinxmidrule
 \endfirsthead
 
-\multicolumn{2}{c}{\sphinxnorowcolor
+\multicolumn{3}{c}{\sphinxnorowcolor
     \makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} continued from previous page}}%
 }\\
 \sphinxtoprule
-\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
 \sphinxstyletheadfamily \sphinxAtStartPar
 header1
 \sphinxbeforeendvarwidth
 \end{varwidth}%
-&\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+&\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
 \sphinxstyletheadfamily \sphinxAtStartPar
 header2
+\sphinxbeforeendvarwidth
+\end{varwidth}%
+&\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
+\sphinxstyletheadfamily \sphinxAtStartPar
+header3
 \sphinxbeforeendvarwidth
 \end{varwidth}%
 \\
@@ -44,43 +52,50 @@ header2
 \endhead
 
 \sphinxbottomrule
-\multicolumn{2}{r}{\sphinxnorowcolor
+\multicolumn{3}{r}{\sphinxnorowcolor
     \makebox[0pt][r]{\sphinxtablecontinued{continues on next page}}%
 }\\
 \endfoot
 
 \endlastfoot
 \sphinxtableatstartofbodyhook
-\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
+\sphinxstyletheadfamily \begin{itemize}
+\item {} 
 \sphinxAtStartPar
-cell1\sphinxhyphen{}1
+instub1\sphinxhyphen{}1a
+
+\item {} 
+\sphinxAtStartPar
+instub1\sphinxhyphen{}1b
+
+\end{itemize}
 \sphinxbeforeendvarwidth
 \end{varwidth}%
-&\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+&\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
+\sphinxstyletheadfamily \sphinxAtStartPar
+instub1\sphinxhyphen{}2
+\sphinxbeforeendvarwidth
+\end{varwidth}%
+&\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
 \sphinxAtStartPar
-cell1\sphinxhyphen{}2
+notinstub1\sphinxhyphen{}3
 \sphinxbeforeendvarwidth
 \end{varwidth}%
 \\
-\sphinxhline\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
-\sphinxAtStartPar
+\sphinxhline\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
+\sphinxstyletheadfamily \sphinxAtStartPar
 cell2\sphinxhyphen{}1
 \sphinxbeforeendvarwidth
 \end{varwidth}%
-&\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
-\sphinxAtStartPar
+&\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
+\sphinxstyletheadfamily \sphinxAtStartPar
 cell2\sphinxhyphen{}2
 \sphinxbeforeendvarwidth
 \end{varwidth}%
-\\
-\sphinxhline\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+&\begin{varwidth}[t]{\sphinxcolwidth{1}{3}}
 \sphinxAtStartPar
-cell3\sphinxhyphen{}1
-\sphinxbeforeendvarwidth
-\end{varwidth}%
-&\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
-\sphinxAtStartPar
-cell3\sphinxhyphen{}2
+cell2\sphinxhyphen{}3
 \sphinxbeforeendvarwidth
 \end{varwidth}%
 \\

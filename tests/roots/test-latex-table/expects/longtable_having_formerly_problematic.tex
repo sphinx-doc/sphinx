@@ -1,4 +1,4 @@
-\label{\detokenize{longtable:longtable-having-caption}}
+\label{\detokenize{longtable:longtable-having-formerly-problematic}}
 
 \begin{savenotes}
 \sphinxatlongtablestart
@@ -8,8 +8,6 @@
   \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill
 \makeatother
 \begin{longtable}{|l|l|}
-\sphinxthelongtablecaptionisattop
-\caption{caption for longtable\strut}\label{\detokenize{longtable:id1}}\\*[\sphinxlongtablecapskipadjust]
 \sphinxtoprule
 \begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
 \sphinxstyletheadfamily \sphinxAtStartPar
@@ -52,8 +50,16 @@ header2
 \endlastfoot
 \sphinxtableatstartofbodyhook
 \begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
+\begin{itemize}
+\item {} 
 \sphinxAtStartPar
-cell1\sphinxhyphen{}1
+item1
+
+\item {} 
+\sphinxAtStartPar
+item2
+
+\end{itemize}
 \sphinxbeforeendvarwidth
 \end{varwidth}%
 &\begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
