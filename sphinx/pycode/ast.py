@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import ast
-from typing import NoReturn, overload
+from typing import TYPE_CHECKING, overload
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: '+',
@@ -198,6 +201,9 @@ class _UnparseVisitor(ast.NodeVisitor):
             return '(%s,)' % self.visit(node.elts[0])
         else:
             return '(' + ', '.join(self.visit(e) for e in node.elts) + ')'
+
+    def visit_Starred(self, node: ast.Starred) -> str:
+        return f'*{self.visit(node.value)}'
 
     def generic_visit(self, node: ast.AST) -> NoReturn:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)

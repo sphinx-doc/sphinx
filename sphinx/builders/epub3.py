@@ -10,11 +10,11 @@ import os
 import os.path
 import re
 import time
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx import package_dir
 from sphinx.builders import _epub_base
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
@@ -22,8 +22,10 @@ from sphinx.util.osutil import make_filename
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
@@ -71,8 +73,7 @@ _XML_NAME_PATTERN = re.compile(f'({_xml_name_start_char})({_xml_name_char})*')
 
 
 class Epub3Builder(_epub_base.EpubBuilder):
-    """
-    Builder that outputs epub3 files.
+    """Builder that outputs epub3 files.
 
     It creates the metainfo files content.opf, nav.xhtml, toc.ncx, mimetype,
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
@@ -83,7 +84,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     epilog = __('The ePub file is in %(outdir)s.')
 
     supported_remote_images = False
-    template_dir = os.path.join(package_dir, 'templates', 'epub3')
+    template_dir = package_dir.joinpath('templates', 'epub3')
     doctype = DOCTYPE
     html_tag = HTML_TAG
     use_meta_charset = True
@@ -189,7 +190,11 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(
-                self.config.root_doc, self, prune_toctrees=False, includehidden=False
+                self.config.root_doc,
+                self,
+                tags=self.tags,
+                prune_toctrees=False,
+                includehidden=False,
             )
             refnodes = self.get_refnodes(doctree, [])
             self.toc_add_files(refnodes)
@@ -198,7 +203,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
         copy_asset_file(
-            os.path.join(self.template_dir, 'nav.xhtml.jinja'),
+            self.template_dir / 'nav.xhtml.jinja',
             self.outdir,
             context=self.navigation_doc_metadata(navlist),
             force=True,
@@ -285,35 +290,67 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(Epub3Builder)
 
     # config values
-    app.add_config_value('epub_basename', lambda self: make_filename(self.project), '')
-    app.add_config_value('epub_version', 3.0, 'epub')  # experimental
-    app.add_config_value('epub_theme', 'epub', 'epub')
-    app.add_config_value('epub_theme_options', {}, 'epub')
-    app.add_config_value('epub_title', lambda self: self.project, 'epub')
-    app.add_config_value('epub_author', lambda self: self.author, 'epub')
-    app.add_config_value('epub_language', lambda self: self.language or 'en', 'epub')
-    app.add_config_value('epub_publisher', lambda self: self.author, 'epub')
-    app.add_config_value('epub_copyright', lambda self: self.copyright, 'epub')
-    app.add_config_value('epub_identifier', 'unknown', 'epub')
-    app.add_config_value('epub_scheme', 'unknown', 'epub')
-    app.add_config_value('epub_uid', 'unknown', 'env')
-    app.add_config_value('epub_cover', (), 'env')
-    app.add_config_value('epub_guide', (), 'env')
-    app.add_config_value('epub_pre_files', [], 'env')
-    app.add_config_value('epub_post_files', [], 'env')
-    app.add_config_value('epub_css_files', lambda config: config.html_css_files, 'epub')
-    app.add_config_value('epub_exclude_files', [], 'env')
-    app.add_config_value('epub_tocdepth', 3, 'env')
-    app.add_config_value('epub_tocdup', True, 'env')
-    app.add_config_value('epub_tocscope', 'default', 'env')
-    app.add_config_value('epub_fix_images', False, 'env')
-    app.add_config_value('epub_max_image_width', 0, 'env')
-    app.add_config_value('epub_show_urls', 'inline', 'epub')
-    app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'epub')
-    app.add_config_value('epub_description', 'unknown', 'epub')
-    app.add_config_value('epub_contributor', 'unknown', 'epub')
     app.add_config_value(
-        'epub_writing_mode', 'horizontal', 'epub', ENUM('horizontal', 'vertical')
+        'epub_basename',
+        lambda self: make_filename(self.project),
+        '',
+        types=frozenset({str}),
+    )
+    app.add_config_value(
+        'epub_version', 3.0, 'epub', types=frozenset({float})
+    )  # experimental
+    app.add_config_value('epub_theme', 'epub', 'epub', types=frozenset({str}))
+    app.add_config_value('epub_theme_options', {}, 'epub', types=frozenset({dict}))
+    app.add_config_value(
+        'epub_title', lambda self: self.project, 'epub', types=frozenset({str})
+    )
+    app.add_config_value(
+        'epub_author', lambda self: self.author, 'epub', types=frozenset({str})
+    )
+    app.add_config_value(
+        'epub_language',
+        lambda self: self.language or 'en',
+        'epub',
+        types=frozenset({str}),
+    )
+    app.add_config_value(
+        'epub_publisher', lambda self: self.author, 'epub', types=frozenset({str})
+    )
+    app.add_config_value(
+        'epub_copyright', lambda self: self.copyright, 'epub', types=frozenset({str})
+    )
+    app.add_config_value('epub_identifier', 'unknown', 'epub', types=frozenset({str}))
+    app.add_config_value('epub_scheme', 'unknown', 'epub', types=frozenset({str}))
+    app.add_config_value('epub_uid', 'unknown', 'env', types=frozenset({str}))
+    app.add_config_value('epub_cover', (), 'env', types=frozenset({list, tuple}))
+    app.add_config_value('epub_guide', (), 'env', types=frozenset({list, tuple}))
+    app.add_config_value('epub_pre_files', [], 'env', types=frozenset({list, tuple}))
+    app.add_config_value('epub_post_files', [], 'env', types=frozenset({list, tuple}))
+    app.add_config_value(
+        'epub_css_files',
+        lambda config: config.html_css_files,
+        'epub',
+        types=frozenset({list, tuple}),
+    )
+    app.add_config_value(
+        'epub_exclude_files', [], 'env', types=frozenset({list, tuple})
+    )
+    app.add_config_value('epub_tocdepth', 3, 'env', types=frozenset({int}))
+    app.add_config_value('epub_tocdup', True, 'env', types=frozenset({bool}))
+    app.add_config_value('epub_tocscope', 'default', 'env', types=frozenset({str}))
+    app.add_config_value('epub_fix_images', False, 'env', types=frozenset({bool}))
+    app.add_config_value('epub_max_image_width', 0, 'env', types=frozenset({int}))
+    app.add_config_value('epub_show_urls', 'inline', 'epub', types=frozenset({str}))
+    app.add_config_value(
+        'epub_use_index',
+        lambda self: self.html_use_index,
+        'epub',
+        types=frozenset({bool}),
+    )
+    app.add_config_value('epub_description', 'unknown', 'epub', types=frozenset({str}))
+    app.add_config_value('epub_contributor', 'unknown', 'epub', types=frozenset({str}))
+    app.add_config_value(
+        'epub_writing_mode', 'horizontal', 'epub', types=ENUM('horizontal', 'vertical')
     )
 
     # event handlers

@@ -10,16 +10,17 @@ import functools
 import itertools
 import operator
 import sys
-from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
 from warnings import catch_warnings
 
 import pytest
-from docutils.statemachine import ViewList
 
 from sphinx import addnodes
 from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
+
+# NEVER import these objects from sphinx.ext.autodoc directly
+from sphinx.ext.autodoc.directive import DocumenterBridge
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
@@ -34,8 +35,10 @@ except ImportError:
 if TYPE_CHECKING:
     from typing import Any
 
+    from sphinx.environment import BuildEnvironment
 
-def make_directive_bridge(env):
+
+def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
     options = Options(
         inherited_members=False,
         undoc_members=False,
@@ -54,11 +57,11 @@ def make_directive_bridge(env):
         ignore_module_all=False,
     )
 
-    directive = SimpleNamespace(
+    directive = DocumenterBridge(
         env=env,
-        genopt=options,
-        result=ViewList(),
-        record_dependencies=set(),
+        reporter=None,
+        options=options,
+        lineno=0,
         state=Mock(),
     )
     directive.state.document.settings.tab_width = 8
@@ -174,6 +177,28 @@ def test_format_signature(app):
     assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
     assert formatsig('function', 'g', g, None, None) == r"(a='\n')"
 
+    if sys.version_info >= (3, 12):
+        for params, expect in [
+            ('(a=1)', '(a=1)'),
+            ('(a: int=1)', '(a: int = 1)'),  # auto whitespace formatting
+            ('(a:list[T]   =[], b=None)', '(a: list[T] = [], b=None)'),  # idem
+        ]:
+            ns = {}
+            exec(f'def f[T]{params}: pass', ns)  # NoQA: S102
+            f = ns['f']
+            assert formatsig('function', 'f', f, None, None) == expect
+            assert formatsig('function', 'f', f, '...', None) == '(...)'
+            assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
+
+            exec(f'def f[T]{params} -> list[T]: return []', ns)  # NoQA: S102
+            f = ns['f']
+            assert formatsig('function', 'f', f, None, None) == f'{expect} -> list[T]'
+            assert formatsig('function', 'f', f, '...', None) == '(...)'
+            assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
+
+    # TODO(picnixz): add more test cases for PEP-695 classes as well (though
+    # complex cases are less likely to appear and are painful to test).
+
     # test for classes
     class D:
         pass
@@ -196,7 +221,7 @@ def test_format_signature(app):
             pass
 
     class FNew:
-        def __new__(cls, a, b=None):
+        def __new__(cls, a, b=None):  # NoQA: ARG004
             return super().__new__(cls)
 
     class FMeta(metaclass=SomeMeta):
@@ -240,8 +265,7 @@ def test_format_signature(app):
         """some docstring for F2."""
 
         def __init__(self, *args, **kw):
-            """
-            __init__(a1, a2, kw1=True, kw2=False)
+            """__init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
             """
@@ -257,7 +281,7 @@ def test_format_signature(app):
         def foo1(self, b, *c):
             pass
 
-        def foo2(b, *c):
+        def foo2(b, *c):  # NoQA: N805
             pass
 
         def foo3(self, d='\n'):
@@ -318,7 +342,7 @@ def test_autodoc_process_signature_typehints(app):
 
     app.connect('autodoc-process-signature', process_signature)
 
-    def func(x: int, y: int) -> int:
+    def func(x: int, y: int) -> int:  # type: ignore[empty-body]
         pass
 
     directive = make_directive_bridge(app.env)
@@ -360,9 +384,7 @@ def test_get_doc(app):
         """Docstring"""
 
     def g():
-        """
-        Docstring
-        """
+        """Docstring"""
 
     for func in (f, g):
         assert getdocl('function', func) == ['Docstring']
@@ -728,7 +750,9 @@ def test_autodoc_undoc_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.attr',
+        '   .. py:method:: Class.b_staticmeth()',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -750,7 +774,9 @@ def test_autodoc_undoc_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.attr',
+        '   .. py:method:: Class.b_staticmeth()',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -827,6 +853,7 @@ def test_autodoc_inherited_members(app):
     }
     actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
     assert list(filter(lambda l: 'method::' in l, actual)) == [
+        '   .. py:method:: Derived.another_inheritedmeth()',
         '   .. py:method:: Derived.inheritedclassmeth()',
         '   .. py:method:: Derived.inheritedmeth()',
         '   .. py:method:: Derived.inheritedstaticmeth(cls)',
@@ -911,17 +938,23 @@ def test_autodoc_special_members(app):
     }
     if sys.version_info >= (3, 13, 0, 'alpha', 5):
         options['exclude-members'] = '__static_attributes__,__firstlineno__'
+    if sys.version_info >= (3, 14, 0, 'alpha', 7):
+        ann_attr_name = '__annotations_cache__'
+    else:
+        ann_attr_name = '__annotations__'
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:attribute:: Class.__annotations__',
+        f'   .. py:attribute:: Class.{ann_attr_name}',
         '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
         '   .. py:method:: Class.__special1__()',
         '   .. py:method:: Class.__special2__()',
         '   .. py:attribute:: Class.__weakref__',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.attr',
+        '   .. py:method:: Class.b_staticmeth()',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -1200,6 +1233,8 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.b_staticmeth()',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_comment',
         '   .. py:attribute:: Class.inst_attr_string',
@@ -1216,10 +1251,15 @@ def test_autodoc_member_order(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:method:: Class.excludemeth()',
-        '   .. py:method:: Class.meth()',
+        # class methods
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        # static methods
+        '   .. py:method:: Class.a_staticmeth()',
+        '   .. py:method:: Class.b_staticmeth()',
+        # regular methods
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
@@ -1243,7 +1283,9 @@ def test_autodoc_member_order(app):
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
         '   .. py:attribute:: Class._private_inst_attr',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.attr',
+        '   .. py:method:: Class.b_staticmeth()',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -2144,7 +2186,7 @@ def test_partialmethod(app):
         '',
         '   An example for partialmethod.',
         '',
-        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   refs: https://docs.python.org/3/library/functools.html#functools.partialmethod',
         '',
         '',
         '   .. py:method:: Cell.set_alive()',
@@ -2174,7 +2216,7 @@ def test_partialmethod_undoc_members(app):
         '',
         '   An example for partialmethod.',
         '',
-        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   refs: https://docs.python.org/3/library/functools.html#functools.partialmethod',
         '',
         '',
         '   .. py:method:: Cell.set_alive()',
@@ -2573,7 +2615,7 @@ def test_autodoc_TYPE_CHECKING(app):
         '',
         '   .. py:attribute:: Foo.attr1',
         '      :module: target.TYPE_CHECKING',
-        '      :type: ~_io.StringIO',
+        '      :type: ~io.StringIO',
         '',
         '',
         '.. py:function:: spam(ham: ~collections.abc.Iterable[str]) -> tuple[~gettext.NullTranslations, bool]',
@@ -2781,6 +2823,20 @@ def test_final(app):
         '',
         '      docstring',
         '',
+        '',
+        '   .. py:method:: Class.meth3()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth4()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
     ]
 
 
@@ -2855,6 +2911,26 @@ def test_overload2(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload3(app):
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.overload3', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload3',
+        '',
+        '',
+        '.. py:function:: test(x: int) -> int',
+        '                 test(x: list[int]) -> list[int]',
+        '                 test(x: str) -> str',
+        '                 test(x: float) -> float',
+        '   :module: target.overload3',
+        '',
+        '   Documentation.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_pymodule_for_ModuleLevelDocumenter(app):
     app.env.ref_context['py:module'] = 'target.classes'
     actual = do_autodoc(app, 'class', 'Foo')
@@ -2900,7 +2976,7 @@ def test_autodoc(app):
     assert content[3][0].astext() == 'autodoc_dummy_module.test()'
     assert content[3][1].astext() == 'Dummy function using dummy.*'
 
-    # issue sphinx-doc/sphinx#2437
+    # See: https://github.com/sphinx-doc/sphinx/issues/2437
     assert content[11][-1].astext() == (
         """Dummy class Bar with alias.
 
@@ -3104,30 +3180,32 @@ def test_canonical(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def bounded_typevar_rst(name, bound):
+    return [
+        '',
+        f'.. py:class:: {name}',
+        '   :module: target.literal',
+        '',
+        '   docstring',
+        '',
+        f'   alias of TypeVar({name!r}, bound={bound})',
+        '',
+    ]
+
+
+def function_rst(name, sig):
+    return [
+        '',
+        f'.. py:function:: {name}({sig})',
+        '   :module: target.literal',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc', freshenv=True)
 def test_literal_render(app):
-    def bounded_typevar_rst(name, bound):
-        return [
-            '',
-            f'.. py:class:: {name}',
-            '   :module: target.literal',
-            '',
-            '   docstring',
-            '',
-            f'   alias of TypeVar({name!r}, bound={bound})',
-            '',
-        ]
-
-    def function_rst(name, sig):
-        return [
-            '',
-            f'.. py:function:: {name}({sig})',
-            '   :module: target.literal',
-            '',
-            '   docstring',
-            '',
-        ]
-
     # autodoc_typehints_format can take 'short' or 'fully-qualified' values
     # and this will be interpreted as 'smart' or 'fully-qualified-except-typing' by restify()
     # and 'smart' or 'fully-qualified' by stringify_annotation().
@@ -3142,12 +3220,15 @@ def test_literal_render(app):
         '',
         '.. py:module:: target.literal',
         '',
-        *bounded_typevar_rst('T', r'\ :py:obj:`~typing.Literal`\ [1234]'),
+        *bounded_typevar_rst('T', r"\ :py:obj:`~typing.Literal`\ [1234, 'abcd']"),
         *bounded_typevar_rst(
-            'U', r'\ :py:obj:`~typing.Literal`\ [:py:attr:`~target.literal.MyEnum.a`]'
+            'U',
+            r'\ :py:obj:`~typing.Literal`\ ['
+            r':py:attr:`~target.literal.MyEnum.a`, '
+            r':py:attr:`~target.literal.MyEnum.b`]',
         ),
-        *function_rst('bar', 'x: ~typing.Literal[1234]'),
-        *function_rst('foo', 'x: ~typing.Literal[MyEnum.a]'),
+        *function_rst('bar', "x: ~typing.Literal[1234, 'abcd']"),
+        *function_rst('foo', 'x: ~typing.Literal[MyEnum.a, MyEnum.b]'),
     ]
 
     # restify() assumes that 'fully-qualified' is 'fully-qualified-except-typing'
@@ -3158,10 +3239,93 @@ def test_literal_render(app):
         '',
         '.. py:module:: target.literal',
         '',
-        *bounded_typevar_rst('T', r'\ :py:obj:`~typing.Literal`\ [1234]'),
+        *bounded_typevar_rst('T', r"\ :py:obj:`~typing.Literal`\ [1234, 'abcd']"),
         *bounded_typevar_rst(
-            'U', r'\ :py:obj:`~typing.Literal`\ [:py:attr:`target.literal.MyEnum.a`]'
+            'U',
+            r'\ :py:obj:`~typing.Literal`\ ['
+            r':py:attr:`target.literal.MyEnum.a`, '
+            r':py:attr:`target.literal.MyEnum.b`]',
         ),
-        *function_rst('bar', 'x: typing.Literal[1234]'),
-        *function_rst('foo', 'x: typing.Literal[target.literal.MyEnum.a]'),
+        *function_rst('bar', "x: typing.Literal[1234, 'abcd']"),
+        *function_rst(
+            'foo',
+            'x: typing.Literal[target.literal.MyEnum.a, target.literal.MyEnum.b]',
+        ),
     ]
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-autodoc',
+    freshenv=True,
+    confoverrides={'python_display_short_literal_types': True},
+)
+def test_literal_render_pep604(app):
+    options = {
+        'members': None,
+        'exclude-members': 'MyEnum',
+    }
+    app.config.autodoc_typehints_format = 'short'
+    actual = do_autodoc(app, 'module', 'target.literal', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.literal',
+        '',
+        *bounded_typevar_rst('T', r"\ :py:obj:`~typing.Literal`\ [1234, 'abcd']"),
+        *bounded_typevar_rst(
+            'U',
+            r'\ :py:obj:`~typing.Literal`\ ['
+            r':py:attr:`~target.literal.MyEnum.a`, '
+            r':py:attr:`~target.literal.MyEnum.b`]',
+        ),
+        *function_rst('bar', "x: 1234 | 'abcd'"),
+        *function_rst('foo', 'x: MyEnum.a | MyEnum.b'),
+    ]
+
+    # restify() assumes that 'fully-qualified' is 'fully-qualified-except-typing'
+    # because it is more likely that a user wants to suppress 'typing.*'
+    app.config.autodoc_typehints_format = 'fully-qualified'
+    actual = do_autodoc(app, 'module', 'target.literal', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.literal',
+        '',
+        *bounded_typevar_rst('T', r"\ :py:obj:`~typing.Literal`\ [1234, 'abcd']"),
+        *bounded_typevar_rst(
+            'U',
+            r'\ :py:obj:`~typing.Literal`\ ['
+            r':py:attr:`target.literal.MyEnum.a`, '
+            r':py:attr:`target.literal.MyEnum.b`]',
+        ),
+        *function_rst('bar', "x: 1234 | 'abcd'"),
+        *function_rst('foo', 'x: target.literal.MyEnum.a | target.literal.MyEnum.b'),
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_no_index_entry(app):
+    # modules can use no-index-entry
+    options = {'no-index-entry': None}
+    actual = do_autodoc(app, 'module', 'target.module', options)
+    assert '   :no-index-entry:' in list(actual)
+
+    # classes can use no-index-entry
+    actual = do_autodoc(app, 'class', 'target.classes.Foo', options)
+    assert '   :no-index-entry:' in list(actual)
+
+    # functions can use no-index-entry
+    actual = do_autodoc(app, 'function', 'target.functions.func', options)
+    assert '   :no-index-entry:' in list(actual)
+
+    # modules respect no-index-entry in autodoc_default_options
+    app.config.autodoc_default_options = {'no-index-entry': True}
+    actual = do_autodoc(app, 'module', 'target.module')
+    assert '   :no-index-entry:' in list(actual)
+
+    # classes respect config-level no-index-entry
+    actual = do_autodoc(app, 'class', 'target.classes.Foo')
+    assert '   :no-index-entry:' in list(actual)
+
+    # functions respect config-level no-index-entry
+    actual = do_autodoc(app, 'function', 'target.functions.func')
+    assert '   :no-index-entry:' in list(actual)

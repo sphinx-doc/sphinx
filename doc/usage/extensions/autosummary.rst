@@ -8,6 +8,9 @@
 
 .. versionadded:: 0.6
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension generates function/method/attribute summary lists, similar to
 those output e.g. by Epydoc and other API doc generation tools.  This is
 especially useful when your docstrings are long and detailed, and putting each
@@ -99,11 +102,32 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
       .. versionadded:: 3.1
 
+   .. rst:directive:option:: signatures: format
+
+      How to display signatures. Valid values are
+
+      - ``long`` (*default*): use a long signature. This is still cut off so that name
+        plus signature do not exceeed a certain length.
+      - ``short``: Function and class signatures are displayed as ``(…)`` if they have
+        arguments and as ``()`` if they don't have arguments.
+      - ``none``: do not show signatures.
+
+      .. versionadded:: 8.2
+
    .. rst:directive:option:: nosignatures
 
       Do not show function signatures in the summary.
 
+      This is equivalent to ``:signatures: none``.
+
       .. versionadded:: 0.6
+
+      .. versionchanged:: 8.2
+
+         The directive option is superseded by the more general ``:signatures: none``.
+
+         It will be deprecated and removed
+         in a future version of Sphinx.
 
    .. rst:directive:option:: template: filename
 
@@ -168,6 +192,8 @@ If you do not want to create stub pages with :program:`sphinx-autogen`, you can
 also use these config values:
 
 .. confval:: autosummary_context
+   :type: :code-py:`dict[str, Any]`
+   :default: :code-py:`{}`
 
    A dictionary of values to pass into the template engine's context for
    autosummary stubs files.
@@ -175,9 +201,11 @@ also use these config values:
    .. versionadded:: 3.1
 
 .. confval:: autosummary_generate
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    Boolean indicating whether to scan all found documents for autosummary
-   directives, and to generate stub pages for each. It is enabled by default.
+   directives, and to generate stub pages for each.
 
    Can also be a list of documents for which stub pages should be generated.
 
@@ -194,24 +222,29 @@ also use these config values:
       Enabled by default.
 
 .. confval:: autosummary_generate_overwrite
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    If true, autosummary overwrites existing files by generated stub pages.
-   Defaults to true (enabled).
 
    .. versionadded:: 3.0
 
 .. confval:: autosummary_mock_imports
+   :type: :code-py:`list[str]`
+   :default: :code-py:`[]`
 
-   This value contains a list of modules to be mocked up.  See
-   :confval:`autodoc_mock_imports` for more details.  It defaults to
-   :confval:`autodoc_mock_imports`.
+   This value contains a list of modules to be mocked up.
+   See :confval:`autodoc_mock_imports` for more details.
+   It defaults to :confval:`autodoc_mock_imports`.
 
    .. versionadded:: 2.0
 
 .. confval:: autosummary_imported_members
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    A boolean flag indicating whether to document classes and functions imported
-   in modules. Default is ``False``
+   in modules.
 
    .. versionadded:: 2.1
 
@@ -221,10 +254,11 @@ also use these config values:
       value is ignored for members listed in ``__all__``.
 
 .. confval:: autosummary_ignore_module_all
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    If ``False`` and a module has the ``__all__`` attribute set, autosummary
-   documents every member listed in ``__all__`` and no others. Default is
-   ``True``
+   documents every member listed in ``__all__`` and no others.
 
    Note that if an imported member is listed in ``__all__``, it will be
    documented regardless of the value of ``autosummary_imported_members``. To
@@ -235,6 +269,8 @@ also use these config values:
    .. versionadded:: 4.4
 
 .. confval:: autosummary_filename_map
+   :type: :code-py:`dict[str, str]`
+   :default: :code-py:`{}`
 
    A dict mapping object names to filenames. This is necessary to avoid
    filename conflicts where multiple objects have names that are
@@ -376,3 +412,27 @@ the title of a page.
    Stub pages are generated also based on these directives.
 
 .. _`escape filter`: https://jinja.palletsprojects.com/en/3.0.x/templates/#jinja-filters.escape
+
+Autolink role
+-------------
+
+.. rst:role:: autolink
+
+   The ``:autolink:`` role functions as ``:py:obj:`` when the referenced *name*
+   can be resolved to a Python object, and otherwise it becomes simple emphasis.
+
+   There are some known design flaws.
+   For example, in the case of multiple objects having the same name,
+   :rst:role:`!autolink` could resolve to the wrong object.
+   It will fail silently if the referenced object is not found,
+   for example due to a spelling mistake or renaming.
+   This is sometimes unwanted behaviour.
+
+   Some users choose to configure their :confval:`default_role` to ``autolink``
+   for 'smart' referencing using the default interpreted text role (```content```).
+
+   .. seealso::
+
+      :rst:role:`any`
+
+      :rst:role:`py:obj`

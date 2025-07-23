@@ -29,14 +29,16 @@ tex_replacements = [
     # map some special Unicode characters to similar ASCII ones
     # (even for Unicode LaTeX as may not be supported by OpenType font)
     ('⎽', r'\_'),
-    ('ℯ', r'e'),
-    ('ⅈ', r'i'),
+    ('ℯ', r'e'),  # U+212F # NoQA: RUF001
+    ('ⅈ', r'i'),  # U+2148 # NoQA: RUF001
     # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
     # OHM SIGN U+2126 is handled by LaTeX textcomp package
 ]
 
 # A map to avoid TeX ligatures or character replacements in PDF output
-# xelatex/lualatex/uplatex are handled differently (#5790, #6888)
+# xelatex/lualatex/uplatex are handled differently
+# https://github.com/sphinx-doc/sphinx/pull/5790
+# https://github.com/sphinx-doc/sphinx/pull/6888
 ascii_tex_replacements = [
     # Note: the " renders curly in OT1 encoding but straight in T1, T2A, LY1...
     #       escaping it to \textquotedbl would break documents using OT1
@@ -63,7 +65,7 @@ unicode_tex_replacements = [
     ('±', r'\(\pm\)'),
     ('→', r'\(\rightarrow\)'),
     ('‣', r'\(\rightarrow\)'),
-    ('–', r'\textendash{}'),
+    ('\N{EN DASH}', r'\textendash{}'),
     # superscript
     ('⁰', r'\(\sp{\text{0}}\)'),
     ('¹', r'\(\sp{\text{1}}\)'),

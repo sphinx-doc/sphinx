@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
+from typing import TYPE_CHECKING
 from xml.etree.ElementTree import ParseError
 
 import pytest
 from defusedxml.ElementTree import parse as xml_parse
 
 import sphinx.builders.html
+from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.errors import ThemeError
 from sphinx.theming import (
     _ConfigFile,
@@ -20,6 +22,9 @@ from sphinx.theming import (
     _load_theme_toml,
 )
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 HERE = Path(__file__).resolve().parent
 
 
@@ -28,7 +33,8 @@ HERE = Path(__file__).resolve().parent
     testroot='theming',
     confoverrides={'html_theme': 'ziptheme', 'html_theme_options.testopt': 'foo'},
 )
-def test_theme_api(app):
+def test_theme_api(app: SphinxTestApp) -> None:
+    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
     themes = [
         'basic',
         'default',
@@ -94,13 +100,14 @@ def test_theme_api(app):
 
 def test_nonexistent_theme_settings(tmp_path):
     # Check that error occurs with a non-existent theme.toml or theme.conf
-    # (https://github.com/sphinx-doc/sphinx/issues/11668)
+    # https://github.com/sphinx-doc/sphinx/issues/11668
     with pytest.raises(ThemeError):
         _load_theme('', tmp_path)
 
 
 @pytest.mark.sphinx('html', testroot='double-inheriting-theme')
-def test_double_inheriting_theme(app):
+def test_double_inheriting_theme(app: SphinxTestApp) -> None:
+    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
     assert app.builder.theme.name == 'base_theme2'
     app.build()  # => not raises TemplateNotFound
 
@@ -110,7 +117,8 @@ def test_double_inheriting_theme(app):
     testroot='theming',
     confoverrides={'html_theme': 'child'},
 )
-def test_nested_zipped_theme(app):
+def test_nested_zipped_theme(app: SphinxTestApp) -> None:
+    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
     assert app.builder.theme.name == 'child'
     app.build()  # => not raises TemplateNotFound
 
@@ -120,7 +128,7 @@ def test_nested_zipped_theme(app):
     testroot='theming',
     confoverrides={'html_theme': 'staticfiles'},
 )
-def test_staticfiles(app):
+def test_staticfiles(app: SphinxTestApp) -> None:
     app.build()
     assert (app.outdir / '_static' / 'legacytmpl.html').exists()
     assert (app.outdir / '_static' / 'legacytmpl.html').read_text(encoding='utf8') == (
@@ -151,10 +159,10 @@ def test_dark_style(app, monkeypatch):
     app.build()
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
-    css_file, properties = app.registry.css_files[0]
-    assert css_file == 'pygments_dark.css'
-    assert 'media' in properties
-    assert properties['media'] == '(prefers-color-scheme: dark)'
+    css_file = app.builder._css_files[1]
+    assert css_file.filename == '_static/pygments_dark.css'
+    assert 'media' in css_file.attributes
+    assert css_file.attributes['media'] == '(prefers-color-scheme: dark)'
 
     assert sorted(f.filename for f in app.builder._css_files) == [
         '_static/classic.css',
@@ -174,7 +182,7 @@ def test_dark_style(app, monkeypatch):
 
 
 @pytest.mark.sphinx('html', testroot='theming')
-def test_theme_sidebars(app):
+def test_theme_sidebars(app: SphinxTestApp) -> None:
     app.build()
 
     # test-theme specifies globaltoc and searchbox as default sidebars
@@ -223,7 +231,7 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
 
 
-def test_config_file_toml():
+def test_config_file_toml() -> None:
     config_path = HERE / 'theme.toml'
     cfg = _load_theme_toml(config_path)
     config = _convert_theme_toml(cfg)
@@ -237,7 +245,7 @@ def test_config_file_toml():
     )
 
 
-def test_config_file_conf():
+def test_config_file_conf() -> None:
     config_path = HERE / 'theme.conf'
     cfg = _load_theme_conf(config_path)
     config = _convert_theme_conf(cfg)

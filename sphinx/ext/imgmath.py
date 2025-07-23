@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import tempfile
 from hashlib import sha1
+from pathlib import Path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 
@@ -24,7 +25,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
-from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
@@ -32,14 +32,14 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
-    from sphinx.builders import Builder
     from sphinx.config import Config
+    from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
     from sphinx.writers.html5 import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
-templates_path = os.path.join(package_dir, 'templates', 'imgmath')
+templates_path = package_dir.joinpath('templates', 'imgmath')
 
 
 class MathExtError(SphinxError):
@@ -66,7 +66,7 @@ depthsvg_re = re.compile(r'.*, depth=(.*)pt')
 depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
-def read_svg_depth(filename: str) -> int | None:
+def read_svg_depth(filename: str | os.PathLike[str]) -> int | None:
     """Read the depth from comment at last line of SVG file"""
     with open(filename, encoding='utf-8') as f:
         for line in f:  # NoQA: B007
@@ -78,7 +78,7 @@ def read_svg_depth(filename: str) -> int | None:
         return None
 
 
-def write_svg_depth(filename: str, depth: int) -> None:
+def write_svg_depth(filename: Path, depth: int) -> None:
     """Write the depth to SVG file as a comment at end of file"""
     with open(filename, 'a', encoding='utf-8') as f:
         f.write('\n<!-- DEPTH=%s -->' % depth)
@@ -88,7 +88,7 @@ def generate_latex_macro(
     image_format: str,
     math: str,
     config: Config,
-    confdir: str | os.PathLike[str] = '',
+    confdir: _StrPath,
 ) -> str:
     """Generate LaTeX macro."""
     variables = {
@@ -108,45 +108,30 @@ def generate_latex_macro(
 
     for template_dir in config.templates_path:
         for template_suffix in ('.jinja', '_t'):
-            template = os.path.join(
-                confdir, template_dir, template_name + template_suffix
-            )
-            if os.path.exists(template):
+            template = confdir / template_dir / (template_name + template_suffix)
+            if template.exists():
                 return LaTeXRenderer().render(template, variables)
 
-    return LaTeXRenderer(templates_path).render(template_name + '.jinja', variables)
+    return LaTeXRenderer([templates_path]).render(template_name + '.jinja', variables)
 
 
-def ensure_tempdir(builder: Builder) -> str:
-    """Create temporary directory.
-
-    use only one tempdir per build -- the use of a directory is cleaner
-    than using temporary files, since we can clean up everything at once
-    just removing the whole directory (see cleanup_tempdir)
-    """
-    if not hasattr(builder, '_imgmath_tempdir'):
-        builder._imgmath_tempdir = tempfile.mkdtemp()  # type: ignore[attr-defined]
-
-    return builder._imgmath_tempdir  # type: ignore[attr-defined]
-
-
-def compile_math(latex: str, builder: Builder) -> str:
+def compile_math(latex: str, *, config: Config) -> Path:
     """Compile LaTeX macros for math to DVI."""
-    tempdir = ensure_tempdir(builder)
-    filename = os.path.join(tempdir, 'math.tex')
+    tempdir = Path(tempfile.mkdtemp(suffix='-sphinx-imgmath'))
+    filename = tempdir / 'math.tex'
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
 
-    imgmath_latex_name = os.path.basename(builder.config.imgmath_latex)
+    imgmath_latex_name = os.path.basename(config.imgmath_latex)
 
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
-    command = [builder.config.imgmath_latex]
+    command = [config.imgmath_latex]
     if imgmath_latex_name != 'tectonic':
         command.append('--interaction=nonstopmode')
     # add custom args from the config file
-    command.extend(builder.config.imgmath_latex_args)
+    command.extend(config.imgmath_latex_args)
     command.append('math.tex')
 
     try:
@@ -154,16 +139,16 @@ def compile_math(latex: str, builder: Builder) -> str:
             command, capture_output=True, cwd=tempdir, check=True, encoding='ascii'
         )
         if imgmath_latex_name in {'xelatex', 'tectonic'}:
-            return os.path.join(tempdir, 'math.xdv')
+            return tempdir / 'math.xdv'
         else:
-            return os.path.join(tempdir, 'math.dvi')
+            return tempdir / 'math.dvi'
     except OSError as exc:
         logger.warning(
             __(
                 'LaTeX command %r cannot be run (needed for math '
                 'display), check the imgmath_latex setting'
             ),
-            builder.config.imgmath_latex,
+            config.imgmath_latex,
         )
         raise InvokeError from exc
     except CalledProcessError as exc:
@@ -192,19 +177,19 @@ def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
         raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_png(dvipath: str, builder: Builder, out_path: str) -> int | None:
+def convert_dvi_to_png(dvipath: Path, out_path: Path, *, config: Config) -> int | None:
     """Convert DVI file to PNG image."""
     name = 'dvipng'
-    command = [builder.config.imgmath_dvipng, '-o', out_path, '-T', 'tight', '-z9']
-    command.extend(builder.config.imgmath_dvipng_args)
-    if builder.config.imgmath_use_preview:
+    command = [config.imgmath_dvipng, '-o', out_path, '-T', 'tight', '-z9']
+    command.extend(config.imgmath_dvipng_args)
+    if config.imgmath_use_preview:
         command.append('--depth')
     command.append(dvipath)
 
-    stdout, stderr = convert_dvi_to_image(command, name)
+    stdout, _stderr = convert_dvi_to_image(command, name)
 
     depth = None
-    if builder.config.imgmath_use_preview:
+    if config.imgmath_use_preview:
         for line in stdout.splitlines():
             matched = depth_re.match(line)
             if matched:
@@ -215,17 +200,17 @@ def convert_dvi_to_png(dvipath: str, builder: Builder, out_path: str) -> int | N
     return depth
 
 
-def convert_dvi_to_svg(dvipath: str, builder: Builder, out_path: str) -> int | None:
+def convert_dvi_to_svg(dvipath: Path, out_path: Path, *, config: Config) -> int | None:
     """Convert DVI file to SVG image."""
     name = 'dvisvgm'
-    command = [builder.config.imgmath_dvisvgm, '-o', out_path]
-    command.extend(builder.config.imgmath_dvisvgm_args)
+    command = [config.imgmath_dvisvgm, '-o', out_path]
+    command.extend(config.imgmath_dvisvgm_args)
     command.append(dvipath)
 
-    stdout, stderr = convert_dvi_to_image(command, name)
+    _stdout, stderr = convert_dvi_to_image(command, name)
 
     depth = None
-    if builder.config.imgmath_use_preview:
+    if config.imgmath_use_preview:
         for line in stderr.splitlines():  # not stdout !
             matched = depthsvg_re.match(line)
             if matched:
@@ -237,9 +222,8 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder, out_path: str) -> int | N
 
 
 def render_math(
-    self: HTML5Translator,
-    math: str,
-) -> tuple[str | None, int | None]:
+    self: HTML5Translator, math: str, *, config: Config
+) -> tuple[_StrPath | None, int | None]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
@@ -253,23 +237,19 @@ def render_math(
     docs successfully).  If the programs are there, however, they may not fail
     since that indicates a problem in the math source.
     """
-    image_format = self.builder.config.imgmath_image_format.lower()
+    image_format = config.imgmath_image_format.lower()
     if image_format not in SUPPORT_FORMAT:
         unsupported_format_msg = 'imgmath_image_format must be either "png" or "svg"'
         raise MathExtError(unsupported_format_msg)
 
-    latex = generate_latex_macro(
-        image_format, math, self.builder.config, self.builder.confdir
-    )
+    latex = generate_latex_macro(image_format, math, config, self.builder.confdir)
 
     filename = (
         f'{sha1(latex.encode(), usedforsecurity=False).hexdigest()}.{image_format}'
     )
-    generated_path = os.path.join(
-        self.builder.outdir, self.builder.imagedir, 'math', filename
-    )
-    ensuredir(os.path.dirname(generated_path))
-    if os.path.isfile(generated_path):
+    generated_path = self.builder.outdir / self.builder.imagedir / 'math' / filename
+    generated_path.parent.mkdir(parents=True, exist_ok=True)
+    if generated_path.is_file():
         if image_format == 'png':
             depth = read_png_depth(generated_path)
         elif image_format == 'svg':
@@ -284,7 +264,7 @@ def render_math(
 
     # .tex -> .dvi
     try:
-        dvipath = compile_math(latex, self.builder)
+        dvipath = compile_math(latex, config=config)
     except InvokeError:
         self.builder._imgmath_warned_latex = True  # type: ignore[attr-defined]
         return None, None
@@ -292,9 +272,9 @@ def render_math(
     # .dvi -> .png/.svg
     try:
         if image_format == 'png':
-            depth = convert_dvi_to_png(dvipath, self.builder, generated_path)
+            depth = convert_dvi_to_png(dvipath, generated_path, config=config)
         elif image_format == 'svg':
-            depth = convert_dvi_to_svg(dvipath, self.builder, generated_path)
+            depth = convert_dvi_to_svg(dvipath, generated_path, config=config)
     except InvokeError:
         self.builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]
         return None, None
@@ -302,7 +282,7 @@ def render_math(
     return generated_path, depth
 
 
-def render_maths_to_base64(image_format: str, generated_path: str) -> str:
+def render_maths_to_base64(image_format: str, generated_path: Path) -> str:
     with open(generated_path, 'rb') as f:
         content = f.read()
     encoded = base64.b64encode(content).decode(encoding='utf-8')
@@ -318,28 +298,25 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
     if exc:
         return
 
-    if hasattr(app.builder, '_imgmath_tempdir'):
-        with contextlib.suppress(Exception):
-            shutil.rmtree(app.builder._imgmath_tempdir)
-
-    if app.builder.config.imgmath_embed:
+    if app.config.imgmath_embed:
         # in embed mode, the images are still generated in the math output dir
         # to be shared across workers, but are not useful to the final document
         with contextlib.suppress(Exception):
-            shutil.rmtree(
-                os.path.join(app.builder.outdir, app.builder.imagedir, 'math')
-            )
+            shutil.rmtree(app.builder.outdir / app.builder.imagedir / 'math')
 
 
-def get_tooltip(self: HTML5Translator, node: Element) -> str:
-    if self.builder.config.imgmath_add_tooltips:
+def get_tooltip(self: HTML5Translator, node: Element, *, config: Config) -> str:
+    if config.imgmath_add_tooltips:
         return f' alt="{self.encode(node.astext()).strip()}"'
     return ''
 
 
 def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
+    config = self.builder.config
     try:
-        rendered_path, depth = render_math(self, '$' + node.astext() + '$')
+        rendered_path, depth = render_math(
+            self, '$' + node.astext() + '$', config=config
+        )
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(
@@ -355,27 +332,27 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
             f'<span class="math">{self.encode(node.astext()).strip()}</span>'
         )
     else:
-        if self.builder.config.imgmath_embed:
-            image_format = self.builder.config.imgmath_image_format.lower()
+        if config.imgmath_embed:
+            image_format = config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
             bname = os.path.basename(rendered_path)
-            relative_path = os.path.join(self.builder.imgpath, 'math', bname)
-            img_src = relative_path.replace(os.path.sep, '/')
+            relative_path = Path(self.builder.imgpath, 'math', bname)
+            img_src = relative_path.as_posix()
         align = f' style="vertical-align: {-depth:d}px"' if depth is not None else ''
-        self.body.append(
-            f'<img class="math" src="{img_src}"{get_tooltip(self, node)}{align}/>'
-        )
+        tooltip = get_tooltip(self, node, config=config)
+        self.body.append(f'<img class="math" src="{img_src}"{tooltip}{align}/>')
     raise nodes.SkipNode
 
 
 def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> None:
-    if node['nowrap']:
+    config = self.builder.config
+    if node.get('no-wrap', node.get('nowrap', False)):
         latex = node.astext()
     else:
         latex = wrap_displaymath(node.astext(), None, False)
     try:
-        rendered_path, depth = render_math(self, latex)
+        rendered_path, _depth = render_math(self, latex, config=config)
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(
@@ -398,14 +375,15 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
             f'<span class="math">{self.encode(node.astext()).strip()}</span></p>\n</div>'
         )
     else:
-        if self.builder.config.imgmath_embed:
-            image_format = self.builder.config.imgmath_image_format.lower()
+        if config.imgmath_embed:
+            image_format = config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
             bname = os.path.basename(rendered_path)
-            relative_path = os.path.join(self.builder.imgpath, 'math', bname)
-            img_src = relative_path.replace(os.path.sep, '/')
-        self.body.append(f'<img src="{img_src}"{get_tooltip(self, node)}/></p>\n</div>')
+            relative_path = Path(self.builder.imgpath, 'math', bname)
+            img_src = relative_path.as_posix()
+        tooltip = get_tooltip(self, node, config=config)
+        self.body.append(f'<img src="{img_src}"{tooltip}/></p>\n</div>')
     raise nodes.SkipNode
 
 
@@ -416,21 +394,29 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         block_renderers=(html_visit_displaymath, None),
     )
 
-    app.add_config_value('imgmath_image_format', 'png', 'html')
-    app.add_config_value('imgmath_dvipng', 'dvipng', 'html')
-    app.add_config_value('imgmath_dvisvgm', 'dvisvgm', 'html')
-    app.add_config_value('imgmath_latex', 'latex', 'html')
-    app.add_config_value('imgmath_use_preview', False, 'html')
+    app.add_config_value('imgmath_image_format', 'png', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_dvipng', 'dvipng', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_dvisvgm', 'dvisvgm', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_latex', 'latex', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_use_preview', False, 'html', types=frozenset({bool}))
     app.add_config_value(
         'imgmath_dvipng_args',
         ['-gamma', '1.5', '-D', '110', '-bg', 'Transparent'],
         'html',
+        types=frozenset({list}),
     )
-    app.add_config_value('imgmath_dvisvgm_args', ['--no-fonts'], 'html')
-    app.add_config_value('imgmath_latex_args', [], 'html')
-    app.add_config_value('imgmath_latex_preamble', '', 'html')
-    app.add_config_value('imgmath_add_tooltips', True, 'html')
-    app.add_config_value('imgmath_font_size', 12, 'html')
-    app.add_config_value('imgmath_embed', False, 'html', bool)
+    app.add_config_value(
+        'imgmath_dvisvgm_args', ['--no-fonts'], 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'imgmath_latex_args', [], 'html', types=frozenset({list, tuple})
+    )
+    app.add_config_value('imgmath_latex_preamble', '', 'html', types=frozenset({str}))
+    app.add_config_value('imgmath_add_tooltips', True, 'html', types=frozenset({bool}))
+    app.add_config_value('imgmath_font_size', 12, 'html', types=frozenset({int}))
+    app.add_config_value('imgmath_embed', False, 'html', types=frozenset({bool}))
     app.connect('build-finished', clean_up_files)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

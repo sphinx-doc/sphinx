@@ -187,20 +187,30 @@ nitpick_ignore = {
     ('py:attr', 'srcline'),
     ('py:class', '_AutodocProcessDocstringListener'),
     ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
+    # sphinx.application.Sphinx.add_html_math_renderer
+    ('py:class', '_MathsBlockRenderers'),
+    # sphinx.application.Sphinx.add_html_math_renderer
+    ('py:class', '_MathsInlineRenderers'),
+    ('py:class', '_NodeHandler'),  # sphinx.application.Sphinx.add_enumerable_node
+    ('py:class', '_NodeHandlerPair'),  # sphinx.application.Sphinx.add_node
     ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
     ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
+    ('py:class', 'Field'),  # sphinx.application.Sphinx.add_object_type
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
+    ('py:class', 'Inliner'),  # sphinx.util.docutils.SphinxRole.inliner
     ('py:class', 'Lexer'),  # sphinx.application.Sphinx.add_lexer
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
+    ('py:class', 'ObjDescT'),  # sphinx.directives.ObjectDescription
+    ('py:class', 'OptionSpec'),  # sphinx.directives.ObjectDescription.option_spec
     ('py:class', 'Path'),  # sphinx.application.Sphinx.connect
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
-    ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
     ('py:class', 'SearchLanguage'),  # sphinx.application.Sphinx.add_search_language
     ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'system_message'),  # sphinx.utils.docutils.SphinxDirective
+    ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
     ('py:class', 'todo_node'),  # sphinx.application.Sphinx.connect
     ('py:class', 'Transform'),  # sphinx.application.Sphinx.add_transform
@@ -287,14 +297,12 @@ def linkify_issues_in_changelog(
 ) -> None:
     """Linkify issue references like #123 in changelog to GitHub."""
     if docname == 'changes':
-
-        def linkify(match: re.Match[str]) -> str:
-            url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
-            return f'`{match[0]} <{url}>`_'
-
-        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, source[0])
-
+        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', _linkify, source[0])
         source[0] = linkified_changelog
+
+
+def _linkify(match: re.Match[str], /) -> str:
+    return f'`{match[0]} <https://github.com/sphinx-doc/sphinx/issues/{match[1]}>`__'
 
 
 REDIRECT_TEMPLATE = """

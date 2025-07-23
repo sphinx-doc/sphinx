@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from types import NoneType
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -15,7 +16,7 @@ from sphinx.domains.c._ast import (
     ASTIdentifier,
     ASTNestedName,
 )
-from sphinx.domains.c._ids import _macroKeywords, _max_id
+from sphinx.domains.c._ids import _macro_keywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol, _DuplicateSymbolError
 from sphinx.locale import _, __
@@ -34,10 +35,11 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
-    from sphinx.addnodes import pending_xref
+    from sphinx.addnodes import desc_signature, pending_xref
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.domains.c._symbol import LookupKey
@@ -45,7 +47,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 # re-export objects for backwards compatibility
-# xref https://github.com/sphinx-doc/sphinx/issues/12295
+# See: https://github.com/sphinx-doc/sphinx/issues/12295
 from sphinx.domains.c._ast import (  # NoQA: F401
     ASTAlignofExpr,
     ASTArray,
@@ -105,9 +107,7 @@ def _make_phony_error_name() -> ASTNestedName:
 
 
 class CObject(ObjectDescription[ASTDeclaration]):
-    """
-    Description of a C language object.
-    """
+    """Description of a C language object."""
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index-entry': directives.flag,
@@ -156,7 +156,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             parent=target_symbol,
             ident=symbol.ident,
             declaration=decl_clone,
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             line=self.get_source_info()[1],
         )
 
@@ -214,12 +214,12 @@ class CObject(ObjectDescription[ASTDeclaration]):
         return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(
-        self, signode: TextElement, ast: ASTDeclaration, options: dict
+        self, signode: TextElement, ast: ASTDeclaration, options: dict[str, Any]
     ) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def run(self) -> list[Node]:
-        env = self.state.document.settings.env  # from ObjectDescription.run
+        env = self.env
         if env.current_document.c_parent_symbol is None:
             root = env.domaindata['c']['root_symbol']
             env.current_document.c_parent_symbol = root
@@ -235,8 +235,8 @@ class CObject(ObjectDescription[ASTDeclaration]):
         parent_symbol: Symbol = self.env.current_document.c_parent_symbol
 
         max_len = (
-            self.env.config.c_maximum_signature_line_length
-            or self.env.config.maximum_signature_line_length
+            self.config.c_maximum_signature_line_length
+            or self.config.maximum_signature_line_length
             or 0
         )
         signode['multi_line_parameter_list'] = (
@@ -244,7 +244,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             and (len(sig) > max_len > 0)
         )
 
-        parser = DefinitionParser(sig, location=signode, config=self.env.config)
+        parser = DefinitionParser(sig, location=signode, config=self.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -259,7 +259,9 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
         try:
             symbol = parent_symbol.add_declaration(
-                ast, docname=self.env.docname, line=self.get_source_info()[1]
+                ast,
+                docname=self.env.current_document.docname,
+                line=self.get_source_info()[1],
             )
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
@@ -308,6 +310,32 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def after_content(self) -> None:
         self.env.current_document.c_parent_symbol = self.oldParentSymbol
         self.env.ref_context['c:parent_key'] = self.oldParentKey
+
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        last_symbol: Symbol = self.env.current_document.c_last_symbol
+        return tuple(map(str, last_symbol.get_full_nested_name().names))
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+
+        config = self.config
+        objtype = sig_node.parent.get('objtype')
+        if config.add_function_parentheses and (
+            objtype in {'function', 'method'}
+            or (objtype == 'macro' and '(' in sig_node.rawsource)
+        ):
+            parens = '()'
+        else:
+            parens = ''
+        *parents, name = sig_node['_toc_parts']
+        if config.toc_object_entries_show_parents == 'domain':
+            return '::'.join((name + parens,))
+        if config.toc_object_entries_show_parents == 'hide':
+            return name + parens
+        if config.toc_object_entries_show_parents == 'all':
+            return '::'.join([*parents, name + parens])
+        return ''
 
 
 class CMemberObject(CObject):
@@ -382,8 +410,7 @@ class CTypeObject(CObject):
 
 
 class CNamespaceObject(SphinxDirective):
-    """
-    This directive is just to tell Sphinx that we're documenting stuff in
+    """This directive is just to tell Sphinx that we're documenting stuff in
     namespace foo.
     """
 
@@ -400,7 +427,7 @@ class CNamespaceObject(SphinxDirective):
             stack: list[Symbol] = []
         else:
             parser = DefinitionParser(
-                self.arguments[0], location=self.get_location(), config=self.env.config
+                self.arguments[0], location=self.get_location(), config=self.config
             )
             try:
                 name = parser.parse_namespace_object()
@@ -427,7 +454,7 @@ class CNamespacePushObject(SphinxDirective):
         if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             return []
         parser = DefinitionParser(
-            self.arguments[0], location=self.get_location(), config=self.env.config
+            self.arguments[0], location=self.get_location(), config=self.config
         )
         try:
             name = parser.parse_namespace_object()
@@ -474,7 +501,7 @@ class AliasNode(nodes.Element):
     def __init__(
         self,
         sig: str,
-        aliasOptions: dict,
+        aliasOptions: dict[str, bool],
         document: Any,
         env: BuildEnvironment | None = None,
         parentKey: LookupKey | None = None,
@@ -511,8 +538,8 @@ class AliasTransform(SphinxTransform):
         s: Symbol,
         maxdepth: int,
         skip_this: bool,
-        alias_options: dict,
-        render_options: dict,
+        alias_options: dict[str, bool],
+        render_options: dict[str, bool],
         document: Any,
     ) -> list[Node]:
         if maxdepth == 0:
@@ -567,7 +594,7 @@ class AliasTransform(SphinxTransform):
             sig = node.sig
             parent_key = node.parentKey
             try:
-                parser = DefinitionParser(sig, location=node, config=self.env.config)
+                parser = DefinitionParser(sig, location=node, config=self.config)
                 name = parser.parse_xref_object()
             except DefinitionError as e:
                 logger.warning(e, location=node)
@@ -631,20 +658,19 @@ class AliasTransform(SphinxTransform):
             node.replace_self(nodes)
 
 
-class CAliasObject(ObjectDescription):
+class CAliasObject(ObjectDescription[str]):
     option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
     }
 
     def run(self) -> list[Node]:
-        """
-        On purpose this doesn't call the ObjectDescription version, but is based on it.
+        """On purpose this doesn't call the ObjectDescription version, but is based on it.
         Each alias signature may expand into multiple real signatures if 'noroot'.
         The code is therefore based on the ObjectDescription version.
         """
         if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+            self.domain, _, self.objtype = self.name.partition(':')
         else:
             self.domain, self.objtype = '', self.name
 
@@ -716,7 +742,7 @@ class CExprRole(SphinxRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         text = self.text.replace('\n', ' ')
         parser = DefinitionParser(
-            text, location=self.get_location(), config=self.env.config
+            text, location=self.get_location(), config=self.config
         )
         # attempt to mimic XRefRole classes, except that...
         try:
@@ -794,7 +820,7 @@ class CDomain(Domain):
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False),
     }
-    initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
+    initial_data: ClassVar[dict[str, Symbol | dict[str, tuple[str, str, str]]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
     }
@@ -865,7 +891,7 @@ class CDomain(Domain):
                 'Unparseable C cross-reference: %r\n%s', target, e, location=node
             )
             return None, None
-        parent_key: LookupKey = node.get('c:parent_key', None)
+        parent_key: LookupKey | None = node.get('c:parent_key', None)
         root_symbol = self.data['root_symbol']
         if parent_key:
             parent_symbol: Symbol = root_symbol.direct_lookup(parent_key)
@@ -946,11 +972,21 @@ class CDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CDomain)
-    app.add_config_value('c_id_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('c_paren_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('c_extra_keywords', _macroKeywords, 'env', types={set, list})
+    app.add_config_value('c_id_attributes', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(
-        'c_maximum_signature_line_length', None, 'env', types={int, type(None)}
+        'c_paren_attributes', [], 'env', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'c_extra_keywords',
+        _macro_keywords,
+        'env',
+        types=frozenset({frozenset, list, set, tuple}),
+    )
+    app.add_config_value(
+        'c_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, NoneType}),
     )
     app.add_post_transform(AliasTransform)
 

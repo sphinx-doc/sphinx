@@ -13,7 +13,11 @@ from __future__ import annotations
 import os
 import re
 import sys
-from typing import Any
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 try:
     import MeCab  # type: ignore[import-not-found]
@@ -39,8 +43,7 @@ class BaseSplitter:
         self.options = options
 
     def split(self, input: str) -> list[str]:
-        """
-        :param str input:
+        """:param str input:
         :return:
         :rtype: list[str]
         """
@@ -89,7 +92,7 @@ class MecabSplitter(BaseSplitter):
             libpath = ctypes.util.find_library(lib)
         else:
             libpath = None
-            if os.path.exists(lib):
+            if Path(lib).exists():
                 libpath = lib
         if libpath is None:
             msg = 'MeCab dynamic library is not available'
@@ -513,15 +516,15 @@ class DefaultSplitter(BaseSplitter):
 
 
 class SearchJapanese(SearchLanguage):
-    """
-    Japanese search implementation: uses no stemmer, but word splitting is quite
+    """Japanese search implementation: uses no stemmer, but word splitting is quite
     complicated.
     """
 
     lang = 'ja'
     language_name = 'Japanese'
 
-    def init(self, options: dict[str, str]) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
+        super().__init__(options)
         dotted_path = options.get('type')
         if dotted_path is None:
             self.splitter = DefaultSplitter(options)

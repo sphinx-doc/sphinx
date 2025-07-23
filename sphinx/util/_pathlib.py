@@ -17,9 +17,12 @@ from __future__ import annotations
 import sys
 import warnings
 from pathlib import Path, PosixPath, PurePath, WindowsPath
-from typing import Any, overload
+from typing import TYPE_CHECKING, overload
 
 from sphinx.deprecation import RemovedInSphinx90Warning
+
+if TYPE_CHECKING:
+    from typing import Any
 
 _STR_METHODS = frozenset(str.__dict__)
 _PATH_NAME = Path().__class__.__name__
@@ -53,6 +56,10 @@ if sys.platform == 'win32':
         def __add__(self, other: str) -> str:
             warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
             return self.__str__() + other
+
+        def __radd__(self, other: str) -> str:
+            warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
+            return other + self.__str__()
 
         def __bool__(self) -> bool:
             if not self.__str__():
@@ -104,6 +111,10 @@ else:
         def __add__(self, other: str) -> str:
             warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
             return self.__str__() + other
+
+        def __radd__(self, other: str) -> str:
+            warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
+            return other + self.__str__()
 
         def __bool__(self) -> bool:
             if not self.__str__():

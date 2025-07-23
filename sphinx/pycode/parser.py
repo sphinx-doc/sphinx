@@ -10,12 +10,15 @@ import itertools
 import operator
 import re
 import tokenize
-from inspect import Signature
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
-from typing import Any
+from typing import TYPE_CHECKING
 
 from sphinx.pycode.ast import unparse as ast_unparse
+
+if TYPE_CHECKING:
+    from inspect import Signature
+    from typing import Any
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
@@ -40,7 +43,7 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     This raises `TypeError` if the assignment does not create new variable::
 
         ary[0] = 'foo'
-        dic["bar"] = 'baz'
+        dic['bar'] = 'baz'
         # => TypeError
     """
     if self:
@@ -244,9 +247,9 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.deforders: dict[str, int] = {}
         self.finals: list[str] = []
         self.overloads: dict[str, list[Signature]] = {}
-        self.typing: str | None = None
-        self.typing_final: str | None = None
-        self.typing_overload: str | None = None
+        self.typing_mods: set[str] = set()
+        self.typing_final_names: set[str] = set()
+        self.typing_overload_names: set[str] = set()
         super().__init__()
 
     def get_qualname_for(self, name: str) -> list[str] | None:
@@ -254,7 +257,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         if self.current_function:
             if self.current_classes and self.context[-1] == '__init__':
                 # store variable comments inside __init__ method of classes
-                return self.context[:-1] + [name]
+                return [*self.context[:-1], name]
             else:
                 return None
         else:
@@ -292,11 +295,8 @@ class VariableCommentPicker(ast.NodeVisitor):
             self.annotations[basename, name] = ast_unparse(annotation)
 
     def is_final(self, decorators: list[ast.expr]) -> bool:
-        final = []
-        if self.typing:
-            final.append('%s.final' % self.typing)
-        if self.typing_final:
-            final.append(self.typing_final)
+        final = {f'{modname}.final' for modname in self.typing_mods}
+        final |= self.typing_final_names
 
         for decorator in decorators:
             try:
@@ -308,11 +308,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         return False
 
     def is_overload(self, decorators: list[ast.expr]) -> bool:
-        overload = []
-        if self.typing:
-            overload.append('%s.overload' % self.typing)
-        if self.typing_overload:
-            overload.append(self.typing_overload)
+        overload = {f'{modname}.overload' for modname in self.typing_mods}
+        overload |= self.typing_overload_names
 
         for decorator in decorators:
             try:
@@ -345,22 +342,24 @@ class VariableCommentPicker(ast.NodeVisitor):
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
-            if name.name == 'typing':
-                self.typing = name.asname or name.name
-            elif name.name == 'typing.final':
-                self.typing_final = name.asname or name.name
-            elif name.name == 'typing.overload':
-                self.typing_overload = name.asname or name.name
+            if name.name in {'typing', 'typing_extensions'}:
+                self.typing_mods.add(name.asname or name.name)
+            elif name.name in {'typing.final', 'typing_extensions.final'}:
+                self.typing_final_names.add(name.asname or name.name)
+            elif name.name in {'typing.overload', 'typing_extensions.overload'}:
+                self.typing_overload_names.add(name.asname or name.name)
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Handles Import node and record the order of definitions."""
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
-            if node.module == 'typing' and name.name == 'final':
-                self.typing_final = name.asname or name.name
-            elif node.module == 'typing' and name.name == 'overload':
-                self.typing_overload = name.asname or name.name
+            if node.module not in {'typing', 'typing_extensions'}:
+                continue
+            if name.name == 'final':
+                self.typing_final_names.add(name.asname or name.name)
+            elif name.name == 'overload':
+                self.typing_overload_names.add(name.asname or name.name)
 
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
@@ -384,9 +383,10 @@ class VariableCommentPicker(ast.NodeVisitor):
                 self.add_variable_annotation(varname, node.type_comment)  # type: ignore[arg-type]
 
         # check comments after assignment
-        parser = AfterCommentParser(
-            [current_line[node.col_offset :]] + self.buffers[node.lineno :]
-        )
+        parser = AfterCommentParser([
+            current_line[node.col_offset :],
+            *self.buffers[node.lineno :],
+        ])
         parser.parse()
         if parser.comment and comment_re.match(parser.comment):
             for varname in varnames:

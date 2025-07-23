@@ -2,24 +2,27 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from docutils.writers.docutils_xml import Writer as BaseXMLWriter
+from docutils.writers import docutils_xml
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.builders import Builder
 
 
-class XMLWriter(BaseXMLWriter):  # type: ignore[misc]
+class XMLWriter(docutils_xml.Writer):  # type: ignore[misc]
     output: str
 
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
+        self._config = builder.config
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
         self.document.settings.newlines = self.document.settings.indents = (
-            self.builder.env.config.xml_pretty
+            self._config.xml_pretty
         )
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
@@ -31,7 +34,7 @@ class XMLWriter(BaseXMLWriter):  # type: ignore[misc]
         self.output = ''.join(visitor.output)  # type: ignore[attr-defined]
 
 
-class PseudoXMLWriter(BaseXMLWriter):  # type: ignore[misc]
+class PseudoXMLWriter(docutils_xml.Writer):  # type: ignore[misc]
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""
 

@@ -480,6 +480,56 @@ and the generic :rst:dir:`admonition` directive.
          Documentation for tar archive files, including GNU tar extensions.
 
 
+.. _collapsible-admonitions:
+
+.. rubric:: Collapsible text
+
+.. versionadded:: 8.2
+
+Each admonition directive supports a ``:collapsible:`` option,
+to make the content of the admonition collapsible
+(where supported by the output format).
+This can be useful for content that is not always relevant.
+By default, collapsible admonitions are initially open,
+but this can be controlled with the ``open`` and ``closed`` arguments
+to the ``:collapsible:`` option, which change the default state.
+In output formats that don't support collapsible content,
+the text is always included.
+For example:
+
+.. code-block:: rst
+
+  .. note::
+     :collapsible:
+
+     This note is collapsible, and initially open by default.
+
+  .. admonition:: Example
+     :collapsible: open
+
+     This example is collapsible, and initially open.
+
+  .. hint::
+     :collapsible: closed
+
+     This hint is collapsible, but initially closed.
+
+.. note::
+  :collapsible:
+
+  This note is collapsible, and initially open by default.
+
+.. admonition:: Example
+  :collapsible: open
+
+  This example is collapsible, and initially open.
+
+.. hint::
+  :collapsible: closed
+
+  This hint is collapsible, but initially closed.
+
+
 Describing changes between versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -921,7 +971,7 @@ __ https://pygments.org/docs/lexers
       :type: text
 
       Explicitly specify the encoding of the file.
-      This overwrites the default encoding (:confval:`source_encoding`).
+      This overwrites the default encoding (UTF-8).
       For example:
 
       .. code-block:: rst
@@ -1422,11 +1472,20 @@ Check the :confval:`latex_table_style`.
    complex contents such as multiple paragraphs, blockquotes, lists, literal
    blocks, will render correctly to LaTeX output.
 
+.. versionchanged:: 8.3.0
+   The partial support of the LaTeX builder for nesting a table in another
+   has been extended.
+   Formerly Sphinx would raise an error if ``longtable`` class was specified
+   for a table containing a nested table, and some cases would not raise an
+   error at Sphinx level but fail at LaTeX level during PDF build.  This is a
+   complex topic in LaTeX rendering and the output can sometimes be improved
+   via the :rst:dir:`tabularcolumns` directive.
+
 .. rst:directive:: .. tabularcolumns:: column spec
 
-   This directive influences only the LaTeX output for the next table in
-   source.  The mandatory argument is a column specification (known as an
-   "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
+   This directive influences only the LaTeX output, and only for the next
+   table in source.  The mandatory argument is a column specification (known
+   as an "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
    documentation, such as the `wiki page`_, for basics of such a column
    specification.
 
@@ -1434,52 +1493,85 @@ Check the :confval:`latex_table_style`.
 
    .. versionadded:: 0.3
 
+   Sphinx renders tables with at most 30 rows using ``tabulary`` (or
+   ``tabular`` if at least one cell contains either a code-block or a nested
+   table), and those with more rows with ``longtable``.  The advantage of
+   using ``tabulary`` is that it tries to compute automatically (internally to
+   LaTeX) suitable column widths.
+
+   The ``tabulary`` algorithm often works well, but in some cases when a cell
+   contains long paragraphs, the column will be given a large width and other
+   columns whose cells contain only single words may end up too narrow.  The
+   :rst:dir:`tabularcolumns` can help solve this via providing to LaTeX a
+   custom "alignment preamble" (aka "colspec").  For example ``lJJ`` will be
+   suitable for a three-columns table whose first column contains only single
+   words and the other two have cells with long paragraphs.
+
    .. note::
 
-      :rst:dir:`tabularcolumns` conflicts with ``:widths:`` option of table
-      directives.  If both are specified, ``:widths:`` option will be ignored.
+      Of course, a fully automated solution would be better, and it is still
+      hoped for, but it is an intrinsic aspect of ``tabulary``, and the latter
+      is in use by Sphinx ever since ``0.3``...  It looks as if solving the
+      problem of squeezed columns could require substantial changes to that
+      LaTeX package.  And no good alternative appears to exist, as of 2025.
 
-   Sphinx will render tables with more than 30 rows with ``longtable``.
-   Besides the ``l``, ``r``, ``c`` and ``p{width}`` column specifiers, one can
-   also use ``\X{a}{b}`` (new in version 1.5) which configures the column
-   width to be a fraction ``a/b`` of the total line width and ``\Y{f}`` (new
-   in version 1.6) where ``f`` is a decimal: for example ``\Y{0.2}`` means that
-   the column will occupy ``0.2`` times the line width.
+   .. hint::
 
-   When this directive is used for a table with at most 30 rows, Sphinx will
-   render it with ``tabulary``.  One can then use specific column types ``L``
-   (left), ``R`` (right), ``C`` (centered) and ``J`` (justified).  They have
-   the effect of a ``p{width}`` (i.e. each cell is a LaTeX ``\parbox``) with
-   the specified internal text alignment and an automatically computed
-   ``width``.
+      A way to solve the issue for all tables at once, is to inject in the
+      LaTeX preamble (see :confval:`latex_elements`) a command such as
+      ``\setlength{\tymin}{1cm}`` which causes all columns to be at least
+      ``1cm`` wide (not counting inter-column whitespace).  Currently, Sphinx
+      configures ``\tymin`` to allow room for three characters at least.
 
-   .. warning::
+   Here is a more sophisticated "colspec", for a 4-columns table:
 
-      - Cells that contain list-like elements such as object descriptions,
-        blockquotes or any kind of lists are not compatible with the ``LRCJ``
-        column types.  The column type must then be some ``p{width}`` with an
-        explicit ``width`` (or ``\X{a}{b}`` or ``\Y{f}``).
+   .. code-block:: latex
 
-      - Literal blocks do not work with ``tabulary`` at all.  Sphinx will
-        fall back to ``tabular`` or ``longtable`` environments and generate a
-        suitable column specification.
+      .. tabularcolumns:: >{\raggedright}\Y{.4}>{\centering}\Y{.1}>{\sphinxcolorblend{!95!red}\centering\noindent\bfseries\color{red}}\Y{.12}>{\raggedright\arraybackslash}\Y{.38}
 
-In absence of the :rst:dir:`tabularcolumns` directive, and for a table with at
-most 30 rows and no problematic cells as described in the above warning,
-Sphinx uses ``tabulary`` and the ``J`` column-type for every column.
+   This is used in Sphinx own PDF docs at :ref:`dev-deprecated-apis`.
+   Regarding column widths, this "colspec" achieves the same as would
+   ``:widths:`` option set to ``40 10 12 38`` but it injects extra effects.
+
+   .. note::
+
+      In case both :rst:dir:`tabularcolumns` and ``:widths:`` option of table
+      directives are used, ``:widths:`` option will be ignored by the LaTeX
+      builder.  Of course it is obeyed by other builders.
+
+   Literal blocks do not work at all with ``tabulary`` and Sphinx will then
+   fall back to ``tabular`` LaTeX environment.  It will employ the
+   :rst:dir:`tabularcolumns` specification in that case only if it contains no
+   usage of the ``tabulary`` specific column types (which are ``L``, ``R``,
+   ``C`` and ``J``).
+
+   Besides the LaTeX ``l``, ``r``, ``c`` and ``p{width}`` column specifiers,
+   and the ``tabulary`` specific ``L``, ``R``, ``C`` and ``J``, one can also
+   use (with all table types) ``\X{a}{b}`` which configures the column width
+   to be a fraction ``a/b`` of the total line width and ``\Y{f}`` where ``f``
+   is a decimal: for example ``\Y{0.2}`` means that the column will occupy
+   ``0.2`` times the line width.
 
 .. versionchanged:: 1.6
 
-   Formerly, the ``L`` column-type was used (text is flushed-left).  To revert
-   to this, include ``\newcolumntype{T}{L}`` in the LaTeX preamble, as in fact
-   Sphinx uses ``T`` and sets it by default to be an alias of ``J``.
+   Sphinx uses ``J`` (justified) by default with ``tabulary``, not ``L``
+   (flushed-left).  To revert, include ``\newcolumntype{T}{L}`` in the LaTeX
+   preamble, as in fact Sphinx uses ``T`` and sets it by default to be an
+   alias of ``J``.
 
-.. hint::
+.. versionchanged:: 8.3.0
 
-   A frequent issue with ``tabulary`` is that columns with little contents
-   appear to be "squeezed".  One can add to the LaTeX preamble for example
-   ``\setlength{\tymin}{40pt}`` to ensure a minimal column width of ``40pt``,
-   the ``tabulary`` default of ``10pt`` being too small.
+   Formerly, Sphinx did not use ``tabulary`` if the table had at least one
+   cell containing "problematic" elements such as lists, object descriptions,
+   blockquotes (etc...) because such contents are not out-of-the-box
+   compatible with ``tabulary``.  At ``8.3.0`` a technique, which was already
+   in use for merged cells, was extended to such cases, and the sole
+   "problematic" contents are code-blocks and nested tables.  So tables
+   containing (only) cells with mutliple paragraphs, bullet or enumerated
+   lists, or line blocks, will now better fit to their contents (if not
+   rendered by ``longtable``).  Cells with object descriptions or admonitions
+   will still have a tendency to induce the table to fill the full text area
+   width, but columns in that table with no such contents will be tighter.
 
 .. hint::
 
@@ -1553,7 +1645,7 @@ or use Python raw strings (``r"raw"``).
       number to be issued.  See :rst:role:`eq` for an example.  The numbering
       style depends on the output format.
 
-   .. rst:directive:option:: nowrap
+   .. rst:directive:option:: no-wrap
 
       Prevent wrapping of the given math in a math environment.
       When you give this option, you must make sure
@@ -1561,12 +1653,20 @@ or use Python raw strings (``r"raw"``).
       For example::
 
          .. math::
-            :nowrap:
+            :no-wrap:
 
             \begin{eqnarray}
                y    & = & ax^2 + bx + c \\
                f(x) & = & x^2 + 2xy + y^2
             \end{eqnarray}
+
+      .. versionchanged:: 8.2
+
+         The directive option ``:nowrap:`` was renamed to ``:no-wrap:``.
+
+         The previous name has been retained as an alias,
+         but will be deprecated and removed
+         in a future version of Sphinx.
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
 
@@ -1584,49 +1684,51 @@ Grammar production displays
 ---------------------------
 
 Special markup is available for displaying the productions of a formal grammar.
-The markup is simple and does not attempt to model all aspects of BNF (or any
-derived forms), but provides enough to allow context-free grammars to be
-displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
-the definition of the symbol.  There is this directive:
+The markup is simple and does not attempt to model all aspects of BNF_
+(or any derived forms), but provides enough to allow context-free grammars
+to be displayed in a way that causes uses of a symbol to be rendered
+as hyperlinks to the definition of the symbol.
+There is this directive:
 
-.. rst:directive:: .. productionlist:: [productionGroup]
+.. _BNF: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
 
-   This directive is used to enclose a group of productions.  Each production
-   is given on a single line and consists of a name, separated by a colon from
-   the following definition.  If the definition spans multiple lines, each
-   continuation line must begin with a colon placed at the same column as in
-   the first line.
+.. rst:directive:: .. productionlist:: [production_group]
+
+   This directive is used to enclose a group of productions.
+   Each production is given on a single line and consists of a name,
+   separated by a colon from the following definition.
+   If the definition spans multiple lines, each continuation line
+   must begin with a colon placed at the same column as in the first line.
    Blank lines are not allowed within ``productionlist`` directive arguments.
 
-   The definition can contain token names which are marked as interpreted text
-   (e.g., "``sum ::= `integer` "+" `integer```") -- this generates
-   cross-references to the productions of these tokens.  Outside of the
-   production list, you can reference to token productions using
-   :rst:role:`token`.
+   The optional *production_group* directive argument serves to distinguish
+   different sets of production lists that belong to different grammars.
+   Multiple production lists with the same *production_group*
+   thus define rules in the same scope.
+   This can also be used to split the description of a long or complex grammar
+   accross multiple ``productionlist`` directives with the same *production_group*.
 
-   The *productionGroup* argument to :rst:dir:`productionlist` serves to
-   distinguish different sets of production lists that belong to different
-   grammars.  Multiple production lists with the same *productionGroup* thus
-   define rules in the same scope.
+   The definition can contain token names which are marked as interpreted text,
+   (e.g. "``sum ::= `integer` "+" `integer```"),
+   to generate cross-references to the productions of these tokens.
+   Such cross-references implicitly refer to productions from the current group.
+   To reference a production from another grammar, the token name
+   must be prefixed with the group name and a colon, e.g. "``other-group:sum``".
+   If the group of the token should not be shown in the production,
+   it can be prefixed by a tilde, e.g., "``~other-group:sum``".
+   To refer to a production from an unnamed grammar,
+   the token should be prefixed by a colon, e.g., "``:sum``".
+   No further reStructuredText parsing is done in the production,
+   so that special characters (``*``, ``|``, etc) do not need to be escaped.
 
-   Inside of the production list, tokens implicitly refer to productions
-   from the current group. You can refer to the production of another
-   grammar by prefixing the token with its group name and a colon, e.g,
-   "``otherGroup:sum``". If the group of the token should not be shown in
-   the production, it can be prefixed by a tilde, e.g.,
-   "``~otherGroup:sum``". To refer to a production from an unnamed
-   grammar, the token should be prefixed by a colon, e.g., "``:sum``".
-
-   Outside of the production list,
-   if you have given a *productionGroup* argument you must prefix the
-   token name in the cross-reference with the group name and a colon,
-   e.g., "``myGroup:sum``" instead of just "``sum``".
-   If the group should not be shown in the title of the link either
-   an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
-   or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
-
-   Note that no further reStructuredText parsing is done in the production,
-   so that you don't have to escape ``*`` or ``|`` characters.
+   Token productions can be cross-referenced outwith the production list
+   by using the :rst:role:`token` role.
+   If you have used a *production_group* argument,
+   the token name must be prefixed with the group name and a colon,
+   e.g., "``my_group:sum``" instead of just "``sum``".
+   Standard :ref:`cross-referencing modifiers <xref-modifiers>`
+   may be used with the ``:token:`` role,
+   such as custom link text and suppressing the group name with a tilde (``~``).
 
 The following is an example taken from the Python Reference Manual::
 

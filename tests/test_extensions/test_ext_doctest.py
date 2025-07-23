@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from collections import Counter
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import nodes
@@ -12,11 +13,14 @@ from packaging.version import InvalidVersion
 
 from sphinx.ext.doctest import is_allowed_version
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 cleanup_called = 0
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest')
-def test_build(app):
+def test_build(app: SphinxTestApp) -> None:
     global cleanup_called  # NoQA: PLW0603
     cleanup_called = 0
     app.build(force_all=True)
@@ -27,7 +31,7 @@ def test_build(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-doctest')
-def test_highlight_language_default(app):
+def test_highlight_language_default(app: SphinxTestApp) -> None:
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
@@ -39,14 +43,14 @@ def test_highlight_language_default(app):
     testroot='ext-doctest',
     confoverrides={'highlight_language': 'python'},
 )
-def test_highlight_language_python3(app):
+def test_highlight_language_python3(app: SphinxTestApp) -> None:
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
         assert node['language'] in {'python', 'pycon', 'none'}
 
 
-def test_is_allowed_version():
+def test_is_allowed_version() -> None:
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.2', '3.3') is False
@@ -75,11 +79,11 @@ def cleanup_call():
     cleanup_called += 1
 
 
-recorded_calls = Counter()
+recorded_calls: Counter[tuple[str, str, int]] = Counter()
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
-def test_skipif(app):
+def test_skipif(app: SphinxTestApp) -> None:
     """Tests for the :skipif: option
 
     The tests are separated into a different test root directory since the
@@ -143,3 +147,23 @@ def test_reporting_with_autodoc(app, capfd):
     assert 'File "dir/bar.py", line ?, in default' in failures
     assert 'File "foo.py", line ?, in default' in failures
     assert 'File "index.rst", line 4, in default' in failures
+
+
+@pytest.mark.sphinx('doctest', testroot='ext-doctest-fail-fast')
+@pytest.mark.parametrize('fail_fast', [False, True, None])
+def test_fail_fast(app, fail_fast, capsys):
+    if fail_fast is not None:
+        app.config.doctest_fail_fast = fail_fast
+    # Patch builder to get a copy of the output
+    written = []
+    app.builder._out = written.append
+    app.build(force_all=True)
+    assert app.statuscode
+
+    written = ''.join(written)
+    if fail_fast:
+        assert 'Doctest summary (exiting after first failed test)' in written
+        assert '1 failure in tests' in written
+    else:
+        assert 'Doctest summary\n' in written
+        assert '2 failures in tests' in written

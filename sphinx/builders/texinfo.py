@@ -2,24 +2,20 @@
 
 from __future__ import annotations
 
-import os
 import os.path
-import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.frontend import OptionParser
-from docutils.io import FileOutput
 
 from sphinx import addnodes, package_dir
+from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, copyfile, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
@@ -34,13 +30,11 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
-template_dir = os.path.join(package_dir, 'templates', 'texinfo')
+template_dir = package_dir.joinpath('templates', 'texinfo')
 
 
 class TexinfoBuilder(Builder):
-    """
-    Builds Texinfo output to create Info documentation.
-    """
+    """Builds Texinfo output to create Info documentation."""
 
     name = 'texinfo'
     format = 'texinfo'
@@ -108,10 +102,6 @@ class TexinfoBuilder(Builder):
             toctree_only = False
             if len(entry) > 7:
                 toctree_only = entry[7]
-            destination = FileOutput(
-                destination_path=os.path.join(self.outdir, targetname),
-                encoding='utf-8',
-            )
             with progress_message(__('processing %s') % targetname, nonl=False):
                 appendices = self.config.texinfo_appendices or []
                 doctree = self.assemble_doctree(
@@ -120,16 +110,9 @@ class TexinfoBuilder(Builder):
 
             with progress_message(__('writing')):
                 self.post_process_images(doctree)
-                docwriter = TexinfoWriter(self)
-                with warnings.catch_warnings():
-                    warnings.filterwarnings('ignore', category=DeprecationWarning)
-                    # DeprecationWarning: The frontend.OptionParser class will be replaced
-                    # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-                    settings: Any = OptionParser(
-                        defaults=self.env.settings,
-                        components=(docwriter,),
-                        read_config_files=True,
-                    ).get_default_values()
+                settings = _get_settings(
+                    TexinfoWriter, defaults=self.env.settings, read_config_files=True
+                )
                 settings.author = author
                 settings.title = title
                 settings.texinfo_filename = targetname[:-5] + '.info'
@@ -139,7 +122,10 @@ class TexinfoBuilder(Builder):
                 settings.texinfo_dir_description = description or ''
                 settings.docname = docname
                 doctree.settings = settings
-                docwriter.write(doctree, destination)
+                visitor: TexinfoTranslator = self.create_translator(doctree, self)  # type: ignore[assignment]
+                doctree.walkabout(visitor)
+                visitor.finish()
+                (self.outdir / targetname).write_text(visitor.output, encoding='utf-8')
                 self.copy_image_files(targetname[:-5])
 
     def assemble_doctree(
@@ -186,8 +172,6 @@ class TexinfoBuilder(Builder):
                         nodes.Text(')'),
                     ))
                     break
-            else:
-                pass
             pendingnode.replace_self(newnodes)
         return largetree
 
@@ -196,13 +180,13 @@ class TexinfoBuilder(Builder):
 
     def copy_image_files(self, targetname: str) -> None:
         if self.images:
-            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
+            stringify_func = ImageAdapter(self.env).get_original_image_uri
             for src in status_iterator(
                 self.images,
                 __('copying images... '),
                 'brown',
                 len(self.images),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=stringify_func,
             ):
                 dest = self.images[src]
@@ -217,7 +201,7 @@ class TexinfoBuilder(Builder):
                 except Exception as err:
                     logger.warning(
                         __('cannot copy image file %r: %s'),
-                        os.path.join(self.srcdir, src),
+                        self.srcdir / src,
                         err,
                     )
 
@@ -226,7 +210,7 @@ class TexinfoBuilder(Builder):
             with progress_message(__('copying Texinfo support files')):
                 logger.info('Makefile ', nonl=True)
                 copyfile(
-                    os.path.join(template_dir, 'Makefile'),
+                    template_dir / 'Makefile',
                     self.outdir / 'Makefile',
                     force=True,
                 )
@@ -255,13 +239,23 @@ def default_texinfo_documents(
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TexinfoBuilder)
 
-    app.add_config_value('texinfo_documents', default_texinfo_documents, '')
-    app.add_config_value('texinfo_appendices', [], '')
-    app.add_config_value('texinfo_elements', {}, '')
-    app.add_config_value('texinfo_domain_indices', True, '', types={set, list})
-    app.add_config_value('texinfo_show_urls', 'footnote', '')
-    app.add_config_value('texinfo_no_detailmenu', False, '')
-    app.add_config_value('texinfo_cross_references', True, '')
+    app.add_config_value(
+        'texinfo_documents',
+        default_texinfo_documents,
+        '',
+        types=frozenset({list, tuple}),
+    )
+    app.add_config_value('texinfo_appendices', [], '', types=frozenset({list, tuple}))
+    app.add_config_value('texinfo_elements', {}, '', types=frozenset({dict}))
+    app.add_config_value(
+        'texinfo_domain_indices',
+        True,
+        '',
+        types=frozenset({frozenset, list, set, tuple}),
+    )
+    app.add_config_value('texinfo_show_urls', 'footnote', '', types=frozenset({str}))
+    app.add_config_value('texinfo_no_detailmenu', False, '', types=frozenset({bool}))
+    app.add_config_value('texinfo_cross_references', True, '', types=frozenset({bool}))
 
     return {
         'version': 'builtin',

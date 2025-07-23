@@ -5,7 +5,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from sphinx.ext.intersphinx._load import _fetch_inventory, _InvConfig
+from sphinx.ext.intersphinx._load import (
+    _fetch_inventory_data,
+    _InvConfig,
+    _load_inventory,
+)
 
 
 def inspect_main(argv: list[str], /) -> int:
@@ -28,18 +32,21 @@ def inspect_main(argv: list[str], /) -> int:
     )
 
     try:
-        inv_data = _fetch_inventory(
+        raw_data, _ = _fetch_inventory_data(
             target_uri='',
             inv_location=filename,
             config=config,
-            srcdir=Path(''),
+            srcdir=Path(),
+            cache_path=None,
         )
-        for key in sorted(inv_data or {}):
+        inv = _load_inventory(raw_data, target_uri='')
+        for key in sorted(inv.data):
             print(key)
-            inv_entries = sorted(inv_data[key].items())
-            for entry, (_proj, _ver, url_path, display_name) in inv_entries:
+            inv_entries = sorted(inv.data[key].items())
+            for entry, inv_item in inv_entries:
+                display_name = inv_item.display_name
                 display_name = display_name * (display_name != '-')
-                print(f'    {entry:<40} {display_name:<40}: {url_path}')
+                print(f'    {entry:<40} {display_name:<40}: {inv_item.uri}')
     except ValueError as exc:
         print(exc.args[0] % exc.args[1:], file=sys.stderr)
         return 1

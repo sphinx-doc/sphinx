@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import warnings
-from typing import TYPE_CHECKING, Any, ClassVar, Literal
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -20,7 +20,6 @@ from sphinx.domains.cpp._ids import (
     _max_id,
 )
 from sphinx.util.cfamily import (
-    ASTAttributeList,
     ASTBaseBase,
     ASTBaseParenExprList,
     NoOldIdError,
@@ -29,12 +28,17 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
+    from typing import Any, ClassVar, Literal
+
     from docutils.nodes import Element, TextElement
 
     from sphinx.addnodes import desc_signature
     from sphinx.domains.cpp._symbol import Symbol
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.cfamily import StringifyTransform
+    from sphinx.util.cfamily import (
+        ASTAttributeList,
+        StringifyTransform,
+    )
 
 
 class ASTBase(ASTBaseBase):
@@ -282,17 +286,17 @@ class ASTNestedName(ASTBase):
         if mode == 'noneIsName':
             if self.rooted:
                 unreachable = 'Can this happen?'
-                raise AssertionError(unreachable)  # TODO
+                raise AssertionError(unreachable)  # TODO: Can this happen?
                 signode += nodes.Text('::')
             for i in range(len(self.names)):
                 if i != 0:
                     unreachable = 'Can this happen?'
-                    raise AssertionError(unreachable)  # TODO
+                    raise AssertionError(unreachable)  # TODO: Can this happen?
                     signode += nodes.Text('::blah')
                 n = self.names[i]
                 if self.templates[i]:
                     unreachable = 'Can this happen?'
-                    raise AssertionError(unreachable)  # TODO
+                    raise AssertionError(unreachable)  # TODO: Can this happen?
                     signode += nodes.Text('template')
                     signode += nodes.Text(' ')
                 n.describe_signature(signode, mode, env, '', symbol)

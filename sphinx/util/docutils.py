@@ -4,23 +4,26 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import Sequence  # NoQA: TC003
-from contextlib import contextmanager
+import warnings
+from contextlib import contextmanager, nullcontext
 from copy import copy
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 import docutils
 from docutils import nodes
+from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner  # NoQA: TC002
-from docutils.statemachine import State, StateMachine, StringList
+from docutils.readers import standalone
+from docutils.statemachine import StateMachine
+from docutils.transforms.references import DanglingReferences
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
-from sphinx.locale import _, __
-from sphinx.util import logging
+from sphinx.locale import __
+from sphinx.transforms import SphinxTransformer
+from sphinx.util import logging, rst
 from sphinx.util.parsing import nested_parse_to_nodes
 
 logger = logging.getLogger(__name__)
@@ -29,16 +32,54 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Iterator, Mapping, Sequence
     from types import ModuleType, TracebackType
+    from typing import Any, Protocol
 
+    from docutils import Component
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
+    from docutils.parsers import Parser
+    from docutils.parsers.rst.states import Inliner
+    from docutils.statemachine import State, StringList
+    from docutils.transforms import Transform
 
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
+    from sphinx.events import EventManager
     from sphinx.util.typing import RoleFunction
+
+    class _LanguageModule(Protocol):
+        labels: dict[str, str]
+        author_separators: list[str]
+        bibliographic_fields: list[str]
+
+    class _DirectivesDispatcher(Protocol):
+        def __call__(
+            self,
+            directive_name: str,
+            language_module: _LanguageModule,
+            document: nodes.document,
+            /,
+        ) -> tuple[type[Directive] | None, list[system_message]]: ...
+
+    class _RolesDispatcher(Protocol):
+        def __call__(
+            self,
+            role_name: str,
+            language_module: _LanguageModule,
+            lineno: int,
+            reporter: Reporter,
+            /,
+        ) -> tuple[RoleFunction | None, list[system_message]]: ...
+
+
+_READER_TRANSFORMS = [
+    transform
+    for transform in standalone.Reader().get_transforms()
+    if transform is not DanglingReferences
+]
 
 
 additional_nodes: set[type[Element]] = set()
@@ -127,7 +168,7 @@ def patched_get_language() -> Iterator[None]:
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
-    refs: https://github.com/sphinx-doc/sphinx/issues/3788
+    See: https://github.com/sphinx-doc/sphinx/issues/3788
     """
     from docutils.languages import get_language
 
@@ -153,7 +194,7 @@ def patched_rst_get_language() -> Iterator[None]:
     This should also work for old versions of docutils,
     because reporter is none by default.
 
-    refs: https://github.com/sphinx-doc/sphinx/issues/10179
+    See: https://github.com/sphinx-doc/sphinx/issues/10179
     """
     from docutils.parsers.rst.languages import get_language
 
@@ -205,8 +246,8 @@ class CustomReSTDispatcher:
     """
 
     def __init__(self) -> None:
-        self.directive_func: Callable = lambda *args: (None, [])
-        self.roles_func: Callable = lambda *args: (None, [])
+        self.directive_func: _DirectivesDispatcher = lambda *args: (None, [])
+        self.roles_func: _RolesDispatcher = lambda *args: (None, [])
 
     def __enter__(self) -> None:
         self.enable()
@@ -227,7 +268,7 @@ class CustomReSTDispatcher:
         roles.role = self.role  # type: ignore[assignment]
 
     def disable(self) -> None:
-        directives.directive = self.directive_func
+        directives.directive = self.directive_func  # type: ignore[assignment]
         roles.role = self.role_func
 
     def directive(
@@ -263,40 +304,9 @@ class sphinx_domains(CustomReSTDispatcher):
     """
 
     def __init__(self, env: BuildEnvironment) -> None:
-        self.env = env
+        self.domains = env.domains
+        self.current_document = env.current_document
         super().__init__()
-
-    def lookup_domain_element(self, type: str, name: str) -> Any:
-        """Lookup a markup element (directive or role), given its name which can
-        be a full name (with domain).
-        """
-        name = name.lower()
-        # explicit domain given?
-        if ':' in name:
-            domain_name, name = name.split(':', 1)
-            if domain_name in self.env.domains:
-                domain = self.env.get_domain(domain_name)
-                element = getattr(domain, type)(name)
-                if element is not None:
-                    return element, []
-            else:
-                logger.warning(
-                    _('unknown directive or role name: %s:%s'), domain_name, name
-                )
-        # else look in the default domain
-        else:
-            def_domain = self.env.current_document.default_domain
-            if def_domain is not None:
-                element = getattr(def_domain, type)(name)
-                if element is not None:
-                    return element, []
-
-        # always look in the std domain
-        element = getattr(self.env.domains.standard_domain, type)(name)
-        if element is not None:
-            return element, []
-
-        raise ElementLookupError
 
     def directive(
         self,
@@ -304,10 +314,34 @@ class sphinx_domains(CustomReSTDispatcher):
         language_module: ModuleType,
         document: nodes.document,
     ) -> tuple[type[Directive] | None, list[system_message]]:
-        try:
-            return self.lookup_domain_element('directive', directive_name)
-        except ElementLookupError:
-            return super().directive(directive_name, language_module, document)
+        """Lookup a directive, given its name which can include a domain."""
+        directive_name = directive_name.lower()
+        # explicit domain given?
+        if ':' in directive_name:
+            domain_name, _, name = directive_name.partition(':')
+            try:
+                domain = self.domains[domain_name]
+            except KeyError:
+                logger.warning(__('unknown directive name: %s'), directive_name)
+            else:
+                element = domain.directive(name)
+                if element is not None:
+                    return element, []
+        # else look in the default domain
+        else:
+            name = directive_name
+            default_domain = self.current_document.default_domain
+            if default_domain is not None:
+                element = default_domain.directive(name)
+                if element is not None:
+                    return element, []
+
+        # always look in the std domain
+        element = self.domains.standard_domain.directive(name)
+        if element is not None:
+            return element, []
+
+        return super().directive(directive_name, language_module, document)
 
     def role(
         self,
@@ -316,10 +350,34 @@ class sphinx_domains(CustomReSTDispatcher):
         lineno: int,
         reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        try:
-            return self.lookup_domain_element('role', role_name)
-        except ElementLookupError:
-            return super().role(role_name, language_module, lineno, reporter)
+        """Lookup a role, given its name which can include a domain."""
+        role_name = role_name.lower()
+        # explicit domain given?
+        if ':' in role_name:
+            domain_name, _, name = role_name.partition(':')
+            try:
+                domain = self.domains[domain_name]
+            except KeyError:
+                logger.warning(__('unknown role name: %s'), role_name)
+            else:
+                element = domain.role(name)
+                if element is not None:
+                    return element, []
+        # else look in the default domain
+        else:
+            name = role_name
+            default_domain = self.current_document.default_domain
+            if default_domain is not None:
+                element = default_domain.role(name)
+                if element is not None:
+                    return element, []
+
+        # always look in the std domain
+        element = self.domains.standard_domain.role(name)
+        if element is not None:
+            return element, []
+
+        return super().role(role_name, language_module, lineno, reporter)
 
 
 class WarningStream:
@@ -328,7 +386,7 @@ class WarningStream:
         if not matched:
             logger.warning(text.rstrip('\r\n'), type='docutils')
         else:
-            location, type, level = matched.groups()
+            location, type, _level = matched.groups()
             message = report_re.sub('', text).rstrip()
             logger.log(type, message, location=location, type='docutils')
 
@@ -355,7 +413,7 @@ class LoggingReporter(Reporter):
         debug: bool = False,
         error_handler: str = 'backslashreplace',
     ) -> None:
-        stream = cast('IO', WarningStream())
+        stream = WarningStream()
         super().__init__(
             source, report_level, halt_level, stream, debug, error_handler=error_handler
         )
@@ -369,7 +427,7 @@ class NullReporter(Reporter):
 
 
 @contextmanager
-def switch_source_input(state: State, content: StringList) -> Iterator[None]:
+def switch_source_input(state: State[list[str]], content: StringList) -> Iterator[None]:
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
@@ -574,7 +632,7 @@ class SphinxRole:
         text: str,
         lineno: int,
         inliner: Inliner,
-        options: dict | None = None,
+        options: dict[str, Any] | None = None,
         content: Sequence[str] = (),
     ) -> tuple[list[Node], list[system_message]]:
         self.rawtext = rawtext
@@ -668,7 +726,7 @@ class ReferenceRole(SphinxRole):
         text: str,
         lineno: int,
         inliner: Inliner,
-        options: dict | None = None,
+        options: dict[str, Any] | None = None,
         content: Sequence[str] = (),
     ) -> tuple[list[Node], list[system_message]]:
         if options is None:
@@ -709,10 +767,10 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+        self._domains = builder.env.domains
 
     def dispatch_visit(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate visitor method.
+        """Dispatch node to appropriate visitor method.
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
@@ -728,8 +786,7 @@ class SphinxTranslator(nodes.NodeVisitor):
             super().dispatch_visit(node)
 
     def dispatch_departure(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate departure method.
+        """Dispatch node to appropriate departure method.
         The priority of departure method is:
 
         1. ``self.depart_{node_class}()``
@@ -772,8 +829,86 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
         settings = copy(cached_settings)
 
     # Create a new instance of nodes.document using cached reporter
-    from sphinx import addnodes
-
-    document = addnodes.document(settings, reporter, source=source_path)
+    document = nodes.document(settings, reporter, source=source_path)
     document.note_source(source_path, -1)
     return document
+
+
+def _parse_str_to_doctree(
+    content: str,
+    *,
+    filename: Path,
+    default_role: str = '',
+    default_settings: Mapping[str, Any],
+    env: BuildEnvironment,
+    events: EventManager | None = None,
+    parser: Parser,
+    transforms: Sequence[type[Transform]] = (),
+) -> nodes.document:
+    env.current_document._parser = parser
+
+    # Propagate exceptions by default when used programmatically:
+    defaults = {'traceback': True, **default_settings}
+    settings = _get_settings(
+        standalone.Reader, parser, defaults=defaults, read_config_files=True
+    )
+    settings._source = str(filename)
+
+    # Create root document node
+    reporter = LoggingReporter(
+        source=str(filename),
+        report_level=settings.report_level,
+        halt_level=settings.halt_level,
+        debug=settings.debug,
+        error_handler=settings.error_encoding_error_handler,
+    )
+    document = nodes.document(settings, reporter, source=str(filename))
+    document.note_source(str(filename), -1)
+
+    # substitute transformer
+    document.transformer = transformer = SphinxTransformer(document)
+    transformer.add_transforms(_READER_TRANSFORMS)
+    transformer.add_transforms(transforms)
+    transformer.add_transforms(parser.get_transforms())
+
+    if default_role:
+        default_role_cm = rst.default_role(env.current_document.docname, default_role)
+    else:
+        default_role_cm = nullcontext()  # type: ignore[assignment]
+    with sphinx_domains(env), default_role_cm:
+        # TODO: Move the stanza below to Builder.read_doc(), within
+        #       a sphinx_domains() context manager.
+        #       This will require changes to IntersphinxDispatcher and/or
+        #       CustomReSTDispatcher.
+        if events is not None:
+            # emit "source-read" event
+            arg = [content]
+            events.emit('source-read', env.current_document.docname, arg)
+            content = arg[0]
+
+        # parse content to abstract syntax tree
+        parser.parse(content, document)
+        document.current_source = document.current_line = None
+
+        # run transforms
+        transformer.apply_transforms()
+
+    return document
+
+
+def _get_settings(
+    *components: Component | type[Component],
+    defaults: Mapping[str, Any],
+    read_config_files: bool = False,
+) -> Values:
+    with warnings.catch_warnings(action='ignore', category=DeprecationWarning):
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        # DeprecationWarning: The frontend.Option class will be removed
+        # in Docutils 0.21 or later.
+        option_parser = OptionParser(
+            components=components,
+            defaults=defaults,
+            read_config_files=read_config_files,
+        )
+    return option_parser.get_default_values()  # type: ignore[return-value]

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -16,6 +16,7 @@ from sphinx.util.nodes import process_index_entry
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Node, system_message
 
@@ -46,14 +47,14 @@ class IndexDomain(Domain):
 
     def process_doc(self, env: BuildEnvironment, docname: str, document: Node) -> None:
         """Process a document after it is read by the environment."""
-        entries = self.entries.setdefault(env.docname, [])
+        entries = self.entries.setdefault(env.current_document.docname, [])
         for node in list(document.findall(addnodes.index)):
             node_entries = node['entries']
             try:
                 for entry_type, value, _target_id, _main, _category_key in node_entries:
                     split_index_msg(entry_type, value)
             except ValueError as exc:
-                logger.warning(str(exc), location=node)
+                logger.warning(str(exc), location=node, type='index')
                 node.parent.remove(node)
             else:
                 for entry in node_entries:
@@ -61,9 +62,7 @@ class IndexDomain(Domain):
 
 
 class IndexDirective(SphinxDirective):
-    """
-    Directive to add entries to the index.
-    """
+    """Directive to add entries to the index."""
 
     has_content = False
     required_arguments = 1

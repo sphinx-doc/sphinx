@@ -1,0 +1,68 @@
+# Binary data types
+*.gif binary
+*.jpg binary
+*.mo  binary
+*.pdf binary
+*.png binary
+*.zip binary
+
+# Unix-style line endings
+[attr]unix text eol=lf
+
+*.conf  unix
+*.css   unix
+*.cls   unix
+*.csv   unix
+*.dot   unix
+*.html  unix
+*.inc   unix
+*.ini   unix
+*.jinja unix
+*.js    unix
+*.md    unix
+*.mjs   unix
+*.py    unix
+*.rst   unix
+*.sty   unix
+*.tex   unix
+*.toml  unix
+*.txt   unix
+*.svg   unix
+*.xml   unix
+*.yml   unix
+
+# CRLF files
+[attr]dos text eol=crlf
+
+*.bat       dos
+*.bat.jinja dos
+*.stp       dos
+tests/roots/test-pycode/cp_1251_coded.py dos
+
+# Language aware diff headers
+*.c    diff=cpp
+*.h    diff=cpp
+*.css  diff=css
+*.html diff=html
+*.md   diff=markdown
+*.py   diff=python
+# *.rst  diff=reStructuredText
+*.tex  diff=tex
+
+# Non UTF-8 encodings
+tests/roots/test-pycode/cp_1251_coded.py working-tree-encoding=windows-1251
+tests/roots/test-root/wrongenc.inc working-tree-encoding=latin-1
+tests/roots/test-warnings/wrongenc.inc working-tree-encoding=latin-1
+
+# Generated files
+# https://github.com/github/linguist/blob/master/docs/overrides.md
+#
+# To always hide generated files in local diffs, mark them as binary:
+# $ git config diff.generated.binary true
+#
+[attr]generated linguist-generated=true diff=generated
+
+tests/js/fixtures/**/*.js                           generated
+sphinx/search/minified-js/*.js                      generated
+sphinx/search/_stopwords/                           generated
+sphinx/themes/bizstyle/static/css3-mediaqueries.js  generated

@@ -55,8 +55,7 @@ _SINGLETONS = frozenset({'None', 'True', 'False', 'Ellipsis', '...'})
 
 
 class Deque(collections.deque[Any]):
-    """
-    A subclass of deque that mimics ``pockets.iterators.modify_iter``.
+    """A subclass of deque that mimics ``pockets.iterators.modify_iter``.
 
     The `.Deque.get` and `.Deque.next` methods are added.
     """
@@ -64,8 +63,7 @@ class Deque(collections.deque[Any]):
     sentinel = object()
 
     def get(self, n: int) -> Any:
-        """
-        Return the nth element of the stack, or ``self.sentinel`` if n is
+        """Return the nth element of the stack, or ``self.sentinel`` if n is
         greater than the stack size.
         """
         return self[n] if n < len(self) else self.sentinel
@@ -479,7 +477,7 @@ class GoogleDocstring:
     ) -> tuple[str, str, list[str]]:
         line = self._lines.next()
 
-        before, colon, after = self._partition_field_on_colon(line)
+        before, _colon, after = self._partition_field_on_colon(line)
         _name, _type, _desc = before, '', after
 
         if parse_type:
@@ -544,7 +542,7 @@ class GoogleDocstring:
 
             if colon:
                 if after:
-                    _desc = [after] + lines[1:]
+                    _desc = [after, *lines[1:]]
                 else:
                     _desc = lines[1:]
 
@@ -693,7 +691,7 @@ class GoogleDocstring:
         if has_desc:
             _desc = self._fix_field_desc(_desc)
             if _desc[0]:
-                return [field + _desc[0]] + _desc[1:]
+                return [field + _desc[0], *_desc[1:]]
             else:
                 return [field, *_desc]
         else:
@@ -1110,8 +1108,13 @@ class GoogleDocstring:
             annotations = self._constructor_annotations
 
         if _name in annotations:
+            short_literals = getattr(
+                self._config, 'python_display_short_literal_types', False
+            )
             return stringify_annotation(
-                annotations[_name], 'fully-qualified-except-typing'
+                annotations[_name],
+                mode='fully-qualified-except-typing',
+                short_literals=short_literals,
             )
         # No annotation found
         return ''
@@ -1309,8 +1312,7 @@ class NumpyDocstring(GoogleDocstring):
             return self._format_admonition('seealso', lines)
 
     def _parse_numpydoc_see_also_section(self, content: list[str]) -> list[str]:
-        """
-        See Also
+        """See Also
         --------
         func_name : Descriptive text
             continued text
@@ -1401,7 +1403,7 @@ class NumpyDocstring(GoogleDocstring):
             if m and line[m.end() :].strip().startswith(':'):
                 push_item(current_func, rest)
                 current_func, line = line[: m.end()], line[m.end() :]
-                rest = [line.split(':', 1)[1].strip()]
+                rest = [line.partition(':')[-1].strip()]
                 if not rest[0]:
                     rest = []
             elif not line.startswith(' '):

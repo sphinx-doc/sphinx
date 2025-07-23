@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from docutils import nodes
 
@@ -13,6 +13,7 @@ from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Node
 
@@ -46,9 +47,7 @@ class ChangeSet(NamedTuple):
 
 
 class VersionChange(SphinxDirective):
-    """
-    Directive to describe a change/addition/deprecation in a specific version.
-    """
+    """Directive to describe a change/addition/deprecation in a specific version."""
 
     has_content = True
     required_arguments = 1
@@ -122,7 +121,7 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data: dict[str, dict[str, list[ChangeSet]]] = {
+    initial_data: ClassVar[dict[str, dict[str, list[ChangeSet]]]] = {
         'changes': {},  # version -> list of ChangeSet
     }
 
@@ -136,7 +135,7 @@ class ChangeSetDomain(Domain):
         objname = self.env.current_document.obj_desc_name
         changeset = ChangeSet(
             node['type'],
-            self.env.docname,
+            self.env.current_document.docname,
             node.line,  # type: ignore[arg-type]
             module,
             objname,

@@ -173,9 +173,9 @@ The methods are used as follows:
       def run(self) -> list[Node]:
           container = docutils.nodes.Element()
           # either
-          nested_parse_with_titles(self.state, self.result, container)
+          nested_parse_with_titles(self.state, self.result, container, self.content_offset)
           # or
-          self.state.nested_parse(self.result, 0, container)
+          self.state.nested_parse(self.result, self.content_offset, container)
           parsed = container.children
           return parsed
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from types import NoneType
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -38,7 +39,7 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
         ):
             continue
         labelid = node['ids'][0]
-        docname = app.env.docname
+        docname = app.env.current_document.docname
         title = cast('nodes.title', node[0])
         ref_name = getattr(title, 'rawsource', title.astext())
         if app.config.autosectionlabel_prefix_document:
@@ -70,8 +71,12 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value('autosectionlabel_prefix_document', False, 'env')
-    app.add_config_value('autosectionlabel_maxdepth', None, 'env')
+    app.add_config_value(
+        'autosectionlabel_prefix_document', False, 'env', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'autosectionlabel_maxdepth', None, 'env', types=frozenset({int, NoneType})
+    )
     app.connect('doctree-read', register_sections_as_label)
 
     return {

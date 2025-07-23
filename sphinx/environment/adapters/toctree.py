@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+import warnings
+from typing import TYPE_CHECKING, TypeVar
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
@@ -15,6 +17,9 @@ from sphinx.util.nodes import _only_node_keep_children, clean_astext
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
+    from typing import Any
+
+    from docutils.nodes import Node
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -66,6 +71,8 @@ def global_toctree_for_doc(
     env: BuildEnvironment,
     docname: str,
     builder: Builder,
+    *,
+    tags: Tags = ...,  # type: ignore[assignment]
     collapse: bool = False,
     includehidden: bool = True,
     maxdepth: int = 0,
@@ -75,6 +82,15 @@ def global_toctree_for_doc(
 
     This gives the global ToC, with all ancestors and their siblings.
     """
+    if tags is ...:
+        warnings.warn(
+            "'tags' will become a required keyword argument "
+            'for global_toctree_for_doc() in Sphinx 10.0.',
+            RemovedInSphinx10Warning,
+            stacklevel=2,
+        )
+        tags = builder.tags
+
     resolved = (
         _resolve_toctree(
             env,
@@ -86,6 +102,7 @@ def global_toctree_for_doc(
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=tags,
         )
         for toctree_node in env.master_doctree.findall(addnodes.toctree)
     )
@@ -110,6 +127,7 @@ def _resolve_toctree(
     titles_only: bool = False,
     collapse: bool = False,
     includehidden: bool = False,
+    tags: Tags,
 ) -> Element | None:
     """Resolve a *toctree* node into individual bullet lists with titles
     as items, returning None (if no containing titles are found) or
@@ -141,7 +159,8 @@ def _resolve_toctree(
     # </ul>
     #
     # The transformation is made in two passes in order to avoid
-    # interactions between marking and pruning the tree (see bug #1046).
+    # interactions between marking and pruning the tree.
+    # See: https://github.com/sphinx-doc/sphinx/issues/1046
 
     toctree_ancestors = _get_toctree_ancestors(env.toctree_includes, docname)
     included = Matcher(env.config.include_patterns)
@@ -159,7 +178,7 @@ def _resolve_toctree(
         titles_only,
         collapse,
         includehidden,
-        builder.tags,
+        tags,
         toctree_ancestors,
         included,
         excluded,
@@ -185,9 +204,7 @@ def _resolve_toctree(
 
     # prune the tree to maxdepth, also set toc depth and current classes
     _toctree_add_classes(newnode, 1, docname)
-    newnode = _toctree_copy(
-        newnode, 1, maxdepth if prune else 0, collapse, builder.tags
-    )
+    newnode = _toctree_copy(newnode, 1, maxdepth if prune else 0, collapse, tags)
 
     if (
         isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0
@@ -353,12 +370,15 @@ def _toctree_entry(
         ref_path = str(env.doc2path(ref, False))
         if excluded(ref_path):
             message = __('toctree contains reference to excluded document %r')
+            subtype = 'excluded'
         elif not included(ref_path):
             message = __('toctree contains reference to non-included document %r')
+            subtype = 'not_included'
         else:
-            message = __('toctree contains reference to nonexisting document %r')
+            message = __('toctree contains reference to non-existing document %r')
+            subtype = 'not_readable'
 
-        logger.warning(message, ref, location=toctreenode)
+        logger.warning(message, ref, location=toctreenode, type='toc', subtype=subtype)
         raise
     return toc, refdoc
 
@@ -462,56 +482,84 @@ def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
                     subnode = subnode.parent
 
 
-ET = TypeVar('ET', bound=Element)
+_ET = TypeVar('_ET', bound=Element)
 
 
 def _toctree_copy(
-    node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
-) -> ET:
+    node: _ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
+) -> _ET:
     """Utility: Cut and deep-copy a TOC at a specified depth."""
-    keep_bullet_list_sub_nodes = depth <= 1 or (
-        (depth <= maxdepth or maxdepth <= 0) and (not collapse or 'iscurrent' in node)
-    )
+    assert not isinstance(node, addnodes.only)
+    depth = max(depth - 1, 1)
+    copied = _toctree_copy_seq(node, depth, maxdepth, collapse, tags, initial_call=True)
+    assert len(copied) == 1
+    return copied[0]  # type: ignore[return-value]
 
-    copy = node.copy()
-    for subnode in node.children:
-        if isinstance(subnode, addnodes.compact_paragraph | nodes.list_item):
-            # for <p> and <li>, just recurse
-            copy.append(_toctree_copy(subnode, depth, maxdepth, collapse, tags))
-        elif isinstance(subnode, nodes.bullet_list):
-            # for <ul>, copy if the entry is top-level
-            # or, copy if the depth is within bounds and;
-            # collapsing is disabled or the sub-entry's parent is 'current'.
-            # The boolean is constant so is calculated outwith the loop.
-            if keep_bullet_list_sub_nodes:
-                copy.append(_toctree_copy(subnode, depth + 1, maxdepth, collapse, tags))
-        elif isinstance(subnode, addnodes.toctree):
-            # copy sub toctree nodes for later processing
-            copy.append(subnode.copy())
-        elif isinstance(subnode, addnodes.only):
-            # only keep children if the only node matches the tags
-            if _only_node_keep_children(subnode, tags):
-                for child in subnode.children:
-                    copy.append(
-                        _toctree_copy(
-                            child,
-                            depth,
-                            maxdepth,
-                            collapse,
-                            tags,  # type: ignore[type-var]
-                        )
-                    )
-        elif isinstance(subnode, nodes.reference | nodes.title):
-            # deep copy references and captions
-            sub_node_copy = subnode.copy()
-            sub_node_copy.children = [child.deepcopy() for child in subnode.children]
-            for child in sub_node_copy.children:
-                child.parent = sub_node_copy
-            copy.append(sub_node_copy)
-        else:
-            msg = f'Unexpected node type {subnode.__class__.__name__!r}!'
-            raise ValueError(msg)
-    return copy
+
+def _toctree_copy_seq(
+    node: Node,
+    depth: int,
+    maxdepth: int,
+    collapse: bool,
+    tags: Tags,
+    *,
+    initial_call: bool = False,
+    is_current: bool = False,
+) -> list[Element]:
+    copy: Element
+    if isinstance(node, addnodes.compact_paragraph | nodes.list_item):
+        # for <p> and <li>, just recurse
+        copy = node.copy()
+        for subnode in node.children:
+            copy += _toctree_copy_seq(  # type: ignore[assignment,operator]
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        return [copy]
+
+    if isinstance(node, nodes.bullet_list):
+        # for <ul>, copy if the entry is top-level
+        # or, copy if the depth is within bounds and;
+        # collapsing is disabled or the sub-entry's parent is 'current'.
+        # The boolean is constant so is calculated outwith the loop.
+        keep_bullet_list_sub_nodes = depth <= 1 or (
+            (depth <= maxdepth or maxdepth <= 0)
+            and (not collapse or is_current or 'iscurrent' in node)
+        )
+        if not keep_bullet_list_sub_nodes and not initial_call:
+            return []
+        depth += 1
+        copy = node.copy()
+        for subnode in node.children:
+            copy += _toctree_copy_seq(
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        return [copy]
+
+    if isinstance(node, addnodes.toctree):
+        # copy sub toctree nodes for later processing
+        return [node.copy()]
+
+    if isinstance(node, addnodes.only):
+        # only keep children if the only node matches the tags
+        if not _only_node_keep_children(node, tags):
+            return []
+        copied: list[Element] = []
+        for subnode in node.children:
+            copied += _toctree_copy_seq(
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        return copied
+
+    if isinstance(node, nodes.reference | nodes.title):
+        # deep copy references and captions
+        sub_node_copy = node.copy()
+        sub_node_copy.children = [child.deepcopy() for child in node.children]
+        for child in sub_node_copy.children:
+            child.parent = sub_node_copy
+        return [sub_node_copy]
+
+    msg = f'Unexpected node type {node.__class__.__name__!r}!'
+    raise ValueError(msg)
 
 
 def _get_toctree_ancestors(
@@ -558,13 +606,14 @@ class TocTree:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=builder.tags,
         )
 
     def get_toctree_ancestors(self, docname: str) -> list[str]:
         return [*_get_toctree_ancestors(self.env.toctree_includes, docname)]
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
-        return document_toc(self.env, docname, self.env.app.builder.tags)
+        return document_toc(self.env, docname, self.env._tags)
 
     def get_toctree_for(
         self,
@@ -574,5 +623,5 @@ class TocTree:
         **kwargs: Any,
     ) -> Element | None:
         return global_toctree_for_doc(
-            self.env, docname, builder, collapse=collapse, **kwargs
+            self.env, docname, builder, tags=builder.tags, collapse=collapse, **kwargs
         )

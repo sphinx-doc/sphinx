@@ -136,8 +136,8 @@ There is also a way to directly link to documents:
 
 .. rst:role:: doc
 
-   Link to the specified document; the document name can be specified in
-   absolute or relative fashion.  For example, if the reference
+   Link to the specified document; the document name can be a relative or absolute
+   path and is always case-sensitive, even on Windows.  For example, if the reference
    ``:doc:`parrot``` occurs in the document ``sketches/index``, then the link
    refers to ``sketches/parrot``.  If the reference is ``:doc:`/people``` or
    ``:doc:`../people```, the link refers to ``people``.
@@ -253,6 +253,9 @@ The following role creates a cross-reference to a term in a
 
    If you use a term that's not explained in a glossary, you'll get a warning
    during build.
+
+   This role also supports :ref:`custom link text <xref-modifiers>` from the general
+   cross-reference syntax.
 
 
 .. _any-role:

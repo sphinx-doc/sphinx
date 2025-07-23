@@ -9,13 +9,13 @@ from sphinx.errors import SphinxError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import ClassVar
 
     from sphinx.domains import Domain
 
 
 class IndexEntry(NamedTuple):
-    """
-    An index entry.
+    """An index entry.
 
     .. note::
 
@@ -53,8 +53,7 @@ class IndexEntry(NamedTuple):
 
 
 class Index(ABC):
-    """
-    An Index is the description for a domain-specific index.  To add an index to
+    """An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
 
     * `name` is an identifier used for generating file names.
@@ -75,9 +74,9 @@ class Index(ABC):
        :rst:role:`ref` role.
     """
 
-    name: str
-    localname: str
-    shortname: str | None = None
+    name: ClassVar[str]
+    localname: ClassVar[str]
+    shortname: ClassVar[str | None] = None
 
     def __init__(self, domain: Domain) -> None:
         if not self.name or self.localname is None:

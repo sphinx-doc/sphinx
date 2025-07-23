@@ -28,7 +28,8 @@ Contributors
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Antti Kaihola -- doctest extension (skipif option)
 * Barry Warsaw -- setup command improvements
-* Ben Egan -- Napoleon improvements
+* Bart Kamphorst -- warning improvements
+* Ben Egan -- Napoleon improvements & viewcode improvements
 * Benjamin Peterson -- unittests
 * Blaise Laflamme -- pyramid theme
 * Brecht Machiels -- builder entry-points
@@ -44,6 +45,7 @@ Contributors
 * Daniel Eades -- improved static typing
 * Daniel Hahler -- testing and CI improvements
 * Daniel Pizetta -- inheritance diagram improvements
+* Dave Hoese -- ``sphinx.ext.viewcode`` and ``sphinx.ext.apidoc`` bug fixes
 * Dave Kuhlman -- original LaTeX writer
 * Dimitri Papadopoulos Orfanos -- linting and spelling
 * Dmitry Shachnev -- modernisation and reproducibility
@@ -73,6 +75,7 @@ Contributors
 * Juan Luis Cano Rodríguez -- new tutorial (2021)
 * Julien Palard -- Colspan and rowspan in text builder
 * Justus Magin -- napoleon improvements
+* Kazuya Take -- ``sphinx.testing.path`` bug fix
 * Kevin Dunn -- MathJax extension
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Kurt McKee -- documentation updates
@@ -96,13 +99,18 @@ Contributors
 * \A. Rafey Khan -- improved intersphinx typing
 * Roland Meister -- epub builder
 * Sebastian Wiesner -- image handling, distutils support
+* Slawek Figiel -- additional warning suppression
 * Stefan Seefeld -- toctree improvements
 * Stefan van der Walt -- autosummary extension
+* Steve Piercy -- documentation improvements
+* Szymon Karpinski -- intersphinx improvements
 * \T. Powers -- HTML output improvements
 * Taku Shimizu -- epub3 builder
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes
+* Till Hoffmann -- doctest option to exit after first failed test
 * Tim Hoffmann -- theme improvements
+* Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance

@@ -16,9 +16,9 @@ from contextlib import chdir
 from typing import TYPE_CHECKING
 
 import sphinx
+from sphinx._cli.util.colour import blue, bold, disable_colour, terminal_supports_colour
 from sphinx.cmd.build import build_main
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.console import blue, bold, color_terminal, nocolor
 from sphinx.util.osutil import rmtree
 
 if TYPE_CHECKING:
@@ -91,8 +91,8 @@ class Make:
         return 0
 
     def build_help(self) -> None:
-        if not color_terminal():
-            nocolor()
+        if not terminal_supports_colour():
+            disable_colour()
 
         print(bold('Sphinx v%s' % sphinx.__display_version__))
         print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))

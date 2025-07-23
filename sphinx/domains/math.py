@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Element, Node, make_id, system_message
+from docutils.nodes import make_id
 
 from sphinx.domains import Domain
 from sphinx.locale import __
@@ -15,6 +15,9 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
+    from typing import Any, ClassVar
+
+    from docutils.nodes import Element, Node, system_message
 
     from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
@@ -44,9 +47,10 @@ class MathDomain(Domain):
     name = 'math'
     label = 'mathematics'
 
-    initial_data: dict[str, Any] = {
+    initial_data: ClassVar[dict[str, Any]] = {
         'objects': {},  # labelid -> (docname, eqno)
-        'has_equations': {},  # docname -> bool
+        # backwards compatibility
+        'has_equations': {},  # https://github.com/sphinx-doc/sphinx/issues/13346
     }
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
@@ -80,28 +84,15 @@ class MathDomain(Domain):
         else:
             return None
 
-    def process_doc(
-        self, env: BuildEnvironment, docname: str, document: nodes.document
-    ) -> None:
-        def math_node(node: Node) -> bool:
-            return isinstance(node, nodes.math | nodes.math_block)
-
-        self.data['has_equations'][docname] = any(document.findall(math_node))
-
     def clear_doc(self, docname: str) -> None:
         for equation_id, (doc, _eqno) in list(self.equations.items()):
             if doc == docname:
                 del self.equations[equation_id]
 
-        self.data['has_equations'].pop(docname, None)
-
     def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.equations[labelid] = (doc, eqno)
-
-        for docname in docnames:
-            self.data['has_equations'][docname] = otherdata['has_equations'][docname]
 
     def resolve_xref(
         self,
@@ -161,13 +152,8 @@ class MathDomain(Domain):
         return []
 
     def has_equations(self, docname: str | None = None) -> bool:
-        if not docname:
-            return any(self.data['has_equations'].values())
-
-        return (
-            self.data['has_equations'].get(docname, False)
-            or any(map(self.has_equations, self.env.toctree_includes.get(docname, ())))
-        )  # fmt: skip
+        # retained for backwards compatibility
+        return True
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

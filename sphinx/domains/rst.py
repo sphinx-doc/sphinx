@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils.parsers.rst import directives
 
@@ -17,6 +17,7 @@ from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils import nodes
     from docutils.nodes import Element
@@ -33,9 +34,7 @@ dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 
 class ReSTMarkup(ObjectDescription[str]):
-    """
-    Description of generic reST markup.
-    """
+    """Description of generic reST markup."""
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
@@ -58,11 +57,10 @@ class ReSTMarkup(ObjectDescription[str]):
         domain.note_object(self.objtype, name, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
-            indextext = self.get_index_text(self.objtype, name)
-            if indextext:
+            if index_text := self.get_index_text(self.objtype, name):
                 self.indexnode['entries'].append((
                     'single',
-                    indextext,
+                    index_text,
                     node_id,
                     '',
                     None,
@@ -84,12 +82,11 @@ class ReSTMarkup(ObjectDescription[str]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.config
         objtype = sig_node.parent.get('objtype')
-        *parents, name = sig_node['_toc_parts']
+        *_parents, name = sig_node['_toc_parts']
         if objtype == 'directive:option':
             return f':{name}:'
-        if config.toc_object_entries_show_parents in {'domain', 'all'}:
+        if self.config.toc_object_entries_show_parents in {'domain', 'all'}:
             name = ':'.join(sig_node['_toc_parts'])
         if objtype == 'role':
             return f':{name}:'
@@ -119,9 +116,7 @@ def parse_directive(d: str) -> tuple[str, str]:
 
 
 class ReSTDirective(ReSTMarkup):
-    """
-    Description of a reST directive.
-    """
+    """Description of a reST directive."""
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         name, args = parse_directive(sig)
@@ -147,9 +142,7 @@ class ReSTDirective(ReSTMarkup):
 
 
 class ReSTDirectiveOption(ReSTMarkup):
-    """
-    Description of an option for reST directive.
-    """
+    """Description of an option for reST directive."""
 
     option_spec: ClassVar[OptionSpec] = ReSTMarkup.option_spec.copy()
     option_spec.update({
@@ -219,9 +212,7 @@ class ReSTDirectiveOption(ReSTMarkup):
 
 
 class ReSTRole(ReSTMarkup):
-    """
-    Description of a reST role.
-    """
+    """Description of a reST role."""
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         desc_name = f':{sig}:'
@@ -253,7 +244,7 @@ class ReSTDomain(Domain):
         'dir': XRefRole(),
         'role': XRefRole(),
     }
-    initial_data: dict[str, dict[tuple[str, str], str]] = {
+    initial_data: ClassVar[dict[str, dict[tuple[str, str], str]]] = {
         'objects': {},  # fullname -> docname, objtype
     }
 
@@ -275,7 +266,7 @@ class ReSTDomain(Domain):
                 location=location,
             )
 
-        self.objects[objtype, name] = (self.env.docname, node_id)
+        self.objects[objtype, name] = (self.env.current_document.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
         for (typ, name), (doc, _node_id) in list(self.objects.items()):

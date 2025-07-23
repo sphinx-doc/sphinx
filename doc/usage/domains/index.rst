@@ -35,6 +35,69 @@ easier to write.
 This section describes what the domains that are included with Sphinx provide.
 The domain API is documented as well, in the section :ref:`domain-api`.
 
+Built-in domains
+----------------
+
+The following domains are included within Sphinx:
+
+.. toctree::
+   :maxdepth: 1
+
+   standard
+   c
+   cpp
+   javascript
+   mathematics
+   python
+   restructuredtext
+
+
+Third-party domains
+-------------------
+
+Several third-party domains are available as extensions, including:
+
+* `Ada <https://pypi.org/project/sphinxcontrib-adadomain/>`__
+* `Antlr4 <https://pypi.org/project/sphinx-a4doc/>`__
+* `Bazel <https://pypi.org/project/sphinx-bazel/>`__
+* `BibTex <https://pypi.org/project/sphinxcontrib-bibtex/>`__
+* `Chapel <https://pypi.org/project/sphinxcontrib-chapeldomain/>`__
+* `CMake <https://pypi.org/project/sphinxcontrib-moderncmakedomain/>`__
+* `Common Lisp <https://pypi.org/project/sphinxcontrib-cldomain/>`__
+* `Erlang <https://pypi.org/project/sphinxcontrib-erlangdomain/>`__
+* `Fortran <https://pypi.org/project/sphinx-fortran/>`__
+* `GraphQL <https://pypi.org/project/graphqldomain/>`__
+* `Go <https://pypi.org/project/sphinxcontrib-golangdomain/>`__
+* `HTTP <https://pypi.org/project/sphinxcontrib-httpdomain/>`__
+* `Hy <https://pypi.org/project/sphinxcontrib-hydomain/>`__
+* `Lua <https://pypi.org/project/sphinxcontrib-luadomain/>`__
+* `MATLAB <https://pypi.org/project/sphinxcontrib-matlabdomain/>`__
+* `PHP <https://pypi.org/project/sphinxcontrib-phpdomain/>`__
+* `Ruby <https://pypi.org/project/sphinxcontrib-rubydomain/>`__
+* `Rust <https://pypi.org/project/sphinxcontrib-rust/>`__
+* `Verilog <https://pypi.org/project/sphinx-verilog-domain/>`__
+* `VHDL <https://pypi.org/project/sphinx-vhdl/>`__
+* `Visual Basic <https://pypi.org/project/sphinx-vb-domain/>`__
+
+Other domains may be found on the Python Package Index
+(via the `Framework :: Sphinx :: Domain`__ classifier),
+`GitHub <https://github.com/search?q=sphinx%20domain&type=repositories>`__, or
+`GitLab <https://gitlab.com/explore/projects?name=sphinx%20domain>`__.
+
+__ https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Domain
+
+.. NOTE: The following all seem unmaintained, last released 2018 or earlier.
+         The links are preserved in this comment for reference.
+
+   * `CoffeeScript <https://pypi.org/project/sphinxcontrib-coffee/>`__
+   * `DotNET <https://pypi.org/project/sphinxcontrib-dotnetdomain/>`__
+   * `dqn <https://pypi.org/project/sphinxcontrib-dqndomain/>`__
+   * `Jinja <https://pypi.org/project/sphinxcontrib-jinjadomain/>`__
+   * `JSON <https://pypi.org/project/sphinx-jsondomain/>`__
+   * `Lasso <https://pypi.org/project/sphinxcontrib-lassodomain/>`__
+   * `Operation <https://pypi.org/project/sphinxcontrib-operationdomain/>`__
+   * `Scala <https://pypi.org/project/sphinxcontrib-scaladomain/>`__
+
 
 .. _basic-domain-markup:
 
@@ -48,7 +111,7 @@ the content should be the description.
 
 A domain will typically keep an internal index of all entities to aid
 cross-referencing.
-Typically it will also add entries in the shown general index.
+Typically, it will also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
 give the directive option flag ``:no-index-entry:``.
 If you want to exclude the object description from the table of contents, you
@@ -174,40 +237,3 @@ In short:
   component of the target.
   For example, ``:py:meth:`~queue.Queue.get``` will
   refer to ``queue.Queue.get`` but only display ``get`` as the link text.
-
-Built-in domains
-----------------
-
-The following domains are included within Sphinx:
-
-.. toctree::
-   :maxdepth: 1
-
-   standard
-   c
-   cpp
-   javascript
-   mathematics
-   python
-   restructuredtext
-
-More domains
-------------
-
-There are several third-party domains available as extensions, including:
-
-* `Ada <https://pypi.org/project/sphinxcontrib-adadomain/>`__
-* `Chapel <https://pypi.org/project/sphinxcontrib-chapeldomain/>`__
-* `CoffeeScript <https://pypi.org/project/sphinxcontrib-coffee/>`__
-* `Common Lisp <https://pypi.org/project/sphinxcontrib-cldomain/>`__
-* `dqn <https://pypi.org/project/sphinxcontrib-dqndomain/>`__
-* `Erlang <https://pypi.org/project/sphinxcontrib-erlangdomain/>`__
-* `Go <https://pypi.org/project/sphinxcontrib-golangdomain/>`__
-* `HTTP <https://pypi.org/project/sphinxcontrib-httpdomain/>`__
-* `Jinja <https://pypi.org/project/sphinxcontrib-jinjadomain/>`__
-* `Lasso <https://pypi.org/project/sphinxcontrib-lassodomain/>`__
-* `MATLAB <https://pypi.org/project/sphinxcontrib-matlabdomain/>`__
-* `Operation <https://pypi.org/project/sphinxcontrib-operationdomain/>`__
-* `PHP <https://pypi.org/project/sphinxcontrib-phpdomain/>`__
-* `Ruby <https://pypi.org/project/sphinxcontrib-rubydomain/>`__
-* `Scala <https://pypi.org/project/sphinxcontrib-scaladomain/>`__

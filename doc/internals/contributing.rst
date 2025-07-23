@@ -121,16 +121,7 @@ These are the basic steps needed to start developing on Sphinx.
 
    .. code-block:: shell
 
-      git commit -m '#42: Add useful new feature that does this.'
-
-   GitHub recognizes certain phrases that can be used to automatically
-   update the issue tracker. For example:
-
-   .. code-block:: shell
-
-      git commit -m 'Closes #42: Fix invalid markup in docstring of Foo.bar.'
-
-   would close issue #42.
+      git commit -m 'Add useful new feature that does this.'
 
 #. Push changes in the branch to your forked repository on GitHub:
 
@@ -139,6 +130,11 @@ These are the basic steps needed to start developing on Sphinx.
       git push origin feature-xyz
 
 #. Submit a pull request from your branch to the ``master`` branch.
+
+   GitHub recognizes certain phrases that can be used to automatically
+   update the issue tracker.
+   For example, including 'Closes #42' in the body of your pull request
+   will close issue #42 if the PR is merged.
 
 #. Wait for a core developer or contributor to review your changes.
 
@@ -341,13 +337,15 @@ Updating generated files
 ------------------------
 
 * JavaScript stemming algorithms in :file:`sphinx/search/non-minified-js/*.js`
-  are generated using `snowball <https://github.com/snowballstem/snowball>`_
-  by cloning the repository, executing ``make dist_libstemmer_js`` and then
-  unpacking the tarball which is generated in :file:`dist` directory.
+  and stopword files in :file:`sphinx/search/_stopwords/`
+  are generated from the `Snowball project`_
+  by running :file:`utils/generate_snowball.py`.
 
   Minified files in :file:`sphinx/search/minified-js/*.js` are generated from
-  non-minified ones using :program:`uglifyjs` (installed via npm), with ``-m``
-  option to enable mangling.
+  non-minified ones using :program:`uglifyjs` (installed via npm).
+  See :file:`sphinx/search/minified-js/README.rst`.
+
+  .. _Snowball project: https://snowballstem.org/
 
 * The :file:`searchindex.js` files found in
   the :file:`tests/js/fixtures/*` directories

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, ClassVar
+from types import NoneType
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -21,6 +22,7 @@ from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -34,9 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a JavaScript object.
-    """
+    """Description of a JavaScript object."""
 
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
@@ -70,7 +70,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         """
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
-            member, arglist = sig.split('(', 1)
+            member, _, arglist = sig.partition('(')
             member = member.strip()
             arglist = arglist[:-1].strip()
         else:
@@ -101,13 +101,17 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         signode['fullname'] = fullname
 
         max_len = (
-            self.env.config.javascript_maximum_signature_line_length
-            or self.env.config.maximum_signature_line_length
+            self.config.javascript_maximum_signature_line_length
+            or self.config.maximum_signature_line_length
             or 0
         )
         multi_line_parameter_list = (
             'single-line-parameter-list' not in self.options
             and (len(sig) > max_len > 0)
+        )
+
+        trailing_comma = (
+            self.env.config.javascript_trailing_comma_in_multi_line_signatures
         )
 
         display_prefix = self.get_display_prefix()
@@ -130,8 +134,14 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
-        return fullname, prefix
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list=multi_line_parameter_list,
+                    trailing_comma=trailing_comma,
+                    env=self.env,
+                )
+        return fullname, prefix  # type: ignore[return-value]
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         if 'fullname' not in sig_node:
@@ -147,8 +157,8 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     def add_target_and_index(
         self, name_obj: tuple[str, str], sig: str, signode: desc_signature
     ) -> None:
-        mod_name = self.env.ref_context.get('js:module')
-        fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
+        mod_name = self.env.ref_context.get('js:module', '')
+        fullname = (f'{mod_name}.' if mod_name else '') + name_obj[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
@@ -157,11 +167,10 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
-            indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
-            if indextext:
+            if index_text := self.get_index_text(mod_name, name_obj):
                 self.indexnode['entries'].append((
                     'single',
-                    indextext,
+                    index_text,
                     node_id,
                     '',
                     None,
@@ -238,7 +247,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.config
+        config = self.config
         objtype = sig_node.parent.get('objtype')
         if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'
@@ -302,8 +311,7 @@ class JSConstructor(JSCallable):
 
 
 class JSModule(SphinxDirective):
-    """
-    Directive to mark description of a new JavaScript module.
+    """Directive to mark description of a new JavaScript module.
 
     This directive specifies the module name that will be used by objects that
     follow this directive.
@@ -326,6 +334,7 @@ class JSModule(SphinxDirective):
     final_argument_whitespace = False
     option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
+        'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
         'noindex': directives.flag,
@@ -354,13 +363,19 @@ class JSModule(SphinxDirective):
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
             domain.note_object(
-                mod_name, 'module', node_id, location=(self.env.docname, self.lineno)
+                mod_name,
+                'module',
+                node_id,
+                location=(self.env.current_document.docname, self.lineno),
             )
 
             # The node order is: index node first, then target node
-            indextext = _('%s (module)') % mod_name
-            inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
-            ret.append(inode)
+            if 'no-index-entry' not in self.options:
+                index_text = _('%s (module)') % mod_name
+                inode = addnodes.index(
+                    entries=[('single', index_text, node_id, '', None)]
+                )
+                ret.append(inode)
             target = nodes.target('', '', ids=[node_id], ismod=True)
             self.state.document.note_explicit_target(target)
             ret.append(target)
@@ -424,7 +439,7 @@ class JavaScriptDomain(Domain):
         'attr': JSXRefRole(),
         'mod': JSXRefRole(),
     }
-    initial_data: dict[str, dict[str, tuple[str, str]]] = {
+    initial_data: ClassVar[dict[str, dict[str, tuple[str, str]]]] = {
         'objects': {},  # fullname -> docname, node_id, objtype
         'modules': {},  # modname  -> docname, node_id
     }
@@ -447,14 +462,14 @@ class JavaScriptDomain(Domain):
                 docname,
                 location=location,
             )
-        self.objects[fullname] = (self.env.docname, node_id, objtype)
+        self.objects[fullname] = (self.env.current_document.docname, node_id, objtype)
 
     @property
     def modules(self) -> dict[str, tuple[str, str]]:
         return self.data.setdefault('modules', {})  # modname -> docname, node_id
 
     def note_module(self, modname: str, node_id: str) -> None:
-        self.modules[modname] = (self.env.docname, node_id)
+        self.modules[modname] = (self.env.current_document.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
         for fullname, (pkg_docname, _node_id, _l) in list(self.objects.items()):
@@ -561,7 +576,16 @@ class JavaScriptDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)}
+        'javascript_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, NoneType}),
+    )
+    app.add_config_value(
+        'javascript_trailing_comma_in_multi_line_signatures',
+        True,
+        'env',
+        types=frozenset({bool}),
     )
     return {
         'version': 'builtin',

@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.cmd import make_mode
 from sphinx.cmd.build import get_parser
 from sphinx.cmd.make_mode import run_make_mode
+
+if TYPE_CHECKING:
+    from typing import Any
 
 broken_argparse = (
     sys.version_info[:3] <= (3, 12, 6)

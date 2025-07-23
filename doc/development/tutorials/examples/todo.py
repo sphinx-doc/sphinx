@@ -44,7 +44,7 @@ class TodoDirective(SphinxDirective):
             self.env.todo_all_todos = []
 
         self.env.todo_all_todos.append({
-            'docname': self.env.docname,
+            'docname': self.env.current_document.docname,
             'lineno': self.lineno,
             'todo': todo_node.deepcopy(),
             'target': targetnode,
@@ -76,7 +76,7 @@ def process_todo_nodes(app, doctree, fromdocname):
 
     # Replace all todolist nodes with a list of the collected todos.
     # Augment each todo with a backlink to the original location.
-    env = app.builder.env
+    env = app.env
 
     if not hasattr(env, 'todo_all_todos'):
         env.todo_all_todos = []

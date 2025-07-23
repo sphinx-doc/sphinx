@@ -13,8 +13,8 @@ from sphinx.domains._index import Index, IndexEntry
 from sphinx.locale import _
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence, Set
-    from typing import Any
+    from collections.abc import Iterable, Sequence, Set
+    from typing import Any, ClassVar
 
     from docutils import nodes
     from docutils.nodes import Element, Node
@@ -36,8 +36,7 @@ __all__ = (
 
 
 class ObjType:
-    """
-    An ObjType is the description for a type of object that a domain can
+    """An ObjType is the description for a type of object that a domain can
     document.  In the object_types attribute of Domain subclasses, object type
     names are mapped to instances of this class.
 
@@ -61,8 +60,7 @@ class ObjType:
 
 
 class Domain:
-    """
-    A Domain is meant to be a group of "object" description directives for
+    """A Domain is meant to be a group of "object" description directives for
     objects of a similar nature, and corresponding roles to create references to
     them.  Examples would be Python modules, classes, functions etc., elements
     of a templating language, Sphinx roles and directives, etc.
@@ -84,48 +82,49 @@ class Domain:
     """
 
     #: domain name: should be short, but unique
-    name = ''
+    name: ClassVar[str] = ''
     #: domain label: longer, more descriptive (used in messages)
-    label = ''
+    label: ClassVar[str] = ''
     #: type (usually directive) name -> ObjType instance
-    object_types: dict[str, ObjType] = {}
+    object_types: ClassVar[dict[str, ObjType]] = {}
     #: directive name -> directive class
-    directives: dict[str, type[Directive]] = {}
+    directives: ClassVar[dict[str, type[Directive]]] = {}
     #: role name -> role callable
-    roles: dict[str, RoleFunction | XRefRole] = {}
+    roles: ClassVar[dict[str, RoleFunction | XRefRole]] = {}
     #: a list of Index subclasses
-    indices: list[type[Index]] = []
+    indices: ClassVar[list[type[Index]]] = []
     #: role name -> a warning message if reference is missing
-    dangling_warnings: dict[str, str] = {}
+    dangling_warnings: ClassVar[dict[str, str]] = {}
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {}
+    enumerable_nodes: ClassVar[dict[type[Node], tuple[str, TitleGetter | None]]] = {}
     #: data value for a fresh environment
-    initial_data: dict = {}
+    initial_data: ClassVar[dict[str, Any]] = {}
     #: data value
     data: dict[str, Any]
     #: data version, bump this when the format of `self.data` changes
-    data_version = 0
+    data_version: ClassVar[int] = 0
 
     def __init__(self, env: BuildEnvironment) -> None:
+        domain_data: dict[str, dict[str, Any]] = env.domaindata
         self.env: BuildEnvironment = env
-        self._role_cache: dict[str, Callable] = {}
-        self._directive_cache: dict[str, Callable] = {}
+        self._role_cache: dict[str, RoleFunction] = {}
+        self._directive_cache: dict[str, type[Directive]] = {}
         self._role2type: dict[str, list[str]] = {}
         self._type2role: dict[str, str] = {}
 
         # convert class variables to instance one (to enhance through API)
-        self.object_types = dict(self.object_types)
-        self.directives = dict(self.directives)
-        self.roles = dict(self.roles)
-        self.indices = list(self.indices)
+        self.object_types = dict(self.object_types)  # type: ignore[misc]
+        self.directives = dict(self.directives)  # type: ignore[misc]
+        self.roles = dict(self.roles)  # type: ignore[misc]
+        self.indices = list(self.indices)  # type: ignore[misc]
 
-        if self.name not in env.domaindata:
+        if self.name not in domain_data:
             assert isinstance(self.initial_data, dict)
             new_data = copy.deepcopy(self.initial_data)
             new_data['version'] = self.data_version
-            self.data = env.domaindata[self.name] = new_data
+            self.data = domain_data[self.name] = new_data
         else:
-            self.data = env.domaindata[self.name]
+            self.data = domain_data[self.name]
             if self.data['version'] != self.data_version:
                 raise OSError('data of %r domain out of date' % self.label)
         for name, obj in self.object_types.items():
@@ -171,7 +170,7 @@ class Domain:
             text: str,
             lineno: int,
             inliner: Inliner,
-            options: dict | None = None,
+            options: dict[str, Any] | None = None,
             content: Sequence[str] = (),
         ) -> tuple[list[Node], list[nodes.system_message]]:
             return self.roles[name](
@@ -181,7 +180,7 @@ class Domain:
         self._role_cache[name] = role_adapter
         return role_adapter
 
-    def directive(self, name: str) -> Callable | None:
+    def directive(self, name: str) -> type[Directive] | None:
         """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
