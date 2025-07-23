@@ -73,6 +73,7 @@ def test_method(app: SphinxTestApp) -> None:
         '',
         '.. py:function:: method(arg1, arg2)',
         '   :module: target.callable',
+        '   :canonical: target.callable.Callable.method',
         '',
         '   docstring of Callable.method().',
         '',
@@ -86,6 +87,7 @@ def test_builtin_function(app: SphinxTestApp) -> None:
         '',
         '.. py:function:: umask(mask, /)',
         '   :module: os',
+        f'   :canonical: {os.name}.umask',
         '',
         '   Set the current numeric umask and return the previous umask.',
         '',
@@ -97,8 +99,8 @@ def test_methoddescriptor(app: SphinxTestApp) -> None:
     actual = do_autodoc(app, 'function', 'builtins.int.__add__')
     assert list(actual) == [
         '',
-        '.. py:function:: __add__(self, value, /)',
-        '   :module: builtins.int',
+        '.. py:function:: int.__add__(self, value, /)',
+        '   :module: builtins',
         '',
         '   Return self+value.',
         '',
@@ -194,6 +196,7 @@ def test_synchronized_coroutine(app: SphinxTestApp) -> None:
         '',
         '.. py:function:: sync_func()',
         '   :module: target.coroutine',
+        '   :canonical: target.coroutine._other_coro_func',
         '',
     ]
 
