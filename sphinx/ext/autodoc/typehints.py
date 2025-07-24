@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
-    from sphinx.ext.autodoc import Options
+    from sphinx.ext.autodoc._directive_options import Options
     from sphinx.util.typing import ExtensionMetadata, _StringifyMode
 
 

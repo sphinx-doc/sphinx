@@ -46,7 +46,12 @@ def _create_element_from_result(
         # get correct path in case of subdirectories
         uri = (_relative_path(Path(), Path(node['refdoc']).parent) / uri).as_posix()
     if inv_item.project_version:
-        reftitle = _('(in %s v%s)') % (inv_item.project_name, inv_item.project_version)
+        if not inv_item.project_version[0].isdigit():
+            # Do not append 'v' to non-numeric version
+            version = inv_item.project_version
+        else:
+            version = f'v{inv_item.project_version}'
+        reftitle = _('(in %s %s)') % (inv_item.project_name, version)
     else:
         reftitle = _('(in %s)') % (inv_item.project_name,)
 

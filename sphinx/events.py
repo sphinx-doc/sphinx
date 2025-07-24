@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
-    from sphinx.ext.autodoc import _AutodocProcessDocstringListener
+    from sphinx.ext.autodoc._event_listeners import _AutodocProcessDocstringListener
     from sphinx.ext.todo import todo_node
 
 
