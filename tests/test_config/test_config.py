@@ -19,12 +19,13 @@ from sphinx.config import (
 )
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
+from sphinx.testing.util import SphinxTestApp
+from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
     from typing import TypeAlias
-
-    from sphinx.testing.util import SphinxTestApp
 
     CircularList: TypeAlias = list[int | 'CircularList']
     CircularDict: TypeAlias = dict[str, int | 'CircularDict']
@@ -139,7 +140,7 @@ def test_core_config(app: SphinxTestApp) -> None:
 
 def test_config_not_found(tmp_path):
     with pytest.raises(ConfigError):
-        Config.read(tmp_path)
+        Config.read(tmp_path, overrides={}, tags=Tags())
 
 
 @pytest.mark.parametrize('protocol', list(range(pickle.HIGHEST_PROTOCOL)))
@@ -394,12 +395,12 @@ def test_errors_warnings(logger, tmp_path):
     # test the error for syntax errors in the config file
     (tmp_path / 'conf.py').write_text('project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
-        Config.read(tmp_path, {}, None)
+        Config.read(tmp_path, overrides={}, tags=Tags())
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
     (tmp_path / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf8')
-    cfg = Config.read(tmp_path, {}, None)
+    cfg = Config.read(tmp_path, overrides={}, tags=Tags())
     assert cfg.project == 'Jägermeister'
     assert logger.called is False
 
@@ -440,7 +441,7 @@ def test_config_eol(logger, tmp_path):
     configfile = tmp_path / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
-        cfg = Config.read(tmp_path, {}, None)
+        cfg = Config.read(tmp_path, overrides={}, tags=Tags())
         assert cfg.project == 'spam'
         assert logger.called is False
 
@@ -678,7 +679,7 @@ def test_conf_py_language_none(tmp_path):
     (tmp_path / 'conf.py').write_text('language = None', encoding='utf-8')
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tmp_path, {}, None)
+    cfg = Config.read(tmp_path, overrides={}, tags=Tags())
 
     # Then the language is coerced to English
     assert cfg.language == 'en'
@@ -691,7 +692,7 @@ def test_conf_py_language_none_warning(logger, tmp_path):
     (tmp_path / 'conf.py').write_text('language = None', encoding='utf-8')
 
     # When we load conf.py into a Config object
-    Config.read(tmp_path, {}, None)
+    Config.read(tmp_path, overrides={}, tags=Tags())
 
     # Then a warning is raised
     assert logger.warning.called
@@ -708,7 +709,7 @@ def test_conf_py_no_language(tmp_path):
     (tmp_path / 'conf.py').touch()
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tmp_path, {}, None)
+    cfg = Config.read(tmp_path, overrides={}, tags=Tags())
 
     # Then the language is coerced to English
     assert cfg.language == 'en'
@@ -720,7 +721,7 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
     (tmp_path / 'conf.py').touch()
 
     # When we load conf.py into a Config object
-    cfg = Config.read(tmp_path, {}, None)
+    cfg = Config.read(tmp_path, overrides={}, tags=Tags())
 
     # Then the default nitpick_ignore[_regex] is an empty list
     assert cfg.nitpick_ignore == []
@@ -810,3 +811,14 @@ def test_root_doc_and_master_doc_are_synchronized() -> None:
     c.root_doc = '1234'
     assert c.master_doc == '1234'
     assert c.root_doc == c.master_doc
+
+
+def test_source_encoding_deprecation(tmp_path: Path) -> None:
+    (tmp_path / 'conf.py').touch()
+    app = SphinxTestApp(
+        buildername='dummy',
+        srcdir=tmp_path,
+        confoverrides={'source_encoding': 'latin-1'},
+    )
+    expected = 'Support for source encodings other than UTF-8 is deprecated and will be removed'
+    assert expected in app.warning.getvalue()

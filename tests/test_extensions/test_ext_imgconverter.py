@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def _if_converter_found(app):
+def _if_converter_found(app: SphinxTestApp) -> None:
     image_converter = getattr(app.config, 'image_converter', '')
     try:
         if image_converter:

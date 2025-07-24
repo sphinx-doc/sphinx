@@ -107,7 +107,7 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
-WELL_KNOWN_ABBREVIATIONS = ('et al.', 'e.g.', 'i.e.')
+WELL_KNOWN_ABBREVIATIONS = ('et al.', 'e.g.', 'i.e.', 'vs.')
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -268,7 +268,7 @@ class Autosummary(SphinxDirective):
         nodes = self.get_table(items)
 
         if 'toctree' in self.options:
-            dirname = posixpath.dirname(self.env.docname)
+            dirname = posixpath.dirname(self.env.current_document.docname)
 
             tree_prefix = self.options['toctree'].strip()
             docnames = []

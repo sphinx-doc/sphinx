@@ -21,6 +21,9 @@
 <% if 'nocolorrows' in table.styles -%>
 \sphinxthistablewithnocolorrowsstyle
 <% endif -%>
+<% if table.is_nested -%>
+\sphinxthistabularywithnohlinesifinlongtable
+<% endif -%>
 <% if table.align -%>
   <%- if table.align in ('center', 'default') -%>
   \centering

@@ -732,7 +732,7 @@ class PythonDomain(Domain):
 
     name = 'py'
     label = 'Python'
-    object_types: dict[str, ObjType] = {
+    object_types = {
         'function': ObjType(_('function'), 'func', 'obj'),
         'data': ObjType(_('data'), 'data', 'obj'),
         'class': ObjType(_('class'), 'class', 'exc', 'obj'),
@@ -775,7 +775,7 @@ class PythonDomain(Domain):
         'mod': PyXRefRole(),
         'obj': PyXRefRole(),
     }
-    initial_data: dict[str, dict[str, tuple[Any]]] = {
+    initial_data: ClassVar[dict[str, dict[str, tuple[Any]]]] = {
         'objects': {},  # fullname -> docname, objtype
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
@@ -818,7 +818,9 @@ class PythonDomain(Domain):
                     other.docname,
                     location=location,
                 )
-        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, aliased)
+        self.objects[name] = ObjectEntry(
+            self.env.current_document.docname, node_id, objtype, aliased
+        )
 
     @property
     def modules(self) -> dict[str, ModuleEntry]:
@@ -832,7 +834,7 @@ class PythonDomain(Domain):
         .. versionadded:: 2.1
         """
         self.modules[name] = ModuleEntry(
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             node_id=node_id,
             synopsis=synopsis,
             platform=platform,

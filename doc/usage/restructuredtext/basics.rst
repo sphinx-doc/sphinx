@@ -208,11 +208,39 @@ Hyperlinks
 External links
 ~~~~~~~~~~~~~~
 
-Use ```Link text <https://domain.invalid/>`_`` for inline web links.  If the
-link text should be the web address, you don't need special markup at all, the
-parser finds links and mail addresses in ordinary text.
+URLs and email addresses in text are automatically linked and do not need
+explicit markup at all.
+For example, https://domain.invalid/ is written with no special markup
+in the source of this document, and is recognised as an external hyperlink.
 
-.. important:: There must be a space between the link text and the opening \< for the URL.
+To create text with a link, the best approach is generally to put the URL
+below the paragraph as follows (:duref:`ref <hyperlink-targets>`)::
+
+   This is a paragraph that contains `a link`_.
+
+   .. _a link: https://domain.invalid/
+
+This keeps the paragraph more readable in source code.
+
+Alternatively, you can embed the URL within the prose for an 'inline link'.
+This can lead to longer lines, but has the benefit of keeping the link text
+and the URL pointed to in the same place.
+This uses the following syntax: ```Link text <https://domain.invalid/>`__``
+(:duref:`ref <embedded-uris-and-aliases>`).
+
+.. important::
+
+   There must be a space between the link text
+   and the opening angle bracket ('``<``') for the URL.
+
+.. tip::
+
+   Use two trailing underscores when embedding the URL.
+   Technically, a single underscore works as well,
+   but that would create a named reference instead of an anonymous one.
+   Named references typically do not have a benefit when the URL is embedded.
+   Moreover, they have the disadvantage that you must make sure that you
+   do not use the same "Link text" for another link in your document.
 
 You can also separate the link and the target definition (:duref:`ref
 <hyperlink-targets>`), like this::
@@ -618,10 +646,11 @@ configurations:
 Source encoding
 ---------------
 
-Since the easiest way to include special characters like em dashes or copyright
-signs in reStructuredText is to directly write them as Unicode characters, one has to
-specify an encoding.  Sphinx assumes source files to be encoded in UTF-8 by
-default; you can change this with the :confval:`source_encoding` config value.
+Sphinx supports source files that are encoded in UTF-8.
+This means that the full range of Unicode__ characters may be used
+directly in reStructuredText.
+
+__ https://www.unicode.org/
 
 
 Gotchas

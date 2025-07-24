@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from docutils.writers.html4css1 import Writer
+from docutils.writers import html4css1
 
 from sphinx.util import logging
 from sphinx.writers.html5 import HTML5Translator
@@ -20,7 +20,7 @@ HTMLTranslator = HTML5Translator
 # https://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 
-class HTMLWriter(Writer):  # type: ignore[misc]
+class HTMLWriter(html4css1.Writer):  # type: ignore[misc]
     # override embed-stylesheet default value to False.
     settings_default_overrides = {'embed_stylesheet': False}
 

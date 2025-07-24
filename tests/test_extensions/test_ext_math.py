@@ -323,7 +323,7 @@ def test_imgmath_numfig_html(app: SphinxTestApp) -> None:
 def test_math_compat(app):
     with warnings.catch_warnings(record=True):
         app.build(force_all=True)
-        doctree = app.env.get_and_resolve_doctree('index', app.builder)
+        doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
 
         assert_node(
             doctree,
