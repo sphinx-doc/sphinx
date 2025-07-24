@@ -23,14 +23,10 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._sentinels import (
     ALL,
+    INSTANCE_ATTR,
+    SLOTS_ATTR,
     SUPPRESS,
     UNINITIALIZED_ATTR,
-)
-from sphinx.ext.autodoc._sentinels import (
-    INSTANCE_ATTR as INSTANCEATTR,
-)
-from sphinx.ext.autodoc._sentinels import (
-    SLOTS_ATTR as SLOTSATTR,
 )
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
@@ -718,7 +714,7 @@ class Documenter:
             member = obj.object
 
             # if isattr is True, the member is documented as an attribute
-            isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
+            isattr = member is INSTANCE_ATTR or (namespace, membername) in attr_docs
 
             try:
                 doc = getdoc(
@@ -1173,7 +1169,7 @@ class ModuleDocumenter(Documenter):
             if name not in members:
                 docstring = attr_docs.get(('', name), [])
                 members[name] = ObjectMember(
-                    name, INSTANCEATTR, docstring='\n'.join(docstring)
+                    name, INSTANCE_ATTR, docstring='\n'.join(docstring)
                 )
 
         return members
@@ -2461,18 +2457,18 @@ class SlotsMixin(DataDocumenterMixinBase):
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)  # type: ignore[misc]
         if self.isslotsattribute():
-            self.object = SLOTSATTR
+            self.object = SLOTS_ATTR
 
         return ret
 
     def should_suppress_value_header(self) -> bool:
-        if self.object is SLOTSATTR:
+        if self.object is SLOTS_ATTR:
             return True
         else:
             return super().should_suppress_value_header()
 
     def get_doc(self) -> list[list[str]] | None:
-        if self.object is SLOTSATTR:
+        if self.object is SLOTS_ATTR:
             try:
                 parent___slots__ = inspect.getslots(self.parent)
                 if parent___slots__ and (
