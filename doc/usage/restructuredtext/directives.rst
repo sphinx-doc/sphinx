@@ -538,6 +538,7 @@ Describing changes between versions
            pair: removed; in version
 
 .. rst:directive:: .. version-added:: version [brief explanation]
+                   .. versionadded:: version [brief explanation]
 
    This directive documents the version of the project
    which added the described feature.
@@ -551,6 +552,10 @@ Describing changes between versions
       There must be no blank line between the directive head and the explanation;
       this is to make these blocks visually continuous in the markup.
 
+   .. version-changed:: 8.3
+      The :rst:dir:`versionadded` directive was renamed to :rst:dir:`version-added`.
+      The previous name is retained as an alias.
+
    Example::
 
       .. version-added:: 2.5
@@ -560,9 +565,14 @@ Describing changes between versions
       The *spam* parameter.
 
 .. rst:directive:: .. version-changed:: version [brief explanation]
+                   .. versionchanged:: version [brief explanation]
 
    Similar to :rst:dir:`version-added`, but describes when and what changed in
    the named feature in some way (new parameters, changed side effects, etc.).
+
+   .. version-changed:: 8.3
+      The :rst:dir:`versionchanged` directive was renamed to :rst:dir:`version-changed`.
+      The previous name is retained as an alias.
 
    Example::
 
@@ -573,13 +583,16 @@ Describing changes between versions
       The *spam* parameter is now of type *boson*.
 
 .. rst:directive:: .. version-deprecated:: version [brief explanation]
+                   .. deprecated:: version [brief explanation]
 
    Similar to :rst:dir:`version-added`, but describes when the feature was
    deprecated.
    A *brief* explanation can also be given,
    for example to tell the reader what to use instead.
 
-   .. version-added:: 8.3
+   .. version-changed:: 8.3
+      The :rst:dir:`deprecated` directive was renamed to :rst:dir:`version-deprecated`.
+      The previous name is retained as an alias
 
    Example::
 
@@ -590,12 +603,17 @@ Describing changes between versions
       Use :py:func:`!spam` instead.
 
 .. rst:directive:: .. version-removed:: version [brief explanation]
+                   .. versionremoved:: version [brief explanation]
 
    Similar to :rst:dir:`version-added`, but describes when the feature was removed.
    An explanation may be provided to tell the reader what to use instead,
    or why the feature was removed.
 
    .. version-added:: 7.3
+
+   .. version-changed:: 8.3
+      The :rst:dir:`versionremoved` directive was renamed to :rst:dir:`version-removed`.
+      The previous name is retained as an alias.
 
    Example::
 
@@ -604,31 +622,6 @@ Describing changes between versions
 
    .. version-removed:: 4.0
       The :py:func:`!spam` function is more flexible, and should be used instead.
-
-
-.. rst:directive:: .. versionadded:: version [brief explanation]
-
-   A legacy alias for :rst:dir:`version-added`.
-
-   .. version-deprecated:: 8.3
-
-.. rst:directive:: .. versionchanged:: version [brief explanation]
-
-   A legacy alias for :rst:dir:`version-changed`.
-
-   .. version-deprecated:: 8.3
-
-.. rst:directive:: .. deprecated:: version [brief explanation]
-
-   A legacy alias for :rst:dir:`version-deprecated`.
-
-   .. version-deprecated:: 8.3
-
-.. rst:directive:: .. versionremoved:: version [brief explanation]
-
-   A legacy alias for :rst:dir:`version-removed`.
-
-   .. version-deprecated:: 8.3
 
 
 Presentational
