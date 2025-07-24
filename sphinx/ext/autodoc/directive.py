@@ -7,7 +7,7 @@ from docutils import nodes
 from docutils.statemachine import StringList
 from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import Options
+from sphinx.ext.autodoc._directive_options import Options
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
