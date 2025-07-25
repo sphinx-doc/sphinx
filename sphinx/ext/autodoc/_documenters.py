@@ -401,7 +401,7 @@ class Documenter:
                             self.modname,
                             self.objpath[:-1],
                             'class',
-                            attrgetter=self.get_attr,  # type: ignore[attr-defined]
+                            attrgetter=self.get_attr,
                         )
                         parent = ret[3]
                         if self._is_runtime_instance_attribute(parent):
@@ -417,7 +417,7 @@ class Documenter:
                             self.modname,
                             self.objpath[:-1],
                             'class',
-                            attrgetter=self.get_attr,  # type: ignore[attr-defined]
+                            attrgetter=self.get_attr,
                         )
                         parent = ret[3]
                         if self._is_uninitialized_instance_attribute(parent):
@@ -2045,20 +2045,6 @@ class ExceptionDocumenter(ClassDocumenter):
                 f' membername {membername} is a BaseException subclass.'
             )
             raise ValueError(msg) from exc
-
-
-class DataDocumenterMixinBase:
-    # define types of instance variables
-    config: Config
-    env: BuildEnvironment
-    modname: str
-    parent: Any
-    object: Any
-    objpath: list[str]
-
-    def should_suppress_value_header(self) -> bool:
-        """Check :value: header should be suppressed."""
-        return False
 
 
 class DataDocumenter(Documenter):
