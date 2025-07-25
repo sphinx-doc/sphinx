@@ -158,27 +158,6 @@ class Documenter:
     __uninitialized_global_variable__: ClassVar[bool] = False
     """If True, support uninitialized (type annotation only) global variables"""
 
-    __runtime_instance_attribute__: ClassVar[bool] = False
-    """If True, support runtime instance attributes that are defined in
-    __init__() methods with doc-comments.
-
-    Example::
-
-        class Foo:
-            def __init__(self):
-                self.attr = None  #: This is a target of this mix-in.
-    """
-
-    __uninitialized_instance_attribute__: ClassVar[bool] = False
-    """If True, support uninitialized instance attributes: PEP-526 styled,
-    annotation only attributes.
-
-    Example::
-
-        class Foo:
-            attr: int  #: This is a target of this mix-in.
-    """
-
     _new_docstrings: list[list[str]] | None = None
     _signatures: list[str] = []
 
@@ -395,7 +374,17 @@ class Documenter:
                     except ImportError:
                         pass
 
-                if self.__runtime_instance_attribute__:
+                if isinstance(self, AttributeDocumenter):
+                    # Support runtime & uninitialized instance attributes.
+                    #
+                    # The former are defined in __init__() methods with doc-comments.
+                    # The latter are PEP-526 style annotation only annotations.
+                    #
+                    # class Foo:
+                    #     attr: int  #: uninitialized attribute
+                    #
+                    #     def __init__(self):
+                    #         self.attr = None  #: runtime attribute
                     try:
                         ret = import_object(
                             self.modname,
@@ -408,18 +397,7 @@ class Documenter:
                             self.object = self._RUNTIME_INSTANCE_ATTRIBUTE
                             self.parent = parent
                             return True
-                    except ImportError:
-                        pass
 
-                if self.__uninitialized_instance_attribute__:
-                    try:
-                        ret = import_object(
-                            self.modname,
-                            self.objpath[:-1],
-                            'class',
-                            attrgetter=self.get_attr,
-                        )
-                        parent = ret[3]
                         if self._is_uninitialized_instance_attribute(parent):
                             self.object = UNINITIALIZED_ATTR
                             self.parent = parent
@@ -2449,8 +2427,6 @@ class AttributeDocumenter(Documenter):
 
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
-    __runtime_instance_attribute__ = True
-    __uninitialized_instance_attribute__ = True
     _non_data_descriptor: bool = False
 
     objtype = 'attribute'
