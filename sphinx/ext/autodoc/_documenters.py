@@ -2393,54 +2393,6 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
             return super().get_doc()  # type: ignore[misc]
 
 
-class SlotsMixin(DataDocumenterMixinBase):
-    """Mixin for AttributeDocumenter to provide the feature for supporting __slots__."""
-
-    def isslotsattribute(self) -> bool:
-        """Check the subject is an attribute in __slots__."""
-        try:
-            if parent___slots__ := inspect.getslots(self.parent):
-                return self.objpath[-1] in parent___slots__
-            else:
-                return False
-        except (ValueError, TypeError):
-            return False
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)  # type: ignore[misc]
-        if self.isslotsattribute():
-            self.object = SLOTS_ATTR
-
-        return ret
-
-    def should_suppress_value_header(self) -> bool:
-        if self.object is SLOTS_ATTR:
-            return True
-        else:
-            return super().should_suppress_value_header()
-
-    def get_doc(self) -> list[list[str]] | None:
-        if self.object is SLOTS_ATTR:
-            try:
-                parent___slots__ = inspect.getslots(self.parent)
-                if parent___slots__ and (
-                    docstring := parent___slots__.get(self.objpath[-1])
-                ):
-                    docstring = prepare_docstring(docstring)
-                    return [docstring]
-                else:
-                    return []
-            except ValueError as exc:
-                logger.warning(
-                    __('Invalid __slots__ found on %s. Ignored.'),
-                    (self.parent.__qualname__, exc),
-                    type='autodoc',
-                )
-                return []
-        else:
-            return super().get_doc()  # type: ignore[misc]
-
-
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
     """Mixin for AttributeDocumenter to provide the feature for supporting runtime
     instance attributes (that are defined in __init__() methods with doc-comments).
@@ -2581,7 +2533,6 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
 
 class AttributeDocumenter(
-    SlotsMixin,
     RuntimeInstanceAttributeMixin,
     UninitializedInstanceAttributeMixin,
     NonDataDescriptorMixin,
@@ -2646,7 +2597,9 @@ class AttributeDocumenter(
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
-        if inspect.isenumattribute(self.object):
+        if self._is_slots_attribute():
+            self.object = SLOTS_ATTR
+        elif inspect.isenumattribute(self.object):
             self.object = self.object.value
         if self.parent:
             self.update_annotations(self.parent)
@@ -2658,6 +2611,8 @@ class AttributeDocumenter(
         return real_modname or self.modname
 
     def should_suppress_value_header(self) -> bool:
+        if self.object is SLOTS_ATTR:
+            return True
         if super().should_suppress_value_header():
             return True
         else:
@@ -2739,6 +2694,26 @@ class AttributeDocumenter(
             # See: https://github.com/sphinx-doc/sphinx/issues/7805
             orig = self.config.autodoc_inherit_docstrings
             self.config.autodoc_inherit_docstrings = False
+
+            if self.object is SLOTS_ATTR:
+                # support for __slots__
+                try:
+                    parent___slots__ = inspect.getslots(self.parent)
+                    if parent___slots__ and (
+                            docstring := parent___slots__.get(self.objpath[-1])
+                    ):
+                        docstring = prepare_docstring(docstring)
+                        return [docstring]
+                    else:
+                        return []
+                except ValueError as exc:
+                    logger.warning(
+                        __('Invalid __slots__ found on %s. Ignored.'),
+                        (self.parent.__qualname__, exc),
+                        type='autodoc',
+                    )
+                    return []
+
             return super().get_doc()
         finally:
             self.config.autodoc_inherit_docstrings = orig
@@ -2756,6 +2731,17 @@ class AttributeDocumenter(
             autodoc_typehints_format=self.config.autodoc_typehints_format,
         )
         super().add_content(more_content)
+    
+    def _is_slots_attribute(self) -> bool:
+        """Check the subject is an attribute in __slots__."""
+        try:
+            if parent___slots__ := inspect.getslots(self.parent):
+                return self.objpath[-1] in parent___slots__
+            else:
+                return False
+        except (ValueError, TypeError):
+            return False
+
 
 
 class PropertyDocumenter(Documenter):
