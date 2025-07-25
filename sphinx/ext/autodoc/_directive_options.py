@@ -1,9 +1,42 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
+
+from docutils.utils import assemble_option_dict
 
 from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS
 from sphinx.locale import __
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from sphinx.ext.autodoc._documenters import Documenter
+
+
+# common option names for autodoc directives
+AUTODOC_DEFAULT_OPTIONS = (
+    'members',
+    'undoc-members',
+    'no-index',
+    'no-index-entry',
+    'inherited-members',
+    'show-inheritance',
+    'private-members',
+    'special-members',
+    'ignore-module-all',
+    'exclude-members',
+    'member-order',
+    'imported-members',
+    'class-doc-from',
+    'no-value',
+)
+
+AUTODOC_EXTENDABLE_OPTIONS = frozenset({
+    'members',
+    'private-members',
+    'special-members',
+    'exclude-members',
+})
 
 
 def identity(x: Any) -> Any:
@@ -87,8 +120,11 @@ def merge_members_option(options: dict[str, Any]) -> None:
                     members.append(member)
 
 
-class Options(dict[str, Any]):  # NoQA: FURB189
+class Options(dict[str, object]):  # NoQA: FURB189
     """A dict/attribute hybrid that returns None on nonexisting keys."""
+
+    def __repr__(self) -> str:
+        return f'Options({super().__repr__()})'
 
     def copy(self) -> Options:
         return Options(super().copy())
@@ -98,3 +134,32 @@ class Options(dict[str, Any]):  # NoQA: FURB189
             return self[name.replace('_', '-')]
         except KeyError:
             return None
+
+
+def _process_documenter_options(
+    documenter: type[Documenter],
+    *,
+    default_options: dict[str, str | bool],
+    options: dict[str, str],
+) -> Options:
+    """Recognize options of Documenter from user input."""
+    for name in AUTODOC_DEFAULT_OPTIONS:
+        if name not in documenter.option_spec:
+            continue
+
+        negated = options.pop(f'no-{name}', True) is None
+        if name in default_options and not negated:
+            if name in options and isinstance(default_options[name], str):
+                # take value from options if present or extend it
+                # with autodoc_default_options if necessary
+                if name in AUTODOC_EXTENDABLE_OPTIONS:
+                    if options[name] is not None and options[name].startswith('+'):
+                        options[name] = f'{default_options[name]},{options[name][1:]}'
+            else:
+                options[name] = default_options[name]
+        elif options.get(name) is not None:
+            # remove '+' from option argument if there's nothing to merge it with
+            options[name] = options[name].removeprefix('+')
+
+    opts = assemble_option_dict(options.items(), documenter.option_spec)
+    return Options(opts)
