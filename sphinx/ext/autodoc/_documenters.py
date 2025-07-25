@@ -1155,6 +1155,9 @@ class DocstringSignatureMixin:
     feature of reading the signature from the docstring.
     """
 
+    __docstring_strip_signature__: ClassVar[bool] = False
+    """If True, strip any function signature from the docstring."""
+
     _new_docstrings: list[list[str]] | None = None
     _signatures: list[str] = []
 
@@ -1223,30 +1226,17 @@ class DocstringSignatureMixin:
             # the feature is enabled
             result = self._find_signature()
             if result is not None:
-                self.args, self.retann = result
+                if self.__docstring_strip_signature__:
+                    # Discarding _args is the only difference.
+                    # Documenter.format_signature use self.args value to format.
+                    _args, self.retann = result
+                else:
+                    self.args, self.retann = result
         sig = super().format_signature(**kwargs)  # type: ignore[misc]
         if self._signatures:
             return '\n'.join((sig, *self._signatures))
         else:
             return sig
-
-
-class DocstringStripSignatureMixin(DocstringSignatureMixin):
-    """Mixin for AttributeDocumenter to provide the
-    feature of stripping any function signature from the docstring.
-    """
-
-    def format_signature(self, **kwargs: Any) -> str:
-        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore[attr-defined]
-            # only act if a signature is not explicitly given already, and if
-            # the feature is enabled
-            result = self._find_signature()
-            if result is not None:
-                # Discarding _args is a only difference with
-                # DocstringSignatureMixin.format_signature.
-                # Documenter.format_signature use self.args value to format.
-                _args, self.retann = result
-        return super().format_signature(**kwargs)
 
 
 class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
@@ -2651,10 +2641,12 @@ class AttributeDocumenter(  # type: ignore[misc]
     RuntimeInstanceAttributeMixin,
     UninitializedInstanceAttributeMixin,
     NonDataDescriptorMixin,
-    DocstringStripSignatureMixin,
+    DocstringSignatureMixin,
     ClassLevelDocumenter,
 ):
     """Specialized Documenter subclass for attributes."""
+
+    __docstring_strip_signature__ = True
 
     objtype = 'attribute'
     member_order = 60
@@ -2821,8 +2813,10 @@ class AttributeDocumenter(  # type: ignore[misc]
         super().add_content(more_content)
 
 
-class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
+class PropertyDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
     """Specialized Documenter subclass for properties."""
+
+    __docstring_strip_signature__ = True
 
     objtype = 'property'
     member_order = 60
