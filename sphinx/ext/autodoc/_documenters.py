@@ -153,6 +153,15 @@ class Documenter:
     #: true if the generated content may contain titles
     titles_allowed: ClassVar = True
 
+    __docstring_signature__: ClassVar[bool] = False
+    """If True, attempt to read the signature from the docstring."""
+
+    __docstring_strip_signature__: ClassVar[bool] = False
+    """If True, strip any function signature from the docstring."""
+
+    _new_docstrings: list[list[str]] | None = None
+    _signatures: list[str] = []
+
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
         'no-index-entry': bool_option,
@@ -191,7 +200,7 @@ class Documenter:
         # extra signature items (arguments and return annotation,
         # also set after resolve_name succeeds)
         self.args: str | None = None
-        self.retann: str = ''
+        self.retann: str | None = ''
         # the object to document (set after import_object succeeds)
         self.object: Any = None
         self.object_name = ''
@@ -401,11 +410,80 @@ class Documenter:
         # retry without arguments for old documenters
         return self.format_args()
 
+    def _find_signature(self) -> tuple[str | None, str | None] | None:
+        # candidates of the object name
+        valid_names = [self.objpath[-1]]
+        if isinstance(self, ClassDocumenter):
+            valid_names.append('__init__')
+            if hasattr(self.object, '__mro__'):
+                valid_names.extend(cls.__name__ for cls in self.object.__mro__)
+
+        docstrings = self.get_doc()
+        if docstrings is None:
+            return None, None
+        self._new_docstrings = docstrings[:]
+        self._signatures = []
+        result = None
+        for i, doclines in enumerate(docstrings):
+            for j, line in enumerate(doclines):
+                if not line:
+                    # no lines in docstring, no match
+                    break
+
+                if line.endswith('\\'):
+                    line = line.rstrip('\\').rstrip()
+
+                # match first line of docstring against signature RE
+                match = py_ext_sig_re.match(line)
+                if not match:
+                    break
+                _exmod, _path, base, _tp_list, args, retann = match.groups()
+
+                # the base name must match ours
+                if base not in valid_names:
+                    break
+
+                # re-prepare docstring to ignore more leading indentation
+                directive = self.directive
+                tab_width = directive.state.document.settings.tab_width
+                self._new_docstrings[i] = prepare_docstring(
+                    '\n'.join(doclines[j + 1 :]), tab_width
+                )
+
+                if result is None:
+                    # first signature
+                    result = args, retann
+                else:
+                    # subsequent signatures
+                    self._signatures.append(f'({args}) -> {retann}')
+
+            if result is not None:
+                # finish the loop when signature found
+                break
+
+        return result
+
     def format_signature(self, **kwargs: Any) -> str:
         """Format the signature (arguments and return annotation) of the object.
 
         Let the user process it via the ``autodoc-process-signature`` event.
         """
+        if (
+            self.__docstring_signature__
+            and self.args is None
+            and self.config.autodoc_docstring_signature
+        ):
+            # only act if a signature is not explicitly given already, and if
+            # the feature is enabled
+            result = self._find_signature()
+            if result is not None:
+                if self.__docstring_strip_signature__:
+                    # Discarding _args is the only difference.
+                    # Documenter.format_signature use self.args value to format.
+                    _args, self.retann = result
+                else:
+                    self.args, self.retann = result
+
         if self.args is not None:
             # signature given explicitly
             args = f'({self.args})'
@@ -442,9 +520,16 @@ class Documenter:
             args, retann = result
 
         if args is not None:
-            return args + ((' -> %s' % retann) if retann else '')
+            if retann:
+                sig = f'{args} -> {retann}'
+            else:
+                sig = args
         else:
-            return ''
+            sig = ''
+
+        if self.__docstring_signature__ and self._signatures:
+            return '\n'.join((sig, *self._signatures))
+        return sig
 
     def add_directive_header(self, sig: str) -> None:
         """Add the directive header and options to the generated content."""
@@ -475,6 +560,9 @@ class Documenter:
         When it returns None, autodoc-process-docstring will not be called for this
         object.
         """
+        if self.__docstring_signature__ and self._new_docstrings is not None:
+            return self._new_docstrings
+
         docstring = getdoc(
             self.object,
             self.get_attr,
@@ -1148,97 +1236,10 @@ class ModuleDocumenter(Documenter):
             return super().sort_members(documenters, order)
 
 
-class DocstringSignatureMixin:
-    """Mixin for FunctionDocumenter and MethodDocumenter to provide the
-    feature of reading the signature from the docstring.
-    """
-
-    __docstring_strip_signature__: ClassVar[bool] = False
-    """If True, strip any function signature from the docstring."""
-
-    _new_docstrings: list[list[str]] | None = None
-    _signatures: list[str] = []
-
-    def _find_signature(self) -> tuple[str | None, str | None] | None:
-        # candidates of the object name
-        valid_names = [self.objpath[-1]]  # type: ignore[attr-defined]
-        if isinstance(self, ClassDocumenter):
-            valid_names.append('__init__')
-            if hasattr(self.object, '__mro__'):
-                valid_names.extend(cls.__name__ for cls in self.object.__mro__)
-
-        docstrings = self.get_doc()
-        if docstrings is None:
-            return None, None
-        self._new_docstrings = docstrings[:]
-        self._signatures = []
-        result = None
-        for i, doclines in enumerate(docstrings):
-            for j, line in enumerate(doclines):
-                if not line:
-                    # no lines in docstring, no match
-                    break
-
-                if line.endswith('\\'):
-                    line = line.rstrip('\\').rstrip()
-
-                # match first line of docstring against signature RE
-                match = py_ext_sig_re.match(line)
-                if not match:
-                    break
-                _exmod, _path, base, _tp_list, args, retann = match.groups()
-
-                # the base name must match ours
-                if base not in valid_names:
-                    break
-
-                # re-prepare docstring to ignore more leading indentation
-                directive = self.directive  # type: ignore[attr-defined]
-                tab_width = directive.state.document.settings.tab_width
-                self._new_docstrings[i] = prepare_docstring(
-                    '\n'.join(doclines[j + 1 :]), tab_width
-                )
-
-                if result is None:
-                    # first signature
-                    result = args, retann
-                else:
-                    # subsequent signatures
-                    self._signatures.append(f'({args}) -> {retann}')
-
-            if result is not None:
-                # finish the loop when signature found
-                break
-
-        return result
-
-    def get_doc(self) -> list[list[str]] | None:
-        if self._new_docstrings is not None:
-            return self._new_docstrings
-        return super().get_doc()  # type: ignore[misc]
-
-    def format_signature(self, **kwargs: Any) -> str:
-        self.args: str | None
-        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore[attr-defined]
-            # only act if a signature is not explicitly given already, and if
-            # the feature is enabled
-            result = self._find_signature()
-            if result is not None:
-                if self.__docstring_strip_signature__:
-                    # Discarding _args is the only difference.
-                    # Documenter.format_signature use self.args value to format.
-                    _args, self.retann = result
-                else:
-                    self.args, self.retann = result
-        sig = super().format_signature(**kwargs)  # type: ignore[misc]
-        if self._signatures:
-            return '\n'.join((sig, *self._signatures))
-        else:
-            return sig
-
-
-class FunctionDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[misc]
+class FunctionDocumenter(Documenter):
     """Specialized Documenter subclass for functions."""
+
+    __docstring_signature__ = True
 
     objtype = 'function'
     member_order = 30
@@ -1410,8 +1411,10 @@ _CLASS_NEW_BLACKLIST = frozenset({
 })
 
 
-class ClassDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[misc]
+class ClassDocumenter(Documenter):
     """Specialized Documenter subclass for classes."""
+
+    __docstring_signature__ = True
 
     objtype = 'class'
     member_order = 20
@@ -2147,8 +2150,10 @@ class DataDocumenter(GenericAliasMixin, UninitializedGlobalVariableMixin, Docume
         super().add_content(more_content)
 
 
-class MethodDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[misc]
+class MethodDocumenter(Documenter):
     """Specialized Documenter subclass for methods (normal, static and class)."""
+
+    __docstring_signature__ = True
 
     objtype = 'method'
     directivetype = 'method'
@@ -2364,10 +2369,9 @@ class MethodDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[mis
 
     def get_doc(self) -> list[list[str]] | None:
         if self._new_docstrings is not None:
-            # docstring already returned previously, then modified by
-            # `DocstringSignatureMixin`.  Just return the previously-computed
-            # result, so that we don't lose the processing done by
-            # `DocstringSignatureMixin`.
+            # docstring already returned previously, then modified due to
+            # ``__docstring_signature__ = True``. Just return the
+            # previously-computed result, so that we don't loose the processing.
             return self._new_docstrings
         if self.objpath[-1] == '__init__':
             docstring = getdoc(
@@ -2628,17 +2632,17 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         return super().get_doc()  # type: ignore[misc]
 
 
-class AttributeDocumenter(  # type: ignore[misc]
+class AttributeDocumenter(
     GenericAliasMixin,
     SlotsMixin,
     RuntimeInstanceAttributeMixin,
     UninitializedInstanceAttributeMixin,
     NonDataDescriptorMixin,
-    DocstringSignatureMixin,
     Documenter,
 ):
     """Specialized Documenter subclass for attributes."""
 
+    __docstring_signature__ = True
     __docstring_strip_signature__ = True
 
     objtype = 'attribute'
@@ -2806,9 +2810,10 @@ class AttributeDocumenter(  # type: ignore[misc]
         super().add_content(more_content)
 
 
-class PropertyDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[misc]
+class PropertyDocumenter(Documenter):
     """Specialized Documenter subclass for properties."""
 
+    __docstring_signature__ = True
     __docstring_strip_signature__ = True
 
     objtype = 'property'
@@ -2903,6 +2908,12 @@ class PropertyDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[m
         if safe_getattr(self.object, 'func', None):  # cached_property
             return self.object.func
         return None
+
+
+class DocstringSignatureMixin:
+    """Retained for compatibility."""
+
+    __docstring_signature__ = True
 
 
 class ModuleLevelDocumenter(Documenter):
