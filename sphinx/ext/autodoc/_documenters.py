@@ -169,6 +169,16 @@ class Documenter:
                 self.attr = None  #: This is a target of this mix-in.
     """
 
+    __uninitialized_instance_attribute__: ClassVar[bool] = False
+    """If True, support uninitialized instance attributes: PEP-526 styled,
+    annotation only attributes.
+
+    Example::
+
+        class Foo:
+            attr: int  #: This is a target of this mix-in.
+    """
+
     _new_docstrings: list[list[str]] | None = None
     _signatures: list[str] = []
 
@@ -401,6 +411,22 @@ class Documenter:
                     except ImportError:
                         pass
 
+                if self.__uninitialized_instance_attribute__:
+                    try:
+                        ret = import_object(
+                            self.modname,
+                            self.objpath[:-1],
+                            'class',
+                            attrgetter=self.get_attr,  # type: ignore[attr-defined]
+                        )
+                        parent = ret[3]
+                        if self._is_uninitialized_instance_attribute(parent):
+                            self.object = UNINITIALIZED_ATTR
+                            self.parent = parent
+                            return True
+                    except ImportError:
+                        pass
+
                 if raiseerror:
                     raise
                 logger.warning(exc.args[0], type='autodoc', subtype='import_object')
@@ -441,6 +467,13 @@ class Documenter:
                 pass
 
         return False
+
+    def _is_uninitialized_instance_attribute(self, parent: Any) -> bool:
+        """Check the subject is an annotation only attribute."""
+        annotations = get_type_hints(
+            parent, None, self.config.autodoc_type_aliases, include_extras=True
+        )
+        return self.objpath[-1] in annotations
 
     def get_real_modname(self) -> str:
         """Get the real module name of an object to document.
@@ -2457,64 +2490,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
             return super().get_doc()  # type: ignore[misc]
 
 
-class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
-    """Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
-    instance attributes (PEP-526 styled, annotation only attributes).
-
-    Example::
-
-        class Foo:
-            attr: int  #: This is a target of this mix-in.
-    """
-
-    def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
-        """Check the subject is an annotation only attribute."""
-        annotations = get_type_hints(
-            parent, None, self.config.autodoc_type_aliases, include_extras=True
-        )
-        return self.objpath[-1] in annotations
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the existence of uninitialized instance attribute when failed to import
-        the attribute.
-        """
-        try:
-            return super().import_object(raiseerror=True)  # type: ignore[misc]
-        except ImportError as exc:
-            try:
-                ret = import_object(
-                    self.modname,
-                    self.objpath[:-1],
-                    'class',
-                    attrgetter=self.get_attr,  # type: ignore[attr-defined]
-                )
-                parent = ret[3]
-                if self.is_uninitialized_instance_attribute(parent):
-                    self.object = UNINITIALIZED_ATTR
-                    self.parent = parent
-                    return True
-            except ImportError:
-                pass
-
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-    def should_suppress_value_header(self) -> bool:
-        return (
-            self.object is UNINITIALIZED_ATTR or super().should_suppress_value_header()
-        )
-
-    def get_doc(self) -> list[list[str]] | None:
-        if self.object is UNINITIALIZED_ATTR:
-            return None
-        return super().get_doc()  # type: ignore[misc]
-
-
 class AttributeDocumenter(
-    UninitializedInstanceAttributeMixin,
     NonDataDescriptorMixin,
     Documenter,
 ):
@@ -2523,6 +2499,7 @@ class AttributeDocumenter(
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
     __runtime_instance_attribute__ = True
+    __uninitialized_instance_attribute__ = True
 
     objtype = 'attribute'
     member_order = 60
@@ -2595,6 +2572,8 @@ class AttributeDocumenter(
         if self.object is SLOTS_ATTR:
             return True
         if self.object is self._RUNTIME_INSTANCE_ATTRIBUTE:
+            return True
+        if self.object is UNINITIALIZED_ATTR:
             return True
         if super().should_suppress_value_header():
             return True
@@ -2701,6 +2680,9 @@ class AttributeDocumenter(
                 self.object is self._RUNTIME_INSTANCE_ATTRIBUTE
                 and self._is_runtime_instance_attribute_not_commented(self.parent)
             ):
+                return None
+
+            if self.object is UNINITIALIZED_ATTR:
                 return None
 
             return super().get_doc()
