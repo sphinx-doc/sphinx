@@ -1281,6 +1281,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if self.config.strip_signature_backslash:
             # escape backslashes for reST
             args = args.replace('\\', '\\\\')
+
+        if self.objtype == 'decorator' and ',' not in args:
+            # Special case for single-argument decorators
+            return ''
         return args
 
     def document_members(self, all_members: bool = False) -> None:
@@ -1391,14 +1395,7 @@ class DecoratorDocumenter(FunctionDocumenter):
     objtype = 'decorator'
 
     # must be lower than FunctionDocumenter
-    priority = -1
-
-    def format_args(self, **kwargs: Any) -> str:
-        args = super().format_args(**kwargs)
-        if ',' in args:
-            return args
-        else:
-            return ''
+    priority = FunctionDocumenter.priority - 1
 
 
 # Types which have confusing metaclass signatures it would be best not to show.
