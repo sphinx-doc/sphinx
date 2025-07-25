@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 py_sig_re = re.compile(
     r"""^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
-          (?: \[\s*(.*)\s*])?    # optional: type parameters list
+          (?: \[\s*(.*?)\s*])?   # optional: type parameters list
           (?: \(\s*(.*)\s*\)     # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
@@ -93,7 +93,7 @@ class PyXrefMixin:
                 children = result.children
                 result.clear()
 
-                shortname = target.split('.')[-1]
+                shortname = target.rpartition('.')[-1]
                 textnode = innernode('', shortname)  # type: ignore[call-arg]
                 contnodes = [
                     pending_xref_condition('', '', textnode, condition='resolved'),
@@ -352,16 +352,20 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                     multi_line_parameter_list,
                     trailing_comma,
                 )
-            except SyntaxError:
+            except SyntaxError as exc:
                 # fallback to parse arglist original parser
                 # (this may happen if the argument list is incorrectly used
                 # as a list of bases when documenting a class)
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
+                logger.debug(
+                    'syntax error in arglist (%r): %s', arglist, exc, location=signode
+                )
                 _pseudo_parse_arglist(
                     signode,
                     arglist,
-                    multi_line_parameter_list,
-                    trailing_comma,
+                    multi_line_parameter_list=multi_line_parameter_list,
+                    trailing_comma=trailing_comma,
+                    env=self.env,
                 )
             except (NotImplementedError, ValueError) as exc:
                 # duplicated parameter names raise ValueError and not a SyntaxError
@@ -371,8 +375,9 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 _pseudo_parse_arglist(
                     signode,
                     arglist,
-                    multi_line_parameter_list,
-                    trailing_comma,
+                    multi_line_parameter_list=multi_line_parameter_list,
+                    trailing_comma=trailing_comma,
+                    env=self.env,
                 )
         else:
             if self.needs_arglist():
@@ -426,7 +431,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             )
 
         if 'no-index-entry' not in self.options:
-            if index_text := self.get_index_text(mod_name, name_cls):
+            if index_text := self.get_index_text(mod_name, name_cls):  # type: ignore[arg-type]
                 self.indexnode['entries'].append((
                     'single',
                     index_text,

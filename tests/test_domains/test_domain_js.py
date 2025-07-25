@@ -173,7 +173,7 @@ def test_domain_js_find_obj(app):
     ) == ('module_a.submodule', ('module', 'module-module_a.submodule', 'module'))
 
 
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = JavaScriptDomain(env)
 

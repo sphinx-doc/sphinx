@@ -38,35 +38,45 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
-def parse(sig):
+
+def parse(sig: str, *, env: BuildEnvironment) -> str:
     m = py_sig_re.match(sig)
     if m is None:
         raise ValueError
-    name_prefix, tp_list, name, arglist, retann = m.groups()
+    _name_prefix, _tp_list, _name, arglist, _retann = m.groups()
     signode = addnodes.desc_signature(sig, '')
-    _pseudo_parse_arglist(signode, arglist)
+    _pseudo_parse_arglist(signode, arglist, env=env)
     return signode.astext()
 
 
-def test_function_signatures():
-    rv = parse('func(a=1) -> int object')
-    assert rv == '(a=1)'
+def test_function_signatures(app: Sphinx) -> None:
+    rv = parse("compile(source : string, filename, symbol='file')", env=app.env)
+    assert rv == "(source: string, filename, symbol='file')"
 
-    rv = parse('func(a=1, [b=None])')
-    assert rv == '(a=1, [b=None])'
+    for params, expect in [
+        ('(a=1)', '(a=1)'),
+        ('(a: int = 1)', '(a: int = 1)'),
+        ('(a=1, [b=None])', '(a=1, [b=None])'),
+        ('(a=1[, b=None])', '(a=1, [b=None])'),
+        ('(a=[], [b=None])', '(a=[], [b=None])'),
+        ('(a=[][, b=None])', '(a=[], [b=None])'),
+        ('(a: Foo[Bar]=[][, b=None])', '(a: Foo[Bar] = [], [b=None])'),
+    ]:
+        rv = parse(f'func{params}', env=app.env)
+        assert rv == expect
 
-    rv = parse('func(a=1[, b=None])')
-    assert rv == '(a=1, [b=None])'
-
-    rv = parse("compile(source : string, filename, symbol='file')")
-    assert rv == "(source : string, filename, symbol='file')"
-
-    rv = parse('func(a=[], [b=None])')
-    assert rv == '(a=[], [b=None])'
-
-    rv = parse('func(a=[][, b=None])')
-    assert rv == '(a=[], [b=None])'
+        # Note: 'def f[Foo[Bar]]()' is not valid Python but people might write
+        # it in a reST document to convene the intent of a higher-kinded type
+        # variable.
+        for tparams in ['', '[Foo]', '[Foo[Bar]]']:
+            for retann in ['', '-> Foo', '-> Foo[Bar]', '-> anything else']:
+                rv = parse(f'func{tparams}{params} {retann}'.rstrip(), env=app.env)
+                assert rv == expect
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -316,7 +326,7 @@ def test_domain_py_find_obj(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = PythonDomain(env)
 
@@ -501,6 +511,28 @@ def test_parse_annotation(app):
             [desc_sig_punctuation, ')'],
             [desc_sig_punctuation, ']'],
         ),
+    )
+
+    doctree = _parse_annotation('*tuple[str, int]', app.env)
+    assert_node(
+        doctree,
+        (
+            [desc_sig_operator, '*'],
+            [pending_xref, 'tuple'],
+            [desc_sig_punctuation, '['],
+            [pending_xref, 'str'],
+            [desc_sig_punctuation, ','],
+            desc_sig_space,
+            [pending_xref, 'int'],
+            [desc_sig_punctuation, ']'],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        pending_xref,
+        refdomain='py',
+        reftype='class',
+        reftarget='tuple',
     )
 
 
@@ -1710,6 +1742,10 @@ def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
+
 
 @pytest.mark.parametrize(
     ('tp_list', 'tptext'),
@@ -1723,6 +1759,10 @@ def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
+
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
 
 
 @pytest.mark.parametrize(
@@ -1747,3 +1787,22 @@ def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
+
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
+
+
+def test_deco_role(app):
+    text = """\
+.. py:decorator:: foo.bar
+   :no-contents-entry:
+   :no-index-entry:
+   :no-typesetting:
+"""
+
+    doctree = restructuredtext.parse(app, text + '\n:py:deco:`foo.bar`')
+    assert doctree.astext() == '\n\n\n\n@foo.bar'
+
+    doctree = restructuredtext.parse(app, text + '\n:py:deco:`~foo.bar`')
+    assert doctree.astext() == '\n\n\n\n@bar'

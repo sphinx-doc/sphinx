@@ -230,7 +230,7 @@ class DefinitionParser(BaseParser):
         #
         # expression-list
         # -> initializer-list
-        exprs, trailing_comma = self._parse_initializer_list(
+        exprs, _trailing_comma = self._parse_initializer_list(
             'parenthesized expression-list', '(', ')'
         )
         if exprs is None:
@@ -369,10 +369,7 @@ class DefinitionParser(BaseParser):
         # pm             = cast             .*, ->*
         def _parse_bin_op_expr(self: DefinitionParser, op_id: int) -> ASTExpression:
             if op_id + 1 == len(_expression_bin_ops):
-
-                def parser() -> ASTExpression:
-                    return self._parse_cast_expression()
-
+                parser = self._parse_cast_expression
             else:
 
                 def parser() -> ASTExpression:
@@ -760,10 +757,7 @@ class DefinitionParser(BaseParser):
                     if self.skip_string(']'):
                         size = None
                     else:
-
-                        def parser() -> ASTExpression:
-                            return self._parse_expression()
-
+                        parser = self._parse_expression
                         size = self._parse_expression_fallback([']'], parser)
                         self.skip_ws()
                         if not self.skip_string(']'):
@@ -1025,10 +1019,7 @@ class DefinitionParser(BaseParser):
         init = None
         if self.skip_string('='):
             self.skip_ws()
-
-            def parser() -> ASTExpression:
-                return self._parse_constant_expression()
-
+            parser = self._parse_constant_expression
             init_val = self._parse_expression_fallback([], parser)
             init = ASTInitializer(init_val)
         return ASTEnumerator(name, init, attrs)

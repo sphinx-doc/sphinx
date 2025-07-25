@@ -27,6 +27,10 @@ from sphinx.addnodes import (
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+
 
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_pyfunction(app):
@@ -259,7 +263,10 @@ def test_pyfunction_signature_full(app):
         doctree[1][0][1],
         [
             desc_parameterlist,
-            ([desc_parameter, nodes.inline, '*'], [desc_parameter, desc_sig_name, 'a']),
+            (
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '*'],
+                [desc_parameter, desc_sig_name, 'a'],
+            ),
         ],
     )
 
@@ -272,9 +279,9 @@ def test_pyfunction_signature_full(app):
             desc_parameterlist,
             (
                 [desc_parameter, desc_sig_name, 'a'],
-                [desc_parameter, desc_sig_operator, '/'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '/'],
                 [desc_parameter, desc_sig_name, 'b'],
-                [desc_parameter, desc_sig_operator, '*'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '*'],
                 [desc_parameter, desc_sig_name, 'c'],
             ),
         ],
@@ -289,8 +296,8 @@ def test_pyfunction_signature_full(app):
             desc_parameterlist,
             (
                 [desc_parameter, desc_sig_name, 'a'],
-                [desc_parameter, desc_sig_operator, '/'],
-                [desc_parameter, desc_sig_operator, '*'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '/'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '*'],
                 [desc_parameter, desc_sig_name, 'b'],
             ),
         ],
@@ -305,7 +312,7 @@ def test_pyfunction_signature_full(app):
             desc_parameterlist,
             (
                 [desc_parameter, desc_sig_name, 'a'],
-                [desc_parameter, desc_sig_operator, '/'],
+                [desc_parameter, desc_sig_operator, nodes.abbreviation, '/'],
             ),
         ],
     )
@@ -478,6 +485,58 @@ def test_optional_pyfunction_signature(app):
                 (
                     [desc_parameter, ([desc_sig_name, 'filename'])],
                     [desc_optional, desc_parameter, ([desc_sig_name, 'symbol'])],
+                ),
+            ],
+        ),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_pyfunction_signature_with_bracket(app: Sphinx) -> None:
+    text = '.. py:function:: hello(a : ~typing.Any = <b>) -> None'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(
+        doctree,
+        (
+            addnodes.index,
+            [
+                desc,
+                (
+                    [
+                        desc_signature,
+                        (
+                            [desc_name, 'hello'],
+                            desc_parameterlist,
+                            [desc_returns, pending_xref, 'None'],
+                        ),
+                    ],
+                    desc_content,
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        addnodes.desc,
+        desctype='function',
+        domain='py',
+        objtype='function',
+        no_index=False,
+    )
+    assert_node(
+        doctree[1][0][1],  # type: ignore[index]
+        (
+            [
+                desc_parameter,
+                (
+                    [desc_sig_name, 'a'],
+                    [desc_sig_punctuation, ':'],
+                    desc_sig_space,
+                    [desc_sig_name, pending_xref, 'Any'],
+                    desc_sig_space,
+                    [desc_sig_operator, '='],
+                    desc_sig_space,
+                    [nodes.inline, '<b>'],
                 ),
             ],
         ),

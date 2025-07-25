@@ -46,7 +46,7 @@ def _unload_target_module():
     sys.modules.pop('target', None)
 
 
-def test_mangle_signature():
+def test_mangle_signature() -> None:
     TEST_SIGNATURE = """
     () :: ()
     (a, b, c, d, e) :: (a, b, c, d, e)
@@ -253,9 +253,11 @@ def test_autosummary_generate_content_for_module(app):
         template,
         None,
         False,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -314,9 +316,11 @@ def test_autosummary_generate_content_for_module___all__(app):
         template,
         None,
         False,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -364,9 +368,11 @@ def test_autosummary_generate_content_for_module_skipped(app):
         template,
         None,
         False,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     context = template.render.call_args[0][1]
     assert context['members'] == [
@@ -404,9 +410,11 @@ def test_autosummary_generate_content_for_module_imported_members(app):
         template,
         None,
         True,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -439,8 +447,12 @@ def test_autosummary_generate_content_for_module_imported_members(app):
     ]
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
-    assert context['classes'] == ['Class', 'Foo']
-    assert context['all_classes'] == ['Class', 'Foo', '_Baz']
+    if sys.version_info >= (3, 14, 0, 'alpha', 5):
+        assert context['classes'] == ['Class', 'Foo', 'Union']
+        assert context['all_classes'] == ['Class', 'Foo', 'Union', '_Baz']
+    else:
+        assert context['classes'] == ['Class', 'Foo']
+        assert context['all_classes'] == ['Class', 'Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
     assert context['attributes'] == ['CONSTANT1', 'qux', 'quuz', 'non_imported_member']
@@ -470,9 +482,11 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
         template,
         None,
         True,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
+        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -775,7 +789,7 @@ def test_autosummary_latex_table_colspec(app):
     assert r'p{0.5\linewidth}' not in result
 
 
-def test_import_by_name():
+def test_import_by_name() -> None:
     import sphinx
     import sphinx.ext.autosummary
 

@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from sphinx.builders.gettext import Catalog, MsgOrigin
+from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -61,7 +62,7 @@ def test_build_gettext(app: SphinxTestApp) -> None:
     # directory items are grouped into sections
     assert (app.outdir / 'subdir.pot').is_file()
 
-    # regression test for issue #960
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/960
     catalog = (app.outdir / 'markup.pot').read_text(encoding='utf8')
     assert 'msgid "something, something else, something more"' in catalog
 
@@ -125,7 +126,7 @@ def test_msgfmt(app: SphinxTestApp) -> None:
     confoverrides={'gettext_compact': False},
 )
 def test_gettext_index_entries(app: SphinxTestApp) -> None:
-    # regression test for #976
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/976
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
     pot = (app.outdir / 'index_entries.pot').read_text(encoding='utf8')
@@ -155,7 +156,7 @@ def test_gettext_index_entries(app: SphinxTestApp) -> None:
     confoverrides={'gettext_compact': False, 'gettext_additional_targets': []},
 )
 def test_gettext_disable_index_entries(app: SphinxTestApp) -> None:
-    # regression test for #976
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/976
     app.env._pickled_doctree_cache.clear()  # clear cache
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
@@ -270,7 +271,7 @@ def test_gettext_prolog_epilog_substitution(app: SphinxTestApp) -> None:
     confoverrides={'gettext_compact': False, 'gettext_additional_targets': ['image']},
 )
 def test_gettext_prolog_epilog_substitution_excluded(app: SphinxTestApp) -> None:
-    # regression test for #9428
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/9428
     app.build(force_all=True)
 
     assert (app.outdir / 'prolog_epilog_substitution_excluded.pot').is_file()
@@ -321,4 +322,30 @@ def test_gettext_literalblock_additional(app: SphinxTestApp) -> None:
         "function\\n...     sys.stdout.write('hello')  # call write method of "
         "stdout object\\n>>>\\n>>> if __name__ == '__main__':  # if run this py "
         'file as python script\\n...     main()  # call main',
+    ]
+
+
+@pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
+def test_gettext_trailing_backslashes(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    assert (app.outdir / 'backslashes.pot').is_file()
+    pot = (app.outdir / 'backslashes.pot').read_text(encoding='utf8')
+    msg_ids = get_msgids(pot)
+    assert msg_ids == [
+        'i18n with backslashes',
+        (
+            'line 1 line 2 line 3 '
+            # middle backslashes are escaped normally
+            'line 4a \\\\ and 4b '
+            # whitespaces after backslashes are dropped
+            'line       with spaces after backslash '
+            'last line       with spaces '
+            'and done 1'
+        ),
+        'a b c',
+        'last trailing \\\\ \\\\ is ignored',
+        'See [#]_',
+        'footnote with backslashes and done 2',
+        'directive with backslashes',
     ]

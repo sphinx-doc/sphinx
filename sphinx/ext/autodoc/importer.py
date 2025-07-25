@@ -164,6 +164,7 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
     if modname in sys.modules:
         return sys.modules[modname]
 
+    skip_pyi = bool(os.getenv('SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS', ''))
     original_module_names = frozenset(sys.modules)
     try:
         spec = find_spec(modname)
@@ -171,7 +172,7 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
             msg = f'No module named {modname!r}'
             raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
         spec, pyi_path = _find_type_stub_spec(spec, modname)
-        if pyi_path is None:
+        if skip_pyi or pyi_path is None:
             module = importlib.import_module(modname)
         else:
             if spec.loader is None:
@@ -291,7 +292,7 @@ def import_object(
                 logger.debug('[autodoc] => %r', obj)
             except TypeError:
                 # fallback of failure on logging for broken object
-                # refs: https://github.com/sphinx-doc/sphinx/issues/9095
+                # See: https://github.com/sphinx-doc/sphinx/issues/9095
                 logger.debug('[autodoc] => %r', (obj,))
 
             object_name = attrname
@@ -346,7 +347,7 @@ def get_object_members(
     analyzer: ModuleAnalyzer | None = None,
 ) -> dict[str, Attribute]:
     """Get members and attributes of target object."""
-    from sphinx.ext.autodoc import INSTANCEATTR
+    from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
@@ -371,11 +372,11 @@ def get_object_members(
     try:
         subject___slots__ = getslots(subject)
         if subject___slots__:
-            from sphinx.ext.autodoc import SLOTSATTR
+            from sphinx.ext.autodoc._sentinels import SLOTS_ATTR
 
             for name in subject___slots__:
                 members[name] = Attribute(
-                    name=name, directly_defined=True, value=SLOTSATTR
+                    name=name, directly_defined=True, value=SLOTS_ATTR
                 )
     except (TypeError, ValueError):
         pass
@@ -399,7 +400,7 @@ def get_object_members(
             unmangled = unmangle(cls, name)
             if unmangled and unmangled not in members:
                 members[unmangled] = Attribute(
-                    name=unmangled, directly_defined=cls is subject, value=INSTANCEATTR
+                    name=unmangled, directly_defined=cls is subject, value=INSTANCE_ATTR
                 )
 
     if analyzer:
@@ -408,7 +409,7 @@ def get_object_members(
         for ns, name in analyzer.find_attr_docs():
             if namespace == ns and name not in members:
                 members[name] = Attribute(
-                    name=name, directly_defined=True, value=INSTANCEATTR
+                    name=name, directly_defined=True, value=INSTANCE_ATTR
                 )
 
     return members
@@ -418,7 +419,8 @@ def get_class_members(
     subject: Any, objpath: Any, attrgetter: _AttrGetter, inherit_docstrings: bool = True
 ) -> dict[str, ObjectMember]:
     """Get members and attributes of target class."""
-    from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
+    from sphinx.ext.autodoc._documenters import ObjectMember
+    from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
@@ -441,11 +443,11 @@ def get_class_members(
     try:
         subject___slots__ = getslots(subject)
         if subject___slots__:
-            from sphinx.ext.autodoc import SLOTSATTR
+            from sphinx.ext.autodoc._sentinels import SLOTS_ATTR
 
             for name, docstring in subject___slots__.items():
                 members[name] = ObjectMember(
-                    name, SLOTSATTR, class_=subject, docstring=docstring
+                    name, SLOTS_ATTR, class_=subject, docstring=docstring
                 )
     except (TypeError, ValueError):
         pass
@@ -489,7 +491,7 @@ def get_class_members(
                         docstring = None
 
                     members[unmangled] = ObjectMember(
-                        unmangled, INSTANCEATTR, class_=cls, docstring=docstring
+                        unmangled, INSTANCE_ATTR, class_=cls, docstring=docstring
                     )
 
             # append or complete instance attributes (cf. self.attr1) if analyzer knows
@@ -499,7 +501,7 @@ def get_class_members(
                         # otherwise unknown instance attribute
                         members[name] = ObjectMember(
                             name,
-                            INSTANCEATTR,
+                            INSTANCE_ATTR,
                             class_=cls,
                             docstring='\n'.join(docstring),
                         )

@@ -12,7 +12,6 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from sphinx.application import Sphinx
     from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
@@ -102,11 +101,11 @@ class UserTheme(Theme):
 class ThemeFactory:
     """A factory class for LaTeX Themes."""
 
-    def __init__(self, app: Sphinx) -> None:
+    def __init__(self, *, srcdir: Path, config: Config) -> None:
         self.themes: dict[str, Theme] = {}
-        self.theme_paths = [app.srcdir / p for p in app.config.latex_theme_path]
-        self.config = app.config
-        self.load_builtin_themes(app.config)
+        self.theme_paths = [srcdir / p for p in config.latex_theme_path]
+        self.config = config
+        self.load_builtin_themes(config)
 
     def load_builtin_themes(self, config: Config) -> None:
         """Load built-in themes."""

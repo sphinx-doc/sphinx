@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core>=3.7"]
+requires = ["flit_core>=3.12"]
 build-backend = "flit_core.buildapi"
 
 # project metadata
@@ -13,7 +13,10 @@ urls.Documentation = "https://www.sphinx-doc.org/"
 urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
-license.text = "BSD-2-Clause"
+license = "BSD-2-Clause"
+license-files = [
+    "LICENSE.rst",
+]
 requires-python = ">=3.11"
 
 # Classifiers list: https://pypi.org/classifiers/
@@ -24,9 +27,10 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Other Audience",
     "Intended Audience :: Science/Research",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -35,6 +39,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Framework :: Sphinx",
@@ -43,17 +48,24 @@ classifiers = [
     "Framework :: Sphinx :: Theme",
     "Topic :: Documentation",
     "Topic :: Documentation :: Sphinx",
+    "Topic :: Education",
     "Topic :: Internet :: WWW/HTTP :: Site Management",
+    "Topic :: Internet :: WWW/HTTP :: Site Management :: Link Checking",
     "Topic :: Printing",
     "Topic :: Software Development",
     "Topic :: Software Development :: Documentation",
+    "Topic :: Text Editors :: Documentation",
     "Topic :: Text Processing",
     "Topic :: Text Processing :: General",
     "Topic :: Text Processing :: Indexing",
     "Topic :: Text Processing :: Markup",
     "Topic :: Text Processing :: Markup :: HTML",
     "Topic :: Text Processing :: Markup :: LaTeX",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Topic :: Text Processing :: Markup :: reStructuredText",
+    "Topic :: Text Processing :: Markup :: XML",
     "Topic :: Utilities",
+    "Typing :: Typed",
 ]
 dependencies = [
     "sphinxcontrib-applehelp>=1.0.7",
@@ -81,18 +93,20 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.9.6",
-    "mypy==1.15.0",
+    "ruff==0.12.5",
+    "mypy==1.17.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20241128",
+    "types-defusedxml==0.7.0.20250708",
+    "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250107",
-    "types-requests==2.32.0.20241016",  # align with requests
+    "types-Pygments==2.19.0.20250715",
+    "types-requests==2.32.4.20250611",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.393",
-    "pytest>=6.0",
+    "pyright==1.1.400",
+    "pytest>=8.0",
+    "pypi-attestations==0.0.27",
+    "betterproto==2.0.0b6",
 ]
 test = [
     "pytest>=8.0",
@@ -104,6 +118,10 @@ test = [
 ]
 
 [[project.authors]]
+name = "Adam Turner"
+email = "aa-turner@users.noreply.github.com"
+
+[[project.authors]]
 name = "Georg Brandl"
 email = "georg@python.org"
 
@@ -112,6 +130,49 @@ sphinx-build = "sphinx.cmd.build:main"
 sphinx-quickstart = "sphinx.cmd.quickstart:main"
 sphinx-apidoc = "sphinx.ext.apidoc:main"
 sphinx-autogen = "sphinx.ext.autosummary.generate:main"
+
+[dependency-groups]
+docs = [
+    "sphinxcontrib-websupport",
+]
+lint = [
+    "ruff==0.12.5",
+    "sphinx-lint>=0.9",
+]
+package = [
+    "betterproto==2.0.0b6",  # resolution fails without betterproto
+    "build",
+    "pypi-attestations==0.0.27",
+    "twine>=6.1",
+]
+test = [
+    "pytest>=8.0",
+    "pytest-xdist[psutil]>=3.4",
+    "cython>=3.0",  # for Cython compilation
+    "defusedxml>=0.7.1",  # for secure XML/HTML parsing
+    "setuptools>=70.0",  # for Cython compilation
+    "typing_extensions>=4.9",  # for typing_extensions.Unpack
+]
+translations = [
+    "babel>=2.13",
+    "Jinja2>=3.1",
+]
+types = [
+    "mypy==1.17.0",
+    "pyrefly",
+    "pyright==1.1.400",
+    { include-group = "type-stubs" },
+]
+type-stubs = [
+    # align with versions used elsewhere
+    "types-colorama==0.4.15.20240311",
+    "types-defusedxml==0.7.0.20250708",
+    "types-docutils==0.21.0.20250525",
+    "types-Pillow==10.2.0.20240822",
+    "types-Pygments==2.19.0.20250715",
+    "types-requests==2.32.4.20250611",
+    "types-urllib3==1.26.25.14",
+]
 
 [tool.flit.module]
 name = "sphinx"
@@ -178,11 +239,7 @@ strict_optional = false
 [[tool.mypy.overrides]]
 module = [
     "imagesize",
-    "pypi_attestations",
     "pyximport",
-    "sigstore.models",
-    "sigstore.verify",
-    "sigstore.verify.policy",
     "snowballstemmer",
 ]
 ignore_missing_imports = true
@@ -190,102 +247,45 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.conftest",
-    "tests.test_abc",
-    "tests.test_addnodes",
-    "tests.test_application",
-    "tests.test_errors",
-    "tests.test_events",
     "tests.test_highlighting",
     "tests.test_project",
-    "tests.test_roles",
     "tests.test_versioning",
     # tests/test_builders
     "tests.test_builders.test_build",
-    "tests.test_builders.test_build_changes",
-    "tests.test_builders.test_build_dirhtml",
     "tests.test_builders.test_build_html",
     "tests.test_builders.test_build_html_5_output",
     "tests.test_builders.test_build_html_assets",
-    "tests.test_builders.test_build_html_code",
-    "tests.test_builders.test_build_html_download",
-    "tests.test_builders.test_build_html_highlight",
-    "tests.test_builders.test_build_html_image",
     "tests.test_builders.test_build_html_maths",
     "tests.test_builders.test_build_html_numfig",
-    "tests.test_builders.test_build_html_tocdepth",
     "tests.test_builders.test_build_html_toctree",
     "tests.test_builders.test_build_linkcheck",
-    "tests.test_builders.test_build_manpage",
-    "tests.test_builders.test_build_text",
     "tests.test_builders.test_build_warnings",
-    "tests.test_builders.test_incremental_reading",
     # tests/test_directives
     "tests.test_directives.test_directive_code",
-    "tests.test_directives.test_directive_object_description",
-    "tests.test_directives.test_directive_option",
     "tests.test_directives.test_directives_no_typesetting",
-    # tests/test_domains
-    "tests.test_domains.test_domain_py_canonical",
     # tests/test_environment
     "tests.test_environment.test_environment",
-    "tests.test_environment.test_environment_indexentries",
-    "tests.test_environment.test_environment_record_dependencies",
     # tests/test_extensions
-    "tests.test_extensions.test_ext_autodoc_autoattribute",
     "tests.test_extensions.test_ext_autodoc_autoclass",
-    "tests.test_extensions.test_ext_autodoc_autofunction",
-    "tests.test_extensions.test_ext_autodoc_automodule",
-    "tests.test_extensions.test_ext_autodoc_autoproperty",
-    "tests.test_extensions.test_ext_autodoc_configs",
-    "tests.test_extensions.test_ext_autodoc_preserve_defaults",
-    "tests.test_extensions.test_ext_autodoc_private_members",
-    "tests.test_extensions.test_ext_autosectionlabel",
     "tests.test_extensions.test_ext_autosummary_imports",
-    "tests.test_extensions.test_ext_coverage",
-    "tests.test_extensions.test_ext_duration",
-    "tests.test_extensions.test_ext_extlinks",
-    "tests.test_extensions.test_ext_graphviz",
-    "tests.test_extensions.test_ext_ifconfig",
-    "tests.test_extensions.test_ext_imgconverter",
-    "tests.test_extensions.test_ext_imgmockconverter",
     "tests.test_extensions.test_ext_intersphinx_cache",
     "tests.test_extensions.test_ext_math",
     "tests.test_extensions.test_ext_napoleon",
     "tests.test_extensions.test_ext_todo",
     "tests.test_extensions.test_ext_viewcode",
-    "tests.test_extensions.test_extension",
     # tests/test_intl
     "tests.test_intl.test_catalogs",
     "tests.test_intl.test_locale",
     # tests/test_markup
     "tests.test_markup.test_markup",
-    "tests.test_markup.test_metadata",
     "tests.test_markup.test_parser",
-    "tests.test_markup.test_smartquotes",
-    # tests/test_pycode
-    "tests.test_pycode.test_pycode_parser",
     # tests/test_theming
-    "tests.test_theming.test_html_theme",
     "tests.test_theming.test_templating",
     "tests.test_theming.test_theming",
     # tests/test_transforms
-    "tests.test_transforms.test_transforms_move_module_targets",
-    "tests.test_transforms.test_transforms_post_transforms_code",
     "tests.test_transforms.test_transforms_post_transforms_images",
-    "tests.test_transforms.test_transforms_reorder_nodes",
     # tests/test_util
-    "tests.test_util.test_util",
-    "tests.test_util.test_util_display",
-    "tests.test_util.test_util_docstrings",
     "tests.test_util.test_util_docutils",
-    "tests.test_util.test_util_docutils_sphinx_directive",
-    "tests.test_util.test_util_images",
-    "tests.test_util.test_util_importer",
-    "tests.test_util.test_util_inventory",
-    "tests.test_util.test_util_lines",
-    "tests.test_util.test_util_matching",
-    "tests.test_util.test_util_uri",
     # tests/test_writers
     "tests.test_writers.test_docutilsconf",
 ]
@@ -298,11 +298,9 @@ module = [
     "tests.test_search",
     # tests/test_builders
     "tests.test_builders.test_build_latex",
-    "tests.test_builders.test_build_texinfo",
     # tests/test_config
     "tests.test_config.test_config",
     # tests/test_directives
-    "tests.test_directives.test_directive_only",
     "tests.test_directives.test_directive_other",
     "tests.test_directives.test_directive_patch",
     # tests/test_domains
@@ -329,19 +327,13 @@ module = [
     "tests.test_extensions.test_ext_napoleon_docstring",
     # tests/test_intl
     "tests.test_intl.test_intl",
-    # tests/test_pycode
-    "tests.test_pycode.test_pycode",
-    "tests.test_pycode.test_pycode_ast",
     # tests/test_transforms
     "tests.test_transforms.test_transforms_post_transforms",
     # tests/test_util
-    "tests.test_util.test_util_fileutil",
     "tests.test_util.test_util_i18n",
     "tests.test_util.test_util_inspect",
     "tests.test_util.test_util_logging",
     "tests.test_util.test_util_nodes",
-    "tests.test_util.test_util_rst",
-    "tests.test_util.test_util_template",
     "tests.test_util.test_util_typing",
 ]
 check_untyped_defs = false
@@ -457,3 +449,6 @@ reportUnusedFunction = "none"
 reportUnusedImport = "none"
 reportUnusedVariable = "none"
 reportWildcardImportFromLibrary = "none"
+
+[tool.uv]
+default-groups = "all"

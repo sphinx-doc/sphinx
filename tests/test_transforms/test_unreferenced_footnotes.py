@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from sphinx._cli.util.errors import strip_escape_sequences
+from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from pathlib import Path

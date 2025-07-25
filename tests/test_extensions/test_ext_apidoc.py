@@ -13,6 +13,8 @@ from sphinx.ext.apidoc._cli import main as apidoc_main
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from sphinx.testing.util import SphinxTestApp
+
 _apidoc = namedtuple('_apidoc', 'coderoot,outdir')  # NoQA: PYI024
 
 
@@ -437,7 +439,8 @@ def extract_toc(path):
 )
 def test_subpackage_in_toc(apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them
-    are not skipped (issue #4520)
+    are not skipped
+    See: https://github.com/sphinx-doc/sphinx/issues/4520
     """
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -771,3 +774,27 @@ def test_remove_old_files(tmp_path: Path):
     apidoc_main(['--remove-old', '-o', str(gen_dir), str(module_dir)])
     assert set(gen_dir.iterdir()) == {gen_dir / 'modules.rst', gen_dir / 'example.rst'}
     assert (gen_dir / 'example.rst').stat().st_mtime_ns == example_mtime
+
+
+@pytest.mark.sphinx(testroot='ext-apidoc')
+def test_sphinx_extension(app: SphinxTestApp) -> None:
+    """Test running apidoc as an extension."""
+    app.build()
+    assert app.warning.getvalue() == ''
+
+    toc_file = app.srcdir / 'generated' / 'modules.rst'
+    pkg_file = app.srcdir / 'generated' / 'my_package.rst'
+    assert set((app.srcdir / 'generated').iterdir()) == {toc_file, pkg_file}
+    modules_content = toc_file.read_text(encoding='utf8')
+    assert modules_content == (
+        'src\n===\n\n.. toctree::\n   :maxdepth: 3\n\n   my_package\n'
+    )
+    assert 'show-inheritance' not in pkg_file.read_text(encoding='utf8')
+    assert (app.outdir / 'generated' / 'my_package.html').is_file()
+
+    # test a re-build
+    app.build()
+    assert app.warning.getvalue() == ''
+
+    # TODO check nothing got re-built
+    # TODO test that old files are removed

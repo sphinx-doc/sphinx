@@ -44,8 +44,9 @@ References
 .. [Ref1] Reference target.
 .. [Ref_1] Reference target 2.
 
-Test for issue #1157
-====================
+Test for combination of 'globaltoc.html' and hidden toctree
+===========================================================
+.. https://github.com/sphinx-doc/sphinx/issues/1157
 
 This used to crash:
 
@@ -54,8 +55,9 @@ This used to crash:
 .. toctree::
    :hidden:
 
-Test for issue #1700
-====================
+Test for ability to name a toc tree
+===================================
+.. https://github.com/sphinx-doc/sphinx/pull/1700
 
 :ref:`mastertoc`
 

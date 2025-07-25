@@ -8,10 +8,14 @@ from gettext import NullTranslations, translation
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from sphinx import package_dir
+
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterable
     from typing import Any
+
+_LOCALE_DIR = Path(package_dir, 'locale')
 
 
 class _TranslationProxy:
@@ -138,9 +142,6 @@ def init(
     # guarantee translators[(namespace, catalog)] exists
     translators[namespace, catalog] = translator
     return translator, has_translation
-
-
-_LOCALE_DIR = Path(__file__).resolve().parent
 
 
 def init_console(

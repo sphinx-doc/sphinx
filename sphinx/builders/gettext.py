@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import codecs
 import operator
 import os
 import os.path
@@ -165,7 +164,7 @@ class I18nBuilder(Builder):
     def init(self) -> None:
         super().init()
         self.env.set_versioning_method(self.versioning_method, self.config.gettext_uuid)
-        self.tags = self.app.tags = I18nTags()
+        self.tags = self._app.tags = I18nTags()
         self.catalogs: defaultdict[str, Catalog] = defaultdict(Catalog)
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
@@ -212,7 +211,7 @@ def should_write(filepath: Path, new_content: str) -> bool:
     if not filepath.exists():
         return True
     try:
-        with codecs.open(str(filepath), encoding='utf-8') as oldpot:
+        with open(filepath, encoding='utf-8') as oldpot:
             old_content = oldpot.read()
         old_header_index = old_content.index('"POT-Creation-Date:')
         new_header_index = new_content.index('"POT-Creation-Date:')
@@ -251,7 +250,7 @@ class MessageCatalogBuilder(I18nBuilder):
     def _collect_templates(self) -> set[str]:
         template_files = set()
         for template_path in self.config.templates_path:
-            tmpl_abs_path = self.app.srcdir / template_path
+            tmpl_abs_path = self.srcdir / template_path
             for dirpath, _dirs, files in walk(tmpl_abs_path):
                 for fn in files:
                     if fn.endswith('.html'):
@@ -268,10 +267,14 @@ class MessageCatalogBuilder(I18nBuilder):
         extract_translations = self.templates.environment.extract_translations
 
         for template in status_iterator(
-            files, __('reading templates... '), 'purple', len(files), self.app.verbosity
+            files,
+            __('reading templates... '),
+            'purple',
+            len(files),
+            self.config.verbosity,
         ):
             try:
-                with codecs.open(template, encoding='utf-8') as f:
+                with open(template, encoding='utf-8') as f:
                     context = f.read()
                 for line, _meth, msg in extract_translations(context):
                     origin = MsgOrigin(source=template, line=line)
@@ -307,7 +310,7 @@ class MessageCatalogBuilder(I18nBuilder):
             __('writing message catalogs... '),
             'darkgreen',
             len(self.catalogs),
-            self.app.verbosity,
+            self.config.verbosity,
             operator.itemgetter(0),
         ):
             # noop if config.gettext_compact is set
@@ -315,14 +318,14 @@ class MessageCatalogBuilder(I18nBuilder):
 
             context['messages'] = list(catalog)
             template_path = [
-                self.app.srcdir / rel_path for rel_path in self.config.templates_path
+                self.srcdir / rel_path for rel_path in self.config.templates_path
             ]
             renderer = GettextRenderer(template_path, outdir=self.outdir)
             content = renderer.render('message.pot.jinja', context)
 
             pofn = self.outdir / f'{textdomain}.pot'
             if should_write(pofn, content):
-                with codecs.open(str(pofn), 'w', encoding='utf-8') as pofile:
+                with open(pofn, 'w', encoding='utf-8') as pofile:
                     pofile.write(content)
 
 

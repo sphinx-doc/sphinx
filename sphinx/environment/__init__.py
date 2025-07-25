@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
+from sphinx.deprecation import _deprecation_warning
 from sphinx.domains._domains_container import _DomainsContainer
 from sphinx.environment.adapters import toctree as toctree_adapters
 from sphinx.errors import (
@@ -23,7 +24,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
-from sphinx.util._pathlib import _StrPath, _StrPathProperty
+from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
@@ -32,7 +33,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import _last_modified_time, _relative_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Mapping
+    from collections.abc import Callable, Iterable, Iterator, Mapping, Set
     from typing import Any, Final, Literal
 
     from docutils import nodes
@@ -48,6 +49,9 @@ if TYPE_CHECKING:
     from sphinx.events import EventManager
     from sphinx.extension import Extension
     from sphinx.project import Project
+    from sphinx.registry import SphinxComponentRegistry
+    from sphinx.util._pathlib import _StrPath
+    from sphinx.util.tags import Tags
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +75,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 65
+ENV_VERSION = 66
 
 # config status
 CONFIG_UNSET = -1
@@ -104,8 +108,11 @@ class BuildEnvironment:
     srcdir = _StrPathProperty()
     doctreedir = _StrPathProperty()
 
+    # builder is created after the environment.
+    _builder_cls: type[Builder]
+
     def __init__(self, app: Sphinx) -> None:
-        self.app: Sphinx = app
+        self._app: Sphinx = app
         self.doctreedir = app.doctreedir
         self.srcdir = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
@@ -131,7 +138,7 @@ class BuildEnvironment:
         self.all_docs: dict[str, int] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
-        self.dependencies: dict[str, set[_StrPath]] = {}
+        self.dependencies: dict[str, set[_StrPath]] = defaultdict(set)
         # docname -> set of included file
         # docnames included from other documents
         self.included: dict[str, set[str]] = defaultdict(set)
@@ -234,8 +241,8 @@ class BuildEnvironment:
     def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        # clear unpickable attributes
-        __dict__.update(app=None, domains=None, events=None)
+        # clear unpickleable attributes
+        __dict__.update(_app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
@@ -255,7 +262,7 @@ class BuildEnvironment:
         if self.project:
             app.project.restore(self.project)
 
-        self.app = app
+        self._app = app
         self.doctreedir = app.doctreedir
         self.events = app.events
         self.srcdir = app.srcdir
@@ -275,12 +282,37 @@ class BuildEnvironment:
         # The old config is self.config, restored from the pickled environment.
         # The new config is app.config, always recreated from ``conf.py``
         self.config_status, self.config_status_extra = self._config_status(
-            old_config=self.config, new_config=app.config, verbosity=app.verbosity
+            old_config=self.config,
+            new_config=app.config,
+            verbosity=app.config.verbosity,
         )
         self.config = app.config
 
         # initialize settings
         self._update_settings(app.config)
+
+    @property
+    def app(self) -> Sphinx:
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        return self._app
+
+    @app.setter
+    def app(self, app: Sphinx) -> None:
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        self._app = app
+
+    @app.deleter
+    def app(self) -> None:
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        del self._app
+
+    @property
+    def _registry(self) -> SphinxComponentRegistry:
+        return self._app.registry
+
+    @property
+    def _tags(self) -> Tags:
+        return self._app.tags
 
     @staticmethod
     def _config_status(
@@ -488,7 +520,7 @@ class BuildEnvironment:
     ) -> tuple[set[str], set[str], set[str]]:
         """Return (added, changed, removed) sets."""
         # clear all files no longer present
-        removed = set(self.all_docs) - self.found_docs
+        removed = self.all_docs.keys() - self.found_docs
 
         added: set[str] = set()
         changed: set[str] = set()
@@ -496,65 +528,25 @@ class BuildEnvironment:
         if config_changed:
             # config values affect e.g. substitutions
             added = self.found_docs
-        else:
-            for docname in self.found_docs:
-                if docname not in self.all_docs:
-                    logger.debug('[build target] added %r', docname)
-                    added.add(docname)
-                    continue
-                # if the doctree file is not there, rebuild
-                filename = self.doctreedir / f'{docname}.doctree'
-                if not filename.is_file():
-                    logger.debug('[build target] changed %r', docname)
-                    changed.add(docname)
-                    continue
-                # check the "reread always" list
-                if docname in self.reread_always:
-                    logger.debug('[build target] changed %r', docname)
-                    changed.add(docname)
-                    continue
-                # check the mtime of the document
-                mtime = self.all_docs[docname]
-                newmtime = _last_modified_time(self.doc2path(docname))
-                if newmtime > mtime:
-                    logger.debug(
-                        '[build target] outdated %r: %s -> %s',
-                        docname,
-                        _format_rfc3339_microseconds(mtime),
-                        _format_rfc3339_microseconds(newmtime),
-                    )
-                    changed.add(docname)
-                    continue
-                # finally, check the mtime of dependencies
-                if docname not in self.dependencies:
-                    continue
-                for dep in self.dependencies[docname]:
-                    try:
-                        # this will do the right thing when dep is absolute too
-                        dep_path = self.srcdir / dep
-                        if not dep_path.is_file():
-                            logger.debug(
-                                '[build target] changed %r missing dependency %r',
-                                docname,
-                                dep_path,
-                            )
-                            changed.add(docname)
-                            break
-                        depmtime = _last_modified_time(dep_path)
-                        if depmtime > mtime:
-                            logger.debug(
-                                '[build target] outdated %r from dependency %r: %s -> %s',
-                                docname,
-                                dep_path,
-                                _format_rfc3339_microseconds(mtime),
-                                _format_rfc3339_microseconds(depmtime),
-                            )
-                            changed.add(docname)
-                            break
-                    except OSError:
-                        # give it another chance
-                        changed.add(docname)
-                        break
+            return added, changed, removed
+
+        for docname in self.found_docs:
+            if docname not in self.all_docs:
+                logger.debug('[build target] added %r', docname)
+                added.add(docname)
+                continue
+
+            # if the document has changed, rebuild
+            if _has_doc_changed(
+                docname,
+                filename=self.doc2path(docname),
+                reread_always=self.reread_always,
+                doctreedir=self.doctreedir,
+                all_docs=self.all_docs,
+                dependencies=self.dependencies,
+            ):
+                changed.add(docname)
+                continue
 
         return added, changed, removed
 
@@ -618,7 +610,9 @@ class BuildEnvironment:
         """
         if docname is None:
             docname = self.docname
-        self.dependencies.setdefault(docname, set()).add(_StrPath(filename))
+        # this will do the right thing when *filename* is absolute too
+        filename = self.srcdir / filename
+        self.dependencies.setdefault(docname, set()).add(filename)
 
     def note_included(self, filename: str | os.PathLike[str]) -> None:
         """Add *filename* as a included from other document.
@@ -629,7 +623,7 @@ class BuildEnvironment:
         """
         doc = self.path2doc(filename)
         if doc:
-            self.included[self.docname].add(doc)
+            self.included.setdefault(self.docname, set()).add(doc)
 
     def note_reread(self) -> None:
         """Add the current document to the list of documents that will
@@ -672,6 +666,8 @@ class BuildEnvironment:
         self,
         docname: str,
         builder: Builder,
+        *,
+        tags: Tags,
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False,
@@ -691,6 +687,7 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
+        tags = builder.tags
         for toctreenode in doctree.findall(addnodes.toctree):
             result = toctree_adapters._resolve_toctree(
                 self,
@@ -699,7 +696,7 @@ class BuildEnvironment:
                 toctreenode,
                 prune=prune_toctrees,
                 includehidden=includehidden,
-                tags=builder.tags,
+                tags=tags,
             )
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
@@ -740,7 +737,7 @@ class BuildEnvironment:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
-            tags=builder.tags,
+            tags=self._tags,
         )
 
     def resolve_references(
@@ -754,12 +751,12 @@ class BuildEnvironment:
         new = deepcopy(backup)
         new.docname = docname
         try:
-            # set env.docname during applying post-transforms
+            # set env.current_document.docname during applying post-transforms
             self.current_document = new
 
             transformer = SphinxTransformer(doctree)
             transformer.set_environment(self)
-            transformer.add_transforms(self.app.registry.get_post_transforms())
+            transformer.add_transforms(self._registry.get_post_transforms())
             transformer.apply_transforms()
         finally:
             self.current_document = backup
@@ -836,6 +833,71 @@ def _differing_config_keys(old: Config, new: Config) -> frozenset[str]:
         if stable_str(old_vals[key]) != stable_str(new_vals[key])
     }
     return frozenset(not_in_both | different_values)
+
+
+def _has_doc_changed(
+    docname: str,
+    *,
+    filename: Path,
+    reread_always: Set[str],
+    doctreedir: Path,
+    all_docs: Mapping[str, int],
+    dependencies: Mapping[str, Set[Path]],
+) -> bool:
+    # check the "reread always" list
+    if docname in reread_always:
+        logger.debug('[build target] changed %r: re-read forced', docname)
+        return True
+
+    # if the doctree file is not there, rebuild
+    doctree_path = doctreedir / f'{docname}.doctree'
+    if not doctree_path.is_file():
+        logger.debug('[build target] changed %r: doctree file does not exist', docname)
+        return True
+
+    # check the mtime of the document
+    mtime = all_docs[docname]
+    new_mtime = _last_modified_time(filename)
+    if new_mtime > mtime:
+        logger.debug(
+            '[build target] changed: %r is outdated (%s -> %s)',
+            docname,
+            _format_rfc3339_microseconds(mtime),
+            _format_rfc3339_microseconds(new_mtime),
+        )
+        return True
+
+    # finally, check the mtime of dependencies
+    if docname not in dependencies:
+        return False
+    for dep_path in dependencies[docname]:
+        try:
+            dep_path_is_file = dep_path.is_file()
+        except OSError:
+            return True  # give it another chance
+        if not dep_path_is_file:
+            logger.debug(
+                '[build target] changed: %r is missing dependency %r',
+                docname,
+                dep_path,
+            )
+            return True
+
+        try:
+            dep_mtime = _last_modified_time(dep_path)
+        except OSError:
+            return True  # give it another chance
+        if dep_mtime > mtime:
+            logger.debug(
+                '[build target] changed: %r is outdated due to dependency %r (%s -> %s)',
+                docname,
+                dep_path,
+                _format_rfc3339_microseconds(mtime),
+                _format_rfc3339_microseconds(dep_mtime),
+            )
+            return True
+
+    return False
 
 
 def _traverse_toctree(
@@ -1059,7 +1121,7 @@ class _CurrentDocument:
 
     def __contains__(self, item: str) -> bool:
         if item in {'c:parent_symbol', 'cpp:parent_symbol'}:
-            return getattr(self, item) is not None
+            return getattr(self, self.__attr_map[item]) is not None
         return item in self.__attr_map or item in self._extension_data
 
     def __iter__(self) -> Iterator[str]:

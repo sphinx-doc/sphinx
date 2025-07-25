@@ -38,6 +38,10 @@ class _DuplicateSymbolError(Exception):
         return 'Internal C++ duplicate symbol error:\n%s' % self.symbol.dump(0)
 
 
+class _QualifiedSymbolIsTemplateParam(Exception):
+    pass
+
+
 class SymbolLookupResult:
     __slots__ = (
         'symbols',
@@ -419,53 +423,19 @@ class Symbol:
                 if not _is_specialization(template_params, template_args):
                     template_args = None
 
-        def matches(s: Symbol) -> bool:
-            if s.identOrOp != ident_or_op:
-                return False
-            if (s.templateParams is None) != (template_params is None):
-                if template_params is not None:
-                    # we query with params, they must match params
-                    return False
-                if not template_shorthand:
-                    # we don't query with params, and we do care about them
-                    return False
-            if template_params:
-                # TODO: do better comparison
-                if str(s.templateParams) != str(template_params):
-                    return False
-            if (s.templateArgs is None) != (template_args is None):
-                return False
-            if s.templateArgs:
-                # TODO: do better comparison
-                if str(s.templateArgs) != str(template_args):
-                    return False
-            return True
-
-        def candidates() -> Iterator[Symbol]:
-            s = self
-            if Symbol.debug_lookup:
-                Symbol.debug_print('searching in self:')
-                logger.debug(s.to_string(Symbol.debug_indent + 1), end='')
-            while True:
-                if match_self:
-                    yield s
-                if recurse_in_anon:
-                    yield from s.children_recurse_anon
-                else:
-                    yield from s._children
-
-                if s.siblingAbove is None:
-                    break
-                s = s.siblingAbove
-                if Symbol.debug_lookup:
-                    Symbol.debug_print('searching in sibling:')
-                    logger.debug(s.to_string(Symbol.debug_indent + 1), end='')
-
-        for s in candidates():
+        for s in self._candidates(
+            match_self=match_self, recurse_in_anon=recurse_in_anon
+        ):
             if Symbol.debug_lookup:
                 Symbol.debug_print('candidate:')
                 logger.debug(s.to_string(Symbol.debug_indent + 1), end='')
-            if matches(s):
+            if self._matches(
+                s,
+                ident_or_op=ident_or_op,
+                template_params=template_params,
+                template_args=template_args,
+                template_shorthand=template_shorthand,
+            ):
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
                     Symbol.debug_print('matches')
@@ -475,6 +445,59 @@ class Symbol:
                     Symbol.debug_indent += 2
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
+
+    @staticmethod
+    def _matches(
+        s: Symbol,
+        /,
+        *,
+        ident_or_op: ASTIdentifier | ASTOperator,
+        template_params: ASTTemplateParams | ASTTemplateIntroduction,
+        template_args: ASTTemplateArgs,
+        template_shorthand: bool,
+    ) -> bool:
+        if s.identOrOp != ident_or_op:
+            return False
+        if (s.templateParams is None) != (template_params is None):
+            if template_params is not None:
+                # we query with params, they must match params
+                return False
+            if not template_shorthand:
+                # we don't query with params, and we do care about them
+                return False
+        if template_params:
+            # TODO: do better comparison
+            if str(s.templateParams) != str(template_params):
+                return False
+        if (s.templateArgs is None) != (template_args is None):
+            return False
+        if s.templateArgs:
+            # TODO: do better comparison
+            if str(s.templateArgs) != str(template_args):
+                return False
+        return True
+
+    def _candidates(
+        self, *, match_self: bool, recurse_in_anon: bool
+    ) -> Iterator[Symbol]:
+        s = self
+        if Symbol.debug_lookup:
+            Symbol.debug_print('searching in self:')
+            logger.debug(s.to_string(Symbol.debug_indent + 1), end='')
+        while True:
+            if match_self:
+                yield s
+            if recurse_in_anon:
+                yield from s.children_recurse_anon
+            else:
+                yield from s._children
+
+            if s.siblingAbove is None:
+                break
+            s = s.siblingAbove
+            if Symbol.debug_lookup:
+                Symbol.debug_print('searching in sibling:')
+                logger.debug(s.to_string(Symbol.debug_indent + 1), end='')
 
     def _symbol_lookup(
         self,
@@ -604,7 +627,8 @@ class Symbol:
                     return None
             # We have now matched part of a nested name, and need to match more
             # so even if we should match_self before, we definitely shouldn't
-            # even more. (see also issue #2666)
+            # even more.
+            # See: https://github.com/sphinx-doc/sphinx/issues/2666
             match_self = False
             parent_symbol = symbol
 
@@ -660,34 +684,10 @@ class Symbol:
             Symbol.debug_print('decl:     ', declaration)
             Symbol.debug_print(f'location: {docname}:{line}')
 
-        def on_missing_qualified_symbol(
-            parent_symbol: Symbol,
-            ident_or_op: ASTIdentifier | ASTOperator,
-            template_params: Any,
-            template_args: ASTTemplateArgs,
-        ) -> Symbol | None:
-            if Symbol.debug_lookup:
-                Symbol.debug_indent += 1
-                Symbol.debug_print('_add_symbols, on_missing_qualified_symbol:')
-                Symbol.debug_indent += 1
-                Symbol.debug_print('template_params:', template_params)
-                Symbol.debug_print('ident_or_op:    ', ident_or_op)
-                Symbol.debug_print('template_args:  ', template_args)
-                Symbol.debug_indent -= 2
-            return Symbol(
-                parent=parent_symbol,
-                identOrOp=ident_or_op,
-                templateParams=template_params,
-                templateArgs=template_args,
-                declaration=None,
-                docname=None,
-                line=None,
-            )
-
         lookup_result = self._symbol_lookup(
             nested_name,
             template_decls,
-            on_missing_qualified_symbol,
+            _on_missing_qualified_symbol_fresh,
             strict_template_param_arg_lists=True,
             ancestor_lookup_type=None,
             template_shorthand=False,
@@ -758,45 +758,18 @@ class Symbol:
         # First check if one of those with a declaration matches.
         # If it's a function, we need to compare IDs,
         # otherwise there should be only one symbol with a declaration.
-        def make_cand_symbol() -> Symbol:
-            if Symbol.debug_lookup:
-                Symbol.debug_print('begin: creating candidate symbol')
-            symbol = Symbol(
-                parent=lookup_result.parent_symbol,
-                identOrOp=lookup_result.ident_or_op,
-                templateParams=lookup_result.template_params,
-                templateArgs=lookup_result.template_args,
-                declaration=declaration,
-                docname=docname,
-                line=line,
-            )
-            if Symbol.debug_lookup:
-                Symbol.debug_print('end:   creating candidate symbol')
-            return symbol
-
         if len(with_decl) == 0:
             cand_symbol = None
         else:
-            cand_symbol = make_cand_symbol()
-
-            def handle_duplicate_declaration(
-                symbol: Symbol, cand_symbol: Symbol
-            ) -> None:
-                if Symbol.debug_lookup:
-                    Symbol.debug_indent += 1
-                    Symbol.debug_print('redeclaration')
-                    Symbol.debug_indent -= 1
-                    Symbol.debug_indent -= 2
-                # Redeclaration of the same symbol.
-                # Let the new one be there, but raise an error to the client
-                # so it can use the real symbol as subscope.
-                # This will probably result in a duplicate id warning.
-                cand_symbol.isRedeclaration = True
-                raise _DuplicateSymbolError(symbol, declaration)
+            cand_symbol = self._make_cand_symbol(
+                lookup_result, declaration, docname, line
+            )
 
             if declaration.objectType != 'function':
                 assert len(with_decl) <= 1
-                handle_duplicate_declaration(with_decl[0], cand_symbol)
+                self._handle_duplicate_declaration(
+                    with_decl[0], cand_symbol, declaration
+                )
                 # (not reachable)
 
             # a function, so compare IDs
@@ -807,13 +780,13 @@ class Symbol:
                 # but all existing must be functions as well,
                 # otherwise we declare it to be a duplicate
                 if symbol.declaration.objectType != 'function':
-                    handle_duplicate_declaration(symbol, cand_symbol)
+                    self._handle_duplicate_declaration(symbol, cand_symbol, declaration)
                     # (not reachable)
                 old_id = symbol.declaration.get_newest_id()
                 if Symbol.debug_lookup:
                     Symbol.debug_print('old_id: ', old_id)
                 if cand_id == old_id:
-                    handle_duplicate_declaration(symbol, cand_symbol)
+                    self._handle_duplicate_declaration(symbol, cand_symbol, declaration)
                     # (not reachable)
             # no candidate symbol found with matching ID
         # if there is an empty symbol, fill that one
@@ -823,12 +796,12 @@ class Symbol:
                 if cand_symbol is not None:
                     Symbol.debug_print('result is already created cand_symbol')
                 else:
-                    Symbol.debug_print('result is make_cand_symbol()')
+                    Symbol.debug_print('result is self._make_cand_symbol()')
                 Symbol.debug_indent -= 2
             if cand_symbol is not None:
                 return cand_symbol
             else:
-                return make_cand_symbol()
+                return self._make_cand_symbol(lookup_result, declaration, docname, line)
         else:
             if Symbol.debug_lookup:
                 Symbol.debug_print(
@@ -850,6 +823,44 @@ class Symbol:
             symbol._fill_empty(declaration, docname, line)
             return symbol
 
+    @staticmethod
+    def _make_cand_symbol(
+        lookup_result: SymbolLookupResult,
+        declaration: ASTDeclaration | None,
+        docname: str | None,
+        line: int | None,
+    ) -> Symbol:
+        if Symbol.debug_lookup:
+            Symbol.debug_print('begin: creating candidate symbol')
+        symbol = Symbol(
+            parent=lookup_result.parent_symbol,
+            identOrOp=lookup_result.ident_or_op,
+            templateParams=lookup_result.template_params,
+            templateArgs=lookup_result.template_args,
+            declaration=declaration,
+            docname=docname,
+            line=line,
+        )
+        if Symbol.debug_lookup:
+            Symbol.debug_print('end:   creating candidate symbol')
+        return symbol
+
+    @staticmethod
+    def _handle_duplicate_declaration(
+        symbol: Symbol, cand_symbol: Symbol, declaration: ASTDeclaration
+    ) -> None:
+        if Symbol.debug_lookup:
+            Symbol.debug_indent += 1
+            Symbol.debug_print('redeclaration')
+            Symbol.debug_indent -= 1
+            Symbol.debug_indent -= 2
+        # Redeclaration of the same symbol.
+        # Let the new one be there, but raise an error to the client
+        # so it can use the real symbol as subscope.
+        # This will probably result in a duplicate id warning.
+        cand_symbol.isRedeclaration = True
+        raise _DuplicateSymbolError(symbol, declaration)
+
     def merge_with(
         self, other: Symbol, docnames: list[str], env: BuildEnvironment
     ) -> None:
@@ -857,12 +868,6 @@ class Symbol:
             Symbol.debug_indent += 1
             Symbol.debug_print('merge_with:')
         assert other is not None
-
-        def unconditional_add(self: Symbol, other_child: Symbol) -> None:
-            # TODO: hmm, should we prune by docnames?
-            self._children.append(other_child)
-            other_child.parent = self
-            other_child._assert_invariants()
 
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -873,7 +878,7 @@ class Symbol:
                 )
                 Symbol.debug_indent += 1
             if other_child.isRedeclaration:
-                unconditional_add(self, other_child)
+                self._unconditional_add(other_child)
                 if Symbol.debug_lookup:
                     Symbol.debug_print('is_redeclaration')
                     Symbol.debug_indent -= 1
@@ -897,7 +902,7 @@ class Symbol:
                 Symbol.debug_print('non-duplicate candidate symbols:', len(symbols))
 
             if len(symbols) == 0:
-                unconditional_add(self, other_child)
+                self._unconditional_add(other_child)
                 if Symbol.debug_lookup:
                     Symbol.debug_indent -= 1
                 continue
@@ -928,7 +933,7 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 1
             if our_child is None:
-                unconditional_add(self, other_child)
+                self._unconditional_add(other_child)
                 continue
             if other_child.declaration and other_child.docname in docnames:
                 if not our_child.declaration:
@@ -976,6 +981,12 @@ class Symbol:
             our_child.merge_with(other_child, docnames, env)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
+
+    def _unconditional_add(self, other_child: Symbol) -> None:
+        # TODO: hmm, should we prune by docnames?
+        self._children.append(other_child)
+        other_child.parent = self
+        other_child._assert_invariants()
 
     def add_name(
         self,
@@ -1124,29 +1135,11 @@ class Symbol:
             Symbol.debug_print('recurseInAnon:    ', recurseInAnon)
             Symbol.debug_print('searchInSiblings: ', searchInSiblings)
 
-        class QualifiedSymbolIsTemplateParam(Exception):
-            pass
-
-        def on_missing_qualified_symbol(
-            parent_symbol: Symbol,
-            ident_or_op: ASTIdentifier | ASTOperator,
-            template_params: Any,
-            template_args: ASTTemplateArgs,
-        ) -> Symbol | None:
-            # TODO: Maybe search without template args?
-            #       Though, the correct_primary_template_args does
-            #       that for primary templates.
-            #       Is there another case where it would be good?
-            if parent_symbol.declaration is not None:
-                if parent_symbol.declaration.objectType == 'templateParam':
-                    raise QualifiedSymbolIsTemplateParam
-            return None
-
         try:
             lookup_result = self._symbol_lookup(
                 nestedName,
                 templateDecls,
-                on_missing_qualified_symbol,
+                _on_missing_qualified_symbol_raise,
                 strict_template_param_arg_lists=False,
                 ancestor_lookup_type=typ,
                 template_shorthand=templateShorthand,
@@ -1155,7 +1148,7 @@ class Symbol:
                 correct_primary_template_args=False,
                 search_in_siblings=searchInSiblings,
             )
-        except QualifiedSymbolIsTemplateParam:
+        except _QualifiedSymbolIsTemplateParam:
             return None, 'templateParamInQualified'
 
         if lookup_result is None:
@@ -1209,18 +1202,10 @@ class Symbol:
         else:
             template_decls = []
 
-        def on_missing_qualified_symbol(
-            parent_symbol: Symbol,
-            ident_or_op: ASTIdentifier | ASTOperator,
-            template_params: Any,
-            template_args: ASTTemplateArgs,
-        ) -> Symbol | None:
-            return None
-
         lookup_result = self._symbol_lookup(
             nested_name,
             template_decls,
-            on_missing_qualified_symbol,
+            _on_missing_qualified_symbol_none,
             strict_template_param_arg_lists=False,
             ancestor_lookup_type=typ,
             template_shorthand=templateShorthand,
@@ -1295,3 +1280,53 @@ class Symbol:
             self.to_string(indent),
             *(c.dump(indent + 1) for c in self._children),
         ])
+
+
+def _on_missing_qualified_symbol_fresh(
+    parent_symbol: Symbol,
+    ident_or_op: ASTIdentifier | ASTOperator,
+    template_params: Any,
+    template_args: ASTTemplateArgs,
+) -> Symbol | None:
+    if Symbol.debug_lookup:
+        Symbol.debug_indent += 1
+        Symbol.debug_print('_add_symbols, on_missing_qualified_symbol:')
+        Symbol.debug_indent += 1
+        Symbol.debug_print('template_params:', template_params)
+        Symbol.debug_print('ident_or_op:    ', ident_or_op)
+        Symbol.debug_print('template_args:  ', template_args)
+        Symbol.debug_indent -= 2
+    return Symbol(
+        parent=parent_symbol,
+        identOrOp=ident_or_op,
+        templateParams=template_params,
+        templateArgs=template_args,
+        declaration=None,
+        docname=None,
+        line=None,
+    )
+
+
+def _on_missing_qualified_symbol_raise(
+    parent_symbol: Symbol,
+    ident_or_op: ASTIdentifier | ASTOperator,
+    template_params: Any,
+    template_args: ASTTemplateArgs,
+) -> Symbol | None:
+    # TODO: Maybe search without template args?
+    #       Though, the correct_primary_template_args does
+    #       that for primary templates.
+    #       Is there another case where it would be good?
+    if parent_symbol.declaration is not None:
+        if parent_symbol.declaration.objectType == 'templateParam':
+            raise _QualifiedSymbolIsTemplateParam
+    return None
+
+
+def _on_missing_qualified_symbol_none(
+    parent_symbol: Symbol,
+    ident_or_op: ASTIdentifier | ASTOperator,
+    template_params: Any,
+    template_args: ASTTemplateArgs,
+) -> Symbol | None:
+    return None

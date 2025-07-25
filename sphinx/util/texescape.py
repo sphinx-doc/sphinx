@@ -36,7 +36,9 @@ tex_replacements = [
 ]
 
 # A map to avoid TeX ligatures or character replacements in PDF output
-# xelatex/lualatex/uplatex are handled differently (#5790, #6888)
+# xelatex/lualatex/uplatex are handled differently
+# https://github.com/sphinx-doc/sphinx/pull/5790
+# https://github.com/sphinx-doc/sphinx/pull/6888
 ascii_tex_replacements = [
     # Note: the " renders curly in OT1 encoding but straight in T1, T2A, LY1...
     #       escaping it to \textquotedbl would break documents using OT1

@@ -121,7 +121,7 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data: dict[str, dict[str, list[ChangeSet]]] = {
+    initial_data: ClassVar[dict[str, dict[str, list[ChangeSet]]]] = {
         'changes': {},  # version -> list of ChangeSet
     }
 
@@ -135,7 +135,7 @@ class ChangeSetDomain(Domain):
         objname = self.env.current_document.obj_desc_name
         changeset = ChangeSet(
             node['type'],
-            self.env.docname,
+            self.env.current_document.docname,
             node.line,  # type: ignore[arg-type]
             module,
             objname,

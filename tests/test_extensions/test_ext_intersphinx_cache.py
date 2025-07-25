@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+import shutil
 import zlib
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
@@ -218,7 +219,7 @@ def make_inventory_handler(
     return InventoryHandler
 
 
-def test_intersphinx_project_fixture():
+def test_intersphinx_project_fixture() -> None:
     # check that our fixture class is correct
     project = SingleEntryProject(1, 'route')
     assert project.url == 'http://localhost:9341/route'
@@ -242,7 +243,7 @@ def test_load_mappings_cache(tmp_path):
     item = dict((project.normalise(entry),))
     inventories = InventoryAdapter(app.env)
     assert list(inventories.cache) == ['http://localhost:9341/a']
-    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/a']
+    e_name, _e_time, e_inv = inventories.cache['http://localhost:9341/a']
     assert e_name == 'spam'
     assert e_inv == {'py:module': item}
     assert inventories.named_inventory == {'spam': {'py:module': item}}
@@ -261,19 +262,21 @@ def test_load_mappings_cache_update(tmp_path):
         app1 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides1)
         app1.build()
         app1.cleanup()
+        shutil.rmtree(app1.doctreedir / '__intersphinx_cache__', ignore_errors=True)
 
         # switch to new url and assert that the old URL is no more stored
         confoverrides2 = BASE_CONFIG | {'intersphinx_mapping': new_project.record}
         app2 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides2)
         app2.build()
         app2.cleanup()
+        shutil.rmtree(app2.doctreedir / '__intersphinx_cache__', ignore_errors=True)
 
     entry = new_project.make_entry()
     item = dict((new_project.normalise(entry),))
     inventories = InventoryAdapter(app2.env)
     # check that the URLs were changed accordingly
     assert list(inventories.cache) == ['http://localhost:9341/new']
-    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/new']
+    e_name, _e_time, e_inv = inventories.cache['http://localhost:9341/new']
     assert e_name == 'spam'
     assert e_inv == {'py:module': item}
     assert inventories.named_inventory == {'spam': {'py:module': item}}
@@ -310,7 +313,7 @@ def test_load_mappings_cache_revert_update(tmp_path):
     inventories = InventoryAdapter(app3.env)
     # check that the URLs were changed accordingly
     assert list(inventories.cache) == ['http://localhost:9341/old']
-    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/old']
+    e_name, _e_time, e_inv = inventories.cache['http://localhost:9341/old']
     assert e_name == 'spam'
     assert e_inv == {'py:module': item}
     assert inventories.named_inventory == {'spam': {'py:module': item}}

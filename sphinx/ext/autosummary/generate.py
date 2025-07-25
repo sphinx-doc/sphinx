@@ -36,7 +36,7 @@ from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
-    get_documenter,
+    _get_documenter,
     import_by_name,
     import_ivar_by_name,
 )
@@ -56,9 +56,15 @@ if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.events import EventManager
     from sphinx.ext.autodoc import Documenter
 
 logger = logging.getLogger(__name__)
+
+
+class _DummyEvents:
+    def emit_firstresult(self, *args: Any) -> None:
+        pass
 
 
 class DummyApplication:
@@ -66,6 +72,7 @@ class DummyApplication:
 
     def __init__(self, translator: NullTranslations) -> None:
         self.config = Config()
+        self.events = _DummyEvents()
         self.registry = SphinxComponentRegistry()
         self.messagelog: list[str] = []
         self.srcdir = _StrPath('/')
@@ -89,7 +96,7 @@ class AutosummaryEntry(NamedTuple):
     recursive: bool
 
 
-def setup_documenters(app: Any) -> None:
+def setup_documenters(app: Sphinx) -> None:
     from sphinx.ext.autodoc import (
         AttributeDocumenter,
         ClassDocumenter,
@@ -198,16 +205,25 @@ def _split_full_qualified_name(name: str) -> tuple[str | None, str]:
 
 
 class ModuleScanner:
-    def __init__(self, app: Any, obj: Any) -> None:
-        self.app = app
+    def __init__(
+        self,
+        obj: Any,
+        *,
+        config: Config,
+        events: EventManager,
+        registry: SphinxComponentRegistry,
+    ) -> None:
+        self.config = config
+        self.events = events
+        self.registry = registry
         self.object = obj
 
     def get_object_type(self, name: str, value: Any) -> str:
-        return get_documenter(self.app, value, self.object).objtype
+        return _get_documenter(value, self.object, registry=self.registry).objtype
 
     def is_skipped(self, name: str, value: Any, objtype: str) -> bool:
         try:
-            return self.app.emit_firstresult(
+            return self.events.emit_firstresult(
                 'autodoc-skip-member', objtype, name, value, False, {}
             )
         except Exception as exc:
@@ -230,7 +246,7 @@ class ModuleScanner:
         except PycodeError:
             attr_docs = {}
 
-        for name in members_of(self.object, self.app.config):
+        for name in members_of(self.object, config=self.config):
             try:
                 value = safe_getattr(self.object, name)
             except AttributeError:
@@ -252,7 +268,7 @@ class ModuleScanner:
             except AttributeError:
                 imported = False
 
-            respect_module_all = not self.app.config.autosummary_ignore_module_all
+            respect_module_all = not self.config.autosummary_ignore_module_all
             if (
                 # list all members up
                 imported_members
@@ -266,12 +282,12 @@ class ModuleScanner:
         return members
 
 
-def members_of(obj: Any, conf: Config) -> Sequence[str]:
+def members_of(obj: Any, *, config: Config) -> Sequence[str]:
     """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
 
-    Follows the ``conf.autosummary_ignore_module_all`` setting.
+    Follows the ``config.autosummary_ignore_module_all`` setting.
     """
-    if conf.autosummary_ignore_module_all:
+    if config.autosummary_ignore_module_all:
         return dir(obj)
     else:
         if (obj___all__ := getall(obj)) is not None:
@@ -288,34 +304,55 @@ def generate_autosummary_content(
     template: AutosummaryRenderer,
     template_name: str,
     imported_members: bool,
-    app: Any,
     recursive: bool,
     context: dict[str, Any],
     modname: str | None = None,
     qualname: str | None = None,
+    *,
+    config: Config,
+    events: EventManager,
+    registry: SphinxComponentRegistry,
 ) -> str:
-    doc = get_documenter(app, obj, parent)
+    doc = _get_documenter(obj, parent, registry=registry)
 
     ns: dict[str, Any] = {}
     ns.update(context)
 
     if doc.objtype == 'module':
-        scanner = ModuleScanner(app, obj)
+        scanner = ModuleScanner(obj, config=config, events=events, registry=registry)
         ns['members'] = scanner.scan(imported_members)
 
-        respect_module_all = not app.config.autosummary_ignore_module_all
+        respect_module_all = not config.autosummary_ignore_module_all
         imported_members = imported_members or (
             '__all__' in dir(obj) and respect_module_all
         )
 
         ns['functions'], ns['all_functions'] = _get_members(
-            doc, app, obj, {'function'}, imported=imported_members
+            doc,
+            obj,
+            {'function'},
+            config=config,
+            events=events,
+            registry=registry,
+            imported=imported_members,
         )
         ns['classes'], ns['all_classes'] = _get_members(
-            doc, app, obj, {'class'}, imported=imported_members
+            doc,
+            obj,
+            {'class'},
+            config=config,
+            events=events,
+            registry=registry,
+            imported=imported_members,
         )
         ns['exceptions'], ns['all_exceptions'] = _get_members(
-            doc, app, obj, {'exception'}, imported=imported_members
+            doc,
+            obj,
+            {'exception'},
+            config=config,
+            events=events,
+            registry=registry,
+            imported=imported_members,
         )
         ns['attributes'], ns['all_attributes'] = _get_module_attrs(name, ns['members'])
         ispackage = hasattr(obj, '__path__')
@@ -337,7 +374,13 @@ def generate_autosummary_content(
             # Otherwise, use get_modules method normally
             if respect_module_all and '__all__' in dir(obj):
                 imported_modules, all_imported_modules = _get_members(
-                    doc, app, obj, {'module'}, imported=True
+                    doc,
+                    obj,
+                    {'module'},
+                    config=config,
+                    events=events,
+                    registry=registry,
+                    imported=True,
                 )
                 skip += all_imported_modules
                 public_members = getall(obj)
@@ -354,10 +397,21 @@ def generate_autosummary_content(
         ns['members'] = dir(obj)
         ns['inherited_members'] = set(dir(obj)) - set(obj.__dict__.keys())
         ns['methods'], ns['all_methods'] = _get_members(
-            doc, app, obj, {'method'}, include_public={'__init__'}
+            doc,
+            obj,
+            {'method'},
+            config=config,
+            events=events,
+            registry=registry,
+            include_public={'__init__'},
         )
         ns['attributes'], ns['all_attributes'] = _get_members(
-            doc, app, obj, {'attribute', 'property'}
+            doc,
+            obj,
+            {'attribute', 'property'},
+            config=config,
+            events=events,
+            registry=registry,
         )
 
     if modname is None or qualname is None:
@@ -385,9 +439,9 @@ def generate_autosummary_content(
         return template.render(doc.objtype, ns)
 
 
-def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
+def _skip_member(obj: Any, name: str, objtype: str, *, events: EventManager) -> bool:
     try:
-        return app.emit_firstresult(
+        return events.emit_firstresult(
             'autodoc-skip-member', objtype, name, obj, False, {}
         )
     except Exception as exc:
@@ -408,9 +462,9 @@ def _get_class_members(obj: Any) -> dict[str, Any]:
     return {name: member.object for name, member in members.items()}
 
 
-def _get_module_members(app: Sphinx, obj: Any) -> dict[str, Any]:
+def _get_module_members(obj: Any, *, config: Config) -> dict[str, Any]:
     members = {}
-    for name in members_of(obj, app.config):
+    for name in members_of(obj, config=config):
         try:
             members[name] = safe_getattr(obj, name)
         except AttributeError:
@@ -418,9 +472,11 @@ def _get_module_members(app: Sphinx, obj: Any) -> dict[str, Any]:
     return members
 
 
-def _get_all_members(doc: type[Documenter], app: Sphinx, obj: Any) -> dict[str, Any]:
+def _get_all_members(
+    doc: type[Documenter], obj: Any, *, config: Config
+) -> dict[str, Any]:
     if doc.objtype == 'module':
-        return _get_module_members(app, obj)
+        return _get_module_members(obj, config=config)
     elif doc.objtype == 'class':
         return _get_class_members(obj)
     return {}
@@ -428,23 +484,25 @@ def _get_all_members(doc: type[Documenter], app: Sphinx, obj: Any) -> dict[str, 
 
 def _get_members(
     doc: type[Documenter],
-    app: Sphinx,
     obj: Any,
     types: set[str],
     *,
+    config: Config,
+    events: EventManager,
+    registry: SphinxComponentRegistry,
     include_public: Set[str] = frozenset(),
     imported: bool = True,
 ) -> tuple[list[str], list[str]]:
     items: list[str] = []
     public: list[str] = []
 
-    all_members = _get_all_members(doc, app, obj)
+    all_members = _get_all_members(doc, obj, config=config)
     for name, value in all_members.items():
-        documenter = get_documenter(app, value, obj)
+        documenter = _get_documenter(value, obj, registry=registry)
         if documenter.objtype in types:
             # skip imported members if expected
             if imported or getattr(value, '__module__', None) == obj.__name__:
-                skipped = _skip_member(app, value, name, documenter.objtype)
+                skipped = _skip_member(value, name, documenter.objtype, events=events)
                 if skipped is True:
                     pass
                 elif skipped is False:
@@ -525,7 +583,7 @@ def generate_autosummary_docs(
 
     showed_sources = sorted(sources)
     if len(showed_sources) > 20:
-        showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
+        showed_sources = [*showed_sources[:10], '...', *showed_sources[-10:]]
     logger.info(
         __('[autosummary] generating autosummary for: %s'), ', '.join(showed_sources)
     )
@@ -591,11 +649,13 @@ def generate_autosummary_docs(
             template,
             entry.template,
             imported_members,
-            app,
             entry.recursive,
             context,
             modname,
             qualname,
+            config=app.config,
+            events=app.events,
+            registry=app.registry,
         )
 
         file_path = Path(path, filename_map.get(name, name) + suffix)
@@ -659,7 +719,7 @@ def find_autosummary_in_docstring(
     See `find_autosummary_in_lines`.
     """
     try:
-        real_name, obj, parent, modname = import_by_name(name)
+        _real_name, obj, _parent, _modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
         return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
@@ -859,7 +919,7 @@ def main(argv: Sequence[str] = (), /) -> None:
 
     app = DummyApplication(sphinx.locale.get_translator())
     logging.setup(app, sys.stdout, sys.stderr)  # type: ignore[arg-type]
-    setup_documenters(app)
+    setup_documenters(app)  # type: ignore[arg-type]
     args = get_parser().parse_args(argv or sys.argv[1:])
 
     if args.templates:

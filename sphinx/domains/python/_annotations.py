@@ -6,12 +6,14 @@ import operator
 import token
 from collections import deque
 from inspect import Parameter
+from itertools import chain, islice
 from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import pending_xref, pending_xref_condition
+from sphinx.locale import _
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.util.inspect import signature_from_str
 
@@ -123,6 +125,10 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
                 return [nodes.Text(repr(node.value))]
         if isinstance(node, ast.Expr):
             return unparse(node.value)
+        if isinstance(node, ast.Starred):
+            result = [addnodes.desc_sig_operator('', '*')]
+            result.extend(unparse(node.value))
+            return result
         if isinstance(node, ast.Invert):
             return [addnodes.desc_sig_punctuation('', '~')]
         if isinstance(node, ast.USub):
@@ -311,18 +317,6 @@ class _TypeParameterListParser(TokenProcessor):
                 self.type_params.append(type_param)
 
     def _build_identifier(self, tokens: list[Token]) -> str:
-        from itertools import chain, islice
-
-        def triplewise(iterable: Iterable[Token]) -> Iterator[tuple[Token, ...]]:
-            # sliding_window('ABCDEFG', 4) --> ABCD BCDE CDEF DEFG
-            it = iter(iterable)
-            window = deque(islice(it, 3), maxlen=3)
-            if len(window) == 3:
-                yield tuple(window)
-            for x in it:
-                window.append(x)
-                yield tuple(window)
-
         idents: list[str] = []
         tokens: Iterable[Token] = iter(tokens)  # type: ignore[no-redef]
         # do not format opening brackets
@@ -337,7 +331,7 @@ class _TypeParameterListParser(TokenProcessor):
         # check the remaining tokens
         stop = Token(token.ENDMARKER, '', (-1, -1), (-1, -1), '<sentinel>')
         is_unpack_operator = False
-        for tok, op, after in triplewise(chain(tokens, [stop, stop])):
+        for tok, op, after in _triplewise(chain(tokens, [stop, stop])):
             ident = self._pformat_token(tok, native=is_unpack_operator)
             idents.append(ident)
             # determine if the next token is an unpack operator depending
@@ -479,19 +473,13 @@ def _parse_arglist(
     last_kind = None
     for param in sig.parameters.values():
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
-            # PEP-570: Separator for Positional Only Parameter: /
-            params += addnodes.desc_parameter(
-                '', '', addnodes.desc_sig_operator('', '/')
-            )
+            params += _positional_only_separator()
         if param.kind == param.KEYWORD_ONLY and last_kind in {
             param.POSITIONAL_OR_KEYWORD,
             param.POSITIONAL_ONLY,
             None,
         }:
-            # PEP-3102: Separator for Keyword Only Parameter: *
-            params += addnodes.desc_parameter(
-                '', '', addnodes.desc_sig_operator('', '*')
-            )
+            params += _keyword_only_separator()
 
         node = addnodes.desc_parameter()
         if param.kind == param.VAR_POSITIONAL:
@@ -523,17 +511,40 @@ def _parse_arglist(
         last_kind = param.kind
 
     if last_kind == Parameter.POSITIONAL_ONLY:
-        # PEP-570: Separator for Positional Only Parameter: /
-        params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
+        params += _positional_only_separator()
 
     return params
+
+
+def _positional_only_separator() -> addnodes.desc_parameter:
+    # PEP 570: Separator for positional only parameters: /
+    positional_only_abbr = nodes.abbreviation(
+        '/', '/', explanation=_('Positional-only parameter separator (PEP 570)')
+    )
+    positional_only_op = addnodes.desc_sig_operator(
+        '/', '', positional_only_abbr, classes=['positional-only-separator']
+    )
+    return addnodes.desc_parameter('/', '', positional_only_op)
+
+
+def _keyword_only_separator() -> addnodes.desc_parameter:
+    # PEP 3102: Separator for keyword only parameters: *
+    keyword_only_abbr = nodes.abbreviation(
+        '*', '*', explanation=_('Keyword-only parameters separator (PEP 3102)')
+    )
+    keyword_only_op = addnodes.desc_sig_operator(
+        '*', '', keyword_only_abbr, classes=['keyword-only-separator']
+    )
+    return addnodes.desc_parameter('*', '', keyword_only_op)
 
 
 def _pseudo_parse_arglist(
     signode: desc_signature,
     arglist: str,
+    *,
     multi_line_parameter_list: bool = False,
     trailing_comma: bool = True,
+    env: BuildEnvironment,
 ) -> None:
     """'Parse' a list of arguments separated by commas.
 
@@ -541,6 +552,7 @@ def _pseudo_parse_arglist(
     brackets.  Currently, this will split at any comma, even if it's inside a
     string literal (e.g. default argument value).
     """
+    # TODO: decompose 'env' parameter into only the required bits
     paramlist = addnodes.desc_parameterlist()
     paramlist['multi_line_parameter_list'] = multi_line_parameter_list
     paramlist['multi_line_trailing_comma'] = trailing_comma
@@ -563,9 +575,30 @@ def _pseudo_parse_arglist(
                 ends_open += 1
                 argument = argument[:-1].strip()
             if argument:
-                stack[-1] += addnodes.desc_parameter(
-                    '', '', addnodes.desc_sig_name(argument, argument)
-                )
+                param_with_annotation, _, default_value = argument.partition('=')
+                param_name, _, annotation = param_with_annotation.partition(':')
+                del param_with_annotation
+
+                node = addnodes.desc_parameter()
+                node += addnodes.desc_sig_name('', param_name.strip())
+                if annotation:
+                    children = _parse_annotation(annotation.strip(), env=env)
+                    node += addnodes.desc_sig_punctuation('', ':')
+                    node += addnodes.desc_sig_space()
+                    node += addnodes.desc_sig_name('', '', *children)  # type: ignore[arg-type]
+                if default_value:
+                    if annotation:
+                        node += addnodes.desc_sig_space()
+                    node += addnodes.desc_sig_operator('', '=')
+                    if annotation:
+                        node += addnodes.desc_sig_space()
+                    node += nodes.inline(
+                        '',
+                        default_value.strip(),
+                        classes=['default_value'],
+                        support_smartquotes=False,
+                    )
+                stack[-1] += node
             while ends_open:
                 stack.append(addnodes.desc_optional())
                 stack[-2] += stack[-1]
@@ -584,3 +617,14 @@ def _pseudo_parse_arglist(
         signode += paramlist
     else:
         signode += paramlist
+
+
+def _triplewise(iterable: Iterable[Token]) -> Iterator[tuple[Token, ...]]:
+    # sliding_window('ABCDEFG', 4) --> ABCD BCDE CDEF DEFG
+    it = iter(iterable)
+    window = deque(islice(it, 3), maxlen=3)
+    if len(window) == 3:
+        yield tuple(window)
+    for x in it:
+        window.append(x)
+        yield tuple(window)

@@ -63,7 +63,7 @@ class TocTree(SphinxDirective):
 
     def run(self) -> list[Node]:
         subnode = addnodes.toctree()
-        subnode['parent'] = self.env.docname
+        subnode['parent'] = self.env.current_document.docname
 
         # (title, ref) pairs, where ref may be a document, or an external link,
         # and title may be None if the document's title is to be used
@@ -90,7 +90,7 @@ class TocTree(SphinxDirective):
         """Populate ``toctree['entries']`` and ``toctree['includefiles']`` from content."""
         generated_docnames = frozenset(StandardDomain._virtual_doc_names)
         suffixes = self.config.source_suffix
-        current_docname = self.env.docname
+        current_docname = self.env.current_document.docname
         glob = toctree['glob']
 
         # glob target documents
@@ -267,7 +267,7 @@ class Acks(SphinxDirective):
         if len(children) != 1 or not isinstance(children[0], nodes.bullet_list):
             logger.warning(
                 __('.. acks content is not a list'),
-                location=(self.env.docname, self.lineno),
+                location=(self.env.current_document.docname, self.lineno),
             )
             return []
         return [addnodes.acks('', *children)]
@@ -290,7 +290,7 @@ class HList(SphinxDirective):
         if len(children) != 1 or not isinstance(children[0], nodes.bullet_list):
             logger.warning(
                 __('.. hlist content is not a list'),
-                location=(self.env.docname, self.lineno),
+                location=(self.env.current_document.docname, self.lineno),
             )
             return []
         fulllist = children[0]
@@ -388,7 +388,7 @@ class Include(BaseInclude, SphinxDirective):
             text = '\n'.join(include_lines[:-2])
 
             path = Path(relpath(Path(source).resolve(), start=self.env.srcdir))
-            docname = self.env.docname
+            docname = self.env.current_document.docname
 
             # Emit the "include-read" event
             arg = [text]
@@ -411,7 +411,7 @@ class Include(BaseInclude, SphinxDirective):
         if self.arguments[0].startswith('<') and self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
             return super().run()
-        rel_filename, filename = self.env.relfn2path(self.arguments[0])
+        _rel_filename, filename = self.env.relfn2path(self.arguments[0])
         self.arguments[0] = str(filename)
         self.env.note_included(filename)
         return super().run()

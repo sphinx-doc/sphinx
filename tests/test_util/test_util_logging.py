@@ -6,6 +6,7 @@ import codecs
 import os
 from contextlib import contextmanager
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import nodes
@@ -19,11 +20,13 @@ from sphinx.util.parallel import ParallelTasks
 
 from tests.utils import TESTS_ROOT
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_info_and_warning(app):
-    app.verbosity = 2
-    logging.setup(app, app.status, app.warning)
+def test_info_and_warning(app: SphinxTestApp) -> None:
+    logging.setup(app, app.status, app.warning, verbosity=2)
     logger = logging.getLogger(__name__)
 
     logger.debug('message1')
@@ -46,7 +49,7 @@ def test_info_and_warning(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_Exception(app):
+def test_Exception(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -55,10 +58,9 @@ def test_Exception(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_verbosity_filter(app):
+def test_verbosity_filter(app: SphinxTestApp) -> None:
     # verbosity = 0: INFO
-    app.verbosity = 0
-    logging.setup(app, app.status, app.warning)
+    logging.setup(app, app.status, app.warning, verbosity=0)
     logger = logging.getLogger(__name__)
 
     logger.info('message1')
@@ -71,8 +73,7 @@ def test_verbosity_filter(app):
     assert 'message4' not in app.status.getvalue()
 
     # verbosity = 1: VERBOSE
-    app.verbosity = 1
-    logging.setup(app, app.status, app.warning)
+    logging.setup(app, app.status, app.warning, verbosity=1)
     logger = logging.getLogger(__name__)
 
     logger.info('message1')
@@ -85,8 +86,7 @@ def test_verbosity_filter(app):
     assert 'message4' not in app.status.getvalue()
 
     # verbosity = 2: DEBUG
-    app.verbosity = 2
-    logging.setup(app, app.status, app.warning)
+    logging.setup(app, app.status, app.warning, verbosity=2)
     logger = logging.getLogger(__name__)
 
     logger.info('message1')
@@ -100,7 +100,7 @@ def test_verbosity_filter(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_nonl_info_log(app):
+def test_nonl_info_log(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ def test_nonl_info_log(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_once_warning_log(app):
+def test_once_warning_log(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -139,7 +139,7 @@ def test_is_suppressed_warning():
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_suppress_warnings(app):
+def test_suppress_warnings(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -183,7 +183,7 @@ def test_suppress_warnings(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_info_location(app):
+def test_info_location(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -196,7 +196,7 @@ def test_info_location(app):
     logger.info('message3', location=None)
     assert '\nmessage3' in app.status.getvalue()
 
-    node = nodes.Node()
+    node = nodes.Element()
     node.source, node.line = ('index.txt', 10)
     logger.info('message4', location=node)
     assert 'index.txt:10: message4' in app.status.getvalue()
@@ -215,7 +215,7 @@ def test_info_location(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_warning_location(app):
+def test_warning_location(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -228,7 +228,7 @@ def test_warning_location(app):
     logger.warning('message3', location=None)
     assert colorize('red', 'WARNING: message3') in app.warning.getvalue()
 
-    node = nodes.Node()
+    node = nodes.Element()
     node.source, node.line = ('index.txt', 10)
     logger.warning('message4', location=node)
     assert 'index.txt:10: WARNING: message4' in app.warning.getvalue()
@@ -247,7 +247,7 @@ def test_warning_location(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_suppress_logging(app):
+def test_suppress_logging(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -262,7 +262,7 @@ def test_suppress_logging(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_pending_warnings(app):
+def test_pending_warnings(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -307,9 +307,8 @@ def test_log_no_ansi_colors(tmp_path):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_colored_logs(app):
-    app.verbosity = 2
-    logging.setup(app, app.status, app.warning)
+def test_colored_logs(app: SphinxTestApp) -> None:
+    logging.setup(app, app.status, app.warning, verbosity=2)
     logger = logging.getLogger(__name__)
 
     # default colors
@@ -338,7 +337,7 @@ def test_colored_logs(app):
     os.name != 'posix',
     reason='Parallel mode does not work on Windows',
 )
-def test_logging_in_ParallelTasks(app):
+def test_logging_in_ParallelTasks(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -359,7 +358,7 @@ def test_output_with_unencodable_char(app):
         def write(self, object):
             self.stream.write(object.encode('cp1252').decode('cp1252'))
 
-    logging.setup(app, StreamWriter(app.status), app.warning)
+    logging.setup(app, StreamWriter(app.status), app.warning, verbosity=0)
     logger = logging.getLogger(__name__)
 
     # info with UnicodeEncodeError
@@ -370,7 +369,7 @@ def test_output_with_unencodable_char(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_prefixed_warnings(app):
+def test_prefixed_warnings(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
@@ -396,7 +395,7 @@ def test_get_node_location_abspath():
     relative_filename = Path('relative', 'path.txt')
     absolute_filename = relative_filename.resolve()
 
-    n = nodes.Node()
+    n = nodes.Element()
     n.source = str(relative_filename)
 
     location = logging.get_node_location(n)
@@ -405,7 +404,7 @@ def test_get_node_location_abspath():
 
 
 @pytest.mark.sphinx('html', testroot='root', confoverrides={'show_warning_types': True})
-def test_show_warning_types(app):
+def test_show_warning_types(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
     logger.warning('message2')

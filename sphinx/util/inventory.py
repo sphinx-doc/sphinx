@@ -75,7 +75,7 @@ class InventoryFile:
         projname = lines[0].rstrip()[11:]  # Project name
         version = lines[1].rstrip()[11:]  # Project version
         for line in lines[2:]:
-            name, item_type, location = line.rstrip().split(None, 2)
+            name, item_type, location = line.rstrip().split(None, maxsplit=2)
             location = posixpath.join(uri, location)
             # version 1 did not add anchors to the location
             if item_type == 'mod':
@@ -123,7 +123,8 @@ class InventoryFile:
             if ':' not in type:
                 # wrong type value. type should be in the form of "{domain}:{objtype}"
                 #
-                # Note: To avoid the regex DoS, this is implemented in python (refs: #8175)
+                # Note: To avoid the regex DoS, this is implemented in Python
+                # See: https://github.com/sphinx-doc/sphinx/issues/8175
                 continue
             if type == 'py:module' and (type, name) in inv:
                 # due to a bug in 1.1 and below,

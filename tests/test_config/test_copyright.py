@@ -12,6 +12,7 @@ from sphinx.config import (
     correct_copyright_year,
     evaluate_copyright_placeholders,
 )
+from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator

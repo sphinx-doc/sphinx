@@ -416,7 +416,7 @@ class TexinfoTranslator(SphinxTranslator):
             name = self.node_names[entry]
             # special formatting for entries that are divided by an em-dash
             try:
-                parts = reg.split(name, 1)
+                parts = reg.split(name, maxsplit=1)
             except TypeError:
                 # could be a gettext proxy
                 parts = [name]
@@ -748,7 +748,7 @@ class TexinfoTranslator(SphinxTranslator):
             uri = self.escape_arg(uri)
             id = 'Top'
             if '#' in uri:
-                uri, id = uri.split('#', 1)
+                uri, _, id = uri.partition('#')
             id = self.escape_id(id)
             name = self.escape_menu(name)
             if name == id:
@@ -886,7 +886,7 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_footnote_reference(self, node: Element) -> None:
         num = node.astext().strip()
         try:
-            footnode, used = self.footnotestack[-1][num]
+            footnode, _used = self.footnotestack[-1][num]
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
@@ -1537,10 +1537,11 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_abbreviation(self, node: Element) -> None:
+        explanation = node.get('explanation', '')
         abbr = node.astext()
         self.body.append('@abbr{')
-        if node.hasattr('explanation') and abbr not in self.handled_abbrs:
-            self.context.append(',%s}' % self.escape_arg(node['explanation']))
+        if explanation and abbr not in self.handled_abbrs:
+            self.context.append(',%s}' % self.escape_arg(explanation))
             self.handled_abbrs.add(abbr)
         else:
             self.context.append('}')

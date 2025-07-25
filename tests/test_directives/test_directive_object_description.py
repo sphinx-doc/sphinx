@@ -9,28 +9,38 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.io import create_publisher
 from sphinx.testing import restructuredtext
-from sphinx.util.docutils import sphinx_domains
+from sphinx.util.docutils import _parse_str_to_doctree
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.testing.util import SphinxTestApp
 
 
 def _doctree_for_test(
     app: Sphinx, env: BuildEnvironment, docname: str
 ) -> nodes.document:
+    config = app.config
+    registry = app.registry
+
+    filename = env.doc2path(docname)
+    content = filename.read_text(encoding='utf-8')
+
     env.prepare_settings(docname)
-    publisher = create_publisher(app, 'restructuredtext')
-    with sphinx_domains(env):
-        publisher.set_source(source_path=str(env.doc2path(docname)))
-        publisher.publish()
-        return publisher.document
+    parser = registry.create_source_parser('restructuredtext', config=config, env=env)
+    return _parse_str_to_doctree(
+        content,
+        filename=filename,
+        default_settings={'env': env},
+        env=env,
+        parser=parser,
+        transforms=registry.get_transforms(),
+    )
 
 
 @pytest.mark.sphinx('text', testroot='object-description-sections')
-def test_object_description_sections(app):
+def test_object_description_sections(app: SphinxTestApp) -> None:
     doctree = _doctree_for_test(app, app.env, 'index')
     # <document>
     #     <index>
@@ -58,7 +68,7 @@ def test_object_description_sections(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
-def test_object_description_content_line_number(app):
+def test_object_description_content_line_number(app: SphinxTestApp) -> None:
     text = '.. py:function:: foo(bar)\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))

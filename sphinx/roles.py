@@ -103,7 +103,7 @@ class XRefRole(ReferenceRole):
             self.refdomain, self.reftype = '', self.name
             self.classes = ['xref', self.reftype]
         else:
-            self.refdomain, self.reftype = self.name.split(':', 1)
+            self.refdomain, _, self.reftype = self.name.partition(':')
             self.classes = ['xref', self.refdomain, f'{self.refdomain}-{self.reftype}']
 
         if self.disabled:
@@ -115,7 +115,7 @@ class XRefRole(ReferenceRole):
         text = utils.unescape(self.text[1:])
         if self.fix_parens:
             self.has_explicit_title = False  # treat as implicit
-            text, target = self.update_title_and_target(text, '')
+            text, _target = self.update_title_and_target(text, '')
 
         node = self.innernodeclass(self.rawtext, text, classes=self.classes)
         return self.result_nodes(self.inliner.document, self.env, node, is_ref=False)
@@ -130,7 +130,7 @@ class XRefRole(ReferenceRole):
 
         # create the reference node
         options = {
-            'refdoc': self.env.docname,
+            'refdoc': self.env.current_document.docname,
             'refdomain': self.refdomain,
             'reftype': self.reftype,
             'refexplicit': self.has_explicit_title,
@@ -234,9 +234,9 @@ class CVE(ReferenceRole):
         return [index, target, reference], []
 
     def build_uri(self) -> str:
-        ret = self.target.split('#', 1)
-        if len(ret) == 2:
-            return f'{CVE._BASE_URL}{ret[0]}#{ret[1]}'
+        ret = self.target.partition('#')
+        if ret[1]:
+            return f'{CVE._BASE_URL}{ret[0]}#{ret[2]}'
         return f'{CVE._BASE_URL}{ret[0]}'
 
 
@@ -279,9 +279,9 @@ class CWE(ReferenceRole):
         return [index, target, reference], []
 
     def build_uri(self) -> str:
-        ret = self.target.split('#', 1)
-        if len(ret) == 2:
-            return f'{CWE._BASE_URL}{int(ret[0])}.html#{ret[1]}'
+        ret = self.target.partition('#')
+        if ret[1]:
+            return f'{CWE._BASE_URL}{int(ret[0])}.html#{ret[2]}'
         return f'{CWE._BASE_URL}{int(ret[0])}.html'
 
 
@@ -323,9 +323,9 @@ class PEP(ReferenceRole):
 
     def build_uri(self) -> str:
         base_url = self.inliner.document.settings.pep_base_url
-        ret = self.target.split('#', 1)
-        if len(ret) == 2:
-            return base_url + 'pep-%04d/#%s' % (int(ret[0]), ret[1])
+        ret = self.target.partition('#')
+        if ret[1]:
+            return base_url + 'pep-%04d/#%s' % (int(ret[0]), ret[2])
         else:
             return base_url + 'pep-%04d/' % int(ret[0])
 
@@ -361,9 +361,9 @@ class RFC(ReferenceRole):
 
     def build_uri(self) -> str:
         base_url = self.inliner.document.settings.rfc_base_url
-        ret = self.target.split('#', 1)
-        if len(ret) == 2:
-            return base_url + self.inliner.rfc_url % int(ret[0]) + '#' + ret[1]
+        ret = self.target.partition('#')
+        if ret[1]:
+            return base_url + self.inliner.rfc_url % int(ret[0]) + '#' + ret[2]
         else:
             return base_url + self.inliner.rfc_url % int(ret[0])
 

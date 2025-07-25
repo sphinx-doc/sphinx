@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sphinx.util.matching import Matcher, compile_matchers, get_matching_files
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-def test_compile_matchers():
+
+def test_compile_matchers() -> None:
     # exact matching
     pat = compile_matchers(['hello.py']).pop()
     assert pat('hello.py')
@@ -77,7 +82,7 @@ def test_compile_matchers():
     assert not pat('hello.py')
 
 
-def test_Matcher():
+def test_Matcher() -> None:
     matcher = Matcher(['hello.py', '**/world.py'])
     assert matcher('hello.py')
     assert not matcher('subdir/hello.py')
@@ -85,7 +90,7 @@ def test_Matcher():
     assert matcher('subdir/world.py')
 
 
-def test_get_matching_files_all(rootdir):
+def test_get_matching_files_all(rootdir: Path) -> None:
     files = get_matching_files(rootdir / 'test-root')
     assert sorted(files) == [
         'Makefile',
@@ -133,7 +138,7 @@ def test_get_matching_files_all(rootdir):
     ]
 
 
-def test_get_matching_files_all_exclude_single(rootdir):
+def test_get_matching_files_all_exclude_single(rootdir: Path) -> None:
     files = get_matching_files(rootdir / 'test-root', exclude_patterns=['**.html'])
     assert sorted(files) == [
         'Makefile',
@@ -178,7 +183,7 @@ def test_get_matching_files_all_exclude_single(rootdir):
     ]
 
 
-def test_get_matching_files_all_exclude_multiple(rootdir):
+def test_get_matching_files_all_exclude_multiple(rootdir: Path) -> None:
     files = get_matching_files(
         rootdir / 'test-root', exclude_patterns=['**.html', '**.inc']
     )
@@ -218,7 +223,7 @@ def test_get_matching_files_all_exclude_multiple(rootdir):
     ]
 
 
-def test_get_matching_files_all_exclude_nonexistent(rootdir):
+def test_get_matching_files_all_exclude_nonexistent(rootdir: Path) -> None:
     files = get_matching_files(rootdir / 'test-root', exclude_patterns=['halibut/**'])
     assert sorted(files) == [
         'Makefile',
@@ -266,7 +271,7 @@ def test_get_matching_files_all_exclude_nonexistent(rootdir):
     ]
 
 
-def test_get_matching_files_all_include_single(rootdir):
+def test_get_matching_files_all_include_single(rootdir: Path) -> None:
     files = get_matching_files(rootdir / 'test-root', include_patterns=['subdir/**'])
     assert sorted(files) == [
         'subdir/excluded.txt',
@@ -278,7 +283,7 @@ def test_get_matching_files_all_include_single(rootdir):
     ]
 
 
-def test_get_matching_files_all_include_multiple(rootdir):
+def test_get_matching_files_all_include_multiple(rootdir: Path) -> None:
     files = get_matching_files(
         rootdir / 'test-root', include_patterns=['special/**', 'subdir/**']
     )
@@ -294,12 +299,12 @@ def test_get_matching_files_all_include_multiple(rootdir):
     ]
 
 
-def test_get_matching_files_all_include_nonexistent(rootdir):
+def test_get_matching_files_all_include_nonexistent(rootdir: Path) -> None:
     files = get_matching_files(rootdir / 'test-root', include_patterns=['halibut/**'])
     assert sorted(files) == []
 
 
-def test_get_matching_files_all_include_prefix(rootdir):
+def test_get_matching_files_all_include_prefix(rootdir: Path) -> None:
     files = get_matching_files(rootdir / 'test-root', include_patterns=['autodoc*'])
     assert sorted(files) == [
         'autodoc.txt',
@@ -307,7 +312,7 @@ def test_get_matching_files_all_include_prefix(rootdir):
     ]
 
 
-def test_get_matching_files_all_include_question_mark(rootdir):
+def test_get_matching_files_all_include_question_mark(rootdir: Path) -> None:
     files = get_matching_files(rootdir / 'test-root', include_patterns=['img.???'])
     assert sorted(files) == [
         'img.gif',

@@ -83,7 +83,7 @@ class CitationDomain(Domain):
 
     def note_citation_reference(self, node: pending_xref) -> None:
         docnames = self.citation_refs.setdefault(node['reftarget'], set())
-        docnames.add(self.env.docname)
+        docnames.add(self.env.current_document.docname)
 
     def check_consistency(self) -> None:
         for name, (docname, _labelid, lineno) in self.citations.items():
@@ -106,7 +106,7 @@ class CitationDomain(Domain):
         node: pending_xref,
         contnode: Element,
     ) -> nodes.reference | None:
-        docname, labelid, lineno = self.citations.get(target, ('', '', 0))
+        docname, labelid, _lineno = self.citations.get(target, ('', '', 0))
         if not docname:
             return None
 
@@ -139,7 +139,7 @@ class CitationDefinitionTransform(SphinxTransform):
         domain = self.env.domains.citation_domain
         for node in self.document.findall(nodes.citation):
             # register citation node to domain
-            node['docname'] = self.env.docname
+            node['docname'] = self.env.current_document.docname
             domain.note_citation(node)
 
             # mark citation labels as not smartquoted

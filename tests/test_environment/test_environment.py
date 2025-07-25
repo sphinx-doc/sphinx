@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -18,6 +19,9 @@ from sphinx.environment import (
     CONFIG_OK,
     _differing_config_keys,
 )
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('dummy', testroot='basic', copy_test_root=True)
@@ -66,7 +70,7 @@ def test_config_status(make_app, app_params):
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
-def test_images(app):
+def test_images(app: SphinxTestApp) -> None:
     app.build()
 
     tree = app.env.get_doctree('images')
@@ -111,7 +115,7 @@ def test_images(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
-def test_object_inventory(app):
+def test_object_inventory(app: SphinxTestApp) -> None:
     app.build()
     refs = app.env.domaindata['py']['objects']
 
@@ -148,7 +152,7 @@ def test_object_inventory(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='basic')
-def test_env_relfn2path(app):
+def test_env_relfn2path(app: SphinxTestApp) -> None:
     # relative filename and root document
     relfn, absfn = app.env.relfn2path('logo.jpg', 'index')
     assert relfn == 'logo.jpg'
@@ -196,7 +200,7 @@ def test_env_relfn2path(app):
         app.env.relfn2path('images/logo.jpg')
 
 
-def test_differing_config_keys():
+def test_differing_config_keys() -> None:
     diff = _differing_config_keys
 
     old = Config({'project': 'old'})

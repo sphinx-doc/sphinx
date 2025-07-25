@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx.testing.util import SphinxTestApp
+
 from tests.test_extensions.autodoc_util import do_autodoc
 
 if TYPE_CHECKING:

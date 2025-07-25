@@ -341,7 +341,7 @@ class DocTestBuilder(Builder):
         self.outfile.write(text)
 
     def _warn_out(self, text: str) -> None:
-        if self.app.quiet:
+        if self.config.verbosity < 0:
             logger.warning(text)
         else:
             logger.info(text, nonl=True)
@@ -358,10 +358,17 @@ class DocTestBuilder(Builder):
         def s(v: int) -> str:
             return 's' if v != 1 else ''
 
+        header = 'Doctest summary'
+        if self.total_failures or self.setup_failures or self.cleanup_failures:
+            self._app.statuscode = 1
+            if self.config.doctest_fail_fast:
+                header = f'{header} (exiting after first failed test)'
+        underline = '=' * len(header)
+
         self._out(
             f"""
-Doctest summary
-===============
+{header}
+{underline}
 {self.total_tries:5} test{s(self.total_tries)}
 {self.total_failures:5} failure{s(self.total_failures)} in tests
 {self.setup_failures:5} failure{s(self.setup_failures)} in setup code
@@ -370,15 +377,14 @@ Doctest summary
         )
         self.outfile.close()
 
-        if self.total_failures or self.setup_failures or self.cleanup_failures:
-            self.app.statuscode = 1
-
     def write_documents(self, docnames: Set[str]) -> None:
         logger.info(bold('running tests...'))
         for docname in sorted(docnames):
             # no need to resolve the doctree
             doctree = self.env.get_doctree(docname)
-            self.test_doc(docname, doctree)
+            success = self.test_doc(docname, doctree)
+            if not success and self.config.doctest_fail_fast:
+                break
 
     def get_filename_for_node(self, node: Node, docname: str) -> str:
         """Try to get the file which actually contains the doctest, not the
@@ -386,7 +392,7 @@ Doctest summary
         """
         try:
             filename = relpath(node.source, self.env.srcdir)  # type: ignore[arg-type]
-            return filename.rsplit(':docstring of ', maxsplit=1)[0]
+            return filename.partition(':docstring of ')[0]
         except Exception:
             return str(self.env.doc2path(docname, False))
 
@@ -419,7 +425,7 @@ Doctest summary
                 exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
             return should_skip
 
-    def test_doc(self, docname: str, doctree: Node) -> None:
+    def test_doc(self, docname: str, doctree: Node) -> bool:
         groups: dict[str, TestGroup] = {}
         add_to_all_groups = []
         self.setup_runner = SphinxDocTestRunner(verbose=False, optionflags=self.opt)
@@ -430,21 +436,9 @@ Doctest summary
         self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
 
         if self.config.doctest_test_doctest_blocks:
-
-            def condition(node: Node) -> bool:
-                return (
-                    isinstance(node, nodes.literal_block | nodes.comment)
-                    and 'testnodetype' in node
-                ) or isinstance(node, nodes.doctest_block)
-
+            condition = _condition_with_doctest
         else:
-
-            def condition(node: Node) -> bool:
-                return (
-                    isinstance(node, nodes.literal_block | nodes.comment)
-                    and 'testnodetype' in node
-                )
-
+            condition = _condition_default
         for node in doctree.findall(condition):
             if self.skipped(node):  # type: ignore[arg-type]
                 continue
@@ -496,13 +490,17 @@ Doctest summary
             for group in groups.values():
                 group.add_code(code)
         if not groups:
-            return
+            return True
 
         show_successes = self.config.doctest_show_successes
         if show_successes:
             self._out(f'\nDocument: {docname}\n----------{"-" * len(docname)}\n')
+        success = True
         for group in groups.values():
-            self.test_group(group)
+            if not self.test_group(group):
+                success = False
+                if self.config.doctest_fail_fast:
+                    break
         # Separately count results from setup code
         res_f, res_t = self.setup_runner.summarize(self._out, verbose=False)
         self.setup_failures += res_f
@@ -517,13 +515,14 @@ Doctest summary
             )
             self.cleanup_failures += res_f
             self.cleanup_tries += res_t
+        return success
 
     def compile(
         self, code: str, name: str, type: str, flags: Any, dont_inherit: bool
     ) -> Any:
         return compile(code, name, self.type, flags, dont_inherit)
 
-    def test_group(self, group: TestGroup) -> None:
+    def test_group(self, group: TestGroup) -> bool:
         ns: dict[str, Any] = {}
 
         def run_setup_cleanup(
@@ -553,9 +552,10 @@ Doctest summary
         # run the setup code
         if not run_setup_cleanup(self.setup_runner, group.setup, 'setup'):
             # if setup failed, don't run the group
-            return
+            return False
 
         # run the tests
+        success = True
         for code in group.tests:
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
@@ -608,11 +608,19 @@ Doctest summary
                 self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
+            old_f = self.test_runner.failures
             # also don't clear the globs namespace after running the doctest
             self.test_runner.run(test, out=self._warn_out, clear_globs=False)
+            if self.test_runner.failures > old_f:
+                success = False
+                if self.config.doctest_fail_fast:
+                    break
 
         # run the cleanup
-        run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
+        if not run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup'):
+            return False
+
+        return success
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
@@ -638,7 +646,19 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         '',
         types=frozenset({int}),
     )
+    app.add_config_value('doctest_fail_fast', False, '', types=frozenset({bool}))
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,
     }
+
+
+def _condition_default(node: Node) -> bool:
+    return (
+        isinstance(node, (nodes.literal_block, nodes.comment))
+        and 'testnodetype' in node
+    )
+
+
+def _condition_with_doctest(node: Node) -> bool:
+    return _condition_default(node) or isinstance(node, nodes.doctest_block)

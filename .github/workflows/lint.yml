@@ -50,12 +50,12 @@ jobs:
       with:
         python-version: "3"
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install ".[lint,test]"
+      run: uv pip install -r pyproject.toml --group package --group test --group types
     - name: Type check with mypy
       run: mypy
 
@@ -71,12 +71,12 @@ jobs:
       with:
         python-version: "3"
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install ".[lint,test]"
+      run: uv pip install -r pyproject.toml --group package --group test --group types
     - name: Type check with pyright
       run: pyright
 
@@ -92,12 +92,12 @@ jobs:
       with:
         python-version: "3"
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install --upgrade sphinx-lint
+      run: uv pip install --group lint
     - name: Lint documentation with sphinx-lint
       run: make doclinter
 
@@ -113,13 +113,31 @@ jobs:
       with:
         python-version: "3"
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install --upgrade twine build
+      run: uv pip install --group package
     - name: Lint with twine
       run: |
         python -m build .
         twine check dist/*
+
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+        cache: "npm"
+    - run: >
+        npx prettier@3.5
+        --check
+        "sphinx/themes/**/*.js"
+        "!sphinx/themes/bizstyle/static/css3-mediaqueries*.js"
+        "tests/js/**/*.{js,mjs}"
+        "!tests/js/fixtures/**"

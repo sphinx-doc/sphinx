@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 import pygments
 import pytest
 from docutils import nodes
@@ -9,6 +12,9 @@ from docutils import nodes
 from sphinx.config import Config
 from sphinx.directives.code import LiteralIncludeReader
 from sphinx.testing.util import etree_parse
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 DUMMY_CONFIG = Config({}, {})
 
@@ -45,7 +51,7 @@ def test_LiteralIncludeReader_lineno_start(literal_inc_path):
 def test_LiteralIncludeReader_pyobject1(literal_inc_path):
     options = {'lineno-match': True, 'pyobject': 'Foo'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'class Foo:\n    pass\n'
     assert reader.lineno_start == 5
 
@@ -53,7 +59,7 @@ def test_LiteralIncludeReader_pyobject1(literal_inc_path):
 def test_LiteralIncludeReader_pyobject2(literal_inc_path):
     options = {'pyobject': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'class Bar:\n    def baz():\n        pass\n'
     assert reader.lineno_start == 1  # no lineno-match
 
@@ -61,21 +67,21 @@ def test_LiteralIncludeReader_pyobject2(literal_inc_path):
 def test_LiteralIncludeReader_pyobject3(literal_inc_path):
     options = {'pyobject': 'Bar.baz'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == '    def baz():\n        pass\n'
 
 
 def test_LiteralIncludeReader_pyobject_and_lines(literal_inc_path):
     options = {'pyobject': 'Bar', 'lines': '2-'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == '    def baz():\n        pass\n'
 
 
 def test_LiteralIncludeReader_lines1(literal_inc_path):
     options = {'lines': '1-3'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == (
         '# Literally included file using Python highlighting\n'
         '\n'
@@ -86,7 +92,7 @@ def test_LiteralIncludeReader_lines1(literal_inc_path):
 def test_LiteralIncludeReader_lines2(literal_inc_path):
     options = {'lines': '1,3,5'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == (
         '# Literally included file using Python highlighting\n'
         'foo = "Including Unicode characters: üöä"\n'
@@ -97,7 +103,7 @@ def test_LiteralIncludeReader_lines2(literal_inc_path):
 def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
     options = {'lines': '3-5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'foo = "Including Unicode characters: üöä"\n\nclass Foo:\n'
     assert reader.lineno_start == 3
 
@@ -127,7 +133,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
 def test_LiteralIncludeReader_start_at(literal_inc_path):
     options = {'lineno-match': True, 'start-at': 'Foo', 'end-at': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'class Foo:\n    pass\n\nclass Bar:\n'
     assert reader.lineno_start == 5
 
@@ -135,7 +141,7 @@ def test_LiteralIncludeReader_start_at(literal_inc_path):
 def test_LiteralIncludeReader_start_after(literal_inc_path):
     options = {'lineno-match': True, 'start-after': 'Foo', 'end-before': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == '    pass\n\n'
     assert reader.lineno_start == 6
 
@@ -148,7 +154,7 @@ def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
         'end-before': 'comment',
     }
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == '\nclass Bar:\n    def baz():\n        pass\n\n'
     assert reader.lineno_start == 7
 
@@ -156,7 +162,7 @@ def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
 def test_LiteralIncludeReader_start_at_and_lines(literal_inc_path):
     options = {'lines': '2, 3, 5', 'start-at': 'foo', 'end-before': '#'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == '\nclass Foo:\n\n'
     assert reader.lineno_start == 1
 
@@ -186,14 +192,14 @@ def test_LiteralIncludeReader_missing_start_and_end(literal_inc_path):
 def test_LiteralIncludeReader_end_before(literal_inc_path):
     options = {'end-before': 'nclud'}  # *nclud* matches first and third lines.
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == '# Literally included file using Python highlighting\n\n'
 
 
 def test_LiteralIncludeReader_prepend(literal_inc_path):
     options = {'lines': '1', 'prepend': 'Hello', 'append': 'Sphinx'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == (
         'Hello\n# Literally included file using Python highlighting\nSphinx\n'
     )
@@ -203,25 +209,25 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
     # dedent: 2
     options = {'lines': '9-11', 'dedent': 2}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == '  def baz():\n      pass\n\n'
 
     # dedent: 4
     options = {'lines': '9-11', 'dedent': 4}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'def baz():\n    pass\n\n'
 
     # dedent: 6
     options = {'lines': '9-11', 'dedent': 6}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'f baz():\n  pass\n\n'
 
     # dedent: None
     options = {'lines': '9-11', 'dedent': None}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'def baz():\n    pass\n\n'
 
 
@@ -234,7 +240,7 @@ def test_LiteralIncludeReader_dedent_and_append_and_prepend(literal_inc_path):
         'append': '# comment',
     }
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'class Foo:\n  def baz():\n      pass\n\n# comment\n'
 
 
@@ -242,20 +248,20 @@ def test_LiteralIncludeReader_tabwidth(testroot):
     # tab-width: 4
     options = {'tab-width': 4, 'pyobject': 'Qux'}
     reader = LiteralIncludeReader(testroot / 'target.py', options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'class Qux:\n    def quux(self):\n        pass\n'
 
     # tab-width: 8
     options = {'tab-width': 8, 'pyobject': 'Qux'}
     reader = LiteralIncludeReader(testroot / 'target.py', options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'class Qux:\n        def quux(self):\n                pass\n'
 
 
 def test_LiteralIncludeReader_tabwidth_dedent(testroot):
     options = {'tab-width': 4, 'dedent': 4, 'pyobject': 'Qux.quux'}
     reader = LiteralIncludeReader(testroot / 'target.py', options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == 'def quux(self):\n    pass\n'
 
 
@@ -263,7 +269,7 @@ def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
     literal_diff_path = testroot / 'literal-diff.inc'
     options = {'diff': literal_diff_path}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    content, lines = reader.read()
+    content, _lines = reader.read()
     assert content == (
         f'--- {literal_diff_path}\n'
         f'+++ {literal_inc_path}\n'
@@ -282,7 +288,7 @@ def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_code_block(app):
+def test_code_block(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'index.rst'])
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
@@ -294,13 +300,13 @@ def test_code_block(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_force_option(app):
+def test_force_option(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'force.rst'])
     assert 'force.rst' not in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_code_block_caption_html(app):
+def test_code_block_caption_html(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'caption.rst'])
     html = (app.outdir / 'caption.html').read_text(encoding='utf8')
     caption = (
@@ -314,7 +320,7 @@ def test_code_block_caption_html(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_caption_latex(app):
+def test_code_block_caption_latex(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
@@ -329,7 +335,7 @@ def test_code_block_caption_latex(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_namedlink_latex(app):
+def test_code_block_namedlink_latex(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     label1 = (
@@ -354,7 +360,7 @@ def test_code_block_namedlink_latex(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_emphasize_latex(app):
+def test_code_block_emphasize_latex(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'emphasize.rst'])
     latex = (
         (app.outdir / 'projectnamenotset.tex')
@@ -368,7 +374,7 @@ def test_code_block_emphasize_latex(app):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literal_include(app):
+def test_literal_include(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'index.rst'])
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
@@ -380,7 +386,7 @@ def test_literal_include(app):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literal_include_block_start_with_comment_or_brank(app):
+def test_literal_include_block_start_with_comment_or_brank(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'python.rst'])
     et = etree_parse(app.outdir / 'python.xml')
     secs = et.findall('./section/section')
@@ -396,7 +402,7 @@ def test_literal_include_block_start_with_comment_or_brank(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_literal_include_linenos(app):
+def test_literal_include_linenos(app: SphinxTestApp) -> None:
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:
@@ -425,7 +431,7 @@ def test_literal_include_linenos(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_file_whole_of_emptyline(app):
+def test_literalinclude_file_whole_of_emptyline(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     latex = (
         (app.outdir / 'projectnamenotset.tex')
@@ -444,7 +450,7 @@ def test_literalinclude_file_whole_of_emptyline(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_literalinclude_caption_html(app):
+def test_literalinclude_caption_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     html = (app.outdir / 'caption.html').read_text(encoding='utf8')
     caption = (
@@ -458,8 +464,8 @@ def test_literalinclude_caption_html(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_caption_latex(app):
-    app.build(filenames='index')
+def test_literalinclude_caption_latex(app: SphinxTestApp) -> None:
+    app.build(filenames=(Path('index'),))
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id2}}}'
@@ -473,8 +479,8 @@ def test_literalinclude_caption_latex(app):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_namedlink_latex(app):
-    app.build(filenames='index')
+def test_literalinclude_namedlink_latex(app: SphinxTestApp) -> None:
+    app.build(filenames=(Path('index'),))
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     label1 = (
         '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}}'
@@ -498,7 +504,7 @@ def test_literalinclude_namedlink_latex(app):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literalinclude_classes(app):
+def test_literalinclude_classes(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'classes.rst'])
     et = etree_parse(app.outdir / 'classes.xml')
     secs = et.findall('./section/section')
@@ -515,7 +521,7 @@ def test_literalinclude_classes(app):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literalinclude_pydecorators(app):
+def test_literalinclude_pydecorators(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'py-decorators.rst'])
     et = etree_parse(app.outdir / 'py-decorators.xml')
     secs = et.findall('./section/section')
@@ -551,7 +557,7 @@ def test_literalinclude_pydecorators(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='directive-code')
-def test_code_block_highlighted(app):
+def test_code_block_highlighted(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'highlight.rst'])
     doctree = app.env.get_doctree('highlight')
     codeblocks = list(doctree.findall(nodes.literal_block))
@@ -563,7 +569,7 @@ def test_code_block_highlighted(app):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_linenothreshold(app):
+def test_linenothreshold(app: SphinxTestApp) -> None:
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:
@@ -595,7 +601,7 @@ def test_linenothreshold(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='directive-code')
-def test_code_block_dedent(app):
+def test_code_block_dedent(app: SphinxTestApp) -> None:
     app.build(filenames=[app.srcdir / 'dedent.rst'])
     doctree = app.env.get_doctree('dedent')
     codeblocks = list(doctree.findall(nodes.literal_block))

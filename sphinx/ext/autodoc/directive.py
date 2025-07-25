@@ -7,7 +7,7 @@ from docutils import nodes
 from docutils.statemachine import StringList
 from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import Options
+from sphinx.ext.autodoc._directive_options import Options
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
@@ -52,7 +52,7 @@ AUTODOC_EXTENDABLE_OPTIONS = frozenset({
 })
 
 
-class DummyOptionSpec(dict[str, Callable[[str], str]]):
+class DummyOptionSpec(dict[str, Callable[[str], str]]):  # NoQA: FURB189
     """An option_spec allows any options."""
 
     def __bool__(self) -> bool:
@@ -150,7 +150,7 @@ class AutodocDirective(SphinxDirective):
 
         # look up target Documenter
         objtype = self.name[4:]  # strip prefix (auto-).
-        doccls = self.env.app.registry.documenters[objtype]
+        doccls = self.env._registry.documenters[objtype]
 
         # process the options with the selected documenter's option_spec
         try:
@@ -163,7 +163,7 @@ class AutodocDirective(SphinxDirective):
                 'An option to %s is either unknown or has an invalid value: %s',
                 self.name,
                 exc,
-                location=(self.env.docname, lineno),
+                location=(self.env.current_document.docname, lineno),
             )
             return []
 

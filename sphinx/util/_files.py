@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from collections.abc import Set
 
 
-class FilenameUniqDict(dict[str, tuple[set[str], str]]):
+class FilenameUniqDict(dict[str, tuple[set[str], str]]):  # NoQA: FURB189
     """A dictionary that automatically generates unique names for its keys,
     interpreted as filenames, and keeps track of a set of docnames they
     appear in.  Used for images and downloadable files in the environment.
@@ -61,7 +61,7 @@ class FilenameUniqDict(dict[str, tuple[set[str], str]]):
         self._existing = state
 
 
-class DownloadFiles(dict[Path, tuple[set[str], _StrPath]]):
+class DownloadFiles(dict[Path, tuple[set[str], _StrPath]]):  # NoQA: FURB189
     """A special dictionary for download files.
 
     .. important:: This class would be refactored in nearly future.

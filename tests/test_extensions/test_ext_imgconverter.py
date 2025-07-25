@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import subprocess
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.fixture
-def _if_converter_found(app):
+def _if_converter_found(app: SphinxTestApp) -> None:
     image_converter = getattr(app.config, 'image_converter', '')
     try:
         if image_converter:
@@ -27,7 +31,7 @@ def _if_converter_found(app):
 
 @pytest.mark.usefixtures('_if_converter_found')
 @pytest.mark.sphinx('latex', testroot='ext-imgconverter')
-def test_ext_imgconverter(app):
+def test_ext_imgconverter(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')

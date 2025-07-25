@@ -57,6 +57,10 @@ if sys.platform == 'win32':
             warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
             return self.__str__() + other
 
+        def __radd__(self, other: str) -> str:
+            warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
+            return other + self.__str__()
+
         def __bool__(self) -> bool:
             if not self.__str__():
                 warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
@@ -107,6 +111,10 @@ else:
         def __add__(self, other: str) -> str:
             warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
             return self.__str__() + other
+
+        def __radd__(self, other: str) -> str:
+            warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
+            return other + self.__str__()
 
         def __bool__(self) -> bool:
             if not self.__str__():

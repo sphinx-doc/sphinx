@@ -10,6 +10,7 @@ import time
 import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
+from io import StringIO
 from queue import Queue
 from typing import TYPE_CHECKING
 from unittest import mock
@@ -27,6 +28,8 @@ from sphinx.builders.linkcheck import (
     RateLimit,
     compile_linkcheck_allowed_redirects,
 )
+from sphinx.errors import ConfigError
+from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
 
@@ -36,6 +39,7 @@ ts_re = re.compile(r'.*\[(?P<ts>.*)\].*')
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
+    from pathlib import Path
     from typing import Any
 
     from urllib3 import HTTPConnectionPool
@@ -438,7 +442,7 @@ def test_raises_for_invalid_status(app: SphinxTestApp) -> None:
     testroot='linkcheck-localserver-anchor',
     freshenv=True,
 )
-def test_incomplete_html_anchor(app):
+def test_incomplete_html_anchor(app: SphinxTestApp) -> None:
     class IncompleteHTMLDocumentHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
@@ -464,7 +468,7 @@ def test_incomplete_html_anchor(app):
     testroot='linkcheck-localserver-anchor',
     freshenv=True,
 )
-def test_decoding_error_anchor_ignored(app):
+def test_decoding_error_anchor_ignored(app: SphinxTestApp) -> None:
     class NonASCIIHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
@@ -712,7 +716,7 @@ def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]
 def test_follows_redirects_on_HEAD(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=True)) as address:
         app.build()
-    stdout, stderr = capsys.readouterr()
+    _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         'index.rst:1: [redirected with Found] '
@@ -735,7 +739,7 @@ def test_follows_redirects_on_HEAD(app, capsys):
 def test_follows_redirects_on_GET(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
         app.build()
-    stdout, stderr = capsys.readouterr()
+    _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         'index.rst:1: [redirected with Found] '
@@ -749,6 +753,34 @@ def test_follows_redirects_on_GET(app, capsys):
         """,
     )
     assert app.warning.getvalue() == ''
+
+
+def test_linkcheck_allowed_redirects_config(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
+    tmp_path.joinpath('conf.py').touch()
+    tmp_path.joinpath('index.rst').touch()
+
+    # ``linkcheck_allowed_redirects = None`` is rejected
+    warning_stream = StringIO()
+    with pytest.raises(ConfigError):
+        make_app(
+            'linkcheck',
+            srcdir=tmp_path,
+            confoverrides={'linkcheck_allowed_redirects': None},
+            warning=warning_stream,
+        )
+    assert strip_escape_sequences(warning_stream.getvalue()).splitlines() == [
+        "WARNING: The config value `linkcheck_allowed_redirects' has type `NoneType'; expected `dict'."
+    ]
+
+    # ``linkcheck_allowed_redirects = {}`` is permitted
+    app = make_app(
+        'linkcheck',
+        srcdir=tmp_path,
+        confoverrides={'linkcheck_allowed_redirects': {}},
+    )
+    assert strip_escape_sequences(app.warning.getvalue()) == ''
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
@@ -969,7 +1001,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
-def test_ignore_local_redirection(app):
+def test_ignore_local_redirection(app: SphinxTestApp) -> None:
     with serve_application(app, InfiniteRedirectOnHeadHandler) as address:
         app.config.linkcheck_ignore = [f'http://{address}/redirected']
         app.build()
@@ -1000,7 +1032,7 @@ class RemoteDomainRedirectHandler(InfiniteRedirectOnHeadHandler):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
-def test_ignore_remote_redirection(app):
+def test_ignore_remote_redirection(app: SphinxTestApp) -> None:
     with serve_application(app, RemoteDomainRedirectHandler) as address:
         app.config.linkcheck_ignore = ['http://example.test']
         app.build()
@@ -1094,6 +1126,12 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
             app, make_retry_after_handler([(429, retry_after), (200, None)])
         ) as address:
             app.build()
+
+    # Undo side-effects: the monkeypatch context manager clears the TZ environment
+    # variable, but we also need to reset Python's internal notion of the current
+    # timezone.
+    if sys.platform != 'win32':
+        time.tzset()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {

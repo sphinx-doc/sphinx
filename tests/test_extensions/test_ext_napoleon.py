@@ -115,7 +115,7 @@ class TestSetup:
     def test_add_config_values(self):
         app = mock.Mock(Sphinx)
         setup(app)
-        for name in Config._config_values:
+        for name, _default, _rebuild, _types in Config._config_values:
             has_config = False
             for method_name, args, _kwargs in app.method_calls:
                 if method_name == 'add_config_value' and args[0] == name:
@@ -164,7 +164,8 @@ class TestSkipMember:
         # Since python 3.7, namedtuple._asdict() has not been documented
         # because there is no way to check the method is a member of the
         # namedtuple class.  This testcase confirms only it does not
-        # raise an error on building document (refs: #1455)
+        # raise an error on building document
+        # See: https://github.com/sphinx-doc/sphinx/issues/1455
         self.assert_skip(
             'class',
             '_asdict',

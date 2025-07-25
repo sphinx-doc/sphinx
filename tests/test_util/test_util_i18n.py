@@ -4,19 +4,21 @@ from __future__ import annotations
 
 import datetime
 import os
-import sys
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import babel
 import pytest
 from babel.messages.mofile import read_mo
 
 from sphinx.errors import SphinxError
 from sphinx.util import i18n
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
-def test_catalog_info_for_file_and_path():
+
+def test_catalog_info_for_file_and_path() -> None:
     cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
     assert cat.po_file == 'domain.po'
     assert cat.mo_file == 'domain.mo'
@@ -24,7 +26,7 @@ def test_catalog_info_for_file_and_path():
     assert cat.mo_path == Path('path', 'domain.mo')
 
 
-def test_catalog_info_for_sub_domain_file_and_path():
+def test_catalog_info_for_sub_domain_file_and_path() -> None:
     cat = i18n.CatalogInfo('path', 'sub/domain', 'utf-8')
     assert cat.po_file == 'sub/domain.po'
     assert cat.mo_file == 'sub/domain.mo'
@@ -56,11 +58,6 @@ def test_catalog_write_mo(tmp_path):
         assert read_mo(f) is not None
 
 
-# https://github.com/python-babel/babel/issues/1183
-@pytest.mark.xfail(
-    sys.platform == 'win32' and babel.__version__ == '2.17.0',
-    reason='Windows tests fail with Babel 2.17',
-)
 def test_format_date():
     date = datetime.date(2016, 2, 7)
 
@@ -102,7 +99,7 @@ def test_format_date():
     assert i18n.format_date(format, date=datet, language='en') == '+0000'
 
 
-def test_format_date_timezone():
+def test_format_date_timezone() -> None:
     dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.UTC)
     if time.localtime(dt.timestamp()).tm_gmtoff == 0:
         raise pytest.skip('Local time zone is GMT')  # NoQA: EM101,TRY003
@@ -121,7 +118,7 @@ def test_format_date_timezone():
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_filename_for_language(app):
+def test_get_filename_for_language(app: SphinxTestApp) -> None:
     get_filename = i18n.get_image_filename_for_language
     app.env.current_document.docname = 'index'
 

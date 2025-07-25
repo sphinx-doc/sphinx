@@ -17,7 +17,9 @@ from warnings import catch_warnings
 import pytest
 
 from sphinx import addnodes
-from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
+from sphinx.ext.autodoc._directive_options import Options
+from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
+from sphinx.ext.autodoc._sentinels import ALL
 
 # NEVER import these objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -177,6 +179,28 @@ def test_format_signature(app):
     assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
     assert formatsig('function', 'g', g, None, None) == r"(a='\n')"
 
+    if sys.version_info >= (3, 12):
+        for params, expect in [
+            ('(a=1)', '(a=1)'),
+            ('(a: int=1)', '(a: int = 1)'),  # auto whitespace formatting
+            ('(a:list[T]   =[], b=None)', '(a: list[T] = [], b=None)'),  # idem
+        ]:
+            ns = {}
+            exec(f'def f[T]{params}: pass', ns)  # NoQA: S102
+            f = ns['f']
+            assert formatsig('function', 'f', f, None, None) == expect
+            assert formatsig('function', 'f', f, '...', None) == '(...)'
+            assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
+
+            exec(f'def f[T]{params} -> list[T]: return []', ns)  # NoQA: S102
+            f = ns['f']
+            assert formatsig('function', 'f', f, None, None) == f'{expect} -> list[T]'
+            assert formatsig('function', 'f', f, '...', None) == '(...)'
+            assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
+
+    # TODO(picnixz): add more test cases for PEP-695 classes as well (though
+    # complex cases are less likely to appear and are painful to test).
+
     # test for classes
     class D:
         pass
@@ -199,7 +223,7 @@ def test_format_signature(app):
             pass
 
     class FNew:
-        def __new__(cls, a, b=None):
+        def __new__(cls, a, b=None):  # NoQA: ARG004
             return super().__new__(cls)
 
     class FMeta(metaclass=SomeMeta):
@@ -916,10 +940,14 @@ def test_autodoc_special_members(app):
     }
     if sys.version_info >= (3, 13, 0, 'alpha', 5):
         options['exclude-members'] = '__static_attributes__,__firstlineno__'
+    if sys.version_info >= (3, 14, 0, 'alpha', 7):
+        ann_attr_name = '__annotations_cache__'
+    else:
+        ann_attr_name = '__annotations__'
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:attribute:: Class.__annotations__',
+        f'   .. py:attribute:: Class.{ann_attr_name}',
         '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
@@ -2160,7 +2188,7 @@ def test_partialmethod(app):
         '',
         '   An example for partialmethod.',
         '',
-        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   refs: https://docs.python.org/3/library/functools.html#functools.partialmethod',
         '',
         '',
         '   .. py:method:: Cell.set_alive()',
@@ -2190,7 +2218,7 @@ def test_partialmethod_undoc_members(app):
         '',
         '   An example for partialmethod.',
         '',
-        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   refs: https://docs.python.org/3/library/functools.html#functools.partialmethod',
         '',
         '',
         '   .. py:method:: Cell.set_alive()',
@@ -2797,6 +2825,20 @@ def test_final(app):
         '',
         '      docstring',
         '',
+        '',
+        '   .. py:method:: Class.meth3()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Class.meth4()',
+        '      :module: target.final',
+        '      :final:',
+        '',
+        '      docstring',
+        '',
     ]
 
 
@@ -2871,6 +2913,26 @@ def test_overload2(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_overload3(app):
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.overload3', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.overload3',
+        '',
+        '',
+        '.. py:function:: test(x: int) -> int',
+        '                 test(x: list[int]) -> list[int]',
+        '                 test(x: str) -> str',
+        '                 test(x: float) -> float',
+        '   :module: target.overload3',
+        '',
+        '   Documentation.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_pymodule_for_ModuleLevelDocumenter(app):
     app.env.ref_context['py:module'] = 'target.classes'
     actual = do_autodoc(app, 'class', 'Foo')
@@ -2916,7 +2978,7 @@ def test_autodoc(app):
     assert content[3][0].astext() == 'autodoc_dummy_module.test()'
     assert content[3][1].astext() == 'Dummy function using dummy.*'
 
-    # issue sphinx-doc/sphinx#2437
+    # See: https://github.com/sphinx-doc/sphinx/issues/2437
     assert content[11][-1].astext() == (
         """Dummy class Bar with alias.
 

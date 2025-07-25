@@ -69,7 +69,8 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc import INSTANCEATTR, Options
+from sphinx.ext.autodoc._directive_options import Options
+from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
@@ -107,7 +108,7 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
-WELL_KNOWN_ABBREVIATIONS = ('et al.', 'e.g.', 'i.e.')
+WELL_KNOWN_ABBREVIATIONS = ('et al.', 'e.g.', 'i.e.', 'vs.')
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -188,6 +189,19 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     another Python object (e.g. a module or a class) to which *obj*
     belongs to.
     """
+    return _get_documenter(obj, parent, registry=app.registry)
+
+
+def _get_documenter(
+    obj: Any, parent: Any, *, registry: SphinxComponentRegistry
+) -> type[Documenter]:
+    """Get an autodoc.Documenter class suitable for documenting the given
+    object.
+
+    *obj* is the Python object to be documented, and *parent* is an
+    another Python object (e.g. a module or a class) to which *obj*
+    belongs to.
+    """
     from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
 
     if inspect.ismodule(obj):
@@ -196,7 +210,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
 
     # Construct a fake documenter for *parent*
     if parent is not None:
-        parent_doc_cls = get_documenter(app, parent, None)
+        parent_doc_cls = _get_documenter(parent, None, registry=registry)
     else:
         parent_doc_cls = ModuleDocumenter
 
@@ -208,7 +222,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     # Get the correct documenter class for *obj*
     classes = [
         cls
-        for cls in app.registry.documenters.values()
+        for cls in registry.documenters.values()
         if cls.can_document_member(obj, '', False, parent_doc)
     ]
     if classes:
@@ -255,7 +269,7 @@ class Autosummary(SphinxDirective):
         nodes = self.get_table(items)
 
         if 'toctree' in self.options:
-            dirname = posixpath.dirname(self.env.docname)
+            dirname = posixpath.dirname(self.env.current_document.docname)
 
             tree_prefix = self.options['toctree'].strip()
             docnames = []
@@ -318,14 +332,19 @@ class Autosummary(SphinxDirective):
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
     def create_documenter(
-        self, app: Sphinx, obj: Any, parent: Any, full_name: str
+        self,
+        obj: Any,
+        parent: Any,
+        full_name: str,
+        *,
+        registry: SphinxComponentRegistry,
     ) -> Documenter:
         """Get an autodoc.Documenter class suitable for documenting the given
         object.
 
-        Wraps get_documenter and is meant as a hook for extensions.
+        Wraps _get_documenter and is meant as a hook for extensions.
         """
-        doccls = get_documenter(app, obj, parent)
+        doccls = _get_documenter(obj, parent, registry=registry)
         return doccls(self.bridge, full_name)
 
     def get_items(self, names: list[str]) -> list[tuple[str, str | None, str, str]]:
@@ -378,7 +397,9 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1 :]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = self.create_documenter(self.env.app, obj, parent, full_name)
+            documenter = self.create_documenter(
+                obj, parent, full_name, registry=self.env._registry
+            )
             if not documenter.parse_name():
                 logger.warning(
                     __('failed to parse name %s'),
@@ -491,7 +512,7 @@ class Autosummary(SphinxDirective):
 
 def strip_arg_typehint(s: str) -> str:
     """Strip a type hint from argument definition."""
-    return s.split(':')[0].strip()
+    return s.partition(':')[0].strip()
 
 
 def _cleanup_signature(s: str) -> str:
@@ -794,7 +815,7 @@ def import_ivar_by_name(
     """
     try:
         name, attr = name.rsplit('.', 1)
-        real_name, obj, parent, modname = import_by_name(name, prefixes)
+        real_name, obj, _parent, modname = import_by_name(name, prefixes)
 
         # Get ancestors of the object (class.__mro__ includes the class itself as
         # the first entry)
@@ -812,7 +833,7 @@ def import_ivar_by_name(
             found_attrs |= {attr for (qualname, attr) in analyzer.attr_docs}
             found_attrs |= {attr for (qualname, attr) in analyzer.annotations}
             if attr in found_attrs:
-                return f'{real_name}.{attr}', INSTANCEATTR, obj, modname
+                return f'{real_name}.{attr}', INSTANCE_ATTR, obj, modname
     except (ImportError, ValueError, PycodeError) as exc:
         raise ImportError from exc
     except ImportExceptionGroup:

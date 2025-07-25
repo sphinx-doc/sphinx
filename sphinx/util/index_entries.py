@@ -20,7 +20,7 @@ def split_index_msg(entry_type: str, value: str) -> list[str]:
 
 def _split_into(n: int, type: str, value: str) -> list[str]:
     """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n - 1)]
+    parts = [x.strip() for x in value.split(';', maxsplit=n - 1)]
     if len(list(filter(None, parts))) < n:
         msg = f'invalid {type} index entry {value!r}'
         raise ValueError(msg)

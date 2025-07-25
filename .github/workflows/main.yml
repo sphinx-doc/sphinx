@@ -37,6 +37,7 @@ jobs:
         - "3.11"
         - "3.12"
         - "3.13"
+        - "3.13t"
         docutils:
         - "0.20"
         - "0.21"
@@ -62,14 +63,18 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install .[test]
+      run: uv pip install . --group test
+      env:
+        UV_PYTHON: "python${{ matrix.python }}"
     - name: Install Docutils ${{ matrix.docutils }}
       run: uv pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
+      env:
+        UV_PYTHON: "python${{ matrix.python }}"
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
@@ -84,6 +89,7 @@ jobs:
       matrix:
         python:
         - "3.14"
+        - "3.15"
         docutils:
         - "0.20"
         - "0.21"
@@ -103,42 +109,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
-        python -m pip install .[test]
+        python -m pip install . --group test
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
-    - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
-      env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
-
-  free-threaded:
-    runs-on: ubuntu-latest
-    name: Python ${{ matrix.python }} (free-threaded)
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        python:
-        - "3.13"
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v3.2.0
-      with:
-        python-version: ${{ matrix.python }}
-        nogil: true
-    - name: Check Python version
-      run: python --version --version
-    - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install .[test]
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
@@ -153,6 +126,7 @@ jobs:
       matrix:
         python:
         - "3.14"
+        - "3.15"
 
     steps:
     - uses: actions/checkout@v4
@@ -170,8 +144,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
-        python -m pip install .[test]
+        python -m pip install . --group test
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
@@ -183,6 +156,14 @@ jobs:
     timeout-minutes: 15
 
     steps:
+    # https://github.com/actions/runner-images/issues/8755
+    # On standard runners, the D: drive is much faster.
+    - name: Set %TMP% and %TEMP% to D:\\Temp
+      run: |
+        mkdir "D:\\Tmp"
+        echo "TMP=D:\\Tmp" >> $env:GITHUB_ENV
+        echo "TEMP=D:\\Tmp" >> $env:GITHUB_ENV
+
     - uses: actions/checkout@v4
       with:
         persist-credentials: false
@@ -195,12 +176,12 @@ jobs:
     - name: Install graphviz
       run: choco install --no-progress graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install .[test]
+      run: uv pip install . --group test
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
@@ -224,12 +205,12 @@ jobs:
     - name: Install graphviz
       run: brew install graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install .[test]
+      run: uv pip install . --group test
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
@@ -259,12 +240,12 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install .[test]
+      run: uv pip install . --group test
     - name: Install Docutils' HEAD
       run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
     - name: Test with pytest
@@ -292,13 +273,13 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
       run: |
-        uv pip install .[test] --resolution lowest-direct
+        uv pip install . --group test --resolution lowest-direct
         uv pip install alabaster==1.0.0
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
@@ -323,12 +304,12 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install .[test]
+      run: uv pip install . --group test
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
@@ -354,12 +335,12 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install .[test] pytest-cov
+      run: uv pip install . --group test pytest-cov
     - name: Test with pytest
       run: python -m pytest -vv --cov . --cov-append --cov-config pyproject.toml
       env:

@@ -6,7 +6,7 @@ from sphinx.pycode.parser import Parser
 from sphinx.util.inspect import signature_from_str
 
 
-def test_comment_picker_basic():
+def test_comment_picker_basic() -> None:
     source = (
         'a = 1 + 1      #: assignment\n'
         'b = 1 +\\\n 1  #: assignment including a CR\n'
@@ -30,7 +30,7 @@ def test_comment_picker_basic():
     }
 
 
-def test_comment_picker_location():
+def test_comment_picker_location() -> None:
     # multiple "before" comments
     source = (
         '#: comment before assignment1\n#:\n#: comment before assignment2\na = 1 + 1\n'
@@ -90,7 +90,7 @@ def test_comment_picker_location():
     }
 
 
-def test_annotated_assignment():
+def test_annotated_assignment() -> None:
     source = (
         'a: str = "Sphinx"  #: comment\n'
         'b: int = 1\n'
@@ -116,7 +116,7 @@ def test_annotated_assignment():
     assert parser.definitions == {}
 
 
-def test_complex_assignment():
+def test_complex_assignment() -> None:
     source = (
         'a = 1 + 1; b = a  #: compound statement\n'
         'c, d = (1, 1)  #: unpack assignment\n'
@@ -151,7 +151,7 @@ def test_complex_assignment():
     assert parser.definitions == {}
 
 
-def test_assignment_in_try_clause():
+def test_assignment_in_try_clause() -> None:
     source = (
         'try:\n'
         '    a = None  #: comment\n'
@@ -166,7 +166,7 @@ def test_assignment_in_try_clause():
     assert parser.deforders == {'a': 0, 'c': 1}
 
 
-def test_obj_assignment():
+def test_obj_assignment() -> None:
     source = (
         'obj = SomeObject()  #: some object\n'
         'obj.attr = 1  #: attr1\n'
@@ -178,7 +178,7 @@ def test_obj_assignment():
     assert parser.definitions == {}
 
 
-def test_container_assignment():
+def test_container_assignment() -> None:
     source = (
         'l = []  #: list\n'
         'l[1] = True  #: list assignment\n'
@@ -193,7 +193,7 @@ def test_container_assignment():
     assert parser.definitions == {}
 
 
-def test_function():
+def test_function() -> None:
     source = (
         'def some_function():\n'
         '    """docstring"""\n'
@@ -208,7 +208,7 @@ def test_function():
     assert parser.deforders == {'some_function': 0}
 
 
-def test_nested_function():
+def test_nested_function() -> None:
     source = (
         'def some_function():\n'
         '    a = 1 + 1  #: comment1\n'
@@ -223,7 +223,7 @@ def test_nested_function():
     assert parser.deforders == {'some_function': 0}
 
 
-def test_class():
+def test_class() -> None:
     source = (
         'class Foo(object):\n'
         '    attr1 = None  #: comment1\n'
@@ -259,7 +259,7 @@ def test_class():
     }
 
 
-def test_class_uses_non_self():
+def test_class_uses_non_self() -> None:
     source = (
         'class Foo(object):\n'
         '    def __init__(this):\n'
@@ -272,7 +272,7 @@ def test_class_uses_non_self():
     assert parser.deforders == {'Foo': 0, 'Foo.__init__': 1, 'Foo.a': 2}
 
 
-def test_nested_class():
+def test_nested_class() -> None:
     source = (
         'class Foo(object):\n'
         '    attr1 = None  #: comment1\n'
@@ -295,7 +295,7 @@ def test_nested_class():
     }
 
 
-def test_class_comment():
+def test_class_comment() -> None:
     source = (
         'import logging\n'
         'logger = logging.getLogger(__name__)\n'
@@ -309,7 +309,7 @@ def test_class_comment():
     assert parser.definitions == {'Foo': ('class', 4, 5)}
 
 
-def test_comment_picker_multiline_string():
+def test_comment_picker_multiline_string() -> None:
     source = (
         'class Foo(object):\n'
         '    a = None\n'
@@ -331,7 +331,7 @@ def test_comment_picker_multiline_string():
     }
 
 
-def test_decorators():
+def test_decorators() -> None:
     source = (
         '@deco\n'
         'def func1(): pass\n'
@@ -360,7 +360,7 @@ def test_decorators():
     }
 
 
-def test_async_function_and_method():
+def test_async_function_and_method() -> None:
     source = (
         'async def some_function():\n'
         '    """docstring"""\n'
@@ -379,7 +379,7 @@ def test_async_function_and_method():
     }
 
 
-def test_imports():
+def test_imports() -> None:
     source = (
         'import sys\n'
         'from os import environment, path\n'
@@ -399,14 +399,14 @@ def test_imports():
     }
 
 
-def test_formfeed_char():
+def test_formfeed_char() -> None:
     source = 'class Foo:\n\f\n    attr = 1234  #: comment\n'
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('Foo', 'attr'): 'comment'}
 
 
-def test_typing_final():
+def test_typing_final() -> None:
     source = (
         'import typing\n'
         '\n'
@@ -424,7 +424,7 @@ def test_typing_final():
     assert parser.finals == ['func', 'Foo', 'Foo.meth']
 
 
-def test_typing_final_from_import():
+def test_typing_final_from_import() -> None:
     source = (
         'from typing import final\n'
         '\n'
@@ -442,7 +442,7 @@ def test_typing_final_from_import():
     assert parser.finals == ['func', 'Foo', 'Foo.meth']
 
 
-def test_typing_final_import_as():
+def test_typing_final_import_as() -> None:
     source = (
         'import typing as foo\n'
         '\n'
@@ -460,7 +460,7 @@ def test_typing_final_import_as():
     assert parser.finals == ['func', 'Foo']
 
 
-def test_typing_final_from_import_as():
+def test_typing_final_from_import_as() -> None:
     source = (
         'from typing import final as bar\n'
         '\n'
@@ -478,7 +478,7 @@ def test_typing_final_from_import_as():
     assert parser.finals == ['func', 'Foo']
 
 
-def test_typing_final_not_imported():
+def test_typing_final_not_imported() -> None:
     source = (
         '@typing.final\n'
         'def func(): pass\n'
@@ -494,7 +494,7 @@ def test_typing_final_not_imported():
     assert parser.finals == []
 
 
-def test_typing_overload():
+def test_typing_overload() -> None:
     source = (
         'import typing\n'
         '\n'
@@ -516,7 +516,7 @@ def test_typing_overload():
     }
 
 
-def test_typing_overload_from_import():
+def test_typing_overload_from_import() -> None:
     source = (
         'from typing import overload\n'
         '\n'
@@ -538,7 +538,7 @@ def test_typing_overload_from_import():
     }
 
 
-def test_typing_overload_import_as():
+def test_typing_overload_import_as() -> None:
     source = (
         'import typing as foo\n'
         '\n'
@@ -560,7 +560,7 @@ def test_typing_overload_import_as():
     }
 
 
-def test_typing_overload_from_import_as():
+def test_typing_overload_from_import_as() -> None:
     source = (
         'from typing import overload as bar\n'
         '\n'
@@ -582,7 +582,7 @@ def test_typing_overload_from_import_as():
     }
 
 
-def test_typing_overload_not_imported():
+def test_typing_overload_not_imported() -> None:
     source = (
         '@typing.final\n'
         'def func(x: int, y: int) -> int: pass\n'
