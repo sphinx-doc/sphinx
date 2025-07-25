@@ -222,6 +222,69 @@ class Documenter:
         example, it would return ``('zipfile', ['ZipFile', 'open'])`` for the
         ``zipfile.ZipFile.open`` method.
         """
+        if isinstance(self, ModuleDocumenter):
+            if modname is not None:
+                logger.warning(
+                    __('"::" in automodule name doesn\'t make sense'), type='autodoc'
+                )
+            return (path or '') + base, []
+        if isinstance(
+            self,
+            (
+                ModuleLevelDocumenter,
+                FunctionDocumenter,
+                ClassDocumenter,
+                DataDocumenter,
+            ),
+        ):
+            if modname is not None:
+                return modname, [*parents, base]
+            if path:
+                modname = path.rstrip('.')
+                return modname, [*parents, base]
+
+            # if documenting a toplevel object without explicit module,
+            # it can be contained in another auto directive ...
+            modname = self._current_document.autodoc_module
+            # ... or in the scope of a module directive
+            if not modname:
+                modname = self.env.ref_context.get('py:module')
+            # ... else, it stays None, which means invalid
+            return modname, [*parents, base]
+        if isinstance(
+            self,
+            (
+                ClassLevelDocumenter,
+                MethodDocumenter,
+                AttributeDocumenter,
+                PropertyDocumenter,
+            ),
+        ):
+            if modname is not None:
+                return modname, [*parents, base]
+
+            if path:
+                mod_cls = path.rstrip('.')
+            else:
+                # if documenting a class-level object without path,
+                # there must be a current class, either from a parent
+                # auto directive ...
+                mod_cls = self._current_document.autodoc_class
+                # ... or from a class directive
+                if not mod_cls:
+                    mod_cls = self.env.ref_context.get('py:class', '')
+                    # ... if still falsy, there's no way to know
+                    if not mod_cls:
+                        return None, []
+            modname, _sep, cls = mod_cls.rpartition('.')
+            parents = [cls]
+            # if the module name is still missing, get it like above
+            if not modname:
+                modname = self._current_document.autodoc_module
+            if not modname:
+                modname = self.env.ref_context.get('py:module')
+            # ... else, it stays None, which means invalid
+            return modname, [*parents, base]
         msg = 'must be implemented in subclasses'
         raise NotImplementedError(msg)
 
@@ -949,15 +1012,6 @@ class ModuleDocumenter(Documenter):
         # don't document submodules automatically
         return False
 
-    def resolve_name(
-        self, modname: str | None, parents: Any, path: str, base: str
-    ) -> tuple[str | None, list[str]]:
-        if modname is not None:
-            logger.warning(
-                __('"::" in automodule name doesn\'t make sense'), type='autodoc'
-            )
-        return (path or '') + base, []
-
     def parse_name(self) -> bool:
         ret = super().parse_name()
         if self.args or self.retann:
@@ -1091,65 +1145,6 @@ class ModuleDocumenter(Documenter):
             return super().sort_members(documenters, order)
 
 
-class ModuleLevelDocumenter(Documenter):
-    """Specialized Documenter subclass for objects on module level (functions,
-    classes, data/constants).
-    """
-
-    def resolve_name(
-        self, modname: str | None, parents: Any, path: str, base: str
-    ) -> tuple[str | None, list[str]]:
-        if modname is not None:
-            return modname, [*parents, base]
-        if path:
-            modname = path.rstrip('.')
-            return modname, [*parents, base]
-
-        # if documenting a toplevel object without explicit module,
-        # it can be contained in another auto directive ...
-        modname = self._current_document.autodoc_module
-        # ... or in the scope of a module directive
-        if not modname:
-            modname = self.env.ref_context.get('py:module')
-        # ... else, it stays None, which means invalid
-        return modname, [*parents, base]
-
-
-class ClassLevelDocumenter(Documenter):
-    """Specialized Documenter subclass for objects on class level (methods,
-    attributes).
-    """
-
-    def resolve_name(
-        self, modname: str | None, parents: Any, path: str, base: str
-    ) -> tuple[str | None, list[str]]:
-        if modname is not None:
-            return modname, [*parents, base]
-
-        if path:
-            mod_cls = path.rstrip('.')
-        else:
-            # if documenting a class-level object without path,
-            # there must be a current class, either from a parent
-            # auto directive ...
-            mod_cls = self._current_document.autodoc_class
-            # ... or from a class directive
-            if not mod_cls:
-                mod_cls = self.env.ref_context.get('py:class', '')
-                # ... if still falsy, there's no way to know
-                if not mod_cls:
-                    return None, []
-        modname, _sep, cls = mod_cls.rpartition('.')
-        parents = [cls]
-        # if the module name is still missing, get it like above
-        if not modname:
-            modname = self._current_document.autodoc_module
-        if not modname:
-            modname = self.env.ref_context.get('py:module')
-        # ... else, it stays None, which means invalid
-        return modname, [*parents, base]
-
-
 class DocstringSignatureMixin:
     """Mixin for FunctionDocumenter and MethodDocumenter to provide the
     feature of reading the signature from the docstring.
@@ -1239,7 +1234,7 @@ class DocstringSignatureMixin:
             return sig
 
 
-class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
+class FunctionDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[misc]
     """Specialized Documenter subclass for functions."""
 
     objtype = 'function'
@@ -1412,7 +1407,7 @@ _CLASS_NEW_BLACKLIST = frozenset({
 })
 
 
-class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
+class ClassDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[misc]
     """Specialized Documenter subclass for classes."""
 
     objtype = 'class'
@@ -2018,15 +2013,13 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             return super().get_doc()  # type: ignore[misc]
 
 
-class DataDocumenter(
-    GenericAliasMixin, UninitializedGlobalVariableMixin, ModuleLevelDocumenter
-):
+class DataDocumenter(GenericAliasMixin, UninitializedGlobalVariableMixin, Documenter):
     """Specialized Documenter subclass for data items."""
 
     objtype = 'data'
     member_order = 40
     priority = -10
-    option_spec: ClassVar[OptionSpec] = dict(ModuleLevelDocumenter.option_spec)
+    option_spec: ClassVar[OptionSpec] = dict(Documenter.option_spec)
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
 
@@ -2151,7 +2144,7 @@ class DataDocumenter(
         super().add_content(more_content)
 
 
-class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
+class MethodDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[misc]
     """Specialized Documenter subclass for methods (normal, static and class)."""
 
     objtype = 'method'
@@ -2639,7 +2632,7 @@ class AttributeDocumenter(  # type: ignore[misc]
     UninitializedInstanceAttributeMixin,
     NonDataDescriptorMixin,
     DocstringSignatureMixin,
-    ClassLevelDocumenter,
+    Documenter,
 ):
     """Specialized Documenter subclass for attributes."""
 
@@ -2647,7 +2640,7 @@ class AttributeDocumenter(  # type: ignore[misc]
 
     objtype = 'attribute'
     member_order = 60
-    option_spec: ClassVar[OptionSpec] = dict(ModuleLevelDocumenter.option_spec)
+    option_spec: ClassVar[OptionSpec] = dict(Documenter.option_spec)
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
 
@@ -2810,7 +2803,7 @@ class AttributeDocumenter(  # type: ignore[misc]
         super().add_content(more_content)
 
 
-class PropertyDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
+class PropertyDocumenter(DocstringSignatureMixin, Documenter):  # type: ignore[misc]
     """Specialized Documenter subclass for properties."""
 
     __docstring_strip_signature__ = True
@@ -2907,6 +2900,14 @@ class PropertyDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type
         if safe_getattr(self.object, 'func', None):  # cached_property
             return self.object.func
         return None
+
+
+class ModuleLevelDocumenter(Documenter):
+    """Retained for compatibility."""
+
+
+class ClassLevelDocumenter(Documenter):
+    """Retained for compatibility."""
 
 
 def autodoc_attrgetter(
