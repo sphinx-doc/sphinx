@@ -228,6 +228,7 @@ class Documenter:
                     __('"::" in automodule name doesn\'t make sense'), type='autodoc'
                 )
             return (path or '') + base, []
+
         if isinstance(
             self,
             (
@@ -251,6 +252,7 @@ class Documenter:
                 modname = self.env.ref_context.get('py:module')
             # ... else, it stays None, which means invalid
             return modname, [*parents, base]
+
         if isinstance(
             self,
             (
@@ -285,6 +287,7 @@ class Documenter:
                 modname = self.env.ref_context.get('py:module')
             # ... else, it stays None, which means invalid
             return modname, [*parents, base]
+
         msg = 'must be implemented in subclasses'
         raise NotImplementedError(msg)
 
