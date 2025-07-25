@@ -21,6 +21,11 @@ from sphinx.ext.autodoc._directive_options import (
     members_option,
     merge_members_option,
 )
+from sphinx.ext.autodoc._importer import (
+    _get_attribute_comment,
+    _import_object,
+    _is_runtime_instance_attribute_not_commented,
+)
 from sphinx.ext.autodoc._sentinels import (
     ALL,
     INSTANCE_ATTR,
@@ -29,7 +34,7 @@ from sphinx.ext.autodoc._sentinels import (
     SUPPRESS,
     UNINITIALIZED_ATTR,
 )
-from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
+from sphinx.ext.autodoc.importer import get_class_members
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
@@ -346,111 +351,28 @@ class Documenter:
 
         Returns True if successful, False if an error occurred.
         """
-        with mock(self.config.autodoc_mock_imports):
-            try:
-                ret = import_object(
-                    self.modname, self.objpath, self.objtype, attrgetter=self.get_attr
-                )
-                self.module, self.parent, self.object_name, self.object = ret
-                if ismock(self.object):
-                    self.object = undecorate(self.object)
-                return True
-            except ImportError as exc:
-                if self.__uninitialized_global_variable__:
-                    # annotation only instance variable (PEP-526)
-                    try:
-                        parent = import_module(self.modname)
-                        annotations = get_type_hints(
-                            parent,
-                            None,
-                            self.config.autodoc_type_aliases,
-                            include_extras=True,
-                        )
-                        if self.objpath[-1] in annotations:
-                            self.object = UNINITIALIZED_ATTR
-                            self.parent = parent
-                            return True
-                    except ImportError:
-                        pass
-
-                if isinstance(self, AttributeDocumenter):
-                    # Support runtime & uninitialized instance attributes.
-                    #
-                    # The former are defined in __init__() methods with doc-comments.
-                    # The latter are PEP-526 style annotation only annotations.
-                    #
-                    # class Foo:
-                    #     attr: int  #: uninitialized attribute
-                    #
-                    #     def __init__(self):
-                    #         self.attr = None  #: runtime attribute
-                    try:
-                        ret = import_object(
-                            self.modname,
-                            self.objpath[:-1],
-                            'class',
-                            attrgetter=self.get_attr,
-                        )
-                        parent = ret[3]
-                        if self._is_runtime_instance_attribute(parent):
-                            self.object = RUNTIME_INSTANCE_ATTRIBUTE
-                            self.parent = parent
-                            return True
-
-                        if self._is_uninitialized_instance_attribute(parent):
-                            self.object = UNINITIALIZED_ATTR
-                            self.parent = parent
-                            return True
-                    except ImportError:
-                        pass
-
-                if raiseerror:
-                    raise
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return False
-
-    def _is_slots_attribute(self) -> bool:
-        """Check the subject is an attribute in __slots__."""
-        try:
-            if parent___slots__ := inspect.getslots(self.parent):
-                return self.objpath[-1] in parent___slots__
-            else:
-                return False
-        except (ValueError, TypeError):
+        im = _import_object(
+            modname=self.modname,
+            objpath=self.objpath,
+            objtype=self.objtype,
+            fullname=self.fullname,
+            member_order=self.member_order,
+            get_attr=self.get_attr,
+            config=self.config,
+            env=self.env,
+            options=self.options,
+            is_data_documenter=self.__uninitialized_global_variable__,
+            is_attribute_documenter=isinstance(self, AttributeDocumenter),
+            raise_error=raiseerror,
+        )
+        if im is None:
             return False
 
-    def _is_runtime_instance_attribute(self, parent: Any) -> bool:
-        """Check the subject is an attribute defined in __init__()."""
-        # An instance variable defined in __init__().
-        if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore[attr-defined]
-            return True
-        return self._is_runtime_instance_attribute_not_commented(parent)
-
-    def _is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
-        """Check the subject is an attribute defined in __init__() without comment."""
-        for cls in inspect.getmro(parent):
-            try:
-                module = safe_getattr(cls, '__module__')
-                qualname = safe_getattr(cls, '__qualname__')
-
-                analyzer = ModuleAnalyzer.for_module(module)
-                analyzer.analyze()
-                if qualname and self.objpath:
-                    key = f'{qualname}.{self.objpath[-1]}'
-                    if key in analyzer.tagorder:
-                        return True
-            except (AttributeError, PycodeError):
-                pass
-
-        return False
-
-    def _is_uninitialized_instance_attribute(self, parent: Any) -> bool:
-        """Check the subject is an annotation only attribute."""
-        annotations = get_type_hints(
-            parent, None, self.config.autodoc_type_aliases, include_extras=True
-        )
-        return self.objpath[-1] in annotations
+        self.object = im.obj
+        del im.obj
+        for k in vars(im):
+            setattr(self, k, getattr(im, k))
+        return True
 
     def get_real_modname(self) -> str:
         """Get the real module name of an object to document.
@@ -1206,26 +1128,6 @@ class ModuleDocumenter(Documenter):
             )
         return ret
 
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)
-
-        try:
-            if not self.options.ignore_module_all:
-                self.__all__ = inspect.getall(self.object)
-        except ValueError as exc:
-            # invalid __all__ found.
-            logger.warning(
-                __(
-                    '__all__ should be a list of strings, not %r '
-                    '(in module %s) -- ignoring __all__'
-                ),
-                exc.args[0],
-                self.fullname,
-                type='autodoc',
-            )
-
-        return ret
-
     def add_directive_header(self, sig: str) -> None:
         Documenter.add_directive_header(self, sig)
 
@@ -1556,23 +1458,6 @@ class ClassDocumenter(Documenter):
         return isinstance(member, type) or (
             isattr and isinstance(member, NewType | TypeVar)
         )
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)
-        # if the class is documented under another name, document it
-        # as data/attribute
-        if ret:
-            if hasattr(self.object, '__name__'):
-                self.doc_as_attr = self.objpath[-1] != self.object.__name__
-            else:
-                self.doc_as_attr = True
-            if isinstance(self.object, NewType | TypeVar):
-                modname = getattr(self.object, '__module__', self.modname)
-                if modname != self.modname and self.modname.startswith(modname):
-                    bases = self.modname[len(modname) :].strip('.').split('.')
-                    self.objpath = bases + self.objpath
-                    self.modname = modname
-        return ret
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
         if isinstance(self.object, NewType | TypeVar):
@@ -2056,13 +1941,6 @@ class DataDocumenter(Documenter):
         except PycodeError:
             pass
 
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)
-        if self.parent:
-            self.update_annotations(self.parent)
-
-        return ret
-
     def should_suppress_value_header(self) -> bool:
         if self.object is UNINITIALIZED_ATTR:
             return True
@@ -2173,22 +2051,6 @@ class MethodDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)
-        if not ret:
-            return ret
-
-        # to distinguish classmethod/staticmethod
-        obj = self.parent.__dict__.get(self.object_name, self.object)
-        if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
-            # document static members before regular methods
-            self.member_order -= 1  # type: ignore[misc]
-        elif inspect.isclassmethod(obj):
-            # document class methods before static methods as
-            # they usually behave as alternative constructors
-            self.member_order -= 2  # type: ignore[misc]
-        return ret
 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in {'none', 'description'}:
@@ -2480,22 +2342,6 @@ class AttributeDocumenter(Documenter):
             # Failed to set __annotations__ (built-in, extensions, etc.)
             pass
 
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)
-        if self._is_slots_attribute():
-            self.object = SLOTS_ATTR
-        elif inspect.isenumattribute(self.object):
-            self.object = self.object.value
-        if self.parent:
-            self.update_annotations(self.parent)
-
-        if ret and not inspect.isattributedescriptor(self.object):
-            self._non_data_descriptor = True
-        else:
-            self._non_data_descriptor = False
-
-        return ret
-
     def get_real_modname(self) -> str:
         real_modname = self.get_attr(self.parent or self.object, '__module__', None)
         return real_modname or self.modname
@@ -2561,25 +2407,15 @@ class AttributeDocumenter(Documenter):
                 pass
 
     def get_attribute_comment(self, parent: Any, attrname: str) -> list[str] | None:
-        for cls in inspect.getmro(parent):
-            try:
-                module = safe_getattr(cls, '__module__')
-                qualname = safe_getattr(cls, '__qualname__')
-
-                analyzer = ModuleAnalyzer.for_module(module)
-                analyzer.analyze()
-                if qualname and self.objpath:
-                    key = (qualname, attrname)
-                    if key in analyzer.attr_docs:
-                        return list(analyzer.attr_docs[key])
-            except (AttributeError, PycodeError):
-                pass
-
-        return None
+        return _get_attribute_comment(
+            parent=parent, objpath=self.objpath, attrname=attrname
+        )
 
     def get_doc(self) -> list[list[str]] | None:
         # Check the attribute has a docstring-comment
-        comment = self.get_attribute_comment(self.parent, self.objpath[-1])
+        comment = _get_attribute_comment(
+            parent=self.parent, objpath=self.objpath, attrname=self.objpath[-1]
+        )
         if comment:
             return [comment]
 
@@ -2611,7 +2447,9 @@ class AttributeDocumenter(Documenter):
 
             if (
                 self.object is RUNTIME_INSTANCE_ATTRIBUTE
-                and self._is_runtime_instance_attribute_not_commented(self.parent)
+                and _is_runtime_instance_attribute_not_commented(
+                    parent=self.parent, objpath=self.objpath
+                )
             ):
                 return None
 
@@ -2667,24 +2505,6 @@ class PropertyDocumenter(Documenter):
                 return isinstance(obj, classmethod) and inspect.isproperty(obj.__func__)
         else:
             return False
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the existence of uninitialized instance attribute when failed to import
-        the attribute.
-        """
-        ret = super().import_object(raiseerror)
-        if ret and not inspect.isproperty(self.object):
-            __dict__ = safe_getattr(self.parent, '__dict__', {})
-            obj = __dict__.get(self.objpath[-1])
-            if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
-                self.object = obj.__func__
-                self.isclassmethod: bool = True
-                return True
-            else:
-                return False
-
-        self.isclassmethod = False
-        return ret
 
     def format_args(self, **kwargs: Any) -> str:
         func = self._get_property_getter()
