@@ -24,6 +24,7 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._sentinels import (
     ALL,
     INSTANCE_ATTR,
+    RUNTIME_INSTANCE_ATTRIBUTE,
     SLOTS_ATTR,
     SUPPRESS,
     UNINITIALIZED_ATTR,
@@ -372,11 +373,84 @@ class Documenter:
                     except ImportError:
                         pass
 
+                if isinstance(self, AttributeDocumenter):
+                    # Support runtime & uninitialized instance attributes.
+                    #
+                    # The former are defined in __init__() methods with doc-comments.
+                    # The latter are PEP-526 style annotation only annotations.
+                    #
+                    # class Foo:
+                    #     attr: int  #: uninitialized attribute
+                    #
+                    #     def __init__(self):
+                    #         self.attr = None  #: runtime attribute
+                    try:
+                        ret = import_object(
+                            self.modname,
+                            self.objpath[:-1],
+                            'class',
+                            attrgetter=self.get_attr,
+                        )
+                        parent = ret[3]
+                        if self._is_runtime_instance_attribute(parent):
+                            self.object = RUNTIME_INSTANCE_ATTRIBUTE
+                            self.parent = parent
+                            return True
+
+                        if self._is_uninitialized_instance_attribute(parent):
+                            self.object = UNINITIALIZED_ATTR
+                            self.parent = parent
+                            return True
+                    except ImportError:
+                        pass
+
                 if raiseerror:
                     raise
                 logger.warning(exc.args[0], type='autodoc', subtype='import_object')
                 self.env.note_reread()
                 return False
+
+    def _is_slots_attribute(self) -> bool:
+        """Check the subject is an attribute in __slots__."""
+        try:
+            if parent___slots__ := inspect.getslots(self.parent):
+                return self.objpath[-1] in parent___slots__
+            else:
+                return False
+        except (ValueError, TypeError):
+            return False
+
+    def _is_runtime_instance_attribute(self, parent: Any) -> bool:
+        """Check the subject is an attribute defined in __init__()."""
+        # An instance variable defined in __init__().
+        if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore[attr-defined]
+            return True
+        return self._is_runtime_instance_attribute_not_commented(parent)
+
+    def _is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
+        """Check the subject is an attribute defined in __init__() without comment."""
+        for cls in inspect.getmro(parent):
+            try:
+                module = safe_getattr(cls, '__module__')
+                qualname = safe_getattr(cls, '__qualname__')
+
+                analyzer = ModuleAnalyzer.for_module(module)
+                analyzer.analyze()
+                if qualname and self.objpath:
+                    key = f'{qualname}.{self.objpath[-1]}'
+                    if key in analyzer.tagorder:
+                        return True
+            except (AttributeError, PycodeError):
+                pass
+
+        return False
+
+    def _is_uninitialized_instance_attribute(self, parent: Any) -> bool:
+        """Check the subject is an annotation only attribute."""
+        annotations = get_type_hints(
+            parent, None, self.config.autodoc_type_aliases, include_extras=True
+        )
+        return self.objpath[-1] in annotations
 
     def get_real_modname(self) -> str:
         """Get the real module name of an object to document.
@@ -1950,20 +2024,6 @@ class ExceptionDocumenter(ClassDocumenter):
             raise ValueError(msg) from exc
 
 
-class DataDocumenterMixinBase:
-    # define types of instance variables
-    config: Config
-    env: BuildEnvironment
-    modname: str
-    parent: Any
-    object: Any
-    objpath: list[str]
-
-    def should_suppress_value_header(self) -> bool:
-        """Check :value: header should be suppressed."""
-        return False
-
-
 class DataDocumenter(Documenter):
     """Specialized Documenter subclass for data items."""
 
@@ -2361,236 +2421,12 @@ class MethodDocumenter(Documenter):
             return super().get_doc()
 
 
-class NonDataDescriptorMixin(DataDocumenterMixinBase):
-    """Mixin for AttributeDocumenter to provide the feature for supporting non
-    data-descriptors.
-
-    .. note:: This mix-in must be inherited after other mix-ins.  Otherwise, docstring
-              and :value: header will be suppressed unexpectedly.
-    """
-
-    non_data_descriptor: bool = False
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)  # type: ignore[misc]
-        if ret and not inspect.isattributedescriptor(self.object):
-            self.non_data_descriptor = True
-        else:
-            self.non_data_descriptor = False
-
-        return ret
-
-    def should_suppress_value_header(self) -> bool:
-        non_data_descriptor = getattr(self, 'non_data_descriptor', False)
-        return not non_data_descriptor or inspect.isgenericalias(self.object)
-
-    def get_doc(self) -> list[list[str]] | None:
-        if getattr(self, 'non_data_descriptor', False):
-            # the docstring of non datadescriptor is very probably the wrong thing
-            # to display
-            return None
-        else:
-            return super().get_doc()  # type: ignore[misc]
-
-
-class SlotsMixin(DataDocumenterMixinBase):
-    """Mixin for AttributeDocumenter to provide the feature for supporting __slots__."""
-
-    def isslotsattribute(self) -> bool:
-        """Check the subject is an attribute in __slots__."""
-        try:
-            if parent___slots__ := inspect.getslots(self.parent):
-                return self.objpath[-1] in parent___slots__
-            else:
-                return False
-        except (ValueError, TypeError):
-            return False
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)  # type: ignore[misc]
-        if self.isslotsattribute():
-            self.object = SLOTS_ATTR
-
-        return ret
-
-    def should_suppress_value_header(self) -> bool:
-        if self.object is SLOTS_ATTR:
-            return True
-        else:
-            return super().should_suppress_value_header()
-
-    def get_doc(self) -> list[list[str]] | None:
-        if self.object is SLOTS_ATTR:
-            try:
-                parent___slots__ = inspect.getslots(self.parent)
-                if parent___slots__ and (
-                    docstring := parent___slots__.get(self.objpath[-1])
-                ):
-                    docstring = prepare_docstring(docstring)
-                    return [docstring]
-                else:
-                    return []
-            except ValueError as exc:
-                logger.warning(
-                    __('Invalid __slots__ found on %s. Ignored.'),
-                    (self.parent.__qualname__, exc),
-                    type='autodoc',
-                )
-                return []
-        else:
-            return super().get_doc()  # type: ignore[misc]
-
-
-class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
-    """Mixin for AttributeDocumenter to provide the feature for supporting runtime
-    instance attributes (that are defined in __init__() methods with doc-comments).
-
-    Example::
-
-        class Foo:
-            def __init__(self):
-                self.attr = None  #: This is a target of this mix-in.
-    """
-
-    RUNTIME_INSTANCE_ATTRIBUTE = object()
-
-    def is_runtime_instance_attribute(self, parent: Any) -> bool:
-        """Check the subject is an attribute defined in __init__()."""
-        # An instance variable defined in __init__().
-        if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore[attr-defined]
-            return True
-        return self.is_runtime_instance_attribute_not_commented(parent)
-
-    def is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
-        """Check the subject is an attribute defined in __init__() without comment."""
-        for cls in inspect.getmro(parent):
-            try:
-                module = safe_getattr(cls, '__module__')
-                qualname = safe_getattr(cls, '__qualname__')
-
-                analyzer = ModuleAnalyzer.for_module(module)
-                analyzer.analyze()
-                if qualname and self.objpath:
-                    key = f'{qualname}.{self.objpath[-1]}'
-                    if key in analyzer.tagorder:
-                        return True
-            except (AttributeError, PycodeError):
-                pass
-
-        return False
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the existence of runtime instance attribute after failing to import the
-        attribute.
-        """
-        try:
-            return super().import_object(raiseerror=True)  # type: ignore[misc]
-        except ImportError as exc:
-            try:
-                with mock(self.config.autodoc_mock_imports):
-                    ret = import_object(
-                        self.modname,
-                        self.objpath[:-1],
-                        'class',
-                        attrgetter=self.get_attr,  # type: ignore[attr-defined]
-                    )
-                    parent = ret[3]
-                    if self.is_runtime_instance_attribute(parent):
-                        self.object = self.RUNTIME_INSTANCE_ATTRIBUTE
-                        self.parent = parent
-                        return True
-            except ImportError:
-                pass
-
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-    def should_suppress_value_header(self) -> bool:
-        return (
-            self.object is self.RUNTIME_INSTANCE_ATTRIBUTE
-            or super().should_suppress_value_header()
-        )
-
-    def get_doc(self) -> list[list[str]] | None:
-        if (
-            self.object is self.RUNTIME_INSTANCE_ATTRIBUTE
-            and self.is_runtime_instance_attribute_not_commented(self.parent)
-        ):
-            return None
-        else:
-            return super().get_doc()  # type: ignore[misc]
-
-
-class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
-    """Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
-    instance attributes (PEP-526 styled, annotation only attributes).
-
-    Example::
-
-        class Foo:
-            attr: int  #: This is a target of this mix-in.
-    """
-
-    def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
-        """Check the subject is an annotation only attribute."""
-        annotations = get_type_hints(
-            parent, None, self.config.autodoc_type_aliases, include_extras=True
-        )
-        return self.objpath[-1] in annotations
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the existence of uninitialized instance attribute when failed to import
-        the attribute.
-        """
-        try:
-            return super().import_object(raiseerror=True)  # type: ignore[misc]
-        except ImportError as exc:
-            try:
-                ret = import_object(
-                    self.modname,
-                    self.objpath[:-1],
-                    'class',
-                    attrgetter=self.get_attr,  # type: ignore[attr-defined]
-                )
-                parent = ret[3]
-                if self.is_uninitialized_instance_attribute(parent):
-                    self.object = UNINITIALIZED_ATTR
-                    self.parent = parent
-                    return True
-            except ImportError:
-                pass
-
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-    def should_suppress_value_header(self) -> bool:
-        return (
-            self.object is UNINITIALIZED_ATTR or super().should_suppress_value_header()
-        )
-
-    def get_doc(self) -> list[list[str]] | None:
-        if self.object is UNINITIALIZED_ATTR:
-            return None
-        return super().get_doc()  # type: ignore[misc]
-
-
-class AttributeDocumenter(
-    SlotsMixin,
-    RuntimeInstanceAttributeMixin,
-    UninitializedInstanceAttributeMixin,
-    NonDataDescriptorMixin,
-    Documenter,
-):
+class AttributeDocumenter(Documenter):
     """Specialized Documenter subclass for attributes."""
 
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
+    _non_data_descriptor: bool = False
 
     objtype = 'attribute'
     member_order = 60
@@ -2646,10 +2482,17 @@ class AttributeDocumenter(
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
-        if inspect.isenumattribute(self.object):
+        if self._is_slots_attribute():
+            self.object = SLOTS_ATTR
+        elif inspect.isenumattribute(self.object):
             self.object = self.object.value
         if self.parent:
             self.update_annotations(self.parent)
+
+        if ret and not inspect.isattributedescriptor(self.object):
+            self._non_data_descriptor = True
+        else:
+            self._non_data_descriptor = False
 
         return ret
 
@@ -2658,7 +2501,14 @@ class AttributeDocumenter(
         return real_modname or self.modname
 
     def should_suppress_value_header(self) -> bool:
-        if super().should_suppress_value_header():
+        if self.object is SLOTS_ATTR:
+            return True
+        if self.object is RUNTIME_INSTANCE_ATTRIBUTE:
+            return True
+        if self.object is UNINITIALIZED_ATTR:
+            return True
+        _non_data_descriptor = getattr(self, '_non_data_descriptor', False)
+        if not _non_data_descriptor or inspect.isgenericalias(self.object):
             return True
         else:
             doc = self.get_doc()
@@ -2739,6 +2589,40 @@ class AttributeDocumenter(
             # See: https://github.com/sphinx-doc/sphinx/issues/7805
             orig = self.config.autodoc_inherit_docstrings
             self.config.autodoc_inherit_docstrings = False
+
+            if self.object is SLOTS_ATTR:
+                # support for __slots__
+                try:
+                    parent___slots__ = inspect.getslots(self.parent)
+                    if parent___slots__ and (
+                        docstring := parent___slots__.get(self.objpath[-1])
+                    ):
+                        docstring = prepare_docstring(docstring)
+                        return [docstring]
+                    else:
+                        return []
+                except ValueError as exc:
+                    logger.warning(
+                        __('Invalid __slots__ found on %s. Ignored.'),
+                        (self.parent.__qualname__, exc),
+                        type='autodoc',
+                    )
+                    return []
+
+            if (
+                self.object is RUNTIME_INSTANCE_ATTRIBUTE
+                and self._is_runtime_instance_attribute_not_commented(self.parent)
+            ):
+                return None
+
+            if self.object is UNINITIALIZED_ATTR:
+                return None
+
+            if self._non_data_descriptor:
+                # the docstring of non-data descriptor is very probably
+                # the wrong thing to display
+                return None
+
             return super().get_doc()
         finally:
             self.config.autodoc_inherit_docstrings = orig
