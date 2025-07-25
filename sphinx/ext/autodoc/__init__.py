@@ -36,7 +36,6 @@ from sphinx.ext.autodoc._documenters import (
     MethodDocumenter,
     ModuleDocumenter,
     ModuleLevelDocumenter,
-    NonDataDescriptorMixin,
     ObjectMember,
     PropertyDocumenter,
     autodoc_attrgetter,
@@ -101,7 +100,6 @@ __all__ = (
     'ModuleLevelDocumenter',
     'ClassLevelDocumenter',
     'DocstringSignatureMixin',
-    'NonDataDescriptorMixin',
     'autodoc_attrgetter',
     'Documenter',
 )

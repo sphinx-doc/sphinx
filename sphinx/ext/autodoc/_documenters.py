@@ -2458,48 +2458,14 @@ class MethodDocumenter(Documenter):
             return super().get_doc()
 
 
-class NonDataDescriptorMixin(DataDocumenterMixinBase):
-    """Mixin for AttributeDocumenter to provide the feature for supporting non
-    data-descriptors.
-
-    .. note:: This mix-in must be inherited after other mix-ins.  Otherwise, docstring
-              and :value: header will be suppressed unexpectedly.
-    """
-
-    non_data_descriptor: bool = False
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)  # type: ignore[misc]
-        if ret and not inspect.isattributedescriptor(self.object):
-            self.non_data_descriptor = True
-        else:
-            self.non_data_descriptor = False
-
-        return ret
-
-    def should_suppress_value_header(self) -> bool:
-        non_data_descriptor = getattr(self, 'non_data_descriptor', False)
-        return not non_data_descriptor or inspect.isgenericalias(self.object)
-
-    def get_doc(self) -> list[list[str]] | None:
-        if getattr(self, 'non_data_descriptor', False):
-            # the docstring of non datadescriptor is very probably the wrong thing
-            # to display
-            return None
-        else:
-            return super().get_doc()  # type: ignore[misc]
-
-
-class AttributeDocumenter(
-    NonDataDescriptorMixin,
-    Documenter,
-):
+class AttributeDocumenter(Documenter):
     """Specialized Documenter subclass for attributes."""
 
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
     __runtime_instance_attribute__ = True
     __uninitialized_instance_attribute__ = True
+    _non_data_descriptor: bool = False
 
     objtype = 'attribute'
     member_order = 60
@@ -2562,6 +2528,11 @@ class AttributeDocumenter(
         if self.parent:
             self.update_annotations(self.parent)
 
+        if ret and not inspect.isattributedescriptor(self.object):
+            self._non_data_descriptor = True
+        else:
+            self._non_data_descriptor = False
+
         return ret
 
     def get_real_modname(self) -> str:
@@ -2575,7 +2546,8 @@ class AttributeDocumenter(
             return True
         if self.object is UNINITIALIZED_ATTR:
             return True
-        if super().should_suppress_value_header():
+        _non_data_descriptor = getattr(self, '_non_data_descriptor', False)
+        if not _non_data_descriptor or inspect.isgenericalias(self.object):
             return True
         else:
             doc = self.get_doc()
@@ -2683,6 +2655,11 @@ class AttributeDocumenter(
                 return None
 
             if self.object is UNINITIALIZED_ATTR:
+                return None
+
+            if self._non_data_descriptor:
+                # the docstring of non-data descriptor is very probably
+                # the wrong thing to display
                 return None
 
             return super().get_doc()
