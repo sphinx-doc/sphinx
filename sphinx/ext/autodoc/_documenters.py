@@ -24,6 +24,7 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._sentinels import (
     ALL,
     INSTANCE_ATTR,
+    RUNTIME_INSTANCE_ATTRIBUTE,
     SLOTS_ATTR,
     SUPPRESS,
     UNINITIALIZED_ATTR,
@@ -166,8 +167,6 @@ class Documenter:
         'no-index-entry': bool_option,
         'noindex': bool_option,
     }
-
-    _RUNTIME_INSTANCE_ATTRIBUTE = object()
 
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
         """getattr() override for types such as Zope interfaces."""
@@ -394,7 +393,7 @@ class Documenter:
                         )
                         parent = ret[3]
                         if self._is_runtime_instance_attribute(parent):
-                            self.object = self._RUNTIME_INSTANCE_ATTRIBUTE
+                            self.object = RUNTIME_INSTANCE_ATTRIBUTE
                             self.parent = parent
                             return True
 
@@ -2504,7 +2503,7 @@ class AttributeDocumenter(Documenter):
     def should_suppress_value_header(self) -> bool:
         if self.object is SLOTS_ATTR:
             return True
-        if self.object is self._RUNTIME_INSTANCE_ATTRIBUTE:
+        if self.object is RUNTIME_INSTANCE_ATTRIBUTE:
             return True
         if self.object is UNINITIALIZED_ATTR:
             return True
@@ -2611,7 +2610,7 @@ class AttributeDocumenter(Documenter):
                     return []
 
             if (
-                self.object is self._RUNTIME_INSTANCE_ATTRIBUTE
+                self.object is RUNTIME_INSTANCE_ATTRIBUTE
                 and self._is_runtime_instance_attribute_not_commented(self.parent)
             ):
                 return None
