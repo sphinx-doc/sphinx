@@ -155,6 +155,9 @@ class Documenter:
     __docstring_strip_signature__: ClassVar[bool] = False
     """If True, strip any function signature from the docstring."""
 
+    __uninitialized_global_variable__: ClassVar[bool] = False
+    """If True, support uninitialized (type annotation only) global variables"""
+
     _new_docstrings: list[list[str]] | None = None
     _signatures: list[str] = []
 
@@ -352,6 +355,23 @@ class Documenter:
                     self.object = undecorate(self.object)
                 return True
             except ImportError as exc:
+                if self.__uninitialized_global_variable__:
+                    # annotation only instance variable (PEP-526)
+                    try:
+                        parent = import_module(self.modname)
+                        annotations = get_type_hints(
+                            parent,
+                            None,
+                            self.config.autodoc_type_aliases,
+                            include_extras=True,
+                        )
+                        if self.objpath[-1] in annotations:
+                            self.object = UNINITIALIZED_ATTR
+                            self.parent = parent
+                            return True
+                    except ImportError:
+                        pass
+
                 if raiseerror:
                     raise
                 logger.warning(exc.args[0], type='autodoc', subtype='import_object')
@@ -556,6 +576,9 @@ class Documenter:
         When it returns None, autodoc-process-docstring will not be called for this
         object.
         """
+        if self.object is UNINITIALIZED_ATTR:
+            return []
+
         if self.__docstring_signature__ and self._new_docstrings is not None:
             return self._new_docstrings
 
@@ -1936,87 +1959,15 @@ class DataDocumenterMixinBase:
     object: Any
     objpath: list[str]
 
-    def should_suppress_directive_header(self) -> bool:
-        """Check directive header should be suppressed."""
-        return False
-
     def should_suppress_value_header(self) -> bool:
         """Check :value: header should be suppressed."""
         return False
 
-    def update_content(self, more_content: StringList) -> None:
-        """Update docstring, for example with TypeVar variance."""
-        pass
 
-
-class GenericAliasMixin(DataDocumenterMixinBase):
-    """Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
-    supporting GenericAliases.
-    """
-
-    def should_suppress_directive_header(self) -> bool:
-        return (
-            inspect.isgenericalias(self.object)
-            or super().should_suppress_directive_header()
-        )
-
-    def update_content(self, more_content: StringList) -> None:
-        if inspect.isgenericalias(self.object):
-            mode = _get_render_mode(self.config.autodoc_typehints_format)
-            alias = restify(self.object, mode=mode)
-
-            more_content.append(_('alias of %s') % alias, '')
-            more_content.append('', '')
-
-        super().update_content(more_content)
-
-
-class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
-    """Mixin for DataDocumenter to provide the feature for supporting uninitialized
-    (type annotation only) global variables.
-    """
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            return super().import_object(raiseerror=True)  # type: ignore[misc]
-        except ImportError as exc:
-            # annotation only instance variable (PEP-526)
-            try:
-                with mock(self.config.autodoc_mock_imports):
-                    parent = import_module(self.modname)
-                    annotations = get_type_hints(
-                        parent,
-                        None,
-                        self.config.autodoc_type_aliases,
-                        include_extras=True,
-                    )
-                    if self.objpath[-1] in annotations:
-                        self.object = UNINITIALIZED_ATTR
-                        self.parent = parent
-                        return True
-            except ImportError:
-                pass
-
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-    def should_suppress_value_header(self) -> bool:
-        return (
-            self.object is UNINITIALIZED_ATTR or super().should_suppress_value_header()
-        )
-
-    def get_doc(self) -> list[list[str]] | None:
-        if self.object is UNINITIALIZED_ATTR:
-            return []
-        else:
-            return super().get_doc()  # type: ignore[misc]
-
-
-class DataDocumenter(GenericAliasMixin, UninitializedGlobalVariableMixin, Documenter):
+class DataDocumenter(Documenter):
     """Specialized Documenter subclass for data items."""
+
+    __uninitialized_global_variable__ = True
 
     objtype = 'data'
     member_order = 40
@@ -2053,7 +2004,7 @@ class DataDocumenter(GenericAliasMixin, UninitializedGlobalVariableMixin, Docume
         return ret
 
     def should_suppress_value_header(self) -> bool:
-        if super().should_suppress_value_header():
+        if self.object is UNINITIALIZED_ATTR:
             return True
         else:
             doc = self.get_doc() or []
@@ -2068,10 +2019,7 @@ class DataDocumenter(GenericAliasMixin, UninitializedGlobalVariableMixin, Docume
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
-        if (
-            self.options.annotation is SUPPRESS
-            or self.should_suppress_directive_header()
-        ):
+        if self.options.annotation is SUPPRESS or inspect.isgenericalias(self.object):
             pass
         elif self.options.annotation:
             self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
@@ -2142,7 +2090,11 @@ class DataDocumenter(GenericAliasMixin, UninitializedGlobalVariableMixin, Docume
         if not more_content:
             more_content = StringList()
 
-        self.update_content(more_content)
+        _add_content_generic_alias_(
+            more_content,
+            self.object,
+            autodoc_typehints_format=self.config.autodoc_typehints_format,
+        )
         super().add_content(more_content)
 
 
@@ -2417,6 +2369,8 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
               and :value: header will be suppressed unexpectedly.
     """
 
+    non_data_descriptor: bool = False
+
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)  # type: ignore[misc]
         if ret and not inspect.isattributedescriptor(self.object):
@@ -2427,10 +2381,8 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
         return ret
 
     def should_suppress_value_header(self) -> bool:
-        return (
-            not getattr(self, 'non_data_descriptor', False)
-            or super().should_suppress_directive_header()
-        )
+        non_data_descriptor = getattr(self, 'non_data_descriptor', False)
+        return not non_data_descriptor or inspect.isgenericalias(self.object)
 
     def get_doc(self) -> list[list[str]] | None:
         if getattr(self, 'non_data_descriptor', False):
@@ -2629,7 +2581,6 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
 
 class AttributeDocumenter(
-    GenericAliasMixin,
     SlotsMixin,
     RuntimeInstanceAttributeMixin,
     UninitializedInstanceAttributeMixin,
@@ -2723,10 +2674,7 @@ class AttributeDocumenter(
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
-        if (
-            self.options.annotation is SUPPRESS
-            or self.should_suppress_directive_header()
-        ):
+        if self.options.annotation is SUPPRESS or inspect.isgenericalias(self.object):
             pass
         elif self.options.annotation:
             self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
@@ -2802,7 +2750,11 @@ class AttributeDocumenter(
 
         if more_content is None:
             more_content = StringList()
-        self.update_content(more_content)
+        _add_content_generic_alias_(
+            more_content,
+            self.object,
+            autodoc_typehints_format=self.config.autodoc_typehints_format,
+        )
         super().add_content(more_content)
 
 
@@ -2929,3 +2881,16 @@ def autodoc_attrgetter(
             return func(obj, name, *defargs)
 
     return safe_getattr(obj, name, *defargs)
+
+
+def _add_content_generic_alias_(
+    more_content: StringList,
+    /,
+    obj: object,
+    autodoc_typehints_format: Literal['fully-qualified', 'short'],
+) -> None:
+    """Support for documenting GenericAliases."""
+    if inspect.isgenericalias(obj):
+        alias = restify(obj, mode=_get_render_mode(autodoc_typehints_format))
+        more_content.append(_('alias of %s') % alias, '')
+        more_content.append('', '')
