@@ -19,8 +19,8 @@ _apidoc = namedtuple('_apidoc', 'coderoot,outdir')  # NoQA: PYI024
 
 
 @pytest.fixture
-def apidoc(rootdir, tmp_path, apidoc_params):
-    _, kwargs = apidoc_params
+def apidoc(rootdir, tmp_path, apidoc_kwargs):
+    kwargs = apidoc_kwargs
     coderoot = rootdir / kwargs.get('coderoot', 'test-root')
     outdir = tmp_path / 'out'
     excludes = [str(coderoot / e) for e in kwargs.get('excludes', [])]
@@ -37,16 +37,13 @@ def apidoc(rootdir, tmp_path, apidoc_params):
 
 
 @pytest.fixture
-def apidoc_params(request):
-    pargs = {}
+def apidoc_kwargs(request):
     kwargs = {}
 
     for info in reversed(list(request.node.iter_markers('apidoc'))):
-        pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
-    args = [pargs[i] for i in sorted(pargs.keys())]
-    return args, kwargs
+    return kwargs
 
 
 @pytest.mark.apidoc(coderoot='test-root')
