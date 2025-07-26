@@ -110,7 +110,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         new_secnumbers: dict[str, tuple[int, ...]] = {}
         for docname, secnums in self.env.toc_secnumbers.items():
             for id, secnum in secnums.items():
-                alias = f'{docname}/{id}'
+                alias = f'{docname}{id}'
                 new_secnumbers[alias] = secnum
 
         return {self.config.root_doc: new_secnumbers}

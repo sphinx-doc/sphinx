@@ -97,6 +97,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #13712: intersphinx: Don't add "v" prefix to non-numeric versions.
   Patch by Szymon Karpinski.
+* #13738: singlehtml builder: make section ids unique by appending the docname,
+  matching ``sphinx/environment/adapters/toctree.py``'s ``_resolve_toctree()``
+  format. E.g., ``id3`` becomes ``document-path/to/doc#id3``.
 
 Testing
 -------
