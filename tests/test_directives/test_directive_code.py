@@ -20,17 +20,17 @@ DUMMY_CONFIG = Config({}, {})
 
 
 @pytest.fixture(scope='module')
-def testroot(rootdir):
+def testroot(rootdir: Path) -> Path:
     testroot_path = rootdir / 'test-directive-code'
     return testroot_path
 
 
 @pytest.fixture(scope='module')
-def literal_inc_path(testroot):
+def literal_inc_path(testroot: Path) -> Path:
     return testroot / 'literal.inc'
 
 
-def test_LiteralIncludeReader(literal_inc_path):
+def test_LiteralIncludeReader(literal_inc_path: Path) -> None:
     options = {'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
@@ -39,7 +39,7 @@ def test_LiteralIncludeReader(literal_inc_path):
     assert reader.lineno_start == 1
 
 
-def test_LiteralIncludeReader_lineno_start(literal_inc_path):
+def test_LiteralIncludeReader_lineno_start(literal_inc_path: Path) -> None:
     options = {'lineno-start': 4}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
@@ -48,7 +48,7 @@ def test_LiteralIncludeReader_lineno_start(literal_inc_path):
     assert reader.lineno_start == 4
 
 
-def test_LiteralIncludeReader_pyobject1(literal_inc_path):
+def test_LiteralIncludeReader_pyobject1(literal_inc_path: Path) -> None:
     options = {'lineno-match': True, 'pyobject': 'Foo'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -56,7 +56,7 @@ def test_LiteralIncludeReader_pyobject1(literal_inc_path):
     assert reader.lineno_start == 5
 
 
-def test_LiteralIncludeReader_pyobject2(literal_inc_path):
+def test_LiteralIncludeReader_pyobject2(literal_inc_path: Path) -> None:
     options = {'pyobject': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -64,21 +64,21 @@ def test_LiteralIncludeReader_pyobject2(literal_inc_path):
     assert reader.lineno_start == 1  # no lineno-match
 
 
-def test_LiteralIncludeReader_pyobject3(literal_inc_path):
+def test_LiteralIncludeReader_pyobject3(literal_inc_path: Path) -> None:
     options = {'pyobject': 'Bar.baz'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
     assert content == '    def baz():\n        pass\n'
 
 
-def test_LiteralIncludeReader_pyobject_and_lines(literal_inc_path):
+def test_LiteralIncludeReader_pyobject_and_lines(literal_inc_path: Path) -> None:
     options = {'pyobject': 'Bar', 'lines': '2-'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
     assert content == '    def baz():\n        pass\n'
 
 
-def test_LiteralIncludeReader_lines1(literal_inc_path):
+def test_LiteralIncludeReader_lines1(literal_inc_path: Path) -> None:
     options = {'lines': '1-3'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -89,7 +89,7 @@ def test_LiteralIncludeReader_lines1(literal_inc_path):
     )
 
 
-def test_LiteralIncludeReader_lines2(literal_inc_path):
+def test_LiteralIncludeReader_lines2(literal_inc_path: Path) -> None:
     options = {'lines': '1,3,5'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -100,7 +100,7 @@ def test_LiteralIncludeReader_lines2(literal_inc_path):
     )
 
 
-def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
+def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path: Path) -> None:
     options = {'lines': '3-5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -109,7 +109,9 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
 
 
 @pytest.mark.sphinx('html', testroot='root')  # init locale for errors
-def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
+def test_LiteralIncludeReader_lines_and_lineno_match2(
+    literal_inc_path: Path, app: SphinxTestApp
+) -> None:
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
@@ -120,7 +122,9 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')  # init locale for errors
-def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
+def test_LiteralIncludeReader_lines_and_lineno_match3(
+    literal_inc_path: Path, app: SphinxTestApp
+) -> None:
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
@@ -130,7 +134,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
         reader.read()
 
 
-def test_LiteralIncludeReader_start_at(literal_inc_path):
+def test_LiteralIncludeReader_start_at(literal_inc_path: Path) -> None:
     options = {'lineno-match': True, 'start-at': 'Foo', 'end-at': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -138,7 +142,7 @@ def test_LiteralIncludeReader_start_at(literal_inc_path):
     assert reader.lineno_start == 5
 
 
-def test_LiteralIncludeReader_start_after(literal_inc_path):
+def test_LiteralIncludeReader_start_after(literal_inc_path: Path) -> None:
     options = {'lineno-match': True, 'start-after': 'Foo', 'end-before': 'Bar'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -146,7 +150,7 @@ def test_LiteralIncludeReader_start_after(literal_inc_path):
     assert reader.lineno_start == 6
 
 
-def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
+def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path: Path) -> None:
     options = {
         'lineno-match': True,
         'lines': '6-',
@@ -159,7 +163,7 @@ def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
     assert reader.lineno_start == 7
 
 
-def test_LiteralIncludeReader_start_at_and_lines(literal_inc_path):
+def test_LiteralIncludeReader_start_at_and_lines(literal_inc_path: Path) -> None:
     options = {'lines': '2, 3, 5', 'start-at': 'foo', 'end-before': '#'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -167,7 +171,7 @@ def test_LiteralIncludeReader_start_at_and_lines(literal_inc_path):
     assert reader.lineno_start == 1
 
 
-def test_LiteralIncludeReader_missing_start_and_end(literal_inc_path):
+def test_LiteralIncludeReader_missing_start_and_end(literal_inc_path: Path) -> None:
     options = {'start-at': 'NOTHING'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(ValueError, match='start-at pattern not found: NOTHING'):
@@ -189,14 +193,14 @@ def test_LiteralIncludeReader_missing_start_and_end(literal_inc_path):
         reader.read()
 
 
-def test_LiteralIncludeReader_end_before(literal_inc_path):
+def test_LiteralIncludeReader_end_before(literal_inc_path: Path) -> None:
     options = {'end-before': 'nclud'}  # *nclud* matches first and third lines.
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
     assert content == '# Literally included file using Python highlighting\n\n'
 
 
-def test_LiteralIncludeReader_prepend(literal_inc_path):
+def test_LiteralIncludeReader_prepend(literal_inc_path: Path) -> None:
     options = {'lines': '1', 'prepend': 'Hello', 'append': 'Sphinx'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
@@ -205,7 +209,7 @@ def test_LiteralIncludeReader_prepend(literal_inc_path):
     )
 
 
-def test_LiteralIncludeReader_dedent(literal_inc_path):
+def test_LiteralIncludeReader_dedent(literal_inc_path: Path) -> None:
     # dedent: 2
     options = {'lines': '9-11', 'dedent': 2}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -231,7 +235,9 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
     assert content == 'def baz():\n    pass\n\n'
 
 
-def test_LiteralIncludeReader_dedent_and_append_and_prepend(literal_inc_path):
+def test_LiteralIncludeReader_dedent_and_append_and_prepend(
+    literal_inc_path: Path,
+) -> None:
     # dedent: 2
     options = {
         'lines': '9-11',
