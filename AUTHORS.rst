@@ -58,6 +58,7 @@ Contributors
 * Filip Vavera -- napoleon todo directive
 * Glenn Matthews -- python domain signature improvements
 * Gregory Szorc -- performance improvements
+* Grzegorz Bokota -- parallelism improvements
 * Henrique Bastos -- SVG support for graphviz extension
 * Hernan Grecco -- search improvements
 * Hong Xu -- svg support in imgmath extension and various bug fixes
