@@ -25,7 +25,7 @@ class SphinxDanglingReferences(DanglingReferences):
 
             # suppress INFO level messages for a while
             reporter.report_level = max(reporter.WARNING_LEVEL, reporter.report_level)
-            super().apply()  # type: ignore[no-untyped-call]
+            super().apply()
         finally:
             reporter.report_level = report_level
 

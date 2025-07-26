@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 warnings.warn('sphinx.io is deprecated', RemovedInSphinx10Warning, stacklevel=2)
 
 
-class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
+class SphinxBaseReader(standalone.Reader):
     """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
@@ -92,7 +92,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
     def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
-        if not self.parser:  # type: ignore[has-type]
+        if not self.parser:
             self.parser = parser
         self.settings = settings
         self.input = self.read_source(settings.env)
