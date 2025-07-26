@@ -35,6 +35,7 @@ from tests.test_util.intersphinx_data import (
     INVENTORY_V2,
     INVENTORY_V2_AMBIGUOUS_TERMS,
     INVENTORY_V2_NO_VERSION,
+    INVENTORY_V2_TEXT_VERSION,
 )
 from tests.utils import http_server
 
@@ -904,3 +905,25 @@ def test_intersphinx_fetch_inventory_group_url():
             srcdir=None,
             cache_path=None,
         )
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_inventory_text_version(tmp_path, app):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(INVENTORY_V2_TEXT_VERSION)
+    set_config(
+        app,
+        {
+            'python': ('https://docs.python.org/', str(inv_file)),
+        },
+    )
+
+    # load the inventory and check if non-numeric version is handled correctly
+    validate_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    rn = reference_check(app, 'py', 'mod', 'module1', 'foo')
+    assert isinstance(rn, nodes.reference)
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#module-module1'
+    assert rn['reftitle'] == '(in foo stable)'
+    assert rn[0].astext() == 'Long Module desc'

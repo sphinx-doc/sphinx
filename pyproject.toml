@@ -93,19 +93,19 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.0",
-    "mypy==1.16.1",
+    "ruff==0.12.5",
+    "mypy==1.17.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20250516",
+    "types-defusedxml==0.7.0.20250708",
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250516",
+    "types-Pygments==2.19.0.20250715",
     "types-requests==2.32.4.20250611",  # align with requests
     "types-urllib3==1.26.25.14",
     "pyright==1.1.400",
     "pytest>=8.0",
-    "pypi-attestations==0.0.26",
+    "pypi-attestations==0.0.27",
     "betterproto==2.0.0b6",
 ]
 test = [
@@ -136,13 +136,13 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.0",
+    "ruff==0.12.5",
     "sphinx-lint>=0.9",
 ]
 package = [
     "betterproto==2.0.0b6",  # resolution fails without betterproto
     "build",
-    "pypi-attestations==0.0.26",
+    "pypi-attestations==0.0.27",
     "twine>=6.1",
 ]
 test = [
@@ -158,7 +158,7 @@ translations = [
     "Jinja2>=3.1",
 ]
 types = [
-    "mypy==1.16.1",
+    "mypy==1.17.0",
     "pyrefly",
     "pyright==1.1.400",
     { include-group = "type-stubs" },
@@ -166,10 +166,10 @@ types = [
 type-stubs = [
     # align with versions used elsewhere
     "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20250516",
+    "types-defusedxml==0.7.0.20250708",
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250516",
+    "types-Pygments==2.19.0.20250715",
     "types-requests==2.32.4.20250611",
     "types-urllib3==1.26.25.14",
 ]
@@ -257,7 +257,6 @@ module = [
     "tests.test_builders.test_build_html_assets",
     "tests.test_builders.test_build_html_maths",
     "tests.test_builders.test_build_html_numfig",
-    "tests.test_builders.test_build_html_tocdepth",
     "tests.test_builders.test_build_html_toctree",
     "tests.test_builders.test_build_linkcheck",
     "tests.test_builders.test_build_warnings",
@@ -295,7 +294,6 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_quickstart",
     "tests.test_search",
     # tests/test_builders
     "tests.test_builders.test_build_latex",

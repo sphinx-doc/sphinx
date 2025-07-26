@@ -62,9 +62,21 @@ Features added
 Bugs fixed
 ----------
 
+* #1327: LaTeX: tables using longtable raise error if
+  :rst:dir:`tabularcolumns` specifies automatic widths
+  (``L``, ``R``, ``C``, or ``J``).
+  Patch by Jean-François B.
+* #3447: LaTeX: when assigning longtable class to table for PDF, it may render
+  "horizontally" and overflow in right margin.
+  Patch by Jean-François B.
+* #8828: LaTeX: adding a footnote to a longtable cell causes table to occupy
+  full width.
+  Patch by Jean-François B.
 * #11498: LaTeX: Table in cell fails to build if it has many rows.
   Patch by Jean-François B.
 * #11515: LaTeX: longtable does not allow nested table.
+  Patch by Jean-François B.
+* #11973: LaTeX: links in table captions do not work in PDF.
   Patch by Jean-François B.
 * #12821: LaTeX: URLs/links in section titles should render in PDF.
   Patch by Jean-François B.
@@ -83,6 +95,8 @@ Bugs fixed
   Patch by Jean-François B.
 * #13685: gettext: Correctly ignore trailing backslashes.
   Patch by Bénédikt Tran.
+* #13712: intersphinx: Don't add "v" prefix to non-numeric versions.
+  Patch by Szymon Karpinski.
 
 Testing
 -------
