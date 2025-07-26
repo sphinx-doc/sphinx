@@ -97,7 +97,7 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #13712: intersphinx: Don't add "v" prefix to non-numeric versions.
   Patch by Szymon Karpinski.
-* #13741: text: fix an infinite loop when processing CSV tables
+* #13741: text: fix an infinite loop when processing CSV tables.
   Patch by Bénédikt Tran.
 
 
