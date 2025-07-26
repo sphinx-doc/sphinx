@@ -3,16 +3,16 @@
 i18n with versionchange
 ============================
 
-.. deprecated:: 1.0
-   This is the *first* paragraph of deprecated.
+.. version-deprecated:: 1.0
+   This is the *first* paragraph of version-deprecated.
 
-   This is the *second* paragraph of deprecated.
+   This is the *second* paragraph of version-deprecated.
 
-.. versionadded:: 1.0
-   This is the *first* paragraph of versionadded.
+.. version-added:: 1.0
+   This is the *first* paragraph of version-added.
 
-.. versionchanged:: 1.0
+.. version-changed:: 1.0
 
-   This is the *first* paragraph of versionchanged.
+   This is the *first* paragraph of version-changed.
 
-.. versionremoved:: 1.0 This is the *first* paragraph of versionremoved.
+.. version-removed:: 1.0 This is the *first* paragraph of version-removed.

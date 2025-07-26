@@ -1,23 +1,38 @@
 Version markup
 --------------
 
-.. versionadded:: 0.6
+.. version-added:: 0.6
    Some funny **stuff**.
 
-.. versionchanged:: 0.6
+.. version-changed:: 0.6
    Even more funny stuff.
 
-.. deprecated:: 0.6
+.. version-deprecated:: 0.6
    Boring stuff.
 
-.. versionremoved:: 0.6
+.. version-removed:: 0.6
    Goodbye boring stuff.
 
-.. versionadded:: 1.2
+.. version-added:: 1.2
 
-   First paragraph of versionadded.
+   First paragraph of version-added.
 
-.. versionchanged:: 1.2
-   First paragraph of versionchanged.
+.. version-changed:: 1.2
+   First paragraph of version-changed.
 
-   Second paragraph of versionchanged.
+   Second paragraph of version-changed.
+
+.. version-deprecated:: 1.3
+   First paragraph of version-deprecated.
+
+.. version-added:: 0.6
+   Deprecated alias
+
+.. version-changed:: 0.6
+   Deprecated alias
+
+.. versionremoved:: 0.6
+   Deprecated alias
+
+.. deprecated:: 0.6
+   Deprecated alias
