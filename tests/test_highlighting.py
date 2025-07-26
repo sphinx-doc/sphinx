@@ -15,7 +15,7 @@ from sphinx.highlighting import PygmentsBridge
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from typing import Never, TextIO
+    from typing import TextIO
 
     from pygments.token import _TokenType
 
