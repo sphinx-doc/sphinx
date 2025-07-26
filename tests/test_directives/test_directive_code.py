@@ -109,7 +109,9 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path: Path) ->
 
 
 @pytest.mark.sphinx('html', testroot='root')  # init locale for errors
-def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path: Path, app: SphinxTestApp) -> None:
+def test_LiteralIncludeReader_lines_and_lineno_match2(
+    literal_inc_path: Path, app: SphinxTestApp
+) -> None:
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
@@ -120,7 +122,9 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path: Path, ap
 
 
 @pytest.mark.sphinx('html', testroot='root')  # init locale for errors
-def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path: Path, app: SphinxTestApp) -> None:
+def test_LiteralIncludeReader_lines_and_lineno_match3(
+    literal_inc_path: Path, app: SphinxTestApp
+) -> None:
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
@@ -231,7 +235,9 @@ def test_LiteralIncludeReader_dedent(literal_inc_path: Path) -> None:
     assert content == 'def baz():\n    pass\n\n'
 
 
-def test_LiteralIncludeReader_dedent_and_append_and_prepend(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_dedent_and_append_and_prepend(
+    literal_inc_path: Path,
+) -> None:
     # dedent: 2
     options = {
         'lines': '9-11',
