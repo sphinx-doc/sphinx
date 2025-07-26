@@ -294,7 +294,6 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_quickstart",
     "tests.test_search",
     # tests/test_builders
     "tests.test_builders.test_build_latex",
