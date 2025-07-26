@@ -17,6 +17,7 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from types import ModuleType
     from typing import Any
 
@@ -38,6 +39,14 @@ class _Imported:
 
     # the object to document
     obj: Any = None
+
+    __all__: Sequence[str] | None
+    doc_as_attr: bool
+    objpath: list[str]
+    modname: str
+    member_order: int
+    _non_data_descriptor: bool
+    isclassmethod: bool
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} {self.__dict__}>'
@@ -105,7 +114,7 @@ def _import_object(
                 im.modname = obj_modname
         return im
 
-    if objtype == 'data':
+    if is_data_documenter:
         if im.parent:
             _update_annotations_data_documenter(parent=im.parent, modname=modname)
         return im
@@ -122,7 +131,7 @@ def _import_object(
             im.member_order = member_order - 2  # type: ignore[misc]
         return im
 
-    if objtype == 'attribute':
+    if is_attribute_documenter:
         if _is_slots_attribute(parent=im.parent, objpath=objpath):
             im.obj = SLOTS_ATTR
         elif inspect.isenumattribute(im.obj):
