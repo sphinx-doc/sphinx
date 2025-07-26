@@ -33,6 +33,7 @@ class HTMLWriter(html4css1.Writer):
         # sadly, this is mostly copied from parent class
         visitor = self.builder.create_translator(self.document, self.builder)
         self.visitor = cast('HTML5Translator', visitor)
+        assert self.document is not None
         self.document.walkabout(visitor)
         self.output = self.visitor.astext()
         for attr in (

@@ -31,6 +31,7 @@ class ManualPageWriter(manpage.Writer):
         self.builder = builder
 
     def translate(self) -> None:
+        assert self.document is not None
         transform = NestedInlineTransform(self.document)
         transform.apply()
         visitor = self.builder.create_translator(self.document, self.builder)

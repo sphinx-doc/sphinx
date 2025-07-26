@@ -21,6 +21,7 @@ class XMLWriter(docutils_xml.Writer):
         self._config = builder.config
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
+        assert self.document is not None
         self.document.settings.newlines = self.document.settings.indents = (
             self._config.xml_pretty
         )
@@ -49,6 +50,7 @@ class PseudoXMLWriter(docutils_xml.Writer):
         self.builder = builder
 
     def translate(self) -> None:
+        assert self.document is not None
         self.output = self.document.pformat()
 
     def supports(self, format: str) -> bool:
