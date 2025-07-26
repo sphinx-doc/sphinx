@@ -156,7 +156,7 @@ def _process_documenter_options(
                     if options[name] is not None and options[name].startswith('+'):
                         options[name] = f'{default_options[name]},{options[name][1:]}'
             else:
-                options[name] = default_options[name]
+                options[name] = default_options[name]  # type: ignore[assignment]
         elif options.get(name) is not None:
             # remove '+' from option argument if there's nothing to merge it with
             options[name] = options[name].removeprefix('+')
