@@ -47,11 +47,6 @@ class MyFormatter(HtmlFormatter[str]):
         outfile.writelines(tok[1] for tok in tokensource)
 
 
-class ComplainOnUnhighlighted(PygmentsBridge):
-    def unhighlighted(self, source: str) -> Never:
-        raise AssertionError('should highlight %r' % source)
-
-
 @pytest.mark.sphinx('html', testroot='root')
 def test_add_lexer(app: SphinxTestApp) -> None:
     app.add_lexer('test', MyLexer)
@@ -62,7 +57,7 @@ def test_add_lexer(app: SphinxTestApp) -> None:
 
 
 def test_detect_interactive() -> None:
-    bridge = ComplainOnUnhighlighted('html')
+    bridge = PygmentsBridge('html')
     blocks = [
         """
         >>> testing()
