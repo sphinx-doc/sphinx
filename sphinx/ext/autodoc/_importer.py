@@ -8,7 +8,7 @@ from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR,
     UNINITIALIZED_ATTR,
 )
-from sphinx.ext.autodoc.importer import import_module, import_object
+from sphinx.ext.autodoc.importer import _import_from_module_and_path, import_module
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -65,7 +65,9 @@ def _import_object(
     im = _Imported()
     try:
         with mock(mock_imports):
-            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            ret = _import_from_module_and_path(
+                module_name=modname, obj_path=objpath, get_attr=get_attr
+            )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -87,7 +89,9 @@ def _import_module(
     im = _Imported()
     try:
         with mock(mock_imports):
-            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            ret = _import_from_module_and_path(
+                module_name=modname, obj_path=(), get_attr=get_attr
+            )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -122,7 +126,9 @@ def _import_class(
     im = _Imported()
     try:
         with mock(mock_imports):
-            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            ret = _import_from_module_and_path(
+                module_name=modname, obj_path=objpath, get_attr=get_attr
+            )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -156,7 +162,9 @@ def _import_method(
     im = _Imported()
     try:
         with mock(mock_imports):
-            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            ret = _import_from_module_and_path(
+                module_name=modname, obj_path=objpath, get_attr=get_attr
+            )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -186,7 +194,9 @@ def _import_property(
     im = _Imported()
     try:
         with mock(mock_imports):
-            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            ret = _import_from_module_and_path(
+                module_name=modname, obj_path=objpath, get_attr=get_attr
+            )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -220,7 +230,9 @@ def _import_assignment_data(
     im = _Imported()
     try:
         with mock(mock_imports):
-            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            ret = _import_from_module_and_path(
+                module_name=modname, obj_path=objpath, get_attr=get_attr
+            )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -271,7 +283,9 @@ def _import_assignment_attribute(
     im = _Imported()
     try:
         with mock(mock_imports):
-            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            ret = _import_from_module_and_path(
+                module_name=modname, obj_path=objpath, get_attr=get_attr
+            )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -289,11 +303,8 @@ def _import_assignment_attribute(
         #         self.attr = None  #: runtime attribute
         try:
             with mock(mock_imports):
-                ret = import_object(
-                    modname,
-                    objpath[:-1],
-                    'class',
-                    attrgetter=get_attr,
+                ret = _import_from_module_and_path(
+                    module_name=modname, obj_path=objpath[:-1], get_attr=get_attr
                 )
             parent = ret[3]
             if _is_runtime_instance_attribute(parent=parent, objpath=objpath):

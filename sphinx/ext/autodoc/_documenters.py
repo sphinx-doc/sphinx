@@ -1133,6 +1133,7 @@ class ModuleDocumenter(Documenter):
         return ret
 
     def import_object(self, raiseerror: bool = False) -> bool:
+        assert len(self.objpath) == 0, self.objpath
         try:
             im = _import_module(
                 modname=self.modname,
