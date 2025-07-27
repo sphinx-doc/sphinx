@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.ext.todo import todo_node
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -20,7 +22,7 @@ if TYPE_CHECKING:
 def test_todo(app: SphinxTestApp) -> None:
     todos = []
 
-    def on_todo_defined(app, node):
+    def on_todo_defined(app: Sphinx, node: todo_node) -> None:
         todos.append(node)
 
     app.connect('todo-defined', on_todo_defined)
@@ -62,7 +64,7 @@ def test_todo(app: SphinxTestApp) -> None:
 def test_todo_not_included(app: SphinxTestApp) -> None:
     todos = []
 
-    def on_todo_defined(app, node):
+    def on_todo_defined(app: Sphinx, node: todo_node) -> None:
         todos.append(node)
 
     app.connect('todo-defined', on_todo_defined)

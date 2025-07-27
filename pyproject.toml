@@ -270,7 +270,6 @@ module = [
     "tests.test_extensions.test_ext_intersphinx_cache",
     "tests.test_extensions.test_ext_math",
     "tests.test_extensions.test_ext_napoleon",
-    "tests.test_extensions.test_ext_todo",
     "tests.test_extensions.test_ext_viewcode",
     # tests/test_markup
     "tests.test_markup.test_markup",
