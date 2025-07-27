@@ -357,16 +357,19 @@ class Documenter:
 
         Returns True if successful, False if an error occurred.
         """
-        im = _import_object(
-            modname=self.modname,
-            objpath=self.objpath,
-            objtype=self.objtype,
-            get_attr=self.get_attr,
-            mock_imports=self.config.autodoc_mock_imports,
-            env=self.env,
-            raise_error=raiseerror,
-        )
-        if im is None:
+        try:
+            im = _import_object(
+                modname=self.modname,
+                objpath=self.objpath,
+                objtype=self.objtype,
+                get_attr=self.get_attr,
+                mock_imports=self.config.autodoc_mock_imports,
+            )
+        except ImportError as exc:
+            if raiseerror:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
             return False
 
         self.object = im.obj
@@ -1130,18 +1133,21 @@ class ModuleDocumenter(Documenter):
         return ret
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        im = _import_module(
-            modname=self.modname,
-            objpath=self.objpath,
-            objtype=self.objtype,
-            fullname=self.fullname,
-            get_attr=self.get_attr,
-            mock_imports=self.config.autodoc_mock_imports,
-            env=self.env,
-            options=self.options,
-            raise_error=raiseerror,
-        )
-        if im is None:
+        try:
+            im = _import_module(
+                modname=self.modname,
+                objpath=self.objpath,
+                objtype=self.objtype,
+                fullname=self.fullname,
+                get_attr=self.get_attr,
+                mock_imports=self.config.autodoc_mock_imports,
+                ignore_module_all=self.options.ignore_module_all,
+            )
+        except ImportError as exc:
+            if raiseerror:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
             return False
 
         self.object = im.obj
@@ -1484,16 +1490,19 @@ class ClassDocumenter(Documenter):
         )
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        im = _import_class(
-            modname=self.modname,
-            objpath=self.objpath,
-            objtype=self.objtype,
-            get_attr=self.get_attr,
-            mock_imports=self.config.autodoc_mock_imports,
-            env=self.env,
-            raise_error=raiseerror,
-        )
-        if im is None:
+        try:
+            im = _import_class(
+                modname=self.modname,
+                objpath=self.objpath,
+                objtype=self.objtype,
+                get_attr=self.get_attr,
+                mock_imports=self.config.autodoc_mock_imports,
+            )
+        except ImportError as exc:
+            if raiseerror:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
             return False
 
         self.object = im.obj
@@ -1985,17 +1994,20 @@ class DataDocumenter(Documenter):
             pass
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        im = _import_assignment_data(
-            modname=self.modname,
-            objpath=self.objpath,
-            objtype=self.objtype,
-            get_attr=self.get_attr,
-            mock_imports=self.config.autodoc_mock_imports,
-            type_aliases=self.config.autodoc_type_aliases,
-            env=self.env,
-            raise_error=raiseerror,
-        )
-        if im is None:
+        try:
+            im = _import_assignment_data(
+                modname=self.modname,
+                objpath=self.objpath,
+                objtype=self.objtype,
+                get_attr=self.get_attr,
+                mock_imports=self.config.autodoc_mock_imports,
+                type_aliases=self.config.autodoc_type_aliases,
+            )
+        except ImportError as exc:
+            if raiseerror:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
             return False
 
         self.object = im.obj
@@ -2116,17 +2128,20 @@ class MethodDocumenter(Documenter):
         return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        im = _import_method(
-            modname=self.modname,
-            objpath=self.objpath,
-            objtype=self.objtype,
-            member_order=self.member_order,
-            get_attr=self.get_attr,
-            mock_imports=self.config.autodoc_mock_imports,
-            env=self.env,
-            raise_error=raiseerror,
-        )
-        if im is None:
+        try:
+            im = _import_method(
+                modname=self.modname,
+                objpath=self.objpath,
+                objtype=self.objtype,
+                member_order=self.member_order,
+                get_attr=self.get_attr,
+                mock_imports=self.config.autodoc_mock_imports,
+            )
+        except ImportError as exc:
+            if raiseerror:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
             return False
 
         self.object = im.obj
@@ -2426,17 +2441,20 @@ class AttributeDocumenter(Documenter):
             pass
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        im = _import_assignment_attribute(
-            modname=self.modname,
-            objpath=self.objpath,
-            objtype=self.objtype,
-            get_attr=self.get_attr,
-            mock_imports=self.config.autodoc_mock_imports,
-            type_aliases=self.config.autodoc_type_aliases,
-            env=self.env,
-            raise_error=raiseerror,
-        )
-        if im is None:
+        try:
+            im = _import_assignment_attribute(
+                modname=self.modname,
+                objpath=self.objpath,
+                objtype=self.objtype,
+                get_attr=self.get_attr,
+                mock_imports=self.config.autodoc_mock_imports,
+                type_aliases=self.config.autodoc_type_aliases,
+            )
+        except ImportError as exc:
+            if raiseerror:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
             return False
 
         self.object = im.obj
@@ -2611,15 +2629,20 @@ class PropertyDocumenter(Documenter):
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        im = _import_property(
-            modname=self.modname,
-            objpath=self.objpath,
-            objtype=self.objtype,
-            get_attr=self.get_attr,
-            mock_imports=self.config.autodoc_mock_imports,
-            env=self.env,
-            raise_error=raiseerror,
-        )
+        try:
+            im = _import_property(
+                modname=self.modname,
+                objpath=self.objpath,
+                objtype=self.objtype,
+                get_attr=self.get_attr,
+                mock_imports=self.config.autodoc_mock_imports,
+            )
+        except ImportError as exc:
+            if raiseerror:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            self.env.note_reread()
+            return False
         if im is None:
             return False
 

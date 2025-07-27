@@ -21,8 +21,6 @@ if TYPE_CHECKING:
     from types import ModuleType
     from typing import Any
 
-    from sphinx.environment import BuildEnvironment
-    from sphinx.ext.autodoc._directive_options import Options
     from sphinx.ext.autodoc.importer import _AttrGetter
 
 logger = logging.getLogger('sphinx.ext.autodoc')
@@ -58,9 +56,7 @@ def _import_object(
     objtype: str,
     get_attr: _AttrGetter,
     mock_imports: list[str],
-    env: BuildEnvironment,
-    raise_error: bool = False,
-) -> _Imported | None:
+) -> _Imported:
     """Import the object given by *modname* and *objpath* and set
     it as *object*.
 
@@ -74,12 +70,8 @@ def _import_object(
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
         return im
-    except ImportError as exc:
-        if raise_error:
-            raise
-        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-        env.note_reread()
-        return None
+    except ImportError:  # NoQA: TRY203
+        raise
 
 
 def _import_module(
@@ -90,10 +82,8 @@ def _import_module(
     fullname: str,
     get_attr: _AttrGetter,
     mock_imports: list[str],
-    env: BuildEnvironment,
-    options: Options,
-    raise_error: bool = False,
-) -> _Imported | None:
+    ignore_module_all: bool,
+) -> _Imported:
     im = _Imported()
     try:
         with mock(mock_imports):
@@ -101,15 +91,11 @@ def _import_module(
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
-    except ImportError as exc:
-        if raise_error:
-            raise
-        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-        env.note_reread()
-        return None
+    except ImportError:  # NoQA: TRY203
+        raise
 
     try:
-        if not options.ignore_module_all:
+        if not ignore_module_all:
             im.__all__ = inspect.getall(im.obj)
     except ValueError as exc:
         # invalid __all__ found.
@@ -132,9 +118,7 @@ def _import_class(
     objtype: str,
     get_attr: _AttrGetter,
     mock_imports: list[str],
-    env: BuildEnvironment,
-    raise_error: bool = False,
-) -> _Imported | None:
+) -> _Imported:
     im = _Imported()
     try:
         with mock(mock_imports):
@@ -142,12 +126,8 @@ def _import_class(
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
-    except ImportError as exc:
-        if raise_error:
-            raise
-        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-        env.note_reread()
-        return None
+    except ImportError:  # NoQA: TRY203
+        raise
 
     # if the class is documented under another name, document it
     # as data/attribute
@@ -172,9 +152,7 @@ def _import_method(
     member_order: int,
     get_attr: _AttrGetter,
     mock_imports: list[str],
-    env: BuildEnvironment,
-    raise_error: bool = False,
-) -> _Imported | None:
+) -> _Imported:
     im = _Imported()
     try:
         with mock(mock_imports):
@@ -182,12 +160,8 @@ def _import_method(
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
-    except ImportError as exc:
-        if raise_error:
-            raise
-        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-        env.note_reread()
-        return None
+    except ImportError:  # NoQA: TRY203
+        raise
 
     # to distinguish classmethod/staticmethod
     obj = im.parent.__dict__.get(im.object_name, im.obj)
@@ -208,8 +182,6 @@ def _import_property(
     objtype: str,
     get_attr: _AttrGetter,
     mock_imports: list[str],
-    env: BuildEnvironment,
-    raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
     try:
@@ -218,12 +190,8 @@ def _import_property(
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
-    except ImportError as exc:
-        if raise_error:
-            raise
-        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-        env.note_reread()
-        return None
+    except ImportError:  # NoQA: TRY203
+        raise
 
     if not inspect.isproperty(im.obj):
         __dict__ = safe_getattr(im.parent, '__dict__', {})
@@ -247,9 +215,7 @@ def _import_assignment_data(
     get_attr: _AttrGetter,
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
-    env: BuildEnvironment,
-    raise_error: bool = False,
-) -> _Imported | None:
+) -> _Imported:
     import_failed = True
     im = _Imported()
     try:
@@ -275,11 +241,7 @@ def _import_assignment_data(
             pass
 
         if import_failed:
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            return None
+            raise
 
     # Update __annotations__ to support type_comment and so on
     annotations = dict(inspect.getannotations(im.parent))
@@ -304,9 +266,7 @@ def _import_assignment_attribute(
     get_attr: _AttrGetter,
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
-    env: BuildEnvironment,
-    raise_error: bool = False,
-) -> _Imported | None:
+) -> _Imported:
     import_failed = True
     im = _Imported()
     try:
@@ -350,11 +310,7 @@ def _import_assignment_attribute(
             pass
 
         if import_failed:
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            return None
+            raise
 
     if _is_slots_attribute(parent=im.parent, objpath=objpath):
         im.obj = SLOTS_ATTR
