@@ -80,19 +80,12 @@ def _import_module(
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
-    im = _Imported()
-    try:
-        with mock(mock_imports):
-            ret = _import_from_module_and_path(
-                module_name=modname, obj_path=(), get_attr=get_attr
-            )
-        im.module, im.parent, im.object_name, im.obj = ret
-        if ismock(im.obj):
-            im.obj = undecorate(im.obj)
-    except ImportError:  # NoQA: TRY203
-        raise
-
-    return im
+    return _import_object(
+        modname=modname,
+        objpath=[],
+        mock_imports=mock_imports,
+        get_attr=get_attr,
+    )
 
 
 def _import_class(
