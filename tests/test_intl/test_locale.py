@@ -9,7 +9,7 @@ import pytest
 from sphinx import locale
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
+    from collections.abc import Callable, Iterator
     from pathlib import Path
 
     from sphinx.testing.util import SphinxTestApp
