@@ -102,6 +102,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
     def read_source(self, env: BuildEnvironment) -> str:
         """Read content from source and do post-process."""
+        assert self.source is not None
         content = self.source.read()
 
         # emit "source-read" event
