@@ -57,7 +57,6 @@ def _import_object(
     modname: str,
     objpath: list[str],
     objtype: str,
-    member_order: int,
     get_attr: _AttrGetter,
     config: Config,
     env: BuildEnvironment,
@@ -87,18 +86,6 @@ def _import_object(
         raise_error=raise_error,
     )
     if im is None:
-        return im
-
-    if objtype == 'method':
-        # to distinguish classmethod/staticmethod
-        obj = im.parent.__dict__.get(im.object_name, im.obj)
-        if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
-            # document static members before regular methods
-            im.member_order = member_order - 1
-        elif inspect.isclassmethod(obj):
-            # document class methods before static methods as
-            # they usually behave as alternative constructors
-            im.member_order = member_order - 2
         return im
 
     if is_attribute_documenter:
@@ -212,6 +199,43 @@ def _import_class(
             bases = modname[len(obj_modname) :].strip('.').split('.')
             im.objpath = bases + objpath
             im.modname = obj_modname
+    return im
+
+
+def _import_method(
+    *,
+    modname: str,
+    objpath: list[str],
+    objtype: str,
+    member_order: int,
+    get_attr: _AttrGetter,
+    config: Config,
+    env: BuildEnvironment,
+    raise_error: bool = False,
+) -> _Imported | None:
+    im = _Imported()
+    with mock(config.autodoc_mock_imports):
+        try:
+            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            im.module, im.parent, im.object_name, im.obj = ret
+            if ismock(im.obj):
+                im.obj = undecorate(im.obj)
+        except ImportError as exc:
+            if raise_error:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            return None
+
+    # to distinguish classmethod/staticmethod
+    obj = im.parent.__dict__.get(im.object_name, im.obj)
+    if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+        # document static members before regular methods
+        im.member_order = member_order - 1
+    elif inspect.isclassmethod(obj):
+        # document class methods before static methods as
+        # they usually behave as alternative constructors
+        im.member_order = member_order - 2
     return im
 
 

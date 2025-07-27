@@ -24,6 +24,7 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._importer import (
     _get_attribute_comment,
     _import_class,
+    _import_method,
     _import_module,
     _import_object,
     _is_runtime_instance_attribute_not_commented,
@@ -357,7 +358,6 @@ class Documenter:
             modname=self.modname,
             objpath=self.objpath,
             objtype=self.objtype,
-            member_order=self.member_order,
             get_attr=self.get_attr,
             config=self.config,
             env=self.env,
@@ -2093,6 +2093,26 @@ class MethodDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        im = _import_method(
+            modname=self.modname,
+            objpath=self.objpath,
+            objtype=self.objtype,
+            member_order=self.member_order,
+            get_attr=self.get_attr,
+            config=self.config,
+            env=self.env,
+            raise_error=raiseerror,
+        )
+        if im is None:
+            return False
+
+        self.object = im.obj
+        del im.obj
+        for k in vars(im):
+            setattr(self, k, getattr(im, k))
+        return True
 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in {'none', 'description'}:
