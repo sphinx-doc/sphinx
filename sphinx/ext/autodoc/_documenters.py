@@ -23,6 +23,7 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._importer import (
     _get_attribute_comment,
+    _import_class,
     _import_module,
     _import_object,
     _is_runtime_instance_attribute_not_commented,
@@ -1480,6 +1481,25 @@ class ClassDocumenter(Documenter):
         return isinstance(member, type) or (
             isattr and isinstance(member, NewType | TypeVar)
         )
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        im = _import_class(
+            modname=self.modname,
+            objpath=self.objpath,
+            objtype=self.objtype,
+            get_attr=self.get_attr,
+            config=self.config,
+            env=self.env,
+            raise_error=raiseerror,
+        )
+        if im is None:
+            return False
+
+        self.object = im.obj
+        del im.obj
+        for k in vars(im):
+            setattr(self, k, getattr(im, k))
+        return True
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
         if isinstance(self.object, NewType | TypeVar):

@@ -67,17 +67,6 @@ def _import_object(
     is_attribute_documenter: bool = False,
     raise_error: bool = False,
 ) -> _Imported | None:
-    if objtype in {'class', 'exception'}:
-        return _import_class(
-            modname=modname,
-            objpath=objpath,
-            objtype=objtype,
-            get_attr=get_attr,
-            config=config,
-            env=env,
-            raise_error=raise_error,
-        )
-
     if is_data_documenter:
         return _import_assignment_data(
             modname=modname,
