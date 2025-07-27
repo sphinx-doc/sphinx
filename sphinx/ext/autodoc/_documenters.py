@@ -1135,9 +1135,7 @@ class ModuleDocumenter(Documenter):
         try:
             im = _import_module(
                 modname=self.modname,
-                fullname=self.fullname,
                 mock_imports=self.config.autodoc_mock_imports,
-                ignore_module_all=self.options.ignore_module_all,
                 get_attr=self.get_attr,
             )
         except ImportError as exc:
@@ -1152,6 +1150,25 @@ class ModuleDocumenter(Documenter):
         for k in vars(im):
             setattr(self, k, getattr(im, k))
         return True
+
+    def _module_all(self) -> Sequence[str] | None:
+        if self.object is not None and self.__all__ is None:
+            try:
+                if not self.options.ignore_module_all:
+                    self.__all__ = inspect.getall(self.object)
+            except ValueError as exc:
+                # invalid __all__ found.
+                logger.warning(
+                    __(
+                        '__all__ should be a list of strings, not %r '
+                        '(in module %s) -- ignoring __all__'
+                    ),
+                    exc.args[0],
+                    self.fullname,
+                    type='autodoc',
+                )
+
+        return self.__all__
 
     def add_directive_header(self, sig: str) -> None:
         Documenter.add_directive_header(self, sig)
@@ -1201,13 +1218,15 @@ class ModuleDocumenter(Documenter):
     def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
         members = self.get_module_members()
         if want_all:
-            if self.__all__ is None:
+            module_all = self._module_all()
+            if module_all is None:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
                 return True, list(members.values())
             else:
+                module_all_set = frozenset(module_all)
                 for member in members.values():
-                    if member.__name__ not in self.__all__:
+                    if member.__name__ not in module_all_set:
                         member.skipped = True
 
                 return False, list(members.values())
@@ -1232,10 +1251,10 @@ class ModuleDocumenter(Documenter):
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
     ) -> list[tuple[Documenter, bool]]:
-        if order == 'bysource' and self.__all__:
-            assert self.__all__ is not None
-            module_all = self.__all__
-            module_all_set = set(module_all)
+        module_all = self._module_all()
+        if order == 'bysource' and module_all:
+            assert module_all is not None
+            module_all_set = frozenset(module_all)
             module_all_len = len(module_all)
 
             # Sort alphabetically first (for members not listed on the __all__)

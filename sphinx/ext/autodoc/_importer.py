@@ -10,7 +10,6 @@ from sphinx.ext.autodoc._sentinels import (
 )
 from sphinx.ext.autodoc.importer import _import_from_module_and_path, import_module
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
-from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.inspect import safe_getattr
@@ -78,9 +77,7 @@ def _import_object(
 def _import_module(
     *,
     modname: str,
-    fullname: str,
     mock_imports: list[str],
-    ignore_module_all: bool,
     get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
     im = _Imported()
@@ -95,20 +92,6 @@ def _import_module(
     except ImportError:  # NoQA: TRY203
         raise
 
-    try:
-        if not ignore_module_all:
-            im.__all__ = inspect.getall(im.obj)
-    except ValueError as exc:
-        # invalid __all__ found.
-        logger.warning(
-            __(
-                '__all__ should be a list of strings, not %r '
-                '(in module %s) -- ignoring __all__'
-            ),
-            exc.args[0],
-            fullname,
-            type='autodoc',
-        )
     return im
 
 
