@@ -2353,8 +2353,7 @@ class AttributeDocumenter(Documenter):
             return True
         if self.object is UNINITIALIZED_ATTR:
             return True
-        _non_data_descriptor = getattr(self, '_non_data_descriptor', False)
-        if not _non_data_descriptor or inspect.isgenericalias(self.object):
+        if not self._non_data_descriptor or inspect.isgenericalias(self.object):
             return True
         else:
             doc = self.get_doc()
