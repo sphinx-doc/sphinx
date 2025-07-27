@@ -75,7 +75,7 @@ def app_params(
     shared_result: SharedResult,
     sphinx_test_tempdir: Path,
     rootdir: Path | None,
-) -> _app_params:
+) -> AppParams:
     """Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
     """
@@ -118,10 +118,10 @@ def app_params(
     # always write to the temporary directory
     kwargs.setdefault('builddir', srcdir / '_build')
 
-    return _app_params(args, kwargs)
+    return AppParams(args, kwargs)
 
 
-_app_params = namedtuple('_app_params', 'args,kwargs')  # NoQA: PYI024
+AppParams = namedtuple('AppParams', 'args,kwargs')  # NoQA: PYI024
 
 
 @pytest.fixture
@@ -150,7 +150,7 @@ def test_params(request: Any) -> dict[str, Any]:
 @pytest.fixture
 def app(
     test_params: dict[str, Any],
-    app_params: _app_params,
+    app_params: AppParams,
     make_app: Callable[[], SphinxTestApp],
     shared_result: SharedResult,
 ) -> Iterator[SphinxTestApp]:
