@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR, SLOTS_ATTR
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
@@ -347,8 +348,6 @@ def get_object_members(
     analyzer: ModuleAnalyzer | None = None,
 ) -> dict[str, Attribute]:
     """Get members and attributes of target object."""
-    from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
-
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
@@ -372,8 +371,6 @@ def get_object_members(
     try:
         subject___slots__ = getslots(subject)
         if subject___slots__:
-            from sphinx.ext.autodoc._sentinels import SLOTS_ATTR
-
             for name in subject___slots__:
                 members[name] = Attribute(
                     name=name, directly_defined=True, value=SLOTS_ATTR
@@ -420,7 +417,6 @@ def get_class_members(
 ) -> dict[str, ObjectMember]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc._documenters import ObjectMember
-    from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
@@ -443,8 +439,6 @@ def get_class_members(
     try:
         subject___slots__ = getslots(subject)
         if subject___slots__:
-            from sphinx.ext.autodoc._sentinels import SLOTS_ATTR
-
             for name, docstring in subject___slots__.items():
                 members[name] = ObjectMember(
                     name, SLOTS_ATTR, class_=subject, docstring=docstring
