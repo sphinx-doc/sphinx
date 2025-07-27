@@ -120,7 +120,9 @@ def test_texinfo_warnings(app: SphinxTestApp) -> None:
     _check_warnings(warnings_exp, app.warning.getvalue())
 
 
-def test_uncacheable_config_warning(make_app: Callable[..., SphinxTestApp], tmp_path: Path) -> None:
+def test_uncacheable_config_warning(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
     """Test that an unpickleable config value raises a warning."""
     tmp_path.joinpath('conf.py').write_text(
         """\
