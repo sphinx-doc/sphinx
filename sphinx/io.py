@@ -97,6 +97,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
         self.settings = settings
         self.input = self.read_source(settings.env)
         self.parse()
+        assert self.document is not None
         return self.document
 
     def read_source(self, env: BuildEnvironment) -> str:
