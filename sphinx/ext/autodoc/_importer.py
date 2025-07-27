@@ -80,6 +80,17 @@ def _import_object(
             raise_error=raise_error,
         )
 
+    if objtype in {'class', 'exception'}:
+        return _import_class(
+            modname=modname,
+            objpath=objpath,
+            objtype=objtype,
+            get_attr=get_attr,
+            config=config,
+            env=env,
+            raise_error=raise_error,
+        )
+
     im = _import_object_default(
         modname=modname,
         objpath=objpath,
@@ -92,21 +103,6 @@ def _import_object(
         raise_error=raise_error,
     )
     if im is None:
-        return im
-
-    if objtype in {'class', 'exception'}:
-        # if the class is documented under another name, document it
-        # as data/attribute
-        if hasattr(im.obj, '__name__'):
-            im.doc_as_attr = objpath[-1] != im.obj.__name__
-        else:
-            im.doc_as_attr = True
-        if isinstance(im.obj, NewType | TypeVar):
-            obj_modname = getattr(im.obj, '__module__', modname)
-            if obj_modname != modname and modname.startswith(obj_modname):
-                bases = modname[len(obj_modname) :].strip('.').split('.')
-                im.objpath = bases + objpath
-                im.modname = obj_modname
         return im
 
     if is_data_documenter:
@@ -198,6 +194,45 @@ def _import_module(
             fullname,
             type='autodoc',
         )
+    return im
+
+
+def _import_class(
+    *,
+    modname: str,
+    objpath: list[str],
+    objtype: str,
+    get_attr: _AttrGetter,
+    config: Config,
+    env: BuildEnvironment,
+    raise_error: bool = False,
+) -> _Imported | None:
+    im = _Imported()
+    with mock(config.autodoc_mock_imports):
+        try:
+            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            im.module, im.parent, im.object_name, im.obj = ret
+            if ismock(im.obj):
+                im.obj = undecorate(im.obj)
+        except ImportError as exc:
+            if raise_error:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            return None
+
+    # if the class is documented under another name, document it
+    # as data/attribute
+    if hasattr(im.obj, '__name__'):
+        im.doc_as_attr = objpath[-1] != im.obj.__name__
+    else:
+        im.doc_as_attr = True
+    if isinstance(im.obj, NewType | TypeVar):
+        obj_modname = getattr(im.obj, '__module__', modname)
+        if obj_modname != modname and modname.startswith(obj_modname):
+            bases = modname[len(obj_modname) :].strip('.').split('.')
+            im.objpath = bases + objpath
+            im.modname = obj_modname
     return im
 
 
