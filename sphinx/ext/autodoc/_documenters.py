@@ -24,7 +24,7 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._importer import (
     _get_attribute_comment,
     _import_object,
-    _is_runtime_instance_attribute_not_commented,
+    _is_runtime_instance_attribute_not_commented, _import_module,
 )
 from sphinx.ext.autodoc._sentinels import (
     ALL,
@@ -1127,6 +1127,28 @@ class ModuleDocumenter(Documenter):
                 type='autodoc',
             )
         return ret
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        im = _import_module(
+            modname=self.modname,
+            objpath=self.objpath,
+            objtype=self.objtype,
+            fullname=self.fullname,
+            get_attr=self.get_attr,
+            config=self.config,
+            env=self.env,
+            options=self.options,
+            raise_error=raiseerror,
+        )
+        if im is None:
+            return False
+
+        self.object = im.obj
+        del im.obj
+        for k in vars(im):
+            setattr(self, k, getattr(im, k))
+        return True
+
 
     def add_directive_header(self, sig: str) -> None:
         Documenter.add_directive_header(self, sig)
