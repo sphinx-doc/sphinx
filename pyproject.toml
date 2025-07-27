@@ -274,7 +274,6 @@ module = [
     "tests.test_extensions.test_ext_viewcode",
     # tests/test_intl
     "tests.test_intl.test_catalogs",
-    "tests.test_intl.test_locale",
     # tests/test_markup
     "tests.test_markup.test_markup",
     "tests.test_markup.test_parser",
