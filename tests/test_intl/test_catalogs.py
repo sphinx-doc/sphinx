@@ -11,12 +11,12 @@ import pytest
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from sphinx.testing.fixtures import AppParams
+    from sphinx.testing.fixtures import _app_params
     from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.fixture
-def _setup_test(app_params: AppParams) -> Iterator[None]:
+def _setup_test(app_params: _app_params) -> Iterator[None]:
     assert isinstance(app_params.kwargs['srcdir'], Path)
     srcdir = app_params.kwargs['srcdir']
     src_locale_dir = srcdir / 'xx' / 'LC_MESSAGES'
