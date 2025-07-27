@@ -54,8 +54,8 @@ def _import_object(
     modname: str,
     objpath: list[str],
     objtype: str,
-    get_attr: _AttrGetter,
     mock_imports: list[str],
+    get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
     """Import the object given by *modname* and *objpath* and set
     it as *object*.
@@ -80,9 +80,9 @@ def _import_module(
     objpath: list[str],
     objtype: str,
     fullname: str,
-    get_attr: _AttrGetter,
     mock_imports: list[str],
     ignore_module_all: bool,
+    get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
     im = _Imported()
     try:
@@ -116,8 +116,8 @@ def _import_class(
     modname: str,
     objpath: list[str],
     objtype: str,
-    get_attr: _AttrGetter,
     mock_imports: list[str],
+    get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
     im = _Imported()
     try:
@@ -150,8 +150,8 @@ def _import_method(
     objpath: list[str],
     objtype: str,
     member_order: int,
-    get_attr: _AttrGetter,
     mock_imports: list[str],
+    get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
     im = _Imported()
     try:
@@ -180,8 +180,8 @@ def _import_property(
     modname: str,
     objpath: list[str],
     objtype: str,
-    get_attr: _AttrGetter,
     mock_imports: list[str],
+    get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported | None:
     im = _Imported()
     try:
@@ -212,9 +212,9 @@ def _import_assignment_data(
     modname: str,
     objpath: list[str],
     objtype: str,
-    get_attr: _AttrGetter,
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
+    get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
     import_failed = True
     im = _Imported()
@@ -263,9 +263,9 @@ def _import_assignment_attribute(
     modname: str,
     objpath: list[str],
     objtype: str,
-    get_attr: _AttrGetter,
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
+    get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
     import_failed = True
     im = _Imported()

@@ -362,8 +362,8 @@ class Documenter:
                 modname=self.modname,
                 objpath=self.objpath,
                 objtype=self.objtype,
-                get_attr=self.get_attr,
                 mock_imports=self.config.autodoc_mock_imports,
+                get_attr=self.get_attr,
             )
         except ImportError as exc:
             if raiseerror:
@@ -1139,9 +1139,9 @@ class ModuleDocumenter(Documenter):
                 objpath=self.objpath,
                 objtype=self.objtype,
                 fullname=self.fullname,
-                get_attr=self.get_attr,
                 mock_imports=self.config.autodoc_mock_imports,
                 ignore_module_all=self.options.ignore_module_all,
+                get_attr=self.get_attr,
             )
         except ImportError as exc:
             if raiseerror:
@@ -1495,8 +1495,8 @@ class ClassDocumenter(Documenter):
                 modname=self.modname,
                 objpath=self.objpath,
                 objtype=self.objtype,
-                get_attr=self.get_attr,
                 mock_imports=self.config.autodoc_mock_imports,
+                get_attr=self.get_attr,
             )
         except ImportError as exc:
             if raiseerror:
@@ -1999,9 +1999,9 @@ class DataDocumenter(Documenter):
                 modname=self.modname,
                 objpath=self.objpath,
                 objtype=self.objtype,
-                get_attr=self.get_attr,
                 mock_imports=self.config.autodoc_mock_imports,
                 type_aliases=self.config.autodoc_type_aliases,
+                get_attr=self.get_attr,
             )
         except ImportError as exc:
             if raiseerror:
@@ -2134,8 +2134,8 @@ class MethodDocumenter(Documenter):
                 objpath=self.objpath,
                 objtype=self.objtype,
                 member_order=self.member_order,
-                get_attr=self.get_attr,
                 mock_imports=self.config.autodoc_mock_imports,
+                get_attr=self.get_attr,
             )
         except ImportError as exc:
             if raiseerror:
@@ -2446,9 +2446,9 @@ class AttributeDocumenter(Documenter):
                 modname=self.modname,
                 objpath=self.objpath,
                 objtype=self.objtype,
-                get_attr=self.get_attr,
                 mock_imports=self.config.autodoc_mock_imports,
                 type_aliases=self.config.autodoc_type_aliases,
+                get_attr=self.get_attr,
             )
         except ImportError as exc:
             if raiseerror:
@@ -2634,8 +2634,8 @@ class PropertyDocumenter(Documenter):
                 modname=self.modname,
                 objpath=self.objpath,
                 objtype=self.objtype,
-                get_attr=self.get_attr,
                 mock_imports=self.config.autodoc_mock_imports,
+                get_attr=self.get_attr,
             )
         except ImportError as exc:
             if raiseerror:
