@@ -17,7 +17,7 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
-    from docutils.nodes import Element, Node, Text
+    from docutils.nodes import Element, Node, Text, section
 
     from sphinx.builders import Builder
     from sphinx.builders.html import StandaloneHTMLBuilder
@@ -395,10 +395,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = f'{docname}/#{node.parent["ids"][0]}'
+                # Remove document-
+                anchorname = node.parent['ids'][0][9:]
                 if anchorname not in self.builder.secnumbers:
                     # try first heading which has no anchor
-                    anchorname = f'{docname}/'
+                    anchorname = docname
             else:
                 anchorname = '#' + node.parent['ids'][0]
                 if anchorname not in self.builder.secnumbers:
@@ -496,6 +497,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 self.add_permalink_ref(node, _('Link to this term'))
 
             self.body.append('</dt>')
+
+    def visit_section(self, node: section) -> None:
+        if self.builder.name == 'singlehtml' and node['ids']:
+            docname = self.docnames[-1]
+            node['ids'][0] = 'document-' + docname + '#' + node['ids'][0]
+        super().visit_section(node)
+
+    def depart_section(self, node: section) -> None:
+        super().depart_section(node)
 
     # overwritten
     def visit_title(self, node: nodes.title) -> None:
