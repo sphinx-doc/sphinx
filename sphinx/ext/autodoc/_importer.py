@@ -53,7 +53,6 @@ def _import_object(
     *,
     modname: str,
     objpath: list[str],
-    objtype: str,
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
@@ -79,8 +78,6 @@ def _import_object(
 def _import_module(
     *,
     modname: str,
-    objpath: list[str],
-    objtype: str,
     fullname: str,
     mock_imports: list[str],
     ignore_module_all: bool,
@@ -119,7 +116,6 @@ def _import_class(
     *,
     modname: str,
     objpath: list[str],
-    objtype: str,
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
@@ -154,7 +150,6 @@ def _import_method(
     *,
     modname: str,
     objpath: list[str],
-    objtype: str,
     member_order: int,
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
@@ -187,7 +182,6 @@ def _import_property(
     *,
     modname: str,
     objpath: list[str],
-    objtype: str,
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported | None:
@@ -221,7 +215,6 @@ def _import_assignment_data(
     *,
     modname: str,
     objpath: list[str],
-    objtype: str,
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
     get_attr: _AttrGetter = safe_getattr,
@@ -274,7 +267,6 @@ def _import_assignment_attribute(
     *,
     modname: str,
     objpath: list[str],
-    objtype: str,
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
     get_attr: _AttrGetter = safe_getattr,
