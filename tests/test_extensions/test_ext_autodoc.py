@@ -555,21 +555,19 @@ def test_autodoc_warnings(app):
 
     # can't import module
     do_autodoc(app, 'module', 'unknown')
-    assert "failed to import module 'unknown'" in app.warning.getvalue()
+    assert "failed to import 'unknown'" in app.warning.getvalue()
 
     # missing function
     do_autodoc(app, 'function', 'unknown')
     assert "import for autodocumenting 'unknown'" in app.warning.getvalue()
 
     do_autodoc(app, 'function', 'target.unknown')
-    assert (
-        "failed to import function 'unknown' from module 'target'"
-    ) in app.warning.getvalue()
+    assert "failed to import 'unknown' from module 'target'" in app.warning.getvalue()
 
     # missing method
     do_autodoc(app, 'method', 'target.Class.unknown')
     assert (
-        "failed to import method 'Class.unknown' from module 'target'"
+        "failed to import 'Class.unknown' from module 'target'"
     ) in app.warning.getvalue()
 
 

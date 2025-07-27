@@ -31,7 +31,8 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping
+    import types
+    from collections.abc import Iterator, Mapping, Sequence
     from importlib.machinery import ModuleSpec
     from types import ModuleType
     from typing import Any, Protocol
@@ -257,37 +258,51 @@ def import_object(
     objtype: str = '',
     attrgetter: _AttrGetter = safe_getattr,
 ) -> Any:
-    if objpath:
-        logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
+    ret = _import_from_module_and_path(
+        module_name=modname, obj_path=objpath, get_attr=attrgetter
+    )
+    if ret is not None:
+        return list(ret)
+    return None
+
+
+def _import_from_module_and_path(
+    *,
+    module_name: str,
+    obj_path: Sequence[str],
+    get_attr: _AttrGetter = safe_getattr,
+) -> tuple[types.ModuleType, Any, str, Any]:
+    obj_path = list(obj_path)
+    if obj_path:
+        logger.debug('[autodoc] from %s import %s', module_name, '.'.join(obj_path))
     else:
-        logger.debug('[autodoc] import %s', modname)
+        logger.debug('[autodoc] import %s', module_name)
 
     module = None
     exc_on_importing = None
-    objpath = objpath.copy()
     try:
         while module is None:
             try:
-                module = import_module(modname, try_reload=True)
-                logger.debug('[autodoc] import %s => %r', modname, module)
+                module = import_module(module_name, try_reload=True)
+                logger.debug('[autodoc] import %s => %r', module_name, module)
             except ImportError as exc:
-                logger.debug('[autodoc] import %s => failed', modname)
+                logger.debug('[autodoc] import %s => failed', module_name)
                 exc_on_importing = exc
-                if '.' in modname:
-                    # retry with parent module
-                    modname, _, name = modname.rpartition('.')
-                    objpath.insert(0, name)
-                else:
+                if '.' not in module_name:
                     raise
+
+                # retry with parent module
+                module_name, _, name = module_name.rpartition('.')
+                obj_path.insert(0, name)
 
         obj = module
         parent = None
-        object_name = None
-        for attrname in objpath:
+        object_name = ''
+        for attr_name in obj_path:
             parent = obj
-            logger.debug('[autodoc] getattr(_, %r)', attrname)
-            mangled_name = mangle(obj, attrname)
-            obj = attrgetter(obj, mangled_name)
+            logger.debug('[autodoc] getattr(_, %r)', attr_name)
+            mangled_name = mangle(obj, attr_name)
+            obj = get_attr(obj, mangled_name)
 
             try:
                 logger.debug('[autodoc] => %r', obj)
@@ -296,21 +311,21 @@ def import_object(
                 # See: https://github.com/sphinx-doc/sphinx/issues/9095
                 logger.debug('[autodoc] => %r', (obj,))
 
-            object_name = attrname
-        return [module, parent, object_name, obj]
+            object_name = attr_name
+        return module, parent, object_name, obj
     except (AttributeError, ImportError) as exc:
         if isinstance(exc, AttributeError) and exc_on_importing:
             # restore ImportError
             exc = exc_on_importing
 
-        if objpath:
-            dotted_objpath = '.'.join(objpath)
+        if obj_path:
+            dotted_objpath = '.'.join(obj_path)
             err_parts = [
-                f'autodoc: failed to import {objtype} {dotted_objpath!r} '
-                f'from module {modname!r}'
+                f'autodoc: failed to import {dotted_objpath!r} '
+                f'from module {module_name!r}'
             ]
         else:
-            err_parts = [f'autodoc: failed to import {objtype} {modname!r}']
+            err_parts = [f'autodoc: failed to import {module_name!r}']
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
