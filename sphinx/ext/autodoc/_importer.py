@@ -36,7 +36,6 @@ class _Imported:
     # the object to document
     obj: Any
 
-    __all__: Sequence[str] | None
     doc_as_attr: bool
     objpath: list[str]
     module_name: str
