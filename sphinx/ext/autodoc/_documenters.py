@@ -23,6 +23,7 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._importer import (
     _get_attribute_comment,
+    _import_assignment_data,
     _import_class,
     _import_method,
     _import_module,
@@ -361,7 +362,6 @@ class Documenter:
             get_attr=self.get_attr,
             config=self.config,
             env=self.env,
-            is_data_documenter=self.__uninitialized_global_variable__,
             is_attribute_documenter=isinstance(self, AttributeDocumenter),
             raise_error=raiseerror,
         )
@@ -1982,6 +1982,25 @@ class DataDocumenter(Documenter):
                     annotations[attrname] = annotation
         except PycodeError:
             pass
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        im = _import_assignment_data(
+            modname=self.modname,
+            objpath=self.objpath,
+            objtype=self.objtype,
+            get_attr=self.get_attr,
+            config=self.config,
+            env=self.env,
+            raise_error=raiseerror,
+        )
+        if im is None:
+            return False
+
+        self.object = im.obj
+        del im.obj
+        for k in vars(im):
+            setattr(self, k, getattr(im, k))
+        return True
 
     def should_suppress_value_header(self) -> bool:
         if self.object is UNINITIALIZED_ATTR:

@@ -60,21 +60,9 @@ def _import_object(
     get_attr: _AttrGetter,
     config: Config,
     env: BuildEnvironment,
-    is_data_documenter: bool = False,
     is_attribute_documenter: bool = False,
     raise_error: bool = False,
 ) -> _Imported | None:
-    if is_data_documenter:
-        return _import_assignment_data(
-            modname=modname,
-            objpath=objpath,
-            objtype=objtype,
-            get_attr=get_attr,
-            config=config,
-            env=env,
-            raise_error=raise_error,
-        )
-
     im = _import_object_default(
         modname=modname,
         objpath=objpath,
@@ -249,6 +237,7 @@ def _import_assignment_data(
     env: BuildEnvironment,
     raise_error: bool = False,
 ) -> _Imported | None:
+    import_failed = True
     im = _Imported()
     with mock(config.autodoc_mock_imports):
         try:
@@ -256,6 +245,7 @@ def _import_assignment_data(
             im.module, im.parent, im.object_name, im.obj = ret
             if ismock(im.obj):
                 im.obj = undecorate(im.obj)
+            import_failed = False
         except ImportError as exc:
             # annotation only instance variable (PEP-526)
             try:
@@ -269,14 +259,15 @@ def _import_assignment_data(
                 if objpath[-1] in annotations:
                     im.obj = UNINITIALIZED_ATTR
                     im.parent = parent
+                    import_failed = False
             except ImportError:
                 pass
 
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            if not hasattr(im, 'obj'):
+            if import_failed:
+                if raise_error:
+                    raise
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                env.note_reread()
                 return None
 
     # Update __annotations__ to support type_comment and so on
