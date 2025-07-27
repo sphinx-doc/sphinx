@@ -8,7 +8,11 @@ from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR,
     UNINITIALIZED_ATTR,
 )
-from sphinx.ext.autodoc.importer import _import_from_module_and_path, import_module
+from sphinx.ext.autodoc.importer import (
+    _import_from_module_and_path,
+    _ImportedObject,
+    import_module,
+)
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
@@ -16,34 +20,11 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
-    from types import ModuleType
     from typing import Any
 
     from sphinx.ext.autodoc.importer import _AttrGetter
 
 logger = logging.getLogger('sphinx.ext.autodoc')
-
-
-class _Imported:
-    module: ModuleType | None
-
-    # the parent/owner of the object to document
-    parent: Any
-
-    object_name: str
-
-    # the object to document
-    obj: Any
-
-    doc_as_attr: bool
-    objpath: list[str]
-    module_name: str
-    member_order: int
-    _non_data_descriptor: bool
-    isclassmethod: bool
-
-    def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} {self.__dict__}>'
 
 
 def _import_object(
@@ -52,19 +33,17 @@ def _import_object(
     objpath: list[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
-) -> _Imported:
+) -> _ImportedObject:
     """Import the object given by *module_name* and *objpath* and set
     it as *object*.
 
     Returns True if successful, False if an error occurred.
     """
-    im = _Imported()
     try:
         with mock(mock_imports):
-            ret = _import_from_module_and_path(
+            im = _import_from_module_and_path(
                 module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
-        im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
         return im
@@ -78,14 +57,12 @@ def _import_class(
     objpath: list[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
-) -> _Imported:
-    im = _Imported()
+) -> _ImportedObject:
     try:
         with mock(mock_imports):
-            ret = _import_from_module_and_path(
+            im = _import_from_module_and_path(
                 module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
-        im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
     except ImportError:  # NoQA: TRY203
@@ -113,14 +90,12 @@ def _import_method(
     member_order: int,
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
-) -> _Imported:
-    im = _Imported()
+) -> _ImportedObject:
     try:
         with mock(mock_imports):
-            ret = _import_from_module_and_path(
+            im = _import_from_module_and_path(
                 module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
-        im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
     except ImportError:  # NoQA: TRY203
@@ -144,14 +119,12 @@ def _import_property(
     objpath: list[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
-) -> _Imported | None:
-    im = _Imported()
+) -> _ImportedObject | None:
     try:
         with mock(mock_imports):
-            ret = _import_from_module_and_path(
+            im = _import_from_module_and_path(
                 module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
-        im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
     except ImportError:  # NoQA: TRY203
@@ -178,15 +151,13 @@ def _import_assignment_data(
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
     get_attr: _AttrGetter = safe_getattr,
-) -> _Imported:
+) -> _ImportedObject:
     import_failed = True
-    im = _Imported()
     try:
         with mock(mock_imports):
-            ret = _import_from_module_and_path(
+            im = _import_from_module_and_path(
                 module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
-        im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
         import_failed = False
@@ -199,8 +170,10 @@ def _import_assignment_data(
                 parent, None, type_aliases, include_extras=True
             )
             if objpath[-1] in annotations:
-                im.obj = UNINITIALIZED_ATTR
-                im.parent = parent
+                im = _ImportedObject(
+                    parent=parent,
+                    obj=UNINITIALIZED_ATTR,
+                )
                 import_failed = False
         except ImportError:
             pass
@@ -230,15 +203,13 @@ def _import_assignment_attribute(
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
     get_attr: _AttrGetter = safe_getattr,
-) -> _Imported:
+) -> _ImportedObject:
     import_failed = True
-    im = _Imported()
     try:
         with mock(mock_imports):
-            ret = _import_from_module_and_path(
+            im = _import_from_module_and_path(
                 module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
-        im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
         import_failed = False
@@ -258,16 +229,20 @@ def _import_assignment_attribute(
                 ret = _import_from_module_and_path(
                     module_name=module_name, obj_path=objpath[:-1], get_attr=get_attr
                 )
-            parent = ret[3]
+            parent = ret.obj
             if _is_runtime_instance_attribute(parent=parent, objpath=objpath):
-                im.obj = RUNTIME_INSTANCE_ATTRIBUTE
-                im.parent = parent
+                im = _ImportedObject(
+                    parent=parent,
+                    obj=RUNTIME_INSTANCE_ATTRIBUTE,
+                )
                 import_failed = False
             elif _is_uninitialized_instance_attribute(
                 parent=parent, objpath=objpath, type_aliases=type_aliases
             ):
-                im.obj = UNINITIALIZED_ATTR
-                im.parent = parent
+                im = _ImportedObject(
+                    parent=parent,
+                    obj=UNINITIALIZED_ATTR,
+                )
                 import_failed = False
         except ImportError:
             pass

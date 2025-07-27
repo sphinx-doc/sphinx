@@ -31,7 +31,6 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    import types
     from collections.abc import Iterator, Mapping, Sequence
     from importlib.machinery import ModuleSpec
     from types import ModuleType
@@ -45,6 +44,43 @@ if TYPE_CHECKING:
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
+
+
+class _ImportedObject:
+    #: module containing the object to document
+    module: ModuleType | None
+
+    #: parent/owner of the object to document
+    parent: Any
+
+    #: name of the object to document
+    object_name: str
+
+    #: object to document
+    obj: Any
+
+    doc_as_attr: bool
+    objpath: list[str]
+    modname: str
+    member_order: int
+    _non_data_descriptor: bool
+    isclassmethod: bool
+
+    def __init__(
+        self,
+        *,
+        module: ModuleType | None = None,
+        parent: Any,
+        object_name: str = '',
+        obj: Any,
+    ) -> None:
+        self.module = module
+        self.parent = parent
+        self.object_name = object_name
+        self.obj = obj
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} {self.__dict__}>'
 
 
 def _filter_enum_dict(
@@ -261,8 +297,8 @@ def import_object(
     ret = _import_from_module_and_path(
         module_name=modname, obj_path=objpath, get_attr=attrgetter
     )
-    if ret is not None:
-        return list(ret)
+    if isinstance(ret, _ImportedObject):
+        return [ret.module, ret.parent, ret.object_name, ret.obj]
     return None
 
 
@@ -271,7 +307,7 @@ def _import_from_module_and_path(
     module_name: str,
     obj_path: Sequence[str],
     get_attr: _AttrGetter = safe_getattr,
-) -> tuple[types.ModuleType, Any, str, Any]:
+) -> _ImportedObject:
     obj_path = list(obj_path)
     if obj_path:
         logger.debug('[autodoc] from %s import %s', module_name, '.'.join(obj_path))
@@ -312,7 +348,12 @@ def _import_from_module_and_path(
                 logger.debug('[autodoc] => %r', (obj,))
 
             object_name = attr_name
-        return module, parent, object_name, obj
+        return _ImportedObject(
+            module=module,
+            parent=parent,
+            object_name=object_name,
+            obj=obj,
+        )
     except (AttributeError, ImportError) as exc:
         if isinstance(exc, AttributeError) and exc_on_importing:
             # restore ImportError
