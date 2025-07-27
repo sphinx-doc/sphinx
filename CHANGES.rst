@@ -97,8 +97,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #13712: intersphinx: Don't add "v" prefix to non-numeric versions.
   Patch by Szymon Karpinski.
-* #13688: HTML builder: Replace ``<em class="property">`` with ``<span class="property">``
-  for Python attribute type annotations to improve `semantic HTML structure
+* #13688: HTML builder: Replace ``<em class="property">`` with
+  ``<span class="property">`` for attribute type annotations
+  to improve `semantic HTML structure
   <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
   Patch by Mark Ostroth.
 
