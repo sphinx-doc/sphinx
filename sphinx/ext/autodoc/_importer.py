@@ -67,6 +67,19 @@ def _import_object(
     is_attribute_documenter: bool = False,
     raise_error: bool = False,
 ) -> _Imported | None:
+    if objtype == 'module':
+        return _import_module(
+            modname=modname,
+            objpath=objpath,
+            objtype=objtype,
+            fullname=fullname,
+            get_attr=get_attr,
+            config=config,
+            env=env,
+            options=options,
+            raise_error=raise_error,
+        )
+
     im = _import_object_default(
         modname=modname,
         objpath=objpath,
@@ -79,24 +92,6 @@ def _import_object(
         raise_error=raise_error,
     )
     if im is None:
-        return im
-
-    if objtype == 'module':
-        try:
-            if not options.ignore_module_all:
-                im.__all__ = inspect.getall(im.obj)
-        except ValueError as exc:
-            # invalid __all__ found.
-            logger.warning(
-                __(
-                    '__all__ should be a list of strings, not %r '
-                    '(in module %s) -- ignoring __all__'
-                ),
-                exc.args[0],
-                fullname,
-                type='autodoc',
-            )
-
         return im
 
     if objtype in {'class', 'exception'}:
@@ -160,6 +155,49 @@ def _import_object(
         im.isclassmethod = False
         return im
 
+    return im
+
+
+def _import_module(
+    *,
+    modname: str,
+    objpath: list[str],
+    objtype: str,
+    fullname: str,
+    get_attr: _AttrGetter,
+    config: Config,
+    env: BuildEnvironment,
+    options: Options,
+    raise_error: bool = False,
+) -> _Imported | None:
+    im = _Imported()
+    with mock(config.autodoc_mock_imports):
+        try:
+            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            im.module, im.parent, im.object_name, im.obj = ret
+            if ismock(im.obj):
+                im.obj = undecorate(im.obj)
+        except ImportError as exc:
+            if raise_error:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            return None
+
+    try:
+        if not options.ignore_module_all:
+            im.__all__ = inspect.getall(im.obj)
+    except ValueError as exc:
+        # invalid __all__ found.
+        logger.warning(
+            __(
+                '__all__ should be a list of strings, not %r '
+                '(in module %s) -- ignoring __all__'
+            ),
+            exc.args[0],
+            fullname,
+            type='autodoc',
+        )
     return im
 
 
