@@ -23,6 +23,7 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._importer import (
     _get_attribute_comment,
+    _import_assignment_attribute,
     _import_assignment_data,
     _import_class,
     _import_method,
@@ -362,7 +363,6 @@ class Documenter:
             get_attr=self.get_attr,
             config=self.config,
             env=self.env,
-            is_attribute_documenter=isinstance(self, AttributeDocumenter),
             raise_error=raiseerror,
         )
         if im is None:
@@ -2422,6 +2422,25 @@ class AttributeDocumenter(Documenter):
         except (AttributeError, TypeError):
             # Failed to set __annotations__ (built-in, extensions, etc.)
             pass
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        im = _import_assignment_attribute(
+            modname=self.modname,
+            objpath=self.objpath,
+            objtype=self.objtype,
+            get_attr=self.get_attr,
+            config=self.config,
+            env=self.env,
+            raise_error=raiseerror,
+        )
+        if im is None:
+            return False
+
+        self.object = im.obj
+        del im.obj
+        for k in vars(im):
+            setattr(self, k, getattr(im, k))
+        return True
 
     def get_real_modname(self) -> str:
         real_modname = self.get_attr(self.parent or self.object, '__module__', None)

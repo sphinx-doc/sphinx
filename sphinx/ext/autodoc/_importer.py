@@ -30,15 +30,15 @@ logger = logging.getLogger('sphinx.ext.autodoc')
 
 
 class _Imported:
-    module: ModuleType | None = None
+    module: ModuleType | None
 
     # the parent/owner of the object to document
-    parent: Any = None
+    parent: Any
 
-    object_name: str = ''
+    object_name: str
 
     # the object to document
-    obj: Any = None
+    obj: Any
 
     __all__: Sequence[str] | None
     doc_as_attr: bool
@@ -60,7 +60,6 @@ def _import_object(
     get_attr: _AttrGetter,
     config: Config,
     env: BuildEnvironment,
-    is_attribute_documenter: bool = False,
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _import_object_default(
@@ -70,25 +69,9 @@ def _import_object(
         get_attr=get_attr,
         config=config,
         env=env,
-        is_attribute_documenter=is_attribute_documenter,
         raise_error=raise_error,
     )
     if im is None:
-        return im
-
-    if is_attribute_documenter:
-        if _is_slots_attribute(parent=im.parent, objpath=objpath):
-            im.obj = SLOTS_ATTR
-        elif inspect.isenumattribute(im.obj):
-            im.obj = im.obj.value
-        if im.parent:
-            _update_annotations_attribute_documenter(parent=im.parent)
-
-        if im and not inspect.isattributedescriptor(im.obj):
-            im._non_data_descriptor = True
-        else:
-            im._non_data_descriptor = False
-
         return im
 
     if objtype == 'property':
@@ -285,6 +268,79 @@ def _import_assignment_data(
     return im
 
 
+def _import_assignment_attribute(
+    *,
+    modname: str,
+    objpath: list[str],
+    objtype: str,
+    get_attr: _AttrGetter,
+    config: Config,
+    env: BuildEnvironment,
+    raise_error: bool = False,
+) -> _Imported | None:
+    im = _Imported()
+    import_failed = True
+    with mock(config.autodoc_mock_imports):
+        try:
+            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            im.module, im.parent, im.object_name, im.obj = ret
+            if ismock(im.obj):
+                im.obj = undecorate(im.obj)
+            import_failed = False
+        except ImportError as exc:
+            # Support runtime & uninitialized instance attributes.
+            #
+            # The former are defined in __init__() methods with doc-comments.
+            # The latter are PEP-526 style annotation only annotations.
+            #
+            # class Foo:
+            #     attr: int  #: uninitialized attribute
+            #
+            #     def __init__(self):
+            #         self.attr = None  #: runtime attribute
+            try:
+                ret = import_object(
+                    modname,
+                    objpath[:-1],
+                    'class',
+                    attrgetter=get_attr,
+                )
+                parent = ret[3]
+                if _is_runtime_instance_attribute(parent=parent, objpath=objpath):
+                    im.obj = RUNTIME_INSTANCE_ATTRIBUTE
+                    im.parent = parent
+                    import_failed = False
+                elif _is_uninitialized_instance_attribute(
+                    parent=parent, objpath=objpath, config=config
+                ):
+                    im.obj = UNINITIALIZED_ATTR
+                    im.parent = parent
+                    import_failed = False
+            except ImportError:
+                pass
+
+            if import_failed:
+                if raise_error:
+                    raise
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                env.note_reread()
+                return None
+
+    if _is_slots_attribute(parent=im.parent, objpath=objpath):
+        im.obj = SLOTS_ATTR
+    elif inspect.isenumattribute(im.obj):
+        im.obj = im.obj.value
+    if im.parent:
+        _update_annotations_attribute_documenter(parent=im.parent)
+
+    if im and not inspect.isattributedescriptor(im.obj):
+        im._non_data_descriptor = True
+    else:
+        im._non_data_descriptor = False
+
+    return im
+
+
 def _import_object_default(
     *,
     modname: str,
@@ -293,7 +349,6 @@ def _import_object_default(
     get_attr: _AttrGetter,
     config: Config,
     env: BuildEnvironment,
-    is_attribute_documenter: bool = False,
     raise_error: bool = False,
 ) -> _Imported | None:
     """Import the object given by *modname* and *objpath* and set
@@ -310,39 +365,6 @@ def _import_object_default(
                 im.obj = undecorate(im.obj)
             return im
         except ImportError as exc:
-            if is_attribute_documenter:
-                # Support runtime & uninitialized instance attributes.
-                #
-                # The former are defined in __init__() methods with doc-comments.
-                # The latter are PEP-526 style annotation only annotations.
-                #
-                # class Foo:
-                #     attr: int  #: uninitialized attribute
-                #
-                #     def __init__(self):
-                #         self.attr = None  #: runtime attribute
-                try:
-                    ret = import_object(
-                        modname,
-                        objpath[:-1],
-                        'class',
-                        attrgetter=get_attr,
-                    )
-                    parent = ret[3]
-                    if _is_runtime_instance_attribute(parent=parent, objpath=objpath):
-                        im.obj = RUNTIME_INSTANCE_ATTRIBUTE
-                        im.parent = parent
-                        return im
-
-                    if _is_uninitialized_instance_attribute(
-                        parent=parent, objpath=objpath, config=config
-                    ):
-                        im.obj = UNINITIALIZED_ATTR
-                        im.parent = parent
-                        return im
-                except ImportError:
-                    pass
-
             if raise_error:
                 raise
             logger.warning(exc.args[0], type='autodoc', subtype='import_object')
