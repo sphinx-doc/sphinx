@@ -29,6 +29,7 @@ from sphinx.ext.autodoc._importer import (
     _import_method,
     _import_module,
     _import_object,
+    _import_property,
     _is_runtime_instance_attribute_not_commented,
 )
 from sphinx.ext.autodoc._sentinels import (
@@ -2606,6 +2607,25 @@ class PropertyDocumenter(Documenter):
                 return isinstance(obj, classmethod) and inspect.isproperty(obj.__func__)
         else:
             return False
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        im = _import_property(
+            modname=self.modname,
+            objpath=self.objpath,
+            objtype=self.objtype,
+            get_attr=self.get_attr,
+            config=self.config,
+            env=self.env,
+            raise_error=raiseerror,
+        )
+        if im is None:
+            return False
+
+        self.object = im.obj
+        del im.obj
+        for k in vars(im):
+            setattr(self, k, getattr(im, k))
+        return True
 
     def format_args(self, **kwargs: Any) -> str:
         func = self._get_property_getter()

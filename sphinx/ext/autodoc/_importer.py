@@ -62,33 +62,25 @@ def _import_object(
     env: BuildEnvironment,
     raise_error: bool = False,
 ) -> _Imported | None:
-    im = _import_object_default(
-        modname=modname,
-        objpath=objpath,
-        objtype=objtype,
-        get_attr=get_attr,
-        config=config,
-        env=env,
-        raise_error=raise_error,
-    )
-    if im is None:
-        return im
+    """Import the object given by *modname* and *objpath* and set
+    it as *object*.
 
-    if objtype == 'property':
-        if not inspect.isproperty(im.obj):
-            __dict__ = safe_getattr(im.parent, '__dict__', {})
-            obj = __dict__.get(objpath[-1])
-            if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
-                im.obj = obj.__func__
-                im.isclassmethod = True
-                return im
-            else:
-                return None
-
-        im.isclassmethod = False
-        return im
-
-    return im
+    Returns True if successful, False if an error occurred.
+    """
+    im = _Imported()
+    with mock(config.autodoc_mock_imports):
+        try:
+            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            im.module, im.parent, im.object_name, im.obj = ret
+            if ismock(im.obj):
+                im.obj = undecorate(im.obj)
+            return im
+        except ImportError as exc:
+            if raise_error:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            return None
 
 
 def _import_module(
@@ -207,6 +199,44 @@ def _import_method(
         # document class methods before static methods as
         # they usually behave as alternative constructors
         im.member_order = member_order - 2
+    return im
+
+
+def _import_property(
+    *,
+    modname: str,
+    objpath: list[str],
+    objtype: str,
+    get_attr: _AttrGetter,
+    config: Config,
+    env: BuildEnvironment,
+    raise_error: bool = False,
+) -> _Imported | None:
+    im = _Imported()
+    with mock(config.autodoc_mock_imports):
+        try:
+            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            im.module, im.parent, im.object_name, im.obj = ret
+            if ismock(im.obj):
+                im.obj = undecorate(im.obj)
+        except ImportError as exc:
+            if raise_error:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            return None
+
+    if not inspect.isproperty(im.obj):
+        __dict__ = safe_getattr(im.parent, '__dict__', {})
+        obj = __dict__.get(objpath[-1])
+        if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
+            im.obj = obj.__func__
+            im.isclassmethod = True
+            return im
+        else:
+            return None
+
+    im.isclassmethod = False
     return im
 
 
@@ -339,37 +369,6 @@ def _import_assignment_attribute(
         im._non_data_descriptor = False
 
     return im
-
-
-def _import_object_default(
-    *,
-    modname: str,
-    objpath: list[str],
-    objtype: str,
-    get_attr: _AttrGetter,
-    config: Config,
-    env: BuildEnvironment,
-    raise_error: bool = False,
-) -> _Imported | None:
-    """Import the object given by *modname* and *objpath* and set
-    it as *object*.
-
-    Returns True if successful, False if an error occurred.
-    """
-    im = _Imported()
-    with mock(config.autodoc_mock_imports):
-        try:
-            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
-            im.module, im.parent, im.object_name, im.obj = ret
-            if ismock(im.obj):
-                im.obj = undecorate(im.obj)
-            return im
-        except ImportError as exc:
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            return None
 
 
 def _is_runtime_instance_attribute(*, parent: Any, objpath: list[str]) -> bool:
