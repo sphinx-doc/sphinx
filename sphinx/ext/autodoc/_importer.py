@@ -91,6 +91,17 @@ def _import_object(
             raise_error=raise_error,
         )
 
+    if is_data_documenter:
+        return _import_assignment_data(
+            modname=modname,
+            objpath=objpath,
+            objtype=objtype,
+            get_attr=get_attr,
+            config=config,
+            env=env,
+            raise_error=raise_error,
+        )
+
     im = _import_object_default(
         modname=modname,
         objpath=objpath,
@@ -98,16 +109,10 @@ def _import_object(
         get_attr=get_attr,
         config=config,
         env=env,
-        is_data_documenter=is_data_documenter,
         is_attribute_documenter=is_attribute_documenter,
         raise_error=raise_error,
     )
     if im is None:
-        return im
-
-    if is_data_documenter:
-        if im.parent:
-            _update_annotations_data_documenter(parent=im.parent, modname=modname)
         return im
 
     if objtype == 'method':
@@ -236,6 +241,61 @@ def _import_class(
     return im
 
 
+def _import_assignment_data(
+    *,
+    modname: str,
+    objpath: list[str],
+    objtype: str,
+    get_attr: _AttrGetter,
+    config: Config,
+    env: BuildEnvironment,
+    raise_error: bool = False,
+) -> _Imported | None:
+    im = _Imported()
+    with mock(config.autodoc_mock_imports):
+        try:
+            ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
+            im.module, im.parent, im.object_name, im.obj = ret
+            if ismock(im.obj):
+                im.obj = undecorate(im.obj)
+        except ImportError as exc:
+            # annotation only instance variable (PEP-526)
+            try:
+                parent = import_module(modname)
+                annotations = get_type_hints(
+                    parent,
+                    None,
+                    config.autodoc_type_aliases,
+                    include_extras=True,
+                )
+                if objpath[-1] in annotations:
+                    im.obj = UNINITIALIZED_ATTR
+                    im.parent = parent
+            except ImportError:
+                pass
+
+            if raise_error:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            if not hasattr(im, 'obj'):
+                return None
+
+    # Update __annotations__ to support type_comment and so on
+    annotations = dict(inspect.getannotations(im.parent))
+    im.parent.__annotations__ = annotations
+
+    try:
+        analyzer = ModuleAnalyzer.for_module(modname)
+        analyzer.analyze()
+        for (classname, attrname), annotation in analyzer.annotations.items():
+            if not classname and attrname not in annotations:
+                annotations[attrname] = annotation
+    except PycodeError:
+        pass
+    return im
+
+
 def _import_object_default(
     *,
     modname: str,
@@ -244,7 +304,6 @@ def _import_object_default(
     get_attr: _AttrGetter,
     config: Config,
     env: BuildEnvironment,
-    is_data_documenter: bool = False,
     is_attribute_documenter: bool = False,
     raise_error: bool = False,
 ) -> _Imported | None:
@@ -262,23 +321,6 @@ def _import_object_default(
                 im.obj = undecorate(im.obj)
             return im
         except ImportError as exc:
-            if is_data_documenter:
-                # annotation only instance variable (PEP-526)
-                try:
-                    parent = import_module(modname)
-                    annotations = get_type_hints(
-                        parent,
-                        None,
-                        config.autodoc_type_aliases,
-                        include_extras=True,
-                    )
-                    if objpath[-1] in annotations:
-                        im.obj = UNINITIALIZED_ATTR
-                        im.parent = parent
-                        return im
-                except ImportError:
-                    pass
-
             if is_attribute_documenter:
                 # Support runtime & uninitialized instance attributes.
                 #
@@ -387,21 +429,6 @@ def _is_slots_attribute(*, parent: Any, objpath: list[str]) -> bool:
             return False
     except (ValueError, TypeError):
         return False
-
-
-def _update_annotations_data_documenter(*, parent: Any, modname: str) -> None:
-    """Update __annotations__ to support type_comment and so on."""
-    annotations = dict(inspect.getannotations(parent))
-    parent.__annotations__ = annotations
-
-    try:
-        analyzer = ModuleAnalyzer.for_module(modname)
-        analyzer.analyze()
-        for (classname, attrname), annotation in analyzer.annotations.items():
-            if not classname and attrname not in annotations:
-                annotations[attrname] = annotation
-    except PycodeError:
-        pass
 
 
 def _update_annotations_attribute_documenter(*, parent: Any) -> None:
