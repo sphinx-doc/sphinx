@@ -27,7 +27,6 @@ from sphinx.ext.autodoc._importer import (
     _import_assignment_data,
     _import_class,
     _import_method,
-    _import_module,
     _import_object,
     _import_property,
     _is_runtime_instance_attribute_not_commented,
@@ -1130,26 +1129,6 @@ class ModuleDocumenter(Documenter):
                 type='autodoc',
             )
         return ret
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            im = _import_module(
-                module_name=self.modname,
-                mock_imports=self.config.autodoc_mock_imports,
-                get_attr=self.get_attr,
-            )
-        except ImportError as exc:
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-        self.object = im.obj
-        del im.obj
-        for k in vars(im):
-            setattr(self, k, getattr(im, k))
-        return True
 
     def _module_all(self) -> Sequence[str] | None:
         if self.object is not None and self.__all__ is None:

@@ -16,7 +16,6 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from types import ModuleType
     from typing import Any
 
@@ -71,20 +70,6 @@ def _import_object(
         return im
     except ImportError:  # NoQA: TRY203
         raise
-
-
-def _import_module(
-    *,
-    module_name: str,
-    mock_imports: list[str],
-    get_attr: _AttrGetter = safe_getattr,
-) -> _Imported:
-    return _import_object(
-        module_name=module_name,
-        objpath=[],
-        mock_imports=mock_imports,
-        get_attr=get_attr,
-    )
 
 
 def _import_class(
