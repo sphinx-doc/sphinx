@@ -93,7 +93,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.4",
+    "ruff==0.12.5",
     "mypy==1.17.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -136,7 +136,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.4",
+    "ruff==0.12.5",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -294,7 +294,6 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_quickstart",
     "tests.test_search",
     # tests/test_builders
     "tests.test_builders.test_build_latex",
