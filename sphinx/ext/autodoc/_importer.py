@@ -20,6 +20,7 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any
 
     from sphinx.ext.autodoc.importer import _AttrGetter
@@ -30,11 +31,11 @@ logger = logging.getLogger('sphinx.ext.autodoc')
 def _import_object(
     *,
     module_name: str,
-    objpath: list[str],
+    obj_path: Sequence[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject:
-    """Import the object given by *module_name* and *objpath* and set
+    """Import the object given by *module_name* and *obj_path* and set
     it as *object*.
 
     Returns True if successful, False if an error occurred.
@@ -42,7 +43,7 @@ def _import_object(
     try:
         with mock(mock_imports):
             im = _import_from_module_and_path(
-                module_name=module_name, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=obj_path, get_attr=get_attr
             )
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -54,14 +55,14 @@ def _import_object(
 def _import_class(
     *,
     module_name: str,
-    objpath: list[str],
+    obj_path: Sequence[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject:
     try:
         with mock(mock_imports):
             im = _import_from_module_and_path(
-                module_name=module_name, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=obj_path, get_attr=get_attr
             )
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -71,14 +72,14 @@ def _import_class(
     # if the class is documented under another name, document it
     # as data/attribute
     if hasattr(im.obj, '__name__'):
-        im.doc_as_attr = objpath[-1] != im.obj.__name__
+        im.doc_as_attr = obj_path[-1] != im.obj.__name__
     else:
         im.doc_as_attr = True
     if isinstance(im.obj, NewType | TypeVar):
         obj_module_name = getattr(im.obj, '__module__', module_name)
         if obj_module_name != module_name and module_name.startswith(obj_module_name):
             bases = module_name[len(obj_module_name) :].strip('.').split('.')
-            im.objpath = bases + objpath
+            im.objpath = bases + list(obj_path)
             im.modname = obj_module_name
     return im
 
@@ -86,7 +87,7 @@ def _import_class(
 def _import_method(
     *,
     module_name: str,
-    objpath: list[str],
+    obj_path: Sequence[str],
     member_order: int,
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
@@ -94,7 +95,7 @@ def _import_method(
     try:
         with mock(mock_imports):
             im = _import_from_module_and_path(
-                module_name=module_name, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=obj_path, get_attr=get_attr
             )
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -116,14 +117,14 @@ def _import_method(
 def _import_property(
     *,
     module_name: str,
-    objpath: list[str],
+    obj_path: Sequence[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject | None:
     try:
         with mock(mock_imports):
             im = _import_from_module_and_path(
-                module_name=module_name, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=obj_path, get_attr=get_attr
             )
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -132,7 +133,7 @@ def _import_property(
 
     if not inspect.isproperty(im.obj):
         __dict__ = safe_getattr(im.parent, '__dict__', {})
-        obj = __dict__.get(objpath[-1])
+        obj = __dict__.get(obj_path[-1])
         if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
             im.obj = obj.__func__
             im.isclassmethod = True
@@ -147,7 +148,7 @@ def _import_property(
 def _import_assignment_data(
     *,
     module_name: str,
-    objpath: list[str],
+    obj_path: Sequence[str],
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
     get_attr: _AttrGetter = safe_getattr,
@@ -156,7 +157,7 @@ def _import_assignment_data(
     try:
         with mock(mock_imports):
             im = _import_from_module_and_path(
-                module_name=module_name, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=obj_path, get_attr=get_attr
             )
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -169,7 +170,7 @@ def _import_assignment_data(
             annotations = get_type_hints(
                 parent, None, type_aliases, include_extras=True
             )
-            if objpath[-1] in annotations:
+            if obj_path[-1] in annotations:
                 im = _ImportedObject(
                     parent=parent,
                     obj=UNINITIALIZED_ATTR,
@@ -199,7 +200,7 @@ def _import_assignment_data(
 def _import_assignment_attribute(
     *,
     module_name: str,
-    objpath: list[str],
+    obj_path: Sequence[str],
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
     get_attr: _AttrGetter = safe_getattr,
@@ -208,7 +209,7 @@ def _import_assignment_attribute(
     try:
         with mock(mock_imports):
             im = _import_from_module_and_path(
-                module_name=module_name, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=obj_path, get_attr=get_attr
             )
         if ismock(im.obj):
             im.obj = undecorate(im.obj)
@@ -227,17 +228,17 @@ def _import_assignment_attribute(
         try:
             with mock(mock_imports):
                 ret = _import_from_module_and_path(
-                    module_name=module_name, obj_path=objpath[:-1], get_attr=get_attr
+                    module_name=module_name, obj_path=obj_path[:-1], get_attr=get_attr
                 )
             parent = ret.obj
-            if _is_runtime_instance_attribute(parent=parent, objpath=objpath):
+            if _is_runtime_instance_attribute(parent=parent, obj_path=obj_path):
                 im = _ImportedObject(
                     parent=parent,
                     obj=RUNTIME_INSTANCE_ATTRIBUTE,
                 )
                 import_failed = False
             elif _is_uninitialized_instance_attribute(
-                parent=parent, objpath=objpath, type_aliases=type_aliases
+                parent=parent, obj_path=obj_path, type_aliases=type_aliases
             ):
                 im = _ImportedObject(
                     parent=parent,
@@ -250,7 +251,7 @@ def _import_assignment_attribute(
         if import_failed:
             raise
 
-    if _is_slots_attribute(parent=im.parent, objpath=objpath):
+    if _is_slots_attribute(parent=im.parent, obj_path=obj_path):
         im.obj = SLOTS_ATTR
     elif inspect.isenumattribute(im.obj):
         im.obj = im.obj.value
@@ -265,16 +266,18 @@ def _import_assignment_attribute(
     return im
 
 
-def _is_runtime_instance_attribute(*, parent: Any, objpath: list[str]) -> bool:
+def _is_runtime_instance_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
     """Check the subject is an attribute defined in __init__()."""
     # An instance variable defined in __init__().
-    if _get_attribute_comment(parent=parent, objpath=objpath, attrname=objpath[-1]):
+    if _get_attribute_comment(parent=parent, obj_path=obj_path, attrname=obj_path[-1]):
         return True
-    return _is_runtime_instance_attribute_not_commented(parent=parent, objpath=objpath)
+    return _is_runtime_instance_attribute_not_commented(
+        parent=parent, obj_path=obj_path
+    )
 
 
 def _is_runtime_instance_attribute_not_commented(
-    *, parent: Any, objpath: list[str]
+    *, parent: Any, obj_path: Sequence[str]
 ) -> bool:
     """Check the subject is an attribute defined in __init__() without comment."""
     for cls in inspect.getmro(parent):
@@ -284,8 +287,8 @@ def _is_runtime_instance_attribute_not_commented(
 
             analyzer = ModuleAnalyzer.for_module(module)
             analyzer.analyze()
-            if qualname and objpath:
-                key = f'{qualname}.{objpath[-1]}'
+            if qualname and obj_path:
+                key = f'{qualname}.{obj_path[-1]}'
                 if key in analyzer.tagorder:
                     return True
         except (AttributeError, PycodeError):
@@ -295,7 +298,7 @@ def _is_runtime_instance_attribute_not_commented(
 
 
 def _get_attribute_comment(
-    parent: Any, objpath: list[str], attrname: str
+    parent: Any, obj_path: Sequence[str], attrname: str
 ) -> list[str] | None:
     for cls in inspect.getmro(parent):
         try:
@@ -304,7 +307,7 @@ def _get_attribute_comment(
 
             analyzer = ModuleAnalyzer.for_module(module)
             analyzer.analyze()
-            if qualname and objpath:
+            if qualname and obj_path:
                 key = (qualname, attrname)
                 if key in analyzer.attr_docs:
                     return list(analyzer.attr_docs[key])
@@ -315,18 +318,18 @@ def _get_attribute_comment(
 
 
 def _is_uninitialized_instance_attribute(
-    *, parent: Any, objpath: list[str], type_aliases: dict[str, Any] | None
+    *, parent: Any, obj_path: Sequence[str], type_aliases: dict[str, Any] | None
 ) -> bool:
     """Check the subject is an annotation only attribute."""
     annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
-    return objpath[-1] in annotations
+    return obj_path[-1] in annotations
 
 
-def _is_slots_attribute(*, parent: Any, objpath: list[str]) -> bool:
+def _is_slots_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
     """Check the subject is an attribute in __slots__."""
     try:
         if parent___slots__ := inspect.getslots(parent):
-            return objpath[-1] in parent___slots__
+            return obj_path[-1] in parent___slots__
         else:
             return False
     except (ValueError, TypeError):

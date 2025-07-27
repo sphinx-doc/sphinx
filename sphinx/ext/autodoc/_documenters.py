@@ -359,7 +359,7 @@ class Documenter:
         try:
             im = _import_object(
                 module_name=self.modname,
-                objpath=self.objpath,
+                obj_path=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 get_attr=self.get_attr,
             )
@@ -1488,7 +1488,7 @@ class ClassDocumenter(Documenter):
         try:
             im = _import_class(
                 module_name=self.modname,
-                objpath=self.objpath,
+                obj_path=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 get_attr=self.get_attr,
             )
@@ -1991,7 +1991,7 @@ class DataDocumenter(Documenter):
         try:
             im = _import_assignment_data(
                 module_name=self.modname,
-                objpath=self.objpath,
+                obj_path=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 type_aliases=self.config.autodoc_type_aliases,
                 get_attr=self.get_attr,
@@ -2124,7 +2124,7 @@ class MethodDocumenter(Documenter):
         try:
             im = _import_method(
                 module_name=self.modname,
-                objpath=self.objpath,
+                obj_path=self.objpath,
                 member_order=self.member_order,
                 mock_imports=self.config.autodoc_mock_imports,
                 get_attr=self.get_attr,
@@ -2436,7 +2436,7 @@ class AttributeDocumenter(Documenter):
         try:
             im = _import_assignment_attribute(
                 module_name=self.modname,
-                objpath=self.objpath,
+                obj_path=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 type_aliases=self.config.autodoc_type_aliases,
                 get_attr=self.get_attr,
@@ -2519,13 +2519,13 @@ class AttributeDocumenter(Documenter):
 
     def get_attribute_comment(self, parent: Any, attrname: str) -> list[str] | None:
         return _get_attribute_comment(
-            parent=parent, objpath=self.objpath, attrname=attrname
+            parent=parent, obj_path=self.objpath, attrname=attrname
         )
 
     def get_doc(self) -> list[list[str]] | None:
         # Check the attribute has a docstring-comment
         comment = _get_attribute_comment(
-            parent=self.parent, objpath=self.objpath, attrname=self.objpath[-1]
+            parent=self.parent, obj_path=self.objpath, attrname=self.objpath[-1]
         )
         if comment:
             return [comment]
@@ -2559,7 +2559,7 @@ class AttributeDocumenter(Documenter):
             if (
                 self.object is RUNTIME_INSTANCE_ATTRIBUTE
                 and _is_runtime_instance_attribute_not_commented(
-                    parent=self.parent, objpath=self.objpath
+                    parent=self.parent, obj_path=self.objpath
                 )
             ):
                 return None
@@ -2623,7 +2623,7 @@ class PropertyDocumenter(Documenter):
         try:
             im = _import_property(
                 module_name=self.modname,
-                objpath=self.objpath,
+                obj_path=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 get_attr=self.get_attr,
             )
