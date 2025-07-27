@@ -362,7 +362,7 @@ class Documenter:
             objpath=self.objpath,
             objtype=self.objtype,
             get_attr=self.get_attr,
-            config=self.config,
+            mock_imports=self.config.autodoc_mock_imports,
             env=self.env,
             raise_error=raiseerror,
         )
@@ -1136,7 +1136,7 @@ class ModuleDocumenter(Documenter):
             objtype=self.objtype,
             fullname=self.fullname,
             get_attr=self.get_attr,
-            config=self.config,
+            mock_imports=self.config.autodoc_mock_imports,
             env=self.env,
             options=self.options,
             raise_error=raiseerror,
@@ -1489,7 +1489,7 @@ class ClassDocumenter(Documenter):
             objpath=self.objpath,
             objtype=self.objtype,
             get_attr=self.get_attr,
-            config=self.config,
+            mock_imports=self.config.autodoc_mock_imports,
             env=self.env,
             raise_error=raiseerror,
         )
@@ -1990,7 +1990,8 @@ class DataDocumenter(Documenter):
             objpath=self.objpath,
             objtype=self.objtype,
             get_attr=self.get_attr,
-            config=self.config,
+            mock_imports=self.config.autodoc_mock_imports,
+            type_aliases=self.config.autodoc_type_aliases,
             env=self.env,
             raise_error=raiseerror,
         )
@@ -2121,7 +2122,7 @@ class MethodDocumenter(Documenter):
             objtype=self.objtype,
             member_order=self.member_order,
             get_attr=self.get_attr,
-            config=self.config,
+            mock_imports=self.config.autodoc_mock_imports,
             env=self.env,
             raise_error=raiseerror,
         )
@@ -2430,7 +2431,8 @@ class AttributeDocumenter(Documenter):
             objpath=self.objpath,
             objtype=self.objtype,
             get_attr=self.get_attr,
-            config=self.config,
+            mock_imports=self.config.autodoc_mock_imports,
+            type_aliases=self.config.autodoc_type_aliases,
             env=self.env,
             raise_error=raiseerror,
         )
@@ -2614,7 +2616,7 @@ class PropertyDocumenter(Documenter):
             objpath=self.objpath,
             objtype=self.objtype,
             get_attr=self.get_attr,
-            config=self.config,
+            mock_imports=self.config.autodoc_mock_imports,
             env=self.env,
             raise_error=raiseerror,
         )

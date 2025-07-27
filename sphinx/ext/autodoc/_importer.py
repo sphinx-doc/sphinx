@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     from types import ModuleType
     from typing import Any
 
-    from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc._directive_options import Options
     from sphinx.ext.autodoc.importer import _AttrGetter
@@ -58,7 +57,7 @@ def _import_object(
     objpath: list[str],
     objtype: str,
     get_attr: _AttrGetter,
-    config: Config,
+    mock_imports: list[str],
     env: BuildEnvironment,
     raise_error: bool = False,
 ) -> _Imported | None:
@@ -69,7 +68,7 @@ def _import_object(
     """
     im = _Imported()
     try:
-        with mock(config.autodoc_mock_imports):
+        with mock(mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -90,14 +89,14 @@ def _import_module(
     objtype: str,
     fullname: str,
     get_attr: _AttrGetter,
-    config: Config,
+    mock_imports: list[str],
     env: BuildEnvironment,
     options: Options,
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
     try:
-        with mock(config.autodoc_mock_imports):
+        with mock(mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -132,13 +131,13 @@ def _import_class(
     objpath: list[str],
     objtype: str,
     get_attr: _AttrGetter,
-    config: Config,
+    mock_imports: list[str],
     env: BuildEnvironment,
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
     try:
-        with mock(config.autodoc_mock_imports):
+        with mock(mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -172,13 +171,13 @@ def _import_method(
     objtype: str,
     member_order: int,
     get_attr: _AttrGetter,
-    config: Config,
+    mock_imports: list[str],
     env: BuildEnvironment,
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
     try:
-        with mock(config.autodoc_mock_imports):
+        with mock(mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -208,13 +207,13 @@ def _import_property(
     objpath: list[str],
     objtype: str,
     get_attr: _AttrGetter,
-    config: Config,
+    mock_imports: list[str],
     env: BuildEnvironment,
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
     try:
-        with mock(config.autodoc_mock_imports):
+        with mock(mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -246,14 +245,15 @@ def _import_assignment_data(
     objpath: list[str],
     objtype: str,
     get_attr: _AttrGetter,
-    config: Config,
+    mock_imports: list[str],
+    type_aliases: dict[str, Any] | None,
     env: BuildEnvironment,
     raise_error: bool = False,
 ) -> _Imported | None:
     import_failed = True
     im = _Imported()
     try:
-        with mock(config.autodoc_mock_imports):
+        with mock(mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -262,13 +262,10 @@ def _import_assignment_data(
     except ImportError as exc:
         # annotation only instance variable (PEP-526)
         try:
-            with mock(config.autodoc_mock_imports):
+            with mock(mock_imports):
                 parent = import_module(modname)
             annotations = get_type_hints(
-                parent,
-                None,
-                config.autodoc_type_aliases,
-                include_extras=True,
+                parent, None, type_aliases, include_extras=True
             )
             if objpath[-1] in annotations:
                 im.obj = UNINITIALIZED_ATTR
@@ -305,14 +302,15 @@ def _import_assignment_attribute(
     objpath: list[str],
     objtype: str,
     get_attr: _AttrGetter,
-    config: Config,
+    mock_imports: list[str],
+    type_aliases: dict[str, Any] | None,
     env: BuildEnvironment,
     raise_error: bool = False,
 ) -> _Imported | None:
-    im = _Imported()
     import_failed = True
+    im = _Imported()
     try:
-        with mock(config.autodoc_mock_imports):
+        with mock(mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -330,7 +328,7 @@ def _import_assignment_attribute(
         #     def __init__(self):
         #         self.attr = None  #: runtime attribute
         try:
-            with mock(config.autodoc_mock_imports):
+            with mock(mock_imports):
                 ret = import_object(
                     modname,
                     objpath[:-1],
@@ -343,7 +341,7 @@ def _import_assignment_attribute(
                 im.parent = parent
                 import_failed = False
             elif _is_uninitialized_instance_attribute(
-                parent=parent, objpath=objpath, config=config
+                parent=parent, objpath=objpath, type_aliases=type_aliases
             ):
                 im.obj = UNINITIALIZED_ATTR
                 im.parent = parent
@@ -423,12 +421,10 @@ def _get_attribute_comment(
 
 
 def _is_uninitialized_instance_attribute(
-    *, parent: Any, objpath: list[str], config: Config
+    *, parent: Any, objpath: list[str], type_aliases: dict[str, Any] | None
 ) -> bool:
     """Check the subject is an annotation only attribute."""
-    annotations = get_type_hints(
-        parent, None, config.autodoc_type_aliases, include_extras=True
-    )
+    annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
     return objpath[-1] in annotations
 
 
