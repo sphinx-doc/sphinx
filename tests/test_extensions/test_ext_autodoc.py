@@ -17,7 +17,9 @@ from warnings import catch_warnings
 import pytest
 
 from sphinx import addnodes
-from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
+from sphinx.ext.autodoc._directive_options import Options
+from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
+from sphinx.ext.autodoc._sentinels import ALL
 
 # NEVER import these objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge

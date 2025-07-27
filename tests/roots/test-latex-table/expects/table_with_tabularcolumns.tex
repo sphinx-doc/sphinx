@@ -1,13 +1,10 @@
-\label{\detokenize{tabular:table-having-caption}}
+\label{\detokenize{tabular:table-with-tabularcolumns}}
 
 \begin{savenotes}\sphinxattablestart
 \sphinxthistablewithglobalstyle
+\sphinxthistablewithnovlinesstyle
 \centering
-\sphinxcapstartof{table}
-\sphinxthecaptionisattop
-\sphinxcaption{caption for table}\label{\detokenize{tabular:id1}}
-\sphinxaftertopcaption
-\begin{tabulary}{\linewidth}[t]{|T|T|}
+\begin{tabular}[t]{cc}
 \sphinxtoprule
 \begin{varwidth}[t]{\sphinxcolwidth{1}{2}}
 \sphinxstyletheadfamily \sphinxAtStartPar
@@ -55,6 +52,6 @@ cell3\sphinxhyphen{}2
 \end{varwidth}%
 \\
 \sphinxbottomrule
-\end{tabulary}
+\end{tabular}
 \sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}
