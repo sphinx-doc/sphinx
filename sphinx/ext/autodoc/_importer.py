@@ -68,19 +68,19 @@ def _import_object(
     Returns True if successful, False if an error occurred.
     """
     im = _Imported()
-    with mock(config.autodoc_mock_imports):
-        try:
+    try:
+        with mock(config.autodoc_mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
-            im.module, im.parent, im.object_name, im.obj = ret
-            if ismock(im.obj):
-                im.obj = undecorate(im.obj)
-            return im
-        except ImportError as exc:
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            return None
+        im.module, im.parent, im.object_name, im.obj = ret
+        if ismock(im.obj):
+            im.obj = undecorate(im.obj)
+        return im
+    except ImportError as exc:
+        if raise_error:
+            raise
+        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+        env.note_reread()
+        return None
 
 
 def _import_module(
@@ -96,18 +96,18 @@ def _import_module(
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
-    with mock(config.autodoc_mock_imports):
-        try:
+    try:
+        with mock(config.autodoc_mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
-            im.module, im.parent, im.object_name, im.obj = ret
-            if ismock(im.obj):
-                im.obj = undecorate(im.obj)
-        except ImportError as exc:
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            return None
+        im.module, im.parent, im.object_name, im.obj = ret
+        if ismock(im.obj):
+            im.obj = undecorate(im.obj)
+    except ImportError as exc:
+        if raise_error:
+            raise
+        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+        env.note_reread()
+        return None
 
     try:
         if not options.ignore_module_all:
@@ -137,18 +137,18 @@ def _import_class(
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
-    with mock(config.autodoc_mock_imports):
-        try:
+    try:
+        with mock(config.autodoc_mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
-            im.module, im.parent, im.object_name, im.obj = ret
-            if ismock(im.obj):
-                im.obj = undecorate(im.obj)
-        except ImportError as exc:
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            return None
+        im.module, im.parent, im.object_name, im.obj = ret
+        if ismock(im.obj):
+            im.obj = undecorate(im.obj)
+    except ImportError as exc:
+        if raise_error:
+            raise
+        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+        env.note_reread()
+        return None
 
     # if the class is documented under another name, document it
     # as data/attribute
@@ -177,18 +177,18 @@ def _import_method(
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
-    with mock(config.autodoc_mock_imports):
-        try:
+    try:
+        with mock(config.autodoc_mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
-            im.module, im.parent, im.object_name, im.obj = ret
-            if ismock(im.obj):
-                im.obj = undecorate(im.obj)
-        except ImportError as exc:
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            return None
+        im.module, im.parent, im.object_name, im.obj = ret
+        if ismock(im.obj):
+            im.obj = undecorate(im.obj)
+    except ImportError as exc:
+        if raise_error:
+            raise
+        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+        env.note_reread()
+        return None
 
     # to distinguish classmethod/staticmethod
     obj = im.parent.__dict__.get(im.object_name, im.obj)
@@ -213,18 +213,18 @@ def _import_property(
     raise_error: bool = False,
 ) -> _Imported | None:
     im = _Imported()
-    with mock(config.autodoc_mock_imports):
-        try:
+    try:
+        with mock(config.autodoc_mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
-            im.module, im.parent, im.object_name, im.obj = ret
-            if ismock(im.obj):
-                im.obj = undecorate(im.obj)
-        except ImportError as exc:
-            if raise_error:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
-            return None
+        im.module, im.parent, im.object_name, im.obj = ret
+        if ismock(im.obj):
+            im.obj = undecorate(im.obj)
+    except ImportError as exc:
+        if raise_error:
+            raise
+        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+        env.note_reread()
+        return None
 
     if not inspect.isproperty(im.obj):
         __dict__ = safe_getattr(im.parent, '__dict__', {})
@@ -252,36 +252,37 @@ def _import_assignment_data(
 ) -> _Imported | None:
     import_failed = True
     im = _Imported()
-    with mock(config.autodoc_mock_imports):
-        try:
+    try:
+        with mock(config.autodoc_mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
-            im.module, im.parent, im.object_name, im.obj = ret
-            if ismock(im.obj):
-                im.obj = undecorate(im.obj)
-            import_failed = False
-        except ImportError as exc:
-            # annotation only instance variable (PEP-526)
-            try:
+        im.module, im.parent, im.object_name, im.obj = ret
+        if ismock(im.obj):
+            im.obj = undecorate(im.obj)
+        import_failed = False
+    except ImportError as exc:
+        # annotation only instance variable (PEP-526)
+        try:
+            with mock(config.autodoc_mock_imports):
                 parent = import_module(modname)
-                annotations = get_type_hints(
-                    parent,
-                    None,
-                    config.autodoc_type_aliases,
-                    include_extras=True,
-                )
-                if objpath[-1] in annotations:
-                    im.obj = UNINITIALIZED_ATTR
-                    im.parent = parent
-                    import_failed = False
-            except ImportError:
-                pass
+            annotations = get_type_hints(
+                parent,
+                None,
+                config.autodoc_type_aliases,
+                include_extras=True,
+            )
+            if objpath[-1] in annotations:
+                im.obj = UNINITIALIZED_ATTR
+                im.parent = parent
+                import_failed = False
+        except ImportError:
+            pass
 
-            if import_failed:
-                if raise_error:
-                    raise
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                env.note_reread()
-                return None
+        if import_failed:
+            if raise_error:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            return None
 
     # Update __annotations__ to support type_comment and so on
     annotations = dict(inspect.getannotations(im.parent))
@@ -310,51 +311,52 @@ def _import_assignment_attribute(
 ) -> _Imported | None:
     im = _Imported()
     import_failed = True
-    with mock(config.autodoc_mock_imports):
-        try:
+    try:
+        with mock(config.autodoc_mock_imports):
             ret = import_object(modname, objpath, objtype, attrgetter=get_attr)
-            im.module, im.parent, im.object_name, im.obj = ret
-            if ismock(im.obj):
-                im.obj = undecorate(im.obj)
-            import_failed = False
-        except ImportError as exc:
-            # Support runtime & uninitialized instance attributes.
-            #
-            # The former are defined in __init__() methods with doc-comments.
-            # The latter are PEP-526 style annotation only annotations.
-            #
-            # class Foo:
-            #     attr: int  #: uninitialized attribute
-            #
-            #     def __init__(self):
-            #         self.attr = None  #: runtime attribute
-            try:
+        im.module, im.parent, im.object_name, im.obj = ret
+        if ismock(im.obj):
+            im.obj = undecorate(im.obj)
+        import_failed = False
+    except ImportError as exc:
+        # Support runtime & uninitialized instance attributes.
+        #
+        # The former are defined in __init__() methods with doc-comments.
+        # The latter are PEP-526 style annotation only annotations.
+        #
+        # class Foo:
+        #     attr: int  #: uninitialized attribute
+        #
+        #     def __init__(self):
+        #         self.attr = None  #: runtime attribute
+        try:
+            with mock(config.autodoc_mock_imports):
                 ret = import_object(
                     modname,
                     objpath[:-1],
                     'class',
                     attrgetter=get_attr,
                 )
-                parent = ret[3]
-                if _is_runtime_instance_attribute(parent=parent, objpath=objpath):
-                    im.obj = RUNTIME_INSTANCE_ATTRIBUTE
-                    im.parent = parent
-                    import_failed = False
-                elif _is_uninitialized_instance_attribute(
-                    parent=parent, objpath=objpath, config=config
-                ):
-                    im.obj = UNINITIALIZED_ATTR
-                    im.parent = parent
-                    import_failed = False
-            except ImportError:
-                pass
+            parent = ret[3]
+            if _is_runtime_instance_attribute(parent=parent, objpath=objpath):
+                im.obj = RUNTIME_INSTANCE_ATTRIBUTE
+                im.parent = parent
+                import_failed = False
+            elif _is_uninitialized_instance_attribute(
+                parent=parent, objpath=objpath, config=config
+            ):
+                im.obj = UNINITIALIZED_ATTR
+                im.parent = parent
+                import_failed = False
+        except ImportError:
+            pass
 
-            if import_failed:
-                if raise_error:
-                    raise
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                env.note_reread()
-                return None
+        if import_failed:
+            if raise_error:
+                raise
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            return None
 
     if _is_slots_attribute(parent=im.parent, objpath=objpath):
         im.obj = SLOTS_ATTR
