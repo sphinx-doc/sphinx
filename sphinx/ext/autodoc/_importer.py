@@ -57,12 +57,10 @@ def _import_object(
     modname: str,
     objpath: list[str],
     objtype: str,
-    fullname: str,
     member_order: int,
     get_attr: _AttrGetter,
     config: Config,
     env: BuildEnvironment,
-    options: Options,
     is_data_documenter: bool = False,
     is_attribute_documenter: bool = False,
     raise_error: bool = False,
@@ -96,11 +94,11 @@ def _import_object(
         obj = im.parent.__dict__.get(im.object_name, im.obj)
         if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
             # document static members before regular methods
-            im.member_order = member_order - 1  # type: ignore[misc]
+            im.member_order = member_order - 1
         elif inspect.isclassmethod(obj):
             # document class methods before static methods as
             # they usually behave as alternative constructors
-            im.member_order = member_order - 2  # type: ignore[misc]
+            im.member_order = member_order - 2
         return im
 
     if is_attribute_documenter:
@@ -340,7 +338,7 @@ def _import_object_default(
 def _is_runtime_instance_attribute(*, parent: Any, objpath: list[str]) -> bool:
     """Check the subject is an attribute defined in __init__()."""
     # An instance variable defined in __init__().
-    if _get_attribute_comment(parent=parent, objpath=objpath, attrname=objpath[-1]):  # type: ignore[attr-defined]
+    if _get_attribute_comment(parent=parent, objpath=objpath, attrname=objpath[-1]):
         return True
     return _is_runtime_instance_attribute_not_commented(parent=parent, objpath=objpath)
 

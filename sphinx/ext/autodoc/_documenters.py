@@ -357,12 +357,10 @@ class Documenter:
             modname=self.modname,
             objpath=self.objpath,
             objtype=self.objtype,
-            fullname=self.fullname,
             member_order=self.member_order,
             get_attr=self.get_attr,
             config=self.config,
             env=self.env,
-            options=self.options,
             is_data_documenter=self.__uninitialized_global_variable__,
             is_attribute_documenter=isinstance(self, AttributeDocumenter),
             raise_error=raiseerror,
@@ -1459,6 +1457,8 @@ class ClassDocumenter(Documenter):
     _signature_class: Any = None
     _signature_method_name: str = ''
 
+    doc_as_attr: bool
+
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
 
@@ -2532,6 +2532,8 @@ class PropertyDocumenter(Documenter):
 
     # before AttributeDocumenter
     priority = AttributeDocumenter.priority + 1
+
+    isclassmethod: bool
 
     @classmethod
     def can_document_member(
