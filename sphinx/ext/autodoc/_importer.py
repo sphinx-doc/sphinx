@@ -39,7 +39,7 @@ class _Imported:
     __all__: Sequence[str] | None
     doc_as_attr: bool
     objpath: list[str]
-    modname: str
+    module_name: str
     member_order: int
     _non_data_descriptor: bool
     isclassmethod: bool
@@ -50,12 +50,12 @@ class _Imported:
 
 def _import_object(
     *,
-    modname: str,
+    module_name: str,
     objpath: list[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
-    """Import the object given by *modname* and *objpath* and set
+    """Import the object given by *module_name* and *objpath* and set
     it as *object*.
 
     Returns True if successful, False if an error occurred.
@@ -64,7 +64,7 @@ def _import_object(
     try:
         with mock(mock_imports):
             ret = _import_from_module_and_path(
-                module_name=modname, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -76,12 +76,12 @@ def _import_object(
 
 def _import_module(
     *,
-    modname: str,
+    module_name: str,
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _Imported:
     return _import_object(
-        modname=modname,
+        module_name=module_name,
         objpath=[],
         mock_imports=mock_imports,
         get_attr=get_attr,
@@ -90,7 +90,7 @@ def _import_module(
 
 def _import_class(
     *,
-    modname: str,
+    module_name: str,
     objpath: list[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
@@ -99,7 +99,7 @@ def _import_class(
     try:
         with mock(mock_imports):
             ret = _import_from_module_and_path(
-                module_name=modname, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -114,17 +114,17 @@ def _import_class(
     else:
         im.doc_as_attr = True
     if isinstance(im.obj, NewType | TypeVar):
-        obj_modname = getattr(im.obj, '__module__', modname)
-        if obj_modname != modname and modname.startswith(obj_modname):
-            bases = modname[len(obj_modname) :].strip('.').split('.')
+        obj_module_name = getattr(im.obj, '__module__', module_name)
+        if obj_module_name != module_name and module_name.startswith(obj_module_name):
+            bases = module_name[len(obj_module_name) :].strip('.').split('.')
             im.objpath = bases + objpath
-            im.modname = obj_modname
+            im.modname = obj_module_name
     return im
 
 
 def _import_method(
     *,
-    modname: str,
+    module_name: str,
     objpath: list[str],
     member_order: int,
     mock_imports: list[str],
@@ -134,7 +134,7 @@ def _import_method(
     try:
         with mock(mock_imports):
             ret = _import_from_module_and_path(
-                module_name=modname, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -156,7 +156,7 @@ def _import_method(
 
 def _import_property(
     *,
-    modname: str,
+    module_name: str,
     objpath: list[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
@@ -165,7 +165,7 @@ def _import_property(
     try:
         with mock(mock_imports):
             ret = _import_from_module_and_path(
-                module_name=modname, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -189,7 +189,7 @@ def _import_property(
 
 def _import_assignment_data(
     *,
-    modname: str,
+    module_name: str,
     objpath: list[str],
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
@@ -200,7 +200,7 @@ def _import_assignment_data(
     try:
         with mock(mock_imports):
             ret = _import_from_module_and_path(
-                module_name=modname, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -210,7 +210,7 @@ def _import_assignment_data(
         # annotation only instance variable (PEP-526)
         try:
             with mock(mock_imports):
-                parent = import_module(modname)
+                parent = import_module(module_name)
             annotations = get_type_hints(
                 parent, None, type_aliases, include_extras=True
             )
@@ -229,7 +229,7 @@ def _import_assignment_data(
     im.parent.__annotations__ = annotations
 
     try:
-        analyzer = ModuleAnalyzer.for_module(modname)
+        analyzer = ModuleAnalyzer.for_module(module_name)
         analyzer.analyze()
         for (classname, attrname), annotation in analyzer.annotations.items():
             if not classname and attrname not in annotations:
@@ -241,7 +241,7 @@ def _import_assignment_data(
 
 def _import_assignment_attribute(
     *,
-    modname: str,
+    module_name: str,
     objpath: list[str],
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
@@ -252,7 +252,7 @@ def _import_assignment_attribute(
     try:
         with mock(mock_imports):
             ret = _import_from_module_and_path(
-                module_name=modname, obj_path=objpath, get_attr=get_attr
+                module_name=module_name, obj_path=objpath, get_attr=get_attr
             )
         im.module, im.parent, im.object_name, im.obj = ret
         if ismock(im.obj):
@@ -272,7 +272,7 @@ def _import_assignment_attribute(
         try:
             with mock(mock_imports):
                 ret = _import_from_module_and_path(
-                    module_name=modname, obj_path=objpath[:-1], get_attr=get_attr
+                    module_name=module_name, obj_path=objpath[:-1], get_attr=get_attr
                 )
             parent = ret[3]
             if _is_runtime_instance_attribute(parent=parent, objpath=objpath):

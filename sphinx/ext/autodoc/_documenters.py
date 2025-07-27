@@ -359,7 +359,7 @@ class Documenter:
         """
         try:
             im = _import_object(
-                modname=self.modname,
+                module_name=self.modname,
                 objpath=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 get_attr=self.get_attr,
@@ -1134,7 +1134,7 @@ class ModuleDocumenter(Documenter):
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
             im = _import_module(
-                modname=self.modname,
+                module_name=self.modname,
                 mock_imports=self.config.autodoc_mock_imports,
                 get_attr=self.get_attr,
             )
@@ -1508,7 +1508,7 @@ class ClassDocumenter(Documenter):
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
             im = _import_class(
-                modname=self.modname,
+                module_name=self.modname,
                 objpath=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 get_attr=self.get_attr,
@@ -2011,7 +2011,7 @@ class DataDocumenter(Documenter):
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
             im = _import_assignment_data(
-                modname=self.modname,
+                module_name=self.modname,
                 objpath=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 type_aliases=self.config.autodoc_type_aliases,
@@ -2144,7 +2144,7 @@ class MethodDocumenter(Documenter):
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
             im = _import_method(
-                modname=self.modname,
+                module_name=self.modname,
                 objpath=self.objpath,
                 member_order=self.member_order,
                 mock_imports=self.config.autodoc_mock_imports,
@@ -2456,7 +2456,7 @@ class AttributeDocumenter(Documenter):
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
             im = _import_assignment_attribute(
-                modname=self.modname,
+                module_name=self.modname,
                 objpath=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 type_aliases=self.config.autodoc_type_aliases,
@@ -2643,7 +2643,7 @@ class PropertyDocumenter(Documenter):
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
             im = _import_property(
-                modname=self.modname,
+                module_name=self.modname,
                 objpath=self.objpath,
                 mock_imports=self.config.autodoc_mock_imports,
                 get_attr=self.get_attr,
