@@ -262,10 +262,10 @@ def import_object(
     else:
         logger.debug('[autodoc] import %s', modname)
 
+    module = None
+    exc_on_importing = None
+    objpath = objpath.copy()
     try:
-        module = None
-        exc_on_importing = None
-        objpath = objpath.copy()
         while module is None:
             try:
                 module = import_module(modname, try_reload=True)
@@ -275,7 +275,7 @@ def import_object(
                 exc_on_importing = exc
                 if '.' in modname:
                     # retry with parent module
-                    modname, name = modname.rsplit('.', 1)
+                    modname, _, name = modname.rpartition('.')
                     objpath.insert(0, name)
                 else:
                     raise
@@ -304,13 +304,13 @@ def import_object(
             exc = exc_on_importing
 
         if objpath:
-            errmsg = 'autodoc: failed to import %s %r from module %r' % (
-                objtype,
-                '.'.join(objpath),
-                modname,
-            )
+            dotted_objpath = '.'.join(objpath)
+            err_parts = [
+                f'autodoc: failed to import {objtype} {dotted_objpath!r} '
+                f'from module {modname!r}'
+            ]
         else:
-            errmsg = f'autodoc: failed to import {objtype} {modname!r}'
+            err_parts = [f'autodoc: failed to import {objtype} {modname!r}']
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
@@ -318,19 +318,24 @@ def import_object(
             real_exc = exc.args[0]
             traceback_msg = traceback.format_exception(exc)
             if isinstance(real_exc, SystemExit):
-                errmsg += (
-                    '; the module executes module level statement '
+                err_parts.append(
+                    'the module executes module level statement '
                     'and it might call sys.exit().'
                 )
             elif isinstance(real_exc, ImportError) and real_exc.args:
-                errmsg += '; the following exception was raised:\n%s' % real_exc.args[0]
+                err_parts.append(
+                    f'the following exception was raised:\n{real_exc.args[0]}'
+                )
             else:
-                errmsg += '; the following exception was raised:\n%s' % traceback_msg
+                err_parts.append(
+                    f'the following exception was raised:\n{traceback_msg}'
+                )
         else:
-            errmsg += (
-                '; the following exception was raised:\n%s' % traceback.format_exc()
+            err_parts.append(
+                f'the following exception was raised:\n{traceback.format_exc()}'
             )
 
+        errmsg = '; '.join(err_parts)
         logger.debug(errmsg)
         raise ImportError(errmsg) from exc
 
