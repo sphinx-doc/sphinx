@@ -79,9 +79,10 @@ Bugs fixed
   Patch by Jean-François B.
 * #13685: gettext: Correctly ignore trailing backslashes.
   Patch by Bénédikt Tran.
-* #13688: HTML5: Replace ``<em class="property">`` with ``<span class="property">``
-  for Python attribute type annotations to improve semantic HTML structure.
-  Patch by Mark O.
+* #13688: HTML builder: Replace ``<em class="property">`` with ``<span class="property">``
+  for Python attribute type annotations to improve `semantic HTML structure
+  <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
+  Patch by Mark Ostroth.
 
 Testing
 -------
