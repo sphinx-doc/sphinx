@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture(autouse=True)
-def _cleanup_translations() -> Generator[None, None, None]:
+def _cleanup_translations() -> Iterator[None]:
     yield
     locale.translators.clear()
 
