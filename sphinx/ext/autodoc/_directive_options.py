@@ -10,7 +10,7 @@ from sphinx.locale import __
 if TYPE_CHECKING:
     from typing import Any
 
-    from sphinx.ext.autodoc._documenters import Documenter
+    from sphinx.util.typing import OptionSpec
 
 
 # common option names for autodoc directives
@@ -137,14 +137,14 @@ class Options(dict[str, object]):  # NoQA: FURB189
 
 
 def _process_documenter_options(
-    documenter: type[Documenter],
     *,
+    option_spec: OptionSpec,
     default_options: dict[str, str | bool],
     options: dict[str, str],
 ) -> Options:
     """Recognize options of Documenter from user input."""
     for name in AUTODOC_DEFAULT_OPTIONS:
-        if name not in documenter.option_spec:
+        if name not in option_spec:
             continue
 
         negated = options.pop(f'no-{name}', True) is None
@@ -161,5 +161,5 @@ def _process_documenter_options(
             # remove '+' from option argument if there's nothing to merge it with
             options[name] = options[name].removeprefix('+')
 
-    opts = assemble_option_dict(options.items(), documenter.option_spec)
+    opts = assemble_option_dict(options.items(), option_spec)
     return Options(opts)

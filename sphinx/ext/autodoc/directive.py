@@ -61,7 +61,7 @@ def process_documenter_options(
     documenter: type[Documenter], config: Config, options: dict[str, str]
 ) -> Options:
     return _process_documenter_options(
-        documenter,
+        option_spec=documenter.option_spec,
         default_options=config.autodoc_default_options,
         options=options,
     )
@@ -113,7 +113,7 @@ class AutodocDirective(SphinxDirective):
         # process the options with the selected documenter's option_spec
         try:
             documenter_options = _process_documenter_options(
-                doccls,
+                option_spec=doccls.option_spec,
                 default_options=self.config.autodoc_default_options,
                 options=self.options,
             )

@@ -28,7 +28,7 @@ def do_autodoc(
         app.env.current_document.docname = 'index'  # set dummy docname
     doccls = app.registry.documenters[objtype]
     docoptions = _process_documenter_options(
-        doccls,
+        option_spec=doccls.option_spec,
         default_options=app.config.autodoc_default_options,
         options=options,
     )
