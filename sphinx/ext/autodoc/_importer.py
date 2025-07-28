@@ -75,6 +75,7 @@ def _import_class(
         im.doc_as_attr = obj_path[-1] != im.obj.__name__
     else:
         im.doc_as_attr = True
+
     if isinstance(im.obj, NewType | TypeVar):
         obj_module_name = getattr(im.obj, '__module__', module_name)
         if obj_module_name != module_name and module_name.startswith(obj_module_name):
@@ -132,6 +133,7 @@ def _import_property(
         raise
 
     if not inspect.isproperty(im.obj):
+        # Support for class properties. Note: these only work on Python 3.9.
         __dict__ = safe_getattr(im.parent, '__dict__', {})
         obj = __dict__.get(obj_path[-1])
         if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
@@ -141,7 +143,6 @@ def _import_property(
         else:
             return None
 
-    im.isclassmethod = False
     return im
 
 

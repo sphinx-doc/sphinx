@@ -2603,7 +2603,8 @@ class PropertyDocumenter(Documenter):
     # before AttributeDocumenter
     priority = AttributeDocumenter.priority + 1
 
-    isclassmethod: bool
+    # Support for class properties. Note: these only work on Python 3.9.
+    isclassmethod: bool = False
 
     @classmethod
     def can_document_member(

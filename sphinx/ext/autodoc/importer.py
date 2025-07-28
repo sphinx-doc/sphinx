@@ -59,11 +59,18 @@ class _ImportedObject:
     #: object to document
     obj: Any
 
+    # class
     doc_as_attr: bool
     objpath: list[str]
     modname: str
+
+    # method
     member_order: int
+
+    # attribute
     _non_data_descriptor: bool
+
+    # property
     isclassmethod: bool
 
     def __init__(
