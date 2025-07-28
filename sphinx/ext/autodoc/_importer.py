@@ -257,7 +257,27 @@ def _import_assignment_attribute(
     elif inspect.isenumattribute(im.obj):
         im.obj = im.obj.value
     if im.parent:
-        _update_annotations_attribute_documenter(parent=im.parent)
+        # Update __annotations__ to support type_comment and so on.
+        try:
+            annotations = dict(inspect.getannotations(im.parent))
+            im.parent.__annotations__ = annotations
+
+            for cls in inspect.getmro(im.parent):
+                try:
+                    module = safe_getattr(cls, '__module__')
+                    qualname = safe_getattr(cls, '__qualname__')
+
+                    analyzer = ModuleAnalyzer.for_module(module)
+                    analyzer.analyze()
+                    anns = analyzer.annotations
+                    for (classname, attrname), annotation in anns.items():
+                        if classname == qualname and attrname not in annotations:
+                            annotations[attrname] = annotation
+                except (AttributeError, PycodeError):
+                    pass
+        except (AttributeError, TypeError):
+            # Failed to set __annotations__ (built-in, extensions, etc.)
+            pass
 
     if im and not inspect.isattributedescriptor(im.obj):
         im._non_data_descriptor = True
@@ -335,27 +355,3 @@ def _is_slots_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
             return False
     except (ValueError, TypeError):
         return False
-
-
-def _update_annotations_attribute_documenter(*, parent: Any) -> None:
-    """Update __annotations__ to support type_comment and so on."""
-    try:
-        annotations = dict(inspect.getannotations(parent))
-        parent.__annotations__ = annotations
-
-        for cls in inspect.getmro(parent):
-            try:
-                module = safe_getattr(cls, '__module__')
-                qualname = safe_getattr(cls, '__qualname__')
-
-                analyzer = ModuleAnalyzer.for_module(module)
-                analyzer.analyze()
-                anns = analyzer.annotations
-                for (classname, attrname), annotation in anns.items():
-                    if classname == qualname and attrname not in annotations:
-                        annotations[attrname] = annotation
-            except (AttributeError, PycodeError):
-                pass
-    except (AttributeError, TypeError):
-        # Failed to set __annotations__ (built-in, extensions, etc.)
-        pass
