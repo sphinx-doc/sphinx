@@ -10,8 +10,6 @@ import pygments
 import pytest
 
 if TYPE_CHECKING:
-    from io import StringIO
-
     from sphinx.application import Sphinx
     from sphinx.testing.util import SphinxTestApp
 
@@ -177,9 +175,7 @@ def test_local_source_files(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode-find-package', freshenv=True)
-def test_find_local_package_import_path(
-    app: Sphinx, status: StringIO, warning: StringIO
-) -> None:
+def test_find_local_package_import_path(app: Sphinx) -> None:
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
