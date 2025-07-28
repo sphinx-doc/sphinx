@@ -59,15 +59,12 @@ def _import_class(
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject:
-    try:
-        with mock(mock_imports):
-            im = _import_from_module_and_path(
-                module_name=module_name, obj_path=obj_path, get_attr=get_attr
-            )
-        if ismock(im.obj):
-            im.obj = undecorate(im.obj)
-    except ImportError:  # NoQA: TRY203
-        raise
+    im = _import_object(
+        module_name=module_name,
+        obj_path=obj_path,
+        mock_imports=mock_imports,
+        get_attr=get_attr,
+    )
 
     # if the class is documented under another name, document it
     # as data/attribute
@@ -93,15 +90,12 @@ def _import_method(
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject:
-    try:
-        with mock(mock_imports):
-            im = _import_from_module_and_path(
-                module_name=module_name, obj_path=obj_path, get_attr=get_attr
-            )
-        if ismock(im.obj):
-            im.obj = undecorate(im.obj)
-    except ImportError:  # NoQA: TRY203
-        raise
+    im = _import_object(
+        module_name=module_name,
+        obj_path=obj_path,
+        mock_imports=mock_imports,
+        get_attr=get_attr,
+    )
 
     # to distinguish classmethod/staticmethod
     obj = im.parent.__dict__.get(im.object_name, im.obj)
@@ -122,15 +116,12 @@ def _import_property(
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject | None:
-    try:
-        with mock(mock_imports):
-            im = _import_from_module_and_path(
-                module_name=module_name, obj_path=obj_path, get_attr=get_attr
-            )
-        if ismock(im.obj):
-            im.obj = undecorate(im.obj)
-    except ImportError:  # NoQA: TRY203
-        raise
+    im = _import_object(
+        module_name=module_name,
+        obj_path=obj_path,
+        mock_imports=mock_imports,
+        get_attr=get_attr,
+    )
 
     if not inspect.isproperty(im.obj):
         # Support for class properties. Note: these only work on Python 3.9.
