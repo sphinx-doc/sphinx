@@ -21,16 +21,6 @@ from sphinx.ext.autodoc._directive_options import (
     members_option,
     merge_members_option,
 )
-from sphinx.ext.autodoc._importer import (
-    _get_attribute_comment,
-    _import_assignment_attribute,
-    _import_assignment_data,
-    _import_class,
-    _import_method,
-    _import_object,
-    _import_property,
-    _is_runtime_instance_attribute_not_commented,
-)
 from sphinx.ext.autodoc._sentinels import (
     ALL,
     INSTANCE_ATTR,
@@ -39,7 +29,17 @@ from sphinx.ext.autodoc._sentinels import (
     SUPPRESS,
     UNINITIALIZED_ATTR,
 )
-from sphinx.ext.autodoc.importer import get_class_members
+from sphinx.ext.autodoc.importer import (
+    _get_attribute_comment,
+    _import_assignment_attribute,
+    _import_assignment_data,
+    _import_class,
+    _import_method,
+    _import_object,
+    _import_property,
+    _is_runtime_instance_attribute_not_commented,
+    get_class_members,
+)
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
