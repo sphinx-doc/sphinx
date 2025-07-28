@@ -253,7 +253,6 @@ module = [
     "tests.test_builders.test_build",
     "tests.test_builders.test_build_html",
     "tests.test_builders.test_build_html_5_output",
-    "tests.test_builders.test_build_html_toctree",
     "tests.test_builders.test_build_linkcheck",
     # tests/test_directives
     "tests.test_directives.test_directive_code",
