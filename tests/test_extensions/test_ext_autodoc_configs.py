@@ -647,7 +647,7 @@ def test_mocked_module_imports(app: SphinxTestApp) -> None:
     options = {'members': 'TestAutodoc,decorated_function,func,Alias'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == []
-    assert "autodoc: failed to import module 'need_mocks'" in app.warning.getvalue()
+    assert "autodoc: failed to import 'need_mocks'" in app.warning.getvalue()
 
     # with autodoc_mock_imports
     app.config.autodoc_mock_imports = [
