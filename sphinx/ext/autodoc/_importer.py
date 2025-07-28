@@ -279,11 +279,6 @@ def _import_assignment_attribute(
             # Failed to set __annotations__ (built-in, extensions, etc.)
             pass
 
-    if im and not inspect.isattributedescriptor(im.obj):
-        im._non_data_descriptor = True
-    else:
-        im._non_data_descriptor = False
-
     return im
 
 

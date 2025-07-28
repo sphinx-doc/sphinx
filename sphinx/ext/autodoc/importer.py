@@ -67,9 +67,6 @@ class _ImportedObject:
     # method
     member_order: int
 
-    # attribute
-    _non_data_descriptor: bool
-
     # property
     isclassmethod: bool
 

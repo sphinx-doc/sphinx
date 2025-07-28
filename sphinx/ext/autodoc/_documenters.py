@@ -2378,7 +2378,6 @@ class AttributeDocumenter(Documenter):
 
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
-    _non_data_descriptor: bool = False
 
     objtype = 'attribute'
     member_order = 60
@@ -2454,6 +2453,10 @@ class AttributeDocumenter(Documenter):
             setattr(self, k, getattr(im, k))
         return True
 
+    @property
+    def _is_non_data_descriptor(self) -> bool:
+        return not inspect.isattributedescriptor(self.object)
+
     def get_real_modname(self) -> str:
         real_modname = self.get_attr(self.parent or self.object, '__module__', None)
         return real_modname or self.modname
@@ -2465,7 +2468,7 @@ class AttributeDocumenter(Documenter):
             return True
         if self.object is UNINITIALIZED_ATTR:
             return True
-        if not self._non_data_descriptor or inspect.isgenericalias(self.object):
+        if not self._is_non_data_descriptor or inspect.isgenericalias(self.object):
             return True
         else:
             doc = self.get_doc()
@@ -2567,7 +2570,7 @@ class AttributeDocumenter(Documenter):
             if self.object is UNINITIALIZED_ATTR:
                 return None
 
-            if self._non_data_descriptor:
+            if self._is_non_data_descriptor:
                 # the docstring of non-data descriptor is very probably
                 # the wrong thing to display
                 return None
