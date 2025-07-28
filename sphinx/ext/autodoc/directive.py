@@ -58,7 +58,7 @@ class DocumenterBridge:
 
 
 def process_documenter_options(
-    documenter: type[Documenter], config: Config, options: dict[str, str]
+    documenter: type[Documenter], config: Config, options: dict[str, str | None]
 ) -> Options:
     return _process_documenter_options(
         option_spec=documenter.option_spec,
