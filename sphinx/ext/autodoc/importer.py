@@ -65,15 +65,15 @@ class _ImportedObject:
     #: object to document
     obj: Any
 
-    # class
+    # ClassDocumenter
     doc_as_attr: bool
     objpath: list[str]
     modname: str
 
-    # method
+    # MethodDocumenter
     member_order: int
 
-    # property
+    # PropertyDocumenter
     isclassmethod: bool
 
     def __init__(

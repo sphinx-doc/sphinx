@@ -370,10 +370,10 @@ class Documenter:
             self.env.note_reread()
             return False
 
-        self.object = im.obj
-        del im.obj
-        for k in vars(im):
-            setattr(self, k, getattr(im, k))
+        self.object = im.__dict__.pop('obj', None)
+        for k in 'module', 'parent', 'object_name':
+            if hasattr(im, k):
+                setattr(self, k, getattr(im, k))
         return True
 
     def get_real_modname(self) -> str:
@@ -1499,10 +1499,10 @@ class ClassDocumenter(Documenter):
             self.env.note_reread()
             return False
 
-        self.object = im.obj
-        del im.obj
-        for k in vars(im):
-            setattr(self, k, getattr(im, k))
+        self.object = im.__dict__.pop('obj', None)
+        for k in 'module', 'parent', 'object_name', 'doc_as_attr', 'objpath', 'modname':
+            if hasattr(im, k):
+                setattr(self, k, getattr(im, k))
         return True
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
@@ -2003,10 +2003,10 @@ class DataDocumenter(Documenter):
             self.env.note_reread()
             return False
 
-        self.object = im.obj
-        del im.obj
-        for k in vars(im):
-            setattr(self, k, getattr(im, k))
+        self.object = im.__dict__.pop('obj', None)
+        for k in 'module', 'parent', 'object_name':
+            if hasattr(im, k):
+                setattr(self, k, getattr(im, k))
         return True
 
     def should_suppress_value_header(self) -> bool:
@@ -2136,10 +2136,10 @@ class MethodDocumenter(Documenter):
             self.env.note_reread()
             return False
 
-        self.object = im.obj
-        del im.obj
-        for k in vars(im):
-            setattr(self, k, getattr(im, k))
+        self.object = im.__dict__.pop('obj', None)
+        for k in 'module', 'parent', 'object_name', 'member_order':
+            if hasattr(im, k):
+                setattr(self, k, getattr(im, k))
         return True
 
     def format_args(self, **kwargs: Any) -> str:
@@ -2447,10 +2447,10 @@ class AttributeDocumenter(Documenter):
             self.env.note_reread()
             return False
 
-        self.object = im.obj
-        del im.obj
-        for k in vars(im):
-            setattr(self, k, getattr(im, k))
+        self.object = im.__dict__.pop('obj', None)
+        for k in 'module', 'parent', 'object_name':
+            if hasattr(im, k):
+                setattr(self, k, getattr(im, k))
         return True
 
     @property
@@ -2640,10 +2640,10 @@ class PropertyDocumenter(Documenter):
         if im is None:
             return False
 
-        self.object = im.obj
-        del im.obj
-        for k in vars(im):
-            setattr(self, k, getattr(im, k))
+        self.object = im.__dict__.pop('obj', None)
+        for k in 'module', 'parent', 'object_name', 'isclassmethod':
+            if hasattr(im, k):
+                setattr(self, k, getattr(im, k))
         return True
 
     def format_args(self, **kwargs: Any) -> str:
