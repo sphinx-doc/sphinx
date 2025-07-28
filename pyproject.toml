@@ -255,7 +255,6 @@ module = [
     "tests.test_builders.test_build_html_5_output",
     "tests.test_builders.test_build_html_assets",
     "tests.test_builders.test_build_html_maths",
-    "tests.test_builders.test_build_html_numfig",
     "tests.test_builders.test_build_html_toctree",
     "tests.test_builders.test_build_linkcheck",
     # tests/test_directives
