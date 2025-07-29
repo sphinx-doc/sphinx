@@ -6,7 +6,10 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 from docutils.statemachine import StringList
 
-from sphinx.ext.autodoc._directive_options import _process_documenter_options
+from sphinx.ext.autodoc._directive_options import (
+    _AutoDocumenterOptions,
+    _process_documenter_options,
+)
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
@@ -44,7 +47,7 @@ class DocumenterBridge:
         self,
         env: BuildEnvironment,
         reporter: Reporter | None,
-        options: Options,
+        options: _AutoDocumenterOptions,
         lineno: int,
         state: Any,
     ) -> None:
@@ -58,13 +61,16 @@ class DocumenterBridge:
 
 
 def process_documenter_options(
-    documenter: type[Documenter], config: Config, options: dict[str, str]
+    documenter: type[Documenter], config: Config, options: dict[str, str | None]
 ) -> Options:
-    return _process_documenter_options(
-        documenter,
+    from sphinx.ext.autodoc._directive_options import Options
+
+    opts = _process_documenter_options(
+        option_spec=documenter.option_spec,
         default_options=config.autodoc_default_options,
         options=options,
     )
+    return Options(opts)
 
 
 def parse_generated_content(
@@ -112,11 +118,12 @@ class AutodocDirective(SphinxDirective):
 
         # process the options with the selected documenter's option_spec
         try:
-            documenter_options = _process_documenter_options(
-                doccls,
+            opts = _process_documenter_options(
+                option_spec=doccls.option_spec,
                 default_options=self.config.autodoc_default_options,
                 options=self.options,
             )
+            documenter_options = _AutoDocumenterOptions.from_directive_options(opts)
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
             logger.error(  # NoQA: TRY400

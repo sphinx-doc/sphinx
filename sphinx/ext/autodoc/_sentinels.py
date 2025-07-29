@@ -2,7 +2,7 @@ from __future__ import annotations
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from typing import NoReturn, Self, _SpecialForm
+    from typing import Final, Literal, NoReturn, Self, TypeAlias, _SpecialForm
 
 
 class _Sentinel:
@@ -42,7 +42,7 @@ class _Sentinel:
 class _All(_Sentinel):
     """A special value for :*-members: that matches to any member."""
 
-    def __contains__(self, item: object) -> bool:
+    def __contains__(self, item: object) -> Literal[True]:
         return True
 
     def append(self, item: object) -> None:
@@ -52,20 +52,49 @@ class _All(_Sentinel):
 class _Empty(_Sentinel):
     """A special value for :exclude-members: that never matches to any member."""
 
-    def __contains__(self, item: object) -> bool:
+    def __contains__(self, item: object) -> Literal[False]:
         return False
 
 
 if TYPE_CHECKING:
     # For the sole purpose of satisfying the type checker.
     # fmt: off
-    class ALL: ...
-    class EMPTY: ...
-    class INSTANCE_ATTR: ...
-    class RUNTIME_INSTANCE_ATTRIBUTE: ...
-    class SLOTS_ATTR: ...
-    class SUPPRESS: ...
-    class UNINITIALIZED_ATTR: ...
+    import enum
+    class _AllTC(enum.Enum):
+        ALL = enum.auto()
+
+        def __contains__(self, item: object) -> Literal[True]: return True
+        def append(self, item: object) -> None: pass
+    ALL_T: TypeAlias = Literal[_AllTC.ALL]
+    ALL: Final[ALL_T] = _AllTC.ALL
+
+    class _EmptyTC(enum.Enum):
+        EMPTY = enum.auto()
+
+        def __contains__(self, item: object) -> Literal[False]: return False
+    EMPTY_T: TypeAlias = Literal[_EmptyTC.EMPTY]
+    EMPTY: Final[EMPTY_T] = _EmptyTC.EMPTY
+
+    class _SentinelTC(enum.Enum):
+        INSTANCE_ATTR = enum.auto()
+        RUNTIME_INSTANCE_ATTRIBUTE = enum.auto()
+        SLOTS_ATTR = enum.auto()
+        SUPPRESS = enum.auto()
+        UNINITIALIZED_ATTR = enum.auto()
+    INSTANCE_ATTR_T: TypeAlias = Literal[_SentinelTC.INSTANCE_ATTR]
+    RUNTIME_INSTANCE_ATTRIBUTE_T: TypeAlias = Literal[
+        _SentinelTC.RUNTIME_INSTANCE_ATTRIBUTE
+    ]
+    SLOTS_ATTR_T: TypeAlias = Literal[_SentinelTC.SLOTS_ATTR]
+    SUPPRESS_T: TypeAlias = Literal[_SentinelTC.SUPPRESS]
+    UNINITIALIZED_ATTR_T: TypeAlias = Literal[_SentinelTC.UNINITIALIZED_ATTR]
+    INSTANCE_ATTR: Final[INSTANCE_ATTR_T] = _SentinelTC.INSTANCE_ATTR
+    RUNTIME_INSTANCE_ATTRIBUTE: Final[RUNTIME_INSTANCE_ATTRIBUTE_T] = (
+        _SentinelTC.RUNTIME_INSTANCE_ATTRIBUTE
+    )
+    SLOTS_ATTR: Final[SLOTS_ATTR_T] = _SentinelTC.SLOTS_ATTR
+    SUPPRESS: Final[SUPPRESS_T] = _SentinelTC.SUPPRESS
+    UNINITIALIZED_ATTR: Final[UNINITIALIZED_ATTR_T] = _SentinelTC.UNINITIALIZED_ATTR
     # fmt: on
 else:
     ALL = _All('ALL')
