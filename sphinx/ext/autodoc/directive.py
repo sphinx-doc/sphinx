@@ -60,11 +60,14 @@ class DocumenterBridge:
 def process_documenter_options(
     documenter: type[Documenter], config: Config, options: dict[str, str | None]
 ) -> Options:
-    return _process_documenter_options(
+    from sphinx.ext.autodoc._directive_options import Options
+
+    opts = _process_documenter_options(
         option_spec=documenter.option_spec,
         default_options=config.autodoc_default_options,
         options=options,
     )
+    return Options(opts)
 
 
 def parse_generated_content(
@@ -112,11 +115,14 @@ class AutodocDirective(SphinxDirective):
 
         # process the options with the selected documenter's option_spec
         try:
-            documenter_options = _process_documenter_options(
+            from sphinx.ext.autodoc._directive_options import Options
+
+            opts = _process_documenter_options(
                 option_spec=doccls.option_spec,
                 default_options=self.config.autodoc_default_options,
                 options=self.options,
             )
+            documenter_options = Options(opts)
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
             logger.error(  # NoQA: TRY400

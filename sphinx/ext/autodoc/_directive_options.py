@@ -141,7 +141,7 @@ def _process_documenter_options(
     option_spec: OptionSpec,
     default_options: dict[str, str | bool],
     options: dict[str, str | None],
-) -> Options:
+) -> dict[str, object]:
     """Recognize options of Documenter from user input."""
     for name in AUTODOC_DEFAULT_OPTIONS:
         if name not in option_spec:
@@ -162,5 +162,4 @@ def _process_documenter_options(
             # remove '+' from option argument if there's nothing to merge it with
             options[name] = opt_value.removeprefix('+')
 
-    opts = assemble_option_dict(options.items(), option_spec)  # type: ignore[arg-type]
-    return Options(opts)
+    return assemble_option_dict(options.items(), option_spec)  # type: ignore[arg-type]
