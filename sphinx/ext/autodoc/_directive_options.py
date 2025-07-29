@@ -8,8 +8,9 @@ from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Literal
 
+    from sphinx.ext.autodoc._sentinels import ALL_T, EMPTY_T, SUPPRESS_T
     from sphinx.util.typing import OptionSpec
 
 
@@ -43,60 +44,57 @@ def identity(x: Any) -> Any:
     return x
 
 
-def members_option(arg: Any) -> object | list[str]:
+def members_option(arg: str | None) -> ALL_T | list[str] | None:
     """Used to convert the :members: option to auto directives."""
-    if arg in {None, True}:
+    if arg is None or arg is True:
         return ALL
-    elif arg is False:
+    if arg is False:
         return None
-    else:
-        return [x.strip() for x in arg.split(',') if x.strip()]
+    return [stripped for x in arg.split(',') if (stripped := x.strip())]
 
 
-def exclude_members_option(arg: Any) -> object | set[str]:
+def exclude_members_option(arg: str | None) -> EMPTY_T | set[str]:
     """Used to convert the :exclude-members: option."""
-    if arg in {None, True}:
+    if arg is None or arg is True:
         return EMPTY
-    return {x.strip() for x in arg.split(',') if x.strip()}
+    return {stripped for x in arg.split(',') if (stripped := x.strip())}
 
 
-def inherited_members_option(arg: Any) -> set[str]:
+def inherited_members_option(arg: str | None) -> set[str]:
     """Used to convert the :inherited-members: option to auto directives."""
-    if arg in {None, True}:
+    if arg is None or arg is True:
         return {'object'}
-    elif arg:
+    if arg:
         return {x.strip() for x in arg.split(',')}
-    else:
-        return set()
+    return set()
 
 
-def member_order_option(arg: Any) -> str | None:
+def member_order_option(
+    arg: str | None,
+) -> Literal['alphabetical', 'bysource', 'groupwise'] | None:
     """Used to convert the :member-order: option to auto directives."""
-    if arg in {None, True}:
+    if arg is None or arg is True:
         return None
-    elif arg in {'alphabetical', 'bysource', 'groupwise'}:
-        return arg
-    else:
-        raise ValueError(__('invalid value for member-order option: %s') % arg)
+    if arg in {'alphabetical', 'bysource', 'groupwise'}:
+        return arg  # type: ignore[return-value]
+    raise ValueError(__('invalid value for member-order option: %s') % arg)
 
 
-def class_doc_from_option(arg: Any) -> str | None:
+def class_doc_from_option(arg: str | None) -> Literal['both', 'class', 'init']:
     """Used to convert the :class-doc-from: option to autoclass directives."""
     if arg in {'both', 'class', 'init'}:
-        return arg
-    else:
-        raise ValueError(__('invalid value for class-doc-from option: %s') % arg)
+        return arg  # type: ignore[return-value]
+    raise ValueError(__('invalid value for class-doc-from option: %s') % arg)
 
 
-def annotation_option(arg: Any) -> Any:
-    if arg in {None, True}:
+def annotation_option(arg: str | None) -> SUPPRESS_T | str | Literal[False]:
+    if arg is None or arg is True:
         # suppress showing the representation of the object
         return SUPPRESS
-    else:
-        return arg
+    return arg
 
 
-def bool_option(arg: Any) -> bool:
+def bool_option(arg: str | None) -> bool:
     """Used to convert flag options to auto directives.  (Instead of
     directives.flag(), which returns None).
     """
