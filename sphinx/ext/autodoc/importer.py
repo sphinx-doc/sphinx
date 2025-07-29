@@ -47,6 +47,10 @@ if TYPE_CHECKING:
     class _AttrGetter(Protocol):
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
+if sys.version_info[:2] < (3, 12):
+    from typing_extensions import TypeAliasType
+else:
+    from typing import TypeAliasType
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
@@ -635,7 +639,7 @@ def _import_class(
     else:
         im.doc_as_attr = True
 
-    if isinstance(im.obj, NewType | TypeVar):
+    if isinstance(im.obj, NewType | TypeVar | TypeAliasType):
         obj_module_name = getattr(im.obj, '__module__', module_name)
         if obj_module_name != module_name and module_name.startswith(obj_module_name):
             bases = module_name[len(obj_module_name) :].strip('.').split('.')
