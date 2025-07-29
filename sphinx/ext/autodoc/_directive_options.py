@@ -8,7 +8,8 @@ from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from collections.abc import Mapping, Set
+    from typing import Any, Literal, Self
 
     from sphinx.ext.autodoc._sentinels import ALL_T, EMPTY_T, SUPPRESS_T
     from sphinx.util.typing import OptionSpec
@@ -38,6 +39,68 @@ AUTODOC_EXTENDABLE_OPTIONS = frozenset({
     'special-members',
     'exclude-members',
 })
+
+
+class _AutoDocumenterOptions:
+    # TODO: make immutable.
+
+    no_index: Literal[True] | None = None
+    no_index_entry: Literal[True] | None = None
+
+    # module-like options
+    members: ALL_T | list[str] | None = None
+    undoc_members: Literal[True] | None = None
+    inherited_members: Set[str] | None = None
+    show_inheritance: Literal[True] | None = None
+    synopsis: str | None = None
+    platform: str | None = None
+    deprecated: Literal[True] | None = None
+    member_order: Literal['alphabetical', 'bysource', 'groupwise'] | None = None
+    exclude_members: EMPTY_T | set[str] | None = None
+    private_members: ALL_T | list[str] | None = None
+    special_members: ALL_T | list[str] | None = None
+    imported_members: Literal[True] | None = None
+    ignore_module_all: Literal[True] | None = None
+    no_value: Literal[True] | None = None
+
+    # class-like options (class, exception)
+    class_doc_from: Literal['both', 'class', 'init'] | None = None
+
+    # assignment-like (data, attribute)
+    annotation: SUPPRESS_T | str | None = None
+
+    noindex: Literal[True] | None = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        vars(self).update(kwargs)
+
+    def __repr__(self) -> str:
+        args = ', '.join(f'{k}={v!r}' for k, v in vars(self).items())
+        return f'_AutoDocumenterOptions({args})'
+
+    def __getattr__(self, name: str) -> object:
+        return None  # return None for missing attributes
+
+    def copy(self) -> Self:
+        return self.__class__(**vars(self))
+
+    @classmethod
+    def from_directive_options(cls, opts: Mapping[str, Any], /) -> Self:
+        return cls(**{k.replace('-', '_'): v for k, v in opts.items() if v is not None})
+
+    def merge_member_options(self) -> Self:
+        """Merge :private-members: and :special-members: into :members:"""
+        if self.members is ALL:
+            # merging is not needed when members: ALL
+            return self
+
+        members = self.members or []
+        for others in self.private_members, self.special_members:
+            if others is not None and others is not ALL:
+                members.extend(others)
+        new = self.copy()
+        new.members = list(dict.fromkeys(members))  # deduplicate; preserve order
+        return new
 
 
 def identity(x: Any) -> Any:

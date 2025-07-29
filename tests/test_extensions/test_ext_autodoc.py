@@ -17,7 +17,10 @@ from warnings import catch_warnings
 import pytest
 
 from sphinx import addnodes
-from sphinx.ext.autodoc._directive_options import Options
+from sphinx.ext.autodoc._directive_options import (
+    _AutoDocumenterOptions,
+    inherited_members_option,
+)
 from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
 from sphinx.ext.autodoc._sentinels import ALL
 
@@ -41,22 +44,22 @@ if TYPE_CHECKING:
 
 
 def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
-    options = Options(
-        inherited_members=False,
-        undoc_members=False,
-        private_members=False,
-        special_members=False,
-        imported_members=False,
-        show_inheritance=False,
-        no_index=False,
+    options = _AutoDocumenterOptions(
+        inherited_members=None,
+        undoc_members=None,
+        private_members=None,
+        special_members=None,
+        imported_members=None,
+        show_inheritance=None,
+        no_index=None,
         annotation=None,
         synopsis='',
         platform='',
-        deprecated=False,
+        deprecated=None,
         members=[],
         member_order='alphabetical',
         exclude_members=set(),
-        ignore_module_all=False,
+        ignore_module_all=None,
     )
 
     directive = DocumenterBridge(
@@ -451,13 +454,14 @@ def test_new_documenter(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_attrgetter_using(app):
     directive = make_directive_bridge(app.env)
-    directive.genopt['members'] = ALL
+    options = directive.genopt
+    options.members = ALL
 
-    directive.genopt['inherited_members'] = False
+    options.inherited_members = inherited_members_option(False)
     with catch_warnings(record=True):
         _assert_getter_works(app, directive, 'class', 'target.Class', ['meth'])
 
-    directive.genopt['inherited_members'] = True
+    options.inherited_members = inherited_members_option(True)
     with catch_warnings(record=True):
         _assert_getter_works(
             app, directive, 'class', 'target.inheritance.Derived', ['inheritedmeth']
