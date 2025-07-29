@@ -399,7 +399,11 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     def get_tokens(
         self,
         txtnodes: list[Text],
-    ) -> Generator[[tuple[Literal['plain', 'literal'], str]], None, None]:
+    ) -> Generator[
+        tuple[Literal['plain', 'literal'], str],
+        None,
+        None,
+    ]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
