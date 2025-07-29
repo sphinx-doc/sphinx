@@ -42,10 +42,13 @@ if TYPE_CHECKING:
     from types import ModuleType
     from typing import Any, Protocol
 
+    from typing_extensions import TypeIs
+
     from sphinx.ext.autodoc import ObjectMember
 
     class _AttrGetter(Protocol):
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
+
 
 if sys.version_info[:2] < (3, 12):
     from typing_extensions import TypeAliasType
@@ -639,7 +642,7 @@ def _import_class(
     else:
         im.doc_as_attr = True
 
-    if isinstance(im.obj, NewType | TypeVar | TypeAliasType):
+    if _is_type_like(im.obj):
         obj_module_name = getattr(im.obj, '__module__', module_name)
         if obj_module_name != module_name and module_name.startswith(obj_module_name):
             bases = module_name[len(obj_module_name) :].strip('.').split('.')
@@ -907,3 +910,7 @@ def _is_slots_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
             return False
     except (ValueError, TypeError):
         return False
+
+
+def _is_type_like(obj: Any) -> TypeIs[NewType | TypeVar | TypeAliasType]:
+    return isinstance(obj, (NewType, TypeVar, TypeAliasType))

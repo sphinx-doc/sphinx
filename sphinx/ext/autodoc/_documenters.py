@@ -37,6 +37,7 @@ from sphinx.ext.autodoc.importer import (
     _import_object,
     _import_property,
     _is_runtime_instance_attribute_not_commented,
+    _is_type_like,
     get_class_members,
 )
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
@@ -1486,11 +1487,7 @@ class ClassDocumenter(Documenter):
     def can_document_member(
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
-        return isinstance(member, type) or (isattr and cls._is_typelike(member))
-
-    @staticmethod
-    def _is_typelike(obj: Any) -> bool:
-        return isinstance(obj, NewType | TypeVar | TypeAliasType)
+        return isinstance(member, type) or (isattr and _is_type_like(member))
 
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
@@ -1514,7 +1511,7 @@ class ClassDocumenter(Documenter):
         return True
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if self._is_typelike(self.object):
+        if _is_type_like(self.object):
             # Suppress signature
             return None, None, None
 
