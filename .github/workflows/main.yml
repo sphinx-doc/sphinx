@@ -41,6 +41,7 @@ jobs:
         docutils:
         - "0.20"
         - "0.21"
+        - "0.22"
 #        include:
 #        # test every supported Docutils version for the latest supported Python
 #        - python: "3.13"
@@ -93,6 +94,7 @@ jobs:
         docutils:
         - "0.20"
         - "0.21"
+        - "0.22"
 
     steps:
     - uses: actions/checkout@v4
