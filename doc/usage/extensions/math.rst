@@ -318,34 +318,9 @@ Sphinx but is set to automatically include it from a third-party site.
       This has been renamed to :confval:`mathjax2_config`.
       :confval:`mathjax_config` is still supported for backwards compatibility.
 
-:mod:`sphinx.ext.jsmath` -- Render math via JavaScript
-------------------------------------------------------
-
-.. module:: sphinx.ext.jsmath
-   :synopsis: Render math using JavaScript via JSMath.
-
-This extension works just as the MathJax extension does, but uses the older
-package jsMath_.  It provides this config value:
-
-.. confval:: jsmath_path
-   :type: :code-py:`str`
-   :default: :code-py:`''`
-
-   The path to the JavaScript file to include in the HTML files in order to load
-   JSMath.
-
-   The path can be absolute or relative; if it is relative, it is relative to
-   the ``_static`` directory of the built docs.
-
-   For example, if you put JSMath into the static path of the Sphinx docs, this
-   value would be ``jsMath/easy/load.js``.  If you host more than one
-   Sphinx documentation set on one server, it is advisable to install jsMath in
-   a shared location.
-
 
 .. _dvipng: https://savannah.nongnu.org/projects/dvipng/
 .. _dvisvgm: https://dvisvgm.de/
 .. _dvisvgm FAQ: https://dvisvgm.de/FAQ
 .. _MathJax: https://www.mathjax.org/
-.. _jsMath: https://www.math.union.edu/~dpvc/jsmath/
 .. _LaTeX preview package: https://www.gnu.org/software/auctex/preview-latex.html
