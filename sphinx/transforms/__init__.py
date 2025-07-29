@@ -22,7 +22,7 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Iterable
     from typing import Any, Literal, TypeAlias
 
     from docutils.nodes import Node, Text
@@ -398,7 +398,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
     def get_tokens(
         self,
-        txtnodes: list[Text],
+        txtnodes: Iterable[Node],
     ) -> Generator[
         tuple[Literal['plain', 'literal'], str],
         None,
