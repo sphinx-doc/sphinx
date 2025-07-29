@@ -2,26 +2,40 @@ from __future__ import annotations
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from typing import NoReturn
+    from typing import NoReturn, Self, _SpecialForm
 
 
 class _Sentinel:
     """Create a unique sentinel object."""
 
-    def __init__(self, name: str, /) -> None:
-        self._name = name
+    __slots__ = ('_name',)
+
+    _name: str
+
+    def __new__(cls, name: str, /) -> Self:
+        sentinel = super().__new__(cls)
+        object.__setattr__(sentinel, '_name', str(name))
+        return sentinel
 
     def __repr__(self) -> str:
-        return f'<{self._name}>'
+        return self._name
 
-    def __or__(self, other: object) -> type[_Sentinel | object]:
-        return self | other
+    def __setattr__(self, key: str, value: object) -> NoReturn:
+        msg = f'{self._name} is immutable'
+        raise AttributeError(msg)
 
-    def __ror__(self, other: object) -> type[object | _Sentinel]:
-        return other | self
+    def __or__(self, other: object) -> _SpecialForm:
+        from typing import Union
+
+        return Union[self, other]  # NoQA: UP007
+
+    def __ror__(self, other: object) -> _SpecialForm:
+        from typing import Union
+
+        return Union[other, self]  # NoQA: UP007
 
     def __getstate__(self) -> NoReturn:
-        msg = f'Cannot pickle {type(self).__name__!r} object'
+        msg = f'Cannot pickle {self._name}'
         raise TypeError(msg)
 
 
@@ -42,10 +56,22 @@ class _Empty(_Sentinel):
         return False
 
 
-ALL = _All('ALL')
-EMPTY = _Empty('EMPTY')
-UNINITIALIZED_ATTR = _Sentinel('UNINITIALIZED_ATTR')
-INSTANCE_ATTR = _Sentinel('INSTANCE_ATTR')
-SLOTS_ATTR = _Sentinel('SLOTS_ATTR')
-SUPPRESS = _Sentinel('SUPPRESS')
-RUNTIME_INSTANCE_ATTRIBUTE = _Sentinel('RUNTIME_INSTANCE_ATTRIBUTE')
+if TYPE_CHECKING:
+    # For the sole purpose of satisfying the type checker.
+    # fmt: off
+    class ALL: ...
+    class EMPTY: ...
+    class INSTANCE_ATTR: ...
+    class RUNTIME_INSTANCE_ATTRIBUTE: ...
+    class SLOTS_ATTR: ...
+    class SUPPRESS: ...
+    class UNINITIALIZED_ATTR: ...
+    # fmt: on
+else:
+    ALL = _All('ALL')
+    EMPTY = _Empty('EMPTY')
+    INSTANCE_ATTR = _Sentinel('INSTANCE_ATTR')
+    RUNTIME_INSTANCE_ATTRIBUTE = _Sentinel('RUNTIME_INSTANCE_ATTRIBUTE')
+    SLOTS_ATTR = _Sentinel('SLOTS_ATTR')
+    SUPPRESS = _Sentinel('SUPPRESS')
+    UNINITIALIZED_ATTR = _Sentinel('UNINITIALIZED_ATTR')
