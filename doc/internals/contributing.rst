@@ -138,6 +138,10 @@ These are the basic steps needed to start developing on Sphinx.
 
 #. Wait for a core developer or contributor to review your changes.
 
+   You may be asked to address comments on the review. If so, please avoid
+   force pushing to the branch. Sphinx uses the *squash merge* strategy when
+   merging PRs, so follow-up commits will all be combined.
+
 
 Coding style
 ~~~~~~~~~~~~

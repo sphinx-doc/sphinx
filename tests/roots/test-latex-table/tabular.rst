@@ -12,8 +12,8 @@ cell2-1 cell2-2
 cell3-1 cell3-2
 ======= =======
 
-table having :widths: option
-----------------------------
+table having widths option
+--------------------------
 
 .. _mytabular:
 
@@ -32,8 +32,8 @@ table having :widths: option
 
 See :ref:`this <mytabular>`, same as namedtabular_.
 
-table having :align: option (tabulary)
---------------------------------------
+tabulary having align option
+----------------------------
 
 .. table::
    :align: right
@@ -46,8 +46,8 @@ table having :align: option (tabulary)
    cell3-1 cell3-2
    ======= =======
 
-table having :align: option (tabular)
--------------------------------------
+tabular having align option
+---------------------------
 
 .. table::
    :align: left
@@ -61,8 +61,8 @@ table having :align: option (tabular)
    cell3-1 cell3-2
    ======= =======
 
-table with tabularcolumn
-------------------------
+table with tabularcolumns
+-------------------------
 
 .. tabularcolumns:: cc
 
@@ -74,8 +74,8 @@ cell2-1 cell2-2
 cell3-1 cell3-2
 ======= =======
 
-table with cell in first column having three paragraphs
--------------------------------------------------------
+table having three paragraphs cell in first col
+-----------------------------------------------
 
 +--------------+
 | header1      |
@@ -121,8 +121,24 @@ table having verbatim
    * - cell3-1
      - cell3-2
 
-table having both :widths: and problematic cell
------------------------------------------------
+table having formerly problematic
+---------------------------------
+
+.. list-table::
+   :header-rows: 1
+
+   * - header1
+     - header2
+   * - + item1
+       + item2
+     - cell1-2
+   * - cell2-1
+     - cell2-2
+   * - cell3-1
+     - cell3-2
+
+table having widths and formerly problematic
+--------------------------------------------
 
 .. list-table::
    :header-rows: 1
@@ -138,24 +154,8 @@ table having both :widths: and problematic cell
    * - cell3-1
      - cell3-2
 
-table having problematic cell
------------------------------
-
-.. list-table::
-   :header-rows: 1
-
-   * - header1
-     - header2
-   * - + item1
-       + item2
-     - cell1-2
-   * - cell2-1
-     - cell2-2
-   * - cell3-1
-     - cell3-2
-
-table having both stub columns and problematic cell
----------------------------------------------------
+table having stub columns and formerly problematic
+--------------------------------------------------
 
 .. list-table::
    :header-rows: 1

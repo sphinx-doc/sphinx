@@ -114,8 +114,8 @@ class NavPoint(NamedTuple):
 
 def sphinx_smarty_pants(t: str, language: str = 'en') -> str:
     t = t.replace('&quot;', '"')
-    t = smartquotes.educateDashesOldSchool(t)  # type: ignore[no-untyped-call]
-    t = smartquotes.educateQuotes(t, language)  # type: ignore[no-untyped-call]
+    t = smartquotes.educateDashesOldSchool(t)
+    t = smartquotes.educateQuotes(t, language)
     t = t.replace('"', '&quot;')
     return t
 
@@ -233,7 +233,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
         and pre and post files not managed by Sphinx.
         """
         doctree = self.env.get_and_resolve_doctree(
-            self.config.master_doc, self, prune_toctrees=False, includehidden=True
+            self.config.master_doc,
+            self,
+            tags=self.tags,
+            prune_toctrees=False,
+            includehidden=True,
         )
         self.refnodes = self.get_refnodes(doctree, [])
         master_dir = Path(self.config.master_doc).parent
@@ -279,16 +283,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
-
-        def update_node_id(node: Element) -> None:
-            """Update IDs of given *node*."""
-            new_ids: list[str] = []
-            for node_id in node['ids']:
-                new_id = self.fix_fragment('', node_id)
-                if new_id not in new_ids:
-                    new_ids.append(new_id)
-            node['ids'] = new_ids
-
         for reference in tree.findall(nodes.reference):
             if 'refuri' in reference:
                 m = self.refuri_re.match(reference['refuri'])
@@ -298,66 +292,75 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 reference['refid'] = self.fix_fragment('', reference['refid'])
 
         for target in tree.findall(nodes.target):
-            update_node_id(target)
+            self._update_node_id(target)
 
             next_node: Node = target.next_node(ascend=True)
             if isinstance(next_node, nodes.Element):
-                update_node_id(next_node)
+                self._update_node_id(next_node)
 
         for desc_signature in tree.findall(addnodes.desc_signature):
-            update_node_id(desc_signature)
+            self._update_node_id(desc_signature)
+
+    def _update_node_id(self, node: Element, /) -> None:
+        """Update IDs of given *node*."""
+        new_ids: list[str] = []
+        for node_id in node['ids']:
+            new_id = self.fix_fragment('', node_id)
+            if new_id not in new_ids:
+                new_ids.append(new_id)
+        node['ids'] = new_ids
+
+    @staticmethod
+    def _make_footnote_ref(doc: nodes.document, label: str) -> nodes.footnote_reference:
+        """Create a footnote_reference node with children"""
+        footnote_ref = nodes.footnote_reference('[#]_')
+        footnote_ref.append(nodes.Text(label))
+        doc.note_autofootnote_ref(footnote_ref)
+        return footnote_ref
+
+    @staticmethod
+    def _make_footnote(doc: nodes.document, label: str, uri: str) -> nodes.footnote:
+        """Create a footnote node with children"""
+        footnote = nodes.footnote(uri)
+        para = nodes.paragraph()
+        para.append(nodes.Text(uri))
+        footnote.append(para)
+        footnote.insert(0, nodes.label('', label))
+        doc.note_autofootnote(footnote)
+        return footnote
+
+    @staticmethod
+    def _footnote_spot(tree: nodes.document) -> tuple[Element, int]:
+        """Find or create a spot to place footnotes.
+
+        The function returns the tuple (parent, index).
+        """
+        # The code uses the following heuristic:
+        # a) place them after the last existing footnote
+        # b) place them after an (empty) Footnotes rubric
+        # c) create an empty Footnotes rubric at the end of the document
+        fns = list(tree.findall(nodes.footnote))
+        if fns:
+            fn = fns[-1]
+            return fn.parent, fn.parent.index(fn) + 1
+        for node in tree.findall(nodes.rubric):
+            if len(node) == 1 and node.astext() == FOOTNOTES_RUBRIC_NAME:
+                return node.parent, node.parent.index(node) + 1
+        doc = next(tree.findall(nodes.document))
+        rub = nodes.rubric()
+        rub.append(nodes.Text(FOOTNOTES_RUBRIC_NAME))
+        doc.append(rub)
+        return doc, doc.index(rub) + 1
 
     def add_visible_links(
         self, tree: nodes.document, show_urls: str = 'inline'
     ) -> None:
         """Add visible link targets for external links"""
-
-        def make_footnote_ref(
-            doc: nodes.document, label: str
-        ) -> nodes.footnote_reference:
-            """Create a footnote_reference node with children"""
-            footnote_ref = nodes.footnote_reference('[#]_')
-            footnote_ref.append(nodes.Text(label))
-            doc.note_autofootnote_ref(footnote_ref)
-            return footnote_ref
-
-        def make_footnote(doc: nodes.document, label: str, uri: str) -> nodes.footnote:
-            """Create a footnote node with children"""
-            footnote = nodes.footnote(uri)
-            para = nodes.paragraph()
-            para.append(nodes.Text(uri))
-            footnote.append(para)
-            footnote.insert(0, nodes.label('', label))
-            doc.note_autofootnote(footnote)
-            return footnote
-
-        def footnote_spot(tree: nodes.document) -> tuple[Element, int]:
-            """Find or create a spot to place footnotes.
-
-            The function returns the tuple (parent, index).
-            """
-            # The code uses the following heuristic:
-            # a) place them after the last existing footnote
-            # b) place them after an (empty) Footnotes rubric
-            # c) create an empty Footnotes rubric at the end of the document
-            fns = list(tree.findall(nodes.footnote))
-            if fns:
-                fn = fns[-1]
-                return fn.parent, fn.parent.index(fn) + 1
-            for node in tree.findall(nodes.rubric):
-                if len(node) == 1 and node.astext() == FOOTNOTES_RUBRIC_NAME:
-                    return node.parent, node.parent.index(node) + 1
-            doc = next(tree.findall(nodes.document))
-            rub = nodes.rubric()
-            rub.append(nodes.Text(FOOTNOTES_RUBRIC_NAME))
-            doc.append(rub)
-            return doc, doc.index(rub) + 1
-
         if show_urls == 'no':
             return
         if show_urls == 'footnote':
             doc = next(tree.findall(nodes.document))
-            fn_spot, fn_idx = footnote_spot(tree)
+            fn_spot, fn_idx = self._footnote_spot(tree)
             nr = 1
         for node in list(tree.findall(nodes.reference)):
             uri = node.get('refuri', '')
@@ -371,9 +374,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 elif show_urls == 'footnote':
                     label = FOOTNOTE_LABEL_TEMPLATE % nr
                     nr += 1
-                    footnote_ref = make_footnote_ref(doc, label)
+                    footnote_ref = self._make_footnote_ref(doc, label)
                     node.parent.insert(idx, footnote_ref)
-                    footnote = make_footnote(doc, label, uri)
+                    footnote = self._make_footnote(doc, label, uri)
                     fn_spot.insert(fn_idx, footnote)
                     footnote_ref['refid'] = footnote['ids'][0]
                     footnote.add_backref(footnote_ref['ids'][0])
@@ -422,7 +425,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             __('copying images... '),
             'brown',
             len(self.images),
-            self.app.verbosity,
+            self.config.verbosity,
         ):
             dest = self.images[src]
             try:
@@ -766,7 +769,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(
-                self.config.root_doc, self, prune_toctrees=False, includehidden=False
+                self.config.root_doc,
+                self,
+                tags=self.tags,
+                prune_toctrees=False,
+                includehidden=False,
             )
             refnodes = self.get_refnodes(doctree, [])
             self.toc_add_files(refnodes)

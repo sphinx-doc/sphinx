@@ -168,7 +168,7 @@ def docname_to_domain(docname: str, compaction: bool | str) -> str:
     if isinstance(compaction, str):
         return compaction
     if compaction:
-        return docname.split(SEP, 1)[0]
+        return docname.partition(SEP)[0]
     else:
         return docname
 
@@ -319,7 +319,7 @@ def get_image_filename_for_language(
 ) -> str:
     root, ext = os.path.splitext(filename)
     dirname = os.path.dirname(root)
-    docpath = os.path.dirname(env.docname)
+    docpath = os.path.dirname(env.current_document.docname)
     try:
         return env.config.figure_language_filename.format(
             root=root,

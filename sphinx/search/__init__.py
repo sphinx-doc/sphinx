@@ -81,11 +81,11 @@ class SearchLanguage:
 /**
  * Dummy stemmer for languages without stemming rules.
  */
-var Stemmer = function() {
-  this.stemWord = function(w) {
+var Stemmer = function () {
+  this.stemWord = function (w) {
     return w;
-  }
-}
+  };
+};
 """
 
     _word_re = re.compile(r'\w+')
@@ -300,7 +300,7 @@ class IndexBuilder:
 
         # fallback; try again with language-code
         if lang_class is None and '_' in lang:
-            lang_class = languages.get(lang.split('_')[0])
+            lang_class = languages.get(lang.partition('_')[0])
 
         if lang_class is None:
             self.lang: SearchLanguage = SearchEnglish(options)

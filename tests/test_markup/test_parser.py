@@ -16,7 +16,8 @@ def test_RSTParser_prolog_epilog(RSTStateMachine, app):
     document = new_document('dummy.rst')
     document.settings = Mock(tab_width=8, language_code='')
     parser = RSTParser()
-    parser.set_application(app)
+    parser._config = app.config
+    parser._env = app.env
 
     # normal case
     text = 'hello Sphinx world\nSphinx is a document generator'
@@ -33,8 +34,8 @@ def test_RSTParser_prolog_epilog(RSTStateMachine, app):
     parser.parse(text, document)
     (content, _), _ = RSTStateMachine().run.call_args
     assert list(content.xitems()) == [
-        ('<rst_prolog>', 0, 'this is rst_prolog'),
-        ('<rst_prolog>', 1, 'hello reST!'),
+        ('<rst_prologue>', 0, 'this is rst_prolog'),
+        ('<rst_prologue>', 1, 'hello reST!'),
         ('<generated>', 0, ''),
         ('dummy.rst', 0, 'hello Sphinx world'),
         ('dummy.rst', 1, 'Sphinx is a document generator'),
@@ -49,8 +50,8 @@ def test_RSTParser_prolog_epilog(RSTStateMachine, app):
         ('dummy.rst', 0, 'hello Sphinx world'),
         ('dummy.rst', 1, 'Sphinx is a document generator'),
         ('dummy.rst', 2, ''),
-        ('<rst_epilog>', 0, 'this is rst_epilog'),
-        ('<rst_epilog>', 1, 'good-bye reST!'),
+        ('<rst_epilogue>', 0, 'this is rst_epilog'),
+        ('<rst_epilogue>', 1, 'good-bye reST!'),
     ]
 
     # expandtabs / convert whitespaces

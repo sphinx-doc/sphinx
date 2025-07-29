@@ -14,6 +14,11 @@ from pygments.token import Name, Text
 from sphinx.highlighting import PygmentsBridge
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import TextIO
+
+    from pygments.token import _TokenType
+
     from sphinx.testing.util import SphinxTestApp
 
 if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 18):
@@ -34,14 +39,12 @@ class MyLexer(RegexLexer):
 
 
 class MyFormatter(HtmlFormatter[str]):
-    def format(self, tokensource, outfile):
-        for tok in tokensource:
-            outfile.write(tok[1])
-
-
-class ComplainOnUnhighlighted(PygmentsBridge):
-    def unhighlighted(self, source):
-        raise AssertionError('should highlight %r' % source)
+    def format(
+        self,
+        tokensource: Iterable[tuple[_TokenType, str]],
+        outfile: TextIO,
+    ) -> None:
+        outfile.writelines(tok[1] for tok in tokensource)
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -54,7 +57,7 @@ def test_add_lexer(app: SphinxTestApp) -> None:
 
 
 def test_detect_interactive() -> None:
-    bridge = ComplainOnUnhighlighted('html')
+    bridge = PygmentsBridge('html')
     blocks = [
         """
         >>> testing()
@@ -83,7 +86,7 @@ def test_set_formatter() -> None:
 
 
 @mock.patch('sphinx.highlighting.logger')
-def test_default_highlight(logger):
+def test_default_highlight(logger: mock.Mock) -> None:
     bridge = PygmentsBridge('html')
 
     # default: highlights as python3

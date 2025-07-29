@@ -315,7 +315,7 @@ def test_autodoc_process_bases(app: SphinxTestApp) -> None:
         assert name == 'target.classes.Quux'
         assert obj.__module__ == 'target.classes'
         assert obj.__name__ == 'Quux'
-        assert options == {'show-inheritance': True, 'members': []}
+        assert vars(options) == {'show_inheritance': True, 'members': []}
         assert bases == [typing.List[typing.Union[int, float]]]  # NoQA: UP006, UP007
 
         bases.pop()

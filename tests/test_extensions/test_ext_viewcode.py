@@ -9,9 +9,8 @@ from typing import TYPE_CHECKING
 import pygments
 import pytest
 
-from sphinx.testing.util import SphinxTestApp
-
 if TYPE_CHECKING:
+    from sphinx.application import Sphinx
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -130,7 +129,9 @@ def test_linkcode(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode-find', freshenv=True)
 def test_local_source_files(app: SphinxTestApp) -> None:
-    def find_source(app, modname):
+    def find_source(
+        app: Sphinx, modname: str
+    ) -> tuple[str, dict[str, tuple[str, int, int]]]:
         if modname == 'not_a_package':
             source = app.srcdir / 'not_a_package/__init__.py'
             tags = {
@@ -174,7 +175,7 @@ def test_local_source_files(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode-find-package', freshenv=True)
-def test_find_local_package_import_path(app, status, warning):
+def test_find_local_package_import_path(app: Sphinx) -> None:
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 

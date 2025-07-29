@@ -4,16 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from docutils.io import StringOutput
-
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import _last_modified_time
-from sphinx.writers.text import TextTranslator, TextWriter
+from sphinx.writers.text import TextTranslator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Set
+    from collections.abc import Iterator
 
     from docutils import nodes
 
@@ -59,19 +57,16 @@ class TextBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
-        self.writer = TextWriter(self)
-
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        destination = StringOutput(encoding='utf-8')
-        self.writer.write(doctree, destination)
+        visitor: TextTranslator = self.create_translator(doctree, self)  # type: ignore[assignment]
+        doctree.walkabout(visitor)
+        output = visitor.body
         out_file_name = self.outdir / (docname + self.out_suffix)
         out_file_name.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with open(out_file_name, 'w', encoding='utf-8') as f:
-                f.write(self.writer.output)
+            out_file_name.write_text(output, encoding='utf-8')
         except OSError as err:
             logger.warning(__('error writing file %s: %s'), out_file_name, err)
 

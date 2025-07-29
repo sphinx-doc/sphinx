@@ -244,7 +244,7 @@ class ReSTDomain(Domain):
         'dir': XRefRole(),
         'role': XRefRole(),
     }
-    initial_data: dict[str, dict[tuple[str, str], str]] = {
+    initial_data: ClassVar[dict[str, dict[tuple[str, str], str]]] = {
         'objects': {},  # fullname -> docname, objtype
     }
 
@@ -266,7 +266,7 @@ class ReSTDomain(Domain):
                 location=location,
             )
 
-        self.objects[objtype, name] = (self.env.docname, node_id)
+        self.objects[objtype, name] = (self.env.current_document.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
         for (typ, name), (doc, _node_id) in list(self.objects.items()):

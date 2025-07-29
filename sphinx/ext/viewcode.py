@@ -103,11 +103,11 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
         return None
 
 
-def is_supported_builder(builder: Builder) -> bool:
+def is_supported_builder(builder: type[Builder], viewcode_enable_epub: bool) -> bool:
     return (
         builder.format == 'html'
         and builder.name != 'singlehtml'
-        and (not builder.name.startswith('epub') or builder.config.viewcode_enable_epub)
+        and (not builder.name.startswith('epub') or viewcode_enable_epub)
     )
 
 
@@ -166,7 +166,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             if not modname:
                 continue
             fullname = signode.get('fullname')
-            if not has_tag(modname, fullname, env.docname, refname):
+            if not has_tag(modname, fullname, env.current_document.docname, refname):
                 continue
             if fullname in names:
                 # only one link per name, please
@@ -174,7 +174,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             names.add(fullname)
             pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
             signode += viewcode_anchor(
-                reftarget=pagename, refid=fullname, refdoc=env.docname
+                reftarget=pagename, refid=fullname, refdoc=env.current_document.docname
             )
 
 
@@ -220,7 +220,9 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
     default_priority = 100
 
     def run(self, **kwargs: Any) -> None:
-        if is_supported_builder(self.app.builder):
+        if is_supported_builder(
+            self.env._builder_cls, self.config.viewcode_enable_epub
+        ):
             self.convert_viewcode_anchors()
         else:
             self.remove_viewcode_anchors()
@@ -229,7 +231,7 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
         for node in self.document.findall(viewcode_anchor):
             anchor = nodes.inline('', _('[source]'), classes=['viewcode-link'])
             refnode = make_refnode(
-                self.app.builder,
+                self.env._app.builder,
                 node['refdoc'],
                 node['reftarget'],
                 node['refid'],
@@ -281,7 +283,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
     env = app.env
     if not hasattr(env, '_viewcode_modules'):
         return
-    if not is_supported_builder(app.builder):
+    if not is_supported_builder(env._builder_cls, env.config.viewcode_enable_epub):
         return
     highlighter = app.builder.highlighter  # type: ignore[attr-defined]
     urito = app.builder.get_relative_uri
@@ -293,7 +295,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
         __('highlighting module code... '),
         'blue',
         len(env._viewcode_modules),
-        app.verbosity,
+        app.config.verbosity,
         operator.itemgetter(0),
     ):
         if not entry:
