@@ -305,10 +305,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'em', '', CLASS='property'))
+        self.body.append(self.starttag(node, 'span', '', CLASS='property'))
 
     def depart_desc_annotation(self, node: Element) -> None:
-        self.body.append('</em>')
+        self.body.append('</span>')
 
     ##############################################
 
