@@ -281,6 +281,7 @@ class ExtraTranslatableNodes(SphinxTransform):
             return isinstance(node, target_nodes)
 
         for node in self.document.findall(is_translatable_node):
+            assert isinstance(node, nodes.Element)
             node['translatable'] = True
 
 
