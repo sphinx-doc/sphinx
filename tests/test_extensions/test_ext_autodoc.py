@@ -23,6 +23,7 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
 from sphinx.ext.autodoc._sentinels import ALL
+from sphinx.ext.autodoc._types import _ClassDefProperties
 
 # NEVER import these objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -164,6 +165,16 @@ def test_format_signature(app):
         inst.objpath = [name]
         inst.args = args
         inst.retann = retann
+        inst.props = _ClassDefProperties(
+            obj_type=inst.objtype,
+            name=name,
+            module_name=inst.modname,
+            parts=(name,),
+            docstring_lines=(),
+            bases=getattr(obj, '__bases__', None),
+            _obj=obj,
+            _obj___name__=name,
+        )
         res = inst.format_signature()
         print(res)
         return res

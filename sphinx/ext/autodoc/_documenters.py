@@ -1520,8 +1520,6 @@ class ClassDocumenter(Documenter):
     _signature_class: Any = None
     _signature_method_name: str = ''
 
-    doc_as_attr: bool
-
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
 
@@ -1561,7 +1559,7 @@ class ClassDocumenter(Documenter):
             return False
 
         self.object = obj = im.__dict__.pop('obj', None)
-        for k in 'module', 'parent', 'object_name', 'doc_as_attr', 'objpath', 'modname':
+        for k in 'module', 'parent', 'object_name', 'objpath', 'modname':
             if hasattr(im, k):
                 setattr(self, k, getattr(im, k))
 
@@ -1717,7 +1715,7 @@ class ClassDocumenter(Documenter):
         return result
 
     def format_signature(self, **kwargs: Any) -> str:
-        if self.doc_as_attr:
+        if self.props.doc_as_attr:
             return ''
         if self.config.autodoc_class_signature == 'separated':
             # do not show signatures
@@ -1788,7 +1786,7 @@ class ClassDocumenter(Documenter):
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
 
-        if self.doc_as_attr:
+        if self.props.doc_as_attr:
             self.directivetype = 'attribute'
         super().add_directive_header(sig)
 
@@ -1800,7 +1798,7 @@ class ClassDocumenter(Documenter):
 
         canonical_fullname = self.get_canonical_fullname()
         if (
-            not self.doc_as_attr
+            not self.props.doc_as_attr
             and not isinstance(self.object, NewType)
             and canonical_fullname
             and self.fullname != canonical_fullname
@@ -1808,7 +1806,7 @@ class ClassDocumenter(Documenter):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
         # add inheritance info, if wanted
-        if not self.doc_as_attr and self.options.show_inheritance:
+        if not self.props.doc_as_attr and self.options.show_inheritance:
             if inspect.getorigbases(self.object):
                 # A subclass of generic types
                 # refs: PEP-560 <https://peps.python.org/pep-0560/>
@@ -1863,7 +1861,7 @@ class ClassDocumenter(Documenter):
         if isinstance(self.object, TypeVar):
             if self.object.__doc__ == TypeVar.__doc__:
                 return []
-        if self.doc_as_attr:
+        if self.props.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
             if self.get_variable_comment():
                 return []
@@ -1929,7 +1927,7 @@ class ClassDocumenter(Documenter):
     def get_variable_comment(self) -> list[str] | None:
         try:
             key = ('', '.'.join(self.objpath))
-            if self.doc_as_attr:
+            if self.props.doc_as_attr:
                 analyzer = ModuleAnalyzer.for_module(self.modname)
             else:
                 analyzer = ModuleAnalyzer.for_module(self.get_real_modname())
@@ -1963,7 +1961,7 @@ class ClassDocumenter(Documenter):
             more_content = StringList(
                 [_('alias of TypeVar(%s)') % ', '.join(attrs), ''], source=''
             )
-        if self.doc_as_attr and self.modname != self.get_real_modname():
+        if self.props.doc_as_attr and self.modname != self.get_real_modname():
             try:
                 # override analyzer to obtain doccomment around its definition.
                 self.analyzer = ModuleAnalyzer.for_module(self.modname)
@@ -1971,7 +1969,7 @@ class ClassDocumenter(Documenter):
             except PycodeError:
                 pass
 
-        if self.doc_as_attr and not self.get_variable_comment():
+        if self.props.doc_as_attr and not self.get_variable_comment():
             try:
                 alias = restify(self.object, mode=mode)
                 more_content = StringList([_('alias of %s') % alias], source='')
@@ -1981,7 +1979,7 @@ class ClassDocumenter(Documenter):
         super().add_content(more_content)
 
     def document_members(self, all_members: bool = False) -> None:
-        if self.doc_as_attr:
+        if self.props.doc_as_attr:
             return
         super().document_members(all_members)
 

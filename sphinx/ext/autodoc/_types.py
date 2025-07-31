@@ -82,6 +82,14 @@ class _ClassDefProperties(_ItemProperties):
 
     _obj___name__: str | None
 
+    @property
+    def doc_as_attr(self) -> bool:
+        # if the class is documented under another name, document it
+        # as data/attribute
+        if self._obj___name__ is None:
+            return True
+        return self.parts[-1] != self._obj___name__
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _FunctionDefProperties(_ItemProperties):
