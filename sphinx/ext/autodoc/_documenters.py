@@ -5,6 +5,7 @@ import operator
 import re
 import sys
 from inspect import Parameter, Signature
+from pathlib import Path
 from typing import TYPE_CHECKING, NewType, TypeVar
 
 from docutils.statemachine import StringList
@@ -27,6 +28,13 @@ from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR,
     SUPPRESS,
     UNINITIALIZED_ATTR,
+)
+from sphinx.ext.autodoc._types import (
+    _AssignStatementProperties,
+    _ClassDefProperties,
+    _FunctionDefProperties,
+    _ItemProperties,
+    _ModuleProperties,
 )
 from sphinx.ext.autodoc.importer import (
     _get_attribute_comment,
@@ -62,6 +70,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+    from sphinx.ext.autodoc._types import _AutodocFuncProperty
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
@@ -147,6 +156,8 @@ class Documenter:
     in fact, it will be used to parse an auto directive's options that matches
     the Documenter.
     """
+
+    props: _ItemProperties
 
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
@@ -370,10 +381,51 @@ class Documenter:
             self.env.note_reread()
             return False
 
-        self.object = im.__dict__.pop('obj', None)
+        self.object = obj = im.__dict__.pop('obj', None)
         for k in 'module', 'parent', 'object_name':
             if hasattr(im, k):
                 setattr(self, k, getattr(im, k))
+
+        file_path = getattr(im.module, '__file__', None)
+        try:
+            mod_all = inspect.getall(im.module)
+        except ValueError:
+            mod_all = None
+        if self.objtype == 'module':
+            self.props = _ModuleProperties(
+                obj_type=self.objtype,
+                name=im.object_name,
+                module_name=getattr(im, 'modname', self.modname),
+                docstring_lines=(),
+                file_path=Path(file_path) if file_path is not None else None,
+                all=tuple(mod_all) if mod_all is not None else None,
+                _obj=obj,
+            )
+        elif self.objtype in {'function', 'decorator'}:
+            obj_properties: set[_AutodocFuncProperty] = set()
+            if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+                obj_properties.add('staticmethod')
+            if inspect.isclassmethod(obj):
+                obj_properties.add('classmethod')
+            self.props = _FunctionDefProperties(
+                obj_type=self.objtype,
+                name=im.object_name,
+                module_name=self.modname,
+                parts=tuple(self.objpath),
+                docstring_lines=(),
+                properties=frozenset(obj_properties),
+                _obj=obj,
+            )
+        else:
+            self.props = _ItemProperties(
+                obj_type=self.objtype,
+                name=im.object_name,
+                module_name=self.modname,
+                parts=tuple(self.objpath),
+                docstring_lines=(),
+                _obj=obj,
+            )
+
         return True
 
     def get_real_modname(self) -> str:
@@ -1075,6 +1127,8 @@ class Documenter:
 class ModuleDocumenter(Documenter):
     """Specialized Documenter subclass for modules."""
 
+    props: _ModuleProperties
+
     objtype = 'module'
     content_indent = ''
     _extra_indent = '   '
@@ -1258,6 +1312,8 @@ class ModuleDocumenter(Documenter):
 class FunctionDocumenter(Documenter):
     """Specialized Documenter subclass for functions."""
 
+    props: _FunctionDefProperties
+
     __docstring_signature__ = True
 
     objtype = 'function'
@@ -1410,6 +1466,8 @@ class FunctionDocumenter(Documenter):
 class DecoratorDocumenter(FunctionDocumenter):
     """Specialized Documenter subclass for decorator functions."""
 
+    props: _FunctionDefProperties
+
     objtype = 'decorator'
 
     # must be lower than FunctionDocumenter
@@ -1432,6 +1490,8 @@ _CLASS_NEW_BLACKLIST = frozenset({
 
 class ClassDocumenter(Documenter):
     """Specialized Documenter subclass for classes."""
+
+    props: _ClassDefProperties
 
     __docstring_signature__ = True
 
@@ -1500,10 +1560,22 @@ class ClassDocumenter(Documenter):
             self.env.note_reread()
             return False
 
-        self.object = im.__dict__.pop('obj', None)
+        self.object = obj = im.__dict__.pop('obj', None)
         for k in 'module', 'parent', 'object_name', 'doc_as_attr', 'objpath', 'modname':
             if hasattr(im, k):
                 setattr(self, k, getattr(im, k))
+
+        self.props = _ClassDefProperties(
+            obj_type=self.objtype,  # type: ignore[arg-type]
+            name=im.object_name,
+            module_name=getattr(im, 'modname', self.modname),
+            parts=tuple(getattr(im, 'objpath', self.objpath)),
+            docstring_lines=(),
+            bases=getattr(obj, '__bases__', None),
+            _obj=obj,
+            _obj___name__=getattr(obj, '__name__', None),
+        )
+
         return True
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
@@ -1935,6 +2007,8 @@ class ClassDocumenter(Documenter):
 class ExceptionDocumenter(ClassDocumenter):
     """Specialized ClassDocumenter subclass for exceptions."""
 
+    props: _ClassDefProperties
+
     objtype = 'exception'
     member_order = 10
 
@@ -1960,6 +2034,8 @@ class ExceptionDocumenter(ClassDocumenter):
 
 class DataDocumenter(Documenter):
     """Specialized Documenter subclass for data items."""
+
+    props: _AssignStatementProperties
 
     __uninitialized_global_variable__ = True
 
@@ -2006,10 +2082,23 @@ class DataDocumenter(Documenter):
             self.env.note_reread()
             return False
 
-        self.object = im.__dict__.pop('obj', None)
+        self.object = obj = im.__dict__.pop('obj', None)
         for k in 'module', 'parent', 'object_name':
             if hasattr(im, k):
                 setattr(self, k, getattr(im, k))
+
+        self.props = _AssignStatementProperties(
+            obj_type=self.objtype,  # type: ignore[arg-type]
+            name=im.object_name,
+            module_name=self.modname,
+            parts=tuple(self.objpath),
+            docstring_lines=(),
+            value=...,
+            annotation='',
+            class_var=False,
+            instance_var=False,
+            _obj=obj,
+        )
         return True
 
     def should_suppress_value_header(self) -> bool:
@@ -2110,6 +2199,8 @@ class DataDocumenter(Documenter):
 class MethodDocumenter(Documenter):
     """Specialized Documenter subclass for methods (normal, static and class)."""
 
+    props: _FunctionDefProperties
+
     __docstring_signature__ = True
 
     objtype = 'method'
@@ -2139,10 +2230,25 @@ class MethodDocumenter(Documenter):
             self.env.note_reread()
             return False
 
-        self.object = im.__dict__.pop('obj', None)
+        self.object = obj = im.__dict__.pop('obj', None)
         for k in 'module', 'parent', 'object_name', 'member_order':
             if hasattr(im, k):
                 setattr(self, k, getattr(im, k))
+
+        obj_properties: set[_AutodocFuncProperty] = set()
+        if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+            obj_properties.add('staticmethod')
+        if inspect.isclassmethod(obj):
+            obj_properties.add('classmethod')
+        self.props = _FunctionDefProperties(
+            obj_type=self.objtype,  # type: ignore[arg-type]
+            name=im.object_name,
+            module_name=self.modname,
+            parts=tuple(self.objpath),
+            docstring_lines=(),
+            properties=frozenset(obj_properties),
+            _obj=obj,
+        )
         return True
 
     def format_args(self, **kwargs: Any) -> str:
@@ -2379,6 +2485,8 @@ class MethodDocumenter(Documenter):
 class AttributeDocumenter(Documenter):
     """Specialized Documenter subclass for attributes."""
 
+    props: _AssignStatementProperties
+
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
 
@@ -2450,10 +2558,23 @@ class AttributeDocumenter(Documenter):
             self.env.note_reread()
             return False
 
-        self.object = im.__dict__.pop('obj', None)
+        self.object = obj = im.__dict__.pop('obj', None)
         for k in 'module', 'parent', 'object_name':
             if hasattr(im, k):
                 setattr(self, k, getattr(im, k))
+
+        self.props = _AssignStatementProperties(
+            obj_type=self.objtype,  # type: ignore[arg-type]
+            name=im.object_name,
+            module_name=self.modname,
+            parts=tuple(self.objpath),
+            docstring_lines=(),
+            value=...,
+            annotation='',
+            class_var=False,
+            instance_var=False,
+            _obj=obj,
+        )
         return True
 
     @property
@@ -2600,6 +2721,8 @@ class AttributeDocumenter(Documenter):
 class PropertyDocumenter(Documenter):
     """Specialized Documenter subclass for properties."""
 
+    props: _FunctionDefProperties
+
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
 
@@ -2643,10 +2766,23 @@ class PropertyDocumenter(Documenter):
         if im is None:
             return False
 
-        self.object = im.__dict__.pop('obj', None)
+        self.object = obj = im.__dict__.pop('obj', None)
         for k in 'module', 'parent', 'object_name', 'isclassmethod':
             if hasattr(im, k):
                 setattr(self, k, getattr(im, k))
+
+        obj_properties: set[_AutodocFuncProperty] = set()
+        if getattr(im, 'isclassmethod', False):
+            obj_properties.add('classmethod')
+        self.props = _FunctionDefProperties(
+            obj_type=self.objtype,  # type: ignore[arg-type]
+            name=im.object_name,
+            module_name=self.modname,
+            parts=tuple(self.objpath),
+            docstring_lines=(),
+            properties=frozenset(obj_properties),
+            _obj=obj,
+        )
         return True
 
     def format_args(self, **kwargs: Any) -> str:
