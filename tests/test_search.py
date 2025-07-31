@@ -43,7 +43,7 @@ class DummyEnvironment:
         self.version = version
         self.domains = domains
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> Any:
         if name.startswith('_search_index_'):
             setattr(self, name, {})
         return getattr(self, name, {})
