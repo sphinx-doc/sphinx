@@ -2730,9 +2730,6 @@ class PropertyDocumenter(Documenter):
     # before AttributeDocumenter
     priority = AttributeDocumenter.priority + 1
 
-    # Support for class properties. Note: these only work on Python 3.9.
-    isclassmethod: bool = False
-
     @classmethod
     def can_document_member(
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
@@ -2805,7 +2802,8 @@ class PropertyDocumenter(Documenter):
         sourcename = self.get_sourcename()
         if inspect.isabstractmethod(self.object):
             self.add_line('   :abstractmethod:', sourcename)
-        if self.isclassmethod:
+        # Support for class properties. Note: these only work on Python 3.9.
+        if self.props.is_classmethod:
             self.add_line('   :classmethod:', sourcename)
 
         func = self._get_property_getter()

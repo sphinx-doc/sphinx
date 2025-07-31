@@ -97,6 +97,10 @@ class _FunctionDefProperties(_ItemProperties):
 
     properties: frozenset[_AutodocFuncProperty]
 
+    @property
+    def is_classmethod(self) -> bool:
+        return 'classmethod' in self.properties
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _AssignStatementProperties(_ItemProperties):
