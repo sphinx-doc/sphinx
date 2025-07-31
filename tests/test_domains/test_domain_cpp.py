@@ -23,6 +23,7 @@ from sphinx.addnodes import (
     desc_signature_line,
     pending_xref,
 )
+from sphinx.domains.cpp._ast import ASTTemplateParamType
 from sphinx.domains.cpp._ids import _id_prefix, _max_id
 from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol
@@ -1515,8 +1516,8 @@ def test_domain_cpp_ast_xref_parsing() -> None:
         ('template<typename> class...', True),
     ],
 )
-def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
-    def parse_template_parameter(param: str):
+def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool) -> None:
+    def parse_template_parameter(param: str) -> ASTTemplateParamType:
         ast = parse('type', 'template<' + param + '> X')
         return ast.templatePrefix.templates[0].params[0]
 
@@ -1531,7 +1532,7 @@ def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
 #     raise DefinitionError
 
 
-def filter_warnings(warning: StringIO, file):
+def filter_warnings(warning: StringIO, file: str) -> list[str]:
     lines = warning.getvalue().split('\n')
     res = [
         l

@@ -1629,7 +1629,7 @@ class _EnumFormatter:
         return self._node('class', self.name, doc, args=args, indent=indent, **options)
 
     @staticmethod
-    def _preamble_args(functional_constructor: bool = False):
+    def _preamble_args(functional_constructor: bool = False) -> str:
         """EnumType.__call__() is a dual-purpose method:
 
         * Look an enum member (valid only if the enum has members)
