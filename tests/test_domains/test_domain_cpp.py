@@ -35,23 +35,25 @@ from sphinx.writers.text import STDINDENT
 if TYPE_CHECKING:
     from io import StringIO
 
+    from sphinx.domains.cpp._ast import ASTDeclaration
 
-def parse(name, string):
+
+def parse(name: str, string: str) -> ASTDeclaration:
     class Config:
         cpp_id_attributes = ['id_attr']
         cpp_paren_attributes = ['paren_attr']
 
-    parser = DefinitionParser(string, location=None, config=Config())
+    parser = DefinitionParser(string, location=None, config=Config())  # type: ignore[arg-type]
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
     if name == 'enum':
-        ast.scoped = None  # simulate unscoped enum
+        ast.scoped = None  # type: ignore[attr-defined] # simulate unscoped enum
     return ast
 
 
-def _check(name, input, id_dict, output, key, as_text_output):
+def _check(name, input: str, id_dict: dict[int, str], output, key, as_text_output):
     if key is None:
         key = name
     key += ' '
@@ -80,7 +82,7 @@ def _check(name, input, id_dict, output, key, as_text_output):
     parent_node = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parent_node += signode
-    ast.describe_signature(signode, 'lastIsName', symbol, options={})
+    ast.describe_signature(signode, 'lastIsName', symbol, options={})  # type: ignore[arg-type]
     res_as_text = parent_node.astext()
     if res_as_text != output_as_text:
         print()
@@ -90,13 +92,13 @@ def _check(name, input, id_dict, output, key, as_text_output):
         print('Node:', parent_node)
         raise DefinitionError
 
-    id_expected = [None]
+    id_expected: list[str | None] = [None]
     for i in range(1, _max_id + 1):
         if i in id_dict:
             id_expected.append(id_dict[i])
         else:
             id_expected.append(id_expected[i - 1])
-    id_actual = [None]
+    id_actual: list[str | None] = [None]
     for i in range(1, _max_id + 1):
         try:
             id = ast.get_id(version=i)
@@ -105,14 +107,13 @@ def _check(name, input, id_dict, output, key, as_text_output):
         except NoOldIdError:
             id_actual.append(None)
 
-    res = [True]
-    for i in range(1, _max_id + 1):
-        res.append(id_expected[i] == id_actual[i])
+    res_bools = [True]
+    res_bools.extend(id_expected[i] == id_actual[i] for i in range(1, _max_id + 1))
 
-    if not all(res):
+    if not all(res_bools):
         print('input:    %s' % input.rjust(20))
         for i in range(1, _max_id + 1):
-            if res[i]:
+            if res_bools[i]:
                 continue
             print('Error in id version %d.' % i)
             print('result:   %s' % id_actual[i])
@@ -121,7 +122,14 @@ def _check(name, input, id_dict, output, key, as_text_output):
         raise DefinitionError
 
 
-def check(name, input, id_dict, output=None, key=None, as_text_output=None):
+def check(
+    name: str,
+    input: str,
+    id_dict: dict[int, str],
+    output=None,
+    key=None,
+    as_text_output=None,
+) -> None:
     if output is None:
         output = input
     # First, check without semicolon
@@ -177,7 +185,7 @@ def test_domain_cpp_ast_fundamental_types(type_, id_v2):
 
 
 def test_domain_cpp_ast_expressions() -> None:
-    def expr_check(expr, id, id4=None):
+    def expr_check(expr: str, id: str, id4: str | None = None):
         ids = 'IE1CIA%s_1aE'
         # call .format() on the expr to unescape double curly braces
         id_dict = {2: ids % expr.format(), 3: ids % id}
@@ -189,7 +197,7 @@ def test_domain_cpp_ast_expressions() -> None:
             cpp_id_attributes = ['id_attr']
             cpp_paren_attributes = ['paren_attr']
 
-        parser = DefinitionParser(expr, location=None, config=Config())
+        parser = DefinitionParser(expr, location=None, config=Config())  # type: ignore[arg-type]
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         res = str(ast)
@@ -1472,12 +1480,12 @@ def test_domain_cpp_ast_attributes() -> None:
     check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {2: '3Foo'})
 
 
-def check_ast_xref_parsing(target):
+def check_ast_xref_parsing(target: str) -> None:
     class Config:
         cpp_id_attributes = ['id_attr']
         cpp_paren_attributes = ['paren_attr']
 
-    parser = DefinitionParser(target, location='', config=Config())
+    parser = DefinitionParser(target, location='', config=Config())  # type: ignore[arg-type]
     parser.parse_xref_object()
     parser.assert_end()
 
@@ -1518,6 +1526,8 @@ def test_domain_cpp_ast_xref_parsing() -> None:
 def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
     def parse_template_parameter(param: str):
         ast = parse('type', 'template<' + param + '> X')
+        assert ast.templatePrefix is not None
+        assert ast.templatePrefix.templates is not None
         return ast.templatePrefix.templates[0].params[0]
 
     ast = parse_template_parameter(param)
