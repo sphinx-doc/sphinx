@@ -19,7 +19,6 @@ from sphinx.ext.autodoc._directive_options import (
     inherited_members_option,
     member_order_option,
     members_option,
-    merge_members_option,
 )
 from sphinx.ext.autodoc._sentinels import (
     ALL,
@@ -62,6 +61,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
+    from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
@@ -198,7 +198,7 @@ class Documenter:
         self.env: BuildEnvironment = directive.env
         self._current_document: _CurrentDocument = directive.env.current_document
         self._events: EventManager = directive.env.events
-        self.options = directive.genopt
+        self.options: _AutoDocumenterOptions = directive.genopt
         self.name = name
         self.indent = indent
         # the module and object path within the module, and the fully
@@ -794,7 +794,7 @@ class Documenter:
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False
                         else:
-                            keep = has_doc or self.options.undoc_members
+                            keep = has_doc or self.options.undoc_members  # type: ignore[assignment]
                     else:
                         keep = False
                 elif (namespace, membername) in attr_docs:
@@ -823,7 +823,7 @@ class Documenter:
                         keep = False
                     else:
                         # ignore undocumented members if :undoc-members: is not given
-                        keep = has_doc or self.options.undoc_members
+                        keep = has_doc or self.options.undoc_members  # type: ignore[assignment]
 
                 if isinstance(obj, ObjectMember) and obj.skipped:
                     # forcedly skipped member (ex. a module attribute not defined in __all__)
@@ -873,7 +873,7 @@ class Documenter:
         if self.objpath:
             self._current_document.autodoc_class = self.objpath[0]
 
-        want_all = (
+        want_all = bool(
             all_members or self.options.inherited_members or self.options.members is ALL
         )
         # find out which members are documentable
@@ -1101,7 +1101,7 @@ class ModuleDocumenter(Documenter):
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
-        merge_members_option(self.options)
+        self.options = self.options.merge_member_options()
         self.__all__: Sequence[str] | None = None
 
     def add_content(self, more_content: StringList | None) -> None:
@@ -1210,6 +1210,7 @@ class ModuleDocumenter(Documenter):
 
                 return False, list(members.values())
         else:
+            assert self.options.members is not ALL
             memberlist = self.options.members or []
             ret = []
             for name in memberlist:
@@ -1469,12 +1470,12 @@ class ClassDocumenter(Documenter):
 
             # show __init__() method
             if self.options.special_members is None:
-                self.options['special-members'] = ['__new__', '__init__']
+                self.options.special_members = ['__new__', '__init__']
             else:
                 self.options.special_members.append('__new__')
                 self.options.special_members.append('__init__')
 
-        merge_members_option(self.options)
+        self.options = self.options.merge_member_options()
 
     @classmethod
     def can_document_member(
@@ -1769,6 +1770,7 @@ class ClassDocumenter(Documenter):
                 return False, []
             # specific members given
             selected = []
+            assert self.options.members is not ALL
             for name in self.options.members:
                 if name in members:
                     selected.append(members[name])
@@ -1800,9 +1802,10 @@ class ClassDocumenter(Documenter):
         if lines is not None:
             return lines
 
-        classdoc_from = self.options.get(
-            'class-doc-from', self.config.autoclass_content
-        )
+        if self.options.class_doc_from is not None:
+            classdoc_from = self.options.class_doc_from
+        else:
+            classdoc_from = self.config.autoclass_content
 
         docstrings = []
         attrdocstring = getdoc(self.object, self.get_attr)

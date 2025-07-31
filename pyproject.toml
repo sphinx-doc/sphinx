@@ -76,7 +76,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.9",
     "Jinja2>=3.1",
     "Pygments>=2.17",
-    "docutils>=0.20,<0.22",
+    "docutils>=0.20,<0.23",
     "snowballstemmer>=2.2",
     "babel>=2.13",
     "alabaster>=0.7.14",
@@ -93,7 +93,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.12.7",
     "mypy==1.17.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -136,7 +136,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.12.7",
     "sphinx-lint>=0.9",
 ]
 package = [

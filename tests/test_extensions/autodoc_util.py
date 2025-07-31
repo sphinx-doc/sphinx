@@ -3,7 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
-from sphinx.ext.autodoc._directive_options import _process_documenter_options
+from sphinx.ext.autodoc._directive_options import (
+    _AutoDocumenterOptions,
+    _process_documenter_options,
+)
 
 # NEVER import those objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -27,11 +30,12 @@ def do_autodoc(
     if not app.env.current_document.docname:
         app.env.current_document.docname = 'index'  # set dummy docname
     doccls = app.registry.documenters[objtype]
-    docoptions = _process_documenter_options(
-        doccls,
+    opts = _process_documenter_options(
+        option_spec=doccls.option_spec,
         default_options=app.config.autodoc_default_options,
         options=options,
     )
+    docoptions = _AutoDocumenterOptions.from_directive_options(opts)
     state = Mock()
     state.document.settings.tab_width = 8
     bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1, state)
