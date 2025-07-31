@@ -318,8 +318,8 @@ Sphinx but is set to automatically include it from a third-party site.
       This has been renamed to :confval:`mathjax2_config`.
       :confval:`mathjax_config` is still supported for backwards compatibility.
 
-:mod:`sphinxcontib.jsmath` -- Render math via JavaScript
---------------------------------------------------------
+:mod:`sphinxcontrib.jsmath` -- Render math via JavaScript
+---------------------------------------------------------
 
 .. module:: sphinx.ext.jsmath
    :synopsis: Render math using JavaScript via JSMath.
