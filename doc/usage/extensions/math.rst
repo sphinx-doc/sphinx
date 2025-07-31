@@ -321,7 +321,7 @@ Sphinx but is set to automatically include it from a third-party site.
 :mod:`sphinxcontrib.jsmath` -- Render math via JavaScript
 ---------------------------------------------------------
 
-.. module:: sphinx.ext.jsmath
+.. module:: sphinxcontrib.jsmath
    :synopsis: Render math using JavaScript via JSMath.
 
 This extension works just as the MathJax extension does, but uses the older
