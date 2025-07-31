@@ -329,6 +329,13 @@ package jsMath_. jsMath is no longer actively developed, but it has the
 advantage that the size of the JavaScript package is much smaller than
 MathJax.
 
+.. versionadded:: 0.5
+   The :mod:`!sphinx.ext.jsmath` extension.
+.. versionchanged:: 2.0
+   :mod:`!sphinx.ext.jsmath` was moved to :mod:`sphinxcontrib.jsmath`.
+.. versionremoved:: 4.0
+   The alias from :mod:`!sphinx.ext.jsmath` to :mod:`sphinxcontrib.jsmath`.
+
 Config value:
 
 .. confval:: jsmath_path
