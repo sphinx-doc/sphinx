@@ -156,7 +156,7 @@ def test_NodeMatcher():
         ),
     ],
 )
-def test_extract_messages(rst: str, node_cls: type[nodes.Node], count: int) -> None:
+def test_extract_messages(rst: str, node_cls: type[nodes.Element], count: int) -> None:
     msg = extract_messages(_get_doctree(dedent(rst)))
     assert_node_count(msg, node_cls, count)
 
@@ -184,15 +184,15 @@ def test_extract_messages_without_rawsource() -> None:
 
 
 def test_clean_astext() -> None:
-    paragraph_node = nodes.paragraph(text='hello world')
-    assert clean_astext(paragraph_node) == 'hello world'
+    node: nodes.Element = nodes.paragraph(text='hello world')
+    assert clean_astext(node) == 'hello world'
 
-    image_node = nodes.image(alt='hello world')
-    assert clean_astext(image_node) == ''
+    node = nodes.image(alt='hello world')
+    assert clean_astext(node) == ''
 
-    paragraph_node = nodes.paragraph(text='hello world')
-    paragraph_node += nodes.raw('', 'raw text', format='html')
-    assert clean_astext(paragraph_node) == 'hello world'
+    node = nodes.paragraph(text='hello world')
+    node += nodes.raw('', 'raw text', format='html')
+    assert clean_astext(node) == 'hello world'
 
 
 @pytest.mark.parametrize(
