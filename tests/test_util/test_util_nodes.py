@@ -44,7 +44,11 @@ def _get_doctree(text):
     return document
 
 
-def assert_node_count(messages: Iterable[tuple[nodes.Element, str]], node_type: type[nodes.Node], expect_count: int) -> None:
+def assert_node_count(
+    messages: Iterable[tuple[nodes.Element, str]],
+    node_type: type[nodes.Node],
+    expect_count: int,
+) -> None:
     count = 0
     node_list = [node for node, msg in messages]
     for node in node_list:
