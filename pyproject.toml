@@ -76,7 +76,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.9",
     "Jinja2>=3.1",
     "Pygments>=2.17",
-    "docutils>=0.20,<0.22",
+    "docutils>=0.20,<0.23",
     "snowballstemmer>=2.2",
     "babel>=2.13",
     "alabaster>=0.7.14",
@@ -93,7 +93,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.12.7",
     "mypy==1.17.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -136,7 +136,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.12.7",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -247,7 +247,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_highlighting",
     "tests.test_project",
     "tests.test_versioning",
     # tests/test_builders
@@ -256,10 +255,8 @@ module = [
     "tests.test_builders.test_build_html_5_output",
     "tests.test_builders.test_build_html_assets",
     "tests.test_builders.test_build_html_maths",
-    "tests.test_builders.test_build_html_numfig",
     "tests.test_builders.test_build_html_toctree",
     "tests.test_builders.test_build_linkcheck",
-    "tests.test_builders.test_build_warnings",
     # tests/test_directives
     "tests.test_directives.test_directive_code",
     "tests.test_directives.test_directives_no_typesetting",
@@ -271,11 +268,6 @@ module = [
     "tests.test_extensions.test_ext_intersphinx_cache",
     "tests.test_extensions.test_ext_math",
     "tests.test_extensions.test_ext_napoleon",
-    "tests.test_extensions.test_ext_todo",
-    "tests.test_extensions.test_ext_viewcode",
-    # tests/test_intl
-    "tests.test_intl.test_catalogs",
-    "tests.test_intl.test_locale",
     # tests/test_markup
     "tests.test_markup.test_markup",
     "tests.test_markup.test_parser",
@@ -284,8 +276,6 @@ module = [
     "tests.test_theming.test_theming",
     # tests/test_transforms
     "tests.test_transforms.test_transforms_post_transforms_images",
-    # tests/test_util
-    "tests.test_util.test_util_docutils",
     # tests/test_writers
     "tests.test_writers.test_docutilsconf",
 ]

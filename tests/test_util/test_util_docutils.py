@@ -17,6 +17,8 @@ from sphinx.util.docutils import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from sphinx.builders import Builder
     from sphinx.testing.util import SphinxTestApp
 
@@ -41,7 +43,7 @@ def test_register_node() -> None:
     assert not hasattr(nodes.SparseNodeVisitor, 'depart_custom_node')
 
 
-def test_SphinxFileOutput(tmp_path):
+def test_SphinxFileOutput(tmp_path: Path) -> None:
     content = 'Hello Sphinx World'
 
     # write test.txt at first
@@ -79,16 +81,16 @@ def test_SphinxTranslator(app: SphinxTestApp) -> None:
             self.called: list[str] = []
             super().__init__(document, builder)
 
-        def visit_document(self, node):
+        def visit_document(self, node: nodes.document) -> None:
             pass
 
-        def depart_document(self, node):
+        def depart_document(self, node: nodes.document) -> None:
             pass
 
-        def visit_inline(self, node):
+        def visit_inline(self, node: nodes.inline) -> None:
             self.called.append('visit_inline')
 
-        def depart_inline(self, node):
+        def depart_inline(self, node: nodes.inline) -> None:
             self.called.append('depart_inline')
 
     document = new_document('')
