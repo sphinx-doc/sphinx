@@ -23,7 +23,6 @@ from sphinx.addnodes import (
     desc_signature_line,
     pending_xref,
 )
-from sphinx.domains.cpp._ast import ASTTemplateParamType
 from sphinx.domains.cpp._ids import _id_prefix, _max_id
 from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol
@@ -35,6 +34,8 @@ from sphinx.writers.text import STDINDENT
 
 if TYPE_CHECKING:
     from io import StringIO
+
+    from sphinx.domains.cpp._ast import ASTTemplateParamType
 
 
 def parse(name, string):
