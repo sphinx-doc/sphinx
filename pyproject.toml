@@ -93,7 +93,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.12.7",
     "mypy==1.17.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -136,7 +136,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.12.7",
     "sphinx-lint>=0.9",
 ]
 package = [
