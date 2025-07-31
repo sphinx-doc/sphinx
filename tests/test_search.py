@@ -43,15 +43,10 @@ class DummyEnvironment:
         self.version = version
         self.domains = domains
 
-    def __getattr__(self, name: str) -> dict[Any, Any]:
+    def __getattr__(self, name: str) -> Any:
         if name.startswith('_search_index_'):
             setattr(self, name, {})
-        result = getattr(self, name, {})
-
-        # This assertion is not guaranteed to be true, but while it is in our
-        # tests, it means we have a good type hint.
-        assert result == {}
-        return result
+        return getattr(self, name, {})
 
     def __str__(self) -> str:
         return f'DummyEnvironment({self.version!r}, {self.domains!r})'
