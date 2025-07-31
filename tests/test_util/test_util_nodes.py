@@ -185,7 +185,7 @@ def test_extract_messages_without_rawsource() -> None:
 
 def test_clean_astext() -> None:
     node: nodes.Element
-    node = nodes.paragraph(text='hello world')```
+    node = nodes.paragraph(text='hello world')
     assert clean_astext(node) == 'hello world'
 
     node = nodes.image(alt='hello world')
