@@ -290,7 +290,7 @@ class Documenter:
 
         with mock(mock_imports):
             module_name, parts = _resolve_name(
-                objtype=self.objtype,
+                objtype=objtype,
                 module_name=module_name,
                 path=path,
                 base=base,
@@ -323,73 +323,18 @@ class Documenter:
             )
             return None
 
-        # props: _ItemProperties
-        # if objtype == 'module':
-        #     props = _ModuleProperties(
-        #     obj_type=objtype,
-        #     name='',
-        #     module_name=module_name,
-        #     parts=parts,
-        #     docstring_lines=(),
-        #     _obj=object(),
-        # )
-        # elif objtype in {'class', 'exception'}:
-        #     props = _ClassDefProperties(
-        #     obj_type=objtype,
-        #     name='',
-        #     module_name=module_name,
-        #     parts=parts,
-        #     docstring_lines=(),
-        #     _obj=object(),
-        # )
-        # elif objtype in {'function', 'method', 'property', 'decorator'}:
-        #     props = _FunctionDefProperties(
-        #     obj_type=objtype,
-        #     name='',
-        #     module_name=module_name,
-        #     parts=parts,
-        #     docstring_lines=(),
-        #     _obj=object(),
-        # )
-        # elif objtype in {'attribute', 'data'}:
-        #     props = _AssignStatementProperties(
-        #     obj_type=objtype,
-        #     name='',
-        #     module_name=module_name,
-        #     parts=parts,
-        #     docstring_lines=(),
-        #     _obj=object(),
-        # )
-        # else:
-        #     props = _ItemProperties(
-        #     obj_type=objtype,
-        #     name='',
-        #     module_name=module_name,
-        #     parts=parts,
-        #     docstring_lines=(),
-        #     _obj=object(),
-        # )
-        # self.props = props
-        # self.args = args
-        # self.retann = retann
-        # self.modname = props.module_name
-        # self.objpath = list(props.parts)
-        # self.fullname = props.full_name
-
         self.args = args
         self.retann = retann
-        self.modname = module_name
-        self.objpath = list(parts)
-        self.fullname = '.'.join((module_name, *parts))
 
         # now, import the module and get object to document
 
+        props: _ItemProperties
         obj_properties: set[_AutodocFuncProperty]
         if objtype in {'class', 'exception'}:
             try:
                 im = _import_class(
-                    module_name=self.modname,
-                    obj_path=self.objpath,
+                    module_name=module_name,
+                    obj_path=list(parts),
                     mock_imports=self.config.autodoc_mock_imports,
                     get_attr=self.get_attr,
                 )
@@ -403,24 +348,23 @@ class Documenter:
                 if hasattr(im, k):
                     setattr(self, k, getattr(im, k))
 
-            self.props = _ClassDefProperties(
-                obj_type=self.objtype,  # type: ignore[arg-type]
+            props = _ClassDefProperties(
+                obj_type=objtype,
                 name=im.object_name,
-                module_name=getattr(im, 'modname', self.modname),
-                parts=tuple(getattr(im, 'objpath', self.objpath)),
+                module_name=getattr(im, 'modname', module_name),
+                parts=tuple(getattr(im, 'objpath', list(parts))),
                 docstring_lines=(),
                 bases=getattr(obj, '__bases__', None),
                 _obj=obj,
                 _obj___name__=getattr(obj, '__name__', None),
             )
+            self.props = props
 
-            return True
-
-        if objtype == 'data':
+        elif objtype == 'data':
             try:
                 im = _import_assignment_data(
-                    module_name=self.modname,
-                    obj_path=self.objpath,
+                    module_name=module_name,
+                    obj_path=list(parts),
                     mock_imports=self.config.autodoc_mock_imports,
                     type_aliases=self.config.autodoc_type_aliases,
                     get_attr=self.get_attr,
@@ -435,11 +379,11 @@ class Documenter:
                 if hasattr(im, k):
                     setattr(self, k, getattr(im, k))
 
-            self.props = _AssignStatementProperties(
-                obj_type=self.objtype,  # type: ignore[arg-type]
+            props = _AssignStatementProperties(
+                obj_type=objtype,
                 name=im.object_name,
-                module_name=self.modname,
-                parts=tuple(self.objpath),
+                module_name=module_name,
+                parts=parts,
                 docstring_lines=(),
                 value=...,
                 annotation='',
@@ -447,13 +391,13 @@ class Documenter:
                 instance_var=False,
                 _obj=obj,
             )
-            return True
+            self.props = props
 
-        if objtype == 'method':
+        elif objtype == 'method':
             try:
                 im = _import_method(
-                    module_name=self.modname,
-                    obj_path=self.objpath,
+                    module_name=module_name,
+                    obj_path=list(parts),
                     member_order=self.member_order,
                     mock_imports=self.config.autodoc_mock_imports,
                     get_attr=self.get_attr,
@@ -473,22 +417,22 @@ class Documenter:
                 obj_properties.add('staticmethod')
             if inspect.isclassmethod(obj):
                 obj_properties.add('classmethod')
-            self.props = _FunctionDefProperties(
-                obj_type=self.objtype,  # type: ignore[arg-type]
+            props = _FunctionDefProperties(
+                obj_type=objtype,
                 name=im.object_name,
-                module_name=self.modname,
-                parts=tuple(self.objpath),
+                module_name=module_name,
+                parts=parts,
                 docstring_lines=(),
                 properties=frozenset(obj_properties),
                 _obj=obj,
             )
-            return True
+            self.props = props
 
-        if objtype == 'attribute':
+        elif objtype == 'attribute':
             try:
                 im = _import_assignment_attribute(
-                    module_name=self.modname,
-                    obj_path=self.objpath,
+                    module_name=module_name,
+                    obj_path=list(parts),
                     mock_imports=self.config.autodoc_mock_imports,
                     type_aliases=self.config.autodoc_type_aliases,
                     get_attr=self.get_attr,
@@ -503,11 +447,11 @@ class Documenter:
                 if hasattr(im, k):
                     setattr(self, k, getattr(im, k))
 
-            self.props = _AssignStatementProperties(
-                obj_type=self.objtype,  # type: ignore[arg-type]
+            props = _AssignStatementProperties(
+                obj_type=objtype,
                 name=im.object_name,
-                module_name=self.modname,
-                parts=tuple(self.objpath),
+                module_name=module_name,
+                parts=parts,
                 docstring_lines=(),
                 value=...,
                 annotation='',
@@ -515,13 +459,13 @@ class Documenter:
                 instance_var=False,
                 _obj=obj,
             )
-            return True
+            self.props = props
 
-        if objtype == 'property':
+        elif objtype == 'property':
             try:
                 im_ = _import_property(
-                    module_name=self.modname,
-                    obj_path=self.objpath,
+                    module_name=module_name,
+                    obj_path=list(parts),
                     mock_imports=self.config.autodoc_mock_imports,
                     get_attr=self.get_attr,
                 )
@@ -541,22 +485,22 @@ class Documenter:
             obj_properties = set()
             if getattr(im, 'isclassmethod', False):
                 obj_properties.add('classmethod')
-            self.props = _FunctionDefProperties(
-                obj_type=self.objtype,  # type: ignore[arg-type]
+            props = _FunctionDefProperties(
+                obj_type=objtype,
                 name=im.object_name,
-                module_name=self.modname,
-                parts=tuple(self.objpath),
+                module_name=module_name,
+                parts=parts,
                 docstring_lines=(),
                 properties=frozenset(obj_properties),
                 _obj=obj,
             )
-            return True
+            self.props = props
 
-        if True:
+        else:
             try:
                 im = _import_object(
-                    module_name=self.modname,
-                    obj_path=self.objpath,
+                    module_name=module_name,
+                    obj_path=list(parts),
                     mock_imports=self.config.autodoc_mock_imports,
                     get_attr=self.get_attr,
                 )
@@ -575,42 +519,49 @@ class Documenter:
                 mod_all = inspect.getall(im.module)
             except ValueError:
                 mod_all = None
-            if self.objtype == 'module':
-                self.props = _ModuleProperties(
-                    obj_type=self.objtype,
+            if objtype == 'module':
+                props = _ModuleProperties(
+                    obj_type=objtype,
                     name=im.object_name,
-                    module_name=getattr(im, 'modname', self.modname),
+                    module_name=getattr(im, 'modname', module_name),
                     docstring_lines=(),
                     file_path=Path(file_path) if file_path is not None else None,
                     all=tuple(mod_all) if mod_all is not None else None,
                     _obj=obj,
                 )
-            elif self.objtype in {'function', 'decorator'}:
+                self.props = props
+            elif objtype in {'function', 'decorator'}:
                 obj_properties = set()
                 if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
                     obj_properties.add('staticmethod')
                 if inspect.isclassmethod(obj):
                     obj_properties.add('classmethod')
-                self.props = _FunctionDefProperties(
-                    obj_type=self.objtype,
+                props = _FunctionDefProperties(
+                    obj_type=objtype,
                     name=im.object_name,
-                    module_name=self.modname,
-                    parts=tuple(self.objpath),
+                    module_name=module_name,
+                    parts=parts,
                     docstring_lines=(),
                     properties=frozenset(obj_properties),
                     _obj=obj,
                 )
+                self.props = props
             else:
-                self.props = _ItemProperties(
-                    obj_type=self.objtype,
+                props = _ItemProperties(
+                    obj_type=objtype,
                     name=im.object_name,
-                    module_name=self.modname,
-                    parts=tuple(self.objpath),
+                    module_name=module_name,
+                    parts=parts,
                     docstring_lines=(),
                     _obj=obj,
                 )
+                self.props = props
 
-            return True
+        self.args = args
+        self.retann = retann
+        self.modname = module_name
+        self.objpath = list(parts)
+        self.fullname = '.'.join((module_name, *parts))
         return True
 
     def resolve_name(
