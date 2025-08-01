@@ -559,9 +559,9 @@ class Documenter:
 
         self.args = args
         self.retann = retann
-        self.modname = module_name
-        self.objpath = list(parts)
-        self.fullname = '.'.join((module_name, *parts))
+        self.modname = self.props.module_name
+        self.objpath = list(self.props.parts)
+        self.fullname = self.props.full_name
         return True
 
     def resolve_name(
