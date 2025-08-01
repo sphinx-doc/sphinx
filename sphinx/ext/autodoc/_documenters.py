@@ -249,6 +249,10 @@ class Documenter:
         name = self.name
         objtype = self.objtype
         mock_imports = self.config.autodoc_mock_imports
+        type_aliases = self.config.autodoc_type_aliases
+        current_document = self._current_document
+        env = self.env
+        get_attr = self.get_attr
 
         # parse_name()
 
@@ -298,9 +302,9 @@ class Documenter:
                 path=path,
                 base=base,
                 parents=parents,
-                current_document=self._current_document,
-                ref_context_py_module=self.env.ref_context.get('py:module'),
-                ref_context_py_class=self.env.ref_context.get('py:class', ''),
+                current_document=current_document,
+                ref_context_py_module=env.ref_context.get('py:module'),
+                ref_context_py_class=env.ref_context.get('py:class', ''),
             )
 
         if objtype == 'module' and (args or retann):
@@ -334,33 +338,33 @@ class Documenter:
             im = _import_object(
                 module_name=module_name,
                 obj_path=list(parts),
-                mock_imports=self.config.autodoc_mock_imports,
-                get_attr=self.get_attr,
+                mock_imports=mock_imports,
+                get_attr=get_attr,
             )
         except ImportError as exc:
             if objtype == 'data':
                 im = _import_data_declaration(
                     module_name=module_name,
                     obj_path=parts,
-                    mock_imports=self.config.autodoc_mock_imports,
-                    type_aliases=self.config.autodoc_type_aliases,
+                    mock_imports=mock_imports,
+                    type_aliases=type_aliases,
                 )
             elif objtype == 'attribute':
                 im = _import_attribute_declaration(
                     module_name=module_name,
                     obj_path=parts,
-                    mock_imports=self.config.autodoc_mock_imports,
-                    type_aliases=self.config.autodoc_type_aliases,
-                    get_attr=self.get_attr,
+                    mock_imports=mock_imports,
+                    type_aliases=type_aliases,
+                    get_attr=get_attr,
                 )
             else:
                 im = None
             if im is None:
                 logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
+                env.note_reread()
                 return None
 
-        self.object = obj = im.__dict__.pop('obj', None)
+        obj = im.__dict__.pop('obj', None)
         for k in 'module', 'parent', 'object_name':
             if hasattr(im, k):
                 setattr(self, k, getattr(im, k))
@@ -447,7 +451,7 @@ class Documenter:
                 __dict__ = safe_getattr(im.parent, '__dict__', {})
                 obj = __dict__.get(parts[-1])
                 if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
-                    self.object = obj = obj.__func__
+                    obj = obj.__func__
                     obj_properties.add('classmethod')
                 else:
                     return None
@@ -549,6 +553,7 @@ class Documenter:
         self.modname = props.module_name
         self.objpath = list(props.parts)
         self.fullname = props.full_name
+        self.object = obj
         return True
 
     def resolve_name(
