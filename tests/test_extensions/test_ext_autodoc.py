@@ -22,8 +22,8 @@ from sphinx.ext.autodoc._directive_options import (
     inherited_members_option,
 )
 from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
+from sphinx.ext.autodoc._property_types import _ClassDefProperties
 from sphinx.ext.autodoc._sentinels import ALL
-from sphinx.ext.autodoc._types import _ClassDefProperties
 
 # NEVER import these objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge

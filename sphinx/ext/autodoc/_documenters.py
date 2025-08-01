@@ -21,6 +21,13 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
+from sphinx.ext.autodoc._property_types import (
+    _AssignStatementProperties,
+    _ClassDefProperties,
+    _FunctionDefProperties,
+    _ItemProperties,
+    _ModuleProperties,
+)
 from sphinx.ext.autodoc._sentinels import (
     ALL,
     INSTANCE_ATTR,
@@ -28,13 +35,6 @@ from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR,
     SUPPRESS,
     UNINITIALIZED_ATTR,
-)
-from sphinx.ext.autodoc._types import (
-    _AssignStatementProperties,
-    _ClassDefProperties,
-    _FunctionDefProperties,
-    _ItemProperties,
-    _ModuleProperties,
 )
 from sphinx.ext.autodoc.importer import (
     _get_attribute_comment,
@@ -70,7 +70,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._types import _AutodocFuncProperty
+    from sphinx.ext.autodoc._property_types import _AutodocFuncProperty
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
