@@ -579,12 +579,6 @@ class Documenter:
 
             return True
 
-        ret = self.import_object()
-        if not ret:
-            return None
-
-        return True
-
     def resolve_name(
         self, modname: str | None, parents: Any, path: str, base: str
     ) -> tuple[str | None, list[str]]:
