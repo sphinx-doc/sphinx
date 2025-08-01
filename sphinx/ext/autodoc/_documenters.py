@@ -333,7 +333,6 @@ class Documenter:
         # now, import the module and get object to document
 
         props: _ItemProperties
-        obj_properties: set[_AutodocFuncProperty]
         try:
             im = _import_object(
                 module_name=module_name,
@@ -371,6 +370,7 @@ class Documenter:
         object_name = im.object_name
         obj = im.obj
 
+        obj_properties: set[_AutodocFuncProperty] = set()
         if objtype == 'module':
             file_path = getattr(module, '__file__', None)
             try:
@@ -407,7 +407,6 @@ class Documenter:
                 _obj___name__=getattr(obj, '__name__', None),
             )
         elif objtype in {'function', 'decorator'}:
-            obj_properties = set()
             if inspect.isstaticmethod(obj, cls=parent, name=object_name):
                 obj_properties.add('staticmethod')
             if inspect.isclassmethod(obj):
@@ -425,18 +424,10 @@ class Documenter:
             # to distinguish classmethod/staticmethod
             obj_ = parent.__dict__.get(object_name, obj)
             if inspect.isstaticmethod(obj_, cls=parent, name=object_name):
-                # document static members before regular methods
-                self.member_order -= 1  # type: ignore[misc]
-            elif inspect.isclassmethod(obj_):
-                # document class methods before static methods as
-                # they usually behave as alternative constructors
-                self.member_order -= 2  # type: ignore[misc]
-
-            obj_properties = set()
-            if inspect.isstaticmethod(obj, cls=parent, name=object_name):
                 obj_properties.add('staticmethod')
-            if inspect.isclassmethod(obj):
+            elif inspect.isclassmethod(obj_):
                 obj_properties.add('classmethod')
+
             props = _FunctionDefProperties(
                 obj_type=objtype,
                 name=object_name,
@@ -447,7 +438,6 @@ class Documenter:
                 _obj=obj,
             )
         elif objtype == 'property':
-            obj_properties = set()
             if not inspect.isproperty(obj):
                 # Support for class properties. Note: these only work on Python 3.9.
                 __dict__ = safe_getattr(parent, '__dict__', {})
@@ -559,6 +549,14 @@ class Documenter:
         self.parent = parent
         self.object_name = object_name
         self.object = obj
+        if objtype == 'method':
+            if 'staticmethod' in obj_properties:
+                # document static members before regular methods
+                self.member_order -= 1  # type: ignore[misc]
+            elif 'classmethod' in obj_properties:
+                # document class methods before static methods as
+                # they usually behave as alternative constructors
+                self.member_order -= 2  # type: ignore[misc]
         return True
 
     def resolve_name(
