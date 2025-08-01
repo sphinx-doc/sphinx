@@ -323,6 +323,7 @@ class Documenter:
             )
             return None
 
+        prop_cls: type[_ItemProperties]
         if objtype == 'module':
             prop_cls = _ModuleProperties
         elif objtype in {'class', 'exception'}:
@@ -349,6 +350,235 @@ class Documenter:
         self.fullname = props.full_name
 
         # now, import the module and get object to document
+
+        obj_properties: set[_AutodocFuncProperty]
+        if objtype in {'class', 'exception'}:
+            try:
+                im = _import_class(
+                    module_name=self.modname,
+                    obj_path=self.objpath,
+                    mock_imports=self.config.autodoc_mock_imports,
+                    get_attr=self.get_attr,
+                )
+            except ImportError as exc:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return None
+
+            self.object = obj = im.__dict__.pop('obj', None)
+            for k in 'module', 'parent', 'object_name', 'objpath', 'modname':
+                if hasattr(im, k):
+                    setattr(self, k, getattr(im, k))
+
+            self.props = _ClassDefProperties(
+                obj_type=self.objtype,  # type: ignore[arg-type]
+                name=im.object_name,
+                module_name=getattr(im, 'modname', self.modname),
+                parts=tuple(getattr(im, 'objpath', self.objpath)),
+                docstring_lines=(),
+                bases=getattr(obj, '__bases__', None),
+                _obj=obj,
+                _obj___name__=getattr(obj, '__name__', None),
+            )
+
+            return True
+
+        if objtype == 'data':
+            try:
+                im = _import_assignment_data(
+                    module_name=self.modname,
+                    obj_path=self.objpath,
+                    mock_imports=self.config.autodoc_mock_imports,
+                    type_aliases=self.config.autodoc_type_aliases,
+                    get_attr=self.get_attr,
+                )
+            except ImportError as exc:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return None
+
+            self.object = obj = im.__dict__.pop('obj', None)
+            for k in 'module', 'parent', 'object_name':
+                if hasattr(im, k):
+                    setattr(self, k, getattr(im, k))
+
+            self.props = _AssignStatementProperties(
+                obj_type=self.objtype,  # type: ignore[arg-type]
+                name=im.object_name,
+                module_name=self.modname,
+                parts=tuple(self.objpath),
+                docstring_lines=(),
+                value=...,
+                annotation='',
+                class_var=False,
+                instance_var=False,
+                _obj=obj,
+            )
+            return True
+
+        if objtype == 'method':
+            try:
+                im = _import_method(
+                    module_name=self.modname,
+                    obj_path=self.objpath,
+                    member_order=self.member_order,
+                    mock_imports=self.config.autodoc_mock_imports,
+                    get_attr=self.get_attr,
+                )
+            except ImportError as exc:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return None
+
+            self.object = obj = im.__dict__.pop('obj', None)
+            for k in 'module', 'parent', 'object_name', 'member_order':
+                if hasattr(im, k):
+                    setattr(self, k, getattr(im, k))
+
+            obj_properties = set()
+            if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+                obj_properties.add('staticmethod')
+            if inspect.isclassmethod(obj):
+                obj_properties.add('classmethod')
+            self.props = _FunctionDefProperties(
+                obj_type=self.objtype,  # type: ignore[arg-type]
+                name=im.object_name,
+                module_name=self.modname,
+                parts=tuple(self.objpath),
+                docstring_lines=(),
+                properties=frozenset(obj_properties),
+                _obj=obj,
+            )
+            return True
+
+        if objtype == 'attribute':
+            try:
+                im = _import_assignment_attribute(
+                    module_name=self.modname,
+                    obj_path=self.objpath,
+                    mock_imports=self.config.autodoc_mock_imports,
+                    type_aliases=self.config.autodoc_type_aliases,
+                    get_attr=self.get_attr,
+                )
+            except ImportError as exc:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return None
+
+            self.object = obj = im.__dict__.pop('obj', None)
+            for k in 'module', 'parent', 'object_name':
+                if hasattr(im, k):
+                    setattr(self, k, getattr(im, k))
+
+            self.props = _AssignStatementProperties(
+                obj_type=self.objtype,  # type: ignore[arg-type]
+                name=im.object_name,
+                module_name=self.modname,
+                parts=tuple(self.objpath),
+                docstring_lines=(),
+                value=...,
+                annotation='',
+                class_var=False,
+                instance_var=False,
+                _obj=obj,
+            )
+            return True
+
+        if objtype == 'property':
+            try:
+                im_ = _import_property(
+                    module_name=self.modname,
+                    obj_path=self.objpath,
+                    mock_imports=self.config.autodoc_mock_imports,
+                    get_attr=self.get_attr,
+                )
+            except ImportError as exc:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return None
+            if im_ is None:
+                return None
+            im = im_
+
+            self.object = obj = im.__dict__.pop('obj', None)
+            for k in 'module', 'parent', 'object_name', 'isclassmethod':
+                if hasattr(im, k):
+                    setattr(self, k, getattr(im, k))
+
+            obj_properties = set()
+            if getattr(im, 'isclassmethod', False):
+                obj_properties.add('classmethod')
+            self.props = _FunctionDefProperties(
+                obj_type=self.objtype,  # type: ignore[arg-type]
+                name=im.object_name,
+                module_name=self.modname,
+                parts=tuple(self.objpath),
+                docstring_lines=(),
+                properties=frozenset(obj_properties),
+                _obj=obj,
+            )
+            return True
+
+        if True:
+            try:
+                im = _import_object(
+                    module_name=self.modname,
+                    obj_path=self.objpath,
+                    mock_imports=self.config.autodoc_mock_imports,
+                    get_attr=self.get_attr,
+                )
+            except ImportError as exc:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return None
+
+            self.object = obj = im.__dict__.pop('obj', None)
+            for k in 'module', 'parent', 'object_name':
+                if hasattr(im, k):
+                    setattr(self, k, getattr(im, k))
+
+            file_path = getattr(im.module, '__file__', None)
+            try:
+                mod_all = inspect.getall(im.module)
+            except ValueError:
+                mod_all = None
+            if self.objtype == 'module':
+                self.props = _ModuleProperties(
+                    obj_type=self.objtype,
+                    name=im.object_name,
+                    module_name=getattr(im, 'modname', self.modname),
+                    docstring_lines=(),
+                    file_path=Path(file_path) if file_path is not None else None,
+                    all=tuple(mod_all) if mod_all is not None else None,
+                    _obj=obj,
+                )
+            elif self.objtype in {'function', 'decorator'}:
+                obj_properties = set()
+                if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+                    obj_properties.add('staticmethod')
+                if inspect.isclassmethod(obj):
+                    obj_properties.add('classmethod')
+                self.props = _FunctionDefProperties(
+                    obj_type=self.objtype,
+                    name=im.object_name,
+                    module_name=self.modname,
+                    parts=tuple(self.objpath),
+                    docstring_lines=(),
+                    properties=frozenset(obj_properties),
+                    _obj=obj,
+                )
+            else:
+                self.props = _ItemProperties(
+                    obj_type=self.objtype,
+                    name=im.object_name,
+                    module_name=self.modname,
+                    parts=tuple(self.objpath),
+                    docstring_lines=(),
+                    _obj=obj,
+                )
+
+            return True
+
         ret = self.import_object()
         if not ret:
             return None
