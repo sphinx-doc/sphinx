@@ -37,6 +37,7 @@ from sphinx.ext.autodoc.importer import (
     _import_object,
     _import_property,
     _is_runtime_instance_attribute_not_commented,
+    _is_type_like,
     get_class_members,
 )
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
@@ -65,6 +66,11 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
+
+if sys.version_info[:2] < (3, 12):
+    from typing_extensions import TypeAliasType
+else:
+    from typing import TypeAliasType
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 
@@ -1481,9 +1487,7 @@ class ClassDocumenter(Documenter):
     def can_document_member(
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
-        return isinstance(member, type) or (
-            isattr and isinstance(member, NewType | TypeVar)
-        )
+        return isinstance(member, type) or (isattr and _is_type_like(member))
 
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
@@ -1507,7 +1511,7 @@ class ClassDocumenter(Documenter):
         return True
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if isinstance(self.object, NewType | TypeVar):
+        if _is_type_like(self.object):
             # Suppress signature
             return None, None, None
 
@@ -1718,6 +1722,8 @@ class ClassDocumenter(Documenter):
 
         if self.doc_as_attr:
             self.directivetype = 'attribute'
+        if isinstance(self.object, TypeAliasType):
+            self.directivetype = 'type'
         super().add_directive_header(sig)
 
         if isinstance(self.object, NewType | TypeVar):
@@ -1734,6 +1740,11 @@ class ClassDocumenter(Documenter):
             and self.fullname != canonical_fullname
         ):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
+
+        if isinstance(self.object, TypeAliasType):
+            aliased = stringify_annotation(self.object.__value__)
+            self.add_line('   :canonical: %s' % aliased, sourcename)
+            return
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
