@@ -228,6 +228,8 @@ class Documenter:
         # the module analyzer to get at attribute docs, or None
         self.analyzer: ModuleAnalyzer | None = None
 
+        self._load_object_has_been_called = False
+
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
         """Returns registered Documenter classes"""
@@ -241,6 +243,9 @@ class Documenter:
             self.directive.result.append('', source, *lineno)
 
     def _load_object_by_name(self) -> Literal[True] | None:
+        if self._load_object_has_been_called:
+            return True
+
         name = self.name
         objtype = self.objtype
         mock_imports = self.config.autodoc_mock_imports
@@ -554,6 +559,7 @@ class Documenter:
                 # document class methods before static methods as
                 # they usually behave as alternative constructors
                 self.member_order -= 2  # type: ignore[misc]
+        self._load_object_has_been_called = True
         return True
 
     def resolve_name(
