@@ -247,11 +247,6 @@ class Documenter:
         objtype = self.objtype
         mock_imports = self.config.autodoc_mock_imports
 
-        args: str | None = None
-        retann: str | None = ''
-        modname: str | None = ''
-        parts: Sequence[str] = ()
-
         # parse_name()
 
         # Determine what module to import and what attribute to document.
@@ -271,34 +266,44 @@ class Documenter:
                 name,
                 type='autodoc',
             )
+            # need a module to import
+            logger.warning(
+                __(
+                    "don't know which module to import for autodocumenting "
+                    '%r (try placing a "module" or "currentmodule" directive '
+                    'in the document, or giving an explicit module name)'
+                ),
+                name,
+                type='autodoc',
+            )
+            return None
+
+        explicit_modname, path, base, _tp_list, args, retann = matched.groups()
+
+        # support explicit module and class name separation via ::
+        if explicit_modname is not None:
+            modname = explicit_modname[:-2]
+            parents = path.rstrip('.').split('.') if path else []
+        else:
+            modname = None
+            parents = []
+
+        with mock(mock_imports):
+            modname, parts = _resolve_name(
+                objtype=self.objtype,
+                module_name=modname,
+                path=path,
+                base=base,
+                parents=parents,
+                current_document=self._current_document,
+                ref_context_py_module=self.env.ref_context.get('py:module'),
+                ref_context_py_class=self.env.ref_context.get('py:class', ''),
+            )
+
+        if not modname:
             ret = False
         else:
-            explicit_modname, path, base, _tp_list, args, retann = matched.groups()
-
-            # support explicit module and class name separation via ::
-            if explicit_modname is not None:
-                modname = explicit_modname[:-2]
-                parents = path.rstrip('.').split('.') if path else []
-            else:
-                modname = None
-                parents = []
-
-            with mock(mock_imports):
-                modname, parts = _resolve_name(
-                    objtype=self.objtype,
-                    module_name=modname,
-                    path=path,
-                    base=base,
-                    parents=parents,
-                    current_document=self._current_document,
-                    ref_context_py_module=self.env.ref_context.get('py:module'),
-                    ref_context_py_class=self.env.ref_context.get('py:class', ''),
-                )
-
-            if not modname:
-                ret = False
-            else:
-                ret = True
+            ret = True
 
         fullname = '.'.join((modname or '', *parts))
         if objtype == 'module' and (args or retann):
