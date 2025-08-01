@@ -457,40 +457,6 @@ class Documenter:
                 _obj=obj,
             )
 
-        elif objtype == 'property':
-            try:
-                im_ = _import_property(
-                    module_name=module_name,
-                    obj_path=list(parts),
-                    mock_imports=self.config.autodoc_mock_imports,
-                    get_attr=self.get_attr,
-                )
-            except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return None
-            if im_ is None:
-                return None
-            im = im_
-
-            self.object = obj = im.__dict__.pop('obj', None)
-            for k in 'module', 'parent', 'object_name', 'isclassmethod':
-                if hasattr(im, k):
-                    setattr(self, k, getattr(im, k))
-
-            obj_properties = set()
-            if getattr(im, 'isclassmethod', False):
-                obj_properties.add('classmethod')
-            props = _FunctionDefProperties(
-                obj_type=objtype,
-                name=im.object_name,
-                module_name=module_name,
-                parts=parts,
-                docstring_lines=(),
-                properties=frozenset(obj_properties),
-                _obj=obj,
-            )
-
         else:
             try:
                 im = _import_object(
@@ -509,12 +475,12 @@ class Documenter:
                 if hasattr(im, k):
                     setattr(self, k, getattr(im, k))
 
-            file_path = getattr(im.module, '__file__', None)
-            try:
-                mod_all = inspect.getall(im.module)
-            except ValueError:
-                mod_all = None
             if objtype == 'module':
+                file_path = getattr(im.module, '__file__', None)
+                try:
+                    mod_all = inspect.getall(im.module)
+                except ValueError:
+                    mod_all = None
                 props = _ModuleProperties(
                     obj_type=objtype,
                     name=im.object_name,
@@ -530,6 +496,29 @@ class Documenter:
                     obj_properties.add('staticmethod')
                 if inspect.isclassmethod(obj):
                     obj_properties.add('classmethod')
+                props = _FunctionDefProperties(
+                    obj_type=objtype,
+                    name=im.object_name,
+                    module_name=module_name,
+                    parts=parts,
+                    docstring_lines=(),
+                    properties=frozenset(obj_properties),
+                    _obj=obj,
+                )
+            elif objtype == 'property':
+                obj_properties = set()
+                if not inspect.isproperty(obj):
+                    # Support for class properties. Note: these only work on Python 3.9.
+                    __dict__ = safe_getattr(im.parent, '__dict__', {})
+                    obj = __dict__.get(parts[-1])
+                    if isinstance(obj, classmethod) and inspect.isproperty(
+                        obj.__func__
+                    ):
+                        self.object = obj = obj.__func__
+                        obj_properties.add('classmethod')
+                    else:
+                        return None
+
                 props = _FunctionDefProperties(
                     obj_type=objtype,
                     name=im.object_name,
