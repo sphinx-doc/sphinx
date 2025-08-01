@@ -343,14 +343,14 @@ class Documenter:
             )
         except ImportError as exc:
             if objtype == 'data':
-                im = _import_data_declaration(
+                im_ = _import_data_declaration(
                     module_name=module_name,
                     obj_path=parts,
                     mock_imports=mock_imports,
                     type_aliases=type_aliases,
                 )
             elif objtype == 'attribute':
-                im = _import_attribute_declaration(
+                im_ = _import_attribute_declaration(
                     module_name=module_name,
                     obj_path=parts,
                     mock_imports=mock_imports,
@@ -358,11 +358,13 @@ class Documenter:
                     get_attr=get_attr,
                 )
             else:
-                im = None
-            if im is None:
+                im_ = None
+            if im_ is None:
                 logger.warning(exc.args[0], type='autodoc', subtype='import_object')
                 env.note_reread()
                 return None
+            else:
+                im = im_
 
         obj = im.__dict__.pop('obj', None)
         for k in 'module', 'parent', 'object_name':
@@ -424,11 +426,11 @@ class Documenter:
             obj_ = im.parent.__dict__.get(im.object_name, obj)
             if inspect.isstaticmethod(obj_, cls=im.parent, name=im.object_name):
                 # document static members before regular methods
-                self.member_order -= 1
+                self.member_order -= 1  # type: ignore[misc]
             elif inspect.isclassmethod(obj_):
                 # document class methods before static methods as
                 # they usually behave as alternative constructors
-                self.member_order -= 2
+                self.member_order -= 2  # type: ignore[misc]
 
             obj_properties = set()
             if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):

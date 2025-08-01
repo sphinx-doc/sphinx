@@ -707,14 +707,16 @@ def _import_assignment_data(
             get_attr=get_attr,
         )
     except ImportError:
-        im = _import_data_declaration(
+        im_ = _import_data_declaration(
             module_name=module_name,
             obj_path=obj_path,
             mock_imports=mock_imports,
             type_aliases=type_aliases,
         )
-        if im is None:
+        if im_ is None:
             raise
+        else:
+            im = im_
 
     # Update __annotations__ to support type_comment and so on
     annotations = dict(inspect.getannotations(im.parent))
@@ -747,15 +749,17 @@ def _import_assignment_attribute(
             get_attr=get_attr,
         )
     except ImportError:
-        im = _import_attribute_declaration(
+        im_ = _import_attribute_declaration(
             module_name=module_name,
             obj_path=obj_path,
             mock_imports=mock_imports,
             type_aliases=type_aliases,
             get_attr=get_attr,
         )
-        if im is None:
+        if im_ is None:
             raise
+        else:
+            im = im_
 
     if _is_slots_attribute(parent=im.parent, obj_path=obj_path):
         im.obj = SLOTS_ATTR
