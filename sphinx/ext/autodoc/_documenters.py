@@ -372,14 +372,14 @@ class Documenter:
         obj = im.obj
 
         if objtype == 'module':
-            file_path = getattr(im.module, '__file__', None)
+            file_path = getattr(module, '__file__', None)
             try:
-                mod_all = inspect.getall(im.module)
+                mod_all = inspect.getall(module)
             except ValueError:
                 mod_all = None
             props = _ModuleProperties(
                 obj_type=objtype,
-                name=im.object_name,
+                name=object_name,
                 module_name=module_name,
                 docstring_lines=(),
                 file_path=Path(file_path) if file_path is not None else None,
@@ -398,7 +398,7 @@ class Documenter:
 
             props = _ClassDefProperties(
                 obj_type=objtype,
-                name=im.object_name,
+                name=object_name,
                 module_name=module_name,
                 parts=parts,
                 docstring_lines=(),
@@ -408,13 +408,13 @@ class Documenter:
             )
         elif objtype in {'function', 'decorator'}:
             obj_properties = set()
-            if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+            if inspect.isstaticmethod(obj, cls=parent, name=object_name):
                 obj_properties.add('staticmethod')
             if inspect.isclassmethod(obj):
                 obj_properties.add('classmethod')
             props = _FunctionDefProperties(
                 obj_type=objtype,
-                name=im.object_name,
+                name=object_name,
                 module_name=module_name,
                 parts=parts,
                 docstring_lines=(),
@@ -423,8 +423,8 @@ class Documenter:
             )
         elif objtype == 'method':
             # to distinguish classmethod/staticmethod
-            obj_ = im.parent.__dict__.get(im.object_name, obj)
-            if inspect.isstaticmethod(obj_, cls=im.parent, name=im.object_name):
+            obj_ = parent.__dict__.get(object_name, obj)
+            if inspect.isstaticmethod(obj_, cls=parent, name=object_name):
                 # document static members before regular methods
                 self.member_order -= 1  # type: ignore[misc]
             elif inspect.isclassmethod(obj_):
@@ -433,13 +433,13 @@ class Documenter:
                 self.member_order -= 2  # type: ignore[misc]
 
             obj_properties = set()
-            if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+            if inspect.isstaticmethod(obj, cls=parent, name=object_name):
                 obj_properties.add('staticmethod')
             if inspect.isclassmethod(obj):
                 obj_properties.add('classmethod')
             props = _FunctionDefProperties(
                 obj_type=objtype,
-                name=im.object_name,
+                name=object_name,
                 module_name=module_name,
                 parts=parts,
                 docstring_lines=(),
@@ -450,7 +450,7 @@ class Documenter:
             obj_properties = set()
             if not inspect.isproperty(obj):
                 # Support for class properties. Note: these only work on Python 3.9.
-                __dict__ = safe_getattr(im.parent, '__dict__', {})
+                __dict__ = safe_getattr(parent, '__dict__', {})
                 obj = __dict__.get(parts[-1])
                 if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
                     obj = obj.__func__
@@ -460,7 +460,7 @@ class Documenter:
 
             props = _FunctionDefProperties(
                 obj_type=objtype,
-                name=im.object_name,
+                name=object_name,
                 module_name=module_name,
                 parts=parts,
                 docstring_lines=(),
@@ -469,8 +469,8 @@ class Documenter:
             )
         elif objtype == 'data':
             # Update __annotations__ to support type_comment and so on
-            annotations = dict(inspect.getannotations(im.parent))
-            im.parent.__annotations__ = annotations
+            annotations = dict(inspect.getannotations(parent))
+            parent.__annotations__ = annotations
 
             try:
                 analyzer = ModuleAnalyzer.for_module(module_name)
@@ -486,7 +486,7 @@ class Documenter:
 
             props = _AssignStatementProperties(
                 obj_type=objtype,
-                name=im.object_name,
+                name=object_name,
                 module_name=module_name,
                 parts=parts,
                 docstring_lines=(),
@@ -497,17 +497,17 @@ class Documenter:
                 _obj=obj,
             )
         elif objtype == 'attribute':
-            if _is_slots_attribute(parent=im.parent, obj_path=parts):
+            if _is_slots_attribute(parent=parent, obj_path=parts):
                 obj = SLOTS_ATTR
             elif inspect.isenumattribute(obj):
                 obj = obj.value
-            if im.parent:
+            if parent:
                 # Update __annotations__ to support type_comment and so on.
                 try:
-                    annotations = dict(inspect.getannotations(im.parent))
-                    im.parent.__annotations__ = annotations
+                    annotations = dict(inspect.getannotations(parent))
+                    parent.__annotations__ = annotations
 
-                    for cls in inspect.getmro(im.parent):
+                    for cls in inspect.getmro(parent):
                         try:
                             module = safe_getattr(cls, '__module__')
                             qualname = safe_getattr(cls, '__qualname__')
@@ -529,7 +529,7 @@ class Documenter:
 
             props = _AssignStatementProperties(
                 obj_type=objtype,
-                name=im.object_name,
+                name=object_name,
                 module_name=module_name,
                 parts=parts,
                 docstring_lines=(),
@@ -542,7 +542,7 @@ class Documenter:
         else:
             props = _ItemProperties(
                 obj_type=objtype,
-                name=im.object_name,
+                name=object_name,
                 module_name=module_name,
                 parts=parts,
                 docstring_lines=(),
