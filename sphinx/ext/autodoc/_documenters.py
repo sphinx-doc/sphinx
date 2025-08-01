@@ -330,36 +330,7 @@ class Documenter:
 
         props: _ItemProperties
         obj_properties: set[_AutodocFuncProperty]
-        if objtype in {'class', 'exception'}:
-            try:
-                im = _import_class(
-                    module_name=module_name,
-                    obj_path=list(parts),
-                    mock_imports=self.config.autodoc_mock_imports,
-                    get_attr=self.get_attr,
-                )
-            except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return None
-
-            self.object = obj = im.__dict__.pop('obj', None)
-            for k in 'module', 'parent', 'object_name', 'objpath', 'modname':
-                if hasattr(im, k):
-                    setattr(self, k, getattr(im, k))
-
-            props = _ClassDefProperties(
-                obj_type=objtype,
-                name=im.object_name,
-                module_name=getattr(im, 'modname', module_name),
-                parts=tuple(getattr(im, 'objpath', list(parts))),
-                docstring_lines=(),
-                bases=getattr(obj, '__bases__', None),
-                _obj=obj,
-                _obj___name__=getattr(obj, '__name__', None),
-            )
-
-        elif objtype == 'data':
+        if objtype == 'data':
             try:
                 im = _import_assignment_data(
                     module_name=module_name,
@@ -484,11 +455,29 @@ class Documenter:
                 props = _ModuleProperties(
                     obj_type=objtype,
                     name=im.object_name,
-                    module_name=getattr(im, 'modname', module_name),
+                    module_name=module_name,
                     docstring_lines=(),
                     file_path=Path(file_path) if file_path is not None else None,
                     all=tuple(mod_all) if mod_all is not None else None,
                     _obj=obj,
+                )
+            elif objtype in {'class', 'exception'}:
+                if isinstance(obj, NewType | TypeVar):
+                    obj_module_name = getattr(obj, '__module__', module_name)
+                    if obj_module_name != module_name and module_name.startswith(obj_module_name):
+                        bases = module_name[len(obj_module_name):].strip('.').split('.')
+                        parts = tuple(bases) + parts
+                        module_name = obj_module_name
+
+                props = _ClassDefProperties(
+                    obj_type=objtype,
+                    name=im.object_name,
+                    module_name=module_name,
+                    parts=parts,
+                    docstring_lines=(),
+                    bases=getattr(obj, '__bases__', None),
+                    _obj=obj,
+                    _obj___name__=getattr(obj, '__name__', None),
                 )
             elif objtype in {'function', 'decorator'}:
                 obj_properties = set()
