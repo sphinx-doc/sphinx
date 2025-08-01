@@ -27,6 +27,7 @@ from sphinx.ext.autodoc._sentinels import ALL
 
 # NEVER import these objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
+from sphinx.ext.autodoc.importer import _parse_name
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
@@ -80,58 +81,54 @@ processed_signatures = []
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_parse_name(app):
-    def verify(objtype, name, result):
-        inst = app.registry.documenters[objtype](directive, name)
-        assert inst.parse_name()
-        assert (inst.modname, inst.objpath, inst.args, inst.retann) == result
+    env = app.env
+    current_document = env.current_document
 
-    directive = make_directive_bridge(app.env)
+    def parse(objtype, name):
+        parsed = _parse_name(
+            name=name, objtype=objtype, current_document=current_document, env=env
+        )
+        if parsed is None:
+            return None
+        module_name, parts, args, retann = parsed
+        return module_name, list(parts), args, retann
 
     # for modules
-    verify('module', 'test_ext_autodoc', ('test_ext_autodoc', [], None, None))
-    verify('module', 'test.test_ext_autodoc', ('test.test_ext_autodoc', [], None, None))
-    verify('module', 'test(arg)', ('test', [], 'arg', None))
+    parsed = parse('module', 'test_ext_autodoc')
+    assert parsed == ('test_ext_autodoc', [], None, None)
+    parsed = parse('module', 'test.test_ext_autodoc')
+    assert parsed == ('test.test_ext_autodoc', [], None, None)
+    parsed = parse('module', 'test(arg)')
+    assert parsed is None
     assert 'signature arguments' in app.warning.getvalue()
 
     # for functions/classes
-    verify(
-        'function',
-        'test_ext_autodoc.raises',
-        ('test_ext_autodoc', ['raises'], None, None),
-    )
-    verify(
-        'function',
-        'test_ext_autodoc.raises(exc) -> None',
-        ('test_ext_autodoc', ['raises'], 'exc', 'None'),
-    )
-    directive.env.current_document.autodoc_module = 'test_ext_autodoc'
-    verify('function', 'raises', ('test_ext_autodoc', ['raises'], None, None))
-    directive.env.current_document.autodoc_module = ''
+    parsed = parse('function', 'test_ext_autodoc.raises')
+    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
+    parsed = parse('function', 'test_ext_autodoc.raises(exc) -> None')
+    assert parsed == ('test_ext_autodoc', ['raises'], 'exc', 'None')
+    current_document.autodoc_module = 'test_ext_autodoc'
+    parsed = parse('function', 'raises')
+    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
+    current_document.autodoc_module = ''
 
-    directive.env.ref_context['py:module'] = 'test_ext_autodoc'
-    verify('function', 'raises', ('test_ext_autodoc', ['raises'], None, None))
-    verify('class', 'Base', ('test_ext_autodoc', ['Base'], None, None))
+    env.ref_context['py:module'] = 'test_ext_autodoc'
+    parsed = parse('function', 'raises')
+    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
+    parsed = parse('class', 'Base')
+    assert parsed == ('test_ext_autodoc', ['Base'], None, None)
 
     # for members
-    directive.env.ref_context['py:module'] = 'sphinx.testing.util'
-    verify(
-        'method',
-        'SphinxTestApp.cleanup',
-        ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None),
-    )
-    directive.env.ref_context['py:module'] = 'sphinx.testing.util'
-    directive.env.ref_context['py:class'] = 'Foo'
-    directive.env.current_document.autodoc_class = 'SphinxTestApp'
-    verify(
-        'method',
-        'cleanup',
-        ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None),
-    )
-    verify(
-        'method',
-        'SphinxTestApp.cleanup',
-        ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None),
-    )
+    env.ref_context['py:module'] = 'sphinx.testing.util'
+    parsed = parse('method', 'SphinxTestApp.cleanup')
+    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
+    env.ref_context['py:module'] = 'sphinx.testing.util'
+    env.ref_context['py:class'] = 'Foo'
+    current_document.autodoc_class = 'SphinxTestApp'
+    parsed = parse('method', 'cleanup')
+    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
+    parsed = parse('method', 'SphinxTestApp.cleanup')
+    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
 
 
 @pytest.mark.sphinx('html', testroot='root')
