@@ -301,12 +301,14 @@ class Documenter:
             )
 
         if objtype == 'module' and (args or retann):
-            logger.warning(
-                __("signature arguments or return annotation given for module: '%s'"),
-                name,
-                type='autodoc',
-            )
-            return None
+            if args:
+                msg = __("signature arguments given for automodule: '%s'")
+                logger.warning(msg, name, type='autodoc')
+                return None
+            if retann:
+                msg = __("return annotation given for automodule: '%s'")
+                logger.warning(msg, name, type='autodoc')
+                return None
 
         if not module_name:
             # need a module to import
@@ -321,12 +323,31 @@ class Documenter:
             )
             return None
 
-        fullname = '.'.join((module_name, *parts))
+        if objtype == 'module':
+            prop_cls = _ModuleProperties
+        elif objtype in {'class', 'exception'}:
+            prop_cls = _ClassDefProperties
+        elif objtype in {'function', 'method', 'property', 'decorator'}:
+            prop_cls = _FunctionDefProperties
+        elif objtype in {'attribute', 'data'}:
+            prop_cls = _AssignStatementProperties
+        else:
+            prop_cls = _ItemProperties
+        props = prop_cls(
+            obj_type=objtype,
+            name='',
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            _obj=object(),
+        )
+        self.props = props
         self.args = args
         self.retann = retann
-        self.modname = module_name
-        self.objpath = list(parts)
-        self.fullname = fullname
+        self.modname = props.module_name
+        self.objpath = list(props.parts)
+        self.fullname = props.full_name
+
         # now, import the module and get object to document
         ret = self.import_object()
         if not ret:
