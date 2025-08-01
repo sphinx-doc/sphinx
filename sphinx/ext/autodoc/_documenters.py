@@ -323,31 +323,64 @@ class Documenter:
             )
             return None
 
-        prop_cls: type[_ItemProperties]
-        if objtype == 'module':
-            prop_cls = _ModuleProperties
-        elif objtype in {'class', 'exception'}:
-            prop_cls = _ClassDefProperties
-        elif objtype in {'function', 'method', 'property', 'decorator'}:
-            prop_cls = _FunctionDefProperties
-        elif objtype in {'attribute', 'data'}:
-            prop_cls = _AssignStatementProperties
-        else:
-            prop_cls = _ItemProperties
-        props = prop_cls(
-            obj_type=objtype,
-            name='',
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            _obj=object(),
-        )
-        self.props = props
+        # props: _ItemProperties
+        # if objtype == 'module':
+        #     props = _ModuleProperties(
+        #     obj_type=objtype,
+        #     name='',
+        #     module_name=module_name,
+        #     parts=parts,
+        #     docstring_lines=(),
+        #     _obj=object(),
+        # )
+        # elif objtype in {'class', 'exception'}:
+        #     props = _ClassDefProperties(
+        #     obj_type=objtype,
+        #     name='',
+        #     module_name=module_name,
+        #     parts=parts,
+        #     docstring_lines=(),
+        #     _obj=object(),
+        # )
+        # elif objtype in {'function', 'method', 'property', 'decorator'}:
+        #     props = _FunctionDefProperties(
+        #     obj_type=objtype,
+        #     name='',
+        #     module_name=module_name,
+        #     parts=parts,
+        #     docstring_lines=(),
+        #     _obj=object(),
+        # )
+        # elif objtype in {'attribute', 'data'}:
+        #     props = _AssignStatementProperties(
+        #     obj_type=objtype,
+        #     name='',
+        #     module_name=module_name,
+        #     parts=parts,
+        #     docstring_lines=(),
+        #     _obj=object(),
+        # )
+        # else:
+        #     props = _ItemProperties(
+        #     obj_type=objtype,
+        #     name='',
+        #     module_name=module_name,
+        #     parts=parts,
+        #     docstring_lines=(),
+        #     _obj=object(),
+        # )
+        # self.props = props
+        # self.args = args
+        # self.retann = retann
+        # self.modname = props.module_name
+        # self.objpath = list(props.parts)
+        # self.fullname = props.full_name
+
         self.args = args
         self.retann = retann
-        self.modname = props.module_name
-        self.objpath = list(props.parts)
-        self.fullname = props.full_name
+        self.modname = module_name
+        self.objpath = list(parts)
+        self.fullname = '.'.join((module_name, *parts))
 
         # now, import the module and get object to document
 
@@ -578,6 +611,7 @@ class Documenter:
                 )
 
             return True
+        return True
 
     def resolve_name(
         self, modname: str | None, parents: Any, path: str, base: str
