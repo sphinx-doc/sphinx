@@ -699,7 +699,6 @@ def _import_assignment_data(
     type_aliases: dict[str, Any] | None,
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject:
-    import_failed = True
     try:
         im = _import_object(
             module_name=module_name,
@@ -707,25 +706,14 @@ def _import_assignment_data(
             mock_imports=mock_imports,
             get_attr=get_attr,
         )
-        import_failed = False
     except ImportError:
-        # annotation only instance variable (PEP-526)
-        try:
-            with mock(mock_imports):
-                parent = import_module(module_name)
-            annotations = get_type_hints(
-                parent, None, type_aliases, include_extras=True
-            )
-            if obj_path[-1] in annotations:
-                im = _ImportedObject(
-                    parent=parent,
-                    obj=UNINITIALIZED_ATTR,
-                )
-                import_failed = False
-        except ImportError:
-            pass
-
-        if import_failed:
+        im = _import_data_declaration(
+            module_name=module_name,
+            obj_path=obj_path,
+            mock_imports=mock_imports,
+            type_aliases=type_aliases,
+        )
+        if im is None:
             raise
 
     # Update __annotations__ to support type_comment and so on
@@ -751,7 +739,6 @@ def _import_assignment_attribute(
     type_aliases: dict[str, Any] | None,
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject:
-    import_failed = True
     try:
         im = _import_object(
             module_name=module_name,
@@ -759,42 +746,15 @@ def _import_assignment_attribute(
             mock_imports=mock_imports,
             get_attr=get_attr,
         )
-        import_failed = False
     except ImportError:
-        # Support runtime & uninitialized instance attributes.
-        #
-        # The former are defined in __init__() methods with doc-comments.
-        # The latter are PEP-526 style annotation only annotations.
-        #
-        # class Foo:
-        #     attr: int  #: uninitialized attribute
-        #
-        #     def __init__(self):
-        #         self.attr = None  #: runtime attribute
-        try:
-            with mock(mock_imports):
-                ret = _import_from_module_and_path(
-                    module_name=module_name, obj_path=obj_path[:-1], get_attr=get_attr
-                )
-            parent = ret.obj
-            if _is_runtime_instance_attribute(parent=parent, obj_path=obj_path):
-                im = _ImportedObject(
-                    parent=parent,
-                    obj=RUNTIME_INSTANCE_ATTRIBUTE,
-                )
-                import_failed = False
-            elif _is_uninitialized_instance_attribute(
-                parent=parent, obj_path=obj_path, type_aliases=type_aliases
-            ):
-                im = _ImportedObject(
-                    parent=parent,
-                    obj=UNINITIALIZED_ATTR,
-                )
-                import_failed = False
-        except ImportError:
-            pass
-
-        if import_failed:
+        im = _import_attribute_declaration(
+            module_name=module_name,
+            obj_path=obj_path,
+            mock_imports=mock_imports,
+            type_aliases=type_aliases,
+            get_attr=get_attr,
+        )
+        if im is None:
             raise
 
     if _is_slots_attribute(parent=im.parent, obj_path=obj_path):
@@ -825,6 +785,72 @@ def _import_assignment_attribute(
             pass
 
     return im
+
+
+def _import_data_declaration(
+    *,
+    module_name: str,
+    obj_path: Sequence[str],
+    mock_imports: list[str],
+    type_aliases: dict[str, Any] | None,
+) -> _ImportedObject | None:
+    # annotation only instance variable (PEP-526)
+    try:
+        with mock(mock_imports):
+            parent = import_module(module_name)
+        annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
+        if obj_path[-1] in annotations:
+            im = _ImportedObject(
+                parent=parent,
+                obj=UNINITIALIZED_ATTR,
+            )
+            return im
+    except ImportError:
+        pass
+    return None
+
+
+def _import_attribute_declaration(
+    *,
+    module_name: str,
+    obj_path: Sequence[str],
+    mock_imports: list[str],
+    type_aliases: dict[str, Any] | None,
+    get_attr: _AttrGetter = safe_getattr,
+) -> _ImportedObject | None:
+    # Support runtime & uninitialized instance attributes.
+    #
+    # The former are defined in __init__() methods with doc-comments.
+    # The latter are PEP-526 style annotation only annotations.
+    #
+    # class Foo:
+    #     attr: int  #: uninitialized attribute
+    #
+    #     def __init__(self):
+    #         self.attr = None  #: runtime attribute
+    try:
+        with mock(mock_imports):
+            ret = _import_from_module_and_path(
+                module_name=module_name, obj_path=obj_path[:-1], get_attr=get_attr
+            )
+        parent = ret.obj
+        if _is_runtime_instance_attribute(parent=parent, obj_path=obj_path):
+            im = _ImportedObject(
+                parent=parent,
+                obj=RUNTIME_INSTANCE_ATTRIBUTE,
+            )
+            return im
+        elif _is_uninitialized_instance_attribute(
+            parent=parent, obj_path=obj_path, type_aliases=type_aliases
+        ):
+            im = _ImportedObject(
+                parent=parent,
+                obj=UNINITIALIZED_ATTR,
+            )
+            return im
+    except ImportError:
+        pass
+    return None
 
 
 def _is_runtime_instance_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:

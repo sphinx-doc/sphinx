@@ -40,7 +40,9 @@ from sphinx.ext.autodoc.importer import (
     _get_attribute_comment,
     _import_assignment_attribute,
     _import_assignment_data,
+    _import_attribute_declaration,
     _import_class,
+    _import_data_declaration,
     _import_method,
     _import_object,
     _import_property,
@@ -330,39 +332,7 @@ class Documenter:
 
         props: _ItemProperties
         obj_properties: set[_AutodocFuncProperty]
-        if objtype == 'data':
-            try:
-                im = _import_assignment_data(
-                    module_name=module_name,
-                    obj_path=list(parts),
-                    mock_imports=self.config.autodoc_mock_imports,
-                    type_aliases=self.config.autodoc_type_aliases,
-                    get_attr=self.get_attr,
-                )
-            except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return None
-
-            self.object = obj = im.__dict__.pop('obj', None)
-            for k in 'module', 'parent', 'object_name':
-                if hasattr(im, k):
-                    setattr(self, k, getattr(im, k))
-
-            props = _AssignStatementProperties(
-                obj_type=objtype,
-                name=im.object_name,
-                module_name=module_name,
-                parts=parts,
-                docstring_lines=(),
-                value=...,
-                annotation='',
-                class_var=False,
-                instance_var=False,
-                _obj=obj,
-            )
-
-        elif objtype == 'attribute':
+        if objtype == 'attribute':
             try:
                 im = _import_assignment_attribute(
                     module_name=module_name,
@@ -403,9 +373,27 @@ class Documenter:
                     get_attr=self.get_attr,
                 )
             except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return None
+                if objtype == 'data':
+                    im = _import_data_declaration(
+                        module_name=module_name,
+                        obj_path=parts,
+                        mock_imports=self.config.autodoc_mock_imports,
+                        type_aliases=self.config.autodoc_type_aliases,
+                    )
+                elif objtype == 'attribute':
+                    im = _import_attribute_declaration(
+                        module_name=module_name,
+                        obj_path=parts,
+                        mock_imports=self.config.autodoc_mock_imports,
+                        type_aliases=self.config.autodoc_type_aliases,
+                        get_attr=self.get_attr,
+                    )
+                else:
+                    im = None
+                if im is None:
+                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                    self.env.note_reread()
+                    return None
 
             self.object = obj = im.__dict__.pop('obj', None)
             for k in 'module', 'parent', 'object_name':
@@ -430,8 +418,12 @@ class Documenter:
             elif objtype in {'class', 'exception'}:
                 if isinstance(obj, NewType | TypeVar):
                     obj_module_name = getattr(obj, '__module__', module_name)
-                    if obj_module_name != module_name and module_name.startswith(obj_module_name):
-                        bases = module_name[len(obj_module_name):].strip('.').split('.')
+                    if obj_module_name != module_name and module_name.startswith(
+                        obj_module_name
+                    ):
+                        bases = (
+                            module_name[len(obj_module_name) :].strip('.').split('.')
+                        )
                         parts = tuple(bases) + parts
                         module_name = obj_module_name
 
@@ -506,6 +498,32 @@ class Documenter:
                     parts=parts,
                     docstring_lines=(),
                     properties=frozenset(obj_properties),
+                    _obj=obj,
+                )
+            elif objtype == 'data':
+                # Update __annotations__ to support type_comment and so on
+                annotations = dict(inspect.getannotations(im.parent))
+                im.parent.__annotations__ = annotations
+
+                try:
+                    analyzer = ModuleAnalyzer.for_module(module_name)
+                    analyzer.analyze()
+                    for (classname, attrname), annotation in analyzer.annotations.items():
+                        if not classname and attrname not in annotations:
+                            annotations[attrname] = annotation
+                except PycodeError:
+                    pass
+
+                props = _AssignStatementProperties(
+                    obj_type=objtype,
+                    name=im.object_name,
+                    module_name=module_name,
+                    parts=parts,
+                    docstring_lines=(),
+                    value=...,
+                    annotation='',
+                    class_var=False,
+                    instance_var=False,
                     _obj=obj,
                 )
             else:
