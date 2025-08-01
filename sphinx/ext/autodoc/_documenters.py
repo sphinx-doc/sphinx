@@ -377,6 +377,7 @@ class Documenter:
                 mod_all = inspect.getall(module)
             except ValueError:
                 mod_all = None
+
             props = _ModuleProperties(
                 obj_type=objtype,
                 name=object_name,
@@ -411,6 +412,7 @@ class Documenter:
                 obj_properties.add('staticmethod')
             if inspect.isclassmethod(obj):
                 obj_properties.add('classmethod')
+
             props = _FunctionDefProperties(
                 obj_type=objtype,
                 name=object_name,
