@@ -242,6 +242,35 @@ class Documenter:
         else:
             self.directive.result.append('', source, *lineno)
 
+    def _load_object_by_name(self) -> Literal[True] | None:
+        ret = self.parse_name()
+        if self.objtype == 'module' and (self.args or self.retann):
+            logger.warning(
+                __('signature arguments or return annotation given for automodule %s'),
+                self.fullname,
+                type='autodoc',
+            )
+
+        if not ret:
+            # need a module to import
+            logger.warning(
+                __(
+                    "don't know which module to import for autodocumenting "
+                    '%r (try placing a "module" or "currentmodule" directive '
+                    'in the document, or giving an explicit module name)'
+                ),
+                self.name,
+                type='autodoc',
+            )
+            return None
+
+        # now, import the module and get object to document
+        ret = self.import_object()
+        if not ret:
+            return None
+
+        return True
+
     def resolve_name(
         self, modname: str | None, parents: Any, path: str, base: str
     ) -> tuple[str | None, list[str]]:
@@ -957,7 +986,7 @@ class Documenter:
         member_documenters = [
             (documenter, isattr)
             for documenter, isattr in member_documenters
-            if documenter.parse_name() and documenter.import_object()
+            if documenter._load_object_by_name() is not None
         ]
         member_documenters = self.sort_members(member_documenters, member_order)
 
@@ -1017,21 +1046,7 @@ class Documenter:
         True, only generate if the object is defined in the module name it is
         imported from. If *all_members* is True, document all members.
         """
-        if not self.parse_name():
-            # need a module to import
-            logger.warning(
-                __(
-                    "don't know which module to import for autodocumenting "
-                    '%r (try placing a "module" or "currentmodule" directive '
-                    'in the document, or giving an explicit module name)'
-                ),
-                self.name,
-                type='autodoc',
-            )
-            return
-
-        # now, import the module and get object to document
-        if not self.import_object():
+        if self._load_object_by_name() is None:
             return
 
         self._generate(more_content, real_modname, check_module, all_members)
