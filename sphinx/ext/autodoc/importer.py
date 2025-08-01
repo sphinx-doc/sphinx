@@ -75,16 +75,6 @@ class _ImportedObject:
     #: object to document
     obj: Any
 
-    # ClassDocumenter
-    objpath: list[str]
-    modname: str
-
-    # MethodDocumenter
-    member_order: int
-
-    # PropertyDocumenter
-    isclassmethod: bool
-
     def __init__(
         self,
         *,
