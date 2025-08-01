@@ -336,7 +336,7 @@ class Documenter:
         try:
             im = _import_object(
                 module_name=module_name,
-                obj_path=list(parts),
+                obj_path=parts,
                 mock_imports=mock_imports,
                 get_attr=get_attr,
             )
