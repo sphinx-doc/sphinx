@@ -333,225 +333,218 @@ class Documenter:
 
         props: _ItemProperties
         obj_properties: set[_AutodocFuncProperty]
-        if False:
-            pass
-        else:
-            try:
-                im = _import_object(
+        try:
+            im = _import_object(
+                module_name=module_name,
+                obj_path=list(parts),
+                mock_imports=self.config.autodoc_mock_imports,
+                get_attr=self.get_attr,
+            )
+        except ImportError as exc:
+            if objtype == 'data':
+                im = _import_data_declaration(
                     module_name=module_name,
-                    obj_path=list(parts),
+                    obj_path=parts,
                     mock_imports=self.config.autodoc_mock_imports,
-                    get_attr=self.get_attr,
-                )
-            except ImportError as exc:
-                if objtype == 'data':
-                    im = _import_data_declaration(
-                        module_name=module_name,
-                        obj_path=parts,
-                        mock_imports=self.config.autodoc_mock_imports,
-                        type_aliases=self.config.autodoc_type_aliases,
-                    )
-                elif objtype == 'attribute':
-                    im = _import_attribute_declaration(
-                        module_name=module_name,
-                        obj_path=parts,
-                        mock_imports=self.config.autodoc_mock_imports,
-                        type_aliases=self.config.autodoc_type_aliases,
-                        get_attr=self.get_attr,
-                    )
-                else:
-                    im = None
-                if im is None:
-                    logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                    self.env.note_reread()
-                    return None
-
-            self.object = obj = im.__dict__.pop('obj', None)
-            for k in 'module', 'parent', 'object_name':
-                if hasattr(im, k):
-                    setattr(self, k, getattr(im, k))
-
-            if objtype == 'module':
-                file_path = getattr(im.module, '__file__', None)
-                try:
-                    mod_all = inspect.getall(im.module)
-                except ValueError:
-                    mod_all = None
-                props = _ModuleProperties(
-                    obj_type=objtype,
-                    name=im.object_name,
-                    module_name=module_name,
-                    docstring_lines=(),
-                    file_path=Path(file_path) if file_path is not None else None,
-                    all=tuple(mod_all) if mod_all is not None else None,
-                    _obj=obj,
-                )
-            elif objtype in {'class', 'exception'}:
-                if isinstance(obj, NewType | TypeVar):
-                    obj_module_name = getattr(obj, '__module__', module_name)
-                    if obj_module_name != module_name and module_name.startswith(
-                        obj_module_name
-                    ):
-                        bases = (
-                            module_name[len(obj_module_name) :].strip('.').split('.')
-                        )
-                        parts = tuple(bases) + parts
-                        module_name = obj_module_name
-
-                props = _ClassDefProperties(
-                    obj_type=objtype,
-                    name=im.object_name,
-                    module_name=module_name,
-                    parts=parts,
-                    docstring_lines=(),
-                    bases=getattr(obj, '__bases__', None),
-                    _obj=obj,
-                    _obj___name__=getattr(obj, '__name__', None),
-                )
-            elif objtype in {'function', 'decorator'}:
-                obj_properties = set()
-                if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
-                    obj_properties.add('staticmethod')
-                if inspect.isclassmethod(obj):
-                    obj_properties.add('classmethod')
-                props = _FunctionDefProperties(
-                    obj_type=objtype,
-                    name=im.object_name,
-                    module_name=module_name,
-                    parts=parts,
-                    docstring_lines=(),
-                    properties=frozenset(obj_properties),
-                    _obj=obj,
-                )
-            elif objtype == 'method':
-                # to distinguish classmethod/staticmethod
-                obj_ = im.parent.__dict__.get(im.object_name, obj)
-                if inspect.isstaticmethod(obj_, cls=im.parent, name=im.object_name):
-                    # document static members before regular methods
-                    self.member_order -= 1
-                elif inspect.isclassmethod(obj_):
-                    # document class methods before static methods as
-                    # they usually behave as alternative constructors
-                    self.member_order -= 2
-
-                obj_properties = set()
-                if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
-                    obj_properties.add('staticmethod')
-                if inspect.isclassmethod(obj):
-                    obj_properties.add('classmethod')
-                props = _FunctionDefProperties(
-                    obj_type=objtype,
-                    name=im.object_name,
-                    module_name=module_name,
-                    parts=parts,
-                    docstring_lines=(),
-                    properties=frozenset(obj_properties),
-                    _obj=obj,
-                )
-            elif objtype == 'property':
-                obj_properties = set()
-                if not inspect.isproperty(obj):
-                    # Support for class properties. Note: these only work on Python 3.9.
-                    __dict__ = safe_getattr(im.parent, '__dict__', {})
-                    obj = __dict__.get(parts[-1])
-                    if isinstance(obj, classmethod) and inspect.isproperty(
-                        obj.__func__
-                    ):
-                        self.object = obj = obj.__func__
-                        obj_properties.add('classmethod')
-                    else:
-                        return None
-
-                props = _FunctionDefProperties(
-                    obj_type=objtype,
-                    name=im.object_name,
-                    module_name=module_name,
-                    parts=parts,
-                    docstring_lines=(),
-                    properties=frozenset(obj_properties),
-                    _obj=obj,
-                )
-            elif objtype == 'data':
-                # Update __annotations__ to support type_comment and so on
-                annotations = dict(inspect.getannotations(im.parent))
-                im.parent.__annotations__ = annotations
-
-                try:
-                    analyzer = ModuleAnalyzer.for_module(module_name)
-                    analyzer.analyze()
-                    for (
-                        classname,
-                        attrname,
-                    ), annotation in analyzer.annotations.items():
-                        if not classname and attrname not in annotations:
-                            annotations[attrname] = annotation
-                except PycodeError:
-                    pass
-
-                props = _AssignStatementProperties(
-                    obj_type=objtype,
-                    name=im.object_name,
-                    module_name=module_name,
-                    parts=parts,
-                    docstring_lines=(),
-                    value=...,
-                    annotation='',
-                    class_var=False,
-                    instance_var=False,
-                    _obj=obj,
+                    type_aliases=self.config.autodoc_type_aliases,
                 )
             elif objtype == 'attribute':
-                if _is_slots_attribute(parent=im.parent, obj_path=parts):
-                    obj = SLOTS_ATTR
-                elif inspect.isenumattribute(obj):
-                    obj = obj.value
-                if im.parent:
-                    # Update __annotations__ to support type_comment and so on.
-                    try:
-                        annotations = dict(inspect.getannotations(im.parent))
-                        im.parent.__annotations__ = annotations
-
-                        for cls in inspect.getmro(im.parent):
-                            try:
-                                module = safe_getattr(cls, '__module__')
-                                qualname = safe_getattr(cls, '__qualname__')
-
-                                analyzer = ModuleAnalyzer.for_module(module)
-                                analyzer.analyze()
-                                anns = analyzer.annotations
-                                for (classname, attrname), annotation in anns.items():
-                                    if (
-                                        classname == qualname
-                                        and attrname not in annotations
-                                    ):
-                                        annotations[attrname] = annotation
-                            except (AttributeError, PycodeError):
-                                pass
-                    except (AttributeError, TypeError):
-                        # Failed to set __annotations__ (built-in, extensions, etc.)
-                        pass
-
-                props = _AssignStatementProperties(
-                    obj_type=objtype,
-                    name=im.object_name,
+                im = _import_attribute_declaration(
                     module_name=module_name,
-                    parts=parts,
-                    docstring_lines=(),
-                    value=...,
-                    annotation='',
-                    class_var=False,
-                    instance_var=False,
-                    _obj=obj,
+                    obj_path=parts,
+                    mock_imports=self.config.autodoc_mock_imports,
+                    type_aliases=self.config.autodoc_type_aliases,
+                    get_attr=self.get_attr,
                 )
             else:
-                props = _ItemProperties(
-                    obj_type=objtype,
-                    name=im.object_name,
-                    module_name=module_name,
-                    parts=parts,
-                    docstring_lines=(),
-                    _obj=obj,
-                )
+                im = None
+            if im is None:
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+                self.env.note_reread()
+                return None
+
+        self.object = obj = im.__dict__.pop('obj', None)
+        for k in 'module', 'parent', 'object_name':
+            if hasattr(im, k):
+                setattr(self, k, getattr(im, k))
+
+        if objtype == 'module':
+            file_path = getattr(im.module, '__file__', None)
+            try:
+                mod_all = inspect.getall(im.module)
+            except ValueError:
+                mod_all = None
+            props = _ModuleProperties(
+                obj_type=objtype,
+                name=im.object_name,
+                module_name=module_name,
+                docstring_lines=(),
+                file_path=Path(file_path) if file_path is not None else None,
+                all=tuple(mod_all) if mod_all is not None else None,
+                _obj=obj,
+            )
+        elif objtype in {'class', 'exception'}:
+            if isinstance(obj, NewType | TypeVar):
+                obj_module_name = getattr(obj, '__module__', module_name)
+                if obj_module_name != module_name and module_name.startswith(
+                    obj_module_name
+                ):
+                    bases = module_name[len(obj_module_name) :].strip('.').split('.')
+                    parts = tuple(bases) + parts
+                    module_name = obj_module_name
+
+            props = _ClassDefProperties(
+                obj_type=objtype,
+                name=im.object_name,
+                module_name=module_name,
+                parts=parts,
+                docstring_lines=(),
+                bases=getattr(obj, '__bases__', None),
+                _obj=obj,
+                _obj___name__=getattr(obj, '__name__', None),
+            )
+        elif objtype in {'function', 'decorator'}:
+            obj_properties = set()
+            if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+                obj_properties.add('staticmethod')
+            if inspect.isclassmethod(obj):
+                obj_properties.add('classmethod')
+            props = _FunctionDefProperties(
+                obj_type=objtype,
+                name=im.object_name,
+                module_name=module_name,
+                parts=parts,
+                docstring_lines=(),
+                properties=frozenset(obj_properties),
+                _obj=obj,
+            )
+        elif objtype == 'method':
+            # to distinguish classmethod/staticmethod
+            obj_ = im.parent.__dict__.get(im.object_name, obj)
+            if inspect.isstaticmethod(obj_, cls=im.parent, name=im.object_name):
+                # document static members before regular methods
+                self.member_order -= 1
+            elif inspect.isclassmethod(obj_):
+                # document class methods before static methods as
+                # they usually behave as alternative constructors
+                self.member_order -= 2
+
+            obj_properties = set()
+            if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+                obj_properties.add('staticmethod')
+            if inspect.isclassmethod(obj):
+                obj_properties.add('classmethod')
+            props = _FunctionDefProperties(
+                obj_type=objtype,
+                name=im.object_name,
+                module_name=module_name,
+                parts=parts,
+                docstring_lines=(),
+                properties=frozenset(obj_properties),
+                _obj=obj,
+            )
+        elif objtype == 'property':
+            obj_properties = set()
+            if not inspect.isproperty(obj):
+                # Support for class properties. Note: these only work on Python 3.9.
+                __dict__ = safe_getattr(im.parent, '__dict__', {})
+                obj = __dict__.get(parts[-1])
+                if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
+                    self.object = obj = obj.__func__
+                    obj_properties.add('classmethod')
+                else:
+                    return None
+
+            props = _FunctionDefProperties(
+                obj_type=objtype,
+                name=im.object_name,
+                module_name=module_name,
+                parts=parts,
+                docstring_lines=(),
+                properties=frozenset(obj_properties),
+                _obj=obj,
+            )
+        elif objtype == 'data':
+            # Update __annotations__ to support type_comment and so on
+            annotations = dict(inspect.getannotations(im.parent))
+            im.parent.__annotations__ = annotations
+
+            try:
+                analyzer = ModuleAnalyzer.for_module(module_name)
+                analyzer.analyze()
+                for (
+                    classname,
+                    attrname,
+                ), annotation in analyzer.annotations.items():
+                    if not classname and attrname not in annotations:
+                        annotations[attrname] = annotation
+            except PycodeError:
+                pass
+
+            props = _AssignStatementProperties(
+                obj_type=objtype,
+                name=im.object_name,
+                module_name=module_name,
+                parts=parts,
+                docstring_lines=(),
+                value=...,
+                annotation='',
+                class_var=False,
+                instance_var=False,
+                _obj=obj,
+            )
+        elif objtype == 'attribute':
+            if _is_slots_attribute(parent=im.parent, obj_path=parts):
+                obj = SLOTS_ATTR
+            elif inspect.isenumattribute(obj):
+                obj = obj.value
+            if im.parent:
+                # Update __annotations__ to support type_comment and so on.
+                try:
+                    annotations = dict(inspect.getannotations(im.parent))
+                    im.parent.__annotations__ = annotations
+
+                    for cls in inspect.getmro(im.parent):
+                        try:
+                            module = safe_getattr(cls, '__module__')
+                            qualname = safe_getattr(cls, '__qualname__')
+
+                            analyzer = ModuleAnalyzer.for_module(module)
+                            analyzer.analyze()
+                            anns = analyzer.annotations
+                            for (classname, attrname), annotation in anns.items():
+                                if (
+                                    classname == qualname
+                                    and attrname not in annotations
+                                ):
+                                    annotations[attrname] = annotation
+                        except (AttributeError, PycodeError):
+                            pass
+                except (AttributeError, TypeError):
+                    # Failed to set __annotations__ (built-in, extensions, etc.)
+                    pass
+
+            props = _AssignStatementProperties(
+                obj_type=objtype,
+                name=im.object_name,
+                module_name=module_name,
+                parts=parts,
+                docstring_lines=(),
+                value=...,
+                annotation='',
+                class_var=False,
+                instance_var=False,
+                _obj=obj,
+            )
+        else:
+            props = _ItemProperties(
+                obj_type=objtype,
+                name=im.object_name,
+                module_name=module_name,
+                parts=parts,
+                docstring_lines=(),
+                _obj=obj,
+            )
 
         self.props = props
         self.args = args
