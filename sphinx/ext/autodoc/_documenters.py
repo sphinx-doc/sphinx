@@ -250,7 +250,7 @@ class Documenter:
         args = self.args
         retann = self.retann
         modname: str | None = self.modname
-        objpath = self.objpath
+        parts: Sequence[str] = self.objpath
 
         # parse_name()
 
@@ -284,14 +284,23 @@ class Documenter:
                 parents = []
 
             with mock(mock_imports):
-                modname, objpath = self.resolve_name(modname, parents, path, base)
+                modname, parts = _resolve_name(
+                    objtype=self.objtype,
+                    module_name=modname,
+                    path=path,
+                    base=base,
+                    parents=parents,
+                    current_document=self._current_document,
+                    ref_context_py_module=self.env.ref_context.get('py:module'),
+                    ref_context_py_class=self.env.ref_context.get('py:class', ''),
+                )
 
             if not modname:
                 ret = False
             else:
                 ret = True
 
-        fullname = '.'.join((modname or '', *objpath))
+        fullname = '.'.join((modname or '', *parts))
         if objtype == 'module' and (args or retann):
             logger.warning(
                 __('signature arguments or return annotation given for automodule %s'),
@@ -316,7 +325,7 @@ class Documenter:
         self.args = args
         self.retann = retann
         self.modname = modname
-        self.objpath = objpath
+        self.objpath = list(parts)
         self.fullname = fullname
         # now, import the module and get object to document
         ret = self.import_object()
@@ -2942,3 +2951,75 @@ def _add_content_generic_alias_(
         alias = restify(obj, mode=_get_render_mode(autodoc_typehints_format))
         more_content.append(_('alias of %s') % alias, '')
         more_content.append('', '')
+
+
+def _resolve_name(
+    *,
+    objtype: str,
+    module_name: str | None,
+    path: str,
+    base: str,
+    parents: Sequence[str],
+    current_document: _CurrentDocument,
+    ref_context_py_module: str | None,
+    ref_context_py_class: str,
+) -> tuple[str | None, tuple[str, ...]]:
+    """Resolve the module and name of the object to document given by the
+    arguments and the current module/class.
+
+    Must return a pair of the module name and a chain of attributes; for
+    example, it would return ``('zipfile', ('ZipFile', 'open'))`` for the
+    ``zipfile.ZipFile.open`` method.
+    """
+    if objtype == 'module':
+        if module_name is not None:
+            logger.warning(
+                __('"::" in automodule name doesn\'t make sense'), type='autodoc'
+            )
+        return (path or '') + base, ()
+
+    if objtype in {'class', 'exception', 'function', 'decorator', 'data'}:
+        if module_name is not None:
+            return module_name, (*parents, base)
+        if path:
+            module_name = path.rstrip('.')
+            return module_name, (*parents, base)
+
+        # if documenting a toplevel object without explicit module,
+        # it can be contained in another auto directive ...
+        module_name = current_document.autodoc_module
+        # ... or in the scope of a module directive
+        if not module_name:
+            module_name = ref_context_py_module
+        # ... else, it stays None, which means invalid
+        return module_name, (*parents, base)
+
+    if objtype in {'method', 'property', 'attribute'}:
+        if module_name is not None:
+            return module_name, (*parents, base)
+
+        if path:
+            mod_cls = path.rstrip('.')
+        else:
+            # if documenting a class-level object without path,
+            # there must be a current class, either from a parent
+            # auto directive ...
+            mod_cls = current_document.autodoc_class
+            # ... or from a class directive
+            if not mod_cls:
+                mod_cls = ref_context_py_class
+                # ... if still falsy, there's no way to know
+                if not mod_cls:
+                    return None, ()
+        module_name, _sep, cls = mod_cls.rpartition('.')
+        parents = [cls]
+        # if the module name is still missing, get it like above
+        if not module_name:
+            module_name = current_document.autodoc_module
+        if not module_name:
+            module_name = ref_context_py_module
+        # ... else, it stays None, which means invalid
+        return module_name, (*parents, base)
+
+    msg = 'must be implemented in subclasses'
+    raise NotImplementedError(msg)
