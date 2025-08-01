@@ -66,7 +66,6 @@ class _ImportedObject:
     obj: Any
 
     # ClassDocumenter
-    doc_as_attr: bool
     objpath: list[str]
     modname: str
 
@@ -627,13 +626,6 @@ def _import_class(
         mock_imports=mock_imports,
         get_attr=get_attr,
     )
-
-    # if the class is documented under another name, document it
-    # as data/attribute
-    if hasattr(im.obj, '__name__'):
-        im.doc_as_attr = obj_path[-1] != im.obj.__name__
-    else:
-        im.doc_as_attr = True
 
     if isinstance(im.obj, NewType | TypeVar):
         obj_module_name = getattr(im.obj, '__module__', module_name)
