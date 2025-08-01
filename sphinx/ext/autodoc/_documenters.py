@@ -247,10 +247,10 @@ class Documenter:
         objtype = self.objtype
         mock_imports = self.config.autodoc_mock_imports
 
-        args = self.args
-        retann = self.retann
-        modname: str | None = self.modname
-        parts: Sequence[str] = self.objpath
+        args: str | None = None
+        retann: str | None = ''
+        modname: str | None = ''
+        parts: Sequence[str] = ()
 
         # parse_name()
 
