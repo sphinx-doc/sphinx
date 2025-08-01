@@ -701,14 +701,14 @@ def _import_assignment_data(
 ) -> _ImportedObject:
     import_failed = True
     try:
-        with mock(mock_imports):
-            im = _import_from_module_and_path(
-                module_name=module_name, obj_path=obj_path, get_attr=get_attr
-            )
-        if ismock(im.obj):
-            im.obj = undecorate(im.obj)
+        im = _import_object(
+            module_name=module_name,
+            obj_path=obj_path,
+            mock_imports=mock_imports,
+            get_attr=get_attr,
+        )
         import_failed = False
-    except ImportError as exc:
+    except ImportError:
         # annotation only instance variable (PEP-526)
         try:
             with mock(mock_imports):
@@ -753,14 +753,14 @@ def _import_assignment_attribute(
 ) -> _ImportedObject:
     import_failed = True
     try:
-        with mock(mock_imports):
-            im = _import_from_module_and_path(
-                module_name=module_name, obj_path=obj_path, get_attr=get_attr
-            )
-        if ismock(im.obj):
-            im.obj = undecorate(im.obj)
+        im = _import_object(
+            module_name=module_name,
+            obj_path=obj_path,
+            mock_imports=mock_imports,
+            get_attr=get_attr,
+        )
         import_failed = False
-    except ImportError as exc:
+    except ImportError:
         # Support runtime & uninitialized instance attributes.
         #
         # The former are defined in __init__() methods with doc-comments.
