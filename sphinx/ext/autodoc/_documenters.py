@@ -242,22 +242,14 @@ class Documenter:
         if self._load_object_has_been_called:
             return True
 
-        name = self.name
-        objtype = self.objtype
-        mock_imports = self.config.autodoc_mock_imports
-        type_aliases = self.config.autodoc_type_aliases
-        current_document = self._current_document
-        env = self.env
-        get_attr = self.get_attr
-
         ret = _load_object_by_name(
-            name=name,
-            objtype=objtype,
-            mock_imports=mock_imports,
-            type_aliases=type_aliases,
-            current_document=current_document,
-            env=env,
-            get_attr=get_attr,
+            name=self.name,
+            objtype=self.objtype,
+            mock_imports=self.config.autodoc_mock_imports,
+            type_aliases=self.config.autodoc_type_aliases,
+            current_document=self._current_document,
+            env=self.env,
+            get_attr=self.get_attr,
         )
         if ret is None:
             return None
@@ -273,7 +265,7 @@ class Documenter:
         self.parent = parent
         self.object_name = props.name
         self.object = props._obj
-        if objtype == 'method':
+        if self.objtype == 'method':
             if 'staticmethod' in props.properties:  # type: ignore[attr-defined]
                 # document static members before regular methods
                 self.member_order -= 1  # type: ignore[misc]
