@@ -47,7 +47,8 @@ from sphinx.ext.autodoc.importer import (
     _import_object,
     _import_property,
     _is_runtime_instance_attribute_not_commented,
-    get_class_members, _is_slots_attribute,
+    _is_slots_attribute,
+    get_class_members,
 )
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
@@ -478,7 +479,10 @@ class Documenter:
                 try:
                     analyzer = ModuleAnalyzer.for_module(module_name)
                     analyzer.analyze()
-                    for (classname, attrname), annotation in analyzer.annotations.items():
+                    for (
+                        classname,
+                        attrname,
+                    ), annotation in analyzer.annotations.items():
                         if not classname and attrname not in annotations:
                             annotations[attrname] = annotation
                 except PycodeError:
@@ -516,7 +520,10 @@ class Documenter:
                                 analyzer.analyze()
                                 anns = analyzer.annotations
                                 for (classname, attrname), annotation in anns.items():
-                                    if classname == qualname and attrname not in annotations:
+                                    if (
+                                        classname == qualname
+                                        and attrname not in annotations
+                                    ):
                                         annotations[attrname] = annotation
                             except (AttributeError, PycodeError):
                                 pass
