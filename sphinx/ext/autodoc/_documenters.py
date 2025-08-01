@@ -47,7 +47,7 @@ from sphinx.ext.autodoc.importer import (
     _import_object,
     _import_property,
     _is_runtime_instance_attribute_not_commented,
-    get_class_members,
+    get_class_members, _is_slots_attribute,
 )
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
@@ -332,38 +332,8 @@ class Documenter:
 
         props: _ItemProperties
         obj_properties: set[_AutodocFuncProperty]
-        if objtype == 'attribute':
-            try:
-                im = _import_assignment_attribute(
-                    module_name=module_name,
-                    obj_path=list(parts),
-                    mock_imports=self.config.autodoc_mock_imports,
-                    type_aliases=self.config.autodoc_type_aliases,
-                    get_attr=self.get_attr,
-                )
-            except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return None
-
-            self.object = obj = im.__dict__.pop('obj', None)
-            for k in 'module', 'parent', 'object_name':
-                if hasattr(im, k):
-                    setattr(self, k, getattr(im, k))
-
-            props = _AssignStatementProperties(
-                obj_type=objtype,
-                name=im.object_name,
-                module_name=module_name,
-                parts=parts,
-                docstring_lines=(),
-                value=...,
-                annotation='',
-                class_var=False,
-                instance_var=False,
-                _obj=obj,
-            )
-
+        if False:
+            pass
         else:
             try:
                 im = _import_object(
@@ -513,6 +483,46 @@ class Documenter:
                             annotations[attrname] = annotation
                 except PycodeError:
                     pass
+
+                props = _AssignStatementProperties(
+                    obj_type=objtype,
+                    name=im.object_name,
+                    module_name=module_name,
+                    parts=parts,
+                    docstring_lines=(),
+                    value=...,
+                    annotation='',
+                    class_var=False,
+                    instance_var=False,
+                    _obj=obj,
+                )
+            elif objtype == 'attribute':
+                if _is_slots_attribute(parent=im.parent, obj_path=parts):
+                    obj = SLOTS_ATTR
+                elif inspect.isenumattribute(obj):
+                    obj = obj.value
+                if im.parent:
+                    # Update __annotations__ to support type_comment and so on.
+                    try:
+                        annotations = dict(inspect.getannotations(im.parent))
+                        im.parent.__annotations__ = annotations
+
+                        for cls in inspect.getmro(im.parent):
+                            try:
+                                module = safe_getattr(cls, '__module__')
+                                qualname = safe_getattr(cls, '__qualname__')
+
+                                analyzer = ModuleAnalyzer.for_module(module)
+                                analyzer.analyze()
+                                anns = analyzer.annotations
+                                for (classname, attrname), annotation in anns.items():
+                                    if classname == qualname and attrname not in annotations:
+                                        annotations[attrname] = annotation
+                            except (AttributeError, PycodeError):
+                                pass
+                    except (AttributeError, TypeError):
+                        # Failed to set __annotations__ (built-in, extensions, etc.)
+                        pass
 
                 props = _AssignStatementProperties(
                     obj_type=objtype,
