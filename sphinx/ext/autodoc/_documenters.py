@@ -362,40 +362,6 @@ class Documenter:
                 _obj=obj,
             )
 
-        elif objtype == 'method':
-            try:
-                im = _import_method(
-                    module_name=module_name,
-                    obj_path=list(parts),
-                    member_order=self.member_order,
-                    mock_imports=self.config.autodoc_mock_imports,
-                    get_attr=self.get_attr,
-                )
-            except ImportError as exc:
-                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-                self.env.note_reread()
-                return None
-
-            self.object = obj = im.__dict__.pop('obj', None)
-            for k in 'module', 'parent', 'object_name', 'member_order':
-                if hasattr(im, k):
-                    setattr(self, k, getattr(im, k))
-
-            obj_properties = set()
-            if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
-                obj_properties.add('staticmethod')
-            if inspect.isclassmethod(obj):
-                obj_properties.add('classmethod')
-            props = _FunctionDefProperties(
-                obj_type=objtype,
-                name=im.object_name,
-                module_name=module_name,
-                parts=parts,
-                docstring_lines=(),
-                properties=frozenset(obj_properties),
-                _obj=obj,
-            )
-
         elif objtype == 'attribute':
             try:
                 im = _import_assignment_attribute(
@@ -480,6 +446,31 @@ class Documenter:
                     _obj___name__=getattr(obj, '__name__', None),
                 )
             elif objtype in {'function', 'decorator'}:
+                obj_properties = set()
+                if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
+                    obj_properties.add('staticmethod')
+                if inspect.isclassmethod(obj):
+                    obj_properties.add('classmethod')
+                props = _FunctionDefProperties(
+                    obj_type=objtype,
+                    name=im.object_name,
+                    module_name=module_name,
+                    parts=parts,
+                    docstring_lines=(),
+                    properties=frozenset(obj_properties),
+                    _obj=obj,
+                )
+            elif objtype == 'method':
+                # to distinguish classmethod/staticmethod
+                obj_ = im.parent.__dict__.get(im.object_name, obj)
+                if inspect.isstaticmethod(obj_, cls=im.parent, name=im.object_name):
+                    # document static members before regular methods
+                    self.member_order -= 1
+                elif inspect.isclassmethod(obj_):
+                    # document class methods before static methods as
+                    # they usually behave as alternative constructors
+                    self.member_order -= 2
+
                 obj_properties = set()
                 if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
                     obj_properties.add('staticmethod')
