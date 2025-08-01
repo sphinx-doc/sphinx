@@ -46,7 +46,7 @@ class _ItemProperties:
 
     # @property
     # def name(self) -> str:
-    #     return self.module_name.rpartition('.')[2]
+    #     return self.parts[-1]
 
     @property
     def full_name(self) -> str:
@@ -68,6 +68,10 @@ class _ModuleProperties(_ItemProperties):
     # @property
     # def name(self) -> str:
     #     return self.module_name.rpartition('.')[2]
+
+    @property
+    def full_name(self) -> str:
+        return self.module_name
 
     @property
     def parent_names(self) -> tuple[str, ...]:
