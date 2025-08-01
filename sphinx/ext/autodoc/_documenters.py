@@ -366,10 +366,10 @@ class Documenter:
             else:
                 im = im_
 
-        obj = im.__dict__.pop('obj', None)
-        for k in 'module', 'parent', 'object_name':
-            if hasattr(im, k):
-                setattr(self, k, getattr(im, k))
+        module = im.module
+        parent = im.parent
+        object_name = im.object_name
+        obj = im.obj
 
         if objtype == 'module':
             file_path = getattr(im.module, '__file__', None)
@@ -555,6 +555,9 @@ class Documenter:
         self.modname = props.module_name
         self.objpath = list(props.parts)
         self.fullname = props.full_name
+        self.module = module
+        self.parent = parent
+        self.object_name = object_name
         self.object = obj
         return True
 
