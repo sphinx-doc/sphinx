@@ -326,9 +326,6 @@ class Documenter:
             )
             return None
 
-        self.args = args
-        self.retann = retann
-
         # now, import the module and get object to document
 
         props: _ItemProperties
