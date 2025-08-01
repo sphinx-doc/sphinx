@@ -282,16 +282,16 @@ class Documenter:
 
         # support explicit module and class name separation via ::
         if explicit_modname is not None:
-            modname = explicit_modname[:-2]
+            module_name = explicit_modname[:-2]
             parents = path.rstrip('.').split('.') if path else []
         else:
-            modname = None
+            module_name = None
             parents = []
 
         with mock(mock_imports):
-            modname, parts = _resolve_name(
+            module_name, parts = _resolve_name(
                 objtype=self.objtype,
-                module_name=modname,
+                module_name=module_name,
                 path=path,
                 base=base,
                 parents=parents,
@@ -300,20 +300,15 @@ class Documenter:
                 ref_context_py_class=self.env.ref_context.get('py:class', ''),
             )
 
-        if not modname:
-            ret = False
-        else:
-            ret = True
-
-        fullname = '.'.join((modname or '', *parts))
         if objtype == 'module' and (args or retann):
             logger.warning(
-                __('signature arguments or return annotation given for automodule %s'),
-                fullname,
+                __("signature arguments or return annotation given for module: '%s'"),
+                name,
                 type='autodoc',
             )
+            return None
 
-        if not ret:
+        if not module_name:
             # need a module to import
             logger.warning(
                 __(
@@ -326,10 +321,10 @@ class Documenter:
             )
             return None
 
-        assert modname is not None
+        fullname = '.'.join((module_name, *parts))
         self.args = args
         self.retann = retann
-        self.modname = modname
+        self.modname = module_name
         self.objpath = list(parts)
         self.fullname = fullname
         # now, import the module and get object to document
