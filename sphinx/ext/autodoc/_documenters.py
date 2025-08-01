@@ -282,7 +282,7 @@ class Documenter:
 
         # support explicit module and class name separation via ::
         if explicit_modname is not None:
-            module_name = explicit_modname[:-2]
+            module_name = explicit_modname.removesuffix('::')
             parents = path.rstrip('.').split('.') if path else []
         else:
             module_name = None
@@ -2957,7 +2957,7 @@ def _resolve_name(
     *,
     objtype: str,
     module_name: str | None,
-    path: str,
+    path: str | None,
     base: str,
     parents: Sequence[str],
     current_document: _CurrentDocument,
