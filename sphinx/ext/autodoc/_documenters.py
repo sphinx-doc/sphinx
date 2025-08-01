@@ -358,7 +358,6 @@ class Documenter:
                 _obj=obj,
                 _obj___name__=getattr(obj, '__name__', None),
             )
-            self.props = props
 
         elif objtype == 'data':
             try:
@@ -391,7 +390,6 @@ class Documenter:
                 instance_var=False,
                 _obj=obj,
             )
-            self.props = props
 
         elif objtype == 'method':
             try:
@@ -426,7 +424,6 @@ class Documenter:
                 properties=frozenset(obj_properties),
                 _obj=obj,
             )
-            self.props = props
 
         elif objtype == 'attribute':
             try:
@@ -459,7 +456,6 @@ class Documenter:
                 instance_var=False,
                 _obj=obj,
             )
-            self.props = props
 
         elif objtype == 'property':
             try:
@@ -494,7 +490,6 @@ class Documenter:
                 properties=frozenset(obj_properties),
                 _obj=obj,
             )
-            self.props = props
 
         else:
             try:
@@ -529,7 +524,6 @@ class Documenter:
                     all=tuple(mod_all) if mod_all is not None else None,
                     _obj=obj,
                 )
-                self.props = props
             elif objtype in {'function', 'decorator'}:
                 obj_properties = set()
                 if inspect.isstaticmethod(obj, cls=im.parent, name=im.object_name):
@@ -545,7 +539,6 @@ class Documenter:
                     properties=frozenset(obj_properties),
                     _obj=obj,
                 )
-                self.props = props
             else:
                 props = _ItemProperties(
                     obj_type=objtype,
@@ -555,13 +548,13 @@ class Documenter:
                     docstring_lines=(),
                     _obj=obj,
                 )
-                self.props = props
 
+        self.props = props
         self.args = args
         self.retann = retann
-        self.modname = self.props.module_name
-        self.objpath = list(self.props.parts)
-        self.fullname = self.props.full_name
+        self.modname = props.module_name
+        self.objpath = list(props.parts)
+        self.fullname = props.full_name
         return True
 
     def resolve_name(
