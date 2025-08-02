@@ -816,7 +816,28 @@ class Documenter:
         # members given by *self.options.members* (which may also be None).
         members_check_module = False
         if isinstance(self, ModuleDocumenter):
-            members_ = self.get_module_members()
+            attr_docs = self.analyzer.attr_docs if self.analyzer else {}
+            members_: dict[str, ObjectMember] = {}
+            for name in dir(self.object):
+                try:
+                    value = safe_getattr(self.object, name, None)
+                    if ismock(value):
+                        value = undecorate(value)
+                    docstring = attr_docs.get(('', name), [])
+                    members_[name] = ObjectMember(
+                        name, value, docstring='\n'.join(docstring)
+                    )
+                except AttributeError:
+                    continue
+
+            # annotation only member (ex. attr: int)
+            for name in inspect.getannotations(self.object):
+                if name not in members_:
+                    docstring = attr_docs.get(('', name), [])
+                    members_[name] = ObjectMember(
+                        name, INSTANCE_ATTR, docstring='\n'.join(docstring)
+                    )
+
             if want_all:
                 members = list(members_.values())
 
@@ -1151,36 +1172,6 @@ class ModuleDocumenter(Documenter):
             self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
-
-    def get_module_members(self) -> dict[str, ObjectMember]:
-        """Get members of target module."""
-        if self.analyzer:
-            attr_docs = self.analyzer.attr_docs
-        else:
-            attr_docs = {}
-
-        members: dict[str, ObjectMember] = {}
-        for name in dir(self.props._obj):
-            try:
-                value = safe_getattr(self.props._obj, name, None)
-                if ismock(value):
-                    value = undecorate(value)
-                docstring = attr_docs.get(('', name), [])
-                members[name] = ObjectMember(
-                    name, value, docstring='\n'.join(docstring)
-                )
-            except AttributeError:
-                continue
-
-        # annotation only member (ex. attr: int)
-        for name in inspect.getannotations(self.props._obj):
-            if name not in members:
-                docstring = attr_docs.get(('', name), [])
-                members[name] = ObjectMember(
-                    name, INSTANCE_ATTR, docstring='\n'.join(docstring)
-                )
-
-        return members
 
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
