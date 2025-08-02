@@ -43,6 +43,7 @@ class _ItemProperties:
     docstring_lines: tuple[str, ...]
 
     _obj: Any
+    _obj___module__: str | None
 
     @property
     def name(self) -> str:
