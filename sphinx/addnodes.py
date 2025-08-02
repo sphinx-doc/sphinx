@@ -402,8 +402,8 @@ class desc_sig_literal_char(desc_sig_element, _sig_element=True):
 class versionmodified(nodes.Admonition, nodes.TextElement):
     """Node for version change entries.
 
-    Currently used for "versionadded", "versionchanged", "deprecated"
-    and "versionremoved" directives.
+    Currently used for "version-added", "version-changed", "version-deprecated"
+    and "version-removed" directives, along with their aliases.
     """
 
 
