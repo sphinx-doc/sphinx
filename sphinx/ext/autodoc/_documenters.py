@@ -605,16 +605,6 @@ class Documenter:
             for line, src in zip(more_content.data, more_content.items, strict=True):
                 self.add_line(line, src[0], src[1])
 
-    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
-        """Return `(members_check_module, members)` where `members` is a
-        list of `(membername, member)` pairs of the members of *self.object*.
-
-        If *want_all* is True, return all members.  Else, only return those
-        members given by *self.options.members* (which may also be None).
-        """
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
-
     def filter_members(
         self, members: list[ObjectMember], want_all: bool
     ) -> list[tuple[str, Any, bool]]:
@@ -821,7 +811,75 @@ class Documenter:
             all_members or self.options.inherited_members or self.options.members is ALL
         )
         # find out which members are documentable
-        members_check_module, members = self.get_object_members(want_all)
+
+        # If *want_all* is True, return all members.  Else, only return those
+        # members given by *self.options.members* (which may also be None).
+        members_check_module = False
+        if isinstance(self, ModuleDocumenter):
+            members_ = self.get_module_members()
+            if want_all:
+                members = list(members_.values())
+
+                module_all = self.props.all
+                if self.options.ignore_module_all or module_all is None:
+                    # for implicit module members, check __module__ to avoid
+                    # documenting imported objects
+                    members_check_module = True
+                else:
+                    module_all_set = frozenset(module_all)
+                    for member in members:
+                        if member.__name__ not in module_all_set:
+                            member.skipped = True
+            else:
+                assert self.options.members is not ALL
+                members = [
+                    members_[name]
+                    for name in self.options.members or ()
+                    if name in members_
+                ]
+                for name in self.options.members or ():
+                    if name in members_:
+                        continue
+                    logger.warning(
+                        __(
+                            'missing attribute mentioned in :members: option: '
+                            'module %s, attribute %s'
+                        ),
+                        safe_getattr(self.object, '__name__', '???'),
+                        name,
+                        type='autodoc',
+                    )
+        elif isinstance(self, ClassDocumenter):
+            members_ = get_class_members(
+                self.object,
+                self.objpath,
+                self.get_attr,
+                self.config.autodoc_inherit_docstrings,
+            )
+            if want_all:
+                members = list(members_.values())
+                if not self.options.inherited_members:
+                    members = [m for m in members if m.class_ == self.object]
+            else:
+                # specific members given
+                assert self.options.members is not ALL
+                members = [
+                    members_[name]
+                    for name in self.options.members or ()
+                    if name in members_
+                ]
+                for name in self.options.members or ():
+                    if name in members_:
+                        continue
+                    logger.warning(
+                        __('missing attribute %s in object %s'),
+                        name,
+                        self.fullname,
+                        type='autodoc',
+                    )
+        else:
+            msg = 'must be implemented in subclasses'
+            raise NotImplementedError(msg)
 
         # document non-skipped members
         member_documenters: list[tuple[Documenter, bool]] = []
@@ -1123,40 +1181,6 @@ class ModuleDocumenter(Documenter):
                 )
 
         return members
-
-    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
-        members = self.get_module_members()
-        if want_all:
-            module_all = self.props.all
-            if self.options.ignore_module_all or module_all is None:
-                # for implicit module members, check __module__ to avoid
-                # documenting imported objects
-                return True, list(members.values())
-            else:
-                module_all_set = frozenset(module_all)
-                for member in members.values():
-                    if member.__name__ not in module_all_set:
-                        member.skipped = True
-
-                return False, list(members.values())
-        else:
-            assert self.options.members is not ALL
-            memberlist = self.options.members or []
-            ret = []
-            for name in memberlist:
-                if name in members:
-                    ret.append(members[name])
-                else:
-                    logger.warning(
-                        __(
-                            'missing attribute mentioned in :members: option: '
-                            'module %s, attribute %s'
-                        ),
-                        safe_getattr(self.props._obj, '__name__', '???'),
-                        name,
-                        type='autodoc',
-                    )
-            return False, ret
 
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
@@ -1685,31 +1709,6 @@ class ClassDocumenter(Documenter):
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
             self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
-
-    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
-        members = get_class_members(
-            self.props._obj,
-            self.props.parts,
-            self.get_attr,
-            self.config.autodoc_inherit_docstrings,
-        )
-        if not want_all:
-            if not self.options.members:
-                return False, []
-            # specific members given
-            selected = []
-            assert self.options.members is not ALL
-            for name in self.options.members:
-                if name in members:
-                    selected.append(members[name])
-                else:
-                    msg = __('missing attribute %s in object %s')
-                    logger.warning(msg, name, self.props.full_name, type='autodoc')
-            return False, selected
-        elif self.options.inherited_members:
-            return False, list(members.values())
-        else:
-            return False, [m for m in members.values() if m.class_ == self.props._obj]
 
     def get_doc(self) -> list[list[str]] | None:
         if isinstance(self.props._obj, TypeVar):
