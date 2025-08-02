@@ -50,7 +50,7 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence, Set
     from types import ModuleType
     from typing import Any, ClassVar, Literal
 
@@ -66,6 +66,7 @@ if TYPE_CHECKING:
         _ModuleProperties,
     )
     from sphinx.ext.autodoc.directive import DocumenterBridge
+    from sphinx.ext.autodoc.importer import _AttrGetter
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
 
@@ -621,32 +622,7 @@ class Documenter:
         The user can override the skipping decision by connecting to the
         ``autodoc-skip-member`` event.
         """
-
-        def is_filtered_inherited_member(name: str, obj: Any) -> bool:
-            inherited_members = self.options.inherited_members or set()
-            seen = set()
-
-            if inspect.isclass(self.props._obj):
-                for cls in self.props._obj.__mro__:
-                    if name in cls.__dict__:
-                        seen.add(cls)
-                    if (
-                        cls.__name__ in inherited_members
-                        and cls != self.props._obj
-                        and any(
-                            issubclass(potential_child, cls) for potential_child in seen
-                        )
-                    ):
-                        # given member is a member of specified *super class*
-                        return True
-                    if name in cls.__dict__:
-                        return False
-                    if name in self.get_attr(cls, '__annotations__', {}):
-                        return False
-                    if isinstance(obj, ObjectMember) and obj.class_ is cls:
-                        return False
-
-            return False
+        inherited_members: Set[str] = frozenset(self.options.inherited_members or ())
 
         ret = []
 
@@ -657,121 +633,26 @@ class Documenter:
             attr_docs = self.analyzer.find_attr_docs()
         else:
             attr_docs = {}
+        inherit_docstrings = self.config.autodoc_inherit_docstrings
 
         # process members and determine which to skip
         for obj in members:
-            membername = obj.__name__
+            member_name = obj.__name__
             member = obj.object
-
-            # if isattr is True, the member is documented as an attribute
-            isattr = member is INSTANCE_ATTR or (namespace, membername) in attr_docs
-
+            has_attr_doc = (namespace, member_name) in attr_docs
             try:
-                doc = getdoc(
+                keep = _should_keep_member(
+                    member_name,
                     member,
-                    self.get_attr,
-                    self.config.autodoc_inherit_docstrings,
-                    self.props._obj,
-                    membername,
+                    member_obj=obj,
+                    get_attr=self.get_attr,
+                    has_attr_doc=has_attr_doc,
+                    inherit_docstrings=inherit_docstrings,
+                    inherited_members=inherited_members,
+                    options=self.options,
+                    parent=self.object,
+                    want_all=want_all,
                 )
-                if not isinstance(doc, str):
-                    # Ignore non-string __doc__
-                    doc = None
-
-                # if the member __doc__ is the same as self's __doc__, it's just
-                # inherited and therefore not the member's doc
-                cls = self.get_attr(member, '__class__', None)
-                if cls:
-                    cls_doc = self.get_attr(cls, '__doc__', None)
-                    if cls_doc == doc:
-                        doc = None
-
-                if isinstance(obj, ObjectMember) and obj.docstring:
-                    # hack for ClassDocumenter to inject docstring via ObjectMember
-                    doc = obj.docstring
-
-                doc, metadata = separate_metadata(doc)
-                has_doc = bool(doc)
-
-                if 'private' in metadata:
-                    # consider a member private if docstring has "private" metadata
-                    isprivate = True
-                elif 'public' in metadata:
-                    # consider a member public if docstring has "public" metadata
-                    isprivate = False
-                else:
-                    isprivate = membername.startswith('_')
-
-                keep = False
-                if ismock(member) and (namespace, membername) not in attr_docs:
-                    # mocked module or object
-                    pass
-                elif (
-                    self.options.exclude_members
-                    and membername in self.options.exclude_members
-                ):
-                    # remove members given by exclude-members
-                    keep = False
-                elif want_all and special_member_re.match(membername):
-                    # special __methods__
-                    if (
-                        self.options.special_members
-                        and membername in self.options.special_members
-                    ):
-                        if membername == '__doc__':  # NoQA: SIM114
-                            keep = False
-                        elif is_filtered_inherited_member(membername, obj):
-                            keep = False
-                        else:
-                            keep = has_doc or self.options.undoc_members  # type: ignore[assignment]
-                    else:
-                        keep = False
-                elif (namespace, membername) in attr_docs:
-                    if want_all and isprivate:
-                        if self.options.private_members is None:
-                            keep = False
-                        else:
-                            keep = membername in self.options.private_members
-                    else:
-                        # keep documented attributes
-                        keep = True
-                elif want_all and isprivate:
-                    if has_doc or self.options.undoc_members:
-                        if self.options.private_members is None:  # NoQA: SIM114
-                            keep = False
-                        elif is_filtered_inherited_member(membername, obj):
-                            keep = False
-                        else:
-                            keep = membername in self.options.private_members
-                    else:
-                        keep = False
-                else:
-                    if self.options.members is ALL and is_filtered_inherited_member(
-                        membername, obj
-                    ):
-                        keep = False
-                    else:
-                        # ignore undocumented members if :undoc-members: is not given
-                        keep = has_doc or self.options.undoc_members  # type: ignore[assignment]
-
-                if isinstance(obj, ObjectMember) and obj.skipped:
-                    # forcedly skipped member (ex. a module attribute not defined in __all__)
-                    keep = False
-
-                # give the user a chance to decide whether this member
-                # should be skipped
-                if self._events is not None:
-                    # let extensions preprocess docstrings
-                    skip_user = self._events.emit_firstresult(
-                        'autodoc-skip-member',
-                        self.objtype,
-                        membername,
-                        member,
-                        not keep,
-                        self.options,
-                    )
-                    if skip_user is not None:
-                        keep = not skip_user
             except Exception as exc:
                 logger.warning(
                     __(
@@ -779,15 +660,32 @@ class Documenter:
                         'the following exception was raised:\n%s'
                     ),
                     self.name,
-                    membername,
+                    member_name,
                     member,
                     exc,
                     type='autodoc',
                 )
                 keep = False
 
+            # give the user a chance to decide whether this member
+            # should be skipped
+            if self._events is not None:
+                # let extensions preprocess docstrings
+                skip_user = self._events.emit_firstresult(
+                    'autodoc-skip-member',
+                    self.objtype,
+                    member_name,
+                    member,
+                    not keep,
+                    self.options,
+                )
+                if skip_user is not None:
+                    keep = not skip_user
+
             if keep:
-                ret.append((membername, member, isattr))
+                # if is_attr is True, the member is documented as an attribute
+                is_attr = member is INSTANCE_ATTR or has_attr_doc
+                ret.append((member_name, member, is_attr))
 
         return ret
 
@@ -2562,3 +2460,156 @@ def _add_content_generic_alias_(
         alias = restify(obj, mode=_get_render_mode(autodoc_typehints_format))
         more_content.append(_('alias of %s') % alias, '')
         more_content.append('', '')
+
+
+def _should_keep_member(
+    member_name: str,
+    member: Any,
+    member_obj: ObjectMember | Any,
+    *,
+    get_attr: _AttrGetter,
+    has_attr_doc: bool,
+    inherit_docstrings: bool,
+    inherited_members: Set[str],
+    options: _AutoDocumenterOptions,
+    parent: Any,
+    want_all: bool,
+) -> bool:
+    exclude_members = options.exclude_members
+    special_members = options.special_members
+    private_members = options.private_members
+    undoc_members = options.undoc_members
+
+    doc = getdoc(
+        member,
+        get_attr,
+        inherit_docstrings,
+        parent,
+        member_name,
+    )
+    if not isinstance(doc, str):
+        # Ignore non-string __doc__
+        doc = None
+
+    # if the member __doc__ is the same as self's __doc__, it's just
+    # inherited and therefore not the member's doc
+    cls = get_attr(member, '__class__', None)
+    if cls:
+        cls_doc = get_attr(cls, '__doc__', None)
+        if cls_doc == doc:
+            doc = None
+
+    if isinstance(member_obj, ObjectMember) and member_obj.docstring:
+        # hack for ClassDocumenter to inject docstring via ObjectMember
+        doc = member_obj.docstring
+
+    doc, metadata = separate_metadata(doc)
+    has_doc = bool(doc)
+
+    if 'private' in metadata:
+        # consider a member private if docstring has "private" metadata
+        is_private = True
+    elif 'public' in metadata:
+        # consider a member public if docstring has "public" metadata
+        is_private = False
+    else:
+        is_private = member_name.startswith('_')
+
+    keep = False
+    if ismock(member) and not has_attr_doc:
+        # mocked module or object
+        pass
+    elif exclude_members and member_name in exclude_members:
+        # remove members given by exclude-members
+        keep = False
+    elif want_all and special_member_re.match(member_name):
+        # special __methods__
+        if special_members and member_name in special_members:
+            if member_name == '__doc__':  # NoQA: SIM114
+                keep = False
+            elif _is_filtered_inherited_member(
+                member_name,
+                member_obj,
+                parent=parent,
+                inherited_members=inherited_members,
+                get_attr=get_attr,
+            ):
+                keep = False
+            else:
+                keep = has_doc or undoc_members  # type: ignore[assignment]
+        else:
+            keep = False
+    elif has_attr_doc:
+        if want_all and is_private:
+            if private_members is None:
+                keep = False
+            else:
+                keep = member_name in private_members
+        else:
+            # keep documented attributes
+            keep = True
+    elif want_all and is_private:
+        if has_doc or undoc_members:
+            if private_members is None:  # NoQA: SIM114
+                keep = False
+            elif _is_filtered_inherited_member(
+                member_name,
+                member_obj,
+                parent=parent,
+                inherited_members=inherited_members,
+                get_attr=get_attr,
+            ):
+                keep = False
+            else:
+                keep = member_name in private_members
+        else:
+            keep = False
+    else:
+        if options.members is ALL and _is_filtered_inherited_member(
+            member_name,
+            member_obj,
+            parent=parent,
+            inherited_members=inherited_members,
+            get_attr=get_attr,
+        ):
+            keep = False
+        else:
+            # ignore undocumented members if :undoc-members: is not given
+            keep = has_doc or undoc_members  # type: ignore[assignment]
+
+    if isinstance(member_obj, ObjectMember) and member_obj.skipped:
+        # forcedly skipped member (ex. a module attribute not defined in __all__)
+        keep = False
+    return keep
+
+
+def _is_filtered_inherited_member(
+    member_name: str,
+    member_obj: Any,
+    *,
+    parent: Any,
+    inherited_members: Set[str],
+    get_attr: _AttrGetter,
+) -> bool:
+    seen = set()
+
+    if not inspect.isclass(parent):
+        return False
+
+    for cls in parent.__mro__:
+        if member_name in cls.__dict__:
+            seen.add(cls)
+        if (
+            cls.__name__ in inherited_members
+            and cls != parent
+            and any(issubclass(potential_child, cls) for potential_child in seen)
+        ):
+            # given member is a member of specified *super class*
+            return True
+        if member_name in cls.__dict__:
+            return False
+        if member_name in get_attr(cls, '__annotations__', {}):
+            return False
+        if isinstance(member_obj, ObjectMember) and member_obj.class_ is cls:
+            return False
+    return False
