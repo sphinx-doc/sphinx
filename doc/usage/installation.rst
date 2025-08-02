@@ -56,8 +56,6 @@ Run the following command::
    Or, if writing documentation for a Python package,
    place the dependencies in the `pyproject.toml file`__::
 
-      $ pip install .[docs]
-      # or
       $ pip install . --group docs
 
    __ https://pip.pypa.io/en/stable/reference/requirements-file-format/
