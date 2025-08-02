@@ -429,6 +429,7 @@ class InheritanceDiagram(SphinxDirective):
                 include_subclasses='include-subclasses' in self.options,
             )
         except InheritanceException as err:
+            assert node.document is not None
             return [node.document.reporter.warning(err, line=self.lineno)]
 
         # Create xref nodes for each target of the graph's image map and
