@@ -708,11 +708,59 @@ class Documenter:
         want_all = bool(
             all_members or self.options.inherited_members or self.options.members is ALL
         )
+        filtered = self._get_members_to_document(want_all=want_all)
+        # document non-skipped members
+        member_documenters: list[tuple[Documenter, bool]] = []
+        for mname, member, isattr in filtered:
+            classes = [
+                cls
+                for cls in self.documenters.values()
+                if cls.can_document_member(member, mname, isattr, self)
+            ]
+            if not classes:
+                # don't know how to document this member
+                continue
+            # prefer the documenter with the highest priority
+            classes.sort(key=lambda cls: cls.priority)
+            # give explicitly separated module name, so that members
+            # of inner classes can be documented
+            full_mname = f'{self.modname}::' + '.'.join((*self.objpath, mname))
+            documenter = classes[-1](self.directive, full_mname, indent)
+            member_documenters.append((documenter, isattr))
+
+        member_order = self.options.member_order or self.config.autodoc_member_order
+        # We now try to import all objects before ordering them. This is to
+        # avoid possible circular imports if we were to import objects after
+        # their associated documenters have been sorted.
+        member_documenters = [
+            (documenter, isattr)
+            for documenter, isattr in member_documenters
+            if documenter._load_object_by_name() is not None
+        ]
+        member_documenters = self.sort_members(member_documenters, member_order)
+
+        # reset current objects
+        self._current_document.autodoc_module = ''
+        self._current_document.autodoc_class = ''
+
+        # for implicit module members, check __module__ to avoid
+        # documenting imported objects
+        members_check_module = (
+            isinstance(self, ModuleDocumenter)
+            and want_all
+            and (self.options.ignore_module_all or self.props.all is None)
+        )
+        return member_documenters, members_check_module
+
+    def _get_members_to_document(
+        self,
+        *,
+        want_all: bool,
+    ) -> list[tuple[str, Any, bool]]:
         # find out which members are documentable
 
         # If *want_all* is True, return all members.  Else, only return those
         # members given by *self.options.members* (which may also be None).
-        members_check_module = False
         if isinstance(self, ModuleDocumenter):
             attr_docs = self.analyzer.attr_docs if self.analyzer else {}
             members_: dict[str, ObjectMember] = {}
@@ -741,9 +789,7 @@ class Documenter:
 
                 module_all = self.props.all
                 if self.options.ignore_module_all or module_all is None:
-                    # for implicit module members, check __module__ to avoid
-                    # documenting imported objects
-                    members_check_module = True
+                    pass
                 else:
                     module_all_set = frozenset(module_all)
                     for member in members:
@@ -801,42 +847,7 @@ class Documenter:
             raise NotImplementedError(msg)
 
         filtered = self.filter_members(members, want_all)
-        # document non-skipped members
-        member_documenters: list[tuple[Documenter, bool]] = []
-        for mname, member, isattr in filtered:
-            classes = [
-                cls
-                for cls in self.documenters.values()
-                if cls.can_document_member(member, mname, isattr, self)
-            ]
-            if not classes:
-                # don't know how to document this member
-                continue
-            # prefer the documenter with the highest priority
-            classes.sort(key=lambda cls: cls.priority)
-            # give explicitly separated module name, so that members
-            # of inner classes can be documented
-            module_prefix = f'{self.props.module_name}::'
-            full_mname = module_prefix + '.'.join((*self.props.parts, mname))
-            documenter = classes[-1](self.directive, full_mname, indent)
-            member_documenters.append((documenter, isattr))
-
-        member_order = self.options.member_order or self.config.autodoc_member_order
-        # We now try to import all objects before ordering them. This is to
-        # avoid possible circular imports if we were to import objects after
-        # their associated documenters have been sorted.
-        member_documenters = [
-            (documenter, isattr)
-            for documenter, isattr in member_documenters
-            if documenter._load_object_by_name() is not None
-        ]
-        member_documenters = self.sort_members(member_documenters, member_order)
-
-        # reset current objects
-        self._current_document.autodoc_module = ''
-        self._current_document.autodoc_class = ''
-
-        return member_documenters, members_check_module
+        return filtered
 
     @staticmethod
     def _document_members(
