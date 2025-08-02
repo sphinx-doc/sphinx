@@ -37,6 +37,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     app.add_config_value('apidoc_max_depth', 4, 'env', types=frozenset({int}))
     app.add_config_value('apidoc_follow_links', False, 'env', types=frozenset({bool}))
+    app.add_config_value('apidoc_remove_old', True, 'env', types=frozenset({bool}))
     app.add_config_value(
         'apidoc_separate_modules', False, 'env', types=frozenset({bool})
     )

@@ -62,6 +62,10 @@ Features added
   The location of the cache directory must not be relied upon externally,
   as it may change without notice or warning in future releases.
   Patch by Adam Turner.
+* #13668: :mod:`sphinx.ext.apidoc`: Support :confval:`apidoc_remove_old`
+  and :code:`'remove_old'` key of :confval:`apidoc_modules` when using apidoc as
+  an extension, like :option:`sphinx-apidoc --remove-old`.
+  Patch by Edouard Choinière.
 
 Bugs fixed
 ----------
