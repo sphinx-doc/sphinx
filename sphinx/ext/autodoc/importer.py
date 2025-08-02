@@ -819,7 +819,6 @@ def _load_object_by_name(
 
         props = _ModuleProperties(
             obj_type=objtype,
-            name=object_name,
             module_name=module_name,
             docstring_lines=(),
             file_path=Path(file_path) if file_path is not None else None,
@@ -838,7 +837,6 @@ def _load_object_by_name(
 
         props = _ClassDefProperties(
             obj_type=objtype,  # type: ignore[arg-type]
-            name=object_name,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -854,7 +852,6 @@ def _load_object_by_name(
 
         props = _FunctionDefProperties(
             obj_type=objtype,  # type: ignore[arg-type]
-            name=object_name,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -871,7 +868,6 @@ def _load_object_by_name(
 
         props = _FunctionDefProperties(
             obj_type=objtype,
-            name=object_name,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -891,7 +887,6 @@ def _load_object_by_name(
 
         props = _FunctionDefProperties(
             obj_type=objtype,
-            name=object_name,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -917,7 +912,6 @@ def _load_object_by_name(
 
         props = _AssignStatementProperties(
             obj_type=objtype,
-            name=object_name,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -957,7 +951,6 @@ def _load_object_by_name(
 
         props = _AssignStatementProperties(
             obj_type=objtype,
-            name=object_name,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -970,7 +963,6 @@ def _load_object_by_name(
     else:
         props = _ItemProperties(
             obj_type=objtype,
-            name=object_name,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import dataclasses
 
+from sphinx.ext.autodoc._sentinels import RUNTIME_INSTANCE_ATTRIBUTE, UNINITIALIZED_ATTR
+
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -33,8 +35,6 @@ if TYPE_CHECKING:
 class _ItemProperties:
     #: The kind of object being documented
     obj_type: _AutodocObjType
-    #: The name of the item
-    name: str
     #: The dotted module name
     module_name: str
     #: The fully-qualified name within the module
@@ -44,9 +44,16 @@ class _ItemProperties:
 
     _obj: Any
 
-    # @property
-    # def name(self) -> str:
-    #     return self.module_name.rpartition('.')[2]
+    @property
+    def name(self) -> str:
+        """The name of the item"""
+        return self.parts[-1]
+
+    @property
+    def object_name(self) -> str:
+        if self._obj is RUNTIME_INSTANCE_ATTRIBUTE or self._obj is UNINITIALIZED_ATTR:
+            return ''
+        return self.name
 
     @property
     def full_name(self) -> str:
@@ -65,9 +72,17 @@ class _ModuleProperties(_ItemProperties):
     file_path: Path | None
     all: Sequence[str] | None
 
-    # @property
-    # def name(self) -> str:
-    #     return self.module_name.rpartition('.')[2]
+    @property
+    def name(self) -> str:
+        return self.module_name.rpartition('.')[2]
+
+    @property
+    def object_name(self) -> str:
+        return ''
+
+    @property
+    def full_name(self) -> str:
+        return self.module_name
 
     @property
     def parent_names(self) -> tuple[str, ...]:

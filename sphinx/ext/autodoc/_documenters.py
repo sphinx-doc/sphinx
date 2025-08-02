@@ -263,7 +263,7 @@ class Documenter:
         self.fullname = props.full_name
         self.module = module
         self.parent = parent
-        self.object_name = props.name
+        self.object_name = props.object_name
         self.object = props._obj
         if self.objtype == 'method':
             if 'staticmethod' in props.properties:  # type: ignore[attr-defined]

@@ -163,8 +163,7 @@ def test_format_signature(app):
         inst.args = args
         inst.retann = retann
         inst.props = _ClassDefProperties(
-            obj_type=inst.objtype,
-            name=name,
+            obj_type=objtype,
             module_name=inst.modname,
             parts=(name,),
             docstring_lines=(),
