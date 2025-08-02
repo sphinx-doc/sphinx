@@ -800,9 +800,10 @@ class Documenter:
             msg = 'must be implemented in subclasses'
             raise NotImplementedError(msg)
 
+        filtered = self.filter_members(members, want_all)
         # document non-skipped members
         member_documenters: list[tuple[Documenter, bool]] = []
-        for mname, member, isattr in self.filter_members(members, want_all):
+        for mname, member, isattr in filtered:
             classes = [
                 cls
                 for cls in self.documenters.values()
