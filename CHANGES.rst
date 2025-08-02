@@ -62,6 +62,9 @@ Features added
   The location of the cache directory must not be relied upon externally,
   as it may change without notice or warning in future releases.
   Patch by Adam Turner.
+* #10385: Add RTL (right-to-left) support for all Sphinx themes via the ``is_rtl``
+  theme option. Includes automatic layout mirroring, and bidirectional text support.
+  Patch by Alireza Shabani.
 
 Bugs fixed
 ----------
