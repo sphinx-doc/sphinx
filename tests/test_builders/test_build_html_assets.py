@@ -68,7 +68,7 @@ def test_html_assets(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_assets_order(app, monkeypatch):
+def test_assets_order(app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 
     app.add_css_file('normal.css')

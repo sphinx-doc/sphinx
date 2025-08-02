@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 def test_event_priority() -> None:
     result = []
-    app = object()  # pass a dummy object as an app
+    app = SimpleNamespace(pdb=False)  # pass a dummy object as an app
     events = EventManager(app)  # type: ignore[arg-type]
     events.connect('builder-inited', lambda app: result.append(1), priority=500)
     events.connect('builder-inited', lambda app: result.append(2), priority=500)

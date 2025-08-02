@@ -160,7 +160,7 @@ class UIDTransform(SphinxTransform):
 
         if env.versioning_compare:
             # get old doctree
-            filename = env.doctreedir / f'{env.docname}.doctree'
+            filename = env.doctreedir / f'{env.current_document.docname}.doctree'
             try:
                 with open(filename, 'rb') as f:
                     old_doctree = pickle.load(f)

@@ -159,10 +159,10 @@ def test_dark_style(app, monkeypatch):
     app.build()
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
-    css_file, properties = app.registry.css_files[0]
-    assert css_file == 'pygments_dark.css'
-    assert 'media' in properties
-    assert properties['media'] == '(prefers-color-scheme: dark)'
+    css_file = app.builder._css_files[1]
+    assert css_file.filename == '_static/pygments_dark.css'
+    assert 'media' in css_file.attributes
+    assert css_file.attributes['media'] == '(prefers-color-scheme: dark)'
 
     assert sorted(f.filename for f in app.builder._css_files) == [
         '_static/classic.css',

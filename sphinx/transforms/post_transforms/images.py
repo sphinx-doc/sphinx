@@ -45,16 +45,16 @@ class BaseImageConverter(SphinxTransform):
 
     @property
     def imagedir(self) -> _StrPath:
-        return self.app.doctreedir / 'images'
+        return self.env.doctreedir / 'images'
 
 
 class ImageDownloader(BaseImageConverter):
     default_priority = 100
 
     def match(self, node: nodes.image) -> bool:
-        if not self.app.builder.supported_image_types:
+        if not self.env._builder_cls.supported_image_types:
             return False
-        if self.app.builder.supported_remote_images:
+        if self.env._builder_cls.supported_remote_images:
             return False
         return '://' in node['uri']
 
@@ -123,14 +123,14 @@ class ImageDownloader(BaseImageConverter):
         node['candidates'].pop('?')
         node['candidates'][mimetype] = path_str
         node['uri'] = path_str
-        self.env.images.add_file(self.env.docname, path_str)
+        self.env.images.add_file(self.env.current_document.docname, path_str)
 
 
 class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_data_uri_images is True:
+        if self.env._builder_cls.supported_data_uri_images is True:
             return False  # do not transform the image; data URIs are valid in the build output
         return node['uri'].startswith('data:')
 
@@ -156,7 +156,7 @@ class DataURIExtractor(BaseImageConverter):
         node['candidates'].pop('?')
         node['candidates'][image.mimetype] = path_str
         node['uri'] = path_str
-        self.env.images.add_file(self.env.docname, path_str)
+        self.env.images.add_file(self.env.current_document.docname, path_str)
 
 
 def get_filename_for(filename: str, mimetype: str) -> str:
@@ -208,12 +208,12 @@ class ImageConverter(BaseImageConverter):
     conversion_rules: list[tuple[str, str]] = []
 
     def match(self, node: nodes.image) -> bool:
-        if not self.app.builder.supported_image_types:
+        if not self.env._builder_cls.supported_image_types:
             return False
         if '?' in node['candidates']:
             return False
         node_mime_types = set(self.guess_mimetypes(node))
-        supported_image_types = set(self.app.builder.supported_image_types)
+        supported_image_types = set(self.env._builder_cls.supported_image_types)
         if node_mime_types & supported_image_types:
             # builder supports the image; no need to convert
             return False
@@ -233,7 +233,7 @@ class ImageConverter(BaseImageConverter):
 
     def get_conversion_rule(self, node: nodes.image) -> tuple[str, str]:
         for candidate in self.guess_mimetypes(node):
-            for supported in self.app.builder.supported_image_types:
+            for supported in self.env._builder_cls.supported_image_types:
                 rule = (candidate, supported)
                 if rule in self.conversion_rules:
                     return rule
@@ -250,7 +250,7 @@ class ImageConverter(BaseImageConverter):
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            path = self.app.srcdir / node['uri']
+            path = self.env.srcdir / node['uri']
             guessed = guess_mimetype(path)
             return [guessed] if guessed is not None else []
         else:
@@ -269,7 +269,7 @@ class ImageConverter(BaseImageConverter):
         ensuredir(self.imagedir)
         destpath = self.imagedir / filename
 
-        abs_srcpath = self.app.srcdir / srcpath
+        abs_srcpath = self.env.srcdir / srcpath
         if self.convert(abs_srcpath, destpath):
             if '*' in node['candidates']:
                 node['candidates']['*'] = str(destpath)
@@ -278,7 +278,7 @@ class ImageConverter(BaseImageConverter):
             node['uri'] = str(destpath)
 
             self.env.original_image_uri[destpath] = srcpath
-            self.env.images.add_file(self.env.docname, destpath)
+            self.env.images.add_file(self.env.current_document.docname, destpath)
 
     def convert(
         self, _from: str | os.PathLike[str], _to: str | os.PathLike[str]

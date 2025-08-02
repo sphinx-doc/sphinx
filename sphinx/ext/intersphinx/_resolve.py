@@ -46,7 +46,12 @@ def _create_element_from_result(
         # get correct path in case of subdirectories
         uri = (_relative_path(Path(), Path(node['refdoc']).parent) / uri).as_posix()
     if inv_item.project_version:
-        reftitle = _('(in %s v%s)') % (inv_item.project_name, inv_item.project_version)
+        if not inv_item.project_version[0].isdigit():
+            # Do not append 'v' to non-numeric version
+            version = inv_item.project_version
+        else:
+            version = f'v{inv_item.project_version}'
+        reftitle = _('(in %s %s)') % (inv_item.project_name, version)
     else:
         reftitle = _('(in %s)') % (inv_item.project_name,)
 
@@ -493,7 +498,7 @@ class IntersphinxRole(SphinxRole):
         assert name.startswith('external'), name
         suffix = name[9:]
         if name[8] == '+':
-            inv_name, suffix = suffix.split(':', 1)
+            inv_name, _, suffix = suffix.partition(':')
             return inv_name, suffix
         elif name[8] == ':':
             return None, suffix
@@ -522,7 +527,7 @@ class IntersphinxRole(SphinxRole):
             *args,
             type='intersphinx',
             subtype='external',
-            location=(self.env.docname, self.lineno),
+            location=(self.env.current_document.docname, self.lineno),
         )
 
     def _concat_strings(self, strings: Iterable[str]) -> str:

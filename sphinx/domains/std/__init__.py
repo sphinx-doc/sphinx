@@ -27,7 +27,6 @@ if TYPE_CHECKING:
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
-    from docutils.parsers.rst import Directive
 
     from sphinx.addnodes import desc_signature
     from sphinx.application import Sphinx
@@ -36,8 +35,6 @@ if TYPE_CHECKING:
     from sphinx.util.typing import (
         ExtensionMetadata,
         OptionSpec,
-        RoleFunction,
-        TitleGetter,
     )
 
 logger = logging.getLogger(__name__)
@@ -218,7 +215,7 @@ class Target(SphinxDirective):
             ret.insert(0, inode)
         name = self.name
         if ':' in self.name:
-            _, name = self.name.split(':', 1)
+            name = self.name.partition(':')[-1]
 
         std = self.env.domains.standard_domain
         std.note_object(name, fullname, node_id, location=node)
@@ -311,7 +308,10 @@ class Cmdoption(ObjectDescription[str]):
         domain = self.env.domains.standard_domain
         for optname in signode.get('allnames', ()):
             domain.add_program_option(
-                currprogram, optname, self.env.docname, signode['ids'][0]
+                currprogram,
+                optname,
+                self.env.current_document.docname,
+                signode['ids'][0],
             )
 
         # create an index entry
@@ -725,7 +725,7 @@ class StandardDomain(Domain):
     name = 'std'
     label = 'Default'
 
-    object_types: dict[str, ObjType] = {
+    object_types = {
         'term': ObjType(_('glossary term'), 'term', searchprio=-1),
         'token': ObjType(_('grammar token'), 'token', searchprio=-1),
         'label': ObjType(_('reference label'), 'ref', 'keyword', searchprio=-1),
@@ -735,7 +735,7 @@ class StandardDomain(Domain):
         'doc': ObjType(_('document'), 'doc', searchprio=-1),
     }
 
-    directives: dict[str, type[Directive]] = {
+    directives = {
         'program': Program,
         'cmdoption': Cmdoption,  # old name for backwards compatibility
         'option': Cmdoption,
@@ -744,7 +744,7 @@ class StandardDomain(Domain):
         'glossary': Glossary,
         'productionlist': ProductionList,
     }
-    roles: dict[str, RoleFunction | XRefRole] = {
+    roles = {
         'option': OptionXRefRole(warn_dangling=True),
         'confval': XRefRole(warn_dangling=True),
         'envvar': EnvVarXRefRole(),
@@ -780,7 +780,7 @@ class StandardDomain(Domain):
     }
 
     # labelname -> docname, sectionname
-    _virtual_doc_names: dict[str, tuple[str, str]] = {
+    _virtual_doc_names: Final = {
         'genindex': ('genindex', _('Index')),
         'modindex': ('py-modindex', _('Module Index')),
         'search': ('search', _('Search Page')),
@@ -795,7 +795,7 @@ class StandardDomain(Domain):
     }
 
     # node_class -> (figtype, title_getter)
-    enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {
+    enumerable_nodes = {
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
@@ -805,9 +805,9 @@ class StandardDomain(Domain):
         super().__init__(env)
 
         # set up enumerable nodes
-        self.enumerable_nodes = copy(
-            self.enumerable_nodes
-        )  # create a copy for this instance
+
+        # create a copy for this instance
+        self.enumerable_nodes = copy(self.enumerable_nodes)  # type: ignore[misc]
         for node, settings in env._registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
@@ -860,7 +860,7 @@ class StandardDomain(Domain):
                 docname,
                 location=location,
             )
-        self.objects[objtype, name] = (self.env.docname, labelid)
+        self.objects[objtype, name] = (self.env.current_document.docname, labelid)
 
     @property
     def _terms(self) -> dict[str, tuple[str, str]]:
@@ -874,7 +874,7 @@ class StandardDomain(Domain):
         """
         self.note_object('term', term, labelid, location)
 
-        self._terms[term.lower()] = (self.env.docname, labelid)
+        self._terms[term.lower()] = (self.env.current_document.docname, labelid)
 
     @property
     def progoptions(self) -> dict[tuple[str | None, str], tuple[str, str]]:
@@ -1235,7 +1235,7 @@ class StandardDomain(Domain):
         if not docname:
             commands = []
             while ws_re.search(target):
-                subcommand, target = ws_re.split(target, 1)
+                subcommand, target = ws_re.split(target, maxsplit=1)
                 commands.append(subcommand)
                 progname = '-'.join(commands)
 
@@ -1378,16 +1378,12 @@ class StandardDomain(Domain):
 
     def get_enumerable_node_type(self, node: Node) -> str | None:
         """Get type of enumerable nodes."""
-
-        def has_child(node: Element, cls: type) -> bool:
-            return any(isinstance(child, cls) for child in node)
-
         if isinstance(node, nodes.section):
             return 'section'
         elif (
             isinstance(node, nodes.container)
             and 'literal_block' in node
-            and has_child(node, nodes.literal_block)
+            and _has_child(node, nodes.literal_block)
         ):
             # given node is a code-block having caption
             return 'code-block'
@@ -1438,6 +1434,10 @@ class StandardDomain(Domain):
                 return None
         else:
             return None
+
+
+def _has_child(node: Element, cls: type) -> bool:
+    return any(isinstance(child, cls) for child in node)
 
 
 def warn_missing_reference(

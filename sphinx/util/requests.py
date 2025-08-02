@@ -40,7 +40,7 @@ def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
     else:
         hostname = urlsplit(url).netloc
         if '@' in hostname:
-            _, hostname = hostname.split('@', 1)
+            hostname = hostname.partition('@')[-1]
 
         return certs.get(hostname, True)
 
