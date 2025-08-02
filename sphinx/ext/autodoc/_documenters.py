@@ -932,6 +932,10 @@ class Documenter:
         check_module: bool = False,
         all_members: bool = False,
     ) -> None:
+        has_members = isinstance(self, ModuleDocumenter) or (
+            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
+        )
+
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
         # where the attribute documentation would actually be found in.
@@ -963,6 +967,9 @@ class Documenter:
                 self.directive.record_dependencies.add(analyzer.srcname)
             except PycodeError:
                 pass
+
+        if has_members:
+            member_documenters, members_check_module = self._gather_members(all_members)
 
         docstrings: list[str] = functools.reduce(
             operator.iadd, self.get_doc() or [], []
@@ -1006,11 +1013,7 @@ class Documenter:
         self.add_content(more_content)
 
         # document members, if possible
-        has_members = isinstance(self, ModuleDocumenter) or (
-            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
-        )
         if has_members:
-            member_documenters, members_check_module = self._gather_members(all_members)
             self._document_members(
                 member_documenters=member_documenters,
                 real_modname=self.real_modname,
