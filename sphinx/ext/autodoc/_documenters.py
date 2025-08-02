@@ -802,7 +802,10 @@ class Documenter:
         return ret
 
     def _gather_members(
-        self, all_members: bool = False
+        self,
+        *,
+        all_members: bool,
+        indent: str,
     ) -> tuple[list[tuple[Documenter, bool]], bool]:
         """Generate reST for member documentation.
 
@@ -837,7 +840,7 @@ class Documenter:
             # of inner classes can be documented
             module_prefix = f'{self.props.module_name}::'
             full_mname = module_prefix + '.'.join((*self.props.parts, mname))
-            documenter = classes[-1](self.directive, full_mname, self.indent)
+            documenter = classes[-1](self.directive, full_mname, indent)
             member_documenters.append((documenter, isattr))
 
         member_order = self.options.member_order or self.config.autodoc_member_order
@@ -960,6 +963,11 @@ class Documenter:
         else:
             self.directive.record_dependencies.add(self.analyzer.srcname)
 
+        if has_members:
+            member_documenters, members_check_module = self._gather_members(
+                all_members=all_members, indent=self.indent + self.content_indent
+            )
+
         if self.real_modname != guess_modname:
             # Add module to dependency list if target object is defined in other module.
             try:
@@ -967,9 +975,6 @@ class Documenter:
                 self.directive.record_dependencies.add(analyzer.srcname)
             except PycodeError:
                 pass
-
-        if has_members:
-            member_documenters, members_check_module = self._gather_members(all_members)
 
         docstrings: list[str] = functools.reduce(
             operator.iadd, self.get_doc() or [], []
