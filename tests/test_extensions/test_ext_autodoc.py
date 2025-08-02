@@ -169,6 +169,7 @@ def test_format_signature(app):
             docstring_lines=(),
             bases=getattr(obj, '__bases__', None),
             _obj=obj,
+            _obj___module__=getattr(obj, '__module__', None),
             _obj___name__=name,
         )
         res = inst.format_signature()

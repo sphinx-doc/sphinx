@@ -325,7 +325,7 @@ class Documenter:
         It can differ from the name of the module through which the object was
         imported.
         """
-        return self.get_attr(self.object, '__module__', None) or self.modname
+        return self.props._obj___module__ or self.props.module_name
 
     def check_module(self) -> bool:
         """Check if *self.object* is really defined in the module given by
@@ -925,7 +925,7 @@ class Documenter:
         # where the attribute documentation would actually be found in.
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
-        guess_modname = self.get_real_modname()
+        guess_modname = self.props._obj___module__ or self.props.module_name
         self.real_modname: str = real_modname or guess_modname
 
         # try to also get a source code analyzer for attribute docs
@@ -1764,7 +1764,9 @@ class ClassDocumenter(Documenter):
             if self.props.doc_as_attr:
                 analyzer = ModuleAnalyzer.for_module(self.modname)
             else:
-                analyzer = ModuleAnalyzer.for_module(self.get_real_modname())
+                analyzer = ModuleAnalyzer.for_module(
+                    self.props._obj___module__ or self.props.module_name
+                )
             analyzer.analyze()
             return list(analyzer.attr_docs.get(key, []))
         except PycodeError:
@@ -1795,7 +1797,9 @@ class ClassDocumenter(Documenter):
             more_content = StringList(
                 [_('alias of TypeVar(%s)') % ', '.join(attrs), ''], source=''
             )
-        if self.props.doc_as_attr and self.modname != self.get_real_modname():
+        if self.props.doc_as_attr and self.modname != (
+            self.props._obj___module__ or self.props.module_name
+        ):
             try:
                 # override analyzer to obtain doccomment around its definition.
                 self.analyzer = ModuleAnalyzer.for_module(self.modname)
@@ -1952,10 +1956,6 @@ class DataDocumenter(Documenter):
 
     def document_members(self, all_members: bool = False) -> None:
         pass
-
-    def get_real_modname(self) -> str:
-        real_modname = self.get_attr(self.parent or self.object, '__module__', None)
-        return real_modname or self.modname
 
     def get_module_comment(self, attrname: str) -> list[str] | None:
         try:
@@ -2306,10 +2306,6 @@ class AttributeDocumenter(Documenter):
     def _is_non_data_descriptor(self) -> bool:
         return not inspect.isattributedescriptor(self.object)
 
-    def get_real_modname(self) -> str:
-        real_modname = self.get_attr(self.parent or self.object, '__module__', None)
-        return real_modname or self.modname
-
     def should_suppress_value_header(self) -> bool:
         if self.object is SLOTS_ATTR:
             return True
@@ -2483,10 +2479,6 @@ class PropertyDocumenter(Documenter):
 
     def document_members(self, all_members: bool = False) -> None:
         pass
-
-    def get_real_modname(self) -> str:
-        real_modname = self.get_attr(self.parent or self.object, '__module__', None)
-        return real_modname or self.modname
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)

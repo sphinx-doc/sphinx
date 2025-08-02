@@ -824,6 +824,7 @@ def _load_object_by_name(
             file_path=Path(file_path) if file_path is not None else None,
             all=tuple(mod_all) if mod_all is not None else None,
             _obj=obj,
+            _obj___module__=obj.__name__,
         )
     elif objtype in {'class', 'exception'}:
         if isinstance(obj, NewType | TypeVar):
@@ -842,6 +843,7 @@ def _load_object_by_name(
             docstring_lines=(),
             bases=getattr(obj, '__bases__', None),
             _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
             _obj___name__=getattr(obj, '__name__', None),
         )
     elif objtype in {'function', 'decorator'}:
@@ -857,6 +859,7 @@ def _load_object_by_name(
             docstring_lines=(),
             properties=frozenset(obj_properties),
             _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
         )
     elif objtype == 'method':
         # to distinguish classmethod/staticmethod
@@ -873,6 +876,7 @@ def _load_object_by_name(
             docstring_lines=(),
             properties=frozenset(obj_properties),
             _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
         )
     elif objtype == 'property':
         if not inspect.isproperty(obj):
@@ -892,6 +896,7 @@ def _load_object_by_name(
             docstring_lines=(),
             properties=frozenset(obj_properties),
             _obj=obj,
+            _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
         )
     elif objtype == 'data':
         # Update __annotations__ to support type_comment and so on
@@ -920,6 +925,7 @@ def _load_object_by_name(
             class_var=False,
             instance_var=False,
             _obj=obj,
+            _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
         )
     elif objtype == 'attribute':
         if _is_slots_attribute(parent=parent, obj_path=parts):
@@ -959,6 +965,7 @@ def _load_object_by_name(
             class_var=False,
             instance_var=False,
             _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
         )
     else:
         props = _ItemProperties(
@@ -967,6 +974,7 @@ def _load_object_by_name(
             parts=parts,
             docstring_lines=(),
             _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
         )
 
     return props, args, retann, module, parent
