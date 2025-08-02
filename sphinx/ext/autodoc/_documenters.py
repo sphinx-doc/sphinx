@@ -606,89 +606,6 @@ class Documenter:
             for line, src in zip(more_content.data, more_content.items, strict=True):
                 self.add_line(line, src[0], src[1])
 
-    def filter_members(
-        self, members: list[ObjectMember], want_all: bool
-    ) -> list[tuple[str, Any, bool]]:
-        """Filter the given member list.
-
-        Members are skipped if
-
-        - they are private (except if given explicitly or the private-members
-          option is set)
-        - they are special methods (except if given explicitly or the
-          special-members option is set)
-        - they are undocumented (except if the undoc-members option is set)
-
-        The user can override the skipping decision by connecting to the
-        ``autodoc-skip-member`` event.
-        """
-        inherited_members: Set[str] = frozenset(self.options.inherited_members or ())
-
-        ret = []
-
-        # search for members in source code too
-        namespace = self.props.dotted_parts  # will be empty for modules
-
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-        else:
-            attr_docs = {}
-        inherit_docstrings = self.config.autodoc_inherit_docstrings
-
-        # process members and determine which to skip
-        for obj in members:
-            member_name = obj.__name__
-            member = obj.object
-            has_attr_doc = (namespace, member_name) in attr_docs
-            try:
-                keep = _should_keep_member(
-                    member_name,
-                    member,
-                    member_obj=obj,
-                    get_attr=self.get_attr,
-                    has_attr_doc=has_attr_doc,
-                    inherit_docstrings=inherit_docstrings,
-                    inherited_members=inherited_members,
-                    options=self.options,
-                    parent=self.object,
-                    want_all=want_all,
-                )
-            except Exception as exc:
-                logger.warning(
-                    __(
-                        'autodoc: failed to determine %s.%s (%r) to be documented, '
-                        'the following exception was raised:\n%s'
-                    ),
-                    self.name,
-                    member_name,
-                    member,
-                    exc,
-                    type='autodoc',
-                )
-                keep = False
-
-            # give the user a chance to decide whether this member
-            # should be skipped
-            if self._events is not None:
-                # let extensions preprocess docstrings
-                skip_user = self._events.emit_firstresult(
-                    'autodoc-skip-member',
-                    self.objtype,
-                    member_name,
-                    member,
-                    not keep,
-                    self.options,
-                )
-                if skip_user is not None:
-                    keep = not skip_user
-
-            if keep:
-                # if is_attr is True, the member is documented as an attribute
-                is_attr = member is INSTANCE_ATTR or has_attr_doc
-                ret.append((member_name, member, is_attr))
-
-        return ret
-
     def _gather_members(
         self,
         *,
@@ -757,10 +674,24 @@ class Documenter:
         *,
         want_all: bool,
     ) -> list[tuple[str, Any, bool]]:
-        # find out which members are documentable
+        """Find out which members are documentable
 
-        # If *want_all* is True, return all members.  Else, only return those
-        # members given by *self.options.members* (which may also be None).
+        If *want_all* is True, return all members.  Else, only return those
+        members given by *self.options.members* (which may also be None).
+
+        Filter the given member list.
+
+        Members are skipped if
+
+        - they are private (except if given explicitly or the private-members
+          option is set)
+        - they are special methods (except if given explicitly or the
+          special-members option is set)
+        - they are undocumented (except if the undoc-members option is set)
+
+        The user can override the skipping decision by connecting to the
+        ``autodoc-skip-member`` event.
+        """
         if isinstance(self, ModuleDocumenter):
             attr_docs = self.analyzer.attr_docs if self.analyzer else {}
             members_: dict[str, ObjectMember] = {}
@@ -846,7 +777,71 @@ class Documenter:
             msg = 'must be implemented in subclasses'
             raise NotImplementedError(msg)
 
-        filtered = self.filter_members(members, want_all)
+        inherited_members: Set[str] = frozenset(self.options.inherited_members or ())
+
+        filtered = []
+
+        # search for members in source code too
+        namespace = '.'.join(self.objpath)  # will be empty for modules
+
+        if self.analyzer:
+            attr_docs = self.analyzer.find_attr_docs()
+        else:
+            attr_docs = {}
+        inherit_docstrings = self.config.autodoc_inherit_docstrings
+
+        # process members and determine which to skip
+        for obj in members:
+            member_name = obj.__name__
+            member = obj.object
+            has_attr_doc = (namespace, member_name) in attr_docs
+            try:
+                keep = _should_keep_member(
+                    member_name,
+                    member,
+                    member_obj=obj,
+                    get_attr=self.get_attr,
+                    has_attr_doc=has_attr_doc,
+                    inherit_docstrings=inherit_docstrings,
+                    inherited_members=inherited_members,
+                    options=self.options,
+                    parent=self.object,
+                    want_all=want_all,
+                )
+            except Exception as exc:
+                logger.warning(
+                    __(
+                        'autodoc: failed to determine %s.%s (%r) to be documented, '
+                        'the following exception was raised:\n%s'
+                    ),
+                    self.name,
+                    member_name,
+                    member,
+                    exc,
+                    type='autodoc',
+                )
+                keep = False
+
+            # give the user a chance to decide whether this member
+            # should be skipped
+            if self._events is not None:
+                # let extensions preprocess docstrings
+                skip_user = self._events.emit_firstresult(
+                    'autodoc-skip-member',
+                    self.objtype,
+                    member_name,
+                    member,
+                    not keep,
+                    self.options,
+                )
+                if skip_user is not None:
+                    keep = not skip_user
+
+            if keep:
+                # if is_attr is True, the member is documented as an attribute
+                is_attr = member is INSTANCE_ATTR or has_attr_doc
+                filtered.append((member_name, member, is_attr))
+
         return filtered
 
     @staticmethod
@@ -2548,7 +2543,7 @@ def _should_keep_member(
             ):
                 keep = False
             else:
-                keep = has_doc or undoc_members  # type: ignore[assignment]
+                keep = bool(has_doc or undoc_members)
         else:
             keep = False
     elif has_attr_doc:
