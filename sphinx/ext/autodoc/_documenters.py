@@ -801,7 +801,9 @@ class Documenter:
 
         return ret
 
-    def document_members(self, all_members: bool = False) -> None:
+    def _gather_members(
+        self, all_members: bool = False
+    ) -> tuple[list[tuple[Documenter, bool]], bool]:
         """Generate reST for member documentation.
 
         If *all_members* is True, document all members, else those given by
@@ -849,7 +851,24 @@ class Documenter:
         ]
         member_documenters = self.sort_members(member_documenters, member_order)
 
-        for documenter, isattr in member_documenters:
+        # reset current objects
+        self._current_document.autodoc_module = ''
+        self._current_document.autodoc_class = ''
+
+        return member_documenters, members_check_module
+
+    @staticmethod
+    def _document_members(
+        member_documenters: list[tuple[Documenter, bool]],
+        real_modname: str,
+        members_check_module: bool,
+    ) -> None:
+        """Generate reST for member documentation.
+
+        If *all_members* is True, document all members, else those given by
+        *self.options.members*.
+        """
+        for documenter, is_attr in member_documenters:
             assert documenter.props.module_name
             # We can directly call ._generate() since the documenters
             # already called parse_name() and import_object() before.
@@ -858,13 +877,9 @@ class Documenter:
             # whatever objects we deduced should not have changed.
             documenter._generate(
                 all_members=True,
-                real_modname=self.real_modname,
-                check_module=members_check_module and not isattr,
+                real_modname=real_modname,
+                check_module=members_check_module and not is_attr,
             )
-
-        # reset current objects
-        self._current_document.autodoc_module = ''
-        self._current_document.autodoc_class = ''
 
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
@@ -991,7 +1006,16 @@ class Documenter:
         self.add_content(more_content)
 
         # document members, if possible
-        self.document_members(all_members)
+        has_members = isinstance(self, ModuleDocumenter) or (
+            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
+        )
+        if has_members:
+            member_documenters, members_check_module = self._gather_members(all_members)
+            self._document_members(
+                member_documenters=member_documenters,
+                real_modname=self.real_modname,
+                members_check_module=members_check_module,
+            )
 
 
 class ModuleDocumenter(Documenter):
@@ -1209,9 +1233,6 @@ class FunctionDocumenter(Documenter):
             # Special case for single-argument decorators
             return ''
         return args
-
-    def document_members(self, all_members: bool = False) -> None:
-        pass
 
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
@@ -1807,11 +1828,6 @@ class ClassDocumenter(Documenter):
 
         super().add_content(more_content)
 
-    def document_members(self, all_members: bool = False) -> None:
-        if self.props.doc_as_attr:
-            return
-        super().document_members(all_members)
-
     def generate(
         self,
         more_content: StringList | None = None,
@@ -1947,9 +1963,6 @@ class DataDocumenter(Documenter):
             except ValueError:
                 pass
 
-    def document_members(self, all_members: bool = False) -> None:
-        pass
-
     def get_module_comment(self, attrname: str) -> list[str] | None:
         try:
             analyzer = ModuleAnalyzer.for_module(self.props.module_name)
@@ -2072,9 +2085,6 @@ class MethodDocumenter(Documenter):
             self.add_line('   :staticmethod:', sourcename)
         if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
-
-    def document_members(self, all_members: bool = False) -> None:
-        pass
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
@@ -2275,9 +2285,6 @@ class AttributeDocumenter(Documenter):
         if inspect.isattributedescriptor(member):
             return True
         return not inspect.isroutine(member) and not isinstance(member, type)
-
-    def document_members(self, all_members: bool = False) -> None:
-        pass
 
     def update_annotations(self, parent: Any) -> None:
         """Update __annotations__ to support type_comment and so on."""
@@ -2481,9 +2488,6 @@ class PropertyDocumenter(Documenter):
         self._events.emit('autodoc-before-process-signature', func, False)
         # correctly format the arguments for a property
         return super().format_args(**kwargs)
-
-    def document_members(self, all_members: bool = False) -> None:
-        pass
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
