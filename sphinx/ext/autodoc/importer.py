@@ -812,9 +812,15 @@ def _load_object_by_name(
     obj_properties: set[_AutodocFuncProperty] = set()
     if objtype == 'module':
         file_path = getattr(module, '__file__', None)
-        try:
-            mod_all = inspect.getall(module)
-        except ValueError:
+        mod_all = safe_getattr(obj, '__all__', None)
+        if isinstance(mod_all, (list, tuple)) and all(
+            isinstance(e, str) for e in mod_all
+        ):
+            mod_all = tuple(mod_all)
+        elif mod_all is not None:
+            # Invalid __all__ found.
+            msg = __('Ignoring invalid __all__ in module %s: %r')
+            logger.warning(msg, module_name, mod_all, type='autodoc')
             mod_all = None
 
         props = _ModuleProperties(
@@ -822,7 +828,7 @@ def _load_object_by_name(
             module_name=module_name,
             docstring_lines=(),
             file_path=Path(file_path) if file_path is not None else None,
-            all=tuple(mod_all) if mod_all is not None else None,
+            all=mod_all,
             _obj=obj,
             _obj___module__=obj.__name__,
         )

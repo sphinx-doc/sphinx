@@ -1045,18 +1045,8 @@ class ModuleDocumenter(Documenter):
         return False
 
     def _module_all(self) -> Sequence[str] | None:
-        if self.object is not None and self.__all__ is None:
-            try:
-                if not self.options.ignore_module_all:
-                    self.__all__ = inspect.getall(self.object)
-            except ValueError as exc:
-                # invalid __all__ found.
-                msg = __(
-                    '__all__ should be a list of strings, not %r '
-                    '(in module %s) -- ignoring __all__'
-                )
-                logger.warning(msg, exc.args[0], self.props.full_name, type='autodoc')
-
+        if self.__all__ is None and not self.options.ignore_module_all:
+            self.__all__ = self.props.all
         return self.__all__
 
     def add_directive_header(self, sig: str) -> None:
@@ -1107,8 +1097,8 @@ class ModuleDocumenter(Documenter):
     def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
         members = self.get_module_members()
         if want_all:
-            module_all = self._module_all()
-            if module_all is None:
+            module_all = self.props.all
+            if self.options.ignore_module_all or module_all is None:
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
                 return True, list(members.values())
@@ -1141,8 +1131,12 @@ class ModuleDocumenter(Documenter):
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
     ) -> list[tuple[Documenter, bool]]:
-        module_all = self._module_all()
-        if order == 'bysource' and module_all:
+        module_all = self.props.all
+        if (
+            order == 'bysource'
+            and not self.options.ignore_module_all
+            and module_all is not None
+        ):
             assert module_all is not None
             module_all_set = frozenset(module_all)
             module_all_len = len(module_all)
