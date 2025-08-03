@@ -258,91 +258,6 @@ def _get_members_to_document(
     return filtered
 
 
-def _filter_enum_dict(
-    enum_class: type[Enum],
-    attrgetter: _AttrGetter,
-    enum_class_dict: Mapping[str, object],
-) -> Iterator[tuple[str, type, Any]]:
-    """Find the attributes to document of an enumeration class.
-
-    The output consists of triplets ``(attribute name, defining class, value)``
-    where the attribute name can appear more than once during the iteration
-    but with different defining class. The order of occurrence is guided by
-    the MRO of *enum_class*.
-    """
-    # attributes that were found on a mixin type or the data type
-    candidate_in_mro: set[str] = set()
-    # sunder names that were picked up (and thereby allowed to be redefined)
-    # see: https://docs.python.org/3/howto/enum.html#supported-dunder-names
-    sunder_names = {
-        '_name_',
-        '_value_',
-        '_missing_',
-        '_order_',
-        '_generate_next_value_',
-    }
-    # attributes that can be picked up on a mixin type or the enum's data type
-    public_names = {'name', 'value', *object.__dict__, *sunder_names}
-    # names that are ignored by default
-    ignore_names = Enum.__dict__.keys() - public_names
-
-    def should_ignore(name: str, value: Any) -> bool:
-        if name in sunder_names:
-            return _is_native_enum_api(value, name)
-        return name in ignore_names
-
-    sentinel = object()
-
-    def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
-        value = attrgetter(enum_class, name, sentinel)
-        if value is not sentinel:
-            return name, defining_class, value
-        return None
-
-    # attributes defined on a parent type, possibly shadowed later by
-    # the attributes defined directly inside the enumeration class
-    for parent in enum_class.__mro__:
-        if parent in {enum_class, Enum, object}:
-            continue
-
-        parent_dict = attrgetter(parent, '__dict__', {})
-        for name, value in parent_dict.items():
-            if should_ignore(name, value):
-                continue
-
-            candidate_in_mro.add(name)
-            if (item := query(name, parent)) is not None:
-                yield item
-
-    # exclude members coming from the native Enum unless
-    # they were redefined on a mixin type or the data type
-    excluded_members = Enum.__dict__.keys() - candidate_in_mro
-    yield from filter(
-        None,
-        (
-            query(name, enum_class)
-            for name in enum_class_dict
-            if name not in excluded_members
-        ),
-    )
-
-    # check if allowed members from ``Enum`` were redefined at the enum level
-    special_names = sunder_names | public_names
-    special_names &= enum_class_dict.keys()
-    special_names &= Enum.__dict__.keys()
-    for name in special_names:
-        if (
-            not _is_native_enum_api(enum_class_dict[name], name)
-            and (item := query(name, enum_class)) is not None
-        ):
-            yield item
-
-
-def _is_native_enum_api(obj: object, name: str) -> bool:
-    """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
-    return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
-
-
 def unmangle(subject: Any, name: str) -> str | None:
     """Unmangle the given name."""
     try:
@@ -465,6 +380,91 @@ def get_class_members(
         pass
 
     return members
+
+
+def _filter_enum_dict(
+    enum_class: type[Enum],
+    attrgetter: _AttrGetter,
+    enum_class_dict: Mapping[str, object],
+) -> Iterator[tuple[str, type, Any]]:
+    """Find the attributes to document of an enumeration class.
+
+    The output consists of triplets ``(attribute name, defining class, value)``
+    where the attribute name can appear more than once during the iteration
+    but with different defining class. The order of occurrence is guided by
+    the MRO of *enum_class*.
+    """
+    # attributes that were found on a mixin type or the data type
+    candidate_in_mro: set[str] = set()
+    # sunder names that were picked up (and thereby allowed to be redefined)
+    # see: https://docs.python.org/3/howto/enum.html#supported-dunder-names
+    sunder_names = {
+        '_name_',
+        '_value_',
+        '_missing_',
+        '_order_',
+        '_generate_next_value_',
+    }
+    # attributes that can be picked up on a mixin type or the enum's data type
+    public_names = {'name', 'value', *object.__dict__, *sunder_names}
+    # names that are ignored by default
+    ignore_names = Enum.__dict__.keys() - public_names
+
+    def should_ignore(name: str, value: Any) -> bool:
+        if name in sunder_names:
+            return _is_native_enum_api(value, name)
+        return name in ignore_names
+
+    sentinel = object()
+
+    def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
+        value = attrgetter(enum_class, name, sentinel)
+        if value is not sentinel:
+            return name, defining_class, value
+        return None
+
+    # attributes defined on a parent type, possibly shadowed later by
+    # the attributes defined directly inside the enumeration class
+    for parent in enum_class.__mro__:
+        if parent in {enum_class, Enum, object}:
+            continue
+
+        parent_dict = attrgetter(parent, '__dict__', {})
+        for name, value in parent_dict.items():
+            if should_ignore(name, value):
+                continue
+
+            candidate_in_mro.add(name)
+            if (item := query(name, parent)) is not None:
+                yield item
+
+    # exclude members coming from the native Enum unless
+    # they were redefined on a mixin type or the data type
+    excluded_members = Enum.__dict__.keys() - candidate_in_mro
+    yield from filter(
+        None,
+        (
+            query(name, enum_class)
+            for name in enum_class_dict
+            if name not in excluded_members
+        ),
+    )
+
+    # check if allowed members from ``Enum`` were redefined at the enum level
+    special_names = sunder_names | public_names
+    special_names &= enum_class_dict.keys()
+    special_names &= Enum.__dict__.keys()
+    for name in special_names:
+        if (
+            not _is_native_enum_api(enum_class_dict[name], name)
+            and (item := query(name, enum_class)) is not None
+        ):
+            yield item
+
+
+def _is_native_enum_api(obj: object, name: str) -> bool:
+    """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
+    return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
 
 
 def _should_keep_member(
