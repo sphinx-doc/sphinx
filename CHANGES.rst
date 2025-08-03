@@ -4,6 +4,10 @@ Release 8.3.0 (in development)
 Dependencies
 ------------
 
+* #13786: Support `Docutils 0.22`_. Patch by Adam Turner.
+
+  .. _Docutils 0.22: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-22-2026-07-29
+
 Incompatible changes
 --------------------
 

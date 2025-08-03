@@ -76,7 +76,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.9",
     "Jinja2>=3.1",
     "Pygments>=2.17",
-    "docutils>=0.20,<0.22",
+    "docutils>=0.20,<0.23",
     "snowballstemmer>=2.2",
     "babel>=2.13",
     "alabaster>=0.7.14",
@@ -93,12 +93,12 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.12.7",
     "mypy==1.17.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20250708",
-    "types-docutils==0.21.0.20250727",
+    "types-docutils==0.21.0.20250728",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250715",
     "types-requests==2.32.4.20250611",  # align with requests
@@ -136,7 +136,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.12.7",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -167,7 +167,7 @@ type-stubs = [
     # align with versions used elsewhere
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20250708",
-    "types-docutils==0.21.0.20250727",
+    "types-docutils==0.21.0.20250728",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250715",
     "types-requests==2.32.4.20250611",
@@ -253,9 +253,6 @@ module = [
     "tests.test_builders.test_build",
     "tests.test_builders.test_build_html",
     "tests.test_builders.test_build_html_5_output",
-    "tests.test_builders.test_build_html_assets",
-    "tests.test_builders.test_build_html_maths",
-    "tests.test_builders.test_build_html_toctree",
     "tests.test_builders.test_build_linkcheck",
     # tests/test_directives
     "tests.test_directives.test_directive_code",

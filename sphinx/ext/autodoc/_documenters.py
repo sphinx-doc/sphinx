@@ -30,16 +30,12 @@ from sphinx.ext.autodoc._sentinels import (
 )
 from sphinx.ext.autodoc.importer import (
     _get_attribute_comment,
-    _import_assignment_attribute,
-    _import_assignment_data,
-    _import_class,
-    _import_method,
-    _import_object,
-    _import_property,
     _is_runtime_instance_attribute_not_commented,
+    _load_object_by_name,
+    _resolve_name,
     get_class_members,
 )
-from sphinx.ext.autodoc.mock import ismock, mock, undecorate
+from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
@@ -62,6 +58,13 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+    from sphinx.ext.autodoc._property_types import (
+        _AssignStatementProperties,
+        _ClassDefProperties,
+        _FunctionDefProperties,
+        _ItemProperties,
+        _ModuleProperties,
+    )
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
@@ -148,6 +151,8 @@ class Documenter:
     the Documenter.
     """
 
+    props: _ItemProperties
+
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
     objtype: ClassVar = 'object'
@@ -219,6 +224,8 @@ class Documenter:
         # the module analyzer to get at attribute docs, or None
         self.analyzer: ModuleAnalyzer | None = None
 
+        self._load_object_has_been_called = False
+
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
         """Returns registered Documenter classes"""
@@ -231,6 +238,44 @@ class Documenter:
         else:
             self.directive.result.append('', source, *lineno)
 
+    def _load_object_by_name(self) -> Literal[True] | None:
+        if self._load_object_has_been_called:
+            return True
+
+        ret = _load_object_by_name(
+            name=self.name,
+            objtype=self.objtype,
+            mock_imports=self.config.autodoc_mock_imports,
+            type_aliases=self.config.autodoc_type_aliases,
+            current_document=self._current_document,
+            env=self.env,
+            get_attr=self.get_attr,
+        )
+        if ret is None:
+            return None
+        props, args, retann, module, parent = ret
+
+        self.props = props
+        self.args = args
+        self.retann = retann
+        self.modname = props.module_name
+        self.objpath = list(props.parts)
+        self.fullname = props.full_name
+        self.module = module
+        self.parent = parent
+        self.object_name = props.object_name
+        self.object = props._obj
+        if self.objtype == 'method':
+            if 'staticmethod' in props.properties:  # type: ignore[attr-defined]
+                # document static members before regular methods
+                self.member_order -= 1  # type: ignore[misc]
+            elif 'classmethod' in props.properties:  # type: ignore[attr-defined]
+                # document class methods before static methods as
+                # they usually behave as alternative constructors
+                self.member_order -= 2  # type: ignore[misc]
+        self._load_object_has_been_called = True
+        return True
+
     def resolve_name(
         self, modname: str | None, parents: Any, path: str, base: str
     ) -> tuple[str | None, list[str]]:
@@ -241,71 +286,19 @@ class Documenter:
         example, it would return ``('zipfile', ['ZipFile', 'open'])`` for the
         ``zipfile.ZipFile.open`` method.
         """
-        if isinstance(self, ModuleDocumenter):
-            if modname is not None:
-                logger.warning(
-                    __('"::" in automodule name doesn\'t make sense'), type='autodoc'
-                )
-            return (path or '') + base, []
-
-        if isinstance(
-            self,
-            (
-                ModuleLevelDocumenter,
-                FunctionDocumenter,
-                ClassDocumenter,
-                DataDocumenter,
-            ),
-        ):
-            if modname is not None:
-                return modname, [*parents, base]
-            if path:
-                modname = path.rstrip('.')
-                return modname, [*parents, base]
-
-            # if documenting a toplevel object without explicit module,
-            # it can be contained in another auto directive ...
-            modname = self._current_document.autodoc_module
-            # ... or in the scope of a module directive
-            if not modname:
-                modname = self.env.ref_context.get('py:module')
-            # ... else, it stays None, which means invalid
-            return modname, [*parents, base]
-
-        if isinstance(
-            self,
-            (
-                ClassLevelDocumenter,
-                MethodDocumenter,
-                AttributeDocumenter,
-                PropertyDocumenter,
-            ),
-        ):
-            if modname is not None:
-                return modname, [*parents, base]
-
-            if path:
-                mod_cls = path.rstrip('.')
-            else:
-                # if documenting a class-level object without path,
-                # there must be a current class, either from a parent
-                # auto directive ...
-                mod_cls = self._current_document.autodoc_class
-                # ... or from a class directive
-                if not mod_cls:
-                    mod_cls = self.env.ref_context.get('py:class', '')
-                    # ... if still falsy, there's no way to know
-                    if not mod_cls:
-                        return None, []
-            modname, _sep, cls = mod_cls.rpartition('.')
-            parents = [cls]
-            # if the module name is still missing, get it like above
-            if not modname:
-                modname = self._current_document.autodoc_module
-            if not modname:
-                modname = self.env.ref_context.get('py:module')
-            # ... else, it stays None, which means invalid
-            return modname, [*parents, base]
+        ret = _resolve_name(
+            objtype=self.objtype,
+            module_name=modname,
+            path=path,
+            base=base,
+            parents=parents,
+            current_document=self._current_document,
+            ref_context_py_module=self.env.ref_context.get('py:module'),
+            ref_context_py_class=self.env.ref_context.get('py:class', ''),
+        )
+        if ret is not None:
+            module_name, parts = ret
+            return module_name, list(parts)
 
         msg = 'must be implemented in subclasses'
         raise NotImplementedError(msg)
@@ -316,39 +309,7 @@ class Documenter:
         Returns True and sets *self.modname*, *self.objpath*, *self.fullname*,
         *self.args* and *self.retann* if parsing and resolving was successful.
         """
-        # first, parse the definition -- auto directives for classes and
-        # functions can contain a signature which is then used instead of
-        # an autogenerated one
-        matched = py_ext_sig_re.match(self.name)
-        if matched is None:
-            logger.warning(
-                __('invalid signature for auto%s (%r)'),
-                self.objtype,
-                self.name,
-                type='autodoc',
-            )
-            return False
-        explicit_modname, path, base, _tp_list, args, retann = matched.groups()
-
-        # support explicit module and class name separation via ::
-        if explicit_modname is not None:
-            modname = explicit_modname[:-2]
-            parents = path.rstrip('.').split('.') if path else []
-        else:
-            modname = None
-            parents = []
-
-        with mock(self.config.autodoc_mock_imports):
-            modname, self.objpath = self.resolve_name(modname, parents, path, base)
-
-        if not modname:
-            return False
-
-        self.modname = modname
-        self.args = args
-        self.retann = retann
-        self.fullname = '.'.join((self.modname or '', *self.objpath))
-        return True
+        return self._load_object_by_name() is not None
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Import the object given by *self.modname* and *self.objpath* and set
@@ -356,25 +317,7 @@ class Documenter:
 
         Returns True if successful, False if an error occurred.
         """
-        try:
-            im = _import_object(
-                module_name=self.modname,
-                obj_path=self.objpath,
-                mock_imports=self.config.autodoc_mock_imports,
-                get_attr=self.get_attr,
-            )
-        except ImportError as exc:
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-        self.object = im.__dict__.pop('obj', None)
-        for k in 'module', 'parent', 'object_name':
-            if hasattr(im, k):
-                setattr(self, k, getattr(im, k))
-        return True
+        return self._load_object_by_name() is not None
 
     def get_real_modname(self) -> str:
         """Get the real module name of an object to document.
@@ -382,7 +325,7 @@ class Documenter:
         It can differ from the name of the module through which the object was
         imported.
         """
-        return self.get_attr(self.object, '__module__', None) or self.modname
+        return self.props._obj___module__ or self.props.module_name
 
     def check_module(self) -> bool:
         """Check if *self.object* is really defined in the module given by
@@ -905,7 +848,7 @@ class Documenter:
         member_documenters = [
             (documenter, isattr)
             for documenter, isattr in member_documenters
-            if documenter.parse_name() and documenter.import_object()
+            if documenter._load_object_by_name() is not None
         ]
         member_documenters = self.sort_members(member_documenters, member_order)
 
@@ -965,21 +908,7 @@ class Documenter:
         True, only generate if the object is defined in the module name it is
         imported from. If *all_members* is True, document all members.
         """
-        if not self.parse_name():
-            # need a module to import
-            logger.warning(
-                __(
-                    "don't know which module to import for autodocumenting "
-                    '%r (try placing a "module" or "currentmodule" directive '
-                    'in the document, or giving an explicit module name)'
-                ),
-                self.name,
-                type='autodoc',
-            )
-            return
-
-        # now, import the module and get object to document
-        if not self.import_object():
+        if self._load_object_by_name() is None:
             return
 
         self._generate(more_content, real_modname, check_module, all_members)
@@ -996,7 +925,7 @@ class Documenter:
         # where the attribute documentation would actually be found in.
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
-        guess_modname = self.get_real_modname()
+        guess_modname = self.props._obj___module__ or self.props.module_name
         self.real_modname: str = real_modname or guess_modname
 
         # try to also get a source code analyzer for attribute docs
@@ -1075,6 +1004,8 @@ class Documenter:
 class ModuleDocumenter(Documenter):
     """Specialized Documenter subclass for modules."""
 
+    props: _ModuleProperties
+
     objtype = 'module'
     content_indent = ''
     _extra_indent = '   '
@@ -1119,16 +1050,6 @@ class ModuleDocumenter(Documenter):
     ) -> bool:
         # don't document submodules automatically
         return False
-
-    def parse_name(self) -> bool:
-        ret = super().parse_name()
-        if self.args or self.retann:
-            logger.warning(
-                __('signature arguments or return annotation given for automodule %s'),
-                self.fullname,
-                type='autodoc',
-            )
-        return ret
 
     def _module_all(self) -> Sequence[str] | None:
         if self.object is not None and self.__all__ is None:
@@ -1257,6 +1178,8 @@ class ModuleDocumenter(Documenter):
 
 class FunctionDocumenter(Documenter):
     """Specialized Documenter subclass for functions."""
+
+    props: _FunctionDefProperties
 
     __docstring_signature__ = True
 
@@ -1410,6 +1333,8 @@ class FunctionDocumenter(Documenter):
 class DecoratorDocumenter(FunctionDocumenter):
     """Specialized Documenter subclass for decorator functions."""
 
+    props: _FunctionDefProperties
+
     objtype = 'decorator'
 
     # must be lower than FunctionDocumenter
@@ -1432,6 +1357,8 @@ _CLASS_NEW_BLACKLIST = frozenset({
 
 class ClassDocumenter(Documenter):
     """Specialized Documenter subclass for classes."""
+
+    props: _ClassDefProperties
 
     __docstring_signature__ = True
 
@@ -1460,8 +1387,6 @@ class ClassDocumenter(Documenter):
     _signature_class: Any = None
     _signature_method_name: str = ''
 
-    doc_as_attr: bool
-
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
 
@@ -1484,27 +1409,6 @@ class ClassDocumenter(Documenter):
         return isinstance(member, type) or (
             isattr and isinstance(member, NewType | TypeVar)
         )
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            im = _import_class(
-                module_name=self.modname,
-                obj_path=self.objpath,
-                mock_imports=self.config.autodoc_mock_imports,
-                get_attr=self.get_attr,
-            )
-        except ImportError as exc:
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-        self.object = im.__dict__.pop('obj', None)
-        for k in 'module', 'parent', 'object_name', 'doc_as_attr', 'objpath', 'modname':
-            if hasattr(im, k):
-                setattr(self, k, getattr(im, k))
-        return True
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
         if isinstance(self.object, NewType | TypeVar):
@@ -1645,7 +1549,7 @@ class ClassDocumenter(Documenter):
         return result
 
     def format_signature(self, **kwargs: Any) -> str:
-        if self.doc_as_attr:
+        if self.props.doc_as_attr:
             return ''
         if self.config.autodoc_class_signature == 'separated':
             # do not show signatures
@@ -1716,7 +1620,7 @@ class ClassDocumenter(Documenter):
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
 
-        if self.doc_as_attr:
+        if self.props.doc_as_attr:
             self.directivetype = 'attribute'
         super().add_directive_header(sig)
 
@@ -1728,7 +1632,7 @@ class ClassDocumenter(Documenter):
 
         canonical_fullname = self.get_canonical_fullname()
         if (
-            not self.doc_as_attr
+            not self.props.doc_as_attr
             and not isinstance(self.object, NewType)
             and canonical_fullname
             and self.fullname != canonical_fullname
@@ -1736,7 +1640,7 @@ class ClassDocumenter(Documenter):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
         # add inheritance info, if wanted
-        if not self.doc_as_attr and self.options.show_inheritance:
+        if not self.props.doc_as_attr and self.options.show_inheritance:
             if inspect.getorigbases(self.object):
                 # A subclass of generic types
                 # refs: PEP-560 <https://peps.python.org/pep-0560/>
@@ -1791,7 +1695,7 @@ class ClassDocumenter(Documenter):
         if isinstance(self.object, TypeVar):
             if self.object.__doc__ == TypeVar.__doc__:
                 return []
-        if self.doc_as_attr:
+        if self.props.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
             if self.get_variable_comment():
                 return []
@@ -1857,10 +1761,12 @@ class ClassDocumenter(Documenter):
     def get_variable_comment(self) -> list[str] | None:
         try:
             key = ('', '.'.join(self.objpath))
-            if self.doc_as_attr:
+            if self.props.doc_as_attr:
                 analyzer = ModuleAnalyzer.for_module(self.modname)
             else:
-                analyzer = ModuleAnalyzer.for_module(self.get_real_modname())
+                analyzer = ModuleAnalyzer.for_module(
+                    self.props._obj___module__ or self.props.module_name
+                )
             analyzer.analyze()
             return list(analyzer.attr_docs.get(key, []))
         except PycodeError:
@@ -1891,7 +1797,9 @@ class ClassDocumenter(Documenter):
             more_content = StringList(
                 [_('alias of TypeVar(%s)') % ', '.join(attrs), ''], source=''
             )
-        if self.doc_as_attr and self.modname != self.get_real_modname():
+        if self.props.doc_as_attr and self.modname != (
+            self.props._obj___module__ or self.props.module_name
+        ):
             try:
                 # override analyzer to obtain doccomment around its definition.
                 self.analyzer = ModuleAnalyzer.for_module(self.modname)
@@ -1899,7 +1807,7 @@ class ClassDocumenter(Documenter):
             except PycodeError:
                 pass
 
-        if self.doc_as_attr and not self.get_variable_comment():
+        if self.props.doc_as_attr and not self.get_variable_comment():
             try:
                 alias = restify(self.object, mode=mode)
                 more_content = StringList([_('alias of %s') % alias], source='')
@@ -1909,7 +1817,7 @@ class ClassDocumenter(Documenter):
         super().add_content(more_content)
 
     def document_members(self, all_members: bool = False) -> None:
-        if self.doc_as_attr:
+        if self.props.doc_as_attr:
             return
         super().document_members(all_members)
 
@@ -1934,6 +1842,8 @@ class ClassDocumenter(Documenter):
 
 class ExceptionDocumenter(ClassDocumenter):
     """Specialized ClassDocumenter subclass for exceptions."""
+
+    props: _ClassDefProperties
 
     objtype = 'exception'
     member_order = 10
@@ -1960,6 +1870,8 @@ class ExceptionDocumenter(ClassDocumenter):
 
 class DataDocumenter(Documenter):
     """Specialized Documenter subclass for data items."""
+
+    props: _AssignStatementProperties
 
     __uninitialized_global_variable__ = True
 
@@ -1989,28 +1901,6 @@ class DataDocumenter(Documenter):
                     annotations[attrname] = annotation
         except PycodeError:
             pass
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            im = _import_assignment_data(
-                module_name=self.modname,
-                obj_path=self.objpath,
-                mock_imports=self.config.autodoc_mock_imports,
-                type_aliases=self.config.autodoc_type_aliases,
-                get_attr=self.get_attr,
-            )
-        except ImportError as exc:
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-        self.object = im.__dict__.pop('obj', None)
-        for k in 'module', 'parent', 'object_name':
-            if hasattr(im, k):
-                setattr(self, k, getattr(im, k))
-        return True
 
     def should_suppress_value_header(self) -> bool:
         if self.object is UNINITIALIZED_ATTR:
@@ -2067,10 +1957,6 @@ class DataDocumenter(Documenter):
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-    def get_real_modname(self) -> str:
-        real_modname = self.get_attr(self.parent or self.object, '__module__', None)
-        return real_modname or self.modname
-
     def get_module_comment(self, attrname: str) -> list[str] | None:
         try:
             analyzer = ModuleAnalyzer.for_module(self.modname)
@@ -2110,6 +1996,8 @@ class DataDocumenter(Documenter):
 class MethodDocumenter(Documenter):
     """Specialized Documenter subclass for methods (normal, static and class)."""
 
+    props: _FunctionDefProperties
+
     __docstring_signature__ = True
 
     objtype = 'method'
@@ -2122,28 +2010,6 @@ class MethodDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            im = _import_method(
-                module_name=self.modname,
-                obj_path=self.objpath,
-                member_order=self.member_order,
-                mock_imports=self.config.autodoc_mock_imports,
-                get_attr=self.get_attr,
-            )
-        except ImportError as exc:
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-        self.object = im.__dict__.pop('obj', None)
-        for k in 'module', 'parent', 'object_name', 'member_order':
-            if hasattr(im, k):
-                setattr(self, k, getattr(im, k))
-        return True
 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in {'none', 'description'}:
@@ -2379,6 +2245,8 @@ class MethodDocumenter(Documenter):
 class AttributeDocumenter(Documenter):
     """Specialized Documenter subclass for attributes."""
 
+    props: _AssignStatementProperties
+
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
 
@@ -2434,35 +2302,9 @@ class AttributeDocumenter(Documenter):
             # Failed to set __annotations__ (built-in, extensions, etc.)
             pass
 
-    def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            im = _import_assignment_attribute(
-                module_name=self.modname,
-                obj_path=self.objpath,
-                mock_imports=self.config.autodoc_mock_imports,
-                type_aliases=self.config.autodoc_type_aliases,
-                get_attr=self.get_attr,
-            )
-        except ImportError as exc:
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-
-        self.object = im.__dict__.pop('obj', None)
-        for k in 'module', 'parent', 'object_name':
-            if hasattr(im, k):
-                setattr(self, k, getattr(im, k))
-        return True
-
     @property
     def _is_non_data_descriptor(self) -> bool:
         return not inspect.isattributedescriptor(self.object)
-
-    def get_real_modname(self) -> str:
-        real_modname = self.get_attr(self.parent or self.object, '__module__', None)
-        return real_modname or self.modname
 
     def should_suppress_value_header(self) -> bool:
         if self.object is SLOTS_ATTR:
@@ -2600,6 +2442,8 @@ class AttributeDocumenter(Documenter):
 class PropertyDocumenter(Documenter):
     """Specialized Documenter subclass for properties."""
 
+    props: _FunctionDefProperties
+
     __docstring_signature__ = True
     __docstring_strip_signature__ = True
 
@@ -2608,9 +2452,6 @@ class PropertyDocumenter(Documenter):
 
     # before AttributeDocumenter
     priority = AttributeDocumenter.priority + 1
-
-    # Support for class properties. Note: these only work on Python 3.9.
-    isclassmethod: bool = False
 
     @classmethod
     def can_document_member(
@@ -2626,29 +2467,6 @@ class PropertyDocumenter(Documenter):
         else:
             return False
 
-    def import_object(self, raiseerror: bool = False) -> bool:
-        try:
-            im = _import_property(
-                module_name=self.modname,
-                obj_path=self.objpath,
-                mock_imports=self.config.autodoc_mock_imports,
-                get_attr=self.get_attr,
-            )
-        except ImportError as exc:
-            if raiseerror:
-                raise
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            self.env.note_reread()
-            return False
-        if im is None:
-            return False
-
-        self.object = im.__dict__.pop('obj', None)
-        for k in 'module', 'parent', 'object_name', 'isclassmethod':
-            if hasattr(im, k):
-                setattr(self, k, getattr(im, k))
-        return True
-
     def format_args(self, **kwargs: Any) -> str:
         func = self._get_property_getter()
         if func is None:
@@ -2662,16 +2480,13 @@ class PropertyDocumenter(Documenter):
     def document_members(self, all_members: bool = False) -> None:
         pass
 
-    def get_real_modname(self) -> str:
-        real_modname = self.get_attr(self.parent or self.object, '__module__', None)
-        return real_modname or self.modname
-
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
         if inspect.isabstractmethod(self.object):
             self.add_line('   :abstractmethod:', sourcename)
-        if self.isclassmethod:
+        # Support for class properties. Note: these only work on Python 3.9.
+        if self.props.is_classmethod:
             self.add_line('   :classmethod:', sourcename)
 
         func = self._get_property_getter()
