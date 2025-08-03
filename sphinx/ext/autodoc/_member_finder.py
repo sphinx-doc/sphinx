@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from sphinx.errors import PycodeError
 from sphinx.events import EventManager
@@ -26,8 +26,8 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Set
-    from typing import Any
+    from collections.abc import Iterator, Mapping, Sequence, Set
+    from typing import Any, Literal
 
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
         _ClassDefProperties,
         _ModuleProperties,
     )
+    from sphinx.ext.autodoc._sentinels import ALL_T, EMPTY_T
     from sphinx.ext.autodoc.importer import _AttrGetter
 
 logger = logging.getLogger('sphinx.ext.autodoc')
@@ -112,8 +113,21 @@ def _get_members_to_document(
     The user can override the skipping decision by connecting to the
     ``autodoc-skip-member`` event.
     """
+    opt_members: ALL_T | Sequence[str] = options.members or ()
+    undoc_members = options.undoc_members
+    inherited_members: Set[str] = frozenset(options.inherited_members or ())
+    exclude_members = options.exclude_members
+    private_members = options.private_members
+    special_members = options.special_members
+    ignore_module_all = options.ignore_module_all
+
+    if analyzer:
+        analyzer.analyze()
+        attr_docs = analyzer.attr_docs
+    else:
+        attr_docs = {}
+
     if props.obj_type == 'module':
-        attr_docs = analyzer.attr_docs if analyzer else {}
         members_: dict[str, ObjectMember] = {}
         for name in dir(props._obj):
             try:
@@ -139,7 +153,7 @@ def _get_members_to_document(
             members = list(members_.values())
 
             module_all = props.all
-            if options.ignore_module_all or module_all is None:
+            if ignore_module_all or module_all is None:
                 pass
             else:
                 module_all_set = frozenset(module_all)
@@ -147,11 +161,9 @@ def _get_members_to_document(
                     if member.__name__ not in module_all_set:
                         member.skipped = True
         else:
-            assert options.members is not ALL
-            members = [
-                members_[name] for name in options.members or () if name in members_
-            ]
-            for name in options.members or ():
+            assert opt_members is not ALL
+            members = [members_[name] for name in opt_members if name in members_]
+            for name in opt_members:
                 if name in members_:
                     continue
                 logger.warning(
@@ -172,15 +184,13 @@ def _get_members_to_document(
         )
         if want_all:
             members = list(members_.values())
-            if not options.inherited_members:
+            if not inherited_members:
                 members = [m for m in members if m.class_ == props._obj]
         else:
             # specific members given
-            assert options.members is not ALL
-            members = [
-                members_[name] for name in options.members or () if name in members_
-            ]
-            for name in options.members or ():
+            assert opt_members is not ALL
+            members = [members_[name] for name in opt_members if name in members_]
+            for name in opt_members:
                 if name in members_:
                     continue
                 msg = __('missing attribute %s in object %s')
@@ -188,17 +198,10 @@ def _get_members_to_document(
     else:
         raise ValueError
 
-    inherited_members: Set[str] = frozenset(options.inherited_members or ())
-
     filtered = []
 
     # search for members in source code too
     namespace = props.dotted_parts  # will be empty for modules
-
-    if analyzer:
-        attr_docs = analyzer.find_attr_docs()
-    else:
-        attr_docs = {}
 
     # process members and determine which to skip
     for obj in members:
@@ -217,6 +220,11 @@ def _get_members_to_document(
                 options=options,
                 parent=props._obj,
                 want_all=want_all,
+                exclude_members=exclude_members,
+                special_members=special_members,
+                private_members=private_members,
+                undoc_members=undoc_members,
+                opt_members=opt_members,
             )
         except Exception as exc:
             logger.warning(
@@ -476,12 +484,12 @@ def _should_keep_member(
     options: _AutoDocumenterOptions,
     parent: Any,
     want_all: bool,
+    exclude_members: EMPTY_T | Set[str] | None,
+    special_members: ALL_T | Sequence[str] | None,
+    private_members: ALL_T | Sequence[str] | None,
+    undoc_members: Literal[True] | None,
+    opt_members: ALL_T | Sequence[str] | None,
 ) -> bool:
-    exclude_members = options.exclude_members
-    special_members = options.special_members
-    private_members = options.private_members
-    undoc_members = options.undoc_members
-
     doc = getdoc(
         member,
         get_attr,
@@ -567,7 +575,7 @@ def _should_keep_member(
         else:
             keep = False
     else:
-        if options.members is ALL and _is_filtered_inherited_member(
+        if opt_members is ALL and _is_filtered_inherited_member(
             member_name,
             member_obj,
             parent=parent,
