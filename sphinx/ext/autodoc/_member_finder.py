@@ -267,7 +267,6 @@ def _get_members_to_document(
                         elif (
                             ns == qualname
                             and attr_docstring
-                            and isinstance(object_members_map[name], ObjectMember)
                             and not object_members_map[name].docstring
                         ):
                             if cls != subject and not inherit_docstrings:
@@ -505,7 +504,7 @@ def _should_keep_member(
         if cls_doc == doc:
             doc = None
 
-    if isinstance(member_obj, ObjectMember) and member_obj.docstring:
+    if member_obj.docstring:
         # hack for ClassDocumenter to inject docstring via ObjectMember
         doc = member_obj.docstring
 
@@ -535,7 +534,7 @@ def _should_keep_member(
                 keep = False
             elif _is_filtered_inherited_member(
                 member_name,
-                member_obj,
+                member_cls=member_obj.class_,
                 parent=parent,
                 inherited_members=inherited_members,
                 get_attr=get_attr,
@@ -560,7 +559,7 @@ def _should_keep_member(
                 keep = False
             elif _is_filtered_inherited_member(
                 member_name,
-                member_obj,
+                member_cls=member_obj.class_,
                 parent=parent,
                 inherited_members=inherited_members,
                 get_attr=get_attr,
@@ -573,7 +572,7 @@ def _should_keep_member(
     else:
         if opt_members is ALL and _is_filtered_inherited_member(
             member_name,
-            member_obj,
+            member_cls=member_obj.class_,
             parent=parent,
             inherited_members=inherited_members,
             get_attr=get_attr,
@@ -583,7 +582,7 @@ def _should_keep_member(
             # ignore undocumented members if :undoc-members: is not given
             keep = has_doc or undoc_members  # type: ignore[assignment]
 
-    if isinstance(member_obj, ObjectMember) and member_obj.skipped:
+    if member_obj.skipped:
         # forcedly skipped member (ex. a module attribute not defined in __all__)
         keep = False
     return keep
@@ -591,7 +590,7 @@ def _should_keep_member(
 
 def _is_filtered_inherited_member(
     member_name: str,
-    member_obj: Any,
+    member_cls: Any,
     *,
     parent: Any,
     inherited_members: Set[str],
@@ -616,6 +615,6 @@ def _is_filtered_inherited_member(
             return False
         if member_name in get_attr(cls, '__annotations__', {}):
             return False
-        if isinstance(member_obj, ObjectMember) and member_obj.class_ is cls:
+        if member_cls is cls:
             return False
     return False
