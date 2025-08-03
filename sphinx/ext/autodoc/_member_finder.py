@@ -128,14 +128,14 @@ def _get_members_to_document(
         attr_docs = {}
 
     if props.obj_type == 'module':
-        members_: dict[str, ObjectMember] = {}
+        object_members_map: dict[str, ObjectMember] = {}
         for name in dir(props._obj):
             try:
                 value = safe_getattr(props._obj, name, None)
                 if ismock(value):
                     value = undecorate(value)
                 docstring = attr_docs.get(('', name), [])
-                members_[name] = ObjectMember(
+                object_members_map[name] = ObjectMember(
                     name, value, docstring='\n'.join(docstring)
                 )
             except AttributeError:
@@ -143,28 +143,26 @@ def _get_members_to_document(
 
         # annotation only member (ex. attr: int)
         for name in inspect.getannotations(props._obj):
-            if name not in members_:
+            if name not in object_members_map:
                 docstring = attr_docs.get(('', name), [])
-                members_[name] = ObjectMember(
+                object_members_map[name] = ObjectMember(
                     name, INSTANCE_ATTR, docstring='\n'.join(docstring)
                 )
 
         if want_all:
-            members = list(members_.values())
+            obj_members_seq = list(object_members_map.values())
 
             module_all = props.all
-            if ignore_module_all or module_all is None:
-                pass
-            else:
+            if not ignore_module_all and module_all is not None:
                 module_all_set = frozenset(module_all)
-                for member in members:
+                for member in obj_members_seq:
                     if member.__name__ not in module_all_set:
                         member.skipped = True
         else:
             assert opt_members is not ALL
-            members = [members_[name] for name in opt_members if name in members_]
+            obj_members_seq = [object_members_map[name] for name in opt_members if name in object_members_map]
             for name in opt_members:
-                if name in members_:
+                if name in object_members_map:
                     continue
                 logger.warning(
                     __(
@@ -176,22 +174,22 @@ def _get_members_to_document(
                     type='autodoc',
                 )
     elif props.obj_type in {'class', 'exception'}:
-        members_ = get_class_members(
+        object_members_map = get_class_members(
             props._obj,
             props.parts,
             get_attr,
             inherit_docstrings,
         )
         if want_all:
-            members = list(members_.values())
+            obj_members_seq = list(object_members_map.values())
             if not inherited_members:
-                members = [m for m in members if m.class_ == props._obj]
+                obj_members_seq = [m for m in obj_members_seq if m.class_ == props._obj]
         else:
             # specific members given
             assert opt_members is not ALL
-            members = [members_[name] for name in opt_members if name in members_]
+            obj_members_seq = [object_members_map[name] for name in opt_members if name in object_members_map]
             for name in opt_members:
-                if name in members_:
+                if name in object_members_map:
                     continue
                 msg = __('missing attribute %s in object %s')
                 logger.warning(msg, name, props.full_name, type='autodoc')
@@ -204,14 +202,12 @@ def _get_members_to_document(
     namespace = props.dotted_parts  # will be empty for modules
 
     # process members and determine which to skip
-    for obj in members:
-        member_name = obj.__name__
-        member = obj.object
-        has_attr_doc = (namespace, member_name) in attr_docs
+    for obj in obj_members_seq:
+        has_attr_doc = (namespace, obj.__name__) in attr_docs
         try:
             keep = _should_keep_member(
-                member_name,
-                member,
+                obj.__name__,
+                obj.object,
                 member_obj=obj,
                 get_attr=get_attr,
                 has_attr_doc=has_attr_doc,
@@ -233,8 +229,8 @@ def _get_members_to_document(
                     'the following exception was raised:\n%s'
                 ),
                 orig_name,
-                member_name,
-                member,
+                obj.__name__,
+                obj.object,
                 exc,
                 type='autodoc',
             )
@@ -247,8 +243,8 @@ def _get_members_to_document(
             skip_user = events.emit_firstresult(
                 'autodoc-skip-member',
                 props.obj_type,
-                member_name,
-                member,
+                obj.__name__,
+                obj.object,
                 not keep,
                 options,
             )
@@ -257,8 +253,8 @@ def _get_members_to_document(
 
         if keep:
             # if is_attr is True, the member is documented as an attribute
-            is_attr = member is INSTANCE_ATTR or has_attr_doc
-            filtered.append((member_name, member, is_attr))
+            is_attr = obj.object is INSTANCE_ATTR or has_attr_doc
+            filtered.append((obj.__name__, obj.object, is_attr))
 
     return filtered
 
