@@ -312,9 +312,11 @@ def _get_members_to_document(
         has_attr_doc = (namespace, obj.__name__) in attr_docs
         try:
             keep = _should_keep_member(
-                obj.__name__,
-                obj.object,
-                member_obj=obj,
+                member_name=obj.__name__,
+                member_obj=obj.object,
+                member_docstring=obj.docstring,
+                member_cls=obj.class_,
+                member_skipped=obj.skipped,
                 get_attr=get_attr,
                 has_attr_doc=has_attr_doc,
                 inherit_docstrings=inherit_docstrings,
@@ -469,10 +471,12 @@ def _is_native_enum_api(obj: object, name: str) -> bool:
 
 
 def _should_keep_member(
-    member_name: str,
-    member: Any,
-    member_obj: ObjectMember,
     *,
+    member_name: str,
+    member_obj: Any,
+    member_docstring: str | None,
+    member_cls: Any,
+    member_skipped: bool,
     get_attr: _AttrGetter,
     has_attr_doc: bool,
     inherit_docstrings: bool,
@@ -485,13 +489,13 @@ def _should_keep_member(
     undoc_members: Literal[True] | None,
     opt_members: ALL_T | Sequence[str] | None,
 ) -> bool:
-    if member_obj.skipped:
+    if member_skipped:
         # Forcibly skipped member
         # e.g. a module attribute not defined in __all__
         return False
 
     doc = getdoc(
-        member,
+        member_obj,
         get_attr,
         inherit_docstrings,
         parent,
@@ -503,15 +507,15 @@ def _should_keep_member(
 
     # if the member __doc__ is the same as self's __doc__, it's just
     # inherited and therefore not the member's doc
-    cls = get_attr(member, '__class__', None)
+    cls = get_attr(member_obj, '__class__', None)
     if cls:
         cls_doc = get_attr(cls, '__doc__', None)
         if cls_doc == doc:
             doc = None
 
-    if member_obj.docstring:
-        # hack for ClassDocumenter to inject docstring via ObjectMember
-        doc = member_obj.docstring
+    if member_docstring:
+        # hack for ClassDocumenter to inject docstring
+        doc = member_docstring
 
     doc, metadata = separate_metadata(doc)
     has_doc = bool(doc)
@@ -526,7 +530,7 @@ def _should_keep_member(
         is_private = member_name.startswith('_')
 
     keep = False
-    if ismock(member) and not has_attr_doc:
+    if ismock(member_obj) and not has_attr_doc:
         # mocked module or object
         pass
     elif exclude_members and member_name in exclude_members:
@@ -539,7 +543,7 @@ def _should_keep_member(
                 keep = False
             elif _is_filtered_inherited_member(
                 member_name,
-                member_cls=member_obj.class_,
+                member_cls=member_cls,
                 parent=parent,
                 inherited_members=inherited_members,
                 get_attr=get_attr,
@@ -564,7 +568,7 @@ def _should_keep_member(
                 keep = False
             elif _is_filtered_inherited_member(
                 member_name,
-                member_cls=member_obj.class_,
+                member_cls=member_cls,
                 parent=parent,
                 inherited_members=inherited_members,
                 get_attr=get_attr,
@@ -577,7 +581,7 @@ def _should_keep_member(
     else:
         if opt_members is ALL and _is_filtered_inherited_member(
             member_name,
-            member_cls=member_obj.class_,
+            member_cls=member_cls,
             parent=parent,
             inherited_members=inherited_members,
             get_attr=get_attr,
