@@ -116,6 +116,7 @@ Bugs fixed
 * #10785: Autodoc: Allow type aliases defined in the project to be properly
   cross-referenced when used as type annotations. This makes it possible
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
+* Avoid parallel workers depth write race in imgmath
 
 Testing
 -------
