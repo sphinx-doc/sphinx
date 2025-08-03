@@ -641,7 +641,8 @@ class Documenter:
             classes.sort(key=lambda cls: cls.priority)
             # give explicitly separated module name, so that members
             # of inner classes can be documented
-            full_mname = f'{self.modname}::' + '.'.join((*self.objpath, mname))
+            module_prefix = f'{self.props.module_name}::'
+            full_mname = module_prefix + '.'.join((*self.props.parts, mname))
             documenter = classes[-1](self.directive, full_mname, indent)
             member_documenters.append((documenter, isattr))
 
@@ -695,9 +696,9 @@ class Documenter:
         if isinstance(self, ModuleDocumenter):
             attr_docs = self.analyzer.attr_docs if self.analyzer else {}
             members_: dict[str, ObjectMember] = {}
-            for name in dir(self.object):
+            for name in dir(self.props._obj):
                 try:
-                    value = safe_getattr(self.object, name, None)
+                    value = safe_getattr(self.props._obj, name, None)
                     if ismock(value):
                         value = undecorate(value)
                     docstring = attr_docs.get(('', name), [])
@@ -708,7 +709,7 @@ class Documenter:
                     continue
 
             # annotation only member (ex. attr: int)
-            for name in inspect.getannotations(self.object):
+            for name in inspect.getannotations(self.props._obj):
                 if name not in members_:
                     docstring = attr_docs.get(('', name), [])
                     members_[name] = ObjectMember(
@@ -741,21 +742,21 @@ class Documenter:
                             'missing attribute mentioned in :members: option: '
                             'module %s, attribute %s'
                         ),
-                        safe_getattr(self.object, '__name__', '???'),
+                        safe_getattr(self.props._obj, '__name__', '???'),
                         name,
                         type='autodoc',
                     )
         elif isinstance(self, ClassDocumenter):
             members_ = get_class_members(
-                self.object,
-                self.objpath,
+                self.props._obj,
+                self.props.parts,
                 self.get_attr,
                 self.config.autodoc_inherit_docstrings,
             )
             if want_all:
                 members = list(members_.values())
                 if not self.options.inherited_members:
-                    members = [m for m in members if m.class_ == self.object]
+                    members = [m for m in members if m.class_ == self.props._obj]
             else:
                 # specific members given
                 assert self.options.members is not ALL
@@ -767,12 +768,8 @@ class Documenter:
                 for name in self.options.members or ():
                     if name in members_:
                         continue
-                    logger.warning(
-                        __('missing attribute %s in object %s'),
-                        name,
-                        self.fullname,
-                        type='autodoc',
-                    )
+                    msg = __('missing attribute %s in object %s')
+                    logger.warning(msg, name, self.props.full_name, type='autodoc')
         else:
             msg = 'must be implemented in subclasses'
             raise NotImplementedError(msg)
@@ -782,7 +779,7 @@ class Documenter:
         filtered = []
 
         # search for members in source code too
-        namespace = '.'.join(self.objpath)  # will be empty for modules
+        namespace = self.props.dotted_parts  # will be empty for modules
 
         if self.analyzer:
             attr_docs = self.analyzer.find_attr_docs()
@@ -805,7 +802,7 @@ class Documenter:
                     inherit_docstrings=inherit_docstrings,
                     inherited_members=inherited_members,
                     options=self.options,
-                    parent=self.object,
+                    parent=self.props._obj,
                     want_all=want_all,
                 )
             except Exception as exc:
