@@ -651,12 +651,21 @@ class Documenter:
         The user can override the skipping decision by connecting to the
         ``autodoc-skip-member`` event.
         """
-        if isinstance(self, ModuleDocumenter):
-            attr_docs = self.analyzer.attr_docs if self.analyzer else {}
+        analyzer = self.analyzer
+        props = self.props
+        options = self.options
+        get_attr = self.get_attr
+        inherit_docstrings = self.config.autodoc_inherit_docstrings
+        orig_name = self.name
+        events = self._events
+
+
+        if props.obj_type == 'module':
+            attr_docs = analyzer.attr_docs if analyzer else {}
             members_: dict[str, ObjectMember] = {}
-            for name in dir(self.props._obj):
+            for name in dir(props._obj):
                 try:
-                    value = safe_getattr(self.props._obj, name, None)
+                    value = safe_getattr(props._obj, name, None)
                     if ismock(value):
                         value = undecorate(value)
                     docstring = attr_docs.get(('', name), [])
@@ -667,7 +676,7 @@ class Documenter:
                     continue
 
             # annotation only member (ex. attr: int)
-            for name in inspect.getannotations(self.props._obj):
+            for name in inspect.getannotations(props._obj):
                 if name not in members_:
                     docstring = attr_docs.get(('', name), [])
                     members_[name] = ObjectMember(
@@ -677,8 +686,8 @@ class Documenter:
             if want_all:
                 members = list(members_.values())
 
-                module_all = self.props.all
-                if self.options.ignore_module_all or module_all is None:
+                module_all = props.all
+                if options.ignore_module_all or module_all is None:
                     pass
                 else:
                     module_all_set = frozenset(module_all)
@@ -686,13 +695,13 @@ class Documenter:
                         if member.__name__ not in module_all_set:
                             member.skipped = True
             else:
-                assert self.options.members is not ALL
+                assert options.members is not ALL
                 members = [
                     members_[name]
-                    for name in self.options.members or ()
+                    for name in options.members or ()
                     if name in members_
                 ]
-                for name in self.options.members or ():
+                for name in options.members or ():
                     if name in members_:
                         continue
                     logger.warning(
@@ -700,50 +709,49 @@ class Documenter:
                             'missing attribute mentioned in :members: option: '
                             'module %s, attribute %s'
                         ),
-                        safe_getattr(self.props._obj, '__name__', '???'),
+                        safe_getattr(props._obj, '__name__', '???'),
                         name,
                         type='autodoc',
                     )
-        elif isinstance(self, ClassDocumenter):
+        elif props.obj_type in {'class', 'exception'}:
             members_ = get_class_members(
-                self.props._obj,
-                self.props.parts,
-                self.get_attr,
-                self.config.autodoc_inherit_docstrings,
+                props._obj,
+                props.parts,
+                get_attr,
+                inherit_docstrings,
             )
             if want_all:
                 members = list(members_.values())
-                if not self.options.inherited_members:
-                    members = [m for m in members if m.class_ == self.props._obj]
+                if not options.inherited_members:
+                    members = [m for m in members if m.class_ == props._obj]
             else:
                 # specific members given
-                assert self.options.members is not ALL
+                assert options.members is not ALL
                 members = [
                     members_[name]
-                    for name in self.options.members or ()
+                    for name in options.members or ()
                     if name in members_
                 ]
-                for name in self.options.members or ():
+                for name in options.members or ():
                     if name in members_:
                         continue
                     msg = __('missing attribute %s in object %s')
-                    logger.warning(msg, name, self.props.full_name, type='autodoc')
+                    logger.warning(msg, name, props.full_name, type='autodoc')
         else:
             msg = 'must be implemented in subclasses'
             raise NotImplementedError(msg)
 
-        inherited_members: Set[str] = frozenset(self.options.inherited_members or ())
+        inherited_members: Set[str] = frozenset(options.inherited_members or ())
 
         filtered = []
 
         # search for members in source code too
-        namespace = self.props.dotted_parts  # will be empty for modules
+        namespace = props.dotted_parts  # will be empty for modules
 
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
+        if analyzer:
+            attr_docs = analyzer.find_attr_docs()
         else:
             attr_docs = {}
-        inherit_docstrings = self.config.autodoc_inherit_docstrings
 
         # process members and determine which to skip
         for obj in members:
@@ -755,12 +763,12 @@ class Documenter:
                     member_name,
                     member,
                     member_obj=obj,
-                    get_attr=self.get_attr,
+                    get_attr=get_attr,
                     has_attr_doc=has_attr_doc,
                     inherit_docstrings=inherit_docstrings,
                     inherited_members=inherited_members,
-                    options=self.options,
-                    parent=self.props._obj,
+                    options=options,
+                    parent=props._obj,
                     want_all=want_all,
                 )
             except Exception as exc:
@@ -769,7 +777,7 @@ class Documenter:
                         'autodoc: failed to determine %s.%s (%r) to be documented, '
                         'the following exception was raised:\n%s'
                     ),
-                    self.name,
+                    orig_name,
                     member_name,
                     member,
                     exc,
@@ -779,15 +787,15 @@ class Documenter:
 
             # give the user a chance to decide whether this member
             # should be skipped
-            if self._events is not None:
+            if events is not None:
                 # let extensions preprocess docstrings
-                skip_user = self._events.emit_firstresult(
+                skip_user = events.emit_firstresult(
                     'autodoc-skip-member',
-                    self.objtype,
+                    props.obj_type,
                     member_name,
                     member,
                     not keep,
-                    self.options,
+                    options,
                 )
                 if skip_user is not None:
                     keep = not skip_user
