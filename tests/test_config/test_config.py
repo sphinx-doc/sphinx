@@ -144,7 +144,7 @@ def test_config_not_found(tmp_path):
 
 
 @pytest.mark.parametrize('protocol', list(range(pickle.HIGHEST_PROTOCOL)))
-def test_config_pickle_protocol(protocol: int):
+def test_config_pickle_protocol(protocol: int) -> None:
     config = Config()
 
     pickled_config = pickle.loads(pickle.dumps(config, protocol))

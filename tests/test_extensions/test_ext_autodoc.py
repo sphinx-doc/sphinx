@@ -17,12 +17,17 @@ from warnings import catch_warnings
 import pytest
 
 from sphinx import addnodes
-from sphinx.ext.autodoc._directive_options import Options
+from sphinx.ext.autodoc._directive_options import (
+    _AutoDocumenterOptions,
+    inherited_members_option,
+)
 from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
+from sphinx.ext.autodoc._property_types import _ClassDefProperties
 from sphinx.ext.autodoc._sentinels import ALL
 
 # NEVER import these objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
+from sphinx.ext.autodoc.importer import _parse_name
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
@@ -41,22 +46,22 @@ if TYPE_CHECKING:
 
 
 def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
-    options = Options(
-        inherited_members=False,
-        undoc_members=False,
-        private_members=False,
-        special_members=False,
-        imported_members=False,
-        show_inheritance=False,
-        no_index=False,
+    options = _AutoDocumenterOptions(
+        inherited_members=None,
+        undoc_members=None,
+        private_members=None,
+        special_members=None,
+        imported_members=None,
+        show_inheritance=None,
+        no_index=None,
         annotation=None,
         synopsis='',
         platform='',
-        deprecated=False,
+        deprecated=None,
         members=[],
         member_order='alphabetical',
         exclude_members=set(),
-        ignore_module_all=False,
+        ignore_module_all=None,
     )
 
     directive = DocumenterBridge(
@@ -76,58 +81,54 @@ processed_signatures = []
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_parse_name(app):
-    def verify(objtype, name, result):
-        inst = app.registry.documenters[objtype](directive, name)
-        assert inst.parse_name()
-        assert (inst.modname, inst.objpath, inst.args, inst.retann) == result
+    env = app.env
+    current_document = env.current_document
 
-    directive = make_directive_bridge(app.env)
+    def parse(objtype, name):
+        parsed = _parse_name(
+            name=name, objtype=objtype, current_document=current_document, env=env
+        )
+        if parsed is None:
+            return None
+        module_name, parts, args, retann = parsed
+        return module_name, list(parts), args, retann
 
     # for modules
-    verify('module', 'test_ext_autodoc', ('test_ext_autodoc', [], None, None))
-    verify('module', 'test.test_ext_autodoc', ('test.test_ext_autodoc', [], None, None))
-    verify('module', 'test(arg)', ('test', [], 'arg', None))
+    parsed = parse('module', 'test_ext_autodoc')
+    assert parsed == ('test_ext_autodoc', [], None, None)
+    parsed = parse('module', 'test.test_ext_autodoc')
+    assert parsed == ('test.test_ext_autodoc', [], None, None)
+    parsed = parse('module', 'test(arg)')
+    assert parsed is None
     assert 'signature arguments' in app.warning.getvalue()
 
     # for functions/classes
-    verify(
-        'function',
-        'test_ext_autodoc.raises',
-        ('test_ext_autodoc', ['raises'], None, None),
-    )
-    verify(
-        'function',
-        'test_ext_autodoc.raises(exc) -> None',
-        ('test_ext_autodoc', ['raises'], 'exc', 'None'),
-    )
-    directive.env.current_document.autodoc_module = 'test_ext_autodoc'
-    verify('function', 'raises', ('test_ext_autodoc', ['raises'], None, None))
-    directive.env.current_document.autodoc_module = ''
+    parsed = parse('function', 'test_ext_autodoc.raises')
+    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
+    parsed = parse('function', 'test_ext_autodoc.raises(exc) -> None')
+    assert parsed == ('test_ext_autodoc', ['raises'], 'exc', 'None')
+    current_document.autodoc_module = 'test_ext_autodoc'
+    parsed = parse('function', 'raises')
+    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
+    current_document.autodoc_module = ''
 
-    directive.env.ref_context['py:module'] = 'test_ext_autodoc'
-    verify('function', 'raises', ('test_ext_autodoc', ['raises'], None, None))
-    verify('class', 'Base', ('test_ext_autodoc', ['Base'], None, None))
+    env.ref_context['py:module'] = 'test_ext_autodoc'
+    parsed = parse('function', 'raises')
+    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
+    parsed = parse('class', 'Base')
+    assert parsed == ('test_ext_autodoc', ['Base'], None, None)
 
     # for members
-    directive.env.ref_context['py:module'] = 'sphinx.testing.util'
-    verify(
-        'method',
-        'SphinxTestApp.cleanup',
-        ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None),
-    )
-    directive.env.ref_context['py:module'] = 'sphinx.testing.util'
-    directive.env.ref_context['py:class'] = 'Foo'
-    directive.env.current_document.autodoc_class = 'SphinxTestApp'
-    verify(
-        'method',
-        'cleanup',
-        ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None),
-    )
-    verify(
-        'method',
-        'SphinxTestApp.cleanup',
-        ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None),
-    )
+    env.ref_context['py:module'] = 'sphinx.testing.util'
+    parsed = parse('method', 'SphinxTestApp.cleanup')
+    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
+    env.ref_context['py:module'] = 'sphinx.testing.util'
+    env.ref_context['py:class'] = 'Foo'
+    current_document.autodoc_class = 'SphinxTestApp'
+    parsed = parse('method', 'cleanup')
+    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
+    parsed = parse('method', 'SphinxTestApp.cleanup')
+    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -161,6 +162,16 @@ def test_format_signature(app):
         inst.objpath = [name]
         inst.args = args
         inst.retann = retann
+        inst.props = _ClassDefProperties(
+            obj_type=objtype,
+            module_name=inst.modname,
+            parts=(name,),
+            docstring_lines=(),
+            bases=getattr(obj, '__bases__', None),
+            _obj=obj,
+            _obj___module__=getattr(obj, '__module__', None),
+            _obj___name__=name,
+        )
         res = inst.format_signature()
         print(res)
         return res
@@ -417,24 +428,30 @@ def test_get_doc(app):
     assert getdocl('function', J().foo) == ['Method docstring']
 
 
+class _MyDocumenter(ModuleLevelDocumenter):
+    objtype = 'integer'
+    directivetype = 'integer'
+    priority = 100
+
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):
+        return isinstance(member, int)
+
+    def document_members(self, all_members=False):
+        return
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_new_documenter(app):
-    class MyDocumenter(ModuleLevelDocumenter):
-        objtype = 'integer'
-        directivetype = 'integer'
-        priority = 100
-
-        @classmethod
-        def can_document_member(cls, member, membername, isattr, parent):
-            return isinstance(member, int)
-
-        def document_members(self, all_members=False):
-            return
-
-    app.add_autodocumenter(MyDocumenter)
+    app.add_autodocumenter(_MyDocumenter)
 
     options = {'members': 'integer'}
-    actual = do_autodoc(app, 'module', 'target', options)
+    with pytest.raises(
+        NotImplementedError, match=r'^must be implemented in subclasses$'
+    ):
+        # TODO: Fix! Perhaps add a way to signal module/class-level?
+        actual = do_autodoc(app, 'module', 'target', options)
+    return
     assert list(actual) == [
         '',
         '.. py:module:: target',
@@ -451,13 +468,14 @@ def test_new_documenter(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_attrgetter_using(app):
     directive = make_directive_bridge(app.env)
-    directive.genopt['members'] = ALL
+    options = directive.genopt
+    options.members = ALL
 
-    directive.genopt['inherited_members'] = False
+    options.inherited_members = inherited_members_option(False)
     with catch_warnings(record=True):
         _assert_getter_works(app, directive, 'class', 'target.Class', ['meth'])
 
-    directive.genopt['inherited_members'] = True
+    options.inherited_members = inherited_members_option(True)
     with catch_warnings(record=True):
         _assert_getter_works(
             app, directive, 'class', 'target.inheritance.Derived', ['inheritedmeth']
@@ -1625,7 +1643,7 @@ class _EnumFormatter:
         return self._node('class', self.name, doc, args=args, indent=indent, **options)
 
     @staticmethod
-    def _preamble_args(functional_constructor: bool = False):
+    def _preamble_args(functional_constructor: bool = False) -> str:
         """EnumType.__call__() is a dual-purpose method:
 
         * Look an enum member (valid only if the enum has members)

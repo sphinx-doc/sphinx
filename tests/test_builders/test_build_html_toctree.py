@@ -14,6 +14,10 @@ from tests.test_builders.xpath_html_util import _intradocument_hyperlink_check
 from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from pathlib import Path
+    from xml.etree.ElementTree import Element, ElementTree
+
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -71,7 +75,11 @@ def test_numbered_toctree(app: SphinxTestApp) -> None:
     ],
 )
 @pytest.mark.sphinx('singlehtml', testroot='toctree')
-def test_singlehtml_hyperlinks(app, cached_etree_parse, expect):
+def test_singlehtml_hyperlinks(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    expect: tuple[str, str | Callable[[Sequence[Element]], None]],
+) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
 
@@ -81,7 +89,9 @@ def test_singlehtml_hyperlinks(app, cached_etree_parse, expect):
     testroot='toctree-multiple-parents',
     confoverrides={'html_theme': 'alabaster'},
 )
-def test_toctree_multiple_parents(app, cached_etree_parse):
+def test_toctree_multiple_parents(
+    app: SphinxTestApp, cached_etree_parse: Callable[[Path], ElementTree]
+) -> None:
     # The lexicographically greatest parent of the document in global toctree
     # should be chosen, regardless of the order in which files are read
     with patch.object(app.builder, '_read_serial') as m:
