@@ -456,12 +456,8 @@ class Documenter:
                         args = matched.group(1)
                         retann = matched.group(2)
             except Exception as exc:
-                logger.warning(
-                    __('error while formatting arguments for %s: %s'),
-                    self.props.full_name,
-                    exc,
-                    type='autodoc',
-                )
+                msg = __('error while formatting arguments for %s: %s')
+                logger.warning(msg, self.props.full_name, exc, type='autodoc')
                 args = None
 
         result = self._events.emit_firstresult(
@@ -980,12 +976,8 @@ class Documenter:
         try:
             sig = self.format_signature()
         except Exception as exc:
-            logger.warning(
-                __('error while formatting signature for %s: %s'),
-                self.props.full_name,
-                exc,
-                type='autodoc',
-            )
+            msg = __('error while formatting signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc, type='autodoc')
             return
 
         # generate the directive header and options, if applicable
@@ -1059,15 +1051,11 @@ class ModuleDocumenter(Documenter):
                     self.__all__ = inspect.getall(self.object)
             except ValueError as exc:
                 # invalid __all__ found.
-                logger.warning(
-                    __(
-                        '__all__ should be a list of strings, not %r '
-                        '(in module %s) -- ignoring __all__'
-                    ),
-                    exc.args[0],
-                    self.props.full_name,
-                    type='autodoc',
+                msg = __(
+                    '__all__ should be a list of strings, not %r '
+                    '(in module %s) -- ignoring __all__'
                 )
+                logger.warning(msg, exc.args[0], self.props.full_name, type='autodoc')
 
         return self.__all__
 
@@ -1689,12 +1677,8 @@ class ClassDocumenter(Documenter):
                 if name in members:
                     selected.append(members[name])
                 else:
-                    logger.warning(
-                        __('missing attribute %s in object %s'),
-                        name,
-                        self.props.full_name,
-                        type='autodoc',
-                    )
+                    msg = __('missing attribute %s in object %s')
+                    logger.warning(msg, name, self.props.full_name, type='autodoc')
             return False, selected
         elif self.options.inherited_members:
             return False, list(members.values())
@@ -2059,11 +2043,8 @@ class MethodDocumenter(Documenter):
                     )
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a method signature for %s: %s'),
-                self.props.full_name,
-                exc,
-            )
+            msg = __('Failed to get a method signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return ''
         except ValueError:
             args = ''
@@ -2191,11 +2172,8 @@ class MethodDocumenter(Documenter):
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a method signature for %s: %s'),
-                self.props.full_name,
-                exc,
-            )
+            msg = __('Failed to get a method signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return None
         except ValueError:
             return None
@@ -2529,11 +2507,8 @@ class PropertyDocumenter(Documenter):
                 )
                 self.add_line('   :type: ' + objrepr, sourcename)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a function signature for %s: %s'),
-                self.props.full_name,
-                exc,
-            )
+            msg = __('Failed to get a function signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             pass
         except ValueError:
             pass
