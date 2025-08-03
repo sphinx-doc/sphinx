@@ -330,13 +330,15 @@ def get_class_members(
             try:
                 modname = safe_getattr(cls, '__module__')
                 qualname = safe_getattr(cls, '__qualname__')
-                analyzer = ModuleAnalyzer.for_module(modname)
-                analyzer.analyze()
             except AttributeError:
                 qualname = None
                 analyzer = None
-            except PycodeError:
-                analyzer = None
+            else:
+                try:
+                    analyzer = ModuleAnalyzer.for_module(modname)
+                    analyzer.analyze()
+                except PycodeError:
+                    analyzer = None
 
             # annotation only member (ex. attr: int)
             for name in getannotations(cls):
