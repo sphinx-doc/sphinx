@@ -528,7 +528,7 @@ class Documenter:
             self.get_attr,
             self.config.autodoc_inherit_docstrings,
             self.parent,
-            self.object_name,
+            self.props.object_name,
         )
         if docstring:
             tab_width = self.directive.state.document.settings.tab_width
@@ -2039,7 +2039,7 @@ class MethodDocumenter(Documenter):
                 args = '()'
             else:
                 if inspect.isstaticmethod(
-                    self.object, cls=self.parent, name=self.object_name
+                    self.object, cls=self.parent, name=self.props.object_name
                 ):
                     self._events.emit(
                         'autodoc-before-process-signature', self.object, False
@@ -2076,7 +2076,7 @@ class MethodDocumenter(Documenter):
         super().add_directive_header(sig)
 
         sourcename = self.get_sourcename()
-        obj = self.parent.__dict__.get(self.object_name, self.object)
+        obj = self.parent.__dict__.get(self.props.object_name, self.object)
         if inspect.isabstractmethod(obj):
             self.add_line('   :abstractmethod:', sourcename)
         if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
@@ -2087,7 +2087,7 @@ class MethodDocumenter(Documenter):
             and inspect.is_classmethod_like(obj.func)
         ):
             self.add_line('   :classmethod:', sourcename)
-        if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
+        if inspect.isstaticmethod(obj, cls=self.parent, name=self.props.object_name):
             self.add_line('   :staticmethod:', sourcename)
         if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
@@ -2142,7 +2142,7 @@ class MethodDocumenter(Documenter):
                         sigs.append(documenter.format_signature())
         if overloaded and self.analyzer is not None:
             if inspect.isstaticmethod(
-                self.object, cls=self.parent, name=self.object_name
+                self.object, cls=self.parent, name=self.props.object_name
             ):
                 actual = inspect.signature(
                     self.object,
@@ -2164,7 +2164,7 @@ class MethodDocumenter(Documenter):
                 )
 
                 if not inspect.isstaticmethod(
-                    self.object, cls=self.parent, name=self.object_name
+                    self.object, cls=self.parent, name=self.props.object_name
                 ):
                     parameters = list(overload.parameters.values())
                     overload = overload.replace(parameters=parameters[1:])
@@ -2229,7 +2229,7 @@ class MethodDocumenter(Documenter):
                 self.get_attr,
                 self.config.autodoc_inherit_docstrings,
                 self.parent,
-                self.object_name,
+                self.props.object_name,
             )
             if docstring is not None and (
                 docstring == object.__init__.__doc__  # for pypy
@@ -2247,7 +2247,7 @@ class MethodDocumenter(Documenter):
                 self.get_attr,
                 self.config.autodoc_inherit_docstrings,
                 self.parent,
-                self.object_name,
+                self.props.object_name,
             )
             if docstring is not None and (
                 docstring == object.__new__.__doc__  # for pypy
