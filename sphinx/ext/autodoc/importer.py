@@ -13,7 +13,7 @@ from importlib.abc import FileLoader
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple, NewType, TypeVar
+from typing import TYPE_CHECKING, NewType, TypeVar
 
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._property_types import (
@@ -403,83 +403,6 @@ def _import_from_module_and_path(
         errmsg = '; '.join(err_parts)
         logger.debug(errmsg)
         raise ImportError(errmsg) from exc
-
-
-class Attribute(NamedTuple):
-    name: str
-    directly_defined: bool
-    value: Any
-
-
-def get_object_members(
-    subject: Any,
-    objpath: list[str],
-    attrgetter: _AttrGetter,
-    analyzer: ModuleAnalyzer | None = None,
-) -> dict[str, Attribute]:
-    """Get members and attributes of target object."""
-    # the members directly defined in the class
-    obj_dict = attrgetter(subject, '__dict__', {})
-
-    members: dict[str, Attribute] = {}
-
-    # enum members
-    if isenumclass(subject):
-        for name, defining_class, value in _filter_enum_dict(
-            subject, attrgetter, obj_dict
-        ):
-            # the order of occurrence of *name* matches the subject's MRO,
-            # allowing inherited attributes to be shadowed correctly
-            if unmangled := unmangle(defining_class, name):
-                members[unmangled] = Attribute(
-                    name=unmangled,
-                    directly_defined=defining_class is subject,
-                    value=value,
-                )
-
-    # members in __slots__
-    try:
-        subject___slots__ = getslots(subject)
-        if subject___slots__:
-            for name in subject___slots__:
-                members[name] = Attribute(
-                    name=name, directly_defined=True, value=SLOTS_ATTR
-                )
-    except (TypeError, ValueError):
-        pass
-
-    # other members
-    for name in dir(subject):
-        try:
-            value = attrgetter(subject, name)
-            directly_defined = name in obj_dict
-            unmangled = unmangle(subject, name)
-            if unmangled and unmangled not in members:
-                members[unmangled] = Attribute(
-                    name=unmangled, directly_defined=directly_defined, value=value
-                )
-        except AttributeError:
-            continue
-
-    # annotation only member (ex. attr: int)
-    for cls in getmro(subject):
-        for name in getannotations(cls):
-            unmangled = unmangle(cls, name)
-            if unmangled and unmangled not in members:
-                members[unmangled] = Attribute(
-                    name=unmangled, directly_defined=cls is subject, value=INSTANCE_ATTR
-                )
-
-    if analyzer:
-        # append instance attributes (cf. self.attr1) if analyzer knows
-        namespace = '.'.join(objpath)
-        for ns, name in analyzer.find_attr_docs():
-            if namespace == ns and name not in members:
-                members[name] = Attribute(
-                    name=name, directly_defined=True, value=INSTANCE_ATTR
-                )
-
-    return members
 
 
 def get_class_members(
