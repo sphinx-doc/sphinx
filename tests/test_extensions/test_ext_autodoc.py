@@ -161,7 +161,6 @@ def test_format_signature(app):
         inst = app.registry.documenters[objtype](directive, name)
         inst.doc_as_attr = False  # for class objtype
         inst.parent = object  # dummy
-        inst.object = obj
         inst.args = args
         inst.retann = retann
         inst.props = _ClassDefProperties(
@@ -371,7 +370,6 @@ def test_autodoc_process_signature_typehints(app):
         _obj___module__=None,
         properties=frozenset(),
     )
-    inst.object = func
     inst.format_signature()
     assert captured == [
         (app, 'function', '.func', func, directive.genopt, '(x: int, y: int)', 'int')
@@ -393,7 +391,6 @@ def test_get_doc(app):
             _obj___module__=getattr(obj, '__module__', None),
         )
         inst.parent = object  # dummy
-        inst.object = obj
         inst.doc_as_attr = False
         inst.format_signature()  # handle docstring signatures!
         ds = inst.get_doc()
