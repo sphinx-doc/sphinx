@@ -33,6 +33,7 @@ from sphinx import __display_version__, package_dir
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._member_finder import get_class_members
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
@@ -458,7 +459,7 @@ def _skip_member(obj: Any, name: str, objtype: str, *, events: EventManager) -> 
 
 
 def _get_class_members(obj: Any) -> dict[str, Any]:
-    members = sphinx.ext.autodoc.importer.get_class_members(obj, None, safe_getattr)
+    members = get_class_members(obj, None, safe_getattr)
     return {name: member.object for name, member in members.items()}
 
 
