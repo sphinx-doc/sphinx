@@ -36,13 +36,13 @@ from sphinx.ext.autodoc._documenters import (
     MethodDocumenter,
     ModuleDocumenter,
     ModuleLevelDocumenter,
-    ObjectMember,
     PropertyDocumenter,
     autodoc_attrgetter,
     py_ext_sig_re,
     special_member_re,
 )
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
+from sphinx.ext.autodoc._member_finder import ObjectMember
 from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS, UNINITIALIZED_ATTR
 from sphinx.ext.autodoc._sentinels import (
     INSTANCE_ATTR as INSTANCEATTR,

@@ -20,6 +20,7 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
+from sphinx.ext.autodoc._member_finder import ObjectMember, get_class_members
 from sphinx.ext.autodoc._sentinels import (
     ALL,
     INSTANCE_ATTR,
@@ -33,7 +34,6 @@ from sphinx.ext.autodoc.importer import (
     _is_runtime_instance_attribute_not_commented,
     _load_object_by_name,
     _resolve_name,
-    get_class_members,
 )
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.locale import _, __
@@ -93,48 +93,6 @@ def _get_render_mode(
     if typehints_format == 'short':
         return 'smart'
     return 'fully-qualified-except-typing'
-
-
-class ObjectMember:
-    """A member of object.
-
-    This is used for the result of `Documenter.get_module_members()` to
-    represent each member of the object.
-    """
-
-    __slots__ = '__name__', 'object', 'docstring', 'class_', 'skipped'
-
-    __name__: str
-    object: Any
-    docstring: str | None
-    class_: Any
-    skipped: bool
-
-    def __init__(
-        self,
-        name: str,
-        obj: Any,
-        *,
-        docstring: str | None = None,
-        class_: Any = None,
-        skipped: bool = False,
-    ) -> None:
-        self.__name__ = name
-        self.object = obj
-        self.docstring = docstring
-        self.class_ = class_
-        self.skipped = skipped
-
-    def __repr__(self) -> str:
-        return (
-            f'ObjectMember('
-            f'name={self.__name__!r}, '
-            f'obj={self.object!r}, '
-            f'docstring={self.docstring!r}, '
-            f'class_={self.class_!r}, '
-            f'skipped={self.skipped!r}'
-            f')'
-        )
 
 
 class Documenter:

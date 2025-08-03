@@ -27,6 +27,48 @@ if TYPE_CHECKING:
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
 
+class ObjectMember:
+    """A member of object.
+
+    This is used for the result of `Documenter.get_module_members()` to
+    represent each member of the object.
+    """
+
+    __slots__ = '__name__', 'object', 'docstring', 'class_', 'skipped'
+
+    __name__: str
+    object: Any
+    docstring: str | None
+    class_: Any
+    skipped: bool
+
+    def __init__(
+        self,
+        name: str,
+        obj: Any,
+        *,
+        docstring: str | None = None,
+        class_: Any = None,
+        skipped: bool = False,
+    ) -> None:
+        self.__name__ = name
+        self.object = obj
+        self.docstring = docstring
+        self.class_ = class_
+        self.skipped = skipped
+
+    def __repr__(self) -> str:
+        return (
+            f'ObjectMember('
+            f'name={self.__name__!r}, '
+            f'obj={self.object!r}, '
+            f'docstring={self.docstring!r}, '
+            f'class_={self.class_!r}, '
+            f'skipped={self.skipped!r}'
+            f')'
+        )
+
+
 def _filter_enum_dict(
     enum_class: type[Enum],
     attrgetter: _AttrGetter,
