@@ -8,7 +8,6 @@ import os
 import sys
 import traceback
 import typing
-from enum import Enum
 from importlib.abc import FileLoader
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
@@ -35,12 +34,11 @@ from sphinx.util import inspect, logging
 from sphinx.util.inspect import (
     isclass,
     safe_getattr,
-    unwrap_all,
 )
 from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Sequence
+    from collections.abc import Sequence
     from importlib.machinery import ModuleSpec
     from types import ModuleType
     from typing import Any, Protocol
@@ -86,115 +84,11 @@ class _ImportedObject:
         return f'<{self.__class__.__name__} {self.__dict__}>'
 
 
-def _filter_enum_dict(
-    enum_class: type[Enum],
-    attrgetter: _AttrGetter,
-    enum_class_dict: Mapping[str, object],
-) -> Iterator[tuple[str, type, Any]]:
-    """Find the attributes to document of an enumeration class.
-
-    The output consists of triplets ``(attribute name, defining class, value)``
-    where the attribute name can appear more than once during the iteration
-    but with different defining class. The order of occurrence is guided by
-    the MRO of *enum_class*.
-    """
-    # attributes that were found on a mixin type or the data type
-    candidate_in_mro: set[str] = set()
-    # sunder names that were picked up (and thereby allowed to be redefined)
-    # see: https://docs.python.org/3/howto/enum.html#supported-dunder-names
-    sunder_names = {
-        '_name_',
-        '_value_',
-        '_missing_',
-        '_order_',
-        '_generate_next_value_',
-    }
-    # attributes that can be picked up on a mixin type or the enum's data type
-    public_names = {'name', 'value', *object.__dict__, *sunder_names}
-    # names that are ignored by default
-    ignore_names = Enum.__dict__.keys() - public_names
-
-    def should_ignore(name: str, value: Any) -> bool:
-        if name in sunder_names:
-            return _is_native_enum_api(value, name)
-        return name in ignore_names
-
-    sentinel = object()
-
-    def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
-        value = attrgetter(enum_class, name, sentinel)
-        if value is not sentinel:
-            return name, defining_class, value
-        return None
-
-    # attributes defined on a parent type, possibly shadowed later by
-    # the attributes defined directly inside the enumeration class
-    for parent in enum_class.__mro__:
-        if parent in {enum_class, Enum, object}:
-            continue
-
-        parent_dict = attrgetter(parent, '__dict__', {})
-        for name, value in parent_dict.items():
-            if should_ignore(name, value):
-                continue
-
-            candidate_in_mro.add(name)
-            if (item := query(name, parent)) is not None:
-                yield item
-
-    # exclude members coming from the native Enum unless
-    # they were redefined on a mixin type or the data type
-    excluded_members = Enum.__dict__.keys() - candidate_in_mro
-    yield from filter(
-        None,
-        (
-            query(name, enum_class)
-            for name in enum_class_dict
-            if name not in excluded_members
-        ),
-    )
-
-    # check if allowed members from ``Enum`` were redefined at the enum level
-    special_names = sunder_names | public_names
-    special_names &= enum_class_dict.keys()
-    special_names &= Enum.__dict__.keys()
-    for name in special_names:
-        if (
-            not _is_native_enum_api(enum_class_dict[name], name)
-            and (item := query(name, enum_class)) is not None
-        ):
-            yield item
-
-
-def _is_native_enum_api(obj: object, name: str) -> bool:
-    """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
-    return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
-
-
 def mangle(subject: Any, name: str) -> str:
     """Mangle the given name."""
     try:
         if isclass(subject) and name.startswith('__') and not name.endswith('__'):
             return f'_{subject.__name__}{name}'
-    except AttributeError:
-        pass
-
-    return name
-
-
-def unmangle(subject: Any, name: str) -> str | None:
-    """Unmangle the given name."""
-    try:
-        if isclass(subject) and not name.endswith('__'):
-            prefix = f'_{subject.__name__}__'
-            if name.startswith(prefix):
-                return name.replace(prefix, '__', 1)
-            else:
-                for cls in subject.__mro__:
-                    prefix = f'_{cls.__name__}__'
-                    if name.startswith(prefix):
-                        # mangled attribute defined in parent class
-                        return None
     except AttributeError:
         pass
 
