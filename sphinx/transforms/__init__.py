@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
     from typing import Any, Literal, TypeAlias
 
-    from docutils.nodes import Node, Text
+    from docutils.nodes import Node
     from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
