@@ -1,14 +1,22 @@
 from __future__ import annotations
 
+import re
 from enum import Enum
 from typing import TYPE_CHECKING
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR, SLOTS_ATTR
+from sphinx.events import EventManager
+from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._property_types import _ClassDefProperties, _ModuleProperties
+from sphinx.ext.autodoc._sentinels import ALL, INSTANCE_ATTR, SLOTS_ATTR
 from sphinx.ext.autodoc.mock import ismock, undecorate
+from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
+from sphinx.util import inspect, logging
+from sphinx.util.docstrings import separate_metadata
 from sphinx.util.inspect import (
     getannotations,
+    getdoc,
     getmro,
     getslots,
     isclass,
@@ -18,13 +26,19 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping
-    from typing import Any, Protocol
+    from collections.abc import Iterator, Mapping, Set
+    from typing import Any
 
-    from sphinx.ext.autodoc import ObjectMember
+    from sphinx.events import EventManager
+    from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+    from sphinx.ext.autodoc._property_types import (
+        _ClassDefProperties,
+        _ModuleProperties,
+    )
+    from sphinx.ext.autodoc.importer import _AttrGetter
 
-    class _AttrGetter(Protocol):
-        def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
+logger = logging.getLogger('sphinx.ext.autodoc')
+special_member_re = re.compile(r'^__\S+__$')
 
 
 class ObjectMember:
@@ -67,6 +81,178 @@ class ObjectMember:
             f'skipped={self.skipped!r}'
             f')'
         )
+
+
+def _get_members_to_document(
+    *,
+    want_all: bool,
+    analyzer: ModuleAnalyzer | None,
+    events: EventManager,
+    get_attr: _AttrGetter,
+    inherit_docstrings: bool,
+    options: _AutoDocumenterOptions,
+    orig_name: str,
+    props: _ModuleProperties | _ClassDefProperties,
+) -> list[tuple[str, Any, bool]]:
+    """Find out which members are documentable
+
+    If *want_all* is True, return all members.  Else, only return those
+    members given by *self.options.members* (which may also be None).
+
+    Filter the given member list.
+
+    Members are skipped if
+
+    - they are private (except if given explicitly or the private-members
+      option is set)
+    - they are special methods (except if given explicitly or the
+      special-members option is set)
+    - they are undocumented (except if the undoc-members option is set)
+
+    The user can override the skipping decision by connecting to the
+    ``autodoc-skip-member`` event.
+    """
+    if props.obj_type == 'module':
+        attr_docs = analyzer.attr_docs if analyzer else {}
+        members_: dict[str, ObjectMember] = {}
+        for name in dir(props._obj):
+            try:
+                value = safe_getattr(props._obj, name, None)
+                if ismock(value):
+                    value = undecorate(value)
+                docstring = attr_docs.get(('', name), [])
+                members_[name] = ObjectMember(
+                    name, value, docstring='\n'.join(docstring)
+                )
+            except AttributeError:
+                continue
+
+        # annotation only member (ex. attr: int)
+        for name in inspect.getannotations(props._obj):
+            if name not in members_:
+                docstring = attr_docs.get(('', name), [])
+                members_[name] = ObjectMember(
+                    name, INSTANCE_ATTR, docstring='\n'.join(docstring)
+                )
+
+        if want_all:
+            members = list(members_.values())
+
+            module_all = props.all
+            if options.ignore_module_all or module_all is None:
+                pass
+            else:
+                module_all_set = frozenset(module_all)
+                for member in members:
+                    if member.__name__ not in module_all_set:
+                        member.skipped = True
+        else:
+            assert options.members is not ALL
+            members = [
+                members_[name] for name in options.members or () if name in members_
+            ]
+            for name in options.members or ():
+                if name in members_:
+                    continue
+                logger.warning(
+                    __(
+                        'missing attribute mentioned in :members: option: '
+                        'module %s, attribute %s'
+                    ),
+                    safe_getattr(props._obj, '__name__', '???'),
+                    name,
+                    type='autodoc',
+                )
+    elif props.obj_type in {'class', 'exception'}:
+        members_ = get_class_members(
+            props._obj,
+            props.parts,
+            get_attr,
+            inherit_docstrings,
+        )
+        if want_all:
+            members = list(members_.values())
+            if not options.inherited_members:
+                members = [m for m in members if m.class_ == props._obj]
+        else:
+            # specific members given
+            assert options.members is not ALL
+            members = [
+                members_[name] for name in options.members or () if name in members_
+            ]
+            for name in options.members or ():
+                if name in members_:
+                    continue
+                msg = __('missing attribute %s in object %s')
+                logger.warning(msg, name, props.full_name, type='autodoc')
+    else:
+        raise ValueError
+
+    inherited_members: Set[str] = frozenset(options.inherited_members or ())
+
+    filtered = []
+
+    # search for members in source code too
+    namespace = props.dotted_parts  # will be empty for modules
+
+    if analyzer:
+        attr_docs = analyzer.find_attr_docs()
+    else:
+        attr_docs = {}
+
+    # process members and determine which to skip
+    for obj in members:
+        member_name = obj.__name__
+        member = obj.object
+        has_attr_doc = (namespace, member_name) in attr_docs
+        try:
+            keep = _should_keep_member(
+                member_name,
+                member,
+                member_obj=obj,
+                get_attr=get_attr,
+                has_attr_doc=has_attr_doc,
+                inherit_docstrings=inherit_docstrings,
+                inherited_members=inherited_members,
+                options=options,
+                parent=props._obj,
+                want_all=want_all,
+            )
+        except Exception as exc:
+            logger.warning(
+                __(
+                    'autodoc: failed to determine %s.%s (%r) to be documented, '
+                    'the following exception was raised:\n%s'
+                ),
+                orig_name,
+                member_name,
+                member,
+                exc,
+                type='autodoc',
+            )
+            keep = False
+
+        # give the user a chance to decide whether this member
+        # should be skipped
+        if events is not None:
+            # let extensions preprocess docstrings
+            skip_user = events.emit_firstresult(
+                'autodoc-skip-member',
+                props.obj_type,
+                member_name,
+                member,
+                not keep,
+                options,
+            )
+            if skip_user is not None:
+                keep = not skip_user
+
+        if keep:
+            # if is_attr is True, the member is documented as an attribute
+            is_attr = member is INSTANCE_ATTR or has_attr_doc
+            filtered.append((member_name, member, is_attr))
+
+    return filtered
 
 
 def _filter_enum_dict(
@@ -177,8 +363,6 @@ def get_class_members(
     subject: Any, objpath: Any, attrgetter: _AttrGetter, inherit_docstrings: bool = True
 ) -> dict[str, ObjectMember]:
     """Get members and attributes of target class."""
-    from sphinx.ext.autodoc._documenters import ObjectMember
-
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
@@ -278,3 +462,156 @@ def get_class_members(
         pass
 
     return members
+
+
+def _should_keep_member(
+    member_name: str,
+    member: Any,
+    member_obj: ObjectMember | Any,
+    *,
+    get_attr: _AttrGetter,
+    has_attr_doc: bool,
+    inherit_docstrings: bool,
+    inherited_members: Set[str],
+    options: _AutoDocumenterOptions,
+    parent: Any,
+    want_all: bool,
+) -> bool:
+    exclude_members = options.exclude_members
+    special_members = options.special_members
+    private_members = options.private_members
+    undoc_members = options.undoc_members
+
+    doc = getdoc(
+        member,
+        get_attr,
+        inherit_docstrings,
+        parent,
+        member_name,
+    )
+    if not isinstance(doc, str):
+        # Ignore non-string __doc__
+        doc = None
+
+    # if the member __doc__ is the same as self's __doc__, it's just
+    # inherited and therefore not the member's doc
+    cls = get_attr(member, '__class__', None)
+    if cls:
+        cls_doc = get_attr(cls, '__doc__', None)
+        if cls_doc == doc:
+            doc = None
+
+    if isinstance(member_obj, ObjectMember) and member_obj.docstring:
+        # hack for ClassDocumenter to inject docstring via ObjectMember
+        doc = member_obj.docstring
+
+    doc, metadata = separate_metadata(doc)
+    has_doc = bool(doc)
+
+    if 'private' in metadata:
+        # consider a member private if docstring has "private" metadata
+        is_private = True
+    elif 'public' in metadata:
+        # consider a member public if docstring has "public" metadata
+        is_private = False
+    else:
+        is_private = member_name.startswith('_')
+
+    keep = False
+    if ismock(member) and not has_attr_doc:
+        # mocked module or object
+        pass
+    elif exclude_members and member_name in exclude_members:
+        # remove members given by exclude-members
+        keep = False
+    elif want_all and special_member_re.match(member_name):
+        # special __methods__
+        if special_members and member_name in special_members:
+            if member_name == '__doc__':  # NoQA: SIM114
+                keep = False
+            elif _is_filtered_inherited_member(
+                member_name,
+                member_obj,
+                parent=parent,
+                inherited_members=inherited_members,
+                get_attr=get_attr,
+            ):
+                keep = False
+            else:
+                keep = bool(has_doc or undoc_members)
+        else:
+            keep = False
+    elif has_attr_doc:
+        if want_all and is_private:
+            if private_members is None:
+                keep = False
+            else:
+                keep = member_name in private_members
+        else:
+            # keep documented attributes
+            keep = True
+    elif want_all and is_private:
+        if has_doc or undoc_members:
+            if private_members is None:  # NoQA: SIM114
+                keep = False
+            elif _is_filtered_inherited_member(
+                member_name,
+                member_obj,
+                parent=parent,
+                inherited_members=inherited_members,
+                get_attr=get_attr,
+            ):
+                keep = False
+            else:
+                keep = member_name in private_members
+        else:
+            keep = False
+    else:
+        if options.members is ALL and _is_filtered_inherited_member(
+            member_name,
+            member_obj,
+            parent=parent,
+            inherited_members=inherited_members,
+            get_attr=get_attr,
+        ):
+            keep = False
+        else:
+            # ignore undocumented members if :undoc-members: is not given
+            keep = has_doc or undoc_members  # type: ignore[assignment]
+
+    if isinstance(member_obj, ObjectMember) and member_obj.skipped:
+        # forcedly skipped member (ex. a module attribute not defined in __all__)
+        keep = False
+    return keep
+
+
+def _is_filtered_inherited_member(
+    member_name: str,
+    member_obj: Any,
+    *,
+    parent: Any,
+    inherited_members: Set[str],
+    get_attr: _AttrGetter,
+) -> bool:
+    seen = set()
+
+    if not inspect.isclass(parent):
+        return False
+
+    for cls in parent.__mro__:
+        if member_name in cls.__dict__:
+            seen.add(cls)
+        if (
+            cls.__name__ in inherited_members
+            and cls != parent
+            and any(issubclass(potential_child, cls) for potential_child in seen)
+        ):
+            # given member is a member of specified *super class*
+            return True
+        if member_name in cls.__dict__:
+            return False
+        if member_name in get_attr(cls, '__annotations__', {}):
+            return False
+        if isinstance(member_obj, ObjectMember) and member_obj.class_ is cls:
+            return False
+    return False
