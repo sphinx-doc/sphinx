@@ -64,6 +64,10 @@ class _ItemProperties:
     def parent_names(self) -> tuple[str, ...]:
         return self.parts[:-1]
 
+    @property
+    def dotted_parts(self) -> str:
+        return '.'.join(self.parts)
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _ModuleProperties(_ItemProperties):

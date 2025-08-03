@@ -336,7 +336,7 @@ class Documenter:
 
         subject = inspect.unpartial(self.object)
         modname = self.get_attr(subject, '__module__', None)
-        return not modname or modname == self.modname
+        return not modname or modname == self.props.module_name
 
     def format_args(self, **kwargs: Any) -> str:
         """Format the argument signature of *self.object*.
@@ -354,7 +354,7 @@ class Documenter:
         """
         # normally the name doesn't contain the module (except for module
         # directives of course)
-        return '.'.join(self.objpath) or self.modname
+        return self.props.dotted_parts or self.props.module_name
 
     def _call_format_args(self, **kwargs: Any) -> str:
         if kwargs:
@@ -369,7 +369,7 @@ class Documenter:
 
     def _find_signature(self) -> tuple[str | None, str | None] | None:
         # candidates of the object name
-        valid_names = [self.objpath[-1]]
+        valid_names = [self.props.parts[-1]]
         if isinstance(self, ClassDocumenter):
             valid_names.append('__init__')
             if hasattr(self.object, '__mro__'):
@@ -456,18 +456,14 @@ class Documenter:
                         args = matched.group(1)
                         retann = matched.group(2)
             except Exception as exc:
-                logger.warning(
-                    __('error while formatting arguments for %s: %s'),
-                    self.fullname,
-                    exc,
-                    type='autodoc',
-                )
+                msg = __('error while formatting arguments for %s: %s')
+                logger.warning(msg, self.props.full_name, exc, type='autodoc')
                 args = None
 
         result = self._events.emit_firstresult(
             'autodoc-process-signature',
             self.objtype,
-            self.fullname,
+            self.props.full_name,
             self.object,
             self.options,
             args,
@@ -506,10 +502,10 @@ class Documenter:
             self.add_line('   :no-index:', sourcename)
         if self.options.no_index_entry:
             self.add_line('   :no-index-entry:', sourcename)
-        if self.objpath:
+        if self.props.parts:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
-            self.add_line('   :module: %s' % self.modname, sourcename)
+            self.add_line('   :module: %s' % self.props.module_name, sourcename)
 
     def get_doc(self) -> list[list[str]] | None:
         """Decode and return lines of the docstring(s) for the object.
@@ -528,7 +524,7 @@ class Documenter:
             self.get_attr,
             self.config.autodoc_inherit_docstrings,
             self.parent,
-            self.object_name,
+            self.props.object_name,
         )
         if docstring:
             tab_width = self.directive.state.document.settings.tab_width
@@ -543,7 +539,7 @@ class Documenter:
                 self._events.emit(
                     'autodoc-process-docstring',
                     self.objtype,
-                    self.fullname,
+                    self.props.full_name,
                     self.object,
                     self.options,
                     docstringlines,
@@ -563,7 +559,7 @@ class Documenter:
             # to support inherited methods
             fullname = f'{self.object.__module__}.{self.object.__qualname__}'
         else:
-            fullname = self.fullname
+            fullname = self.props.full_name
 
         if self.analyzer:
             return f'{self.analyzer.srcname}:docstring of {fullname}'
@@ -578,8 +574,8 @@ class Documenter:
         sourcename = self.get_sourcename()
         if self.analyzer:
             attr_docs = self.analyzer.find_attr_docs()
-            if self.objpath:
-                key = ('.'.join(self.objpath[:-1]), self.objpath[-1])
+            if self.props.parts:
+                key = ('.'.join(self.props.parts[:-1]), self.props.parts[-1])
                 if key in attr_docs:
                     docstring = False
                     # make a copy of docstring for attributes to avoid cache
@@ -665,7 +661,7 @@ class Documenter:
         ret = []
 
         # search for members in source code too
-        namespace = '.'.join(self.objpath)  # will be empty for modules
+        namespace = self.props.dotted_parts  # will be empty for modules
 
         if self.analyzer:
             attr_docs = self.analyzer.find_attr_docs()
@@ -812,9 +808,9 @@ class Documenter:
         *self.options.members*.
         """
         # set current namespace for finding members
-        self._current_document.autodoc_module = self.modname
-        if self.objpath:
-            self._current_document.autodoc_class = self.objpath[0]
+        self._current_document.autodoc_module = self.props.module_name
+        if self.props.parts:
+            self._current_document.autodoc_class = self.props.parts[0]
 
         want_all = bool(
             all_members or self.options.inherited_members or self.options.members is ALL
@@ -837,7 +833,8 @@ class Documenter:
             classes.sort(key=lambda cls: cls.priority)
             # give explicitly separated module name, so that members
             # of inner classes can be documented
-            full_mname = f'{self.modname}::' + '.'.join((*self.objpath, mname))
+            module_prefix = f'{self.props.module_name}::'
+            full_mname = module_prefix + '.'.join((*self.props.parts, mname))
             documenter = classes[-1](self.directive, full_mname, self.indent)
             member_documenters.append((documenter, isattr))
 
@@ -979,12 +976,8 @@ class Documenter:
         try:
             sig = self.format_signature()
         except Exception as exc:
-            logger.warning(
-                __('error while formatting signature for %s: %s'),
-                self.fullname,
-                exc,
-                type='autodoc',
-            )
+            msg = __('error while formatting signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc, type='autodoc')
             return
 
         # generate the directive header and options, if applicable
@@ -1058,15 +1051,11 @@ class ModuleDocumenter(Documenter):
                     self.__all__ = inspect.getall(self.object)
             except ValueError as exc:
                 # invalid __all__ found.
-                logger.warning(
-                    __(
-                        '__all__ should be a list of strings, not %r '
-                        '(in module %s) -- ignoring __all__'
-                    ),
-                    exc.args[0],
-                    self.fullname,
-                    type='autodoc',
+                msg = __(
+                    '__all__ should be a list of strings, not %r '
+                    '(in module %s) -- ignoring __all__'
                 )
+                logger.warning(msg, exc.args[0], self.props.full_name, type='autodoc')
 
         return self.__all__
 
@@ -1212,9 +1201,8 @@ class FunctionDocumenter(Documenter):
             )
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a function signature for %s: %s'), self.fullname, exc
-            )
+            msg = __('Failed to get a function signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return ''
         except ValueError:
             args = ''
@@ -1249,7 +1237,7 @@ class FunctionDocumenter(Documenter):
         sigs = []
         if (
             self.analyzer
-            and '.'.join(self.objpath) in self.analyzer.overloads
+            and self.props.dotted_parts in self.analyzer.overloads
             and self.config.autodoc_typehints != 'none'
         ):
             # Use signatures for overloaded functions instead of the implementation function.
@@ -1260,6 +1248,8 @@ class FunctionDocumenter(Documenter):
             sigs.append(sig)
 
         if inspect.is_singledispatch_function(self.object):
+            from sphinx.ext.autodoc._property_types import _FunctionDefProperties
+
             # append signature of singledispatch'ed functions
             for typ, func in self.object.registry.items():
                 if typ is object:
@@ -1268,15 +1258,23 @@ class FunctionDocumenter(Documenter):
                     dispatchfunc = self.annotate_to_first_argument(func, typ)
                     if dispatchfunc:
                         documenter = FunctionDocumenter(self.directive, '')
+                        documenter.props = _FunctionDefProperties(
+                            obj_type='function',
+                            module_name='',
+                            parts=('',),
+                            docstring_lines=(),
+                            _obj=dispatchfunc,
+                            _obj___module__=None,
+                            properties=frozenset(),
+                        )
                         documenter.object = dispatchfunc
-                        documenter.objpath = ['']
                         sigs.append(documenter.format_signature())
         if overloaded and self.analyzer is not None:
             actual = inspect.signature(
                 self.object, type_aliases=self.config.autodoc_type_aliases
             )
             __globals__ = safe_getattr(self.object, '__globals__', {})
-            for overload in self.analyzer.overloads['.'.join(self.objpath)]:
+            for overload in self.analyzer.overloads[self.props.dotted_parts]:
                 overload = self.merge_default_value(actual, overload)
                 overload = evaluate_signature(
                     overload, __globals__, self.config.autodoc_type_aliases
@@ -1304,9 +1302,8 @@ class FunctionDocumenter(Documenter):
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a function signature for %s: %s'), self.fullname, exc
-            )
+            msg = __('Failed to get a function signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return None
         except ValueError:
             return None
@@ -1521,11 +1518,8 @@ class ClassDocumenter(Documenter):
             self._signature_class, _signature_method_name, sig = self._get_signature()
         except TypeError as exc:
             # __signature__ attribute contained junk
-            logger.warning(
-                __('Failed to get a constructor signature for %s: %s'),
-                self.fullname,
-                exc,
-            )
+            msg = __('Failed to get a constructor signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return ''
         self._signature_method_name = _signature_method_name or ''
 
@@ -1604,7 +1598,7 @@ class ClassDocumenter(Documenter):
         return []
 
     def get_canonical_fullname(self) -> str | None:
-        __modname__ = safe_getattr(self.object, '__module__', self.modname)
+        __modname__ = safe_getattr(self.object, '__module__', self.props.module_name)
         __qualname__ = safe_getattr(self.object, '__qualname__', None)
         if __qualname__ is None:
             __qualname__ = safe_getattr(self.object, '__name__', None)
@@ -1627,7 +1621,7 @@ class ClassDocumenter(Documenter):
         if isinstance(self.object, NewType | TypeVar):
             return
 
-        if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
+        if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
 
         canonical_fullname = self.get_canonical_fullname()
@@ -1635,7 +1629,7 @@ class ClassDocumenter(Documenter):
             not self.props.doc_as_attr
             and not isinstance(self.object, NewType)
             and canonical_fullname
-            and self.fullname != canonical_fullname
+            and self.props.full_name != canonical_fullname
         ):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
@@ -1652,7 +1646,11 @@ class ClassDocumenter(Documenter):
                 bases = []
 
             self._events.emit(
-                'autodoc-process-bases', self.fullname, self.object, self.options, bases
+                'autodoc-process-bases',
+                self.props.full_name,
+                self.object,
+                self.options,
+                bases,
             )
 
             mode = _get_render_mode(self.config.autodoc_typehints_format)
@@ -1665,7 +1663,7 @@ class ClassDocumenter(Documenter):
     def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
         members = get_class_members(
             self.object,
-            self.objpath,
+            self.props.parts,
             self.get_attr,
             self.config.autodoc_inherit_docstrings,
         )
@@ -1679,12 +1677,8 @@ class ClassDocumenter(Documenter):
                 if name in members:
                     selected.append(members[name])
                 else:
-                    logger.warning(
-                        __('missing attribute %s in object %s'),
-                        name,
-                        self.fullname,
-                        type='autodoc',
-                    )
+                    msg = __('missing attribute %s in object %s')
+                    logger.warning(msg, name, self.props.full_name, type='autodoc')
             return False, selected
         elif self.options.inherited_members:
             return False, list(members.values())
@@ -1760,9 +1754,9 @@ class ClassDocumenter(Documenter):
 
     def get_variable_comment(self) -> list[str] | None:
         try:
-            key = ('', '.'.join(self.objpath))
+            key = ('', self.props.dotted_parts)
             if self.props.doc_as_attr:
-                analyzer = ModuleAnalyzer.for_module(self.modname)
+                analyzer = ModuleAnalyzer.for_module(self.props.module_name)
             else:
                 analyzer = ModuleAnalyzer.for_module(
                     self.props._obj___module__ or self.props.module_name
@@ -1797,12 +1791,12 @@ class ClassDocumenter(Documenter):
             more_content = StringList(
                 [_('alias of TypeVar(%s)') % ', '.join(attrs), ''], source=''
             )
-        if self.props.doc_as_attr and self.modname != (
+        if self.props.doc_as_attr and self.props.module_name != (
             self.props._obj___module__ or self.props.module_name
         ):
             try:
                 # override analyzer to obtain doccomment around its definition.
-                self.analyzer = ModuleAnalyzer.for_module(self.modname)
+                self.analyzer = ModuleAnalyzer.for_module(self.props.module_name)
                 self.analyzer.analyze()
             except PycodeError:
                 pass
@@ -1894,7 +1888,7 @@ class DataDocumenter(Documenter):
         parent.__annotations__ = annotations
 
         try:
-            analyzer = ModuleAnalyzer.for_module(self.modname)
+            analyzer = ModuleAnalyzer.for_module(self.props.module_name)
             analyzer.analyze()
             for (classname, attrname), annotation in analyzer.annotations.items():
                 if not classname and attrname not in annotations:
@@ -1931,11 +1925,11 @@ class DataDocumenter(Documenter):
                     self.config.autodoc_type_aliases,
                     include_extras=True,
                 )
-                if self.objpath[-1] in annotations:
+                if self.props.name in annotations:
                     mode = _get_render_mode(self.config.autodoc_typehints_format)
                     short_literals = self.config.python_display_short_literal_types
                     objrepr = stringify_annotation(
-                        annotations.get(self.objpath[-1]),
+                        annotations.get(self.props.name),
                         mode,
                         short_literals=short_literals,
                     )
@@ -1959,7 +1953,7 @@ class DataDocumenter(Documenter):
 
     def get_module_comment(self, attrname: str) -> list[str] | None:
         try:
-            analyzer = ModuleAnalyzer.for_module(self.modname)
+            analyzer = ModuleAnalyzer.for_module(self.props.module_name)
             analyzer.analyze()
             key = ('', attrname)
             if key in analyzer.attr_docs:
@@ -1971,7 +1965,7 @@ class DataDocumenter(Documenter):
 
     def get_doc(self) -> list[list[str]] | None:
         # Check the variable has a docstring-comment
-        comment = self.get_module_comment(self.objpath[-1])
+        comment = self.get_module_comment(self.props.name)
         if comment:
             return [comment]
         else:
@@ -2028,7 +2022,7 @@ class MethodDocumenter(Documenter):
                 args = '()'
             else:
                 if inspect.isstaticmethod(
-                    self.object, cls=self.parent, name=self.object_name
+                    self.object, cls=self.parent, name=self.props.object_name
                 ):
                     self._events.emit(
                         'autodoc-before-process-signature', self.object, False
@@ -2049,9 +2043,8 @@ class MethodDocumenter(Documenter):
                     )
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a method signature for %s: %s'), self.fullname, exc
-            )
+            msg = __('Failed to get a method signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return ''
         except ValueError:
             args = ''
@@ -2065,7 +2058,7 @@ class MethodDocumenter(Documenter):
         super().add_directive_header(sig)
 
         sourcename = self.get_sourcename()
-        obj = self.parent.__dict__.get(self.object_name, self.object)
+        obj = self.parent.__dict__.get(self.props.object_name, self.object)
         if inspect.isabstractmethod(obj):
             self.add_line('   :abstractmethod:', sourcename)
         if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
@@ -2076,9 +2069,9 @@ class MethodDocumenter(Documenter):
             and inspect.is_classmethod_like(obj.func)
         ):
             self.add_line('   :classmethod:', sourcename)
-        if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
+        if inspect.isstaticmethod(obj, cls=self.parent, name=self.props.object_name):
             self.add_line('   :staticmethod:', sourcename)
-        if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
+        if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
 
     def document_members(self, all_members: bool = False) -> None:
@@ -2093,7 +2086,7 @@ class MethodDocumenter(Documenter):
         sigs = []
         if (
             self.analyzer
-            and '.'.join(self.objpath) in self.analyzer.overloads
+            and self.props.dotted_parts in self.analyzer.overloads
             and self.config.autodoc_typehints != 'none'
         ):
             # Use signatures for overloaded methods instead of the implementation method.
@@ -2103,8 +2096,10 @@ class MethodDocumenter(Documenter):
             sig = super().format_signature(**kwargs)
             sigs.append(sig)
 
-        meth = self.parent.__dict__.get(self.objpath[-1])
+        meth = self.parent.__dict__.get(self.props.name)
         if inspect.is_singledispatch_method(meth):
+            from sphinx.ext.autodoc._property_types import _FunctionDefProperties
+
             # append signature of singledispatch'ed functions
             for typ, func in meth.dispatcher.registry.items():
                 if typ is object:
@@ -2115,13 +2110,21 @@ class MethodDocumenter(Documenter):
                     dispatchmeth = self.annotate_to_first_argument(func, typ)
                     if dispatchmeth:
                         documenter = MethodDocumenter(self.directive, '')
+                        documenter.props = _FunctionDefProperties(
+                            obj_type='method',
+                            module_name='',
+                            parts=('',),
+                            docstring_lines=(),
+                            _obj=dispatchmeth,
+                            _obj___module__=None,
+                            properties=frozenset(),
+                        )
                         documenter.parent = self.parent
                         documenter.object = dispatchmeth
-                        documenter.objpath = ['']
                         sigs.append(documenter.format_signature())
         if overloaded and self.analyzer is not None:
             if inspect.isstaticmethod(
-                self.object, cls=self.parent, name=self.object_name
+                self.object, cls=self.parent, name=self.props.object_name
             ):
                 actual = inspect.signature(
                     self.object,
@@ -2136,14 +2139,14 @@ class MethodDocumenter(Documenter):
                 )
 
             __globals__ = safe_getattr(self.object, '__globals__', {})
-            for overload in self.analyzer.overloads['.'.join(self.objpath)]:
+            for overload in self.analyzer.overloads[self.props.dotted_parts]:
                 overload = self.merge_default_value(actual, overload)
                 overload = evaluate_signature(
                     overload, __globals__, self.config.autodoc_type_aliases
                 )
 
                 if not inspect.isstaticmethod(
-                    self.object, cls=self.parent, name=self.object_name
+                    self.object, cls=self.parent, name=self.props.object_name
                 ):
                     parameters = list(overload.parameters.values())
                     overload = overload.replace(parameters=parameters[1:])
@@ -2169,9 +2172,8 @@ class MethodDocumenter(Documenter):
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a method signature for %s: %s'), self.fullname, exc
-            )
+            msg = __('Failed to get a method signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return None
         except ValueError:
             return None
@@ -2202,13 +2204,13 @@ class MethodDocumenter(Documenter):
             # ``__docstring_signature__ = True``. Just return the
             # previously-computed result, so that we don't loose the processing.
             return self._new_docstrings
-        if self.objpath[-1] == '__init__':
+        if self.props.name == '__init__':
             docstring = getdoc(
                 self.object,
                 self.get_attr,
                 self.config.autodoc_inherit_docstrings,
                 self.parent,
-                self.object_name,
+                self.props.object_name,
             )
             if docstring is not None and (
                 docstring == object.__init__.__doc__  # for pypy
@@ -2220,13 +2222,13 @@ class MethodDocumenter(Documenter):
                 return [prepare_docstring(docstring, tabsize=tab_width)]
             else:
                 return []
-        elif self.objpath[-1] == '__new__':
+        elif self.props.name == '__new__':
             docstring = getdoc(
                 self.object,
                 self.get_attr,
                 self.config.autodoc_inherit_docstrings,
                 self.parent,
-                self.object_name,
+                self.props.object_name,
             )
             if docstring is not None and (
                 docstring == object.__new__.__doc__  # for pypy
@@ -2342,11 +2344,11 @@ class AttributeDocumenter(Documenter):
                     self.config.autodoc_type_aliases,
                     include_extras=True,
                 )
-                if self.objpath[-1] in annotations:
+                if self.props.name in annotations:
                     mode = _get_render_mode(self.config.autodoc_typehints_format)
                     short_literals = self.config.python_display_short_literal_types
                     objrepr = stringify_annotation(
-                        annotations.get(self.objpath[-1]),
+                        annotations.get(self.props.name),
                         mode,
                         short_literals=short_literals,
                     )
@@ -2367,13 +2369,13 @@ class AttributeDocumenter(Documenter):
 
     def get_attribute_comment(self, parent: Any, attrname: str) -> list[str] | None:
         return _get_attribute_comment(
-            parent=parent, obj_path=self.objpath, attrname=attrname
+            parent=parent, obj_path=self.props.parts, attrname=attrname
         )
 
     def get_doc(self) -> list[list[str]] | None:
         # Check the attribute has a docstring-comment
         comment = _get_attribute_comment(
-            parent=self.parent, obj_path=self.objpath, attrname=self.objpath[-1]
+            parent=self.parent, obj_path=self.props.parts, attrname=self.props.parts[-1]
         )
         if comment:
             return [comment]
@@ -2390,7 +2392,7 @@ class AttributeDocumenter(Documenter):
                 try:
                     parent___slots__ = inspect.getslots(self.parent)
                     if parent___slots__ and (
-                        docstring := parent___slots__.get(self.objpath[-1])
+                        docstring := parent___slots__.get(self.props.name)
                     ):
                         docstring = prepare_docstring(docstring)
                         return [docstring]
@@ -2407,7 +2409,7 @@ class AttributeDocumenter(Documenter):
             if (
                 self.object is RUNTIME_INSTANCE_ATTRIBUTE
                 and _is_runtime_instance_attribute_not_commented(
-                    parent=self.parent, obj_path=self.objpath
+                    parent=self.parent, obj_path=self.props.parts
                 )
             ):
                 return None
@@ -2505,9 +2507,8 @@ class PropertyDocumenter(Documenter):
                 )
                 self.add_line('   :type: ' + objrepr, sourcename)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a function signature for %s: %s'), self.fullname, exc
-            )
+            msg = __('Failed to get a function signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             pass
         except ValueError:
             pass
