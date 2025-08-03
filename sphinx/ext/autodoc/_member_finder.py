@@ -590,17 +590,16 @@ def _should_keep_member(
 
 def _is_filtered_inherited_member(
     member_name: str,
-    member_cls: Any,
     *,
+    member_cls: Any,
     parent: Any,
     inherited_members: Set[str],
     get_attr: _AttrGetter,
 ) -> bool:
-    seen = set()
-
     if not inspect.isclass(parent):
         return False
 
+    seen = set()
     for cls in parent.__mro__:
         if member_name in cls.__dict__:
             seen.add(cls)
@@ -611,10 +610,10 @@ def _is_filtered_inherited_member(
         ):
             # given member is a member of specified *super class*
             return True
+        if member_cls is cls:
+            return False
         if member_name in cls.__dict__:
             return False
         if member_name in get_attr(cls, '__annotations__', {}):
-            return False
-        if member_cls is cls:
             return False
     return False
