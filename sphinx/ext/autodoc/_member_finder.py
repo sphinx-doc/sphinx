@@ -64,13 +64,11 @@ class ObjectMember:
         *,
         docstring: str | None = None,
         class_: Any = None,
-        skipped: bool = False,
     ) -> None:
         self.__name__ = name
         self.object = obj
         self.docstring = docstring
         self.class_ = class_
-        self.skipped = skipped
 
     def __repr__(self) -> str:
         return (
@@ -78,8 +76,7 @@ class ObjectMember:
             f'name={self.__name__!r}, '
             f'obj={self.object!r}, '
             f'docstring={self.docstring!r}, '
-            f'class_={self.class_!r}, '
-            f'skipped={self.skipped!r}'
+            f'class_={self.class_!r}'
             f')'
         )
 
@@ -155,9 +152,11 @@ def _get_members_to_document(
             module_all = props.all
             if not ignore_module_all and module_all is not None:
                 module_all_set = frozenset(module_all)
-                for member in obj_members_seq:
-                    if member.__name__ not in module_all_set:
-                        member.skipped = True
+                obj_members_seq = [
+                    member
+                    for member in obj_members_seq
+                    if member.__name__ in module_all_set
+                ]
         else:
             assert opt_members is not ALL
             obj_members_seq = [
@@ -316,7 +315,6 @@ def _get_members_to_document(
                 member_obj=obj.object,
                 member_docstring=obj.docstring,
                 member_cls=obj.class_,
-                member_skipped=obj.skipped,
                 get_attr=get_attr,
                 has_attr_doc=has_attr_doc,
                 inherit_docstrings=inherit_docstrings,
@@ -476,7 +474,6 @@ def _should_keep_member(
     member_obj: Any,
     member_docstring: str | None,
     member_cls: Any,
-    member_skipped: bool,
     get_attr: _AttrGetter,
     has_attr_doc: bool,
     inherit_docstrings: bool,
@@ -489,11 +486,6 @@ def _should_keep_member(
     undoc_members: Literal[True] | None,
     opt_members: ALL_T | Sequence[str] | None,
 ) -> bool:
-    if member_skipped:
-        # Forcibly skipped member
-        # e.g. a module attribute not defined in __all__
-        return False
-
     doc = getdoc(
         member_obj,
         get_attr,
