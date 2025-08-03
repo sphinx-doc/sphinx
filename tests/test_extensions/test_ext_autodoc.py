@@ -162,12 +162,11 @@ def test_format_signature(app):
         inst.doc_as_attr = False  # for class objtype
         inst.parent = object  # dummy
         inst.object = obj
-        inst.objpath = [name]
         inst.args = args
         inst.retann = retann
         inst.props = _ClassDefProperties(
             obj_type=objtype,
-            module_name=inst.modname,
+            module_name='',
             parts=(name,),
             docstring_lines=(),
             bases=getattr(obj, '__bases__', None),

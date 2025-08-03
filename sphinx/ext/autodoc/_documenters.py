@@ -850,7 +850,7 @@ class Documenter:
         member_documenters = self.sort_members(member_documenters, member_order)
 
         for documenter, isattr in member_documenters:
-            assert documenter.modname
+            assert documenter.props.module_name
             # We can directly call ._generate() since the documenters
             # already called parse_name() and import_object() before.
             #
