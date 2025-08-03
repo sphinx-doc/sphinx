@@ -127,16 +127,16 @@ def _get_members_to_document(
     else:
         attr_docs = {}
 
+    object_members_map: dict[str, ObjectMember] = {}
     if props.obj_type == 'module':
-        object_members_map: dict[str, ObjectMember] = {}
         for name in dir(props._obj):
             try:
                 value = safe_getattr(props._obj, name, None)
                 if ismock(value):
                     value = undecorate(value)
-                docstring = attr_docs.get(('', name), [])
+                attr_docstring = attr_docs.get(('', name), [])
                 object_members_map[name] = ObjectMember(
-                    name, value, docstring='\n'.join(docstring)
+                    name, value, docstring='\n'.join(attr_docstring)
                 )
             except AttributeError:
                 continue
@@ -144,9 +144,9 @@ def _get_members_to_document(
         # annotation only member (ex. attr: int)
         for name in inspect.getannotations(props._obj):
             if name not in object_members_map:
-                docstring = attr_docs.get(('', name), [])
+                attr_docstring = attr_docs.get(('', name), [])
                 object_members_map[name] = ObjectMember(
-                    name, INSTANCE_ATTR, docstring='\n'.join(docstring)
+                    name, INSTANCE_ATTR, docstring='\n'.join(attr_docstring)
                 )
 
         if want_all:
@@ -160,7 +160,11 @@ def _get_members_to_document(
                         member.skipped = True
         else:
             assert opt_members is not ALL
-            obj_members_seq = [object_members_map[name] for name in opt_members if name in object_members_map]
+            obj_members_seq = [
+                object_members_map[name]
+                for name in opt_members
+                if name in object_members_map
+            ]
             for name in opt_members:
                 if name in object_members_map:
                     continue
@@ -178,8 +182,6 @@ def _get_members_to_document(
         # the members directly defined in the class
         obj_dict = get_attr(subject, '__dict__', {})
 
-        object_members_map: dict[str, ObjectMember] = {}
-
         # enum members
         if isenumclass(subject):
             for name, defining_class, value in _filter_enum_dict(
@@ -196,9 +198,9 @@ def _get_members_to_document(
         try:
             subject___slots__ = getslots(subject)
             if subject___slots__:
-                for name, docstring in subject___slots__.items():
+                for name, subject_docstring in subject___slots__.items():
                     object_members_map[name] = ObjectMember(
-                        name, SLOTS_ATTR, class_=subject, docstring=docstring
+                        name, SLOTS_ATTR, class_=subject, docstring=subject_docstring
                     )
         except (TypeError, ValueError):
             pass
@@ -213,7 +215,9 @@ def _get_members_to_document(
                 unmangled = unmangle(subject, name)
                 if unmangled and unmangled not in object_members_map:
                     if name in obj_dict:
-                        object_members_map[unmangled] = ObjectMember(unmangled, value, class_=subject)
+                        object_members_map[unmangled] = ObjectMember(
+                            unmangled, value, class_=subject
+                        )
                     else:
                         object_members_map[unmangled] = ObjectMember(unmangled, value)
             except AttributeError:
@@ -239,7 +243,9 @@ def _get_members_to_document(
                     unmangled = unmangle(cls, name)
                     if unmangled and unmangled not in object_members_map:
                         if analyzer and (qualname, unmangled) in analyzer.attr_docs:
-                            docstring = '\n'.join(analyzer.attr_docs[qualname, unmangled])
+                            docstring = '\n'.join(
+                                analyzer.attr_docs[qualname, unmangled]
+                            )
                         else:
                             docstring = None
 
@@ -249,18 +255,18 @@ def _get_members_to_document(
 
                 # append or complete instance attributes (cf. self.attr1) if analyzer knows
                 if analyzer:
-                    for (ns, name), docstring in analyzer.attr_docs.items():
+                    for (ns, name), attr_docstring in analyzer.attr_docs.items():
                         if ns == qualname and name not in object_members_map:
                             # otherwise unknown instance attribute
                             object_members_map[name] = ObjectMember(
                                 name,
                                 INSTANCE_ATTR,
                                 class_=cls,
-                                docstring='\n'.join(docstring),
+                                docstring='\n'.join(attr_docstring),
                             )
                         elif (
                             ns == qualname
-                            and docstring
+                            and attr_docstring
                             and isinstance(object_members_map[name], ObjectMember)
                             and not object_members_map[name].docstring
                         ):
@@ -271,7 +277,9 @@ def _get_members_to_document(
                                 continue
                             # attribute is already known, because dir(subject) enumerates it.
                             # But it has no docstring yet
-                            object_members_map[name].docstring = '\n'.join(docstring)
+                            object_members_map[name].docstring = '\n'.join(
+                                attr_docstring
+                            )
         except AttributeError:
             pass
 
@@ -282,7 +290,11 @@ def _get_members_to_document(
         else:
             # specific members given
             assert opt_members is not ALL
-            obj_members_seq = [object_members_map[name] for name in opt_members if name in object_members_map]
+            obj_members_seq = [
+                object_members_map[name]
+                for name in opt_members
+                if name in object_members_map
+            ]
             for name in opt_members:
                 if name in object_members_map:
                     continue
@@ -460,7 +472,7 @@ def _is_native_enum_api(obj: object, name: str) -> bool:
 def _should_keep_member(
     member_name: str,
     member: Any,
-    member_obj: ObjectMember | Any,
+    member_obj: ObjectMember,
     *,
     get_attr: _AttrGetter,
     has_attr_doc: bool,
