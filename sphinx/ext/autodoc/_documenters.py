@@ -1925,11 +1925,11 @@ class DataDocumenter(Documenter):
                     self.config.autodoc_type_aliases,
                     include_extras=True,
                 )
-                if self.props.parts[-1] in annotations:
+                if self.props.name in annotations:
                     mode = _get_render_mode(self.config.autodoc_typehints_format)
                     short_literals = self.config.python_display_short_literal_types
                     objrepr = stringify_annotation(
-                        annotations.get(self.props.parts[-1]),
+                        annotations.get(self.props.name),
                         mode,
                         short_literals=short_literals,
                     )
@@ -1965,7 +1965,7 @@ class DataDocumenter(Documenter):
 
     def get_doc(self) -> list[list[str]] | None:
         # Check the variable has a docstring-comment
-        comment = self.get_module_comment(self.props.parts[-1])
+        comment = self.get_module_comment(self.props.name)
         if comment:
             return [comment]
         else:
@@ -2096,7 +2096,7 @@ class MethodDocumenter(Documenter):
             sig = super().format_signature(**kwargs)
             sigs.append(sig)
 
-        meth = self.parent.__dict__.get(self.props.parts[-1])
+        meth = self.parent.__dict__.get(self.props.name)
         if inspect.is_singledispatch_method(meth):
             from sphinx.ext.autodoc._property_types import _FunctionDefProperties
 
@@ -2204,7 +2204,7 @@ class MethodDocumenter(Documenter):
             # ``__docstring_signature__ = True``. Just return the
             # previously-computed result, so that we don't loose the processing.
             return self._new_docstrings
-        if self.props.parts[-1] == '__init__':
+        if self.props.name == '__init__':
             docstring = getdoc(
                 self.object,
                 self.get_attr,
@@ -2222,7 +2222,7 @@ class MethodDocumenter(Documenter):
                 return [prepare_docstring(docstring, tabsize=tab_width)]
             else:
                 return []
-        elif self.props.parts[-1] == '__new__':
+        elif self.props.name == '__new__':
             docstring = getdoc(
                 self.object,
                 self.get_attr,
@@ -2344,11 +2344,11 @@ class AttributeDocumenter(Documenter):
                     self.config.autodoc_type_aliases,
                     include_extras=True,
                 )
-                if self.props.parts[-1] in annotations:
+                if self.props.name in annotations:
                     mode = _get_render_mode(self.config.autodoc_typehints_format)
                     short_literals = self.config.python_display_short_literal_types
                     objrepr = stringify_annotation(
-                        annotations.get(self.props.parts[-1]),
+                        annotations.get(self.props.name),
                         mode,
                         short_literals=short_literals,
                     )
@@ -2392,7 +2392,7 @@ class AttributeDocumenter(Documenter):
                 try:
                     parent___slots__ = inspect.getslots(self.parent)
                     if parent___slots__ and (
-                        docstring := parent___slots__.get(self.props.parts[-1])
+                        docstring := parent___slots__.get(self.props.name)
                     ):
                         docstring = prepare_docstring(docstring)
                         return [docstring]
