@@ -4,6 +4,10 @@ Release 8.3.0 (in development)
 Dependencies
 ------------
 
+* #13786: Support `Docutils 0.22`_. Patch by Adam Turner.
+
+  .. _Docutils 0.22: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-22-2026-07-29
+
 Incompatible changes
 --------------------
 
@@ -66,9 +70,21 @@ Features added
 Bugs fixed
 ----------
 
+* #1327: LaTeX: tables using longtable raise error if
+  :rst:dir:`tabularcolumns` specifies automatic widths
+  (``L``, ``R``, ``C``, or ``J``).
+  Patch by Jean-François B.
+* #3447: LaTeX: when assigning longtable class to table for PDF, it may render
+  "horizontally" and overflow in right margin.
+  Patch by Jean-François B.
+* #8828: LaTeX: adding a footnote to a longtable cell causes table to occupy
+  full width.
+  Patch by Jean-François B.
 * #11498: LaTeX: Table in cell fails to build if it has many rows.
   Patch by Jean-François B.
 * #11515: LaTeX: longtable does not allow nested table.
+  Patch by Jean-François B.
+* #11973: LaTeX: links in table captions do not work in PDF.
   Patch by Jean-François B.
 * #12821: LaTeX: URLs/links in section titles should render in PDF.
   Patch by Jean-François B.
@@ -87,6 +103,13 @@ Bugs fixed
   Patch by Jean-François B.
 * #13685: gettext: Correctly ignore trailing backslashes.
   Patch by Bénédikt Tran.
+* #13712: intersphinx: Don't add "v" prefix to non-numeric versions.
+  Patch by Szymon Karpinski.
+* #13688: HTML builder: Replace ``<em class="property">`` with
+  ``<span class="property">`` for attribute type annotations
+  to improve `semantic HTML structure
+  <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
+  Patch by Mark Ostroth.
 
 Testing
 -------
