@@ -139,7 +139,7 @@ def test_parse_name(app):
 def test_format_signature(app):
     def process_signature(app, what, name, obj, options, args, retann):
         processed_signatures.append((what, name))
-        if name == 'bar':
+        if name == '.bar':
             return '42', None
         return None
 
@@ -159,7 +159,6 @@ def test_format_signature(app):
 
     def formatsig(objtype, name, obj, args, retann):
         inst = app.registry.documenters[objtype](directive, name)
-        inst.fullname = name
         inst.doc_as_attr = False  # for class objtype
         inst.parent = object  # dummy
         inst.object = obj
@@ -373,11 +372,10 @@ def test_autodoc_process_signature_typehints(app):
         _obj___module__=None,
         properties=frozenset(),
     )
-    inst.fullname = 'func'
     inst.object = func
     inst.format_signature()
     assert captured == [
-        (app, 'function', 'func', func, directive.genopt, '(x: int, y: int)', 'int')
+        (app, 'function', '.func', func, directive.genopt, '(x: int, y: int)', 'int')
     ]
 
 

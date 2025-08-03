@@ -458,7 +458,7 @@ class Documenter:
             except Exception as exc:
                 logger.warning(
                     __('error while formatting arguments for %s: %s'),
-                    self.fullname,
+                    self.props.full_name,
                     exc,
                     type='autodoc',
                 )
@@ -467,7 +467,7 @@ class Documenter:
         result = self._events.emit_firstresult(
             'autodoc-process-signature',
             self.objtype,
-            self.fullname,
+            self.props.full_name,
             self.object,
             self.options,
             args,
@@ -543,7 +543,7 @@ class Documenter:
                 self._events.emit(
                     'autodoc-process-docstring',
                     self.objtype,
-                    self.fullname,
+                    self.props.full_name,
                     self.object,
                     self.options,
                     docstringlines,
@@ -563,7 +563,7 @@ class Documenter:
             # to support inherited methods
             fullname = f'{self.object.__module__}.{self.object.__qualname__}'
         else:
-            fullname = self.fullname
+            fullname = self.props.full_name
 
         if self.analyzer:
             return f'{self.analyzer.srcname}:docstring of {fullname}'
@@ -982,7 +982,7 @@ class Documenter:
         except Exception as exc:
             logger.warning(
                 __('error while formatting signature for %s: %s'),
-                self.fullname,
+                self.props.full_name,
                 exc,
                 type='autodoc',
             )
@@ -1065,7 +1065,7 @@ class ModuleDocumenter(Documenter):
                         '(in module %s) -- ignoring __all__'
                     ),
                     exc.args[0],
-                    self.fullname,
+                    self.props.full_name,
                     type='autodoc',
                 )
 
@@ -1213,9 +1213,8 @@ class FunctionDocumenter(Documenter):
             )
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a function signature for %s: %s'), self.fullname, exc
-            )
+            msg = __('Failed to get a function signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return ''
         except ValueError:
             args = ''
@@ -1315,9 +1314,8 @@ class FunctionDocumenter(Documenter):
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
-            logger.warning(
-                __('Failed to get a function signature for %s: %s'), self.fullname, exc
-            )
+            msg = __('Failed to get a function signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return None
         except ValueError:
             return None
@@ -1532,11 +1530,8 @@ class ClassDocumenter(Documenter):
             self._signature_class, _signature_method_name, sig = self._get_signature()
         except TypeError as exc:
             # __signature__ attribute contained junk
-            logger.warning(
-                __('Failed to get a constructor signature for %s: %s'),
-                self.fullname,
-                exc,
-            )
+            msg = __('Failed to get a constructor signature for %s: %s')
+            logger.warning(msg, self.props.full_name, exc)
             return ''
         self._signature_method_name = _signature_method_name or ''
 
@@ -1646,7 +1641,7 @@ class ClassDocumenter(Documenter):
             not self.props.doc_as_attr
             and not isinstance(self.object, NewType)
             and canonical_fullname
-            and self.fullname != canonical_fullname
+            and self.props.full_name != canonical_fullname
         ):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
@@ -1663,7 +1658,11 @@ class ClassDocumenter(Documenter):
                 bases = []
 
             self._events.emit(
-                'autodoc-process-bases', self.fullname, self.object, self.options, bases
+                'autodoc-process-bases',
+                self.props.full_name,
+                self.object,
+                self.options,
+                bases,
             )
 
             mode = _get_render_mode(self.config.autodoc_typehints_format)
@@ -1693,7 +1692,7 @@ class ClassDocumenter(Documenter):
                     logger.warning(
                         __('missing attribute %s in object %s'),
                         name,
-                        self.fullname,
+                        self.props.full_name,
                         type='autodoc',
                     )
             return False, selected
@@ -2061,7 +2060,9 @@ class MethodDocumenter(Documenter):
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(
-                __('Failed to get a method signature for %s: %s'), self.fullname, exc
+                __('Failed to get a method signature for %s: %s'),
+                self.props.full_name,
+                exc,
             )
             return ''
         except ValueError:
@@ -2191,7 +2192,9 @@ class MethodDocumenter(Documenter):
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
             logger.warning(
-                __('Failed to get a method signature for %s: %s'), self.fullname, exc
+                __('Failed to get a method signature for %s: %s'),
+                self.props.full_name,
+                exc,
             )
             return None
         except ValueError:
@@ -2527,7 +2530,9 @@ class PropertyDocumenter(Documenter):
                 self.add_line('   :type: ' + objrepr, sourcename)
         except TypeError as exc:
             logger.warning(
-                __('Failed to get a function signature for %s: %s'), self.fullname, exc
+                __('Failed to get a function signature for %s: %s'),
+                self.props.full_name,
+                exc,
             )
             pass
         except ValueError:
