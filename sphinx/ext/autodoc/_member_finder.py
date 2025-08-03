@@ -485,6 +485,11 @@ def _should_keep_member(
     undoc_members: Literal[True] | None,
     opt_members: ALL_T | Sequence[str] | None,
 ) -> bool:
+    if member_obj.skipped:
+        # Forcibly skipped member
+        # e.g. a module attribute not defined in __all__
+        return False
+
     doc = getdoc(
         member,
         get_attr,
@@ -580,11 +585,8 @@ def _should_keep_member(
             keep = False
         else:
             # ignore undocumented members if :undoc-members: is not given
-            keep = has_doc or undoc_members  # type: ignore[assignment]
+            keep = bool(has_doc or undoc_members)
 
-    if member_obj.skipped:
-        # forcedly skipped member (ex. a module attribute not defined in __all__)
-        keep = False
     return keep
 
 
