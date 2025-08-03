@@ -336,7 +336,7 @@ class Documenter:
 
         subject = inspect.unpartial(self.object)
         modname = self.get_attr(subject, '__module__', None)
-        return not modname or modname == self.modname
+        return not modname or modname == self.props.module_name
 
     def format_args(self, **kwargs: Any) -> str:
         """Format the argument signature of *self.object*.
@@ -354,7 +354,7 @@ class Documenter:
         """
         # normally the name doesn't contain the module (except for module
         # directives of course)
-        return self.props.dotted_parts or self.modname
+        return self.props.dotted_parts or self.props.module_name
 
     def _call_format_args(self, **kwargs: Any) -> str:
         if kwargs:
@@ -509,7 +509,7 @@ class Documenter:
         if self.props.parts:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
-            self.add_line('   :module: %s' % self.modname, sourcename)
+            self.add_line('   :module: %s' % self.props.module_name, sourcename)
 
     def get_doc(self) -> list[list[str]] | None:
         """Decode and return lines of the docstring(s) for the object.
@@ -812,7 +812,7 @@ class Documenter:
         *self.options.members*.
         """
         # set current namespace for finding members
-        self._current_document.autodoc_module = self.modname
+        self._current_document.autodoc_module = self.props.module_name
         if self.props.parts:
             self._current_document.autodoc_class = self.props.parts[0]
 
@@ -837,7 +837,8 @@ class Documenter:
             classes.sort(key=lambda cls: cls.priority)
             # give explicitly separated module name, so that members
             # of inner classes can be documented
-            full_mname = f'{self.modname}::' + '.'.join((*self.props.parts, mname))
+            module_prefix = f'{self.props.module_name}::'
+            full_mname = module_prefix + '.'.join((*self.props.parts, mname))
             documenter = classes[-1](self.directive, full_mname, self.indent)
             member_documenters.append((documenter, isattr))
 
@@ -1614,7 +1615,7 @@ class ClassDocumenter(Documenter):
         return []
 
     def get_canonical_fullname(self) -> str | None:
-        __modname__ = safe_getattr(self.object, '__module__', self.modname)
+        __modname__ = safe_getattr(self.object, '__module__', self.props.module_name)
         __qualname__ = safe_getattr(self.object, '__qualname__', None)
         if __qualname__ is None:
             __qualname__ = safe_getattr(self.object, '__name__', None)
@@ -1772,7 +1773,7 @@ class ClassDocumenter(Documenter):
         try:
             key = ('', self.props.dotted_parts)
             if self.props.doc_as_attr:
-                analyzer = ModuleAnalyzer.for_module(self.modname)
+                analyzer = ModuleAnalyzer.for_module(self.props.module_name)
             else:
                 analyzer = ModuleAnalyzer.for_module(
                     self.props._obj___module__ or self.props.module_name
@@ -1807,12 +1808,12 @@ class ClassDocumenter(Documenter):
             more_content = StringList(
                 [_('alias of TypeVar(%s)') % ', '.join(attrs), ''], source=''
             )
-        if self.props.doc_as_attr and self.modname != (
+        if self.props.doc_as_attr and self.props.module_name != (
             self.props._obj___module__ or self.props.module_name
         ):
             try:
                 # override analyzer to obtain doccomment around its definition.
-                self.analyzer = ModuleAnalyzer.for_module(self.modname)
+                self.analyzer = ModuleAnalyzer.for_module(self.props.module_name)
                 self.analyzer.analyze()
             except PycodeError:
                 pass
@@ -1904,7 +1905,7 @@ class DataDocumenter(Documenter):
         parent.__annotations__ = annotations
 
         try:
-            analyzer = ModuleAnalyzer.for_module(self.modname)
+            analyzer = ModuleAnalyzer.for_module(self.props.module_name)
             analyzer.analyze()
             for (classname, attrname), annotation in analyzer.annotations.items():
                 if not classname and attrname not in annotations:
@@ -1969,7 +1970,7 @@ class DataDocumenter(Documenter):
 
     def get_module_comment(self, attrname: str) -> list[str] | None:
         try:
-            analyzer = ModuleAnalyzer.for_module(self.modname)
+            analyzer = ModuleAnalyzer.for_module(self.props.module_name)
             analyzer.analyze()
             key = ('', attrname)
             if key in analyzer.attr_docs:
