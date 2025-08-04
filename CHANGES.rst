@@ -66,8 +66,6 @@ Features added
 Bugs fixed
 ----------
 
-* #10785: Autodoc: type aliases referenceable from type annotations.
-  Patch by Ian Hunt-Isaak
 * #1327: LaTeX: tables using longtable raise error if
   :rst:dir:`tabularcolumns` specifies automatic widths
   (``L``, ``R``, ``C``, or ``J``).
@@ -108,6 +106,8 @@ Bugs fixed
   to improve `semantic HTML structure
   <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
   Patch by Mark Ostroth.
+* #10785: Autodoc: type aliases referenceable from type annotations.
+  Patch by Ian Hunt-Isaak
 
 Testing
 -------
