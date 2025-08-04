@@ -66,6 +66,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10785: Autodoc: type aliases referenceable from type annotations.
+  Patch by Ian Hunt-Isaak
 * #1327: LaTeX: tables using longtable raise error if
   :rst:dir:`tabularcolumns` specifies automatic widths
   (``L``, ``R``, ``C``, or ``J``).
