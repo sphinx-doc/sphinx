@@ -957,7 +957,9 @@ class PythonDomain(Domain):
             # type aliases are documented as data/attr but referenced as class
             matches = self.find_obj(env, modname, clsname, target, 'data', searchmode)
             if not matches:
-                matches = self.find_obj(env, modname, clsname, target, 'attr', searchmode)
+                matches = self.find_obj(
+                    env, modname, clsname, target, 'attr', searchmode
+                )
         if not matches and type == 'attr':
             # fallback to meth (for property; Sphinx 2.4.x)
             # this ensures that `:attr:` role continues to refer to the old property entry
