@@ -126,8 +126,9 @@ def _get_members_to_document(
 
     object_members_map: dict[str, ObjectMember] = {}
     if props.obj_type == 'module':
+        wanted_members: ALL_T | Set[str]
         if want_all and (ignore_module_all or props.all is None):
-            wanted_members = None
+            wanted_members = ALL
         else:
             if want_all:
                 assert props.all is not None
@@ -136,38 +137,26 @@ def _get_members_to_document(
                 assert opt_members is not ALL
                 wanted_members = frozenset(opt_members)
 
-        obj_members_seq2 = []
         for name in dir(props._obj):
             try:
                 value = safe_getattr(props._obj, name, None)
                 if ismock(value):
                     value = undecorate(value)
-                object_members_map[name] = ObjectMember(
-                    name, value, docstring=attr_docs.get(('', name), [])
-                )
-                if wanted_members is None or name in wanted_members:
-                    obj_members_seq2.append(object_members_map[name])
+                if name in wanted_members:
+                    object_members_map[name] = ObjectMember(
+                        name, value, docstring=attr_docs.get(('', name), [])
+                    )
             except AttributeError:
                 continue
 
         # annotation only member (e.g. attr: int)
         for name in inspect.getannotations(props._obj):
-            if name not in object_members_map:
+            if name not in object_members_map and name in wanted_members:
                 object_members_map[name] = ObjectMember(
                     name, INSTANCE_ATTR, docstring=attr_docs.get(('', name), [])
                 )
-                if wanted_members is None or name in wanted_members:
-                    obj_members_seq2.append(object_members_map[name])
 
-        if wanted_members is None:
-            obj_members_seq = list(object_members_map.values())
-        else:
-            obj_members_seq = [
-                member
-                for name, member in object_members_map.items()
-                if name in wanted_members
-            ]
-        assert obj_members_seq == obj_members_seq2
+        obj_members_seq = list(object_members_map.values())
 
         if not want_all and opt_members is not ALL:
             for name in opt_members:
