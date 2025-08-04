@@ -9,7 +9,7 @@
 % by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2025/04/24 v8.3.0 Sphinx LaTeX package (sphinx-doc)]
+\ProvidesPackage{sphinx}[2025/08/03 v8.3.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -870,32 +870,43 @@
 
 % 7.4.0 Support for icons in admonition titles
 %
-% We let Sphinx use in order of priority: some user-specifid package,
-% fontawesome6 (since 8.3.0), fontawesome5, fontawesome, or nothing (and then
-% not draw any icon).  To allow a user-specified package, an extra interface
+% We let Sphinx use, listed in order of priority:
+% - a user-specified package via iconpackage key,
+% - fontawesome7 (supported since 8.3.0),
+% - fontawesome6 (supported since 8.3.0),
+% - fontawesome5,
+% - fontawesome, 
+% - or nothing at all, and then icons are not drawn.
+% To allow a user-specified package, an extra interface
 % is provided for specifying the icon-drawing LaTeX code.
 %
-% We can't load fontawesome6 (or 5) unconditionally even if available, as it
+% We can't load fontawesome7 (or 6 or 5) unconditionally even if available, as it
 % is incompatible with fontawesome package which may be preferred by user.  We
 % thus must delay loading the package to at begin document, and for now can
-% only set the default value of iconpackage key..
-\IfFileExists{fontawesome6.sty}{%
-  \DeclareStringOption[fontawesome6]{iconpackage}%
+% only set the default value of iconpackage key.
+\IfFileExists{fontawesome7.sty}{%
+  \DeclareStringOption[fontawesome7]{iconpackage}%
 }%
 {%
- \IfFileExists{fontawesome5.sty}{%
-   \DeclareStringOption[fontawesome5]{iconpackage}%
- }%
- {%
-  \IfFileExists{fontawesome.sty}
-  {\DeclareStringOption[fontawesome]{iconpackage}}
-  {\DeclareStringOption[none]{iconpackage}}%
- }%
+  \IfFileExists{fontawesome6.sty}{%
+    \DeclareStringOption[fontawesome6]{iconpackage}%
+  }%
+  {%
+   \IfFileExists{fontawesome5.sty}{%
+     \DeclareStringOption[fontawesome5]{iconpackage}%
+   }%
+   {%
+    \IfFileExists{fontawesome.sty}
+    {\DeclareStringOption[fontawesome]{iconpackage}}
+    {\DeclareStringOption[none]{iconpackage}}%
+   }%
+  }%
 }%
-% Unfortunately icon names differ between fontawesome, fontawesome5, and
-% fontawesome6 LaTeX packages.  At 8.3.0 we refactor the icon support code
-% into something easier to maintain in future in case of a fontawesome7,
-% etc...
+% Unfortunately icon macro names are not the same across fontawesome,
+% fontawesome5, fontawesome6  and fontawesome7 LaTeX packages.
+% At 8.3.0 we refactor the
+% icon support code into something easier to maintain in future in case of a
+% fontawesome8, etc...
 %
 % TODO: Handle spaces possibly caused by bad user usage of iconpackage key?
 %       This would need to check how LaTeX handle spaces in package name
@@ -918,7 +929,12 @@
 }
 
 % Icon defaults depending on package used.
-% Attention! no extra spaces for alignment when using \@namedef!
+% Attention! no extra spaces (to align here) when using \@namedef!
+
+% MEMO: the [regular] style mark-up for {lightbulb} was inherited
+% from fontawesome5 and found experimentally to work also with
+% fontawesome6 (and fontawesome7) despite their respective PDF docs
+% not mentioning it...
 \@namedef{spx@fontawesome6@note}{\faIcon{circle-info}}
 \@namedef{spx@fontawesome6@hint}{\faIcon[regular]{lightbulb}}
 \@namedef{spx@fontawesome6@tip}{\faIcon[regular]{lightbulb}}
@@ -930,6 +946,13 @@
 \@namedef{spx@fontawesome6@attention}{\faIcon{triangle-exclamation}}
 \@namedef{spx@fontawesome6@danger}{\faIcon{radiation}}
 \@namedef{spx@fontawesome6@error}{\faIcon{circle-xmark}}
+
+% Turns out that fontawesome7 commands for our target icons are
+% same as with fontawesome6.  So make a loop to spare a few lines here.
+\@for\x:=note,hint,tip,seealso,todo,important,caution,warning,attention,%
+         danger,error%
+\do{\expandafter\let\csname spx@fontawesome7@\x\expandafter\endcsname
+                    \csname spx@fontawesome6@\x\endcsname}
 
 \@namedef{spx@fontawesome5@note}{\faIcon{info-circle}}
 \@namedef{spx@fontawesome5@hint}{\faIcon[regular]{lightbulb}}

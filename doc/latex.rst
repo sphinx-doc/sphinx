@@ -1007,13 +1007,14 @@ The color used in the above example is available from having passed the
 ``iconpackage``
 
     The name of the LaTeX package used for rendering icons in the admonition
-    titles.  Its default is set dynamically to either ``fontawesome6``,
-    ``fontawesome5``, or ``fontawesome``, or ``none``, depending on whether
+    titles.  Its default is set dynamically to either ``fontawesome7``,
+    ``fontawesome6``,
+    ``fontawesome5``, ``fontawesome``, or ``none``, in decreasing order of
+    priority and depending on whether
     packages with those names exist in the used LaTeX installation.  The LaTeX
-    code will use ``\faIcon`` command if with ``fontawesome6/fontawesome5``,
-    and ``\faicon`` if with ``fontawesome``.  In the latter case the icon used
+    code will use ``\faIcon`` command if with ``fontawesome5-7`` case the icon used
     both for :dudir:`caution` and :dudir:`danger` will default to "bolt" not
-    "radiation", which is only found in ``fontawesome6`` and ``fontawesome5``.
+    "radiation", which is only found in ``fontawesome5-7``.
     If no "Font Awesome" related package is found (or if the option is set
     forcefully to ``none``) the icons are silently dropped.  User can set this
     option to some specific package and must configure the
@@ -1413,16 +1414,16 @@ The next keys, for admonitions, :dudir:`topic`, contents_, and
 
 - ``div.<type>_title-icon``: the LaTeX code responsible for producing the
   icon.  If you want to modify the icons used by Sphinx, employ in these keys
-  the ``\faIcon`` LaTeX command (assuming either ``fontawesome6`` or
-  ``fontawesome5`` LaTeX package is available on your system).  For example
-  the default for :dudir:`note` is
-  ``div.note_title-icon=\faIcon{info-circle}`` with ``fontawesome5`` and
-  ``div.note_title-icon=\faIcon{circle-info}`` with ``fontawesome6`` (which is
+  the ``\faIcon`` LaTeX command if one of ``fontawesome5``, ``6`` or ``7`` is
+  on your LaTeX installation.  For example the default for :dudir:`note` is
+  ``div.note_title-icon=\faIcon{info-circle}`` with ``fontawesome5`` but
+  ``div.note_title-icon=\faIcon{circle-info}`` with ``fontawesome7`` (which is
   used automatically if available).  If your system only provides the
   ``fontawesome`` package (automatically detected) use its command ``\faicon``
-  rather in order to modify the choice of icons.  The ``iconpackage`` key can
-  be used to use some other package providing icons, use then the commands
-  suitable to that package as values of the ``div.<type>_title-icon`` keys.
+  (not ``\faIcon``) in order to modify the choice of icons.  The
+  ``iconpackage`` key can give the name of some other package providing icons.
+  You must then configure the ``div.<type>_title-icon`` keys to use the LaTeX
+  commands from that custom icon package.
 
 .. note::
 
