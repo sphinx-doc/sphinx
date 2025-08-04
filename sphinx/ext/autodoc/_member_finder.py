@@ -126,6 +126,17 @@ def _get_members_to_document(
 
     object_members_map: dict[str, ObjectMember] = {}
     if props.obj_type == 'module':
+        if want_all and (ignore_module_all or props.all is None):
+            wanted_members = None
+        else:
+            if want_all:
+                assert props.all is not None
+                wanted_members = frozenset(props.all)
+            else:
+                assert opt_members is not ALL
+                wanted_members = frozenset(opt_members)
+
+        obj_members_seq2 = []
         for name in dir(props._obj):
             try:
                 value = safe_getattr(props._obj, name, None)
@@ -134,6 +145,8 @@ def _get_members_to_document(
                 object_members_map[name] = ObjectMember(
                     name, value, docstring=attr_docs.get(('', name), [])
                 )
+                if wanted_members is None or name in wanted_members:
+                    obj_members_seq2.append(object_members_map[name])
             except AttributeError:
                 continue
 
@@ -143,21 +156,18 @@ def _get_members_to_document(
                 object_members_map[name] = ObjectMember(
                     name, INSTANCE_ATTR, docstring=attr_docs.get(('', name), [])
                 )
+                if wanted_members is None or name in wanted_members:
+                    obj_members_seq2.append(object_members_map[name])
 
-        if want_all and (ignore_module_all or props.all is None):
+        if wanted_members is None:
             obj_members_seq = list(object_members_map.values())
         else:
-            if want_all:
-                assert props.all is not None
-                wanted_members = frozenset(props.all)
-            else:
-                assert opt_members is not ALL
-                wanted_members = frozenset(opt_members)
             obj_members_seq = [
                 member
                 for name, member in object_members_map.items()
                 if name in wanted_members
             ]
+        assert obj_members_seq == obj_members_seq2
 
         if not want_all and opt_members is not ALL:
             for name in opt_members:
