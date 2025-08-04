@@ -49,7 +49,7 @@ class ObjectMember:
     represent each member of the object.
     """
 
-    __slots__ = '__name__', 'object', 'docstring', 'class_', 'skipped'
+    __slots__ = '__name__', 'object', 'docstring', 'class_'
 
     __name__: str
     object: Any
