@@ -131,39 +131,35 @@ def _get_members_to_document(
                 value = safe_getattr(props._obj, name, None)
                 if ismock(value):
                     value = undecorate(value)
-                attr_docstring = attr_docs.get(('', name), [])
                 object_members_map[name] = ObjectMember(
-                    name, value, docstring=attr_docstring
+                    name, value, docstring=attr_docs.get(('', name), [])
                 )
             except AttributeError:
                 continue
 
-        # annotation only member (ex. attr: int)
+        # annotation only member (e.g. attr: int)
         for name in inspect.getannotations(props._obj):
             if name not in object_members_map:
-                attr_docstring = attr_docs.get(('', name), [])
                 object_members_map[name] = ObjectMember(
-                    name, INSTANCE_ATTR, docstring=attr_docstring
+                    name, INSTANCE_ATTR, docstring=attr_docs.get(('', name), [])
                 )
 
-        if want_all:
-            module_all = props.all
-            if ignore_module_all or module_all is None:
-                obj_members_seq = list(object_members_map.values())
-            else:
-                module_all_set = frozenset(module_all)
-                obj_members_seq = [
-                    member
-                    for name, member in object_members_map.items()
-                    if member.__name__ in module_all_set
-                ]
+        if want_all and (ignore_module_all or props.all is None):
+            obj_members_seq = list(object_members_map.values())
         else:
-            assert opt_members is not ALL
+            if want_all:
+                assert props.all is not None
+                wanted_members = frozenset(props.all)
+            else:
+                assert opt_members is not ALL
+                wanted_members = frozenset(opt_members)
             obj_members_seq = [
-                object_members_map[name]
-                for name in opt_members
-                if name in object_members_map
+                member
+                for name, member in object_members_map.items()
+                if name in wanted_members
             ]
+
+        if not want_all and opt_members is not ALL:
             for name in opt_members:
                 if name in object_members_map:
                     continue
