@@ -51,6 +51,8 @@ tests/roots/test-pycode/cp_1251_coded.py dos
 
 # Non UTF-8 encodings
 tests/roots/test-pycode/cp_1251_coded.py working-tree-encoding=windows-1251
+tests/roots/test-root/wrongenc.inc working-tree-encoding=latin-1
+tests/roots/test-warnings/wrongenc.inc working-tree-encoding=latin-1
 
 # Generated files
 # https://github.com/github/linguist/blob/master/docs/overrides.md

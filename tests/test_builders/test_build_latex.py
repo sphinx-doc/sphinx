@@ -980,13 +980,20 @@ def test_footnote(app: SphinxTestApp) -> None:
         'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
         '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
         'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces '
+        '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{2}}'
         '\n\\sphinxAtStartPar\n'
-        'VIDIOC\\_CROPCAP\n&\n\\sphinxAtStartPar\n'
+        'VIDIOC\\_CROPCAP\n'
+        '\\sphinxbeforeendvarwidth\n'
+        '\\end{varwidth}%\n'
     ) in result
     assert (
+        '&\\begin{varwidth}[t]{\\sphinxcolwidth{1}{2}}\n'
+        '\\sphinxAtStartPar\n'
         'Information about VIDIOC\\_CROPCAP %\n'
         '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
-        'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n'
+        'footnote in table not in header\n%\n\\end{footnote}\n'
+        '\\sphinxbeforeendvarwidth\n'
+        '\\end{varwidth}%\n\\\\\n'
         '\\sphinxbottomrule\n\\end{tabulary}\n'
         '\\sphinxtableafterendhook\\par\n\\sphinxattableend\\end{savenotes}\n'
     ) in result
@@ -1044,11 +1051,15 @@ def test_reference_in_caption_and_codeblock_in_footnote(app: SphinxTestApp) -> N
         '{I am in a footnote}}}}}'
     ) in result
     assert (
-        '&\n\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
+        '&\\begin{varwidth}[t]{\\sphinxcolwidth{1}{2}}\n'
+        '\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
         '\\begin{footnote}[12]\\sphinxAtStartFootnote\n'
         'Third footnote in longtable\n'
     ) in result
-    assert '\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n' in result
+    assert (
+        '\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n'
+        '\\sphinxbeforeendvarwidth\n\\end{varwidth}%\n\\\\'
+    ) in result
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
 
 
@@ -1601,60 +1612,22 @@ def test_latex_table_tabulars(app: SphinxTestApp) -> None:
             .strip()
         )
 
-    # simple_table
-    actual = tables['simple table']
-    expected = get_expected('simple_table')
-    assert actual == expected
-
-    # table having :widths: option
-    actual = tables['table having :widths: option']
-    expected = get_expected('table_having_widths')
-    assert actual == expected
-
-    # table having :align: option (tabulary)
-    actual = tables['table having :align: option (tabulary)']
-    expected = get_expected('tabulary_having_widths')
-    assert actual == expected
-
-    # table having :align: option (tabular)
-    actual = tables['table having :align: option (tabular)']
-    expected = get_expected('tabular_having_widths')
-    assert actual == expected
-
-    # table with tabularcolumn
-    actual = tables['table with tabularcolumn']
-    expected = get_expected('tabularcolumn')
-    assert actual == expected
-
-    # table with cell in first column having three paragraphs
-    actual = tables['table with cell in first column having three paragraphs']
-    expected = get_expected('table_having_threeparagraphs_cell_in_first_col')
-    assert actual == expected
-
-    # table having caption
-    actual = tables['table having caption']
-    expected = get_expected('table_having_caption')
-    assert actual == expected
-
-    # table having verbatim
-    actual = tables['table having verbatim']
-    expected = get_expected('table_having_verbatim')
-    assert actual == expected
-
-    # table having problematic cell
-    actual = tables['table having problematic cell']
-    expected = get_expected('table_having_problematic_cell')
-    assert actual == expected
-
-    # table having both :widths: and problematic cell
-    actual = tables['table having both :widths: and problematic cell']
-    expected = get_expected('table_having_widths_and_problematic_cell')
-    assert actual == expected
-
-    # table having both stub columns and problematic cell
-    actual = tables['table having both stub columns and problematic cell']
-    expected = get_expected('table_having_stub_columns_and_problematic_cell')
-    assert actual == expected
+    for sectname in (
+        'simple table',
+        'table having widths option',
+        'tabulary having align option',
+        'tabular having align option',
+        'table with tabularcolumns',
+        'table having three paragraphs cell in first col',
+        'table having caption',
+        'table having verbatim',
+        'table having formerly problematic',
+        'table having widths and formerly problematic',
+        'table having stub columns and formerly problematic',
+    ):
+        actual = tables[sectname]
+        expected = get_expected(sectname.replace(' ', '_'))
+        assert actual == expected
 
 
 @pytest.mark.sphinx(
@@ -1679,50 +1652,20 @@ def test_latex_table_longtable(app: SphinxTestApp) -> None:
             .strip()
         )
 
-    # longtable
-    actual = tables['longtable']
-    expected = get_expected('longtable')
-    assert actual == expected
-
-    # longtable having :widths: option
-    actual = tables['longtable having :widths: option']
-    expected = get_expected('longtable_having_widths')
-    assert actual == expected
-
-    # longtable having :align: option
-    actual = tables['longtable having :align: option']
-    expected = get_expected('longtable_having_align')
-    assert actual == expected
-
-    # longtable with tabularcolumn
-    actual = tables['longtable with tabularcolumn']
-    expected = get_expected('longtable_with_tabularcolumn')
-    assert actual == expected
-
-    # longtable having caption
-    actual = tables['longtable having caption']
-    expected = get_expected('longtable_having_caption')
-    assert actual == expected
-
-    # longtable having verbatim
-    actual = tables['longtable having verbatim']
-    expected = get_expected('longtable_having_verbatim')
-    assert actual == expected
-
-    # longtable having problematic cell
-    actual = tables['longtable having problematic cell']
-    expected = get_expected('longtable_having_problematic_cell')
-    assert actual == expected
-
-    # longtable having both :widths: and problematic cell
-    actual = tables['longtable having both :widths: and problematic cell']
-    expected = get_expected('longtable_having_widths_and_problematic_cell')
-    assert actual == expected
-
-    # longtable having both stub columns and problematic cell
-    actual = tables['longtable having both stub columns and problematic cell']
-    expected = get_expected('longtable_having_stub_columns_and_problematic_cell')
-    assert actual == expected
+    for sectname in (
+        'longtable',
+        'longtable having widths option',
+        'longtable having align option',
+        'longtable with tabularcolumns',
+        'longtable having caption',
+        'longtable having verbatim',
+        'longtable having formerly problematic',
+        'longtable having widths and formerly problematic',
+        'longtable having stub columns and formerly problematic',
+    ):
+        actual = tables[sectname]
+        expected = get_expected(sectname.replace(' ', '_'))
+        assert actual == expected
 
 
 @pytest.mark.sphinx(
@@ -1746,22 +1689,14 @@ def test_latex_table_complex_tables(app: SphinxTestApp) -> None:
             .strip()
         )
 
-    # grid table
-    actual = tables['grid table']
-    expected = get_expected('gridtable')
-    assert actual == expected
-
-    # grid table with tabularcolumns
-    # MEMO: filename should end with tabularcolumns but tabularcolumn has been
-    #       used in existing other cases
-    actual = tables['grid table with tabularcolumns having no vline']
-    expected = get_expected('gridtable_with_tabularcolumn')
-    assert actual == expected
-
-    # complex spanning cell
-    actual = tables['complex spanning cell']
-    expected = get_expected('complex_spanning_cell')
-    assert actual == expected
+    for sectname in (
+        'grid table',
+        'grid table with tabularcolumns',
+        'complex spanning cell',
+    ):
+        actual = tables[sectname]
+        expected = get_expected(sectname.replace(' ', '_'))
+        assert actual == expected
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table')

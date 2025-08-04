@@ -261,7 +261,7 @@ class HyperlinkCollector(SphinxPostTransform):
         """
         builder = cast('CheckExternalLinksBuilder', self.env._app.builder)
         hyperlinks = builder.hyperlinks
-        docname = self.env.docname
+        docname = self.env.current_document.docname
 
         if newuri := self.env.events.emit_firstresult('linkcheck-process-uri', uri):
             uri = newuri

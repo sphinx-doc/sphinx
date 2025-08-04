@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, final
 
 from docutils import nodes
-from docutils.utils import DependencyList
 
 from sphinx._cli.util.colour import bold
 from sphinx.deprecation import _deprecation_warning
@@ -23,16 +22,12 @@ from sphinx.environment import (
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.util import (
-    get_filetype,
-    logging,
-    rst,
-)
+from sphinx.util import get_filetype, logging
 from sphinx.util._importer import import_object
 from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import sphinx_domains
+from sphinx.util.docutils import _parse_str_to_doctree
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.osutil import ensuredir, relative_uri, relpath
 from sphinx.util.parallel import (
@@ -269,7 +264,7 @@ class Builder:
             __('writing output... '),
             'darkgreen',
             len(catalogs),
-            self._app.verbosity,
+            self.config.verbosity,
             stringify_func=cat2relpath,
         ):
             catalog.write_mo(
@@ -587,7 +582,7 @@ class Builder:
             __('reading sources... '),
             'purple',
             len(docnames),
-            self._app.verbosity,
+            self.config.verbosity,
         ):
             # remove all inventory entries for that file
             self.events.emit('env-purge-doc', self.env, docname)
@@ -604,7 +599,7 @@ class Builder:
             __('reading sources... '),
             'purple',
             len(chunks),
-            self._app.verbosity,
+            self.config.verbosity,
         )
 
         # clear all outdated docs at once
@@ -644,26 +639,34 @@ class Builder:
         if docutils_conf.is_file():
             env.note_dependency(docutils_conf)
 
-        filename = str(env.doc2path(docname))
-        filetype = get_filetype(self._app.config.source_suffix, filename)
-        publisher = self._registry._get_publisher(
-            filetype, config=self.config, env=self.env
-        )
-        self.env.current_document._parser = publisher.parser
-        # record_dependencies is mutable even though it is in settings,
-        # explicitly re-initialise for each document
-        publisher.settings.record_dependencies = DependencyList()
-        with (
-            sphinx_domains(env),
-            rst.default_role(docname, self.config.default_role),
-        ):
-            # set up error_handler for the target document
-            error_handler = _UnicodeDecodeErrorHandler(docname)
-            codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
+        filename = env.doc2path(docname)
 
-            publisher.set_source(source_path=filename)
-            publisher.publish()
-            doctree = publisher.document
+        # set up error_handler for the target document
+        # xref RemovedInSphinx90Warning
+        error_handler = _UnicodeDecodeErrorHandler(docname)
+        codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
+
+        # read the source file
+        content = filename.read_text(
+            encoding=env.settings['input_encoding'], errors='sphinx'
+        )
+
+        # TODO: move the "source-read" event to here.
+
+        filetype = get_filetype(self.config.source_suffix, filename)
+        parser = self._registry.create_source_parser(
+            filetype, config=self.config, env=env
+        )
+        doctree = _parse_str_to_doctree(
+            content,
+            filename=filename,
+            default_role=self.config.default_role,
+            default_settings=env.settings,
+            env=env,
+            events=self.events,
+            parser=parser,
+            transforms=self._registry.get_transforms(),
+        )
 
         # store time of reading, for outdated files detection
         env.all_docs[docname] = time.time_ns() // 1_000
@@ -776,7 +779,7 @@ class Builder:
                 __('writing output... '),
                 'darkgreen',
                 len(docnames),
-                self._app.verbosity,
+                self.config.verbosity,
             ):
                 _write_docname(docname, env=self.env, builder=self, tags=self.tags)
 
@@ -800,7 +803,7 @@ class Builder:
             __('writing output... '),
             'darkgreen',
             len(chunks),
-            self._app.verbosity,
+            self.config.verbosity,
         )
 
         def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
@@ -901,20 +904,21 @@ class _UnicodeDecodeErrorHandler:
         self.docname = docname
 
     def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
-        line_start = error.object.rfind(b'\n', 0, error.start)
-        line_end = error.object.find(b'\n', error.start)
+        obj = error.object
+        line_start = obj.rfind(b'\n', 0, error.start)
+        line_end = obj.find(b'\n', error.start)
         if line_end == -1:
-            line_end = len(error.object)
-        line_num = error.object.count(b'\n', 0, error.start) + 1
+            line_end = len(obj)
+        line_num = obj.count(b'\n', 0, error.start) + 1
         logger.warning(
-            __('undecodable source characters, replacing with "?": %r'),
-            (
-                error.object[line_start + 1 : error.start]
-                + b'>>>'
-                + error.object[error.start : error.end]
-                + b'<<<'
-                + error.object[error.end : line_end]
+            __(
+                "undecodable source characters, replacing with '?': '%s>>>%s<<<%s'. "
+                'This will become an error in Sphinx 9.0.'
+                # xref RemovedInSphinx90Warning
             ),
+            obj[line_start + 1 : error.start].decode(errors='backslashreplace'),
+            obj[error.start : error.end].decode(errors='backslashreplace'),
+            obj[error.end : line_end].decode(errors='backslashreplace'),
             location=(self.docname, line_num),
         )
         return '?', error.end

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from docutils.writers.docutils_xml import Writer as BaseXMLWriter
+from docutils.writers import docutils_xml
 
 if TYPE_CHECKING:
     from typing import Any
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
-class XMLWriter(BaseXMLWriter):  # type: ignore[misc]
+class XMLWriter(docutils_xml.Writer):  # type: ignore[misc]
     output: str
 
     def __init__(self, builder: Builder) -> None:
@@ -34,7 +34,7 @@ class XMLWriter(BaseXMLWriter):  # type: ignore[misc]
         self.output = ''.join(visitor.output)  # type: ignore[attr-defined]
 
 
-class PseudoXMLWriter(BaseXMLWriter):  # type: ignore[misc]
+class PseudoXMLWriter(docutils_xml.Writer):  # type: ignore[misc]
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""
 

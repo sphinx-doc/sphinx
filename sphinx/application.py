@@ -52,7 +52,8 @@ if TYPE_CHECKING:
     from sphinx.config import ENUM, _ConfigRebuild
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
-    from sphinx.ext.autodoc import Documenter, _AutodocProcessDocstringListener
+    from sphinx.ext.autodoc._documenters import Documenter
+    from sphinx.ext.autodoc._event_listeners import _AutodocProcessDocstringListener
     from sphinx.ext.todo import todo_node
     from sphinx.extension import Extension
     from sphinx.registry import (
@@ -239,7 +240,7 @@ class Sphinx:
         self._fail_on_warnings = bool(warningiserror)
         self.pdb = pdb
         self._exception_on_warning = exception_on_warning
-        logging.setup(self, self._status, self._warning)
+        logging.setup(self, self._status, self._warning, verbosity=verbosity)
 
         self.events = EventManager(self)
 
