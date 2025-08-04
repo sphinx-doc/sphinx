@@ -593,32 +593,33 @@ class Documenter:
         # document non-skipped members
         member_documenters: list[tuple[Documenter, bool]] = []
         for mname, member, isattr in filtered:
-            classes = [
-                cls
-                for cls in self.documenters.values()
-                if cls.can_document_member(member, mname, isattr, self)
-            ]
+            classes = sorted(
+                [
+                    cls
+                    for cls in self.env._registry.documenters.values()
+                    if cls.can_document_member(member, mname, isattr, self)
+                ],
+                # prefer the documenter with the highest priority
+                key=lambda cls: cls.priority,
+            )
             if not classes:
                 # don't know how to document this member
                 continue
-            # prefer the documenter with the highest priority
-            classes.sort(key=lambda cls: cls.priority)
             # give explicitly separated module name, so that members
             # of inner classes can be documented
             module_prefix = f'{self.props.module_name}::'
             full_mname = module_prefix + '.'.join((*self.props.parts, mname))
             documenter = classes[-1](self.directive, full_mname, indent)
+
+            # We now try to import all objects before ordering them. This is to
+            # avoid possible circular imports if we were to import objects after
+            # their associated documenters have been sorted.
+            if documenter._load_object_by_name() is None:
+                continue
+
             member_documenters.append((documenter, isattr))
 
         member_order = self.options.member_order or self.config.autodoc_member_order
-        # We now try to import all objects before ordering them. This is to
-        # avoid possible circular imports if we were to import objects after
-        # their associated documenters have been sorted.
-        member_documenters = [
-            (documenter, isattr)
-            for documenter, isattr in member_documenters
-            if documenter._load_object_by_name() is not None
-        ]
         member_documenters = self.sort_members(member_documenters, member_order)
 
         # reset current objects
