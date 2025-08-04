@@ -106,8 +106,9 @@ Bugs fixed
   to improve `semantic HTML structure
   <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
   Patch by Mark Ostroth.
-* #10785: Autodoc: type aliases referenceable from type annotations.
-  Patch by Ian Hunt-Isaak
+* #10785: Autodoc: Allow type aliases defined in the proejct to be properly
+  cross-referenced when used as a type annotations. This makes it possible
+  for objects documented as :py:data: to be hyperlinked in function signatures.
 
 Testing
 -------
