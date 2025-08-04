@@ -301,12 +301,11 @@ def _get_members_to_document(
             )
             logger.warning(msg, name, props._obj, type='autodoc')
 
-    filtered = []
-
     # search for members in source code too
     namespace = props.dotted_parts  # will be empty for modules
 
     # process members and determine which to skip
+    filtered = []
     for obj in obj_members_seq:
         has_attr_doc = (namespace, obj.__name__) in attr_docs
         try:
@@ -356,10 +355,12 @@ def _get_members_to_document(
             if skip_user is not None:
                 keep = not skip_user
 
-        if keep:
-            # if is_attr is True, the member is documented as an attribute
-            is_attr = obj.object is INSTANCE_ATTR or has_attr_doc
-            filtered.append((obj.__name__, obj.object, is_attr))
+        if not keep:
+            continue
+
+        # if is_attr is True, the member is documented as an attribute
+        is_attr = obj.object is INSTANCE_ATTR or has_attr_doc
+        filtered.append((obj.__name__, obj.object, is_attr))
 
     return filtered
 
