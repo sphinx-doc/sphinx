@@ -1050,7 +1050,7 @@ class ModuleDocumenter(Documenter):
         return self.__all__
 
     def add_directive_header(self, sig: str) -> None:
-        Documenter.add_directive_header(self, sig)
+        super().add_directive_header(sig)
 
         sourcename = self.get_sourcename()
 
