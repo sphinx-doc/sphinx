@@ -124,9 +124,9 @@ def _get_members_to_document(
     else:
         attr_docs = {}
 
+    wanted_members: ALL_T | Set[str]
     object_members_map: dict[str, ObjectMember] = {}
     if props.obj_type == 'module':
-        wanted_members: ALL_T | Set[str]
         if want_all and (ignore_module_all or props.all is None):
             wanted_members = ALL
         else:
@@ -172,6 +172,13 @@ def _get_members_to_document(
                     type='autodoc',
                 )
     elif props.obj_type in {'class', 'exception'}:
+        if want_all:
+            wanted_members = ALL
+        else:
+            # specific members given
+            assert opt_members is not ALL
+            wanted_members = frozenset(opt_members)
+
         # the members directly defined in the class
         obj_dict = get_attr(props._obj, '__dict__', {})
 
@@ -183,9 +190,10 @@ def _get_members_to_document(
                 # the order of occurrence of *name* matches obj's MRO,
                 # allowing inherited attributes to be shadowed correctly
                 if unmangled := unmangle(defining_class, name):
-                    object_members_map[unmangled] = ObjectMember(
-                        unmangled, value, class_=defining_class
-                    )
+                    if unmangled in wanted_members:
+                        object_members_map[unmangled] = ObjectMember(
+                            unmangled, value, class_=defining_class
+                        )
 
         # members in __slots__
         try:
@@ -196,9 +204,13 @@ def _get_members_to_document(
                         subject_doclines = subject_docstring.splitlines()
                     else:
                         subject_doclines = None
-                    object_members_map[name] = ObjectMember(
-                        name, SLOTS_ATTR, class_=props._obj, docstring=subject_doclines
-                    )
+                    if name in wanted_members:
+                        object_members_map[name] = ObjectMember(
+                            name,
+                            SLOTS_ATTR,
+                            class_=props._obj,
+                            docstring=subject_doclines,
+                        )
         except (TypeError, ValueError):
             pass
 
@@ -211,12 +223,15 @@ def _get_members_to_document(
 
                 unmangled = unmangle(props._obj, name)
                 if unmangled and unmangled not in object_members_map:
-                    if name in obj_dict:
-                        object_members_map[unmangled] = ObjectMember(
-                            unmangled, value, class_=props._obj
-                        )
-                    else:
-                        object_members_map[unmangled] = ObjectMember(unmangled, value)
+                    if unmangled in wanted_members:
+                        if name in obj_dict:
+                            object_members_map[unmangled] = ObjectMember(
+                                unmangled, value, class_=props._obj
+                            )
+                        else:
+                            object_members_map[unmangled] = ObjectMember(
+                                unmangled, value
+                            )
             except AttributeError:
                 continue
 
@@ -243,24 +258,26 @@ def _get_members_to_document(
                             attr_docstring = analyzer.attr_docs[qualname, unmangled]
                         else:
                             attr_docstring = None
-                        object_members_map[unmangled] = ObjectMember(
-                            unmangled,
-                            INSTANCE_ATTR,
-                            class_=cls,
-                            docstring=attr_docstring,
-                        )
+                        if unmangled in wanted_members:
+                            object_members_map[unmangled] = ObjectMember(
+                                unmangled,
+                                INSTANCE_ATTR,
+                                class_=cls,
+                                docstring=attr_docstring,
+                            )
 
                 # append or complete instance attributes (cf. self.attr1) if analyzer knows
                 if analyzer:
                     for (ns, name), attr_docstring in analyzer.attr_docs.items():
                         if ns == qualname and name not in object_members_map:
                             # otherwise unknown instance attribute
-                            object_members_map[name] = ObjectMember(
-                                name,
-                                INSTANCE_ATTR,
-                                class_=cls,
-                                docstring=attr_docstring,
-                            )
+                            if name in wanted_members:
+                                object_members_map[name] = ObjectMember(
+                                    name,
+                                    INSTANCE_ATTR,
+                                    class_=cls,
+                                    docstring=attr_docstring,
+                                )
                         elif (
                             ns == qualname
                             and attr_docstring
@@ -277,18 +294,16 @@ def _get_members_to_document(
         except AttributeError:
             pass
 
-        if want_all:
-            obj_members_seq = list(object_members_map.values())
-            if not inherited_members:
-                obj_members_seq = [m for m in obj_members_seq if m.class_ == props._obj]
-        else:
-            # specific members given
-            assert opt_members is not ALL
-            obj_members_seq = [
-                object_members_map[name]
-                for name in opt_members
-                if name in object_members_map
-            ]
+        # obj_members_seq = [
+        #     member
+        #     for name, member in object_members_map.items()
+        #     if name in wanted_members
+        # ]
+        obj_members_seq = list(object_members_map.values())
+
+        if want_all and not inherited_members:
+            obj_members_seq = [m for m in obj_members_seq if m.class_ == props._obj]
+        if not want_all and opt_members is not ALL:
             for name in opt_members:
                 if name in object_members_map:
                     continue
