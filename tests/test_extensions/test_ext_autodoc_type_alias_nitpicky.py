@@ -35,15 +35,18 @@ def test_type_alias_xref_resolution(app: SphinxTestApp, warning: Any) -> None:
 
     # The critical test: type alias in function signature should be a clickable link
     # This tests the original issue - function signature type annotations should resolve
-    assert '<a class="reference internal" href="#alias_module.pathlike"' in html_content, (
-        'Type alias not linked in function signature - this is the core bug'
-    )
-    
+    assert (
+        '<a class="reference internal" href="#alias_module.pathlike"' in html_content
+    ), 'Type alias not linked in function signature - this is the core bug'
+
     # Verify the link is specifically in the function signature context
     import re
-    func_sig_match = re.search(r'<span class="pre">read_file</span>.*?</dt>', html_content, re.DOTALL)
+
+    func_sig_match = re.search(
+        r'<span class="pre">read_file</span>.*?</dt>', html_content, re.DOTALL
+    )
     assert func_sig_match, 'Could not find read_file function signature'
     func_signature = func_sig_match.group(0)
-    assert '<a class="reference internal" href="#alias_module.pathlike"' in func_signature, (
-        'Type alias link not found in function signature'
-    )
+    assert (
+        '<a class="reference internal" href="#alias_module.pathlike"' in func_signature
+    ), 'Type alias link not found in function signature'

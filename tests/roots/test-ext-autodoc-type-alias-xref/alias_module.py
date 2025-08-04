@@ -9,5 +9,5 @@ pathlike = str | pathlib.Path
 
 def read_file(path: pathlike) -> bytes:
     """Read a file and return its contents."""
-    with open(path, "rb") as f:
+    with open(path, 'rb') as f:
         return f.read()
