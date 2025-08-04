@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx import addnodes
-
 if TYPE_CHECKING:
     from typing import Any
 
