@@ -108,7 +108,7 @@ Bugs fixed
   Patch by Mark Ostroth.
 * #10785: Autodoc: Allow type aliases defined in the proejct to be properly
   cross-referenced when used as a type annotations. This makes it possible
-  for objects documented as :py:data: to be hyperlinked in function signatures.
+  for objects documented as `:py:data:` to be hyperlinked in function signatures.
 
 Testing
 -------
