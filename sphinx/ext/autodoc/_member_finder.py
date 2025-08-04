@@ -157,20 +157,6 @@ def _get_members_to_document(
                 )
 
         obj_members_seq = list(object_members_map.values())
-
-        if not want_all and opt_members is not ALL:
-            for name in opt_members:
-                if name in object_members_map:
-                    continue
-                logger.warning(
-                    __(
-                        'missing attribute mentioned in :members: option: '
-                        'module %s, attribute %s'
-                    ),
-                    safe_getattr(props._obj, '__name__', '???'),
-                    name,
-                    type='autodoc',
-                )
     elif props.obj_type in {'class', 'exception'}:
         if want_all:
             wanted_members = ALL
@@ -294,23 +280,24 @@ def _get_members_to_document(
         except AttributeError:
             pass
 
-        # obj_members_seq = [
-        #     member
-        #     for name, member in object_members_map.items()
-        #     if name in wanted_members
-        # ]
-        obj_members_seq = list(object_members_map.values())
-
         if want_all and not inherited_members:
-            obj_members_seq = [m for m in obj_members_seq if m.class_ == props._obj]
-        if not want_all and opt_members is not ALL:
-            for name in opt_members:
-                if name in object_members_map:
-                    continue
-                msg = __('missing attribute %s in object %s')
-                logger.warning(msg, name, props.full_name, type='autodoc')
+            obj_members_seq = [
+                m for m in object_members_map.values() if m.class_ == props._obj
+            ]
+        else:
+            obj_members_seq = list(object_members_map.values())
     else:
         raise ValueError
+
+    if not want_all and opt_members is not ALL:
+        for name in opt_members:
+            if name in object_members_map:
+                continue
+            msg = __(
+                'attribute %s is listed in :members: but is missing '
+                'as it was not found in object %r'
+            )
+            logger.warning(msg, name, props._obj, type='autodoc')
 
     filtered = []
 
