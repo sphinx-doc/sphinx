@@ -186,17 +186,18 @@ def _get_members_to_document(
             subject___slots__ = getslots(props._obj)
             if subject___slots__:
                 for name, subject_docstring in subject___slots__.items():
+                    if name not in wanted_members:
+                        continue
                     if isinstance(subject_docstring, str):
                         subject_doclines = subject_docstring.splitlines()
                     else:
                         subject_doclines = None
-                    if name in wanted_members:
-                        object_members_map[name] = ObjectMember(
-                            name,
-                            SLOTS_ATTR,
-                            class_=props._obj,
-                            docstring=subject_doclines,
-                        )
+                    object_members_map[name] = ObjectMember(
+                        name,
+                        SLOTS_ATTR,
+                        class_=props._obj,
+                        docstring=subject_doclines,
+                    )
         except (TypeError, ValueError):
             pass
 
@@ -208,16 +209,17 @@ def _get_members_to_document(
                     value = undecorate(value)
 
                 unmangled = unmangle(props._obj, name)
-                if unmangled and unmangled not in object_members_map:
-                    if unmangled in wanted_members:
-                        if name in obj_dict:
-                            object_members_map[unmangled] = ObjectMember(
-                                unmangled, value, class_=props._obj
-                            )
-                        else:
-                            object_members_map[unmangled] = ObjectMember(
-                                unmangled, value
-                            )
+                if (
+                    unmangled
+                    and unmangled not in object_members_map
+                    and unmangled in wanted_members
+                ):
+                    if name in obj_dict:
+                        object_members_map[unmangled] = ObjectMember(
+                            unmangled, value, class_=props._obj
+                        )
+                    else:
+                        object_members_map[unmangled] = ObjectMember(unmangled, value)
             except AttributeError:
                 continue
 
@@ -239,18 +241,21 @@ def _get_members_to_document(
                 # annotation only member (ex. attr: int)
                 for name in getannotations(cls):
                     unmangled = unmangle(cls, name)
-                    if unmangled and unmangled not in object_members_map:
+                    if (
+                        unmangled
+                        and unmangled not in object_members_map
+                        and unmangled in wanted_members
+                    ):
                         if analyzer and (qualname, unmangled) in analyzer.attr_docs:
                             attr_docstring = analyzer.attr_docs[qualname, unmangled]
                         else:
                             attr_docstring = None
-                        if unmangled in wanted_members:
-                            object_members_map[unmangled] = ObjectMember(
-                                unmangled,
-                                INSTANCE_ATTR,
-                                class_=cls,
-                                docstring=attr_docstring,
-                            )
+                        object_members_map[unmangled] = ObjectMember(
+                            unmangled,
+                            INSTANCE_ATTR,
+                            class_=cls,
+                            docstring=attr_docstring,
+                        )
 
                 # append or complete instance attributes (cf. self.attr1) if analyzer knows
                 if analyzer:
