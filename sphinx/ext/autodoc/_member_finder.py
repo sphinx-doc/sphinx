@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from typing import Any, Literal
 
     from sphinx.events import EventManager
+    from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR_T, SLOTS_ATTR_T
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import (
         _ClassDefProperties,
@@ -60,7 +61,7 @@ class ObjectMember:
     def __init__(
         self,
         name: str,
-        obj: Any,
+        obj: INSTANCE_ATTR_T | SLOTS_ATTR_T | Any,
         *,
         docstring: Sequence[str] | None = None,
         class_: Any = None,
