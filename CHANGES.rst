@@ -106,6 +106,9 @@ Bugs fixed
   to improve `semantic HTML structure
   <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
   Patch by Mark Ostroth.
+* #13741: text: fix an infinite loop when processing CSV tables.
+  Patch by Bénédikt Tran.
+
 
 Testing
 -------
