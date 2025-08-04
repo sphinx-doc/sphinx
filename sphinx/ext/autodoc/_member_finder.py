@@ -193,17 +193,12 @@ def _get_members_to_document(
             if subject___slots__:
                 for name, subject_docstring in subject___slots__.items():
                     if isinstance(subject_docstring, str):
-                        object_members_map[name] = ObjectMember(
-                            name,
-                            SLOTS_ATTR,
-                            class_=props._obj,
-                            docstring=subject_docstring.splitlines(),
-                        )
+                        subject_doclines = subject_docstring.splitlines()
                     else:
-                        object_members_map[name] = ObjectMember(
-                            name, SLOTS_ATTR, class_=props._obj
-                        )
-
+                        subject_doclines = None
+                    object_members_map[name] = ObjectMember(
+                        name, SLOTS_ATTR, class_=props._obj, docstring=subject_doclines
+                    )
         except (TypeError, ValueError):
             pass
 
