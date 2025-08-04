@@ -1050,7 +1050,7 @@ class ModuleDocumenter(Documenter):
         return self.__all__
 
     def add_directive_header(self, sig: str) -> None:
-        Documenter.add_directive_header(self, sig)
+        super().add_directive_header(sig)
 
         sourcename = self.get_sourcename()
 
@@ -1061,8 +1061,6 @@ class ModuleDocumenter(Documenter):
             self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
-        if self.options.no_index_entry:
-            self.add_line('   :no-index-entry:', sourcename)
 
     def get_module_members(self) -> dict[str, ObjectMember]:
         """Get members of target module."""
