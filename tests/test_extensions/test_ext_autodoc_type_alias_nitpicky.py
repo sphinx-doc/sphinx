@@ -14,7 +14,14 @@ if TYPE_CHECKING:
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc-type-alias-xref')
 def test_type_alias_xref_resolution(app: SphinxTestApp, warning: Any) -> None:
-    """Test that type aliases in function signatures can be cross-referenced."""
+    """Test that type aliases in function signatures can be cross-referenced.
+
+    This tests the fix for issue #10785 where type aliases documented as py:data
+    but referenced as py:class in function signatures would not resolve properly.
+
+    Tests both a Union type alias and a generic type alias to ensure our
+    domain fallback mechanism works for various type alias patterns.
+    """
     app.build()
 
     # In nitpicky mode, check that no warnings were generated for type alias cross-references
@@ -22,29 +29,52 @@ def test_type_alias_xref_resolution(app: SphinxTestApp, warning: Any) -> None:
     assert 'py:class reference target not found: pathlike' not in warnings_text, (
         f'Type alias cross-reference failed in nitpicky mode. Warnings: {warnings_text}'
     )
+    assert 'py:class reference target not found: Handler' not in warnings_text, (
+        f'Type alias cross-reference failed for Handler. Warnings: {warnings_text}'
+    )
 
     # Core functionality test: Verify type alias links are generated in function signatures
     html_content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    # The type alias should be documented and have an anchor
+    # Both type aliases should be documented and have anchors
     assert 'id="alias_module.pathlike"' in html_content, (
-        'Type alias definition anchor not found in HTML'
+        'pathlike type alias definition anchor not found in HTML'
+    )
+    assert 'id="alias_module.Handler"' in html_content, (
+        'Handler type alias definition anchor not found in HTML'
     )
 
-    # The critical test: type alias in function signature should be a clickable link
+    # The critical test: type aliases in function signatures should be clickable links
     # This tests the original issue - function signature type annotations should resolve
     assert (
         '<a class="reference internal" href="#alias_module.pathlike"' in html_content
-    ), 'Type alias not linked in function signature - this is the core bug'
+    ), 'pathlike type alias not linked in function signature - this is the core bug'
 
-    # Verify the link is specifically in the function signature context
+    assert (
+        '<a class="reference internal" href="#alias_module.Handler"' in html_content
+    ), 'Handler type alias not linked in function signature'
+
+    # Verify the links are specifically in the function signature contexts
     import re
 
-    func_sig_match = re.search(
+    # Test pathlike in read_file function signature
+    read_file_match = re.search(
         r'<span class="pre">read_file</span>.*?</dt>', html_content, re.DOTALL
     )
-    assert func_sig_match, 'Could not find read_file function signature'
-    func_signature = func_sig_match.group(0)
+    assert read_file_match, 'Could not find read_file function signature'
+    read_file_signature = read_file_match.group(0)
     assert (
-        '<a class="reference internal" href="#alias_module.pathlike"' in func_signature
-    ), 'Type alias link not found in function signature'
+        '<a class="reference internal" href="#alias_module.pathlike"'
+        in read_file_signature
+    ), 'pathlike type alias link not found in read_file function signature'
+
+    # Test Handler in process_error function signature
+    process_error_match = re.search(
+        r'<span class="pre">process_error</span>.*?</dt>', html_content, re.DOTALL
+    )
+    assert process_error_match, 'Could not find process_error function signature'
+    process_error_signature = process_error_match.group(0)
+    assert (
+        '<a class="reference internal" href="#alias_module.Handler"'
+        in process_error_signature
+    ), 'Handler type alias link not found in process_error function signature'

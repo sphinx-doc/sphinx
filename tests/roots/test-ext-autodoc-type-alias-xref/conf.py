@@ -5,4 +5,7 @@ sys.path.insert(0, str(Path.cwd().resolve()))
 
 extensions = ['sphinx.ext.autodoc']
 nitpicky = True
-autodoc_type_aliases = {'pathlike': 'pathlike'}
+autodoc_type_aliases = {
+    'pathlike': 'pathlike',
+    'Handler': 'Handler',
+}
