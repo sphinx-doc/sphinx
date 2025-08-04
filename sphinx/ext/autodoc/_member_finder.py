@@ -147,14 +147,14 @@ def _get_members_to_document(
                 )
 
         if want_all:
-            obj_members_seq = list(object_members_map.values())
-
             module_all = props.all
-            if not ignore_module_all and module_all is not None:
+            if ignore_module_all or module_all is None:
+                obj_members_seq = list(object_members_map.values())
+            else:
                 module_all_set = frozenset(module_all)
                 obj_members_seq = [
                     member
-                    for member in obj_members_seq
+                    for name, member in object_members_map.items()
                     if member.__name__ in module_all_set
                 ]
         else:
@@ -177,16 +177,15 @@ def _get_members_to_document(
                     type='autodoc',
                 )
     elif props.obj_type in {'class', 'exception'}:
-        subject = props._obj
         # the members directly defined in the class
-        obj_dict = get_attr(subject, '__dict__', {})
+        obj_dict = get_attr(props._obj, '__dict__', {})
 
         # enum members
-        if isenumclass(subject):
+        if isenumclass(props._obj):
             for name, defining_class, value in _filter_enum_dict(
-                subject, get_attr, obj_dict
+                props._obj, get_attr, obj_dict
             ):
-                # the order of occurrence of *name* matches the subject's MRO,
+                # the order of occurrence of *name* matches obj's MRO,
                 # allowing inherited attributes to be shadowed correctly
                 if unmangled := unmangle(defining_class, name):
                     object_members_map[unmangled] = ObjectMember(
@@ -195,36 +194,36 @@ def _get_members_to_document(
 
         # members in __slots__
         try:
-            subject___slots__ = getslots(subject)
+            subject___slots__ = getslots(props._obj)
             if subject___slots__:
                 for name, subject_docstring in subject___slots__.items():
                     if isinstance(subject_docstring, str):
                         object_members_map[name] = ObjectMember(
                             name,
                             SLOTS_ATTR,
-                            class_=subject,
+                            class_=props._obj,
                             docstring=subject_docstring.splitlines(),
                         )
                     else:
                         object_members_map[name] = ObjectMember(
-                            name, SLOTS_ATTR, class_=subject
+                            name, SLOTS_ATTR, class_=props._obj
                         )
 
         except (TypeError, ValueError):
             pass
 
         # other members
-        for name in dir(subject):
+        for name in dir(props._obj):
             try:
-                value = get_attr(subject, name)
+                value = get_attr(props._obj, name)
                 if ismock(value):
                     value = undecorate(value)
 
-                unmangled = unmangle(subject, name)
+                unmangled = unmangle(props._obj, name)
                 if unmangled and unmangled not in object_members_map:
                     if name in obj_dict:
                         object_members_map[unmangled] = ObjectMember(
-                            unmangled, value, class_=subject
+                            unmangled, value, class_=props._obj
                         )
                     else:
                         object_members_map[unmangled] = ObjectMember(unmangled, value)
@@ -232,7 +231,7 @@ def _get_members_to_document(
                 continue
 
         try:
-            for cls in getmro(subject):
+            for cls in getmro(props._obj):
                 try:
                     modname = safe_getattr(cls, '__module__')
                     qualname = safe_getattr(cls, '__qualname__')
@@ -277,13 +276,13 @@ def _get_members_to_document(
                             and attr_docstring
                             and not object_members_map[name].docstring
                         ):
-                            if cls != subject and not inherit_docstrings:
+                            if cls != props._obj and not inherit_docstrings:
                                 # If we are in the MRO of the class and not the class itself,
                                 # and we do not want to inherit docstrings, then skip setting
                                 # the docstring below
                                 continue
-                            # attribute is already known, because dir(subject) enumerates it.
-                            # But it has no docstring yet
+                            # attribute is already known, because dir(props._obj)
+                            # enumerates it. But it has no docstring yet
                             object_members_map[name].docstring = attr_docstring
         except AttributeError:
             pass
