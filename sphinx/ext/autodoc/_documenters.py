@@ -562,11 +562,8 @@ class Documenter:
                 self.add_line(line, src[0], src[1])
 
     def _gather_members(
-        self,
-        *,
-        all_members: bool,
-        indent: str,
-    ) -> tuple[list[tuple[Documenter, bool]], bool]:
+        self, *, all_members: bool, indent: str
+    ) -> list[tuple[Documenter, bool]]:
         """Generate reST for member documentation.
 
         If *all_members* is True, document all members, else those given by
@@ -616,14 +613,7 @@ class Documenter:
         self._current_document.autodoc_module = ''
         self._current_document.autodoc_class = ''
 
-        # for implicit module members, check __module__ to avoid
-        # documenting imported objects
-        members_check_module = (
-            isinstance(self, ModuleDocumenter)
-            and want_all
-            and (self.options.ignore_module_all or self.props.all is None)
-        )
-        return member_documenters, members_check_module
+        return member_documenters
 
     def _get_members_to_document(
         self,
@@ -767,7 +757,7 @@ class Documenter:
             self.directive.record_dependencies.add(self.analyzer.srcname)
 
         if has_members:
-            member_documenters, members_check_module = self._gather_members(
+            member_documenters = self._gather_members(
                 all_members=all_members, indent=self.indent + self.content_indent
             )
 
@@ -791,8 +781,10 @@ class Documenter:
             )
 
         # check __module__ of object (for members not given explicitly)
-        if check_module:
-            if not self.check_module():
+        if check_module and not self.options.imported_members:
+            subject = inspect.unpartial(self.props._obj)
+            modname = self.get_attr(subject, '__module__', None)
+            if modname and modname != self.props.module_name:
                 return
 
         sourcename = self.get_sourcename()
@@ -822,6 +814,17 @@ class Documenter:
 
         # document members, if possible
         if has_members:
+            # for implicit module members, check __module__ to avoid
+            # documenting imported objects
+            members_check_module = bool(
+                isinstance(self, ModuleDocumenter)
+                and (
+                    all_members
+                    or self.options.inherited_members
+                    or self.options.members is ALL
+                )
+                and (self.options.ignore_module_all or self.props.all is None)
+            )
             self._document_members(
                 member_documenters=member_documenters,
                 real_modname=self.real_modname,
