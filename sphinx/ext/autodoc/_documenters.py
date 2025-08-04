@@ -577,7 +577,19 @@ class Documenter:
         want_all = bool(
             all_members or self.options.inherited_members or self.options.members is ALL
         )
-        filtered = self._get_members_to_document(want_all=want_all)
+        if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
+            msg = 'must be implemented in subclasses'
+            raise NotImplementedError(msg)
+        filtered = _get_members_to_document(
+            want_all=want_all,
+            analyzer=self.analyzer,
+            events=self._events,
+            get_attr=self.get_attr,
+            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            options=self.options,
+            orig_name=self.name,
+            props=self.props,
+        )
         # document non-skipped members
         member_documenters: list[tuple[Documenter, bool]] = []
         for mname, member, isattr in filtered:
@@ -614,44 +626,6 @@ class Documenter:
         self._current_document.autodoc_class = ''
 
         return member_documenters
-
-    def _get_members_to_document(
-        self,
-        *,
-        want_all: bool,
-    ) -> list[tuple[str, Any, bool]]:
-        """Find out which members are documentable
-
-        If *want_all* is True, return all members.  Else, only return those
-        members given by *self.options.members* (which may also be None).
-
-        Filter the given member list.
-
-        Members are skipped if
-
-        - they are private (except if given explicitly or the private-members
-          option is set)
-        - they are special methods (except if given explicitly or the
-          special-members option is set)
-        - they are undocumented (except if the undoc-members option is set)
-
-        The user can override the skipping decision by connecting to the
-        ``autodoc-skip-member`` event.
-        """
-        if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
-            msg = 'must be implemented in subclasses'
-            raise NotImplementedError(msg)
-        filtered = _get_members_to_document(
-            want_all=want_all,
-            analyzer=self.analyzer,
-            events=self._events,
-            get_attr=self.get_attr,
-            inherit_docstrings=self.config.autodoc_inherit_docstrings,
-            options=self.options,
-            orig_name=self.name,
-            props=self.props,
-        )
-        return filtered
 
     @staticmethod
     def _document_members(
