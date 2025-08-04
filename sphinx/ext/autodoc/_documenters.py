@@ -592,24 +592,25 @@ class Documenter:
         )
         # document non-skipped members
         member_documenters: list[tuple[Documenter, bool]] = []
-        for mname, member, isattr in filtered:
-            classes = sorted(
-                [
+        for member_name, member, isattr in filtered:
+            # prefer the documenter with the highest priority
+            doccls = max(
+                (
                     cls
                     for cls in self.env._registry.documenters.values()
-                    if cls.can_document_member(member, mname, isattr, self)
-                ],
-                # prefer the documenter with the highest priority
+                    if cls.can_document_member(member, member_name, isattr, self)
+                ),
                 key=lambda cls: cls.priority,
+                default=None,
             )
-            if not classes:
+            if doccls is None:
                 # don't know how to document this member
                 continue
             # give explicitly separated module name, so that members
             # of inner classes can be documented
             module_prefix = f'{self.props.module_name}::'
-            full_mname = module_prefix + '.'.join((*self.props.parts, mname))
-            documenter = classes[-1](self.directive, full_mname, indent)
+            full_mname = module_prefix + '.'.join((*self.props.parts, member_name))
+            documenter = doccls(self.directive, full_mname, indent)
 
             # We now try to import all objects before ordering them. This is to
             # avoid possible circular imports if we were to import objects after
