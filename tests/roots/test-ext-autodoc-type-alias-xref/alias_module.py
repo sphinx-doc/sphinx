@@ -1,9 +1,9 @@
 """Module to test type alias cross-reference resolution."""
 
 from __future__ import annotations
+
 import pathlib
 
-#: Any type of path
 pathlike = str | pathlib.Path
 
 
