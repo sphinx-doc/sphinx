@@ -125,18 +125,22 @@ def _get_members_to_document(
         attr_docs = {}
 
     wanted_members: ALL_T | Set[str]
+    if want_all:
+        if (
+            props.obj_type == 'module'
+            and not ignore_module_all
+            and props.all is not None
+        ):
+            wanted_members = frozenset(props.all)
+        else:
+            wanted_members = ALL
+    else:
+        # specific members given
+        assert opt_members is not ALL
+        wanted_members = frozenset(opt_members)
+
     object_members_map: dict[str, ObjectMember] = {}
     if props.obj_type == 'module':
-        if want_all and (ignore_module_all or props.all is None):
-            wanted_members = ALL
-        else:
-            if want_all:
-                assert props.all is not None
-                wanted_members = frozenset(props.all)
-            else:
-                assert opt_members is not ALL
-                wanted_members = frozenset(opt_members)
-
         for name in dir(props._obj):
             try:
                 value = safe_getattr(props._obj, name, None)
@@ -158,13 +162,6 @@ def _get_members_to_document(
 
         obj_members_seq = list(object_members_map.values())
     elif props.obj_type in {'class', 'exception'}:
-        if want_all:
-            wanted_members = ALL
-        else:
-            # specific members given
-            assert opt_members is not ALL
-            wanted_members = frozenset(opt_members)
-
         # the members directly defined in the class
         obj_dict = get_attr(props._obj, '__dict__', {})
 
