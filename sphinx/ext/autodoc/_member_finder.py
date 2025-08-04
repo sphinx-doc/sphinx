@@ -53,7 +53,7 @@ class ObjectMember:
 
     __name__: str
     object: Any
-    docstring: str | None
+    docstring: Sequence[str] | None
     class_: Any
     skipped: bool
 
@@ -62,7 +62,7 @@ class ObjectMember:
         name: str,
         obj: Any,
         *,
-        docstring: str | None = None,
+        docstring: Sequence[str] | None = None,
         class_: Any = None,
     ) -> None:
         self.__name__ = name
@@ -133,7 +133,7 @@ def _get_members_to_document(
                     value = undecorate(value)
                 attr_docstring = attr_docs.get(('', name), [])
                 object_members_map[name] = ObjectMember(
-                    name, value, docstring='\n'.join(attr_docstring)
+                    name, value, docstring=attr_docstring
                 )
             except AttributeError:
                 continue
@@ -143,7 +143,7 @@ def _get_members_to_document(
             if name not in object_members_map:
                 attr_docstring = attr_docs.get(('', name), [])
                 object_members_map[name] = ObjectMember(
-                    name, INSTANCE_ATTR, docstring='\n'.join(attr_docstring)
+                    name, INSTANCE_ATTR, docstring=attr_docstring
                 )
 
         if want_all:
@@ -198,9 +198,18 @@ def _get_members_to_document(
             subject___slots__ = getslots(subject)
             if subject___slots__:
                 for name, subject_docstring in subject___slots__.items():
-                    object_members_map[name] = ObjectMember(
-                        name, SLOTS_ATTR, class_=subject, docstring=subject_docstring
-                    )
+                    if isinstance(subject_docstring, str):
+                        object_members_map[name] = ObjectMember(
+                            name,
+                            SLOTS_ATTR,
+                            class_=subject,
+                            docstring=subject_docstring.splitlines(),
+                        )
+                    else:
+                        object_members_map[name] = ObjectMember(
+                            name, SLOTS_ATTR, class_=subject
+                        )
+
         except (TypeError, ValueError):
             pass
 
@@ -242,14 +251,14 @@ def _get_members_to_document(
                     unmangled = unmangle(cls, name)
                     if unmangled and unmangled not in object_members_map:
                         if analyzer and (qualname, unmangled) in analyzer.attr_docs:
-                            docstring = '\n'.join(
-                                analyzer.attr_docs[qualname, unmangled]
-                            )
+                            attr_docstring = analyzer.attr_docs[qualname, unmangled]
                         else:
-                            docstring = None
-
+                            attr_docstring = None
                         object_members_map[unmangled] = ObjectMember(
-                            unmangled, INSTANCE_ATTR, class_=cls, docstring=docstring
+                            unmangled,
+                            INSTANCE_ATTR,
+                            class_=cls,
+                            docstring=attr_docstring,
                         )
 
                 # append or complete instance attributes (cf. self.attr1) if analyzer knows
@@ -261,7 +270,7 @@ def _get_members_to_document(
                                 name,
                                 INSTANCE_ATTR,
                                 class_=cls,
-                                docstring='\n'.join(attr_docstring),
+                                docstring=attr_docstring,
                             )
                         elif (
                             ns == qualname
@@ -275,9 +284,7 @@ def _get_members_to_document(
                                 continue
                             # attribute is already known, because dir(subject) enumerates it.
                             # But it has no docstring yet
-                            object_members_map[name].docstring = '\n'.join(
-                                attr_docstring
-                            )
+                            object_members_map[name].docstring = attr_docstring
         except AttributeError:
             pass
 
@@ -472,7 +479,7 @@ def _should_keep_member(
     *,
     member_name: str,
     member_obj: Any,
-    member_docstring: str | None,
+    member_docstring: Sequence[str] | None,
     member_cls: Any,
     get_attr: _AttrGetter,
     has_attr_doc: bool,
@@ -493,9 +500,11 @@ def _should_keep_member(
         parent,
         member_name,
     )
-    if not isinstance(doc, str):
+    if isinstance(doc, str):
+        doclines: Sequence[str] | None = doc.splitlines()
+    else:
         # Ignore non-string __doc__
-        doc = None
+        doclines = None
 
     # if the member __doc__ is the same as self's __doc__, it's just
     # inherited and therefore not the member's doc
@@ -503,13 +512,16 @@ def _should_keep_member(
     if cls:
         cls_doc = get_attr(cls, '__doc__', None)
         if cls_doc == doc:
-            doc = None
+            doclines = None
 
-    if member_docstring:
-        # hack for ClassDocumenter to inject docstring
-        doc = member_docstring
+    # hack for ClassDocumenter to inject docstring
+    doclines = member_docstring or doclines
 
-    doc, metadata = separate_metadata(doc)
+    if doclines is not None:
+        doc, metadata = separate_metadata('\n'.join(doclines))
+    else:
+        doc = ''
+        metadata = {}
     has_doc = bool(doc)
 
     if 'private' in metadata:
