@@ -30,13 +30,17 @@ if TYPE_CHECKING:
     from typing import Any, Literal
 
     from sphinx.events import EventManager
-    from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR_T, SLOTS_ATTR_T
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import (
         _ClassDefProperties,
         _ModuleProperties,
     )
-    from sphinx.ext.autodoc._sentinels import ALL_T, EMPTY_T
+    from sphinx.ext.autodoc._sentinels import (
+        ALL_T,
+        EMPTY_T,
+        INSTANCE_ATTR_T,
+        SLOTS_ATTR_T,
+    )
     from sphinx.ext.autodoc.importer import _AttrGetter
 
 logger = logging.getLogger('sphinx.ext.autodoc')
