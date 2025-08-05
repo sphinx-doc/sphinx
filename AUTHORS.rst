@@ -50,6 +50,7 @@ Contributors
 * Dimitri Papadopoulos Orfanos -- linting and spelling
 * Dmitry Shachnev -- modernisation and reproducibility
 * Doug Hellmann -- graphviz improvements
+* Edouard Choinière -- ``sphinx.ext.apidoc`` extension improvement
 * Eric Larson -- better error messages
 * Eric N. Vander Weele -- autodoc improvements
 * Eric Wieser -- autodoc improvements

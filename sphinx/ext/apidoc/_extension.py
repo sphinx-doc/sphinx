@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 
 _BOOL_KEYS = frozenset({
     'follow_links',
+    'remove_old',
     'separate_modules',
     'include_private',
     'no_headings',
@@ -220,6 +221,7 @@ def _parse_module_options(
         max_depth=max_depth,
         quiet=True,
         follow_links=bool_options['follow_links'],
+        remove_old=bool_options['remove_old'],
         separate_modules=bool_options['separate_modules'],
         include_private=bool_options['include_private'],
         no_headings=bool_options['no_headings'],

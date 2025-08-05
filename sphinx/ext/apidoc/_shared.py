@@ -77,6 +77,7 @@ class ApidocDefaults:
     automodule_options: frozenset[str]
     max_depth: int
     follow_links: bool
+    remove_old: bool
     separate_modules: bool
     include_private: bool
     no_headings: bool
@@ -91,6 +92,7 @@ class ApidocDefaults:
             automodule_options=frozenset(config.apidoc_automodule_options),
             max_depth=config.apidoc_max_depth,
             follow_links=config.apidoc_follow_links,
+            remove_old=config.apidoc_remove_old,
             separate_modules=config.apidoc_separate_modules,
             include_private=config.apidoc_include_private,
             no_headings=config.apidoc_no_headings,
