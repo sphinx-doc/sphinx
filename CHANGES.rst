@@ -62,6 +62,8 @@ Features added
   The location of the cache directory must not be relied upon externally,
   as it may change without notice or warning in future releases.
   Patch by Adam Turner.
+* #13805: LaTeX: add support for ``fontawesome7`` package.
+  Patch by Jean-François B.
 
 Bugs fixed
 ----------
