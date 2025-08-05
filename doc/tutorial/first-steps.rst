@@ -73,6 +73,7 @@ shown right after the corresponding link, in parentheses.  You can change that
 behavior by adding the following code at the end of your ``conf.py``:
 
 .. code-block:: python
+   :caption: docs/source/conf.py
 
    # EPUB options
    epub_show_urls = 'footnote'
