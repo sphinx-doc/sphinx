@@ -108,6 +108,9 @@ Bugs fixed
   to improve `semantic HTML structure
   <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
   Patch by Mark Ostroth.
+* #13812 (discussion): LaTeX: long :rst:dir:`confval` value does not wrap at
+  spaces in PDF.
+  Patch by Jean-François B.
 * #10785: Autodoc: Allow type aliases defined in the project to be properly
   cross-referenced when used as type annotations. This makes it possible
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
