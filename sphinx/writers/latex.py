@@ -299,9 +299,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
     """Convert `width_str` with rst length to LaTeX length."""
     # MEMO: the percent unit is interpreted here as a percentage
     # of \linewidth.  Let's keep in mind though that \linewidth
-    # is dynamic in LaTeX (e.g. smaller in lists), and may even
-    # be zero in some contexts (some table cells).  This is a legacy
-    # situation perhaps best not changed (2025/06/11).
+    # is dynamic in LaTeX, e.g. it is smaller in lists.
     match = re.match(r'^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
         raise ValueError
