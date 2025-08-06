@@ -327,12 +327,9 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = rf'{amount_float:.5f}\sphinx{unit}dimen'
         else:
             res = f'{amount_float:.5f}{unit}'
-    # MEMO: non-recognized units will in all probability end up causing
-    # a low-level TeX error.  The units not among those above which will
-    # be accepted by TeX are sp (all TeX dimensions are integer multiple
-    # of 1sp), em and ex (font dependent), bp, cm, mm, in, and pc.
-    # Non-CSS units are cc, nc, dd, and nd. Also the math only mu, which
-    # is not usable for example for LaTeX length assignments.
+    # Those further units are passed through and accepted "as is" by TeX:
+    # em and ex (both font dependent), bp, cm, mm, in, and pc.
+    # Non-CSS units (TeX only presumably) are cc, nc, dd, nd, and sp.
     return res
 
 
