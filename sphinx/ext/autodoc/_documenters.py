@@ -595,13 +595,13 @@ class Documenter:
         )
         # document non-skipped members
         member_documenters: list[tuple[Documenter, bool]] = []
-        for member_name, member, isattr in filtered:
+        for member_name, member, is_attr in filtered:
             # prefer the documenter with the highest priority
             doccls = max(
                 (
                     cls
                     for cls in registry.documenters.values()
-                    if cls.can_document_member(member, member_name, isattr, self)
+                    if cls.can_document_member(member, member_name, is_attr, self)
                 ),
                 key=lambda cls: cls.priority,
                 default=None,
@@ -621,7 +621,7 @@ class Documenter:
             if documenter._load_object_by_name() is None:
                 continue
 
-            member_documenters.append((documenter, isattr))
+            member_documenters.append((documenter, is_attr))
 
         member_order = self.options.member_order or self.config.autodoc_member_order
         member_documenters = self.sort_members(member_documenters, member_order)
