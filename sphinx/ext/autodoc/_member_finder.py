@@ -490,29 +490,27 @@ def _should_keep_member(
     private_members: ALL_T | Sequence[str] | None,
     undoc_members: Literal[True] | None,
 ) -> bool:
-    doc = getdoc(
-        member_obj,
-        get_attr,
-        inherit_docstrings,
-        parent,
-        member_name,
-    )
-    if isinstance(doc, str):
-        doclines: Sequence[str] | None = doc.splitlines()
+    if member_docstring:
+        # hack for ClassDocumenter to inject docstring
+        doclines: Sequence[str] | None = member_docstring
     else:
+        doc = getdoc(
+            member_obj,
+            get_attr,
+            inherit_docstrings,
+            parent,
+            member_name,
+        )
         # Ignore non-string __doc__
-        doclines = None
+        doclines = doc.splitlines() if isinstance(doc, str) else None
 
-    # if the member __doc__ is the same as self's __doc__, it's just
-    # inherited and therefore not the member's doc
-    cls = get_attr(member_obj, '__class__', None)
-    if cls:
-        cls_doc = get_attr(cls, '__doc__', None)
-        if cls_doc == doc:
-            doclines = None
-
-    # hack for ClassDocumenter to inject docstring
-    doclines = member_docstring or doclines
+        # if the member __doc__ is the same as self's __doc__, it's just
+        # inherited and therefore not the member's doc
+        cls = get_attr(member_obj, '__class__', None)
+        if cls:
+            cls_doc = get_attr(cls, '__doc__', None)
+            if cls_doc == doc:
+                doclines = None
 
     if doclines is not None:
         doc, metadata = separate_metadata('\n'.join(doclines))
