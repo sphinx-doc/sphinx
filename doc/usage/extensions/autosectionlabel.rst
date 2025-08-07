@@ -8,6 +8,9 @@
 
 .. versionadded:: 1.4
 
+.. role:: code-py(code)
+   :language: Python
+
 By default, cross-references to sections use labels (see :rst:role:`ref`).
 This extension allows you to instead refer to sections by their title.
 
