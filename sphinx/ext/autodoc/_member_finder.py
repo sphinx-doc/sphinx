@@ -329,7 +329,6 @@ def _get_members_to_document(
                 special_members=special_members,
                 private_members=private_members,
                 undoc_members=undoc_members,
-                opt_members=opt_members,
             )
         except Exception as exc:
             logger.warning(
@@ -490,7 +489,6 @@ def _should_keep_member(
     special_members: ALL_T | Sequence[str] | None,
     private_members: ALL_T | Sequence[str] | None,
     undoc_members: Literal[True] | None,
-    opt_members: ALL_T | Sequence[str] | None,
 ) -> bool:
     doc = getdoc(
         member_obj,
@@ -521,7 +519,7 @@ def _should_keep_member(
     else:
         doc = ''
         metadata = {}
-    has_doc = bool(doc)
+    has_doc = bool(doc or undoc_members)
 
     if 'private' in metadata:
         # consider a member private if docstring has "private" metadata
@@ -540,61 +538,42 @@ def _should_keep_member(
         # remove members given by exclude-members
         return False
 
-    if want_all and special_member_re.match(member_name):
-        # special __methods__
-        if special_members and member_name in special_members:
-            if member_name == '__doc__':  # NoQA: SIM114
-                return False
-            elif _is_filtered_inherited_member(
-                member_name,
-                member_cls=member_cls,
-                parent=parent,
-                inherited_members=inherited_members,
-                get_attr=get_attr,
-            ):
-                return False
-            keep = bool(has_doc or undoc_members)
-            return keep
-        return False
-
-    if has_attr_doc:
-        if want_all and is_private:
-            if private_members is None:
-                return False
-            keep = member_name in private_members
-            return keep
-        # keep documented attributes
-        keep = True
-        return keep
-
-    if want_all and is_private:
-        if has_doc or undoc_members:
-            if private_members is None:  # NoQA: SIM114
-                return False
-            elif _is_filtered_inherited_member(
-                member_name,
-                member_cls=member_cls,
-                parent=parent,
-                inherited_members=inherited_members,
-                get_attr=get_attr,
-            ):
-                return False
-            keep = member_name in private_members
-            return keep
-        return False
-
-    if opt_members is ALL and _is_filtered_inherited_member(
+    is_filtered_inherited_member = _is_filtered_inherited_member(
         member_name,
         member_cls=member_cls,
         parent=parent,
         inherited_members=inherited_members,
         get_attr=get_attr,
-    ):
+    )
+
+    if want_all and special_member_re.match(member_name):
+        # special __methods__
+        if special_members and member_name in special_members:
+            if member_name == '__doc__':  # NoQA: SIM114
+                return False
+            elif is_filtered_inherited_member:
+                return False
+            return has_doc
+        return False
+
+    if want_all and is_private:
+        if has_attr_doc or has_doc:
+            if private_members is None:  # NoQA: SIM114
+                return False
+            elif has_doc and is_filtered_inherited_member:
+                return False
+            return member_name in private_members
+        return False
+
+    if has_attr_doc:
+        # keep documented attributes
+        return True
+
+    if want_all and is_filtered_inherited_member:
         return False
 
     # ignore undocumented members if :undoc-members: is not given
-    keep = bool(has_doc or undoc_members)
-    return keep
+    return has_doc
 
 
 def _is_filtered_inherited_member(
