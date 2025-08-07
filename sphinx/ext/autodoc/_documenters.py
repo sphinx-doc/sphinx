@@ -562,11 +562,11 @@ class Documenter:
                 self.add_line(line, src[0], src[1])
 
     def _gather_members(
-        self, *, all_members: bool, indent: str
+        self, *, want_all: bool, indent: str
     ) -> list[tuple[Documenter, bool]]:
         """Generate reST for member documentation.
 
-        If *all_members* is True, document all members, else those given by
+        If *want_all* is True, document all members, else those given by
         *self.options.members*.
         """
         # set current namespace for finding members
@@ -574,9 +574,6 @@ class Documenter:
         if self.props.parts:
             self._current_document.autodoc_class = self.props.parts[0]
 
-        want_all = bool(
-            all_members or self.options.inherited_members or self.options.members is ALL
-        )
         if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
             msg = 'must be implemented in subclasses'
             raise NotImplementedError(msg)
@@ -732,9 +729,12 @@ class Documenter:
         else:
             self.directive.record_dependencies.add(self.analyzer.srcname)
 
+        want_all = bool(
+            all_members or self.options.inherited_members or self.options.members is ALL
+        )
         if has_members:
             member_documenters = self._gather_members(
-                all_members=all_members, indent=self.indent + self.content_indent
+                want_all=want_all, indent=self.indent + self.content_indent
             )
 
         if self.real_modname != guess_modname:
@@ -794,11 +794,7 @@ class Documenter:
             # documenting imported objects
             members_check_module = bool(
                 isinstance(self, ModuleDocumenter)
-                and (
-                    all_members
-                    or self.options.inherited_members
-                    or self.options.members is ALL
-                )
+                and want_all
                 and (self.options.ignore_module_all or self.props.all is None)
             )
             self._document_members(
