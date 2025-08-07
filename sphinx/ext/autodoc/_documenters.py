@@ -20,7 +20,7 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
-from sphinx.ext.autodoc._member_finder import _get_members_to_document
+from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
 from sphinx.ext.autodoc._sentinels import (
     ALL,
     RUNTIME_INSTANCE_ATTRIBUTE,
@@ -583,19 +583,41 @@ class Documenter:
         if props.parts:
             current_document.autodoc_class = props.parts[0]
 
-        filtered = _get_members_to_document(
+        inherited_members = frozenset(self.options.inherited_members or ())
+        if self.analyzer:
+            self.analyzer.analyze()
+            attr_docs = self.analyzer.attr_docs
+        else:
+            attr_docs = {}
+        found_members = _get_members_to_document(
             want_all=want_all,
-            analyzer=self.analyzer,
+            get_attr=self.get_attr,
+            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            props=props,
+            opt_members=self.options.members or (),
+            inherited_members=inherited_members,
+            ignore_module_all=self.options.ignore_module_all,
+            attr_docs=attr_docs,
+        )
+        filtered_members = _filter_members(
+            found_members,
+            want_all=want_all,
             events=events,
             get_attr=self.get_attr,
             inherit_docstrings=self.config.autodoc_inherit_docstrings,
             options=self.options,
             orig_name=self.name,
             props=props,
+            inherited_members=inherited_members,
+            exclude_members=self.options.exclude_members,
+            special_members=self.options.special_members,
+            private_members=self.options.private_members,
+            undoc_members=self.options.undoc_members,
+            attr_docs=attr_docs,
         )
         # document non-skipped members
         member_documenters: list[tuple[Documenter, bool]] = []
-        for member_name, member, is_attr in filtered:
+        for member_name, member, is_attr in filtered_members:
             # prefer the documenter with the highest priority
             doccls = max(
                 (

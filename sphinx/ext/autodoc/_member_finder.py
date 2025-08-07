@@ -26,7 +26,7 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Sequence, Set
+    from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
     from typing import Any, Literal
 
     from sphinx.events import EventManager
@@ -89,14 +89,14 @@ class ObjectMember:
 def _get_members_to_document(
     *,
     want_all: bool,
-    analyzer: ModuleAnalyzer | None,
-    events: EventManager,
     get_attr: _AttrGetter,
     inherit_docstrings: bool,
-    options: _AutoDocumenterOptions,
-    orig_name: str,
     props: _ModuleProperties | _ClassDefProperties,
-) -> list[tuple[str, Any, bool]]:
+    opt_members: ALL_T | Sequence[str],
+    inherited_members: Set[str],
+    ignore_module_all: bool,
+    attr_docs: dict[tuple[str, str], list[str]],
+) -> list[ObjectMember]:
     """Find out which members are documentable
 
     If *want_all* is True, return all members.  Else, only return those
@@ -115,20 +115,6 @@ def _get_members_to_document(
     The user can override the skipping decision by connecting to the
     ``autodoc-skip-member`` event.
     """
-    opt_members: ALL_T | Sequence[str] = options.members or ()
-    undoc_members = options.undoc_members
-    inherited_members: Set[str] = frozenset(options.inherited_members or ())
-    exclude_members = options.exclude_members
-    private_members = options.private_members
-    special_members = options.special_members
-    ignore_module_all = options.ignore_module_all
-
-    if analyzer:
-        analyzer.analyze()
-        attr_docs = analyzer.attr_docs
-    else:
-        attr_docs = {}
-
     wanted_members: ALL_T | Set[str]
     if want_all:
         if (
@@ -305,18 +291,38 @@ def _get_members_to_document(
                 'as it was not found in object %r'
             )
             logger.warning(msg, name, props._obj, type='autodoc')
+    return obj_members_seq
 
+
+def _filter_members(
+    obj_members_seq: Iterable[ObjectMember],
+    *,
+    want_all: bool,
+    events: EventManager,
+    get_attr: _AttrGetter,
+    options: _AutoDocumenterOptions,
+    orig_name: str,
+    props: _ModuleProperties | _ClassDefProperties,
+    inherit_docstrings: bool,
+    inherited_members: Set[str],
+    exclude_members: EMPTY_T | Set[str] | None,
+    special_members: ALL_T | Sequence[str] | None,
+    private_members: ALL_T | Sequence[str] | None,
+    undoc_members: Literal[True] | None,
+    attr_docs: dict[tuple[str, str], list[str]],
+) -> Iterator[tuple[str, Any, bool]]:
     # search for members in source code too
     namespace = props.dotted_parts  # will be empty for modules
 
     # process members and determine which to skip
-    filtered = []
     for obj in obj_members_seq:
-        has_attr_doc = (namespace, obj.__name__) in attr_docs
+        member_name = obj.__name__
+        member_obj = obj.object
+        has_attr_doc = (namespace, member_name) in attr_docs
         try:
             keep = _should_keep_member(
-                member_name=obj.__name__,
-                member_obj=obj.object,
+                member_name=member_name,
+                member_obj=member_obj,
                 member_docstring=obj.docstring,
                 member_cls=obj.class_,
                 get_attr=get_attr,
@@ -337,8 +343,8 @@ def _get_members_to_document(
                     'the following exception was raised:\n%s'
                 ),
                 orig_name,
-                obj.__name__,
-                obj.object,
+                member_name,
+                member_obj,
                 exc,
                 type='autodoc',
             )
@@ -351,22 +357,18 @@ def _get_members_to_document(
             skip_user = events.emit_firstresult(
                 'autodoc-skip-member',
                 props.obj_type,
-                obj.__name__,
-                obj.object,
+                member_name,
+                member_obj,
                 not keep,
                 options,
             )
             if skip_user is not None:
                 keep = not skip_user
 
-        if not keep:
-            continue
-
-        # if is_attr is True, the member is documented as an attribute
-        is_attr = obj.object is INSTANCE_ATTR or has_attr_doc
-        filtered.append((obj.__name__, obj.object, is_attr))
-
-    return filtered
+        if keep:
+            # if is_attr is True, the member is documented as an attribute
+            is_attr = member_obj is INSTANCE_ATTR or has_attr_doc
+            yield member_name, member_obj, is_attr
 
 
 def unmangle(subject: Any, name: str) -> str | None:
