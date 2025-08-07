@@ -569,23 +569,29 @@ class Documenter:
         If *want_all* is True, document all members, else those given by
         *self.options.members*.
         """
-        # set current namespace for finding members
-        self._current_document.autodoc_module = self.props.module_name
-        if self.props.parts:
-            self._current_document.autodoc_class = self.props.parts[0]
-
         if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
             msg = 'must be implemented in subclasses'
             raise NotImplementedError(msg)
+
+        current_document = self._current_document
+        events = self._events
+        registry = self.env._registry
+        props = self.props
+
+        # set current namespace for finding members
+        current_document.autodoc_module = props.module_name
+        if props.parts:
+            current_document.autodoc_class = props.parts[0]
+
         filtered = _get_members_to_document(
             want_all=want_all,
             analyzer=self.analyzer,
-            events=self._events,
+            events=events,
             get_attr=self.get_attr,
             inherit_docstrings=self.config.autodoc_inherit_docstrings,
             options=self.options,
             orig_name=self.name,
-            props=self.props,
+            props=props,
         )
         # document non-skipped members
         member_documenters: list[tuple[Documenter, bool]] = []
@@ -594,7 +600,7 @@ class Documenter:
             doccls = max(
                 (
                     cls
-                    for cls in self.env._registry.documenters.values()
+                    for cls in registry.documenters.values()
                     if cls.can_document_member(member, member_name, isattr, self)
                 ),
                 key=lambda cls: cls.priority,
@@ -605,8 +611,8 @@ class Documenter:
                 continue
             # give explicitly separated module name, so that members
             # of inner classes can be documented
-            module_prefix = f'{self.props.module_name}::'
-            full_mname = module_prefix + '.'.join((*self.props.parts, member_name))
+            module_prefix = f'{props.module_name}::'
+            full_mname = module_prefix + '.'.join((*props.parts, member_name))
             documenter = doccls(self.directive, full_mname, indent)
 
             # We now try to import all objects before ordering them. This is to
@@ -621,8 +627,8 @@ class Documenter:
         member_documenters = self.sort_members(member_documenters, member_order)
 
         # reset current objects
-        self._current_document.autodoc_module = ''
-        self._current_document.autodoc_class = ''
+        current_document.autodoc_module = ''
+        current_document.autodoc_class = ''
 
         return member_documenters
 
