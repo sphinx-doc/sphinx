@@ -542,3 +542,154 @@ def test_copy_images(app: SphinxTestApp) -> None:
         'svgimg.svg',
         'testimäge.png',
     }
+
+
+@pytest.mark.sphinx('epub', testroot='builder-dirhtml')
+def test_epub_manifest_path_separator_normalization(app: SphinxTestApp) -> None:
+    """Test that path separators are normalized to forward slashes
+    in EPUB manifests, even on Windows.
+    """
+    app.build()
+
+    # Read the content.opf file
+    opf_path = app.outdir / 'content.opf'
+    assert opf_path.exists(), 'content.opf was not generated'
+
+    # Parse manifest and spine elements
+    # Verify that all idrefs in spine match ids in manifest
+    from xml.etree import ElementTree as ET
+
+    tree = ET.parse(str(opf_path))  # noqa: S314
+    root = tree.getroot()
+
+    # Define namespace
+    ns = {'opf': 'http://www.idpf.org/2007/opf'}
+
+    # Collect items from manifest
+    manifest_ids: set[str | None] = set()
+    manifest_hrefs: dict[str, str] = {}
+    for item in root.findall('.//opf:manifest/opf:item', ns):
+        item_id: str | None = item.get('id')
+        item_href: str | None = item.get('href')
+        manifest_ids.add(item_id)
+        if item_id is not None and item_href is not None:
+            manifest_hrefs[item_id] = item_href
+
+    # Check idrefs in spine
+    spine_idrefs = []
+    for itemref in root.findall('.//opf:spine/opf:itemref', ns):
+        idref: str | None = itemref.get('idref')
+        spine_idrefs.append(idref)
+
+    # Verify all spine idrefs exist in manifest
+    for idref in spine_idrefs:
+        assert idref in manifest_ids, (
+            f"spine idref '{idref}' does not exist in manifest"
+        )
+
+    # Verify hrefs do not contain backslashes
+    # (should be normalized to forward slashes even on Windows)
+    for item_id, href in manifest_hrefs.items():
+        assert '\\' not in href, (
+            f"manifest item '{item_id}' href '{href}' contains backslashes"
+        )
+
+    # Verify no duplicate IDs are assigned to the same href
+    href_to_ids: dict[str, list[str | None]] = {}
+    for item_id, href in manifest_hrefs.items():
+        # Normalize path for comparison
+        normalized_href = href.replace('\\', '/')
+        if normalized_href not in href_to_ids:
+            href_to_ids[normalized_href] = []
+        href_to_ids[normalized_href].append(item_id)
+
+    # Detect duplicate IDs
+    duplicates: dict[str, list[str | None]] = {
+        href: ids for href, ids in href_to_ids.items() if len(ids) > 1
+    }
+    assert not duplicates, f'Multiple IDs assigned to the same file: {duplicates}'
+
+
+@pytest.mark.sphinx('epub', testroot='builder-dirhtml')
+def test_epub_manifest_subdirectory_paths(app: SphinxTestApp) -> None:
+    """Test that path separators are correctly normalized to forward slashes
+    even for paths containing subdirectories.
+    """
+    app.build()
+
+    opf_path = app.outdir / 'content.opf'
+    assert opf_path.exists()
+
+    from xml.etree import ElementTree as ET
+
+    tree = ET.parse(str(opf_path))  # noqa: S314
+    root = tree.getroot()
+
+    ns: dict[str, str] = {'opf': 'http://www.idpf.org/2007/opf'}
+
+    # Check all manifest item hrefs
+    for item in root.findall('.//opf:manifest/opf:item', ns):
+        href: str | None = item.get('href')
+        if href is not None:
+            # Verify no backslashes are present
+            assert '\\' not in href, (
+                f"href '{href}' contains backslashes (should be forward slashes)"
+            )
+
+        # For paths with subdirectories, verify they are separated by forward slashes
+        if href is not None and '/' in href:
+            # Verify the path is correctly constructed
+            parts: list[str] = href.split('/')
+            assert all(part for part in parts), (
+                f"href '{href}' contains empty path segments"
+            )
+
+
+@pytest.mark.sphinx('epub', testroot='basic')
+def test_epub_spine_idref_consistency(app: SphinxTestApp) -> None:
+    """Test that spine idrefs and manifest ids are consistent.
+    Verify that path separator normalization ensures the same file
+    is reliably referenced with the same ID.
+    """
+    app.build()
+
+    opf_path = app.outdir / 'content.opf'
+    from xml.etree import ElementTree as ET
+
+    tree = ET.parse(str(opf_path))  # noqa: S314
+    root = tree.getroot()
+
+    ns: dict[str, str] = {'opf': 'http://www.idpf.org/2007/opf'}
+
+    # Create id→href mapping from manifest
+    id_to_href = {}
+    for item in root.findall('.//opf:manifest/opf:item', ns):
+        item_id: str | None = item.get('id')
+        item_href: str | None = item.get('href')
+        id_to_href[item_id] = item_href
+
+    # For each idref in spine, verify corresponding href exists
+    # and that href is unique
+    spine_hrefs = []
+    for itemref in root.findall('.//opf:spine/opf:itemref', ns):
+        idref: str | None = itemref.get('idref')
+        assert idref in id_to_href, f"manifest item not found for spine idref '{idref}'"
+
+        href = id_to_href[idref]
+        spine_hrefs.append(href)
+
+    # Warn if the same href is referenced multiple times
+    # (normally each file should appear only once in spine)
+    from collections import Counter
+
+    href_counts = Counter(spine_hrefs)
+    duplicated_hrefs: list[str | None] = [
+        href for href, count in href_counts.items() if count > 1
+    ]
+
+    # Note: Some EPUBs may intentionally reference the same file multiple times,
+    # so this is logged as informational rather than a strict error
+    if duplicated_hrefs:
+        print(
+            f'Info: The following hrefs are referenced multiple times in spine: {duplicated_hrefs}'
+        )
