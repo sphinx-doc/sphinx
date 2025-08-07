@@ -538,6 +538,10 @@ def _should_keep_member(
         # remove members given by exclude-members
         return False
 
+    if not want_all:
+        # keep documented attributes
+        return has_doc or has_attr_doc
+
     is_filtered_inherited_member = _is_filtered_inherited_member(
         member_name,
         member_cls=member_cls,
@@ -546,7 +550,7 @@ def _should_keep_member(
         get_attr=get_attr,
     )
 
-    if want_all and special_member_re.match(member_name):
+    if special_member_re.match(member_name):
         # special __methods__
         if special_members and member_name in special_members:
             if member_name == '__doc__':  # NoQA: SIM114
@@ -556,7 +560,7 @@ def _should_keep_member(
             return has_doc
         return False
 
-    if want_all and is_private:
+    if is_private:
         if has_attr_doc or has_doc:
             if private_members is None:  # NoQA: SIM114
                 return False
@@ -569,7 +573,7 @@ def _should_keep_member(
         # keep documented attributes
         return True
 
-    if want_all and is_filtered_inherited_member:
+    if is_filtered_inherited_member:
         return False
 
     # ignore undocumented members if :undoc-members: is not given
