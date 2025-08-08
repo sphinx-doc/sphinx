@@ -561,123 +561,6 @@ class Documenter:
             for line, src in zip(more_content.data, more_content.items, strict=True):
                 self.add_line(line, src[0], src[1])
 
-    def _gather_members(
-        self, *, want_all: bool, indent: str
-    ) -> list[tuple[Documenter, bool]]:
-        """Generate reST for member documentation.
-
-        If *want_all* is True, document all members, else those given by
-        *self.options.members*.
-        """
-        if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
-            msg = 'must be implemented in subclasses'
-            raise NotImplementedError(msg)
-
-        current_document = self._current_document
-        events = self._events
-        registry = self.env._registry
-        props = self.props
-
-        # set current namespace for finding members
-        current_document.autodoc_module = props.module_name
-        if props.parts:
-            current_document.autodoc_class = props.parts[0]
-
-        inherited_members = frozenset(self.options.inherited_members or ())
-        if self.analyzer:
-            self.analyzer.analyze()
-            attr_docs = self.analyzer.attr_docs
-        else:
-            attr_docs = {}
-        found_members = _get_members_to_document(
-            want_all=want_all,
-            get_attr=self.get_attr,
-            inherit_docstrings=self.config.autodoc_inherit_docstrings,
-            props=props,
-            opt_members=self.options.members or (),
-            inherited_members=inherited_members,
-            ignore_module_all=self.options.ignore_module_all,
-            attr_docs=attr_docs,
-        )
-        filtered_members = _filter_members(
-            found_members,
-            want_all=want_all,
-            events=events,
-            get_attr=self.get_attr,
-            inherit_docstrings=self.config.autodoc_inherit_docstrings,
-            options=self.options,
-            orig_name=self.name,
-            props=props,
-            inherited_members=inherited_members,
-            exclude_members=self.options.exclude_members,
-            special_members=self.options.special_members,
-            private_members=self.options.private_members,
-            undoc_members=self.options.undoc_members,
-            attr_docs=attr_docs,
-        )
-        # document non-skipped members
-        member_documenters: list[tuple[Documenter, bool]] = []
-        for member_name, member, is_attr in filtered_members:
-            # prefer the documenter with the highest priority
-            doccls = max(
-                (
-                    cls
-                    for cls in registry.documenters.values()
-                    if cls.can_document_member(member, member_name, is_attr, self)
-                ),
-                key=lambda cls: cls.priority,
-                default=None,
-            )
-            if doccls is None:
-                # don't know how to document this member
-                continue
-            # give explicitly separated module name, so that members
-            # of inner classes can be documented
-            module_prefix = f'{props.module_name}::'
-            full_mname = module_prefix + '.'.join((*props.parts, member_name))
-            documenter = doccls(self.directive, full_mname, indent)
-
-            # We now try to import all objects before ordering them. This is to
-            # avoid possible circular imports if we were to import objects after
-            # their associated documenters have been sorted.
-            if documenter._load_object_by_name() is None:
-                continue
-
-            member_documenters.append((documenter, is_attr))
-
-        member_order = self.options.member_order or self.config.autodoc_member_order
-        member_documenters = self.sort_members(member_documenters, member_order)
-
-        # reset current objects
-        current_document.autodoc_module = ''
-        current_document.autodoc_class = ''
-
-        return member_documenters
-
-    @staticmethod
-    def _document_members(
-        member_documenters: list[tuple[Documenter, bool]],
-        real_modname: str,
-        members_check_module: bool,
-    ) -> None:
-        """Generate reST for member documentation.
-
-        If *all_members* is True, document all members, else those given by
-        *self.options.members*.
-        """
-        for documenter, is_attr in member_documenters:
-            assert documenter.props.module_name
-            # We can directly call ._generate() since the documenters
-            # already called parse_name() and import_object() before.
-            #
-            # Note that those two methods above do not emit events, so
-            # whatever objects we deduced should not have changed.
-            documenter._generate(
-                all_members=True,
-                real_modname=real_modname,
-                check_module=members_check_module and not is_attr,
-            )
-
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
     ) -> list[tuple[Documenter, bool]]:
@@ -825,11 +708,104 @@ class Documenter:
                 and want_all
                 and (self.options.ignore_module_all or self.props.all is None)
             )
-            self._document_members(
+            _document_members(
                 member_documenters=member_documenters,
                 real_modname=self.real_modname,
                 members_check_module=members_check_module,
             )
+
+    def _gather_members(
+        self, *, want_all: bool, indent: str
+    ) -> list[tuple[Documenter, bool]]:
+        """Generate reST for member documentation.
+
+        If *want_all* is True, document all members, else those given by
+        *self.options.members*.
+        """
+        if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
+            msg = 'must be implemented in subclasses'
+            raise NotImplementedError(msg)
+
+        current_document = self._current_document
+        events = self._events
+        registry = self.env._registry
+        props = self.props
+
+        # set current namespace for finding members
+        current_document.autodoc_module = props.module_name
+        if props.parts:
+            current_document.autodoc_class = props.parts[0]
+
+        inherited_members = frozenset(self.options.inherited_members or ())
+        if self.analyzer:
+            self.analyzer.analyze()
+            attr_docs = self.analyzer.attr_docs
+        else:
+            attr_docs = {}
+        found_members = _get_members_to_document(
+            want_all=want_all,
+            get_attr=self.get_attr,
+            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            props=props,
+            opt_members=self.options.members or (),
+            inherited_members=inherited_members,
+            ignore_module_all=self.options.ignore_module_all,
+            attr_docs=attr_docs,
+        )
+        filtered_members = _filter_members(
+            found_members,
+            want_all=want_all,
+            events=events,
+            get_attr=self.get_attr,
+            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            options=self.options,
+            orig_name=self.name,
+            props=props,
+            inherited_members=inherited_members,
+            exclude_members=self.options.exclude_members,
+            special_members=self.options.special_members,
+            private_members=self.options.private_members,
+            undoc_members=self.options.undoc_members,
+            attr_docs=attr_docs,
+        )
+        # document non-skipped members
+        member_documenters: list[tuple[Documenter, bool]] = []
+        for member_name, member, is_attr in filtered_members:
+            # prefer the documenter with the highest priority
+            doccls = max(
+                (
+                    cls
+                    for cls in registry.documenters.values()
+                    if cls.can_document_member(member, member_name, is_attr, self)
+                ),
+                key=lambda cls: cls.priority,
+                default=None,
+            )
+            if doccls is None:
+                # don't know how to document this member
+                continue
+            # give explicitly separated module name, so that members
+            # of inner classes can be documented
+            module_prefix = f'{props.module_name}::'
+            full_mname = module_prefix + '.'.join((*props.parts, member_name))
+            documenter = doccls(self.directive, full_mname, indent)
+
+            # We now try to import all objects before ordering them. This is to
+            # avoid possible circular imports if we were to import objects after
+            # their associated documenters have been sorted.
+            if documenter._load_object_by_name() is None:
+                continue
+
+            member_documenters.append((documenter, is_attr))
+
+        member_order = self.options.member_order or self.config.autodoc_member_order
+        member_documenters = self.sort_members(member_documenters, member_order)
+
+        # reset current objects
+        current_document.autodoc_module = ''
+        current_document.autodoc_class = ''
+
+        return member_documenters
 
 
 class ModuleDocumenter(Documenter):
@@ -2289,3 +2265,28 @@ def _add_content_generic_alias_(
         alias = restify(obj, mode=_get_render_mode(autodoc_typehints_format))
         more_content.append(_('alias of %s') % alias, '')
         more_content.append('', '')
+
+
+def _document_members(
+    *,
+    member_documenters: list[tuple[Documenter, bool]],
+    real_modname: str,
+    members_check_module: bool,
+) -> None:
+    """Generate reST for member documentation.
+
+    If *all_members* is True, document all members, else those given by
+    *self.options.members*.
+    """
+    for documenter, is_attr in member_documenters:
+        assert documenter.props.module_name
+        # We can directly call ._generate() since the documenters
+        # already called parse_name() and import_object() before.
+        #
+        # Note that those two methods above do not emit events, so
+        # whatever objects we deduced should not have changed.
+        documenter._generate(
+            all_members=True,
+            real_modname=real_modname,
+            check_module=members_check_module and not is_attr,
+        )
