@@ -20,9 +20,9 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
+from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
 from sphinx.ext.autodoc._sentinels import (
     ALL,
-    INSTANCE_ATTR,
     RUNTIME_INSTANCE_ATTRIBUTE,
     SLOTS_ATTR,
     SUPPRESS,
@@ -33,9 +33,8 @@ from sphinx.ext.autodoc.importer import (
     _is_runtime_instance_attribute_not_commented,
     _load_object_by_name,
     _resolve_name,
-    get_class_members,
 )
-from sphinx.ext.autodoc.mock import ismock, undecorate
+from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
@@ -83,7 +82,6 @@ py_ext_sig_re = re.compile(
     """,
     re.VERBOSE,
 )
-special_member_re = re.compile(r'^__\S+__$')
 
 
 def _get_render_mode(
@@ -92,48 +90,6 @@ def _get_render_mode(
     if typehints_format == 'short':
         return 'smart'
     return 'fully-qualified-except-typing'
-
-
-class ObjectMember:
-    """A member of object.
-
-    This is used for the result of `Documenter.get_module_members()` to
-    represent each member of the object.
-    """
-
-    __slots__ = '__name__', 'object', 'docstring', 'class_', 'skipped'
-
-    __name__: str
-    object: Any
-    docstring: str | None
-    class_: Any
-    skipped: bool
-
-    def __init__(
-        self,
-        name: str,
-        obj: Any,
-        *,
-        docstring: str | None = None,
-        class_: Any = None,
-        skipped: bool = False,
-    ) -> None:
-        self.__name__ = name
-        self.object = obj
-        self.docstring = docstring
-        self.class_ = class_
-        self.skipped = skipped
-
-    def __repr__(self) -> str:
-        return (
-            f'ObjectMember('
-            f'name={self.__name__!r}, '
-            f'obj={self.object!r}, '
-            f'docstring={self.docstring!r}, '
-            f'class_={self.class_!r}, '
-            f'skipped={self.skipped!r}'
-            f')'
-        )
 
 
 class Documenter:
@@ -605,267 +561,6 @@ class Documenter:
             for line, src in zip(more_content.data, more_content.items, strict=True):
                 self.add_line(line, src[0], src[1])
 
-    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
-        """Return `(members_check_module, members)` where `members` is a
-        list of `(membername, member)` pairs of the members of *self.object*.
-
-        If *want_all* is True, return all members.  Else, only return those
-        members given by *self.options.members* (which may also be None).
-        """
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
-
-    def filter_members(
-        self, members: list[ObjectMember], want_all: bool
-    ) -> list[tuple[str, Any, bool]]:
-        """Filter the given member list.
-
-        Members are skipped if
-
-        - they are private (except if given explicitly or the private-members
-          option is set)
-        - they are special methods (except if given explicitly or the
-          special-members option is set)
-        - they are undocumented (except if the undoc-members option is set)
-
-        The user can override the skipping decision by connecting to the
-        ``autodoc-skip-member`` event.
-        """
-
-        def is_filtered_inherited_member(name: str, obj: Any) -> bool:
-            inherited_members = self.options.inherited_members or set()
-            seen = set()
-
-            if inspect.isclass(self.props._obj):
-                for cls in self.props._obj.__mro__:
-                    if name in cls.__dict__:
-                        seen.add(cls)
-                    if (
-                        cls.__name__ in inherited_members
-                        and cls != self.props._obj
-                        and any(
-                            issubclass(potential_child, cls) for potential_child in seen
-                        )
-                    ):
-                        # given member is a member of specified *super class*
-                        return True
-                    if name in cls.__dict__:
-                        return False
-                    if name in self.get_attr(cls, '__annotations__', {}):
-                        return False
-                    if isinstance(obj, ObjectMember) and obj.class_ is cls:
-                        return False
-
-            return False
-
-        ret = []
-
-        # search for members in source code too
-        namespace = self.props.dotted_parts  # will be empty for modules
-
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-        else:
-            attr_docs = {}
-
-        # process members and determine which to skip
-        for obj in members:
-            membername = obj.__name__
-            member = obj.object
-
-            # if isattr is True, the member is documented as an attribute
-            isattr = member is INSTANCE_ATTR or (namespace, membername) in attr_docs
-
-            try:
-                doc = getdoc(
-                    member,
-                    self.get_attr,
-                    self.config.autodoc_inherit_docstrings,
-                    self.props._obj,
-                    membername,
-                )
-                if not isinstance(doc, str):
-                    # Ignore non-string __doc__
-                    doc = None
-
-                # if the member __doc__ is the same as self's __doc__, it's just
-                # inherited and therefore not the member's doc
-                cls = self.get_attr(member, '__class__', None)
-                if cls:
-                    cls_doc = self.get_attr(cls, '__doc__', None)
-                    if cls_doc == doc:
-                        doc = None
-
-                if isinstance(obj, ObjectMember) and obj.docstring:
-                    # hack for ClassDocumenter to inject docstring via ObjectMember
-                    doc = obj.docstring
-
-                doc, metadata = separate_metadata(doc)
-                has_doc = bool(doc)
-
-                if 'private' in metadata:
-                    # consider a member private if docstring has "private" metadata
-                    isprivate = True
-                elif 'public' in metadata:
-                    # consider a member public if docstring has "public" metadata
-                    isprivate = False
-                else:
-                    isprivate = membername.startswith('_')
-
-                keep = False
-                if ismock(member) and (namespace, membername) not in attr_docs:
-                    # mocked module or object
-                    pass
-                elif (
-                    self.options.exclude_members
-                    and membername in self.options.exclude_members
-                ):
-                    # remove members given by exclude-members
-                    keep = False
-                elif want_all and special_member_re.match(membername):
-                    # special __methods__
-                    if (
-                        self.options.special_members
-                        and membername in self.options.special_members
-                    ):
-                        if membername == '__doc__':  # NoQA: SIM114
-                            keep = False
-                        elif is_filtered_inherited_member(membername, obj):
-                            keep = False
-                        else:
-                            keep = has_doc or self.options.undoc_members  # type: ignore[assignment]
-                    else:
-                        keep = False
-                elif (namespace, membername) in attr_docs:
-                    if want_all and isprivate:
-                        if self.options.private_members is None:
-                            keep = False
-                        else:
-                            keep = membername in self.options.private_members
-                    else:
-                        # keep documented attributes
-                        keep = True
-                elif want_all and isprivate:
-                    if has_doc or self.options.undoc_members:
-                        if self.options.private_members is None:  # NoQA: SIM114
-                            keep = False
-                        elif is_filtered_inherited_member(membername, obj):
-                            keep = False
-                        else:
-                            keep = membername in self.options.private_members
-                    else:
-                        keep = False
-                else:
-                    if self.options.members is ALL and is_filtered_inherited_member(
-                        membername, obj
-                    ):
-                        keep = False
-                    else:
-                        # ignore undocumented members if :undoc-members: is not given
-                        keep = has_doc or self.options.undoc_members  # type: ignore[assignment]
-
-                if isinstance(obj, ObjectMember) and obj.skipped:
-                    # forcedly skipped member (ex. a module attribute not defined in __all__)
-                    keep = False
-
-                # give the user a chance to decide whether this member
-                # should be skipped
-                if self._events is not None:
-                    # let extensions preprocess docstrings
-                    skip_user = self._events.emit_firstresult(
-                        'autodoc-skip-member',
-                        self.objtype,
-                        membername,
-                        member,
-                        not keep,
-                        self.options,
-                    )
-                    if skip_user is not None:
-                        keep = not skip_user
-            except Exception as exc:
-                logger.warning(
-                    __(
-                        'autodoc: failed to determine %s.%s (%r) to be documented, '
-                        'the following exception was raised:\n%s'
-                    ),
-                    self.name,
-                    membername,
-                    member,
-                    exc,
-                    type='autodoc',
-                )
-                keep = False
-
-            if keep:
-                ret.append((membername, member, isattr))
-
-        return ret
-
-    def document_members(self, all_members: bool = False) -> None:
-        """Generate reST for member documentation.
-
-        If *all_members* is True, document all members, else those given by
-        *self.options.members*.
-        """
-        # set current namespace for finding members
-        self._current_document.autodoc_module = self.props.module_name
-        if self.props.parts:
-            self._current_document.autodoc_class = self.props.parts[0]
-
-        want_all = bool(
-            all_members or self.options.inherited_members or self.options.members is ALL
-        )
-        # find out which members are documentable
-        members_check_module, members = self.get_object_members(want_all)
-
-        # document non-skipped members
-        member_documenters: list[tuple[Documenter, bool]] = []
-        for mname, member, isattr in self.filter_members(members, want_all):
-            classes = [
-                cls
-                for cls in self.documenters.values()
-                if cls.can_document_member(member, mname, isattr, self)
-            ]
-            if not classes:
-                # don't know how to document this member
-                continue
-            # prefer the documenter with the highest priority
-            classes.sort(key=lambda cls: cls.priority)
-            # give explicitly separated module name, so that members
-            # of inner classes can be documented
-            module_prefix = f'{self.props.module_name}::'
-            full_mname = module_prefix + '.'.join((*self.props.parts, mname))
-            documenter = classes[-1](self.directive, full_mname, self.indent)
-            member_documenters.append((documenter, isattr))
-
-        member_order = self.options.member_order or self.config.autodoc_member_order
-        # We now try to import all objects before ordering them. This is to
-        # avoid possible circular imports if we were to import objects after
-        # their associated documenters have been sorted.
-        member_documenters = [
-            (documenter, isattr)
-            for documenter, isattr in member_documenters
-            if documenter._load_object_by_name() is not None
-        ]
-        member_documenters = self.sort_members(member_documenters, member_order)
-
-        for documenter, isattr in member_documenters:
-            assert documenter.props.module_name
-            # We can directly call ._generate() since the documenters
-            # already called parse_name() and import_object() before.
-            #
-            # Note that those two methods above do not emit events, so
-            # whatever objects we deduced should not have changed.
-            documenter._generate(
-                all_members=True,
-                real_modname=self.real_modname,
-                check_module=members_check_module and not isattr,
-            )
-
-        # reset current objects
-        self._current_document.autodoc_module = ''
-        self._current_document.autodoc_class = ''
-
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
     ) -> list[tuple[Documenter, bool]]:
@@ -917,6 +612,10 @@ class Documenter:
         check_module: bool = False,
         all_members: bool = False,
     ) -> None:
+        has_members = isinstance(self, ModuleDocumenter) or (
+            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
+        )
+
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
         # where the attribute documentation would actually be found in.
@@ -941,6 +640,14 @@ class Documenter:
         else:
             self.directive.record_dependencies.add(self.analyzer.srcname)
 
+        want_all = bool(
+            all_members or self.options.inherited_members or self.options.members is ALL
+        )
+        if has_members:
+            member_documenters = self._gather_members(
+                want_all=want_all, indent=self.indent + self.content_indent
+            )
+
         if self.real_modname != guess_modname:
             # Add module to dependency list if target object is defined in other module.
             try:
@@ -961,8 +668,10 @@ class Documenter:
             )
 
         # check __module__ of object (for members not given explicitly)
-        if check_module:
-            if not self.check_module():
+        if check_module and not self.options.imported_members:
+            subject = inspect.unpartial(self.props._obj)
+            modname = self.get_attr(subject, '__module__', None)
+            if modname and modname != self.props.module_name:
                 return
 
         sourcename = self.get_sourcename()
@@ -991,7 +700,112 @@ class Documenter:
         self.add_content(more_content)
 
         # document members, if possible
-        self.document_members(all_members)
+        if has_members:
+            # for implicit module members, check __module__ to avoid
+            # documenting imported objects
+            members_check_module = bool(
+                isinstance(self, ModuleDocumenter)
+                and want_all
+                and (self.options.ignore_module_all or self.props.all is None)
+            )
+            _document_members(
+                member_documenters=member_documenters,
+                real_modname=self.real_modname,
+                members_check_module=members_check_module,
+            )
+
+    def _gather_members(
+        self, *, want_all: bool, indent: str
+    ) -> list[tuple[Documenter, bool]]:
+        """Generate reST for member documentation.
+
+        If *want_all* is True, document all members, else those given by
+        *self.options.members*.
+        """
+        if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
+            msg = 'must be implemented in subclasses'
+            raise NotImplementedError(msg)
+
+        current_document = self._current_document
+        events = self._events
+        registry = self.env._registry
+        props = self.props
+
+        # set current namespace for finding members
+        current_document.autodoc_module = props.module_name
+        if props.parts:
+            current_document.autodoc_class = props.parts[0]
+
+        inherited_members = frozenset(self.options.inherited_members or ())
+        if self.analyzer:
+            self.analyzer.analyze()
+            attr_docs = self.analyzer.attr_docs
+        else:
+            attr_docs = {}
+        found_members = _get_members_to_document(
+            want_all=want_all,
+            get_attr=self.get_attr,
+            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            props=props,
+            opt_members=self.options.members or (),
+            inherited_members=inherited_members,
+            ignore_module_all=bool(self.options.ignore_module_all),
+            attr_docs=attr_docs,
+        )
+        filtered_members = _filter_members(
+            found_members,
+            want_all=want_all,
+            events=events,
+            get_attr=self.get_attr,
+            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            options=self.options,
+            orig_name=self.name,
+            props=props,
+            inherited_members=inherited_members,
+            exclude_members=self.options.exclude_members,
+            special_members=self.options.special_members,
+            private_members=self.options.private_members,
+            undoc_members=self.options.undoc_members,
+            attr_docs=attr_docs,
+        )
+        # document non-skipped members
+        member_documenters: list[tuple[Documenter, bool]] = []
+        for member_name, member, is_attr in filtered_members:
+            # prefer the documenter with the highest priority
+            doccls = max(
+                (
+                    cls
+                    for cls in registry.documenters.values()
+                    if cls.can_document_member(member, member_name, is_attr, self)
+                ),
+                key=lambda cls: cls.priority,
+                default=None,
+            )
+            if doccls is None:
+                # don't know how to document this member
+                continue
+            # give explicitly separated module name, so that members
+            # of inner classes can be documented
+            module_prefix = f'{props.module_name}::'
+            full_mname = module_prefix + '.'.join((*props.parts, member_name))
+            documenter = doccls(self.directive, full_mname, indent)
+
+            # We now try to import all objects before ordering them. This is to
+            # avoid possible circular imports if we were to import objects after
+            # their associated documenters have been sorted.
+            if documenter._load_object_by_name() is None:
+                continue
+
+            member_documenters.append((documenter, is_attr))
+
+        member_order = self.options.member_order or self.config.autodoc_member_order
+        member_documenters = self.sort_members(member_documenters, member_order)
+
+        # reset current objects
+        current_document.autodoc_module = ''
+        current_document.autodoc_class = ''
+
+        return member_documenters
 
 
 class ModuleDocumenter(Documenter):
@@ -1061,70 +875,6 @@ class ModuleDocumenter(Documenter):
             self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
-
-    def get_module_members(self) -> dict[str, ObjectMember]:
-        """Get members of target module."""
-        if self.analyzer:
-            attr_docs = self.analyzer.attr_docs
-        else:
-            attr_docs = {}
-
-        members: dict[str, ObjectMember] = {}
-        for name in dir(self.props._obj):
-            try:
-                value = safe_getattr(self.props._obj, name, None)
-                if ismock(value):
-                    value = undecorate(value)
-                docstring = attr_docs.get(('', name), [])
-                members[name] = ObjectMember(
-                    name, value, docstring='\n'.join(docstring)
-                )
-            except AttributeError:
-                continue
-
-        # annotation only member (ex. attr: int)
-        for name in inspect.getannotations(self.props._obj):
-            if name not in members:
-                docstring = attr_docs.get(('', name), [])
-                members[name] = ObjectMember(
-                    name, INSTANCE_ATTR, docstring='\n'.join(docstring)
-                )
-
-        return members
-
-    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
-        members = self.get_module_members()
-        if want_all:
-            module_all = self.props.all
-            if self.options.ignore_module_all or module_all is None:
-                # for implicit module members, check __module__ to avoid
-                # documenting imported objects
-                return True, list(members.values())
-            else:
-                module_all_set = frozenset(module_all)
-                for member in members.values():
-                    if member.__name__ not in module_all_set:
-                        member.skipped = True
-
-                return False, list(members.values())
-        else:
-            assert self.options.members is not ALL
-            memberlist = self.options.members or []
-            ret = []
-            for name in memberlist:
-                if name in members:
-                    ret.append(members[name])
-                else:
-                    logger.warning(
-                        __(
-                            'missing attribute mentioned in :members: option: '
-                            'module %s, attribute %s'
-                        ),
-                        safe_getattr(self.props._obj, '__name__', '???'),
-                        name,
-                        type='autodoc',
-                    )
-            return False, ret
 
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
@@ -1209,9 +959,6 @@ class FunctionDocumenter(Documenter):
             # Special case for single-argument decorators
             return ''
         return args
-
-    def document_members(self, all_members: bool = False) -> None:
-        pass
 
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
@@ -1657,31 +1404,6 @@ class ClassDocumenter(Documenter):
             self.add_line('', sourcename)
             self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
 
-    def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
-        members = get_class_members(
-            self.props._obj,
-            self.props.parts,
-            self.get_attr,
-            self.config.autodoc_inherit_docstrings,
-        )
-        if not want_all:
-            if not self.options.members:
-                return False, []
-            # specific members given
-            selected = []
-            assert self.options.members is not ALL
-            for name in self.options.members:
-                if name in members:
-                    selected.append(members[name])
-                else:
-                    msg = __('missing attribute %s in object %s')
-                    logger.warning(msg, name, self.props.full_name, type='autodoc')
-            return False, selected
-        elif self.options.inherited_members:
-            return False, list(members.values())
-        else:
-            return False, [m for m in members.values() if m.class_ == self.props._obj]
-
     def get_doc(self) -> list[list[str]] | None:
         if isinstance(self.props._obj, TypeVar):
             if self.props._obj.__doc__ == TypeVar.__doc__:
@@ -1806,11 +1528,6 @@ class ClassDocumenter(Documenter):
                 pass  # Invalid class object is passed.
 
         super().add_content(more_content)
-
-    def document_members(self, all_members: bool = False) -> None:
-        if self.props.doc_as_attr:
-            return
-        super().document_members(all_members)
 
     def generate(
         self,
@@ -1947,9 +1664,6 @@ class DataDocumenter(Documenter):
             except ValueError:
                 pass
 
-    def document_members(self, all_members: bool = False) -> None:
-        pass
-
     def get_module_comment(self, attrname: str) -> list[str] | None:
         try:
             analyzer = ModuleAnalyzer.for_module(self.props.module_name)
@@ -2072,9 +1786,6 @@ class MethodDocumenter(Documenter):
             self.add_line('   :staticmethod:', sourcename)
         if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
-
-    def document_members(self, all_members: bool = False) -> None:
-        pass
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
@@ -2275,9 +1986,6 @@ class AttributeDocumenter(Documenter):
         if inspect.isattributedescriptor(member):
             return True
         return not inspect.isroutine(member) and not isinstance(member, type)
-
-    def document_members(self, all_members: bool = False) -> None:
-        pass
 
     def update_annotations(self, parent: Any) -> None:
         """Update __annotations__ to support type_comment and so on."""
@@ -2482,9 +2190,6 @@ class PropertyDocumenter(Documenter):
         # correctly format the arguments for a property
         return super().format_args(**kwargs)
 
-    def document_members(self, all_members: bool = False) -> None:
-        pass
-
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         sourcename = self.get_sourcename()
@@ -2560,3 +2265,28 @@ def _add_content_generic_alias_(
         alias = restify(obj, mode=_get_render_mode(autodoc_typehints_format))
         more_content.append(_('alias of %s') % alias, '')
         more_content.append('', '')
+
+
+def _document_members(
+    *,
+    member_documenters: list[tuple[Documenter, bool]],
+    real_modname: str,
+    members_check_module: bool,
+) -> None:
+    """Generate reST for member documentation.
+
+    If *all_members* is True, document all members, else those given by
+    *self.options.members*.
+    """
+    for documenter, is_attr in member_documenters:
+        assert documenter.props.module_name
+        # We can directly call ._generate() since the documenters
+        # already called parse_name() and import_object() before.
+        #
+        # Note that those two methods above do not emit events, so
+        # whatever objects we deduced should not have changed.
+        documenter._generate(
+            all_members=True,
+            real_modname=real_modname,
+            check_module=members_check_module and not is_attr,
+        )
