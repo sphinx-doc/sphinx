@@ -749,7 +749,7 @@ class Documenter:
             props=props,
             opt_members=self.options.members or (),
             inherited_members=inherited_members,
-            ignore_module_all=self.options.ignore_module_all,
+            ignore_module_all=bool(self.options.ignore_module_all),
             attr_docs=attr_docs,
         )
         filtered_members = _filter_members(
