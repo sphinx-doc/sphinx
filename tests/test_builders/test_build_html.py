@@ -30,8 +30,7 @@ from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
-    from typing import Any
-
+    from sphinx.builders.html._ctx import _PageContextHTML
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -416,7 +415,7 @@ def test_html_style(app: SphinxTestApp) -> None:
     },
 )
 def test_html_sidebar(app: SphinxTestApp) -> None:
-    ctx: dict[str, Any] = {}
+    ctx: _PageContextHTML = {}  # type: ignore[typeddict-item]
 
     # default for alabaster
     app.build(force_all=True)
