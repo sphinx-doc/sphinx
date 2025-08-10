@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import codecs
+import multiprocessing
 import pickle
+import queue
 import re
 import time
 from contextlib import nullcontext
