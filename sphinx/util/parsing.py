@@ -39,8 +39,7 @@ def nested_parse_to_nodes(
         Note that this option bypasses Docutils' usual checks on
         doctree structure, and misuse of this option can lead to
         an incoherent doctree. In Docutils, section nodes should
-        only be children of ``Structural`` nodes, which includes
-        ``document``, ``section``, and ``sidebar`` nodes.
+        only be children of ``document`` or ``section`` nodes.
     :param keep_title_context:
         If this is False (the default), then *content* is parsed as if it were
         an independent document, meaning that title decorations (e.g. underlines)
