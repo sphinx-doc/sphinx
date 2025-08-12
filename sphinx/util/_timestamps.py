@@ -20,11 +20,11 @@ def _get_publication_time() -> time.struct_time:
     If set, use the timestamp from SOURCE_DATE_EPOCH
     https://reproducible-builds.org/specs/source-date-epoch/
 
-    Publication time cannot be projected into the future (beyond the local system
-    clock time).
+    Publication time cannot be projected into the future.
     """
     system_time = time.localtime()
     if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is not None:
-        if (rebuild_time := time.localtime(float(source_date_epoch))) < system_time:
+        current_gmt_time = time.gmtime()
+        if (rebuild_time := time.gmtime(float(source_date_epoch))) < current_gmt_time:
             return rebuild_time
     return system_time

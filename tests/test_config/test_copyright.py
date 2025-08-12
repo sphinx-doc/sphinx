@@ -24,6 +24,10 @@ LT = time.localtime()
 LT_NEW = (2009, *LT[1:], LT.tm_zone, LT.tm_gmtoff)
 LOCALTIME_2009 = type(LT)(LT_NEW)
 
+GT = time.gmtime()
+GT_NEW = (2009, *GT[1:], GT.tm_zone, GT.tm_gmtoff)
+GMTTIME_2009 = type(GT)(GT_NEW)
+
 
 @pytest.fixture(
     params=[
@@ -43,8 +47,9 @@ def expect_date(
 ) -> Iterator[int | None]:
     sde, expect = request.param
     with monkeypatch.context() as m:
-        lt_orig = time.localtime
+        lt_orig, gmtt_orig = time.localtime, time.gmtime
         m.setattr(time, 'localtime', lambda *a: lt_orig(*a) if a else LOCALTIME_2009)
+        m.setattr(time, 'gmtime', lambda *a: gmtt_orig(*a) if a else GMTTIME_2009)
         if sde:
             m.setenv('SOURCE_DATE_EPOCH', sde)
         else:
