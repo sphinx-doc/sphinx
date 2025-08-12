@@ -62,3 +62,12 @@ A term std:term -1 glossary.html#term-a-term -
 b term std:term -1 document.html#id5 -
 B term std:term -1 document.html#B -
 """)
+
+INVENTORY_V2_TEXT_VERSION: Final[bytes] = b"""\
+# Sphinx inventory version 2
+# Project: foo
+# Version: stable
+# The remainder of this file is compressed with zlib.
+""" + zlib.compress(b"""\
+module1 py:module 0 foo.html#module-module1 Long Module desc
+""")

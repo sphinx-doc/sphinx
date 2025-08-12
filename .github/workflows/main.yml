@@ -41,6 +41,7 @@ jobs:
         docutils:
         - "0.20"
         - "0.21"
+        - "0.22"
 #        include:
 #        # test every supported Docutils version for the latest supported Python
 #        - python: "3.13"
@@ -93,6 +94,7 @@ jobs:
         docutils:
         - "0.20"
         - "0.21"
+        - "0.22"
 
     steps:
     - uses: actions/checkout@v4
@@ -310,6 +312,8 @@ jobs:
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
+    - name: Install Docutils' HEAD
+      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:

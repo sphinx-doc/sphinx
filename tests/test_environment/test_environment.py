@@ -21,11 +21,16 @@ from sphinx.environment import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from sphinx.testing.fixtures import _app_params
     from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('dummy', testroot='basic', copy_test_root=True)
-def test_config_status(make_app, app_params):
+def test_config_status(
+    make_app: Callable[..., SphinxTestApp], app_params: _app_params
+) -> None:
     args, kwargs = app_params
 
     # clean build

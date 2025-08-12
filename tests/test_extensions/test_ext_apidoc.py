@@ -752,7 +752,7 @@ def test_no_duplicates(rootdir, tmp_path):
         sphinx.ext.apidoc._generate.PY_SUFFIXES = original_suffixes
 
 
-def test_remove_old_files(tmp_path: Path):
+def test_remove_old_files(tmp_path: Path) -> None:
     """Test that old files are removed when using the -r option.
 
     Also ensure that pre-existing files are not re-written, if unchanged.

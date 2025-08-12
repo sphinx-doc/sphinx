@@ -372,7 +372,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         # override default settings with :confval:`smartquotes_action`
         self.smartquotes_action = self.config.smartquotes_action
 
-        super().apply()  # type: ignore[no-untyped-call]
+        super().apply()
 
     def is_available(self) -> bool:
         builders = self.config.smartquotes_excludes.get('builders', [])

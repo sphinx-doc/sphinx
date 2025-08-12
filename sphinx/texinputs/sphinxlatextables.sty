@@ -47,7 +47,16 @@
 % At 8.3.0, ALL table cell contents are wrapped into a varwidth environment.
 % This helps solve issues such as #3447, #8828, and helps use tabulary
 % in many more cases hence obtain better looking tables.
-\def\sphinxbeforeendvarwidth{\par\vskip-\baselineskip\vbox{\hbox{\strut}}}
+\def\sphinxbeforeendvarwidth{\par\vskip-\baselineskip\hbox{\strut}}
+% MEMO: Mark-up uses the above macro right before all \end{varwdith} so that
+% if the cell in a row extends lower than the others, its last line acquires
+% standard "depth". Else it may lack any depth if without descenders such as
+% "p" or "q" letters and the horizontal line or color panel will look strange.
+% It originates in PR #3435 from 2017 which solved *many* table issues for
+% merged cells (and injected the varwidth technique now at 8.3.0 applied to
+% all cells).  The original used \vbox{\hbox{\strut}} but that \vbox appears
+% to do nothing, and it was decided after some testing (July 2025) to remove
+% it, the original rationale for it being now lost.
 
 % These conditionals added at 8.3.0 for nested tables not to break row colors
 % (#13635).  Nested tables are only partially supported by Sphinx LaTeX.
@@ -258,7 +267,7 @@
 %
 % configuration of tabulary
 \setlength{\tymin}{3\fontcharwd\font`0 }% minimal width of "squeezed" columns
-\setlength{\tymax}{2\textwidth}% allow enough room for paragraphs to "compete"
+\setlength{\tymax}{3000pt}% allow enough room for paragraphs to "compete"
 %
 % MEMO: tabulary initially renders cell contents "horizontally" to measure
 %       them and compare their relative importance.  Its goal is to choose the
@@ -275,11 +284,14 @@
 %       the initial horizontal width for "varwidth". In the first tabulary
 %       pass, \sphinxcolwidth is configured (by us) to use \tymax.
 %
-%       During testing, it was determined that our former 10000pt setting for
-%       \tymax could cause "Dimension too large" TeX error if two columns or
-%       more contained such cells.  So we use now 2\textwidth which is more
-%       than 10 times smaller but proves large enough for the tabulary
-%       algorithm to provide reasonable results.
+%       During testing, it was determined that the former 10000pt setting for
+%       \tymax would cause "Dimension too large" TeX error if two columns or
+%       more had cells containing admonitions (such contents does not allow
+%       "varwidth" to reduce the width automatically).  So we use now 3000pt
+%       which allows up to 5 such columns while being large enough for
+%       tabulary algorithm to give good results for cells containing a few
+%       dozen words.  The tabulary default of 2\textwidth proves to be too
+%       small for that.
 %
 % we need access to tabulary's final computed width. \@tempdima is too volatile
 % to hope it has kept tabulary's value when \sphinxcolwidth needs it.
