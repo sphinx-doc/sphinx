@@ -678,7 +678,7 @@ class SphinxRole:
         # .. versionadded:: 3.0
         if lineno is None:
             lineno = self.lineno
-        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore[attr-defined]
+        return self.inliner.reporter.get_source_and_line(lineno)
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         # .. versionadded:: 2.0
@@ -911,4 +911,4 @@ def _get_settings(
             defaults=defaults,
             read_config_files=read_config_files,
         )
-    return option_parser.get_default_values()  # type: ignore[no-untyped-call]
+    return option_parser.get_default_values()
