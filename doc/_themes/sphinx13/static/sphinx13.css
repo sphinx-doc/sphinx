@@ -785,3 +785,41 @@ ul.search li.kind-title {
 ul.search li.kind-text {
     list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
 }
+/* --- Dark Mode Overrides --- */
+.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+.dark-mode .pageheader,
+.dark-mode .sphinxsidebar,
+.dark-mode .footer,
+.dark-mode .related {
+  background-color: #1f1f1f;
+  color: #eee;
+}
+
+.dark-mode a {
+  color: #90caf9;
+}
+
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3 {
+  color: #ffeb3b;
+}
+/* Feature card fix for dark mode */
+.dark-mode .sphinx-feature {
+  background-color: #1e1e1e !important;
+  border: 1px solid #444;
+  color: #e0e0e0;
+}
+
+.dark-mode .sphinx-feature a {
+  color: #90caf9;
+}
+
+.dark-mode .sphinx-feature > p.admonition-title {
+  background-color: #2a2a2a !important;
+  color: #ffeb3b;
+}
