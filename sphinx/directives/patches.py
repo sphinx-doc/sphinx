@@ -62,7 +62,7 @@ class CSVTable(tables.CSVTable):
     directory when an absolute path is given via :file: option.
     """
 
-    def run(self) -> list[nodes.table | nodes.system_message]:
+    def run(self) -> Sequence[nodes.table | nodes.system_message]:
         if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
             env = self.state.document.settings.env
             filename = Path(self.options['file'])
