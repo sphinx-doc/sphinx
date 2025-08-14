@@ -374,8 +374,8 @@ def isattributedescriptor(obj: Any) -> bool:
         if isinstance(unwrapped, _DESCRIPTOR_LIKE):
             # attribute must not be a method descriptor
             return False
-        # attribute must not be an instancemethod (C-API)
-        return type(unwrapped).__name__ != 'instancemethod'
+        # attribute must not be an instancemethod (C-API) nor nb_method (specific for nanobind)
+        return type(unwrapped).__name__ not in {'instancemethod', 'nb_method'}
     return False
 
 
