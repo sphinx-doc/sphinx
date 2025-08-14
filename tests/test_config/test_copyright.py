@@ -24,6 +24,10 @@ LT = time.localtime()
 LT_NEW = (2009, *LT[1:], LT.tm_zone, LT.tm_gmtoff)
 LOCALTIME_2009 = type(LT)(LT_NEW)
 
+GT = time.gmtime()
+GT_NEW = (2009, *GT[1:], GT.tm_zone, GT.tm_gmtoff)
+GMTTIME_2009 = type(GT)(GT_NEW)
+
 
 @pytest.fixture(
     params=[
@@ -43,7 +47,9 @@ def expect_date(
 ) -> Iterator[int | None]:
     sde, expect = request.param
     with monkeypatch.context() as m:
-        m.setattr(time, 'localtime', lambda *a: LOCALTIME_2009)
+        lt_orig, gmtt_orig = time.localtime, time.gmtime
+        m.setattr(time, 'localtime', lambda *a: lt_orig(*a) if a else LOCALTIME_2009)
+        m.setattr(time, 'gmtime', lambda *a: gmtt_orig(*a) if a else GMTTIME_2009)
         if sde:
             m.setenv('SOURCE_DATE_EPOCH', sde)
         else:
@@ -129,7 +135,6 @@ def test_correct_year_placeholder(expect_date: int | None) -> None:
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
-    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'2006-{expect_date}, Alice'
     else:
@@ -203,11 +208,12 @@ def test_correct_year_multi_line_all_formats_placeholder(
         # other format codes are left as-is
         '2006-%y, Eve',
         '%Y-%m-%d %H:%M:S %z, Francis',
+        # non-ascii range patterns are supported
+        '2000–%Y Guinevere',
     )
     cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
     evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
-    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == (
             f'{expect_date}',
@@ -217,7 +223,8 @@ def test_correct_year_multi_line_all_formats_placeholder(
             f'2006-{expect_date} Charlie',
             f'2006-{expect_date}, David',
             '2006-%y, Eve',
-            '2009-%m-%d %H:%M:S %z, Francis',
+            f'{expect_date}-%m-%d %H:%M:S %z, Francis',
+            f'2000–{expect_date} Guinevere',
         )
     else:
         assert cfg.copyright == (
@@ -229,6 +236,7 @@ def test_correct_year_multi_line_all_formats_placeholder(
             '2006-2009, David',
             '2006-%y, Eve',
             '2009-%m-%d %H:%M:S %z, Francis',
+            '2000–2009 Guinevere',
         )
 
 

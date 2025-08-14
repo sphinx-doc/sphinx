@@ -15,6 +15,7 @@ from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util._timestamps import _get_publication_time
 
 if TYPE_CHECKING:
     import os
@@ -707,7 +708,8 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
 
 def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
     """Replace copyright year placeholders (%Y) with the current year."""
-    replace_yr = str(time.localtime().tm_year)
+    publication_time = _get_publication_time()
+    replace_yr = str(publication_time.tm_year)
     for k in ('copyright', 'epub_copyright'):
         if k in config:
             value: str | Sequence[str] = config[k]

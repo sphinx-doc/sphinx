@@ -116,6 +116,9 @@ Bugs fixed
 * #10785: Autodoc: Allow type aliases defined in the project to be properly
   cross-referenced when used as type annotations. This makes it possible
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
+* #13526: Improve ``SOURCE_DATE_EPOCH`` support during ``%Y`` pattern
+  substition in :confval:`copyright` (and :confval:`project_copyright`).
+  Patch by James Addison.
 
 Testing
 -------
