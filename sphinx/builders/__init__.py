@@ -610,7 +610,7 @@ class Builder:
             self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
-        work_queue: multiprocessing.Queue[str] = multiprocessing.Queue()
+        work_queue: multiprocessing.Queue[str | None] = multiprocessing.Queue()
 
         # load up all docs to be processed
         for doc in docnames:
