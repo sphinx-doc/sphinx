@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from packaging.version import Version
 from typing import TYPE_CHECKING, cast
 
-from docutils import nodes
+from docutils import nodes, __version__
 from docutils.nodes import make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
 from docutils.parsers.rst.directives.misc import Meta
-from docutils.parsers.rst.roles import normalize_options
 
 from sphinx.directives import optional_int
 from sphinx.locale import __
@@ -17,6 +17,11 @@ from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, relpath
+
+if Version(__version__) < Version('0.22'):
+    from docutils.parsers.rst.roles import normalized_role_options as normalize_options
+else:
+    from docutils.parsers.rst.roles import normalize_options
 
 if TYPE_CHECKING:
     from typing import ClassVar
