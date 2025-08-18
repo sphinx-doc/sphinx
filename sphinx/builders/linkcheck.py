@@ -35,7 +35,7 @@ from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import Any, Final, Literal, TypeAlias
+    from typing import Any, Literal, TypeAlias
 
     from requests import Response
 
@@ -386,7 +386,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             config.linkcheck_request_headers
         )
         self.check_anchors: bool = config.linkcheck_anchors
-        self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
+        self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]] | None
         self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
@@ -720,8 +720,12 @@ class AnchorCheckParser(HTMLParser):
 
 
 def _allowed_redirect(
-    url: str, new_url: str, allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
+    url: str,
+    new_url: str,
+    allowed_redirects: dict[re.Pattern[str], re.Pattern[str]] | None,
 ) -> bool:
+    if allowed_redirects is None:
+        return True
     return any(
         from_url.match(url) and to_url.match(new_url)
         for from_url, to_url in allowed_redirects.items()
