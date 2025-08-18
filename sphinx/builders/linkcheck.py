@@ -76,6 +76,9 @@ class _SENTINEL_LAR:
     def __repr__(self) -> str:
         return '_SENTINEL_LAR'
 
+    def __reduce__(self) -> str:
+        return self.__class__.__name__
+
 
 class CheckExternalLinksBuilder(DummyBuilder):
     """Checks for broken external links."""
