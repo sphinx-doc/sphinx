@@ -818,7 +818,9 @@ class PythonDomain(Domain):
                     other.docname,
                     location=location,
                 )
-        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, aliased)
+        self.objects[name] = ObjectEntry(
+            self.env.current_document.docname, node_id, objtype, aliased
+        )
 
     @property
     def modules(self) -> dict[str, ModuleEntry]:
@@ -832,7 +834,7 @@ class PythonDomain(Domain):
         .. versionadded:: 2.1
         """
         self.modules[name] = ModuleEntry(
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             node_id=node_id,
             synopsis=synopsis,
             platform=platform,
@@ -950,6 +952,14 @@ class PythonDomain(Domain):
         searchmode = 1 if node.hasattr('refspecific') else 0
         matches = self.find_obj(env, modname, clsname, target, type, searchmode)
 
+        if not matches and type == 'class':
+            # fallback to data/attr (for type aliases)
+            # type aliases are documented as data/attr but referenced as class
+            matches = self.find_obj(env, modname, clsname, target, 'data', searchmode)
+            if not matches:
+                matches = self.find_obj(
+                    env, modname, clsname, target, 'attr', searchmode
+                )
         if not matches and type == 'attr':
             # fallback to meth (for property; Sphinx 2.4.x)
             # this ensures that `:attr:` role continues to refer to the old property entry

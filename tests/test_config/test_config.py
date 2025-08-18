@@ -19,13 +19,13 @@ from sphinx.config import (
 )
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
+from sphinx.testing.util import SphinxTestApp
 from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
     from typing import TypeAlias
-
-    from sphinx.testing.util import SphinxTestApp
 
     CircularList: TypeAlias = list[int | 'CircularList']
     CircularDict: TypeAlias = dict[str, int | 'CircularDict']
@@ -144,7 +144,7 @@ def test_config_not_found(tmp_path):
 
 
 @pytest.mark.parametrize('protocol', list(range(pickle.HIGHEST_PROTOCOL)))
-def test_config_pickle_protocol(protocol: int):
+def test_config_pickle_protocol(protocol: int) -> None:
     config = Config()
 
     pickled_config = pickle.loads(pickle.dumps(config, protocol))
@@ -811,3 +811,14 @@ def test_root_doc_and_master_doc_are_synchronized() -> None:
     c.root_doc = '1234'
     assert c.master_doc == '1234'
     assert c.root_doc == c.master_doc
+
+
+def test_source_encoding_deprecation(tmp_path: Path) -> None:
+    (tmp_path / 'conf.py').touch()
+    app = SphinxTestApp(
+        buildername='dummy',
+        srcdir=tmp_path,
+        confoverrides={'source_encoding': 'latin-1'},
+    )
+    expected = 'Support for source encodings other than UTF-8 is deprecated and will be removed'
+    assert expected in app.warning.getvalue()

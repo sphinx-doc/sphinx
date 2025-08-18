@@ -132,11 +132,9 @@ class Table:
             self.colsep = None
         self.colwidths: list[int] = []
         self.has_problematic = False
-        self.has_oldproblematic = False
         self.has_verbatim = False
         # cf https://github.com/sphinx-doc/sphinx/issues/13646#issuecomment-2958309632
         self.is_nested = False
-        self.entry_needs_linetrimming = 0
         self.caption: list[str] = []
         self.stubs: list[int] = []
 
@@ -223,12 +221,6 @@ class Table:
         elif self.get_table_type() == 'tabulary':
             # sphinx.sty sets T to be J by default.
             return '{' + _colsep + (('T' + _colsep) * self.colcount) + '}' + CR
-        elif self.has_oldproblematic:
-            return (
-                r'{%s*{%d}{\X{1}{%d}%s}}'
-                % (_colsep, self.colcount, self.colcount, _colsep)
-                + CR
-            )
         else:
             return '{' + _colsep + (('l' + _colsep) * self.colcount) + '}' + CR
 
@@ -305,6 +297,9 @@ def escape_abbr(text: str) -> str:
 
 def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
     """Convert `width_str` with rst length to LaTeX length."""
+    # MEMO: the percent unit is interpreted here as a percentage
+    # of \linewidth.  Let's keep in mind though that \linewidth
+    # is dynamic in LaTeX, e.g. it is smaller in lists.
     match = re.match(r'^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
         raise ValueError
@@ -318,6 +313,8 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = '%sbp' % amount  # convert to 'bp'
         elif unit == '%':
             res = r'%.3f\linewidth' % (float(amount) / 100.0)
+        elif unit in {'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax', 'Q'}:
+            res = rf'{amount}\sphinx{unit}dimen'
     else:
         amount_float = float(amount) * scale / 100.0
         if unit in {'', 'px'}:
@@ -326,8 +323,13 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = '%.5fbp' % amount_float
         elif unit == '%':
             res = r'%.5f\linewidth' % (amount_float / 100.0)
+        elif unit in {'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax', 'Q'}:
+            res = rf'{amount_float:.5f}\sphinx{unit}dimen'
         else:
             res = f'{amount_float:.5f}{unit}'
+    # Those further units are passed through and accepted "as is" by TeX:
+    # em and ex (both font dependent), bp, cm, mm, in, and pc.
+    # Non-CSS units (TeX only presumably) are cc, nc, dd, nd, and sp.
     return res
 
 
@@ -804,8 +806,6 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             self.body.append(BLANKLINE)
             self.body.append(r'\begin{fulllineitems}' + CR)
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_desc(self, node: Element) -> None:
         if self.in_desc_signature:
@@ -1107,8 +1107,6 @@ class LaTeXTranslator(SphinxTranslator):
             r'\begin{sphinxseealso}{%s:}' % admonitionlabels['seealso'] + CR
         )
         self.no_latex_floats += 1
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
@@ -1367,19 +1365,25 @@ class LaTeXTranslator(SphinxTranslator):
                 r'\sphinxmultirow{%d}{%d}{%%' % (cell.height, cell.cell_id) + CR
             )
             context = '}%' + CR + context
-        if cell.width > 1 or cell.height > 1:
-            self.body.append(
-                r'\begin{varwidth}[t]{\sphinxcolwidth{%d}{%d}}'
-                % (cell.width, self.table.colcount)
-                + CR
-            )
-            context = (
-                r'\par' + CR + r'\vskip-\baselineskip'
-                r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context
-            )
-            self.table.entry_needs_linetrimming = 1
-        if len(list(node.findall(nodes.paragraph))) >= 2:
-            self.table.has_oldproblematic = True
+        # 8.3.0 wraps ALL cells contents in "varwidth".  This fixes a
+        # number of issues and allows more usage of tabulary.
+        #
+        # "varwidth" usage allows a *tight fit* to multiple paragraphs,
+        # line blocks, bullet lists, enumerated lists; it is less
+        # successful at finding a tight fit for object descriptions or
+        # admonitions: the table will then probably occupy full-width, and
+        # columns containing such cells will auto-divide the total width
+        # equally.
+        #
+        # "\sphinxcolwidth" has an appropriate definition in
+        # sphinxlatextables.sty which in particular takes into account
+        # tabulary "two-pass" system.
+        self.body.append(
+            r'\begin{varwidth}[t]{\sphinxcolwidth{%d}{%d}}'
+            % (cell.width, self.table.colcount)
+            + CR
+        )
+        context = r'\sphinxbeforeendvarwidth' + CR + r'\end{varwidth}%' + CR + context
         if (
             isinstance(node.parent.parent, nodes.thead)
             or (cell.col in self.table.stubs)
@@ -1392,20 +1396,17 @@ class LaTeXTranslator(SphinxTranslator):
                 pass
             else:
                 self.body.append(r'\sphinxstyletheadfamily ')
-        if self.table.entry_needs_linetrimming:
-            self.pushbody([])
+        self.pushbody([])
         self.context.append(context)
 
     def depart_entry(self, node: Element) -> None:
         assert self.table is not None
-        if self.table.entry_needs_linetrimming:
-            self.table.entry_needs_linetrimming = 0
-            body = self.popbody()
+        body = self.popbody()
 
-            # Remove empty lines from top of merged cell
-            while body and body[0] == CR:
-                body.pop(0)
-            self.body.extend(body)
+        # Remove empty lines from top of merged cell
+        while body and body[0] == CR:
+            body.pop(0)
+        self.body.extend(body)
 
         self.body.append(self.context.pop())
 
@@ -1446,8 +1447,6 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_bullet_list(self, node: Element) -> None:
         if not self.compact_list:
             self.body.append(r'\begin{itemize}' + CR)
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_bullet_list(self, node: Element) -> None:
         if not self.compact_list:
@@ -1485,8 +1484,6 @@ class LaTeXTranslator(SphinxTranslator):
         )
         if 'start' in node:
             self.body.append(r'\setcounter{%s}{%d}' % (enum, node['start'] - 1) + CR)
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_enumerated_list(self, node: Element) -> None:
         self.body.append(r'\end{enumerate}' + CR)
@@ -1501,8 +1498,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_definition_list(self, node: Element) -> None:
         self.body.append(r'\begin{description}' + CR)
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_definition_list(self, node: Element) -> None:
         self.body.append(r'\end{description}' + CR)
@@ -1542,8 +1537,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_field_list(self, node: Element) -> None:
         self.body.append(r'\begin{quote}\begin{description}' + CR)
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_field_list(self, node: Element) -> None:
         self.body.append(r'\end{description}\end{quote}' + CR)
@@ -1585,8 +1578,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_centered(self, node: Element) -> None:
         self.body.append(CR + r'\begin{center}')
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_centered(self, node: Element) -> None:
         self.body.append(CR + r'\end{center}')
@@ -1601,8 +1592,6 @@ class LaTeXTranslator(SphinxTranslator):
             r'\begin{itemize}\setlength{\itemsep}{0pt}'
             r'\setlength{\parskip}{0pt}' + CR
         )
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_hlist(self, node: Element) -> None:
         self.compact_list -= 1
@@ -1798,8 +1787,6 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_admonition(self, node: Element) -> None:
         self.body.append(CR + r'\begin{sphinxadmonition}{note}')
         self.no_latex_floats += 1
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_admonition(self, node: Element) -> None:
         self.body.append(r'\end{sphinxadmonition}' + CR)
@@ -1811,8 +1798,6 @@ class LaTeXTranslator(SphinxTranslator):
             CR + r'\begin{sphinxadmonition}{%s}{%s:}' % (node.tagname, label)
         )
         self.no_latex_floats += 1
-        if self.table:
-            self.table.has_problematic = True
 
     def _depart_named_admonition(self, node: Element) -> None:
         self.body.append(r'\end{sphinxadmonition}' + CR)
@@ -1889,35 +1874,14 @@ class LaTeXTranslator(SphinxTranslator):
                 and node['refid'] == prev_node['refid']
             ):
                 # a target for a hyperlink reference having alias
-                pass
+                return
             else:
                 add_target(node['refid'])
-        # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
-        # TODO: investigate if a more elegant solution exists
-        # (see comments of https://github.com/sphinx-doc/sphinx/issues/11093)
-        if node.get('ismod', False):
-            # Detect if the previous nodes are label targets. If so, remove
-            # the refid thereof from node['ids'] to avoid duplicated ids.
-            prev = get_prev_node(node)
-            if self._has_dup_label(prev, node):
-                ids = node['ids'][:]  # copy to avoid side-effects
-                while self._has_dup_label(prev, node):
-                    ids.remove(prev['refid'])  # type: ignore[index]
-                    prev = get_prev_node(prev)  # type: ignore[arg-type]
-            else:
-                ids = iter(node['ids'])  # read-only iterator
-        else:
-            ids = iter(node['ids'])  # read-only iterator
-
-        for id in ids:
+        for id in node['ids']:
             add_target(id)
 
     def depart_target(self, node: Element) -> None:
         pass
-
-    @staticmethod
-    def _has_dup_label(sib: Node | None, node: Element) -> bool:
-        return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
 
     def visit_attribution(self, node: Element) -> None:
         self.body.append(CR + r'\begin{flushright}' + CR)
@@ -2312,8 +2276,6 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(r'\begin{DUlineblock}{\DUlineblockindent}' + CR)
         else:
             self.body.append(CR + r'\begin{DUlineblock}{0em}' + CR)
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_line_block(self, node: Element) -> None:
         self.body.append(r'\end{DUlineblock}' + CR)
@@ -2329,8 +2291,6 @@ class LaTeXTranslator(SphinxTranslator):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
-            if self.table:
-                self.table.has_problematic = True
 
     def depart_block_quote(self, node: Element) -> None:
         done = 0
@@ -2370,8 +2330,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_option_list(self, node: Element) -> None:
         self.body.append(r'\begin{optionlist}{3cm}' + CR)
-        if self.table:
-            self.table.has_problematic = True
 
     def depart_option_list(self, node: Element) -> None:
         self.body.append(r'\end{optionlist}' + CR)

@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import re
-import warnings
 from types import SimpleNamespace
 
 import pytest
-from docutils import frontend, nodes, utils
+from docutils import nodes, utils
 from docutils.parsers.rst import Parser as RstParser
 
 from sphinx import addnodes
@@ -17,7 +16,7 @@ from sphinx.roles import XRefRole
 from sphinx.testing.util import assert_node
 from sphinx.transforms import SphinxSmartQuotes
 from sphinx.util import texescape
-from sphinx.util.docutils import sphinx_domains
+from sphinx.util.docutils import _get_settings, sphinx_domains
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
@@ -27,15 +26,9 @@ from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 def settings(app):
     env = app.env
     texescape.init()  # otherwise done by the latex builder
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        # DeprecationWarning: The frontend.OptionParser class will be replaced
-        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        optparser = frontend.OptionParser(
-            components=(RstParser, HTMLWriter, LaTeXWriter),
-            defaults=default_settings,
-        )
-    settings = optparser.get_default_values()
+    settings = _get_settings(
+        RstParser, HTMLWriter, LaTeXWriter, defaults=default_settings
+    )
     settings.smart_quotes = True
     settings.env = env
     settings.env.current_document.docname = 'dummy'
@@ -69,7 +62,7 @@ def parse(new_document):
         document = new_document()
         parser = RstParser()
         parser.parse(rst, document)
-        SphinxSmartQuotes(document, startnode=None).apply()  # type: ignore[no-untyped-call]
+        SphinxSmartQuotes(document, startnode=None).apply()
         for msg in list(document.findall(nodes.system_message)):
             if msg['level'] == 1:
                 msg.replace_self([])

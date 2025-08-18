@@ -123,7 +123,7 @@ class ImageDownloader(BaseImageConverter):
         node['candidates'].pop('?')
         node['candidates'][mimetype] = path_str
         node['uri'] = path_str
-        self.env.images.add_file(self.env.docname, path_str)
+        self.env.images.add_file(self.env.current_document.docname, path_str)
 
 
 class DataURIExtractor(BaseImageConverter):
@@ -156,7 +156,7 @@ class DataURIExtractor(BaseImageConverter):
         node['candidates'].pop('?')
         node['candidates'][image.mimetype] = path_str
         node['uri'] = path_str
-        self.env.images.add_file(self.env.docname, path_str)
+        self.env.images.add_file(self.env.current_document.docname, path_str)
 
 
 def get_filename_for(filename: str, mimetype: str) -> str:
@@ -278,7 +278,7 @@ class ImageConverter(BaseImageConverter):
             node['uri'] = str(destpath)
 
             self.env.original_image_uri[destpath] = srcpath
-            self.env.images.add_file(self.env.docname, destpath)
+            self.env.images.add_file(self.env.current_document.docname, destpath)
 
     def convert(
         self, _from: str | os.PathLike[str], _to: str | os.PathLike[str]

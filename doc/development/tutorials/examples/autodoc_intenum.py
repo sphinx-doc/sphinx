@@ -41,7 +41,7 @@ class IntEnumDocumenter(ClassDocumenter):
         super().add_content(more_content)
 
         source_name = self.get_sourcename()
-        enum_object: IntEnum = self.object
+        enum_object: IntEnum = self.props._obj
         use_hex = self.options.hex
         self.add_line('', source_name)
 

@@ -12,6 +12,9 @@ from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.errors import SphinxError
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
     from sphinx.testing.util import SphinxTestApp
 
 ENV_WARNINGS = """\
@@ -23,7 +26,7 @@ file '{root}/wrongenc.inc' seems to be wrong, try giving an :encoding: option \\
 {root}/index.rst:\\d+: WARNING: image file not readable: foo.png \\[image.not_readable\\]
 {root}/index.rst:\\d+: WARNING: download file not readable: {root}/nonexisting.png \\[download.not_readable\\]
 {root}/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
-with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
+with '\\?': 'here: >>>(\\\\|/)xbb<<<'\\. This will become an error in Sphinx 9\\.0\\.
 """
 
 HTML_WARNINGS = (
@@ -117,7 +120,9 @@ def test_texinfo_warnings(app: SphinxTestApp) -> None:
     _check_warnings(warnings_exp, app.warning.getvalue())
 
 
-def test_uncacheable_config_warning(make_app, tmp_path):
+def test_uncacheable_config_warning(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
     """Test that an unpickleable config value raises a warning."""
     tmp_path.joinpath('conf.py').write_text(
         """\

@@ -69,7 +69,8 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc import INSTANCEATTR, Options
+from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
@@ -176,8 +177,9 @@ class FakeDirective(DocumenterBridge):
         app = FakeApplication()
         app.config.add('autodoc_class_signature', 'mixed', 'env', ())
         env = BuildEnvironment(app)  # type: ignore[arg-type]
+        opts = _AutoDocumenterOptions()
         state = Struct(document=document)
-        super().__init__(env, None, Options(), 0, state)
+        super().__init__(env, None, opts, 0, state)
 
 
 def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
@@ -255,8 +257,9 @@ class Autosummary(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
+        opts = _AutoDocumenterOptions()
         self.bridge = DocumenterBridge(
-            self.env, self.state.document.reporter, Options(), self.lineno, self.state
+            self.env, self.state.document.reporter, opts, self.lineno, self.state
         )
 
         names = [
@@ -268,7 +271,7 @@ class Autosummary(SphinxDirective):
         nodes = self.get_table(items)
 
         if 'toctree' in self.options:
-            dirname = posixpath.dirname(self.env.docname)
+            dirname = posixpath.dirname(self.env.current_document.docname)
 
             tree_prefix = self.options['toctree'].strip()
             docnames = []
@@ -832,7 +835,7 @@ def import_ivar_by_name(
             found_attrs |= {attr for (qualname, attr) in analyzer.attr_docs}
             found_attrs |= {attr for (qualname, attr) in analyzer.annotations}
             if attr in found_attrs:
-                return f'{real_name}.{attr}', INSTANCEATTR, obj, modname
+                return f'{real_name}.{attr}', INSTANCE_ATTR, obj, modname
     except (ImportError, ValueError, PycodeError) as exc:
         raise ImportError from exc
     except ImportExceptionGroup:

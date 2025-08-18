@@ -2,11 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from docutils.core import publish_doctree
-
-from sphinx.io import SphinxStandaloneReader
 from sphinx.parsers import RSTParser
-from sphinx.util.docutils import sphinx_domains
+from sphinx.util.docutils import _parse_str_to_doctree
 
 if TYPE_CHECKING:
     from docutils import nodes
@@ -15,28 +12,35 @@ if TYPE_CHECKING:
 
 
 def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
-    """Parse a string as reStructuredText with Sphinx application."""
+    """Parse a string as reStructuredText with Sphinx."""
+    config = app.config
     env = app.env
+    registry = app.registry
+    srcdir = app.srcdir
+
+    # Get settings
+    settings_overrides = {
+        'env': env,
+        'gettext_compact': True,
+        'input_encoding': 'utf-8',
+        'output_encoding': 'unicode',
+        'traceback': True,
+    }
+
+    # Create parser
+    parser = RSTParser()
+    parser._config = config
+    parser._env = env
+
+    env.current_document.docname = docname
     try:
-        app.env.current_document.docname = docname
-        reader = SphinxStandaloneReader()
-        reader._setup_transforms(app.registry.get_transforms())
-        parser = RSTParser()
-        parser._config = app.config
-        parser._env = app.env
-        with sphinx_domains(env):
-            return publish_doctree(
-                text,
-                str(app.srcdir / f'{docname}.rst'),
-                reader=reader,
-                parser=parser,
-                settings_overrides={
-                    'env': env,
-                    'gettext_compact': True,
-                    'input_encoding': 'utf-8',
-                    'output_encoding': 'unicode',
-                    'traceback': True,
-                },
-            )
+        return _parse_str_to_doctree(
+            text,
+            filename=srcdir / f'{docname}.rst',
+            default_settings=settings_overrides,
+            env=env,
+            parser=parser,
+            transforms=registry.get_transforms(),
+        )
     finally:
         env.current_document.docname = ''

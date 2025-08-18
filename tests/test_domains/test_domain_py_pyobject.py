@@ -925,17 +925,17 @@ def test_domain_py_type_alias(app):
 
     content = (app.outdir / 'type_alias.html').read_text(encoding='utf8')
     assert (
-        '<em class="property"><span class="k"><span class="pre">type</span></span><span class="w"> </span></em>'
+        '<span class="property"><span class="k"><span class="pre">type</span></span><span class="w"> </span></span>'
         '<span class="sig-prename descclassname"><span class="pre">module_one.</span></span>'
         '<span class="sig-name descname"><span class="pre">MyAlias</span></span>'
-        '<em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span>'
+        '<span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span>'
         '<span class="w"> </span><span class="pre">list</span>'
         '<span class="p"><span class="pre">[</span></span>'
         '<span class="pre">int</span><span class="w"> </span>'
         '<span class="p"><span class="pre">|</span></span><span class="w"> </span>'
         '<a class="reference internal" href="#module_two.SomeClass" title="module_two.SomeClass">'
         '<span class="pre">module_two.SomeClass</span></a>'
-        '<span class="p"><span class="pre">]</span></span></em>'
+        '<span class="p"><span class="pre">]</span></span></span>'
     ) in content
     assert app.warning.getvalue() == ''
 

@@ -8,34 +8,43 @@ import os
 import sys
 import traceback
 import typing
-from enum import Enum
 from importlib.abc import FileLoader
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NewType, TypeVar
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc.mock import ismock, undecorate
-from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import logging
-from sphinx.util.inspect import (
-    getannotations,
-    getmro,
-    getslots,
-    isclass,
-    isenumclass,
-    safe_getattr,
-    unwrap_all,
+from sphinx.ext.autodoc._property_types import (
+    _AssignStatementProperties,
+    _ClassDefProperties,
+    _FunctionDefProperties,
+    _ItemProperties,
+    _ModuleProperties,
 )
+from sphinx.ext.autodoc._sentinels import (
+    RUNTIME_INSTANCE_ATTRIBUTE,
+    SLOTS_ATTR,
+    UNINITIALIZED_ATTR,
+)
+from sphinx.ext.autodoc.mock import ismock, mock, undecorate
+from sphinx.locale import __
+from sphinx.pycode import ModuleAnalyzer
+from sphinx.util import inspect, logging
+from sphinx.util.inspect import (
+    isclass,
+    safe_getattr,
+)
+from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping
+    from collections.abc import Sequence
     from importlib.machinery import ModuleSpec
     from types import ModuleType
     from typing import Any, Protocol
 
-    from sphinx.ext.autodoc import ObjectMember
+    from sphinx.environment import BuildEnvironment, _CurrentDocument
+    from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
 
     class _AttrGetter(Protocol):
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
@@ -45,89 +54,34 @@ _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
 
 
-def _filter_enum_dict(
-    enum_class: type[Enum],
-    attrgetter: _AttrGetter,
-    enum_class_dict: Mapping[str, object],
-) -> Iterator[tuple[str, type, Any]]:
-    """Find the attributes to document of an enumeration class.
+class _ImportedObject:
+    #: module containing the object to document
+    module: ModuleType | None
 
-    The output consists of triplets ``(attribute name, defining class, value)``
-    where the attribute name can appear more than once during the iteration
-    but with different defining class. The order of occurrence is guided by
-    the MRO of *enum_class*.
-    """
-    # attributes that were found on a mixin type or the data type
-    candidate_in_mro: set[str] = set()
-    # sunder names that were picked up (and thereby allowed to be redefined)
-    # see: https://docs.python.org/3/howto/enum.html#supported-dunder-names
-    sunder_names = {
-        '_name_',
-        '_value_',
-        '_missing_',
-        '_order_',
-        '_generate_next_value_',
-    }
-    # attributes that can be picked up on a mixin type or the enum's data type
-    public_names = {'name', 'value', *object.__dict__, *sunder_names}
-    # names that are ignored by default
-    ignore_names = Enum.__dict__.keys() - public_names
+    #: parent/owner of the object to document
+    parent: Any
 
-    def should_ignore(name: str, value: Any) -> bool:
-        if name in sunder_names:
-            return _is_native_enum_api(value, name)
-        return name in ignore_names
+    #: name of the object to document
+    object_name: str
 
-    sentinel = object()
+    #: object to document
+    obj: Any
 
-    def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
-        value = attrgetter(enum_class, name, sentinel)
-        if value is not sentinel:
-            return name, defining_class, value
-        return None
+    def __init__(
+        self,
+        *,
+        module: ModuleType | None = None,
+        parent: Any,
+        object_name: str = '',
+        obj: Any,
+    ) -> None:
+        self.module = module
+        self.parent = parent
+        self.object_name = object_name
+        self.obj = obj
 
-    # attributes defined on a parent type, possibly shadowed later by
-    # the attributes defined directly inside the enumeration class
-    for parent in enum_class.__mro__:
-        if parent in {enum_class, Enum, object}:
-            continue
-
-        parent_dict = attrgetter(parent, '__dict__', {})
-        for name, value in parent_dict.items():
-            if should_ignore(name, value):
-                continue
-
-            candidate_in_mro.add(name)
-            if (item := query(name, parent)) is not None:
-                yield item
-
-    # exclude members coming from the native Enum unless
-    # they were redefined on a mixin type or the data type
-    excluded_members = Enum.__dict__.keys() - candidate_in_mro
-    yield from filter(
-        None,
-        (
-            query(name, enum_class)
-            for name in enum_class_dict
-            if name not in excluded_members
-        ),
-    )
-
-    # check if allowed members from ``Enum`` were redefined at the enum level
-    special_names = sunder_names | public_names
-    special_names &= enum_class_dict.keys()
-    special_names &= Enum.__dict__.keys()
-    for name in special_names:
-        if (
-            not _is_native_enum_api(enum_class_dict[name], name)
-            and (item := query(name, enum_class)) is not None
-        ):
-            yield item
-
-
-def _is_native_enum_api(obj: object, name: str) -> bool:
-    """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
-    return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} {self.__dict__}>'
 
 
 def mangle(subject: Any, name: str) -> str:
@@ -135,25 +89,6 @@ def mangle(subject: Any, name: str) -> str:
     try:
         if isclass(subject) and name.startswith('__') and not name.endswith('__'):
             return f'_{subject.__name__}{name}'
-    except AttributeError:
-        pass
-
-    return name
-
-
-def unmangle(subject: Any, name: str) -> str | None:
-    """Unmangle the given name."""
-    try:
-        if isclass(subject) and not name.endswith('__'):
-            prefix = f'_{subject.__name__}__'
-            if name.startswith(prefix):
-                return name.replace(prefix, '__', 1)
-            else:
-                for cls in subject.__mro__:
-                    prefix = f'_{cls.__name__}__'
-                    if name.startswith(prefix):
-                        # mangled attribute defined in parent class
-                        return None
     except AttributeError:
         pass
 
@@ -256,37 +191,51 @@ def import_object(
     objtype: str = '',
     attrgetter: _AttrGetter = safe_getattr,
 ) -> Any:
-    if objpath:
-        logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
-    else:
-        logger.debug('[autodoc] import %s', modname)
+    ret = _import_from_module_and_path(
+        module_name=modname, obj_path=objpath, get_attr=attrgetter
+    )
+    if isinstance(ret, _ImportedObject):
+        return [ret.module, ret.parent, ret.object_name, ret.obj]
+    return None
 
+
+def _import_from_module_and_path(
+    *,
+    module_name: str,
+    obj_path: Sequence[str],
+    get_attr: _AttrGetter = safe_getattr,
+) -> _ImportedObject:
+    obj_path = list(obj_path)
+    if obj_path:
+        logger.debug('[autodoc] from %s import %s', module_name, '.'.join(obj_path))
+    else:
+        logger.debug('[autodoc] import %s', module_name)
+
+    module = None
+    exc_on_importing = None
     try:
-        module = None
-        exc_on_importing = None
-        objpath = objpath.copy()
         while module is None:
             try:
-                module = import_module(modname, try_reload=True)
-                logger.debug('[autodoc] import %s => %r', modname, module)
+                module = import_module(module_name, try_reload=True)
+                logger.debug('[autodoc] import %s => %r', module_name, module)
             except ImportError as exc:
-                logger.debug('[autodoc] import %s => failed', modname)
+                logger.debug('[autodoc] import %s => failed', module_name)
                 exc_on_importing = exc
-                if '.' in modname:
-                    # retry with parent module
-                    modname, name = modname.rsplit('.', 1)
-                    objpath.insert(0, name)
-                else:
+                if '.' not in module_name:
                     raise
+
+                # retry with parent module
+                module_name, _, name = module_name.rpartition('.')
+                obj_path.insert(0, name)
 
         obj = module
         parent = None
-        object_name = None
-        for attrname in objpath:
+        object_name = ''
+        for attr_name in obj_path:
             parent = obj
-            logger.debug('[autodoc] getattr(_, %r)', attrname)
-            mangled_name = mangle(obj, attrname)
-            obj = attrgetter(obj, mangled_name)
+            logger.debug('[autodoc] getattr(_, %r)', attr_name)
+            mangled_name = mangle(obj, attr_name)
+            obj = get_attr(obj, mangled_name)
 
             try:
                 logger.debug('[autodoc] => %r', obj)
@@ -295,21 +244,26 @@ def import_object(
                 # See: https://github.com/sphinx-doc/sphinx/issues/9095
                 logger.debug('[autodoc] => %r', (obj,))
 
-            object_name = attrname
-        return [module, parent, object_name, obj]
+            object_name = attr_name
+        return _ImportedObject(
+            module=module,
+            parent=parent,
+            object_name=object_name,
+            obj=obj,
+        )
     except (AttributeError, ImportError) as exc:
         if isinstance(exc, AttributeError) and exc_on_importing:
             # restore ImportError
             exc = exc_on_importing
 
-        if objpath:
-            errmsg = 'autodoc: failed to import %s %r from module %r' % (
-                objtype,
-                '.'.join(objpath),
-                modname,
-            )
+        if obj_path:
+            dotted_objpath = '.'.join(obj_path)
+            err_parts = [
+                f'autodoc: failed to import {dotted_objpath!r} '
+                f'from module {module_name!r}'
+            ]
         else:
-            errmsg = f'autodoc: failed to import {objtype} {modname!r}'
+            err_parts = [f'autodoc: failed to import {module_name!r}']
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
@@ -317,208 +271,574 @@ def import_object(
             real_exc = exc.args[0]
             traceback_msg = traceback.format_exception(exc)
             if isinstance(real_exc, SystemExit):
-                errmsg += (
-                    '; the module executes module level statement '
+                err_parts.append(
+                    'the module executes module level statement '
                     'and it might call sys.exit().'
                 )
             elif isinstance(real_exc, ImportError) and real_exc.args:
-                errmsg += '; the following exception was raised:\n%s' % real_exc.args[0]
+                err_parts.append(
+                    f'the following exception was raised:\n{real_exc.args[0]}'
+                )
             else:
-                errmsg += '; the following exception was raised:\n%s' % traceback_msg
+                err_parts.append(
+                    f'the following exception was raised:\n{traceback_msg}'
+                )
         else:
-            errmsg += (
-                '; the following exception was raised:\n%s' % traceback.format_exc()
+            err_parts.append(
+                f'the following exception was raised:\n{traceback.format_exc()}'
             )
 
+        errmsg = '; '.join(err_parts)
         logger.debug(errmsg)
         raise ImportError(errmsg) from exc
 
 
-class Attribute(NamedTuple):
-    name: str
-    directly_defined: bool
-    value: Any
+def _import_object(
+    *,
+    module_name: str,
+    obj_path: Sequence[str],
+    mock_imports: list[str],
+    get_attr: _AttrGetter = safe_getattr,
+) -> _ImportedObject:
+    """Import the object given by *module_name* and *obj_path* and set
+    it as *object*.
 
-
-def get_object_members(
-    subject: Any,
-    objpath: list[str],
-    attrgetter: _AttrGetter,
-    analyzer: ModuleAnalyzer | None = None,
-) -> dict[str, Attribute]:
-    """Get members and attributes of target object."""
-    from sphinx.ext.autodoc import INSTANCEATTR
-
-    # the members directly defined in the class
-    obj_dict = attrgetter(subject, '__dict__', {})
-
-    members: dict[str, Attribute] = {}
-
-    # enum members
-    if isenumclass(subject):
-        for name, defining_class, value in _filter_enum_dict(
-            subject, attrgetter, obj_dict
-        ):
-            # the order of occurrence of *name* matches the subject's MRO,
-            # allowing inherited attributes to be shadowed correctly
-            if unmangled := unmangle(defining_class, name):
-                members[unmangled] = Attribute(
-                    name=unmangled,
-                    directly_defined=defining_class is subject,
-                    value=value,
-                )
-
-    # members in __slots__
+    Returns True if successful, False if an error occurred.
+    """
     try:
-        subject___slots__ = getslots(subject)
-        if subject___slots__:
-            from sphinx.ext.autodoc import SLOTSATTR
+        with mock(mock_imports):
+            im = _import_from_module_and_path(
+                module_name=module_name, obj_path=obj_path, get_attr=get_attr
+            )
+        if ismock(im.obj):
+            im.obj = undecorate(im.obj)
+        return im
+    except ImportError:  # NoQA: TRY203
+        raise
 
-            for name in subject___slots__:
-                members[name] = Attribute(
-                    name=name, directly_defined=True, value=SLOTSATTR
-                )
-    except (TypeError, ValueError):
+
+def _import_data_declaration(
+    *,
+    module_name: str,
+    obj_path: Sequence[str],
+    mock_imports: list[str],
+    type_aliases: dict[str, Any] | None,
+) -> _ImportedObject | None:
+    # annotation only instance variable (PEP-526)
+    try:
+        with mock(mock_imports):
+            parent = import_module(module_name)
+        annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
+        if obj_path[-1] in annotations:
+            im = _ImportedObject(
+                parent=parent,
+                obj=UNINITIALIZED_ATTR,
+            )
+            return im
+    except ImportError:
         pass
-
-    # other members
-    for name in dir(subject):
-        try:
-            value = attrgetter(subject, name)
-            directly_defined = name in obj_dict
-            unmangled = unmangle(subject, name)
-            if unmangled and unmangled not in members:
-                members[unmangled] = Attribute(
-                    name=unmangled, directly_defined=directly_defined, value=value
-                )
-        except AttributeError:
-            continue
-
-    # annotation only member (ex. attr: int)
-    for cls in getmro(subject):
-        for name in getannotations(cls):
-            unmangled = unmangle(cls, name)
-            if unmangled and unmangled not in members:
-                members[unmangled] = Attribute(
-                    name=unmangled, directly_defined=cls is subject, value=INSTANCEATTR
-                )
-
-    if analyzer:
-        # append instance attributes (cf. self.attr1) if analyzer knows
-        namespace = '.'.join(objpath)
-        for ns, name in analyzer.find_attr_docs():
-            if namespace == ns and name not in members:
-                members[name] = Attribute(
-                    name=name, directly_defined=True, value=INSTANCEATTR
-                )
-
-    return members
+    return None
 
 
-def get_class_members(
-    subject: Any, objpath: Any, attrgetter: _AttrGetter, inherit_docstrings: bool = True
-) -> dict[str, ObjectMember]:
-    """Get members and attributes of target class."""
-    from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
-
-    # the members directly defined in the class
-    obj_dict = attrgetter(subject, '__dict__', {})
-
-    members: dict[str, ObjectMember] = {}
-
-    # enum members
-    if isenumclass(subject):
-        for name, defining_class, value in _filter_enum_dict(
-            subject, attrgetter, obj_dict
+def _import_attribute_declaration(
+    *,
+    module_name: str,
+    obj_path: Sequence[str],
+    mock_imports: list[str],
+    type_aliases: dict[str, Any] | None,
+    get_attr: _AttrGetter = safe_getattr,
+) -> _ImportedObject | None:
+    # Support runtime & uninitialized instance attributes.
+    #
+    # The former are defined in __init__() methods with doc-comments.
+    # The latter are PEP-526 style annotation only annotations.
+    #
+    # class Foo:
+    #     attr: int  #: uninitialized attribute
+    #
+    #     def __init__(self):
+    #         self.attr = None  #: runtime attribute
+    try:
+        with mock(mock_imports):
+            ret = _import_from_module_and_path(
+                module_name=module_name, obj_path=obj_path[:-1], get_attr=get_attr
+            )
+        parent = ret.obj
+        if _is_runtime_instance_attribute(parent=parent, obj_path=obj_path):
+            im = _ImportedObject(
+                parent=parent,
+                obj=RUNTIME_INSTANCE_ATTRIBUTE,
+            )
+            return im
+        elif _is_uninitialized_instance_attribute(
+            parent=parent, obj_path=obj_path, type_aliases=type_aliases
         ):
-            # the order of occurrence of *name* matches the subject's MRO,
-            # allowing inherited attributes to be shadowed correctly
-            if unmangled := unmangle(defining_class, name):
-                members[unmangled] = ObjectMember(
-                    unmangled, value, class_=defining_class
-                )
-
-    # members in __slots__
-    try:
-        subject___slots__ = getslots(subject)
-        if subject___slots__:
-            from sphinx.ext.autodoc import SLOTSATTR
-
-            for name, docstring in subject___slots__.items():
-                members[name] = ObjectMember(
-                    name, SLOTSATTR, class_=subject, docstring=docstring
-                )
-    except (TypeError, ValueError):
+            im = _ImportedObject(
+                parent=parent,
+                obj=UNINITIALIZED_ATTR,
+            )
+            return im
+    except ImportError:
         pass
+    return None
 
-    # other members
-    for name in dir(subject):
+
+def _is_runtime_instance_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
+    """Check the subject is an attribute defined in __init__()."""
+    # An instance variable defined in __init__().
+    if _get_attribute_comment(parent=parent, obj_path=obj_path, attrname=obj_path[-1]):
+        return True
+    return _is_runtime_instance_attribute_not_commented(
+        parent=parent, obj_path=obj_path
+    )
+
+
+def _is_runtime_instance_attribute_not_commented(
+    *, parent: Any, obj_path: Sequence[str]
+) -> bool:
+    """Check the subject is an attribute defined in __init__() without comment."""
+    for cls in inspect.getmro(parent):
         try:
-            value = attrgetter(subject, name)
-            if ismock(value):
-                value = undecorate(value)
+            module = safe_getattr(cls, '__module__')
+            qualname = safe_getattr(cls, '__qualname__')
 
-            unmangled = unmangle(subject, name)
-            if unmangled and unmangled not in members:
-                if name in obj_dict:
-                    members[unmangled] = ObjectMember(unmangled, value, class_=subject)
-                else:
-                    members[unmangled] = ObjectMember(unmangled, value)
-        except AttributeError:
-            continue
+            analyzer = ModuleAnalyzer.for_module(module)
+            analyzer.analyze()
+            if qualname and obj_path:
+                key = f'{qualname}.{obj_path[-1]}'
+                if key in analyzer.tagorder:
+                    return True
+        except (AttributeError, PycodeError):
+            pass
 
+    return False
+
+
+def _get_attribute_comment(
+    parent: Any, obj_path: Sequence[str], attrname: str
+) -> list[str] | None:
+    for cls in inspect.getmro(parent):
+        try:
+            module = safe_getattr(cls, '__module__')
+            qualname = safe_getattr(cls, '__qualname__')
+
+            analyzer = ModuleAnalyzer.for_module(module)
+            analyzer.analyze()
+            if qualname and obj_path:
+                key = (qualname, attrname)
+                if key in analyzer.attr_docs:
+                    return list(analyzer.attr_docs[key])
+        except (AttributeError, PycodeError):
+            pass
+
+    return None
+
+
+def _is_uninitialized_instance_attribute(
+    *, parent: Any, obj_path: Sequence[str], type_aliases: dict[str, Any] | None
+) -> bool:
+    """Check the subject is an annotation only attribute."""
+    annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
+    return obj_path[-1] in annotations
+
+
+def _is_slots_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
+    """Check the subject is an attribute in __slots__."""
     try:
-        for cls in getmro(subject):
+        if parent___slots__ := inspect.getslots(parent):
+            return obj_path[-1] in parent___slots__
+        else:
+            return False
+    except (ValueError, TypeError):
+        return False
+
+
+def _load_object_by_name(
+    *,
+    name: str,
+    objtype: _AutodocObjType,
+    mock_imports: list[str],
+    type_aliases: dict[str, Any] | None,
+    current_document: _CurrentDocument,
+    env: BuildEnvironment,
+    get_attr: _AttrGetter,
+) -> tuple[_ItemProperties, str | None, str | None, ModuleType | None, Any] | None:
+    """Import and load the object given by *name*."""
+    parsed = _parse_name(
+        name=name,
+        objtype=objtype,
+        current_document=current_document,
+        env=env,
+    )
+    if parsed is None:
+        return None
+    module_name, parts, args, retann = parsed
+
+    # Import the module and get the object to document
+    try:
+        im = _import_object(
+            module_name=module_name,
+            obj_path=parts,
+            mock_imports=mock_imports,
+            get_attr=get_attr,
+        )
+    except ImportError as exc:
+        if objtype == 'data':
+            im_ = _import_data_declaration(
+                module_name=module_name,
+                obj_path=parts,
+                mock_imports=mock_imports,
+                type_aliases=type_aliases,
+            )
+        elif objtype == 'attribute':
+            im_ = _import_attribute_declaration(
+                module_name=module_name,
+                obj_path=parts,
+                mock_imports=mock_imports,
+                type_aliases=type_aliases,
+                get_attr=get_attr,
+            )
+        else:
+            im_ = None
+        if im_ is None:
+            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+            env.note_reread()
+            return None
+        else:
+            im = im_
+
+    # Assemble object properties from the imported object.
+    props: _ItemProperties
+    module = im.module
+    parent = im.parent
+    object_name = im.object_name
+    obj = im.obj
+    obj_properties: set[_AutodocFuncProperty] = set()
+    if objtype == 'module':
+        file_path = getattr(module, '__file__', None)
+        mod_all = safe_getattr(obj, '__all__', None)
+        if isinstance(mod_all, (list, tuple)) and all(
+            isinstance(e, str) for e in mod_all
+        ):
+            mod_all = tuple(mod_all)
+        elif mod_all is not None:
+            # Invalid __all__ found.
+            msg = __('Ignoring invalid __all__ in module %s: %r')
+            logger.warning(msg, module_name, mod_all, type='autodoc')
+            mod_all = None
+
+        props = _ModuleProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            docstring_lines=(),
+            file_path=Path(file_path) if file_path is not None else None,
+            all=mod_all,
+            _obj=obj,
+            _obj___module__=obj.__name__,
+        )
+    elif objtype in {'class', 'exception'}:
+        if isinstance(obj, NewType | TypeVar):
+            obj_module_name = getattr(obj, '__module__', module_name)
+            if obj_module_name != module_name and module_name.startswith(
+                obj_module_name
+            ):
+                bases = module_name[len(obj_module_name) :].strip('.').split('.')
+                parts = tuple(bases) + parts
+                module_name = obj_module_name
+
+        props = _ClassDefProperties(
+            obj_type=objtype,  # type: ignore[arg-type]
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            bases=getattr(obj, '__bases__', None),
+            _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
+            _obj___name__=getattr(obj, '__name__', None),
+        )
+    elif objtype in {'function', 'decorator'}:
+        if inspect.isstaticmethod(obj, cls=parent, name=object_name):
+            obj_properties.add('staticmethod')
+        if inspect.isclassmethod(obj):
+            obj_properties.add('classmethod')
+
+        props = _FunctionDefProperties(
+            obj_type=objtype,  # type: ignore[arg-type]
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            properties=frozenset(obj_properties),
+            _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
+        )
+    elif objtype == 'method':
+        # to distinguish classmethod/staticmethod
+        obj_ = parent.__dict__.get(object_name, obj)
+        if inspect.isstaticmethod(obj_, cls=parent, name=object_name):
+            obj_properties.add('staticmethod')
+        elif inspect.isclassmethod(obj_):
+            obj_properties.add('classmethod')
+
+        props = _FunctionDefProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            properties=frozenset(obj_properties),
+            _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
+        )
+    elif objtype == 'property':
+        if not inspect.isproperty(obj):
+            # Support for class properties. Note: these only work on Python 3.9.
+            __dict__ = safe_getattr(parent, '__dict__', {})
+            obj = __dict__.get(parts[-1])
+            if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
+                obj = obj.__func__
+                obj_properties.add('classmethod')
+            else:
+                return None
+
+        props = _FunctionDefProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            properties=frozenset(obj_properties),
+            _obj=obj,
+            _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
+        )
+    elif objtype == 'data':
+        # Update __annotations__ to support type_comment and so on
+        annotations = dict(inspect.getannotations(parent))
+        parent.__annotations__ = annotations
+
+        try:
+            analyzer = ModuleAnalyzer.for_module(module_name)
+            analyzer.analyze()
+            for (
+                classname,
+                attrname,
+            ), annotation in analyzer.annotations.items():
+                if not classname and attrname not in annotations:
+                    annotations[attrname] = annotation
+        except PycodeError:
+            pass
+
+        props = _AssignStatementProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            value=...,
+            annotation='',
+            class_var=False,
+            instance_var=False,
+            _obj=obj,
+            _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
+        )
+    elif objtype == 'attribute':
+        if _is_slots_attribute(parent=parent, obj_path=parts):
+            obj = SLOTS_ATTR
+        elif inspect.isenumattribute(obj):
+            obj = obj.value
+        if parent:
+            # Update __annotations__ to support type_comment and so on.
             try:
-                modname = safe_getattr(cls, '__module__')
-                qualname = safe_getattr(cls, '__qualname__')
-                analyzer = ModuleAnalyzer.for_module(modname)
-                analyzer.analyze()
-            except AttributeError:
-                qualname = None
-                analyzer = None
-            except PycodeError:
-                analyzer = None
+                annotations = dict(inspect.getannotations(parent))
+                parent.__annotations__ = annotations
 
-            # annotation only member (ex. attr: int)
-            for name in getannotations(cls):
-                unmangled = unmangle(cls, name)
-                if unmangled and unmangled not in members:
-                    if analyzer and (qualname, unmangled) in analyzer.attr_docs:
-                        docstring = '\n'.join(analyzer.attr_docs[qualname, unmangled])
-                    else:
-                        docstring = None
+                for cls in inspect.getmro(parent):
+                    try:
+                        module = safe_getattr(cls, '__module__')
+                        qualname = safe_getattr(cls, '__qualname__')
 
-                    members[unmangled] = ObjectMember(
-                        unmangled, INSTANCEATTR, class_=cls, docstring=docstring
-                    )
+                        analyzer = ModuleAnalyzer.for_module(module)
+                        analyzer.analyze()
+                        anns = analyzer.annotations
+                        for (classname, attrname), annotation in anns.items():
+                            if classname == qualname and attrname not in annotations:
+                                annotations[attrname] = annotation
+                    except (AttributeError, PycodeError):
+                        pass
+            except (AttributeError, TypeError):
+                # Failed to set __annotations__ (built-in, extensions, etc.)
+                pass
 
-            # append or complete instance attributes (cf. self.attr1) if analyzer knows
-            if analyzer:
-                for (ns, name), docstring in analyzer.attr_docs.items():
-                    if ns == qualname and name not in members:
-                        # otherwise unknown instance attribute
-                        members[name] = ObjectMember(
-                            name,
-                            INSTANCEATTR,
-                            class_=cls,
-                            docstring='\n'.join(docstring),
-                        )
-                    elif (
-                        ns == qualname
-                        and docstring
-                        and isinstance(members[name], ObjectMember)
-                        and not members[name].docstring
-                    ):
-                        if cls != subject and not inherit_docstrings:
-                            # If we are in the MRO of the class and not the class itself,
-                            # and we do not want to inherit docstrings, then skip setting
-                            # the docstring below
-                            continue
-                        # attribute is already known, because dir(subject) enumerates it.
-                        # But it has no docstring yet
-                        members[name].docstring = '\n'.join(docstring)
-    except AttributeError:
-        pass
+        props = _AssignStatementProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            value=...,
+            annotation='',
+            class_var=False,
+            instance_var=False,
+            _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
+        )
+    else:
+        props = _ItemProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
+        )
 
-    return members
+    return props, args, retann, module, parent
+
+
+def _parse_name(
+    *,
+    name: str,
+    objtype: _AutodocObjType,
+    current_document: _CurrentDocument,
+    env: BuildEnvironment,
+) -> tuple[str, tuple[str, ...], str | None, str | None] | None:
+    """Parse *name* into module name, path, arguments, and return annotation."""
+    from sphinx.ext.autodoc._documenters import py_ext_sig_re
+
+    # Parse the definition in *name*.
+    # autodoc directives for classes and functions can contain a signature,
+    # which overrides the autogenerated one.
+    matched = py_ext_sig_re.match(name)
+    if matched is None:
+        logger.warning(
+            __('invalid signature for auto%s (%r)'),
+            objtype,
+            name,
+            type='autodoc',
+        )
+        # need a module to import
+        logger.warning(
+            __(
+                "don't know which module to import for autodocumenting "
+                '%r (try placing a "module" or "currentmodule" directive '
+                'in the document, or giving an explicit module name)'
+            ),
+            name,
+            type='autodoc',
+        )
+        return None
+
+    explicit_modname, path, base, _tp_list, args, retann = matched.groups()
+
+    # Support explicit module and class name separation via ``::``
+    if explicit_modname is not None:
+        module_name = explicit_modname.removesuffix('::')
+        parents = path.rstrip('.').split('.') if path else ()
+    else:
+        module_name = None
+        parents = ()
+
+    resolved = _resolve_name(
+        objtype=objtype,
+        module_name=module_name,
+        path=path,
+        base=base,
+        parents=parents,
+        current_document=current_document,
+        ref_context_py_module=env.ref_context.get('py:module'),
+        ref_context_py_class=env.ref_context.get('py:class', ''),
+    )
+    if resolved is None:
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
+    module_name, parts = resolved
+
+    if objtype == 'module' and args:
+        msg = __("signature arguments given for automodule: '%s'")
+        logger.warning(msg, name, type='autodoc')
+        return None
+    if objtype == 'module' and retann:
+        msg = __("return annotation given for automodule: '%s'")
+        logger.warning(msg, name, type='autodoc')
+        return None
+
+    if not module_name:
+        # Could not resolve a module to import
+        logger.warning(
+            __(
+                "don't know which module to import for autodocumenting "
+                '%r (try placing a "module" or "currentmodule" directive '
+                'in the document, or giving an explicit module name)'
+            ),
+            name,
+            type='autodoc',
+        )
+        return None
+
+    return module_name, parts, args, retann
+
+
+def _resolve_name(
+    *,
+    objtype: str,
+    module_name: str | None,
+    path: str | None,
+    base: str,
+    parents: Sequence[str],
+    current_document: _CurrentDocument,
+    ref_context_py_module: str | None,
+    ref_context_py_class: str,
+) -> tuple[str | None, tuple[str, ...]] | None:
+    """Resolve the module and name of the object to document given by the
+    arguments and the current module/class.
+
+    Must return a pair of the module name and a chain of attributes; for
+    example, it would return ``('zipfile', ('ZipFile', 'open'))`` for the
+    ``zipfile.ZipFile.open`` method.
+    """
+    if objtype == 'module':
+        if module_name is not None:
+            logger.warning(
+                __('"::" in automodule name doesn\'t make sense'), type='autodoc'
+            )
+        return (path or '') + base, ()
+
+    if objtype in {'class', 'exception', 'function', 'decorator', 'data'}:
+        if module_name is not None:
+            return module_name, (*parents, base)
+        if path:
+            module_name = path.rstrip('.')
+            return module_name, (*parents, base)
+
+        # if documenting a toplevel object without explicit module,
+        # it can be contained in another auto directive ...
+        module_name = current_document.autodoc_module
+        # ... or in the scope of a module directive
+        if not module_name:
+            module_name = ref_context_py_module
+        # ... else, it stays None, which means invalid
+        return module_name, (*parents, base)
+
+    if objtype in {'method', 'property', 'attribute'}:
+        if module_name is not None:
+            return module_name, (*parents, base)
+
+        if path:
+            mod_cls = path.rstrip('.')
+        else:
+            # if documenting a class-level object without path,
+            # there must be a current class, either from a parent
+            # auto directive ...
+            mod_cls = current_document.autodoc_class
+            # ... or from a class directive
+            if not mod_cls:
+                mod_cls = ref_context_py_class
+                # ... if still falsy, there's no way to know
+                if not mod_cls:
+                    return None, ()
+        module_name, _sep, cls = mod_cls.rpartition('.')
+        parents = [cls]
+        # if the module name is still missing, get it like above
+        if not module_name:
+            module_name = current_document.autodoc_module
+        if not module_name:
+            module_name = ref_context_py_module
+        # ... else, it stays None, which means invalid
+        return module_name, (*parents, base)
+
+    return None
