@@ -35,6 +35,7 @@ from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from types import EllipsisType
     from typing import Any, Literal, TypeAlias
 
     from requests import Response
@@ -69,6 +70,7 @@ DEFAULT_REQUEST_HEADERS = {
 CHECK_IMMEDIATELY = 0
 QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
+_SENTINEL = ...
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
@@ -179,7 +181,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         text = 'with unknown code'
                 linkstat['text'] = text
                 redirection = f'{text} to {result.message}'
-                if self.config.linkcheck_allowed_redirects is not None:
+                if self.config.linkcheck_allowed_redirects is not _SENTINEL:
                     msg = f'redirect  {res_uri} - {redirection}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
@@ -386,7 +388,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             config.linkcheck_request_headers
         )
         self.check_anchors: bool = config.linkcheck_anchors
-        self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]] | None
+        self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]] | EllipsisType
         self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
@@ -722,10 +724,10 @@ class AnchorCheckParser(HTMLParser):
 def _allowed_redirect(
     url: str,
     new_url: str,
-    allowed_redirects: dict[re.Pattern[str], re.Pattern[str]] | None,
+    allowed_redirects: dict[re.Pattern[str], re.Pattern[str]] | EllipsisType,
 ) -> bool:
-    if allowed_redirects is None:
-        return True
+    if allowed_redirects is _SENTINEL:
+        return False
     return any(
         from_url.match(url) and to_url.match(new_url)
         for from_url, to_url in allowed_redirects.items()
@@ -754,7 +756,7 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
 
 def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     """Compile patterns to the regexp objects."""
-    if config.linkcheck_allowed_redirects is None:
+    if config.linkcheck_allowed_redirects is _SENTINEL:
         return
     if not isinstance(config.linkcheck_allowed_redirects, dict):
         msg = __(
@@ -784,7 +786,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'linkcheck_exclude_documents', [], '', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'linkcheck_allowed_redirects', None, '', types=frozenset({dict})
+        'linkcheck_allowed_redirects', _SENTINEL, '', types=frozenset({dict})
     )
     app.add_config_value('linkcheck_auth', [], '', types=frozenset({list, tuple}))
     app.add_config_value('linkcheck_request_headers', {}, '', types=frozenset({dict}))
