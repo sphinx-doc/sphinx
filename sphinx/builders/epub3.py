@@ -22,11 +22,19 @@ from sphinx.util.osutil import make_filename
 
 if TYPE_CHECKING:
     from collections.abc import Set
-    from typing import Any
+    from typing import Any, Literal
 
     from sphinx.application import Sphinx
+    from sphinx.builders.html._ctx import _GlobalContextHTML
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
+
+    class _GlobalContextEpub3(_GlobalContextHTML):
+        theme_writing_mode: str | None
+        html_tag: str
+        use_meta_charset: bool
+        skip_ua_compatible: Literal[True]
+
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +96,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
     doctype = DOCTYPE
     html_tag = HTML_TAG
     use_meta_charset = True
+
+    globalcontext: _GlobalContextEpub3
 
     # Finish by building the epub file
     def handle_finish(self) -> None:
