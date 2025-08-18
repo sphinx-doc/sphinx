@@ -35,7 +35,7 @@ from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import Any, Literal, TypeAlias
+    from typing import Any, Final, Literal, TypeAlias
 
     from requests import Response
 
@@ -69,6 +69,7 @@ DEFAULT_REQUEST_HEADERS = {
 CHECK_IMMEDIATELY = 0
 QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
+_SENTINEL: Final = ...
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
@@ -179,7 +180,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         text = 'with unknown code'
                 linkstat['text'] = text
                 redirection = f'{text} to {result.message}'
-                if self.config.linkcheck_allowed_redirects is not False:
+                if self.config.linkcheck_allowed_redirects is not _SENTINEL:
                     msg = f'redirect  {res_uri} - {redirection}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
@@ -750,7 +751,7 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
 
 def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     """Compile patterns to the regexp objects."""
-    if config.linkcheck_allowed_redirects is False:
+    if config.linkcheck_allowed_redirects is _SENTINEL:
         return
     if not isinstance(config.linkcheck_allowed_redirects, dict):
         msg = __(
@@ -780,7 +781,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'linkcheck_exclude_documents', [], '', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'linkcheck_allowed_redirects', False, '', types=frozenset({dict})
+        'linkcheck_allowed_redirects', _SENTINEL, '', types=frozenset({dict})
     )
     app.add_config_value('linkcheck_auth', [], '', types=frozenset({list, tuple}))
     app.add_config_value('linkcheck_request_headers', {}, '', types=frozenset({dict}))
