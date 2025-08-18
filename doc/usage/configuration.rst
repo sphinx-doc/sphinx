@@ -3812,6 +3812,17 @@ and the number of workers to use.
 
    .. versionadded:: 7.3
 
+.. confval:: linkcheck_allow_forbidden
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   When a webserver responds with an HTTP 403 (forbidden) response,
+   the current default behaviour of the *linkcheck* builder is
+   to treat the link as "broken".
+   To change that behaviour, set this option to :code-py:`True`.
+
+   .. versionadded:: 8.3
+
 .. confval:: linkcheck_rate_limit_timeout
    :type: :code-py:`int`
    :default: :code-py:`300`

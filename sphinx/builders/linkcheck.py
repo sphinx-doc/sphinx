@@ -71,6 +71,15 @@ QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
 
 
+@object.__new__
+class _SENTINEL_LAR:
+    def __repr__(self) -> str:
+        return '_SENTINEL_LAR'
+
+    def __reduce__(self) -> str:
+        return self.__class__.__name__
+
+
 class CheckExternalLinksBuilder(DummyBuilder):
     """Checks for broken external links."""
 
@@ -179,7 +188,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         text = 'with unknown code'
                 linkstat['text'] = text
                 redirection = f'{text} to {result.message}'
-                if self.config.linkcheck_allowed_redirects is not None:
+                if self.config.linkcheck_allowed_redirects is not _SENTINEL_LAR:
                     msg = f'redirect  {res_uri} - {redirection}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
@@ -387,10 +396,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         )
         self.check_anchors: bool = config.linkcheck_anchors
         self.allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
-        self.allowed_redirects = config.linkcheck_allowed_redirects or {}
+        self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
+        self._allow_forbidden = config.linkcheck_allow_forbidden
         self._timeout_status: Literal[_Status.BROKEN, _Status.TIMEOUT]
         if config.linkcheck_report_timeouts_as_broken:
             self._timeout_status = _Status.BROKEN
@@ -592,6 +602,13 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     else:
                         return _Status.BROKEN, 'unauthorized', 0
 
+                # Forbidden: the request was forbidden (access or refused)
+                if status_code == 403:
+                    if self._allow_forbbiden:
+                        return _Status.WORKING, 'forbidden', 0
+                    else:
+                        return _Status.BROKEN, 'forbidden', 0
+
                 # Rate limiting; back-off if allowed, or report failure otherwise
                 if status_code == 429:
                     if next_check := self.limit_rate(response_url, retry_after):
@@ -722,6 +739,8 @@ class AnchorCheckParser(HTMLParser):
 def _allowed_redirect(
     url: str, new_url: str, allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
 ) -> bool:
+    if allowed_redirects is _SENTINEL_LAR:
+        return False
     return any(
         from_url.match(url) and to_url.match(new_url)
         for from_url, to_url in allowed_redirects.items()
@@ -750,8 +769,7 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
 
 def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     """Compile patterns to the regexp objects."""
-    if config.linkcheck_allowed_redirects is _sentinel_lar:
-        config.linkcheck_allowed_redirects = None
+    if config.linkcheck_allowed_redirects is _SENTINEL_LAR:
         return
     if not isinstance(config.linkcheck_allowed_redirects, dict):
         msg = __(
@@ -772,9 +790,6 @@ def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     config.linkcheck_allowed_redirects = allowed_redirects
 
 
-_sentinel_lar = object()
-
-
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CheckExternalLinksBuilder)
     app.add_post_transform(HyperlinkCollector)
@@ -784,7 +799,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'linkcheck_exclude_documents', [], '', types=frozenset({list, tuple})
     )
     app.add_config_value(
-        'linkcheck_allowed_redirects', _sentinel_lar, '', types=frozenset({dict})
+        'linkcheck_allowed_redirects', _SENTINEL_LAR, '', types=frozenset({dict})
     )
     app.add_config_value('linkcheck_auth', [], '', types=frozenset({list, tuple}))
     app.add_config_value('linkcheck_request_headers', {}, '', types=frozenset({dict}))
@@ -805,6 +820,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     app.add_config_value(
         'linkcheck_allow_unauthorized', False, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'linkcheck_allow_forbidden', False, '', types=frozenset({bool})
     )
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
