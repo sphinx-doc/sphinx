@@ -205,22 +205,52 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         (
             'markup.html',
             ".//div[@class='versionadded']/p/span",
-            tail_check('First paragraph of versionadded'),
+            tail_check('First paragraph of version-added'),
+        ),
+        (
+            'markup.html',
+            ".//div[@class='versionadded']/p/span",
+            tail_check('Deprecated alias for version-added'),
         ),
         (
             'markup.html',
             ".//div[@class='versionchanged']/p/span",
-            tail_check('First paragraph of versionchanged'),
+            tail_check('First paragraph of version-changed'),
         ),
         (
             'markup.html',
             ".//div[@class='versionchanged']/p",
-            'Second paragraph of versionchanged',
+            'Second paragraph of version-changed',
+        ),
+        (
+            'markup.html',
+            ".//div[@class='versionchanged']/p/span",
+            tail_check('Deprecated alias for version-changed'),
+        ),
+        (
+            'markup.html',
+            ".//div[@class='deprecated']/p/span",
+            'Deprecated since version 0.6: ',
+        ),
+        (
+            'markup.html',
+            ".//div[@class='deprecated']/p/span",
+            tail_check('Boring stuff.'),
+        ),
+        (
+            'markup.html',
+            ".//div[@class='deprecated']/p/span",
+            tail_check('Deprecated alias for version-deprecated'),
         ),
         (
             'markup.html',
             ".//div[@class='versionremoved']/p/span",
             'Removed in version 0.6: ',
+        ),
+        (
+            'markup.html',
+            ".//div[@class='versionremoved']/p/span",
+            tail_check('Deprecated alias for version-removed'),
         ),
         # footnote reference
         ('markup.html', ".//a[@class='footnote-reference brackets']", r'1'),
