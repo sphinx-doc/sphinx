@@ -33,7 +33,10 @@ from sphinx import __display_version__, package_dir
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._member_finder import _filter_enum_dict, unmangle
+from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR, SLOTS_ATTR
 from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
     _get_documenter,
@@ -45,7 +48,14 @@ from sphinx.pycode import ModuleAnalyzer
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.inspect import getall, safe_getattr
+from sphinx.util.inspect import (
+    getall,
+    getannotations,
+    getmro,
+    getslots,
+    isenumclass,
+    safe_getattr,
+)
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
@@ -458,8 +468,76 @@ def _skip_member(obj: Any, name: str, objtype: str, *, events: EventManager) -> 
 
 
 def _get_class_members(obj: Any) -> dict[str, Any]:
-    members = sphinx.ext.autodoc.importer.get_class_members(obj, None, safe_getattr)
-    return {name: member.object for name, member in members.items()}
+    """Get members and attributes of target class."""
+    # TODO: Simplify
+    # the members directly defined in the class
+    obj_dict = safe_getattr(obj, '__dict__', {})
+
+    members_simpler: dict[str, Any] = {}
+
+    # enum members
+    if isenumclass(obj):
+        for name, defining_class, value in _filter_enum_dict(
+            obj, safe_getattr, obj_dict
+        ):
+            # the order of occurrence of *name* matches obj's MRO,
+            # allowing inherited attributes to be shadowed correctly
+            if unmangled := unmangle(defining_class, name):
+                members_simpler[unmangled] = value
+
+    # members in __slots__
+    try:
+        subject___slots__ = getslots(obj)
+        if subject___slots__:
+            for name in subject___slots__:
+                members_simpler[name] = SLOTS_ATTR
+    except (TypeError, ValueError):
+        pass
+
+    # other members
+    for name in dir(obj):
+        try:
+            value = safe_getattr(obj, name)
+            if ismock(value):
+                value = undecorate(value)
+
+            unmangled = unmangle(obj, name)
+            if unmangled and unmangled not in members_simpler:
+                members_simpler[unmangled] = value
+        except AttributeError:
+            continue
+
+    try:
+        for cls in getmro(obj):
+            try:
+                modname = safe_getattr(cls, '__module__')
+                qualname = safe_getattr(cls, '__qualname__')
+            except AttributeError:
+                qualname = None
+                analyzer = None
+            else:
+                try:
+                    analyzer = ModuleAnalyzer.for_module(modname)
+                    analyzer.analyze()
+                except PycodeError:
+                    analyzer = None
+
+            # annotation only member (ex. attr: int)
+            for name in getannotations(cls):
+                unmangled = unmangle(cls, name)
+                if unmangled and unmangled not in members_simpler:
+                    members_simpler[unmangled] = INSTANCE_ATTR
+
+            # append or complete instance attributes (cf. self.attr1) if analyzer knows
+            if analyzer:
+                for ns, name in analyzer.attr_docs:
+                    if ns == qualname and name not in members_simpler:
+                        # otherwise unknown instance attribute
+                        members_simpler[name] = INSTANCE_ATTR
+    except AttributeError:
+        pass
+
+    return members_simpler
 
 
 def _get_module_members(obj: Any, *, config: Config) -> dict[str, Any]:

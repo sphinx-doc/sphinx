@@ -86,7 +86,7 @@ Dependencies
 
 * #11858: Increase the minimum supported version of Alabaster to 0.7.14.
   Patch by Adam Turner.
-* #11411: Support `Docutils 0.21`_. Patch by Adam Turner.
+* #12267: Support `Docutils 0.21`_. Patch by Adam Turner.
 
   .. _Docutils 0.21: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-21-2024-04-09
 * #12012: Use ``types-docutils`` instead of ``docutils-stubs``.

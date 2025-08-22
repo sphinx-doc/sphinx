@@ -69,7 +69,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._directive_options import Options
+from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import import_module
@@ -177,8 +177,9 @@ class FakeDirective(DocumenterBridge):
         app = FakeApplication()
         app.config.add('autodoc_class_signature', 'mixed', 'env', ())
         env = BuildEnvironment(app)  # type: ignore[arg-type]
+        opts = _AutoDocumenterOptions()
         state = Struct(document=document)
-        super().__init__(env, None, Options(), 0, state)
+        super().__init__(env, None, opts, 0, state)
 
 
 def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
@@ -256,8 +257,9 @@ class Autosummary(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
+        opts = _AutoDocumenterOptions()
         self.bridge = DocumenterBridge(
-            self.env, self.state.document.reporter, Options(), self.lineno, self.state
+            self.env, self.state.document.reporter, opts, self.lineno, self.state
         )
 
         names = [
