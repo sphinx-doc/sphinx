@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 import pytest
 
 import sphinx.util
@@ -30,7 +31,7 @@ from sphinx.util.osutil import (
 )
 
 
-def test_ensuredir(tmp_path):
+def test_ensuredir(tmp_path: Path) -> None:
     # Does not raise an exception for an existing directory.
     ensuredir(tmp_path)
 
