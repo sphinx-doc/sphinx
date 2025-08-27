@@ -473,7 +473,7 @@ and the generic :rst:dir:`admonition` directive.
 
    .. seealso::
 
-      Module :py:mod:`zipfile`
+      Python's :py:mod:`zipfile` module
          Documentation of the :py:mod:`zipfile` standard module.
 
       `GNU tar manual, Basic Tar Format <https://example.org>`_
