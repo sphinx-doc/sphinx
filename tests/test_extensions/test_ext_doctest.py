@@ -170,7 +170,10 @@ def test_fail_fast(app, fail_fast, capsys):
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
-@pytest.mark.parametrize(('test_doctest_blocks', 'group_name'), [(None, 'default'), ('CustomGroupName', 'CustomGroupName')])
+@pytest.mark.parametrize(
+    ('test_doctest_blocks', 'group_name'),
+    [(None, 'default'), ('CustomGroupName', 'CustomGroupName')],
+)
 def test_doctest_block_group_name(app, test_doctest_blocks, group_name, capfd):
     if test_doctest_blocks is not None:
         app.config.doctest_test_doctest_blocks = test_doctest_blocks
