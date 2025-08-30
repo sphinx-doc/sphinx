@@ -197,17 +197,13 @@ Sphinx is tested using pytest_ for Python code and Jasmine_ for JavaScript.
 
   .. code-block:: shell
 
-<<<<<<< HEAD
      uv run pytest tests/test_module.py::test_new_feature
-=======
-     tox -e py313 tests/test_module.py::test_new_feature
 
 You can also test by installing dependencies in your local environment:
 
   .. code-block:: shell
 
-     pip install . --group test
->>>>>>> master
+     uv sync --group test
 
 To run JavaScript tests, use :program:`npm`:
 
