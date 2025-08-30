@@ -27,10 +27,11 @@ jobs:
       with:
         persist-credentials: false
 
-    - name: Install Ruff
-      uses: astral-sh/ruff-action@v3
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
       with:
-        args: --version
+        version: ${{ env.UV_VERSION }}
+        enable-cache: false
 
     - name: Lint with Ruff
       run: uv run ruff check --output-format=github
