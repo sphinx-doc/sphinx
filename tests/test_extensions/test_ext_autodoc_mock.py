@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 import sys
 from importlib import import_module
-from typing import TypeVar, Generic
+from typing import Generic, TypeVar
 
 import pytest
 
