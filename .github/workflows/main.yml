@@ -23,7 +23,7 @@ env:
   FORCE_COLOR: "1"
   PYTHONDEVMODE: "1"  # -X dev
   PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
-  UV_VERSION: 0.8.3  # Pin the version of UV
+  UV_VERSION: 0.8.14  # Pin the version of UV
 
 jobs:
   ubuntu:
