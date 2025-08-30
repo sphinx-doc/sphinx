@@ -402,6 +402,3 @@ reportUnusedFunction = "none"
 reportUnusedImport = "none"
 reportUnusedVariable = "none"
 reportWildcardImportFromLibrary = "none"
-
-[tool.uv]
-default-groups = "all"
