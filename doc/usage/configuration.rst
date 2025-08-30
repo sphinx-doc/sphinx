@@ -1157,6 +1157,9 @@ Options for source files
    The recommended encoding is ``'utf-8-sig'``.
 
    .. versionadded:: 0.5
+   .. deprecated:: 8.3
+      Support for source encodings other than UTF-8 is deprecated.
+      Sphinx 10 will only support UTF-8 files.
 
 .. confval:: source_suffix
    :type: :code-py:`dict[str, str] | Sequence[str] | str`
@@ -3083,7 +3086,7 @@ These options influence LaTeX output.
          the :code-tex:`\\rowcolors` LaTeX command becomes a no-op
          (this command has limitations and has never correctly
          supported all types of tables Sphinx produces in LaTeX).
-         Please update your project to use the
+         Please use the
          :ref:`latex table color configuration <tablecolors>` keys instead.
 
    To customise the styles for a table,
@@ -3096,7 +3099,7 @@ These options influence LaTeX output.
    The latter two can be combined with any of the first three.
    The ``standard`` class produces tables with
    both horizontal and vertical lines
-   (as has been the default so far with Sphinx).
+   (as had been the default prior to Sphinx 6.0.0).
 
    A single-row multi-column merged cell will obey the row colour,
    if it is set.
@@ -3668,7 +3671,7 @@ and which failures and redirects it ignores.
    .. versionadded:: 4.1
 
    .. versionchanged:: 8.3
-      Setting :confval:`!linkcheck_allowed_redirects` to the empty directory
+      Setting :confval:`!linkcheck_allowed_redirects` to an empty dictionary
       may now be used to warn on all redirects encountered
       by the *linkcheck* builder.
 

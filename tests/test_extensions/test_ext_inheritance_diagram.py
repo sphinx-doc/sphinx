@@ -293,7 +293,7 @@ def test_inheritance_diagram_latex_alias(app):
     app.config.inheritance_alias = {'test.Foo': 'alias.Foo'}
     app.build(force_all=True)
 
-    doc = app.env.get_and_resolve_doctree('index', app)
+    doc = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
     aliased_graph = doc.children[0].children[3]['graph'].class_info
     assert len(aliased_graph) == 4
     assert (

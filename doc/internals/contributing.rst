@@ -145,6 +145,10 @@ These are the basic steps needed to start developing on Sphinx.
 
 #. Wait for a core developer or contributor to review your changes.
 
+   You may be asked to address comments on the review. If so, please avoid
+   force pushing to the branch. Sphinx uses the *squash merge* strategy when
+   merging PRs, so follow-up commits will all be combined.
+
 
 Coding style
 ~~~~~~~~~~~~
@@ -193,7 +197,17 @@ Sphinx is tested using pytest_ for Python code and Jasmine_ for JavaScript.
 
   .. code-block:: shell
 
+<<<<<<< HEAD
      uv run pytest tests/test_module.py::test_new_feature
+=======
+     tox -e py313 tests/test_module.py::test_new_feature
+
+You can also test by installing dependencies in your local environment:
+
+  .. code-block:: shell
+
+     pip install . --group test
+>>>>>>> master
 
 To run JavaScript tests, use :program:`npm`:
 
@@ -329,13 +343,15 @@ Updating generated files
 ------------------------
 
 * JavaScript stemming algorithms in :file:`sphinx/search/non-minified-js/*.js`
-  are generated using `snowball <https://github.com/snowballstem/snowball>`_
-  by cloning the repository, executing ``make dist_libstemmer_js`` and then
-  unpacking the tarball which is generated in :file:`dist` directory.
+  and stopword files in :file:`sphinx/search/_stopwords/`
+  are generated from the `Snowball project`_
+  by running :file:`utils/generate_snowball.py`.
 
   Minified files in :file:`sphinx/search/minified-js/*.js` are generated from
-  non-minified ones using :program:`uglifyjs` (installed via npm), with ``-m``
-  option to enable mangling.
+  non-minified ones using :program:`uglifyjs` (installed via npm).
+  See :file:`sphinx/search/minified-js/README.rst`.
+
+  .. _Snowball project: https://snowballstem.org/
 
 * The :file:`searchindex.js` files found in
   the :file:`tests/js/fixtures/*` directories

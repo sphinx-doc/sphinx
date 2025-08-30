@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
-    from sphinx.ext.autodoc import Options
+    from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.util.typing import ExtensionMetadata, _StringifyMode
 
 
@@ -28,7 +28,7 @@ def record_typehints(
     objtype: str,
     name: str,
     obj: Any,
-    options: Options,
+    options: _AutoDocumenterOptions,
     args: str,
     retann: str,
 ) -> None:

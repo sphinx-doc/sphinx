@@ -680,7 +680,7 @@ def test_linkcheck_request_headers_default(app: SphinxTestApp) -> None:
     assert content['status'] == 'working'
 
 
-def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]:
+def make_redirect_handler(*, support_head: bool = True) -> type[BaseHTTPRequestHandler]:
     class RedirectOnceHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
@@ -715,6 +715,7 @@ def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]
 )
 def test_follows_redirects_on_HEAD(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=True)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
     _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
@@ -728,6 +729,9 @@ def test_follows_redirects_on_HEAD(app, capsys):
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
         """,
     )
+    assert (
+        f'redirect  http://{address}/ - with Found to http://{address}/?redirected=1\n'
+    ) in strip_escape_sequences(app.status.getvalue())
     assert app.warning.getvalue() == ''
 
 
@@ -738,6 +742,7 @@ def test_follows_redirects_on_HEAD(app, capsys):
 )
 def test_follows_redirects_on_GET(app, capsys):
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
     _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
@@ -752,7 +757,35 @@ def test_follows_redirects_on_GET(app, capsys):
         127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
         """,
     )
+    assert (
+        f'redirect  http://{address}/ - with Found to http://{address}/?redirected=1\n'
+    ) in strip_escape_sequences(app.status.getvalue())
     assert app.warning.getvalue() == ''
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
+    confoverrides={'linkcheck_allowed_redirects': {}},  # warn about any redirects
+)
+def test_warns_disallowed_redirects(app, capsys):
+    with serve_application(app, make_redirect_handler()) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
+        app.build()
+    _stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    assert content == (
+        'index.rst:1: [redirected with Found] '
+        f'http://{address}/ to http://{address}/?redirected=1\n'
+    )
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
+        """,
+    )
+    assert len(app.warning.getvalue().splitlines()) == 1
 
 
 def test_linkcheck_allowed_redirects_config(
@@ -1126,6 +1159,12 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
             app, make_retry_after_handler([(429, retry_after), (200, None)])
         ) as address:
             app.build()
+
+    # Undo side-effects: the monkeypatch context manager clears the TZ environment
+    # variable, but we also need to reset Python's internal notion of the current
+    # timezone.
+    if sys.platform != 'win32':
+        time.tzset()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {

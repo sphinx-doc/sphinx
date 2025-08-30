@@ -32,13 +32,13 @@ DOCNAMES = {
 SUBDIR_DOCNAMES = {'subdir/excluded', 'subdir/images', 'subdir/includes'}
 
 
-def test_project_discover_basic(rootdir):
+def test_project_discover_basic(rootdir: Path) -> None:
     # basic case
     project = Project(rootdir / 'test-root', ['.txt'])
     assert project.discover() == DOCNAMES
 
 
-def test_project_discover_exclude_patterns(rootdir):
+def test_project_discover_exclude_patterns(rootdir: Path) -> None:
     project = Project(rootdir / 'test-root', ['.txt'])
 
     # exclude_paths option
@@ -46,19 +46,19 @@ def test_project_discover_exclude_patterns(rootdir):
     assert project.discover(['.txt', 'subdir/*']) == DOCNAMES - SUBDIR_DOCNAMES
 
 
-def test_project_discover_multiple_suffixes(rootdir):
+def test_project_discover_multiple_suffixes(rootdir: Path) -> None:
     # multiple source_suffixes
     project = Project(rootdir / 'test-root', ['.txt', '.foo'])
     assert project.discover() == DOCNAMES | {'otherext'}
 
 
-def test_project_discover_complicated_suffix(rootdir):
+def test_project_discover_complicated_suffix(rootdir: Path) -> None:
     # complicated source_suffix
     project = Project(rootdir / 'test-root', ['.foo.png'])
     assert project.discover() == {'img'}
 
 
-def test_project_discover_templates_path(rootdir):
+def test_project_discover_templates_path(rootdir: Path) -> None:
     # templates_path
     project = Project(rootdir / 'test-root', ['.html'])
     assert project.discover() == {
@@ -70,7 +70,7 @@ def test_project_discover_templates_path(rootdir):
     assert project.discover(['_templates']) == set()
 
 
-def test_project_path2doc(rootdir):
+def test_project_path2doc(rootdir: Path) -> None:
     project = Project(rootdir / 'test-basic', {'.rst': 'restructuredtext'})
     assert project.path2doc('index.rst') == 'index'
     assert project.path2doc('index.foo') is None  # unknown extension

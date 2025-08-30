@@ -1387,7 +1387,7 @@ class NumpyDocstring(GoogleDocstring):
             if m and line[m.end() :].strip().startswith(':'):
                 push_item(current_func, rest)
                 current_func, line = line[: m.end()], line[m.end() :]
-                rest = [line.split(':', 1)[1].strip()]
+                rest = [line.partition(':')[-1].strip()]
                 if not rest[0]:
                     rest = []
             elif not line.startswith(' '):

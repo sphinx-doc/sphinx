@@ -167,7 +167,7 @@ class Graphviz(SphinxDirective):
                 ]
         node = graphviz()
         node['code'] = dotcode
-        node['options'] = {'docname': self.env.docname}
+        node['options'] = {'docname': self.env.current_document.docname}
 
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
@@ -212,7 +212,7 @@ class GraphvizSimple(SphinxDirective):
         node = graphviz()
         dot_code = '\n'.join(self.content)
         node['code'] = f'{self.name} {self.arguments[0]} {{\n{dot_code}\n}}\n'
-        node['options'] = {'docname': self.env.docname}
+        node['options'] = {'docname': self.env.current_document.docname}
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'layout' in self.options:

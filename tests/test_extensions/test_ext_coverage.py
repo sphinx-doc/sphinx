@@ -117,7 +117,7 @@ def test_show_missing_items(app: SphinxTestApp) -> None:
     'coverage', testroot='root', confoverrides={'coverage_show_missing_items': True}
 )
 def test_show_missing_items_quiet(app: SphinxTestApp) -> None:
-    app.quiet = True
+    app.config._verbosity = -1  # mimics status=None / app.quiet = True
     app.build(force_all=True)
 
     assert (
