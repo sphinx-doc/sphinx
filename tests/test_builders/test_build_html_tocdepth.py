@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -12,7 +12,7 @@ from tests.test_builders.xpath_util import check_xpath
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
-    from xml.etree.ElementTree import ElementTree
+    from xml.etree.ElementTree import Element, ElementTree
 
     from sphinx.testing.util import SphinxTestApp
 
@@ -134,3 +134,17 @@ def test_tocdepth_singlehtml(
 ) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
+
+
+@pytest.mark.sphinx('singlehtml', testroot='tocdepth')
+@pytest.mark.test_params(shared_result='test_build_html_tocdepth')
+def test_unique_ids_singlehtml(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+) -> None:
+    app.build()
+    tree = cached_etree_parse(app.outdir / 'index.html')
+    root = cast('Element', tree.getroot())
+
+    ids = [el.attrib['id'] for el in root.findall('.//*[@id]')]
+    assert len(ids) == len(set(ids))
