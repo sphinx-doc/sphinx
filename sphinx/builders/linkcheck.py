@@ -604,7 +604,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
                 # Forbidden: the request was forbidden (access or refused)
                 if status_code == 403:
-                    if self._allow_forbbiden:
+                    if self._allow_forbidden:
                         return _Status.WORKING, 'forbidden', 0
                     else:
                         return _Status.BROKEN, 'forbidden', 0
