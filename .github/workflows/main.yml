@@ -23,8 +23,7 @@ env:
   FORCE_COLOR: "1"
   PYTHONDEVMODE: "1"  # -X dev
   PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
-  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
-  UV_VERSION: 0.5.14  # Pin the version of UV
+  UV_VERSION: 0.8.3  # Pin the version of UV
 
 jobs:
   ubuntu:
@@ -69,10 +68,8 @@ jobs:
       with:
         version: ${{ env.UV_VERSION }}
         enable-cache: false
-    - name: Install Docutils ${{ matrix.docutils }}
-      run: uv add "docutils~=${{ matrix.docutils }}"
     - name: Test with pytest
-      run: uv run --python ${{ matrix.python }} pytest -n logical --dist=worksteal -vv --durations 25
+      run: uv run --python ${{ matrix.python }} --with docutils~=${{ matrix.docutils }} pytest -n logical --dist=worksteal -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
