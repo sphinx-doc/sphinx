@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 import sys
 from importlib import import_module
-from typing import TypeVar
+from typing import TypeVar, Generic
 
 import pytest
 
@@ -56,6 +56,28 @@ def test_MockObject():
     obj2 = SubClass2()
     assert SubClass2.__doc__ == 'docstring of SubClass'
     assert isinstance(obj2, SubClass2)
+
+    # test subclass with typing.Generic
+    # Creating this class would raise an error on Python3.11+
+    # as mock objects are detected as typevars if hasattr(__typing_subst__) is True.
+
+    assert not hasattr(mock.SomeClass, '__typing_subst__')
+    S = TypeVar('S')
+
+    class GenericClass(mock.SomeClass, Generic[T, S]):
+        """docstring of GenericSubclass"""
+
+    obj3 = GenericClass()
+    assert isinstance(obj3, _MockObject)
+    assert isinstance(obj3.some_attr, _MockObject)
+    assert isinstance(obj3.some_method(), _MockObject)
+    assert isinstance(obj3.attr1.attr2, _MockObject)
+    assert isinstance(obj3.attr1.attr2.meth(), _MockObject)
+
+    # check that Generic Subscriptions still works
+
+    class GenericSubclass(GenericClass[mock.MockedClass, S]):
+        """docstring of GenericSubclass"""
 
 
 def test_mock() -> None:
