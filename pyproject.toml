@@ -103,47 +103,46 @@ sphinx-apidoc = "sphinx.ext.apidoc:main"
 sphinx-autogen = "sphinx.ext.autosummary.generate:main"
 
 [dependency-groups]
-docs = [
-    "sphinxcontrib-websupport",
-]
-lint = [
-    "ruff==0.12.8",
-    "sphinx-lint>=0.9",
-]
-package = [
-    "betterproto==2.0.0b6",  # resolution fails without betterproto
-    "build",
-    "pypi-attestations==0.0.27",
-    "twine>=6.1",
-]
-test = [
-    "pytest>=8.0",
-    "pytest-xdist[psutil]>=3.4",
-    "cython>=3.0",  # for Cython compilation
-    "defusedxml>=0.7.1",  # for secure XML/HTML parsing
-    "setuptools>=70.0",  # for Cython compilation
-    "typing_extensions>=4.9",  # for typing_extensions.Unpack
-]
-translations = [
-    "babel>=2.13",
-    "Jinja2>=3.1",
-]
-types = [
-    "mypy==1.17.1",
-    "pyrefly",
-    "pyright==1.1.400",
-    "ty",
-    { include-group = "type-stubs" },
-]
-type-stubs = [
-    # align with versions used elsewhere
-    "types-colorama==0.4.15.20250801",
-    "types-defusedxml==0.7.0.20250708",
-    "types-docutils==0.21.0.20250525",
-    "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250715",
-    "types-requests==2.32.4.20250611",
-    "types-urllib3==1.26.25.14",
+dev = [
+  # --- docs ---
+  "sphinxcontrib-websupport",
+
+  # --- lint ---
+  "ruff==0.12.8",
+  "sphinx-lint>=0.9",
+
+  # --- package ---
+  "betterproto==2.0.0b6",  # resolution fails without betterproto
+  "build",
+  "pypi-attestations==0.0.27",
+  "twine>=6.1",
+
+  # --- test ---
+  "pytest>=8.0",
+  "pytest-xdist[psutil]>=3.4",
+  "cython>=3.0",           # for Cython compilation
+  "defusedxml>=0.7.1",     # for secure XML/HTML parsing
+  "setuptools>=70.0",      # for Cython compilation
+  "typing_extensions>=4.9",# for typing_extensions.Unpack
+
+  # --- translations ---
+  "babel>=2.13",
+  "Jinja2>=3.1",
+
+  # --- types ---
+  "mypy==1.17.1",
+  "pyrefly",
+  "pyright==1.1.400",
+  "ty",
+
+  # --- type-stubs (expanded from include-group) ---
+  "types-colorama==0.4.15.20250801",
+  "types-defusedxml==0.7.0.20250708",
+  "types-docutils==0.21.0.20250525",
+  "types-Pillow==10.2.0.20240822",
+  "types-Pygments==2.19.0.20250715",
+  "types-requests==2.32.4.20250611",
+  "types-urllib3==1.26.25.14",
 ]
 
 [tool.flit.module]
@@ -402,6 +401,3 @@ reportUnusedFunction = "none"
 reportUnusedImport = "none"
 reportUnusedVariable = "none"
 reportWildcardImportFromLibrary = "none"
-
-[tool.uv]
-default-groups = "all"
