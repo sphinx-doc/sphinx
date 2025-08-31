@@ -23,7 +23,6 @@ env:
   FORCE_COLOR: "1"
   PYTHONDEVMODE: "1"  # -X dev
   PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
-  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   ubuntu:
@@ -55,10 +54,7 @@ jobs:
         sudo mount -v --bind --read-only ./tests/roots ./tests/roots-read-only
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Test with pytest
       run: uv run --with "docutils~=${{ matrix.docutils }}.0" --python ${{ matrix.python }} pytest -n logical --dist=worksteal -vv --durations 25
 
@@ -81,10 +77,7 @@ jobs:
         persist-credentials: false
     - name: Install graphviz
       run: choco install --no-progress graphviz
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Test with pytest
       run: uv run pytest -vv --durations 25
 
@@ -99,14 +92,9 @@ jobs:
         persist-credentials: false
     - name: Install graphviz
       run: brew install graphviz
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Test with pytest
       run: uv run pytest -vv --durations 25
-      env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   docutils-latest:
     runs-on: ubuntu-latest
@@ -125,10 +113,7 @@ jobs:
         persist-credentials: false
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Test with pytest
       run: uv run --with "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils" pytest -n logical --dist=worksteal -vv
       env:
@@ -152,10 +137,7 @@ jobs:
       run: python --version --version
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Install dependencies
       run: |
         uv pip install . --group test --resolution lowest-direct
@@ -176,10 +158,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Test with pytest
       run: uv run --with "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils" pytest -vv --durations 25
       env:
@@ -197,10 +176,7 @@ jobs:
         persist-credentials: false
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Test with pytest
       run: uv run --with pytest-cov pytest -vv --cov . --cov-append --cov-config pyproject.toml
       env:

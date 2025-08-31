@@ -146,9 +146,6 @@ type-stubs = [
     "types-urllib3==1.26.25.14",
 ]
 
-[tool.flit.module]
-name = "sphinx"
-
 [tool.flit.sdist]
 include = [
     "LICENSE.rst",

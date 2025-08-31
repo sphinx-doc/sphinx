@@ -27,10 +27,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Lint with Ruff
       run: uv run ruff check --output-format=github
     - name: Format with Ruff
@@ -43,10 +40,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Type check with mypy
       run: uv run mypy
 
@@ -57,10 +51,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Type check with pyright
       run: uv run pyright
 
@@ -71,10 +62,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Lint documentation with sphinx-lint
       run: uv run make doclinter
 
@@ -85,10 +73,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v6
     - name: Lint with twine
       run: |
         uv build
