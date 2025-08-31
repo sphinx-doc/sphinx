@@ -1359,44 +1359,24 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-docs = [
-    { name = "sphinxcontrib-websupport" },
-]
-lint = [
-    { name = "ruff" },
-    { name = "sphinx-lint" },
-]
-package = [
+dev = [
+    { name = "babel" },
     { name = "betterproto" },
     { name = "build" },
-    { name = "pypi-attestations" },
-    { name = "twine" },
-]
-test = [
     { name = "cython" },
     { name = "defusedxml" },
-    { name = "pytest" },
-    { name = "pytest-xdist", extra = ["psutil"] },
-    { name = "setuptools" },
-    { name = "typing-extensions" },
-]
-translations = [
-    { name = "babel" },
     { name = "jinja2" },
-]
-type-stubs = [
-    { name = "types-colorama" },
-    { name = "types-defusedxml" },
-    { name = "types-docutils" },
-    { name = "types-pillow" },
-    { name = "types-pygments" },
-    { name = "types-requests" },
-    { name = "types-urllib3" },
-]
-types = [
     { name = "mypy" },
+    { name = "pypi-attestations" },
     { name = "pyrefly" },
     { name = "pyright" },
+    { name = "pytest" },
+    { name = "pytest-xdist", extra = ["psutil"] },
+    { name = "ruff" },
+    { name = "setuptools" },
+    { name = "sphinx-lint" },
+    { name = "sphinxcontrib-websupport" },
+    { name = "twine" },
     { name = "ty" },
     { name = "types-colorama" },
     { name = "types-defusedxml" },
@@ -1405,6 +1385,7 @@ types = [
     { name = "types-pygments" },
     { name = "types-requests" },
     { name = "types-urllib3" },
+    { name = "typing-extensions" },
 ]
 
 [package.metadata]
@@ -1429,42 +1410,24 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-docs = [{ name = "sphinxcontrib-websupport" }]
-lint = [
-    { name = "ruff", specifier = "==0.12.8" },
-    { name = "sphinx-lint", specifier = ">=0.9" },
-]
-package = [
+dev = [
+    { name = "babel", specifier = ">=2.13" },
     { name = "betterproto", specifier = "==2.0.0b6" },
     { name = "build" },
-    { name = "pypi-attestations", specifier = "==0.0.27" },
-    { name = "twine", specifier = ">=6.1" },
-]
-test = [
     { name = "cython", specifier = ">=3.0" },
     { name = "defusedxml", specifier = ">=0.7.1" },
-    { name = "pytest", specifier = ">=8.0" },
-    { name = "pytest-xdist", extras = ["psutil"], specifier = ">=3.4" },
-    { name = "setuptools", specifier = ">=70.0" },
-    { name = "typing-extensions", specifier = ">=4.9" },
-]
-translations = [
-    { name = "babel", specifier = ">=2.13" },
     { name = "jinja2", specifier = ">=3.1" },
-]
-type-stubs = [
-    { name = "types-colorama", specifier = "==0.4.15.20250801" },
-    { name = "types-defusedxml", specifier = "==0.7.0.20250708" },
-    { name = "types-docutils", specifier = "==0.21.0.20250525" },
-    { name = "types-pillow", specifier = "==10.2.0.20240822" },
-    { name = "types-pygments", specifier = "==2.19.0.20250715" },
-    { name = "types-requests", specifier = "==2.32.4.20250611" },
-    { name = "types-urllib3", specifier = "==1.26.25.14" },
-]
-types = [
     { name = "mypy", specifier = "==1.17.1" },
+    { name = "pypi-attestations", specifier = "==0.0.27" },
     { name = "pyrefly" },
     { name = "pyright", specifier = "==1.1.400" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-xdist", extras = ["psutil"], specifier = ">=3.4" },
+    { name = "ruff", specifier = "==0.12.8" },
+    { name = "setuptools", specifier = ">=70.0" },
+    { name = "sphinx-lint", specifier = ">=0.9" },
+    { name = "sphinxcontrib-websupport" },
+    { name = "twine", specifier = ">=6.1" },
     { name = "ty" },
     { name = "types-colorama", specifier = "==0.4.15.20250801" },
     { name = "types-defusedxml", specifier = "==0.7.0.20250708" },
@@ -1473,6 +1436,7 @@ types = [
     { name = "types-pygments", specifier = "==2.19.0.20250715" },
     { name = "types-requests", specifier = "==2.32.4.20250611" },
     { name = "types-urllib3", specifier = "==1.26.25.14" },
+    { name = "typing-extensions", specifier = ">=4.9" },
 ]
 
 [[package]]
