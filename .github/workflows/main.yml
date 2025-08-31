@@ -181,7 +181,7 @@ jobs:
       with:
         enable-cache: false
     - name: Test with pytest
-      run: uv run --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" pytest -vv --durations 25
+      run: uv run --with "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils" pytest -vv --durations 25
       env:
         DO_EPUBCHECK: "1"
 
