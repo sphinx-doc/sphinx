@@ -130,7 +130,7 @@ jobs:
       with:
         enable-cache: false
     - name: Test with pytest
-      run: uv run --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" pytest -n logical --dist=worksteal -vv
+      run: uv run --with "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils" pytest -n logical --dist=worksteal -vv
       env:
         DO_EPUBCHECK: "1"
         EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
