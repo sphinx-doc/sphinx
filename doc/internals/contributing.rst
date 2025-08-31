@@ -205,7 +205,7 @@ You can also test by installing dependencies in your local environment:
 
   .. code-block:: shell
 
-     pip install . --group test
+     uv sync
 
 To run JavaScript tests, use :program:`npm`:
 
