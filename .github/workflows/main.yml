@@ -129,21 +129,11 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Check Python version
-      run: python --version --version
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - uses: astral-sh/setup-uv@v6
-    - name: Install dependencies
-      run: |
-        uv pip install . --group test --resolution lowest-direct
-        uv pip install alabaster==1.0.0
     - name: Test with pytest
-      run: python -m pytest -n logical --dist=worksteal -vv --durations 25
+      run: uv run --with alabaster==1.0.0 pytest -n logical --dist=worksteal -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
