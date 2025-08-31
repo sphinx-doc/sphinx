@@ -43,8 +43,10 @@ jobs:
         docutils:
         - "0.20"
         - "0.21"
+        - "0.22"
+
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Mount the test roots as read-only
@@ -80,7 +82,7 @@ jobs:
         echo "TMP=D:\\Tmp" >> $env:GITHUB_ENV
         echo "TEMP=D:\\Tmp" >> $env:GITHUB_ENV
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Install graphviz
@@ -98,7 +100,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python
@@ -132,7 +134,7 @@ jobs:
         mkdir /tmp/epubcheck && cd /tmp/epubcheck
         wget --no-verbose https://github.com/w3c/epubcheck/releases/download/v${EPUBCHECK_VERSION}/epubcheck-${EPUBCHECK_VERSION}.zip
         unzip epubcheck-${EPUBCHECK_VERSION}.zip
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Install graphviz
@@ -153,7 +155,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python
@@ -185,13 +187,17 @@ jobs:
       image: ghcr.io/sphinx-doc/sphinx-ci
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
         enable-cache: false
+    - name: Install dependencies
+      run: uv pip install . --group test
+    - name: Install Docutils' HEAD
+      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
     - name: Test with pytest
       run: uv run pytest -vv --durations 25
       env:
@@ -204,7 +210,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Install graphviz

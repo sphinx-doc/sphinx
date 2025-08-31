@@ -297,14 +297,12 @@ def linkify_issues_in_changelog(
 ) -> None:
     """Linkify issue references like #123 in changelog to GitHub."""
     if docname == 'changes':
-
-        def linkify(match: re.Match[str]) -> str:
-            url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
-            return f'`{match[0]} <{url}>`_'
-
-        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, source[0])
-
+        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', _linkify, source[0])
         source[0] = linkified_changelog
+
+
+def _linkify(match: re.Match[str], /) -> str:
+    return f'`{match[0]} <https://github.com/sphinx-doc/sphinx/issues/{match[1]}>`__'
 
 
 REDIRECT_TEMPLATE = """

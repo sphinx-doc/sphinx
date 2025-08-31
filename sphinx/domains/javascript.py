@@ -70,7 +70,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         """
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
-            member, arglist = sig.split('(', 1)
+            member, _, arglist = sig.partition('(')
             member = member.strip()
             arglist = arglist[:-1].strip()
         else:
@@ -141,7 +141,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
                     trailing_comma=trailing_comma,
                     env=self.env,
                 )
-        return fullname, prefix
+        return fullname, prefix  # type: ignore[return-value]
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         if 'fullname' not in sig_node:
@@ -363,7 +363,10 @@ class JSModule(SphinxDirective):
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
             domain.note_object(
-                mod_name, 'module', node_id, location=(self.env.docname, self.lineno)
+                mod_name,
+                'module',
+                node_id,
+                location=(self.env.current_document.docname, self.lineno),
             )
 
             # The node order is: index node first, then target node
@@ -436,7 +439,7 @@ class JavaScriptDomain(Domain):
         'attr': JSXRefRole(),
         'mod': JSXRefRole(),
     }
-    initial_data: dict[str, dict[str, tuple[str, str]]] = {
+    initial_data: ClassVar[dict[str, dict[str, tuple[str, str]]]] = {
         'objects': {},  # fullname -> docname, node_id, objtype
         'modules': {},  # modname  -> docname, node_id
     }
@@ -459,14 +462,14 @@ class JavaScriptDomain(Domain):
                 docname,
                 location=location,
             )
-        self.objects[fullname] = (self.env.docname, node_id, objtype)
+        self.objects[fullname] = (self.env.current_document.docname, node_id, objtype)
 
     @property
     def modules(self) -> dict[str, tuple[str, str]]:
         return self.data.setdefault('modules', {})  # modname -> docname, node_id
 
     def note_module(self, modname: str, node_id: str) -> None:
-        self.modules[modname] = (self.env.docname, node_id)
+        self.modules[modname] = (self.env.current_document.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
         for fullname, (pkg_docname, _node_id, _l) in list(self.objects.items()):

@@ -3,12 +3,9 @@
 from __future__ import annotations
 
 import os.path
-import warnings
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.frontend import OptionParser
-from docutils.io import FileOutput
 
 from sphinx import addnodes, package_dir
 from sphinx._cli.util.colour import darkgreen
@@ -18,14 +15,13 @@ from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, copyfile, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
-    from typing import Any
 
     from docutils.nodes import Node
 
@@ -106,10 +102,6 @@ class TexinfoBuilder(Builder):
             toctree_only = False
             if len(entry) > 7:
                 toctree_only = entry[7]
-            destination = FileOutput(
-                destination_path=self.outdir / targetname,
-                encoding='utf-8',
-            )
             with progress_message(__('processing %s') % targetname, nonl=False):
                 appendices = self.config.texinfo_appendices or []
                 doctree = self.assemble_doctree(
@@ -118,16 +110,9 @@ class TexinfoBuilder(Builder):
 
             with progress_message(__('writing')):
                 self.post_process_images(doctree)
-                docwriter = TexinfoWriter(self)
-                with warnings.catch_warnings():
-                    warnings.filterwarnings('ignore', category=DeprecationWarning)
-                    # DeprecationWarning: The frontend.OptionParser class will be replaced
-                    # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-                    settings: Any = OptionParser(
-                        defaults=self.env.settings,
-                        components=(docwriter,),
-                        read_config_files=True,
-                    ).get_default_values()
+                settings = _get_settings(
+                    TexinfoWriter, defaults=self.env.settings, read_config_files=True
+                )
                 settings.author = author
                 settings.title = title
                 settings.texinfo_filename = targetname[:-5] + '.info'
@@ -137,7 +122,10 @@ class TexinfoBuilder(Builder):
                 settings.texinfo_dir_description = description or ''
                 settings.docname = docname
                 doctree.settings = settings
-                docwriter.write(doctree, destination)
+                visitor: TexinfoTranslator = self.create_translator(doctree, self)  # type: ignore[assignment]
+                doctree.walkabout(visitor)
+                visitor.finish()
+                (self.outdir / targetname).write_text(visitor.output, encoding='utf-8')
                 self.copy_image_files(targetname[:-5])
 
     def assemble_doctree(
@@ -198,7 +186,7 @@ class TexinfoBuilder(Builder):
                 __('copying images... '),
                 'brown',
                 len(self.images),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=stringify_func,
             ):
                 dest = self.images[src]

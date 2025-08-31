@@ -6,6 +6,7 @@ import operator
 import token
 from collections import deque
 from inspect import Parameter
+from itertools import chain, islice
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -316,18 +317,6 @@ class _TypeParameterListParser(TokenProcessor):
                 self.type_params.append(type_param)
 
     def _build_identifier(self, tokens: list[Token]) -> str:
-        from itertools import chain, islice
-
-        def triplewise(iterable: Iterable[Token]) -> Iterator[tuple[Token, ...]]:
-            # sliding_window('ABCDEFG', 4) --> ABCD BCDE CDEF DEFG
-            it = iter(iterable)
-            window = deque(islice(it, 3), maxlen=3)
-            if len(window) == 3:
-                yield tuple(window)
-            for x in it:
-                window.append(x)
-                yield tuple(window)
-
         idents: list[str] = []
         tokens: Iterable[Token] = iter(tokens)  # type: ignore[no-redef]
         # do not format opening brackets
@@ -342,7 +331,7 @@ class _TypeParameterListParser(TokenProcessor):
         # check the remaining tokens
         stop = Token(token.ENDMARKER, '', (-1, -1), (-1, -1), '<sentinel>')
         is_unpack_operator = False
-        for tok, op, after in triplewise(chain(tokens, [stop, stop])):
+        for tok, op, after in _triplewise(chain(tokens, [stop, stop])):
             ident = self._pformat_token(tok, native=is_unpack_operator)
             idents.append(ident)
             # determine if the next token is an unpack operator depending
@@ -628,3 +617,14 @@ def _pseudo_parse_arglist(
         signode += paramlist
     else:
         signode += paramlist
+
+
+def _triplewise(iterable: Iterable[Token]) -> Iterator[tuple[Token, ...]]:
+    # sliding_window('ABCDEFG', 4) --> ABCD BCDE CDEF DEFG
+    it = iter(iterable)
+    window = deque(islice(it, 3), maxlen=3)
+    if len(window) == 3:
+        yield tuple(window)
+    for x in it:
+        window.append(x)
+        yield tuple(window)

@@ -90,12 +90,17 @@ def get_image_extension(mimetype: str) -> str | None:
 def parse_data_uri(uri: str) -> DataURI | None:
     if not uri.startswith('data:'):
         return None
+    uri = uri[5:]
+
+    if ',' not in uri:
+        msg = 'malformed data URI'
+        raise ValueError(msg)
 
     # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
     mimetype = 'text/plain'
     charset = 'US-ASCII'
 
-    properties, data = uri[5:].split(',', 1)
+    properties, _, data = uri.partition(',')
     for prop in properties.split(';'):
         if prop == 'base64':
             pass  # skip
