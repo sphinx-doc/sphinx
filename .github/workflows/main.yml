@@ -180,10 +180,8 @@ jobs:
       uses: astral-sh/setup-uv@v6
       with:
         enable-cache: false
-    - name: Install Docutils' HEAD
-      run: uv install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
     - name: Test with pytest
-      run: uv run pytest -vv --durations 25
+      run: uv run --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" pytest -vv --durations 25
       env:
         DO_EPUBCHECK: "1"
 
