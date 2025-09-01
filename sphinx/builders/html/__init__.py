@@ -70,6 +70,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.builders.html._ctx import _GlobalContextHTML, _PageContextHTML
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
@@ -136,6 +137,8 @@ class StandaloneHTMLBuilder(Builder):
 
     imgpath: str = ''
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
+
+    globalcontext: _GlobalContextHTML
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         super().__init__(app, env)
@@ -565,7 +568,7 @@ class StandaloneHTMLBuilder(Builder):
             'html5_doctype': True,
         }
         if self.theme:
-            self.globalcontext |= {
+            self.globalcontext |= {  # type: ignore[typeddict-item]
                 f'theme_{key}': val
                 for key, val in self.theme.get_options(self.theme_options).items()
             }
@@ -580,7 +583,7 @@ class StandaloneHTMLBuilder(Builder):
         # find out relations
         prev = next = None
         parents = []
-        rellinks = self.globalcontext['rellinks'][:]
+        rellinks = list(self.globalcontext['rellinks'])
         related = self.relations.get(docname)
         titles = self.env.titles
         if related and related[2]:
@@ -921,7 +924,7 @@ class StandaloneHTMLBuilder(Builder):
                 self._static_dir.mkdir(parents=True, exist_ok=True)
 
                 # prepare context for templates
-                context = self.globalcontext.copy()
+                context: dict[str, Any] = self.globalcontext.copy()  # type: ignore[assignment]
                 if self.indexer is not None:
                     context.update(self.indexer.context_for_searchtool())
 
@@ -1040,7 +1043,7 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename: str) -> _StrPath:
         return _StrPath(self.get_output_path(pagename))
 
-    def add_sidebars(self, pagename: str, ctx: dict[str, Any]) -> None:
+    def add_sidebars(self, pagename: str, ctx: _PageContextHTML) -> None:
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
@@ -1080,7 +1083,7 @@ class StandaloneHTMLBuilder(Builder):
         outfilename: Path | None = None,
         event_arg: Any = None,
     ) -> None:
-        ctx = self.globalcontext.copy()
+        ctx: _PageContextHTML = self.globalcontext.copy()  # type: ignore[assignment]
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
         ctx['encoding'] = self.config.html_output_encoding
@@ -1124,7 +1127,7 @@ class StandaloneHTMLBuilder(Builder):
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
         self.add_sidebars(pagename, ctx)
-        ctx.update(addctx)
+        ctx.update(addctx)  # type: ignore[typeddict-item]
 
         # 'blah.html' should have content_root = './' not ''.
         ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
@@ -1261,7 +1264,7 @@ class StandaloneHTMLBuilder(Builder):
             copyfile(self.env.doc2path(pagename), source_file_path, force=True)
 
     def update_page_context(
-        self, pagename: str, templatename: str, ctx: dict[str, Any], event_arg: Any
+        self, pagename: str, templatename: str, ctx: _PageContextHTML, event_arg: Any
     ) -> None:
         pass
 
