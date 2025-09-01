@@ -138,7 +138,7 @@ types = [
 type-stubs = [
     # align with versions used elsewhere
     "types-colorama==0.4.15.20250801",
-    "types-defusedxml==0.7.0.20250708",
+    "types-defusedxml==0.7.0.20250822",
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20250715",
