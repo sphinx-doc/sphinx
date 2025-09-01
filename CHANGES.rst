@@ -116,6 +116,9 @@ Bugs fixed
 * #10785: Autodoc: Allow type aliases defined in the project to be properly
   cross-referenced when used as type annotations. This makes it possible
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
+* #12797: Fix
+  ``TypeError: Some type variables (...) are not listed in Generic[...]``
+  when inheriting from both Generic and autodoc mocked class.
 
 Testing
 -------
