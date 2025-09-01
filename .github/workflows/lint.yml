@@ -15,6 +15,7 @@ concurrency:
 env:
   FORCE_COLOR: "1"
   UV_SYSTEM_PYTHON: "1"  # make uv do global installs
+  UV_FROZEN: "1"  # make uv use the frozen lockfile
 
 jobs:
   # If you update any of these commands, don't forget to update the equivalent
@@ -26,17 +27,11 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-
-    - name: Install Ruff
-      uses: astral-sh/ruff-action@v3
-      with:
-        args: --version
-
+    - uses: astral-sh/setup-uv@v6
     - name: Lint with Ruff
-      run: ruff check --output-format=github
-
+      run: uv run ruff check --output-format=github
     - name: Format with Ruff
-      run: ruff format --diff
+      run: uv run ruff format --diff
 
   mypy:
     runs-on: ubuntu-latest
@@ -45,19 +40,9 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        version: latest
-        enable-cache: false
-    - name: Install dependencies
-      run: uv pip install -r pyproject.toml --group package --group test --group types
+    - uses: astral-sh/setup-uv@v6
     - name: Type check with mypy
-      run: mypy
+      run: uv run mypy
 
   pyright:
     runs-on: ubuntu-latest
@@ -66,19 +51,9 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        version: latest
-        enable-cache: false
-    - name: Install dependencies
-      run: uv pip install -r pyproject.toml --group package --group test --group types
+    - uses: astral-sh/setup-uv@v6
     - name: Type check with pyright
-      run: pyright
+      run: uv run pyright
 
   docs-lint:
     runs-on: ubuntu-latest
@@ -87,19 +62,9 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        version: latest
-        enable-cache: false
-    - name: Install dependencies
-      run: uv pip install --group lint
+    - uses: astral-sh/setup-uv@v6
     - name: Lint documentation with sphinx-lint
-      run: make doclinter
+      run: uv run make doclinter
 
   twine:
     runs-on: ubuntu-latest
@@ -108,21 +73,11 @@ jobs:
     - uses: actions/checkout@v5
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-      with:
-        version: latest
-        enable-cache: false
-    - name: Install dependencies
-      run: uv pip install --group package
+    - uses: astral-sh/setup-uv@v6
     - name: Lint with twine
       run: |
-        python -m build .
-        twine check dist/*
+        uv build
+        uv run twine check dist/*
 
   prettier:
     runs-on: ubuntu-latest
