@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('html', testroot='numfig-only', confoverrides={'numfig': True})
-def test_numfig_with_only_directive_html(app, status, warning):
+def test_numfig_with_only_directive_html(app: SphinxTestApp) -> None:
     """Test that figure numbers are assigned correctly with only directive in HTML."""
     app.build()
 
@@ -24,7 +29,7 @@ def test_numfig_with_only_directive_html(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='numfig-only', confoverrides={'numfig': True})
-def test_numfig_with_only_directive_latex(app, status, warning):
+def test_numfig_with_only_directive_latex(app: SphinxTestApp) -> None:
     """Test that figure numbers are assigned correctly with only directive in LaTeX.
 
     Note: This test verifies that figure numbering works correctly with the only directive.
