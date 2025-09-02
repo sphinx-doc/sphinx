@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from packaging.version import Version
 from typing import TYPE_CHECKING
 
 import docutils.parsers.rst.directives
@@ -584,10 +585,14 @@ def code_role(
     options: dict[str, Any] | None = None,
     content: Sequence[str] = (),
 ) -> tuple[list[Node], list[system_message]]:
+
     if options is None:
         options = {}
     options = options.copy()
-    docutils.parsers.rst.roles.set_classes(options)
+    if Version(docutils.__version__) < Version('0.22'):
+        docutils.parsers.rst.roles.set_classes(options)
+    else:
+        docutils.parsers.rst.roles.normalize_options(options)
     language = options.get('language', '')
     classes = ['code']
     if language:
