@@ -67,7 +67,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
         self.docnames.append(node['docname'])
-        self.body.append('<span id="document-%s"></span>' % node['docname'])
+        self.body.append('<span id="/%s/"></span>' % node['docname'])
 
     def depart_start_of_file(self, node: Element) -> None:
         self.docnames.pop()
