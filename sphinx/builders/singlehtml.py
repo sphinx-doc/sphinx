@@ -42,7 +42,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
-            return '#document-' + docname
+            return '#/' + docname + '/'
         else:
             # chances are this is a html_additional_page
             return docname + self.out_suffix
@@ -88,6 +88,20 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         )
         return self.render_partial(toctree)['fragment']
 
+    def ensure_fully_qualified_refids(self, tree: nodes.document) -> None:
+        """Append docname to refids and ids using format
+        /docname/#id. Compensates for loss of the pathname section
+        of the href, that ensures uniqueness in the html builder.
+        """
+        for node in tree.findall(nodes.Element):
+            assert node.document is not None
+            if 'refid' in node or 'ids' in node:
+                docname = self.env.path2doc(node.document['source'])
+            if 'refid' in node:
+                node['refid'] = f'/{docname}/#{node["refid"]}'
+            if 'ids' in node:
+                node['ids'] = [f'/{docname}/#{id}' for id in node['ids']]
+
     def assemble_doctree(self) -> nodes.document:
         master = self.config.root_doc
         tree = self.env.get_doctree(master)
@@ -95,6 +109,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
         tree['docname'] = master
         self.env.resolve_references(tree, master, self)
+        self.ensure_fully_qualified_refids(tree)
         return tree
 
     def assemble_toc_secnumbers(self) -> dict[str, dict[str, tuple[int, ...]]]:
