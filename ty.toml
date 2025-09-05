@@ -1,0 +1,21 @@
+# Configuration file for Ty_.
+# n.b. Ty is early in development.
+#      Sphinx's current primary/reference type-checker is mypy.
+#
+# .. _Ty: https://docs.astral.sh/ty/
+
+[src]
+include = [
+    "doc/conf.py",
+    "doc/development/tutorials/examples/autodoc_intenum.py",
+    "doc/development/tutorials/examples/helloworld.py",
+    "sphinx",
+    "tests",
+    "utils",
+]
+exclude = [
+    "tests/roots/test-pycode/cp_1251_coded.py",  # Not UTF-8
+    # This panics (2025-08-18; ty 0.0.1-alpha.18).
+    # See https://github.com/astral-sh/ty/issues/256
+    "tests/test_config/test_config.py",
+]

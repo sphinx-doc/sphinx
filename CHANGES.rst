@@ -47,7 +47,7 @@ Features added
   Patch by Till Hoffmann.
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
-  Patch by Adam Turner.
+  Patch by Adam Turner and James Addison.
 * #13497: Support C domain objects in the table of contents.
 * #13500: LaTeX: add support for ``fontawesome6`` package.
   Patch by Jean-François B.
@@ -116,6 +116,8 @@ Bugs fixed
 * #10785: Autodoc: Allow type aliases defined in the project to be properly
   cross-referenced when used as type annotations. This makes it possible
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
+* #13858: doctest: doctest blocks are now correctly added to a group defined by the
+  configuration variable ``doctest_test_doctest_blocks``.
 * #13526: Improve ``SOURCE_DATE_EPOCH`` support during ``%Y`` pattern
   substition in :confval:`copyright` (and :confval:`project_copyright`).
   Patch by James Addison.

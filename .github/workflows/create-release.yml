@@ -27,7 +27,7 @@ jobs:
       attestations: write  # for actions/attest
       id-token: write  # for actions/attest & PyPI trusted publishing
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - name: Set up Python
@@ -99,7 +99,7 @@ jobs:
     permissions:
       contents: write  # for softprops/action-gh-release to create GitHub release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - name: Get release version
