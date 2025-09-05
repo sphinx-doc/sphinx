@@ -127,7 +127,7 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ('markup.html', './/li/p/strong', r'^command\\n$'),
         ('markup.html', './/li/p/strong', r'^program\\n$'),
         ('markup.html', './/li/p/em', r'^dfn\\n$'),
-        ('markup.html', './/li/p/kbd', r'^kbd\\n$'),
+        ('markup.html', './/li/p/span/kbd', r'^kbd\\n$'),
         ('markup.html', './/li/p/span', 'File \N{TRIANGULAR BULLET} Close'),
         ('markup.html', ".//li/p/code/span[@class='pre']", '^a/$'),
         ('markup.html', ".//li/p/code/em/span[@class='pre']", '^varpart$'),
