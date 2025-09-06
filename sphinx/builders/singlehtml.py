@@ -118,8 +118,9 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # Assemble toc_secnumbers to resolve section numbers on SingleHTML.
         # Merge all secnumbers to single secnumber.
         #
-        # Note: current Sphinx has refid confliction in singlehtml mode.
-        #       To avoid the problem, it replaces key of secnumbers to
+        # Note: current Sphinx patches refid with docname to avoid confliction
+        #       in singlehtml mode.
+        #       To match the patch, it replaces key of secnumbers to
         #       tuple of docname and refid.
         #
         #       There are related codes in inline_all_toctres() and
@@ -127,7 +128,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         new_secnumbers: dict[str, tuple[int, ...]] = {}
         for docname, secnums in self.env.toc_secnumbers.items():
             for id, secnum in secnums.items():
-                alias = f'{docname}/{id}'
+                alias = f'/{docname}/{id}'
                 new_secnumbers[alias] = secnum
 
         return {self.config.root_doc: new_secnumbers}
@@ -138,8 +139,9 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
         # Merge all fignumbers to single fignumber.
         #
-        # Note: current Sphinx has refid confliction in singlehtml mode.
-        #       To avoid the problem, it replaces key of secnumbers to
+        # Note: current Sphinx patches refid with docname to avoid confliction
+        #       in singlehtml mode.
+        #       To match the patch, it replaces key of secnumbers to
         #       tuple of docname and refid.
         #
         #       There are related codes in inline_all_toctres() and
@@ -148,9 +150,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # {'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, 'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in self.env.toc_fignumbers.items():
             for figtype, fignums in fignumlist.items():
-                alias = f'{docname}/{figtype}'
+                alias = f'/{docname}/#{figtype}'
                 new_fignumbers.setdefault(alias, {})
                 for id, fignum in fignums.items():
+                    id = f'/{docname}/#{id}'
                     new_fignumbers[alias][id] = fignum
 
         return {self.config.root_doc: new_fignumbers}
