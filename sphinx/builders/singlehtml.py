@@ -42,7 +42,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
-            return '#document-' + docname
+            return '#/' + docname + '/'
         else:
             # chances are this is a html_additional_page
             return docname + self.out_suffix
@@ -88,6 +88,22 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         )
         return self.render_partial(toctree)['fragment']
 
+    def prefix_ids_with_docname(self, tree: nodes.document) -> None:
+        # Append docname to refids and ids using format document-<docname>#<id>.
+        # Compensates for loss of the pathname section of the href, that
+        # ensures uniqueness in the html builder.
+        for node in tree.findall(nodes.Element):
+            doc = node.document
+            if doc is None:
+                continue
+            env = doc.settings.env
+            if 'refid' in node or 'ids' in node:
+                docname = env.path2doc(doc['source'])
+            if 'refid' in node:
+                node['refid'] = f'/{docname}/#{node["refid"]}'
+            if 'ids' in node:
+                node['ids'] = [f'/{docname}/#{id}' for id in node['ids']]
+
     def assemble_doctree(self) -> nodes.document:
         master = self.config.root_doc
         tree = self.env.get_doctree(master)
@@ -95,14 +111,16 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
         tree['docname'] = master
         self.env.resolve_references(tree, master, self)
+        self.prefix_ids_with_docname(tree)
         return tree
 
     def assemble_toc_secnumbers(self) -> dict[str, dict[str, tuple[int, ...]]]:
         # Assemble toc_secnumbers to resolve section numbers on SingleHTML.
         # Merge all secnumbers to single secnumber.
         #
-        # Note: current Sphinx has refid confliction in singlehtml mode.
-        #       To avoid the problem, it replaces key of secnumbers to
+        # Note: current Sphinx patches refid with docname to avoid confliction
+        #       in singlehtml mode.
+        #       To match the patch, it replaces key of secnumbers to
         #       tuple of docname and refid.
         #
         #       There are related codes in inline_all_toctres() and
@@ -110,7 +128,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         new_secnumbers: dict[str, tuple[int, ...]] = {}
         for docname, secnums in self.env.toc_secnumbers.items():
             for id, secnum in secnums.items():
-                alias = f'{docname}/{id}'
+                alias = f'/{docname}/{id}'
                 new_secnumbers[alias] = secnum
 
         return {self.config.root_doc: new_secnumbers}
@@ -121,8 +139,9 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
         # Merge all fignumbers to single fignumber.
         #
-        # Note: current Sphinx has refid confliction in singlehtml mode.
-        #       To avoid the problem, it replaces key of secnumbers to
+        # Note: current Sphinx patches refid with docname to avoid confliction
+        #       in singlehtml mode.
+        #       To match the patch, it replaces key of secnumbers to
         #       tuple of docname and refid.
         #
         #       There are related codes in inline_all_toctres() and
@@ -131,9 +150,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # {'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, 'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in self.env.toc_fignumbers.items():
             for figtype, fignums in fignumlist.items():
-                alias = f'{docname}/{figtype}'
+                alias = f'/{docname}/#{figtype}'
                 new_fignumbers.setdefault(alias, {})
                 for id, fignum in fignums.items():
+                    id = f'/{docname}/#{id}'
                     new_fignumbers[alias][id] = fignum
 
         return {self.config.root_doc: new_fignumbers}
