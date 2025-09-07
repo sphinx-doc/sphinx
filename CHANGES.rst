@@ -121,5 +121,6 @@ Bugs fixed
 * #13741: text: fix an infinite loop when processing CSV tables.
   Patch by Bénédikt Tran.
 
+
 Testing
 -------
