@@ -116,6 +116,8 @@ Bugs fixed
 * #10785: Autodoc: Allow type aliases defined in the project to be properly
   cross-referenced when used as type annotations. This makes it possible
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
+* #13858: doctest: doctest blocks are now correctly added to a group defined by the
+  configuration variable ``doctest_test_doctest_blocks``.
 * #13741: text: fix an infinite loop when processing CSV tables.
   Patch by Bénédikt Tran.
 
