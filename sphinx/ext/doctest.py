@@ -460,7 +460,7 @@ class DocTestBuilder(Builder):
                 lineno=line_number,  # type: ignore[arg-type]
                 options=node.get('options'),  # type: ignore[attr-defined]
             )
-            node_groups = node.get('groups', ['default'])  # type: ignore[attr-defined]
+            node_groups = node.get('groups', [self.config.doctest_test_doctest_blocks])  # type: ignore[attr-defined]
             if '*' in node_groups:
                 add_to_all_groups.append(code)
                 continue
