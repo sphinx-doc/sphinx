@@ -201,14 +201,14 @@ class QuickstartRenderer(SphinxRenderer):
 
     def render(self, template_name: str, context: dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
-            custom_template = os.path.join(
-                self.templatedir, template_name
-            )
+            custom_template = os.path.join(self.templatedir, template_name)
             return self.render_from_file(custom_template, context)
         else:
             if (bool(self.templatedir)):
-                print(__('Ignoreing TEMPLATEDIR=%s for %s') %
-                      (self.templatedir, template_name))
+                print(
+                    __('Ignoreing TEMPLATEDIR=%s for %s')
+                    % (self.templatedir, template_name)
+                )
             return super().render(template_name, context)
 
 
@@ -477,13 +477,15 @@ def generate(
             if 'quiet' not in d:
                 print(__('File %s already exists, skipping.') % fpath)
 
-    conf_path = os.path.join(templatedir, TMPLSUBDIR, 'conf.py.jinja') if templatedir else None
+    conf_path = (
+        os.path.join(templatedir, TMPLSUBDIR, 'conf.py.jinja') if templatedir else None
+    )
     if not conf_path or not os.path.isfile(conf_path):
-        if (bool(templatedir)):
-            print(__('%s does not exist, reverting to default template.') % (conf_path,))
-        conf_path = os.path.join(
-            package_dir, 'templates', TMPLSUBDIR, 'conf.py.jinja'
-        )
+        if bool(templatedir):
+            print(
+                __('%s does not exist, reverting to default template.') % (conf_path,)
+            )
+        conf_path = os.path.join(package_dir, 'templates', TMPLSUBDIR, 'conf.py.jinja')
     with open(conf_path, encoding='utf-8') as f:
         conf_text = f.read()
 
