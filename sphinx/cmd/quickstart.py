@@ -204,7 +204,7 @@ class QuickstartRenderer(SphinxRenderer):
             custom_template = os.path.join(self.templatedir, template_name)
             return self.render_from_file(custom_template, context)
         else:
-            if (bool(self.templatedir)):
+            if bool(self.templatedir):
                 print(
                     __('Ignoreing TEMPLATEDIR=%s for %s')
                     % (self.templatedir, template_name)
