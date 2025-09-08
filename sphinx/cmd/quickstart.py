@@ -25,6 +25,8 @@ from sphinx.locale import __
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
+TMPLSUBDIR = 'quickstart'
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import Any
@@ -194,16 +196,18 @@ class QuickstartRenderer(SphinxRenderer):
         Note: Please don't use this function from extensions.
               It will be removed in the future without deprecation period.
         """
-        template = os.path.join(self.templatedir, os.path.basename(template_name))
+        template = os.path.join(self.templatedir, template_name)
         return bool(self.templatedir) and os.path.exists(template)
 
     def render(self, template_name: str, context: dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
             custom_template = os.path.join(
-                self.templatedir, os.path.basename(template_name)
+                self.templatedir, template_name
             )
             return self.render_from_file(custom_template, context)
         else:
+            if (bool(self.templatedir)):
+                print(__('Ignoreing TEMPLATEDIR=%s for %s') % (self.templatedir, template_name))
             return super().render(template_name, context)
 
 
@@ -472,10 +476,12 @@ def generate(
             if 'quiet' not in d:
                 print(__('File %s already exists, skipping.') % fpath)
 
-    conf_path = os.path.join(templatedir, 'conf.py.jinja') if templatedir else None
+    conf_path = os.path.join(templatedir, TMPLSUBDIR, 'conf.py.jinja') if templatedir else None
     if not conf_path or not os.path.isfile(conf_path):
+        if (bool(templatedir)):
+            print(__("%s does not exist, reverting to default template.") % (conf_path,))
         conf_path = os.path.join(
-            package_dir, 'templates', 'quickstart', 'conf.py.jinja'
+            package_dir, 'templates', TMPLSUBDIR, 'conf.py.jinja'
         )
     with open(conf_path, encoding='utf-8') as f:
         conf_text = f.read()
@@ -483,13 +489,13 @@ def generate(
     write_file(os.path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
     masterfile = os.path.join(srcdir, d['master'] + d['suffix'])
-    if template._has_custom_template('quickstart/master_doc.rst.jinja'):
-        write_file(masterfile, template.render('quickstart/master_doc.rst.jinja', d))
+    if template._has_custom_template(f'{TMPLSUBDIR}/master_doc.rst.jinja'):
+        write_file(masterfile, template.render(f'{TMPLSUBDIR}/master_doc.rst.jinja', d))
     else:
-        write_file(masterfile, template.render('quickstart/root_doc.rst.jinja', d))
+        write_file(masterfile, template.render(f'{TMPLSUBDIR}/root_doc.rst.jinja', d))
 
-    makefile_template = 'quickstart/Makefile.new.jinja'
-    batchfile_template = 'quickstart/make.bat.new.jinja'
+    makefile_template = f'{TMPLSUBDIR}/Makefile.new.jinja'
+    batchfile_template = f'{TMPLSUBDIR}/make.bat.new.jinja'
 
     if d['makefile'] is True:
         d['rsrcdir'] = 'source' if d['sep'] else '.'
@@ -721,7 +727,7 @@ def get_parser() -> argparse.ArgumentParser:
         '--templatedir',
         metavar='TEMPLATEDIR',
         dest='templatedir',
-        help=__('template directory for template files'),
+        help=__('template directory for %s/*.jinja template files') % (TMPLSUBDIR,),
     )
     group.add_argument(
         '-d',
