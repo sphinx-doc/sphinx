@@ -58,6 +58,9 @@ Options
    *info*
      Build Texinfo files and run them through :program:`makeinfo`.
 
+   *help*
+      Output a list of valid ``make`` targets and exit.
+
    .. note::
 
       The default output directory locations when using *make-mode*
