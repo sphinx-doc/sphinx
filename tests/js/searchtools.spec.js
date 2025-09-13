@@ -295,6 +295,16 @@ describe("splitQuery regression tests", () => {
     expect(parts).toEqual(["Pin", "Code"]);
   });
 
+  it("can keep underscores in words", () => {
+    const parts = splitQuery("python_function");
+    expect(parts).toEqual(["python_function"]);
+  });
+
+  it("can maintain negated search words", () => {
+    const parts = splitQuery("Pin -Code");
+    expect(parts).toEqual(["Pin", "-Code"]);
+  });
+
   it("can split Chinese characters", () => {
     const parts = splitQuery("Hello from 中国 上海");
     expect(parts).toEqual(["Hello", "from", "中国", "上海"]);

@@ -171,15 +171,23 @@ const _orderResultsByScoreThenName = (a, b) => {
  * Default splitQuery function. Can be overridden in ``sphinx.search`` with a
  * custom function per language.
  *
- * The regular expression works by splitting the string on consecutive characters
- * that are not Unicode letters, numbers, underscores, or emoji characters.
- * This is the same as ``\W+`` in Python, preserving the surrogate pair area.
+ * The `consecutiveLetters` regular expression works by matching consecutive characters
+ * that are Unicode letters, numbers, underscores, or emoji characters.
+ *
+ * The `searchWords` regular expression works by matching a word like structure
+ * that matches the `consecutiveLetters` with or without a leading hyphen '-' which is
+ * used to exclude search terms later on.
  */
 if (typeof splitQuery === "undefined") {
-  var splitQuery = (query) =>
-    query
-      .split(/[^\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu)
-      .filter((term) => term); // remove remaining empty strings
+  var splitQuery = (query) => {
+    const consecutiveLetters = /[\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu;
+    const searchWords = new RegExp(`(${consecutiveLetters.source})|\\s(-${consecutiveLetters.source})`, "gu");
+    return Array.from(
+      query.matchAll(searchWords)
+      .map((results) => results[1] ?? results[2]) // select one of the possible groups (e.g. "word" or "-word").
+      .filter((term) => term) // remove remaining empty strings.
+    );
+  }
 }
 
 /**
