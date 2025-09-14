@@ -136,7 +136,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.7",
+    "ruff==0.12.8",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -161,16 +161,17 @@ types = [
     "mypy==1.17.0",
     "pyrefly",
     "pyright==1.1.400",
+    "ty",
     { include-group = "type-stubs" },
 ]
 type-stubs = [
     # align with versions used elsewhere
-    "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20250708",
-    "types-docutils==0.22.0.20250814",
+    "types-colorama==0.4.15.20250801",
+    "types-defusedxml==0.7.0.20250822",
+    "types-docutils==0.22.0.20250914",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250715",
-    "types-requests==2.32.4.20250611",
+    "types-Pygments==2.19.0.20250809",
+    "types-requests==2.32.4.20250809",
     "types-urllib3==1.26.25.14",
 ]
 

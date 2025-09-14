@@ -22,7 +22,11 @@ from sphinx.ext.autodoc._directive_options import (
     inherited_members_option,
 )
 from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
-from sphinx.ext.autodoc._property_types import _ClassDefProperties
+from sphinx.ext.autodoc._property_types import (
+    _ClassDefProperties,
+    _FunctionDefProperties,
+    _ItemProperties,
+)
 from sphinx.ext.autodoc._sentinels import ALL
 
 # NEVER import these objects from sphinx.ext.autodoc directly
@@ -135,7 +139,7 @@ def test_parse_name(app):
 def test_format_signature(app):
     def process_signature(app, what, name, obj, options, args, retann):
         processed_signatures.append((what, name))
-        if name == 'bar':
+        if name == '.bar':
             return '42', None
         return None
 
@@ -155,16 +159,13 @@ def test_format_signature(app):
 
     def formatsig(objtype, name, obj, args, retann):
         inst = app.registry.documenters[objtype](directive, name)
-        inst.fullname = name
         inst.doc_as_attr = False  # for class objtype
         inst.parent = object  # dummy
-        inst.object = obj
-        inst.objpath = [name]
         inst.args = args
         inst.retann = retann
         inst.props = _ClassDefProperties(
             obj_type=objtype,
-            module_name=inst.modname,
+            module_name='',
             parts=(name,),
             docstring_lines=(),
             bases=getattr(obj, '__bases__', None),
@@ -360,12 +361,18 @@ def test_autodoc_process_signature_typehints(app):
 
     directive = make_directive_bridge(app.env)
     inst = app.registry.documenters['function'](directive, 'func')
-    inst.fullname = 'func'
-    inst.object = func
-    inst.objpath = ['func']
+    inst.props = _FunctionDefProperties(
+        obj_type='function',
+        module_name='',
+        parts=('func',),
+        docstring_lines=(),
+        _obj=func,
+        _obj___module__=None,
+        properties=frozenset(),
+    )
     inst.format_signature()
     assert captured == [
-        (app, 'function', 'func', func, directive.genopt, '(x: int, y: int)', 'int')
+        (app, 'function', '.func', func, directive.genopt, '(x: int, y: int)', 'int')
     ]
 
 
@@ -375,9 +382,15 @@ def test_get_doc(app):
 
     def getdocl(objtype, obj):
         inst = app.registry.documenters[objtype](directive, 'tmp')
+        inst.props = _ItemProperties(
+            obj_type=objtype,
+            module_name='',
+            parts=(obj.__name__,),
+            docstring_lines=(),
+            _obj=obj,
+            _obj___module__=getattr(obj, '__module__', None),
+        )
         inst.parent = object  # dummy
-        inst.object = obj
-        inst.objpath = [obj.__name__]
         inst.doc_as_attr = False
         inst.format_signature()  # handle docstring signatures!
         ds = inst.get_doc()
