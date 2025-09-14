@@ -66,6 +66,25 @@ describe("Basic html theme search", function () {
       expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
+    it("should be able to exclude search terms", function () {
+      eval(loadFixture("titles/searchindex.js"));
+
+      [_searchQuery, searchterms, excluded, ..._remainingItems] =
+        Search._parseQuery("main page -function");
+      // prettier-ignore
+      hits = [[
+        'index',
+        'Main Page',
+        '',
+        null,
+        15,
+        'index.rst',
+        'text'
+      ]];
+      expect(excluded).toEqual(new Set(["function"]));
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
+    });
+
     it('should partially-match "sphinx" when in title index', function () {
       eval(loadFixture("partial/searchindex.js"));
 

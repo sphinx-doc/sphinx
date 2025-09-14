@@ -636,11 +636,13 @@ const Search = {
       // ensure that none of the excluded terms is in the search result
       if (
         [...excludedTerms].some(
-          (term) =>
-            terms[term] === file
-            || titleTerms[term] === file
-            || (terms[term] || []).includes(file)
-            || (titleTerms[term] || []).includes(file),
+          (excludedTerm) => {
+            // Both mappings will contain either a single integer or a list of integers.
+            // Converting them to lists makes the comparison more readable.
+            let excludedTermFiles = [].concat(terms[excludedTerm]);
+            let excludedTitleFiles = [].concat(titleTerms[excludedTerm]);
+            return excludedTermFiles.includes(file) || excludedTitleFiles.includes(file);
+          }
         )
       )
         break;
