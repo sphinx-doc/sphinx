@@ -180,14 +180,19 @@ const _orderResultsByScoreThenName = (a, b) => {
  */
 if (typeof splitQuery === "undefined") {
   var splitQuery = (query) => {
-    const consecutiveLetters = /[\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu;
-    const searchWords = new RegExp(`(${consecutiveLetters.source})|\\s(-${consecutiveLetters.source})`, "gu");
-    return Array.from(
-      query.matchAll(searchWords)
-      .map((results) => results[1] ?? results[2]) // select one of the possible groups (e.g. "word" or "-word").
-      .filter((term) => term) // remove remaining empty strings.
+    const consecutiveLetters =
+      /[\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu;
+    const searchWords = new RegExp(
+      `(${consecutiveLetters.source})|\\s(-${consecutiveLetters.source})`,
+      "gu",
     );
-  }
+    return Array.from(
+      query
+        .matchAll(searchWords)
+        .map((results) => results[1] ?? results[2]) // select one of the possible groups (e.g. "word" or "-word").
+        .filter((term) => term), // remove remaining empty strings.
+    );
+  };
 }
 
 /**
@@ -635,15 +640,16 @@ const Search = {
 
       // ensure that none of the excluded terms is in the search result
       if (
-        [...excludedTerms].some(
-          (excludedTerm) => {
-            // Both mappings will contain either a single integer or a list of integers.
-            // Converting them to lists makes the comparison more readable.
-            let excludedTermFiles = [].concat(terms[excludedTerm]);
-            let excludedTitleFiles = [].concat(titleTerms[excludedTerm]);
-            return excludedTermFiles.includes(file) || excludedTitleFiles.includes(file);
-          }
-        )
+        [...excludedTerms].some((excludedTerm) => {
+          // Both mappings will contain either a single integer or a list of integers.
+          // Converting them to lists makes the comparison more readable.
+          let excludedTermFiles = [].concat(terms[excludedTerm]);
+          let excludedTitleFiles = [].concat(titleTerms[excludedTerm]);
+          return (
+            excludedTermFiles.includes(file)
+            || excludedTitleFiles.includes(file)
+          );
+        })
       )
         continue;
 

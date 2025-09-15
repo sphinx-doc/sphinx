@@ -118,6 +118,7 @@ Bugs fixed
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
 * #13858: doctest: doctest blocks are now correctly added to a group defined by the
   configuration variable ``doctest_test_doctest_blocks``.
+* #13892: search: support word exclusion in the search by prefixing words with hyphen.
 
 
 Testing
