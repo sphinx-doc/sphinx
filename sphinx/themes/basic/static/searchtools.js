@@ -645,7 +645,7 @@ const Search = {
           }
         )
       )
-        break;
+        continue;
 
       // select one (max) score for the file.
       const score = Math.max(...wordList.map((w) => scoreMap.get(file).get(w)));
