@@ -66,8 +66,9 @@ Features added
   Patch by Adam Turner.
 * #13805: LaTeX: add support for ``fontawesome7`` package.
   Patch by Jean-François B.
-* Add ``source_parser`` type to :confval:`suppress_warnings` for grouping
+* #13894: Add ``source_parser`` type to :confval:`suppress_warnings` for grouping
   issues related to the ``c`` and ``cpp`` source parsers.
+  Patch by Valentin H.
 
 Bugs fixed
 ----------
