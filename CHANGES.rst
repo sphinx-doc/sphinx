@@ -102,6 +102,9 @@ Features added
   Patch by Matthias Geier.
 * #14029: intersphinx: Fix error in format string interpolation.
   Patch by Matthieu de Cibeins.
+* #13894: Add ``code_parser`` type to :confval:`suppress_warnings` for grouping
+  issues related to the ``c`` and ``cpp`` source code parsers.
+  Patch by Valentin H.
 
 Bugs fixed
 ----------
