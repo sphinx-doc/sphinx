@@ -69,26 +69,27 @@ describe("Basic html theme search", function () {
     it("should find results when excluded terms are used", function () {
       // This fixture already existed and has the right data to make this test work.
       // Replace with another matching fixture if necessary.
-      eval(loadFixture("titles/searchindex.js"));
+      eval(loadFixture("search_exclusion/searchindex.js"));
 
       // It's important that the searchterm is included in multiple pages while the
       // excluded term is not included in all pages.
       // In this case the ``for`` is included in the two existing pages while the ``ask``
       // is only included in one page.
       [_searchQuery, searchterms, excluded, ..._remainingItems] =
-        Search._parseQuery("for -ask");
+        Search._parseQuery("page -penguin");
 
       // prettier-ignore
       hits = [[
-        'relevance',
-        'Relevance',
+        'index',
+        'Main Page',
         '',
         null,
-        2,
-        'relevance.rst',
+        15,
+        'index.rst',
         'text'
       ]];
-      expect(excluded).toEqual(new Set(["ask"]));
+
+      expect(excluded).toEqual(new Set(["penguin"]));
       expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
