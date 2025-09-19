@@ -214,17 +214,6 @@ class AutoNumbering(SphinxTransform):
                 self.document.note_implicit_target(node)
 
 
-class SortIds(SphinxTransform):
-    """Sort section IDs so that the "id[0-9]+" one comes last."""
-
-    default_priority = 261
-
-    def apply(self, **kwargs: Any) -> None:
-        for node in self.document.findall(nodes.section):
-            if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
-                node['ids'] = [*node['ids'][1:], node['ids'][0]]
-
-
 TRANSLATABLE_NODES = {
     'literal-block': nodes.literal_block,
     'doctest-block': nodes.doctest_block,
@@ -514,7 +503,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(DefaultSubstitutions)
     app.add_transform(MoveModuleTargets)
     app.add_transform(HandleCodeBlocks)
-    app.add_transform(SortIds)
     app.add_transform(DoctestTransform)
     app.add_transform(AutoNumbering)
     app.add_transform(AutoIndexUpgrader)
