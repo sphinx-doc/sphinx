@@ -1,6 +1,6 @@
 {# Sphinx sidebar template: quick search box. #}
 {%- if pagename != "search" and builder != "singlehtml" %}
-<search id="searchbox" style="display: none" role="search">
+<search id="searchbox" role="search">
   <h3 id="searchlabel">{{ _('Quick search') }}</h3>
     <div class="searchformwrapper">
     <form class="search" action="{{ pathto('search') }}" method="get">
@@ -9,5 +9,4 @@
     </form>
     </div>
 </search>
-<script>document.getElementById('searchbox').style.display = "block"</script>
 {%- endif %}
