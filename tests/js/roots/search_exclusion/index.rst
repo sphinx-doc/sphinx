@@ -10,3 +10,5 @@ A term which starts with a hypen will be used as excluded term.
 
 Include a second page which can be excluded in the search:
 :index:`excluded`
+
+is the pipeline flaky?
