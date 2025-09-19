@@ -44,8 +44,8 @@ def test_move_module_targets(tmp_path: Path, content: str) -> None:
     document = app.env.get_doctree('index')
     section: nodes.section = document[0]  # type: ignore[assignment]
 
-    # target ID has been lifted into the section node
-    assert section['ids'] == ['module-fish_licence.halibut', 'move-module-targets']
+    # target ID is not lifted into the section node
+    assert section['ids'] == ['move-module-targets', 'module-fish_licence.halibut']
     # nodes.target has been removed from 'section'
     assert isinstance(section[0], nodes.title)
     assert isinstance(section[1], addnodes.index)

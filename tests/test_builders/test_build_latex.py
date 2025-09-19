@@ -1963,14 +1963,14 @@ def test_latex_labels(app: SphinxTestApp) -> None:
     # sections
     assert (
         '\\chapter{subsection}\n'
-        r'\label{\detokenize{index:subsection}}'
         r'\label{\detokenize{index:section2}}'
         r'\label{\detokenize{index:section1}}'
+        r'\label{\detokenize{index:subsection}}'
     ) in result
     assert (
         '\\section{subsubsection}\n'
-        r'\label{\detokenize{index:subsubsection}}'
         r'\label{\detokenize{index:section3}}'
+        r'\label{\detokenize{index:subsubsection}}'
     ) in result
     assert (
         '\\subsection{otherdoc}\n'

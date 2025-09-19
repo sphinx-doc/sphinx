@@ -418,7 +418,7 @@ def test_epub_anchor_id(app: SphinxTestApp) -> None:
     html = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
     assert '<p id="std-setting-STATICFILES_FINDERS">blah blah blah</p>' in html
     assert (
-        '<span id="std-setting-STATICFILES_SECTION"></span><h1>blah blah blah</h1>'
+        '<section id="std-setting-STATICFILES_SECTION">\n<span id="blah-blah-blah"></span><h1>blah blah blah</h1>'
     ) in html
     assert (
         'see <a class="reference internal" href="#std-setting-STATICFILES_FINDERS">'

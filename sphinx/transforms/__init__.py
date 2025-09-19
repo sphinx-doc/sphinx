@@ -215,13 +215,13 @@ class AutoNumbering(SphinxTransform):
 
 
 class SortIds(SphinxTransform):
-    """Sort section IDs so that the "id[0-9]+" one comes last."""
+    """Sort section IDs so that the custom id comes first."""
 
     default_priority = 261
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(nodes.section):
-            if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
+            if len(node['ids']) > 1:
                 node['ids'] = [*node['ids'][1:], node['ids'][0]]
 
 
