@@ -25,6 +25,9 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.cfamily import StringifyTransform
 
+# Import ASTBase for use in this module
+from sphinx.domains.cpp.ast_base import ASTBase
+
 
 class ASTOperator(ASTBase):
     """Base class for operators."""

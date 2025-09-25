@@ -23,10 +23,12 @@ if TYPE_CHECKING:
     from sphinx.addnodes import desc_signature
     from sphinx.domains.cpp._symbol import Symbol
     from sphinx.domains.cpp.ast_base import ASTBase
-    from sphinx.domains.cpp.ast_operators import ASTOperator
     from sphinx.domains.cpp.ast_templates import ASTTemplateArgs
     from sphinx.environment import BuildEnvironment
     from sphinx.util.cfamily import StringifyTransform
+
+# Import ASTBase for use in this module
+from sphinx.domains.cpp.ast_base import ASTBase
 
 
 class ASTIdentifier(ASTBase):

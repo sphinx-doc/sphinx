@@ -125,8 +125,6 @@ from sphinx.util.cfamily import (
     octal_literal_re,
 )
 
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import Any

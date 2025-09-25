@@ -37,9 +37,9 @@ from sphinx.ext.autodoc._documenters import (
     ModuleDocumenter,
     ModuleLevelDocumenter,
     PropertyDocumenter,
-    autodoc_attrgetter,
     py_ext_sig_re,
 )
+from sphinx.app_utils import autodoc_attrgetter
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
 from sphinx.ext.autodoc._member_finder import ObjectMember, special_member_re
 from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS, UNINITIALIZED_ATTR
