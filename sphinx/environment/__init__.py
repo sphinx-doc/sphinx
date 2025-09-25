@@ -675,6 +675,13 @@ class BuildEnvironment:
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
+        # Check if we have a cached resolved doctree
+        resolved_cache_key = f"resolved_{docname}_{builder.name}"
+        if hasattr(self, '_resolved_doctree_cache'):
+            cached_doctree = self._resolved_doctree_cache.get(resolved_cache_key)
+            if cached_doctree:
+                return cached_doctree
+
         if doctree is None:
             try:
                 doctree = self._write_doc_doctree_cache.pop(docname)
@@ -685,6 +692,11 @@ class BuildEnvironment:
 
         # resolve all pending cross-references
         self.apply_post_transforms(doctree, docname)
+
+        # Cache the resolved doctree for future use
+        if not hasattr(self, '_resolved_doctree_cache'):
+            self._resolved_doctree_cache = {}
+        self._resolved_doctree_cache[resolved_cache_key] = doctree
 
         # now, resolve all toctree nodes
         tags = builder.tags

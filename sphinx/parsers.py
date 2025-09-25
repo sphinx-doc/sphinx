@@ -83,15 +83,32 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
             debug=document.reporter.debug_flag,
         )
 
-        # preprocess inputstring
+        # preprocess inputstring - cache preprocessed content
         if isinstance(inputstring, str):
-            lines = docutils.statemachine.string2lines(
-                inputstring,
-                tab_width=document.settings.tab_width,
-                convert_whitespace=True,
-            )
-
-            inputlines = StringList(lines, document.current_source)
+            # Check if we can reuse preprocessed content
+            preprocess_cache_key = f"preprocess_{hash(inputstring)}"
+            if hasattr(document.settings, '_preprocess_cache'):
+                cached_lines = document.settings._preprocess_cache.get(preprocess_cache_key)
+                if cached_lines:
+                    inputlines = StringList(cached_lines, document.current_source)
+                else:
+                    lines = docutils.statemachine.string2lines(
+                        inputstring,
+                        tab_width=document.settings.tab_width,
+                        convert_whitespace=True,
+                    )
+                    if not hasattr(document.settings, '_preprocess_cache'):
+                        document.settings._preprocess_cache = {}
+                    document.settings._preprocess_cache[preprocess_cache_key] = lines
+                    inputlines = StringList(lines, document.current_source)
+            else:
+                lines = docutils.statemachine.string2lines(
+                    inputstring,
+                    tab_width=document.settings.tab_width,
+                    convert_whitespace=True,
+                )
+                document.settings._preprocess_cache = {preprocess_cache_key: lines}
+                inputlines = StringList(lines, document.current_source)
         else:
             inputlines = inputstring
 
@@ -101,8 +118,27 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
 
     def decorate(self, content: StringList) -> None:
         """Preprocess reStructuredText content before parsing."""
+        # Cache decorated content to avoid redundant prolog/epilog processing
+        decorate_cache_key = f"decorate_{hash(str(content.data))}_{hash(self._config.rst_prolog)}_{hash(self._config.rst_epilog)}"
+
+        if hasattr(self._config, '_decorate_cache'):
+            cached_result = self._config._decorate_cache.get(decorate_cache_key)
+            if cached_result:
+                # Replace content with cached decorated version
+                content.clear()
+                content.extend(cached_result)
+                return
+        else:
+            self._config._decorate_cache = {}
+
+        # Store original content for caching
+        original_content = content.data.copy()
+
         _prepend_prologue(content, self._config.rst_prolog)
         _append_epilogue(content, self._config.rst_epilog)
+
+        # Cache the decorated content
+        self._config._decorate_cache[decorate_cache_key] = content.data.copy()
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

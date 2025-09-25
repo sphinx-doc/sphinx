@@ -46,6 +46,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger('sphinx.ext.autodoc')
 special_member_re = re.compile(r'^__\S+__$')
 
+# Cache for member discovery results to avoid redundant processing
+_member_discovery_cache: dict[str, list[ObjectMember]] = {}
+
 
 class ObjectMember:
     """A member of object.
@@ -130,17 +133,25 @@ def _get_members_to_document(
         assert opt_members is not ALL
         wanted_members = frozenset(opt_members)
 
+    # Check cache first for member discovery results
+    cache_key = f"{props.obj_type}:{props.module_name}:{id(props._obj)}"
+    if cache_key in _member_discovery_cache:
+        return _member_discovery_cache[cache_key]
+
     object_members_map: dict[str, ObjectMember] = {}
     if props.obj_type == 'module':
+        # Optimize: check wanted_members first to avoid expensive operations
         for name in dir(props._obj):
+            if name not in wanted_members:
+                continue  # Skip expensive processing for unwanted members
+
             try:
                 value = safe_getattr(props._obj, name, None)
                 if ismock(value):
                     value = undecorate(value)
-                if name in wanted_members:
-                    object_members_map[name] = ObjectMember(
-                        name, value, docstring=attr_docs.get(('', name), [])
-                    )
+                object_members_map[name] = ObjectMember(
+                    name, value, docstring=attr_docs.get(('', name), [])
+                )
             except AttributeError:
                 continue
 
@@ -189,19 +200,18 @@ def _get_members_to_document(
         except (TypeError, ValueError):
             pass
 
-        # other members
+        # other members - optimize: filter early to avoid expensive operations
         for name in dir(props._obj):
+            unmangled = unmangle(props._obj, name)
+            if not unmangled or unmangled not in wanted_members:
+                continue  # Skip expensive processing for unwanted members
+
             try:
                 value = get_attr(props._obj, name)
                 if ismock(value):
                     value = undecorate(value)
 
-                unmangled = unmangle(props._obj, name)
-                if (
-                    unmangled
-                    and unmangled not in object_members_map
-                    and unmangled in wanted_members
-                ):
+                if unmangled not in object_members_map:
                     if name in obj_dict:
                         object_members_map[unmangled] = ObjectMember(
                             unmangled, value, class_=props._obj
@@ -291,6 +301,9 @@ def _get_members_to_document(
                 'as it was not found in object %r'
             )
             logger.warning(msg, name, props._obj, type='autodoc')
+
+    # Cache the results for future use
+    _member_discovery_cache[cache_key] = obj_members_seq
     return obj_members_seq
 
 

@@ -449,7 +449,8 @@ def _is_runtime_instance_attribute_not_commented(
             qualname = safe_getattr(cls, '__qualname__')
 
             analyzer = ModuleAnalyzer.for_module(module)
-            analyzer.analyze()
+            # Only analyze tags, not full analysis - much faster for this check
+            analyzer.analyze_tags_only()
             if qualname and obj_path:
                 key = f'{qualname}.{obj_path[-1]}'
                 if key in analyzer.tagorder:
@@ -469,7 +470,8 @@ def _get_attribute_comment(
             qualname = safe_getattr(cls, '__qualname__')
 
             analyzer = ModuleAnalyzer.for_module(module)
-            analyzer.analyze()
+            # Only analyze attr_docs, not full analysis - much faster for this check
+            analyzer.analyze_attr_docs_only()
             if qualname and obj_path:
                 key = (qualname, attrname)
                 if key in analyzer.attr_docs:
@@ -661,7 +663,8 @@ def _load_object_by_name(
 
         try:
             analyzer = ModuleAnalyzer.for_module(module_name)
-            analyzer.analyze()
+            # Only analyze annotations, not full analysis - much faster for this check
+            analyzer.analyze_annotations_only()
             for (
                 classname,
                 attrname,
@@ -700,7 +703,8 @@ def _load_object_by_name(
                         qualname = safe_getattr(cls, '__qualname__')
 
                         analyzer = ModuleAnalyzer.for_module(module)
-                        analyzer.analyze()
+                        # Only analyze annotations, not full analysis - much faster for this check
+                        analyzer.analyze_annotations_only()
                         anns = analyzer.annotations
                         for (classname, attrname), annotation in anns.items():
                             if classname == qualname and attrname not in annotations:

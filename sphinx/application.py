@@ -5,6 +5,39 @@ Gracefully adapted from the TextPress system by Armin.
 
 from __future__ import annotations
 
+# Re-export all application components for backward compatibility
+# This module has been modularized - see the individual modules for details
+
+from sphinx.app_config import *  # noqa: F403
+from sphinx.app_events import *  # noqa: F403
+from sphinx.app_build import *  # noqa: F403
+from sphinx.app_extensions import *  # noqa: F403
+from sphinx.app_utils import *  # noqa: F403
+
+# Define __all__ to explicitly export all classes and functions
+__all__ = [
+    # Configuration
+    'builtin_extensions',
+
+    # Event management
+    'EventManager',
+
+    # Build management
+    'BuildManager',
+    'ProgressTracker',
+
+    # Extension management
+    'ExtensionManager',
+
+    # Utilities
+    'TemplateBridge',
+    'autodoc_attrgetter',
+    'setup',
+
+    # Core application
+    'Sphinx',
+]
+
 import contextlib
 import pickle
 import sys
@@ -20,7 +53,6 @@ from sphinx._cli.util.colour import bold
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
-from sphinx.events import EventManager
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
@@ -69,70 +101,8 @@ if TYPE_CHECKING:
     from sphinx.util.typing import RoleFunction, TitleGetter
 
 
-builtin_extensions: tuple[str, ...] = (
-    'sphinx.addnodes',
-    'sphinx.builders.changes',
-    'sphinx.builders.epub3',
-    'sphinx.builders.dirhtml',
-    'sphinx.builders.dummy',
-    'sphinx.builders.gettext',
-    'sphinx.builders.html',
-    'sphinx.builders.latex',
-    'sphinx.builders.linkcheck',
-    'sphinx.builders.manpage',
-    'sphinx.builders.singlehtml',
-    'sphinx.builders.texinfo',
-    'sphinx.builders.text',
-    'sphinx.builders.xml',
-    'sphinx.config',
-    'sphinx.domains.c',
-    'sphinx.domains.changeset',
-    'sphinx.domains.citation',
-    'sphinx.domains.cpp',
-    'sphinx.domains.index',
-    'sphinx.domains.javascript',
-    'sphinx.domains.math',
-    'sphinx.domains.python',
-    'sphinx.domains.rst',
-    'sphinx.domains.std',
-    'sphinx.directives',
-    'sphinx.directives.admonitions',
-    'sphinx.directives.code',
-    'sphinx.directives.other',
-    'sphinx.directives.patches',
-    'sphinx.extension',
-    'sphinx.parsers',
-    'sphinx.registry',
-    'sphinx.roles',
-    'sphinx.transforms',
-    'sphinx.transforms.compact_bullet_list',
-    'sphinx.transforms.i18n',
-    'sphinx.transforms.references',
-    'sphinx.transforms.post_transforms',
-    'sphinx.transforms.post_transforms.code',
-    'sphinx.transforms.post_transforms.images',
-    'sphinx.versioning',
-    # collectors should be loaded by specific order
-    'sphinx.environment.collectors.dependencies',
-    'sphinx.environment.collectors.asset',
-    'sphinx.environment.collectors.metadata',
-    'sphinx.environment.collectors.title',
-    'sphinx.environment.collectors.toctree',
-)
-_first_party_extensions = (
-    # 1st party extensions
-    'sphinxcontrib.applehelp',
-    'sphinxcontrib.devhelp',
-    'sphinxcontrib.htmlhelp',
-    'sphinxcontrib.serializinghtml',
-    'sphinxcontrib.qthelp',
-)
-_first_party_themes = (
-    # Alabaster is loaded automatically to be used as the default theme
-    'alabaster',
-)
-builtin_extensions += _first_party_themes
-builtin_extensions += _first_party_extensions
+# Constants moved to app_config.py
+# Extensions moved to app_config.py
 
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
@@ -1825,45 +1795,4 @@ class Sphinx:
         self.registry.html_assets_policy = policy
 
 
-class TemplateBridge:
-    """This class defines the interface for a "template bridge", that is, a class
-    that renders templates given a template name and a context.
-    """
-
-    def init(
-        self,
-        builder: Builder,
-        theme: Theme | None = None,
-        dirs: list[str] | None = None,
-    ) -> None:
-        """Called by the builder to initialize the template system.
-
-        *builder* is the builder object; you'll probably want to look at the
-        value of ``builder.config.templates_path``.
-
-        *theme* is a :class:`sphinx.theming.Theme` object or None; in the latter
-        case, *dirs* can be list of fixed directories to look for templates.
-        """
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
-
-    def newest_template_mtime(self) -> float:
-        """Called by the builder to determine if output files are outdated
-        because of template changes.  Return the mtime of the newest template
-        file that was changed.  The default implementation returns ``0``.
-        """
-        return 0
-
-    def render(self, template: str, context: dict[str, Any]) -> None:
-        """Called by the builder to render a template given as a filename with
-        a specified context (a Python dictionary).
-        """
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
-
-    def render_string(self, template: str, context: dict[str, Any]) -> str:
-        """Called by the builder to render a template given as a string with a
-        specified context (a Python dictionary).
-        """
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
+# TemplateBridge class moved to app_utils.py

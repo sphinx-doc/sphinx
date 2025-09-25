@@ -104,8 +104,9 @@ class ModuleAnalyzer:
 
     @classmethod
     def for_module(cls: type[ModuleAnalyzer], modname: str) -> ModuleAnalyzer:
-        if ('module', modname) in cls.cache:
-            entry = cls.cache['module', modname]
+        cache_key = ('module', modname)
+        if cache_key in cls.cache:
+            entry = cls.cache[cache_key]
             if isinstance(entry, PycodeError):
                 raise entry
             return entry
@@ -116,10 +117,13 @@ class ModuleAnalyzer:
                 obj = cls.for_string(source, modname, filename or '<string>')
             elif filename is not None:
                 obj = cls.for_file(filename, modname)
+            else:
+                # Create a minimal analyzer for modules without source
+                obj = cls('', modname, '<unknown>')
         except PycodeError as err:
-            cls.cache['module', modname] = err
+            cls.cache[cache_key] = err
             raise
-        cls.cache['module', modname] = obj
+        cls.cache[cache_key] = obj
         return obj
 
     def __init__(
@@ -136,6 +140,17 @@ class ModuleAnalyzer:
     def analyze(self) -> None:
         """Analyze the source code."""
         if self._analyzed:
+            return
+
+        # Skip analysis for empty/minimal analyzers
+        if not self.code:
+            self.attr_docs = {}
+            self.annotations = {}
+            self.finals = []
+            self.overloads = {}
+            self.tags = {}
+            self.tagorder = {}
+            self._analyzed = True
             return
 
         try:
@@ -168,3 +183,77 @@ class ModuleAnalyzer:
         """Find class, function and method definitions and their location."""
         self.analyze()
         return self.tags
+
+    def analyze_attr_docs_only(self) -> None:
+        """Analyze only attribute documentation and tags (needed for cross-references)."""
+        if hasattr(self, '_attr_docs_analyzed'):
+            return
+
+        if not self.code:
+            self.attr_docs = {}
+            self.tags = {}
+            self.tagorder = {}
+            self._attr_docs_analyzed = True
+            return
+
+        try:
+            parser = Parser(self.code)
+            parser.parse()
+
+            self.attr_docs = {}
+            for scope, comment in parser.comments.items():
+                if comment:
+                    self.attr_docs[scope] = [*comment.splitlines(), '']
+                else:
+                    self.attr_docs[scope] = ['']
+
+            # Also analyze tags for cross-reference resolution
+            self.tags = parser.definitions
+            self.tagorder = parser.deforders
+
+            self._attr_docs_analyzed = True
+        except Exception as exc:
+            msg = f'parsing {self.srcname!r} for attr docs failed: {exc!r}'
+            raise PycodeError(msg) from exc
+
+    def analyze_tags_only(self) -> None:
+        """Analyze only tags/definitions, skipping other analysis."""
+        if hasattr(self, '_tags_analyzed'):
+            return
+
+        if not self.code:
+            self.tags = {}
+            self.tagorder = {}
+            self._tags_analyzed = True
+            return
+
+        try:
+            parser = Parser(self.code)
+            parser.parse()
+
+            self.tags = parser.definitions
+            self.tagorder = parser.deforders
+            self._tags_analyzed = True
+        except Exception as exc:
+            msg = f'parsing {self.srcname!r} for tags failed: {exc!r}'
+            raise PycodeError(msg) from exc
+
+    def analyze_annotations_only(self) -> None:
+        """Analyze only annotations, skipping other analysis."""
+        if hasattr(self, '_annotations_analyzed'):
+            return
+
+        if not self.code:
+            self.annotations = {}
+            self._annotations_analyzed = True
+            return
+
+        try:
+            parser = Parser(self.code)
+            parser.parse()
+
+            self.annotations = parser.annotations
+            self._annotations_analyzed = True
+        except Exception as exc:
+            msg = f'parsing {self.srcname!r} for annotations failed: {exc!r}'
+            raise PycodeError(msg) from exc

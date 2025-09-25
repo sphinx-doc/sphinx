@@ -634,6 +634,28 @@ class Builder:
         env = self.env
         env.prepare_settings(docname)
 
+        # Check if document has been modified since last parse
+        filename = env.doc2path(docname)
+        if hasattr(env, '_doc_mtimes'):
+            last_mtime = env._doc_mtimes.get(docname, 0)
+            try:
+                current_mtime = filename.stat().st_mtime_ns // 1_000
+                if current_mtime == last_mtime and _cache:
+                    # Document hasn't changed, skip parsing if possible
+                    if docname in env._pickled_doctree_cache:
+                        logger.debug('[build] skipping unchanged document: %s', docname)
+                        return
+            except OSError:
+                pass  # File doesn't exist or can't be read
+
+        # Update modification time
+        if not hasattr(env, '_doc_mtimes'):
+            env._doc_mtimes = {}
+        try:
+            env._doc_mtimes[docname] = filename.stat().st_mtime_ns // 1_000
+        except OSError:
+            pass
+
         # Add confdir/docutils.conf to dependencies list if exists
         docutils_conf = self.confdir / 'docutils.conf'
         if docutils_conf.is_file():
@@ -646,10 +668,28 @@ class Builder:
         error_handler = _UnicodeDecodeErrorHandler(docname)
         codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
 
-        # read the source file
-        content = filename.read_text(
-            encoding=env.settings['input_encoding'], errors='sphinx'
-        )
+        # read the source file - use cached content if available
+        try:
+            # Check if we already have cached content for this file
+            if hasattr(env, '_source_cache'):
+                content = env._source_cache.get(filename, None)
+                if content is None:
+                    content = filename.read_text(
+                        encoding=env.settings['input_encoding'], errors='sphinx'
+                    )
+                    env._source_cache[filename] = content
+            else:
+                # Initialize source cache
+                env._source_cache = {}
+                content = filename.read_text(
+                    encoding=env.settings['input_encoding'], errors='sphinx'
+                )
+                env._source_cache[filename] = content
+        except (OSError, UnicodeDecodeError):
+            # Fallback to direct reading if cache fails
+            content = filename.read_text(
+                encoding=env.settings['input_encoding'], errors='sphinx'
+            )
 
         # TODO: move the "source-read" event to here.
 

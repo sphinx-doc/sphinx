@@ -847,11 +847,23 @@ def _parse_str_to_doctree(
 ) -> nodes.document:
     env.current_document._parser = parser
 
-    # Propagate exceptions by default when used programmatically:
-    defaults = {'traceback': True, **default_settings}
-    settings = _get_settings(
-        standalone.Reader, parser, defaults=defaults, read_config_files=True
-    )
+    # Use cached settings if available to avoid redundant config file reading
+    settings_cache_key = ('docutils_settings', str(default_settings.get('input_encoding', 'utf-8')))
+    if not hasattr(env, '_docutils_settings_cache'):
+        env._docutils_settings_cache = {}
+
+    if settings_cache_key in env._docutils_settings_cache:
+        settings = env._docutils_settings_cache[settings_cache_key]
+        settings = settings.copy()
+    else:
+        # Propagate exceptions by default when used programmatically:
+        defaults = {'traceback': True, **default_settings}
+        settings = _get_settings(
+            standalone.Reader, parser, defaults=defaults, read_config_files=True
+        )
+        # Cache the settings for future use
+        env._docutils_settings_cache[settings_cache_key] = settings.copy()
+
     settings._source = str(filename)
 
     # Create root document node
@@ -890,8 +902,24 @@ def _parse_str_to_doctree(
         parser.parse(content, document)
         document.current_source = document.current_line = None
 
-        # run transforms
-        transformer.apply_transforms()
+        # run transforms - cache transform results if possible
+        try:
+            # Check if we can use cached transform results
+            transform_cache_key = f"transforms_{hash(content)}"
+            if hasattr(env, '_transform_cache'):
+                cached_doctree = env._transform_cache.get(transform_cache_key)
+                if cached_doctree:
+                    return cached_doctree
+
+            transformer.apply_transforms()
+
+            # Cache the transformed document for future use
+            if not hasattr(env, '_transform_cache'):
+                env._transform_cache = {}
+            env._transform_cache[transform_cache_key] = document
+        except Exception:
+            # Fallback to normal transform processing if caching fails
+            transformer.apply_transforms()
 
     return document
 
