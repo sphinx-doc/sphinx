@@ -276,6 +276,12 @@ files can be built by specifying individual filenames.
         '--pdb', '-P', action='store_true', dest='pdb', help=__('run Pdb on exception')
     )
     group.add_argument(
+        '--no-pretty-errors',
+        action='store_true',
+        dest='no_pretty',
+        help=__('disable pretty error formatting'),
+    )
+    group.add_argument(
         '--exception-on-warning',
         action='store_true',
         dest='exception_on_warning',
@@ -429,6 +435,18 @@ def build_main(argv: Sequence[str]) -> int:
                 pdb=args.pdb,
                 exception_on_warning=args.exception_on_warning,
             )
+
+            # Setup pretty logging if enabled
+            if hasattr(app, '_warning_grouper'):
+                # Re-setup logging with pretty mode
+                from sphinx.util import logging
+                logging.setup(
+                    app,
+                    args.status,
+                    args.warning,
+                    verbosity=args.verbosity,
+                    pretty=not getattr(args, 'no_pretty', False),
+                )
             app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
@@ -444,6 +462,7 @@ def build_main(argv: Sequence[str]) -> int:
             print_traceback=args.verbosity or args.traceback,
             message_log=message_log,
             extensions=extensions,
+            pretty=not getattr(args, 'no_pretty', False),
         )
         return 2
     finally:

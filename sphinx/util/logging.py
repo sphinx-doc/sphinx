@@ -576,6 +576,71 @@ class ColorizeFormatter(logging.Formatter):
             return message
 
 
+class WarningGrouper(logging.Filter):
+    """Group similar warnings and add count information."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.warning_counts: dict[str, int] = {}
+        self.warning_locations: dict[str, str] = {}
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        # Only group warning-level records
+        if record.levelno < logging.WARNING:
+            return True
+
+        # Create a normalized message key (remove location info)
+        msg_key = self._normalize_message(record.msg, record.args)
+
+        # Track the warning
+        self.warning_counts[msg_key] = self.warning_counts.get(msg_key, 0) + 1
+
+        # Store the first occurrence's location for context
+        if msg_key not in self.warning_locations:
+            location = getattr(record, 'location', None)
+            self.warning_locations[msg_key] = location or '<unknown>'
+
+        # Add grouping info to the record
+        record.group_count = self.warning_counts[msg_key]
+        record.group_key = msg_key
+        record.is_first_occurrence = self.warning_counts[msg_key] == 1
+
+        return True
+
+    def _normalize_message(self, msg: str, args: tuple) -> str:
+        """Normalize message for grouping by removing variable parts."""
+        try:
+            formatted_msg = msg % args
+        except (TypeError, ValueError):
+            formatted_msg = msg
+
+        # Remove common patterns that make warnings unique but not meaningful for grouping
+        import re
+
+        # Remove file paths and line numbers
+        formatted_msg = re.sub(r'[^\s]*:\d+:', '<location>:', formatted_msg)
+
+        # Remove quoted strings (likely file paths or specific identifiers)
+        formatted_msg = re.sub(r'["\'][^"\']*["\']', '<string>', formatted_msg)
+
+        # Remove numeric sequences (line numbers, IDs, etc.)
+        formatted_msg = re.sub(r'\b\d+\b', '<number>', formatted_msg)
+
+        return formatted_msg.strip()
+
+    def get_grouped_warnings(self) -> dict[str, tuple[int, str]]:
+        """Return grouped warnings with counts and first location."""
+        return {
+            key: (count, self.warning_locations[key])
+            for key, count in self.warning_counts.items()
+        }
+
+    def reset(self) -> None:
+        """Reset the grouping state."""
+        self.warning_counts.clear()
+        self.warning_locations.clear()
+
+
 class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
 
@@ -609,7 +674,7 @@ class LastMessagesWriter:
 
 
 def setup(
-    app: Sphinx, status: IO[str], warning: IO[str], *, verbosity: int = 0
+    app: Sphinx, status: IO[str], warning: IO[str], *, verbosity: int = 0, pretty: bool = True
 ) -> None:
     """Setup root logger for Sphinx"""
     log_level = VERBOSITY_MAP[max(verbosity, 0)]
@@ -631,6 +696,14 @@ def setup(
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
     if app._exception_on_warning:
         warning_handler.addFilter(_RaiseOnWarningFilter())
+
+    # Add warning grouping filter for pretty mode
+    if pretty:
+        warning_grouper = WarningGrouper()
+        warning_handler.addFilter(warning_grouper)
+        # Store grouper reference for later access
+        app._warning_grouper = warning_grouper
+
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.addFilter(OnceFilter())

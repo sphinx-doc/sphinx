@@ -53,6 +53,25 @@ if TYPE_CHECKING:
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
 
+# Global cache for autodoc module analysis to avoid redundant processing
+_autodoc_module_cache: dict[str, dict[str, Any]] = {}
+
+
+def _get_cached_module_info(module_name: str) -> dict[str, Any] | None:
+    """Get cached module information if available."""
+    return _autodoc_module_cache.get(module_name)
+
+
+def _cache_module_info(module_name: str, info: dict[str, Any]) -> None:
+    """Cache module information for future use."""
+    _autodoc_module_cache[module_name] = info
+
+
+def _clear_module_cache() -> None:
+    """Clear the module cache. Useful for debugging and testing."""
+    global _autodoc_module_cache
+    _autodoc_module_cache.clear()
+
 
 class _ImportedObject:
     #: module containing the object to document
@@ -96,8 +115,12 @@ def mangle(subject: Any, name: str) -> str:
 
 
 def import_module(modname: str, try_reload: bool = False) -> Any:
+    # Check if module is already loaded (main optimization)
     if modname in sys.modules:
-        return sys.modules[modname]
+        module = sys.modules[modname]
+        # Cache the already loaded module for future reference
+        _cache_module_info(modname, {'module': module, 'loaded': True})
+        return module
 
     skip_pyi = bool(os.getenv('SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS', ''))
     original_module_names = frozenset(sys.modules)
@@ -121,6 +144,10 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
         raise ImportError(exc, traceback.format_exc()) from exc
+
+    # Cache the successfully loaded module
+    _cache_module_info(modname, {'module': module, 'loaded': True})
+
     if try_reload and os.environ.get('SPHINX_AUTODOC_RELOAD_MODULES'):
         new_modules = [m for m in sys.modules if m not in original_module_names]
         # Try reloading modules with ``typing.TYPE_CHECKING == True``.
@@ -136,6 +163,9 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
         finally:
             typing.TYPE_CHECKING = False  # type: ignore[misc]
         module = sys.modules[modname]
+
+    # Cache the successfully loaded module
+    _cache_module_info(modname, {'module': module, 'loaded': True})
     return module
 
 
@@ -216,8 +246,13 @@ def _import_from_module_and_path(
     try:
         while module is None:
             try:
-                module = import_module(module_name, try_reload=True)
-                logger.debug('[autodoc] import %s => %r', module_name, module)
+                # Check if module is already loaded to avoid redundant imports
+                if module_name in sys.modules:
+                    module = sys.modules[module_name]
+                    logger.debug('[autodoc] module %s already loaded => %r', module_name, module)
+                else:
+                    module = import_module(module_name, try_reload=True)
+                    logger.debug('[autodoc] import %s => %r', module_name, module)
             except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', module_name)
                 exc_on_importing = exc
@@ -231,6 +266,13 @@ def _import_from_module_and_path(
         obj = module
         parent = None
         object_name = ''
+
+        # Check cache for already processed object paths
+        cache_key = f"{module_name}:{'.'.join(obj_path)}"
+        cached_result = _get_cached_module_info(cache_key)
+        if cached_result:
+            return cached_result['imported_object']
+
         for attr_name in obj_path:
             parent = obj
             logger.debug('[autodoc] getattr(_, %r)', attr_name)
@@ -245,12 +287,16 @@ def _import_from_module_and_path(
                 logger.debug('[autodoc] => %r', (obj,))
 
             object_name = attr_name
-        return _ImportedObject(
+
+        # Cache the result for future use
+        imported_object = _ImportedObject(
             module=module,
             parent=parent,
             object_name=object_name,
             obj=obj,
         )
+        _cache_module_info(cache_key, {'imported_object': imported_object})
+        return imported_object
     except (AttributeError, ImportError) as exc:
         if isinstance(exc, AttributeError) and exc_on_importing:
             # restore ImportError

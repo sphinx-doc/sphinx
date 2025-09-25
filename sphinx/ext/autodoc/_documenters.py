@@ -181,6 +181,31 @@ class Documenter:
         self.analyzer: ModuleAnalyzer | None = None
 
         self._load_object_has_been_called = False
+        # Lazy loading cache for members
+        self._members_cache: dict[str, Any] = {}
+        self._members_loaded = False
+
+    def _lazy_load_members(self) -> dict[str, Any]:
+        """Lazy load members only when needed."""
+        if self._members_loaded:
+            return self._members_cache
+
+        # Import the member finder functions only when needed
+        from sphinx.ext.autodoc._member_finder import _get_members_to_document
+
+        # Get members for this object
+        members = _get_members_to_document(
+            self.object,
+            self.object_name,
+            self.options,
+            self.config.autodoc_member_order,
+            self.env._registry.documenters,
+            self.env._registry.filters,
+        )
+
+        self._members_cache = members
+        self._members_loaded = True
+        return members
 
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
@@ -196,6 +221,25 @@ class Documenter:
 
     def _load_object_by_name(self) -> Literal[True] | None:
         if self._load_object_has_been_called:
+            return True
+
+        # Check if this object was already loaded by a previous documenter
+        from sphinx.ext.autodoc.importer import _get_cached_module_info
+        cache_key = f"{self.name}:{self.objtype}"
+        cached_info = _get_cached_module_info(cache_key)
+        if cached_info:
+            props, args, retann, module, parent = cached_info['object_info']
+            self.props = props
+            self.args = args
+            self.retann = retann
+            self.modname = props.module_name
+            self.objpath = list(props.parts)
+            self.fullname = props.full_name
+            self.module = module
+            self.parent = parent
+            self.object_name = props.object_name
+            self.object = props._obj
+            self._load_object_has_been_called = True
             return True
 
         ret = _load_object_by_name(
@@ -221,6 +265,10 @@ class Documenter:
         self.parent = parent
         self.object_name = props.object_name
         self.object = props._obj
+
+        # Cache the loaded object for future documenters
+        from sphinx.ext.autodoc.importer import _cache_module_info
+        _cache_module_info(cache_key, {'object_info': ret})
         if self.objtype == 'method':
             if 'staticmethod' in props.properties:  # type: ignore[attr-defined]
                 # document static members before regular methods
@@ -742,16 +790,25 @@ class Documenter:
             attr_docs = self.analyzer.attr_docs
         else:
             attr_docs = {}
-        found_members = _get_members_to_document(
-            want_all=want_all,
-            get_attr=self.get_attr,
-            inherit_docstrings=self.config.autodoc_inherit_docstrings,
-            props=props,
-            opt_members=self.options.members or (),
-            inherited_members=inherited_members,
-            ignore_module_all=bool(self.options.ignore_module_all),
-            attr_docs=attr_docs,
-        )
+
+        # Use lazy loading for members - only load when actually needed
+        # and cache the results to avoid redundant processing
+        if not hasattr(self, '_members_cache') or not self._members_loaded:
+            found_members = _get_members_to_document(
+                want_all=want_all,
+                get_attr=self.get_attr,
+                inherit_docstrings=self.config.autodoc_inherit_docstrings,
+                props=props,
+                opt_members=self.options.members or (),
+                inherited_members=inherited_members,
+                ignore_module_all=bool(self.options.ignore_module_all),
+                attr_docs=attr_docs,
+            )
+            # Cache the results for future use
+            self._members_cache = found_members
+            self._members_loaded = True
+        else:
+            found_members = self._members_cache
         filtered_members = _filter_members(
             found_members,
             want_all=want_all,
