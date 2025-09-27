@@ -140,6 +140,8 @@ Bugs fixed
 * #14059: LaTeX: Footnotes cause pdflatex error with French language
   (since late June 2025 upstream change to LaTeX ``babel-french``).
   Patch by Jean-François B.
+* #13916: HTML Search: do not clear text fragments from the URL on page load.
+  Patch by Harmen Stoppels.
 
 
 Testing
