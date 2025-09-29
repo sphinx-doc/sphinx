@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
@@ -9,10 +10,13 @@ import pytest
 from sphinx.parsers import RSTParser
 from sphinx.util.docutils import new_document
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='basic')
 @patch('docutils.parsers.rst.states.RSTStateMachine')
-def test_RSTParser_prolog_epilog(RSTStateMachine, app):
+def test_RSTParser_prolog_epilog(RSTStateMachine: Mock, app: SphinxTestApp) -> None:
     document = new_document('dummy.rst')
     document.settings = Mock(tab_width=8, language_code='')
     parser = RSTParser()

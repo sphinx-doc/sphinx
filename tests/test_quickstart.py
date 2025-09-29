@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 warnfile = StringIO()
 
 
-def setup_module():
+def setup_module() -> None:
     disable_colour()
 
 
@@ -48,7 +48,7 @@ def mock_input(
 real_input: Callable[[str], str] = input
 
 
-def teardown_module():
+def teardown_module() -> None:
     qs.term_input = real_input
     enable_colour()
 
@@ -61,7 +61,7 @@ def test_do_prompt() -> None:
         'Q5': 'no',
         'Q6': 'foo',
     }
-    qs.term_input = mock_input(answers)  # type: ignore[assignment]
+    qs.term_input = mock_input(answers)
 
     assert qs.do_prompt('Q1', default='v1') == 'v1'
     assert qs.do_prompt('Q3', default='v3_default') == 'v3'
@@ -79,7 +79,7 @@ def test_do_prompt_inputstrip() -> None:
         'Q3': 'N',
         'Q4': 'N ',
     }
-    qs.term_input = mock_input(answers)  # type: ignore[assignment]
+    qs.term_input = mock_input(answers)
 
     assert qs.do_prompt('Q1') == 'Y'
     assert qs.do_prompt('Q2') == 'Yes'
@@ -91,12 +91,12 @@ def test_do_prompt_with_nonascii() -> None:
     answers = {
         'Q1': '\u30c9\u30a4\u30c4',
     }
-    qs.term_input = mock_input(answers)  # type: ignore[assignment]
+    qs.term_input = mock_input(answers)
     result = qs.do_prompt('Q1', default='\u65e5\u672c')
     assert result == '\u30c9\u30a4\u30c4'
 
 
-def test_quickstart_defaults(tmp_path):
+def test_quickstart_defaults(tmp_path: Path) -> None:
     answers = {
         'Root path': str(tmp_path),
         'Project name': 'Sphinx Test',
@@ -127,7 +127,7 @@ def test_quickstart_defaults(tmp_path):
     assert (tmp_path / 'make.bat').is_file()
 
 
-def test_quickstart_all_answers(tmp_path):
+def test_quickstart_all_answers(tmp_path: Path) -> None:
     answers = {
         'Root path': str(tmp_path),
         'Separate source and build': 'y',
@@ -185,7 +185,7 @@ def test_quickstart_all_answers(tmp_path):
     assert (tmp_path / 'source' / 'contents.txt').is_file()
 
 
-def test_generated_files_eol(tmp_path):
+def test_generated_files_eol(tmp_path: Path) -> None:
     answers = {
         'Root path': str(tmp_path),
         'Project name': 'Sphinx Test',
@@ -205,7 +205,7 @@ def test_generated_files_eol(tmp_path):
     assert_eol(tmp_path / 'Makefile', '\n')
 
 
-def test_quickstart_and_build(tmp_path):
+def test_quickstart_and_build(tmp_path: Path) -> None:
     answers = {
         'Root path': str(tmp_path),
         'Project name': 'Fullwidth characters: \u30c9\u30a4\u30c4',
@@ -224,7 +224,7 @@ def test_quickstart_and_build(tmp_path):
     assert not warnings
 
 
-def test_default_filename(tmp_path):
+def test_default_filename(tmp_path: Path) -> None:
     answers = {
         'Root path': str(tmp_path),
         'Project name': '\u30c9\u30a4\u30c4',  # Fullwidth characters only
@@ -242,7 +242,7 @@ def test_default_filename(tmp_path):
     exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
 
 
-def test_extensions(tmp_path):
+def test_extensions(tmp_path: Path) -> None:
     qs.main([
         '-q',
         '-p',
@@ -261,7 +261,7 @@ def test_extensions(tmp_path):
     assert ns['extensions'] == ['foo', 'bar', 'baz']
 
 
-def test_exits_when_existing_confpy(monkeypatch):
+def test_exits_when_existing_confpy(monkeypatch: pytest.MonkeyPatch) -> None:
     # The code detects existing conf.py with path.is_file()
     # so we mock it as True with pytest's monkeypatch
     monkeypatch.setattr('os.path.isfile', lambda path: True)
