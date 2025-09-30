@@ -42,7 +42,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
-            return '#document-' + docname
+            return self.config.root_doc + self.out_suffix + '#document-' + docname
         else:
             # chances are this is a html_additional_page
             return docname + self.out_suffix
