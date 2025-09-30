@@ -43,6 +43,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         if docname in self.env.all_docs:
             # all references are on the same page...
             return self.config.root_doc + self.out_suffix + '#document-' + docname
+        elif docname in ('genindex', 'search', 'modindex', 'py-modindex'):
+            # These pages are not generated in singlehtml builds
+            # Return empty string to signal they should be skipped
+            return ''
         else:
             # chances are this is a html_additional_page
             return docname + self.out_suffix
