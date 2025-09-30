@@ -208,7 +208,13 @@ class InventoryFile:
                     # For singlehtml builder, prepend the output filename to anchor-only URIs
                     # so intersphinx knows which file to reference
                     if builder.name == 'singlehtml' and uri.startswith('#'):
-                        uri = builder.config.root_doc + builder.out_suffix + uri
+                        if anchor:
+                            # When there's a specific anchor, use just the filename
+                            # (not #document-xxx) to avoid double anchors
+                            uri = builder.config.root_doc + builder.out_suffix
+                        else:
+                            # No specific anchor, keep the #document-xxx part
+                            uri = builder.config.root_doc + builder.out_suffix + uri
 
                     if anchor:
                         uri += '#' + anchor
