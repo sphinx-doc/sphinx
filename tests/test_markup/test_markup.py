@@ -332,8 +332,19 @@ def get_verifier(verify, verify_re):
             # kbd role
             'verify',
             ':kbd:`space`',
-            '<p><kbd class="kbd docutils literal notranslate">space</kbd></p>',
-            '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{space}}',
+            (
+                '<p>'
+                '<span class="kbdcompound">'
+                '<kbd class="kbd docutils literal notranslate">space</kbd>'
+                '</span>'
+                '</p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\DUrole{kbdcompound}{'
+                '\\sphinxkeyboard{\\sphinxupquote{space}}'
+                '}'
+            ),
         ),
         (
             # kbd role
@@ -341,16 +352,20 @@ def get_verifier(verify, verify_re):
             ':kbd:`Control+X`',
             (
                 '<p>'
+                '<span class="kbdcompound">'
                 '<kbd class="kbd docutils literal notranslate">Control</kbd>'
-                '+'
+                '<span class="kbdsep">+</span>'
                 '<kbd class="kbd docutils literal notranslate">X</kbd>'
+                '</span>'
                 '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
+                '\\DUrole{kbdcompound}{'
                 '\\sphinxkeyboard{\\sphinxupquote{Control}}'
-                '+'
+                '\\DUrole{kbdsep}{+}'
                 '\\sphinxkeyboard{\\sphinxupquote{X}}'
+                '}'
             ),
         ),
         (
@@ -359,16 +374,20 @@ def get_verifier(verify, verify_re):
             ':kbd:`Alt+^`',
             (
                 '<p>'
+                '<span class="kbdcompound">'
                 '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
-                '+'
+                '<span class="kbdsep">+</span>'
                 '<kbd class="kbd docutils literal notranslate">^</kbd>'
+                '</span>'
                 '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
+                '\\DUrole{kbdcompound}{'
                 '\\sphinxkeyboard{\\sphinxupquote{Alt}}'
-                '+'
+                '\\DUrole{kbdsep}{+}'
                 '\\sphinxkeyboard{\\sphinxupquote{\\textasciicircum{}}}'
+                '}'
             ),
         ),
         (
@@ -377,46 +396,83 @@ def get_verifier(verify, verify_re):
             ':kbd:`M-x  M-s`',
             (
                 '<p>'
+                '<span class="kbdcompound">'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
-                '-'
+                '<span class="kbdsep">-</span>'
                 '<kbd class="kbd docutils literal notranslate">x</kbd>'
-                '  '
+                '<span class="kbdsep">  </span>'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
-                '-'
+                '<span class="kbdsep">-</span>'
                 '<kbd class="kbd docutils literal notranslate">s</kbd>'
+                '</span>'
                 '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
+                '\\DUrole{kbdcompound}{'
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
-                '\\sphinxhyphen{}'
+                '\\DUrole{kbdsep}{\\sphinxhyphen{}}'
                 '\\sphinxkeyboard{\\sphinxupquote{x}}'
-                '  '
+                '\\DUrole{kbdsep}{  }'
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
-                '\\sphinxhyphen{}'
+                '\\DUrole{kbdsep}{\\sphinxhyphen{}}'
                 '\\sphinxkeyboard{\\sphinxupquote{s}}'
+                '}'
             ),
         ),
         (
             # kbd role
             'verify',
             ':kbd:`-`',
-            '<p><kbd class="kbd docutils literal notranslate">-</kbd></p>',
-            '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}',
+            (
+                '<p>'
+                '<span class="kbdcompound">'
+                '<kbd class="kbd docutils literal notranslate">-</kbd>'
+                '</span>'
+                '</p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\DUrole{kbdcompound}{'
+                '\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}'
+                '}'
+            ),
         ),
         (
             # kbd role
             'verify',
             ':kbd:`Caps Lock`',
-            '<p><kbd class="kbd docutils literal notranslate">Caps Lock</kbd></p>',
-            '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{Caps Lock}}',
+            (
+                '<p>'
+                '<span class="kbdcompound">'
+                '<kbd class="kbd docutils literal notranslate">Caps Lock</kbd>'
+                '</span>'
+                '</p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\DUrole{kbdcompound}{'
+                '\\sphinxkeyboard{\\sphinxupquote{Caps Lock}}'
+                '}'
+            ),
         ),
         (
             # kbd role
             'verify',
             ':kbd:`sys   rq`',
-            '<p><kbd class="kbd docutils literal notranslate">sys   rq</kbd></p>',
-            '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{sys   rq}}',
+            (
+                '<p>'
+                '<span class="kbdcompound">'
+                '<kbd class="kbd docutils literal notranslate">sys   rq</kbd>'
+                '</span>'
+                '</p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\DUrole{kbdcompound}{'
+                '\\sphinxkeyboard{\\sphinxupquote{sys   rq}}'
+                '}'
+            ),
         ),
         (
             # kbd role
@@ -424,20 +480,24 @@ def get_verifier(verify, verify_re):
             ':kbd:`⌘+⇧+M`',
             (
                 '<p>'
+                '<span class="kbdcompound">'
                 '<kbd class="kbd docutils literal notranslate">⌘</kbd>'
-                '+'
+                '<span class="kbdsep">+</span>'
                 '<kbd class="kbd docutils literal notranslate">⇧</kbd>'
-                '+'
+                '<span class="kbdsep">+</span>'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
+                '</span>'
                 '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
+                '\\DUrole{kbdcompound}{'
                 '\\sphinxkeyboard{\\sphinxupquote{⌘}}'
-                '+'
+                '\\DUrole{kbdsep}{+}'
                 '\\sphinxkeyboard{\\sphinxupquote{⇧}}'
-                '+'
+                '\\DUrole{kbdsep}{+}'
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
+                '}'
             ),
         ),
         (
