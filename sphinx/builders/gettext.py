@@ -7,7 +7,7 @@ import os
 import os.path
 import time
 from collections import defaultdict
-from os import getenv, walk
+from os import walk
 from pathlib import Path
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -20,6 +20,7 @@ from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._timestamps import _get_publication_time
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
@@ -199,11 +200,7 @@ class I18nBuilder(Builder):
 
 # If set, use the timestamp from SOURCE_DATE_EPOCH
 # https://reproducible-builds.org/specs/source-date-epoch/
-if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is not None:
-    timestamp = time.gmtime(float(source_date_epoch))
-else:
-    # determine timestamp once to remain unaffected by DST changes during build
-    timestamp = time.localtime()
+timestamp = _get_publication_time()
 ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
 
 
