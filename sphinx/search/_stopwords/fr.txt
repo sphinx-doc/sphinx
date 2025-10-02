@@ -1,4 +1,7 @@
-| source: https://snowballstem.org/algorithms/french/stop.txt
+
+ | A French stop word list. Comments begin with vertical bar. Each stop
+ | word is at the start of a line.
+
 au             |  a + le
 aux            |  a + les
 avec           |  with

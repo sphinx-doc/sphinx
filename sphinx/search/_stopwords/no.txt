@@ -1,4 +1,12 @@
-| source: https://snowballstem.org/algorithms/norwegian/stop.txt
+
+ | A Norwegian stop word list. Comments begin with vertical bar. Each stop
+ | word is at the start of a line.
+
+ | This stop word list is for the dominant bokmål dialect. Words unique
+ | to nynorsk are marked *.
+
+ | Revised by Jan Bruusgaard <Jan.Bruusgaard@ssb.no>, Jan 2005
+
 og             | and
 i              | in
 jeg            | I

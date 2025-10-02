@@ -1,4 +1,4 @@
-| source: https://snowballstem.org/algorithms/finnish/stop.txt
+
 | forms of BE
 
 olla

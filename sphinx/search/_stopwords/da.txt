@@ -1,4 +1,11 @@
-| source: https://snowballstem.org/algorithms/danish/stop.txt
+
+ | A Danish stop word list. Comments begin with vertical bar. Each stop
+ | word is at the start of a line.
+
+ | This is a ranked list (commonest to rarest) of stopwords derived from
+ | a large text sample.
+
+
 og           | and
 i            | in
 jeg          | I
@@ -45,7 +52,7 @@ hvor         | where
 eller        | or
 hvad         | what
 skal         | must/shall etc.
-selv         | myself/yourself/herself/ourselves etc., even
+selv         | myself/youself/herself/ourselves etc., even
 her          | here
 alle         | all/everyone/everybody etc.
 vil          | will (verb)
