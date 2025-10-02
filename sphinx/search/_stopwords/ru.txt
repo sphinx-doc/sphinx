@@ -1,13 +1,4 @@
-
-
- | a russian stop word list. comments begin with vertical bar. each stop
- | word is at the start of a line.
-
- | this is a ranked list (commonest to rarest) of stopwords derived from
- | a large text sample.
-
- | letter `ё' is translated to `е'.
-
+| source: https://snowballstem.org/algorithms/russian/stop.txt
 и              | and
 в              | in/into
 во             | alternative form

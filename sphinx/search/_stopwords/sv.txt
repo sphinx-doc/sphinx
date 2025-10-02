@@ -1,13 +1,4 @@
-
- | A Swedish stop word list. Comments begin with vertical bar. Each stop
- | word is at the start of a line.
-
- | This is a ranked list (commonest to rarest) of stopwords derived from
- | a large text sample.
-
- | Swedish stop words occasionally exhibit homonym clashes. For example
- |  så = so, but also seed. These are indicated clearly below.
-
+| source: https://snowballstem.org/algorithms/swedish/stop.txt
 och            | and
 det            | it, this/that
 att            | to (with infinitive)
@@ -112,7 +103,7 @@ vilka          | who, that
 ditt           | thy
 vem            | who
 vilket         | who, that
-sitt           | his
+sitta          | his
 sådana         | such a
 vart           | each
 dina           | thy

@@ -1,14 +1,4 @@
-
-
- | A Dutch stop word list. Comments begin with vertical bar. Each stop
- | word is at the start of a line.
-
- | This is a ranked list (commonest to rarest) of stopwords derived from
- | a large sample of Dutch text.
-
- | Dutch stop words frequently exhibit homonym clashes. These are indicated
- | clearly below.
-
+| source: https://snowballstem.org/algorithms/dutch/stop.txt
 de             |  the
 en             |  and
 van            |  of, from

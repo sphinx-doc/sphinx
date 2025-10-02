@@ -1,11 +1,4 @@
-
- | A Danish stop word list. Comments begin with vertical bar. Each stop
- | word is at the start of a line.
-
- | This is a ranked list (commonest to rarest) of stopwords derived from
- | a large text sample.
-
-
+| source: https://snowballstem.org/algorithms/danish/stop.txt
 og           | and
 i            | in
 jeg          | I

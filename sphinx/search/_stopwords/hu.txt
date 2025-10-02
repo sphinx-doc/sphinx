@@ -1,7 +1,5 @@
-
-| Hungarian stop word list
+| source: https://snowballstem.org/algorithms/hungarian/stop.txt
 | prepared by Anna Tordai
-
 a
 ahogy
 ahol

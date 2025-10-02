@@ -1,7 +1,4 @@
-
- | An Italian stop word list. Comments begin with vertical bar. Each stop
- | word is at the start of a line.
-
+| source: https://snowballstem.org/algorithms/italian/stop.txt
 ad             |  a (to) before vowel
 al             |  a + il
 allo           |  a + lo
@@ -292,4 +289,3 @@ stessi
 stesse
 stessimo
 stessero
-stando

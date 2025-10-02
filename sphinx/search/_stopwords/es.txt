@@ -1,13 +1,4 @@
-
- | A Spanish stop word list. Comments begin with vertical bar. Each stop
- | word is at the start of a line.
-
-
- | The following is a ranked list (commonest to rarest) of stopwords
- | deriving from a large sample of text.
-
- | Extra words have been added at the end.
-
+|source: https://snowballstem.org/algorithms/spanish/stop.txt
 de             |  from, of
 la             |  the, her
 que            |  who, that
