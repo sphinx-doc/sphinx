@@ -17,6 +17,7 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -41,7 +42,7 @@ def multiply_length(length: str, scale: int) -> str:
     return f'{int(result)}{unit}'
 
 
-class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
+class HTML5Translator(SphinxTranslator, BaseTranslator):
     """Our custom HTML translator."""
 
     builder: StandaloneHTMLBuilder
@@ -361,7 +362,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: Element) -> None:
+    def visit_comment(self, node: nodes.comment) -> None:
         raise nodes.SkipNode
 
     # overwritten
