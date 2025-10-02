@@ -75,6 +75,7 @@ Contributors
 * Josip Dzolonga -- coverage builder
 * Juan Luis Cano Rodríguez -- new tutorial (2021)
 * Julien Palard -- Colspan and rowspan in text builder
+* Julien Schueller -- imgmath module fix
 * Justus Magin -- napoleon improvements
 * Kazuya Take -- ``sphinx.testing.path`` bug fix
 * Kevin Dunn -- MathJax extension
