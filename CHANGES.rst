@@ -70,6 +70,9 @@ Features added
 Bugs fixed
 ----------
 
+* #13926: multiple py:type directives for the same canonical type no
+  longer result in spurious duplicate object description warnings.
+  Patch by Jeremy Maitin-Shepard.
 * #1327: LaTeX: tables using longtable raise error if
   :rst:dir:`tabularcolumns` specifies automatic widths
   (``L``, ``R``, ``C``, or ``J``).
