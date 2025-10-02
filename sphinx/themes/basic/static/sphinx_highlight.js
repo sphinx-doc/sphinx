@@ -74,14 +74,8 @@ const SphinxHighlight = {
     if (!SPHINX_HIGHLIGHT_ENABLED) return; // bail if no highlight
 
     // get and clear terms from localstorage
-    const url = new URL(window.location);
-    const highlight =
-      localStorage.getItem("sphinx_highlight_terms")
-      || url.searchParams.get("highlight")
-      || "";
+    const highlight = localStorage.getItem("sphinx_highlight_terms") || "";
     localStorage.removeItem("sphinx_highlight_terms");
-    url.searchParams.delete("highlight");
-    window.history.replaceState({}, "", url);
 
     // get individual terms from highlight string
     const terms = highlight
@@ -91,11 +85,10 @@ const SphinxHighlight = {
     if (terms.length === 0) return; // nothing to do
 
     // There should never be more than one element matching "div.body"
-    const divBody = document.querySelectorAll("div.body");
-    const body = divBody.length ? divBody[0] : document.querySelector("body");
-    window.setTimeout(() => {
+    const body = document.querySelector("div.body") || document.body;
+    window.requestAnimationFrame(() => {
       terms.forEach((term) => _highlightText(body, term, "highlighted"));
-    }, 10);
+    });
 
     const searchBox = document.getElementById("searchbox");
     if (searchBox === null) return;
