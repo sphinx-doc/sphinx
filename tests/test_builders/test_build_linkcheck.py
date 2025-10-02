@@ -587,6 +587,50 @@ def test_unauthorized_broken(app: SphinxTestApp) -> None:
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
+    confoverrides={
+        'linkcheck_allow_forbidden': False,
+        'linkcheck_auth': [('.*', ('user1', 'bad'))],
+    },
+)
+def test_forbidden_broken(app: SphinxTestApp) -> None:
+    with serve_application(
+        app, custom_handler(valid_credentials=('user1', 'password'))
+    ):
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+
+    assert content['info'] == 'forbidden'
+    assert content['status'] == 'broken'
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
+    confoverrides={
+        'linkcheck_allow_forbidden': True,
+        'linkcheck_auth': [('.*', ('user1', 'bad'))],
+    },
+)
+def test_forbidden_allowed(app: SphinxTestApp) -> None:
+    with serve_application(
+        app, custom_handler(valid_credentials=('user1', 'password'))
+    ):
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+
+    assert content['info'] == 'forbidden'
+    assert content['status'] == 'working'
+    
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]},
 )
 def test_auth_header_no_match(app: SphinxTestApp) -> None:

@@ -400,6 +400,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
+        self._allow_forbidden = config.linkcheck_allow_forbidden
         self._timeout_status: Literal[_Status.BROKEN, _Status.TIMEOUT]
         if config.linkcheck_report_timeouts_as_broken:
             self._timeout_status = _Status.BROKEN
@@ -600,6 +601,13 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         return _Status.WORKING, 'unauthorized', 0
                     else:
                         return _Status.BROKEN, 'unauthorized', 0
+
+                # Forbidden: the request was forbidden (access or refused)
+                if status_code == 403:
+                    if self._allow_forbidden:
+                        return _Status.WORKING, 'forbidden', 0
+                    else:
+                        return _Status.BROKEN, 'forbidden', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
                 if status_code == 429:
@@ -812,6 +820,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     app.add_config_value(
         'linkcheck_allow_unauthorized', False, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'linkcheck_allow_forbidden', False, '', types=frozenset({bool})
     )
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
