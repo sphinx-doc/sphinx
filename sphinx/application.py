@@ -1134,6 +1134,7 @@ class Sphinx:
                 type='app',
                 subtype='add_directive',
             )
+            return
 
         docutils.register_directive(name, cls)
 
