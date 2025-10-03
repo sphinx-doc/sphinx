@@ -74,6 +74,8 @@ class MathDomain(Domain):
                 labelid,
                 other,
                 location=location,
+                type='ref',
+                subtype='eq',
             )
 
         self.equations[labelid] = (docname, self.env.new_serialno('eqno') + 1)
