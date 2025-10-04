@@ -566,3 +566,19 @@ def test_mathjax_is_installed_if_included_file_has_equations_singlehtml(
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math-duplicate-label',
+    confoverrides={'extensions': ['sphinx.ext.mathjax'], 'show_warning_types': True},
+)
+def test_duplicate_equation_label_warning_type(app: SphinxTestApp) -> None:
+    """Test that duplicate equation labels emit warnings with type ref.eq."""
+    app.build(force_all=True)
+
+    from sphinx._cli.util.errors import strip_escape_sequences
+
+    warnings = strip_escape_sequences(app.warning.getvalue())
+    assert 'WARNING: duplicate label of equation duplicated' in warnings
+    assert '[ref.eq]' in warnings
