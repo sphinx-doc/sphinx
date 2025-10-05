@@ -533,7 +533,7 @@ def stringify_annotation(
     # Process the generic arguments (if any).
     # They must be a list or a tuple, otherwise they are considered 'broken'.
     annotation_args = getattr(annotation, '__args__', ())
-    if annotation_args and isinstance(annotation_args, list | tuple):
+    if annotation_args and isinstance(annotation_args, (list, tuple)):
         if (
             qualname in {'Union', 'types.UnionType'}
             and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)

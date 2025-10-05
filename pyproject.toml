@@ -76,7 +76,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.9",
     "Jinja2>=3.1",
     "Pygments>=2.17",
-    "docutils>=0.20,<0.22",
+    "docutils>=0.20,<0.23",
     "snowballstemmer>=2.2",
     "babel>=2.13",
     "alabaster>=0.7.14",
@@ -87,35 +87,6 @@ dependencies = [
     "colorama>=0.4.6; sys_platform == 'win32'",
 ]
 dynamic = ["version"]
-
-[project.optional-dependencies]
-docs = [
-    "sphinxcontrib-websupport",
-]
-lint = [
-    "ruff==0.12.5",
-    "mypy==1.17.0",
-    "sphinx-lint>=0.9",
-    "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20250708",
-    "types-docutils==0.21.0.20250525",
-    "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250715",
-    "types-requests==2.32.4.20250611",  # align with requests
-    "types-urllib3==1.26.25.14",
-    "pyright==1.1.400",
-    "pytest>=8.0",
-    "pypi-attestations==0.0.27",
-    "betterproto==2.0.0b6",
-]
-test = [
-    "pytest>=8.0",
-    "pytest-xdist[psutil]>=3.4",
-    "defusedxml>=0.7.1", # for secure XML/HTML parsing
-    "cython>=3.0",
-    "setuptools>=70.0",  # for Cython compilation
-    "typing_extensions>=4.9",  # for typing_extensions.Unpack
-]
 
 [[project.authors]]
 name = "Adam Turner"
@@ -136,7 +107,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.5",
+    "ruff==0.13.3",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -158,19 +129,20 @@ translations = [
     "Jinja2>=3.1",
 ]
 types = [
-    "mypy==1.17.0",
+    "mypy==1.18.2",
     "pyrefly",
     "pyright==1.1.400",
+    "ty",
     { include-group = "type-stubs" },
 ]
 type-stubs = [
     # align with versions used elsewhere
-    "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20250708",
+    "types-colorama==0.4.15.20250801",
+    "types-defusedxml==0.7.0.20250822",
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250715",
-    "types-requests==2.32.4.20250611",
+    "types-Pygments==2.19.0.20250809",
+    "types-requests==2.32.4.20250809",
     "types-urllib3==1.26.25.14",
 ]
 
@@ -247,21 +219,15 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_project",
     "tests.test_versioning",
     # tests/test_builders
     "tests.test_builders.test_build",
     "tests.test_builders.test_build_html",
     "tests.test_builders.test_build_html_5_output",
-    "tests.test_builders.test_build_html_assets",
-    "tests.test_builders.test_build_html_maths",
-    "tests.test_builders.test_build_html_toctree",
     "tests.test_builders.test_build_linkcheck",
     # tests/test_directives
     "tests.test_directives.test_directive_code",
     "tests.test_directives.test_directives_no_typesetting",
-    # tests/test_environment
-    "tests.test_environment.test_environment",
     # tests/test_extensions
     "tests.test_extensions.test_ext_autodoc_autoclass",
     "tests.test_extensions.test_ext_autosummary_imports",
@@ -270,7 +236,6 @@ module = [
     "tests.test_extensions.test_ext_napoleon",
     # tests/test_markup
     "tests.test_markup.test_markup",
-    "tests.test_markup.test_parser",
     # tests/test_theming
     "tests.test_theming.test_templating",
     "tests.test_theming.test_theming",
@@ -329,7 +294,6 @@ check_untyped_defs = false
 disable_error_code = [
     "annotation-unchecked",
 ]
-disallow_incomplete_defs = false
 disallow_untyped_calls = false
 disallow_untyped_defs = false
 

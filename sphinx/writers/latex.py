@@ -297,6 +297,9 @@ def escape_abbr(text: str) -> str:
 
 def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
     """Convert `width_str` with rst length to LaTeX length."""
+    # MEMO: the percent unit is interpreted here as a percentage
+    # of \linewidth.  Let's keep in mind though that \linewidth
+    # is dynamic in LaTeX, e.g. it is smaller in lists.
     match = re.match(r'^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
         raise ValueError
@@ -310,6 +313,8 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = '%sbp' % amount  # convert to 'bp'
         elif unit == '%':
             res = r'%.3f\linewidth' % (float(amount) / 100.0)
+        elif unit in {'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax', 'Q'}:
+            res = rf'{amount}\sphinx{unit}dimen'
     else:
         amount_float = float(amount) * scale / 100.0
         if unit in {'', 'px'}:
@@ -318,8 +323,13 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = '%.5fbp' % amount_float
         elif unit == '%':
             res = r'%.5f\linewidth' % (amount_float / 100.0)
+        elif unit in {'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax', 'Q'}:
+            res = rf'{amount_float:.5f}\sphinx{unit}dimen'
         else:
             res = f'{amount_float:.5f}{unit}'
+    # Those further units are passed through and accepted "as is" by TeX:
+    # em and ex (both font dependent), bp, cm, mm, in, and pc.
+    # Non-CSS units (TeX only presumably) are cc, nc, dd, nd, and sp.
     return res
 
 
@@ -1553,7 +1563,7 @@ class LaTeXTranslator(SphinxTranslator):
         ):
             # insert blank line, if the paragraph follows a non-paragraph node in a compound
             self.body.append(r'\noindent' + CR)
-        elif index == 1 and isinstance(node.parent, nodes.footnote | footnotetext):
+        elif index == 1 and isinstance(node.parent, (nodes.footnote, footnotetext)):
             # don't insert blank line, if the paragraph is second child of a footnote
             # (first one is label node)
             pass
@@ -1864,35 +1874,14 @@ class LaTeXTranslator(SphinxTranslator):
                 and node['refid'] == prev_node['refid']
             ):
                 # a target for a hyperlink reference having alias
-                pass
+                return
             else:
                 add_target(node['refid'])
-        # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
-        # TODO: investigate if a more elegant solution exists
-        # (see comments of https://github.com/sphinx-doc/sphinx/issues/11093)
-        if node.get('ismod', False):
-            # Detect if the previous nodes are label targets. If so, remove
-            # the refid thereof from node['ids'] to avoid duplicated ids.
-            prev = get_prev_node(node)
-            if self._has_dup_label(prev, node):
-                ids = node['ids'][:]  # copy to avoid side-effects
-                while self._has_dup_label(prev, node):
-                    ids.remove(prev['refid'])  # type: ignore[index]
-                    prev = get_prev_node(prev)  # type: ignore[arg-type]
-            else:
-                ids = iter(node['ids'])  # read-only iterator
-        else:
-            ids = iter(node['ids'])  # read-only iterator
-
-        for id in ids:
+        for id in node['ids']:
             add_target(id)
 
     def depart_target(self, node: Element) -> None:
         pass
-
-    @staticmethod
-    def _has_dup_label(sib: Node | None, node: Element) -> bool:
-        return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
 
     def visit_attribution(self, node: Element) -> None:
         self.body.append(CR + r'\begin{flushright}' + CR)
@@ -2298,7 +2287,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -2307,7 +2296,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)

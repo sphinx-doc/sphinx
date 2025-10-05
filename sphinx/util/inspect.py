@@ -131,7 +131,7 @@ def getall(obj: Any) -> Sequence[str] | None:
     __all__ = safe_getattr(obj, '__all__', None)
     if __all__ is None:
         return None
-    if isinstance(__all__, list | tuple) and all(isinstance(e, str) for e in __all__):
+    if isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__):
         return __all__
     raise ValueError(__all__)
 
@@ -195,7 +195,7 @@ def getslots(obj: Any) -> dict[str, Any] | dict[str, None] | None:
         return __slots__
     elif isinstance(__slots__, str):
         return {__slots__: None}
-    elif isinstance(__slots__, list | tuple):
+    elif isinstance(__slots__, (list, tuple)):
         return dict.fromkeys(__slots__)
     else:
         raise ValueError
@@ -225,7 +225,7 @@ def unpartial(obj: Any) -> Any:
 
 def ispartial(obj: Any) -> TypeIs[partial[Any] | partialmethod[Any]]:
     """Check if the object is a partial function or method."""
-    return isinstance(obj, partial | partialmethod)
+    return isinstance(obj, (partial, partialmethod))
 
 
 def isclassmethod(
@@ -374,8 +374,8 @@ def isattributedescriptor(obj: Any) -> bool:
         if isinstance(unwrapped, _DESCRIPTOR_LIKE):
             # attribute must not be a method descriptor
             return False
-        # attribute must not be an instancemethod (C-API)
-        return type(unwrapped).__name__ != 'instancemethod'
+        # attribute must not be an instancemethod (C-API) nor nb_method (specific for nanobind)
+        return type(unwrapped).__name__ not in {'instancemethod', 'nb_method'}
     return False
 
 
@@ -443,12 +443,12 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> TypeIs[property | cached_property[Any]]:
     """Check if the object is property (possibly cached)."""
-    return isinstance(obj, property | cached_property)
+    return isinstance(obj, (property, cached_property))
 
 
 def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
     """Check if the object is a generic alias."""
-    return isinstance(obj, types.GenericAlias | typing._BaseGenericAlias)  # type: ignore[attr-defined]
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:

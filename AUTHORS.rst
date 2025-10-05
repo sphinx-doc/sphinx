@@ -63,6 +63,7 @@ Contributors
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Horst Gutmann -- internationalization support
 * Hugo van Kemenade -- support FORCE_COLOR and NO_COLOR
+* Ian Hunt-Isaak -- typealias reference improvement
 * Ian Lee -- quickstart improvements
 * Jacob Mason -- websupport library (GSOC project)
 * James Addison -- linkcheck and HTML search improvements
