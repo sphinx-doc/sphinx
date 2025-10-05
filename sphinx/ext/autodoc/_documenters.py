@@ -200,7 +200,7 @@ class Documenter:
 
         ret = _load_object_by_name(
             name=self.name,
-            objtype=self.objtype,
+            objtype=self.objtype,  # type: ignore[arg-type]
             mock_imports=self.config.autodoc_mock_imports,
             type_aliases=self.config.autodoc_type_aliases,
             current_document=self._current_document,
