@@ -72,6 +72,9 @@ Features added
 Bugs fixed
 ----------
 
+* #13926: multiple py:type directives for the same canonical type no
+  longer result in spurious duplicate object description warnings.
+  Patch by Jeremy Maitin-Shepard.
 * #1327: LaTeX: tables using longtable raise error if
   :rst:dir:`tabularcolumns` specifies automatic widths
   (``L``, ``R``, ``C``, or ``J``).
@@ -122,6 +125,9 @@ Bugs fixed
   configuration variable ``doctest_test_doctest_blocks``.
 * #13885: Coverage builder: Fix TypeError when warning about missing modules.
   Patch by Damien Ayers.
+* #13929: Duplicate equation label warnings now have a new warning
+  sub-type, ``ref.equation``.
+  Patch by Jared Dillard.
 
 
 Testing
