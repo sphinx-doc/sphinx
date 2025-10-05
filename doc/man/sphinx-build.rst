@@ -59,7 +59,7 @@ Options
      Build Texinfo files and run them through :program:`makeinfo`.
 
    *help*
-      Output a list of valid ``make`` targets and exit.
+      Output a list of valid builder targets, and exit.
 
    .. note::
 
