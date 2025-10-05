@@ -103,7 +103,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
             if ispartial(obj):
                 obj = obj.func
             elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
-                obj = obj.__wrapped__
+                obj = obj.__wrapped__  # pyright: ignore[reportFunctionMemberAccess]
             elif isclassmethod(obj) or isstaticmethod(obj):
                 obj = obj.__func__
             else:
@@ -114,7 +114,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
         if ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
-            obj = obj.__wrapped__
+            obj = obj.__wrapped__  # pyright: ignore[reportFunctionMemberAccess]
         elif isclassmethod(obj) or isstaticmethod(obj):
             obj = obj.__func__
         else:
@@ -385,7 +385,7 @@ def is_singledispatch_function(obj: Any) -> bool:
         inspect.isfunction(obj)
         and hasattr(obj, 'dispatch')
         and hasattr(obj, 'register')
-        and obj.dispatch.__module__ == 'functools'
+        and obj.dispatch.__module__ == 'functools'  # pyright: ignore[reportFunctionMemberAccess]
     )
 
 
