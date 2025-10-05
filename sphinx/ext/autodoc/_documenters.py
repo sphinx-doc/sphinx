@@ -1144,11 +1144,11 @@ class ClassDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return isinstance(member, type) or (
-            isattr and isinstance(member, NewType | TypeVar)
+            isattr and isinstance(member, (NewType, TypeVar))
         )
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if isinstance(self.props._obj, NewType | TypeVar):
+        if isinstance(self.props._obj, (NewType, TypeVar)):
             # Suppress signature
             return None, None, None
 
@@ -1360,7 +1360,7 @@ class ClassDocumenter(Documenter):
             self.directivetype = 'attribute'
         super().add_directive_header(sig)
 
-        if isinstance(self.props._obj, NewType | TypeVar):
+        if isinstance(self.props._obj, (NewType, TypeVar)):
             return
 
         if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
