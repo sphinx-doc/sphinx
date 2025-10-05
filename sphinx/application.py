@@ -943,6 +943,9 @@ class Sphinx:
            ``'env'``) to a string.  However, booleans are still accepted and
            converted internally.
 
+        .. versionadded:: 1.4
+           The *types* parameter.
+
         .. versionadded:: 7.4
            The *description* parameter.
         """

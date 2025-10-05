@@ -4,6 +4,10 @@ Release 8.3.0 (in development)
 Dependencies
 ------------
 
+* #13786: Support `Docutils 0.22`_. Patch by Adam Turner.
+
+  .. _Docutils 0.22: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-22-2026-07-29
+
 Incompatible changes
 --------------------
 
@@ -43,7 +47,7 @@ Features added
   Patch by Till Hoffmann.
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
-  Patch by Adam Turner.
+  Patch by Adam Turner and James Addison.
 * #13497: Support C domain objects in the table of contents.
 * #13500: LaTeX: add support for ``fontawesome6`` package.
   Patch by Jean-François B.
@@ -54,14 +58,21 @@ Features added
   Patch by Adam Turner.
 * #13647: LaTeX: allow more cases of table nesting.
   Patch by Jean-François B.
+* #13657: LaTeX: support CSS3 length units.
+  Patch by Jean-François B.
 * #13684: intersphinx: Add a file-based cache for remote inventories.
   The location of the cache directory must not be relied upon externally,
   as it may change without notice or warning in future releases.
   Patch by Adam Turner.
+* #13805: LaTeX: add support for ``fontawesome7`` package.
+  Patch by Jean-François B.
 
 Bugs fixed
 ----------
 
+* #13926: multiple py:type directives for the same canonical type no
+  longer result in spurious duplicate object description warnings.
+  Patch by Jeremy Maitin-Shepard.
 * #1327: LaTeX: tables using longtable raise error if
   :rst:dir:`tabularcolumns` specifies automatic widths
   (``L``, ``R``, ``C``, or ``J``).
@@ -97,6 +108,25 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #13712: intersphinx: Don't add "v" prefix to non-numeric versions.
   Patch by Szymon Karpinski.
+* #13688: HTML builder: Replace ``<em class="property">`` with
+  ``<span class="property">`` for attribute type annotations
+  to improve `semantic HTML structure
+  <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
+  Patch by Mark Ostroth.
+* #13812 (discussion): LaTeX: long :rst:dir:`confval` value does not wrap at
+  spaces in PDF.
+  Patch by Jean-François B.
+* #10785: Autodoc: Allow type aliases defined in the project to be properly
+  cross-referenced when used as type annotations. This makes it possible
+  for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
+* #13858: doctest: doctest blocks are now correctly added to a group defined by the
+  configuration variable ``doctest_test_doctest_blocks``.
+* #13885: Coverage builder: Fix TypeError when warning about missing modules.
+  Patch by Damien Ayers.
+* #13929: Duplicate equation label warnings now have a new warning
+  sub-type, ``ref.equation``.
+  Patch by Jared Dillard.
+
 
 Testing
 -------

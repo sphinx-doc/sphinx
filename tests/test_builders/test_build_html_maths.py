@@ -8,6 +8,9 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.errors import ConfigError
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from sphinx.testing.fixtures import _app_params
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -42,7 +45,9 @@ def test_html_math_renderer_is_imgmath(app: SphinxTestApp) -> None:
     testroot='basic',
     confoverrides={'extensions': ['sphinxcontrib.jsmath', 'sphinx.ext.imgmath']},
 )
-def test_html_math_renderer_is_duplicated(make_app, app_params):
+def test_html_math_renderer_is_duplicated(
+    make_app: Callable[..., SphinxTestApp], app_params: _app_params
+) -> None:
     args, kwargs = app_params
     with pytest.raises(
         ConfigError,
@@ -83,7 +88,9 @@ def test_html_math_renderer_is_chosen(app: SphinxTestApp) -> None:
         'html_math_renderer': 'imgmath',
     },
 )
-def test_html_math_renderer_is_mismatched(make_app, app_params):
+def test_html_math_renderer_is_mismatched(
+    make_app: Callable[..., SphinxTestApp], app_params: _app_params
+) -> None:
     args, kwargs = app_params
     with pytest.raises(
         ConfigError,
