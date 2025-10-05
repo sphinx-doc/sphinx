@@ -118,6 +118,8 @@ Bugs fixed
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
 * #13858: doctest: doctest blocks are now correctly added to a group defined by the
   configuration variable ``doctest_test_doctest_blocks``.
+* #13885: Coverage builder: Fix TypeError when warning about missing modules.
+  Patch by Damien Ayers.
 * #13929: Duplicate equation label warnings now have the warning type ``ref.equation``.
   Patch by Jared Dillard.
 

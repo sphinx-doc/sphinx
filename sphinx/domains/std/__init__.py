@@ -974,13 +974,13 @@ class StandardDomain(Domain):
                     continue
             else:
                 if (
-                    isinstance(node, nodes.definition_list | nodes.field_list)
+                    isinstance(node, (nodes.definition_list, nodes.field_list))
                     and node.children
                 ):
                     node = cast('nodes.Element', node.children[0])
-                if isinstance(node, nodes.field | nodes.definition_list_item):
+                if isinstance(node, (nodes.field, nodes.definition_list_item)):
                     node = cast('nodes.Element', node.children[0])
-                if isinstance(node, nodes.term | nodes.field_name):
+                if isinstance(node, (nodes.term, nodes.field_name)):
                     sectname = clean_astext(node)
                 else:
                     toctree = next(node.findall(addnodes.toctree), None)
@@ -1371,7 +1371,7 @@ class StandardDomain(Domain):
                 return title_getter(elem)
             else:
                 for subnode in elem:
-                    if isinstance(subnode, nodes.caption | nodes.title):
+                    if isinstance(subnode, (nodes.caption, nodes.title)):
                         return clean_astext(subnode)
 
         return None

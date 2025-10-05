@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def display_chunk(chunk: Any) -> str:
-    if isinstance(chunk, list | tuple):
+    if isinstance(chunk, (list, tuple)):
         if len(chunk) == 1:
             return str(chunk[0])
         return f'{chunk[0]} .. {chunk[-1]}'
