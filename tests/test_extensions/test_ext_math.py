@@ -574,7 +574,7 @@ def test_mathjax_is_installed_if_included_file_has_equations_singlehtml(
     confoverrides={'extensions': ['sphinx.ext.mathjax'], 'show_warning_types': True},
 )
 def test_duplicate_equation_label_warning_type(app: SphinxTestApp) -> None:
-    """Test that duplicate equation labels emit warnings with type ref.eq."""
+    """Test that duplicate equation labels emit warnings with type ref.equation."""
     app.build(force_all=True)
 
     from sphinx._cli.util.errors import strip_escape_sequences
