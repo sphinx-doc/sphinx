@@ -120,6 +120,9 @@ Bugs fixed
   configuration variable ``doctest_test_doctest_blocks``.
 * #13885: Coverage builder: Fix TypeError when warning about missing modules.
   Patch by Damien Ayers.
+* #13929: Duplicate equation label warnings now have a new warning
+  sub-type, ``ref.equation``.
+  Patch by Jared Dillard.
 
 
 Testing
