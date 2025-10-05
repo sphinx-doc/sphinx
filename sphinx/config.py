@@ -65,7 +65,7 @@ def is_serializable(obj: object, *, _seen: frozenset[int] = frozenset()) -> bool
             is_serializable(key, _seen=seen) and is_serializable(value, _seen=seen)
             for key, value in obj.items()
         )
-    elif isinstance(obj, list | tuple | set | frozenset):
+    elif isinstance(obj, (list, tuple, set, frozenset)):
         seen = _seen | {id(obj)}
         return all(is_serializable(item, _seen=seen) for item in obj)
 
@@ -89,7 +89,7 @@ class ENUM:
         return f'ENUM({", ".join(sorted(map(repr, self._candidates)))})'
 
     def match(self, value: str | bool | None | Sequence[str | bool | None]) -> bool:  # NoQA: RUF036
-        if isinstance(value, str | bool | None):
+        if isinstance(value, (str, bool, types.NoneType)):
             return value in self._candidates
         return all(item in self._candidates for item in value)
 
@@ -630,7 +630,7 @@ def _validate_valid_types(
 ) -> frozenset[type] | ENUM:
     if not valid_types:
         return frozenset()
-    if isinstance(valid_types, frozenset | ENUM):
+    if isinstance(valid_types, (frozenset, ENUM)):
         return valid_types
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
@@ -663,7 +663,7 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
             source_suffix,
             config.source_suffix,
         )
-    elif isinstance(source_suffix, list | tuple):
+    elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
         config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
         logger.info(
