@@ -22,10 +22,10 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator, Iterable
     from typing import Any, Literal, TypeAlias
 
-    from docutils.nodes import Node, Text
+    from docutils.nodes import Node
     from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
@@ -92,7 +92,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            super().apply_transforms()  # type: ignore[misc]
+            super().apply_transforms()
         else:
             # wrap the target node by document node during transforming
             try:
@@ -281,6 +281,7 @@ class ExtraTranslatableNodes(SphinxTransform):
             return isinstance(node, target_nodes)
 
         for node in self.document.findall(is_translatable_node):
+            assert isinstance(node, nodes.Element)
             node['translatable'] = True
 
 
@@ -395,7 +396,14 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         language = self.env.settings['language_code']
         return any(tag in smartchars.quotes for tag in normalize_language_tag(language))
 
-    def get_tokens(self, txtnodes: list[Text]) -> Iterator[tuple[str, str]]:
+    def get_tokens(
+        self,
+        txtnodes: Iterable[Node],
+    ) -> Generator[
+        tuple[Literal['plain', 'literal'], str],
+        None,
+        None,
+    ]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
