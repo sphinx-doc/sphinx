@@ -200,7 +200,7 @@ class Documenter:
 
         ret = _load_object_by_name(
             name=self.name,
-            objtype=self.objtype,
+            objtype=self.objtype,  # type: ignore[arg-type]
             mock_imports=self.config.autodoc_mock_imports,
             type_aliases=self.config.autodoc_type_aliases,
             current_document=self._current_document,
@@ -1144,11 +1144,11 @@ class ClassDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return isinstance(member, type) or (
-            isattr and isinstance(member, NewType | TypeVar)
+            isattr and isinstance(member, (NewType, TypeVar))
         )
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if isinstance(self.props._obj, NewType | TypeVar):
+        if isinstance(self.props._obj, (NewType, TypeVar)):
             # Suppress signature
             return None, None, None
 
@@ -1360,7 +1360,7 @@ class ClassDocumenter(Documenter):
             self.directivetype = 'attribute'
         super().add_directive_header(sig)
 
-        if isinstance(self.props._obj, NewType | TypeVar):
+        if isinstance(self.props._obj, (NewType, TypeVar)):
             return
 
         if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
