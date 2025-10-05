@@ -914,9 +914,7 @@ def _get_settings(
     return option_parser.get_default_values()  # type: ignore[return-value]
 
 
-if docutils.__version_info__[:2] >= (0, 22):
-    from docutils.parsers.rst.roles import normalize_options as _normalize_options
-else:
+if docutils.__version_info__[:2] < (0, 22):
     from docutils.parsers.rst.roles import set_classes
 
     def _normalize_options(options: dict[str, Any] | None) -> dict[str, Any]:
@@ -925,3 +923,8 @@ else:
         n_options = options.copy()
         set_classes(n_options)
         return n_options
+
+else:
+    from docutils.parsers.rst.roles import (  # type: ignore[attr-defined, no-redef]
+        normalize_options as _normalize_options,  # NoQA: F401
+    )
