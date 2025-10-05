@@ -537,7 +537,7 @@ def _load_object_by_name(
             _obj___module__=obj.__name__,
         )
     elif objtype in {'class', 'exception'}:
-        if isinstance(obj, NewType | TypeVar):
+        if isinstance(obj, (NewType, TypeVar)):
             obj_module_name = getattr(obj, '__module__', module_name)
             if obj_module_name != module_name and module_name.startswith(
                 obj_module_name
