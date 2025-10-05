@@ -1,4 +1,6 @@
-from typing import NewType
+from typing import NewType, TypeAliasType
+
+import typing_extensions
 
 
 class Foo:
@@ -7,6 +9,12 @@ class Foo:
 
 type Pep695Alias = Foo
 """This is PEP695 type alias."""
+
+TypeAliasTypeExplicit = TypeAliasType('TypeAliasTypeExplicit', Foo)  # noqa: UP040
+"""This is an explicitly constructed typing.TypeAlias."""
+
+TypeAliasTypeExtension = typing_extensions.TypeAliasType('TypeAliasTypeExtension', Foo)  # noqa: UP040
+"""This is an explicitly constructed typing_extensions.TypeAlias."""
 
 type Pep695AliasC = dict[
     str, Foo

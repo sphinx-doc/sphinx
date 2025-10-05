@@ -35,7 +35,7 @@ from sphinx.util.inspect import (
     isclass,
     safe_getattr,
 )
-from sphinx.util.typing import get_type_hints
+from sphinx.util.typing import AnyTypeAliasType, get_type_hints
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -44,17 +44,13 @@ if TYPE_CHECKING:
     from typing import Any, Protocol
 
     from typing_extensions import TypeIs
+
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
 
     class _AttrGetter(Protocol):
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
-
-if sys.version_info[:2] < (3, 12):
-    from typing_extensions import TypeAliasType
-else:
-    from typing import TypeAliasType
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
@@ -459,8 +455,8 @@ def _is_slots_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
         return False
 
 
-def _is_type_like(obj: Any) -> TypeIs[NewType | TypeVar | TypeAliasType]:
-    return isinstance(obj, (NewType, TypeVar, TypeAliasType))
+def _is_type_like(obj: Any) -> TypeIs[NewType | TypeVar | AnyTypeAliasType]:
+    return isinstance(obj, (NewType, TypeVar, AnyTypeAliasType))
 
 
 def _load_object_by_name(

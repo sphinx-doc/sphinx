@@ -47,7 +47,12 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import get_type_hints, restify, stringify_annotation
+from sphinx.util.typing import (
+    AnyTypeAliasType,
+    get_type_hints,
+    restify,
+    stringify_annotation,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -68,11 +73,6 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
-
-if sys.version_info[:2] < (3, 12):
-    from typing_extensions import TypeAliasType
-else:
-    from typing import TypeAliasType
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 
@@ -1362,7 +1362,7 @@ class ClassDocumenter(Documenter):
 
         if self.props.doc_as_attr:
             self.directivetype = 'attribute'
-        if isinstance(self.object, TypeAliasType):
+        if isinstance(self.props._obj, AnyTypeAliasType):
             self.directivetype = 'type'
         super().add_directive_header(sig)
 
@@ -1381,7 +1381,7 @@ class ClassDocumenter(Documenter):
         ):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
-        if isinstance(self.object, TypeAliasType):
+        if isinstance(self.props._obj, AnyTypeAliasType):
             aliased = stringify_annotation(self.object.__value__)
             self.add_line('   :canonical: %s' % aliased, sourcename)
             return
