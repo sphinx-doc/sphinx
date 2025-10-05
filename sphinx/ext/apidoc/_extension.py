@@ -243,7 +243,7 @@ def _check_collection_of_strings(
     """
     if key not in options:
         return default
-    if not isinstance(options[key], list | tuple | set | frozenset):
+    if not isinstance(options[key], (list, tuple, set, frozenset)):
         LOGGER.warning(
             __("apidoc_modules item %i '%s' must be a sequence"),
             index,
