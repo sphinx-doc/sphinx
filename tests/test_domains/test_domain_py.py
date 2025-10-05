@@ -1806,3 +1806,16 @@ def test_deco_role(app):
 
     doctree = restructuredtext.parse(app, text + '\n:py:deco:`~foo.bar`')
     assert doctree.astext() == '\n\n\n\n@bar'
+
+
+def test_pytype_canonical(app):
+    text = """\
+.. py:type:: A
+   :canonical: int
+
+.. py:type:: B
+   :canonical: int
+ """
+
+    doctree = restructuredtext.parse(app, text)
+    assert not app.warning.getvalue()

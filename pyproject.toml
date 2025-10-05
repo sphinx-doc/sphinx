@@ -107,7 +107,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.12.8",
+    "ruff==0.13.3",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -129,7 +129,7 @@ translations = [
     "Jinja2>=3.1",
 ]
 types = [
-    "mypy==1.17.1",
+    "mypy==1.18.2",
     "pyrefly",
     "pyright==1.1.400",
     "ty",
