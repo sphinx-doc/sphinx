@@ -491,22 +491,26 @@ class Keyboard(SphinxRole):
         if 'classes' in self.options:
             classes.extend(self.options['classes'])
 
-        compound = nodes.inline(self.rawtext, classes=['kbdcompound'])
         parts = self._pattern.split(self.text)
+        if len(parts) == 1 or self._is_multi_word_key(parts):
+            return [nodes.literal(self.rawtext, self.text, classes=classes)], []
+
+        compound = nodes.literal(self.rawtext, classes=classes)
+        compound['classes'].append('compound')
         while parts:
             if self._is_multi_word_key(parts):
                 key = ''.join(parts[:3])
                 parts[:3] = []
             else:
                 key = parts.pop(0)
-            compound += nodes.literal(key, key, classes=['kbd'])
+            compound.append(nodes.literal(key, key, classes=classes))
 
             try:
                 sep = parts.pop(0)  # key separator ('-', '+', '^', etc)
             except IndexError:
                 break
             else:
-                compound += nodes.inline(sep, sep, classes=['kbdsep'])
+                compound.append(nodes.inline(sep, sep, classes=['kbd-sep']))
 
         return [compound], []
 
