@@ -1394,7 +1394,7 @@ Options for warning control
    * ``ref.any``
    * ``ref.citation``
    * ``ref.doc``
-   * ``ref.eq``
+   * ``ref.equation``
    * ``ref.footnote``
    * ``ref.keyword``
    * ``ref.numref``

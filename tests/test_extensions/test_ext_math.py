@@ -581,4 +581,4 @@ def test_duplicate_equation_label_warning_type(app: SphinxTestApp) -> None:
 
     warnings = strip_escape_sequences(app.warning.getvalue())
     assert 'WARNING: duplicate label of equation duplicated' in warnings
-    assert '[ref.eq]' in warnings
+    assert '[ref.equation]' in warnings
