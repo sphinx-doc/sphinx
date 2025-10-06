@@ -550,7 +550,7 @@ class Documenter:
         processed_doc = StringList(
             list(
                 self._process_docstrings(
-                    self._get_docstrings() or (),
+                    self._get_docstrings() or [],
                     events=self._events,
                     props=self.props,
                     obj=self.props._obj,
