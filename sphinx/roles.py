@@ -494,7 +494,8 @@ class Keyboard(SphinxRole):
         if len(parts) == 1 or self._is_multi_word_key(parts):
             return [nodes.literal(self.rawtext, self.text, classes=classes)], []
 
-        compound: list[Node] = []
+        compound = nodes.literal(self.rawtext, classes=classes)
+        compound['classes'].append('compound')
         while parts:
             if self._is_multi_word_key(parts):
                 key = ''.join(parts[:3])
@@ -508,9 +509,9 @@ class Keyboard(SphinxRole):
             except IndexError:
                 break
             else:
-                compound.append(nodes.Text(sep))
+                compound.append(nodes.inline(sep, sep, classes=['kbd-sep']))
 
-        return compound, []
+        return [compound], []
 
     @staticmethod
     def _is_multi_word_key(parts: list[str]) -> bool:

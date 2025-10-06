@@ -126,6 +126,10 @@ Bugs fixed
 * #13929: Duplicate equation label warnings now have a new warning
   sub-type, ``ref.equation``.
   Patch by Jared Dillard.
+* #13876: Restore the ``compound`` class for groups of nodes generated
+  by the :rst:role:`kbd` role, and add the ``kbd-sep`` class to separators
+  within the group.
+  Patch by Brecht Machiels.
 
 
 Testing

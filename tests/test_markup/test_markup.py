@@ -341,16 +341,20 @@ def get_verifier(verify, verify_re):
             ':kbd:`Control+X`',
             (
                 '<p>'
+                '<kbd class="kbd compound docutils literal notranslate">'
                 '<kbd class="kbd docutils literal notranslate">Control</kbd>'
-                '+'
+                '<span class="kbd-sep">+</span>'
                 '<kbd class="kbd docutils literal notranslate">X</kbd>'
+                '</kbd>'
                 '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
+                '\\sphinxkeyboard{\\sphinxupquote{'
                 '\\sphinxkeyboard{\\sphinxupquote{Control}}'
-                '+'
+                '\\DUrole{kbd-sep}{+}'
                 '\\sphinxkeyboard{\\sphinxupquote{X}}'
+                '}}'
             ),
         ),
         (
@@ -359,16 +363,20 @@ def get_verifier(verify, verify_re):
             ':kbd:`Alt+^`',
             (
                 '<p>'
+                '<kbd class="kbd compound docutils literal notranslate">'
                 '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
-                '+'
+                '<span class="kbd-sep">+</span>'
                 '<kbd class="kbd docutils literal notranslate">^</kbd>'
+                '</kbd>'
                 '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
+                '\\sphinxkeyboard{\\sphinxupquote{'
                 '\\sphinxkeyboard{\\sphinxupquote{Alt}}'
-                '+'
+                '\\DUrole{kbd-sep}{+}'
                 '\\sphinxkeyboard{\\sphinxupquote{\\textasciicircum{}}}'
+                '}}'
             ),
         ),
         (
@@ -377,24 +385,28 @@ def get_verifier(verify, verify_re):
             ':kbd:`M-x  M-s`',
             (
                 '<p>'
+                '<kbd class="kbd compound docutils literal notranslate">'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
-                '-'
+                '<span class="kbd-sep">-</span>'
                 '<kbd class="kbd docutils literal notranslate">x</kbd>'
-                '  '
+                '<span class="kbd-sep">  </span>'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
-                '-'
+                '<span class="kbd-sep">-</span>'
                 '<kbd class="kbd docutils literal notranslate">s</kbd>'
+                '</kbd>'
                 '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
+                '\\sphinxkeyboard{\\sphinxupquote{'
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
-                '\\sphinxhyphen{}'
+                '\\DUrole{kbd-sep}{\\sphinxhyphen{}}'
                 '\\sphinxkeyboard{\\sphinxupquote{x}}'
-                '  '
+                '\\DUrole{kbd-sep}{  }'
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
-                '\\sphinxhyphen{}'
+                '\\DUrole{kbd-sep}{\\sphinxhyphen{}}'
                 '\\sphinxkeyboard{\\sphinxupquote{s}}'
+                '}}'
             ),
         ),
         (
@@ -424,20 +436,24 @@ def get_verifier(verify, verify_re):
             ':kbd:`⌘+⇧+M`',
             (
                 '<p>'
+                '<kbd class="kbd compound docutils literal notranslate">'
                 '<kbd class="kbd docutils literal notranslate">⌘</kbd>'
-                '+'
+                '<span class="kbd-sep">+</span>'
                 '<kbd class="kbd docutils literal notranslate">⇧</kbd>'
-                '+'
+                '<span class="kbd-sep">+</span>'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
+                '</kbd>'
                 '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
+                '\\sphinxkeyboard{\\sphinxupquote{'
                 '\\sphinxkeyboard{\\sphinxupquote{⌘}}'
-                '+'
+                '\\DUrole{kbd-sep}{+}'
                 '\\sphinxkeyboard{\\sphinxupquote{⇧}}'
-                '+'
+                '\\DUrole{kbd-sep}{+}'
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
+                '}}'
             ),
         ),
         (
