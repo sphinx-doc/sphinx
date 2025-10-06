@@ -8,12 +8,7 @@ from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
     _FunctionDefProperties,
 )
-from sphinx.ext.autodoc._sentinels import (
-    RUNTIME_INSTANCE_ATTRIBUTE,
-    SLOTS_ATTR,
-    SUPPRESS,
-    UNINITIALIZED_ATTR,
-)
+from sphinx.ext.autodoc._sentinels import SUPPRESS
 from sphinx.locale import _
 from sphinx.util import logging
 
@@ -142,7 +137,7 @@ def _directive_header_lines(
 
             if (
                 not options.no_value
-                and props._obj_is_sentinel is not UNINITIALIZED_ATTR
+                and props._obj_is_sentinel is None  # not any sentinel
                 and not docstrings_has_hide_value
                 and not props._obj_is_mock
             ):
@@ -164,8 +159,7 @@ def _directive_header_lines(
 
             if (
                 not options.no_value
-                and props._obj_is_sentinel
-                not in {SLOTS_ATTR, RUNTIME_INSTANCE_ATTRIBUTE, UNINITIALIZED_ATTR}
+                and props._obj_is_sentinel is None  # not any sentinel
                 and not props._obj_is_attribute_descriptor
                 and not props._obj_is_generic_alias
                 and not docstrings_has_hide_value
