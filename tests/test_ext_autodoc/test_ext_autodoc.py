@@ -981,7 +981,7 @@ def test_autodoc_special_members(app):
             '   .. py:attribute:: Class.__annotations_cache__',
         )
     else:
-        ann_attrs = (f'   .. py:attribute:: Class.__annotations__',)
+        ann_attrs = ('   .. py:attribute:: Class.__annotations__',)
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
