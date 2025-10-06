@@ -14,7 +14,7 @@ from importlib.util import decode_source, find_spec, module_from_spec, spec_from
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import TYPE_CHECKING, NewType, TypeVar
-from weakref import WeakKeyDictionary
+from weakref import WeakSet
 
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._property_types import (
@@ -934,9 +934,7 @@ def _resolve_name(
     return None
 
 
-_objects_with_type_comment_annotations: WeakKeyDictionary[Any, bool] = (
-    WeakKeyDictionary()
-)
+_objects_with_type_comment_annotations: WeakSet[Any] = WeakSet()
 """Cache of objects with annotations updated from type comments."""
 
 
@@ -961,9 +959,9 @@ def _ensure_annotations_from_type_comments(obj: Any) -> None:
     from parent classes, but `typing.get_type_hints` takes that into
     account.
     """
-    if _objects_with_type_comment_annotations.get(obj) is True:
+    if obj in _objects_with_type_comment_annotations:
         return
-    _objects_with_type_comment_annotations[obj] = True
+    _objects_with_type_comment_annotations.add(obj)
 
     if isinstance(obj, type):
         for cls in inspect.getmro(obj):
@@ -971,9 +969,8 @@ def _ensure_annotations_from_type_comments(obj: Any) -> None:
             mod = sys.modules.get(modname)
             if mod is not None:
                 _ensure_annotations_from_type_comments(mod)
-        return
 
-    if isinstance(obj, ModuleType):
+    elif isinstance(obj, ModuleType):
         _update_module_annotations_from_type_comments(obj)
 
 
@@ -990,10 +987,8 @@ def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
     try:
         analyzer = ModuleAnalyzer.for_module(mod.__name__)
         analyzer.analyze()
-        for (
-            classname,
-            attrname,
-        ), annotation in analyzer.annotations.items():
+        anns = analyzer.annotations
+        for (classname, attrname), annotation in anns.items():
             if not classname:
                 annotations = mod_annotations
             else:

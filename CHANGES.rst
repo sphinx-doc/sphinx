@@ -70,10 +70,6 @@ Features added
 Bugs fixed
 ----------
 
-* #13935: autoclass: parent class members no longer considered
-  directly defined in certain cases, depending on autodoc processing
-  order.
-  Patch by Jeremy Maitin-Shepard.
 * #13926: multiple py:type directives for the same canonical type no
   longer result in spurious duplicate object description warnings.
   Patch by Jeremy Maitin-Shepard.
@@ -130,6 +126,10 @@ Bugs fixed
 * #13929: Duplicate equation label warnings now have a new warning
   sub-type, ``ref.equation``.
   Patch by Jared Dillard.
+* #13935: autoclass: parent class members no longer considered
+  directly defined in certain cases, depending on autodoc processing
+  order.
+  Patch by Jeremy Maitin-Shepard.
 
 
 Testing
