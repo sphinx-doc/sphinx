@@ -33,7 +33,7 @@ from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import _parse_name
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 try:
     # Enable pyximport to test cython module
