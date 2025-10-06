@@ -171,7 +171,11 @@ def test_format_signature(app):
             bases=getattr(obj, '__bases__', None),
             _obj=obj,
             _obj___module__=getattr(obj, '__module__', None),
+            _obj___qualname__=getattr(obj, '__qualname__', None),
             _obj___name__=name,
+            _obj_bases=(),
+            _obj_is_new_type=False,
+            _obj_is_typevar=False,
         )
         res = inst.format_signature()
         print(res)
@@ -368,6 +372,8 @@ def test_autodoc_process_signature_typehints(app):
         docstring_lines=(),
         _obj=func,
         _obj___module__=None,
+        _obj___qualname__=None,
+        _obj___name__=None,
         properties=frozenset(),
     )
     inst.format_signature()

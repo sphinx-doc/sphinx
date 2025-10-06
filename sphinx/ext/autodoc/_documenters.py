@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import itertools
 import operator
 import re
 import sys
@@ -21,11 +22,14 @@ from sphinx.ext.autodoc._directive_options import (
     members_option,
 )
 from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
+from sphinx.ext.autodoc._renderer import (
+    _directive_header_lines,
+    _hide_value_re,
+)
 from sphinx.ext.autodoc._sentinels import (
     ALL,
     RUNTIME_INSTANCE_ATTRIBUTE,
     SLOTS_ATTR,
-    SUPPRESS,
     UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc.importer import (
@@ -42,11 +46,10 @@ from sphinx.util.docstrings import prepare_docstring, separate_metadata
 from sphinx.util.inspect import (
     evaluate_signature,
     getdoc,
-    object_description,
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import get_type_hints, restify, stringify_annotation
+from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -204,7 +207,9 @@ class Documenter:
             mock_imports=self.config.autodoc_mock_imports,
             type_aliases=self.config.autodoc_type_aliases,
             current_document=self._current_document,
+            config=self.config,
             env=self.env,
+            events=self._events,
             get_attr=self.get_attr,
         )
         if ret is None:
@@ -442,26 +447,42 @@ class Documenter:
 
     def add_directive_header(self, sig: str) -> None:
         """Add the directive header and options to the generated content."""
-        domain = getattr(self, 'domain', 'py')
-        directive = getattr(self, 'directivetype', self.objtype)
-        name = self.format_name()
+        domain_name = getattr(self, 'domain', 'py')
+        if self.objtype in {'class', 'exception'} and self.props.doc_as_attr:  # type: ignore[attr-defined]
+            directive_name = 'attribute'
+        else:
+            directive_name = getattr(self, 'directivetype', self.objtype)
+        directive_name = f'{domain_name}:{directive_name}'
+
+        docstrings = self.get_doc()
+        docstrings_has_hide_value = False
+        if docstrings:
+            for line in itertools.chain.from_iterable(docstrings):
+                if _hide_value_re.match(line):
+                    docstrings_has_hide_value = True
+                    break
+
+        if self.analyzer:
+            is_final = self.props.dotted_parts in self.analyzer.finals
+        else:
+            is_final = False
+
+        indent = self.indent
+        result = self.directive.result
         sourcename = self.get_sourcename()
-
-        # one signature per line, indented by column
-        prefix = f'.. {domain}:{directive}:: '
-        for i, sig_line in enumerate(sig.split('\n')):
-            self.add_line(f'{prefix}{name}{sig_line}', sourcename)
-            if i == 0:
-                prefix = ' ' * len(prefix)
-
-        if self.options.no_index or self.options.noindex:
-            self.add_line('   :no-index:', sourcename)
-        if self.options.no_index_entry:
-            self.add_line('   :no-index-entry:', sourcename)
-        if self.props.parts:
-            # Be explicit about the module, this is necessary since .. class::
-            # etc. don't support a prepended module name
-            self.add_line('   :module: %s' % self.props.module_name, sourcename)
+        for line in _directive_header_lines(
+            sig,
+            autodoc_typehints=self.config.autodoc_typehints,
+            directive_name=directive_name,
+            docstrings_has_hide_value=docstrings_has_hide_value,
+            is_final=is_final,
+            options=self.options,
+            props=self.props,
+        ):
+            if line.strip():  # not a blank line
+                result.append(indent + line, sourcename)
+            else:
+                result.append('', sourcename)
 
     def get_doc(self) -> list[list[str]] | None:
         """Decode and return lines of the docstring(s) for the object.
@@ -863,19 +884,6 @@ class ModuleDocumenter(Documenter):
             self.__all__ = self.props.all
         return self.__all__
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-
-        sourcename = self.get_sourcename()
-
-        # add some module-specific options
-        if self.options.synopsis:
-            self.add_line('   :synopsis: ' + self.options.synopsis, sourcename)
-        if self.options.platform:
-            self.add_line('   :platform: ' + self.options.platform, sourcename)
-        if self.options.deprecated:
-            self.add_line('   :deprecated:', sourcename)
-
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
     ) -> list[tuple[Documenter, bool]]:
@@ -960,15 +968,6 @@ class FunctionDocumenter(Documenter):
             return ''
         return args
 
-    def add_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
-        super().add_directive_header(sig)
-
-        is_coro = inspect.iscoroutinefunction(self.props._obj)
-        is_acoro = inspect.isasyncgenfunction(self.props._obj)
-        if is_coro or is_acoro:
-            self.add_line('   :async:', sourcename)
-
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
@@ -1006,6 +1005,8 @@ class FunctionDocumenter(Documenter):
                             docstring_lines=(),
                             _obj=dispatchfunc,
                             _obj___module__=None,
+                            _obj___qualname__=None,
+                            _obj___name__=None,
                             properties=frozenset(),
                         )
                         sigs.append(documenter.format_signature())
@@ -1353,57 +1354,6 @@ class ClassDocumenter(Documenter):
         else:
             return None
 
-    def add_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
-
-        if self.props.doc_as_attr:
-            self.directivetype = 'attribute'
-        super().add_directive_header(sig)
-
-        if isinstance(self.props._obj, (NewType, TypeVar)):
-            return
-
-        if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
-            self.add_line('   :final:', sourcename)
-
-        canonical_fullname = self.get_canonical_fullname()
-        if (
-            not self.props.doc_as_attr
-            and not isinstance(self.props._obj, NewType)
-            and canonical_fullname
-            and self.props.full_name != canonical_fullname
-        ):
-            self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
-
-        # add inheritance info, if wanted
-        if not self.props.doc_as_attr and self.options.show_inheritance:
-            if inspect.getorigbases(self.props._obj):
-                # A subclass of generic types
-                # refs: PEP-560 <https://peps.python.org/pep-0560/>
-                bases = list(self.props._obj.__orig_bases__)
-            elif hasattr(self.props._obj, '__bases__') and len(
-                self.props._obj.__bases__
-            ):
-                # A normal class
-                bases = list(self.props._obj.__bases__)
-            else:
-                bases = []
-
-            self._events.emit(
-                'autodoc-process-bases',
-                self.props.full_name,
-                self.props._obj,
-                self.options,
-                bases,
-            )
-
-            mode = _get_render_mode(self.config.autodoc_typehints_format)
-            base_classes = [restify(cls, mode=mode) for cls in bases]
-
-            sourcename = self.get_sourcename()
-            self.add_line('', sourcename)
-            self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
-
     def get_doc(self) -> list[list[str]] | None:
         if isinstance(self.props._obj, TypeVar):
             if self.props._obj.__doc__ == TypeVar.__doc__:
@@ -1623,47 +1573,6 @@ class DataDocumenter(Documenter):
 
         return False
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-        sourcename = self.get_sourcename()
-        if self.options.annotation is SUPPRESS or inspect.isgenericalias(
-            self.props._obj
-        ):
-            pass
-        elif self.options.annotation:
-            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
-        else:
-            if self.config.autodoc_typehints != 'none':
-                # obtain annotation for this data
-                annotations = get_type_hints(
-                    self.parent,
-                    None,
-                    self.config.autodoc_type_aliases,
-                    include_extras=True,
-                )
-                if self.props.name in annotations:
-                    mode = _get_render_mode(self.config.autodoc_typehints_format)
-                    short_literals = self.config.python_display_short_literal_types
-                    objrepr = stringify_annotation(
-                        annotations.get(self.props.name),
-                        mode,
-                        short_literals=short_literals,
-                    )
-                    self.add_line('   :type: ' + objrepr, sourcename)
-
-            try:
-                if (
-                    self.options.no_value
-                    or self.should_suppress_value_header()
-                    or ismock(self.props._obj)
-                ):
-                    pass
-                else:
-                    objrepr = object_description(self.props._obj)
-                    self.add_line('   :value: ' + objrepr, sourcename)
-            except ValueError:
-                pass
-
     def get_module_comment(self, attrname: str) -> list[str] | None:
         try:
             analyzer = ModuleAnalyzer.for_module(self.props.module_name)
@@ -1767,26 +1676,6 @@ class MethodDocumenter(Documenter):
             args = args.replace('\\', '\\\\')
         return args
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-
-        sourcename = self.get_sourcename()
-        obj = self.parent.__dict__.get(self.props.object_name, self.props._obj)
-        if inspect.isabstractmethod(obj):
-            self.add_line('   :abstractmethod:', sourcename)
-        if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
-            self.add_line('   :async:', sourcename)
-        if (
-            inspect.is_classmethod_like(obj)
-            or inspect.is_singledispatch_method(obj)
-            and inspect.is_classmethod_like(obj.func)
-        ):
-            self.add_line('   :classmethod:', sourcename)
-        if inspect.isstaticmethod(obj, cls=self.parent, name=self.props.object_name):
-            self.add_line('   :staticmethod:', sourcename)
-        if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
-            self.add_line('   :final:', sourcename)
-
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
@@ -1827,6 +1716,8 @@ class MethodDocumenter(Documenter):
                             docstring_lines=(),
                             _obj=dispatchmeth,
                             _obj___module__=None,
+                            _obj___qualname__=None,
+                            _obj___name__=None,
                             properties=frozenset(),
                         )
                         documenter.parent = self.parent
@@ -2034,47 +1925,6 @@ class AttributeDocumenter(Documenter):
 
         return False
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-        sourcename = self.get_sourcename()
-        if self.options.annotation is SUPPRESS or inspect.isgenericalias(
-            self.props._obj
-        ):
-            pass
-        elif self.options.annotation:
-            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
-        else:
-            if self.config.autodoc_typehints != 'none':
-                # obtain type annotation for this attribute
-                annotations = get_type_hints(
-                    self.parent,
-                    None,
-                    self.config.autodoc_type_aliases,
-                    include_extras=True,
-                )
-                if self.props.name in annotations:
-                    mode = _get_render_mode(self.config.autodoc_typehints_format)
-                    short_literals = self.config.python_display_short_literal_types
-                    objrepr = stringify_annotation(
-                        annotations.get(self.props.name),
-                        mode,
-                        short_literals=short_literals,
-                    )
-                    self.add_line('   :type: ' + objrepr, sourcename)
-
-            try:
-                if (
-                    self.options.no_value
-                    or self.should_suppress_value_header()
-                    or ismock(self.props._obj)
-                ):
-                    pass
-                else:
-                    objrepr = object_description(self.props._obj)
-                    self.add_line('   :value: ' + objrepr, sourcename)
-            except ValueError:
-                pass
-
     def get_attribute_comment(self, parent: Any, attrname: str) -> list[str] | None:
         return _get_attribute_comment(
             parent=parent, obj_path=self.props.parts, attrname=attrname
@@ -2187,39 +2037,41 @@ class PropertyDocumenter(Documenter):
 
         # update the annotations of the property getter
         self._events.emit('autodoc-before-process-signature', func, False)
+
+        self.props._obj_property_type_annotation = self._property_type_hint()
+
         # correctly format the arguments for a property
         return super().format_args(**kwargs)
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-        sourcename = self.get_sourcename()
-        if inspect.isabstractmethod(self.props._obj):
-            self.add_line('   :abstractmethod:', sourcename)
-        # Support for class properties. Note: these only work on Python 3.9.
-        if self.props.is_classmethod:
-            self.add_line('   :classmethod:', sourcename)
+    def _property_type_hint(self) -> str | None:
+        # TODO: Move this to _importer. Requires moving when type comments
+        #       are processed.
+        mode = _get_render_mode(self.config.autodoc_typehints_format)
+        config = self.config
 
         func = self._get_property_getter()
-        if func is None or self.config.autodoc_typehints == 'none':
-            return
+        if func is None:
+            return None
 
         try:
             signature = inspect.signature(
-                func, type_aliases=self.config.autodoc_type_aliases
+                func, type_aliases=config.autodoc_type_aliases
             )
             if signature.return_annotation is not Parameter.empty:
-                mode = _get_render_mode(self.config.autodoc_typehints_format)
-                short_literals = self.config.python_display_short_literal_types
-                objrepr = stringify_annotation(
+                short_literals = config.python_display_short_literal_types
+                return stringify_annotation(
                     signature.return_annotation, mode, short_literals=short_literals
                 )
-                self.add_line('   :type: ' + objrepr, sourcename)
         except TypeError as exc:
-            msg = __('Failed to get a function signature for %s: %s')
-            logger.warning(msg, self.props.full_name, exc)
+            logger.warning(
+                __('Failed to get a function signature for %s: %s'),
+                self.props.full_name,
+                exc,
+            )
             pass
         except ValueError:
             pass
+        return None
 
     def _get_property_getter(self) -> Callable[..., Any] | None:
         if safe_getattr(self.props._obj, 'fget', None):  # property

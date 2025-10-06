@@ -10,6 +10,12 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any, Literal, TypeAlias
 
+    from sphinx.ext.autodoc._sentinels import (
+        RUNTIME_INSTANCE_ATTRIBUTE_T,
+        SLOTS_ATTR_T,
+        UNINITIALIZED_ATTR_T,
+    )
+
     _AutodocObjType: TypeAlias = Literal[
         'module',
         'class',
@@ -101,6 +107,10 @@ class _ClassDefProperties(_ItemProperties):
     bases: Sequence[tuple[str, ...]] | None
 
     _obj___name__: str | None
+    _obj___qualname__: str | None
+    _obj_bases: tuple[str, ...]
+    _obj_is_new_type: bool
+    _obj_is_typevar: bool
 
     @property
     def doc_as_attr(self) -> bool:
@@ -110,6 +120,19 @@ class _ClassDefProperties(_ItemProperties):
             return True
         return self.parts[-1] != self._obj___name__
 
+    @property
+    def canonical_full_name(self) -> str | None:
+        modname = self._obj___module__
+        if modname is None:
+            modname = self.module_name
+        qualname = self._obj___qualname__
+        if qualname is None:
+            qualname = self._obj___name__
+        if not modname or not qualname or '<locals>' in qualname:
+            # No valid qualname found if the object is defined as locals
+            return None
+        return f'{modname}.{qualname}'
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _FunctionDefProperties(_ItemProperties):
@@ -117,9 +140,33 @@ class _FunctionDefProperties(_ItemProperties):
 
     properties: frozenset[_AutodocFuncProperty]
 
+    _obj___name__: str | None
+    _obj___qualname__: str | None
+    _obj_property_type_annotation: str | None = 'default'
+
+    @property
+    def is_abstractmethod(self) -> bool:
+        return 'abstractmethod' in self.properties
+
+    @property
+    def is_async(self) -> bool:
+        return 'async' in self.properties
+
     @property
     def is_classmethod(self) -> bool:
         return 'classmethod' in self.properties
+
+    @property
+    def is_final(self) -> bool:
+        return 'final' in self.properties
+
+    # @property
+    # def is_singledispatch(self) -> bool:
+    #     return 'singledispatch' in self.properties
+
+    @property
+    def is_staticmethod(self) -> bool:
+        return 'staticmethod' in self.properties
 
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
@@ -131,3 +178,12 @@ class _AssignStatementProperties(_ItemProperties):
 
     class_var: bool
     instance_var: bool
+
+    _obj_is_generic_alias: bool
+    _obj_is_attribute_descriptor: bool
+    _obj_is_mock: bool
+    _obj_is_sentinel: (
+        RUNTIME_INSTANCE_ATTRIBUTE_T | SLOTS_ATTR_T | UNINITIALIZED_ATTR_T | None
+    )
+    _obj_repr_rst: str
+    _obj_type_annotation: str | None

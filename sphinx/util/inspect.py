@@ -160,7 +160,7 @@ def getmro(obj: Any) -> tuple[type, ...]:
     return ()
 
 
-def getorigbases(obj: Any) -> tuple[Any, ...] | None:
+def getorigbases(obj: Any) -> tuple[type, ...] | None:
     """Safely get ``obj.__orig_bases__``.
 
     This returns ``None`` if the object is not a class or if ``__orig_bases__``
