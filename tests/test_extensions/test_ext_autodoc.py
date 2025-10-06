@@ -2281,6 +2281,11 @@ def test_autodoc_typed_instance_variables(app):
         'members': None,
         'undoc-members': None,
     }
+    # First compute autodoc of a `Derived` member to verify that it
+    # doesn't result in inherited members in
+    # `Derived.__annotations__`.
+    # https://github.com/sphinx-doc/sphinx/issues/13934
+    do_autodoc(app, 'attribute', 'target.typed_vars.Derived.attr2')
     actual = do_autodoc(app, 'module', 'target.typed_vars', options)
     assert list(actual) == [
         '',

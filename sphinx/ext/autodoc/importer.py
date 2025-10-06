@@ -12,7 +12,9 @@ from importlib.abc import FileLoader
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
 from pathlib import Path
+from types import ModuleType
 from typing import TYPE_CHECKING, NewType, TypeVar
+from weakref import WeakKeyDictionary
 
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._property_types import (
@@ -40,7 +42,6 @@ from sphinx.util.typing import get_type_hints
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from importlib.machinery import ModuleSpec
-    from types import ModuleType
     from typing import Any, Protocol
 
     from sphinx.environment import BuildEnvironment, _CurrentDocument
@@ -609,22 +610,7 @@ def _load_object_by_name(
             _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
         )
     elif objtype == 'data':
-        # Update __annotations__ to support type_comment and so on
-        annotations = dict(inspect.getannotations(parent))
-        parent.__annotations__ = annotations
-
-        try:
-            analyzer = ModuleAnalyzer.for_module(module_name)
-            analyzer.analyze()
-            for (
-                classname,
-                attrname,
-            ), annotation in analyzer.annotations.items():
-                if not classname and attrname not in annotations:
-                    annotations[attrname] = annotation
-        except PycodeError:
-            pass
-
+        _ensure_annotations_from_type_comments(parent)
         props = _AssignStatementProperties(
             obj_type=objtype,
             module_name=module_name,
@@ -643,28 +629,7 @@ def _load_object_by_name(
         elif inspect.isenumattribute(obj):
             obj = obj.value
         if parent:
-            # Update __annotations__ to support type_comment and so on.
-            try:
-                annotations = dict(inspect.getannotations(parent))
-                parent.__annotations__ = annotations
-
-                for cls in inspect.getmro(parent):
-                    try:
-                        module = safe_getattr(cls, '__module__')
-                        qualname = safe_getattr(cls, '__qualname__')
-
-                        analyzer = ModuleAnalyzer.for_module(module)
-                        analyzer.analyze()
-                        anns = analyzer.annotations
-                        for (classname, attrname), annotation in anns.items():
-                            if classname == qualname and attrname not in annotations:
-                                annotations[attrname] = annotation
-                    except (AttributeError, PycodeError):
-                        pass
-            except (AttributeError, TypeError):
-                # Failed to set __annotations__ (built-in, extensions, etc.)
-                pass
-
+            _ensure_annotations_from_type_comments(parent)
         props = _AssignStatementProperties(
             obj_type=objtype,
             module_name=module_name,
@@ -842,3 +807,86 @@ def _resolve_name(
         return module_name, (*parents, base)
 
     return None
+
+
+_objects_with_type_comment_annotations: WeakKeyDictionary[Any, bool] = (
+    WeakKeyDictionary()
+)
+"""Cache of objects with annotations updated from type comments."""
+
+
+def _ensure_annotations_from_type_comments(obj: Any) -> None:
+    """Ensures `obj.__annotations__` includes type comment information.
+
+    Failures to assign to `__annotations__` are silently ignored.
+
+    If `obj` is a class type, this also ensures that type comment
+    information is incorporated into the `__annotations__` member of
+    all parent classes, if possible.
+
+    This mutates the `__annotations__` of existing imported objects,
+    in order to allow the existing `typing.get_type_hints` method to
+    take the modified annotations into account.
+
+    Modifying existing imported objects is unfortunate but avoids the
+    need to reimplement `typing.get_type_hints` in order to take into
+    account type comment information.
+
+    Note that this does not directly include type comment information
+    from parent classes, but `typing.get_type_hints` takes that into
+    account.
+    """
+    if _objects_with_type_comment_annotations.get(obj) is True:
+        return
+    _objects_with_type_comment_annotations[obj] = True
+
+    if isinstance(obj, type):
+        for cls in inspect.getmro(obj):
+            modname = safe_getattr(cls, '__module__')
+            mod = sys.modules.get(modname)
+            if mod is not None:
+                _ensure_annotations_from_type_comments(mod)
+        return
+
+    if isinstance(obj, ModuleType):
+        _update_module_annotations_from_type_comments(obj)
+
+
+def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
+    """Adds type comment annotations for a single module.
+
+    Both module-level and class-level annotations are added.
+    """
+    mod_annotations = dict(inspect.getannotations(mod))
+    mod.__annotations__ = mod_annotations
+
+    class_annotations: dict[str, dict[str, Any]] = {}
+
+    try:
+        analyzer = ModuleAnalyzer.for_module(mod.__name__)
+        analyzer.analyze()
+        for (
+            classname,
+            attrname,
+        ), annotation in analyzer.annotations.items():
+            if not classname:
+                annotations = mod_annotations
+            else:
+                cls_annotations = class_annotations.get(classname)
+                if cls_annotations is None:
+                    try:
+                        cls = mod
+                        for part in classname.split('.'):
+                            cls = safe_getattr(cls, part)
+                        annotations = dict(inspect.getannotations(cls))
+                        # Ignore errors setting __annotations__
+                        with contextlib.suppress(TypeError, AttributeError):
+                            cls.__annotations__ = annotations
+                    except AttributeError:
+                        annotations = {}
+                    class_annotations[classname] = annotations
+                else:
+                    annotations = cls_annotations
+            annotations.setdefault(attrname, annotation)
+    except PycodeError:
+        pass
