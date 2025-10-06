@@ -1546,20 +1546,6 @@ class DataDocumenter(Documenter):
     ) -> bool:
         return isinstance(parent, ModuleDocumenter) and isattr
 
-    def update_annotations(self, parent: Any) -> None:
-        """Update __annotations__ to support type_comment and so on."""
-        annotations = dict(inspect.getannotations(parent))
-        parent.__annotations__ = annotations
-
-        try:
-            analyzer = ModuleAnalyzer.for_module(self.props.module_name)
-            analyzer.analyze()
-            for (classname, attrname), annotation in analyzer.annotations.items():
-                if not classname and attrname not in annotations:
-                    annotations[attrname] = annotation
-        except PycodeError:
-            pass
-
     def should_suppress_value_header(self) -> bool:
         if self.props._obj is UNINITIALIZED_ATTR:
             return True
@@ -1877,29 +1863,6 @@ class AttributeDocumenter(Documenter):
         if inspect.isattributedescriptor(member):
             return True
         return not inspect.isroutine(member) and not isinstance(member, type)
-
-    def update_annotations(self, parent: Any) -> None:
-        """Update __annotations__ to support type_comment and so on."""
-        try:
-            annotations = dict(inspect.getannotations(parent))
-            parent.__annotations__ = annotations
-
-            for cls in inspect.getmro(parent):
-                try:
-                    module = safe_getattr(cls, '__module__')
-                    qualname = safe_getattr(cls, '__qualname__')
-
-                    analyzer = ModuleAnalyzer.for_module(module)
-                    analyzer.analyze()
-                    anns = analyzer.annotations
-                    for (classname, attrname), annotation in anns.items():
-                        if classname == qualname and attrname not in annotations:
-                            annotations[attrname] = annotation
-                except (AttributeError, PycodeError):
-                    pass
-        except (AttributeError, TypeError):
-            # Failed to set __annotations__ (built-in, extensions, etc.)
-            pass
 
     @property
     def _is_non_data_descriptor(self) -> bool:
