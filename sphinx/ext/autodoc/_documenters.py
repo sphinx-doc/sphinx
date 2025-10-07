@@ -1369,22 +1369,21 @@ class ClassDocumenter(Documenter):
         if isinstance(self.props._obj, (NewType, TypeVar)):
             return
 
+        if isinstance(self.props._obj, AnyTypeAliasType):
+            aliased = stringify_annotation(self.object.__value__)
+            self.add_line('   :canonical: %s' % aliased, sourcename)
+            return
+
         if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
 
         canonical_fullname = self.get_canonical_fullname()
         if (
             not self.props.doc_as_attr
-            and not isinstance(self.props._obj, NewType)
             and canonical_fullname
             and self.props.full_name != canonical_fullname
         ):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
-
-        if isinstance(self.props._obj, AnyTypeAliasType):
-            aliased = stringify_annotation(self.object.__value__)
-            self.add_line('   :canonical: %s' % aliased, sourcename)
-            return
 
         # add inheritance info, if wanted
         if not self.props.doc_as_attr and self.options.show_inheritance:

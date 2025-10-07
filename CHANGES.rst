@@ -42,7 +42,7 @@ Deprecated
 Features added
 --------------
 
-* #13508: Initial support for PEP 695 type aliases.
+* #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš.
 * #13332: Add :confval:`doctest_fail_fast` option to exit after the first failed
   test.

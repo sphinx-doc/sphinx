@@ -21,6 +21,11 @@ if TYPE_CHECKING:
     from inspect import Signature
     from typing import Any
 
+if sys.version_info[:2] >= (3, 12):
+    AssignmentLike = ast.Assign | ast.AnnAssign | ast.TypeAlias
+else:
+    AssignmentLike = ast.Assign | ast.AnnAssign
+
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
 emptyline_re = re.compile('^\\s*(#.*)?$')
@@ -30,12 +35,14 @@ def filter_whitespace(code: str) -> str:
     return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
 
 
-def get_assign_targets(node: ast.AST) -> list[ast.expr]:
-    """Get list of targets from Assign and AnnAssign node."""
+def get_assign_targets(node: AssignmentLike) -> list[ast.expr]:
+    """Get list of targets from AssignmentLike node."""
     if isinstance(node, ast.Assign):
         return node.targets
+    elif isinstance(node, ast.AnnAssign):
+        return [node.target]
     else:
-        return [node.target]  # type: ignore[attr-defined]
+        return [node.name]
 
 
 def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
@@ -335,8 +342,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def collect_doc_comment(
         self,
-        # exists for >= 3.12, irrelevant for runtime
-        node: ast.Assign | ast.TypeAlias,  # type: ignore[name-defined]
+        node: AssignmentLike,
         varnames: list[str],
         current_line: str,
     ) -> None:
@@ -404,7 +410,7 @@ class VariableCommentPicker(ast.NodeVisitor):
             elif name.name == 'overload':
                 self.typing_overload_names.add(name.asname or name.name)
 
-    def visit_Assign(self, node: ast.Assign) -> None:
+    def visit_Assign(self, node: ast.Assign | ast.AnnAssign) -> None:
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
@@ -428,7 +434,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         """Handles AnnAssign node and pick up a variable comment."""
-        self.visit_Assign(node)  # type: ignore[arg-type]
+        self.visit_Assign(node)
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
@@ -436,7 +442,7 @@ class VariableCommentPicker(ast.NodeVisitor):
             isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)
         ):
             return
-        if isinstance(self.previous, ast.Assign | ast.AnnAssign):
+        if isinstance(self.previous, AssignmentLike):
             try:
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
@@ -450,13 +456,6 @@ class VariableCommentPicker(ast.NodeVisitor):
                     self.add_entry(varname)
             except TypeError:
                 pass  # this assignment is not new definition!
-        if (sys.version_info[:2] >= (3, 12)) and isinstance(
-            self.previous, ast.TypeAlias
-        ):
-            varname = self.previous.name.id
-            docstring = node.value.value
-            self.add_variable_comment(varname, dedent_docstring(docstring))
-            self.add_entry(varname)
 
     def visit_Try(self, node: ast.Try) -> None:
         """Handles Try node and processes body and else-clause.
