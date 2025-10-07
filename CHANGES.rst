@@ -120,7 +120,7 @@ Bugs fixed
   configuration variable ``doctest_test_doctest_blocks``.
 * #13885: Coverage builder: Fix TypeError when warning about missing modules.
   Patch by Damien Ayers.
-* #13892: HTML search: support word exclusion in the search by prefixing words with "-".
+* #13892: HTML search: fix word exclusion in the search by prefixing words with "-".
 
 
 Testing
