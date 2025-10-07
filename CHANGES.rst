@@ -126,6 +126,10 @@ Bugs fixed
 * #13929: Duplicate equation label warnings now have a new warning
   sub-type, ``ref.equation``.
   Patch by Jared Dillard.
+* #13935: autoclass: parent class members no longer considered
+  directly defined in certain cases, depending on autodoc processing
+  order.
+  Patch by Jeremy Maitin-Shepard.
 
 
 Testing

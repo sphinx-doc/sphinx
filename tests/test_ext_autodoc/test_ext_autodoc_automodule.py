@@ -12,7 +12,7 @@ import typing
 
 import pytest
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 if typing.TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
