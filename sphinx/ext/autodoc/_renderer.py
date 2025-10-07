@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from typing import Literal
 
+    from docutils.statemachine import StringList
+
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
 
@@ -166,3 +168,11 @@ def _directive_header_lines(
                 and not props._obj_is_mock
             ):
                 yield f'   :value: {props._obj_repr_rst}'
+
+
+def _add_content(content: StringList, *, result: StringList, indent: str) -> None:
+    for line, src in zip(content.data, content.items, strict=True):
+        if line.strip():  # not a blank line
+            result.append(indent + line, src[0], src[1])
+        else:
+            result.append('', src[0], src[1])

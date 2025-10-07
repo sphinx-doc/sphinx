@@ -23,6 +23,7 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
 from sphinx.ext.autodoc._renderer import (
+    _add_content,
     _directive_header_lines,
     _hide_value_re,
 )
@@ -545,42 +546,170 @@ class Documenter:
 
     def add_content(self, more_content: StringList | None) -> None:
         """Add content from docstrings, attribute documentation and user."""
-        docstring = True
-
-        # set sourcename and add content from attribute documentation
-        sourcename = self.get_sourcename()
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-            if self.props.parts:
-                key = ('.'.join(self.props.parts[:-1]), self.props.parts[-1])
-                if key in attr_docs:
-                    docstring = False
-                    # make a copy of docstring for attributes to avoid cache
-                    # the change of autodoc-process-docstring event.
-                    attribute_docstrings = [list(attr_docs[key])]
-
-                    for i, line in enumerate(self.process_doc(attribute_docstrings)):
-                        self.add_line(line, sourcename, i)
-
         # add content from docstrings
-        if docstring:
-            docstrings = self.get_doc()
-            if docstrings is None:
-                # Do not call autodoc-process-docstring on get_doc() returns None.
-                pass
-            else:
-                if not docstrings:
-                    # append at least a dummy docstring, so that the event
-                    # autodoc-process-docstring is fired and can add some
-                    # content if desired
-                    docstrings.append([])
-                for i, line in enumerate(self.process_doc(docstrings)):
-                    self.add_line(line, sourcename, i)
+        processed_doc = StringList(
+            list(
+                self._process_docstrings(
+                    self._get_docstrings() or [],
+                    events=self._events,
+                    props=self.props,
+                    obj=self.props._obj,
+                    options=self.options,
+                )
+            ),
+            source=self.get_sourcename(),
+        )
+        _add_content(
+            processed_doc,
+            result=self.directive.result,
+            indent=self.indent + '   ' * (self.props.obj_type == 'module'),
+        )
 
         # add additional content (e.g. from document), if present
-        if more_content:
-            for line, src in zip(more_content.data, more_content.items, strict=True):
-                self.add_line(line, src[0], src[1])
+        more_content = self._assemble_more_content(
+            more_content=StringList() if more_content is None else more_content,
+            typehints_format=self.config.autodoc_typehints_format,
+            python_display_short_literal_types=self.config.python_display_short_literal_types,
+            props=self.props,
+        )
+        _add_content(
+            more_content,
+            result=self.directive.result,
+            indent=self.indent,
+        )
+
+    def _get_docstrings(self) -> list[list[str]] | None:
+        """Add content from docstrings, attribute documentation and user."""
+        docstrings = self.get_doc()
+        attr_docs = None if self.analyzer is None else self.analyzer.find_attr_docs()
+        props = self.props
+
+        if docstrings is not None and len(docstrings) == 0:
+            # append at least a dummy docstring, so that the event
+            # autodoc-process-docstring is fired and can add some
+            # content if desired
+            docstrings.append([])
+
+        if props.obj_type in {'data', 'attribute'}:
+            return docstrings
+
+        if props.obj_type in {'class', 'exception'}:
+            real_module = props._obj___module__ or props.module_name
+            if props.module_name != real_module:
+                try:
+                    # override analyzer to obtain doc-comment around its definition.
+                    ma = ModuleAnalyzer.for_module(props.module_name)
+                    ma.analyze()
+                    attr_docs = ma.attr_docs
+                except PycodeError:
+                    pass
+
+        # add content from attribute documentation
+        if attr_docs is not None and props.parts:
+            key = ('.'.join(props.parent_names), props.name)
+            if key in attr_docs:
+                # make a copy of docstring for attributes to avoid cache
+                # the change of autodoc-process-docstring event.
+                return [list(attr_docs[key])]
+
+        return docstrings
+
+    @staticmethod
+    def _process_docstrings(
+        docstrings: list[list[str]],
+        *,
+        events: EventManager,
+        props: _ItemProperties,
+        obj: Any,
+        options: _AutoDocumenterOptions,
+    ) -> Iterator[str]:
+        """Let the user process the docstrings before adding them."""
+        for docstring_lines in docstrings:
+            # let extensions preprocess docstrings
+            events.emit(
+                'autodoc-process-docstring',
+                props.obj_type,
+                props.full_name,
+                obj,
+                options,
+                docstring_lines,
+            )
+
+            if docstring_lines and docstring_lines[-1]:
+                # append a blank line to the end of the docstring
+                docstring_lines.append('')
+
+            yield from docstring_lines
+
+    @staticmethod
+    def _assemble_more_content(
+        more_content: StringList,
+        *,
+        props: _ItemProperties,
+        typehints_format: Literal['fully-qualified', 'short'],
+        python_display_short_literal_types: bool,
+    ) -> StringList:
+        """Add content from docstrings, attribute documentation and user."""
+        obj = props._obj
+
+        if props.obj_type in {'data', 'attribute'}:
+            mode = _get_render_mode(typehints_format)
+
+            # Support for documenting GenericAliases
+            if inspect.isgenericalias(obj):
+                alias = restify(obj, mode=mode)
+                more_content.append(_('alias of %s') % alias, '')
+                more_content.append('', '')
+            return more_content
+
+        if props.obj_type in {'class', 'exception'}:
+            from sphinx.ext.autodoc._property_types import _ClassDefProperties
+
+            assert isinstance(props, _ClassDefProperties)
+
+            mode = _get_render_mode(typehints_format)
+
+            if isinstance(obj, NewType):
+                supertype = restify(obj.__supertype__, mode=mode)
+                return StringList([_('alias of %s') % supertype, ''], source='')
+
+            if isinstance(obj, TypeVar):
+                short_literals = python_display_short_literal_types
+                attrs = [
+                    repr(obj.__name__),
+                    *(
+                        stringify_annotation(
+                            constraint, mode, short_literals=short_literals
+                        )
+                        for constraint in obj.__constraints__
+                    ),
+                ]
+                if obj.__bound__:
+                    attrs.append(rf'bound=\ {restify(obj.__bound__, mode=mode)}')
+                if obj.__covariant__:
+                    attrs.append('covariant=True')
+                if obj.__contravariant__:
+                    attrs.append('contravariant=True')
+
+                alias = f'TypeVar({", ".join(attrs)})'
+                return StringList([_('alias of %s') % alias, ''], source='')
+
+            if props.doc_as_attr:
+                try:
+                    analyzer = ModuleAnalyzer.for_module(props.module_name)
+                    analyzer.analyze()
+                    key = ('', props.dotted_parts)
+                    no_classvar_doc_comment = key not in analyzer.attr_docs
+                except PycodeError:
+                    no_classvar_doc_comment = True
+
+                if no_classvar_doc_comment:
+                    alias = restify(obj, mode=mode)
+                    return StringList([_('alias of %s') % alias], source='')
+
+            return more_content
+
+        return more_content
 
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
@@ -862,15 +991,6 @@ class ModuleDocumenter(Documenter):
         super().__init__(*args)
         self.options = self.options.merge_member_options()
         self.__all__: Sequence[str] | None = None
-
-    def add_content(self, more_content: StringList | None) -> None:
-        old_indent = self.indent
-        self.indent += self._extra_indent
-        super().add_content(None)
-        self.indent = old_indent
-        if more_content:
-            for line, src in zip(more_content.data, more_content.items, strict=True):
-                self.add_line(line, src[0], src[1])
 
     @classmethod
     def can_document_member(
@@ -1435,50 +1555,6 @@ class ClassDocumenter(Documenter):
         except PycodeError:
             return None
 
-    def add_content(self, more_content: StringList | None) -> None:
-        mode = _get_render_mode(self.config.autodoc_typehints_format)
-        short_literals = self.config.python_display_short_literal_types
-
-        if isinstance(self.props._obj, NewType):
-            supertype = restify(self.props._obj.__supertype__, mode=mode)
-
-            more_content = StringList([_('alias of %s') % supertype, ''], source='')
-        if isinstance(self.props._obj, TypeVar):
-            attrs = [repr(self.props._obj.__name__)]
-            attrs.extend(
-                stringify_annotation(constraint, mode, short_literals=short_literals)
-                for constraint in self.props._obj.__constraints__
-            )
-            if self.props._obj.__bound__:
-                bound = restify(self.props._obj.__bound__, mode=mode)
-                attrs.append(r'bound=\ ' + bound)
-            if self.props._obj.__covariant__:
-                attrs.append('covariant=True')
-            if self.props._obj.__contravariant__:
-                attrs.append('contravariant=True')
-
-            more_content = StringList(
-                [_('alias of TypeVar(%s)') % ', '.join(attrs), ''], source=''
-            )
-        if self.props.doc_as_attr and self.props.module_name != (
-            self.props._obj___module__ or self.props.module_name
-        ):
-            try:
-                # override analyzer to obtain doccomment around its definition.
-                self.analyzer = ModuleAnalyzer.for_module(self.props.module_name)
-                self.analyzer.analyze()
-            except PycodeError:
-                pass
-
-        if self.props.doc_as_attr and not self.get_variable_comment():
-            try:
-                alias = restify(self.props._obj, mode=mode)
-                more_content = StringList([_('alias of %s') % alias], source='')
-            except AttributeError:
-                pass  # Invalid class object is passed.
-
-        super().add_content(more_content)
-
     def generate(
         self,
         more_content: StringList | None = None,
@@ -1578,21 +1654,6 @@ class DataDocumenter(Documenter):
             return [comment]
         else:
             return super().get_doc()
-
-    def add_content(self, more_content: StringList | None) -> None:
-        # Disable analyzing variable comment on Documenter.add_content() to control it on
-        # DataDocumenter.add_content()
-        self.analyzer = None
-
-        if not more_content:
-            more_content = StringList()
-
-        _add_content_generic_alias_(
-            more_content,
-            self.props._obj,
-            autodoc_typehints_format=self.config.autodoc_typehints_format,
-        )
-        super().add_content(more_content)
 
 
 class MethodDocumenter(Documenter):
@@ -1947,20 +2008,6 @@ class AttributeDocumenter(Documenter):
         finally:
             self.config.autodoc_inherit_docstrings = orig
 
-    def add_content(self, more_content: StringList | None) -> None:
-        # Disable analyzing attribute comment on Documenter.add_content() to control it on
-        # AttributeDocumenter.add_content()
-        self.analyzer = None
-
-        if more_content is None:
-            more_content = StringList()
-        _add_content_generic_alias_(
-            more_content,
-            self.props._obj,
-            autodoc_typehints_format=self.config.autodoc_typehints_format,
-        )
-        super().add_content(more_content)
-
 
 class PropertyDocumenter(Documenter):
     """Specialized Documenter subclass for properties."""
@@ -2067,19 +2114,6 @@ def autodoc_attrgetter(
             return func(obj, name, *defargs)
 
     return safe_getattr(obj, name, *defargs)
-
-
-def _add_content_generic_alias_(
-    more_content: StringList,
-    /,
-    obj: object,
-    autodoc_typehints_format: Literal['fully-qualified', 'short'],
-) -> None:
-    """Support for documenting GenericAliases."""
-    if inspect.isgenericalias(obj):
-        alias = restify(obj, mode=_get_render_mode(autodoc_typehints_format))
-        more_content.append(_('alias of %s') % alias, '')
-        more_content.append('', '')
 
 
 def _document_members(
