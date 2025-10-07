@@ -85,6 +85,7 @@ dependencies = [
     "roman-numerals-py>=1.0.0",
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
+    "typing_extensions>=4.10" # For TypeAliasType and TypeIs
 ]
 dynamic = ["version"]
 
