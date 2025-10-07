@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import functools
-import itertools
-import operator
 import re
 import sys
 from inspect import Parameter, Signature
@@ -21,21 +18,16 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
+from sphinx.ext.autodoc._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
 from sphinx.ext.autodoc._renderer import (
     _add_content,
     _directive_header_lines,
-    _hide_value_re,
 )
 from sphinx.ext.autodoc._sentinels import (
     ALL,
-    RUNTIME_INSTANCE_ATTRIBUTE,
-    SLOTS_ATTR,
-    UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc.importer import (
-    _get_attribute_comment,
-    _is_runtime_instance_attribute_not_commented,
     _load_object_by_name,
     _resolve_name,
 )
@@ -43,10 +35,9 @@ from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
-from sphinx.util.docstrings import prepare_docstring, separate_metadata
+from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import (
     evaluate_signature,
-    getdoc,
     safe_getattr,
     stringify_signature,
 )
@@ -134,7 +125,6 @@ class Documenter:
     __uninitialized_global_variable__: ClassVar[bool] = False
     """If True, support uninitialized (type annotation only) global variables"""
 
-    _new_docstrings: list[list[str]] | None = None
     _signatures: list[str] = []
 
     option_spec: ClassVar[OptionSpec] = {
@@ -212,6 +202,7 @@ class Documenter:
             env=self.env,
             events=self._events,
             get_attr=self.get_attr,
+            options=self.options,
         )
         if ret is None:
             return None
@@ -337,10 +328,11 @@ class Documenter:
             if hasattr(self.props._obj, '__mro__'):
                 valid_names.extend(cls.__name__ for cls in self.props._obj.__mro__)
 
-        docstrings = self.get_doc()
+        docstrings = self.props._docstrings
         if docstrings is None:
             return None, None
-        self._new_docstrings = docstrings[:]
+        _new_docstrings = [list(l) for l in docstrings]
+        tab_width = self.options._tab_width
         self._signatures = []
         result = None
         for i, doclines in enumerate(docstrings):
@@ -363,9 +355,7 @@ class Documenter:
                     break
 
                 # re-prepare docstring to ignore more leading indentation
-                directive = self.directive
-                tab_width = directive.state.document.settings.tab_width
-                self._new_docstrings[i] = prepare_docstring(
+                _new_docstrings[i] = prepare_docstring(
                     '\n'.join(doclines[j + 1 :]), tab_width
                 )
 
@@ -380,6 +370,17 @@ class Documenter:
                 # finish the loop when signature found
                 break
 
+        self.props._docstrings = _get_docstring_lines(
+            self.props,
+            class_doc_from=self.options.class_doc_from
+            if self.options.class_doc_from is not None
+            else self.config.autoclass_content,
+            get_attr=self.get_attr,
+            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            parent=self.parent,
+            tab_width=self.options._tab_width,
+            _new_docstrings=tuple(tuple(doc) for doc in _new_docstrings),
+        )
         return result
 
     def format_signature(self, **kwargs: Any) -> str:
@@ -455,14 +456,6 @@ class Documenter:
             directive_name = getattr(self, 'directivetype', self.objtype)
         directive_name = f'{domain_name}:{directive_name}'
 
-        docstrings = self.get_doc()
-        docstrings_has_hide_value = False
-        if docstrings:
-            for line in itertools.chain.from_iterable(docstrings):
-                if _hide_value_re.match(line):
-                    docstrings_has_hide_value = True
-                    break
-
         if self.analyzer:
             is_final = self.props.dotted_parts in self.analyzer.finals
         else:
@@ -475,7 +468,6 @@ class Documenter:
             sig,
             autodoc_typehints=self.config.autodoc_typehints,
             directive_name=directive_name,
-            docstrings_has_hide_value=docstrings_has_hide_value,
             is_final=is_final,
             options=self.options,
             props=self.props,
@@ -484,50 +476,6 @@ class Documenter:
                 result.append(indent + line, sourcename)
             else:
                 result.append('', sourcename)
-
-    def get_doc(self) -> list[list[str]] | None:
-        """Decode and return lines of the docstring(s) for the object.
-
-        When it returns None, autodoc-process-docstring will not be called for this
-        object.
-        """
-        if self.props._obj is UNINITIALIZED_ATTR:
-            return []
-
-        if self.__docstring_signature__ and self._new_docstrings is not None:
-            return self._new_docstrings
-
-        docstring = getdoc(
-            self.props._obj,
-            self.get_attr,
-            self.config.autodoc_inherit_docstrings,
-            self.parent,
-            self.props.object_name,
-        )
-        if docstring:
-            tab_width = self.directive.state.document.settings.tab_width
-            return [prepare_docstring(docstring, tab_width)]
-        return []
-
-    def process_doc(self, docstrings: list[list[str]]) -> Iterator[str]:
-        """Let the user process the docstrings before adding them."""
-        for docstringlines in docstrings:
-            if self._events is not None:
-                # let extensions preprocess docstrings
-                self._events.emit(
-                    'autodoc-process-docstring',
-                    self.objtype,
-                    self.props.full_name,
-                    self.props._obj,
-                    self.options,
-                    docstringlines,
-                )
-
-                if docstringlines and docstringlines[-1]:
-                    # append a blank line to the end of the docstring
-                    docstringlines.append('')
-
-            yield from docstringlines
 
     def get_sourcename(self) -> str:
         obj_module = inspect.safe_getattr(self.props._obj, '__module__', None)
@@ -550,7 +498,7 @@ class Documenter:
         processed_doc = StringList(
             list(
                 self._process_docstrings(
-                    self._get_docstrings() or [],
+                    self._get_docstrings(),
                     events=self._events,
                     props=self.props,
                     obj=self.props._obj,
@@ -580,8 +528,10 @@ class Documenter:
 
     def _get_docstrings(self) -> list[list[str]] | None:
         """Add content from docstrings, attribute documentation and user."""
-        docstrings = self.get_doc()
-        attr_docs = None if self.analyzer is None else self.analyzer.find_attr_docs()
+        if self.props._docstrings is not None:
+            docstrings = [list(doc) for doc in self.props._docstrings]
+        else:
+            docstrings = None
         props = self.props
 
         if docstrings is not None and len(docstrings) == 0:
@@ -593,6 +543,7 @@ class Documenter:
         if props.obj_type in {'data', 'attribute'}:
             return docstrings
 
+        attr_docs = None if self.analyzer is None else self.analyzer.find_attr_docs()
         if props.obj_type in {'class', 'exception'}:
             real_module = props._obj___module__ or props.module_name
             if props.module_name != real_module:
@@ -616,7 +567,7 @@ class Documenter:
 
     @staticmethod
     def _process_docstrings(
-        docstrings: list[list[str]],
+        docstrings: list[list[str]] | None,
         *,
         events: EventManager,
         props: _ItemProperties,
@@ -624,6 +575,8 @@ class Documenter:
         options: _AutoDocumenterOptions,
     ) -> Iterator[str]:
         """Let the user process the docstrings before adding them."""
+        if docstrings is None:
+            return
         for docstring_lines in docstrings:
             # let extensions preprocess docstrings
             events.emit(
@@ -806,10 +759,8 @@ class Documenter:
             except PycodeError:
                 pass
 
-        docstrings: list[str] = functools.reduce(
-            operator.iadd, self.get_doc() or [], []
-        )
-        if ismock(self.props._obj) and not docstrings:
+        has_docstring = any(self.props._docstrings or ())
+        if ismock(self.props._obj) and not has_docstring:
             logger.warning(
                 __('A mocked object is detected: %r'),
                 self.name,
@@ -1474,87 +1425,6 @@ class ClassDocumenter(Documenter):
         else:
             return None
 
-    def get_doc(self) -> list[list[str]] | None:
-        if isinstance(self.props._obj, TypeVar):
-            if self.props._obj.__doc__ == TypeVar.__doc__:
-                return []
-        if self.props.doc_as_attr:
-            # Don't show the docstring of the class when it is an alias.
-            if self.get_variable_comment():
-                return []
-            else:
-                return None
-
-        lines = getattr(self, '_new_docstrings', None)
-        if lines is not None:
-            return lines
-
-        if self.options.class_doc_from is not None:
-            classdoc_from = self.options.class_doc_from
-        else:
-            classdoc_from = self.config.autoclass_content
-
-        docstrings = []
-        attrdocstring = getdoc(self.props._obj, self.get_attr)
-        if attrdocstring:
-            docstrings.append(attrdocstring)
-
-        # for classes, what the "docstring" is can be controlled via a
-        # config value; the default is only the class docstring
-        if classdoc_from in {'both', 'init'}:
-            __init__ = self.get_attr(self.props._obj, '__init__', None)
-            initdocstring = getdoc(
-                __init__,
-                self.get_attr,
-                self.config.autodoc_inherit_docstrings,
-                self.props._obj,
-                '__init__',
-            )
-            # for new-style classes, no __init__ means default __init__
-            if initdocstring is not None and (
-                initdocstring == object.__init__.__doc__  # for pypy
-                or initdocstring.strip() == object.__init__.__doc__  # for !pypy
-            ):
-                initdocstring = None
-            if not initdocstring:
-                # try __new__
-                __new__ = self.get_attr(self.props._obj, '__new__', None)
-                initdocstring = getdoc(
-                    __new__,
-                    self.get_attr,
-                    self.config.autodoc_inherit_docstrings,
-                    self.props._obj,
-                    '__new__',
-                )
-                # for new-style classes, no __new__ means default __new__
-                if initdocstring is not None and (
-                    initdocstring == object.__new__.__doc__  # for pypy
-                    or initdocstring.strip() == object.__new__.__doc__  # for !pypy
-                ):
-                    initdocstring = None
-            if initdocstring:
-                if classdoc_from == 'init':
-                    docstrings = [initdocstring]
-                else:
-                    docstrings.append(initdocstring)
-
-        tab_width = self.directive.state.document.settings.tab_width
-        return [prepare_docstring(docstring, tab_width) for docstring in docstrings]
-
-    def get_variable_comment(self) -> list[str] | None:
-        try:
-            key = ('', self.props.dotted_parts)
-            if self.props.doc_as_attr:
-                analyzer = ModuleAnalyzer.for_module(self.props.module_name)
-            else:
-                analyzer = ModuleAnalyzer.for_module(
-                    self.props._obj___module__ or self.props.module_name
-                )
-            analyzer.analyze()
-            return list(analyzer.attr_docs.get(key, []))
-        except PycodeError:
-            return None
-
     def generate(
         self,
         more_content: StringList | None = None,
@@ -1621,39 +1491,6 @@ class DataDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return isinstance(parent, ModuleDocumenter) and isattr
-
-    def should_suppress_value_header(self) -> bool:
-        if self.props._obj is UNINITIALIZED_ATTR:
-            return True
-        else:
-            doc = self.get_doc() or []
-            _docstring, metadata = separate_metadata(
-                '\n'.join(functools.reduce(operator.iadd, doc, []))
-            )
-            if 'hide-value' in metadata:
-                return True
-
-        return False
-
-    def get_module_comment(self, attrname: str) -> list[str] | None:
-        try:
-            analyzer = ModuleAnalyzer.for_module(self.props.module_name)
-            analyzer.analyze()
-            key = ('', attrname)
-            if key in analyzer.attr_docs:
-                return list(analyzer.attr_docs[key])
-        except PycodeError:
-            pass
-
-        return None
-
-    def get_doc(self) -> list[list[str]] | None:
-        # Check the variable has a docstring-comment
-        comment = self.get_module_comment(self.props.name)
-        if comment:
-            return [comment]
-        else:
-            return super().get_doc()
 
 
 class MethodDocumenter(Documenter):
@@ -1845,51 +1682,6 @@ class MethodDocumenter(Documenter):
 
         return func
 
-    def get_doc(self) -> list[list[str]] | None:
-        if self._new_docstrings is not None:
-            # docstring already returned previously, then modified due to
-            # ``__docstring_signature__ = True``. Just return the
-            # previously-computed result, so that we don't loose the processing.
-            return self._new_docstrings
-        if self.props.name == '__init__':
-            docstring = getdoc(
-                self.props._obj,
-                self.get_attr,
-                self.config.autodoc_inherit_docstrings,
-                self.parent,
-                self.props.object_name,
-            )
-            if docstring is not None and (
-                docstring == object.__init__.__doc__  # for pypy
-                or docstring.strip() == object.__init__.__doc__  # for !pypy
-            ):
-                docstring = None
-            if docstring:
-                tab_width = self.directive.state.document.settings.tab_width
-                return [prepare_docstring(docstring, tabsize=tab_width)]
-            else:
-                return []
-        elif self.props.name == '__new__':
-            docstring = getdoc(
-                self.props._obj,
-                self.get_attr,
-                self.config.autodoc_inherit_docstrings,
-                self.parent,
-                self.props.object_name,
-            )
-            if docstring is not None and (
-                docstring == object.__new__.__doc__  # for pypy
-                or docstring.strip() == object.__new__.__doc__  # for !pypy
-            ):
-                docstring = None
-            if docstring:
-                tab_width = self.directive.state.document.settings.tab_width
-                return [prepare_docstring(docstring, tabsize=tab_width)]
-            else:
-                return []
-        else:
-            return super().get_doc()
-
 
 class AttributeDocumenter(Documenter):
     """Specialized Documenter subclass for attributes."""
@@ -1924,89 +1716,6 @@ class AttributeDocumenter(Documenter):
         if inspect.isattributedescriptor(member):
             return True
         return not inspect.isroutine(member) and not isinstance(member, type)
-
-    @property
-    def _is_non_data_descriptor(self) -> bool:
-        return not inspect.isattributedescriptor(self.props._obj)
-
-    def should_suppress_value_header(self) -> bool:
-        if self.props._obj is SLOTS_ATTR:
-            return True
-        if self.props._obj is RUNTIME_INSTANCE_ATTRIBUTE:
-            return True
-        if self.props._obj is UNINITIALIZED_ATTR:
-            return True
-        if not self._is_non_data_descriptor or inspect.isgenericalias(self.props._obj):
-            return True
-        else:
-            doc = self.get_doc()
-            if doc:
-                _docstring, metadata = separate_metadata(
-                    '\n'.join(functools.reduce(operator.iadd, doc, []))
-                )
-                if 'hide-value' in metadata:
-                    return True
-
-        return False
-
-    def get_attribute_comment(self, parent: Any, attrname: str) -> list[str] | None:
-        return _get_attribute_comment(
-            parent=parent, obj_path=self.props.parts, attrname=attrname
-        )
-
-    def get_doc(self) -> list[list[str]] | None:
-        # Check the attribute has a docstring-comment
-        comment = _get_attribute_comment(
-            parent=self.parent, obj_path=self.props.parts, attrname=self.props.parts[-1]
-        )
-        if comment:
-            return [comment]
-
-        try:
-            # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
-            # a docstring from the value which descriptor returns unexpectedly.
-            # See: https://github.com/sphinx-doc/sphinx/issues/7805
-            orig = self.config.autodoc_inherit_docstrings
-            self.config.autodoc_inherit_docstrings = False
-
-            if self.props._obj is SLOTS_ATTR:
-                # support for __slots__
-                try:
-                    parent___slots__ = inspect.getslots(self.parent)
-                    if parent___slots__ and (
-                        docstring := parent___slots__.get(self.props.name)
-                    ):
-                        docstring = prepare_docstring(docstring)
-                        return [docstring]
-                    else:
-                        return []
-                except ValueError as exc:
-                    logger.warning(
-                        __('Invalid __slots__ found on %s. Ignored.'),
-                        (self.parent.__qualname__, exc),
-                        type='autodoc',
-                    )
-                    return []
-
-            if (
-                self.props._obj is RUNTIME_INSTANCE_ATTRIBUTE
-                and _is_runtime_instance_attribute_not_commented(
-                    parent=self.parent, obj_path=self.props.parts
-                )
-            ):
-                return None
-
-            if self.props._obj is UNINITIALIZED_ATTR:
-                return None
-
-            if self._is_non_data_descriptor:
-                # the docstring of non-data descriptor is very probably
-                # the wrong thing to display
-                return None
-
-            return super().get_doc()
-        finally:
-            self.config.autodoc_inherit_docstrings = orig
 
 
 class PropertyDocumenter(Documenter):
