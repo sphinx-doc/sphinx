@@ -30,6 +30,27 @@ default. The ``autosectionlabel_prefix_document`` configuration variable can be
 used to make headings which appear multiple times but in different documents
 unique.
 
+If a heading appears multiple times in a document, custom labels can be used to
+refer duplicate sections.
+
+For example::
+
+    Section Title
+    -------------
+
+    This is the text of the first section.
+
+    It refers to the section title, see :ref:`Section Title`.
+
+    .. _duplicate_section_title:
+
+    Section Title
+    -------------
+
+    This is the text of the second section.
+
+    It refers to the corresponding section title, see :ref:`duplicate_section_title`.
+
 
 Configuration
 -------------
