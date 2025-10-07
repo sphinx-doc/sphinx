@@ -33,7 +33,7 @@ from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import _parse_name
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 try:
     # Enable pyximport to test cython module
@@ -171,7 +171,12 @@ def test_format_signature(app):
             bases=getattr(obj, '__bases__', None),
             _obj=obj,
             _obj___module__=getattr(obj, '__module__', None),
+            _obj___qualname__=getattr(obj, '__qualname__', None),
             _obj___name__=name,
+            _obj_bases=(),
+            _obj_is_new_type=False,
+            _obj_is_typevar=False,
+            _obj_is_typealias=False,
         )
         res = inst.format_signature()
         print(res)
@@ -368,6 +373,8 @@ def test_autodoc_process_signature_typehints(app):
         docstring_lines=(),
         _obj=func,
         _obj___module__=None,
+        _obj___qualname__=None,
+        _obj___name__=None,
         properties=frozenset(),
     )
     inst.format_signature()
@@ -970,13 +977,16 @@ def test_autodoc_special_members(app):
     if sys.version_info >= (3, 13, 0, 'alpha', 5):
         options['exclude-members'] = '__static_attributes__,__firstlineno__'
     if sys.version_info >= (3, 14, 0, 'alpha', 7):
-        ann_attr_name = '__annotations_cache__'
+        ann_attrs = (
+            '   .. py:attribute:: Class.__annotate_func__',
+            '   .. py:attribute:: Class.__annotations_cache__',
+        )
     else:
-        ann_attr_name = '__annotations__'
+        ann_attrs = ('   .. py:attribute:: Class.__annotations__',)
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        f'   .. py:attribute:: Class.{ann_attr_name}',
+        *ann_attrs,
         '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
@@ -2281,6 +2291,11 @@ def test_autodoc_typed_instance_variables(app):
         'members': None,
         'undoc-members': None,
     }
+    # First compute autodoc of a `Derived` member to verify that it
+    # doesn't result in inherited members in
+    # `Derived.__annotations__`.
+    # https://github.com/sphinx-doc/sphinx/issues/13934
+    do_autodoc(app, 'attribute', 'target.typed_vars.Derived.attr2')
     actual = do_autodoc(app, 'module', 'target.typed_vars', options)
     assert list(actual) == [
         '',
@@ -2514,21 +2529,21 @@ def test_autodoc_pep695_type_alias(app):
         '',
         '.. py:type:: Pep695Alias',
         '   :module: target.pep695',
-        '   :canonical: target.pep695.Foo',
+        '   :canonical: ~target.pep695.Foo',
         '',
         '   This is PEP695 type alias.',
         '',
         '',
         '.. py:type:: Pep695AliasC',
         '   :module: target.pep695',
-        '   :canonical: dict[str, target.pep695.Foo]',
+        '   :canonical: dict[str, ~target.pep695.Foo]',
         '',
         '   This is PEP695 complex type alias with doc comment.',
         '',
         '',
         '.. py:type:: Pep695AliasOfAlias',
         '   :module: target.pep695',
-        '   :canonical: target.pep695.Pep695AliasC',
+        '   :canonical: ~target.pep695.Pep695AliasC',
         '',
         '   This is PEP695 type alias of PEP695 alias.',
         '',
@@ -2542,14 +2557,14 @@ def test_autodoc_pep695_type_alias(app):
         '',
         '.. py:type:: TypeAliasTypeExplicit',
         '   :module: target.pep695',
-        '   :canonical: target.pep695.Foo',
+        '   :canonical: ~target.pep695.Foo',
         '',
         '   This is an explicitly constructed typing.TypeAlias.',
         '',
         '',
         '.. py:type:: TypeAliasTypeExtension',
         '   :module: target.pep695',
-        '   :canonical: target.pep695.Foo',
+        '   :canonical: ~target.pep695.Foo',
         '',
         '   This is an explicitly constructed typing_extensions.TypeAlias.',
         '',

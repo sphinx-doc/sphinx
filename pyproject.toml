@@ -131,7 +131,7 @@ translations = [
 types = [
     "mypy==1.18.2",
     "pyrefly",
-    "pyright==1.1.400",
+    "pyright==1.1.406",
     "ty",
     { include-group = "type-stubs" },
 ]
@@ -228,12 +228,16 @@ module = [
     # tests/test_directives
     "tests.test_directives.test_directive_code",
     "tests.test_directives.test_directives_no_typesetting",
+    # tests/test_ext_autodoc
+    "tests.test_ext_autodoc.test_ext_autodoc_autoclass",
+    # tests/test_ext_autosummary
+    "tests.test_ext_autosummary.test_ext_autosummary_imports",
+    # tests/test_ext_intersphinx
+    "tests.test_ext_intersphinx.test_ext_intersphinx_cache",
+    # tests/test_ext_napoleon
+    "tests.test_ext_napoleon.test_ext_napoleon",
     # tests/test_extensions
-    "tests.test_extensions.test_ext_autodoc_autoclass",
-    "tests.test_extensions.test_ext_autosummary_imports",
-    "tests.test_extensions.test_ext_intersphinx_cache",
     "tests.test_extensions.test_ext_math",
-    "tests.test_extensions.test_ext_napoleon",
     # tests/test_markup
     "tests.test_markup.test_markup",
     # tests/test_theming
@@ -269,16 +273,20 @@ module = [
     "tests.test_domains.test_domain_std",
     # tests/test_environment
     "tests.test_environment.test_environment_toctree",
+    # tests/test_ext_autodoc
+    "tests.test_ext_autodoc.test_ext_autodoc",
+    "tests.test_ext_autodoc.test_ext_autodoc_events",
+    "tests.test_ext_autodoc.test_ext_autodoc_mock",
+    # tests/test_ext_autosummary
+    "tests.test_ext_autosummary.test_ext_autosummary",
+    # tests/test_ext_intersphinx
+    "tests.test_ext_intersphinx.test_ext_intersphinx",
+    # tests/test_ext_napoleon
+    "tests.test_ext_napoleon.test_ext_napoleon_docstring",
     # tests/test_extensions
     "tests.test_extensions.test_ext_apidoc",
-    "tests.test_extensions.test_ext_autodoc",
-    "tests.test_extensions.test_ext_autodoc_events",
-    "tests.test_extensions.test_ext_autodoc_mock",
-    "tests.test_extensions.test_ext_autosummary",
     "tests.test_extensions.test_ext_doctest",
     "tests.test_extensions.test_ext_inheritance_diagram",
-    "tests.test_extensions.test_ext_intersphinx",
-    "tests.test_extensions.test_ext_napoleon_docstring",
     # tests/test_intl
     "tests.test_intl.test_intl",
     # tests/test_transforms
