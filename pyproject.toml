@@ -107,7 +107,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.13.3",
+    "ruff==0.14.0",
     "sphinx-lint>=0.9",
 ]
 package = [
