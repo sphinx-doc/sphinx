@@ -42,6 +42,8 @@ Deprecated
 Features added
 --------------
 
+* #13860: lickcheck: add :confval:`linkcheck_allow_forbidden` option to
+  let HTTP 403 responses be marked as "working".
 * #13332: Add :confval:`doctest_fail_fast` option to exit after the first failed
   test.
   Patch by Till Hoffmann.
