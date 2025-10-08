@@ -529,7 +529,7 @@ Automatically document classes or exceptions
 .. rst:directive:: autoclass
                    autoexception
 
-   Document a class.
+   Document a class or :pep:`695` type alias.
    For exception classes, prefer ``.. autoexception::``.
    By default, the directive only inserts the docstring of the class itself:
 
@@ -576,6 +576,11 @@ Automatically document classes or exceptions
      This is useful if the signature from the method is hidden by a decorator.
 
      .. versionadded:: 0.4
+
+   .. versionchanged:: 8.3.0
+
+      :pep:`695` type aliases (without :pep:`695` type parameters) are now
+      supported.
 
    .. rubric:: Options
 
