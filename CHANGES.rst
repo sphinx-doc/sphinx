@@ -130,6 +130,7 @@ Bugs fixed
   directly defined in certain cases, depending on autodoc processing
   order.
   Patch by Jeremy Maitin-Shepard.
+* #13892: HTML search: fix word exclusion in the search by prefixing words with "-".
 
 
 Testing
