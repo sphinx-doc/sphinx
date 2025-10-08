@@ -67,7 +67,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
         self.docnames.append(node['docname'])
-        self.body.append('<span id="document-%s"></span>' % node['docname'])
+        self.body.append('<span id="/%s/"></span>' % node['docname'])
 
     def depart_start_of_file(self, node: Element) -> None:
         self.docnames.pop()
@@ -395,10 +395,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = f'{docname}/#{node.parent["ids"][0]}'
+                anchorname = node.parent['ids'][0]
                 if anchorname not in self.builder.secnumbers:
                     # try first heading which has no anchor
-                    anchorname = f'{docname}/'
+                    anchorname = '/' + docname + '/'
             else:
                 anchorname = '#' + node.parent['ids'][0]
                 if anchorname not in self.builder.secnumbers:
@@ -420,7 +420,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
             if self.builder.name == 'singlehtml':
-                key = f'{self.docnames[-1]}/{figtype}'
+                key = f'/{self.docnames[-1]}/#{figtype}'
             else:
                 key = figtype
 

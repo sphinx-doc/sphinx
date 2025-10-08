@@ -66,6 +66,12 @@ Features added
   Patch by Adam Turner.
 * #13805: LaTeX: add support for ``fontawesome7`` package.
   Patch by Jean-François B.
+* #13739: singlehtml builder: append the docname to ids with format
+  ``/<docname>/#<id>``, to ensure uniqueness. For example, ``id3`` becomes
+  ``/path/to/doc/#id3``. This will break existing hyperlinks to ``singlehtml``
+  HTML documents since it alters the format of the ids in both the content body
+  and the toctree. Fixes toctree refid format ``document-<docname>`` that did
+  not match the id in the body.
 
 Bugs fixed
 ----------
