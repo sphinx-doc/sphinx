@@ -64,7 +64,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -178,7 +178,7 @@ jobs:
     - name: Install graphviz
       run: choco install --no-progress graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -207,7 +207,7 @@ jobs:
     - name: Install graphviz
       run: brew install graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -242,7 +242,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -275,7 +275,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -306,7 +306,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -339,7 +339,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
