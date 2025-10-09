@@ -23,8 +23,10 @@ if TYPE_CHECKING:
 
 if sys.version_info[:2] >= (3, 12):
     AssignmentLike = ast.Assign | ast.AnnAssign | ast.TypeAlias
+    AssignmentLikeType = (ast.Assign, ast.AnnAssign, ast.TypeAlias)
 else:
     AssignmentLike = ast.Assign | ast.AnnAssign
+    AssignmentLikeType = (ast.Assign, ast.AnnAssign)
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
@@ -42,7 +44,7 @@ def get_assign_targets(node: AssignmentLike) -> list[ast.expr]:
     elif isinstance(node, ast.AnnAssign):
         return [node.target]
     else:
-        return [node.name]
+        return [node.name]  # ast.TypeAlias
 
 
 def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
@@ -340,7 +342,29 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
-    def collect_doc_comment(
+    def _handle_assignment(self, node: ast.Assign | ast.AnnAssign) -> None:
+        """Handles Assign node and pick up a variable comment."""
+        try:
+            targets = get_assign_targets(node)
+            varnames: list[str] = functools.reduce(
+                operator.iadd,
+                [get_lvar_names(t, self=self.get_self()) for t in targets],
+                [],
+            )
+            current_line = self.get_line(node.lineno)
+        except TypeError:
+            return  # this assignment is not new definition!
+
+        # record annotation
+        if hasattr(node, 'annotation') and node.annotation:
+            for varname in varnames:
+                self.add_variable_annotation(varname, node.annotation)
+        elif hasattr(node, 'type_comment') and node.type_comment:
+            for varname in varnames:
+                self.add_variable_annotation(varname, node.type_comment)  # type: ignore[arg-type]
+        self._collect_doc_comment(node, varnames, current_line)
+
+    def _collect_doc_comment(
         self,
         node: AssignmentLike,
         varnames: list[str],
@@ -410,39 +434,21 @@ class VariableCommentPicker(ast.NodeVisitor):
             elif name.name == 'overload':
                 self.typing_overload_names.add(name.asname or name.name)
 
-    def visit_Assign(self, node: ast.Assign | ast.AnnAssign) -> None:
+    def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
-        try:
-            targets = get_assign_targets(node)
-            varnames: list[str] = functools.reduce(
-                operator.iadd,
-                [get_lvar_names(t, self=self.get_self()) for t in targets],
-                [],
-            )
-            current_line = self.get_line(node.lineno)
-        except TypeError:
-            return  # this assignment is not new definition!
-
-        # record annotation
-        if hasattr(node, 'annotation') and node.annotation:
-            for varname in varnames:
-                self.add_variable_annotation(varname, node.annotation)
-        elif hasattr(node, 'type_comment') and node.type_comment:
-            for varname in varnames:
-                self.add_variable_annotation(varname, node.type_comment)  # type: ignore[arg-type]
-        self.collect_doc_comment(node, varnames, current_line)
+        self._handle_assignment(node)
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         """Handles AnnAssign node and pick up a variable comment."""
-        self.visit_Assign(node)
+        self._handle_assignment(node)
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
-        if not (
-            isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)
+        if (
+            isinstance(self.previous, AssignmentLikeType)
+            and isinstance(node.value, ast.Constant)
+            and isinstance(node.value.value, str)
         ):
-            return
-        if isinstance(self.previous, AssignmentLike):
             try:
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
@@ -500,16 +506,15 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles AsyncFunctionDef node and set context."""
         self.visit_FunctionDef(node)  # type: ignore[arg-type]
 
-    if sys.version_info[:2] >= (3, 12):
+    def visit_TypeAlias(self, node: ast.TypeAlias) -> None:
+        """Handles TypeAlias node and picks up a variable comment.
 
-        def visit_TypeAlias(self, node: ast.TypeAlias) -> None:
-            """Handles TypeAlias node and picks up a variable comment.
-
-            .. note:: TypeAlias node refers to `type Foo = Bar` (PEP 695) assignment,
-                      NOT `Foo: TypeAlias = Bar` (PEP 613).
-            """
-            current_line = self.get_line(node.lineno)
-            self.collect_doc_comment(node, [node.name.id], current_line)
+        .. note:: TypeAlias node refers to `type Foo = Bar` (PEP 695) assignment,
+                  NOT `Foo: TypeAlias = Bar` (PEP 613).
+        """
+        # Python 3.12+
+        current_line = self.get_line(node.lineno)
+        self._collect_doc_comment(node, [node.name.id], current_line)
 
 
 class DefinitionFinder(TokenProcessor):
