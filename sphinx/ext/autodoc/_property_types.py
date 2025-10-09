@@ -48,6 +48,8 @@ class _ItemProperties:
     #: This item's docstring, as a sequence of lines
     docstring_lines: tuple[str, ...]
 
+    _docstrings: Sequence[Sequence[str]] | None = None
+    _docstrings_has_hide_value: bool = False
     _obj: Any
     _obj___module__: str | None
 
