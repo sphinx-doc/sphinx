@@ -7,7 +7,7 @@ import sys
 import types
 import typing
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, NewType, TypeVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -242,17 +242,6 @@ def _is_unpack_form(obj: Any) -> bool:
     return typing.get_origin(obj) is typing.Unpack
 
 
-if sys.version_info[:2] >= (3, 12):
-
-    def _is_type_like(obj: Any) -> TypeIs[NewType | TypeVar | TypeAliasType]:
-        return isinstance(obj, (NewType, TypeVar, AnyTypeAliasType))
-
-else:
-
-    def _is_type_like(obj: Any) -> TypeIs[NewType | TypeVar]:
-        return isinstance(obj, (NewType, TypeVar))
-
-
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
     """Convert a type-like object to a reST reference.
 
@@ -334,7 +323,9 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif isinstance(cls, AnyTypeAliasType):
-            # TODO: Use ``__qualname__`` here (not yet supported)
+            # TODO: Use ``__qualname__`` here unconditionally (not yet supported)
+            if hasattr(cls, '__qualname__'):
+                return f':py:type:`{module_prefix}{cls.__module__}.{cls.__qualname__}`'
             return f':py:type:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif cls.__module__ in {'__builtin__', 'builtins'}:
             if hasattr(cls, '__args__'):

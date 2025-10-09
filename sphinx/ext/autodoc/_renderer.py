@@ -6,6 +6,7 @@ from sphinx.ext.autodoc._property_types import (
     _AssignStatementProperties,
     _ClassDefProperties,
     _FunctionDefProperties,
+    _TypeStatementProperties,
 )
 from sphinx.ext.autodoc._sentinels import SUPPRESS
 from sphinx.locale import _
@@ -71,11 +72,6 @@ def _directive_header_lines(
         assert isinstance(props, _ClassDefProperties)
 
         if props._obj_is_new_type or props._obj_is_typevar:
-            return
-
-        if props._obj_is_type_alias:
-            if not docstrings_has_hide_value:
-                yield f'   :canonical: {props._obj_aliased_annotation}'
             return
 
         if props.doc_as_attr:
@@ -168,6 +164,12 @@ def _directive_header_lines(
                 and not props._obj_is_mock
             ):
                 yield f'   :value: {props._obj_repr_rst}'
+
+    if props.obj_type == 'type':
+        assert isinstance(props, _TypeStatementProperties)
+
+        if not props._docstrings_has_hide_value:
+            yield f'   :canonical: {props._obj___value__}'
 
 
 def _add_content(content: StringList, *, result: StringList, indent: str) -> None:

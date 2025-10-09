@@ -41,11 +41,7 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import (
-    _is_type_like,
-    restify,
-    stringify_annotation,
-)
+from sphinx.util.typing import AnyTypeAliasType, restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -62,6 +58,7 @@ if TYPE_CHECKING:
         _FunctionDefProperties,
         _ItemProperties,
         _ModuleProperties,
+        _TypeStatementProperties,
     )
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
@@ -454,12 +451,10 @@ class Documenter:
     def add_directive_header(self, sig: str) -> None:
         """Add the directive header and options to the generated content."""
         domain_name = getattr(self, 'domain', 'py')
-        directive_name = getattr(self, 'directivetype', self.objtype)
-        if self.objtype in {'class', 'exception'}:
-            if self.props._obj_is_type_alias:  # type: ignore[attr-defined]
-                directive_name = 'type'
-            elif self.props.doc_as_attr:  # type: ignore[attr-defined]
-                directive_name = 'attribute'
+        if self.objtype in {'class', 'exception'} and self.props.doc_as_attr:  # type: ignore[attr-defined]
+            directive_name = 'attribute'
+        else:
+            directive_name = getattr(self, 'directivetype', self.objtype)
         directive_name = f'{domain_name}:{directive_name}'
 
         if self.analyzer:
@@ -722,9 +717,7 @@ class Documenter:
         all_members: bool = False,
     ) -> None:
         has_members = isinstance(self, ModuleDocumenter) or (
-            isinstance(self, ClassDocumenter)
-            and not self.props.doc_as_attr
-            and not self.props._obj_is_type_alias
+            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
         )
 
         # If there is no real module defined, figure out which to use.
@@ -1223,10 +1216,12 @@ class ClassDocumenter(Documenter):
     def can_document_member(
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
-        return isinstance(member, type) or (isattr and _is_type_like(member))
+        return isinstance(member, type) or (
+            isattr and isinstance(member, (NewType, TypeVar))
+        )
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if _is_type_like(self.props._obj):
+        if isinstance(self.props._obj, (NewType, TypeVar)):
             # Suppress signature
             return None, None, None
 
@@ -1325,12 +1320,6 @@ class ClassDocumenter(Documenter):
         return None, None, None
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.props._obj_is_type_alias:
-            self.props._obj_aliased_annotation = stringify_annotation(
-                self.props._obj.__value__,
-                mode=_get_render_mode(self.config.autodoc_typehints_format),
-                short_literals=self.config.python_display_short_literal_types,
-            )
         if self.config.autodoc_typehints in {'none', 'description'}:
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == 'short':
@@ -1810,6 +1799,27 @@ class PropertyDocumenter(Documenter):
         if safe_getattr(self.props._obj, 'func', None):  # cached_property
             return self.props._obj.func
         return None
+
+
+class TypeAliasDocumenter(Documenter):
+    """Specialized Documenter subclass for type aliases."""
+
+    props: _TypeStatementProperties
+
+    objtype = 'type'
+    member_order = 70
+    option_spec: ClassVar[OptionSpec] = {
+        'no-index': bool_option,
+        'no-index-entry': bool_option,
+        'annotation': annotation_option,
+        'no-value': bool_option,
+    }
+
+    @classmethod
+    def can_document_member(
+        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
+        return isinstance(member, AnyTypeAliasType)
 
 
 class DocstringSignatureMixin:
