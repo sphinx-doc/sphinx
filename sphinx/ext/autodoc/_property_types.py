@@ -108,11 +108,11 @@ class _ClassDefProperties(_ItemProperties):
 
     _obj___name__: str | None
     _obj___qualname__: str | None
+    _obj_aliased_annotation: str | None = None
     _obj_bases: tuple[str, ...]
     _obj_is_new_type: bool
+    _obj_is_type_alias: bool
     _obj_is_typevar: bool
-    _obj_is_typealias: bool
-    _obj_aliased_annotation: str | None = None
 
     @property
     def doc_as_attr(self) -> bool:

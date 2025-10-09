@@ -175,8 +175,8 @@ def test_format_signature(app):
             _obj___name__=name,
             _obj_bases=(),
             _obj_is_new_type=False,
+            _obj_is_type_alias=False,
             _obj_is_typevar=False,
-            _obj_is_typealias=False,
         )
         res = inst.format_signature()
         print(res)

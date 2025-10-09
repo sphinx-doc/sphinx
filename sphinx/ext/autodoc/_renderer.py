@@ -76,7 +76,7 @@ def _directive_header_lines(
         if props._obj_is_new_type or props._obj_is_typevar:
             return
 
-        if props._obj_is_typealias:
+        if props._obj_is_type_alias:
             if not docstrings_has_hide_value:
                 yield f'   :canonical: {props._obj_aliased_annotation}'
             return

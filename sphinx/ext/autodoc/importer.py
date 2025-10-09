@@ -592,8 +592,8 @@ def _load_object_by_name(
             _obj___qualname__=getattr(obj, '__qualname__', None),
             _obj_bases=base_classes,
             _obj_is_new_type=isinstance(obj, NewType),
+            _obj_is_type_alias=isinstance(obj, AnyTypeAliasType),
             _obj_is_typevar=isinstance(obj, TypeVar),
-            _obj_is_typealias=isinstance(obj, AnyTypeAliasType),
         )
     elif objtype in {'function', 'decorator'}:
         if inspect.isstaticmethod(obj, cls=parent, name=object_name):

@@ -766,7 +766,7 @@ class Documenter:
         has_members = isinstance(self, ModuleDocumenter) or (
             isinstance(self, ClassDocumenter)
             and not self.props.doc_as_attr
-            and not self.props._obj_is_typealias
+            and not self.props._obj_is_type_alias
         )
 
         # If there is no real module defined, figure out which to use.
@@ -1369,7 +1369,7 @@ class ClassDocumenter(Documenter):
         return None, None, None
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.props._obj_is_typealias:
+        if self.props._obj_is_type_alias:
             self.props._obj_aliased_annotation = stringify_annotation(
                 self.props._obj.__value__,
                 mode=_get_render_mode(self.config.autodoc_typehints_format),
