@@ -7,7 +7,7 @@ import sys
 import types
 import typing
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NewType, TypeVar
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -33,14 +33,19 @@ if TYPE_CHECKING:
         'smart',
     ]
 
-from typing_extensions import TypeAliasType as ExtensionTypeAliasType
-
-if sys.version_info[:2] < (3, 12):
-    AnyTypeAliasType = ExtensionTypeAliasType
-else:
+if sys.version_info[:2] >= (3, 12):
     from typing import TypeAliasType
 
-    AnyTypeAliasType = TypeAliasType | ExtensionTypeAliasType
+    AnyTypeAliasType = (TypeAliasType,)
+else:
+    AnyTypeAliasType = ()
+
+try:
+    import typing_extensions
+except ImportError:
+    pass
+else:
+    AnyTypeAliasType += (typing_extensions.TypeAliasType,)
 
 logger = logging.getLogger(__name__)
 
@@ -236,6 +241,17 @@ def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
 def _is_unpack_form(obj: Any) -> bool:
     """Check if the object is :class:`typing.Unpack` or equivalent."""
     return typing.get_origin(obj) is typing.Unpack
+
+
+if sys.version_info[:2] >= (3, 12):
+
+    def _is_type_like(obj: Any) -> TypeIs[NewType | TypeVar | TypeAliasType]:
+        return isinstance(obj, (NewType, TypeVar, AnyTypeAliasType))
+
+else:
+
+    def _is_type_like(obj: Any) -> TypeIs[NewType | TypeVar]:
+        return isinstance(obj, (NewType, TypeVar))
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
@@ -452,7 +468,7 @@ def stringify_annotation(
 
     # Extract the annotation's base type by considering formattable cases
     if isinstance(
-        annotation, typing.TypeVar | AnyTypeAliasType
+        annotation, (typing.TypeVar, AnyTypeAliasType)
     ) and not _is_unpack_form(annotation):
         # typing_extensions.Unpack is incorrectly determined as a TypeVar
         if annotation_module_is_typing and mode in {

@@ -36,7 +36,6 @@ from sphinx.ext.autodoc._sentinels import (
 from sphinx.ext.autodoc.importer import (
     _get_attribute_comment,
     _is_runtime_instance_attribute_not_commented,
-    _is_type_like,
     _load_object_by_name,
     _resolve_name,
 )
@@ -52,6 +51,7 @@ from sphinx.util.inspect import (
     stringify_signature,
 )
 from sphinx.util.typing import (
+    _is_type_like,
     restify,
     stringify_annotation,
 )

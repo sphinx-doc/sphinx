@@ -39,6 +39,7 @@ from sphinx.util.inspect import (
 )
 from sphinx.util.typing import (
     AnyTypeAliasType,
+    _is_type_like,
     get_type_hints,
     restify,
     stringify_annotation,
@@ -48,8 +49,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from importlib.machinery import ModuleSpec
     from typing import Any, Protocol
-
-    from typing_extensions import TypeIs
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
@@ -461,10 +460,6 @@ def _is_slots_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
             return False
     except (ValueError, TypeError):
         return False
-
-
-def _is_type_like(obj: Any) -> TypeIs[NewType | TypeVar | AnyTypeAliasType]:
-    return isinstance(obj, (NewType, TypeVar, AnyTypeAliasType))
 
 
 def _load_object_by_name(
