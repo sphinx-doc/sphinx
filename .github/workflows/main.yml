@@ -38,14 +38,15 @@ jobs:
         - "3.12"
         - "3.13"
         - "3.13t"
+        - "3.14"
+        - "3.14t"
         docutils:
         - "0.20"
-        - "0.21"
         - "0.22"
-#        include:
-#        # test every supported Docutils version for the latest supported Python
-#        - python: "3.13"
-#          docutils: "0.20"
+        include:
+        # test every supported Docutils version for the latest supported Python
+        - python: "3.14"
+          docutils: "0.21"
 
     steps:
     - uses: actions/checkout@v5
@@ -89,11 +90,9 @@ jobs:
       fail-fast: false
       matrix:
         python:
-        - "3.14"
         - "3.15"
         docutils:
         - "0.20"
-        - "0.21"
         - "0.22"
 
     steps:
@@ -127,7 +126,6 @@ jobs:
       fail-fast: false
       matrix:
         python:
-        - "3.14"
         - "3.15"
 
     steps:

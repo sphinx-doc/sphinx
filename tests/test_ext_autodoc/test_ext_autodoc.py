@@ -6,9 +6,7 @@ source file translated by test_build.
 
 from __future__ import annotations
 
-import functools
 import itertools
-import operator
 import sys
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
@@ -21,6 +19,7 @@ from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     inherited_members_option,
 )
+from sphinx.ext.autodoc._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
 from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
@@ -75,7 +74,6 @@ def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
         lineno=0,
         state=Mock(),
     )
-    directive.state.document.settings.tab_width = 8
 
     return directive
 
@@ -177,6 +175,14 @@ def test_format_signature(app):
             _obj_is_new_type=False,
             _obj_is_type_alias=False,
             _obj_is_typevar=False,
+        )
+        inst.props._docstrings = _get_docstring_lines(
+            inst.props,
+            class_doc_from=inst.config.autoclass_content,
+            get_attr=inst.get_attr,
+            inherit_docstrings=inst.config.autodoc_inherit_docstrings,
+            parent=inst.parent,
+            tab_width=8,
         )
         res = inst.format_signature()
         print(res)
@@ -284,10 +290,11 @@ def test_format_signature(app):
         """some docstring for F2."""
 
         def __init__(self, *args, **kw):
-            """__init__(a1, a2, kw1=True, kw2=False)
+            """
+            __init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
-            """
+            """  # NoQA: D212
 
     class G2(F2):
         pass
@@ -399,10 +406,19 @@ def test_get_doc(app):
         )
         inst.parent = object  # dummy
         inst.doc_as_attr = False
+        inst.props._docstrings = _get_docstring_lines(
+            inst.props,
+            class_doc_from=inst.config.autoclass_content,
+            get_attr=inst.get_attr,
+            inherit_docstrings=inst.config.autodoc_inherit_docstrings,
+            parent=inst.parent,
+            tab_width=8,
+        )
+
         inst.format_signature()  # handle docstring signatures!
-        ds = inst.get_doc()
+        ds = inst.props._docstrings
         # for testing purposes, concat them and strip the empty line at the end
-        res = functools.reduce(operator.iadd, ds, [])[:-1]
+        res = list(itertools.chain.from_iterable(ds))[:-1]
         print(res)
         return res
 
@@ -417,7 +433,9 @@ def test_get_doc(app):
         """Docstring"""
 
     def g():
-        """Docstring"""
+        """
+        Docstring
+        """  # NoQA: D212
 
     for func in (f, g):
         assert getdocl('function', func) == ['Docstring']

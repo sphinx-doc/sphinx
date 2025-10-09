@@ -1051,10 +1051,8 @@ def getdoc(
     return doc
 
 
-def _getdoc_internal(
-    obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr
-) -> str | None:
-    doc = attrgetter(obj, '__doc__', None)
+def _getdoc_internal(obj: Any, /) -> str | None:
+    doc = safe_getattr(obj, '__doc__', None)
     if isinstance(doc, str):
         return doc
     return None

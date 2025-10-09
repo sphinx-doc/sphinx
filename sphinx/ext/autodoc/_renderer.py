@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING
 
 from sphinx.ext.autodoc._property_types import (
@@ -22,7 +21,6 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc._property_types import _ItemProperties
 
 logger = logging.getLogger('sphinx.ext.autodoc')
-_hide_value_re = re.compile(r'^:meta \s*hide-value:( +|$)')
 
 
 def _directive_header_lines(
@@ -30,7 +28,6 @@ def _directive_header_lines(
     *,
     autodoc_typehints: Literal['signature', 'description', 'none', 'both'],
     directive_name: str,
-    docstrings_has_hide_value: bool,
     is_final: bool,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
@@ -143,7 +140,7 @@ def _directive_header_lines(
             if (
                 not options.no_value
                 and props._obj_is_sentinel is None  # not any sentinel
-                and not docstrings_has_hide_value
+                and not props._docstrings_has_hide_value
                 and not props._obj_is_mock
             ):
                 yield f'   :value: {props._obj_repr_rst}'
@@ -167,7 +164,7 @@ def _directive_header_lines(
                 and props._obj_is_sentinel is None  # not any sentinel
                 and not props._obj_is_attribute_descriptor
                 and not props._obj_is_generic_alias
-                and not docstrings_has_hide_value
+                and not props._docstrings_has_hide_value
                 and not props._obj_is_mock
             ):
                 yield f'   :value: {props._obj_repr_rst}'
