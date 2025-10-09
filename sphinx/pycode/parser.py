@@ -506,7 +506,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles AsyncFunctionDef node and set context."""
         self.visit_FunctionDef(node)  # type: ignore[arg-type]
 
-    def visit_TypeAlias(self, node: ast.TypeAlias) -> None:
+    def visit_TypeAlias(self, node: ast.TypeAlias) -> None:  # type: ignore[name-defined]
         """Handles TypeAlias node and picks up a variable comment.
 
         .. note:: TypeAlias node refers to `type Foo = Bar` (PEP 695) assignment,

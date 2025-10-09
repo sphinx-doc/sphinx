@@ -33,12 +33,11 @@ if TYPE_CHECKING:
         'smart',
     ]
 
+AnyTypeAliasType: tuple[type, ...] = ()
 if sys.version_info[:2] >= (3, 12):
     from typing import TypeAliasType
 
-    AnyTypeAliasType = (TypeAliasType,)
-else:
-    AnyTypeAliasType = ()
+    AnyTypeAliasType += (TypeAliasType,)
 
 try:
     import typing_extensions
@@ -336,7 +335,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif isinstance(cls, AnyTypeAliasType):
             # TODO: Use ``__qualname__`` here (not yet supported)
-            return f':py:type:`{module_prefix}{cls.__module__}.{cls.__name__}`'
+            return f':py:type:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif cls.__module__ in {'__builtin__', 'builtins'}:
             if hasattr(cls, '__args__'):
                 if not cls.__args__:  # Empty tuple, list, ...
