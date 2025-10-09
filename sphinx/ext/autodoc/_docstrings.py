@@ -28,16 +28,6 @@ _OBJECT_INIT_DOCSTRING = (tuple(prepare_docstring(object.__init__.__doc__ or '')
 _OBJECT_NEW_DOCSTRING = (tuple(prepare_docstring(object.__new__.__doc__ or '')),)
 
 
-def _class_variable_comment(props: _ItemProperties) -> bool:
-    try:
-        analyzer = ModuleAnalyzer.for_module(props.module_name)
-        analyzer.analyze()
-        key = ('', props.dotted_parts)
-        return bool(analyzer.attr_docs.get(key, False))
-    except PycodeError:
-        return False
-
-
 def _get_docstring_lines(
     props: _ItemProperties,
     *,
@@ -249,3 +239,13 @@ def _get_doc(
     if docstring:
         return (tuple(prepare_docstring(docstring, tab_width)),)
     return ()
+
+
+def _class_variable_comment(props: _ItemProperties) -> bool:
+    try:
+        analyzer = ModuleAnalyzer.for_module(props.module_name)
+        analyzer.analyze()
+        key = ('', props.dotted_parts)
+        return bool(analyzer.attr_docs.get(key, False))
+    except PycodeError:
+        return False
