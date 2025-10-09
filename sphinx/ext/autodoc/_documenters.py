@@ -454,6 +454,11 @@ class Documenter:
         """Add the directive header and options to the generated content."""
         domain_name = getattr(self, 'domain', 'py')
         directive_name = getattr(self, 'directivetype', self.objtype)
+        if self.objtype in {'class', 'exception'}:
+            if self.props._obj_is_type_alias:  # type: ignore[attr-defined]
+                directive_name = 'type'
+            elif self.props.doc_as_attr:  # type: ignore[attr-defined]
+                directive_name = 'attribute'
         directive_name = f'{domain_name}:{directive_name}'
 
         docstrings = self.get_doc()
@@ -1480,14 +1485,6 @@ class ClassDocumenter(Documenter):
             return f'{__modname__}.{__qualname__}'
         else:
             return None
-
-    @property
-    def directivetype(self) -> str:
-        if self.props._obj_is_typealias:
-            return 'type'
-        if self.props.doc_as_attr:
-            return 'attribute'
-        return self.objtype
 
     def get_doc(self) -> list[list[str]] | None:
         if isinstance(self.props._obj, TypeVar):

@@ -335,6 +335,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif isinstance(cls, AnyTypeAliasType):
+            # TODO: Use ``__qualname__`` here (not yet supported)
             return f':py:type:`{module_prefix}{cls.__module__}.{cls.__name__}`'
         elif cls.__module__ in {'__builtin__', 'builtins'}:
             if hasattr(cls, '__args__'):

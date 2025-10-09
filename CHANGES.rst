@@ -42,8 +42,6 @@ Deprecated
 Features added
 --------------
 
-* #13508: Initial support for :pep:`695` type aliases.
-  Patch by Martin Matouš.
 * #13332: Add :confval:`doctest_fail_fast` option to exit after the first failed
   test.
   Patch by Till Hoffmann.
@@ -68,6 +66,8 @@ Features added
   Patch by Adam Turner.
 * #13805: LaTeX: add support for ``fontawesome7`` package.
   Patch by Jean-François B.
+* #13508: Initial support for :pep:`695` type aliases.
+  Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
 
 Bugs fixed
 ----------

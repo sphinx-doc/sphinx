@@ -2499,7 +2499,7 @@ def test_autodoc_GenericAlias(app):
 
 @pytest.mark.skipif(
     sys.version_info[:2] < (3, 12),
-    reason='PEP 695 is Python 3.12 feature. Older versions fail to parse source into AST.',
+    reason='type statement introduced in Python 3.12',
 )
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_pep695_type_alias(app):

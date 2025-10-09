@@ -577,7 +577,7 @@ Automatically document classes or exceptions
 
      .. versionadded:: 0.4
 
-   .. versionchanged:: 8.3.0
+   .. versionchanged:: 8.3
 
       :pep:`695` type aliases (without :pep:`695` type parameters) are now
       supported.

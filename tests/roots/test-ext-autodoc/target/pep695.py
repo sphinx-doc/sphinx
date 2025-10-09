@@ -16,9 +16,8 @@ TypeAliasTypeExplicit = TypeAliasType('TypeAliasTypeExplicit', Foo)  # noqa: UP0
 TypeAliasTypeExtension = typing_extensions.TypeAliasType('TypeAliasTypeExtension', Foo)  # noqa: UP040
 """This is an explicitly constructed typing_extensions.TypeAlias."""
 
-type Pep695AliasC = dict[
-    str, Foo
-]  #: This is PEP695 complex type alias with doc comment.
+#: This is PEP695 complex type alias with doc comment.
+type Pep695AliasC = dict[str, Foo]
 
 type Pep695AliasUnion = str | int
 """This is PEP695 type alias for union."""
