@@ -170,7 +170,7 @@ def _directive_header_lines(
     if props.obj_type == 'type':
         assert isinstance(props, _TypeStatementProperties)
 
-        if not props._docstrings_has_hide_value:
+        if not options.no_value and not props._docstrings_has_hide_value:
             yield f'   :canonical: {props._obj___value__}'
 
 
