@@ -114,6 +114,7 @@ class _ClassDefProperties(_ItemProperties):
     _obj_bases: tuple[str, ...]
     _obj_is_new_type: bool
     _obj_is_typevar: bool
+    _signature_method_name: str | None = None
 
     @property
     def doc_as_attr(self) -> bool:

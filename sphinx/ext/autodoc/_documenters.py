@@ -37,6 +37,7 @@ from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import (
+    _stringify_signature_to_parts,
     evaluate_signature,
     safe_getattr,
     stringify_signature,
@@ -44,7 +45,7 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import AnyTypeAliasType, restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Callable, Iterator, Mapping, Sequence
     from types import ModuleType
     from typing import Any, ClassVar, Literal
 
@@ -61,6 +62,7 @@ if TYPE_CHECKING:
         _TypeStatementProperties,
     )
     from sphinx.ext.autodoc.directive import DocumenterBridge
+    from sphinx.ext.autodoc.importer import _AttrGetter
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
 
@@ -412,17 +414,19 @@ class Documenter:
         else:
             # try to introspect the signature
             try:
-                retann = None
-                args = self._call_format_args(**kwargs)
-                if args:
-                    matched = re.match(r'^(\(.*\))\s+->\s+(.*)$', args)
-                    if matched:
-                        args = matched.group(1)
-                        retann = matched.group(2)
+                args, retann = format_args(
+                    config=self.config,
+                    events=self._events,
+                    get_attr=self.get_attr,
+                    parent=self.parent,
+                    props=self.props,
+                    **kwargs,
+                )
             except Exception as exc:
                 msg = __('error while formatting arguments for %s: %s')
                 logger.warning(msg, self.props.full_name, exc, type='autodoc')
                 args = None
+                retann = None
 
         result = self._events.emit_firstresult(
             'autodoc-process-signature',
@@ -1008,38 +1012,6 @@ class FunctionDocumenter(Documenter):
             or (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter))
         )
 
-    def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in {'none', 'description'}:
-            kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_typehints_format == 'short':
-            kwargs.setdefault('unqualified_typehints', True)
-        if self.config.python_display_short_literal_types:
-            kwargs.setdefault('short_literals', True)
-
-        try:
-            self._events.emit(
-                'autodoc-before-process-signature', self.props._obj, False
-            )
-            sig = inspect.signature(
-                self.props._obj, type_aliases=self.config.autodoc_type_aliases
-            )
-            args = stringify_signature(sig, **kwargs)
-        except TypeError as exc:
-            msg = __('Failed to get a function signature for %s: %s')
-            logger.warning(msg, self.props.full_name, exc)
-            return ''
-        except ValueError:
-            args = ''
-
-        if self.config.strip_signature_backslash:
-            # escape backslashes for reST
-            args = args.replace('\\', '\\\\')
-
-        if self.objtype == 'decorator' and ',' not in args:
-            # Special case for single-argument decorators
-            return ''
-        return args
-
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
@@ -1194,9 +1166,6 @@ class ClassDocumenter(Documenter):
     # after Python 3.10.
     priority = 15
 
-    _signature_class: Any = None
-    _signature_method_name: str = ''
-
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
 
@@ -1219,127 +1188,6 @@ class ClassDocumenter(Documenter):
         return isinstance(member, type) or (
             isattr and isinstance(member, (NewType, TypeVar))
         )
-
-    def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if isinstance(self.props._obj, (NewType, TypeVar)):
-            # Suppress signature
-            return None, None, None
-
-        def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
-            """Get the `attr` function or method from `obj`, if it is user-defined."""
-            if inspect.is_builtin_class_method(obj, attr):
-                return None
-            attr = self.get_attr(obj, attr, None)
-            if not (inspect.ismethod(attr) or inspect.isfunction(attr)):
-                return None
-            return attr
-
-        # This sequence is copied from inspect._signature_from_callable.
-        # ValueError means that no signature could be found, so we keep going.
-
-        # First, we check if obj has a __signature__ attribute
-        if hasattr(self.props._obj, '__signature__'):
-            object_sig = self.props._obj.__signature__
-            if isinstance(object_sig, Signature):
-                return None, None, object_sig
-            if sys.version_info[:2] in {(3, 12), (3, 13)} and callable(object_sig):
-                # Support for enum.Enum.__signature__ in Python 3.12
-                if isinstance(object_sig_str := object_sig(), str):
-                    return None, None, inspect.signature_from_str(object_sig_str)
-
-        # Next, let's see if it has an overloaded __call__ defined
-        # in its metaclass
-        call = get_user_defined_function_or_method(type(self.props._obj), '__call__')
-
-        if call is not None:
-            if f'{call.__module__}.{call.__qualname__}' in _METACLASS_CALL_BLACKLIST:
-                call = None
-
-        if call is not None:
-            self._events.emit('autodoc-before-process-signature', call, True)
-            try:
-                sig = inspect.signature(
-                    call,
-                    bound_method=True,
-                    type_aliases=self.config.autodoc_type_aliases,
-                )
-                return type(self.props._obj), '__call__', sig
-            except ValueError:
-                pass
-
-        # Now we check if the 'obj' class has a '__new__' method
-        new = get_user_defined_function_or_method(self.props._obj, '__new__')
-
-        if new is not None:
-            if f'{new.__module__}.{new.__qualname__}' in _CLASS_NEW_BLACKLIST:
-                new = None
-
-        if new is not None:
-            self._events.emit('autodoc-before-process-signature', new, True)
-            try:
-                sig = inspect.signature(
-                    new,
-                    bound_method=True,
-                    type_aliases=self.config.autodoc_type_aliases,
-                )
-                return self.props._obj, '__new__', sig
-            except ValueError:
-                pass
-
-        # Finally, we should have at least __init__ implemented
-        init = get_user_defined_function_or_method(self.props._obj, '__init__')
-        if init is not None:
-            self._events.emit('autodoc-before-process-signature', init, True)
-            try:
-                sig = inspect.signature(
-                    init,
-                    bound_method=True,
-                    type_aliases=self.config.autodoc_type_aliases,
-                )
-                return self.props._obj, '__init__', sig
-            except ValueError:
-                pass
-
-        # None of the attributes are user-defined, so fall back to let inspect
-        # handle it.
-        # We don't know the exact method that inspect.signature will read
-        # the signature from, so just pass the object itself to our hook.
-        self._events.emit('autodoc-before-process-signature', self.props._obj, False)
-        try:
-            sig = inspect.signature(
-                self.props._obj,
-                bound_method=False,
-                type_aliases=self.config.autodoc_type_aliases,
-            )
-            return None, None, sig
-        except ValueError:
-            pass
-
-        # Still no signature: happens e.g. for old-style classes
-        # with __init__ in C and no `__text_signature__`.
-        return None, None, None
-
-    def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in {'none', 'description'}:
-            kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_typehints_format == 'short':
-            kwargs.setdefault('unqualified_typehints', True)
-        if self.config.python_display_short_literal_types:
-            kwargs.setdefault('short_literals', True)
-
-        try:
-            self._signature_class, _signature_method_name, sig = self._get_signature()
-        except TypeError as exc:
-            # __signature__ attribute contained junk
-            msg = __('Failed to get a constructor signature for %s: %s')
-            logger.warning(msg, self.props.full_name, exc)
-            return ''
-        self._signature_method_name = _signature_method_name or ''
-
-        if sig is None:
-            return ''
-
-        return stringify_signature(sig, show_return_annotation=False, **kwargs)
 
     def _find_signature(self) -> tuple[str | None, str | None] | None:
         result = super()._find_signature()
@@ -1370,12 +1218,15 @@ class ClassDocumenter(Documenter):
         sig = super().format_signature()
         sigs = []
 
-        overloads = self.get_overloaded_signatures()
+        method_name = self.props._signature_method_name
+        if method_name == '__call__':
+            signature_cls = type(self.props._obj)
+        else:
+            signature_cls = self.props._obj
+        overloads = self.get_overloaded_signatures(method_name, signature_cls)
         if overloads and self.config.autodoc_typehints != 'none':
             # Use signatures for overloaded methods instead of the implementation method.
-            method = safe_getattr(
-                self._signature_class, self._signature_method_name, None
-            )
+            method = safe_getattr(signature_cls, method_name, None)
             __globals__ = safe_getattr(method, '__globals__', {})
             for overload in overloads:
                 overload = evaluate_signature(
@@ -1393,13 +1244,16 @@ class ClassDocumenter(Documenter):
 
         return '\n'.join(sigs)
 
-    def get_overloaded_signatures(self) -> list[Signature]:
-        if self._signature_class and self._signature_method_name:
-            for cls in self._signature_class.__mro__:
+    @staticmethod
+    def get_overloaded_signatures(
+        method_name: str | Any, signature_cls: type
+    ) -> list[Signature]:
+        if method_name:
+            for cls in signature_cls.__mro__:
                 try:
                     analyzer = ModuleAnalyzer.for_module(cls.__module__)
                     analyzer.analyze()
-                    qualname = f'{cls.__qualname__}.{self._signature_method_name}'
+                    qualname = f'{cls.__qualname__}.{method_name}'
                     if qualname in analyzer.overloads:
                         return analyzer.overloads.get(qualname, [])
                     elif qualname in analyzer.tagorder:
@@ -1511,55 +1365,6 @@ class MethodDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
-
-    def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in {'none', 'description'}:
-            kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_typehints_format == 'short':
-            kwargs.setdefault('unqualified_typehints', True)
-        if self.config.python_display_short_literal_types:
-            kwargs.setdefault('short_literals', True)
-
-        try:
-            if self.props._obj == object.__init__ and self.parent != object:  # NoQA: E721
-                # Classes not having own __init__() method are shown as no arguments.
-                #
-                # Note: The signature of object.__init__() is (self, /, *args, **kwargs).
-                #       But it makes users confused.
-                args = '()'
-            else:
-                if inspect.isstaticmethod(
-                    self.props._obj, cls=self.parent, name=self.props.object_name
-                ):
-                    self._events.emit(
-                        'autodoc-before-process-signature', self.props._obj, False
-                    )
-                    sig = inspect.signature(
-                        self.props._obj,
-                        bound_method=False,
-                        type_aliases=self.config.autodoc_type_aliases,
-                    )
-                else:
-                    self._events.emit(
-                        'autodoc-before-process-signature', self.props._obj, True
-                    )
-                    sig = inspect.signature(
-                        self.props._obj,
-                        bound_method=True,
-                        type_aliases=self.config.autodoc_type_aliases,
-                    )
-                args = stringify_signature(sig, **kwargs)
-        except TypeError as exc:
-            msg = __('Failed to get a method signature for %s: %s')
-            logger.warning(msg, self.props.full_name, exc)
-            return ''
-        except ValueError:
-            args = ''
-
-        if self.config.strip_signature_backslash:
-            # escape backslashes for reST
-            args = args.replace('\\', '\\\\')
-        return args
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
@@ -1820,3 +1625,176 @@ def _document_members(
             real_modname=real_modname,
             check_module=members_check_module and not is_attr,
         )
+
+
+def format_args(
+    config: Config,
+    events: EventManager,
+    get_attr: _AttrGetter,
+    parent: Any,
+    props: _ItemProperties,
+    **kwargs: Any,
+) -> tuple[str, str]:
+    """Format the argument signature of *self.object*.
+
+    Should return None if the object does not have a signature.
+    """
+    sig = _get_sig_object(
+        events=events,
+        get_attr=get_attr,
+        parent=parent,
+        props=props,
+        type_aliases=config.autodoc_type_aliases,
+    )
+    if sig is None:
+        return '', ''
+    if props.obj_type == 'decorator' and len(sig.parameters) == 1:
+        # Special case for single-argument decorators
+        return '', ''
+
+    if config.autodoc_typehints in {'none', 'description'}:
+        kwargs.setdefault('show_annotation', False)
+    if config.autodoc_typehints_format == 'short':
+        kwargs.setdefault('unqualified_typehints', True)
+    if config.python_display_short_literal_types:
+        kwargs.setdefault('short_literals', True)
+    if props.obj_type in {'class', 'exception'}:
+        kwargs['show_return_annotation'] = False
+
+    args, retann = _stringify_signature_to_parts(sig, **kwargs)
+    if config.strip_signature_backslash:
+        # escape backslashes for reST
+        args = args.replace('\\', '\\\\')
+        retann = retann.replace('\\', '\\\\')
+
+    return f'({args})', retann
+
+
+def _get_sig_object(
+    events: EventManager,
+    get_attr: _AttrGetter,
+    parent: Any,
+    props: _ItemProperties,
+    type_aliases: Mapping[str, str] | None,
+) -> Signature | None:
+    """Format the argument signature of *self.object*.
+
+    Should return None if the object does not have a signature.
+    """
+    if props.obj_type in {'function', 'decorator'}:
+        events.emit('autodoc-before-process-signature', props._obj, False)
+        try:
+            return inspect.signature(props._obj, type_aliases=type_aliases)
+        except TypeError as exc:
+            msg = __('Failed to get a function signature for %s: %s')
+            logger.warning(msg, props.full_name, exc)
+            return None
+        except ValueError:
+            return None
+
+    if props.obj_type in {'class', 'exception'}:
+        if isinstance(props._obj, (NewType, TypeVar)):
+            # Suppress signature
+            return None
+
+        try:
+            object_sig = props._obj.__signature__
+        except AttributeError:
+            pass
+        else:
+            if isinstance(object_sig, Signature):
+                return object_sig
+            if sys.version_info[:2] in {(3, 12), (3, 13)} and callable(object_sig):
+                # Support for enum.Enum.__signature__ in Python 3.12
+                if isinstance(object_sig_str := object_sig(), str):
+                    return inspect.signature_from_str(object_sig_str)
+
+        def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
+            """Get the `attr` function or method from `obj`, if it is user-defined."""
+            if inspect.is_builtin_class_method(obj, attr):
+                return None
+            attr = get_attr(obj, attr, None)
+            if not (inspect.ismethod(attr) or inspect.isfunction(attr)):
+                return None
+            return attr
+
+        # This sequence is copied from inspect._signature_from_callable.
+        # ValueError means that no signature could be found, so we keep going.
+
+        # Let's see if it has an overloaded __call__ defined in its metaclass,
+        # or if the 'obj' class has a '__new__' or '__init__' method
+        for obj, meth_name, blacklist in (
+            (type(props._obj), '__call__', _METACLASS_CALL_BLACKLIST),
+            (props._obj, '__new__', _CLASS_NEW_BLACKLIST),
+            (props._obj, '__init__', frozenset()),
+        ):
+            meth = get_user_defined_function_or_method(obj, meth_name)
+            if meth is None:
+                continue
+            if blacklist:
+                if f'{meth.__module__}.{meth.__qualname__}' in blacklist:
+                    continue
+
+            events.emit('autodoc-before-process-signature', meth, True)
+            try:
+                object_sig = inspect.signature(
+                    meth,
+                    bound_method=True,
+                    type_aliases=type_aliases,
+                )
+            except TypeError as exc:
+                msg = __('Failed to get a constructor signature for %s: %s')
+                logger.warning(msg, props.full_name, exc)
+                return None
+            except ValueError:
+                continue
+            else:
+                props._signature_method_name = meth_name
+                return object_sig
+
+        # None of the attributes are user-defined, so fall back to let inspect
+        # handle it.
+        # We don't know the exact method that inspect.signature will read
+        # the signature from, so just pass the object itself to our hook.
+        events.emit('autodoc-before-process-signature', props._obj, False)
+        try:
+            return inspect.signature(
+                props._obj,
+                bound_method=False,
+                type_aliases=type_aliases,
+            )
+        except TypeError as exc:
+            msg = __('Failed to get a constructor signature for %s: %s')
+            logger.warning(msg, props.full_name, exc)
+            return None
+        except ValueError:
+            pass
+
+        # Still no signature: happens e.g. for old-style classes
+        # with __init__ in C and no `__text_signature__`.
+        return None
+
+    if props.obj_type == 'method':
+        if props._obj == object.__init__ and parent != object:  # NoQA: E721
+            # Classes not having own __init__() method are shown as no arguments.
+            #
+            # Note: The signature of object.__init__() is (self, /, *args, **kwargs).
+            #       But it makes users confused.
+            return Signature()
+
+        is_bound_method = not inspect.isstaticmethod(
+            props._obj, cls=parent, name=props.object_name
+        )
+        events.emit('autodoc-before-process-signature', props._obj, is_bound_method)
+        try:
+            return inspect.signature(
+                props._obj, bound_method=is_bound_method, type_aliases=type_aliases
+            )
+        except TypeError as exc:
+            msg = __('Failed to get a method signature for %s: %s')
+            logger.warning(msg, props.full_name, exc)
+            return None
+        except ValueError:
+            return None
+
+    return None
