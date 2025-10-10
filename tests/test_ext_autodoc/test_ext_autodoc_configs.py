@@ -11,7 +11,7 @@ import pytest
 
 from sphinx.testing import restructuredtext
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

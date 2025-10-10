@@ -18,7 +18,7 @@ from tests.utils import http_server
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from typing import BinaryIO
+    from typing import Any, BinaryIO
 
 
 BASE_CONFIG = {
@@ -213,7 +213,7 @@ def make_inventory_handler(
             self.end_headers()
             self.wfile.write(data)
 
-        def log_message(*args, **kwargs):
+        def log_message(*args: Any, **kwargs: Any) -> None:
             pass
 
     return InventoryHandler

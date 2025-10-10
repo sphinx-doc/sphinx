@@ -25,8 +25,8 @@ from sphinx.ext.napoleon.docstring import (
 )
 from sphinx.testing.util import etree_parse
 
-from tests.test_extensions.ext_napoleon_pep526_data_google import PEP526GoogleClass
-from tests.test_extensions.ext_napoleon_pep526_data_numpy import PEP526NumpyClass
+from tests.test_ext_napoleon.pep526_data_google import PEP526GoogleClass
+from tests.test_ext_napoleon.pep526_data_numpy import PEP526NumpyClass
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import functools
-import operator
 import re
 import sys
 from inspect import Parameter, Signature
@@ -20,17 +18,16 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
+from sphinx.ext.autodoc._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
+from sphinx.ext.autodoc._renderer import (
+    _add_content,
+    _directive_header_lines,
+)
 from sphinx.ext.autodoc._sentinels import (
     ALL,
-    RUNTIME_INSTANCE_ATTRIBUTE,
-    SLOTS_ATTR,
-    SUPPRESS,
-    UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc.importer import (
-    _get_attribute_comment,
-    _is_runtime_instance_attribute_not_commented,
     _load_object_by_name,
     _resolve_name,
 )
@@ -38,15 +35,13 @@ from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
-from sphinx.util.docstrings import prepare_docstring, separate_metadata
+from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import (
     evaluate_signature,
-    getdoc,
-    object_description,
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import get_type_hints, restify, stringify_annotation
+from sphinx.util.typing import AnyTypeAliasType, restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -63,6 +58,7 @@ if TYPE_CHECKING:
         _FunctionDefProperties,
         _ItemProperties,
         _ModuleProperties,
+        _TypeStatementProperties,
     )
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
@@ -130,7 +126,6 @@ class Documenter:
     __uninitialized_global_variable__: ClassVar[bool] = False
     """If True, support uninitialized (type annotation only) global variables"""
 
-    _new_docstrings: list[list[str]] | None = None
     _signatures: list[str] = []
 
     option_spec: ClassVar[OptionSpec] = {
@@ -200,12 +195,15 @@ class Documenter:
 
         ret = _load_object_by_name(
             name=self.name,
-            objtype=self.objtype,
+            objtype=self.objtype,  # type: ignore[arg-type]
             mock_imports=self.config.autodoc_mock_imports,
             type_aliases=self.config.autodoc_type_aliases,
             current_document=self._current_document,
+            config=self.config,
             env=self.env,
+            events=self._events,
             get_attr=self.get_attr,
+            options=self.options,
         )
         if ret is None:
             return None
@@ -331,10 +329,11 @@ class Documenter:
             if hasattr(self.props._obj, '__mro__'):
                 valid_names.extend(cls.__name__ for cls in self.props._obj.__mro__)
 
-        docstrings = self.get_doc()
+        docstrings = self.props._docstrings
         if docstrings is None:
             return None, None
-        self._new_docstrings = docstrings[:]
+        _new_docstrings = [list(l) for l in docstrings]
+        tab_width = self.options._tab_width
         self._signatures = []
         result = None
         for i, doclines in enumerate(docstrings):
@@ -357,9 +356,7 @@ class Documenter:
                     break
 
                 # re-prepare docstring to ignore more leading indentation
-                directive = self.directive
-                tab_width = directive.state.document.settings.tab_width
-                self._new_docstrings[i] = prepare_docstring(
+                _new_docstrings[i] = prepare_docstring(
                     '\n'.join(doclines[j + 1 :]), tab_width
                 )
 
@@ -374,6 +371,17 @@ class Documenter:
                 # finish the loop when signature found
                 break
 
+        self.props._docstrings = _get_docstring_lines(
+            self.props,
+            class_doc_from=self.options.class_doc_from
+            if self.options.class_doc_from is not None
+            else self.config.autoclass_content,
+            get_attr=self.get_attr,
+            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            parent=self.parent,
+            tab_width=self.options._tab_width,
+            _new_docstrings=tuple(tuple(doc) for doc in _new_docstrings),
+        )
         return result
 
     def format_signature(self, **kwargs: Any) -> str:
@@ -442,70 +450,33 @@ class Documenter:
 
     def add_directive_header(self, sig: str) -> None:
         """Add the directive header and options to the generated content."""
-        domain = getattr(self, 'domain', 'py')
-        directive = getattr(self, 'directivetype', self.objtype)
-        name = self.format_name()
+        domain_name = getattr(self, 'domain', 'py')
+        if self.objtype in {'class', 'exception'} and self.props.doc_as_attr:  # type: ignore[attr-defined]
+            directive_name = 'attribute'
+        else:
+            directive_name = getattr(self, 'directivetype', self.objtype)
+        directive_name = f'{domain_name}:{directive_name}'
+
+        if self.analyzer:
+            is_final = self.props.dotted_parts in self.analyzer.finals
+        else:
+            is_final = False
+
+        indent = self.indent
+        result = self.directive.result
         sourcename = self.get_sourcename()
-
-        # one signature per line, indented by column
-        prefix = f'.. {domain}:{directive}:: '
-        for i, sig_line in enumerate(sig.split('\n')):
-            self.add_line(f'{prefix}{name}{sig_line}', sourcename)
-            if i == 0:
-                prefix = ' ' * len(prefix)
-
-        if self.options.no_index or self.options.noindex:
-            self.add_line('   :no-index:', sourcename)
-        if self.options.no_index_entry:
-            self.add_line('   :no-index-entry:', sourcename)
-        if self.props.parts:
-            # Be explicit about the module, this is necessary since .. class::
-            # etc. don't support a prepended module name
-            self.add_line('   :module: %s' % self.props.module_name, sourcename)
-
-    def get_doc(self) -> list[list[str]] | None:
-        """Decode and return lines of the docstring(s) for the object.
-
-        When it returns None, autodoc-process-docstring will not be called for this
-        object.
-        """
-        if self.props._obj is UNINITIALIZED_ATTR:
-            return []
-
-        if self.__docstring_signature__ and self._new_docstrings is not None:
-            return self._new_docstrings
-
-        docstring = getdoc(
-            self.props._obj,
-            self.get_attr,
-            self.config.autodoc_inherit_docstrings,
-            self.parent,
-            self.props.object_name,
-        )
-        if docstring:
-            tab_width = self.directive.state.document.settings.tab_width
-            return [prepare_docstring(docstring, tab_width)]
-        return []
-
-    def process_doc(self, docstrings: list[list[str]]) -> Iterator[str]:
-        """Let the user process the docstrings before adding them."""
-        for docstringlines in docstrings:
-            if self._events is not None:
-                # let extensions preprocess docstrings
-                self._events.emit(
-                    'autodoc-process-docstring',
-                    self.objtype,
-                    self.props.full_name,
-                    self.props._obj,
-                    self.options,
-                    docstringlines,
-                )
-
-                if docstringlines and docstringlines[-1]:
-                    # append a blank line to the end of the docstring
-                    docstringlines.append('')
-
-            yield from docstringlines
+        for line in _directive_header_lines(
+            sig,
+            autodoc_typehints=self.config.autodoc_typehints,
+            directive_name=directive_name,
+            is_final=is_final,
+            options=self.options,
+            props=self.props,
+        ):
+            if line.strip():  # not a blank line
+                result.append(indent + line, sourcename)
+            else:
+                result.append('', sourcename)
 
     def get_sourcename(self) -> str:
         obj_module = inspect.safe_getattr(self.props._obj, '__module__', None)
@@ -524,42 +495,175 @@ class Documenter:
 
     def add_content(self, more_content: StringList | None) -> None:
         """Add content from docstrings, attribute documentation and user."""
-        docstring = True
-
-        # set sourcename and add content from attribute documentation
-        sourcename = self.get_sourcename()
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-            if self.props.parts:
-                key = ('.'.join(self.props.parts[:-1]), self.props.parts[-1])
-                if key in attr_docs:
-                    docstring = False
-                    # make a copy of docstring for attributes to avoid cache
-                    # the change of autodoc-process-docstring event.
-                    attribute_docstrings = [list(attr_docs[key])]
-
-                    for i, line in enumerate(self.process_doc(attribute_docstrings)):
-                        self.add_line(line, sourcename, i)
-
         # add content from docstrings
-        if docstring:
-            docstrings = self.get_doc()
-            if docstrings is None:
-                # Do not call autodoc-process-docstring on get_doc() returns None.
-                pass
-            else:
-                if not docstrings:
-                    # append at least a dummy docstring, so that the event
-                    # autodoc-process-docstring is fired and can add some
-                    # content if desired
-                    docstrings.append([])
-                for i, line in enumerate(self.process_doc(docstrings)):
-                    self.add_line(line, sourcename, i)
+        processed_doc = StringList(
+            list(
+                self._process_docstrings(
+                    self._get_docstrings(),
+                    events=self._events,
+                    props=self.props,
+                    obj=self.props._obj,
+                    options=self.options,
+                )
+            ),
+            source=self.get_sourcename(),
+        )
+        _add_content(
+            processed_doc,
+            result=self.directive.result,
+            indent=self.indent + '   ' * (self.props.obj_type == 'module'),
+        )
 
         # add additional content (e.g. from document), if present
-        if more_content:
-            for line, src in zip(more_content.data, more_content.items, strict=True):
-                self.add_line(line, src[0], src[1])
+        more_content = self._assemble_more_content(
+            more_content=StringList() if more_content is None else more_content,
+            typehints_format=self.config.autodoc_typehints_format,
+            python_display_short_literal_types=self.config.python_display_short_literal_types,
+            props=self.props,
+        )
+        _add_content(
+            more_content,
+            result=self.directive.result,
+            indent=self.indent,
+        )
+
+    def _get_docstrings(self) -> list[list[str]] | None:
+        """Add content from docstrings, attribute documentation and user."""
+        if self.props._docstrings is not None:
+            docstrings = [list(doc) for doc in self.props._docstrings]
+        else:
+            docstrings = None
+        props = self.props
+
+        if docstrings is not None and len(docstrings) == 0:
+            # append at least a dummy docstring, so that the event
+            # autodoc-process-docstring is fired and can add some
+            # content if desired
+            docstrings.append([])
+
+        if props.obj_type in {'data', 'attribute'}:
+            return docstrings
+
+        attr_docs = None if self.analyzer is None else self.analyzer.find_attr_docs()
+        if props.obj_type in {'class', 'exception'}:
+            real_module = props._obj___module__ or props.module_name
+            if props.module_name != real_module:
+                try:
+                    # override analyzer to obtain doc-comment around its definition.
+                    ma = ModuleAnalyzer.for_module(props.module_name)
+                    ma.analyze()
+                    attr_docs = ma.attr_docs
+                except PycodeError:
+                    pass
+
+        # add content from attribute documentation
+        if attr_docs is not None and props.parts:
+            key = ('.'.join(props.parent_names), props.name)
+            if key in attr_docs:
+                # make a copy of docstring for attributes to avoid cache
+                # the change of autodoc-process-docstring event.
+                return [list(attr_docs[key])]
+
+        return docstrings
+
+    @staticmethod
+    def _process_docstrings(
+        docstrings: list[list[str]] | None,
+        *,
+        events: EventManager,
+        props: _ItemProperties,
+        obj: Any,
+        options: _AutoDocumenterOptions,
+    ) -> Iterator[str]:
+        """Let the user process the docstrings before adding them."""
+        if docstrings is None:
+            return
+        for docstring_lines in docstrings:
+            # let extensions preprocess docstrings
+            events.emit(
+                'autodoc-process-docstring',
+                props.obj_type,
+                props.full_name,
+                obj,
+                options,
+                docstring_lines,
+            )
+
+            if docstring_lines and docstring_lines[-1]:
+                # append a blank line to the end of the docstring
+                docstring_lines.append('')
+
+            yield from docstring_lines
+
+    @staticmethod
+    def _assemble_more_content(
+        more_content: StringList,
+        *,
+        props: _ItemProperties,
+        typehints_format: Literal['fully-qualified', 'short'],
+        python_display_short_literal_types: bool,
+    ) -> StringList:
+        """Add content from docstrings, attribute documentation and user."""
+        obj = props._obj
+
+        if props.obj_type in {'data', 'attribute'}:
+            mode = _get_render_mode(typehints_format)
+
+            # Support for documenting GenericAliases
+            if inspect.isgenericalias(obj):
+                alias = restify(obj, mode=mode)
+                more_content.append(_('alias of %s') % alias, '')
+                more_content.append('', '')
+            return more_content
+
+        if props.obj_type in {'class', 'exception'}:
+            from sphinx.ext.autodoc._property_types import _ClassDefProperties
+
+            assert isinstance(props, _ClassDefProperties)
+
+            mode = _get_render_mode(typehints_format)
+
+            if isinstance(obj, NewType):
+                supertype = restify(obj.__supertype__, mode=mode)
+                return StringList([_('alias of %s') % supertype, ''], source='')
+
+            if isinstance(obj, TypeVar):
+                short_literals = python_display_short_literal_types
+                attrs = [
+                    repr(obj.__name__),
+                    *(
+                        stringify_annotation(
+                            constraint, mode, short_literals=short_literals
+                        )
+                        for constraint in obj.__constraints__
+                    ),
+                ]
+                if obj.__bound__:
+                    attrs.append(rf'bound=\ {restify(obj.__bound__, mode=mode)}')
+                if obj.__covariant__:
+                    attrs.append('covariant=True')
+                if obj.__contravariant__:
+                    attrs.append('contravariant=True')
+
+                alias = f'TypeVar({", ".join(attrs)})'
+                return StringList([_('alias of %s') % alias, ''], source='')
+
+            if props.doc_as_attr:
+                try:
+                    analyzer = ModuleAnalyzer.for_module(props.module_name)
+                    analyzer.analyze()
+                    key = ('', props.dotted_parts)
+                    no_classvar_doc_comment = key not in analyzer.attr_docs
+                except PycodeError:
+                    no_classvar_doc_comment = True
+
+                if no_classvar_doc_comment:
+                    alias = restify(obj, mode=mode)
+                    return StringList([_('alias of %s') % alias], source='')
+
+            return more_content
+
+        return more_content
 
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
@@ -656,10 +760,8 @@ class Documenter:
             except PycodeError:
                 pass
 
-        docstrings: list[str] = functools.reduce(
-            operator.iadd, self.get_doc() or [], []
-        )
-        if ismock(self.props._obj) and not docstrings:
+        has_docstring = any(self.props._docstrings or ())
+        if ismock(self.props._obj) and not has_docstring:
             logger.warning(
                 __('A mocked object is detected: %r'),
                 self.name,
@@ -842,15 +944,6 @@ class ModuleDocumenter(Documenter):
         self.options = self.options.merge_member_options()
         self.__all__: Sequence[str] | None = None
 
-    def add_content(self, more_content: StringList | None) -> None:
-        old_indent = self.indent
-        self.indent += self._extra_indent
-        super().add_content(None)
-        self.indent = old_indent
-        if more_content:
-            for line, src in zip(more_content.data, more_content.items, strict=True):
-                self.add_line(line, src[0], src[1])
-
     @classmethod
     def can_document_member(
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
@@ -862,19 +955,6 @@ class ModuleDocumenter(Documenter):
         if self.__all__ is None and not self.options.ignore_module_all:
             self.__all__ = self.props.all
         return self.__all__
-
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-
-        sourcename = self.get_sourcename()
-
-        # add some module-specific options
-        if self.options.synopsis:
-            self.add_line('   :synopsis: ' + self.options.synopsis, sourcename)
-        if self.options.platform:
-            self.add_line('   :platform: ' + self.options.platform, sourcename)
-        if self.options.deprecated:
-            self.add_line('   :deprecated:', sourcename)
 
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
@@ -960,15 +1040,6 @@ class FunctionDocumenter(Documenter):
             return ''
         return args
 
-    def add_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
-        super().add_directive_header(sig)
-
-        is_coro = inspect.iscoroutinefunction(self.props._obj)
-        is_acoro = inspect.isasyncgenfunction(self.props._obj)
-        if is_coro or is_acoro:
-            self.add_line('   :async:', sourcename)
-
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
@@ -1006,6 +1077,8 @@ class FunctionDocumenter(Documenter):
                             docstring_lines=(),
                             _obj=dispatchfunc,
                             _obj___module__=None,
+                            _obj___qualname__=None,
+                            _obj___name__=None,
                             properties=frozenset(),
                         )
                         sigs.append(documenter.format_signature())
@@ -1144,11 +1217,11 @@ class ClassDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return isinstance(member, type) or (
-            isattr and isinstance(member, NewType | TypeVar)
+            isattr and isinstance(member, (NewType, TypeVar))
         )
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if isinstance(self.props._obj, NewType | TypeVar):
+        if isinstance(self.props._obj, (NewType, TypeVar)):
             # Suppress signature
             return None, None, None
 
@@ -1353,182 +1426,6 @@ class ClassDocumenter(Documenter):
         else:
             return None
 
-    def add_directive_header(self, sig: str) -> None:
-        sourcename = self.get_sourcename()
-
-        if self.props.doc_as_attr:
-            self.directivetype = 'attribute'
-        super().add_directive_header(sig)
-
-        if isinstance(self.props._obj, NewType | TypeVar):
-            return
-
-        if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
-            self.add_line('   :final:', sourcename)
-
-        canonical_fullname = self.get_canonical_fullname()
-        if (
-            not self.props.doc_as_attr
-            and not isinstance(self.props._obj, NewType)
-            and canonical_fullname
-            and self.props.full_name != canonical_fullname
-        ):
-            self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
-
-        # add inheritance info, if wanted
-        if not self.props.doc_as_attr and self.options.show_inheritance:
-            if inspect.getorigbases(self.props._obj):
-                # A subclass of generic types
-                # refs: PEP-560 <https://peps.python.org/pep-0560/>
-                bases = list(self.props._obj.__orig_bases__)
-            elif hasattr(self.props._obj, '__bases__') and len(
-                self.props._obj.__bases__
-            ):
-                # A normal class
-                bases = list(self.props._obj.__bases__)
-            else:
-                bases = []
-
-            self._events.emit(
-                'autodoc-process-bases',
-                self.props.full_name,
-                self.props._obj,
-                self.options,
-                bases,
-            )
-
-            mode = _get_render_mode(self.config.autodoc_typehints_format)
-            base_classes = [restify(cls, mode=mode) for cls in bases]
-
-            sourcename = self.get_sourcename()
-            self.add_line('', sourcename)
-            self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
-
-    def get_doc(self) -> list[list[str]] | None:
-        if isinstance(self.props._obj, TypeVar):
-            if self.props._obj.__doc__ == TypeVar.__doc__:
-                return []
-        if self.props.doc_as_attr:
-            # Don't show the docstring of the class when it is an alias.
-            if self.get_variable_comment():
-                return []
-            else:
-                return None
-
-        lines = getattr(self, '_new_docstrings', None)
-        if lines is not None:
-            return lines
-
-        if self.options.class_doc_from is not None:
-            classdoc_from = self.options.class_doc_from
-        else:
-            classdoc_from = self.config.autoclass_content
-
-        docstrings = []
-        attrdocstring = getdoc(self.props._obj, self.get_attr)
-        if attrdocstring:
-            docstrings.append(attrdocstring)
-
-        # for classes, what the "docstring" is can be controlled via a
-        # config value; the default is only the class docstring
-        if classdoc_from in {'both', 'init'}:
-            __init__ = self.get_attr(self.props._obj, '__init__', None)
-            initdocstring = getdoc(
-                __init__,
-                self.get_attr,
-                self.config.autodoc_inherit_docstrings,
-                self.props._obj,
-                '__init__',
-            )
-            # for new-style classes, no __init__ means default __init__
-            if initdocstring is not None and (
-                initdocstring == object.__init__.__doc__  # for pypy
-                or initdocstring.strip() == object.__init__.__doc__  # for !pypy
-            ):
-                initdocstring = None
-            if not initdocstring:
-                # try __new__
-                __new__ = self.get_attr(self.props._obj, '__new__', None)
-                initdocstring = getdoc(
-                    __new__,
-                    self.get_attr,
-                    self.config.autodoc_inherit_docstrings,
-                    self.props._obj,
-                    '__new__',
-                )
-                # for new-style classes, no __new__ means default __new__
-                if initdocstring is not None and (
-                    initdocstring == object.__new__.__doc__  # for pypy
-                    or initdocstring.strip() == object.__new__.__doc__  # for !pypy
-                ):
-                    initdocstring = None
-            if initdocstring:
-                if classdoc_from == 'init':
-                    docstrings = [initdocstring]
-                else:
-                    docstrings.append(initdocstring)
-
-        tab_width = self.directive.state.document.settings.tab_width
-        return [prepare_docstring(docstring, tab_width) for docstring in docstrings]
-
-    def get_variable_comment(self) -> list[str] | None:
-        try:
-            key = ('', self.props.dotted_parts)
-            if self.props.doc_as_attr:
-                analyzer = ModuleAnalyzer.for_module(self.props.module_name)
-            else:
-                analyzer = ModuleAnalyzer.for_module(
-                    self.props._obj___module__ or self.props.module_name
-                )
-            analyzer.analyze()
-            return list(analyzer.attr_docs.get(key, []))
-        except PycodeError:
-            return None
-
-    def add_content(self, more_content: StringList | None) -> None:
-        mode = _get_render_mode(self.config.autodoc_typehints_format)
-        short_literals = self.config.python_display_short_literal_types
-
-        if isinstance(self.props._obj, NewType):
-            supertype = restify(self.props._obj.__supertype__, mode=mode)
-
-            more_content = StringList([_('alias of %s') % supertype, ''], source='')
-        if isinstance(self.props._obj, TypeVar):
-            attrs = [repr(self.props._obj.__name__)]
-            attrs.extend(
-                stringify_annotation(constraint, mode, short_literals=short_literals)
-                for constraint in self.props._obj.__constraints__
-            )
-            if self.props._obj.__bound__:
-                bound = restify(self.props._obj.__bound__, mode=mode)
-                attrs.append(r'bound=\ ' + bound)
-            if self.props._obj.__covariant__:
-                attrs.append('covariant=True')
-            if self.props._obj.__contravariant__:
-                attrs.append('contravariant=True')
-
-            more_content = StringList(
-                [_('alias of TypeVar(%s)') % ', '.join(attrs), ''], source=''
-            )
-        if self.props.doc_as_attr and self.props.module_name != (
-            self.props._obj___module__ or self.props.module_name
-        ):
-            try:
-                # override analyzer to obtain doccomment around its definition.
-                self.analyzer = ModuleAnalyzer.for_module(self.props.module_name)
-                self.analyzer.analyze()
-            except PycodeError:
-                pass
-
-        if self.props.doc_as_attr and not self.get_variable_comment():
-            try:
-                alias = restify(self.props._obj, mode=mode)
-                more_content = StringList([_('alias of %s') % alias], source='')
-            except AttributeError:
-                pass  # Invalid class object is passed.
-
-        super().add_content(more_content)
-
     def generate(
         self,
         more_content: StringList | None = None,
@@ -1595,109 +1492,6 @@ class DataDocumenter(Documenter):
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         return isinstance(parent, ModuleDocumenter) and isattr
-
-    def update_annotations(self, parent: Any) -> None:
-        """Update __annotations__ to support type_comment and so on."""
-        annotations = dict(inspect.getannotations(parent))
-        parent.__annotations__ = annotations
-
-        try:
-            analyzer = ModuleAnalyzer.for_module(self.props.module_name)
-            analyzer.analyze()
-            for (classname, attrname), annotation in analyzer.annotations.items():
-                if not classname and attrname not in annotations:
-                    annotations[attrname] = annotation
-        except PycodeError:
-            pass
-
-    def should_suppress_value_header(self) -> bool:
-        if self.props._obj is UNINITIALIZED_ATTR:
-            return True
-        else:
-            doc = self.get_doc() or []
-            _docstring, metadata = separate_metadata(
-                '\n'.join(functools.reduce(operator.iadd, doc, []))
-            )
-            if 'hide-value' in metadata:
-                return True
-
-        return False
-
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-        sourcename = self.get_sourcename()
-        if self.options.annotation is SUPPRESS or inspect.isgenericalias(
-            self.props._obj
-        ):
-            pass
-        elif self.options.annotation:
-            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
-        else:
-            if self.config.autodoc_typehints != 'none':
-                # obtain annotation for this data
-                annotations = get_type_hints(
-                    self.parent,
-                    None,
-                    self.config.autodoc_type_aliases,
-                    include_extras=True,
-                )
-                if self.props.name in annotations:
-                    mode = _get_render_mode(self.config.autodoc_typehints_format)
-                    short_literals = self.config.python_display_short_literal_types
-                    objrepr = stringify_annotation(
-                        annotations.get(self.props.name),
-                        mode,
-                        short_literals=short_literals,
-                    )
-                    self.add_line('   :type: ' + objrepr, sourcename)
-
-            try:
-                if (
-                    self.options.no_value
-                    or self.should_suppress_value_header()
-                    or ismock(self.props._obj)
-                ):
-                    pass
-                else:
-                    objrepr = object_description(self.props._obj)
-                    self.add_line('   :value: ' + objrepr, sourcename)
-            except ValueError:
-                pass
-
-    def get_module_comment(self, attrname: str) -> list[str] | None:
-        try:
-            analyzer = ModuleAnalyzer.for_module(self.props.module_name)
-            analyzer.analyze()
-            key = ('', attrname)
-            if key in analyzer.attr_docs:
-                return list(analyzer.attr_docs[key])
-        except PycodeError:
-            pass
-
-        return None
-
-    def get_doc(self) -> list[list[str]] | None:
-        # Check the variable has a docstring-comment
-        comment = self.get_module_comment(self.props.name)
-        if comment:
-            return [comment]
-        else:
-            return super().get_doc()
-
-    def add_content(self, more_content: StringList | None) -> None:
-        # Disable analyzing variable comment on Documenter.add_content() to control it on
-        # DataDocumenter.add_content()
-        self.analyzer = None
-
-        if not more_content:
-            more_content = StringList()
-
-        _add_content_generic_alias_(
-            more_content,
-            self.props._obj,
-            autodoc_typehints_format=self.config.autodoc_typehints_format,
-        )
-        super().add_content(more_content)
 
 
 class MethodDocumenter(Documenter):
@@ -1767,26 +1561,6 @@ class MethodDocumenter(Documenter):
             args = args.replace('\\', '\\\\')
         return args
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-
-        sourcename = self.get_sourcename()
-        obj = self.parent.__dict__.get(self.props.object_name, self.props._obj)
-        if inspect.isabstractmethod(obj):
-            self.add_line('   :abstractmethod:', sourcename)
-        if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
-            self.add_line('   :async:', sourcename)
-        if (
-            inspect.is_classmethod_like(obj)
-            or inspect.is_singledispatch_method(obj)
-            and inspect.is_classmethod_like(obj.func)
-        ):
-            self.add_line('   :classmethod:', sourcename)
-        if inspect.isstaticmethod(obj, cls=self.parent, name=self.props.object_name):
-            self.add_line('   :staticmethod:', sourcename)
-        if self.analyzer and self.props.dotted_parts in self.analyzer.finals:
-            self.add_line('   :final:', sourcename)
-
     def format_signature(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints_format == 'short':
             kwargs.setdefault('unqualified_typehints', True)
@@ -1827,6 +1601,8 @@ class MethodDocumenter(Documenter):
                             docstring_lines=(),
                             _obj=dispatchmeth,
                             _obj___module__=None,
+                            _obj___qualname__=None,
+                            _obj___name__=None,
                             properties=frozenset(),
                         )
                         documenter.parent = self.parent
@@ -1907,51 +1683,6 @@ class MethodDocumenter(Documenter):
 
         return func
 
-    def get_doc(self) -> list[list[str]] | None:
-        if self._new_docstrings is not None:
-            # docstring already returned previously, then modified due to
-            # ``__docstring_signature__ = True``. Just return the
-            # previously-computed result, so that we don't loose the processing.
-            return self._new_docstrings
-        if self.props.name == '__init__':
-            docstring = getdoc(
-                self.props._obj,
-                self.get_attr,
-                self.config.autodoc_inherit_docstrings,
-                self.parent,
-                self.props.object_name,
-            )
-            if docstring is not None and (
-                docstring == object.__init__.__doc__  # for pypy
-                or docstring.strip() == object.__init__.__doc__  # for !pypy
-            ):
-                docstring = None
-            if docstring:
-                tab_width = self.directive.state.document.settings.tab_width
-                return [prepare_docstring(docstring, tabsize=tab_width)]
-            else:
-                return []
-        elif self.props.name == '__new__':
-            docstring = getdoc(
-                self.props._obj,
-                self.get_attr,
-                self.config.autodoc_inherit_docstrings,
-                self.parent,
-                self.props.object_name,
-            )
-            if docstring is not None and (
-                docstring == object.__new__.__doc__  # for pypy
-                or docstring.strip() == object.__new__.__doc__  # for !pypy
-            ):
-                docstring = None
-            if docstring:
-                tab_width = self.directive.state.document.settings.tab_width
-                return [prepare_docstring(docstring, tabsize=tab_width)]
-            else:
-                return []
-        else:
-            return super().get_doc()
-
 
 class AttributeDocumenter(Documenter):
     """Specialized Documenter subclass for attributes."""
@@ -1986,167 +1717,6 @@ class AttributeDocumenter(Documenter):
         if inspect.isattributedescriptor(member):
             return True
         return not inspect.isroutine(member) and not isinstance(member, type)
-
-    def update_annotations(self, parent: Any) -> None:
-        """Update __annotations__ to support type_comment and so on."""
-        try:
-            annotations = dict(inspect.getannotations(parent))
-            parent.__annotations__ = annotations
-
-            for cls in inspect.getmro(parent):
-                try:
-                    module = safe_getattr(cls, '__module__')
-                    qualname = safe_getattr(cls, '__qualname__')
-
-                    analyzer = ModuleAnalyzer.for_module(module)
-                    analyzer.analyze()
-                    anns = analyzer.annotations
-                    for (classname, attrname), annotation in anns.items():
-                        if classname == qualname and attrname not in annotations:
-                            annotations[attrname] = annotation
-                except (AttributeError, PycodeError):
-                    pass
-        except (AttributeError, TypeError):
-            # Failed to set __annotations__ (built-in, extensions, etc.)
-            pass
-
-    @property
-    def _is_non_data_descriptor(self) -> bool:
-        return not inspect.isattributedescriptor(self.props._obj)
-
-    def should_suppress_value_header(self) -> bool:
-        if self.props._obj is SLOTS_ATTR:
-            return True
-        if self.props._obj is RUNTIME_INSTANCE_ATTRIBUTE:
-            return True
-        if self.props._obj is UNINITIALIZED_ATTR:
-            return True
-        if not self._is_non_data_descriptor or inspect.isgenericalias(self.props._obj):
-            return True
-        else:
-            doc = self.get_doc()
-            if doc:
-                _docstring, metadata = separate_metadata(
-                    '\n'.join(functools.reduce(operator.iadd, doc, []))
-                )
-                if 'hide-value' in metadata:
-                    return True
-
-        return False
-
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-        sourcename = self.get_sourcename()
-        if self.options.annotation is SUPPRESS or inspect.isgenericalias(
-            self.props._obj
-        ):
-            pass
-        elif self.options.annotation:
-            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
-        else:
-            if self.config.autodoc_typehints != 'none':
-                # obtain type annotation for this attribute
-                annotations = get_type_hints(
-                    self.parent,
-                    None,
-                    self.config.autodoc_type_aliases,
-                    include_extras=True,
-                )
-                if self.props.name in annotations:
-                    mode = _get_render_mode(self.config.autodoc_typehints_format)
-                    short_literals = self.config.python_display_short_literal_types
-                    objrepr = stringify_annotation(
-                        annotations.get(self.props.name),
-                        mode,
-                        short_literals=short_literals,
-                    )
-                    self.add_line('   :type: ' + objrepr, sourcename)
-
-            try:
-                if (
-                    self.options.no_value
-                    or self.should_suppress_value_header()
-                    or ismock(self.props._obj)
-                ):
-                    pass
-                else:
-                    objrepr = object_description(self.props._obj)
-                    self.add_line('   :value: ' + objrepr, sourcename)
-            except ValueError:
-                pass
-
-    def get_attribute_comment(self, parent: Any, attrname: str) -> list[str] | None:
-        return _get_attribute_comment(
-            parent=parent, obj_path=self.props.parts, attrname=attrname
-        )
-
-    def get_doc(self) -> list[list[str]] | None:
-        # Check the attribute has a docstring-comment
-        comment = _get_attribute_comment(
-            parent=self.parent, obj_path=self.props.parts, attrname=self.props.parts[-1]
-        )
-        if comment:
-            return [comment]
-
-        try:
-            # Disable `autodoc_inherit_docstring` temporarily to avoid to obtain
-            # a docstring from the value which descriptor returns unexpectedly.
-            # See: https://github.com/sphinx-doc/sphinx/issues/7805
-            orig = self.config.autodoc_inherit_docstrings
-            self.config.autodoc_inherit_docstrings = False
-
-            if self.props._obj is SLOTS_ATTR:
-                # support for __slots__
-                try:
-                    parent___slots__ = inspect.getslots(self.parent)
-                    if parent___slots__ and (
-                        docstring := parent___slots__.get(self.props.name)
-                    ):
-                        docstring = prepare_docstring(docstring)
-                        return [docstring]
-                    else:
-                        return []
-                except ValueError as exc:
-                    logger.warning(
-                        __('Invalid __slots__ found on %s. Ignored.'),
-                        (self.parent.__qualname__, exc),
-                        type='autodoc',
-                    )
-                    return []
-
-            if (
-                self.props._obj is RUNTIME_INSTANCE_ATTRIBUTE
-                and _is_runtime_instance_attribute_not_commented(
-                    parent=self.parent, obj_path=self.props.parts
-                )
-            ):
-                return None
-
-            if self.props._obj is UNINITIALIZED_ATTR:
-                return None
-
-            if self._is_non_data_descriptor:
-                # the docstring of non-data descriptor is very probably
-                # the wrong thing to display
-                return None
-
-            return super().get_doc()
-        finally:
-            self.config.autodoc_inherit_docstrings = orig
-
-    def add_content(self, more_content: StringList | None) -> None:
-        # Disable analyzing attribute comment on Documenter.add_content() to control it on
-        # AttributeDocumenter.add_content()
-        self.analyzer = None
-
-        if more_content is None:
-            more_content = StringList()
-        _add_content_generic_alias_(
-            more_content,
-            self.props._obj,
-            autodoc_typehints_format=self.config.autodoc_typehints_format,
-        )
-        super().add_content(more_content)
 
 
 class PropertyDocumenter(Documenter):
@@ -2187,39 +1757,41 @@ class PropertyDocumenter(Documenter):
 
         # update the annotations of the property getter
         self._events.emit('autodoc-before-process-signature', func, False)
+
+        self.props._obj_property_type_annotation = self._property_type_hint()
+
         # correctly format the arguments for a property
         return super().format_args(**kwargs)
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
-        sourcename = self.get_sourcename()
-        if inspect.isabstractmethod(self.props._obj):
-            self.add_line('   :abstractmethod:', sourcename)
-        # Support for class properties. Note: these only work on Python 3.9.
-        if self.props.is_classmethod:
-            self.add_line('   :classmethod:', sourcename)
+    def _property_type_hint(self) -> str | None:
+        # TODO: Move this to _importer. Requires moving when type comments
+        #       are processed.
+        mode = _get_render_mode(self.config.autodoc_typehints_format)
+        config = self.config
 
         func = self._get_property_getter()
-        if func is None or self.config.autodoc_typehints == 'none':
-            return
+        if func is None:
+            return None
 
         try:
             signature = inspect.signature(
-                func, type_aliases=self.config.autodoc_type_aliases
+                func, type_aliases=config.autodoc_type_aliases
             )
             if signature.return_annotation is not Parameter.empty:
-                mode = _get_render_mode(self.config.autodoc_typehints_format)
-                short_literals = self.config.python_display_short_literal_types
-                objrepr = stringify_annotation(
+                short_literals = config.python_display_short_literal_types
+                return stringify_annotation(
                     signature.return_annotation, mode, short_literals=short_literals
                 )
-                self.add_line('   :type: ' + objrepr, sourcename)
         except TypeError as exc:
-            msg = __('Failed to get a function signature for %s: %s')
-            logger.warning(msg, self.props.full_name, exc)
+            logger.warning(
+                __('Failed to get a function signature for %s: %s'),
+                self.props.full_name,
+                exc,
+            )
             pass
         except ValueError:
             pass
+        return None
 
     def _get_property_getter(self) -> Callable[..., Any] | None:
         if safe_getattr(self.props._obj, 'fget', None):  # property
@@ -2227,6 +1799,27 @@ class PropertyDocumenter(Documenter):
         if safe_getattr(self.props._obj, 'func', None):  # cached_property
             return self.props._obj.func
         return None
+
+
+class TypeAliasDocumenter(Documenter):
+    """Specialized Documenter subclass for type aliases."""
+
+    props: _TypeStatementProperties
+
+    objtype = 'type'
+    member_order = 70
+    option_spec: ClassVar[OptionSpec] = {
+        'no-index': bool_option,
+        'no-index-entry': bool_option,
+        'annotation': annotation_option,
+        'no-value': bool_option,
+    }
+
+    @classmethod
+    def can_document_member(
+        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
+        return isinstance(member, AnyTypeAliasType)
 
 
 class DocstringSignatureMixin:
@@ -2252,19 +1845,6 @@ def autodoc_attrgetter(
             return func(obj, name, *defargs)
 
     return safe_getattr(obj, name, *defargs)
-
-
-def _add_content_generic_alias_(
-    more_content: StringList,
-    /,
-    obj: object,
-    autodoc_typehints_format: Literal['fully-qualified', 'short'],
-) -> None:
-    """Support for documenting GenericAliases."""
-    if inspect.isgenericalias(obj):
-        alias = restify(obj, mode=_get_render_mode(autodoc_typehints_format))
-        more_content.append(_('alias of %s') % alias, '')
-        more_content.append('', '')
 
 
 def _document_members(

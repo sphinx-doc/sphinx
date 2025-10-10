@@ -9,12 +9,11 @@ from docutils.nodes import make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
 from docutils.parsers.rst.directives.misc import Meta
-from docutils.parsers.rst.roles import set_classes
 
 from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, _normalize_options
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, relpath
 
@@ -100,7 +99,7 @@ class Code(SphinxDirective):
     def run(self) -> list[Node]:
         self.assert_has_content()
 
-        set_classes(self.options)
+        self.options = _normalize_options(self.options)
         code = '\n'.join(self.content)
         node = nodes.literal_block(
             code,
@@ -215,7 +214,7 @@ class Rubric(SphinxDirective):
     }
 
     def run(self) -> list[nodes.rubric | nodes.system_message]:
-        set_classes(self.options)
+        self.options = _normalize_options(self.options)
         rubric_text = self.arguments[0]
         textnodes, messages = self.parse_inline(rubric_text, lineno=self.lineno)
         if 'heading-level' in self.options:

@@ -1121,7 +1121,7 @@ class Sphinx:
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
-        .. deprecated:: 1.8
+        .. versionchanged:: 1.8
            Docutils 0.4-style (function based) directives support is deprecated.
         .. versionchanged:: 1.8
            Add *override* keyword.

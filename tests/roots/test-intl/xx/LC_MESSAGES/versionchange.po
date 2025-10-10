@@ -19,11 +19,23 @@ msgstr ""
 msgid "i18n with versionchange"
 msgstr "I18N WITH VERSIONCHANGE"
 
+msgid "This is the *first* paragraph of version-deprecated."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSION-DEPRECATED."
+
+msgid "This is the *second* paragraph of version-deprecated."
+msgstr "THIS IS THE *SECOND* PARAGRAPH OF VERSION-DEPRECATED."
+
+msgid "This is the *first* paragraph of version-added."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSION-ADDED."
+
+msgid "This is the *first* paragraph of version-changed."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSION-CHANGED."
+
+msgid "This is the *first* paragraph of version-removed."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSION-REMOVED."
+
 msgid "This is the *first* paragraph of deprecated."
 msgstr "THIS IS THE *FIRST* PARAGRAPH OF DEPRECATED."
-
-msgid "This is the *second* paragraph of deprecated."
-msgstr "THIS IS THE *SECOND* PARAGRAPH OF DEPRECATED."
 
 msgid "This is the *first* paragraph of versionadded."
 msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSIONADDED."
