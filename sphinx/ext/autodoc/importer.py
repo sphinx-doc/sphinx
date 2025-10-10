@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import contextlib
 import importlib
+import itertools
 import os
+import re
 import sys
 import traceback
 import typing
@@ -17,12 +19,14 @@ from typing import TYPE_CHECKING, NewType, TypeVar
 from weakref import WeakSet
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._property_types import (
     _AssignStatementProperties,
     _ClassDefProperties,
     _FunctionDefProperties,
     _ItemProperties,
     _ModuleProperties,
+    _TypeStatementProperties,
 )
 from sphinx.ext.autodoc._sentinels import (
     RUNTIME_INSTANCE_ATTRIBUTE,
@@ -47,6 +51,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
+    from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
 
     class _AttrGetter(Protocol):
@@ -55,6 +60,8 @@ if TYPE_CHECKING:
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
+
+_hide_value_re = re.compile(r'^:meta \s*hide-value:( +|$)')
 
 
 class _ImportedObject:
@@ -419,7 +426,7 @@ def _is_runtime_instance_attribute_not_commented(
 
 def _get_attribute_comment(
     parent: Any, obj_path: Sequence[str], attrname: str
-) -> list[str] | None:
+) -> tuple[str, ...] | None:
     for cls in inspect.getmro(parent):
         try:
             module = safe_getattr(cls, '__module__')
@@ -430,7 +437,7 @@ def _get_attribute_comment(
             if qualname and obj_path:
                 key = (qualname, attrname)
                 if key in analyzer.attr_docs:
-                    return list(analyzer.attr_docs[key])
+                    return tuple(analyzer.attr_docs[key])
         except (AttributeError, PycodeError):
             pass
 
@@ -467,6 +474,7 @@ def _load_object_by_name(
     env: BuildEnvironment,
     events: EventManager,
     get_attr: _AttrGetter,
+    options: _AutoDocumenterOptions,
 ) -> tuple[_ItemProperties, str | None, str | None, ModuleType | None, Any] | None:
     """Import and load the object given by *name*."""
     parsed = _parse_name(
@@ -767,6 +775,34 @@ def _load_object_by_name(
             _obj_repr_rst=inspect.object_description(obj),
             _obj_type_annotation=type_annotation,
         )
+    elif objtype == 'type':
+        obj_module_name = getattr(obj, '__module__', module_name)
+        if obj_module_name != module_name and module_name.startswith(obj_module_name):
+            bases = module_name[len(obj_module_name) :].strip('.').split('.')
+            parts = tuple(bases) + parts
+            module_name = obj_module_name
+
+        if config.autodoc_typehints_format == 'short':
+            mode = 'smart'
+        else:
+            mode = 'fully-qualified-except-typing'
+        short_literals = config.python_display_short_literal_types
+        ann = stringify_annotation(
+            obj.__value__,
+            mode,  # type: ignore[arg-type]
+            short_literals=short_literals,
+        )
+        props = _TypeStatementProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
+            _obj___name__=getattr(obj, '__name__', None),
+            _obj___qualname__=getattr(obj, '__qualname__', None),
+            _obj___value__=ann,
+        )
     else:
         props = _ItemProperties(
             obj_type=objtype,
@@ -776,6 +812,23 @@ def _load_object_by_name(
             _obj=obj,
             _obj___module__=get_attr(obj, '__module__', None),
         )
+
+    if options.class_doc_from is not None:
+        class_doc_from = options.class_doc_from
+    else:
+        class_doc_from = config.autoclass_content
+    props._docstrings = _get_docstring_lines(
+        props,
+        class_doc_from=class_doc_from,
+        get_attr=get_attr,
+        inherit_docstrings=config.autodoc_inherit_docstrings,
+        parent=parent,
+        tab_width=options._tab_width,
+    )
+    for line in itertools.chain.from_iterable(props._docstrings or ()):
+        if _hide_value_re.match(line):
+            props._docstrings_has_hide_value = True
+            break
 
     return props, args, retann, module, parent
 
@@ -888,7 +941,7 @@ def _resolve_name(
             )
         return (path or '') + base, ()
 
-    if objtype in {'class', 'exception', 'function', 'decorator', 'data'}:
+    if objtype in {'class', 'exception', 'function', 'decorator', 'data', 'type'}:
         if module_name is not None:
             return module_name, (*parents, base)
         if path:

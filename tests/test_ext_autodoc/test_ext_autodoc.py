@@ -6,9 +6,7 @@ source file translated by test_build.
 
 from __future__ import annotations
 
-import functools
 import itertools
-import operator
 import sys
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
@@ -21,6 +19,7 @@ from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     inherited_members_option,
 )
+from sphinx.ext.autodoc._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
 from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
@@ -75,7 +74,6 @@ def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
         lineno=0,
         state=Mock(),
     )
-    directive.state.document.settings.tab_width = 8
 
     return directive
 
@@ -176,6 +174,14 @@ def test_format_signature(app):
             _obj_bases=(),
             _obj_is_new_type=False,
             _obj_is_typevar=False,
+        )
+        inst.props._docstrings = _get_docstring_lines(
+            inst.props,
+            class_doc_from=inst.config.autoclass_content,
+            get_attr=inst.get_attr,
+            inherit_docstrings=inst.config.autodoc_inherit_docstrings,
+            parent=inst.parent,
+            tab_width=8,
         )
         res = inst.format_signature()
         print(res)
@@ -283,10 +289,11 @@ def test_format_signature(app):
         """some docstring for F2."""
 
         def __init__(self, *args, **kw):
-            """__init__(a1, a2, kw1=True, kw2=False)
+            """
+            __init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
-            """
+            """  # NoQA: D212
 
     class G2(F2):
         pass
@@ -398,10 +405,19 @@ def test_get_doc(app):
         )
         inst.parent = object  # dummy
         inst.doc_as_attr = False
+        inst.props._docstrings = _get_docstring_lines(
+            inst.props,
+            class_doc_from=inst.config.autoclass_content,
+            get_attr=inst.get_attr,
+            inherit_docstrings=inst.config.autodoc_inherit_docstrings,
+            parent=inst.parent,
+            tab_width=8,
+        )
+
         inst.format_signature()  # handle docstring signatures!
-        ds = inst.get_doc()
+        ds = inst.props._docstrings
         # for testing purposes, concat them and strip the empty line at the end
-        res = functools.reduce(operator.iadd, ds, [])[:-1]
+        res = list(itertools.chain.from_iterable(ds))[:-1]
         print(res)
         return res
 
@@ -416,7 +432,9 @@ def test_get_doc(app):
         """Docstring"""
 
     def g():
-        """Docstring"""
+        """
+        Docstring
+        """  # NoQA: D212
 
     for func in (f, g):
         assert getdocl('function', func) == ['Docstring']
@@ -2492,6 +2510,86 @@ def test_autodoc_GenericAlias(app):
         '   A list of int',
         '',
         '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+    ]
+
+
+@pytest.mark.skipif(
+    sys.version_info[:2] < (3, 12),
+    reason='type statement introduced in Python 3.12',
+)
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_pep695_type_alias(app):
+    options = {
+        'members': None,
+        'undoc-members': None,
+    }
+    actual = do_autodoc(app, 'module', 'target.pep695', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.pep695',
+        '',
+        '',
+        '.. py:class:: Bar',
+        '   :module: target.pep695',
+        '',
+        '   This is newtype of Pep695Alias.',
+        '',
+        '   alias of :py:type:`~target.pep695.Pep695Alias`',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.pep695',
+        '',
+        '   This is class Foo.',
+        '',
+        '',
+        '.. py:type:: Pep695Alias',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is PEP695 type alias.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasC',
+        '   :module: target.pep695',
+        '   :canonical: dict[str, ~target.pep695.Foo]',
+        '',
+        '   This is PEP695 complex type alias with doc comment.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasOfAlias',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Pep695AliasC',
+        '',
+        '   This is PEP695 type alias of PEP695 alias.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasUnion',
+        '   :module: target.pep695',
+        '   :canonical: str | int',
+        '',
+        '   This is PEP695 type alias for union.',
+        '',
+        '',
+        '.. py:type:: TypeAliasTypeExplicit',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is an explicitly constructed typing.TypeAlias.',
+        '',
+        '',
+        '.. py:type:: TypeAliasTypeExtension',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is an explicitly constructed typing_extensions.TypeAlias.',
+        '',
+        '',
+        '.. py:function:: ret_pep695(a: ~target.pep695.Pep695Alias) -> ~target.pep695.Pep695Alias',
+        '   :module: target.pep695',
+        '',
+        '   This fn accepts and returns PEP695 alias.',
         '',
     ]
 

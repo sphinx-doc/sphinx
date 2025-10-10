@@ -26,6 +26,7 @@ if TYPE_CHECKING:
         'property',
         'attribute',
         'data',
+        'type',
     ]
     _AutodocFuncProperty: TypeAlias = Literal[
         'abstractmethod',
@@ -48,6 +49,8 @@ class _ItemProperties:
     #: This item's docstring, as a sequence of lines
     docstring_lines: tuple[str, ...]
 
+    _docstrings: Sequence[Sequence[str]] | None = None
+    _docstrings_has_hide_value: bool = False
     _obj: Any
     _obj___module__: str | None
 
@@ -187,3 +190,12 @@ class _AssignStatementProperties(_ItemProperties):
     )
     _obj_repr_rst: str
     _obj_type_annotation: str | None
+
+
+@dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
+class _TypeStatementProperties(_ItemProperties):
+    obj_type: Literal['type']
+
+    _obj___name__: str | None
+    _obj___qualname__: str | None
+    _obj___value__: str  # The aliased annotation
