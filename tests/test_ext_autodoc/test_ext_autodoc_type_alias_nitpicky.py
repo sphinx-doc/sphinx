@@ -78,3 +78,7 @@ def test_type_alias_xref_resolution(app: SphinxTestApp) -> None:
         '<a class="reference internal" href="#alias_module.Handler"'
         in process_error_signature
     ), 'Handler type alias link not found in process_error function signature'
+    assert (
+        '<a class="reference internal" href="#alias_module.HandlerType"'
+        in process_error_signature
+    ), 'HandlerType type alias link not found in process_error function signature'

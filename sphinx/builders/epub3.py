@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import html
 import os
-import os.path
 import re
 import time
 from typing import TYPE_CHECKING, NamedTuple

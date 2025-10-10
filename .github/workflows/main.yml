@@ -38,14 +38,15 @@ jobs:
         - "3.12"
         - "3.13"
         - "3.13t"
+        - "3.14"
+        - "3.14t"
         docutils:
         - "0.20"
-        - "0.21"
         - "0.22"
-#        include:
-#        # test every supported Docutils version for the latest supported Python
-#        - python: "3.13"
-#          docutils: "0.20"
+        include:
+        # test every supported Docutils version for the latest supported Python
+        - python: "3.14"
+          docutils: "0.21"
 
     steps:
     - uses: actions/checkout@v5
@@ -56,7 +57,7 @@ jobs:
         mkdir -p ./tests/roots-read-only
         sudo mount -v --bind --read-only ./tests/roots ./tests/roots-read-only
     - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python }}
     - name: Check Python version
@@ -89,11 +90,9 @@ jobs:
       fail-fast: false
       matrix:
         python:
-        - "3.14"
         - "3.15"
         docutils:
         - "0.20"
-        - "0.21"
         - "0.22"
 
     steps:
@@ -127,7 +126,6 @@ jobs:
       fail-fast: false
       matrix:
         python:
-        - "3.14"
         - "3.15"
 
     steps:
@@ -170,7 +168,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -199,7 +197,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -234,7 +232,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -267,7 +265,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -300,7 +298,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -331,7 +329,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version

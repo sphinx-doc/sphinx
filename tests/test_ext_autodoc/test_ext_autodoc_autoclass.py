@@ -10,7 +10,7 @@ import typing
 
 import pytest
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 if typing.TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -315,7 +315,7 @@ def test_autodoc_process_bases(app: SphinxTestApp) -> None:
         assert name == 'target.classes.Quux'
         assert obj.__module__ == 'target.classes'
         assert obj.__name__ == 'Quux'
-        assert vars(options) == {'show_inheritance': True, 'members': []}
+        assert vars(options) == {}
         assert bases == [typing.List[typing.Union[int, float]]]  # NoQA: UP006, UP007
 
         bases.pop()

@@ -198,13 +198,13 @@ def apply_source_workaround(node: Element) -> None:
         node,
         (
             # https://github.com/sphinx-doc/sphinx/issues/1305 rubric directive
-            nodes.rubric
+            nodes.rubric,
             # https://github.com/sphinx-doc/sphinx/issues/1477 line node
-            | nodes.line
+            nodes.line,
             # https://github.com/sphinx-doc/sphinx/issues/3093 image directive in substitution
-            | nodes.image
+            nodes.image,
             # https://github.com/sphinx-doc/sphinx/issues/3335 field list syntax
-            | nodes.field_name
+            nodes.field_name,
         ),
     ):
         logger.debug(

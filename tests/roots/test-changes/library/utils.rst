@@ -16,10 +16,10 @@ Classes
 
    Class for handling paths.
 
-   .. versionadded:: 0.5
+   .. version-added:: 0.5
 
-      Innovative new way to handle paths.
+       Innovative new way to handle paths.
 
-    .. deprecated:: 0.6
+   .. version-deprecated:: 0.6
 
        So, that was a bad idea it turns out.

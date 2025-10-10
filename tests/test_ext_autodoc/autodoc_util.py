@@ -37,7 +37,6 @@ def do_autodoc(
     )
     docoptions = _AutoDocumenterOptions.from_directive_options(opts)
     state = Mock()
-    state.document.settings.tab_width = 8
     bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1, state)
     documenter = doccls(bridge, name)
     documenter.generate()

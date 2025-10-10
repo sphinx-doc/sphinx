@@ -4,11 +4,16 @@ from __future__ import annotations
 
 import pathlib
 
+import typing_extensions
+
 #: Any type of path
 pathlike = str | pathlib.Path
 
 #: A generic type alias for error handlers
 Handler = type[Exception]
+
+#: A PEP 695 type alias for error handlers
+HandlerType = typing_extensions.TypeAliasType('HandlerType', type[Exception])
 
 
 def read_file(path: pathlike) -> bytes:
@@ -20,7 +25,7 @@ def read_file(path: pathlike) -> bytes:
         return f.read()
 
 
-def process_error(handler: Handler) -> str:
+def process_error(handler: Handler, other: HandlerType) -> str:
     """Process an error with a custom handler type.
 
     Tests generic type alias cross-reference resolution.

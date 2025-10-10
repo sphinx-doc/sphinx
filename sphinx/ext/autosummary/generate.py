@@ -107,7 +107,7 @@ class AutosummaryEntry(NamedTuple):
 
 
 def setup_documenters(app: Sphinx) -> None:
-    from sphinx.ext.autodoc import (
+    from sphinx.ext.autodoc import (  # type: ignore[attr-defined]
         AttributeDocumenter,
         ClassDocumenter,
         DataDocumenter,
@@ -117,6 +117,7 @@ def setup_documenters(app: Sphinx) -> None:
         MethodDocumenter,
         ModuleDocumenter,
         PropertyDocumenter,
+        TypeAliasDocumenter,
     )
 
     documenters: list[type[Documenter]] = [
@@ -129,6 +130,7 @@ def setup_documenters(app: Sphinx) -> None:
         AttributeDocumenter,
         DecoratorDocumenter,
         PropertyDocumenter,
+        TypeAliasDocumenter,
     ]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)

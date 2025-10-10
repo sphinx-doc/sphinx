@@ -233,7 +233,7 @@ def run_compile() -> None:
                 for x in message.locations
             ):
                 msgid = message.id
-                if isinstance(msgid, list | tuple):
+                if isinstance(msgid, (list, tuple)):
                     msgid = msgid[0]
                 js_catalogue[msgid] = message.string
 

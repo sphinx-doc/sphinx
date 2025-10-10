@@ -43,7 +43,7 @@ qui            |  who
 sa             |  his, her (fem)
 se             |  oneself
 ses            |  his (pl)
- | son            |  his, her (masc). Omitted because it is homonym of "sound"
+son            |  his, her (masc)
 sur            |  on
 ta             |  thy (fem)
 te             |  thee
@@ -71,15 +71,15 @@ t              |  t'
 y              |  there
 
                | forms of être (not including the infinitive):
- | été - Omitted because it is homonym of "summer"
+été
 étée
 étées
- | étés - Omitted because it is homonym of "summers"
+étés
 étant
 suis
 es
- | est - Omitted because it is homonym of "east"
- | sommes - Omitted because it is homonym of "sums"
+est
+sommes
 êtes
 sont
 serai
@@ -110,7 +110,7 @@ soyez
 soient
 fusse
 fusses
- | fût - Omitted because it is homonym of "tap", like in "beer on tap"
+fût
 fussions
 fussiez
 fussent
@@ -122,13 +122,13 @@ eue
 eues
 eus
 ai
- | as - Omitted because it is homonym of "ace"
+as
 avons
 avez
 ont
 aurai
- | auras - Omitted because it is also the name of a kind of wind
- | aura - Omitted because it is also the name of a kind of wind and homonym of "aura"
+auras
+aura
 aurons
 aurez
 auront
@@ -139,7 +139,7 @@ auriez
 auraient
 avais
 avait
- | avions - Omitted because it is homonym of "planes"
+avions
 aviez
 avaient
 eut

@@ -46,6 +46,7 @@ class _AutoDocumenterOptions:
 
     no_index: Literal[True] | None = None
     no_index_entry: Literal[True] | None = None
+    _tab_width: int = 8
 
     # module-like options
     members: ALL_T | list[str] | None = None

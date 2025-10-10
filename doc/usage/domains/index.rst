@@ -58,9 +58,10 @@ Third-party domains
 Several third-party domains are available as extensions, including:
 
 * `Ada <https://pypi.org/project/sphinxcontrib-adadomain/>`__
-* `Antlr4 <https://pypi.org/project/sphinx-a4doc/>`__
+* `Antlr4 <https://pypi.org/project/sphinx-syntax/>`__
 * `Bazel <https://pypi.org/project/sphinx-bazel/>`__
 * `BibTex <https://pypi.org/project/sphinxcontrib-bibtex/>`__
+* `Bison/YACC <https://pypi.org/project/sphinx-syntax/>`__
 * `Chapel <https://pypi.org/project/sphinxcontrib-chapeldomain/>`__
 * `CMake <https://pypi.org/project/sphinxcontrib-moderncmakedomain/>`__
 * `Common Lisp <https://pypi.org/project/sphinxcontrib-cldomain/>`__
@@ -70,7 +71,7 @@ Several third-party domains are available as extensions, including:
 * `Go <https://pypi.org/project/sphinxcontrib-golangdomain/>`__
 * `HTTP <https://pypi.org/project/sphinxcontrib-httpdomain/>`__
 * `Hy <https://pypi.org/project/sphinxcontrib-hydomain/>`__
-* `Lua <https://pypi.org/project/sphinxcontrib-luadomain/>`__
+* `Lua <https://pypi.org/project/sphinx-lua-ls/>`__
 * `MATLAB <https://pypi.org/project/sphinxcontrib-matlabdomain/>`__
 * `PHP <https://pypi.org/project/sphinxcontrib-phpdomain/>`__
 * `Ruby <https://pypi.org/project/sphinxcontrib-rubydomain/>`__
@@ -97,6 +98,7 @@ __ https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Domain
    * `Lasso <https://pypi.org/project/sphinxcontrib-lassodomain/>`__
    * `Operation <https://pypi.org/project/sphinxcontrib-operationdomain/>`__
    * `Scala <https://pypi.org/project/sphinxcontrib-scaladomain/>`__
+   * `Lua <https://pypi.org/project/sphinxcontrib-luadomain/>`__
 
 
 .. _basic-domain-markup:

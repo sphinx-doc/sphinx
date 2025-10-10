@@ -133,6 +133,7 @@ class AutodocDirective(SphinxDirective):
                 location=(self.env.current_document.docname, lineno),
             )
             return []
+        documenter_options._tab_width = self.state.document.settings.tab_width
 
         # generate the output
         params = DocumenterBridge(

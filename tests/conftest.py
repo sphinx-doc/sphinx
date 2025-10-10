@@ -12,7 +12,6 @@ import pytest
 
 import sphinx
 import sphinx.locale
-import sphinx.pycode
 from sphinx.testing.util import _clean_up_global_state
 
 if TYPE_CHECKING:

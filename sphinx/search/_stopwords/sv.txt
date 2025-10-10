@@ -112,7 +112,7 @@ vilka          | who, that
 ditt           | thy
 vem            | who
 vilket         | who, that
-sitt           | his
+sitta          | his
 sådana         | such a
 vart           | each
 dina           | thy

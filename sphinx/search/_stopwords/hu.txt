@@ -59,10 +59,10 @@ ekkor
 el
 elég
 ellen
-elő
-először
-előtt
-első
+elõ
+elõször
+elõtt
+elsõ
 én
 éppen
 ebben
@@ -153,9 +153,9 @@ nincs
 olyan
 ott
 össze
-ő
-ők
-őket
+õ
+õk
+õket
 pedig
 persze
 rá
