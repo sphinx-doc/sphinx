@@ -132,6 +132,9 @@ Bugs fixed
   directly defined in certain cases, depending on autodoc processing
   order.
   Patch by Jeremy Maitin-Shepard.
+* #13945: sphinx.ext.autodoc: Fix handling of Python 3.14 forward references in
+  annotations by using ```annotationlib.Format.FORWARDREF``.
+  Patch by Rui Pinheiro.
 
 
 Testing
