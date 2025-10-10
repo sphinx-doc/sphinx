@@ -815,6 +815,24 @@ class StandaloneHTMLBuilder(Builder):
                 except Exception as err:
                     logger.warning(__("cannot copy image file '%s': %s"),
                                    self.srcdir / src, err)
+            self.copy_poster_files()
+                    
+    def copy_poster_files(self) -> None:
+        posters = []
+        for dirpath, _, filenames in os.walk(self.srcdir):
+            for f in filenames:
+                if f.endswith(('.jpg', '.jpeg', '.png')) and 'poster' in f.lower():
+                    posters.append(Path(dirpath) / f)
+        if not posters:
+            return
+
+        ensuredir(self.outdir / self.imagedir)
+        for src in posters:
+            dest = Path(src).relative_to(self.srcdir)
+            try:
+                copyfile(src, self.outdir / self.imagedir / dest.name, force=True)
+            except Exception as err:
+                logger.warning(__("cannot copy poster file '%s': %s"), src, err)
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
