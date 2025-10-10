@@ -74,18 +74,20 @@ def _directive_header_lines(
         if props._obj_is_new_type or props._obj_is_typevar:
             return
 
-        if props.doc_as_attr:
-            return
-
         if is_final:
             yield '   :final:'
 
         canonical_fullname = props.canonical_full_name
-        if canonical_fullname and props.full_name != canonical_fullname:
+        if (
+            not props.doc_as_attr
+            and not props._obj_is_new_type
+            and canonical_fullname
+            and props.full_name != canonical_fullname
+        ):
             yield f'   :canonical: {canonical_fullname}'
 
         # add inheritance info, if wanted
-        if options.show_inheritance:
+        if not props.doc_as_attr and options.show_inheritance:
             yield ''
             yield '   ' + _('Bases: %s') % ', '.join(props._obj_bases)
 
