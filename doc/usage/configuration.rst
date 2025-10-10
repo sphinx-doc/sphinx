@@ -1401,6 +1401,8 @@ Options for warning control
    * ``ref.python``
    * ``ref.ref``
    * ``ref.term``
+   * ``source_parser.c``
+   * ``source_parser.cpp``
    * ``toc.circular``
    * ``toc.duplicate_entry``
    * ``toc.empty_glob``
