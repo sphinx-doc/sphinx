@@ -66,6 +66,8 @@ Features added
   Patch by Adam Turner.
 * #13805: LaTeX: add support for ``fontawesome7`` package.
   Patch by Jean-François B.
+* #13508: Initial support for :pep:`695` type aliases.
+  Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
 
 Bugs fixed
 ----------

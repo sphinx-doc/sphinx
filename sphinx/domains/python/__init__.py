@@ -742,7 +742,7 @@ class PythonDomain(Domain):
         'staticmethod': ObjType(_('static method'), 'meth', 'obj'),
         'attribute': ObjType(_('attribute'), 'attr', 'obj'),
         'property': ObjType(_('property'), 'attr', '_prop', 'obj'),
-        'type': ObjType(_('type alias'), 'type', 'obj'),
+        'type': ObjType(_('type alias'), 'type', 'class', 'obj'),
         'module': ObjType(_('module'), 'mod', 'obj'),
     }
 

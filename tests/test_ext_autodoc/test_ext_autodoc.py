@@ -2514,6 +2514,86 @@ def test_autodoc_GenericAlias(app):
     ]
 
 
+@pytest.mark.skipif(
+    sys.version_info[:2] < (3, 12),
+    reason='type statement introduced in Python 3.12',
+)
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_pep695_type_alias(app):
+    options = {
+        'members': None,
+        'undoc-members': None,
+    }
+    actual = do_autodoc(app, 'module', 'target.pep695', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.pep695',
+        '',
+        '',
+        '.. py:class:: Bar',
+        '   :module: target.pep695',
+        '',
+        '   This is newtype of Pep695Alias.',
+        '',
+        '   alias of :py:type:`~target.pep695.Pep695Alias`',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.pep695',
+        '',
+        '   This is class Foo.',
+        '',
+        '',
+        '.. py:type:: Pep695Alias',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is PEP695 type alias.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasC',
+        '   :module: target.pep695',
+        '   :canonical: dict[str, ~target.pep695.Foo]',
+        '',
+        '   This is PEP695 complex type alias with doc comment.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasOfAlias',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Pep695AliasC',
+        '',
+        '   This is PEP695 type alias of PEP695 alias.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasUnion',
+        '   :module: target.pep695',
+        '   :canonical: str | int',
+        '',
+        '   This is PEP695 type alias for union.',
+        '',
+        '',
+        '.. py:type:: TypeAliasTypeExplicit',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is an explicitly constructed typing.TypeAlias.',
+        '',
+        '',
+        '.. py:type:: TypeAliasTypeExtension',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is an explicitly constructed typing_extensions.TypeAlias.',
+        '',
+        '',
+        '.. py:function:: ret_pep695(a: ~target.pep695.Pep695Alias) -> ~target.pep695.Pep695Alias',
+        '   :module: target.pep695',
+        '',
+        '   This fn accepts and returns PEP695 alias.',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_TypeVar(app):
     options = {

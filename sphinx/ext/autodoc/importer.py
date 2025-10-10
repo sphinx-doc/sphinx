@@ -26,6 +26,7 @@ from sphinx.ext.autodoc._property_types import (
     _FunctionDefProperties,
     _ItemProperties,
     _ModuleProperties,
+    _TypeStatementProperties,
 )
 from sphinx.ext.autodoc._sentinels import (
     RUNTIME_INSTANCE_ATTRIBUTE,
@@ -774,6 +775,34 @@ def _load_object_by_name(
             _obj_repr_rst=inspect.object_description(obj),
             _obj_type_annotation=type_annotation,
         )
+    elif objtype == 'type':
+        obj_module_name = getattr(obj, '__module__', module_name)
+        if obj_module_name != module_name and module_name.startswith(obj_module_name):
+            bases = module_name[len(obj_module_name) :].strip('.').split('.')
+            parts = tuple(bases) + parts
+            module_name = obj_module_name
+
+        if config.autodoc_typehints_format == 'short':
+            mode = 'smart'
+        else:
+            mode = 'fully-qualified-except-typing'
+        short_literals = config.python_display_short_literal_types
+        ann = stringify_annotation(
+            obj.__value__,
+            mode,  # type: ignore[arg-type]
+            short_literals=short_literals,
+        )
+        props = _TypeStatementProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
+            _obj___name__=getattr(obj, '__name__', None),
+            _obj___qualname__=getattr(obj, '__qualname__', None),
+            _obj___value__=ann,
+        )
     else:
         props = _ItemProperties(
             obj_type=objtype,
@@ -912,7 +941,7 @@ def _resolve_name(
             )
         return (path or '') + base, ()
 
-    if objtype in {'class', 'exception', 'function', 'decorator', 'data'}:
+    if objtype in {'class', 'exception', 'function', 'decorator', 'data', 'type'}:
         if module_name is not None:
             return module_name, (*parents, base)
         if path:

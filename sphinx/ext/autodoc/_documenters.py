@@ -41,7 +41,7 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import restify, stringify_annotation
+from sphinx.util.typing import AnyTypeAliasType, restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -58,6 +58,7 @@ if TYPE_CHECKING:
         _FunctionDefProperties,
         _ItemProperties,
         _ModuleProperties,
+        _TypeStatementProperties,
     )
     from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.registry import SphinxComponentRegistry
@@ -1798,6 +1799,27 @@ class PropertyDocumenter(Documenter):
         if safe_getattr(self.props._obj, 'func', None):  # cached_property
             return self.props._obj.func
         return None
+
+
+class TypeAliasDocumenter(Documenter):
+    """Specialized Documenter subclass for type aliases."""
+
+    props: _TypeStatementProperties
+
+    objtype = 'type'
+    member_order = 70
+    option_spec: ClassVar[OptionSpec] = {
+        'no-index': bool_option,
+        'no-index-entry': bool_option,
+        'annotation': annotation_option,
+        'no-value': bool_option,
+    }
+
+    @classmethod
+    def can_document_member(
+        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
+        return isinstance(member, AnyTypeAliasType)
 
 
 class DocstringSignatureMixin:

@@ -26,6 +26,7 @@ if TYPE_CHECKING:
         'property',
         'attribute',
         'data',
+        'type',
     ]
     _AutodocFuncProperty: TypeAlias = Literal[
         'abstractmethod',
@@ -189,3 +190,12 @@ class _AssignStatementProperties(_ItemProperties):
     )
     _obj_repr_rst: str
     _obj_type_annotation: str | None
+
+
+@dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
+class _TypeStatementProperties(_ItemProperties):
+    obj_type: Literal['type']
+
+    _obj___name__: str | None
+    _obj___qualname__: str | None
+    _obj___value__: str  # The aliased annotation

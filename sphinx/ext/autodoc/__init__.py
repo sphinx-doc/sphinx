@@ -37,6 +37,7 @@ from sphinx.ext.autodoc._documenters import (
     ModuleDocumenter,
     ModuleLevelDocumenter,
     PropertyDocumenter,
+    TypeAliasDocumenter,
     autodoc_attrgetter,
     py_ext_sig_re,
 )
@@ -114,6 +115,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_autodocumenter(MethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
+    app.add_autodocumenter(TypeAliasDocumenter)
 
     app.add_config_value(
         'autoclass_content',
