@@ -281,7 +281,7 @@ def _import_from_module_and_path(
             # import_module() raises ImportError having real exception obj and
             # traceback
             real_exc = exc.args[0]
-            traceback_msg = traceback.format_exception(exc)
+            traceback_msg = ''.join(traceback.format_exception(exc))
             if isinstance(real_exc, SystemExit):
                 err_parts.append(
                     'the module executes module level statement '
