@@ -88,6 +88,7 @@ class PyFunction(PyObject):
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'async': directives.flag,
+        'subscript': directives.flag,
     })
 
     def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
@@ -235,6 +236,7 @@ class PyMethod(PyObject):
         'classmethod': directives.flag,
         'final': directives.flag,
         'staticmethod': directives.flag,
+        'subscript': directives.flag,
     })
 
     def needs_arglist(self) -> bool:
@@ -293,6 +295,10 @@ class PyClassMethod(PyMethod):
     """Description of a classmethod."""
 
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
+    option_spec.update({
+        'async': directives.flag,
+        'subscript': directives.flag,
+    })
 
     def run(self) -> list[Node]:
         self.name = 'py:method'
@@ -305,6 +311,10 @@ class PyStaticMethod(PyMethod):
     """Description of a staticmethod."""
 
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
+    option_spec.update({
+        'async': directives.flag,
+        'subscript': directives.flag,
+    })
 
     def run(self) -> list[Node]:
         self.name = 'py:method'

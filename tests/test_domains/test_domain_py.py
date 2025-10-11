@@ -1819,3 +1819,12 @@ def test_pytype_canonical(app):
 
     doctree = restructuredtext.parse(app, text)
     assert not app.warning.getvalue()
+
+
+def test_subscript_function(app):
+    text = """
+.. py:function:: f(x: int) -> bool
+   :subscript:
+"""
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext().strip() == 'f[x: int] -> bool'

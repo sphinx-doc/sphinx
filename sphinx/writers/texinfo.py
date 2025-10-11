@@ -1480,11 +1480,13 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self.body.append(' (')
+        open_punct, _ = node.brackets  # type: ignore[attr-defined]
+        self.body.append(f' {open_punct}')
         self.first_param = 1
 
     def depart_desc_parameterlist(self, node: Element) -> None:
-        self.body.append(')')
+        _, close_punct = node.brackets  # type: ignore[attr-defined]
+        self.body.append(close_punct)
 
     def visit_desc_type_parameter_list(self, node: Element) -> None:
         self.body.append(' [')

@@ -384,6 +384,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
 
+        if 'subscript' in self.options:
+            for node in signode.findall(addnodes.desc_parameterlist):
+                node['brackets'] = '[', ']'
+
         if retann:
             children = _parse_annotation(retann, self.env)
             signode += addnodes.desc_returns(retann, '', *children)

@@ -659,7 +659,10 @@ class TextTranslator(SphinxTranslator):
         self.add_text(sig_close_paren)
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self._visit_sig_parameter_list(node, addnodes.desc_parameter, '(', ')')
+        open_punct, close_punct = node.brackets  # type: ignore[attr-defined]
+        self._visit_sig_parameter_list(
+            node, addnodes.desc_parameter, open_punct, close_punct
+        )
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self._depart_sig_parameter_list(node)
