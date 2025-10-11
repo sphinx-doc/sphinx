@@ -8,7 +8,7 @@ import pytest
 
 from sphinx.ext.autodoc import between, cut_lines
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp

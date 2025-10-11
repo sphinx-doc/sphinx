@@ -66,10 +66,15 @@ Features added
   Patch by Adam Turner.
 * #13805: LaTeX: add support for ``fontawesome7`` package.
   Patch by Jean-François B.
+* #13508: Initial support for :pep:`695` type aliases.
+  Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
 
 Bugs fixed
 ----------
 
+* #13926: multiple py:type directives for the same canonical type no
+  longer result in spurious duplicate object description warnings.
+  Patch by Jeremy Maitin-Shepard.
 * #1327: LaTeX: tables using longtable raise error if
   :rst:dir:`tabularcolumns` specifies automatic widths
   (``L``, ``R``, ``C``, or ``J``).
@@ -118,6 +123,15 @@ Bugs fixed
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
 * #13858: doctest: doctest blocks are now correctly added to a group defined by the
   configuration variable ``doctest_test_doctest_blocks``.
+* #13885: Coverage builder: Fix TypeError when warning about missing modules.
+  Patch by Damien Ayers.
+* #13929: Duplicate equation label warnings now have a new warning
+  sub-type, ``ref.equation``.
+  Patch by Jared Dillard.
+* #13935: autoclass: parent class members no longer considered
+  directly defined in certain cases, depending on autodoc processing
+  order.
+  Patch by Jeremy Maitin-Shepard.
 
 
 Testing
