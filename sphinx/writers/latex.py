@@ -816,6 +816,16 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             self.body.append(CR + r'\end{fulllineitems}' + BLANKLINE)
 
+    def _define_parameterlist_brackets(self, open_punct: str, close_punct: str) -> None:
+        self.body.append(
+            r'\def\pysigarglistopenpunct{'
+            + self.escape(open_punct)
+            + '}'
+            + r'\def\pysigarglistclosepunct{'
+            + self.escape(close_punct)
+            + '}'
+        )
+
     def _visit_signature_line(self, node: Element) -> None:
         def next_sibling(e: Node) -> Node | None:
             try:
@@ -837,6 +847,7 @@ class LaTeXTranslator(SphinxTranslator):
                 if isinstance(arglist, addnodes.desc_parameterlist):
                     # tp_list + arglist: \macro{name}{tp_list}{arglist}{retann}
                     multi_arglist = has_multi_line(arglist)
+                    self._define_parameterlist_brackets(*arglist.brackets)
                 else:
                     # orphan tp_list:    \macro{name}{tp_list}{}{retann}
                     # see: https://github.com/sphinx-doc/sphinx/issues/12543
@@ -867,6 +878,7 @@ class LaTeXTranslator(SphinxTranslator):
                 break
 
             if isinstance(child, addnodes.desc_parameterlist):
+                self._define_parameterlist_brackets(*child.brackets)
                 # arglist only: \macro{name}{arglist}{retann}
                 if has_multi_line(child):
                     self.body.append(CR + r'\pysigwithonelineperarg' + CR + '{')
