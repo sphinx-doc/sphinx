@@ -854,6 +854,25 @@ def stringify_signature(
                                   (ex. io.StringIO -> StringIO)
     :param short_literals: If enabled, use short literal types.
     """
+    args, retann = _stringify_signature_to_parts(
+        sig=sig,
+        show_annotation=show_annotation,
+        show_return_annotation=show_return_annotation,
+        unqualified_typehints=unqualified_typehints,
+        short_literals=short_literals,
+    )
+    if retann:
+        return f'({args}) -> {retann}'
+    return f'({args})'
+
+
+def _stringify_signature_to_parts(
+    sig: Signature,
+    show_annotation: bool = True,
+    show_return_annotation: bool = True,
+    unqualified_typehints: bool = False,
+    short_literals: bool = False,
+) -> tuple[str, str]:
     mode: _StringifyMode
     if unqualified_typehints:
         mode = 'smart'
@@ -914,12 +933,12 @@ def stringify_signature(
         or not show_annotation
         or not show_return_annotation
     ):
-        return f'({concatenated_args})'
+        retann = ''
     else:
         retann = stringify_annotation(
             sig.return_annotation, mode, short_literals=short_literals
         )
-        return f'({concatenated_args}) -> {retann}'
+    return concatenated_args, retann
 
 
 def signature_from_str(signature: str) -> Signature:
