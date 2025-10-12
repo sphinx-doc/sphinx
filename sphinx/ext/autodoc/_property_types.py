@@ -145,7 +145,7 @@ class _FunctionDefProperties(_ItemProperties):
 
     _obj___name__: str | None
     _obj___qualname__: str | None
-    _obj_property_type_annotation: str | None = 'default'
+    _obj_property_type_annotation: str | None = None
 
     @property
     def is_abstractmethod(self) -> bool:

@@ -1750,56 +1750,6 @@ class PropertyDocumenter(Documenter):
         else:
             return False
 
-    def format_args(self, **kwargs: Any) -> str:
-        func = self._get_property_getter()
-        if func is None:
-            return ''
-
-        # update the annotations of the property getter
-        self._events.emit('autodoc-before-process-signature', func, False)
-
-        self.props._obj_property_type_annotation = self._property_type_hint()
-
-        # correctly format the arguments for a property
-        return super().format_args(**kwargs)
-
-    def _property_type_hint(self) -> str | None:
-        # TODO: Move this to _importer. Requires moving when type comments
-        #       are processed.
-        mode = _get_render_mode(self.config.autodoc_typehints_format)
-        config = self.config
-
-        func = self._get_property_getter()
-        if func is None:
-            return None
-
-        try:
-            signature = inspect.signature(
-                func, type_aliases=config.autodoc_type_aliases
-            )
-            if signature.return_annotation is not Parameter.empty:
-                short_literals = config.python_display_short_literal_types
-                return stringify_annotation(
-                    signature.return_annotation, mode, short_literals=short_literals
-                )
-        except TypeError as exc:
-            logger.warning(
-                __('Failed to get a function signature for %s: %s'),
-                self.props.full_name,
-                exc,
-            )
-            pass
-        except ValueError:
-            pass
-        return None
-
-    def _get_property_getter(self) -> Callable[..., Any] | None:
-        if safe_getattr(self.props._obj, 'fget', None):  # property
-            return self.props._obj.fget
-        if safe_getattr(self.props._obj, 'func', None):  # cached_property
-            return self.props._obj.func
-        return None
-
 
 class TypeAliasDocumenter(Documenter):
     """Specialized Documenter subclass for type aliases."""
