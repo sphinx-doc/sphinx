@@ -1749,6 +1749,9 @@ def _get_sig_object(
             except ValueError:
                 continue
             else:
+                from sphinx.ext.autodoc._property_types import _ClassDefProperties
+
+                assert isinstance(props, _ClassDefProperties)
                 props._signature_method_name = meth_name
                 return object_sig
 
