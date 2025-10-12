@@ -13,6 +13,7 @@ import typing
 from importlib.abc import FileLoader
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
+from inspect import Parameter
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import TYPE_CHECKING, NewType, TypeVar
@@ -34,6 +35,7 @@ from sphinx.ext.autodoc._sentinels import (
     UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
+from sphinx.ext.autodoc.type_comment import update_annotations_using_type_comments
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
@@ -655,6 +657,46 @@ def _load_object_by_name(
         if inspect.isabstractmethod(obj):
             obj_properties.add('abstractmethod')
 
+        # get property return type annotation
+        obj_property_type_annotation = None
+        if safe_getattr(obj, 'fget', None):  # property
+            func = obj.fget  # type: ignore[union-attr]
+        elif safe_getattr(obj, 'func', None):  # cached_property
+            func = obj.func  # type: ignore[union-attr]
+        else:
+            func = None
+        if func is not None:
+            app = SimpleNamespace(config=config)
+            # update the annotations of the property getter
+            update_annotations_using_type_comments(app, func, False)  # type: ignore[arg-type]
+
+            try:
+                signature = inspect.signature(
+                    func, type_aliases=config.autodoc_type_aliases
+                )
+            except TypeError as exc:
+                full_name = '.'.join((module_name, *parts))
+                logger.warning(
+                    __('Failed to get a function signature for %s: %s'),
+                    full_name,
+                    exc,
+                )
+                pass
+            except ValueError:
+                pass
+            else:
+                if config.autodoc_typehints_format == 'short':
+                    mode = 'smart'
+                else:
+                    mode = 'fully-qualified-except-typing'
+                if signature.return_annotation is not Parameter.empty:
+                    short_literals = config.python_display_short_literal_types
+                    obj_property_type_annotation = stringify_annotation(
+                        signature.return_annotation,
+                        mode,  # type: ignore[arg-type]
+                        short_literals=short_literals,
+                    )
+
         props = _FunctionDefProperties(
             obj_type=objtype,
             module_name=module_name,
@@ -665,6 +707,7 @@ def _load_object_by_name(
             _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
             _obj___name__=getattr(parent or obj, '__name__', None),
             _obj___qualname__=getattr(parent or obj, '__qualname__', None),
+            _obj_property_type_annotation=obj_property_type_annotation,
         )
     elif objtype == 'data':
         # Update __annotations__ to support type_comment and so on
