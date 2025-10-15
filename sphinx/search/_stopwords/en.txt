@@ -81,7 +81,8 @@ does           | -s form
 did            | past
 doing          | -ing form
 
- | The forms below are best omitted, because of the significant homonym forms:
+ | The forms below are, I believe, best omitted, because of the significant
+ | homonym forms:
 
  |  He made a WILL
  |  old tin CAN

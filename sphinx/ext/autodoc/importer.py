@@ -4,23 +4,30 @@ from __future__ import annotations
 
 import contextlib
 import importlib
+import itertools
 import os
+import re
 import sys
 import traceback
 import typing
 from importlib.abc import FileLoader
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
+from inspect import Parameter
 from pathlib import Path
+from types import ModuleType, SimpleNamespace
 from typing import TYPE_CHECKING, NewType, TypeVar
+from weakref import WeakSet
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._property_types import (
     _AssignStatementProperties,
     _ClassDefProperties,
     _FunctionDefProperties,
     _ItemProperties,
     _ModuleProperties,
+    _TypeStatementProperties,
 )
 from sphinx.ext.autodoc._sentinels import (
     RUNTIME_INSTANCE_ATTRIBUTE,
@@ -28,6 +35,7 @@ from sphinx.ext.autodoc._sentinels import (
     UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
+from sphinx.ext.autodoc.type_comment import update_annotations_using_type_comments
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
@@ -35,15 +43,17 @@ from sphinx.util.inspect import (
     isclass,
     safe_getattr,
 )
-from sphinx.util.typing import get_type_hints
+from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from importlib.machinery import ModuleSpec
-    from types import ModuleType
     from typing import Any, Protocol
 
+    from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
+    from sphinx.events import EventManager
+    from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
 
     class _AttrGetter(Protocol):
@@ -52,6 +62,8 @@ if TYPE_CHECKING:
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
+
+_hide_value_re = re.compile(r'^:meta \s*hide-value:( +|$)')
 
 
 class _ImportedObject:
@@ -416,7 +428,7 @@ def _is_runtime_instance_attribute_not_commented(
 
 def _get_attribute_comment(
     parent: Any, obj_path: Sequence[str], attrname: str
-) -> list[str] | None:
+) -> tuple[str, ...] | None:
     for cls in inspect.getmro(parent):
         try:
             module = safe_getattr(cls, '__module__')
@@ -427,7 +439,7 @@ def _get_attribute_comment(
             if qualname and obj_path:
                 key = (qualname, attrname)
                 if key in analyzer.attr_docs:
-                    return list(analyzer.attr_docs[key])
+                    return tuple(analyzer.attr_docs[key])
         except (AttributeError, PycodeError):
             pass
 
@@ -460,8 +472,11 @@ def _load_object_by_name(
     mock_imports: list[str],
     type_aliases: dict[str, Any] | None,
     current_document: _CurrentDocument,
+    config: Config,
     env: BuildEnvironment,
+    events: EventManager,
     get_attr: _AttrGetter,
+    options: _AutoDocumenterOptions,
 ) -> tuple[_ItemProperties, str | None, str | None, ModuleType | None, Any] | None:
     """Import and load the object given by *name*."""
     parsed = _parse_name(
@@ -537,7 +552,7 @@ def _load_object_by_name(
             _obj___module__=obj.__name__,
         )
     elif objtype in {'class', 'exception'}:
-        if isinstance(obj, NewType | TypeVar):
+        if isinstance(obj, (NewType, TypeVar)):
             obj_module_name = getattr(obj, '__module__', module_name)
             if obj_module_name != module_name and module_name.startswith(
                 obj_module_name
@@ -545,6 +560,29 @@ def _load_object_by_name(
                 bases = module_name[len(obj_module_name) :].strip('.').split('.')
                 parts = tuple(bases) + parts
                 module_name = obj_module_name
+
+        if orig_bases := inspect.getorigbases(obj):
+            # A subclass of generic types
+            # refs: PEP-560 <https://peps.python.org/pep-0560/>
+            obj_bases = list(orig_bases)
+        elif hasattr(obj, '__bases__') and obj.__bases__:
+            # A normal class
+            obj_bases = list(obj.__bases__)
+        else:
+            obj_bases = []
+        full_name = '.'.join((module_name, *parts))
+        events.emit(
+            'autodoc-process-bases',
+            full_name,
+            obj,
+            SimpleNamespace(),
+            obj_bases,
+        )
+        if config.autodoc_typehints_format == 'short':
+            mode = 'smart'
+        else:
+            mode = 'fully-qualified-except-typing'
+        base_classes = tuple(restify(cls, mode=mode) for cls in obj_bases)  # type: ignore[arg-type]
 
         props = _ClassDefProperties(
             obj_type=objtype,  # type: ignore[arg-type]
@@ -555,12 +593,18 @@ def _load_object_by_name(
             _obj=obj,
             _obj___module__=get_attr(obj, '__module__', None),
             _obj___name__=getattr(obj, '__name__', None),
+            _obj___qualname__=getattr(obj, '__qualname__', None),
+            _obj_bases=base_classes,
+            _obj_is_new_type=isinstance(obj, NewType),
+            _obj_is_typevar=isinstance(obj, TypeVar),
         )
     elif objtype in {'function', 'decorator'}:
         if inspect.isstaticmethod(obj, cls=parent, name=object_name):
             obj_properties.add('staticmethod')
         if inspect.isclassmethod(obj):
             obj_properties.add('classmethod')
+        if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
+            obj_properties.add('async')
 
         props = _FunctionDefProperties(
             obj_type=objtype,  # type: ignore[arg-type]
@@ -570,14 +614,24 @@ def _load_object_by_name(
             properties=frozenset(obj_properties),
             _obj=obj,
             _obj___module__=get_attr(obj, '__module__', None),
+            _obj___name__=getattr(obj, '__name__', None),
+            _obj___qualname__=getattr(obj, '__qualname__', None),
         )
     elif objtype == 'method':
         # to distinguish classmethod/staticmethod
         obj_ = parent.__dict__.get(object_name, obj)
         if inspect.isstaticmethod(obj_, cls=parent, name=object_name):
             obj_properties.add('staticmethod')
-        elif inspect.isclassmethod(obj_):
+        elif (
+            inspect.is_classmethod_like(obj_)
+            or inspect.is_singledispatch_method(obj_)
+            and inspect.is_classmethod_like(obj_.func)
+        ):
             obj_properties.add('classmethod')
+        if inspect.isabstractmethod(obj_):
+            obj_properties.add('abstractmethod')
+        if inspect.iscoroutinefunction(obj_) or inspect.isasyncgenfunction(obj_):
+            obj_properties.add('async')
 
         props = _FunctionDefProperties(
             obj_type=objtype,
@@ -587,6 +641,8 @@ def _load_object_by_name(
             properties=frozenset(obj_properties),
             _obj=obj,
             _obj___module__=get_attr(obj, '__module__', None),
+            _obj___name__=getattr(obj, '__name__', None),
+            _obj___qualname__=getattr(obj, '__qualname__', None),
         )
     elif objtype == 'property':
         if not inspect.isproperty(obj):
@@ -598,6 +654,48 @@ def _load_object_by_name(
                 obj_properties.add('classmethod')
             else:
                 return None
+        if inspect.isabstractmethod(obj):
+            obj_properties.add('abstractmethod')
+
+        # get property return type annotation
+        obj_property_type_annotation = None
+        if safe_getattr(obj, 'fget', None):  # property
+            func = obj.fget  # type: ignore[union-attr]
+        elif safe_getattr(obj, 'func', None):  # cached_property
+            func = obj.func  # type: ignore[union-attr]
+        else:
+            func = None
+        if func is not None:
+            app = SimpleNamespace(config=config)
+            # update the annotations of the property getter
+            update_annotations_using_type_comments(app, func, False)  # type: ignore[arg-type]
+
+            try:
+                signature = inspect.signature(
+                    func, type_aliases=config.autodoc_type_aliases
+                )
+            except TypeError as exc:
+                full_name = '.'.join((module_name, *parts))
+                logger.warning(
+                    __('Failed to get a function signature for %s: %s'),
+                    full_name,
+                    exc,
+                )
+                pass
+            except ValueError:
+                pass
+            else:
+                if config.autodoc_typehints_format == 'short':
+                    mode = 'smart'
+                else:
+                    mode = 'fully-qualified-except-typing'
+                if signature.return_annotation is not Parameter.empty:
+                    short_literals = config.python_display_short_literal_types
+                    obj_property_type_annotation = stringify_annotation(
+                        signature.return_annotation,
+                        mode,  # type: ignore[arg-type]
+                        short_literals=short_literals,
+                    )
 
         props = _FunctionDefProperties(
             obj_type=objtype,
@@ -607,23 +705,43 @@ def _load_object_by_name(
             properties=frozenset(obj_properties),
             _obj=obj,
             _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
+            _obj___name__=getattr(parent or obj, '__name__', None),
+            _obj___qualname__=getattr(parent or obj, '__qualname__', None),
+            _obj_property_type_annotation=obj_property_type_annotation,
         )
     elif objtype == 'data':
         # Update __annotations__ to support type_comment and so on
-        annotations = dict(inspect.getannotations(parent))
-        parent.__annotations__ = annotations
+        _ensure_annotations_from_type_comments(parent)
 
-        try:
-            analyzer = ModuleAnalyzer.for_module(module_name)
-            analyzer.analyze()
-            for (
-                classname,
-                attrname,
-            ), annotation in analyzer.annotations.items():
-                if not classname and attrname not in annotations:
-                    annotations[attrname] = annotation
-        except PycodeError:
-            pass
+        # obtain annotation
+        annotations = get_type_hints(
+            parent,
+            None,
+            config.autodoc_type_aliases,
+            include_extras=True,
+        )
+        if config.autodoc_typehints_format == 'short':
+            mode = 'smart'
+        else:
+            mode = 'fully-qualified-except-typing'
+        if parts[-1] in annotations:
+            short_literals = config.python_display_short_literal_types
+            type_annotation = stringify_annotation(
+                annotations[parts[-1]],
+                mode,  # type: ignore[arg-type]
+                short_literals=short_literals,
+            )
+        else:
+            type_annotation = None
+
+        if (
+            obj is RUNTIME_INSTANCE_ATTRIBUTE
+            or obj is SLOTS_ATTR
+            or obj is UNINITIALIZED_ATTR
+        ):
+            obj_sentinel = obj
+        else:
+            obj_sentinel = None
 
         props = _AssignStatementProperties(
             obj_type=objtype,
@@ -636,6 +754,12 @@ def _load_object_by_name(
             instance_var=False,
             _obj=obj,
             _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
+            _obj_is_generic_alias=inspect.isgenericalias(obj),
+            _obj_is_attribute_descriptor=inspect.isattributedescriptor(obj),
+            _obj_is_mock=ismock(obj),
+            _obj_is_sentinel=obj_sentinel,
+            _obj_repr_rst=inspect.object_description(obj),
+            _obj_type_annotation=type_annotation,
         )
     elif objtype == 'attribute':
         if _is_slots_attribute(parent=parent, obj_path=parts):
@@ -643,27 +767,38 @@ def _load_object_by_name(
         elif inspect.isenumattribute(obj):
             obj = obj.value
         if parent:
-            # Update __annotations__ to support type_comment and so on.
-            try:
-                annotations = dict(inspect.getannotations(parent))
-                parent.__annotations__ = annotations
+            # Update __annotations__ to support type_comment and so on
+            _ensure_annotations_from_type_comments(parent)
 
-                for cls in inspect.getmro(parent):
-                    try:
-                        module = safe_getattr(cls, '__module__')
-                        qualname = safe_getattr(cls, '__qualname__')
+        # obtain annotation
+        annotations = get_type_hints(
+            parent,
+            None,
+            config.autodoc_type_aliases,
+            include_extras=True,
+        )
+        if config.autodoc_typehints_format == 'short':
+            mode = 'smart'
+        else:
+            mode = 'fully-qualified-except-typing'
+        if parts[-1] in annotations:
+            short_literals = config.python_display_short_literal_types
+            type_annotation = stringify_annotation(
+                annotations[parts[-1]],
+                mode,  # type: ignore[arg-type]
+                short_literals=short_literals,
+            )
+        else:
+            type_annotation = None
 
-                        analyzer = ModuleAnalyzer.for_module(module)
-                        analyzer.analyze()
-                        anns = analyzer.annotations
-                        for (classname, attrname), annotation in anns.items():
-                            if classname == qualname and attrname not in annotations:
-                                annotations[attrname] = annotation
-                    except (AttributeError, PycodeError):
-                        pass
-            except (AttributeError, TypeError):
-                # Failed to set __annotations__ (built-in, extensions, etc.)
-                pass
+        if (
+            obj is RUNTIME_INSTANCE_ATTRIBUTE
+            or obj is SLOTS_ATTR
+            or obj is UNINITIALIZED_ATTR
+        ):
+            obj_sentinel = obj
+        else:
+            obj_sentinel = None
 
         props = _AssignStatementProperties(
             obj_type=objtype,
@@ -676,6 +811,40 @@ def _load_object_by_name(
             instance_var=False,
             _obj=obj,
             _obj___module__=get_attr(obj, '__module__', None),
+            _obj_is_generic_alias=inspect.isgenericalias(obj),
+            _obj_is_attribute_descriptor=inspect.isattributedescriptor(obj),
+            _obj_is_mock=ismock(obj),
+            _obj_is_sentinel=obj_sentinel,
+            _obj_repr_rst=inspect.object_description(obj),
+            _obj_type_annotation=type_annotation,
+        )
+    elif objtype == 'type':
+        obj_module_name = getattr(obj, '__module__', module_name)
+        if obj_module_name != module_name and module_name.startswith(obj_module_name):
+            bases = module_name[len(obj_module_name) :].strip('.').split('.')
+            parts = tuple(bases) + parts
+            module_name = obj_module_name
+
+        if config.autodoc_typehints_format == 'short':
+            mode = 'smart'
+        else:
+            mode = 'fully-qualified-except-typing'
+        short_literals = config.python_display_short_literal_types
+        ann = stringify_annotation(
+            obj.__value__,
+            mode,  # type: ignore[arg-type]
+            short_literals=short_literals,
+        )
+        props = _TypeStatementProperties(
+            obj_type=objtype,
+            module_name=module_name,
+            parts=parts,
+            docstring_lines=(),
+            _obj=obj,
+            _obj___module__=get_attr(obj, '__module__', None),
+            _obj___name__=getattr(obj, '__name__', None),
+            _obj___qualname__=getattr(obj, '__qualname__', None),
+            _obj___value__=ann,
         )
     else:
         props = _ItemProperties(
@@ -686,6 +855,23 @@ def _load_object_by_name(
             _obj=obj,
             _obj___module__=get_attr(obj, '__module__', None),
         )
+
+    if options.class_doc_from is not None:
+        class_doc_from = options.class_doc_from
+    else:
+        class_doc_from = config.autoclass_content
+    props._docstrings = _get_docstring_lines(
+        props,
+        class_doc_from=class_doc_from,
+        get_attr=get_attr,
+        inherit_docstrings=config.autodoc_inherit_docstrings,
+        parent=parent,
+        tab_width=options._tab_width,
+    )
+    for line in itertools.chain.from_iterable(props._docstrings or ()):
+        if _hide_value_re.match(line):
+            props._docstrings_has_hide_value = True
+            break
 
     return props, args, retann, module, parent
 
@@ -798,7 +984,7 @@ def _resolve_name(
             )
         return (path or '') + base, ()
 
-    if objtype in {'class', 'exception', 'function', 'decorator', 'data'}:
+    if objtype in {'class', 'exception', 'function', 'decorator', 'data', 'type'}:
         if module_name is not None:
             return module_name, (*parents, base)
         if path:
@@ -842,3 +1028,81 @@ def _resolve_name(
         return module_name, (*parents, base)
 
     return None
+
+
+_objects_with_type_comment_annotations: WeakSet[Any] = WeakSet()
+"""Cache of objects with annotations updated from type comments."""
+
+
+def _ensure_annotations_from_type_comments(obj: Any) -> None:
+    """Ensures `obj.__annotations__` includes type comment information.
+
+    Failures to assign to `__annotations__` are silently ignored.
+
+    If `obj` is a class type, this also ensures that type comment
+    information is incorporated into the `__annotations__` member of
+    all parent classes, if possible.
+
+    This mutates the `__annotations__` of existing imported objects,
+    in order to allow the existing `typing.get_type_hints` method to
+    take the modified annotations into account.
+
+    Modifying existing imported objects is unfortunate but avoids the
+    need to reimplement `typing.get_type_hints` in order to take into
+    account type comment information.
+
+    Note that this does not directly include type comment information
+    from parent classes, but `typing.get_type_hints` takes that into
+    account.
+    """
+    if obj in _objects_with_type_comment_annotations:
+        return
+    _objects_with_type_comment_annotations.add(obj)
+
+    if isinstance(obj, type):
+        for cls in inspect.getmro(obj):
+            modname = safe_getattr(cls, '__module__')
+            mod = sys.modules.get(modname)
+            if mod is not None:
+                _ensure_annotations_from_type_comments(mod)
+
+    elif isinstance(obj, ModuleType):
+        _update_module_annotations_from_type_comments(obj)
+
+
+def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
+    """Adds type comment annotations for a single module.
+
+    Both module-level and class-level annotations are added.
+    """
+    mod_annotations = dict(inspect.getannotations(mod))
+    mod.__annotations__ = mod_annotations
+
+    class_annotations: dict[str, dict[str, Any]] = {}
+
+    try:
+        analyzer = ModuleAnalyzer.for_module(mod.__name__)
+        analyzer.analyze()
+        anns = analyzer.annotations
+        for (classname, attrname), annotation in anns.items():
+            if not classname:
+                annotations = mod_annotations
+            else:
+                cls_annotations = class_annotations.get(classname)
+                if cls_annotations is None:
+                    try:
+                        cls = mod
+                        for part in classname.split('.'):
+                            cls = safe_getattr(cls, part)
+                        annotations = dict(inspect.getannotations(cls))
+                        # Ignore errors setting __annotations__
+                        with contextlib.suppress(TypeError, AttributeError):
+                            cls.__annotations__ = annotations
+                    except AttributeError:
+                        annotations = {}
+                    class_annotations[classname] = annotations
+                else:
+                    annotations = cls_annotations
+            annotations.setdefault(attrname, annotation)
+    except PycodeError:
+        pass
