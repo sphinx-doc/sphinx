@@ -35,12 +35,12 @@ def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
     """Get additional CA cert for a specific URL."""
     if not certs:
         return True
-    elif isinstance(certs, str | tuple):
+    elif isinstance(certs, (str, tuple)):
         return certs
     else:
         hostname = urlsplit(url).netloc
         if '@' in hostname:
-            _, hostname = hostname.split('@', 1)
+            hostname = hostname.partition('@')[-1]
 
         return certs.get(hostname, True)
 

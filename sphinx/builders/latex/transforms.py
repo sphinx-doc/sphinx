@@ -40,7 +40,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(*self.TARGET_NODES)
         for node in matcher.findall(self.document):
-            node['docname'] = self.env.docname
+            node['docname'] = self.env.current_document.docname
 
 
 class SubstitutionDefinitionsRemover(SphinxPostTransform):
@@ -420,7 +420,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.unrestrict(node)
 
     def visit_title(self, node: nodes.title) -> None:
-        if isinstance(node.parent, nodes.section | nodes.table):
+        if isinstance(node.parent, (nodes.section, nodes.table)):
             self.restrict(node)
 
     def depart_title(self, node: nodes.title) -> None:

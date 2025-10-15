@@ -201,7 +201,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         * parse the content and handle doc fields in it
         """
         if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+            self.domain, _, self.objtype = self.name.partition(':')
         else:
             self.domain, self.objtype = '', self.name
         self.indexnode = addnodes.index(entries=[])

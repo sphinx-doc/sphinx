@@ -89,7 +89,8 @@ else:
 
 
 # function to get input from terminal -- overridden by the test suite
-def term_input(prompt: str) -> str:
+# Arguments are positional-only to match ``input``.
+def term_input(prompt: str, /) -> str:
     if sys.platform == 'win32':
         # Important: On windows, readline is not enabled by default.  In these
         #            environment, escape sequences have been broken.  To avoid the
@@ -801,7 +802,7 @@ def main(argv: Sequence[str] = (), /) -> int:
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
 
-    for variable in d.get('variables', []):
+    for variable in d.get('variables', []):  # type: ignore[union-attr]
         try:
             name, value = variable.split('=')
             d[name] = value

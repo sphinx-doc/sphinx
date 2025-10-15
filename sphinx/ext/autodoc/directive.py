@@ -5,9 +5,11 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.statemachine import StringList
-from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import Options
+from sphinx.ext.autodoc._directive_options import (
+    _AutoDocumenterOptions,
+    _process_documenter_options,
+)
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
@@ -22,34 +24,9 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
+    from sphinx.ext.autodoc._directive_options import Options
 
 logger = logging.getLogger(__name__)
-
-
-# common option names for autodoc directives
-AUTODOC_DEFAULT_OPTIONS = [
-    'members',
-    'undoc-members',
-    'no-index',
-    'no-index-entry',
-    'inherited-members',
-    'show-inheritance',
-    'private-members',
-    'special-members',
-    'ignore-module-all',
-    'exclude-members',
-    'member-order',
-    'imported-members',
-    'class-doc-from',
-    'no-value',
-]
-
-AUTODOC_EXTENDABLE_OPTIONS = frozenset({
-    'members',
-    'private-members',
-    'special-members',
-    'exclude-members',
-})
 
 
 class DummyOptionSpec(dict[str, Callable[[str], str]]):  # NoQA: FURB189
@@ -70,7 +47,7 @@ class DocumenterBridge:
         self,
         env: BuildEnvironment,
         reporter: Reporter | None,
-        options: Options,
+        options: _AutoDocumenterOptions,
         lineno: int,
         state: Any,
     ) -> None:
@@ -84,29 +61,16 @@ class DocumenterBridge:
 
 
 def process_documenter_options(
-    documenter: type[Documenter], config: Config, options: dict[str, str]
+    documenter: type[Documenter], config: Config, options: dict[str, str | None]
 ) -> Options:
-    """Recognize options of Documenter from user input."""
-    default_options = config.autodoc_default_options
-    for name in AUTODOC_DEFAULT_OPTIONS:
-        if name not in documenter.option_spec:
-            continue
-        negated = options.pop('no-' + name, True) is None
-        if name in default_options and not negated:
-            if name in options and isinstance(default_options[name], str):
-                # take value from options if present or extend it
-                # with autodoc_default_options if necessary
-                if name in AUTODOC_EXTENDABLE_OPTIONS:
-                    if options[name] is not None and options[name].startswith('+'):
-                        options[name] = f'{default_options[name]},{options[name][1:]}'
-            else:
-                options[name] = default_options[name]
+    from sphinx.ext.autodoc._directive_options import Options
 
-        elif options.get(name) is not None:
-            # remove '+' from option argument if there's nothing to merge it with
-            options[name] = options[name].lstrip('+')
-
-    return Options(assemble_option_dict(options.items(), documenter.option_spec))
+    opts = _process_documenter_options(
+        option_spec=documenter.option_spec,
+        default_options=config.autodoc_default_options,
+        options=options,
+    )
+    return Options(opts)
 
 
 def parse_generated_content(
@@ -154,18 +118,22 @@ class AutodocDirective(SphinxDirective):
 
         # process the options with the selected documenter's option_spec
         try:
-            documenter_options = process_documenter_options(
-                doccls, self.config, self.options
+            opts = _process_documenter_options(
+                option_spec=doccls.option_spec,
+                default_options=self.config.autodoc_default_options,
+                options=self.options,
             )
+            documenter_options = _AutoDocumenterOptions.from_directive_options(opts)
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
             logger.error(  # NoQA: TRY400
                 'An option to %s is either unknown or has an invalid value: %s',
                 self.name,
                 exc,
-                location=(self.env.docname, lineno),
+                location=(self.env.current_document.docname, lineno),
             )
             return []
+        documenter_options._tab_width = self.state.document.settings.tab_width
 
         # generate the output
         params = DocumenterBridge(

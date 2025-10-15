@@ -65,7 +65,7 @@ class TocTreeCollector(EnvironmentCollector):
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Build a TOC from the doctree and store it in the inventory."""
-        docname = app.env.docname
+        docname = app.env.current_document.docname
         numentries = [0]  # nonlocal again...
 
         def build_toc(

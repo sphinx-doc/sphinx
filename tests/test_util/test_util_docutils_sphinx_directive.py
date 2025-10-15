@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from docutils import nodes
-from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
+from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.states import (
     Inliner,
     RSTState,
@@ -38,7 +38,7 @@ def make_directive_and_state(
     inliner = Inliner()
     inliner.init_customizations(document.settings)
     state.inliner = inliner
-    state.parent = None
+    state.parent = document
     state.memo = SimpleNamespace(
         document=document,
         reporter=document.reporter,

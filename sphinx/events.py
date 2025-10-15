@@ -9,6 +9,7 @@ from collections import defaultdict
 from operator import attrgetter
 from typing import TYPE_CHECKING, NamedTuple, overload
 
+from sphinx.deprecation import _deprecation_warning
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
-    from sphinx.ext.autodoc import _AutodocProcessDocstringListener
+    from sphinx.ext.autodoc._event_listeners import _AutodocProcessDocstringListener
     from sphinx.ext.todo import todo_node
 
 
@@ -66,16 +67,24 @@ class EventManager:
     """Event manager for Sphinx."""
 
     def __init__(self, app: Sphinx) -> None:
-        self.app = app
+        self._app = app
         self.events = core_events.copy()
         self.listeners: dict[str, list[EventListener]] = defaultdict(list)
         self.next_listener_id = 0
+
+        # pass through errors for debugging.
+        self._reraise_errors: bool = app.pdb
 
     def add(self, name: str) -> None:
         """Register a custom Sphinx event."""
         if name in self.events:
             raise ExtensionError(__('Event %r already present') % name)
         self.events[name] = ''
+
+    @property
+    def app(self) -> Sphinx:
+        _deprecation_warning(__name__, 'EventManager.app', remove=(10, 0))
+        return self._app
 
     # ---- Core events -------------------------------------------------------
 
@@ -401,15 +410,14 @@ class EventManager:
         listeners = sorted(self.listeners[name], key=attrgetter('priority'))
         for listener in listeners:
             try:
-                results.append(listener.handler(self.app, *args))
+                results.append(listener.handler(self._app, *args))
             except allowed_exceptions:
                 # pass through the errors specified as *allowed_exceptions*
                 raise
             except SphinxError:
                 raise
             except Exception as exc:
-                if self.app.pdb:
-                    # Just pass through the error, so that it can be debugged.
+                if self._reraise_errors:
                     raise
                 modname = safe_getattr(listener.handler, '__module__', None)
                 raise ExtensionError(

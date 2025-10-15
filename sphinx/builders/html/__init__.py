@@ -10,18 +10,16 @@ import posixpath
 import re
 import shutil
 import sys
-import warnings
 from pathlib import Path
 from types import NoneType
 from typing import TYPE_CHECKING
 from urllib.parse import quote
 
+import docutils.parsers.rst
 import docutils.readers.doctree
+import docutils.utils
 import jinja2.exceptions
 from docutils import nodes
-from docutils.core import Publisher
-from docutils.frontend import OptionParser
-from docutils.io import DocTreeInput, StringOutput
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
@@ -49,7 +47,7 @@ from sphinx.util._pathlib import _StrPath
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util._uri import is_url
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
@@ -70,7 +68,6 @@ if TYPE_CHECKING:
     from typing import Any, TypeAlias
 
     from docutils.nodes import Node
-    from docutils.readers import Reader
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -93,6 +90,10 @@ DOMAIN_INDEX_TYPE: TypeAlias = tuple[
     # whether sub-entries should start collapsed
     bool,
 ]
+
+_READER_TRANSFORMS = docutils.readers.doctree.Reader().get_transforms()
+_PARSER_TRANSFORMS = docutils.parsers.rst.Parser().get_transforms()
+_WRITER_TRANSFORMS = HTMLWriter(None).get_transforms()  # type: ignore[arg-type]
 
 
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
@@ -151,19 +152,13 @@ class StandaloneHTMLBuilder(Builder):
         # JS files
         self._js_files: list[_JavaScript] = []
 
-        # Cached Publisher for writing doctrees to HTML
-        reader: Reader[DocTreeInput] = docutils.readers.doctree.Reader(
-            parser_name='restructuredtext'
+        # Cached settings for render_partial()
+        self._settings = _get_settings(
+            docutils.readers.doctree.Reader,
+            docutils.parsers.rst.Parser,
+            HTMLWriter,
+            defaults={'output_encoding': 'unicode', 'traceback': True},
         )
-        pub = Publisher(
-            reader=reader,
-            parser=reader.parser,
-            writer=HTMLWriter(self),
-            source_class=DocTreeInput,
-            destination=StringOutput(encoding='unicode'),
-        )
-        pub.get_settings(output_encoding='unicode', traceback=True)
-        self._publisher = pub
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
@@ -228,7 +223,12 @@ class StandaloneHTMLBuilder(Builder):
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self) -> None:
-        theme_factory = HTMLThemeFactory(self.app)
+        theme_factory = HTMLThemeFactory(
+            confdir=self.confdir,
+            app=self._app,
+            config=self.config,
+            registry=self._registry,
+        )
         theme_name, theme_options = self.get_theme_config()
         self.theme = theme_factory.create(theme_name)
         self.theme_options = theme_options
@@ -255,11 +255,6 @@ class StandaloneHTMLBuilder(Builder):
         self.dark_highlighter: PygmentsBridge | None
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
-            self.app.add_css_file(
-                'pygments_dark.css',
-                media='(prefers-color-scheme: dark)',
-                id='pygments_dark_css',
-            )
         else:
             self.dark_highlighter = None
 
@@ -273,11 +268,18 @@ class StandaloneHTMLBuilder(Builder):
     def init_css_files(self) -> None:
         self._css_files = []
         self.add_css_file('pygments.css', priority=200)
+        if self.dark_highlighter is not None:
+            self.add_css_file(
+                'pygments_dark.css',
+                priority=200,
+                media='(prefers-color-scheme: dark)',
+                id='pygments_dark_css',
+            )
 
         for filename in self._get_style_filenames():
             self.add_css_file(filename, priority=200)
 
-        for filename, attrs in self.env._registry.css_files:
+        for filename, attrs in self._registry.css_files:
             self.add_css_file(filename, **attrs)
 
         for filename, attrs in self.get_builder_config('css_files', 'html'):
@@ -304,7 +306,7 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('doctools.js', priority=200)
         self.add_js_file('sphinx_highlight.js', priority=200)
 
-        for filename, attrs in self.env._registry.js_files:
+        for filename, attrs in self._registry.js_files:
             self.add_js_file(filename or '', **attrs)
 
         for filename, attrs in self.get_builder_config('js_files', 'html'):
@@ -329,7 +331,7 @@ class StandaloneHTMLBuilder(Builder):
             return name
         else:
             # not given: choose a math_renderer from registered ones as possible
-            renderers = list(self.env._registry.html_inline_math_renderers)
+            renderers = list(self._registry.html_inline_math_renderers)
             if len(renderers) == 1:
                 # only default math_renderer (mathjax) is registered
                 return renderers[0]
@@ -422,12 +424,19 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
-
-        doc = new_document('<partial node>')
+        doc = docutils.utils.new_document('<partial node>', self._settings)
         doc.append(node)
-        self._publisher.set_source(doc)
-        self._publisher.publish()
-        return self._publisher.writer.parts
+        doc.transformer.add_transforms(_READER_TRANSFORMS)
+        doc.transformer.add_transforms(_PARSER_TRANSFORMS)
+        doc.transformer.add_transforms(_WRITER_TRANSFORMS)
+        doc.transformer.apply_transforms()
+        visitor: HTML5Translator = self.create_translator(doc, self)  # type: ignore[assignment]
+        doc.walkabout(visitor)
+        parts = {
+            'fragment': ''.join(visitor.fragment),
+            'title': ''.join(visitor.title),
+        }
+        return parts
 
     def prepare_writing(self, docnames: Set[str]) -> None:
         # create the search indexer
@@ -444,16 +453,9 @@ class StandaloneHTMLBuilder(Builder):
             )
             self.load_indexer(docnames)
 
-        self.docwriter = HTMLWriter(self)
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
-            # DeprecationWarning: The frontend.OptionParser class will be replaced
-            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-            self.docsettings: Any = OptionParser(
-                defaults=self.env.settings,
-                components=(self.docwriter,),
-                read_config_files=True,
-            ).get_default_values()
+        self.docsettings = _get_settings(
+            HTMLWriter, defaults=self.env.settings, read_config_files=True
+        )
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
@@ -517,9 +519,9 @@ class StandaloneHTMLBuilder(Builder):
                 ))
 
         # add assets registered after ``Builder.init()``.
-        for css_filename, attrs in self.env._registry.css_files:
+        for css_filename, attrs in self._registry.css_files:
             self.add_css_file(css_filename, **attrs)
-        for js_filename, attrs in self.env._registry.js_files:
+        for js_filename, attrs in self._registry.js_files:
             self.add_js_file(js_filename or '', **attrs)
 
         # back up _css_files and _js_files to allow adding CSS/JS files to a specific page.
@@ -660,7 +662,6 @@ class StandaloneHTMLBuilder(Builder):
         self.finish_tasks.join()
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
@@ -668,13 +669,13 @@ class StandaloneHTMLBuilder(Builder):
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
-        self.docwriter.write(doctree, destination)
-        self.docwriter.assemble_parts()
-        body = self.docwriter.parts['fragment']
-        metatags = self.docwriter.clean_meta
+        visitor: HTML5Translator = self.create_translator(doctree, self)  # type: ignore[assignment]
+        doctree.walkabout(visitor)
+        body = ''.join(visitor.fragment)
+        clean_meta = ''.join(visitor.meta[2:])
 
-        ctx = self.get_doc_context(docname, body, metatags)
-        ctx['has_maths_elements'] = self.docwriter._has_maths_elements
+        ctx = self.get_doc_context(docname, body, clean_meta)
+        ctx['has_maths_elements'] = getattr(visitor, '_has_maths_elements', False)
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
@@ -780,7 +781,7 @@ class StandaloneHTMLBuilder(Builder):
                 __('copying images... '),
                 'brown',
                 len(self.images),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=stringify_func,
             ):
                 dest = self.images[src]
@@ -807,7 +808,7 @@ class StandaloneHTMLBuilder(Builder):
                 __('copying downloadable files... '),
                 'brown',
                 len(self.env.dlfiles),
-                self.app.verbosity,
+                self.config.verbosity,
                 stringify_func=to_relpath,
             ):
                 try:
@@ -1029,7 +1030,7 @@ class StandaloneHTMLBuilder(Builder):
         if kwargs.get('maxdepth') == '':  # NoQA: PLC1901
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(
-            self.env, docname, self, collapse=collapse, **kwargs
+            self.env, docname, self, tags=self.tags, collapse=collapse, **kwargs
         )
         return self.render_partial(toctree)['fragment']
 
@@ -1039,31 +1040,30 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename: str) -> _StrPath:
         return _StrPath(self.get_output_path(pagename))
 
-    def add_sidebars(self, pagename: str, ctx: dict[str, Any]) -> None:
-        def has_wildcard(pattern: str) -> bool:
-            return any(char in pattern for char in '*?[')
-
+    def _get_sidebars(self, pagename: str, /) -> tuple[str, ...]:
         matched = None
 
         # default sidebars settings for selected theme
-        sidebars = list(self.theme.sidebar_templates)
+        sidebars = self.theme.sidebar_templates
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
         msg = __('page %s matches two patterns in html_sidebars: %r and %r')
         for pattern, pat_sidebars in html_sidebars.items():
             if patmatch(pagename, pattern):
-                if matched and has_wildcard(pattern):
+                if matched and _has_wildcard(pattern):
                     # warn if both patterns contain wildcards
-                    if has_wildcard(matched):
+                    if _has_wildcard(matched):
                         logger.warning(msg, pagename, matched, pattern)
                     # else the already matched pattern is more specific
                     # than the present one, because it contains no wildcard
                     continue
                 matched = pattern
-                sidebars = pat_sidebars
+                sidebars = tuple(pat_sidebars)
+        return sidebars
 
-        ctx['sidebars'] = list(sidebars)
+    def add_sidebars(self, pagename: str, ctx: dict[str, Any]) -> None:
+        ctx['sidebars'] = list(self._get_sidebars(pagename))
 
     # --------- these are overwritten by the serialization builder
 
@@ -1122,13 +1122,13 @@ class StandaloneHTMLBuilder(Builder):
         ctx['hasdoc'] = hasdoc
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
-        self.add_sidebars(pagename, ctx)
+        ctx['sidebars'] = list(self._get_sidebars(pagename))
         ctx.update(addctx)
 
         # 'blah.html' should have content_root = './' not ''.
         ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
 
-        outdir = self.app.outdir
+        outdir = self.outdir
 
         def css_tag(css: _CascadingStyleSheet) -> str:
             attrs = [
@@ -1289,6 +1289,10 @@ class StandaloneHTMLBuilder(Builder):
                 with open(search_index_tmp, 'wb') as fb:
                     self.indexer.dump(fb, self.indexer_format)
             Path(search_index_tmp).replace(search_index_path)
+
+
+def _has_wildcard(pattern: str, /) -> bool:
+    return any(char in pattern for char in '*?[')
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:

@@ -473,8 +473,8 @@ and the generic :rst:dir:`admonition` directive.
 
    .. seealso::
 
-      Module :py:mod:`zipfile`
-         Documentation of the :py:mod:`zipfile` standard module.
+      Python's :py:mod:`zipfile` module
+         Documentation of Python's standard :py:mod:`zipfile` module.
 
       `GNU tar manual, Basic Tar Format <https://example.org>`_
          Documentation for tar archive files, including GNU tar extensions.
@@ -537,7 +537,8 @@ Describing changes between versions
            pair: changes; in version
            pair: removed; in version
 
-.. rst:directive:: .. versionadded:: version [brief explanation]
+.. rst:directive:: .. version-added:: version [brief explanation]
+                   .. versionadded:: version [brief explanation]
 
    This directive documents the version of the project
    which added the described feature.
@@ -551,56 +552,75 @@ Describing changes between versions
       There must be no blank line between the directive head and the explanation;
       this is to make these blocks visually continuous in the markup.
 
+   .. version-changed:: 8.3
+      The :rst:dir:`versionadded` directive was renamed to :rst:dir:`version-added`.
+      The previous name is retained as an alias.
+
    Example::
 
-      .. versionadded:: 2.5
+      .. version-added:: 2.5
          The *spam* parameter.
 
-   .. versionadded:: 2.5
+   .. version-added:: 2.5
       The *spam* parameter.
 
-.. rst:directive:: .. versionchanged:: version [brief explanation]
+.. rst:directive:: .. version-changed:: version [brief explanation]
+                   .. versionchanged:: version [brief explanation]
 
-   Similar to :rst:dir:`versionadded`, but describes when and what changed in
+   Similar to :rst:dir:`version-added`, but describes when and what changed in
    the named feature in some way (new parameters, changed side effects, etc.).
+
+   .. version-changed:: 8.3
+      The :rst:dir:`versionchanged` directive was renamed to :rst:dir:`version-changed`.
+      The previous name is retained as an alias.
 
    Example::
 
-      .. versionchanged:: 2.8
+      .. version-changed:: 2.8
          The *spam* parameter is now of type *boson*.
 
-   .. versionchanged:: 2.8
+   .. version-changed:: 2.8
       The *spam* parameter is now of type *boson*.
 
-.. rst:directive:: .. deprecated:: version [brief explanation]
+.. rst:directive:: .. version-deprecated:: version [brief explanation]
+                   .. deprecated:: version [brief explanation]
 
-   Similar to :rst:dir:`versionadded`, but describes when the feature was
+   Similar to :rst:dir:`version-added`, but describes when the feature was
    deprecated.
    A *brief* explanation can also be given,
    for example to tell the reader what to use instead.
 
+   .. version-changed:: 8.3
+      The :rst:dir:`deprecated` directive was renamed to :rst:dir:`version-deprecated`.
+      The previous name is retained as an alias
+
    Example::
 
-      .. deprecated:: 3.1
+      .. version-deprecated:: 3.1
          Use :py:func:`spam` instead.
 
-   .. deprecated:: 3.1
+   .. version-deprecated:: 3.1
       Use :py:func:`!spam` instead.
 
-.. rst:directive:: .. versionremoved:: version [brief explanation]
+.. rst:directive:: .. version-removed:: version [brief explanation]
+                   .. versionremoved:: version [brief explanation]
 
-   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   Similar to :rst:dir:`version-added`, but describes when the feature was removed.
    An explanation may be provided to tell the reader what to use instead,
    or why the feature was removed.
 
-   .. versionadded:: 7.3
+   .. version-added:: 7.3
+
+   .. version-changed:: 8.3
+      The :rst:dir:`versionremoved` directive was renamed to :rst:dir:`version-removed`.
+      The previous name is retained as an alias.
 
    Example::
 
-      .. versionremoved:: 4.0
+      .. version-removed:: 4.0
          The :py:func:`spam` function is more flexible, and should be used instead.
 
-   .. versionremoved:: 4.0
+   .. version-removed:: 4.0
       The :py:func:`!spam` function is more flexible, and should be used instead.
 
 
@@ -971,7 +991,7 @@ __ https://pygments.org/docs/lexers
       :type: text
 
       Explicitly specify the encoding of the file.
-      This overwrites the default encoding (:confval:`source_encoding`).
+      This overwrites the default encoding (UTF-8).
       For example:
 
       .. code-block:: rst
@@ -1472,11 +1492,20 @@ Check the :confval:`latex_table_style`.
    complex contents such as multiple paragraphs, blockquotes, lists, literal
    blocks, will render correctly to LaTeX output.
 
+.. versionchanged:: 8.3.0
+   The partial support of the LaTeX builder for nesting a table in another
+   has been extended.
+   Formerly Sphinx would raise an error if ``longtable`` class was specified
+   for a table containing a nested table, and some cases would not raise an
+   error at Sphinx level but fail at LaTeX level during PDF build.  This is a
+   complex topic in LaTeX rendering and the output can sometimes be improved
+   via the :rst:dir:`tabularcolumns` directive.
+
 .. rst:directive:: .. tabularcolumns:: column spec
 
-   This directive influences only the LaTeX output for the next table in
-   source.  The mandatory argument is a column specification (known as an
-   "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
+   This directive influences only the LaTeX output, and only for the next
+   table in source.  The mandatory argument is a column specification (known
+   as an "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
    documentation, such as the `wiki page`_, for basics of such a column
    specification.
 
@@ -1484,52 +1513,85 @@ Check the :confval:`latex_table_style`.
 
    .. versionadded:: 0.3
 
+   Sphinx renders tables with at most 30 rows using ``tabulary`` (or
+   ``tabular`` if at least one cell contains either a code-block or a nested
+   table), and those with more rows with ``longtable``.  The advantage of
+   using ``tabulary`` is that it tries to compute automatically (internally to
+   LaTeX) suitable column widths.
+
+   The ``tabulary`` algorithm often works well, but in some cases when a cell
+   contains long paragraphs, the column will be given a large width and other
+   columns whose cells contain only single words may end up too narrow.  The
+   :rst:dir:`tabularcolumns` can help solve this via providing to LaTeX a
+   custom "alignment preamble" (aka "colspec").  For example ``lJJ`` will be
+   suitable for a three-columns table whose first column contains only single
+   words and the other two have cells with long paragraphs.
+
    .. note::
 
-      :rst:dir:`tabularcolumns` conflicts with ``:widths:`` option of table
-      directives.  If both are specified, ``:widths:`` option will be ignored.
+      Of course, a fully automated solution would be better, and it is still
+      hoped for, but it is an intrinsic aspect of ``tabulary``, and the latter
+      is in use by Sphinx ever since ``0.3``...  It looks as if solving the
+      problem of squeezed columns could require substantial changes to that
+      LaTeX package.  And no good alternative appears to exist, as of 2025.
 
-   Sphinx will render tables with more than 30 rows with ``longtable``.
-   Besides the ``l``, ``r``, ``c`` and ``p{width}`` column specifiers, one can
-   also use ``\X{a}{b}`` (new in version 1.5) which configures the column
-   width to be a fraction ``a/b`` of the total line width and ``\Y{f}`` (new
-   in version 1.6) where ``f`` is a decimal: for example ``\Y{0.2}`` means that
-   the column will occupy ``0.2`` times the line width.
+   .. hint::
 
-   When this directive is used for a table with at most 30 rows, Sphinx will
-   render it with ``tabulary``.  One can then use specific column types ``L``
-   (left), ``R`` (right), ``C`` (centered) and ``J`` (justified).  They have
-   the effect of a ``p{width}`` (i.e. each cell is a LaTeX ``\parbox``) with
-   the specified internal text alignment and an automatically computed
-   ``width``.
+      A way to solve the issue for all tables at once, is to inject in the
+      LaTeX preamble (see :confval:`latex_elements`) a command such as
+      ``\setlength{\tymin}{1cm}`` which causes all columns to be at least
+      ``1cm`` wide (not counting inter-column whitespace).  Currently, Sphinx
+      configures ``\tymin`` to allow room for three characters at least.
 
-   .. warning::
+   Here is a more sophisticated "colspec", for a 4-columns table:
 
-      - Cells that contain list-like elements such as object descriptions,
-        blockquotes or any kind of lists are not compatible with the ``LRCJ``
-        column types.  The column type must then be some ``p{width}`` with an
-        explicit ``width`` (or ``\X{a}{b}`` or ``\Y{f}``).
+   .. code-block:: latex
 
-      - Literal blocks do not work with ``tabulary`` at all.  Sphinx will
-        fall back to ``tabular`` or ``longtable`` environments and generate a
-        suitable column specification.
+      .. tabularcolumns:: >{\raggedright}\Y{.4}>{\centering}\Y{.1}>{\sphinxcolorblend{!95!red}\centering\noindent\bfseries\color{red}}\Y{.12}>{\raggedright\arraybackslash}\Y{.38}
 
-In absence of the :rst:dir:`tabularcolumns` directive, and for a table with at
-most 30 rows and no problematic cells as described in the above warning,
-Sphinx uses ``tabulary`` and the ``J`` column-type for every column.
+   This is used in Sphinx own PDF docs at :ref:`dev-deprecated-apis`.
+   Regarding column widths, this "colspec" achieves the same as would
+   ``:widths:`` option set to ``40 10 12 38`` but it injects extra effects.
+
+   .. note::
+
+      In case both :rst:dir:`tabularcolumns` and ``:widths:`` option of table
+      directives are used, ``:widths:`` option will be ignored by the LaTeX
+      builder.  Of course it is obeyed by other builders.
+
+   Literal blocks do not work at all with ``tabulary`` and Sphinx will then
+   fall back to ``tabular`` LaTeX environment.  It will employ the
+   :rst:dir:`tabularcolumns` specification in that case only if it contains no
+   usage of the ``tabulary`` specific column types (which are ``L``, ``R``,
+   ``C`` and ``J``).
+
+   Besides the LaTeX ``l``, ``r``, ``c`` and ``p{width}`` column specifiers,
+   and the ``tabulary`` specific ``L``, ``R``, ``C`` and ``J``, one can also
+   use (with all table types) ``\X{a}{b}`` which configures the column width
+   to be a fraction ``a/b`` of the total line width and ``\Y{f}`` where ``f``
+   is a decimal: for example ``\Y{0.2}`` means that the column will occupy
+   ``0.2`` times the line width.
 
 .. versionchanged:: 1.6
 
-   Formerly, the ``L`` column-type was used (text is flushed-left).  To revert
-   to this, include ``\newcolumntype{T}{L}`` in the LaTeX preamble, as in fact
-   Sphinx uses ``T`` and sets it by default to be an alias of ``J``.
+   Sphinx uses ``J`` (justified) by default with ``tabulary``, not ``L``
+   (flushed-left).  To revert, include ``\newcolumntype{T}{L}`` in the LaTeX
+   preamble, as in fact Sphinx uses ``T`` and sets it by default to be an
+   alias of ``J``.
 
-.. hint::
+.. versionchanged:: 8.3.0
 
-   A frequent issue with ``tabulary`` is that columns with little contents
-   appear to be "squeezed".  One can add to the LaTeX preamble for example
-   ``\setlength{\tymin}{40pt}`` to ensure a minimal column width of ``40pt``,
-   the ``tabulary`` default of ``10pt`` being too small.
+   Formerly, Sphinx did not use ``tabulary`` if the table had at least one
+   cell containing "problematic" elements such as lists, object descriptions,
+   blockquotes (etc...) because such contents are not out-of-the-box
+   compatible with ``tabulary``.  At ``8.3.0`` a technique, which was already
+   in use for merged cells, was extended to such cases, and the sole
+   "problematic" contents are code-blocks and nested tables.  So tables
+   containing (only) cells with mutliple paragraphs, bullet or enumerated
+   lists, or line blocks, will now better fit to their contents (if not
+   rendered by ``longtable``).  Cells with object descriptions or admonitions
+   will still have a tendency to induce the table to fill the full text area
+   width, but columns in that table with no such contents will be tighter.
 
 .. hint::
 

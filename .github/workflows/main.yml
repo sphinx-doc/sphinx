@@ -38,16 +38,18 @@ jobs:
         - "3.12"
         - "3.13"
         - "3.13t"
+        - "3.14"
+        - "3.14t"
         docutils:
         - "0.20"
-        - "0.21"
-#        include:
-#        # test every supported Docutils version for the latest supported Python
-#        - python: "3.13"
-#          docutils: "0.20"
+        - "0.22"
+        include:
+        # test every supported Docutils version for the latest supported Python
+        - python: "3.14"
+          docutils: "0.21"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Mount the test roots as read-only
@@ -55,7 +57,7 @@ jobs:
         mkdir -p ./tests/roots-read-only
         sudo mount -v --bind --read-only ./tests/roots ./tests/roots-read-only
     - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python }}
     - name: Check Python version
@@ -88,13 +90,13 @@ jobs:
       fail-fast: false
       matrix:
         python:
-        - "3.14"
+        - "3.15"
         docutils:
         - "0.20"
-        - "0.21"
+        - "0.22"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
@@ -124,10 +126,10 @@ jobs:
       fail-fast: false
       matrix:
         python:
-        - "3.14"
+        - "3.15"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
@@ -162,11 +164,11 @@ jobs:
         echo "TMP=D:\\Tmp" >> $env:GITHUB_ENV
         echo "TEMP=D:\\Tmp" >> $env:GITHUB_ENV
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -191,11 +193,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -226,11 +228,11 @@ jobs:
         mkdir /tmp/epubcheck && cd /tmp/epubcheck
         wget --no-verbose https://github.com/w3c/epubcheck/releases/download/v${EPUBCHECK_VERSION}/epubcheck-${EPUBCHECK_VERSION}.zip
         unzip epubcheck-${EPUBCHECK_VERSION}.zip
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -259,11 +261,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -292,11 +294,11 @@ jobs:
       image: ghcr.io/sphinx-doc/sphinx-ci
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version
@@ -308,6 +310,8 @@ jobs:
         enable-cache: false
     - name: Install dependencies
       run: uv pip install . --group test
+    - name: Install Docutils' HEAD
+      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
@@ -321,11 +325,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Check Python version

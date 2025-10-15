@@ -156,7 +156,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             parent=target_symbol,
             ident=symbol.ident,
             declaration=decl_clone,
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             line=self.get_source_info()[1],
         )
 
@@ -259,7 +259,9 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
         try:
             symbol = parent_symbol.add_declaration(
-                ast, docname=self.env.docname, line=self.get_source_info()[1]
+                ast,
+                docname=self.env.current_document.docname,
+                line=self.get_source_info()[1],
             )
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
@@ -668,7 +670,7 @@ class CAliasObject(ObjectDescription[str]):
         The code is therefore based on the ObjectDescription version.
         """
         if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+            self.domain, _, self.objtype = self.name.partition(':')
         else:
             self.domain, self.objtype = '', self.name
 
@@ -818,7 +820,7 @@ class CDomain(Domain):
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False),
     }
-    initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
+    initial_data: ClassVar[dict[str, Symbol | dict[str, tuple[str, str, str]]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
     }

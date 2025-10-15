@@ -5,21 +5,11 @@
 
 from __future__ import annotations
 
-import warnings
-
 from sphinx.util._pathlib import _StrPath
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     from typing import Final
-
-warnings.filterwarnings(
-    'ignore',
-    'The frontend.Option class .*',
-    DeprecationWarning,
-    module='docutils.frontend',
-)
-del warnings
 
 __version__: Final = '8.3.0'
 __display_version__: Final = __version__  # used for command line version

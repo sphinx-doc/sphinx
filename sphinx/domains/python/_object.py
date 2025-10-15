@@ -93,7 +93,7 @@ class PyXrefMixin:
                 children = result.children
                 result.clear()
 
-                shortname = target.split('.')[-1]
+                shortname = target.rpartition('.')[-1]
                 textnode = innernode('', shortname)  # type: ignore[call-arg]
                 contnodes = [
                     pending_xref_condition('', '', textnode, condition='resolved'),
@@ -424,14 +424,20 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         domain = self.env.domains.python_domain
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
-        canonical_name = self.options.get('canonical')
-        if canonical_name:
-            domain.note_object(
-                canonical_name, self.objtype, node_id, aliased=True, location=signode
-            )
+        if self.objtype != 'type':
+            # py:type directive uses `canonical` option for a different meaning
+            canonical_name = self.options.get('canonical')
+            if canonical_name:
+                domain.note_object(
+                    canonical_name,
+                    self.objtype,
+                    node_id,
+                    aliased=True,
+                    location=signode,
+                )
 
         if 'no-index-entry' not in self.options:
-            if index_text := self.get_index_text(mod_name, name_cls):
+            if index_text := self.get_index_text(mod_name, name_cls):  # type: ignore[arg-type]
                 self.indexnode['entries'].append((
                     'single',
                     index_text,

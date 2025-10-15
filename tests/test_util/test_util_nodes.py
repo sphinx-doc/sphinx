@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import warnings
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any
 
@@ -22,19 +21,17 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.nodes import document
 
 
-def _transform(doctree) -> None:
+def _transform(doctree: nodes.document) -> None:
     ApplySourceWorkaround(doctree).apply()
 
 
 def create_new_document() -> document:
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        # DeprecationWarning: The frontend.OptionParser class will be replaced
-        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        settings = frontend.OptionParser(components=(rst.Parser,)).get_default_values()
+    settings = frontend.get_default_settings(rst.Parser)
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
@@ -47,7 +44,11 @@ def _get_doctree(text):
     return document
 
 
-def assert_node_count(messages, node_type, expect_count) -> None:
+def assert_node_count(
+    messages: Iterable[tuple[nodes.Element, str]],
+    node_type: type[nodes.Node],
+    expect_count: int,
+) -> None:
     count = 0
     node_list = [node for node, msg in messages]
     for node in node_list:
@@ -155,7 +156,7 @@ def test_NodeMatcher():
         ),
     ],
 )
-def test_extract_messages(rst, node_cls, count):
+def test_extract_messages(rst: str, node_cls: type[nodes.Element], count: int) -> None:
     msg = extract_messages(_get_doctree(dedent(rst)))
     assert_node_count(msg, node_cls, count)
 
@@ -182,7 +183,8 @@ def test_extract_messages_without_rawsource() -> None:
     assert next(m for n, m in extract_messages(document)), 'text sentence'
 
 
-def test_clean_astext():
+def test_clean_astext() -> None:
+    node: nodes.Element
     node = nodes.paragraph(text='hello world')
     assert clean_astext(node) == 'hello world'
 

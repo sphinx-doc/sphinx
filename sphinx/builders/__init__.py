@@ -11,9 +11,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, final
 
 from docutils import nodes
-from docutils.utils import DependencyList
 
 from sphinx._cli.util.colour import bold
+from sphinx.deprecation import _deprecation_warning
 from sphinx.environment import (
     CONFIG_CHANGED_REASON,
     CONFIG_OK,
@@ -22,16 +22,12 @@ from sphinx.environment import (
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.util import (
-    get_filetype,
-    logging,
-    rst,
-)
+from sphinx.util import get_filetype, logging
 from sphinx.util._importer import import_object
 from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.display import progress_message, status_iterator
-from sphinx.util.docutils import sphinx_domains
+from sphinx.util.docutils import _parse_str_to_doctree
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.osutil import ensuredir, relative_uri, relpath
 from sphinx.util.parallel import (
@@ -48,7 +44,7 @@ from sphinx import roles  # NoQA: F401  isort:skip
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
     from gettext import NullTranslations
-    from typing import Any, Literal
+    from typing import Any, ClassVar, Literal
 
     from docutils.nodes import Node
 
@@ -70,37 +66,39 @@ class Builder:
 
     #: The builder's name.
     #: This is the value used to select builders on the command line.
-    name: str = ''
+    name: ClassVar[str] = ''
     #: The builder's output format, or '' if no document output is produced.
     #: This is commonly the file extension, e.g. "html",
     #: though any string value is accepted.
     #: The builder's format string can be used by various components
     #: such as :class:`.SphinxPostTransform` or extensions to determine
     #: their compatibility with the builder.
-    format: str = ''
+    format: ClassVar[str] = ''
     #: The message emitted upon successful build completion.
     #: This can be a printf-style template string
     #: with the following keys: ``outdir``, ``project``
-    epilog: str = ''
+    epilog: ClassVar[str] = ''
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
-    default_translator_class: type[nodes.NodeVisitor]
+    default_translator_class: ClassVar[type[nodes.NodeVisitor]]
     # doctree versioning method
-    versioning_method = 'none'
-    versioning_compare = False
+    versioning_method: ClassVar[str] = 'none'
+    versioning_compare: ClassVar[bool] = False
     #: Whether it is safe to make parallel :meth:`~.Builder.write_doc` calls.
-    allow_parallel: bool = False
+    allow_parallel: ClassVar[bool] = False
     # support translation
-    use_message_catalog = True
+    use_message_catalog: ClassVar[bool] = True
 
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
-    supported_image_types: list[str] = []
+    supported_image_types: ClassVar[list[str]] = []
     #: The builder can produce output documents that may fetch external images when opened.
-    supported_remote_images: bool = False
+    supported_remote_images: ClassVar[bool] = False
     #: The file format produced by the builder allows images to be embedded using data-URIs.
-    supported_data_uri_images: bool = False
+    supported_data_uri_images: ClassVar[bool] = False
+
+    phase: BuildPhase = BuildPhase.INITIALIZATION
 
     srcdir = _StrPathProperty()
     confdir = _StrPathProperty()
@@ -114,7 +112,7 @@ class Builder:
         self.doctreedir = app.doctreedir
         ensuredir(self.doctreedir)
 
-        self.app: Sphinx = app
+        self._app: Sphinx = app
         self.env: BuildEnvironment = env
         self.env.set_versioning_method(self.versioning_method, self.versioning_compare)
         self.events: EventManager = app.events
@@ -124,6 +122,7 @@ class Builder:
         self.tags.add(self.name)
         self.tags.add(f'format_{self.format}')
         self.tags.add(f'builder_{self.name}')
+        self._registry = app.registry
 
         # images that need to be copied over (source -> dest)
         self.images: dict[str, str] = {}
@@ -137,12 +136,19 @@ class Builder:
         self.finish_tasks: Any = None
 
     @property
+    def app(self) -> Sphinx:
+        cls_module = self.__class__.__module__
+        cls_name = self.__class__.__qualname__
+        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(10, 0))
+        return self._app
+
+    @property
     def _translator(self) -> NullTranslations | None:
-        return self.app.translator
+        return self._app.translator
 
     def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
-        return self.env._registry.get_translator_class(self)
+        return self._registry.get_translator_class(self)
 
     def create_translator(self, *args: Any) -> nodes.NodeVisitor:
         """Return an instance of translator.
@@ -150,7 +156,7 @@ class Builder:
         This method returns an instance of ``default_translator_class`` by default.
         Users can replace the translator class with ``app.set_translator()`` API.
         """
-        return self.env._registry.create_translator(self, *args)
+        return self._registry.create_translator(self, *args)
 
     # helper methods
     def init(self) -> None:
@@ -258,7 +264,7 @@ class Builder:
             __('writing output... '),
             'darkgreen',
             len(catalogs),
-            self.app.verbosity,
+            self.config.verbosity,
             stringify_func=cat2relpath,
         ):
             catalog.write_mo(
@@ -397,14 +403,14 @@ class Builder:
         # while reading, collect all warnings from docutils
         with (
             nullcontext()
-            if self.app._exception_on_warning
+            if self._app._exception_on_warning
             else logging.pending_warnings()
         ):
             updated_docnames = set(self.read())
 
         doccount = len(updated_docnames)
         logger.info(bold(__('looking for now-outdated files... ')), nonl=True)
-        updated_docnames.update(self.env.check_dependents(self.app, updated_docnames))
+        updated_docnames.update(self.env.check_dependents(self._app, updated_docnames))
         outdated = len(updated_docnames) - doccount
         if outdated:
             logger.info(__('%d found'), outdated)
@@ -422,14 +428,14 @@ class Builder:
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
-            self.app.phase = BuildPhase.CONSISTENCY_CHECK
+            self.phase = BuildPhase.CONSISTENCY_CHECK
             with progress_message(__('checking consistency')):
                 self.env.check_consistency()
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
 
-        self.app.phase = BuildPhase.RESOLVING
+        self.phase = BuildPhase.RESOLVING
 
         # filter "docnames" (list of outdated files) by the updated
         # found_docs of the environment; this will remove docs that
@@ -438,14 +444,14 @@ class Builder:
             docnames = set(docnames) & self.env.found_docs
 
         # determine if we can write in parallel
-        if parallel_available and self.app.parallel > 1 and self.allow_parallel:
-            self.parallel_ok = self.app.is_parallel_allowed('write')
+        if parallel_available and self._app.parallel > 1 and self.allow_parallel:
+            self.parallel_ok = self._app.is_parallel_allowed('write')
         else:
             self.parallel_ok = False
 
         #  create a task executor to use for misc. "finish-up" tasks
         # if self.parallel_ok:
-        #     self.finish_tasks = ParallelTasks(self.app.parallel)
+        #     self.finish_tasks = ParallelTasks(self._app.parallel)
         # else:
         # for now, just execute them serially
         self.finish_tasks = SerialTasks()
@@ -508,13 +514,13 @@ class Builder:
         self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
-        if parallel_available and self.app.parallel > 1:
-            par_ok = self.app.is_parallel_allowed('read')
+        if parallel_available and self._app.parallel > 1:
+            par_ok = self._app.is_parallel_allowed('read')
         else:
             par_ok = False
 
         if par_ok:
-            self._read_parallel(docnames, nproc=self.app.parallel)
+            self._read_parallel(docnames, nproc=self._app.parallel)
         else:
             self._read_serial(docnames)
 
@@ -576,7 +582,7 @@ class Builder:
             __('reading sources... '),
             'purple',
             len(docnames),
-            self.app.verbosity,
+            self.config.verbosity,
         ):
             # remove all inventory entries for that file
             self.events.emit('env-purge-doc', self.env, docname)
@@ -589,7 +595,11 @@ class Builder:
         # create a status_iterator to step progressbar after reading a document
         # (see: ``merge()`` function)
         progress = status_iterator(
-            chunks, __('reading sources... '), 'purple', len(chunks), self.app.verbosity
+            chunks,
+            __('reading sources... '),
+            'purple',
+            len(chunks),
+            self.config.verbosity,
         )
 
         # clear all outdated docs at once
@@ -598,7 +608,7 @@ class Builder:
             self.env.clear_doc(docname)
 
         def read_process(docs: list[str]) -> bytes:
-            self.env.app = self.app
+            self.env._app = self._app
             for docname in docs:
                 self.read_doc(docname, _cache=False)
             # allow pickling self to send it back
@@ -606,7 +616,7 @@ class Builder:
 
         def merge(docs: list[str], otherenv: bytes) -> None:
             env = pickle.loads(otherenv)
-            self.env.merge_info_from(docs, env, self.app)
+            self.env.merge_info_from(docs, env, self._app)
 
             next(progress)
 
@@ -629,24 +639,34 @@ class Builder:
         if docutils_conf.is_file():
             env.note_dependency(docutils_conf)
 
-        filename = str(env.doc2path(docname))
-        filetype = get_filetype(self.app.config.source_suffix, filename)
-        publisher = self.env._registry.get_publisher(self.app, filetype)
-        self.env.current_document._parser = publisher.parser
-        # record_dependencies is mutable even though it is in settings,
-        # explicitly re-initialise for each document
-        publisher.settings.record_dependencies = DependencyList()
-        with (
-            sphinx_domains(env),
-            rst.default_role(docname, self.config.default_role),
-        ):
-            # set up error_handler for the target document
-            error_handler = _UnicodeDecodeErrorHandler(docname)
-            codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
+        filename = env.doc2path(docname)
 
-            publisher.set_source(source_path=filename)
-            publisher.publish()
-            doctree = publisher.document
+        # set up error_handler for the target document
+        # xref RemovedInSphinx90Warning
+        error_handler = _UnicodeDecodeErrorHandler(docname)
+        codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
+
+        # read the source file
+        content = filename.read_text(
+            encoding=env.settings['input_encoding'], errors='sphinx'
+        )
+
+        # TODO: move the "source-read" event to here.
+
+        filetype = get_filetype(self.config.source_suffix, filename)
+        parser = self._registry.create_source_parser(
+            filetype, config=self.config, env=env
+        )
+        doctree = _parse_str_to_doctree(
+            content,
+            filename=filename,
+            default_role=self.config.default_role,
+            default_settings=env.settings,
+            env=env,
+            events=self.events,
+            parser=parser,
+            transforms=self._registry.get_transforms(),
+        )
 
         # store time of reading, for outdated files detection
         env.all_docs[docname] = time.time_ns() // 1_000
@@ -744,14 +764,14 @@ class Builder:
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
-            self._write_parallel(sorted_docnames, nproc=self.app.parallel - 1)
+            self._write_parallel(sorted_docnames, nproc=self._app.parallel - 1)
         else:
             self._write_serial(sorted_docnames)
 
     def _write_serial(self, docnames: Sequence[str]) -> None:
         with (
             nullcontext()
-            if self.app._exception_on_warning
+            if self._app._exception_on_warning
             else logging.pending_warnings()
         ):
             for docname in status_iterator(
@@ -759,27 +779,19 @@ class Builder:
                 __('writing output... '),
                 'darkgreen',
                 len(docnames),
-                self.app.verbosity,
+                self.config.verbosity,
             ):
-                self.app.phase = BuildPhase.RESOLVING
-                doctree = self.env.get_and_resolve_doctree(docname, self)
-                self.app.phase = BuildPhase.WRITING
-                self.write_doc_serialized(docname, doctree)
-                self.write_doc(docname, doctree)
+                _write_docname(docname, env=self.env, builder=self, tags=self.tags)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
         def write_process(docs: list[tuple[str, nodes.document]]) -> None:
-            self.app.phase = BuildPhase.WRITING
+            self.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
-        self.app.phase = BuildPhase.RESOLVING
-        doctree = self.env.get_and_resolve_doctree(firstname, self)
-        self.app.phase = BuildPhase.WRITING
-        self.write_doc_serialized(firstname, doctree)
-        self.write_doc(firstname, doctree)
+        _write_docname(firstname, env=self.env, builder=self, tags=self.tags)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
@@ -791,17 +803,19 @@ class Builder:
             __('writing output... '),
             'darkgreen',
             len(chunks),
-            self.app.verbosity,
+            self.config.verbosity,
         )
 
         def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
             next(progress)
 
-        self.app.phase = BuildPhase.RESOLVING
+        self.phase = BuildPhase.RESOLVING
         for chunk in chunks:
             arg = []
             for docname in chunk:
-                doctree = self.env.get_and_resolve_doctree(docname, self)
+                doctree = self.env.get_and_resolve_doctree(
+                    docname, self, tags=self.tags
+                )
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
             tasks.add_task(write_process, arg, on_chunk_done)
@@ -867,6 +881,22 @@ class Builder:
             return getattr(self.config, optname)
 
 
+def _write_docname(
+    docname: str,
+    /,
+    *,
+    env: BuildEnvironment,
+    builder: Builder,
+    tags: Tags,
+) -> None:
+    """Write a single document."""
+    builder.phase = BuildPhase.RESOLVING
+    doctree = env.get_and_resolve_doctree(docname, builder=builder, tags=tags)
+    builder.phase = BuildPhase.WRITING
+    builder.write_doc_serialized(docname, doctree)
+    builder.write_doc(docname, doctree)
+
+
 class _UnicodeDecodeErrorHandler:
     """Custom error handler for open() that warns and replaces."""
 
@@ -874,20 +904,21 @@ class _UnicodeDecodeErrorHandler:
         self.docname = docname
 
     def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
-        line_start = error.object.rfind(b'\n', 0, error.start)
-        line_end = error.object.find(b'\n', error.start)
+        obj = error.object
+        line_start = obj.rfind(b'\n', 0, error.start)
+        line_end = obj.find(b'\n', error.start)
         if line_end == -1:
-            line_end = len(error.object)
-        line_num = error.object.count(b'\n', 0, error.start) + 1
+            line_end = len(obj)
+        line_num = obj.count(b'\n', 0, error.start) + 1
         logger.warning(
-            __('undecodable source characters, replacing with "?": %r'),
-            (
-                error.object[line_start + 1 : error.start]
-                + b'>>>'
-                + error.object[error.start : error.end]
-                + b'<<<'
-                + error.object[error.end : line_end]
+            __(
+                "undecodable source characters, replacing with '?': '%s>>>%s<<<%s'. "
+                'This will become an error in Sphinx 9.0.'
+                # xref RemovedInSphinx90Warning
             ),
+            obj[line_start + 1 : error.start].decode(errors='backslashreplace'),
+            obj[error.start : error.end].decode(errors='backslashreplace'),
+            obj[error.end : line_end].decode(errors='backslashreplace'),
             location=(self.docname, line_num),
         )
         return '?', error.end

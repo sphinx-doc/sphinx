@@ -63,6 +63,7 @@ Contributors
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Horst Gutmann -- internationalization support
 * Hugo van Kemenade -- support FORCE_COLOR and NO_COLOR
+* Ian Hunt-Isaak -- typealias reference improvement
 * Ian Lee -- quickstart improvements
 * Jacob Mason -- websupport library (GSOC project)
 * James Addison -- linkcheck and HTML search improvements
@@ -83,10 +84,12 @@ Contributors
 * Louis Maddox -- better docstrings
 * Łukasz Langa -- partial support for autodoc
 * Marco Buttu -- doctest extension (pyversion option)
+* Mark Ostroth -- semantic HTML contributions
 * Martin Hans -- autodoc improvements
 * Martin Larralde -- additional napoleon admonitions
 * Martin Liška -- option directive and role improvements
 * Martin Mahner -- nature theme
+* Martin Matouš -- initial support for PEP 695
 * Matthew Fernandez -- todo extension fix
 * Matthew Woodcraft -- text output improvements
 * Matthias Geier -- style improvements
@@ -103,6 +106,7 @@ Contributors
 * Stefan Seefeld -- toctree improvements
 * Stefan van der Walt -- autosummary extension
 * Steve Piercy -- documentation improvements
+* Szymon Karpinski -- intersphinx improvements
 * \T. Powers -- HTML output improvements
 * Taku Shimizu -- epub3 builder
 * Thomas Lamb -- linkcheck builder

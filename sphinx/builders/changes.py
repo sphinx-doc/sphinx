@@ -23,14 +23,19 @@ logger = logging.getLogger(__name__)
 
 
 class ChangesBuilder(Builder):
-    """Write a summary with all versionadded/changed/deprecated/removed directives."""
+    """Write a summary with all version-related directives."""
 
     name = 'changes'
     epilog = __('The overview file is in %(outdir)s.')
 
     def init(self) -> None:
         self.create_template_bridge()
-        theme_factory = HTMLThemeFactory(self.app)
+        theme_factory = HTMLThemeFactory(
+            confdir=self.confdir,
+            app=self._app,
+            config=self.config,
+            registry=self._registry,
+        )
         self.theme = theme_factory.create('default')
         self.templates.init(self, self.theme)
 
@@ -38,9 +43,13 @@ class ChangesBuilder(Builder):
         return str(self.outdir)
 
     typemap = {
+        'version-added': 'added',
         'versionadded': 'added',
+        'version-changed': 'changed',
         'versionchanged': 'changed',
+        'version-deprecated': 'deprecated',
         'deprecated': 'deprecated',
+        'version-removed': 'removed',
         'versionremoved': 'removed',
     }
 
@@ -107,9 +116,13 @@ class ChangesBuilder(Builder):
             f.write(self.templates.render('changes/versionchanges.html', ctx))
 
         hltext = [
+            f'.. version-added:: {version}',
             f'.. versionadded:: {version}',
+            f'.. version-changed:: {version}',
             f'.. versionchanged:: {version}',
+            f'.. version-deprecated:: {version}',
             f'.. deprecated:: {version}',
+            f'.. version-removed:: {version}',
             f'.. versionremoved:: {version}',
         ]
 

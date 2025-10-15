@@ -966,6 +966,38 @@ Automatically document attributes or data
       ``:no-value:`` has no effect.
 
 
+Automatically document type aliases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. rst:directive:: autotype
+
+   .. versionadded:: 8.3
+
+   Document a :pep:`695` type alias (the :keyword:`type` statement).
+   By default, the directive only inserts the docstring of the alias itself:
+
+   The directive can also contain content of its own,
+   which will be inserted into the resulting non-auto directive source
+   after the docstring (but before any automatic member documentation).
+
+   Therefore, you can also mix automatic and non-automatic member documentation.
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: no-index
+      :type:
+
+      Do not generate an index entry for the documented class
+      or any auto-documented members.
+
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented class
+      or any auto-documented members.
+      Unlike ``:no-index:``, cross-references are still created.
+
+
 Configuration
 -------------
 

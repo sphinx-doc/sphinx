@@ -341,7 +341,7 @@ class DocTestBuilder(Builder):
         self.outfile.write(text)
 
     def _warn_out(self, text: str) -> None:
-        if self.app.quiet:
+        if self.config.verbosity < 0:
             logger.warning(text)
         else:
             logger.info(text, nonl=True)
@@ -360,7 +360,7 @@ class DocTestBuilder(Builder):
 
         header = 'Doctest summary'
         if self.total_failures or self.setup_failures or self.cleanup_failures:
-            self.app.statuscode = 1
+            self._app.statuscode = 1
             if self.config.doctest_fail_fast:
                 header = f'{header} (exiting after first failed test)'
         underline = '=' * len(header)
@@ -392,7 +392,7 @@ class DocTestBuilder(Builder):
         """
         try:
             filename = relpath(node.source, self.env.srcdir)  # type: ignore[arg-type]
-            return filename.rsplit(':docstring of ', maxsplit=1)[0]
+            return filename.partition(':docstring of ')[0]
         except Exception:
             return str(self.env.doc2path(docname, False))
 
@@ -436,21 +436,9 @@ class DocTestBuilder(Builder):
         self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
 
         if self.config.doctest_test_doctest_blocks:
-
-            def condition(node: Node) -> bool:
-                return (
-                    isinstance(node, nodes.literal_block | nodes.comment)
-                    and 'testnodetype' in node
-                ) or isinstance(node, nodes.doctest_block)
-
+            condition = _condition_with_doctest
         else:
-
-            def condition(node: Node) -> bool:
-                return (
-                    isinstance(node, nodes.literal_block | nodes.comment)
-                    and 'testnodetype' in node
-                )
-
+            condition = _condition_default
         for node in doctree.findall(condition):
             if self.skipped(node):  # type: ignore[arg-type]
                 continue
@@ -472,7 +460,7 @@ class DocTestBuilder(Builder):
                 lineno=line_number,  # type: ignore[arg-type]
                 options=node.get('options'),  # type: ignore[attr-defined]
             )
-            node_groups = node.get('groups', ['default'])  # type: ignore[attr-defined]
+            node_groups = node.get('groups', [self.config.doctest_test_doctest_blocks])  # type: ignore[attr-defined]
             if '*' in node_groups:
                 add_to_all_groups.append(code)
                 continue
@@ -663,3 +651,14 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,
     }
+
+
+def _condition_default(node: Node) -> bool:
+    return (
+        isinstance(node, (nodes.literal_block, nodes.comment))
+        and 'testnodetype' in node
+    )
+
+
+def _condition_with_doctest(node: Node) -> bool:
+    return _condition_default(node) or isinstance(node, nodes.doctest_block)

@@ -5,17 +5,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.io import StringOutput
 from docutils.writers.docutils_xml import XMLTranslator
 
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import _last_modified_time
-from sphinx.writers.xml import PseudoXMLWriter, XMLWriter
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Set
+    from collections.abc import Iterator
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
@@ -33,8 +31,6 @@ class XMLBuilder(Builder):
     out_suffix = '.xml'
     allow_parallel = True
 
-    _writer_class: type[XMLWriter | PseudoXMLWriter] = XMLWriter
-    writer: XMLWriter | PseudoXMLWriter
     default_translator_class = XMLTranslator
 
     def init(self) -> None:
@@ -61,9 +57,6 @@ class XMLBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return docname
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
-        self.writer = self._writer_class(self)
-
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         # work around multiple string % tuple issues in docutils;
         # replace tuples in attribute values with lists
@@ -79,15 +72,24 @@ class XMLBuilder(Builder):
                     for i, val in enumerate(value):
                         if isinstance(val, tuple):
                             value[i] = list(val)
-        destination = StringOutput(encoding='utf-8')
-        self.writer.write(doctree, destination)
+        output = self._translate(doctree)
         out_file_name = self.outdir / (docname + self.out_suffix)
         out_file_name.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with open(out_file_name, 'w', encoding='utf-8') as f:
-                f.write(self.writer.output)
+            out_file_name.write_text(output, encoding='utf-8')
         except OSError as err:
             logger.warning(__('error writing file %s: %s'), out_file_name, err)
+
+    def _translate(self, doctree: nodes.document) -> str:
+        doctree.settings.newlines = doctree.settings.indents = self.config.xml_pretty
+        doctree.settings.xml_declaration = True
+        doctree.settings.doctype_declaration = True
+
+        # copied from docutils.writers.docutils_xml.Writer.translate()
+        # so that we can override the translator class
+        visitor: XMLTranslator = self.create_translator(doctree)
+        doctree.walkabout(visitor)
+        return ''.join(visitor.output)
 
     def finish(self) -> None:
         pass
@@ -102,7 +104,8 @@ class PseudoXMLBuilder(XMLBuilder):
 
     out_suffix = '.pseudoxml'
 
-    _writer_class = PseudoXMLWriter
+    def _translate(self, doctree: nodes.document) -> str:
+        return doctree.pformat()
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

@@ -19,9 +19,9 @@ def stable_hash(obj: Any) -> str:
     """
     if isinstance(obj, dict):
         obj = sorted(map(stable_hash, obj.items()))
-    if isinstance(obj, list | tuple | set | frozenset):
+    if isinstance(obj, (list, tuple, set, frozenset)):
         obj = sorted(map(stable_hash, obj))
-    elif isinstance(obj, type | types.FunctionType):
+    elif isinstance(obj, (type, types.FunctionType)):
         # The default repr() of functions includes the ID, which is not ideal.
         # We use the fully qualified name instead.
         obj = f'{obj.__module__}.{obj.__qualname__}'
@@ -42,10 +42,10 @@ def _stable_str_prep(obj: Any) -> dict[str, Any] | list[Any] | str:
         obj = [(_stable_str_prep(k), _stable_str_prep(v)) for k, v in obj.items()]
         obj.sort()
         return dict(obj)
-    if isinstance(obj, list | tuple | set | frozenset):
+    if isinstance(obj, (list, tuple, set, frozenset)):
         # Convert to a sorted list
         return sorted(map(_stable_str_prep, obj), key=str)
-    if isinstance(obj, type | types.FunctionType):
+    if isinstance(obj, (type, types.FunctionType)):
         # The default repr() of functions includes the ID, which is not ideal.
         # We use the fully qualified name instead.
         return f'{obj.__module__}.{obj.__qualname__}'

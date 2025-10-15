@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexliterals}[2024/07/01 v7.4.0 code-blocks and parsed literals]
+\ProvidesPackage{sphinxlatexliterals}[2025/08/06 v8.3.0 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -241,6 +241,8 @@
 %        _, }, ^, &, >, -, ~, and \: stay at end of broken line.
 % Use of \textquotesingle for straight quote.
 % FIXME: convert this to package options ?
+% MEMO: "beforelist" and "afterlist" hold no relation with lists,
+%       they are just "\do lists" in the inherited TeX sense.
 \newcommand*\sphinxbreaksbeforelist {%
     \do\PYGZob\{\do\PYGZlt\<\do\PYGZsh\#\do\PYGZpc\%% {, <, #, %,
     \do\PYGZdl\$\do\PYGZdq\"% $, "
@@ -278,6 +280,8 @@
     \catcode`##1\active}%
    \sphinxbreaksafteractivelist
    \lccode`\~`\~
+   % visit_desc_name will insert non TeX-escaped ~ in the source
+   \let~\spx@verbatim@space
 }
 
 % If the linebreak is at a space, the latter will be displayed as visible
@@ -962,7 +966,13 @@
    \let\sphinxhyphen\sphinxhyphenininlineliteral
    \ifspx@opt@inlineliteralwraps
       % break at . , ; ? ! /
+      % and also at ~ which will be handled like are spaces in verbatim
       \sphinxbreaksviaactive
+      % but for this we need to set this box which is empty by default:
+      % MEMO: it looks suboptimal to redo this each time but this is
+      % to obey a \sphinxsetup via raw LaTeX to set verbatimvisiblespace,
+      % a possibility which however will be used by 0% of Sphinx users...
+      \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%
       % break also at \
       \setbox8=\hbox{\textbackslash}%
       \def\sphinx@textbackslash{\copy8}%
