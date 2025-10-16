@@ -862,8 +862,8 @@ def stringify_signature(
         short_literals=short_literals,
     )
     if retann:
-        return f'({args}) -> {retann}'
-    return f'({args})'
+        return f'{args} -> {retann}'
+    return str(args)
 
 
 def _stringify_signature_to_parts(
@@ -928,6 +928,7 @@ def _stringify_signature_to_parts(
         args.append('/')
 
     concatenated_args = ', '.join(args)
+    concatenated_args = f'({concatenated_args})'
     if (
         sig.return_annotation is EMPTY
         or not show_annotation

@@ -48,6 +48,8 @@ class _ItemProperties:
     parts: tuple[str, ...]
     #: This item's docstring, as a sequence of lines
     docstring_lines: tuple[str, ...]
+    #: The item's signature lines, for use in the directive
+    signatures: tuple[str, ...] = ()
 
     _docstrings: Sequence[Sequence[str]] | None = None
     _docstrings_has_hide_value: bool = False
