@@ -29,7 +29,7 @@ from sphinx.util.typing import AnyTypeAliasType, restify, stringify_annotation
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from types import ModuleType
-    from typing import Any, ClassVar, Literal
+    from typing import Any, ClassVar, Final, Literal
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
@@ -78,8 +78,6 @@ class Documenter:
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
     objtype: ClassVar = 'object'
-    #: indentation by which to indent the directive content
-    content_indent: ClassVar = '   '
     #: priority if multiple documenters return True from can_document_member
     priority: ClassVar = 0
     #: order if autodoc_member_order is set to 'groupwise'
@@ -118,7 +116,7 @@ class Documenter:
         self._events: EventManager = directive.env.events
         self.options: _AutoDocumenterOptions = directive.genopt
         self.name = name
-        self.indent = indent
+        self.indent: Final = indent
         # the module and object path within the module, and the fully
         # qualified name (all set after resolve_name succeeds)
         self.modname: str = ''
@@ -150,10 +148,10 @@ class Documenter:
         """Returns registered Documenter classes"""
         return self.env._registry.documenters
 
-    def add_line(self, line: str, source: str, *lineno: int) -> None:
+    def add_line(self, line: str, source: str, *lineno: int, indent: str) -> None:
         """Append one line of generated reST to the output."""
         if line.strip():  # not a blank line
-            self.directive.result.append(self.indent + line, source, *lineno)
+            self.directive.result.append(indent + line, source, *lineno)
         else:
             self.directive.result.append('', source, *lineno)
 
@@ -287,7 +285,7 @@ class Documenter:
         # retry without arguments for old documenters
         return self.format_args()
 
-    def add_directive_header(self) -> None:
+    def add_directive_header(self, *, indent: str) -> None:
         """Add the directive header and options to the generated content."""
         domain_name = getattr(self, 'domain', 'py')
         if self.objtype in {'class', 'exception'} and self.props.doc_as_attr:  # type: ignore[attr-defined]
@@ -301,7 +299,6 @@ class Documenter:
         else:
             is_final = False
 
-        indent = self.indent
         result = self.directive.result
         sourcename = self.get_sourcename()
         for line in _directive_header_lines(
@@ -331,7 +328,7 @@ class Documenter:
         else:
             return 'docstring of %s' % fullname
 
-    def add_content(self, more_content: StringList | None) -> None:
+    def add_content(self, more_content: StringList | None, *, indent: str) -> None:
         """Add content from docstrings, attribute documentation and user."""
         # add content from docstrings
         processed_doc = StringList(
@@ -349,7 +346,7 @@ class Documenter:
         _add_content(
             processed_doc,
             result=self.directive.result,
-            indent=self.indent + '   ' * (self.props.obj_type == 'module'),
+            indent=indent + '   ',
         )
 
         # add additional content (e.g. from document), if present
@@ -362,7 +359,7 @@ class Documenter:
         _add_content(
             more_content,
             result=self.directive.result,
-            indent=self.indent,
+            indent=indent + '   ' * (self.props.obj_type != 'module'),
         )
 
     def _get_docstrings(self) -> list[list[str]] | None:
@@ -578,10 +575,6 @@ class Documenter:
         check_module: bool = False,
         all_members: bool = False,
     ) -> None:
-        has_members = isinstance(self, ModuleDocumenter) or (
-            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
-        )
-
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
         # where the attribute documentation would actually be found in.
@@ -605,14 +598,6 @@ class Documenter:
                 self.directive.record_dependencies.add(module___file__)
         else:
             self.directive.record_dependencies.add(self.analyzer.srcname)
-
-        want_all = bool(
-            all_members or self.options.inherited_members or self.options.members is ALL
-        )
-        if has_members:
-            member_documenters = self._gather_members(
-                want_all=want_all, indent=self.indent + self.content_indent
-            )
 
         if self.real_modname != guess_modname:
             # Add module to dependency list if target object is defined in other module.
@@ -638,25 +623,32 @@ class Documenter:
             if modname and modname != self.props.module_name:
                 return
 
+        indent = self.indent
         sourcename = self.get_sourcename()
 
         # make sure that the result starts with an empty line.  This is
         # necessary for some situations where another directive preprocesses
         # reST and no starting newline is present
-        self.add_line('', sourcename)
+        self.directive.result.append('', sourcename)
 
         # generate the directive header and options, if applicable
-        self.add_directive_header()
-        self.add_line('', sourcename)
-
-        # e.g. the module directive doesn't have content
-        self.indent += self.content_indent
+        self.add_directive_header(indent=indent)
+        self.directive.result.append('', sourcename)
 
         # add all content (from docstrings, attribute docs etc.)
-        self.add_content(more_content)
+        self.add_content(more_content, indent=indent)
 
         # document members, if possible
+        has_members = isinstance(self, ModuleDocumenter) or (
+            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
+        )
         if has_members:
+            want_all = bool(
+                all_members
+                or self.options.inherited_members
+                or self.options.members is ALL
+            )
+            member_documenters = self._gather_members(want_all=want_all, indent=indent)
             # for implicit module members, check __module__ to avoid
             # documenting imported objects
             members_check_module = bool(
@@ -686,6 +678,7 @@ class Documenter:
         events = self._events
         registry = self.env._registry
         props = self.props
+        indent += '   ' * (props.obj_type != 'module')
 
         # set current namespace for finding members
         current_document.autodoc_module = props.module_name
@@ -770,8 +763,6 @@ class ModuleDocumenter(Documenter):
     props: _ModuleProperties
 
     objtype = 'module'
-    content_indent = ''
-    _extra_indent = '   '
 
     option_spec: ClassVar[OptionSpec] = {
         'members': members_option,

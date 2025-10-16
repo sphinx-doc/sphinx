@@ -465,10 +465,7 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the summary
 
-            # bodge for ModuleDocumenter
-            documenter._extra_indent = ''  # type: ignore[attr-defined]
-
-            documenter.add_content(None)
+            documenter.add_content(None, indent=documenter.indent)
             summary = extract_summary(self.bridge.result.data[:], self.state.document)
 
             items.append((display_name, sig, summary, real_name))
