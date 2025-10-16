@@ -19,7 +19,7 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
 from sphinx.ext.autodoc._sentinels import ALL
-from sphinx.ext.autodoc.importer import _load_object_by_name, _resolve_name
+from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
@@ -82,9 +82,6 @@ class Documenter:
     #: true if the generated content may contain titles
     titles_allowed: ClassVar = True
 
-    __uninitialized_global_variable__: ClassVar[bool] = False
-    """If True, support uninitialized (type annotation only) global variables"""
-
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
         'no-index-entry': bool_option,
@@ -106,15 +103,7 @@ class Documenter:
         self.options: _AutoDocumenterOptions = directive.genopt
         self.name = name
         self.indent: Final = indent
-        # the module and object path within the module, and the fully
-        # qualified name (all set after resolve_name succeeds)
-        self.modname: str = ''
         self.module: ModuleType | None = None
-        self.objpath: list[str] = []
-        self.fullname = ''
-        # the object to document (set after import_object succeeds)
-        self.object: Any = None
-        self.object_name = ''
         # the parent/owner of the object to document
         self.parent: Any = None
         # the module analyzer to get at attribute docs, or None
@@ -132,11 +121,6 @@ class Documenter:
                 self.options.special_members += ['__new__', '__init__']
             self.options = self.options.merge_member_options()
 
-    @property
-    def documenters(self) -> dict[str, type[Documenter]]:
-        """Returns registered Documenter classes"""
-        return self.env._registry.documenters
-
     def add_line(self, line: str, source: str, *lineno: int, indent: str) -> None:
         """Append one line of generated reST to the output."""
         if line.strip():  # not a blank line
@@ -145,6 +129,10 @@ class Documenter:
             self.directive.result.append('', source, *lineno)
 
     def _load_object_by_name(self) -> Literal[True] | None:
+        """Import the object given by *self.name*.
+
+        Returns True if parsing and resolving was successful, otherwise None.
+        """
         if self._load_object_has_been_called:
             return True
 
@@ -165,106 +153,10 @@ class Documenter:
         props, module, parent = ret
 
         self.props = props
-        self.modname = props.module_name
-        self.objpath = list(props.parts)
-        self.fullname = props.full_name
         self.module = module
         self.parent = parent
-        self.object_name = props.object_name
-        self.object = props._obj
         self._load_object_has_been_called = True
         return True
-
-    def resolve_name(
-        self, modname: str | None, parents: Any, path: str, base: str
-    ) -> tuple[str | None, list[str]]:
-        """Resolve the module and name of the object to document given by the
-        arguments and the current module/class.
-
-        Must return a pair of the module name and a chain of attributes; for
-        example, it would return ``('zipfile', ['ZipFile', 'open'])`` for the
-        ``zipfile.ZipFile.open`` method.
-        """
-        ret = _resolve_name(
-            objtype=self.objtype,
-            module_name=modname,
-            path=path,
-            base=base,
-            parents=parents,
-            current_document=self._current_document,
-            ref_context_py_module=self.env.ref_context.get('py:module'),
-            ref_context_py_class=self.env.ref_context.get('py:class', ''),
-        )
-        if ret is not None:
-            module_name, parts = ret
-            return module_name, list(parts)
-
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
-
-    def parse_name(self) -> bool:
-        """Determine what module to import and what attribute to document.
-
-        Returns True and sets *self.modname*, *self.objpath*, *self.fullname*,
-        *self.args* and *self.retann* if parsing and resolving was successful.
-        """
-        return self._load_object_by_name() is not None
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Import the object given by *self.modname* and *self.objpath* and set
-        it as *self.object*.
-
-        Returns True if successful, False if an error occurred.
-        """
-        return self._load_object_by_name() is not None
-
-    def get_real_modname(self) -> str:
-        """Get the real module name of an object to document.
-
-        It can differ from the name of the module through which the object was
-        imported.
-        """
-        return self.props._obj___module__ or self.props.module_name
-
-    def check_module(self) -> bool:
-        """Check if *self.object* is really defined in the module given by
-        *self.modname*.
-        """
-        if self.options.imported_members:
-            return True
-
-        subject = inspect.unpartial(self.props._obj)
-        modname = self.get_attr(subject, '__module__', None)
-        return not modname or modname == self.props.module_name
-
-    def format_args(self, **kwargs: Any) -> str:
-        """Format the argument signature of *self.object*.
-
-        Should return None if the object does not have a signature.
-        """
-        return ''
-
-    def format_name(self) -> str:
-        """Format the name of *self.object*.
-
-        This normally should be something that can be parsed by the generated
-        directive, but doesn't need to be (Sphinx will display it unparsed
-        then).
-        """
-        # normally the name doesn't contain the module (except for module
-        # directives of course)
-        return self.props.dotted_parts or self.props.module_name
-
-    def _call_format_args(self, **kwargs: Any) -> str:
-        if kwargs:
-            try:
-                return self.format_args(**kwargs)
-            except TypeError:
-                # avoid chaining exceptions, by putting nothing here
-                pass
-
-        # retry without arguments for old documenters
-        return self.format_args()
 
     def add_directive_header(self, *, indent: str) -> None:
         """Add the directive header and options to the generated content."""
@@ -298,7 +190,7 @@ class Documenter:
         obj_module = inspect.safe_getattr(self.props._obj, '__module__', None)
         obj_qualname = inspect.safe_getattr(self.props._obj, '__qualname__', None)
         if obj_module and obj_qualname:
-            # Get the correct location of docstring from self.object
+            # Get the correct location of docstring from props._obj
             # to support inherited methods
             fullname = f'{self.props._obj.__module__}.{self.props._obj.__qualname__}'
         else:
@@ -801,22 +693,6 @@ class ClassDocumenter(Documenter):
         'noindex': bool_option,
     }
 
-    def get_canonical_fullname(self) -> str | None:
-        __modname__ = safe_getattr(
-            self.props._obj, '__module__', self.props.module_name
-        )
-        __qualname__ = safe_getattr(self.props._obj, '__qualname__', None)
-        if __qualname__ is None:
-            __qualname__ = safe_getattr(self.props._obj, '__name__', None)
-        if __qualname__ and '<locals>' in __qualname__:
-            # No valid qualname found if the object is defined as locals
-            __qualname__ = None
-
-        if __modname__ and __qualname__:
-            return f'{__modname__}.{__qualname__}'
-        else:
-            return None
-
 
 class ExceptionDocumenter(ClassDocumenter):
     """Specialized ClassDocumenter subclass for exceptions."""
@@ -830,8 +706,6 @@ class DataDocumenter(Documenter):
     """Specialized Documenter subclass for data items."""
 
     props: _AssignStatementProperties
-
-    __uninitialized_global_variable__ = True
 
     objtype = 'data'
     option_spec: ClassVar[OptionSpec] = dict(Documenter.option_spec)
@@ -858,12 +732,6 @@ class AttributeDocumenter(Documenter):
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
 
-    @staticmethod
-    def is_function_or_method(obj: Any) -> bool:
-        return (
-            inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
-        )
-
 
 class PropertyDocumenter(Documenter):
     """Specialized Documenter subclass for properties."""
@@ -885,18 +753,6 @@ class TypeAliasDocumenter(Documenter):
         'annotation': annotation_option,
         'no-value': bool_option,
     }
-
-
-class DocstringSignatureMixin:
-    """Retained for compatibility."""
-
-
-class ModuleLevelDocumenter(Documenter):
-    """Retained for compatibility."""
-
-
-class ClassLevelDocumenter(Documenter):
-    """Retained for compatibility."""
 
 
 def autodoc_attrgetter(
@@ -924,7 +780,7 @@ def _document_members(
     for documenter, is_attr in member_documenters:
         assert documenter.props.module_name
         # We can directly call ._generate() since the documenters
-        # already called parse_name() and import_object() before.
+        # already called ``_load_object_by_name()`` before.
         #
         # Note that those two methods above do not emit events, so
         # whatever objects we deduced should not have changed.
