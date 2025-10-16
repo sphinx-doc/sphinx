@@ -77,6 +77,9 @@ def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
     return directive
 
 
+processed_signatures = []
+
+
 @pytest.mark.sphinx('html', testroot='root')
 def test_parse_name(app):
     env = app.env
@@ -182,7 +185,8 @@ def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_format_signatures(app):
-    def process_signature(_app, _what, name, _obj, _options, _args, _retann):
+    def process_signature(_app, what, name, _obj, _options, _args, _retann):
+        processed_signatures.append((what, name))
         if name == '.bar':
             return '42', None
         return None
@@ -578,20 +582,17 @@ def test_attrgetter_using(app):
 
 
 def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
+    getattr_spy = set()
+
     def _special_getattr(obj, attr_name, *defargs):
         if attr_name in attrs:
             getattr_spy.add((obj, attr_name))
             return None
         return getattr(obj, attr_name, *defargs)
 
-    def _process_signature(_app, what, name, _obj, _options, _args, _retann):
-        processed_signatures.add((what, name))
-
     app.add_autodoc_attrgetter(type, _special_getattr)
-    app.connect('autodoc-process-signature', _process_signature)
 
-    getattr_spy = set()
-    processed_signatures = set()
+    getattr_spy.clear()
     app.registry.documenters[objtype](directive, name).generate(**kw)
 
     hooked_members = {s[1] for s in getattr_spy}
