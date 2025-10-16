@@ -25,7 +25,6 @@ logger = logging.getLogger('sphinx.ext.autodoc')
 
 
 def _directive_header_lines(
-    sig: str,
     *,
     autodoc_typehints: Literal['signature', 'description', 'none', 'both'],
     directive_name: str,
@@ -40,7 +39,7 @@ def _directive_header_lines(
 
     # emit one signature per line
     # the first line contains the directive prefix
-    sig_line, *sig_lines = sig.split('\n')
+    sig_line, *sig_lines = props.signatures or ('',)
     prefix = f'.. {directive_name}:: '
     yield f'{prefix}{name}{sig_line}'
     # emit remaining lines, indented to the same column

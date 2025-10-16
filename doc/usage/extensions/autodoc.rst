@@ -1411,7 +1411,7 @@ autodoc provides the following additional events:
       ``'(parameter_1, parameter_2)'``, or ``None`` if introspection didn't
       succeed and signature wasn't specified in the directive.
    :param return_annotation: function return annotation as a string of the form
-      ``' -> annotation'``, or ``None`` if there is no return annotation
+      ``'annotation'``, or ``''`` if there is no return annotation.
 
 The :mod:`sphinx.ext.autodoc` module provides factory functions for commonly
 needed docstring processing in event :event:`autodoc-process-docstring`:

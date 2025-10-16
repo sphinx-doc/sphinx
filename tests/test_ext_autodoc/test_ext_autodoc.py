@@ -20,7 +20,7 @@ from sphinx.ext.autodoc._directive_options import (
     inherited_members_option,
 )
 from sphinx.ext.autodoc._docstrings import _get_docstring_lines
-from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
+from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter, autodoc_attrgetter
 from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
     _FunctionDefProperties,
@@ -30,7 +30,7 @@ from sphinx.ext.autodoc._sentinels import ALL
 
 # NEVER import these objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import _parse_name
+from sphinx.ext.autodoc.importer import _format_signatures, _parse_name
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
@@ -108,7 +108,7 @@ def test_parse_name(app):
     parsed = parse('function', 'test_ext_autodoc.raises')
     assert parsed == ('test_ext_autodoc', ['raises'], None, None)
     parsed = parse('function', 'test_ext_autodoc.raises(exc) -> None')
-    assert parsed == ('test_ext_autodoc', ['raises'], 'exc', 'None')
+    assert parsed == ('test_ext_autodoc', ['raises'], '(exc)', 'None')
     current_document.autodoc_module = 'test_ext_autodoc'
     parsed = parse('function', 'raises')
     assert parsed == ('test_ext_autodoc', ['raises'], None, None)
@@ -153,15 +153,14 @@ def test_format_signature(app):
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
 
-    directive = make_directive_bridge(app.env)
+    def get_attr(obj: Any, name: str, *defargs: Any) -> Any:
+        return autodoc_attrgetter(obj, name, *defargs, registry=app.registry)
+
+    options = make_directive_bridge(app.env).genopt
 
     def formatsig(objtype, name, obj, args, retann):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.doc_as_attr = False  # for class objtype
-        inst.parent = object  # dummy
-        inst.args = args
-        inst.retann = retann
-        inst.props = _ClassDefProperties(
+        parent = object  # dummy
+        props = _ClassDefProperties(
             obj_type=objtype,
             module_name='',
             parts=(name,),
@@ -175,15 +174,28 @@ def test_format_signature(app):
             _obj_is_new_type=False,
             _obj_is_typevar=False,
         )
-        inst.props._docstrings = _get_docstring_lines(
-            inst.props,
-            class_doc_from=inst.config.autoclass_content,
-            get_attr=inst.get_attr,
-            inherit_docstrings=inst.config.autodoc_inherit_docstrings,
-            parent=inst.parent,
+        props._docstrings = _get_docstring_lines(
+            props,
+            class_doc_from=app.config.autoclass_content,
+            get_attr=get_attr,
+            inherit_docstrings=app.config.autodoc_inherit_docstrings,
+            parent=parent,
             tab_width=8,
         )
-        res = inst.format_signature()
+        signatures = _format_signatures(
+            config=app.config,
+            events=app.events,
+            get_attr=get_attr,
+            options=options,
+            parent=parent,
+            props=props,
+            args=args,
+            retann=retann,
+        )
+        res = '\n'.join(
+            f'{args} -> {retann}' if retann else str(args)
+            for args, retann in signatures
+        )
         print(res)
         return res
 
@@ -198,7 +210,7 @@ def test_format_signature(app):
         pass
 
     assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
-    assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
+    assert formatsig('function', 'f', f, '(a, b, c, d)', None) == '(a, b, c, d)'
     assert formatsig('function', 'g', g, None, None) == r"(a='\n')"
 
     if sys.version_info >= (3, 12):
@@ -211,14 +223,14 @@ def test_format_signature(app):
             exec(f'def f[T]{params}: pass', ns)  # NoQA: S102
             f = ns['f']
             assert formatsig('function', 'f', f, None, None) == expect
-            assert formatsig('function', 'f', f, '...', None) == '(...)'
-            assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
+            assert formatsig('function', 'f', f, '(...)', None) == '(...)'
+            assert formatsig('function', 'f', f, '(...)', '...') == '(...) -> ...'
 
             exec(f'def f[T]{params} -> list[T]: return []', ns)  # NoQA: S102
             f = ns['f']
             assert formatsig('function', 'f', f, None, None) == f'{expect} -> list[T]'
-            assert formatsig('function', 'f', f, '...', None) == '(...)'
-            assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
+            assert formatsig('function', 'f', f, '(...)', None) == '(...)'
+            assert formatsig('function', 'f', f, '(...)', '...') == '(...) -> ...'
 
     # TODO(picnixz): add more test cases for PEP-695 classes as well (though
     # complex cases are less likely to appear and are painful to test).
@@ -264,7 +276,7 @@ def test_format_signature(app):
     # subclasses inherit
     for C in (F, FNew, FMeta, G, GNew, GMeta):
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
-    assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
+    assert formatsig('class', 'C', D, '(a, b)', 'X') == '(a, b) -> X'
 
     class ListSubclass(list):  # NoQA: FURB189
         pass
@@ -283,7 +295,7 @@ def test_format_signature(app):
         assert formatsig('class', 'C', ExceptionSubclass, None, None) == ''
 
     # __init__ have signature at first line of docstring
-    directive.env.config.autoclass_content = 'both'
+    app.config.autoclass_content = 'both'
 
     class F2:
         """some docstring for F2."""
@@ -313,7 +325,7 @@ def test_format_signature(app):
             pass
 
     assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
-    assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
+    assert formatsig('method', 'H.foo', H.foo1, '(a)', None) == '(a)'
     assert formatsig('method', 'H.foo', H.foo2, None, None) == '(*c)'
     assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\n')"
 
@@ -323,7 +335,7 @@ def test_format_signature(app):
     assert formatsig('function', 'foo', H().foo3, None, None) == r"(d='\n')"
 
     # test exception handling (exception is caught and args is '')
-    directive.env.config.autodoc_docstring_signature = False
+    app.config.autodoc_docstring_signature = False
     assert formatsig('function', 'int', int, None, None) == ''
 
     # test processing by event handler
@@ -370,9 +382,7 @@ def test_autodoc_process_signature_typehints(app):
     def func(x: int, y: int) -> int:  # type: ignore[empty-body]
         pass
 
-    directive = make_directive_bridge(app.env)
-    inst = app.registry.documenters['function'](directive, 'func')
-    inst.props = _FunctionDefProperties(
+    props = _FunctionDefProperties(
         obj_type='function',
         module_name='',
         parts=('func',),
@@ -383,19 +393,34 @@ def test_autodoc_process_signature_typehints(app):
         _obj___name__=None,
         properties=frozenset(),
     )
-    inst.format_signature()
+
+    def get_attr(obj: Any, name: str, *defargs: Any) -> Any:
+        return autodoc_attrgetter(obj, name, *defargs, registry=app.registry)
+
+    options = make_directive_bridge(app.env).genopt
+    _format_signatures(
+        config=app.config,
+        events=app.events,
+        get_attr=get_attr,
+        options=options,
+        parent=None,
+        props=props,
+    )
     assert captured == [
-        (app, 'function', '.func', func, directive.genopt, '(x: int, y: int)', 'int')
+        (app, 'function', '.func', func, options, '(x: int, y: int)', 'int')
     ]
 
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_get_doc(app):
-    directive = make_directive_bridge(app.env)
+    def get_attr(obj: Any, name: str, *defargs: Any) -> Any:
+        return autodoc_attrgetter(obj, name, *defargs, registry=app.registry)
+
+    options = make_directive_bridge(app.env).genopt
 
     def getdocl(objtype, obj):
-        inst = app.registry.documenters[objtype](directive, 'tmp')
-        inst.props = _ItemProperties(
+        parent = object  # dummy
+        props = _ItemProperties(
             obj_type=objtype,
             module_name='',
             parts=(obj.__name__,),
@@ -403,19 +428,23 @@ def test_get_doc(app):
             _obj=obj,
             _obj___module__=getattr(obj, '__module__', None),
         )
-        inst.parent = object  # dummy
-        inst.doc_as_attr = False
-        inst.props._docstrings = _get_docstring_lines(
-            inst.props,
-            class_doc_from=inst.config.autoclass_content,
-            get_attr=inst.get_attr,
-            inherit_docstrings=inst.config.autodoc_inherit_docstrings,
-            parent=inst.parent,
+        props._docstrings = _get_docstring_lines(
+            props,
+            class_doc_from=app.config.autoclass_content,
+            get_attr=get_attr,
+            inherit_docstrings=app.config.autodoc_inherit_docstrings,
+            parent=parent,
             tab_width=8,
         )
-
-        inst.format_signature()  # handle docstring signatures!
-        ds = inst.props._docstrings
+        _format_signatures(  # handle docstring signatures!
+            config=app.config,
+            events=app.events,
+            get_attr=get_attr,
+            options=options,
+            parent=parent,
+            props=props,
+        )
+        ds = props._docstrings
         # for testing purposes, concat them and strip the empty line at the end
         res = list(itertools.chain.from_iterable(ds))[:-1]
         print(res)
