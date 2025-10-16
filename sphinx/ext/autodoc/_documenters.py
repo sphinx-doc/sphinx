@@ -27,7 +27,7 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.typing import AnyTypeAliasType, restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterator
     from types import ModuleType
     from typing import Any, ClassVar, Literal
 
@@ -134,6 +134,16 @@ class Documenter:
         self.analyzer: ModuleAnalyzer | None = None
 
         self._load_object_has_been_called = False
+
+        if isinstance(self, ModuleDocumenter):
+            self.options = self.options.merge_member_options()
+        elif isinstance(self, ClassDocumenter):
+            if self.config.autodoc_class_signature == 'separated':
+                # show __init__() method
+                if self.options.special_members is None:
+                    self.options.special_members = []
+                self.options.special_members += ['__new__', '__init__']
+            self.options = self.options.merge_member_options()
 
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
@@ -501,17 +511,33 @@ class Documenter:
             # sort by group; alphabetically within groups
             documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
         elif order == 'bysource':
+            if (
+                isinstance(self, ModuleDocumenter)
+                and not self.options.ignore_module_all
+                and (module_all := self.props.all)
+            ):
+                # Sort by __all__
+                module_all_idx = {name: idx for idx, name in enumerate(module_all)}
+                module_all_len = len(module_all)
+
+                def key_func(entry: tuple[Documenter, bool]) -> int:
+                    fullname = entry[0].name.split('::')[1]
+                    return module_all_idx.get(fullname, module_all_len)
+
+                documenters.sort(key=key_func)
+
             # By default, member discovery order matches source order,
             # as dicts are insertion-ordered from Python 3.7.
-            if self.analyzer:
+            elif self.analyzer is not None:
                 # sort by source order, by virtue of the module analyzer
                 tagorder = self.analyzer.tagorder
+                tagorder_len = len(tagorder)
 
-                def keyfunc(entry: tuple[Documenter, bool]) -> int:
+                def key_func(entry: tuple[Documenter, bool]) -> int:
                     fullname = entry[0].name.split('::')[1]
-                    return tagorder.get(fullname, len(tagorder))
+                    return tagorder.get(fullname, tagorder_len)
 
-                documenters.sort(key=keyfunc)
+                documenters.sort(key=key_func)
         else:  # alphabetical
             documenters.sort(key=lambda e: e[0].name)
 
@@ -532,6 +558,14 @@ class Documenter:
         True, only generate if the object is defined in the module name it is
         imported from. If *all_members* is True, document all members.
         """
+        if isinstance(self, ClassDocumenter):
+            # Do not pass real_modname and use the name from the __module__
+            # attribute of the class.
+            # If a class gets imported into the module real_modname
+            # the analyzer won't find the source of the class, if
+            # it looks in real_modname.
+            real_modname = None
+
         if self._load_object_by_name() is None:
             return
 
@@ -759,52 +793,12 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option,
     }
 
-    def __init__(self, *args: Any) -> None:
-        super().__init__(*args)
-        self.options = self.options.merge_member_options()
-        self.__all__: Sequence[str] | None = None
-
     @classmethod
     def can_document_member(
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
         # don't document submodules automatically
         return False
-
-    def _module_all(self) -> Sequence[str] | None:
-        if self.__all__ is None and not self.options.ignore_module_all:
-            self.__all__ = self.props.all
-        return self.__all__
-
-    def sort_members(
-        self, documenters: list[tuple[Documenter, bool]], order: str
-    ) -> list[tuple[Documenter, bool]]:
-        module_all = self.props.all
-        if (
-            order == 'bysource'
-            and not self.options.ignore_module_all
-            and module_all is not None
-        ):
-            assert module_all is not None
-            module_all_set = frozenset(module_all)
-            module_all_len = len(module_all)
-
-            # Sort alphabetically first (for members not listed on the __all__)
-            documenters.sort(key=lambda e: e[0].name)
-
-            # Sort by __all__
-            def keyfunc(entry: tuple[Documenter, bool]) -> int:
-                name = entry[0].name.split('::')[1]
-                if name in module_all_set:
-                    return module_all.index(name)
-                else:
-                    return module_all_len
-
-            documenters.sort(key=keyfunc)
-
-            return documenters
-        else:
-            return super().sort_members(documenters, order)
 
 
 class FunctionDocumenter(Documenter):
@@ -865,21 +859,6 @@ class ClassDocumenter(Documenter):
     # after Python 3.10.
     priority = 15
 
-    def __init__(self, *args: Any) -> None:
-        super().__init__(*args)
-
-        if self.config.autodoc_class_signature == 'separated':
-            self.options = self.options.copy()
-
-            # show __init__() method
-            if self.options.special_members is None:
-                self.options.special_members = ['__new__', '__init__']
-            else:
-                self.options.special_members.append('__new__')
-                self.options.special_members.append('__init__')
-
-        self.options = self.options.merge_member_options()
-
     @classmethod
     def can_document_member(
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
@@ -903,24 +882,6 @@ class ClassDocumenter(Documenter):
             return f'{__modname__}.{__qualname__}'
         else:
             return None
-
-    def generate(
-        self,
-        more_content: StringList | None = None,
-        real_modname: str | None = None,
-        check_module: bool = False,
-        all_members: bool = False,
-    ) -> None:
-        # Do not pass real_modname and use the name from the __module__
-        # attribute of the class.
-        # If a class gets imported into the module real_modname
-        # the analyzer won't find the source of the class, if
-        # it looks in real_modname.
-        return super().generate(
-            more_content=more_content,
-            check_module=check_module,
-            all_members=all_members,
-        )
 
 
 class ExceptionDocumenter(ClassDocumenter):
