@@ -68,6 +68,9 @@ Features added
   Patch by Jean-François B.
 * #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #13894: Add ``source_parser`` type to :confval:`suppress_warnings` for grouping
+  issues related to the ``c`` and ``cpp`` source parsers.
+  Patch by Valentin H.
 
 Bugs fixed
 ----------
