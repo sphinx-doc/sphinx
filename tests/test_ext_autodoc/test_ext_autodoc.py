@@ -545,11 +545,8 @@ def test_new_documenter(app):
     app.add_autodocumenter(_MyDocumenter)
 
     options = {'members': 'integer'}
-    with pytest.raises(
-        NotImplementedError, match=r'^must be implemented in subclasses$'
-    ):
-        # TODO: Fix! Perhaps add a way to signal module/class-level?
-        actual = do_autodoc(app, 'module', 'target', options)
+    # TODO: Fix! Perhaps add a way to signal module/class-level?
+    actual = do_autodoc(app, 'module', 'target', options)
     return
     assert list(actual) == [
         '',
