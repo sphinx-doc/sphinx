@@ -72,6 +72,18 @@ ismethoddescriptor = inspect.ismethoddescriptor
 isclass = inspect.isclass
 ismodule = inspect.ismodule
 
+# Python 3.14 added the annotationlib module to the standard library as well as the
+# 'annotation_format' keyword parameter to inspect.signature(), which allows us to handle
+# forward references more robustly.
+if sys.version_info[0:2] >= (3, 14):
+    import annotationlib  # type: ignore[import-not-found]
+
+    inspect_signature_extra: dict[str, Any] = {
+        'annotation_format': annotationlib.Format.FORWARDREF
+    }
+else:
+    inspect_signature_extra: dict[str, Any] = {}
+
 
 def unwrap(obj: Any) -> Any:
     """Get an original object from wrapped object (wrapped functions).
@@ -718,12 +730,16 @@ def signature(
 
     try:
         if _should_unwrap(subject):
-            signature = inspect.signature(subject)  # type: ignore[arg-type]
+            signature = inspect.signature(subject, **inspect_signature_extra)  # type: ignore[arg-type]
         else:
-            signature = inspect.signature(subject, follow_wrapped=True)  # type: ignore[arg-type]
+            signature = inspect.signature(
+                subject,  # type: ignore[arg-type]
+                follow_wrapped=True,
+                **inspect_signature_extra,
+            )
     except ValueError:
         # follow built-in wrappers up (ex. functools.lru_cache)
-        signature = inspect.signature(subject)  # type: ignore[arg-type]
+        signature = inspect.signature(subject, **inspect_signature_extra)  # type: ignore[arg-type]
     parameters = list(signature.parameters.values())
     return_annotation = signature.return_annotation
 
