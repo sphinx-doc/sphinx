@@ -598,7 +598,8 @@ class Documenter:
                 member=member,
                 member_name=member_name,
                 is_attr=is_attr,
-                parent_documenter=self,
+                parent_obj_type=self.objtype,
+                parent_props=self.props,
             )
             if not obj_type:
                 # don't know how to document this member
@@ -795,7 +796,9 @@ def _best_object_type_for_member(
     member: Any,
     member_name: str,
     is_attr: bool,
-    parent_documenter: Documenter,
+    *,
+    parent_obj_type: str,
+    parent_props: _ItemProperties | None,
 ) -> str | None:
     """Return the best object type that supports documenting *member*."""
     filtered = []
@@ -818,22 +821,21 @@ def _best_object_type_for_member(
         # as NewType can be an attribute and is a class after Python 3.10.
         filtered.append((15, 'class'))
 
-    if isinstance(parent_documenter, ClassDocumenter):
+    if parent_obj_type in {'class', 'exception'}:
         if inspect.isproperty(member):
             # priority must be higher than 'attribute'
             filtered.append((11, 'property'))
 
-        # Support for class properties. Note: these only work on Python 3.9.
-        elif hasattr(parent_documenter, 'props'):
-            # See FakeDirective &c in autosummary, parent might not be a
-            # 'proper' Documenter.
-            __dict__ = safe_getattr(parent_documenter.props._obj, '__dict__', {})
+        # See _get_documenter() in autosummary, parent_props might be None.
+        elif parent_props is not None:
+            # Support for class properties. Note: these only work on Python 3.9.
+            __dict__ = safe_getattr(parent_props._obj, '__dict__', {})
             obj = __dict__.get(member_name)
             if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
                 # priority must be higher than 'attribute'
                 filtered.append((11, 'property'))
 
-    if not isinstance(parent_documenter, ModuleDocumenter):
+    if parent_obj_type != 'module':
         if inspect.isattributedescriptor(member) or not (
             inspect.isroutine(member) or isinstance(member, type)
         ):
@@ -841,19 +843,14 @@ def _best_object_type_for_member(
             # some non-data descriptors as methods
             filtered.append((10, 'attribute'))
 
-    if inspect.isroutine(member) and not isinstance(
-        parent_documenter, ModuleDocumenter
-    ):
+    if inspect.isroutine(member) and parent_obj_type != 'module':
         # priority must be higher than 'function'
         filtered.append((1, 'method'))
 
     if (
         inspect.isfunction(member)
         or inspect.isbuiltin(member)
-        or (
-            inspect.isroutine(member)
-            and isinstance(parent_documenter, ModuleDocumenter)
-        )
+        or (inspect.isroutine(member) and parent_obj_type == 'module')
     ):
         # supports functions, builtins and bound methods exported
         # at the module level
@@ -862,7 +859,7 @@ def _best_object_type_for_member(
     if isinstance(member, AnyTypeAliasType):
         filtered.append((0, 'type'))
 
-    if isinstance(parent_documenter, ModuleDocumenter) and is_attr:
+    if parent_obj_type == 'module' and is_attr:
         filtered.append((-10, 'data'))
 
     if filtered:

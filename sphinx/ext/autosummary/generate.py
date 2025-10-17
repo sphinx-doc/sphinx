@@ -231,7 +231,7 @@ class ModuleScanner:
         self.object = obj
 
     def get_object_type(self, name: str, value: Any) -> str:
-        return _get_documenter(value, self.object, registry=self.registry).objtype
+        return _get_documenter(value, self.object)
 
     def is_skipped(self, name: str, value: Any, objtype: str) -> bool:
         try:
@@ -264,7 +264,7 @@ class ModuleScanner:
             except AttributeError:
                 value = None
 
-            objtype = self.get_object_type(name, value)
+            objtype = _get_documenter(value, self.object)
             if self.is_skipped(name, value, objtype):
                 continue
 
@@ -325,7 +325,8 @@ def generate_autosummary_content(
     events: EventManager,
     registry: SphinxComponentRegistry,
 ) -> str:
-    doc = _get_documenter(obj, parent, registry=registry)
+    obj_type = _get_documenter(obj, parent)
+    doc = registry.documenters[obj_type]
 
     ns: dict[str, Any] = {}
     ns.update(context)
@@ -578,7 +579,8 @@ def _get_members(
 
     all_members = _get_all_members(doc, obj, config=config)
     for name, value in all_members.items():
-        documenter = _get_documenter(value, obj, registry=registry)
+        obj_type = _get_documenter(value, obj)
+        documenter = registry.documenters[obj_type]
         if documenter.objtype in types:
             # skip imported members if expected
             if imported or getattr(value, '__module__', None) == obj.__name__:
