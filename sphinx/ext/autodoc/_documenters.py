@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import operator
 from typing import TYPE_CHECKING, NewType, TypeVar
 
 from docutils.statemachine import StringList
@@ -78,8 +79,6 @@ class Documenter:
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
     objtype: ClassVar = 'object'
-    #: priority if multiple documenters return True from can_document_member
-    priority: ClassVar = 0
     #: order if autodoc_member_order is set to 'groupwise'
     member_order: ClassVar = 0
     #: true if the generated content may contain titles
@@ -97,14 +96,6 @@ class Documenter:
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
         """getattr() override for types such as Zope interfaces."""
         return autodoc_attrgetter(obj, name, *defargs, registry=self.env._registry)
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        """Called to see if a member can be documented by this Documenter."""
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
 
     def __init__(
         self, directive: DocumenterBridge, name: str, indent: str = ''
@@ -721,18 +712,16 @@ class Documenter:
         member_documenters: list[tuple[Documenter, bool]] = []
         for member_name, member, is_attr in filtered_members:
             # prefer the documenter with the highest priority
-            doccls = max(
-                (
-                    cls
-                    for cls in registry.documenters.values()
-                    if cls.can_document_member(member, member_name, is_attr, self)
-                ),
-                key=lambda cls: cls.priority,
-                default=None,
+            obj_type = _best_object_type_for_member(
+                member=member,
+                member_name=member_name,
+                is_attr=is_attr,
+                parent_documenter=self,
             )
-            if doccls is None:
+            if not obj_type:
                 # don't know how to document this member
                 continue
+            doccls = registry.documenters[obj_type]
             # give explicitly separated module name, so that members
             # of inner classes can be documented
             module_prefix = f'{props.module_name}::'
@@ -784,13 +773,6 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option,
     }
 
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        # don't document submodules automatically
-        return False
-
 
 class FunctionDocumenter(Documenter):
     """Specialized Documenter subclass for functions."""
@@ -800,17 +782,6 @@ class FunctionDocumenter(Documenter):
     objtype = 'function'
     member_order = 30
 
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        # supports functions, builtins and bound methods exported at the module level
-        return (
-            inspect.isfunction(member)
-            or inspect.isbuiltin(member)
-            or (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter))
-        )
-
 
 class DecoratorDocumenter(FunctionDocumenter):
     """Specialized Documenter subclass for decorator functions."""
@@ -818,9 +789,6 @@ class DecoratorDocumenter(FunctionDocumenter):
     props: _FunctionDefProperties
 
     objtype = 'decorator'
-
-    # must be lower than FunctionDocumenter
-    priority = FunctionDocumenter.priority - 1
 
 
 class ClassDocumenter(Documenter):
@@ -844,19 +812,6 @@ class ClassDocumenter(Documenter):
         'class-doc-from': class_doc_from_option,
         'noindex': bool_option,
     }
-
-    # Must be higher than FunctionDocumenter, ClassDocumenter, and
-    # AttributeDocumenter as NewType can be an attribute and is a class
-    # after Python 3.10.
-    priority = 15
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        return isinstance(member, type) or (
-            isattr and isinstance(member, (NewType, TypeVar))
-        )
 
     def get_canonical_fullname(self) -> str | None:
         __modname__ = safe_getattr(
@@ -883,25 +838,6 @@ class ExceptionDocumenter(ClassDocumenter):
     objtype = 'exception'
     member_order = 10
 
-    # needs a higher priority than ClassDocumenter
-    priority = ClassDocumenter.priority + 5
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        try:
-            return isinstance(member, type) and issubclass(member, BaseException)
-        except TypeError as exc:
-            # It's possible for a member to be considered a type, but fail
-            # issubclass checks due to not being a class. For example:
-            # https://github.com/sphinx-doc/sphinx/issues/11654#issuecomment-1696790436
-            msg = (
-                f'{cls.__name__} failed to discern if member {member} with'
-                f' membername {membername} is a BaseException subclass.'
-            )
-            raise ValueError(msg) from exc
-
 
 class DataDocumenter(Documenter):
     """Specialized Documenter subclass for data items."""
@@ -912,16 +848,9 @@ class DataDocumenter(Documenter):
 
     objtype = 'data'
     member_order = 40
-    priority = -10
     option_spec: ClassVar[OptionSpec] = dict(Documenter.option_spec)
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        return isinstance(parent, ModuleDocumenter) and isattr
 
 
 class MethodDocumenter(Documenter):
@@ -932,13 +861,6 @@ class MethodDocumenter(Documenter):
     objtype = 'method'
     directivetype = 'method'
     member_order = 50
-    priority = 1  # must be more than FunctionDocumenter
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
 
 
 class AttributeDocumenter(Documenter):
@@ -952,25 +874,11 @@ class AttributeDocumenter(Documenter):
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
 
-    # must be higher than the MethodDocumenter, else it will recognize
-    # some non-data descriptors as methods
-    priority = 10
-
     @staticmethod
     def is_function_or_method(obj: Any) -> bool:
         return (
             inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
         )
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        if isinstance(parent, ModuleDocumenter):
-            return False
-        if inspect.isattributedescriptor(member):
-            return True
-        return not inspect.isroutine(member) and not isinstance(member, type)
 
 
 class PropertyDocumenter(Documenter):
@@ -980,26 +888,6 @@ class PropertyDocumenter(Documenter):
 
     objtype = 'property'
     member_order = 60
-
-    # before AttributeDocumenter
-    priority = AttributeDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        if isinstance(parent, ClassDocumenter):
-            if inspect.isproperty(member):
-                return True
-            else:
-                # See FakeDirective &c in autosummary, parent might not be a
-                # 'proper' Documenter.
-                obj = parent.props._obj if hasattr(parent, 'props') else None
-                __dict__ = safe_getattr(obj, '__dict__', {})
-                obj = __dict__.get(membername)
-                return isinstance(obj, classmethod) and inspect.isproperty(obj.__func__)
-        else:
-            return False
 
 
 class TypeAliasDocumenter(Documenter):
@@ -1015,12 +903,6 @@ class TypeAliasDocumenter(Documenter):
         'annotation': annotation_option,
         'no-value': bool_option,
     }
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        return isinstance(member, AnyTypeAliasType)
 
 
 class DocstringSignatureMixin:
@@ -1069,3 +951,83 @@ def _document_members(
             real_modname=real_modname,
             check_module=members_check_module and not is_attr,
         )
+
+
+def _best_object_type_for_member(
+    member: Any,
+    member_name: str,
+    is_attr: bool,
+    parent_documenter: Documenter,
+) -> str | None:
+    """Return the best object type that supports documenting *member*."""
+    filtered = []
+
+    # Don't document submodules automatically: 'module' is never returned.
+
+    try:
+        if isinstance(member, type) and issubclass(member, BaseException):
+            # priority must be higher than 'class'
+            filtered.append((20, 'exception'))
+    except TypeError as exc:
+        # It's possible for a member to be considered a type, but fail
+        # issubclass checks due to not being a class. For example:
+        # https://github.com/sphinx-doc/sphinx/issues/11654#issuecomment-1696790436
+        msg = f'Failed to discern if member {member} is a BaseException subclass.'
+        raise ValueError(msg) from exc
+
+    if isinstance(member, type) or (is_attr and isinstance(member, (NewType, TypeVar))):
+        # priority must be higher than 'function', 'class', and 'attribute'
+        # as NewType can be an attribute and is a class after Python 3.10.
+        filtered.append((15, 'class'))
+
+    if isinstance(parent_documenter, ClassDocumenter):
+        if inspect.isproperty(member):
+            # priority must be higher than 'attribute'
+            filtered.append((11, 'property'))
+
+        # Support for class properties. Note: these only work on Python 3.9.
+        elif hasattr(parent_documenter, 'props'):
+            # See FakeDirective &c in autosummary, parent might not be a
+            # 'proper' Documenter.
+            __dict__ = safe_getattr(parent_documenter.props._obj, '__dict__', {})
+            obj = __dict__.get(member_name)
+            if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
+                # priority must be higher than 'attribute'
+                filtered.append((11, 'property'))
+
+    if not isinstance(parent_documenter, ModuleDocumenter):
+        if inspect.isattributedescriptor(member) or not (
+            inspect.isroutine(member) or isinstance(member, type)
+        ):
+            # priority must be higher than 'method', else it will recognise
+            # some non-data descriptors as methods
+            filtered.append((10, 'attribute'))
+
+    if inspect.isroutine(member) and not isinstance(
+        parent_documenter, ModuleDocumenter
+    ):
+        # priority must be higher than 'function'
+        filtered.append((1, 'method'))
+
+    if (
+        inspect.isfunction(member)
+        or inspect.isbuiltin(member)
+        or (
+            inspect.isroutine(member)
+            and isinstance(parent_documenter, ModuleDocumenter)
+        )
+    ):
+        # supports functions, builtins and bound methods exported
+        # at the module level
+        filtered.extend(((0, 'function'), (-1, 'decorator')))
+
+    if isinstance(member, AnyTypeAliasType):
+        filtered.append((0, 'type'))
+
+    if isinstance(parent_documenter, ModuleDocumenter) and is_attr:
+        filtered.append((-10, 'data'))
+
+    if filtered:
+        # return the highest priority object type
+        return max(filtered, key=operator.itemgetter(0))[1]
+    return None

@@ -70,6 +70,7 @@ from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._documenters import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import _format_signatures, import_module
@@ -206,7 +207,6 @@ def _get_documenter(
     from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
 
     if inspect.ismodule(obj):
-        # ModuleDocumenter.can_document_member always returns False
         return ModuleDocumenter
 
     # Construct a fake documenter for *parent*
@@ -221,14 +221,11 @@ def _get_documenter(
         parent_doc = parent_doc_cls(FakeDirective(), '')
 
     # Get the correct documenter class for *obj*
-    classes = [
-        cls
-        for cls in registry.documenters.values()
-        if cls.can_document_member(obj, '', False, parent_doc)
-    ]
-    if classes:
-        classes.sort(key=lambda cls: cls.priority)
-        return classes[-1]
+    obj_type = _best_object_type_for_member(
+        member=obj, member_name='', is_attr=False, parent_documenter=parent_doc
+    )
+    if obj_type:
+        return registry.documenters[obj_type]
     else:
         return DataDocumenter
 
