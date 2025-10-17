@@ -487,39 +487,7 @@ class Documenter:
         """Sort the given member list."""
         if order == 'groupwise':
             # sort by group; alphabetically within groups
-
-            def groupwise(entry: tuple[Documenter, bool]) -> tuple[int, str]:
-                documenter, _ = entry
-                props = documenter.props
-
-                if props.obj_type == 'exception':
-                    group_key = 10
-                elif props.obj_type == 'class':
-                    group_key = 20
-                elif props.obj_type in {'function', 'decorator'}:
-                    group_key = 30
-                elif props.obj_type == 'data':
-                    group_key = 40
-                elif props.obj_type == 'method':
-                    if props.is_classmethod:  # type: ignore[attr-defined]
-                        # document class methods before static methods as
-                        # they usually behave as alternative constructors
-                        group_key = 48
-                    elif props.is_staticmethod:  # type: ignore[attr-defined]
-                        # document static members before regular methods
-                        group_key = 49
-                    else:
-                        group_key = 50
-                elif props.obj_type in {'attribute', 'property'}:
-                    group_key = 60
-                elif props.obj_type == 'type':
-                    group_key = 70
-                else:
-                    group_key = 0
-
-                return group_key, documenter.name
-
-            documenters.sort(key=groupwise)
+            documenters.sort(key=lambda e: (e[0].props._groupwise_order_key, e[0].name))
         elif order == 'bysource':
             if (
                 isinstance(self, ModuleDocumenter)

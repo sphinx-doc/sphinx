@@ -79,6 +79,10 @@ class _ItemProperties:
     def dotted_parts(self) -> str:
         return '.'.join(self.parts)
 
+    @property
+    def _groupwise_order_key(self) -> int:
+        return 0
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _ModuleProperties(_ItemProperties):
@@ -139,6 +143,10 @@ class _ClassDefProperties(_ItemProperties):
             return None
         return f'{modname}.{qualname}'
 
+    @property
+    def _groupwise_order_key(self) -> int:
+        return 10 if self.obj_type == 'exception' else 20
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _FunctionDefProperties(_ItemProperties):
@@ -174,6 +182,21 @@ class _FunctionDefProperties(_ItemProperties):
     def is_staticmethod(self) -> bool:
         return 'staticmethod' in self.properties
 
+    @property
+    def _groupwise_order_key(self) -> int:
+        if self.obj_type == 'method':
+            if self.is_classmethod:
+                # document class methods before static methods as
+                # they usually behave as alternative constructors
+                group_key = 48
+            if self.is_staticmethod:
+                # document static members before regular methods
+                return 49
+            return 50
+        if self.obj_type == 'property':
+            return 60
+        return 30
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _AssignStatementProperties(_ItemProperties):
@@ -194,6 +217,10 @@ class _AssignStatementProperties(_ItemProperties):
     _obj_repr_rst: str
     _obj_type_annotation: str | None
 
+    @property
+    def _groupwise_order_key(self) -> int:
+        return 40 if self.obj_type == 'data' else 60
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _TypeStatementProperties(_ItemProperties):
@@ -202,3 +229,7 @@ class _TypeStatementProperties(_ItemProperties):
     _obj___name__: str | None
     _obj___qualname__: str | None
     _obj___value__: str  # The aliased annotation
+
+    @property
+    def _groupwise_order_key(self) -> int:
+        return 70
