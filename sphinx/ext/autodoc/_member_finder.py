@@ -90,6 +90,72 @@ class ObjectMember:
         )
 
 
+def _document_members(
+    *,
+    all_members: bool,
+    analyzer_order: dict[str, int],
+    attr_docs: dict[tuple[str, str], list[str]],
+    config: Config,
+    current_document: _CurrentDocument,
+    directive: DocumenterBridge,
+    events: EventManager,
+    get_attr: _AttrGetter,
+    indent: str,
+    name: str,
+    options: _AutoDocumenterOptions,
+    props: _ItemProperties,
+    real_modname: str,
+    registry: SphinxComponentRegistry,
+) -> None:
+    """Generate reST for member documentation.
+
+    If *all_members* is True, document all members, else those given by
+    *self.options.members*.
+    """
+    has_members = props.obj_type == 'module' or (
+        props.obj_type in {'class', 'exception'} and not props.doc_as_attr  # type: ignore[attr-defined]
+    )
+    if not has_members:
+        return
+
+    want_all = bool(all_members or options.inherited_members or options.members is ALL)
+    member_documenters = _gather_members(
+        want_all=want_all,
+        indent=indent,
+        analyzer_order=analyzer_order,
+        attr_docs=attr_docs,
+        config=config,
+        current_document=current_document,
+        directive=directive,
+        events=events,
+        get_attr=get_attr,
+        name=name,
+        options=options,
+        props=props,
+        registry=registry,
+    )
+
+    # for implicit module members, check __module__ to avoid
+    # documenting imported objects
+    members_check_module = bool(
+        props.obj_type == 'module'
+        and want_all
+        and (options.ignore_module_all or props.all is None)  # type: ignore[attr-defined]
+    )
+    for documenter, is_attr in member_documenters:
+        assert documenter.props.module_name
+        # We can directly call ._generate() since the documenters
+        # already called ``_load_object_by_name()`` before.
+        #
+        # Note that those two methods above do not emit events, so
+        # whatever objects we deduced should not have changed.
+        documenter._generate(
+            all_members=True,
+            real_modname=real_modname,
+            check_module=members_check_module and not is_attr,
+        )
+
+
 def _gather_members(
     *,
     want_all: bool,

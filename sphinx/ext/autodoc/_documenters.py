@@ -15,9 +15,8 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
-from sphinx.ext.autodoc._member_finder import _gather_members
+from sphinx.ext.autodoc._member_finder import _document_members
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
-from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
@@ -471,46 +470,25 @@ class Documenter:
         self.add_content(more_content, indent=indent)
 
         # document members, if possible
-        has_members = isinstance(self, ModuleDocumenter) or (
-            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
+        analyzer = self.analyzer
+        if analyzer is not None:
+            analyzer.analyze()
+        _document_members(
+            all_members=all_members,
+            analyzer_order=analyzer.tagorder if analyzer is not None else {},
+            attr_docs=analyzer.attr_docs if analyzer is not None else {},
+            config=self.config,
+            current_document=self._current_document,
+            directive=self.directive,
+            events=self._events,
+            get_attr=self.get_attr,
+            indent=indent,
+            name=self.name,
+            options=self.options,
+            props=self.props,
+            real_modname=self.real_modname,
+            registry=self.env._registry,
         )
-        if has_members:
-            want_all = bool(
-                all_members
-                or self.options.inherited_members
-                or self.options.members is ALL
-            )
-            analyzer = self.analyzer
-            if analyzer is not None:
-                analyzer.analyze()
-            member_documenters = _gather_members(
-                want_all=want_all,
-                indent=indent,
-                analyzer_order=analyzer.tagorder if analyzer is not None else {},
-                attr_docs=analyzer.attr_docs if analyzer is not None else {},
-                config=self.config,
-                current_document=self._current_document,
-                directive=self.directive,
-                events=self._events,
-                get_attr=self.get_attr,
-                name=self.name,
-                options=self.options,
-                props=self.props,
-                registry=self.env._registry,
-            )
-
-            # for implicit module members, check __module__ to avoid
-            # documenting imported objects
-            members_check_module = bool(
-                isinstance(self, ModuleDocumenter)
-                and want_all
-                and (self.options.ignore_module_all or self.props.all is None)
-            )
-            _document_members(
-                member_documenters=member_documenters,
-                real_modname=self.real_modname,
-                members_check_module=members_check_module,
-            )
 
 
 class ModuleDocumenter(Documenter):
@@ -649,28 +627,3 @@ def autodoc_attrgetter(
             return func(obj, name, *defargs)
 
     return safe_getattr(obj, name, *defargs)
-
-
-def _document_members(
-    *,
-    member_documenters: list[tuple[Documenter, bool]],
-    real_modname: str,
-    members_check_module: bool,
-) -> None:
-    """Generate reST for member documentation.
-
-    If *all_members* is True, document all members, else those given by
-    *self.options.members*.
-    """
-    for documenter, is_attr in member_documenters:
-        assert documenter.props.module_name
-        # We can directly call ._generate() since the documenters
-        # already called ``_load_object_by_name()`` before.
-        #
-        # Note that those two methods above do not emit events, so
-        # whatever objects we deduced should not have changed.
-        documenter._generate(
-            all_members=True,
-            real_modname=real_modname,
-            check_module=members_check_module and not is_attr,
-        )
