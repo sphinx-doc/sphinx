@@ -79,8 +79,6 @@ class Documenter:
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
     objtype: ClassVar = 'object'
-    #: order if autodoc_member_order is set to 'groupwise'
-    member_order: ClassVar = 0
     #: true if the generated content may contain titles
     titles_allowed: ClassVar = True
 
@@ -174,14 +172,6 @@ class Documenter:
         self.parent = parent
         self.object_name = props.object_name
         self.object = props._obj
-        if self.objtype == 'method':
-            if 'staticmethod' in props.properties:  # type: ignore[attr-defined]
-                # document static members before regular methods
-                self.member_order -= 1  # type: ignore[misc]
-            elif 'classmethod' in props.properties:  # type: ignore[attr-defined]
-                # document class methods before static methods as
-                # they usually behave as alternative constructors
-                self.member_order -= 2  # type: ignore[misc]
         self._load_object_has_been_called = True
         return True
 
@@ -497,7 +487,7 @@ class Documenter:
         """Sort the given member list."""
         if order == 'groupwise':
             # sort by group; alphabetically within groups
-            documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
+            documenters.sort(key=lambda e: (e[0].props._groupwise_order_key, e[0].name))
         elif order == 'bysource':
             if (
                 isinstance(self, ModuleDocumenter)
@@ -780,7 +770,6 @@ class FunctionDocumenter(Documenter):
     props: _FunctionDefProperties
 
     objtype = 'function'
-    member_order = 30
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -797,7 +786,6 @@ class ClassDocumenter(Documenter):
     props: _ClassDefProperties
 
     objtype = 'class'
-    member_order = 20
     option_spec: ClassVar[OptionSpec] = {
         'members': members_option,
         'undoc-members': bool_option,
@@ -836,7 +824,6 @@ class ExceptionDocumenter(ClassDocumenter):
     props: _ClassDefProperties
 
     objtype = 'exception'
-    member_order = 10
 
 
 class DataDocumenter(Documenter):
@@ -847,7 +834,6 @@ class DataDocumenter(Documenter):
     __uninitialized_global_variable__ = True
 
     objtype = 'data'
-    member_order = 40
     option_spec: ClassVar[OptionSpec] = dict(Documenter.option_spec)
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
@@ -860,7 +846,6 @@ class MethodDocumenter(Documenter):
 
     objtype = 'method'
     directivetype = 'method'
-    member_order = 50
 
 
 class AttributeDocumenter(Documenter):
@@ -869,7 +854,6 @@ class AttributeDocumenter(Documenter):
     props: _AssignStatementProperties
 
     objtype = 'attribute'
-    member_order = 60
     option_spec: ClassVar[OptionSpec] = dict(Documenter.option_spec)
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
@@ -887,7 +871,6 @@ class PropertyDocumenter(Documenter):
     props: _FunctionDefProperties
 
     objtype = 'property'
-    member_order = 60
 
 
 class TypeAliasDocumenter(Documenter):
@@ -896,7 +879,6 @@ class TypeAliasDocumenter(Documenter):
     props: _TypeStatementProperties
 
     objtype = 'type'
-    member_order = 70
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
         'no-index-entry': bool_option,
