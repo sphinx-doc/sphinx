@@ -11,19 +11,20 @@ if TYPE_CHECKING:
     from docutils.statemachine import StringList
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Documenter
     from sphinx.util.typing import ExtensionMetadata
 
 
 class IntEnumDocumenter(ClassDocumenter):
     objtype = 'intenum'
     directivetype = ClassDocumenter.objtype
-    priority = 10 + ClassDocumenter.priority
+    priority = 25
     option_spec = dict(ClassDocumenter.option_spec)
     option_spec['hex'] = bool_option
 
     @classmethod
     def can_document_member(
-        cls, member: Any, membername: str, isattr: bool, parent: Any
+        cls, member: Any, membername: str, isattr: bool, parent: Documenter
     ) -> bool:
         try:
             return issubclass(member, IntEnum)
