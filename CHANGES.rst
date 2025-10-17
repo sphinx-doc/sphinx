@@ -132,6 +132,8 @@ Bugs fixed
   directly defined in certain cases, depending on autodoc processing
   order.
   Patch by Jeremy Maitin-Shepard.
+* #13944: autodoc: show traceback during import in human readable representation.
+  Patch by Florian Best.
 
 
 Testing
