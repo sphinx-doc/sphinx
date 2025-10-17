@@ -466,7 +466,10 @@ class Autosummary(SphinxDirective):
             # -- Grab the summary
 
             documenter.add_content(None, indent=documenter.indent)
-            summary = extract_summary(self.bridge.result.data[:], self.state.document)
+            lines = self.bridge.result.data[:]
+            if documenter.props.obj_type != 'module':
+                lines = [line.removeprefix('   ') for line in lines]
+            summary = extract_summary(lines, self.state.document)
 
             items.append((display_name, sig, summary, real_name))
 
