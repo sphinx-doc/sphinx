@@ -94,7 +94,8 @@ def _gather_members(
     *,
     want_all: bool,
     indent: str,
-    analyzer: ModuleAnalyzer | None,
+    analyzer_order: dict[str, int],
+    attr_docs: dict[tuple[str, str], list[str]],
     config: Config,
     current_document: _CurrentDocument,
     directive: DocumenterBridge,
@@ -123,11 +124,6 @@ def _gather_members(
         current_document.autodoc_class = props.parts[0]
 
     inherited_members = frozenset(options.inherited_members or ())
-    if analyzer is not None:
-        analyzer.analyze()
-        attr_docs = analyzer.attr_docs
-    else:
-        attr_docs = {}
     found_members = _get_members_to_document(
         want_all=want_all,
         get_attr=get_attr,
@@ -187,8 +183,8 @@ def _gather_members(
     member_documenters = _sort_members(
         member_documenters,
         member_order,
-        analyzer=analyzer,
-        options=options,
+        ignore_module_all=bool(options.ignore_module_all),
+        analyzer_order=analyzer_order,
         props=props,
     )
 
@@ -562,10 +558,10 @@ def _best_object_type_for_member(
 
 def _sort_members(
     documenters: list[tuple[Documenter, bool]],
-    order: str,
+    order: Literal['alphabetical', 'bysource', 'groupwise'],
     *,
-    analyzer: ModuleAnalyzer | None,
-    options: _AutoDocumenterOptions,
+    ignore_module_all: bool,
+    analyzer_order: dict[str, int],
     props: _ItemProperties,
 ) -> list[tuple[Documenter, bool]]:
     """Sort the given member list."""
@@ -575,7 +571,7 @@ def _sort_members(
     elif order == 'bysource':
         if (
             isinstance(props, _ModuleProperties)
-            and not options.ignore_module_all
+            and not ignore_module_all
             and (module_all := props.all)
         ):
             # Sort by __all__
@@ -590,14 +586,13 @@ def _sort_members(
 
         # By default, member discovery order matches source order,
         # as dicts are insertion-ordered from Python 3.7.
-        elif analyzer is not None:
+        elif analyzer_order:
             # sort by source order, by virtue of the module analyzer
-            tagorder = analyzer.tagorder
-            tagorder_len = len(tagorder)
+            order_len = len(analyzer_order)
 
             def key_func(entry: tuple[Documenter, bool]) -> int:
                 fullname = entry[0].name.split('::')[1]
-                return tagorder.get(fullname, tagorder_len)
+                return analyzer_order.get(fullname, order_len)
 
             documenters.sort(key=key_func)
     else:  # alphabetical

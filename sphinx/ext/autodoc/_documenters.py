@@ -434,8 +434,8 @@ class Documenter:
         if self.real_modname != guess_modname:
             # Add module to dependency list if target object is defined in other module.
             try:
-                analyzer = ModuleAnalyzer.for_module(guess_modname)
-                self.directive.record_dependencies.add(analyzer.srcname)
+                srcname = ModuleAnalyzer.for_module(guess_modname).srcname
+                self.directive.record_dependencies.add(srcname)
             except PycodeError:
                 pass
 
@@ -480,10 +480,14 @@ class Documenter:
                 or self.options.inherited_members
                 or self.options.members is ALL
             )
+            analyzer = self.analyzer
+            if analyzer is not None:
+                analyzer.analyze()
             member_documenters = _gather_members(
                 want_all=want_all,
                 indent=indent,
-                analyzer=self.analyzer,
+                analyzer_order=analyzer.tagorder if analyzer is not None else {},
+                attr_docs=analyzer.attr_docs if analyzer is not None else {},
                 config=self.config,
                 current_document=self._current_document,
                 directive=self.directive,
