@@ -399,15 +399,7 @@ class Autosummary(SphinxDirective):
             documenter = self.create_documenter(
                 obj, parent, full_name, registry=self.env._registry
             )
-            if not documenter.parse_name():
-                logger.warning(
-                    __('failed to parse name %s'),
-                    real_name,
-                    location=self.get_location(),
-                )
-                items.append((display_name, '', '', real_name))
-                continue
-            if not documenter.import_object():
+            if documenter._load_object_by_name() is None:
                 logger.warning(
                     __('failed to import object %s'),
                     real_name,
@@ -417,10 +409,11 @@ class Autosummary(SphinxDirective):
                 continue
 
             # try to also get a source code analyzer for attribute docs
+            real_module = (
+                documenter.props._obj___module__ or documenter.props.module_name
+            )
             try:
-                documenter.analyzer = ModuleAnalyzer.for_module(
-                    documenter.get_real_modname()
-                )
+                documenter.analyzer = ModuleAnalyzer.for_module(real_module)
                 # parse right now, to get PycodeErrors on parsing (results will
                 # be cached anyway)
                 documenter.analyzer.find_attr_docs()
@@ -438,10 +431,10 @@ class Autosummary(SphinxDirective):
                     signatures = tuple(
                         f'{args} -> {retann}' if retann else str(args)
                         for args, retann in _format_signatures(
-                            config=documenter.config,
-                            events=documenter._events,
+                            config=self.env.config,
+                            events=self.env.events,
                             get_attr=documenter.get_attr,
-                            options=documenter.options,
+                            options=_AutoDocumenterOptions(),
                             parent=documenter.parent,
                             props=documenter.props,
                             show_annotation=False,

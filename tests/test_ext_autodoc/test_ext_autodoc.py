@@ -20,7 +20,7 @@ from sphinx.ext.autodoc._directive_options import (
     inherited_members_option,
 )
 from sphinx.ext.autodoc._docstrings import _get_docstring_lines
-from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter, autodoc_attrgetter
+from sphinx.ext.autodoc._documenters import Documenter, autodoc_attrgetter
 from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
     _FunctionDefProperties,
@@ -527,7 +527,7 @@ def test_get_docstring_lines(app):
     assert get_docstring_lines('function', J().foo, config=config) == expected
 
 
-class _MyDocumenter(ModuleLevelDocumenter):
+class _MyDocumenter(Documenter):
     objtype = 'integer'
     directivetype = 'integer'
     priority = 100
