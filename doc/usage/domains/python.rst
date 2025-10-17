@@ -120,6 +120,45 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 7.1
 
+   .. rst:directive:option:: subscript
+      :type: no value
+
+      Indicate that the function's parameters should be displayed
+      within square brackets instead of parentheses, in order to
+      indicate that it must be invoked as a *subscript function*..
+
+      For example:
+
+      .. code-block:: rst
+
+         .. py:function:: numpy.s_(indexing_expr: tuple[int, ...]) -> IndexExpression
+            :subscript:
+
+            Creates an index expression object.
+
+      This is rendered as:
+
+      .. py:method:: numpy.s_(indexing_expr: tuple[int, ...]) -> IndexExpression
+         :no-contents-entry:
+         :no-index-entry:
+         :subscript:
+
+         Creates an index expression object.
+
+      A *subscript function* can be implemented as follows:
+
+      .. code-block:: python
+
+         class _S:
+             @staticmethod
+             def __getitem__(indexing_expr: tuple[int, ...]) -> IndexExpression:
+                 ...
+
+         s_ = _S()
+
+      .. versionadded:: 8.3
+
+
 
 .. rst:directive:: .. py:data:: name
 
@@ -516,6 +555,46 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 2.1
 
+   .. rst:directive:option:: subscript
+      :type: no value
+
+      Indicate that the method's parameters should be displayed within
+      square brackets instead of parentheses, in order to indicate
+      that it must be invoked as a *subscript method*.
+
+      For example:
+
+      .. code-block:: rst
+
+         .. py:method:: Array.vindex(self, indexing_expr: tuple[int, ...]) -> list[int]
+            :subscript:
+
+            Index the array using *vindex* semantics.
+
+      This is rendered as:
+
+      .. py:method:: Array.vindex(self, indexing_expr: tuple[int, ...]) -> list[int]
+         :no-contents-entry:
+         :no-index-entry:
+         :subscript:
+
+         Index the array using *vindex* semantics.
+
+      A *subscript method* can be implemented as follows:
+
+      .. code-block:: python
+
+         class Array:
+             class _Vindex:
+                 def __init__(self, parent: Array):
+                     self.parent = parent
+                 def __getitem__(self, indexing_expr: tuple[int, ...]) -> list[int]:
+                     ...
+             @property
+             def vindex(self) -> Array._Vindex:
+                 return Array._Vindex(self)
+
+      .. versionadded:: 8.3
 
 .. rst:directive:: .. py:staticmethod:: name(parameters)
                    .. py:staticmethod:: name[type parameters](parameters)

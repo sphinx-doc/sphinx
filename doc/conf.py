@@ -243,6 +243,7 @@ nitpick_ignore = {
     ('py:exc', 'sphinx.environment.NoUri'),
     ('py:func', 'setup'),
     ('py:func', 'sphinx.util.nodes.nested_parse_with_titles'),
+    ('py:class', 'IndexExpression'),  # doc/usage/domains/python.rst
     # Error in sphinxcontrib.websupport.core::WebSupport.add_comment
     ('py:meth', 'get_comments'),
     ('py:mod', 'autodoc'),

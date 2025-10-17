@@ -246,12 +246,20 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     In that case each parameter will then be written on its own, indented line.
     A trailing comma will be added on the last line
     if ``multi_line_trailing_comma`` is True.
+
+    By default, it is surrounded by parentheses ``("(", ")")``, but this may be
+    overridden by specifying a ``brackets`` attribute.
     """
 
     child_text_separator = ', '
 
+    @property
+    def brackets(self) -> tuple[str, str]:
+        return self.get('brackets', ('(', ')'))
+
     def astext(self) -> str:
-        return f'({super().astext()})'
+        open_punct, close_punct = self.brackets
+        return f'{open_punct}{super().astext()}{close_punct}'
 
 
 class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement):
