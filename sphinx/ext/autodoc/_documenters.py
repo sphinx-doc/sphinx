@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import operator
 from typing import TYPE_CHECKING, NewType, TypeVar
 
 from docutils.statemachine import StringList
@@ -16,7 +15,7 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
-from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
+from sphinx.ext.autodoc._member_finder import _gather_members
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc.importer import _load_object_by_name
@@ -25,7 +24,7 @@ from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.inspect import safe_getattr
-from sphinx.util.typing import AnyTypeAliasType, restify, stringify_annotation
+from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -373,46 +372,6 @@ class Documenter:
 
         return more_content
 
-    def sort_members(
-        self, documenters: list[tuple[Documenter, bool]], order: str
-    ) -> list[tuple[Documenter, bool]]:
-        """Sort the given member list."""
-        if order == 'groupwise':
-            # sort by group; alphabetically within groups
-            documenters.sort(key=lambda e: (e[0].props._groupwise_order_key, e[0].name))
-        elif order == 'bysource':
-            if (
-                isinstance(self, ModuleDocumenter)
-                and not self.options.ignore_module_all
-                and (module_all := self.props.all)
-            ):
-                # Sort by __all__
-                module_all_idx = {name: idx for idx, name in enumerate(module_all)}
-                module_all_len = len(module_all)
-
-                def key_func(entry: tuple[Documenter, bool]) -> int:
-                    fullname = entry[0].name.split('::')[1]
-                    return module_all_idx.get(fullname, module_all_len)
-
-                documenters.sort(key=key_func)
-
-            # By default, member discovery order matches source order,
-            # as dicts are insertion-ordered from Python 3.7.
-            elif self.analyzer is not None:
-                # sort by source order, by virtue of the module analyzer
-                tagorder = self.analyzer.tagorder
-                tagorder_len = len(tagorder)
-
-                def key_func(entry: tuple[Documenter, bool]) -> int:
-                    fullname = entry[0].name.split('::')[1]
-                    return tagorder.get(fullname, tagorder_len)
-
-                documenters.sort(key=key_func)
-        else:  # alphabetical
-            documenters.sort(key=lambda e: e[0].name)
-
-        return documenters
-
     def generate(
         self,
         more_content: StringList | None = None,
@@ -521,7 +480,21 @@ class Documenter:
                 or self.options.inherited_members
                 or self.options.members is ALL
             )
-            member_documenters = self._gather_members(want_all=want_all, indent=indent)
+            member_documenters = _gather_members(
+                want_all=want_all,
+                indent=indent,
+                analyzer=self.analyzer,
+                config=self.config,
+                current_document=self._current_document,
+                directive=self.directive,
+                events=self._events,
+                get_attr=self.get_attr,
+                name=self.name,
+                options=self.options,
+                props=self.props,
+                registry=self.env._registry,
+            )
+
             # for implicit module members, check __module__ to avoid
             # documenting imported objects
             members_check_module = bool(
@@ -534,99 +507,6 @@ class Documenter:
                 real_modname=self.real_modname,
                 members_check_module=members_check_module,
             )
-
-    def _gather_members(
-        self, *, want_all: bool, indent: str
-    ) -> list[tuple[Documenter, bool]]:
-        """Generate reST for member documentation.
-
-        If *want_all* is True, document all members, else those given by
-        *self.options.members*.
-        """
-        if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
-            msg = 'must be implemented in subclasses'
-            raise NotImplementedError(msg)
-
-        current_document = self._current_document
-        events = self._events
-        registry = self.env._registry
-        props = self.props
-        indent += '   ' * (props.obj_type != 'module')
-
-        # set current namespace for finding members
-        current_document.autodoc_module = props.module_name
-        if props.parts:
-            current_document.autodoc_class = props.parts[0]
-
-        inherited_members = frozenset(self.options.inherited_members or ())
-        if self.analyzer:
-            self.analyzer.analyze()
-            attr_docs = self.analyzer.attr_docs
-        else:
-            attr_docs = {}
-        found_members = _get_members_to_document(
-            want_all=want_all,
-            get_attr=self.get_attr,
-            inherit_docstrings=self.config.autodoc_inherit_docstrings,
-            props=props,
-            opt_members=self.options.members or (),
-            inherited_members=inherited_members,
-            ignore_module_all=bool(self.options.ignore_module_all),
-            attr_docs=attr_docs,
-        )
-        filtered_members = _filter_members(
-            found_members,
-            want_all=want_all,
-            events=events,
-            get_attr=self.get_attr,
-            inherit_docstrings=self.config.autodoc_inherit_docstrings,
-            options=self.options,
-            orig_name=self.name,
-            props=props,
-            inherited_members=inherited_members,
-            exclude_members=self.options.exclude_members,
-            special_members=self.options.special_members,
-            private_members=self.options.private_members,
-            undoc_members=self.options.undoc_members,
-            attr_docs=attr_docs,
-        )
-        # document non-skipped members
-        member_documenters: list[tuple[Documenter, bool]] = []
-        for member_name, member, is_attr in filtered_members:
-            # prefer the documenter with the highest priority
-            obj_type = _best_object_type_for_member(
-                member=member,
-                member_name=member_name,
-                is_attr=is_attr,
-                parent_obj_type=self.objtype,
-                parent_props=self.props,
-            )
-            if not obj_type:
-                # don't know how to document this member
-                continue
-            doccls = registry.documenters[obj_type]
-            # give explicitly separated module name, so that members
-            # of inner classes can be documented
-            module_prefix = f'{props.module_name}::'
-            full_mname = module_prefix + '.'.join((*props.parts, member_name))
-            documenter = doccls(self.directive, full_mname, indent)
-
-            # We now try to import all objects before ordering them. This is to
-            # avoid possible circular imports if we were to import objects after
-            # their associated documenters have been sorted.
-            if documenter._load_object_by_name() is None:
-                continue
-
-            member_documenters.append((documenter, is_attr))
-
-        member_order = self.options.member_order or self.config.autodoc_member_order
-        member_documenters = self.sort_members(member_documenters, member_order)
-
-        # reset current objects
-        current_document.autodoc_module = ''
-        current_document.autodoc_class = ''
-
-        return member_documenters
 
 
 class ModuleDocumenter(Documenter):
@@ -790,79 +670,3 @@ def _document_members(
             real_modname=real_modname,
             check_module=members_check_module and not is_attr,
         )
-
-
-def _best_object_type_for_member(
-    member: Any,
-    member_name: str,
-    is_attr: bool,
-    *,
-    parent_obj_type: str,
-    parent_props: _ItemProperties | None,
-) -> str | None:
-    """Return the best object type that supports documenting *member*."""
-    filtered = []
-
-    # Don't document submodules automatically: 'module' is never returned.
-
-    try:
-        if isinstance(member, type) and issubclass(member, BaseException):
-            # priority must be higher than 'class'
-            filtered.append((20, 'exception'))
-    except TypeError as exc:
-        # It's possible for a member to be considered a type, but fail
-        # issubclass checks due to not being a class. For example:
-        # https://github.com/sphinx-doc/sphinx/issues/11654#issuecomment-1696790436
-        msg = f'Failed to discern if member {member} is a BaseException subclass.'
-        raise ValueError(msg) from exc
-
-    if isinstance(member, type) or (is_attr and isinstance(member, (NewType, TypeVar))):
-        # priority must be higher than 'function', 'class', and 'attribute'
-        # as NewType can be an attribute and is a class after Python 3.10.
-        filtered.append((15, 'class'))
-
-    if parent_obj_type in {'class', 'exception'}:
-        if inspect.isproperty(member):
-            # priority must be higher than 'attribute'
-            filtered.append((11, 'property'))
-
-        # See _get_documenter() in autosummary, parent_props might be None.
-        elif parent_props is not None:
-            # Support for class properties. Note: these only work on Python 3.9.
-            __dict__ = safe_getattr(parent_props._obj, '__dict__', {})
-            obj = __dict__.get(member_name)
-            if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
-                # priority must be higher than 'attribute'
-                filtered.append((11, 'property'))
-
-    if parent_obj_type != 'module':
-        if inspect.isattributedescriptor(member) or not (
-            inspect.isroutine(member) or isinstance(member, type)
-        ):
-            # priority must be higher than 'method', else it will recognise
-            # some non-data descriptors as methods
-            filtered.append((10, 'attribute'))
-
-    if inspect.isroutine(member) and parent_obj_type != 'module':
-        # priority must be higher than 'function'
-        filtered.append((1, 'method'))
-
-    if (
-        inspect.isfunction(member)
-        or inspect.isbuiltin(member)
-        or (inspect.isroutine(member) and parent_obj_type == 'module')
-    ):
-        # supports functions, builtins and bound methods exported
-        # at the module level
-        filtered.extend(((0, 'function'), (-1, 'decorator')))
-
-    if isinstance(member, AnyTypeAliasType):
-        filtered.append((0, 'type'))
-
-    if parent_obj_type == 'module' and is_attr:
-        filtered.append((-10, 'data'))
-
-    if filtered:
-        # return the highest priority object type
-        return max(filtered, key=operator.itemgetter(0))[1]
-    return None
