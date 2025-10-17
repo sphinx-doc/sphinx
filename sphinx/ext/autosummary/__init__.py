@@ -55,19 +55,16 @@ import posixpath
 import re
 import sys
 from inspect import Parameter
-from pathlib import Path
 from types import ModuleType
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx import addnodes
-from sphinx.config import Config
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.autodoc._documenters import _best_object_type_for_member
@@ -76,9 +73,7 @@ from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import _format_signatures, import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
-from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util.docutils import (
     NullReporter,
@@ -98,8 +93,9 @@ if TYPE_CHECKING:
     from docutils.nodes import Node, system_message
 
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
-    from sphinx.extension import Extension
+    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
 
@@ -158,31 +154,6 @@ def autosummary_table_visit_html(
 # -- autodoc integration -------------------------------------------------------
 
 
-class FakeApplication:
-    verbosity = 0
-
-    def __init__(self) -> None:
-        self.doctreedir = Path()
-        self.events = None
-        self.extensions: dict[str, Extension] = {}
-        self.srcdir = Path()
-        self.config = Config()
-        self.project = Project('', {})
-        self.registry = SphinxComponentRegistry()
-
-
-class FakeDirective(DocumenterBridge):
-    def __init__(self) -> None:
-        settings = Struct(tab_width=8)
-        document = Struct(settings=settings)
-        app = FakeApplication()
-        app.config.add('autodoc_class_signature', 'mixed', 'env', ())
-        env = BuildEnvironment(app)  # type: ignore[arg-type]
-        opts = _AutoDocumenterOptions()
-        state = Struct(document=document)
-        super().__init__(env, None, opts, 0, state)
-
-
 def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
@@ -191,12 +162,11 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     another Python object (e.g. a module or a class) to which *obj*
     belongs to.
     """
-    return _get_documenter(obj, parent, registry=app.registry)
+    obj_type = _get_documenter(obj, parent)
+    return app.registry.documenters[obj_type]
 
 
-def _get_documenter(
-    obj: Any, parent: Any, *, registry: SphinxComponentRegistry
-) -> type[Documenter]:
+def _get_documenter(obj: Any, parent: Any) -> str:
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -204,30 +174,24 @@ def _get_documenter(
     another Python object (e.g. a module or a class) to which *obj*
     belongs to.
     """
-    from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
-
     if inspect.ismodule(obj):
-        return ModuleDocumenter
+        return 'module'
 
-    # Construct a fake documenter for *parent*
-    if parent is not None:
-        parent_doc_cls = _get_documenter(parent, None, registry=registry)
+    if parent is None:
+        parent_obj_type = 'module'
     else:
-        parent_doc_cls = ModuleDocumenter
-
-    if hasattr(parent, '__name__'):
-        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
-    else:
-        parent_doc = parent_doc_cls(FakeDirective(), '')
+        parent_obj_type = _get_documenter(parent, None)
 
     # Get the correct documenter class for *obj*
-    obj_type = _best_object_type_for_member(
-        member=obj, member_name='', is_attr=False, parent_documenter=parent_doc
-    )
-    if obj_type:
-        return registry.documenters[obj_type]
-    else:
-        return DataDocumenter
+    if obj_type := _best_object_type_for_member(
+        member=obj,
+        member_name='',
+        is_attr=False,
+        parent_obj_type=parent_obj_type,
+        parent_props=None,
+    ):
+        return obj_type
+    return 'data'
 
 
 # -- .. autosummary:: ----------------------------------------------------------
@@ -343,7 +307,8 @@ class Autosummary(SphinxDirective):
 
         Wraps _get_documenter and is meant as a hook for extensions.
         """
-        doccls = _get_documenter(obj, parent, registry=registry)
+        obj_type = _get_documenter(obj, parent)
+        doccls = registry.documenters[obj_type]
         return doccls(self.bridge, full_name)
 
     def get_items(self, names: list[str]) -> list[tuple[str, str | None, str, str]]:
@@ -389,6 +354,8 @@ class Autosummary(SphinxDirective):
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
+            obj_type = _get_documenter(obj, parent)
+            doccls = self.env._registry.documenters[obj_type]
             full_name = real_name
             if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
@@ -396,9 +363,7 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1 :]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = self.create_documenter(
-                obj, parent, full_name, registry=self.env._registry
-            )
+            documenter = doccls(self.bridge, full_name)
             if documenter._load_object_by_name() is None:
                 logger.warning(
                     __('failed to import object %s'),
