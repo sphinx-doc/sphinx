@@ -6,9 +6,7 @@ source file translated by test_build.
 
 from __future__ import annotations
 
-import functools
 import itertools
-import operator
 import sys
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
@@ -21,19 +19,19 @@ from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     inherited_members_option,
 )
-from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter
+from sphinx.ext.autodoc._docstrings import _get_docstring_lines
+from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter, autodoc_attrgetter
 from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
     _FunctionDefProperties,
     _ItemProperties,
 )
 from sphinx.ext.autodoc._sentinels import ALL
-
-# NEVER import these objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import _parse_name
+from sphinx.ext.autodoc.importer import _format_signatures, _parse_name
+from sphinx.util.inspect import safe_getattr
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 try:
     # Enable pyximport to test cython module
@@ -75,7 +73,6 @@ def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
         lineno=0,
         state=Mock(),
     )
-    directive.state.document.settings.tab_width = 8
 
     return directive
 
@@ -110,7 +107,7 @@ def test_parse_name(app):
     parsed = parse('function', 'test_ext_autodoc.raises')
     assert parsed == ('test_ext_autodoc', ['raises'], None, None)
     parsed = parse('function', 'test_ext_autodoc.raises(exc) -> None')
-    assert parsed == ('test_ext_autodoc', ['raises'], 'exc', 'None')
+    assert parsed == ('test_ext_autodoc', ['raises'], '(exc)', 'None')
     current_document.autodoc_module = 'test_ext_autodoc'
     parsed = parse('function', 'raises')
     assert parsed == ('test_ext_autodoc', ['raises'], None, None)
@@ -135,50 +132,79 @@ def test_parse_name(app):
     assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
 
 
+def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
+    def get_attr(obj: Any, name: str, *defargs: Any) -> Any:
+        return autodoc_attrgetter(obj, name, *defargs, registry=app.registry)
+
+    options = _AutoDocumenterOptions(
+        synopsis='',
+        platform='',
+        members=[],
+        member_order='alphabetical',
+        exclude_members=set(),
+    )
+
+    parent = object  # dummy
+    props = _ClassDefProperties(
+        obj_type=obj_type,
+        module_name='',
+        parts=(name,),
+        docstring_lines=(),
+        bases=getattr(obj, '__bases__', None),
+        _obj=obj,
+        _obj___module__=getattr(obj, '__module__', None),
+        _obj___qualname__=getattr(obj, '__qualname__', None),
+        _obj___name__=name,
+        _obj_bases=(),
+        _obj_is_new_type=False,
+        _obj_is_typevar=False,
+    )
+    props._docstrings = _get_docstring_lines(
+        props,
+        class_doc_from=app.config.autoclass_content,
+        get_attr=get_attr,
+        inherit_docstrings=app.config.autodoc_inherit_docstrings,
+        parent=parent,
+        tab_width=8,
+    )
+    signatures = _format_signatures(
+        config=app.config,
+        events=app.events,
+        get_attr=get_attr,
+        options=options,
+        parent=parent,
+        props=props,
+        args=args,
+        retann=retann,
+    )
+    if not signatures:
+        return ()
+    assert len(signatures) == 1
+    return signatures[0]
+
+
 @pytest.mark.sphinx('html', testroot='root')
-def test_format_signature(app):
-    def process_signature(app, what, name, obj, options, args, retann):
+def test_format_signatures(app):
+    def process_signature(_app, what, name, _obj, _options, _args, _retann):
         processed_signatures.append((what, name))
         if name == '.bar':
             return '42', None
         return None
 
-    def skip_member(app, what, name, obj, skip, options):
+    def skip_member(_app, _what, name, _obj, skip, _options):
         if name in {'__special1__', '__special2__'}:
             return skip
         if name.startswith('__'):
             return True
-        if name == 'skipmeth':
+        if name == ('skipmeth', ''):
             return True
         return None
 
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
 
-    directive = make_directive_bridge(app.env)
-
-    def formatsig(objtype, name, obj, args, retann):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.doc_as_attr = False  # for class objtype
-        inst.parent = object  # dummy
-        inst.args = args
-        inst.retann = retann
-        inst.props = _ClassDefProperties(
-            obj_type=objtype,
-            module_name='',
-            parts=(name,),
-            docstring_lines=(),
-            bases=getattr(obj, '__bases__', None),
-            _obj=obj,
-            _obj___module__=getattr(obj, '__module__', None),
-            _obj___name__=name,
-        )
-        res = inst.format_signature()
-        print(res)
-        return res
-
     # no signatures for modules
-    assert formatsig('module', 'test', None, None, None) == ''
+    assert format_sig('module', 'test', None, app=app) == ()
 
     # test for functions
     def f(a, b, c=1, **d):
@@ -187,9 +213,12 @@ def test_format_signature(app):
     def g(a='\n'):
         pass
 
-    assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
-    assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
-    assert formatsig('function', 'g', g, None, None) == r"(a='\n')"
+    assert format_sig('function', 'f', f, app=app) == ('(a, b, c=1, **d)', '')
+    assert format_sig('function', 'f', f, app=app, args='(a, b, c, d)') == (
+        '(a, b, c, d)',
+        '',
+    )
+    assert format_sig('function', 'g', g, app=app) == (r"(a='\n')", '')
 
     if sys.version_info >= (3, 12):
         for params, expect in [
@@ -200,15 +229,25 @@ def test_format_signature(app):
             ns = {}
             exec(f'def f[T]{params}: pass', ns)  # NoQA: S102
             f = ns['f']
-            assert formatsig('function', 'f', f, None, None) == expect
-            assert formatsig('function', 'f', f, '...', None) == '(...)'
-            assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
+            assert format_sig('function', 'f', f, app=app) == (expect, '')
+            assert format_sig('function', 'f', f, app=app, args='(...)') == (
+                '(...)',
+                '',
+            )
+            assert format_sig(
+                'function', 'f', f, app=app, args='(...)', retann='...'
+            ) == ('(...)', '...')
 
             exec(f'def f[T]{params} -> list[T]: return []', ns)  # NoQA: S102
             f = ns['f']
-            assert formatsig('function', 'f', f, None, None) == f'{expect} -> list[T]'
-            assert formatsig('function', 'f', f, '...', None) == '(...)'
-            assert formatsig('function', 'f', f, '...', '...') == '(...) -> ...'
+            assert format_sig('function', 'f', f, app=app) == (expect, 'list[T]')
+            assert format_sig('function', 'f', f, app=app, args='(...)') == (
+                '(...)',
+                '',
+            )
+            assert format_sig(
+                'function', 'f', f, app=app, args='(...)', retann='...'
+            ) == ('(...)', '...')
 
     # TODO(picnixz): add more test cases for PEP-695 classes as well (though
     # complex cases are less likely to appear and are painful to test).
@@ -223,7 +262,7 @@ def test_format_signature(app):
 
     # an empty init and no init are the same
     for C in (D, E):
-        assert formatsig('class', 'D', C, None, None) == '()'
+        assert format_sig('class', 'D', C, app=app) == ('()', '')
 
     class SomeMeta(type):
         def __call__(cls, a, b=None):
@@ -253,42 +292,55 @@ def test_format_signature(app):
 
     # subclasses inherit
     for C in (F, FNew, FMeta, G, GNew, GMeta):
-        assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
-    assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
+        assert format_sig('class', 'C', C, app=app) == ('(a, b=None)', '')
+    assert format_sig('class', 'C', D, app=app, args='(a, b)', retann='X') == (
+        '(a, b)',
+        'X',
+    )
 
     class ListSubclass(list):  # NoQA: FURB189
         pass
 
     # only supported if the python implementation decides to document it
     if getattr(list, '__text_signature__', None) is not None:
-        assert formatsig('class', 'C', ListSubclass, None, None) == '(iterable=(), /)'
+        assert format_sig('class', 'C', ListSubclass, app=app) == (
+            '(iterable=(), /)',
+            '',
+        )
     else:
-        assert formatsig('class', 'C', ListSubclass, None, None) == ''
+        assert format_sig('class', 'C', ListSubclass, app=app) == ()
 
     class ExceptionSubclass(Exception):
         pass
 
     # Exception has no __text_signature__ at least in Python 3.11
     if getattr(Exception, '__text_signature__', None) is None:
-        assert formatsig('class', 'C', ExceptionSubclass, None, None) == ''
+        assert format_sig('class', 'C', ExceptionSubclass, app=app) == ()
 
     # __init__ have signature at first line of docstring
-    directive.env.config.autoclass_content = 'both'
+    app.config.autoclass_content = 'both'
 
     class F2:
         """some docstring for F2."""
 
         def __init__(self, *args, **kw):
-            """__init__(a1, a2, kw1=True, kw2=False)
+            """
+            __init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
-            """
+            """  # NoQA: D212
 
     class G2(F2):
         pass
 
-    assert formatsig('class', 'F2', F2, None, None) == '(a1, a2, kw1=True, kw2=False)'
-    assert formatsig('class', 'G2', G2, None, None) == '(a1, a2, kw1=True, kw2=False)'
+    assert format_sig('class', 'F2', F2, app=app) == (
+        '(a1, a2, kw1=True, kw2=False)',
+        '',
+    )
+    assert format_sig('class', 'G2', G2, app=app) == (
+        '(a1, a2, kw1=True, kw2=False)',
+        '',
+    )
 
     # test for methods
     class H:
@@ -301,35 +353,36 @@ def test_format_signature(app):
         def foo3(self, d='\n'):
             pass
 
-    assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
-    assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
-    assert formatsig('method', 'H.foo', H.foo2, None, None) == '(*c)'
-    assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\n')"
+    assert format_sig('method', 'H.foo', H.foo1, app=app) == ('(b, *c)', '')
+    assert format_sig('method', 'H.foo', H.foo1, app=app, args='(a)') == ('(a)', '')
+    assert format_sig('method', 'H.foo', H.foo2, app=app) == ('(*c)', '')
+    assert format_sig('method', 'H.foo', H.foo3, app=app) == (r"(d='\n')", '')
 
     # test bound methods interpreted as functions
-    assert formatsig('function', 'foo', H().foo1, None, None) == '(b, *c)'
-    assert formatsig('function', 'foo', H().foo2, None, None) == '(*c)'
-    assert formatsig('function', 'foo', H().foo3, None, None) == r"(d='\n')"
+    assert format_sig('function', 'foo', H().foo1, app=app) == ('(b, *c)', '')
+    assert format_sig('function', 'foo', H().foo2, app=app) == ('(*c)', '')
+    assert format_sig('function', 'foo', H().foo3, app=app) == (r"(d='\n')", '')
 
     # test exception handling (exception is caught and args is '')
-    directive.env.config.autodoc_docstring_signature = False
-    assert formatsig('function', 'int', int, None, None) == ''
+    app.config.autodoc_docstring_signature = False
+    assert format_sig('function', 'int', int, app=app) == ()
 
     # test processing by event handler
-    assert formatsig('method', 'bar', H.foo1, None, None) == '42'
+    assert format_sig('method', 'bar', H.foo1, app=app) == ('42', '')
 
     # test functions created via functools.partial
     from functools import partial
 
     curried1 = partial(lambda a, b, c: None, 'A')
-    assert formatsig('function', 'curried1', curried1, None, None) == '(b, c)'
+    assert format_sig('function', 'curried1', curried1, app=app) == ('(b, c)', '')
     curried2 = partial(lambda a, b, c=42: None, 'A')
-    assert formatsig('function', 'curried2', curried2, None, None) == '(b, c=42)'
+    assert format_sig('function', 'curried2', curried2, app=app) == ('(b, c=42)', '')
     curried3 = partial(lambda a, b, *c: None, 'A')
-    assert formatsig('function', 'curried3', curried3, None, None) == '(b, *c)'
+    assert format_sig('function', 'curried3', curried3, app=app) == ('(b, *c)', '')
     curried4 = partial(lambda a, b, c=42, *d, **e: None, 'A')
-    assert (
-        formatsig('function', 'curried4', curried4, None, None) == '(b, c=42, *d, **e)'
+    assert format_sig('function', 'curried4', curried4, app=app) == (
+        '(b, c=42, *d, **e)',
+        '',
     )
 
 
@@ -359,61 +412,88 @@ def test_autodoc_process_signature_typehints(app):
     def func(x: int, y: int) -> int:  # type: ignore[empty-body]
         pass
 
-    directive = make_directive_bridge(app.env)
-    inst = app.registry.documenters['function'](directive, 'func')
-    inst.props = _FunctionDefProperties(
+    props = _FunctionDefProperties(
         obj_type='function',
         module_name='',
         parts=('func',),
         docstring_lines=(),
         _obj=func,
         _obj___module__=None,
+        _obj___qualname__=None,
+        _obj___name__=None,
         properties=frozenset(),
     )
-    inst.format_signature()
+
+    def get_attr(obj: Any, name: str, *defargs: Any) -> Any:
+        return autodoc_attrgetter(obj, name, *defargs, registry=app.registry)
+
+    options = _AutoDocumenterOptions(
+        synopsis='',
+        platform='',
+        members=[],
+        member_order='alphabetical',
+        exclude_members=set(),
+    )
+    _format_signatures(
+        config=app.config,
+        events=app.events,
+        get_attr=get_attr,
+        options=options,
+        parent=None,
+        props=props,
+    )
     assert captured == [
-        (app, 'function', '.func', func, directive.genopt, '(x: int, y: int)', 'int')
+        (app, 'function', '.func', func, options, '(x: int, y: int)', 'int')
     ]
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_get_doc(app):
-    directive = make_directive_bridge(app.env)
+def get_docstring_lines(obj_type, obj, *, config):
+    parent = object  # dummy
+    props = _ItemProperties(
+        obj_type=obj_type,
+        module_name='',
+        parts=(obj.__name__,),
+        docstring_lines=(),
+        _obj=obj,
+        _obj___module__=getattr(obj, '__module__', None),
+    )
+    ds = _get_docstring_lines(
+        props,
+        class_doc_from=config.autoclass_content,
+        get_attr=safe_getattr,
+        inherit_docstrings=config.autodoc_inherit_docstrings,
+        parent=parent,
+        tab_width=8,
+    )
+    # for testing purposes, concat them and strip the empty line at the end
+    res = list(itertools.chain.from_iterable(ds or ()))
+    if res:
+        res.pop()
+    return tuple(res)
 
-    def getdocl(objtype, obj):
-        inst = app.registry.documenters[objtype](directive, 'tmp')
-        inst.props = _ItemProperties(
-            obj_type=objtype,
-            module_name='',
-            parts=(obj.__name__,),
-            docstring_lines=(),
-            _obj=obj,
-            _obj___module__=getattr(obj, '__module__', None),
-        )
-        inst.parent = object  # dummy
-        inst.doc_as_attr = False
-        inst.format_signature()  # handle docstring signatures!
-        ds = inst.get_doc()
-        # for testing purposes, concat them and strip the empty line at the end
-        res = functools.reduce(operator.iadd, ds, [])[:-1]
-        print(res)
-        return res
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_get_docstring_lines(app):
+    config = app.config
 
     # objects without docstring
     def f():
         pass
 
-    assert getdocl('function', f) == []
+    assert get_docstring_lines('function', f, config=config) == ()
 
     # standard function, diverse docstring styles...
     def f():
         """Docstring"""
 
-    def g():
-        """Docstring"""
+    assert get_docstring_lines('function', f, config=config) == ('Docstring',)
 
-    for func in (f, g):
-        assert getdocl('function', func) == ['Docstring']
+    def f():
+        """
+        Docstring
+        """  # NoQA: D212
+
+    assert get_docstring_lines('function', f, config=config) == ('Docstring',)
 
     # first line vs. other lines indentation
     def f():
@@ -423,13 +503,18 @@ def test_get_doc(app):
           lines
         """
 
-    assert getdocl('function', f) == ['First line', '', 'Other', '  lines']
+    assert get_docstring_lines('function', f, config=config) == (
+        'First line',
+        '',
+        'Other',
+        '  lines',
+    )
 
     # charset guessing (this module is encoded in utf-8)
     def f():
         """Döcstring"""
 
-    assert getdocl('function', f) == ['Döcstring']
+    assert get_docstring_lines('function', f, config=config) == ('Döcstring',)
 
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
@@ -437,8 +522,9 @@ def test_get_doc(app):
         def foo(self):
             """Method docstring"""
 
-    assert getdocl('method', J.foo) == ['Method docstring']
-    assert getdocl('function', J().foo) == ['Method docstring']
+    expected = ('Method docstring',)
+    assert get_docstring_lines('method', J.foo, config=config) == expected
+    assert get_docstring_lines('function', J().foo, config=config) == expected
 
 
 class _MyDocumenter(ModuleLevelDocumenter):
@@ -486,21 +572,21 @@ def test_attrgetter_using(app):
 
     options.inherited_members = inherited_members_option(False)
     with catch_warnings(record=True):
-        _assert_getter_works(app, directive, 'class', 'target.Class', ['meth'])
+        _assert_getter_works(app, directive, 'class', 'target.Class', {'meth'})
 
     options.inherited_members = inherited_members_option(True)
     with catch_warnings(record=True):
         _assert_getter_works(
-            app, directive, 'class', 'target.inheritance.Derived', ['inheritedmeth']
+            app, directive, 'class', 'target.inheritance.Derived', {'inheritedmeth'}
         )
 
 
 def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
-    getattr_spy = []
+    getattr_spy = set()
 
     def _special_getattr(obj, attr_name, *defargs):
         if attr_name in attrs:
-            getattr_spy.append((obj, attr_name))
+            getattr_spy.add((obj, attr_name))
             return None
         return getattr(obj, attr_name, *defargs)
 
@@ -970,13 +1056,16 @@ def test_autodoc_special_members(app):
     if sys.version_info >= (3, 13, 0, 'alpha', 5):
         options['exclude-members'] = '__static_attributes__,__firstlineno__'
     if sys.version_info >= (3, 14, 0, 'alpha', 7):
-        ann_attr_name = '__annotations_cache__'
+        ann_attrs = (
+            '   .. py:attribute:: Class.__annotate_func__',
+            '   .. py:attribute:: Class.__annotations_cache__',
+        )
     else:
-        ann_attr_name = '__annotations__'
+        ann_attrs = ('   .. py:attribute:: Class.__annotations__',)
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        f'   .. py:attribute:: Class.{ann_attr_name}',
+        *ann_attrs,
         '   .. py:attribute:: Class.__dict__',
         '   .. py:method:: Class.__init__(arg)',
         '   .. py:attribute:: Class.__module__',
@@ -2281,6 +2370,11 @@ def test_autodoc_typed_instance_variables(app):
         'members': None,
         'undoc-members': None,
     }
+    # First compute autodoc of a `Derived` member to verify that it
+    # doesn't result in inherited members in
+    # `Derived.__annotations__`.
+    # https://github.com/sphinx-doc/sphinx/issues/13934
+    do_autodoc(app, 'attribute', 'target.typed_vars.Derived.attr2')
     actual = do_autodoc(app, 'module', 'target.typed_vars', options)
     assert list(actual) == [
         '',
@@ -2478,6 +2572,86 @@ def test_autodoc_GenericAlias(app):
         '   A list of int',
         '',
         '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+    ]
+
+
+@pytest.mark.skipif(
+    sys.version_info[:2] < (3, 12),
+    reason='type statement introduced in Python 3.12',
+)
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_pep695_type_alias(app):
+    options = {
+        'members': None,
+        'undoc-members': None,
+    }
+    actual = do_autodoc(app, 'module', 'target.pep695', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.pep695',
+        '',
+        '',
+        '.. py:class:: Bar',
+        '   :module: target.pep695',
+        '',
+        '   This is newtype of Pep695Alias.',
+        '',
+        '   alias of :py:type:`~target.pep695.Pep695Alias`',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.pep695',
+        '',
+        '   This is class Foo.',
+        '',
+        '',
+        '.. py:type:: Pep695Alias',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is PEP695 type alias.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasC',
+        '   :module: target.pep695',
+        '   :canonical: dict[str, ~target.pep695.Foo]',
+        '',
+        '   This is PEP695 complex type alias with doc comment.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasOfAlias',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Pep695AliasC',
+        '',
+        '   This is PEP695 type alias of PEP695 alias.',
+        '',
+        '',
+        '.. py:type:: Pep695AliasUnion',
+        '   :module: target.pep695',
+        '   :canonical: str | int',
+        '',
+        '   This is PEP695 type alias for union.',
+        '',
+        '',
+        '.. py:type:: TypeAliasTypeExplicit',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is an explicitly constructed typing.TypeAlias.',
+        '',
+        '',
+        '.. py:type:: TypeAliasTypeExtension',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '   This is an explicitly constructed typing_extensions.TypeAlias.',
+        '',
+        '',
+        '.. py:function:: ret_pep695(a: ~target.pep695.Pep695Alias) -> ~target.pep695.Pep695Alias',
+        '   :module: target.pep695',
+        '',
+        '   This fn accepts and returns PEP695 alias.',
         '',
     ]
 

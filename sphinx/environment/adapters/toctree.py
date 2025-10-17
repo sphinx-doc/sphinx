@@ -455,7 +455,7 @@ def _toctree_standard_entry(
 def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
     """Add 'toctree-l%d' and 'current' classes to the toctree."""
     for subnode in node.children:
-        if isinstance(subnode, addnodes.compact_paragraph | nodes.list_item):
+        if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
             # for <p> and <li>, indicate the depth level and recurse
             subnode['classes'].append(f'toctree-l{depth - 1}')
             _toctree_add_classes(subnode, depth, docname)
@@ -507,7 +507,7 @@ def _toctree_copy_seq(
     is_current: bool = False,
 ) -> list[Element]:
     copy: Element
-    if isinstance(node, addnodes.compact_paragraph | nodes.list_item):
+    if isinstance(node, (addnodes.compact_paragraph, nodes.list_item)):
         # for <p> and <li>, just recurse
         copy = node.copy()
         for subnode in node.children:
@@ -550,7 +550,7 @@ def _toctree_copy_seq(
             )
         return copied
 
-    if isinstance(node, nodes.reference | nodes.title):
+    if isinstance(node, (nodes.reference, nodes.title)):
         # deep copy references and captions
         sub_node_copy = node.copy()
         sub_node_copy.children = [child.deepcopy() for child in node.children]

@@ -30,8 +30,8 @@ class IntEnumDocumenter(ClassDocumenter):
         except TypeError:
             return False
 
-    def add_directive_header(self, sig: str) -> None:
-        super().add_directive_header(sig)
+    def add_directive_header(self) -> None:
+        super().add_directive_header()
         self.add_line('   :final:', self.get_sourcename())
 
     def add_content(

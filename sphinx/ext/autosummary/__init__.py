@@ -72,7 +72,7 @@ from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autodoc.importer import _format_signatures, import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.project import Project
@@ -438,10 +438,22 @@ class Autosummary(SphinxDirective):
                 sig = None
             else:
                 try:
-                    sig = documenter.format_signature(show_annotation=False)
+                    signatures = tuple(
+                        f'{args} -> {retann}' if retann else str(args)
+                        for args, retann in _format_signatures(
+                            config=documenter.config,
+                            events=documenter._events,
+                            get_attr=documenter.get_attr,
+                            options=documenter.options,
+                            parent=documenter.parent,
+                            props=documenter.props,
+                            show_annotation=False,
+                        )
+                    )
                 except TypeError:
                     # the documenter does not support ``show_annotation`` option
-                    sig = documenter.format_signature()
+                    signatures = documenter.props.signatures
+                sig = '\n'.join(signatures)
                 if not sig:
                     sig = ''
                 elif signatures_option == 'short':
