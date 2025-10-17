@@ -188,7 +188,7 @@ class _FunctionDefProperties(_ItemProperties):
             if self.is_classmethod:
                 # document class methods before static methods as
                 # they usually behave as alternative constructors
-                group_key = 48
+                return 48
             if self.is_staticmethod:
                 # document static members before regular methods
                 return 49
