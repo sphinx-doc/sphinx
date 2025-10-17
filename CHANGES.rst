@@ -132,7 +132,8 @@ Bugs fixed
   directly defined in certain cases, depending on autodoc processing
   order.
   Patch by Jeremy Maitin-Shepard.
-
+* #13383: Emit a warning for duplicate internal hyperlink declarations.
+  Patch by James Addison.
 
 Testing
 -------
