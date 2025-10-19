@@ -18,18 +18,19 @@ if TYPE_CHECKING:
     from docutils.statemachine import StringList
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
 
 
 def do_autodoc(
     app: Sphinx,
-    objtype: str,
+    obj_type: _AutodocObjType,
     name: str,
     options: dict[str, Any] | None = None,
 ) -> StringList:
     options = {} if options is None else options.copy()
     if not app.env.current_document.docname:
         app.env.current_document.docname = 'index'  # set dummy docname
-    doccls = app.registry.documenters[objtype]
+    doccls = app.registry.documenters[obj_type]
     opts = _process_documenter_options(
         option_spec=doccls.option_spec,
         default_options=app.config.autodoc_default_options,

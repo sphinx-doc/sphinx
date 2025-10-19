@@ -95,6 +95,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
@@ -166,7 +167,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     return app.registry.documenters[obj_type]
 
 
-def _get_documenter(obj: Any, parent: Any) -> str:
+def _get_documenter(obj: Any, parent: Any) -> _AutodocObjType:
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 

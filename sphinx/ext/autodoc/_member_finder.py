@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from sphinx.events import EventManager
     from sphinx.ext.autodoc import Documenter
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._property_types import _ItemProperties
+    from sphinx.ext.autodoc._property_types import _AutodocObjType, _ItemProperties
     from sphinx.ext.autodoc._sentinels import (
         ALL_T,
         EMPTY_T,
@@ -553,7 +553,7 @@ def _best_object_type_for_member(
     *,
     parent_obj_type: str,
     parent_props: _ItemProperties | None,
-) -> str | None:
+) -> _AutodocObjType | None:
     """Return the best object type that supports documenting *member*."""
     filtered = []
 
@@ -618,7 +618,7 @@ def _best_object_type_for_member(
 
     if filtered:
         # return the highest priority object type
-        return max(filtered, key=operator.itemgetter(0))[1]
+        return max(filtered, key=operator.itemgetter(0))[1]  # type: ignore[return-value]
     return None
 
 

@@ -999,7 +999,7 @@ def _parse_name(
 
 def _resolve_name(
     *,
-    objtype: str,
+    objtype: _AutodocObjType,
     module_name: str | None,
     path: str | None,
     base: str,
