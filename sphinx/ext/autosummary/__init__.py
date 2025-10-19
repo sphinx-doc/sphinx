@@ -364,11 +364,12 @@ class Autosummary(SphinxDirective):
             result = StringList()  # initialize for each documenter
             obj_type = _get_documenter(obj, parent)
             doccls = self.env._registry.documenters[obj_type]
-            full_name = real_name
-            if not isinstance(obj, ModuleType):
+            if isinstance(obj, ModuleType):
+                full_name = real_name
+            else:
                 # give explicitly separated module name, so that members
                 # of inner classes can be documented
-                full_name = modname + '::' + full_name[len(modname) + 1 :]
+                full_name = f'{modname}::{real_name[len(modname) + 1 :]}'
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
             self.bridge.result = result
