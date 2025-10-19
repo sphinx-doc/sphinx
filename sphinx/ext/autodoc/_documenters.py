@@ -167,7 +167,8 @@ class Documenter:
             is_final = False
 
         result = self.directive.result
-        sourcename = self.get_sourcename()
+        analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
+        source_name = _docstring_source_name(props=self.props, source=analyzer_source)
         for line in _directive_header_lines(
             autodoc_typehints=self.config.autodoc_typehints,
             directive_name=directive_name,
@@ -176,27 +177,13 @@ class Documenter:
             props=self.props,
         ):
             if line.strip():  # not a blank line
-                result.append(indent + line, sourcename)
+                result.append(indent + line, source_name)
             else:
-                result.append('', sourcename)
-
-    def get_sourcename(self) -> str:
-        obj_module = inspect.safe_getattr(self.props._obj, '__module__', None)
-        obj_qualname = inspect.safe_getattr(self.props._obj, '__qualname__', None)
-        if obj_module and obj_qualname:
-            # Get the correct location of docstring from props._obj
-            # to support inherited methods
-            fullname = f'{self.props._obj.__module__}.{self.props._obj.__qualname__}'
-        else:
-            fullname = self.props.full_name
-
-        if self.analyzer:
-            return f'{self.analyzer.srcname}:docstring of {fullname}'
-        else:
-            return 'docstring of %s' % fullname
+                result.append('', source_name)
 
     def add_content(self, more_content: StringList | None, *, indent: str) -> None:
         """Add content from docstrings, attribute documentation and user."""
+        analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
         # add content from docstrings
         processed_doc = StringList(
             list(
@@ -208,7 +195,7 @@ class Documenter:
                     options=self.options,
                 )
             ),
-            source=self.get_sourcename(),
+            source=_docstring_source_name(props=self.props, source=analyzer_source),
         )
         _add_content(
             processed_doc,
@@ -451,16 +438,17 @@ class Documenter:
                 return
 
         indent = self.indent
-        sourcename = self.get_sourcename()
+        analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
+        source_name = _docstring_source_name(props=self.props, source=analyzer_source)
 
         # make sure that the result starts with an empty line.  This is
         # necessary for some situations where another directive preprocesses
         # reST and no starting newline is present
-        self.directive.result.append('', sourcename)
+        self.directive.result.append('', source_name)
 
         # generate the directive header and options, if applicable
         self.add_directive_header(indent=indent)
-        self.directive.result.append('', sourcename)
+        self.directive.result.append('', source_name)
 
         # add all content (from docstrings, attribute docs etc.)
         self.add_content(more_content, indent=indent)
@@ -643,3 +631,18 @@ class _AutodocAttrGetter:
     def __delattr__(self, key: str) -> NoReturn:
         msg = f'{self.__class__.__name__} is immutable'
         raise AttributeError(msg)
+
+
+def _docstring_source_name(*, props: _ItemProperties, source: str) -> str:
+    obj_module = inspect.safe_getattr(props._obj, '__module__', None)
+    obj_qualname = inspect.safe_getattr(props._obj, '__qualname__', None)
+    if obj_module and obj_qualname:
+        # Get the correct location of docstring from props._obj
+        # to support inherited methods
+        fullname = f'{obj_module}.{obj_qualname}'
+    else:
+        fullname = props.full_name
+
+    if source:
+        return f'{source}:docstring of {fullname}'
+    return f'docstring of {fullname}'
