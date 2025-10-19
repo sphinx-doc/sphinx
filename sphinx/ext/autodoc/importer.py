@@ -495,7 +495,7 @@ def _load_object_by_name(
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
-) -> tuple[_ItemProperties, ModuleType | None, Any] | None:
+) -> tuple[_ItemProperties, Any] | None:
     """Import and load the object given by *name*."""
     parsed = _parse_name(
         name=name,
@@ -542,13 +542,18 @@ def _load_object_by_name(
 
     # Assemble object properties from the imported object.
     props: _ItemProperties
-    module = im.module
     parent = im.parent
     object_name = im.object_name
     obj = im.obj
     obj_properties: set[_AutodocFuncProperty] = set()
     if objtype == 'module':
-        file_path = getattr(module, '__file__', None)
+        try:
+            mod_origin = im.module.__spec__.origin  # type: ignore[union-attr]
+        except AttributeError:
+            file_path = None
+        else:
+            file_path = Path(mod_origin) if mod_origin is not None else None
+
         mod_all = safe_getattr(obj, '__all__', None)
         if isinstance(mod_all, (list, tuple)) and all(
             isinstance(e, str) for e in mod_all
@@ -564,7 +569,7 @@ def _load_object_by_name(
             obj_type=objtype,
             module_name=module_name,
             docstring_lines=(),
-            file_path=Path(file_path) if file_path is not None else None,
+            file_path=file_path,
             all=mod_all,
             _obj=obj,
             _obj___module__=obj.__name__,
@@ -911,7 +916,7 @@ def _load_object_by_name(
         f'{args} -> {retann}' if retann else str(args) for args, retann in signatures
     )
 
-    return props, module, parent
+    return props, parent
 
 
 def _parse_name(
