@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, NewType, TypeVar
 
 from docutils.statemachine import StringList
@@ -27,7 +28,6 @@ from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
-    from types import ModuleType
     from typing import Any, ClassVar, Final, Literal, NoReturn
 
     from sphinx.config import Config
@@ -97,7 +97,6 @@ class Documenter:
         self.get_attr = directive.get_attr
         self.name = name
         self.indent: Final = indent
-        self.module: ModuleType | None = None
         # the parent/owner of the object to document
         self.parent: Any = None
         # the module analyzer to get at attribute docs, or None
@@ -144,10 +143,9 @@ class Documenter:
         )
         if ret is None:
             return None
-        props, module, parent = ret
+        props, parent = ret
 
         self.props = props
-        self.module = module
         self.parent = parent
         self._load_object_has_been_called = True
         return True
@@ -407,9 +405,19 @@ class Documenter:
             logger.debug('[autodoc] module analyzer failed: %s', exc)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
-            # at least add the module.__file__ as a dependency
-            if module___file__ := getattr(self.module, '__file__', ''):
-                self.directive.record_dependencies.add(module___file__)
+            # at least add the module source file as a dependency
+            if self.props.module_name:
+                try:
+                    module_spec = sys.modules[self.props.module_name].__spec__
+                except (AttributeError, KeyError):
+                    pass
+                else:
+                    if (
+                        module_spec is not None
+                        and module_spec.has_location
+                        and module_spec.origin
+                    ):
+                        self.directive.record_dependencies.add(module_spec.origin)
         else:
             self.directive.record_dependencies.add(self.analyzer.srcname)
 
