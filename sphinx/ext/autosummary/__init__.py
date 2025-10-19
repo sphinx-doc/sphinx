@@ -71,7 +71,7 @@ from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import _format_signatures, import_module
+from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -361,7 +361,7 @@ class Autosummary(SphinxDirective):
                 )
                 continue
 
-            self.bridge.result = StringList()  # initialize for each documenter
+            result = StringList()  # initialize for each documenter
             obj_type = _get_documenter(obj, parent)
             doccls = self.env._registry.documenters[obj_type]
             full_name = real_name
@@ -371,6 +371,7 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1 :]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
+            self.bridge.result = result
             documenter = doccls(self.bridge, full_name)
             if documenter._load_object_by_name() is None:
                 logger.warning(
@@ -380,57 +381,38 @@ class Autosummary(SphinxDirective):
                 )
                 items.append((display_name, '', '', real_name))
                 continue
+            props = documenter.props
 
             # try to also get a source code analyzer for attribute docs
-            real_module = (
-                documenter.props._obj___module__ or documenter.props.module_name
-            )
+            real_module = props._obj___module__ or props.module_name
             try:
-                documenter.analyzer = ModuleAnalyzer.for_module(real_module)
+                analyzer = ModuleAnalyzer.for_module(real_module)
                 # parse right now, to get PycodeErrors on parsing (results will
                 # be cached anyway)
-                documenter.analyzer.find_attr_docs()
+                analyzer.analyze()
             except PycodeError as err:
                 logger.debug('[autodoc] module analyzer failed: %s', err)
                 # no source file -- e.g. for builtin and C modules
-                documenter.analyzer = None
+                analyzer = None
+            documenter.analyzer = analyzer
 
             # -- Grab the signature
 
             if signatures_option == 'none':
                 sig = None
-            else:
-                try:
-                    signatures = tuple(
-                        f'{args} -> {retann}' if retann else str(args)
-                        for args, retann in _format_signatures(
-                            config=self.env.config,
-                            events=self.env.events,
-                            get_attr=documenter.get_attr,
-                            options=_AutoDocumenterOptions(),
-                            parent=documenter.parent,
-                            props=documenter.props,
-                            show_annotation=False,
-                        )
-                    )
-                except TypeError:
-                    # the documenter does not support ``show_annotation`` option
-                    signatures = documenter.props.signatures
-                sig = '\n'.join(signatures)
-                if not sig:
-                    sig = ''
-                elif signatures_option == 'short':
-                    if sig != '()':
-                        sig = '(…)'
-                else:  # signatures_option == 'long'
-                    max_chars = max(10, max_item_chars - len(display_name))
-                    sig = mangle_signature(sig, max_chars=max_chars)
+            elif not props.signatures:
+                sig = ''
+            elif signatures_option == 'short':
+                sig = '()' if props.signatures == ('()',) else '(…)'
+            else:  # signatures_option == 'long'
+                max_chars = max(10, max_item_chars - len(display_name))
+                sig = mangle_signature('\n'.join(props.signatures), max_chars=max_chars)
 
             # -- Grab the summary
 
             documenter.add_content(None, indent=documenter.indent)
-            lines = self.bridge.result.data[:]
-            if documenter.props.obj_type != 'module':
+            lines = result.data[:]
+            if props.obj_type != 'module':
                 lines[:] = [line.removeprefix('   ') for line in lines]
             summary = extract_summary(lines, self.state.document)
 
