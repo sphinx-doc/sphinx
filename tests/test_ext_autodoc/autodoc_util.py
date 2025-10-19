@@ -11,6 +11,7 @@ from sphinx.ext.autodoc._directive_options import (
 # NEVER import those objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.util.docutils import LoggingReporter
+from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from typing import Any
@@ -38,7 +39,9 @@ def do_autodoc(
     )
     docoptions = _AutoDocumenterOptions.from_directive_options(opts)
     state = Mock()
-    bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1, state)
+    bridge = DocumenterBridge(
+        app.env, LoggingReporter(''), docoptions, 1, state, safe_getattr
+    )
     documenter = doccls(bridge, name)
     documenter.generate()
     return bridge.result
