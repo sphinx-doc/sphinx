@@ -101,7 +101,6 @@ def _document_members(
     events: EventManager,
     get_attr: _AttrGetter,
     indent: str,
-    name: str,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
     real_modname: str,
@@ -129,7 +128,6 @@ def _document_members(
         directive=directive,
         events=events,
         get_attr=get_attr,
-        name=name,
         options=options,
         props=props,
         registry=registry,
@@ -167,7 +165,6 @@ def _gather_members(
     directive: DocumenterBridge,
     events: EventManager,
     get_attr: _AttrGetter,
-    name: str,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
     registry: SphinxComponentRegistry,
@@ -207,7 +204,6 @@ def _gather_members(
         get_attr=get_attr,
         inherit_docstrings=config.autodoc_inherit_docstrings,
         options=options,
-        orig_name=name,
         props=props,
         inherited_members=inherited_members,
         exclude_members=options.exclude_members,
@@ -233,9 +229,9 @@ def _gather_members(
         doccls = registry.documenters[obj_type]
         # give explicitly separated module name, so that members
         # of inner classes can be documented
-        module_prefix = f'{props.module_name}::'
-        full_mname = module_prefix + '.'.join((*props.parts, member_name))
-        documenter = doccls(directive, full_mname, indent)
+        dotted_parts = '.'.join((*props.parts, member_name))
+        full_name = f'{props.module_name}::{dotted_parts}'
+        documenter = doccls(directive, full_name, indent)
 
         # We now try to import all objects before ordering them. This is to
         # avoid possible circular imports if we were to import objects after
@@ -476,7 +472,6 @@ def _filter_members(
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
-    orig_name: str,
     props: _ModuleProperties | _ClassDefProperties,
     inherit_docstrings: bool,
     inherited_members: Set[str],
@@ -517,7 +512,7 @@ def _filter_members(
                     'autodoc: failed to determine %s.%s (%r) to be documented, '
                     'the following exception was raised:\n%s'
                 ),
-                orig_name,
+                props.full_name,
                 member_name,
                 member_obj,
                 exc,
@@ -633,7 +628,10 @@ def _sort_members(
     """Sort the given member list."""
     if order == 'groupwise':
         # sort by group; alphabetically within groups
-        documenters.sort(key=lambda e: (e[0].props._groupwise_order_key, e[0].name))
+        def group_order(entry: tuple[Documenter, bool]) -> tuple[int, str]:
+            return entry[0].props._groupwise_order_key, entry[0].props.full_name
+
+        documenters.sort(key=group_order)
     elif order == 'bysource':
         if (
             isinstance(props, _ModuleProperties)
@@ -644,11 +642,11 @@ def _sort_members(
             module_all_idx = {name: idx for idx, name in enumerate(module_all)}
             module_all_len = len(module_all)
 
-            def key_func(entry: tuple[Documenter, bool]) -> int:
-                fullname = entry[0].name.split('::')[1]
+            def source_order(entry: tuple[Documenter, bool]) -> int:
+                fullname = entry[0].props.dotted_parts
                 return module_all_idx.get(fullname, module_all_len)
 
-            documenters.sort(key=key_func)
+            documenters.sort(key=source_order)
 
         # By default, member discovery order matches source order,
         # as dicts are insertion-ordered from Python 3.7.
@@ -656,13 +654,13 @@ def _sort_members(
             # sort by source order, by virtue of the module analyzer
             order_len = len(analyzer_order)
 
-            def key_func(entry: tuple[Documenter, bool]) -> int:
-                fullname = entry[0].name.split('::')[1]
+            def source_order(entry: tuple[Documenter, bool]) -> int:
+                fullname = entry[0].props.dotted_parts
                 return analyzer_order.get(fullname, order_len)
 
-            documenters.sort(key=key_func)
+            documenters.sort(key=source_order)
     else:  # alphabetical
-        documenters.sort(key=lambda e: e[0].name)
+        documenters.sort(key=lambda entry: entry[0].props.full_name)
 
     return documenters
 

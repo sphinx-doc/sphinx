@@ -86,7 +86,7 @@ class Documenter:
     }
 
     def __init__(
-        self, directive: DocumenterBridge, name: str, indent: str = ''
+        self, directive: DocumenterBridge, orig_name: str, indent: str = ''
     ) -> None:
         self.directive = directive
         self.config: Config = directive.env.config
@@ -95,7 +95,7 @@ class Documenter:
         self._events: EventManager = directive.env.events
         self.options: _AutoDocumenterOptions = directive.genopt
         self.get_attr = directive.get_attr
-        self.name = name
+        self.orig_name = orig_name
         self.indent: Final = indent
         # the parent/owner of the object to document
         self.parent: Any = None
@@ -122,7 +122,7 @@ class Documenter:
             self.directive.result.append('', source, *lineno)
 
     def _load_object_by_name(self) -> Literal[True] | None:
-        """Import the object given by *self.name*.
+        """Import the object given by *self.orig_name*.
 
         Returns True if parsing and resolving was successful, otherwise None.
         """
@@ -130,7 +130,7 @@ class Documenter:
             return True
 
         ret = _load_object_by_name(
-            name=self.name,
+            name=self.orig_name,
             objtype=self.objtype,  # type: ignore[arg-type]
             mock_imports=self.config.autodoc_mock_imports,
             type_aliases=self.config.autodoc_type_aliases,
@@ -359,7 +359,7 @@ class Documenter:
         check_module: bool = False,
         all_members: bool = False,
     ) -> None:
-        """Generate reST for the object given by *self.name*, and possibly for
+        """Generate reST for the object given by *self.orig_name*, and possibly for
         its members.
 
         If *more_content* is given, include that content. If *real_modname* is
@@ -433,7 +433,7 @@ class Documenter:
         if ismock(self.props._obj) and not has_docstring:
             logger.warning(
                 __('A mocked object is detected: %r'),
-                self.name,
+                self.props.full_name,
                 type='autodoc',
                 subtype='mocked_object',
             )
@@ -475,7 +475,6 @@ class Documenter:
             events=self._events,
             get_attr=self.get_attr,
             indent=indent,
-            name=self.name,
             options=self.options,
             props=self.props,
             real_modname=self.real_modname,
