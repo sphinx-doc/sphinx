@@ -10,6 +10,7 @@ from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     _process_documenter_options,
 )
+from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
@@ -25,6 +26,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
     from sphinx.ext.autodoc._directive_options import Options
+    from sphinx.ext.autodoc.importer import _AttrGetter
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +52,7 @@ class DocumenterBridge:
         options: _AutoDocumenterOptions,
         lineno: int,
         state: Any,
+        get_attr: _AttrGetter,
     ) -> None:
         self.env = env
         self._reporter = reporter
@@ -58,6 +61,7 @@ class DocumenterBridge:
         self.record_dependencies: set[str] = set()
         self.result = StringList()
         self.state = state
+        self.get_attr = get_attr
 
 
 def process_documenter_options(
@@ -136,8 +140,9 @@ class AutodocDirective(SphinxDirective):
         documenter_options._tab_width = self.state.document.settings.tab_width
 
         # generate the output
+        get_attr = _AutodocAttrGetter(self.env._registry.autodoc_attrgetters)
         params = DocumenterBridge(
-            self.env, reporter, documenter_options, lineno, self.state
+            self.env, reporter, documenter_options, lineno, self.state, get_attr
         )
         documenter = doccls(params, self.arguments[0])
         documenter.generate(more_content=self.content)

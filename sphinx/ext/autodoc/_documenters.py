@@ -26,9 +26,9 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
-    from typing import Any, ClassVar, Final, Literal
+    from typing import Any, ClassVar, Final, Literal, NoReturn
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
@@ -43,7 +43,6 @@ if TYPE_CHECKING:
         _TypeStatementProperties,
     )
     from sphinx.ext.autodoc.directive import DocumenterBridge
-    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
 
 logger = logging.getLogger('sphinx.ext.autodoc')
@@ -86,10 +85,6 @@ class Documenter:
         'noindex': bool_option,
     }
 
-    def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
-        """getattr() override for types such as Zope interfaces."""
-        return autodoc_attrgetter(obj, name, *defargs, registry=self.env._registry)
-
     def __init__(
         self, directive: DocumenterBridge, name: str, indent: str = ''
     ) -> None:
@@ -99,6 +94,7 @@ class Documenter:
         self._current_document: _CurrentDocument = directive.env.current_document
         self._events: EventManager = directive.env.events
         self.options: _AutoDocumenterOptions = directive.genopt
+        self.get_attr = directive.get_attr
         self.name = name
         self.indent: Final = indent
         self.module: ModuleType | None = None
@@ -618,12 +614,32 @@ class TypeAliasDocumenter(Documenter):
     }
 
 
-def autodoc_attrgetter(
-    obj: Any, name: str, *defargs: Any, registry: SphinxComponentRegistry
-) -> Any:
-    """Alternative getattr() for types"""
-    for typ, func in registry.autodoc_attrgetters.items():
-        if isinstance(obj, typ):
-            return func(obj, name, *defargs)
+class _AutodocAttrGetter:
+    """getattr() override for types such as Zope interfaces."""
 
-    return safe_getattr(obj, name, *defargs)
+    _attr_getters: Sequence[tuple[type, Callable[[Any, str, Any], Any]]]
+
+    __slots__ = ('_attr_getters',)
+
+    def __init__(
+        self, attr_getters: dict[type, Callable[[Any, str, Any], Any]], /
+    ) -> None:
+        super().__setattr__('_attr_getters', tuple(attr_getters.items()))
+
+    def __call__(self, obj: Any, name: str, *defargs: Any) -> Any:
+        for typ, func in self._attr_getters:
+            if isinstance(obj, typ):
+                return func(obj, name, *defargs)
+
+        return safe_getattr(obj, name, *defargs)
+
+    def __repr__(self) -> str:
+        return f'_AutodocAttrGetter({dict(self._attr_getters)!r})'
+
+    def __setattr__(self, key: str, value: Any) -> NoReturn:
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
+
+    def __delattr__(self, key: str) -> NoReturn:
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)

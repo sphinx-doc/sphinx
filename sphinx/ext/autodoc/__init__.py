@@ -35,7 +35,6 @@ from sphinx.ext.autodoc._documenters import (
     ModuleDocumenter,
     PropertyDocumenter,
     TypeAliasDocumenter,
-    autodoc_attrgetter,
 )
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
 from sphinx.ext.autodoc._member_finder import ObjectMember, special_member_re
@@ -94,7 +93,6 @@ __all__ = (
     'ObjectMember',
     'py_ext_sig_re',
     'special_member_re',
-    'autodoc_attrgetter',
     'Documenter',
 )
 

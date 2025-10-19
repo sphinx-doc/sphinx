@@ -67,6 +67,7 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -220,8 +221,14 @@ class Autosummary(SphinxDirective):
 
     def run(self) -> list[Node]:
         opts = _AutoDocumenterOptions()
+        get_attr = _AutodocAttrGetter(self.env._registry.autodoc_attrgetters)
         self.bridge = DocumenterBridge(
-            self.env, self.state.document.reporter, opts, self.lineno, self.state
+            self.env,
+            self.state.document.reporter,
+            opts,
+            self.lineno,
+            self.state,
+            get_attr,
         )
 
         names = [
