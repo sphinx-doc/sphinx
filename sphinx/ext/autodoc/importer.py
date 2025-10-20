@@ -495,7 +495,7 @@ def _load_object_by_name(
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
-) -> tuple[_ItemProperties, Any] | None:
+) -> _ItemProperties | None:
     """Import and load the object given by *name*."""
     parsed = _parse_name(
         name=name,
@@ -916,7 +916,7 @@ def _load_object_by_name(
         f'{args} -> {retann}' if retann else str(args) for args, retann in signatures
     )
 
-    return props, parent
+    return props
 
 
 def _parse_name(
