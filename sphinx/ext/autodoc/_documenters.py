@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, NewType, TypeVar
 
 from docutils.statemachine import StringList
@@ -15,21 +16,19 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
-from sphinx.ext.autodoc._member_finder import _filter_members, _get_members_to_document
+from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
+from sphinx.ext.autodoc._member_finder import _document_members
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
-from sphinx.ext.autodoc._sentinels import ALL
-from sphinx.ext.autodoc.importer import _load_object_by_name, _resolve_name
 from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.inspect import safe_getattr
-from sphinx.util.typing import AnyTypeAliasType, restify, stringify_annotation
+from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from types import ModuleType
-    from typing import Any, ClassVar, Literal
+    from collections.abc import Callable, Sequence
+    from typing import Any, ClassVar, Final, Literal, NoReturn
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
@@ -44,7 +43,6 @@ if TYPE_CHECKING:
         _TypeStatementProperties,
     )
     from sphinx.ext.autodoc.directive import DocumenterBridge
-    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import OptionSpec, _RestifyMode
 
 logger = logging.getLogger('sphinx.ext.autodoc')
@@ -78,17 +76,8 @@ class Documenter:
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
     objtype: ClassVar = 'object'
-    #: indentation by which to indent the directive content
-    content_indent: ClassVar = '   '
-    #: priority if multiple documenters return True from can_document_member
-    priority: ClassVar = 0
-    #: order if autodoc_member_order is set to 'groupwise'
-    member_order: ClassVar = 0
     #: true if the generated content may contain titles
     titles_allowed: ClassVar = True
-
-    __uninitialized_global_variable__: ClassVar[bool] = False
-    """If True, support uninitialized (type annotation only) global variables"""
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
@@ -96,20 +85,8 @@ class Documenter:
         'noindex': bool_option,
     }
 
-    def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
-        """getattr() override for types such as Zope interfaces."""
-        return autodoc_attrgetter(obj, name, *defargs, registry=self.env._registry)
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        """Called to see if a member can be documented by this Documenter."""
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
-
     def __init__(
-        self, directive: DocumenterBridge, name: str, indent: str = ''
+        self, directive: DocumenterBridge, orig_name: str, indent: str = ''
     ) -> None:
         self.directive = directive
         self.config: Config = directive.env.config
@@ -117,23 +94,11 @@ class Documenter:
         self._current_document: _CurrentDocument = directive.env.current_document
         self._events: EventManager = directive.env.events
         self.options: _AutoDocumenterOptions = directive.genopt
-        self.name = name
-        self.indent = indent
-        # the module and object path within the module, and the fully
-        # qualified name (all set after resolve_name succeeds)
-        self.modname: str = ''
-        self.module: ModuleType | None = None
-        self.objpath: list[str] = []
-        self.fullname = ''
-        # the object to document (set after import_object succeeds)
-        self.object: Any = None
-        self.object_name = ''
-        # the parent/owner of the object to document
-        self.parent: Any = None
+        self.get_attr = directive.get_attr
+        self.orig_name = orig_name
+        self.indent: Final = indent
         # the module analyzer to get at attribute docs, or None
         self.analyzer: ModuleAnalyzer | None = None
-
-        self._load_object_has_been_called = False
 
         if isinstance(self, ModuleDocumenter):
             self.options = self.options.merge_member_options()
@@ -145,149 +110,14 @@ class Documenter:
                 self.options.special_members += ['__new__', '__init__']
             self.options = self.options.merge_member_options()
 
-    @property
-    def documenters(self) -> dict[str, type[Documenter]]:
-        """Returns registered Documenter classes"""
-        return self.env._registry.documenters
-
-    def add_line(self, line: str, source: str, *lineno: int) -> None:
+    def add_line(self, line: str, source: str, *lineno: int, indent: str) -> None:
         """Append one line of generated reST to the output."""
         if line.strip():  # not a blank line
-            self.directive.result.append(self.indent + line, source, *lineno)
+            self.directive.result.append(indent + line, source, *lineno)
         else:
             self.directive.result.append('', source, *lineno)
 
-    def _load_object_by_name(self) -> Literal[True] | None:
-        if self._load_object_has_been_called:
-            return True
-
-        ret = _load_object_by_name(
-            name=self.name,
-            objtype=self.objtype,  # type: ignore[arg-type]
-            mock_imports=self.config.autodoc_mock_imports,
-            type_aliases=self.config.autodoc_type_aliases,
-            current_document=self._current_document,
-            config=self.config,
-            env=self.env,
-            events=self._events,
-            get_attr=self.get_attr,
-            options=self.options,
-        )
-        if ret is None:
-            return None
-        props, module, parent = ret
-
-        self.props = props
-        self.modname = props.module_name
-        self.objpath = list(props.parts)
-        self.fullname = props.full_name
-        self.module = module
-        self.parent = parent
-        self.object_name = props.object_name
-        self.object = props._obj
-        if self.objtype == 'method':
-            if 'staticmethod' in props.properties:  # type: ignore[attr-defined]
-                # document static members before regular methods
-                self.member_order -= 1  # type: ignore[misc]
-            elif 'classmethod' in props.properties:  # type: ignore[attr-defined]
-                # document class methods before static methods as
-                # they usually behave as alternative constructors
-                self.member_order -= 2  # type: ignore[misc]
-        self._load_object_has_been_called = True
-        return True
-
-    def resolve_name(
-        self, modname: str | None, parents: Any, path: str, base: str
-    ) -> tuple[str | None, list[str]]:
-        """Resolve the module and name of the object to document given by the
-        arguments and the current module/class.
-
-        Must return a pair of the module name and a chain of attributes; for
-        example, it would return ``('zipfile', ['ZipFile', 'open'])`` for the
-        ``zipfile.ZipFile.open`` method.
-        """
-        ret = _resolve_name(
-            objtype=self.objtype,
-            module_name=modname,
-            path=path,
-            base=base,
-            parents=parents,
-            current_document=self._current_document,
-            ref_context_py_module=self.env.ref_context.get('py:module'),
-            ref_context_py_class=self.env.ref_context.get('py:class', ''),
-        )
-        if ret is not None:
-            module_name, parts = ret
-            return module_name, list(parts)
-
-        msg = 'must be implemented in subclasses'
-        raise NotImplementedError(msg)
-
-    def parse_name(self) -> bool:
-        """Determine what module to import and what attribute to document.
-
-        Returns True and sets *self.modname*, *self.objpath*, *self.fullname*,
-        *self.args* and *self.retann* if parsing and resolving was successful.
-        """
-        return self._load_object_by_name() is not None
-
-    def import_object(self, raiseerror: bool = False) -> bool:
-        """Import the object given by *self.modname* and *self.objpath* and set
-        it as *self.object*.
-
-        Returns True if successful, False if an error occurred.
-        """
-        return self._load_object_by_name() is not None
-
-    def get_real_modname(self) -> str:
-        """Get the real module name of an object to document.
-
-        It can differ from the name of the module through which the object was
-        imported.
-        """
-        return self.props._obj___module__ or self.props.module_name
-
-    def check_module(self) -> bool:
-        """Check if *self.object* is really defined in the module given by
-        *self.modname*.
-        """
-        if self.options.imported_members:
-            return True
-
-        subject = inspect.unpartial(self.props._obj)
-        modname = self.get_attr(subject, '__module__', None)
-        return not modname or modname == self.props.module_name
-
-    def format_args(self, **kwargs: Any) -> str:
-        """Format the argument signature of *self.object*.
-
-        Should return None if the object does not have a signature.
-        """
-        return ''
-
-    def format_name(self) -> str:
-        """Format the name of *self.object*.
-
-        This normally should be something that can be parsed by the generated
-        directive, but doesn't need to be (Sphinx will display it unparsed
-        then).
-        """
-        # normally the name doesn't contain the module (except for module
-        # directives of course)
-        return self.props.dotted_parts or self.props.module_name
-
-    def _call_format_args(self, **kwargs: Any) -> str:
-        if kwargs:
-            try:
-                return self.format_args(**kwargs)
-            except TypeError:
-                # avoid chaining exceptions, by putting nothing here
-                pass
-
-        # retry without arguments for old documenters
-        return self.format_args()
-
-    def add_directive_header(self) -> None:
+    def add_directive_header(self, *, indent: str) -> None:
         """Add the directive header and options to the generated content."""
         domain_name = getattr(self, 'domain', 'py')
         if self.objtype in {'class', 'exception'} and self.props.doc_as_attr:  # type: ignore[attr-defined]
@@ -301,9 +131,9 @@ class Documenter:
         else:
             is_final = False
 
-        indent = self.indent
         result = self.directive.result
-        sourcename = self.get_sourcename()
+        analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
+        source_name = _docstring_source_name(props=self.props, source=analyzer_source)
         for line in _directive_header_lines(
             autodoc_typehints=self.config.autodoc_typehints,
             directive_name=directive_name,
@@ -312,44 +142,31 @@ class Documenter:
             props=self.props,
         ):
             if line.strip():  # not a blank line
-                result.append(indent + line, sourcename)
+                result.append(indent + line, source_name)
             else:
-                result.append('', sourcename)
+                result.append('', source_name)
 
-    def get_sourcename(self) -> str:
-        obj_module = inspect.safe_getattr(self.props._obj, '__module__', None)
-        obj_qualname = inspect.safe_getattr(self.props._obj, '__qualname__', None)
-        if obj_module and obj_qualname:
-            # Get the correct location of docstring from self.object
-            # to support inherited methods
-            fullname = f'{self.props._obj.__module__}.{self.props._obj.__qualname__}'
-        else:
-            fullname = self.props.full_name
-
-        if self.analyzer:
-            return f'{self.analyzer.srcname}:docstring of {fullname}'
-        else:
-            return 'docstring of %s' % fullname
-
-    def add_content(self, more_content: StringList | None) -> None:
+    def add_content(self, more_content: StringList | None, *, indent: str) -> None:
         """Add content from docstrings, attribute documentation and user."""
         # add content from docstrings
+        attr_docs = {} if self.analyzer is None else self.analyzer.attr_docs
+        analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
         processed_doc = StringList(
             list(
-                self._process_docstrings(
-                    self._get_docstrings(),
+                _process_docstrings(
+                    _prepare_docstrings(props=self.props, attr_docs=attr_docs),
                     events=self._events,
                     props=self.props,
                     obj=self.props._obj,
                     options=self.options,
                 )
             ),
-            source=self.get_sourcename(),
+            source=_docstring_source_name(props=self.props, source=analyzer_source),
         )
         _add_content(
             processed_doc,
             result=self.directive.result,
-            indent=self.indent + '   ' * (self.props.obj_type == 'module'),
+            indent=indent + '   ',
         )
 
         # add additional content (e.g. from document), if present
@@ -362,76 +179,8 @@ class Documenter:
         _add_content(
             more_content,
             result=self.directive.result,
-            indent=self.indent,
+            indent=indent + '   ' * (self.props.obj_type != 'module'),
         )
-
-    def _get_docstrings(self) -> list[list[str]] | None:
-        """Add content from docstrings, attribute documentation and user."""
-        if self.props._docstrings is not None:
-            docstrings = [list(doc) for doc in self.props._docstrings]
-        else:
-            docstrings = None
-        props = self.props
-
-        if docstrings is not None and len(docstrings) == 0:
-            # append at least a dummy docstring, so that the event
-            # autodoc-process-docstring is fired and can add some
-            # content if desired
-            docstrings.append([])
-
-        if props.obj_type in {'data', 'attribute'}:
-            return docstrings
-
-        attr_docs = None if self.analyzer is None else self.analyzer.find_attr_docs()
-        if props.obj_type in {'class', 'exception'}:
-            real_module = props._obj___module__ or props.module_name
-            if props.module_name != real_module:
-                try:
-                    # override analyzer to obtain doc-comment around its definition.
-                    ma = ModuleAnalyzer.for_module(props.module_name)
-                    ma.analyze()
-                    attr_docs = ma.attr_docs
-                except PycodeError:
-                    pass
-
-        # add content from attribute documentation
-        if attr_docs is not None and props.parts:
-            key = ('.'.join(props.parent_names), props.name)
-            if key in attr_docs:
-                # make a copy of docstring for attributes to avoid cache
-                # the change of autodoc-process-docstring event.
-                return [list(attr_docs[key])]
-
-        return docstrings
-
-    @staticmethod
-    def _process_docstrings(
-        docstrings: list[list[str]] | None,
-        *,
-        events: EventManager,
-        props: _ItemProperties,
-        obj: Any,
-        options: _AutoDocumenterOptions,
-    ) -> Iterator[str]:
-        """Let the user process the docstrings before adding them."""
-        if docstrings is None:
-            return
-        for docstring_lines in docstrings:
-            # let extensions preprocess docstrings
-            events.emit(
-                'autodoc-process-docstring',
-                props.obj_type,
-                props.full_name,
-                obj,
-                options,
-                docstring_lines,
-            )
-
-            if docstring_lines and docstring_lines[-1]:
-                # append a blank line to the end of the docstring
-                docstring_lines.append('')
-
-            yield from docstring_lines
 
     @staticmethod
     def _assemble_more_content(
@@ -503,74 +252,6 @@ class Documenter:
 
         return more_content
 
-    def sort_members(
-        self, documenters: list[tuple[Documenter, bool]], order: str
-    ) -> list[tuple[Documenter, bool]]:
-        """Sort the given member list."""
-        if order == 'groupwise':
-            # sort by group; alphabetically within groups
-            documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
-        elif order == 'bysource':
-            if (
-                isinstance(self, ModuleDocumenter)
-                and not self.options.ignore_module_all
-                and (module_all := self.props.all)
-            ):
-                # Sort by __all__
-                module_all_idx = {name: idx for idx, name in enumerate(module_all)}
-                module_all_len = len(module_all)
-
-                def key_func(entry: tuple[Documenter, bool]) -> int:
-                    fullname = entry[0].name.split('::')[1]
-                    return module_all_idx.get(fullname, module_all_len)
-
-                documenters.sort(key=key_func)
-
-            # By default, member discovery order matches source order,
-            # as dicts are insertion-ordered from Python 3.7.
-            elif self.analyzer is not None:
-                # sort by source order, by virtue of the module analyzer
-                tagorder = self.analyzer.tagorder
-                tagorder_len = len(tagorder)
-
-                def key_func(entry: tuple[Documenter, bool]) -> int:
-                    fullname = entry[0].name.split('::')[1]
-                    return tagorder.get(fullname, tagorder_len)
-
-                documenters.sort(key=key_func)
-        else:  # alphabetical
-            documenters.sort(key=lambda e: e[0].name)
-
-        return documenters
-
-    def generate(
-        self,
-        more_content: StringList | None = None,
-        real_modname: str | None = None,
-        check_module: bool = False,
-        all_members: bool = False,
-    ) -> None:
-        """Generate reST for the object given by *self.name*, and possibly for
-        its members.
-
-        If *more_content* is given, include that content. If *real_modname* is
-        given, use that module name to find attribute docs. If *check_module* is
-        True, only generate if the object is defined in the module name it is
-        imported from. If *all_members* is True, document all members.
-        """
-        if isinstance(self, ClassDocumenter):
-            # Do not pass real_modname and use the name from the __module__
-            # attribute of the class.
-            # If a class gets imported into the module real_modname
-            # the analyzer won't find the source of the class, if
-            # it looks in real_modname.
-            real_modname = None
-
-        if self._load_object_by_name() is None:
-            return
-
-        self._generate(more_content, real_modname, check_module, all_members)
-
     def _generate(
         self,
         more_content: StringList | None = None,
@@ -578,9 +259,21 @@ class Documenter:
         check_module: bool = False,
         all_members: bool = False,
     ) -> None:
-        has_members = isinstance(self, ModuleDocumenter) or (
-            isinstance(self, ClassDocumenter) and not self.props.doc_as_attr
-        )
+        """Generate reST for the object given by *self.props*, and possibly for
+        its members.
+
+        If *more_content* is given, include that content. If *real_modname* is
+        given, use that module name to find attribute docs. If *check_module* is
+        True, only generate if the object is defined in the module name it is
+        imported from. If *all_members* is True, document all members.
+        """
+        if self.props.obj_type in {'class', 'exception'}:
+            # Do not pass real_modname and use the name from the __module__
+            # attribute of the class.
+            # If a class gets imported into the module real_modname
+            # the analyzer won't find the source of the class, if
+            # it looks in real_modname.
+            real_modname = None
 
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
@@ -600,25 +293,27 @@ class Documenter:
             logger.debug('[autodoc] module analyzer failed: %s', exc)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
-            # at least add the module.__file__ as a dependency
-            if module___file__ := getattr(self.module, '__file__', ''):
-                self.directive.record_dependencies.add(module___file__)
+            # at least add the module source file as a dependency
+            if self.props.module_name:
+                try:
+                    module_spec = sys.modules[self.props.module_name].__spec__
+                except (AttributeError, KeyError):
+                    pass
+                else:
+                    if (
+                        module_spec is not None
+                        and module_spec.has_location
+                        and module_spec.origin
+                    ):
+                        self.directive.record_dependencies.add(module_spec.origin)
         else:
             self.directive.record_dependencies.add(self.analyzer.srcname)
-
-        want_all = bool(
-            all_members or self.options.inherited_members or self.options.members is ALL
-        )
-        if has_members:
-            member_documenters = self._gather_members(
-                want_all=want_all, indent=self.indent + self.content_indent
-            )
 
         if self.real_modname != guess_modname:
             # Add module to dependency list if target object is defined in other module.
             try:
-                analyzer = ModuleAnalyzer.for_module(guess_modname)
-                self.directive.record_dependencies.add(analyzer.srcname)
+                srcname = ModuleAnalyzer.for_module(guess_modname).srcname
+                self.directive.record_dependencies.add(srcname)
             except PycodeError:
                 pass
 
@@ -626,7 +321,7 @@ class Documenter:
         if ismock(self.props._obj) and not has_docstring:
             logger.warning(
                 __('A mocked object is detected: %r'),
-                self.name,
+                self.props.full_name,
                 type='autodoc',
                 subtype='mocked_object',
             )
@@ -638,130 +333,41 @@ class Documenter:
             if modname and modname != self.props.module_name:
                 return
 
-        sourcename = self.get_sourcename()
+        indent = self.indent
+        analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
+        source_name = _docstring_source_name(props=self.props, source=analyzer_source)
 
         # make sure that the result starts with an empty line.  This is
         # necessary for some situations where another directive preprocesses
         # reST and no starting newline is present
-        self.add_line('', sourcename)
+        self.directive.result.append('', source_name)
 
         # generate the directive header and options, if applicable
-        self.add_directive_header()
-        self.add_line('', sourcename)
-
-        # e.g. the module directive doesn't have content
-        self.indent += self.content_indent
+        self.add_directive_header(indent=indent)
+        self.directive.result.append('', source_name)
 
         # add all content (from docstrings, attribute docs etc.)
-        self.add_content(more_content)
+        self.add_content(more_content, indent=indent)
 
         # document members, if possible
-        if has_members:
-            # for implicit module members, check __module__ to avoid
-            # documenting imported objects
-            members_check_module = bool(
-                isinstance(self, ModuleDocumenter)
-                and want_all
-                and (self.options.ignore_module_all or self.props.all is None)
-            )
-            _document_members(
-                member_documenters=member_documenters,
-                real_modname=self.real_modname,
-                members_check_module=members_check_module,
-            )
-
-    def _gather_members(
-        self, *, want_all: bool, indent: str
-    ) -> list[tuple[Documenter, bool]]:
-        """Generate reST for member documentation.
-
-        If *want_all* is True, document all members, else those given by
-        *self.options.members*.
-        """
-        if not isinstance(self, (ModuleDocumenter, ClassDocumenter)):
-            msg = 'must be implemented in subclasses'
-            raise NotImplementedError(msg)
-
-        current_document = self._current_document
-        events = self._events
-        registry = self.env._registry
-        props = self.props
-
-        # set current namespace for finding members
-        current_document.autodoc_module = props.module_name
-        if props.parts:
-            current_document.autodoc_class = props.parts[0]
-
-        inherited_members = frozenset(self.options.inherited_members or ())
-        if self.analyzer:
-            self.analyzer.analyze()
-            attr_docs = self.analyzer.attr_docs
-        else:
-            attr_docs = {}
-        found_members = _get_members_to_document(
-            want_all=want_all,
+        analyzer = self.analyzer
+        if analyzer is not None:
+            analyzer.analyze()
+        _document_members(
+            all_members=all_members,
+            analyzer_order=analyzer.tagorder if analyzer is not None else {},
+            attr_docs=analyzer.attr_docs if analyzer is not None else {},
+            config=self.config,
+            current_document=self._current_document,
+            directive=self.directive,
+            events=self._events,
             get_attr=self.get_attr,
-            inherit_docstrings=self.config.autodoc_inherit_docstrings,
-            props=props,
-            opt_members=self.options.members or (),
-            inherited_members=inherited_members,
-            ignore_module_all=bool(self.options.ignore_module_all),
-            attr_docs=attr_docs,
-        )
-        filtered_members = _filter_members(
-            found_members,
-            want_all=want_all,
-            events=events,
-            get_attr=self.get_attr,
-            inherit_docstrings=self.config.autodoc_inherit_docstrings,
+            indent=indent,
             options=self.options,
-            orig_name=self.name,
-            props=props,
-            inherited_members=inherited_members,
-            exclude_members=self.options.exclude_members,
-            special_members=self.options.special_members,
-            private_members=self.options.private_members,
-            undoc_members=self.options.undoc_members,
-            attr_docs=attr_docs,
+            props=self.props,
+            real_modname=self.real_modname,
+            registry=self.env._registry,
         )
-        # document non-skipped members
-        member_documenters: list[tuple[Documenter, bool]] = []
-        for member_name, member, is_attr in filtered_members:
-            # prefer the documenter with the highest priority
-            doccls = max(
-                (
-                    cls
-                    for cls in registry.documenters.values()
-                    if cls.can_document_member(member, member_name, is_attr, self)
-                ),
-                key=lambda cls: cls.priority,
-                default=None,
-            )
-            if doccls is None:
-                # don't know how to document this member
-                continue
-            # give explicitly separated module name, so that members
-            # of inner classes can be documented
-            module_prefix = f'{props.module_name}::'
-            full_mname = module_prefix + '.'.join((*props.parts, member_name))
-            documenter = doccls(self.directive, full_mname, indent)
-
-            # We now try to import all objects before ordering them. This is to
-            # avoid possible circular imports if we were to import objects after
-            # their associated documenters have been sorted.
-            if documenter._load_object_by_name() is None:
-                continue
-
-            member_documenters.append((documenter, is_attr))
-
-        member_order = self.options.member_order or self.config.autodoc_member_order
-        member_documenters = self.sort_members(member_documenters, member_order)
-
-        # reset current objects
-        current_document.autodoc_module = ''
-        current_document.autodoc_class = ''
-
-        return member_documenters
 
 
 class ModuleDocumenter(Documenter):
@@ -770,8 +376,6 @@ class ModuleDocumenter(Documenter):
     props: _ModuleProperties
 
     objtype = 'module'
-    content_indent = ''
-    _extra_indent = '   '
 
     option_spec: ClassVar[OptionSpec] = {
         'members': members_option,
@@ -793,13 +397,6 @@ class ModuleDocumenter(Documenter):
         'noindex': bool_option,
     }
 
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        # don't document submodules automatically
-        return False
-
 
 class FunctionDocumenter(Documenter):
     """Specialized Documenter subclass for functions."""
@@ -807,18 +404,6 @@ class FunctionDocumenter(Documenter):
     props: _FunctionDefProperties
 
     objtype = 'function'
-    member_order = 30
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        # supports functions, builtins and bound methods exported at the module level
-        return (
-            inspect.isfunction(member)
-            or inspect.isbuiltin(member)
-            or (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter))
-        )
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -828,9 +413,6 @@ class DecoratorDocumenter(FunctionDocumenter):
 
     objtype = 'decorator'
 
-    # must be lower than FunctionDocumenter
-    priority = FunctionDocumenter.priority - 1
-
 
 class ClassDocumenter(Documenter):
     """Specialized Documenter subclass for classes."""
@@ -838,7 +420,6 @@ class ClassDocumenter(Documenter):
     props: _ClassDefProperties
 
     objtype = 'class'
-    member_order = 20
     option_spec: ClassVar[OptionSpec] = {
         'members': members_option,
         'undoc-members': bool_option,
@@ -854,35 +435,6 @@ class ClassDocumenter(Documenter):
         'noindex': bool_option,
     }
 
-    # Must be higher than FunctionDocumenter, ClassDocumenter, and
-    # AttributeDocumenter as NewType can be an attribute and is a class
-    # after Python 3.10.
-    priority = 15
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        return isinstance(member, type) or (
-            isattr and isinstance(member, (NewType, TypeVar))
-        )
-
-    def get_canonical_fullname(self) -> str | None:
-        __modname__ = safe_getattr(
-            self.props._obj, '__module__', self.props.module_name
-        )
-        __qualname__ = safe_getattr(self.props._obj, '__qualname__', None)
-        if __qualname__ is None:
-            __qualname__ = safe_getattr(self.props._obj, '__name__', None)
-        if __qualname__ and '<locals>' in __qualname__:
-            # No valid qualname found if the object is defined as locals
-            __qualname__ = None
-
-        if __modname__ and __qualname__:
-            return f'{__modname__}.{__qualname__}'
-        else:
-            return None
-
 
 class ExceptionDocumenter(ClassDocumenter):
     """Specialized ClassDocumenter subclass for exceptions."""
@@ -890,26 +442,6 @@ class ExceptionDocumenter(ClassDocumenter):
     props: _ClassDefProperties
 
     objtype = 'exception'
-    member_order = 10
-
-    # needs a higher priority than ClassDocumenter
-    priority = ClassDocumenter.priority + 5
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        try:
-            return isinstance(member, type) and issubclass(member, BaseException)
-        except TypeError as exc:
-            # It's possible for a member to be considered a type, but fail
-            # issubclass checks due to not being a class. For example:
-            # https://github.com/sphinx-doc/sphinx/issues/11654#issuecomment-1696790436
-            msg = (
-                f'{cls.__name__} failed to discern if member {member} with'
-                f' membername {membername} is a BaseException subclass.'
-            )
-            raise ValueError(msg) from exc
 
 
 class DataDocumenter(Documenter):
@@ -917,20 +449,10 @@ class DataDocumenter(Documenter):
 
     props: _AssignStatementProperties
 
-    __uninitialized_global_variable__ = True
-
     objtype = 'data'
-    member_order = 40
-    priority = -10
     option_spec: ClassVar[OptionSpec] = dict(Documenter.option_spec)
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        return isinstance(parent, ModuleDocumenter) and isattr
 
 
 class MethodDocumenter(Documenter):
@@ -940,14 +462,6 @@ class MethodDocumenter(Documenter):
 
     objtype = 'method'
     directivetype = 'method'
-    member_order = 50
-    priority = 1  # must be more than FunctionDocumenter
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        return inspect.isroutine(member) and not isinstance(parent, ModuleDocumenter)
 
 
 class AttributeDocumenter(Documenter):
@@ -956,30 +470,9 @@ class AttributeDocumenter(Documenter):
     props: _AssignStatementProperties
 
     objtype = 'attribute'
-    member_order = 60
     option_spec: ClassVar[OptionSpec] = dict(Documenter.option_spec)
     option_spec['annotation'] = annotation_option
     option_spec['no-value'] = bool_option
-
-    # must be higher than the MethodDocumenter, else it will recognize
-    # some non-data descriptors as methods
-    priority = 10
-
-    @staticmethod
-    def is_function_or_method(obj: Any) -> bool:
-        return (
-            inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
-        )
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        if isinstance(parent, ModuleDocumenter):
-            return False
-        if inspect.isattributedescriptor(member):
-            return True
-        return not inspect.isroutine(member) and not isinstance(member, type)
 
 
 class PropertyDocumenter(Documenter):
@@ -988,27 +481,6 @@ class PropertyDocumenter(Documenter):
     props: _FunctionDefProperties
 
     objtype = 'property'
-    member_order = 60
-
-    # before AttributeDocumenter
-    priority = AttributeDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        if isinstance(parent, ClassDocumenter):
-            if inspect.isproperty(member):
-                return True
-            else:
-                # See FakeDirective &c in autosummary, parent might not be a
-                # 'proper' Documenter.
-                obj = parent.props._obj if hasattr(parent, 'props') else None
-                __dict__ = safe_getattr(obj, '__dict__', {})
-                obj = __dict__.get(membername)
-                return isinstance(obj, classmethod) and inspect.isproperty(obj.__func__)
-        else:
-            return False
 
 
 class TypeAliasDocumenter(Documenter):
@@ -1017,7 +489,6 @@ class TypeAliasDocumenter(Documenter):
     props: _TypeStatementProperties
 
     objtype = 'type'
-    member_order = 70
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
         'no-index-entry': bool_option,
@@ -1025,56 +496,48 @@ class TypeAliasDocumenter(Documenter):
         'no-value': bool_option,
     }
 
-    @classmethod
-    def can_document_member(
-        cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
-        return isinstance(member, AnyTypeAliasType)
+
+class _AutodocAttrGetter:
+    """getattr() override for types such as Zope interfaces."""
+
+    _attr_getters: Sequence[tuple[type, Callable[[Any, str, Any], Any]]]
+
+    __slots__ = ('_attr_getters',)
+
+    def __init__(
+        self, attr_getters: dict[type, Callable[[Any, str, Any], Any]], /
+    ) -> None:
+        super().__setattr__('_attr_getters', tuple(attr_getters.items()))
+
+    def __call__(self, obj: Any, name: str, *defargs: Any) -> Any:
+        for typ, func in self._attr_getters:
+            if isinstance(obj, typ):
+                return func(obj, name, *defargs)
+
+        return safe_getattr(obj, name, *defargs)
+
+    def __repr__(self) -> str:
+        return f'_AutodocAttrGetter({dict(self._attr_getters)!r})'
+
+    def __setattr__(self, key: str, value: Any) -> NoReturn:
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
+
+    def __delattr__(self, key: str) -> NoReturn:
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
 
 
-class DocstringSignatureMixin:
-    """Retained for compatibility."""
+def _docstring_source_name(*, props: _ItemProperties, source: str) -> str:
+    obj_module = inspect.safe_getattr(props._obj, '__module__', None)
+    obj_qualname = inspect.safe_getattr(props._obj, '__qualname__', None)
+    if obj_module and obj_qualname:
+        # Get the correct location of docstring from props._obj
+        # to support inherited methods
+        fullname = f'{obj_module}.{obj_qualname}'
+    else:
+        fullname = props.full_name
 
-
-class ModuleLevelDocumenter(Documenter):
-    """Retained for compatibility."""
-
-
-class ClassLevelDocumenter(Documenter):
-    """Retained for compatibility."""
-
-
-def autodoc_attrgetter(
-    obj: Any, name: str, *defargs: Any, registry: SphinxComponentRegistry
-) -> Any:
-    """Alternative getattr() for types"""
-    for typ, func in registry.autodoc_attrgetters.items():
-        if isinstance(obj, typ):
-            return func(obj, name, *defargs)
-
-    return safe_getattr(obj, name, *defargs)
-
-
-def _document_members(
-    *,
-    member_documenters: list[tuple[Documenter, bool]],
-    real_modname: str,
-    members_check_module: bool,
-) -> None:
-    """Generate reST for member documentation.
-
-    If *all_members* is True, document all members, else those given by
-    *self.options.members*.
-    """
-    for documenter, is_attr in member_documenters:
-        assert documenter.props.module_name
-        # We can directly call ._generate() since the documenters
-        # already called parse_name() and import_object() before.
-        #
-        # Note that those two methods above do not emit events, so
-        # whatever objects we deduced should not have changed.
-        documenter._generate(
-            all_members=True,
-            real_modname=real_modname,
-            check_module=members_check_module and not is_attr,
-        )
+    if source:
+        return f'{source}:docstring of {fullname}'
+    return f'docstring of {fullname}'

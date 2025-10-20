@@ -20,7 +20,7 @@ from sphinx.ext.autodoc._directive_options import (
     inherited_members_option,
 )
 from sphinx.ext.autodoc._docstrings import _get_docstring_lines
-from sphinx.ext.autodoc._documenters import ModuleLevelDocumenter, autodoc_attrgetter
+from sphinx.ext.autodoc._documenters import Documenter, _AutodocAttrGetter
 from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
     _FunctionDefProperties,
@@ -28,7 +28,11 @@ from sphinx.ext.autodoc._property_types import (
 )
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import _format_signatures, _parse_name
+from sphinx.ext.autodoc.importer import (
+    _format_signatures,
+    _load_object_by_name,
+    _parse_name,
+)
 from sphinx.util.inspect import safe_getattr
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -72,6 +76,7 @@ def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
         options=options,
         lineno=0,
         state=Mock(),
+        get_attr=safe_getattr,
     )
 
     return directive
@@ -133,9 +138,7 @@ def test_parse_name(app):
 
 
 def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
-    def get_attr(obj: Any, name: str, *defargs: Any) -> Any:
-        return autodoc_attrgetter(obj, name, *defargs, registry=app.registry)
-
+    get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
     options = _AutoDocumenterOptions(
         synopsis='',
         platform='',
@@ -424,9 +427,7 @@ def test_autodoc_process_signature_typehints(app):
         properties=frozenset(),
     )
 
-    def get_attr(obj: Any, name: str, *defargs: Any) -> Any:
-        return autodoc_attrgetter(obj, name, *defargs, registry=app.registry)
-
+    get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
     options = _AutoDocumenterOptions(
         synopsis='',
         platform='',
@@ -527,7 +528,7 @@ def test_get_docstring_lines(app):
     assert get_docstring_lines('function', J().foo, config=config) == expected
 
 
-class _MyDocumenter(ModuleLevelDocumenter):
+class _MyDocumenter(Documenter):
     objtype = 'integer'
     directivetype = 'integer'
     priority = 100
@@ -545,11 +546,8 @@ def test_new_documenter(app):
     app.add_autodocumenter(_MyDocumenter)
 
     options = {'members': 'integer'}
-    with pytest.raises(
-        NotImplementedError, match=r'^must be implemented in subclasses$'
-    ):
-        # TODO: Fix! Perhaps add a way to signal module/class-level?
-        actual = do_autodoc(app, 'module', 'target', options)
+    # TODO: Fix! Perhaps add a way to signal module/class-level?
+    actual = do_autodoc(app, 'module', 'target', options)
     return
     assert list(actual) == [
         '',
@@ -564,36 +562,59 @@ def test_new_documenter(app):
     ]
 
 
+getattr_spy = []
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_attrgetter_using(app):
-    directive = make_directive_bridge(app.env)
-    options = directive.genopt
-    options.members = ALL
-
-    options.inherited_members = inherited_members_option(False)
-    with catch_warnings(record=True):
-        _assert_getter_works(app, directive, 'class', 'target.Class', {'meth'})
-
-    options.inherited_members = inherited_members_option(True)
-    with catch_warnings(record=True):
-        _assert_getter_works(
-            app, directive, 'class', 'target.inheritance.Derived', {'inheritedmeth'}
-        )
-
-
-def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
-    getattr_spy = set()
+    attrs = []
 
     def _special_getattr(obj, attr_name, *defargs):
         if attr_name in attrs:
-            getattr_spy.add((obj, attr_name))
+            getattr_spy.append((obj, attr_name))
             return None
         return getattr(obj, attr_name, *defargs)
 
     app.add_autodoc_attrgetter(type, _special_getattr)
 
+    directive = make_directive_bridge(app.env)
+    directive.get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
+    options = directive.genopt
+    options.members = ALL
+
+    options.inherited_members = inherited_members_option(False)
+    attrs[:] = ['meth']
+    with catch_warnings(record=True):
+        _assert_getter_works(app, directive, 'class', 'target.Class', *attrs)
+
+    options.inherited_members = inherited_members_option(True)
+    attrs[:] = ['inheritedmeth']
+    with catch_warnings(record=True):
+        _assert_getter_works(
+            app, directive, 'class', 'target.inheritance.Derived', *attrs
+        )
+
+
+def _assert_getter_works(app, directive, objtype, name, *attrs):
     getattr_spy.clear()
-    app.registry.documenters[objtype](directive, name).generate(**kw)
+
+    doccls = app.registry.documenters[objtype]
+    documenter = doccls(directive, name)
+    props = _load_object_by_name(
+        name=name,
+        objtype=objtype,
+        mock_imports=app.config.autodoc_mock_imports,
+        type_aliases=app.config.autodoc_type_aliases,
+        current_document=app.env.current_document,
+        config=app.config,
+        env=app.env,
+        events=app.events,
+        get_attr=directive.get_attr,
+        options=documenter.options,
+    )
+    if props is not None:
+        documenter.props = props
+        documenter._generate()
 
     hooked_members = {s[1] for s in getattr_spy}
     documented_members = {s[1] for s in processed_signatures}

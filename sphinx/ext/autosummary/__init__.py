@@ -55,29 +55,26 @@ import posixpath
 import re
 import sys
 from inspect import Parameter
-from pathlib import Path
 from types import ModuleType
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx import addnodes
-from sphinx.config import Config
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
+from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import _format_signatures, import_module
+from sphinx.ext.autodoc.importer import _load_object_by_name, import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
-from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util.docutils import (
     NullReporter,
@@ -97,8 +94,10 @@ if TYPE_CHECKING:
     from docutils.nodes import Node, system_message
 
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
-    from sphinx.extension import Extension
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
+    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
 
@@ -157,31 +156,6 @@ def autosummary_table_visit_html(
 # -- autodoc integration -------------------------------------------------------
 
 
-class FakeApplication:
-    verbosity = 0
-
-    def __init__(self) -> None:
-        self.doctreedir = Path()
-        self.events = None
-        self.extensions: dict[str, Extension] = {}
-        self.srcdir = Path()
-        self.config = Config()
-        self.project = Project('', {})
-        self.registry = SphinxComponentRegistry()
-
-
-class FakeDirective(DocumenterBridge):
-    def __init__(self) -> None:
-        settings = Struct(tab_width=8)
-        document = Struct(settings=settings)
-        app = FakeApplication()
-        app.config.add('autodoc_class_signature', 'mixed', 'env', ())
-        env = BuildEnvironment(app)  # type: ignore[arg-type]
-        opts = _AutoDocumenterOptions()
-        state = Struct(document=document)
-        super().__init__(env, None, opts, 0, state)
-
-
 def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
@@ -190,12 +164,11 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     another Python object (e.g. a module or a class) to which *obj*
     belongs to.
     """
-    return _get_documenter(obj, parent, registry=app.registry)
+    obj_type = _get_documenter(obj, parent)
+    return app.registry.documenters[obj_type]
 
 
-def _get_documenter(
-    obj: Any, parent: Any, *, registry: SphinxComponentRegistry
-) -> type[Documenter]:
+def _get_documenter(obj: Any, parent: Any) -> _AutodocObjType:
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -203,34 +176,24 @@ def _get_documenter(
     another Python object (e.g. a module or a class) to which *obj*
     belongs to.
     """
-    from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
-
     if inspect.ismodule(obj):
-        # ModuleDocumenter.can_document_member always returns False
-        return ModuleDocumenter
+        return 'module'
 
-    # Construct a fake documenter for *parent*
-    if parent is not None:
-        parent_doc_cls = _get_documenter(parent, None, registry=registry)
+    if parent is None:
+        parent_obj_type = 'module'
     else:
-        parent_doc_cls = ModuleDocumenter
-
-    if hasattr(parent, '__name__'):
-        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
-    else:
-        parent_doc = parent_doc_cls(FakeDirective(), '')
+        parent_obj_type = _get_documenter(parent, None)
 
     # Get the correct documenter class for *obj*
-    classes = [
-        cls
-        for cls in registry.documenters.values()
-        if cls.can_document_member(obj, '', False, parent_doc)
-    ]
-    if classes:
-        classes.sort(key=lambda cls: cls.priority)
-        return classes[-1]
-    else:
-        return DataDocumenter
+    if obj_type := _best_object_type_for_member(
+        member=obj,
+        member_name='',
+        is_attr=False,
+        parent_obj_type=parent_obj_type,
+        parent_props=None,
+    ):
+        return obj_type
+    return 'data'
 
 
 # -- .. autosummary:: ----------------------------------------------------------
@@ -258,8 +221,14 @@ class Autosummary(SphinxDirective):
 
     def run(self) -> list[Node]:
         opts = _AutoDocumenterOptions()
+        get_attr = _AutodocAttrGetter(self.env._registry.autodoc_attrgetters)
         self.bridge = DocumenterBridge(
-            self.env, self.state.document.reporter, opts, self.lineno, self.state
+            self.env,
+            self.state.document.reporter,
+            opts,
+            self.lineno,
+            self.state,
+            get_attr,
         )
 
         names = [
@@ -346,7 +315,8 @@ class Autosummary(SphinxDirective):
 
         Wraps _get_documenter and is meant as a hook for extensions.
         """
-        doccls = _get_documenter(obj, parent, registry=registry)
+        obj_type = _get_documenter(obj, parent)
+        doccls = registry.documenters[obj_type]
         return doccls(self.bridge, full_name)
 
     def get_items(self, names: list[str]) -> list[tuple[str, str | None, str, str]]:
@@ -368,6 +338,12 @@ class Autosummary(SphinxDirective):
                 f"{signatures_option!r}. Valid values are 'none', 'short', 'long'"
             )
             raise ValueError(msg)
+
+        env = self.env
+        config = env.config
+        current_document = env.current_document
+        events = env.events
+        get_attr = self.bridge.get_attr
 
         max_item_chars = 50
 
@@ -391,26 +367,32 @@ class Autosummary(SphinxDirective):
                 )
                 continue
 
-            self.bridge.result = StringList()  # initialize for each documenter
-            full_name = real_name
-            if not isinstance(obj, ModuleType):
+            result = StringList()  # initialize for each documenter
+            obj_type = _get_documenter(obj, parent)
+            doccls = env._registry.documenters[obj_type]
+            if isinstance(obj, ModuleType):
+                full_name = real_name
+            else:
                 # give explicitly separated module name, so that members
                 # of inner classes can be documented
-                full_name = modname + '::' + full_name[len(modname) + 1 :]
+                full_name = f'{modname}::{real_name[len(modname) + 1 :]}'
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = self.create_documenter(
-                obj, parent, full_name, registry=self.env._registry
+            self.bridge.result = result
+            documenter = doccls(self.bridge, full_name)
+            props = _load_object_by_name(
+                name=full_name,
+                objtype=obj_type,
+                mock_imports=config.autodoc_mock_imports,
+                type_aliases=config.autodoc_type_aliases,
+                current_document=current_document,
+                config=config,
+                env=env,
+                events=events,
+                get_attr=get_attr,
+                options=documenter.options,
             )
-            if not documenter.parse_name():
-                logger.warning(
-                    __('failed to parse name %s'),
-                    real_name,
-                    location=self.get_location(),
-                )
-                items.append((display_name, '', '', real_name))
-                continue
-            if not documenter.import_object():
+            if props is None:
                 logger.warning(
                     __('failed to import object %s'),
                     real_name,
@@ -418,58 +400,40 @@ class Autosummary(SphinxDirective):
                 )
                 items.append((display_name, '', '', real_name))
                 continue
+            documenter.props = props
 
             # try to also get a source code analyzer for attribute docs
+            real_module = props._obj___module__ or props.module_name
             try:
-                documenter.analyzer = ModuleAnalyzer.for_module(
-                    documenter.get_real_modname()
-                )
+                analyzer = ModuleAnalyzer.for_module(real_module)
                 # parse right now, to get PycodeErrors on parsing (results will
                 # be cached anyway)
-                documenter.analyzer.find_attr_docs()
+                analyzer.analyze()
             except PycodeError as err:
                 logger.debug('[autodoc] module analyzer failed: %s', err)
                 # no source file -- e.g. for builtin and C modules
-                documenter.analyzer = None
+                analyzer = None
+            documenter.analyzer = analyzer
 
             # -- Grab the signature
 
             if signatures_option == 'none':
                 sig = None
-            else:
-                try:
-                    signatures = tuple(
-                        f'{args} -> {retann}' if retann else str(args)
-                        for args, retann in _format_signatures(
-                            config=documenter.config,
-                            events=documenter._events,
-                            get_attr=documenter.get_attr,
-                            options=documenter.options,
-                            parent=documenter.parent,
-                            props=documenter.props,
-                            show_annotation=False,
-                        )
-                    )
-                except TypeError:
-                    # the documenter does not support ``show_annotation`` option
-                    signatures = documenter.props.signatures
-                sig = '\n'.join(signatures)
-                if not sig:
-                    sig = ''
-                elif signatures_option == 'short':
-                    if sig != '()':
-                        sig = '(…)'
-                else:  # signatures_option == 'long'
-                    max_chars = max(10, max_item_chars - len(display_name))
-                    sig = mangle_signature(sig, max_chars=max_chars)
+            elif not props.signatures:
+                sig = ''
+            elif signatures_option == 'short':
+                sig = '()' if props.signatures == ('()',) else '(…)'
+            else:  # signatures_option == 'long'
+                max_chars = max(10, max_item_chars - len(display_name))
+                sig = mangle_signature('\n'.join(props.signatures), max_chars=max_chars)
 
             # -- Grab the summary
 
-            # bodge for ModuleDocumenter
-            documenter._extra_indent = ''  # type: ignore[attr-defined]
-
-            documenter.add_content(None)
-            summary = extract_summary(self.bridge.result.data[:], self.state.document)
+            documenter.add_content(None, indent=documenter.indent)
+            lines = result.data[:]
+            if props.obj_type != 'module':
+                lines[:] = [line.removeprefix('   ') for line in lines]
+            summary = extract_summary(lines, self.state.document)
 
             items.append((display_name, sig, summary, real_name))
 
