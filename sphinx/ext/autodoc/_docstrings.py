@@ -16,9 +16,11 @@ from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import getdoc
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator, Mapping, Sequence
     from typing import Any, Literal
 
+    from sphinx.events import EventManager
+    from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
     from sphinx.ext.autodoc.importer import _AttrGetter
 
@@ -26,6 +28,76 @@ logger = logging.getLogger('sphinx.ext.autodoc')
 
 _OBJECT_INIT_DOCSTRING = (tuple(prepare_docstring(object.__init__.__doc__ or '')),)
 _OBJECT_NEW_DOCSTRING = (tuple(prepare_docstring(object.__new__.__doc__ or '')),)
+
+
+def _prepare_docstrings(
+    *,
+    props: _ItemProperties,
+    attr_docs: Mapping[tuple[str, str], list[str]],
+) -> list[list[str]] | None:
+    """Add content from docstrings, attribute documentation and user."""
+    if props._docstrings is not None:
+        if props._docstrings:
+            docstrings = [list(doc) for doc in props._docstrings]
+        else:
+            # append at least a dummy docstring, so that the event
+            # autodoc-process-docstring is fired and can add some
+            # content if desired
+            docstrings = [[]]
+    else:
+        docstrings = None
+
+    if props.obj_type in {'data', 'attribute'}:
+        return docstrings
+
+    if props.obj_type in {'class', 'exception'}:
+        real_module = props._obj___module__ or props.module_name
+        if props.module_name != real_module:
+            try:
+                # override analyzer to obtain doc-comment around its definition.
+                ma = ModuleAnalyzer.for_module(props.module_name)
+                ma.analyze()
+                attr_docs = ma.attr_docs
+            except PycodeError:
+                pass
+
+    # add content from attribute documentation
+    if attr_docs and props.parts:
+        key = ('.'.join(props.parent_names), props.name)
+        if key in attr_docs:
+            # make a copy of docstring for attributes to avoid cache
+            # the change of autodoc-process-docstring event.
+            return [list(attr_docs[key])]
+
+    return docstrings
+
+
+def _process_docstrings(
+    docstrings: list[list[str]] | None,
+    *,
+    events: EventManager,
+    props: _ItemProperties,
+    obj: Any,
+    options: _AutoDocumenterOptions,
+) -> Iterator[str]:
+    """Let the user process the docstrings before adding them."""
+    if docstrings is None:
+        return
+    for docstring_lines in docstrings:
+        # let extensions pre-process docstrings
+        events.emit(
+            'autodoc-process-docstring',
+            props.obj_type,
+            props.full_name,
+            obj,
+            options,
+            docstring_lines,
+        )
+
+        yield from docstring_lines
+        if docstring_lines and docstring_lines[-1]:
+            # ensure the docstring ends with a blank line
+            yield ''
 
 
 def _get_docstring_lines(

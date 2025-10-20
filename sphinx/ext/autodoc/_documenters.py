@@ -16,6 +16,7 @@ from sphinx.ext.autodoc._directive_options import (
     member_order_option,
     members_option,
 )
+from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
 from sphinx.ext.autodoc._member_finder import _document_members
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
 from sphinx.ext.autodoc.importer import _load_object_by_name
@@ -27,7 +28,7 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Callable, Sequence
     from typing import Any, ClassVar, Final, Literal, NoReturn
 
     from sphinx.config import Config
@@ -181,12 +182,13 @@ class Documenter:
 
     def add_content(self, more_content: StringList | None, *, indent: str) -> None:
         """Add content from docstrings, attribute documentation and user."""
-        analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
         # add content from docstrings
+        attr_docs = {} if self.analyzer is None else self.analyzer.attr_docs
+        analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
         processed_doc = StringList(
             list(
-                self._process_docstrings(
-                    self._get_docstrings(),
+                _process_docstrings(
+                    _prepare_docstrings(props=self.props, attr_docs=attr_docs),
                     events=self._events,
                     props=self.props,
                     obj=self.props._obj,
@@ -213,74 +215,6 @@ class Documenter:
             result=self.directive.result,
             indent=indent + '   ' * (self.props.obj_type != 'module'),
         )
-
-    def _get_docstrings(self) -> list[list[str]] | None:
-        """Add content from docstrings, attribute documentation and user."""
-        if self.props._docstrings is not None:
-            docstrings = [list(doc) for doc in self.props._docstrings]
-        else:
-            docstrings = None
-        props = self.props
-
-        if docstrings is not None and len(docstrings) == 0:
-            # append at least a dummy docstring, so that the event
-            # autodoc-process-docstring is fired and can add some
-            # content if desired
-            docstrings.append([])
-
-        if props.obj_type in {'data', 'attribute'}:
-            return docstrings
-
-        attr_docs = None if self.analyzer is None else self.analyzer.find_attr_docs()
-        if props.obj_type in {'class', 'exception'}:
-            real_module = props._obj___module__ or props.module_name
-            if props.module_name != real_module:
-                try:
-                    # override analyzer to obtain doc-comment around its definition.
-                    ma = ModuleAnalyzer.for_module(props.module_name)
-                    ma.analyze()
-                    attr_docs = ma.attr_docs
-                except PycodeError:
-                    pass
-
-        # add content from attribute documentation
-        if attr_docs is not None and props.parts:
-            key = ('.'.join(props.parent_names), props.name)
-            if key in attr_docs:
-                # make a copy of docstring for attributes to avoid cache
-                # the change of autodoc-process-docstring event.
-                return [list(attr_docs[key])]
-
-        return docstrings
-
-    @staticmethod
-    def _process_docstrings(
-        docstrings: list[list[str]] | None,
-        *,
-        events: EventManager,
-        props: _ItemProperties,
-        obj: Any,
-        options: _AutoDocumenterOptions,
-    ) -> Iterator[str]:
-        """Let the user process the docstrings before adding them."""
-        if docstrings is None:
-            return
-        for docstring_lines in docstrings:
-            # let extensions preprocess docstrings
-            events.emit(
-                'autodoc-process-docstring',
-                props.obj_type,
-                props.full_name,
-                obj,
-                options,
-                docstring_lines,
-            )
-
-            if docstring_lines and docstring_lines[-1]:
-                # append a blank line to the end of the docstring
-                docstring_lines.append('')
-
-            yield from docstring_lines
 
     @staticmethod
     def _assemble_more_content(
