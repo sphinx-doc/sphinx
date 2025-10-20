@@ -19,7 +19,6 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
 from sphinx.ext.autodoc._member_finder import _document_members
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
-from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
