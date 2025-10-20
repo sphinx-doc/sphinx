@@ -253,39 +253,6 @@ class Documenter:
 
         return more_content
 
-    def generate(
-        self,
-        more_content: StringList | None = None,
-        real_modname: str | None = None,
-        check_module: bool = False,
-        all_members: bool = False,
-    ) -> None:
-        """Generate reST for the object given by *self.orig_name*, and possibly for
-        its members.
-
-        If *more_content* is given, include that content. If *real_modname* is
-        given, use that module name to find attribute docs. If *check_module* is
-        True, only generate if the object is defined in the module name it is
-        imported from. If *all_members* is True, document all members.
-        """
-        props = _load_object_by_name(
-            name=self.orig_name,
-            objtype=self.objtype,  # type: ignore[arg-type]
-            mock_imports=self.config.autodoc_mock_imports,
-            type_aliases=self.config.autodoc_type_aliases,
-            current_document=self._current_document,
-            config=self.config,
-            env=self.env,
-            events=self._events,
-            get_attr=self.get_attr,
-            options=self.options,
-        )
-        if props is None:
-            return
-        self.props = props
-
-        self._generate(more_content, real_modname, check_module, all_members)
-
     def _generate(
         self,
         more_content: StringList | None = None,
@@ -293,6 +260,14 @@ class Documenter:
         check_module: bool = False,
         all_members: bool = False,
     ) -> None:
+        """Generate reST for the object given by *self.props*, and possibly for
+        its members.
+
+        If *more_content* is given, include that content. If *real_modname* is
+        given, use that module name to find attribute docs. If *check_module* is
+        True, only generate if the object is defined in the module name it is
+        imported from. If *all_members* is True, document all members.
+        """
         if self.props.obj_type in {'class', 'exception'}:
             # Do not pass real_modname and use the name from the __module__
             # attribute of the class.
