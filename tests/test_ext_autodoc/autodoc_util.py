@@ -10,6 +10,7 @@ from sphinx.ext.autodoc._directive_options import (
 
 # NEVER import those objects from sphinx.ext.autodoc directly
 from sphinx.ext.autodoc.directive import DocumenterBridge
+from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.inspect import safe_getattr
 
@@ -43,5 +44,19 @@ def do_autodoc(
         app.env, LoggingReporter(''), docoptions, 1, state, safe_getattr
     )
     documenter = doccls(bridge, name)
-    documenter.generate()
+    props = _load_object_by_name(
+        name=name,
+        objtype=obj_type,
+        mock_imports=app.config.autodoc_mock_imports,
+        type_aliases=app.config.autodoc_type_aliases,
+        current_document=app.env.current_document,
+        config=app.config,
+        env=app.env,
+        events=app.events,
+        get_attr=safe_getattr,
+        options=documenter.options,
+    )
+    if props is not None:
+        documenter.props = props
+        documenter._generate()
     return bridge.result

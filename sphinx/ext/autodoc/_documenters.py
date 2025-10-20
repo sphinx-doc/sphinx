@@ -19,7 +19,6 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
 from sphinx.ext.autodoc._member_finder import _document_members
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
-from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
@@ -98,12 +97,8 @@ class Documenter:
         self.get_attr = directive.get_attr
         self.orig_name = orig_name
         self.indent: Final = indent
-        # the parent/owner of the object to document
-        self.parent: Any = None
         # the module analyzer to get at attribute docs, or None
         self.analyzer: ModuleAnalyzer | None = None
-
-        self._load_object_has_been_called = False
 
         if isinstance(self, ModuleDocumenter):
             self.options = self.options.merge_member_options()
@@ -121,35 +116,6 @@ class Documenter:
             self.directive.result.append(indent + line, source, *lineno)
         else:
             self.directive.result.append('', source, *lineno)
-
-    def _load_object_by_name(self) -> Literal[True] | None:
-        """Import the object given by *self.orig_name*.
-
-        Returns True if parsing and resolving was successful, otherwise None.
-        """
-        if self._load_object_has_been_called:
-            return True
-
-        ret = _load_object_by_name(
-            name=self.orig_name,
-            objtype=self.objtype,  # type: ignore[arg-type]
-            mock_imports=self.config.autodoc_mock_imports,
-            type_aliases=self.config.autodoc_type_aliases,
-            current_document=self._current_document,
-            config=self.config,
-            env=self.env,
-            events=self._events,
-            get_attr=self.get_attr,
-            options=self.options,
-        )
-        if ret is None:
-            return None
-        props, parent = ret
-
-        self.props = props
-        self.parent = parent
-        self._load_object_has_been_called = True
-        return True
 
     def add_directive_header(self, *, indent: str) -> None:
         """Add the directive header and options to the generated content."""
@@ -286,34 +252,6 @@ class Documenter:
 
         return more_content
 
-    def generate(
-        self,
-        more_content: StringList | None = None,
-        real_modname: str | None = None,
-        check_module: bool = False,
-        all_members: bool = False,
-    ) -> None:
-        """Generate reST for the object given by *self.orig_name*, and possibly for
-        its members.
-
-        If *more_content* is given, include that content. If *real_modname* is
-        given, use that module name to find attribute docs. If *check_module* is
-        True, only generate if the object is defined in the module name it is
-        imported from. If *all_members* is True, document all members.
-        """
-        if isinstance(self, ClassDocumenter):
-            # Do not pass real_modname and use the name from the __module__
-            # attribute of the class.
-            # If a class gets imported into the module real_modname
-            # the analyzer won't find the source of the class, if
-            # it looks in real_modname.
-            real_modname = None
-
-        if self._load_object_by_name() is None:
-            return
-
-        self._generate(more_content, real_modname, check_module, all_members)
-
     def _generate(
         self,
         more_content: StringList | None = None,
@@ -321,6 +259,22 @@ class Documenter:
         check_module: bool = False,
         all_members: bool = False,
     ) -> None:
+        """Generate reST for the object given by *self.props*, and possibly for
+        its members.
+
+        If *more_content* is given, include that content. If *real_modname* is
+        given, use that module name to find attribute docs. If *check_module* is
+        True, only generate if the object is defined in the module name it is
+        imported from. If *all_members* is True, document all members.
+        """
+        if self.props.obj_type in {'class', 'exception'}:
+            # Do not pass real_modname and use the name from the __module__
+            # attribute of the class.
+            # If a class gets imported into the module real_modname
+            # the analyzer won't find the source of the class, if
+            # it looks in real_modname.
+            real_modname = None
+
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
         # where the attribute documentation would actually be found in.

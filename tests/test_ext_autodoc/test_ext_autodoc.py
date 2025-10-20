@@ -28,7 +28,11 @@ from sphinx.ext.autodoc._property_types import (
 )
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import _format_signatures, _parse_name
+from sphinx.ext.autodoc.importer import (
+    _format_signatures,
+    _load_object_by_name,
+    _parse_name,
+)
 from sphinx.util.inspect import safe_getattr
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -594,8 +598,23 @@ def test_attrgetter_using(app):
 def _assert_getter_works(app, directive, objtype, name, *attrs):
     getattr_spy.clear()
 
-    doccls = app.registry.documenters[objtype](directive, name)
-    doccls.generate()
+    doccls = app.registry.documenters[objtype]
+    documenter = doccls(directive, name)
+    props = _load_object_by_name(
+        name=name,
+        objtype=objtype,
+        mock_imports=app.config.autodoc_mock_imports,
+        type_aliases=app.config.autodoc_type_aliases,
+        current_document=app.env.current_document,
+        config=app.config,
+        env=app.env,
+        events=app.events,
+        get_attr=directive.get_attr,
+        options=documenter.options,
+    )
+    if props is not None:
+        documenter.props = props
+        documenter._generate()
 
     hooked_members = {s[1] for s in getattr_spy}
     documented_members = {s[1] for s in processed_signatures}

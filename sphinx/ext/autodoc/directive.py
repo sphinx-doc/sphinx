@@ -11,6 +11,7 @@ from sphinx.ext.autodoc._directive_options import (
     _process_documenter_options,
 )
 from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
+from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
@@ -145,7 +146,21 @@ class AutodocDirective(SphinxDirective):
             self.env, reporter, documenter_options, lineno, self.state, get_attr
         )
         documenter = doccls(params, self.arguments[0])
-        documenter.generate(more_content=self.content)
+        props = _load_object_by_name(
+            name=self.arguments[0],
+            objtype=objtype,  # type: ignore[arg-type]
+            mock_imports=self.config.autodoc_mock_imports,
+            type_aliases=self.config.autodoc_type_aliases,
+            current_document=self.env.current_document,
+            config=self.config,
+            env=self.env,
+            events=self.env.events,
+            get_attr=get_attr,
+            options=documenter.options,
+        )
+        if props is not None:
+            documenter.props = props
+            documenter._generate(more_content=self.content)
         if not params.result:
             return []
 

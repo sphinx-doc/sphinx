@@ -71,7 +71,7 @@ from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autodoc.importer import _load_object_by_name, import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -339,6 +339,12 @@ class Autosummary(SphinxDirective):
             )
             raise ValueError(msg)
 
+        env = self.env
+        config = env.config
+        current_document = env.current_document
+        events = env.events
+        get_attr = self.bridge.get_attr
+
         max_item_chars = 50
 
         for name in names:
@@ -363,7 +369,7 @@ class Autosummary(SphinxDirective):
 
             result = StringList()  # initialize for each documenter
             obj_type = _get_documenter(obj, parent)
-            doccls = self.env._registry.documenters[obj_type]
+            doccls = env._registry.documenters[obj_type]
             if isinstance(obj, ModuleType):
                 full_name = real_name
             else:
@@ -374,7 +380,19 @@ class Autosummary(SphinxDirective):
             #     handle module prefixes slightly differently
             self.bridge.result = result
             documenter = doccls(self.bridge, full_name)
-            if documenter._load_object_by_name() is None:
+            props = _load_object_by_name(
+                name=full_name,
+                objtype=obj_type,
+                mock_imports=config.autodoc_mock_imports,
+                type_aliases=config.autodoc_type_aliases,
+                current_document=current_document,
+                config=config,
+                env=env,
+                events=events,
+                get_attr=get_attr,
+                options=documenter.options,
+            )
+            if props is None:
                 logger.warning(
                     __('failed to import object %s'),
                     real_name,
@@ -382,7 +400,7 @@ class Autosummary(SphinxDirective):
                 )
                 items.append((display_name, '', '', real_name))
                 continue
-            props = documenter.props
+            documenter.props = props
 
             # try to also get a source code analyzer for attribute docs
             real_module = props._obj___module__ or props.module_name

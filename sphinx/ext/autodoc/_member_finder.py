@@ -10,6 +10,7 @@ from sphinx.events import EventManager
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.autodoc._property_types import _ClassDefProperties, _ModuleProperties
 from sphinx.ext.autodoc._sentinels import ALL, INSTANCE_ATTR, SLOTS_ATTR
+from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -174,6 +175,8 @@ def _gather_members(
     If *want_all* is True, document all members, else those given by
     *self.options.members*.
     """
+    env = directive.env
+
     if props.obj_type not in {'module', 'class', 'exception'}:
         msg = 'must be implemented in subclasses'
         raise NotImplementedError(msg)
@@ -236,8 +239,21 @@ def _gather_members(
         # We now try to import all objects before ordering them. This is to
         # avoid possible circular imports if we were to import objects after
         # their associated documenters have been sorted.
-        if documenter._load_object_by_name() is None:
+        member_props = _load_object_by_name(
+            name=full_name,
+            objtype=obj_type,
+            mock_imports=config.autodoc_mock_imports,
+            type_aliases=config.autodoc_type_aliases,
+            current_document=current_document,
+            config=config,
+            env=env,
+            events=events,
+            get_attr=get_attr,
+            options=documenter.options,
+        )
+        if member_props is None:
             continue
+        documenter.props = member_props
 
         member_documenters.append((documenter, is_attr))
 
