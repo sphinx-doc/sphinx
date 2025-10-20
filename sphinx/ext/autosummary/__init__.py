@@ -70,7 +70,6 @@ from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
-from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import _load_object_by_name, import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
@@ -97,7 +96,6 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
     from sphinx.ext.autodoc._property_types import _AutodocObjType
-    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
 
@@ -220,17 +218,6 @@ class Autosummary(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        opts = _AutoDocumenterOptions()
-        get_attr = _AutodocAttrGetter(self.env._registry.autodoc_attrgetters)
-        self.bridge = DocumenterBridge(
-            self.env,
-            self.state.document.reporter,
-            opts,
-            self.lineno,
-            self.state,
-            get_attr,
-        )
-
         names = [
             x.strip().split()[0]
             for x in self.content
@@ -302,23 +289,6 @@ class Autosummary(SphinxDirective):
 
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
-    def create_documenter(
-        self,
-        obj: Any,
-        parent: Any,
-        full_name: str,
-        *,
-        registry: SphinxComponentRegistry,
-    ) -> Documenter:
-        """Get an autodoc.Documenter class suitable for documenting the given
-        object.
-
-        Wraps _get_documenter and is meant as a hook for extensions.
-        """
-        obj_type = _get_documenter(obj, parent)
-        doccls = registry.documenters[obj_type]
-        return doccls(self.bridge, full_name)
-
     def get_items(self, names: list[str]) -> list[tuple[str, str | None, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
@@ -343,7 +313,8 @@ class Autosummary(SphinxDirective):
         config = env.config
         current_document = env.current_document
         events = env.events
-        get_attr = self.bridge.get_attr
+        get_attr = _AutodocAttrGetter(env._registry.autodoc_attrgetters)
+        opts = _AutoDocumenterOptions()
 
         max_item_chars = 50
 
@@ -367,7 +338,6 @@ class Autosummary(SphinxDirective):
                 )
                 continue
 
-            result = StringList()  # initialize for each documenter
             obj_type = _get_documenter(obj, parent)
             if isinstance(obj, ModuleType):
                 full_name = real_name
@@ -377,7 +347,6 @@ class Autosummary(SphinxDirective):
                 full_name = f'{modname}::{real_name[len(modname) + 1 :]}'
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            self.bridge.result = result
             props = _load_object_by_name(
                 name=full_name,
                 objtype=obj_type,
@@ -388,7 +357,7 @@ class Autosummary(SphinxDirective):
                 env=env,
                 events=events,
                 get_attr=get_attr,
-                options=self.bridge.genopt,
+                options=opts,
             )
             if props is None:
                 logger.warning(
@@ -425,11 +394,17 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the summary
 
+            result = StringList()  # Initialise for each documenter
             doccls = env._registry.documenters[obj_type]
-            documenter = doccls(self.bridge, full_name)
+            documenter = doccls(
+                env=env,
+                options=opts,
+                get_attr=get_attr,
+                result=result,
+            )
             documenter.props = props
             documenter.analyzer = analyzer
-            documenter.add_content(None, indent=documenter.indent)
+            documenter.add_content(None, indent='')
             lines = result.data[:]
             if props.obj_type != 'module':
                 lines[:] = [line.removeprefix('   ') for line in lines]

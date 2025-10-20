@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import Mock
 
 from docutils.statemachine import StringList
 
@@ -9,11 +8,7 @@ from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     _process_documenter_options,
 )
-
-# NEVER import those objects from sphinx.ext.autodoc directly
-from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import _load_object_by_name
-from sphinx.util.docutils import LoggingReporter
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
@@ -53,12 +48,12 @@ def do_autodoc(
     )
     result = StringList()
     if props is not None:
-        state = Mock()
-        bridge = DocumenterBridge(
-            app.env, LoggingReporter(''), doc_options, 1, state, safe_getattr
+        documenter = doccls(
+            env=app.env,
+            options=doc_options,
+            get_attr=safe_getattr,
+            result=result,
         )
-        bridge.result = result
-        documenter = doccls(bridge, name)
         documenter.props = props
         documenter._generate()
     return result

@@ -17,17 +17,12 @@ from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from typing import Any
-
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
-    from docutils.utils import Reporter
 
     from sphinx.config import Config
-    from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
     from sphinx.ext.autodoc._directive_options import Options
-    from sphinx.ext.autodoc.importer import _AttrGetter
 
 logger = logging.getLogger(__name__)
 
@@ -41,28 +36,6 @@ class DummyOptionSpec(dict[str, Callable[[str], str]]):  # NoQA: FURB189
 
     def __getitem__(self, _key: str) -> Callable[[str], str]:
         return lambda x: x
-
-
-class DocumenterBridge:
-    """A parameters container for Documenters."""
-
-    def __init__(
-        self,
-        env: BuildEnvironment,
-        reporter: Reporter | None,
-        options: _AutoDocumenterOptions,
-        lineno: int,
-        state: Any,
-        get_attr: _AttrGetter,
-    ) -> None:
-        self.env = env
-        self._reporter = reporter
-        self.genopt = options
-        self.lineno = lineno
-        self.record_dependencies: set[str] = set()
-        self.result = StringList()
-        self.state = state
-        self.get_attr = get_attr
 
 
 def process_documenter_options(
@@ -157,21 +130,25 @@ class AutodocDirective(SphinxDirective):
         if props is None:
             return []
 
-        params = DocumenterBridge(
-            self.env, reporter, documenter_options, lineno, self.state, get_attr
+        record_dependencies: set[str] = set()
+        result = StringList()
+        documenter = doccls(
+            env=self.env,
+            options=documenter_options,
+            get_attr=get_attr,
+            record_dependencies=record_dependencies,
+            result=result,
         )
-        documenter = doccls(params, self.arguments[0])
         documenter.props = props
         documenter._generate(more_content=self.content)
-        if not params.result:
+        if not result:
             return []
 
-        logger.debug('[autodoc] output:\n%s', '\n'.join(params.result))
+        logger.debug('[autodoc] output:\n%s', '\n'.join(result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible
-        for fn in params.record_dependencies:
+        for fn in record_dependencies:
             self.state.document.settings.record_dependencies.add(fn)
 
-        result = parse_generated_content(self.state, params.result, documenter)
-        return result
+        return parse_generated_content(self.state, result, documenter)
