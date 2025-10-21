@@ -80,8 +80,10 @@ const SphinxHighlight = {
       || url.searchParams.get("highlight")
       || "";
     localStorage.removeItem("sphinx_highlight_terms");
-    url.searchParams.delete("highlight");
-    window.history.replaceState({}, "", url);
+    if (url.searchParams.has("highlight")) {
+      url.searchParams.delete("highlight");
+      window.history.replaceState({}, "", url);
+    }
 
     // get individual terms from highlight string
     const terms = highlight
