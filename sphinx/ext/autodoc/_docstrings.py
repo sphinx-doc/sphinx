@@ -77,7 +77,6 @@ def _process_docstrings(
     *,
     events: EventManager,
     props: _ItemProperties,
-    obj: Any,
     options: _AutoDocumenterOptions,
 ) -> Iterator[str]:
     """Let the user process the docstrings before adding them."""
@@ -89,7 +88,7 @@ def _process_docstrings(
             'autodoc-process-docstring',
             props.obj_type,
             props.full_name,
-            obj,
+            props._obj,
             options,
             docstring_lines,
         )

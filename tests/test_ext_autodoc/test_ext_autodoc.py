@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from warnings import catch_warnings
 
 import pytest
+from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.ext.autodoc._directive_options import (
@@ -19,13 +20,15 @@ from sphinx.ext.autodoc._directive_options import (
     inherited_members_option,
 )
 from sphinx.ext.autodoc._docstrings import _get_docstring_lines
-from sphinx.ext.autodoc._documenters import Documenter, _AutodocAttrGetter
+from sphinx.ext.autodoc._documenters import Documenter
+from sphinx.ext.autodoc._generate import _generate_directives
 from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
     _FunctionDefProperties,
     _ItemProperties,
 )
 from sphinx.ext.autodoc._sentinels import ALL
+from sphinx.ext.autodoc.directive import _AutodocAttrGetter
 from sphinx.ext.autodoc.importer import (
     _format_signatures,
     _load_object_by_name,
@@ -547,29 +550,37 @@ def test_attrgetter_using(app):
 
 
 def _assert_getter_works(app, get_attr, options, objtype, name, *attrs):
+    env = app.env
+    config = app.config
+    current_document = env.current_document
+    events = env.events
     getattr_spy.clear()
 
     props = _load_object_by_name(
         name=name,
         objtype=objtype,
-        mock_imports=app.config.autodoc_mock_imports,
-        type_aliases=app.config.autodoc_type_aliases,
-        current_document=app.env.current_document,
-        config=app.config,
-        env=app.env,
-        events=app.events,
+        mock_imports=config.autodoc_mock_imports,
+        type_aliases=config.autodoc_type_aliases,
+        current_document=current_document,
+        config=config,
+        env=env,
+        events=events,
         get_attr=get_attr,
         options=options,
     )
     if props is not None:
-        doccls = app.registry.documenters[objtype]
-        documenter = doccls(
-            env=app.env,
-            options=options,
+        _generate_directives(
+            config=config,
+            current_document=current_document,
+            env=env,
+            events=events,
             get_attr=get_attr,
+            indent='',
+            options=options,
+            props=props,
+            record_dependencies=set(),
+            result=StringList(),
         )
-        documenter.props = props
-        documenter._generate()
 
     hooked_members = {s[1] for s in getattr_spy}
     documented_members = {s[1] for s in processed_signatures}
