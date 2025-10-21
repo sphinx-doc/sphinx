@@ -26,19 +26,15 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._documenters import (
     AttributeDocumenter,
     ClassDocumenter,
-    ClassLevelDocumenter,
     DataDocumenter,
     DecoratorDocumenter,
-    DocstringSignatureMixin,
     Documenter,
     ExceptionDocumenter,
     FunctionDocumenter,
     MethodDocumenter,
     ModuleDocumenter,
-    ModuleLevelDocumenter,
     PropertyDocumenter,
-    autodoc_attrgetter,
-    py_ext_sig_re,
+    TypeAliasDocumenter,
 )
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
 from sphinx.ext.autodoc._member_finder import ObjectMember, special_member_re
@@ -49,6 +45,7 @@ from sphinx.ext.autodoc._sentinels import (
 from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR as SLOTSATTR,
 )
+from sphinx.ext.autodoc.importer import py_ext_sig_re
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -96,10 +93,6 @@ __all__ = (
     'ObjectMember',
     'py_ext_sig_re',
     'special_member_re',
-    'ModuleLevelDocumenter',
-    'ClassLevelDocumenter',
-    'DocstringSignatureMixin',
-    'autodoc_attrgetter',
     'Documenter',
 )
 
@@ -114,6 +107,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_autodocumenter(MethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
+    app.add_autodocumenter(TypeAliasDocumenter)
 
     app.add_config_value(
         'autoclass_content',
