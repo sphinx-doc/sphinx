@@ -100,16 +100,6 @@ class Documenter:
         # the module analyzer to get at attribute docs, or None
         self.analyzer: ModuleAnalyzer | None = None
 
-        if isinstance(self, ModuleDocumenter):
-            self.options = self.options.merge_member_options()
-        elif isinstance(self, ClassDocumenter):
-            if self.config.autodoc_class_signature == 'separated':
-                # show __init__() method
-                if self.options.special_members is None:
-                    self.options.special_members = []
-                self.options.special_members += ['__new__', '__init__']
-            self.options = self.options.merge_member_options()
-
     def add_line(self, line: str, source: str, *lineno: int, indent: str) -> None:
         """Append one line of generated reST to the output."""
         if line.strip():  # not a blank line
