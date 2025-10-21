@@ -42,7 +42,7 @@ if TYPE_CHECKING:
         _ModuleProperties,
         _TypeStatementProperties,
     )
-    from sphinx.ext.autodoc.directive import DocumenterBridge
+    from sphinx.ext.autodoc.importer import _AttrGetter
     from sphinx.util.typing import OptionSpec, _RestifyMode
 
 logger = logging.getLogger('sphinx.ext.autodoc')
@@ -86,16 +86,29 @@ class Documenter:
     }
 
     def __init__(
-        self, directive: DocumenterBridge, orig_name: str, indent: str = ''
+        self,
+        *,
+        env: BuildEnvironment,
+        options: _AutoDocumenterOptions,
+        get_attr: _AttrGetter,
+        record_dependencies: set[str] | None = None,
+        result: StringList | None = None,
+        indent: str = '',
     ) -> None:
-        self.directive = directive
-        self.config: Config = directive.env.config
-        self.env: BuildEnvironment = directive.env
-        self._current_document: _CurrentDocument = directive.env.current_document
-        self._events: EventManager = directive.env.events
-        self.options: _AutoDocumenterOptions = directive.genopt
-        self.get_attr = directive.get_attr
-        self.orig_name = orig_name
+        self.config: Config = env.config
+        self.env: BuildEnvironment = env
+        self._current_document: _CurrentDocument = env.current_document
+        self._events: EventManager = env.events
+        self.options: _AutoDocumenterOptions = options
+        self.get_attr = get_attr
+        if record_dependencies is not None:
+            self.record_dependencies: set[str] = record_dependencies
+        else:
+            self.record_dependencies = set()
+        if result is not None:
+            self.result: StringList = result
+        else:
+            self.result = StringList()
         self.indent: Final = indent
         # the module analyzer to get at attribute docs, or None
         self.analyzer: ModuleAnalyzer | None = None
@@ -103,9 +116,9 @@ class Documenter:
     def add_line(self, line: str, source: str, *lineno: int, indent: str) -> None:
         """Append one line of generated reST to the output."""
         if line.strip():  # not a blank line
-            self.directive.result.append(indent + line, source, *lineno)
+            self.result.append(indent + line, source, *lineno)
         else:
-            self.directive.result.append('', source, *lineno)
+            self.result.append('', source, *lineno)
 
     def add_directive_header(self, *, indent: str) -> None:
         """Add the directive header and options to the generated content."""
@@ -121,7 +134,7 @@ class Documenter:
         else:
             is_final = False
 
-        result = self.directive.result
+        result = self.result
         analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
         source_name = _docstring_source_name(props=self.props, source=analyzer_source)
         for line in _directive_header_lines(
@@ -155,7 +168,7 @@ class Documenter:
         )
         _add_content(
             processed_doc,
-            result=self.directive.result,
+            result=self.result,
             indent=indent + '   ',
         )
 
@@ -168,7 +181,7 @@ class Documenter:
         )
         _add_content(
             more_content,
-            result=self.directive.result,
+            result=self.result,
             indent=indent + '   ' * (self.props.obj_type != 'module'),
         )
 
@@ -295,15 +308,15 @@ class Documenter:
                         and module_spec.has_location
                         and module_spec.origin
                     ):
-                        self.directive.record_dependencies.add(module_spec.origin)
+                        self.record_dependencies.add(module_spec.origin)
         else:
-            self.directive.record_dependencies.add(self.analyzer.srcname)
+            self.record_dependencies.add(self.analyzer.srcname)
 
         if self.real_modname != guess_modname:
             # Add module to dependency list if target object is defined in other module.
             try:
                 srcname = ModuleAnalyzer.for_module(guess_modname).srcname
-                self.directive.record_dependencies.add(srcname)
+                self.record_dependencies.add(srcname)
             except PycodeError:
                 pass
 
@@ -330,11 +343,11 @@ class Documenter:
         # make sure that the result starts with an empty line.  This is
         # necessary for some situations where another directive preprocesses
         # reST and no starting newline is present
-        self.directive.result.append('', source_name)
+        self.result.append('', source_name)
 
         # generate the directive header and options, if applicable
         self.add_directive_header(indent=indent)
-        self.directive.result.append('', source_name)
+        self.result.append('', source_name)
 
         # add all content (from docstrings, attribute docs etc.)
         self.add_content(more_content, indent=indent)
@@ -349,14 +362,16 @@ class Documenter:
             attr_docs=analyzer.attr_docs if analyzer is not None else {},
             config=self.config,
             current_document=self._current_document,
-            directive=self.directive,
+            env=self.env,
             events=self._events,
             get_attr=self.get_attr,
             indent=indent,
             options=self.options,
             props=self.props,
             real_modname=self.real_modname,
+            record_dependencies=self.record_dependencies,
             registry=self.env._registry,
+            result=self.result,
         )
 
 

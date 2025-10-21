@@ -37,9 +37,9 @@ class IntEnumDocumenter(ClassDocumenter):
         analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
         source_name = _docstring_source_name(props=self.props, source=analyzer_source)
         if line.strip():  # not a blank line
-            self.directive.result.append(indent + line, source_name, *lineno)
+            self.result.append(indent + line, source_name, *lineno)
         else:
-            self.directive.result.append('', source_name, *lineno)
+            self.result.append('', source_name, *lineno)
 
     def add_directive_header(self, *, indent: str) -> None:
         super().add_directive_header(indent=indent)

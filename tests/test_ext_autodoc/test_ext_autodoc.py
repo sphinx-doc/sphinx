@@ -9,7 +9,6 @@ from __future__ import annotations
 import itertools
 import sys
 from typing import TYPE_CHECKING
-from unittest.mock import Mock
 from warnings import catch_warnings
 
 import pytest
@@ -27,7 +26,6 @@ from sphinx.ext.autodoc._property_types import (
     _ItemProperties,
 )
 from sphinx.ext.autodoc._sentinels import ALL
-from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import (
     _format_signatures,
     _load_object_by_name,
@@ -47,39 +45,6 @@ except ImportError:
 
 if TYPE_CHECKING:
     from typing import Any
-
-    from sphinx.environment import BuildEnvironment
-
-
-def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
-    options = _AutoDocumenterOptions(
-        inherited_members=None,
-        undoc_members=None,
-        private_members=None,
-        special_members=None,
-        imported_members=None,
-        show_inheritance=None,
-        no_index=None,
-        annotation=None,
-        synopsis='',
-        platform='',
-        deprecated=None,
-        members=[],
-        member_order='alphabetical',
-        exclude_members=set(),
-        ignore_module_all=None,
-    )
-
-    directive = DocumenterBridge(
-        env=env,
-        reporter=None,
-        options=options,
-        lineno=0,
-        state=Mock(),
-        get_attr=safe_getattr,
-    )
-
-    return directive
 
 
 processed_signatures = []
@@ -139,13 +104,7 @@ def test_parse_name(app):
 
 def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
     get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
-    options = _AutoDocumenterOptions(
-        synopsis='',
-        platform='',
-        members=[],
-        member_order='alphabetical',
-        exclude_members=set(),
-    )
+    options = _AutoDocumenterOptions()
 
     parent = object  # dummy
     props = _ClassDefProperties(
@@ -428,13 +387,7 @@ def test_autodoc_process_signature_typehints(app):
     )
 
     get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
-    options = _AutoDocumenterOptions(
-        synopsis='',
-        platform='',
-        members=[],
-        member_order='alphabetical',
-        exclude_members=set(),
-    )
+    options = _AutoDocumenterOptions()
     _format_signatures(
         config=app.config,
         events=app.events,
@@ -577,25 +530,23 @@ def test_attrgetter_using(app):
 
     app.add_autodoc_attrgetter(type, _special_getattr)
 
-    directive = make_directive_bridge(app.env)
-    directive.get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
-    options = directive.genopt
-    options.members = ALL
+    get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
+    options = _AutoDocumenterOptions(members=ALL)
 
     options.inherited_members = inherited_members_option(False)
     attrs[:] = ['meth']
     with catch_warnings(record=True):
-        _assert_getter_works(app, directive, 'class', 'target.Class', *attrs)
+        _assert_getter_works(app, get_attr, options, 'class', 'target.Class', *attrs)
 
     options.inherited_members = inherited_members_option(True)
     attrs[:] = ['inheritedmeth']
     with catch_warnings(record=True):
         _assert_getter_works(
-            app, directive, 'class', 'target.inheritance.Derived', *attrs
+            app, get_attr, options, 'class', 'target.inheritance.Derived', *attrs
         )
 
 
-def _assert_getter_works(app, directive, objtype, name, *attrs):
+def _assert_getter_works(app, get_attr, options, objtype, name, *attrs):
     getattr_spy.clear()
 
     props = _load_object_by_name(
@@ -607,12 +558,16 @@ def _assert_getter_works(app, directive, objtype, name, *attrs):
         config=app.config,
         env=app.env,
         events=app.events,
-        get_attr=directive.get_attr,
-        options=directive.genopt,
+        get_attr=get_attr,
+        options=options,
     )
     if props is not None:
         doccls = app.registry.documenters[objtype]
-        documenter = doccls(directive, name)
+        documenter = doccls(
+            env=app.env,
+            options=options,
+            get_attr=get_attr,
+        )
         documenter.props = props
         documenter._generate()
 

@@ -32,10 +32,11 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
     from typing import Any, Literal
 
+    from docutils.statemachine import StringList
+
     from sphinx.config import Config
-    from sphinx.environment import _CurrentDocument
+    from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
-    from sphinx.ext.autodoc import Documenter
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _AutodocObjType, _ItemProperties
     from sphinx.ext.autodoc._sentinels import (
@@ -44,7 +45,6 @@ if TYPE_CHECKING:
         INSTANCE_ATTR_T,
         SLOTS_ATTR_T,
     )
-    from sphinx.ext.autodoc.directive import DocumenterBridge
     from sphinx.ext.autodoc.importer import _AttrGetter
     from sphinx.registry import SphinxComponentRegistry
 
@@ -98,14 +98,16 @@ def _document_members(
     attr_docs: dict[tuple[str, str], list[str]],
     config: Config,
     current_document: _CurrentDocument,
-    directive: DocumenterBridge,
+    env: BuildEnvironment,
     events: EventManager,
     get_attr: _AttrGetter,
     indent: str,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
     real_modname: str,
+    record_dependencies: set[str],
     registry: SphinxComponentRegistry,
+    result: StringList,
 ) -> None:
     """Generate reST for member documentation.
 
@@ -126,12 +128,11 @@ def _document_members(
         attr_docs=attr_docs,
         config=config,
         current_document=current_document,
-        directive=directive,
+        env=env,
         events=events,
         get_attr=get_attr,
         options=options,
         props=props,
-        registry=registry,
     )
 
     # for implicit module members, check __module__ to avoid
@@ -141,13 +142,23 @@ def _document_members(
         and want_all
         and (options.ignore_module_all or props.all is None)  # type: ignore[attr-defined]
     )
-    for documenter, is_attr in member_documenters:
-        assert documenter.props.module_name
+    for member_props, is_attr, member_indent in member_documenters:
+        assert member_props.module_name
         # We can directly call ._generate() since the documenters
         # already called ``_load_object_by_name()`` before.
         #
         # Note that those two methods above do not emit events, so
         # whatever objects we deduced should not have changed.
+        doccls = registry.documenters[member_props.obj_type]
+        documenter = doccls(
+            env=env,
+            options=options,
+            get_attr=get_attr,
+            record_dependencies=record_dependencies,
+            result=result,
+            indent=member_indent,
+        )
+        documenter.props = member_props
         documenter._generate(
             all_members=True,
             real_modname=real_modname,
@@ -163,20 +174,17 @@ def _gather_members(
     attr_docs: dict[tuple[str, str], list[str]],
     config: Config,
     current_document: _CurrentDocument,
-    directive: DocumenterBridge,
+    env: BuildEnvironment,
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
-    registry: SphinxComponentRegistry,
-) -> list[tuple[Documenter, bool]]:
+) -> list[tuple[_ItemProperties, bool, str]]:
     """Generate reST for member documentation.
 
     If *want_all* is True, document all members, else those given by
     *self.options.members*.
     """
-    env = directive.env
-
     if props.obj_type not in {'module', 'class', 'exception'}:
         msg = 'must be implemented in subclasses'
         raise NotImplementedError(msg)
@@ -220,7 +228,7 @@ def _gather_members(
         attr_docs=attr_docs,
     )
     # document non-skipped members
-    member_documenters: list[tuple[Documenter, bool]] = []
+    member_documenters: list[tuple[_ItemProperties, bool, str]] = []
     for member_name, member, is_attr in filtered_members:
         # prefer the documenter with the highest priority
         obj_type = _best_object_type_for_member(
@@ -251,16 +259,11 @@ def _gather_members(
             env=env,
             events=events,
             get_attr=get_attr,
-            options=directive.genopt,
+            options=options,
         )
         if member_props is None:
             continue
-
-        doccls = registry.documenters[obj_type]
-        documenter = doccls(directive, full_name, indent)
-        documenter.props = member_props
-
-        member_documenters.append((documenter, is_attr))
+        member_documenters.append((member_props, is_attr, indent))
 
     member_order = options.member_order or config.autodoc_member_order
     member_documenters = _sort_members(
@@ -653,18 +656,18 @@ def _best_object_type_for_member(
 
 
 def _sort_members(
-    documenters: list[tuple[Documenter, bool]],
+    documenters: list[tuple[_ItemProperties, bool, str]],
     order: Literal['alphabetical', 'bysource', 'groupwise'],
     *,
     ignore_module_all: bool,
     analyzer_order: dict[str, int],
     props: _ItemProperties,
-) -> list[tuple[Documenter, bool]]:
+) -> list[tuple[_ItemProperties, bool, str]]:
     """Sort the given member list."""
     if order == 'groupwise':
         # sort by group; alphabetically within groups
-        def group_order(entry: tuple[Documenter, bool]) -> tuple[int, str]:
-            return entry[0].props._groupwise_order_key, entry[0].props.full_name
+        def group_order(entry: tuple[_ItemProperties, bool, str]) -> tuple[int, str]:
+            return entry[0]._groupwise_order_key, entry[0].full_name
 
         documenters.sort(key=group_order)
     elif order == 'bysource':
@@ -677,8 +680,8 @@ def _sort_members(
             module_all_idx = {name: idx for idx, name in enumerate(module_all)}
             module_all_len = len(module_all)
 
-            def source_order(entry: tuple[Documenter, bool]) -> int:
-                fullname = entry[0].props.dotted_parts
+            def source_order(entry: tuple[_ItemProperties, bool, str]) -> int:
+                fullname = entry[0].dotted_parts
                 return module_all_idx.get(fullname, module_all_len)
 
             documenters.sort(key=source_order)
@@ -689,13 +692,13 @@ def _sort_members(
             # sort by source order, by virtue of the module analyzer
             order_len = len(analyzer_order)
 
-            def source_order(entry: tuple[Documenter, bool]) -> int:
-                fullname = entry[0].props.dotted_parts
+            def source_order(entry: tuple[_ItemProperties, bool, str]) -> int:
+                fullname = entry[0].dotted_parts
                 return analyzer_order.get(fullname, order_len)
 
             documenters.sort(key=source_order)
     else:  # alphabetical
-        documenters.sort(key=lambda entry: entry[0].props.full_name)
+        documenters.sort(key=lambda entry: entry[0].full_name)
 
     return documenters
 
