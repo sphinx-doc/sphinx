@@ -67,9 +67,10 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
+from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
+from sphinx.ext.autodoc.directive import _AutodocAttrGetter
 from sphinx.ext.autodoc.importer import _load_object_by_name, import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
@@ -94,7 +95,6 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.ext.autodoc import Documenter
     from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
@@ -154,33 +154,26 @@ def autosummary_table_visit_html(
 # -- autodoc integration -------------------------------------------------------
 
 
-def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
-    """Get an autodoc.Documenter class suitable for documenting the given
-    object.
-
-    *obj* is the Python object to be documented, and *parent* is an
-    another Python object (e.g. a module or a class) to which *obj*
-    belongs to.
-    """
-    obj_type = _get_documenter(obj, parent)
-    return app.registry.documenters[obj_type]
-
-
 def _get_documenter(obj: Any, parent: Any) -> _AutodocObjType:
-    """Get an autodoc.Documenter class suitable for documenting the given
-    object.
+    """Get the best object type suitable for documenting the given object.
 
-    *obj* is the Python object to be documented, and *parent* is an
-    another Python object (e.g. a module or a class) to which *obj*
-    belongs to.
+    *obj* is the Python object to be documented, and *parent* is another
+    Python object (e.g. a module or a class) to which *obj* belongs.
     """
     if inspect.ismodule(obj):
         return 'module'
 
-    if parent is None:
+    if parent is None or inspect.ismodule(parent):
         parent_obj_type = 'module'
     else:
-        parent_obj_type = _get_documenter(parent, None)
+        parent_opt = _best_object_type_for_member(
+            member=parent,
+            member_name='',
+            is_attr=False,
+            parent_obj_type='module',
+            parent_props=None,
+        )
+        parent_obj_type = parent_opt if parent_opt is not None else 'data'
 
     # Get the correct documenter class for *obj*
     if obj_type := _best_object_type_for_member(
@@ -394,21 +387,16 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the summary
 
-            result = StringList()  # Initialise for each documenter
-            doccls = env._registry.documenters[obj_type]
-            documenter = doccls(
-                env=env,
+            # get content from docstrings or attribute documentation
+            attr_docs = {} if analyzer is None else analyzer.attr_docs
+            docstrings = _prepare_docstrings(props=props, attr_docs=attr_docs)
+            docstring_lines = _process_docstrings(
+                docstrings,
+                events=events,
+                props=props,
                 options=opts,
-                get_attr=get_attr,
-                result=result,
             )
-            documenter.props = props
-            documenter.analyzer = analyzer
-            documenter.add_content(None, indent='')
-            lines = result.data[:]
-            if props.obj_type != 'module':
-                lines[:] = [line.removeprefix('   ') for line in lines]
-            summary = extract_summary(lines, self.state.document)
+            summary = extract_summary(list(docstring_lines), self.state.document)
 
             items.append((display_name, sig, summary, real_name))
 

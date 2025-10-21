@@ -32,8 +32,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
     from typing import Any, Literal
 
-    from docutils.statemachine import StringList
-
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
@@ -46,7 +44,6 @@ if TYPE_CHECKING:
         SLOTS_ATTR_T,
     )
     from sphinx.ext.autodoc.importer import _AttrGetter
-    from sphinx.registry import SphinxComponentRegistry
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 special_member_re = re.compile(r'^__\S+__$')
@@ -88,81 +85,6 @@ class ObjectMember:
             f'docstring={self.docstring!r}, '
             f'class_={self.class_!r}'
             f')'
-        )
-
-
-def _document_members(
-    *,
-    all_members: bool,
-    analyzer_order: dict[str, int],
-    attr_docs: dict[tuple[str, str], list[str]],
-    config: Config,
-    current_document: _CurrentDocument,
-    env: BuildEnvironment,
-    events: EventManager,
-    get_attr: _AttrGetter,
-    indent: str,
-    options: _AutoDocumenterOptions,
-    props: _ItemProperties,
-    real_modname: str,
-    record_dependencies: set[str],
-    registry: SphinxComponentRegistry,
-    result: StringList,
-) -> None:
-    """Generate reST for member documentation.
-
-    If *all_members* is True, document all members, else those given by
-    *self.options.members*.
-    """
-    has_members = props.obj_type == 'module' or (
-        props.obj_type in {'class', 'exception'} and not props.doc_as_attr  # type: ignore[attr-defined]
-    )
-    if not has_members:
-        return
-
-    want_all = bool(all_members or options.inherited_members or options.members is ALL)
-    member_documenters = _gather_members(
-        want_all=want_all,
-        indent=indent,
-        analyzer_order=analyzer_order,
-        attr_docs=attr_docs,
-        config=config,
-        current_document=current_document,
-        env=env,
-        events=events,
-        get_attr=get_attr,
-        options=options,
-        props=props,
-    )
-
-    # for implicit module members, check __module__ to avoid
-    # documenting imported objects
-    members_check_module = bool(
-        props.obj_type == 'module'
-        and want_all
-        and (options.ignore_module_all or props.all is None)  # type: ignore[attr-defined]
-    )
-    for member_props, is_attr, member_indent in member_documenters:
-        assert member_props.module_name
-        # We can directly call ._generate() since the documenters
-        # already called ``_load_object_by_name()`` before.
-        #
-        # Note that those two methods above do not emit events, so
-        # whatever objects we deduced should not have changed.
-        doccls = registry.documenters[member_props.obj_type]
-        documenter = doccls(
-            env=env,
-            options=options,
-            get_attr=get_attr,
-            record_dependencies=record_dependencies,
-            result=result,
-            indent=member_indent,
-        )
-        documenter.props = member_props
-        documenter._generate(
-            all_members=True,
-            real_modname=real_modname,
-            check_module=members_check_module and not is_attr,
         )
 
 

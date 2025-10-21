@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import TYPE_CHECKING
 
 from sphinx.ext.autodoc import ClassDocumenter, bool_option
-from sphinx.ext.autodoc._documenters import _docstring_source_name
+from sphinx.ext.autodoc._generate import _docstring_source_name
 
 if TYPE_CHECKING:
     from typing import Any
