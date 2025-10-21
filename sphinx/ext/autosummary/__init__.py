@@ -369,7 +369,6 @@ class Autosummary(SphinxDirective):
 
             result = StringList()  # initialize for each documenter
             obj_type = _get_documenter(obj, parent)
-            doccls = env._registry.documenters[obj_type]
             if isinstance(obj, ModuleType):
                 full_name = real_name
             else:
@@ -379,7 +378,6 @@ class Autosummary(SphinxDirective):
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
             self.bridge.result = result
-            documenter = doccls(self.bridge, full_name)
             props = _load_object_by_name(
                 name=full_name,
                 objtype=obj_type,
@@ -390,7 +388,7 @@ class Autosummary(SphinxDirective):
                 env=env,
                 events=events,
                 get_attr=get_attr,
-                options=documenter.options,
+                options=self.bridge.genopt,
             )
             if props is None:
                 logger.warning(
@@ -400,7 +398,6 @@ class Autosummary(SphinxDirective):
                 )
                 items.append((display_name, '', '', real_name))
                 continue
-            documenter.props = props
 
             # try to also get a source code analyzer for attribute docs
             real_module = props._obj___module__ or props.module_name
@@ -413,7 +410,6 @@ class Autosummary(SphinxDirective):
                 logger.debug('[autodoc] module analyzer failed: %s', err)
                 # no source file -- e.g. for builtin and C modules
                 analyzer = None
-            documenter.analyzer = analyzer
 
             # -- Grab the signature
 
@@ -429,6 +425,10 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the summary
 
+            doccls = env._registry.documenters[obj_type]
+            documenter = doccls(self.bridge, full_name)
+            documenter.props = props
+            documenter.analyzer = analyzer
             documenter.add_content(None, indent=documenter.indent)
             lines = result.data[:]
             if props.obj_type != 'module':

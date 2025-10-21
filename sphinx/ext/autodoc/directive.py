@@ -142,10 +142,6 @@ class AutodocDirective(SphinxDirective):
 
         # generate the output
         get_attr = _AutodocAttrGetter(self.env._registry.autodoc_attrgetters)
-        params = DocumenterBridge(
-            self.env, reporter, documenter_options, lineno, self.state, get_attr
-        )
-        documenter = doccls(params, self.arguments[0])
         props = _load_object_by_name(
             name=self.arguments[0],
             objtype=objtype,  # type: ignore[arg-type]
@@ -156,11 +152,17 @@ class AutodocDirective(SphinxDirective):
             env=self.env,
             events=self.env.events,
             get_attr=get_attr,
-            options=documenter.options,
+            options=documenter_options,
         )
-        if props is not None:
-            documenter.props = props
-            documenter._generate(more_content=self.content)
+        if props is None:
+            return []
+
+        params = DocumenterBridge(
+            self.env, reporter, documenter_options, lineno, self.state, get_attr
+        )
+        documenter = doccls(params, self.arguments[0])
+        documenter.props = props
+        documenter._generate(more_content=self.content)
         if not params.result:
             return []
 

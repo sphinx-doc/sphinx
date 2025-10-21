@@ -193,10 +193,13 @@ def _gather_members(
     found_members = _get_members_to_document(
         want_all=want_all,
         get_attr=get_attr,
+        class_signature=config.autodoc_class_signature,
         inherit_docstrings=config.autodoc_inherit_docstrings,
         props=props,
         opt_members=options.members or (),
         inherited_members=inherited_members,
+        opt_private_members=options.private_members,
+        opt_special_members=options.special_members,
         ignore_module_all=bool(options.ignore_module_all),
         attr_docs=attr_docs,
     )
@@ -205,6 +208,7 @@ def _gather_members(
         want_all=want_all,
         events=events,
         get_attr=get_attr,
+        class_signature=config.autodoc_class_signature,
         inherit_docstrings=config.autodoc_inherit_docstrings,
         options=options,
         props=props,
@@ -229,12 +233,10 @@ def _gather_members(
         if not obj_type:
             # don't know how to document this member
             continue
-        doccls = registry.documenters[obj_type]
         # give explicitly separated module name, so that members
         # of inner classes can be documented
         dotted_parts = '.'.join((*props.parts, member_name))
         full_name = f'{props.module_name}::{dotted_parts}'
-        documenter = doccls(directive, full_name, indent)
 
         # We now try to import all objects before ordering them. This is to
         # avoid possible circular imports if we were to import objects after
@@ -249,10 +251,13 @@ def _gather_members(
             env=env,
             events=events,
             get_attr=get_attr,
-            options=documenter.options,
+            options=directive.genopt,
         )
         if member_props is None:
             continue
+
+        doccls = registry.documenters[obj_type]
+        documenter = doccls(directive, full_name, indent)
         documenter.props = member_props
 
         member_documenters.append((documenter, is_attr))
@@ -277,10 +282,13 @@ def _get_members_to_document(
     *,
     want_all: bool,
     get_attr: _AttrGetter,
+    class_signature: Literal['mixed', 'separated'],
     inherit_docstrings: bool,
     props: _ModuleProperties | _ClassDefProperties,
     opt_members: ALL_T | Sequence[str],
     inherited_members: Set[str],
+    opt_private_members: ALL_T | Sequence[str] | None,
+    opt_special_members: ALL_T | Sequence[str] | None,
     ignore_module_all: bool,
     attr_docs: dict[tuple[str, str], list[str]],
 ) -> list[ObjectMember]:
@@ -315,7 +323,16 @@ def _get_members_to_document(
     else:
         # specific members given
         assert opt_members is not ALL
-        wanted_members = frozenset(opt_members)
+
+        # Merge :private-members: and :special-members: into :members:
+        combined_members = set(opt_members)
+        if opt_private_members is not None and opt_private_members is not ALL:
+            combined_members.update(opt_private_members)
+        if opt_special_members is not None and opt_special_members is not ALL:
+            combined_members.update(opt_special_members)
+        if class_signature == 'separated' and props.obj_type in {'class', 'exception'}:
+            combined_members |= {'__new__', '__init__'}  # show __init__() method
+        wanted_members = frozenset(combined_members)
 
     object_members_map: dict[str, ObjectMember] = {}
     if props.obj_type == 'module':
@@ -489,6 +506,7 @@ def _filter_members(
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
     props: _ModuleProperties | _ClassDefProperties,
+    class_signature: Literal['mixed', 'separated'],
     inherit_docstrings: bool,
     inherited_members: Set[str],
     exclude_members: EMPTY_T | Set[str] | None,
@@ -513,6 +531,7 @@ def _filter_members(
                 member_cls=obj.class_,
                 get_attr=get_attr,
                 has_attr_doc=has_attr_doc,
+                class_signature=class_signature,
                 inherit_docstrings=inherit_docstrings,
                 inherited_members=inherited_members,
                 parent=props._obj,
@@ -793,6 +812,7 @@ def _should_keep_member(
     member_cls: Any,
     get_attr: _AttrGetter,
     has_attr_doc: bool,
+    class_signature: Literal['mixed', 'separated'],
     inherit_docstrings: bool,
     inherited_members: Set[str],
     parent: Any,
@@ -862,12 +882,16 @@ def _should_keep_member(
 
     if special_member_re.match(member_name):
         # special __methods__
+        if member_name == '__doc__' or is_filtered_inherited_member:
+            return False
         if special_members and member_name in special_members:
-            if member_name == '__doc__':  # NoQA: SIM114
-                return False
-            elif is_filtered_inherited_member:
-                return False
             return has_doc
+        if (
+            class_signature == 'separated'
+            and member_name in {'__new__', '__init__'}
+            and inspect.isclass(parent)
+        ):
+            return has_doc  # show __init__() method
         return False
 
     if is_private:

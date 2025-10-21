@@ -598,8 +598,6 @@ def test_attrgetter_using(app):
 def _assert_getter_works(app, directive, objtype, name, *attrs):
     getattr_spy.clear()
 
-    doccls = app.registry.documenters[objtype]
-    documenter = doccls(directive, name)
     props = _load_object_by_name(
         name=name,
         objtype=objtype,
@@ -610,9 +608,11 @@ def _assert_getter_works(app, directive, objtype, name, *attrs):
         env=app.env,
         events=app.events,
         get_attr=directive.get_attr,
-        options=documenter.options,
+        options=directive.genopt,
     )
     if props is not None:
+        doccls = app.registry.documenters[objtype]
+        documenter = doccls(directive, name)
         documenter.props = props
         documenter._generate()
 
