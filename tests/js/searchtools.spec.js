@@ -66,6 +66,33 @@ describe("Basic html theme search", function () {
       expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
+    it("should find results when excluded terms are used", function () {
+      // This fixture already existed and has the right data to make this test work.
+      // Replace with another matching fixture if necessary.
+      eval(loadFixture("search_exclusion/searchindex.js"));
+
+      // It's important that the searchterm is included in multiple pages while the
+      // excluded term is not included in all pages.
+      // In this case the ``for`` is included in the two existing pages while the ``ask``
+      // is only included in one page.
+      [_searchQuery, searchterms, excluded, ..._remainingItems] =
+        Search._parseQuery("page -penguin");
+
+      // prettier-ignore
+      hits = [[
+        'index',
+        'Main Page',
+        '',
+        null,
+        15,
+        'index.rst',
+        'text'
+      ]];
+
+      expect(excluded).toEqual(new Set(["penguin"]));
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
+    });
+
     it('should partially-match "sphinx" when in title index', function () {
       eval(loadFixture("partial/searchindex.js"));
 
@@ -293,6 +320,16 @@ describe("splitQuery regression tests", () => {
   it("can split special characters", () => {
     const parts = splitQuery("Pin-Code");
     expect(parts).toEqual(["Pin", "Code"]);
+  });
+
+  it("can keep underscores in words", () => {
+    const parts = splitQuery("python_function");
+    expect(parts).toEqual(["python_function"]);
+  });
+
+  it("can maintain negated search words", () => {
+    const parts = splitQuery("Pin -Code");
+    expect(parts).toEqual(["Pin", "-Code"]);
   });
 
   it("can split Chinese characters", () => {
