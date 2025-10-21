@@ -24,3 +24,8 @@ Foo B1
 
 should be 1.2.1
 
+FooBar B1
+---------
+
+should be 1.2.2
+

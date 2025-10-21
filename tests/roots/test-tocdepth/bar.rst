@@ -25,3 +25,8 @@ Bar B1
 
 should be 2.2.1
 
+FooBar B1
+---------
+
+should be 2.2.2
+
