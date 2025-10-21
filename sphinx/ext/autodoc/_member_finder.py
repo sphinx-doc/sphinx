@@ -233,12 +233,10 @@ def _gather_members(
         if not obj_type:
             # don't know how to document this member
             continue
-        doccls = registry.documenters[obj_type]
         # give explicitly separated module name, so that members
         # of inner classes can be documented
         dotted_parts = '.'.join((*props.parts, member_name))
         full_name = f'{props.module_name}::{dotted_parts}'
-        documenter = doccls(directive, full_name, indent)
 
         # We now try to import all objects before ordering them. This is to
         # avoid possible circular imports if we were to import objects after
@@ -253,10 +251,13 @@ def _gather_members(
             env=env,
             events=events,
             get_attr=get_attr,
-            options=documenter.options,
+            options=directive.genopt,
         )
         if member_props is None:
             continue
+
+        doccls = registry.documenters[obj_type]
+        documenter = doccls(directive, full_name, indent)
         documenter.props = member_props
 
         member_documenters.append((documenter, is_attr))
