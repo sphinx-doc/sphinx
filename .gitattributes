@@ -51,8 +51,10 @@ tests/roots/test-pycode/cp_1251_coded.py dos
 
 # Non UTF-8 encodings
 tests/roots/test-pycode/cp_1251_coded.py working-tree-encoding=windows-1251
-tests/roots/test-root/wrongenc.inc working-tree-encoding=latin-1
-tests/roots/test-warnings/wrongenc.inc working-tree-encoding=latin-1
+# the real encoding is iso-8859-1 (latin-1), but Git chokes on both names
+# cf. https://github.com/sphinx-doc/sphinx/pull/13811#issuecomment-3243213202
+tests/roots/test-root/wrongenc.inc working-tree-encoding=iso-8859
+tests/roots/test-warnings/wrongenc.inc working-tree-encoding=iso-8859
 
 # Generated files
 # https://github.com/github/linguist/blob/master/docs/overrides.md
