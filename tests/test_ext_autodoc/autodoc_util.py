@@ -1,23 +1,19 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import Mock
+
+from docutils.statemachine import StringList
 
 from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     _process_documenter_options,
 )
-
-# NEVER import those objects from sphinx.ext.autodoc directly
-from sphinx.ext.autodoc.directive import DocumenterBridge
+from sphinx.ext.autodoc._generate import _generate_directives
 from sphinx.ext.autodoc.importer import _load_object_by_name
-from sphinx.util.docutils import LoggingReporter
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from typing import Any
-
-    from docutils.statemachine import StringList
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc._property_types import _AutodocObjType
@@ -32,31 +28,42 @@ def do_autodoc(
     options = {} if options is None else options.copy()
     if not app.env.current_document.docname:
         app.env.current_document.docname = 'index'  # set dummy docname
-    doccls = app.registry.documenters[obj_type]
+    option_spec = app.registry.documenters[obj_type].option_spec
     opts = _process_documenter_options(
-        option_spec=doccls.option_spec,
+        option_spec=option_spec,
         default_options=app.config.autodoc_default_options,
         options=options,
     )
-    docoptions = _AutoDocumenterOptions.from_directive_options(opts)
-    state = Mock()
-    bridge = DocumenterBridge(
-        app.env, LoggingReporter(''), docoptions, 1, state, safe_getattr
-    )
-    documenter = doccls(bridge, name)
+    doc_options = _AutoDocumenterOptions.from_directive_options(opts)
+
+    config = app.config
+    current_document = app.env.current_document
+    env = app.env
+    events = app.events
     props = _load_object_by_name(
         name=name,
         objtype=obj_type,
-        mock_imports=app.config.autodoc_mock_imports,
-        type_aliases=app.config.autodoc_type_aliases,
-        current_document=app.env.current_document,
-        config=app.config,
-        env=app.env,
-        events=app.events,
+        mock_imports=config.autodoc_mock_imports,
+        type_aliases=config.autodoc_type_aliases,
+        current_document=current_document,
+        config=config,
+        env=env,
+        events=events,
         get_attr=safe_getattr,
-        options=documenter.options,
+        options=doc_options,
     )
+    result = StringList()
     if props is not None:
-        documenter.props = props
-        documenter._generate()
-    return bridge.result
+        _generate_directives(
+            config=config,
+            current_document=current_document,
+            env=env,
+            events=events,
+            get_attr=safe_getattr,
+            indent='',
+            options=doc_options,
+            props=props,
+            record_dependencies=set(),
+            result=result,
+        )
+    return result

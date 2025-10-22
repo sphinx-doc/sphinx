@@ -67,10 +67,10 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-from sphinx.ext.autodoc._documenters import _AutodocAttrGetter
+from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
-from sphinx.ext.autodoc.directive import DocumenterBridge
+from sphinx.ext.autodoc.directive import _AutodocAttrGetter
 from sphinx.ext.autodoc.importer import _load_object_by_name, import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
@@ -95,9 +95,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.ext.autodoc import Documenter
     from sphinx.ext.autodoc._property_types import _AutodocObjType
-    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
 
@@ -156,33 +154,26 @@ def autosummary_table_visit_html(
 # -- autodoc integration -------------------------------------------------------
 
 
-def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
-    """Get an autodoc.Documenter class suitable for documenting the given
-    object.
-
-    *obj* is the Python object to be documented, and *parent* is an
-    another Python object (e.g. a module or a class) to which *obj*
-    belongs to.
-    """
-    obj_type = _get_documenter(obj, parent)
-    return app.registry.documenters[obj_type]
-
-
 def _get_documenter(obj: Any, parent: Any) -> _AutodocObjType:
-    """Get an autodoc.Documenter class suitable for documenting the given
-    object.
+    """Get the best object type suitable for documenting the given object.
 
-    *obj* is the Python object to be documented, and *parent* is an
-    another Python object (e.g. a module or a class) to which *obj*
-    belongs to.
+    *obj* is the Python object to be documented, and *parent* is another
+    Python object (e.g. a module or a class) to which *obj* belongs.
     """
     if inspect.ismodule(obj):
         return 'module'
 
-    if parent is None:
+    if parent is None or inspect.ismodule(parent):
         parent_obj_type = 'module'
     else:
-        parent_obj_type = _get_documenter(parent, None)
+        parent_opt = _best_object_type_for_member(
+            member=parent,
+            member_name='',
+            is_attr=False,
+            parent_obj_type='module',
+            parent_props=None,
+        )
+        parent_obj_type = parent_opt if parent_opt is not None else 'data'
 
     # Get the correct documenter class for *obj*
     if obj_type := _best_object_type_for_member(
@@ -220,17 +211,6 @@ class Autosummary(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        opts = _AutoDocumenterOptions()
-        get_attr = _AutodocAttrGetter(self.env._registry.autodoc_attrgetters)
-        self.bridge = DocumenterBridge(
-            self.env,
-            self.state.document.reporter,
-            opts,
-            self.lineno,
-            self.state,
-            get_attr,
-        )
-
         names = [
             x.strip().split()[0]
             for x in self.content
@@ -302,23 +282,6 @@ class Autosummary(SphinxDirective):
 
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
-    def create_documenter(
-        self,
-        obj: Any,
-        parent: Any,
-        full_name: str,
-        *,
-        registry: SphinxComponentRegistry,
-    ) -> Documenter:
-        """Get an autodoc.Documenter class suitable for documenting the given
-        object.
-
-        Wraps _get_documenter and is meant as a hook for extensions.
-        """
-        obj_type = _get_documenter(obj, parent)
-        doccls = registry.documenters[obj_type]
-        return doccls(self.bridge, full_name)
-
     def get_items(self, names: list[str]) -> list[tuple[str, str | None, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
@@ -343,7 +306,8 @@ class Autosummary(SphinxDirective):
         config = env.config
         current_document = env.current_document
         events = env.events
-        get_attr = self.bridge.get_attr
+        get_attr = _AutodocAttrGetter(env._registry.autodoc_attrgetters)
+        opts = _AutoDocumenterOptions()
 
         max_item_chars = 50
 
@@ -367,9 +331,7 @@ class Autosummary(SphinxDirective):
                 )
                 continue
 
-            result = StringList()  # initialize for each documenter
             obj_type = _get_documenter(obj, parent)
-            doccls = env._registry.documenters[obj_type]
             if isinstance(obj, ModuleType):
                 full_name = real_name
             else:
@@ -378,8 +340,6 @@ class Autosummary(SphinxDirective):
                 full_name = f'{modname}::{real_name[len(modname) + 1 :]}'
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            self.bridge.result = result
-            documenter = doccls(self.bridge, full_name)
             props = _load_object_by_name(
                 name=full_name,
                 objtype=obj_type,
@@ -390,7 +350,7 @@ class Autosummary(SphinxDirective):
                 env=env,
                 events=events,
                 get_attr=get_attr,
-                options=documenter.options,
+                options=opts,
             )
             if props is None:
                 logger.warning(
@@ -400,7 +360,6 @@ class Autosummary(SphinxDirective):
                 )
                 items.append((display_name, '', '', real_name))
                 continue
-            documenter.props = props
 
             # try to also get a source code analyzer for attribute docs
             real_module = props._obj___module__ or props.module_name
@@ -413,7 +372,6 @@ class Autosummary(SphinxDirective):
                 logger.debug('[autodoc] module analyzer failed: %s', err)
                 # no source file -- e.g. for builtin and C modules
                 analyzer = None
-            documenter.analyzer = analyzer
 
             # -- Grab the signature
 
@@ -429,11 +387,16 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the summary
 
-            documenter.add_content(None, indent=documenter.indent)
-            lines = result.data[:]
-            if props.obj_type != 'module':
-                lines[:] = [line.removeprefix('   ') for line in lines]
-            summary = extract_summary(lines, self.state.document)
+            # get content from docstrings or attribute documentation
+            attr_docs = {} if analyzer is None else analyzer.attr_docs
+            docstrings = _prepare_docstrings(props=props, attr_docs=attr_docs)
+            docstring_lines = _process_docstrings(
+                docstrings,
+                events=events,
+                props=props,
+                options=opts,
+            )
+            summary = extract_summary(list(docstring_lines), self.state.document)
 
             items.append((display_name, sig, summary, real_name))
 
