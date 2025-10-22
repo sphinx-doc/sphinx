@@ -46,6 +46,7 @@ class _AutoDocumenterOptions:
 
     no_index: Literal[True] | None = None
     no_index_entry: Literal[True] | None = None
+    _tab_width: int = 8
 
     # module-like options
     members: ALL_T | list[str] | None = None
@@ -87,20 +88,6 @@ class _AutoDocumenterOptions:
     @classmethod
     def from_directive_options(cls, opts: Mapping[str, Any], /) -> Self:
         return cls(**{k.replace('-', '_'): v for k, v in opts.items() if v is not None})
-
-    def merge_member_options(self) -> Self:
-        """Merge :private-members: and :special-members: into :members:"""
-        if self.members is ALL:
-            # merging is not needed when members: ALL
-            return self
-
-        members = self.members or []
-        for others in self.private_members, self.special_members:
-            if others is not None and others is not ALL:
-                members.extend(others)
-        new = self.copy()
-        new.members = list(dict.fromkeys(members))  # deduplicate; preserve order
-        return new
 
 
 def identity(x: Any) -> Any:

@@ -45,7 +45,7 @@ def assert_node(node: Node, cls: Any = None, xpath: str = '', **kwargs: Any) -> 
                     assert_node(node[0], cls[1:], xpath=xpath + '[0]', **kwargs)
         elif isinstance(cls, tuple):
             assert (
-                isinstance(node, list | nodes.Element)
+                isinstance(node, (list, nodes.Element))
             ), f'The node{xpath} does not have any items'  # fmt: skip
             assert (
                 len(node) == len(cls)

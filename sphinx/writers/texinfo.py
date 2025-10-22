@@ -306,7 +306,7 @@ class TexinfoTranslator(SphinxTranslator):
         # try to find a suitable "Top" node
         title = self.document.next_node(nodes.title)
         top = title.parent if title else self.document
-        if not isinstance(top, nodes.document | nodes.section):
+        if not isinstance(top, (nodes.document, nodes.section)):
             top = self.document
         if top is not self.document:
             entries = node_menus[top['node_name']]
@@ -638,7 +638,7 @@ class TexinfoTranslator(SphinxTranslator):
         parent = node.parent
         if isinstance(parent, nodes.table):
             return
-        if isinstance(parent, nodes.Admonition | nodes.sidebar | nodes.topic):
+        if isinstance(parent, (nodes.Admonition, nodes.sidebar, nodes.topic)):
             raise nodes.SkipNode
         if not isinstance(parent, nodes.section):
             logger.warning(
@@ -711,7 +711,7 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_reference(self, node: Element) -> None:
         # an xref's target is displayed in Info so we ignore a few
         # cases for the sake of appearance
-        if isinstance(node.parent, nodes.title | addnodes.desc_type):
+        if isinstance(node.parent, (nodes.title, addnodes.desc_type)):
             return
         if len(node) != 0 and isinstance(node[0], nodes.image):
             return
@@ -1002,7 +1002,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.add_anchor(id, node)
         # anchors and indexes need to go in front
         for n in node[::]:
-            if isinstance(n, addnodes.index | nodes.target):
+            if isinstance(n, (addnodes.index, nodes.target)):
                 n.walkabout(self)
                 node.remove(n)
         self.body.append('\n%s ' % self.at_item_x)
