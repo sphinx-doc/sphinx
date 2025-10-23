@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from pathlib import Path
+from shutil import copytree
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import pytest
 
 import sphinx.ext.apidoc._generate
 from sphinx.ext.apidoc._cli import main as apidoc_main
+from sphinx.ext.apidoc._extension import run_apidoc
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from sphinx.testing.util import SphinxTestApp
 
 _apidoc = namedtuple('_apidoc', 'coderoot,outdir')  # NoQA: PYI024
@@ -94,6 +96,57 @@ def test_custom_templates(make_app, apidoc):
     with open(builddir / 'mypackage.mymodule.txt', encoding='utf-8') as f:
         txt = f.read()
     assert 'The Jinja module template was found!' in txt
+
+
+def test_extension_template_dir_option(rootdir, tmp_path):
+    srcdir = tmp_path / 'project'
+    copytree(rootdir / 'test-ext-apidoc-template-dir', srcdir)
+    config = SimpleNamespace(
+        apidoc_exclude_patterns=[],
+        apidoc_automodule_options=frozenset({
+            'members',
+            'undoc-members',
+            'show-inheritance',
+        }),
+        apidoc_max_depth=4,
+        apidoc_follow_links=False,
+        apidoc_separate_modules=True,
+        apidoc_include_private=False,
+        apidoc_no_headings=False,
+        apidoc_module_first=False,
+        apidoc_implicit_namespaces=False,
+        apidoc_template_dir='_templates/default',
+        apidoc_modules=[
+            {
+                'path': 'src/pkg_default',
+                'destination': 'generated/default',
+            },
+            {
+                'path': 'src/pkg_custom',
+                'destination': 'generated/custom',
+                'template_dir': '_templates/custom',
+            },
+        ],
+    )
+    app = SimpleNamespace(config=config, srcdir=srcdir, confdir=srcdir)
+    run_apidoc(app)
+
+    generated_default = (
+        Path(srcdir) / 'generated' / 'default' / 'pkg_default.module_default.rst'
+    )
+    generated_custom = (
+        Path(srcdir) / 'generated' / 'custom' / 'pkg_custom.module_custom.rst'
+    )
+
+    assert generated_default.is_file()
+    assert generated_custom.is_file()
+
+    default_text = generated_default.read_text(encoding='utf-8')
+    custom_text = generated_custom.read_text(encoding='utf-8')
+
+    assert '.. default-template-marker' in default_text
+    assert '.. custom-template-marker' in custom_text
+    assert '.. custom-template-marker' not in default_text
 
 
 @pytest.mark.apidoc(
