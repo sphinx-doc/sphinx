@@ -11,6 +11,8 @@ https://sat.qc.ca/
 
 from __future__ import annotations
 
+from pathlib import Path
+from types import NoneType
 from typing import TYPE_CHECKING
 
 import sphinx
@@ -53,6 +55,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         frozenset(('members', 'undoc-members', 'show-inheritance')),
         'env',
         types=frozenset({frozenset, list, set, tuple}),
+    )
+    app.add_config_value(
+        'apidoc_template_dir', None, 'env', types=frozenset({NoneType, str, Path})
     )
     app.add_config_value('apidoc_modules', (), 'env', types=frozenset({list, tuple}))
 
