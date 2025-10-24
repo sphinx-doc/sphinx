@@ -892,3 +892,17 @@ def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_text(ap
         expected_f,
     )
     assert expected_parameter_list_foo in content
+
+
+# See: https://github.com/sphinx-doc/sphinx/issues/13217
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_js_function_parentheses_in_arguments_and_errors(app):
+    text = """.. js:function:: $.getJSON(href)
+
+         :param string href:
+         :throws err:"""
+    doctree = restructuredtext.parse(app, text)
+    refnodes = list(doctree.findall(addnodes.pending_xref))
+    assert len(refnodes) == 2
+    assert_node(refnodes[0], [addnodes.pending_xref, nodes.literal, 'string'])
+    assert_node(refnodes[1], [addnodes.pending_xref, nodes.literal, 'err'])
