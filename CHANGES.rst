@@ -134,6 +134,8 @@ Bugs fixed
   Patch by Jeremy Maitin-Shepard.
 * #13939: LaTeX: page break can separate admonition title from contents.
   Patch by Jean-François B.
+* #13989: Allow anchors to word-break anywhere.
+  Patch by Nadav Tasher.
 
 
 Testing
