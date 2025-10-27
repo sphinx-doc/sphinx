@@ -2311,3 +2311,21 @@ def test_latex_contents_topic_sidebar(app: SphinxTestApp) -> None:
         'text of sidebar\n'
         '\\end{sphinxsidebar}\n'
     ) in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-admonition')
+def test_latex_admonition_needspace(app: SphinxTestApp) -> None:
+    """Test that admonitions use \needspace to avoid page breaks between title and content."""
+    assert app.builder.name == "latex"
+
+    app.build(force_all=True)
+    result = (app.outdir / 'admonitiontest.tex').read_text(encoding='utf8')
+
+    # Look for the \sphinxheavyboxneedspacecommand followed immediately
+    # by the \begin{sphinxheavybox} environment.
+    pattern = re.compile(r'\\sphinxheavyboxneedspacecommand\s*\\begin{sphinxheavybox}')
+
+    assert pattern.search(result) is not None, (
+        "The \\sphinxheavyboxneedspacecommand was not found immediately "
+        "before the sphinxheavybox environment."
+    )

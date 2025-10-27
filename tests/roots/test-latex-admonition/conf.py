@@ -1,0 +1,2 @@
+project = 'admonition test'
+extensions = []
