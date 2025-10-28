@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import re
+from typing import TYPE_CHECKING, Any
 
 import pytest
+from bs4 import BeautifulSoup  # type: ignore[import-not-found]
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
-
-import re   # <--- IMPORT ADDED
-
-from bs4 import BeautifulSoup   # <--- IMPORT ADDED
 
 
 @pytest.mark.sphinx('changes', testroot='changes')
@@ -22,7 +20,7 @@ def test_build(app: SphinxTestApp) -> None:
     htmltext = (app.outdir / 'changes.html').read_text(encoding='utf8')
     soup = BeautifulSoup(htmltext, 'html.parser')
 
-    def find_change_item(type_text: str, version: str, content: str) -> dict:
+    def find_change_item(type_text: str, version: str, content: str) -> dict[str, Any]:
         """Helper to find and validate change items."""
         # Use regex to find text content, ignoring surrounding whitespace/newlines
         item = soup.find('li', string=re.compile(r'\s*' + re.escape(content) + r'\s*'))
@@ -32,7 +30,7 @@ def test_build(app: SphinxTestApp) -> None:
         assert type_elem is not None, f"Missing type indicator for '{content}'"
         assert type_text in type_elem.text, f"Expected type '{type_text}' for '{content}'"
 
-        assert f"version {version}" in item.text, f"Version {version} not found in '{content}'"
+        assert f'version {version}' in item.text, f'Version {version} not found in {content!r}'
 
         return {'item': item, 'type': type_elem}
 
