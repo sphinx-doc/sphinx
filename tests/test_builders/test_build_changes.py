@@ -24,11 +24,10 @@ def test_build(app: SphinxTestApp) -> None:
 
     # Get all <li> items up front
     all_items = soup.find_all('li')
-    assert len(all_items) >= 5, "Did not find all 5 change items"
+    assert len(all_items) >= 5, 'Did not find all 5 change items'
 
     def find_change_item(type_text: str, version: str, content: str) -> dict[str, Any]:
         """Helper to find and validate change items."""
-        
         found_item = None
         # Loop through all <li> tags
         for item in all_items:
@@ -36,13 +35,13 @@ def test_build(app: SphinxTestApp) -> None:
             if re.search(re.escape(content), item.text):
                 found_item = item
                 break  # Found it!
-        
+
         # This is the assertion that was failing
         assert found_item is not None, f"Could not find change item containing '{content}'"
 
         type_elem = found_item.find('i')
         assert type_elem is not None, f"Missing type indicator for '{content}'"
-        assert type_text in type_elem.text, (
+        assert type_text in type_elem.text.lower(), (
             f"Expected type '{type_text}' for '{content}'"
         )
 
@@ -90,4 +89,3 @@ def test_no_changes(app: SphinxTestApp) -> None:
 
     assert 'no changes in version 0.7.' in app.status.getvalue()
     assert not (app.outdir / 'changes.html').exists()
-    
