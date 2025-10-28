@@ -26,7 +26,8 @@ def test_build(app: SphinxTestApp) -> None:
         """Helper to find and validate change items."""
         # Use regex to find text content, ignoring surrounding whitespace/newlines
         item = soup.find(  # type: ignore[call-overload]
-            'li', string=re.compile(r'\s*' + re.escape(content) + r'\s*'),
+            'li',
+            string=re.compile(r'\s*' + re.escape(content) + r'\s*'),
         )
         assert item is not None, f"Could not find change item containing '{content}'"
 
@@ -54,13 +55,17 @@ def test_build(app: SphinxTestApp) -> None:
 
     # Test Path deprecation (Search by unique text)
     path_change = find_change_item(
-        'deprecated', '0.6', 'So, that was a bad idea it turns out.',
+        'deprecated',
+        '0.6',
+        'So, that was a bad idea it turns out.',
     )
     assert path_change['item'].find('b').text == 'Path'
 
     # Test Malloc function change (Search by unique text)
     malloc_change = find_change_item(
-        'changed', '0.6', 'Can now be replaced with a different allocator.',
+        'changed',
+        '0.6',
+        'Can now be replaced with a different allocator.',
     )
     assert malloc_change['item'].find('b').text == 'void *Test_Malloc(size_t n)'
 
