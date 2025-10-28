@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
-from bs4 import BeautifulSoup  # type: ignore[import-not-found]
+from bs4 import BeautifulSoup
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.testing.util import SphinxTestApp
 
 
