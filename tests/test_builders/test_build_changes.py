@@ -25,14 +25,20 @@ def test_build(app: SphinxTestApp) -> None:
     def find_change_item(type_text: str, version: str, content: str) -> dict[str, Any]:
         """Helper to find and validate change items."""
         # Use regex to find text content, ignoring surrounding whitespace/newlines
-        item = soup.find('li', string=re.compile(r'\s*' + re.escape(content) + r'\s*'))
+        item = soup.find(  # type: ignore[call-overload]
+            'li', string=re.compile(r'\s*' + re.escape(content) + r'\s*'),
+        )
         assert item is not None, f"Could not find change item containing '{content}'"
 
         type_elem = item.find('i')
         assert type_elem is not None, f"Missing type indicator for '{content}'"
-        assert type_text in type_elem.text, f"Expected type '{type_text}' for '{content}'"
+        assert type_text in type_elem.text, (
+            f"Expected type '{type_text}' for '{content}'"
+        )
 
-        assert f'version {version}' in item.text, f'Version {version} not found in {content!r}'
+        assert f'version {version}' in item.text, (
+            f'Version {version} not found in {content!r}'
+        )
 
         return {'item': item, 'type': type_elem}
 
@@ -40,18 +46,22 @@ def test_build(app: SphinxTestApp) -> None:
     changes = [
         ('added', '0.6', 'Some funny stuff.'),
         ('changed', '0.6', 'Even more funny stuff.'),
-        ('deprecated', '0.6', 'Boring stuff.')
+        ('deprecated', '0.6', 'Boring stuff.'),
     ]
 
     for change_type, version, content in changes:
         find_change_item(change_type, version, content)
 
     # Test Path deprecation (Search by unique text)
-    path_change = find_change_item('deprecated', '0.6', 'So, that was a bad idea it turns out.')
+    path_change = find_change_item(
+        'deprecated', '0.6', 'So, that was a bad idea it turns out.',
+    )
     assert path_change['item'].find('b').text == 'Path'
 
     # Test Malloc function change (Search by unique text)
-    malloc_change = find_change_item('changed', '0.6', 'Can now be replaced with a different allocator.')
+    malloc_change = find_change_item(
+        'changed', '0.6', 'Can now be replaced with a different allocator.',
+    )
     assert malloc_change['item'].find('b').text == 'void *Test_Malloc(size_t n)'
 
     # Test the other test function still works
