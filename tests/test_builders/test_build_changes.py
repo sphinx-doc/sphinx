@@ -37,7 +37,9 @@ def test_build(app: SphinxTestApp) -> None:
                 break  # Found it!
 
         # This is the assertion that was failing
-        assert found_item is not None, f"Could not find change item containing '{content}'"
+        assert found_item is not None, (
+            f"Could not find change item containing '{content}'"
+        )
 
         type_elem = found_item.find('i')
         assert type_elem is not None, f"Missing type indicator for '{content}'"
