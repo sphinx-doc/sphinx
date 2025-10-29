@@ -185,7 +185,11 @@ nitpick_ignore = {
     ('js:func', 'number'),
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
+    # sphinx.application.Sphinx.connect
     ('py:class', '_AutodocProcessDocstringListener'),
+    # sphinx.application.Sphinx.connect
+    ('py:class', '_AutodocProcessSignatureListener'),
+    ('py:class', '_AutodocSkipMemberListener'),  # sphinx.application.Sphinx.connect
     ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
     # sphinx.application.Sphinx.add_html_math_renderer
     ('py:class', '_MathsBlockRenderers'),
