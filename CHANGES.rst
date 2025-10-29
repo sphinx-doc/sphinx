@@ -134,6 +134,9 @@ Bugs fixed
   Patch by Jeremy Maitin-Shepard.
 * #13939: LaTeX: page break can separate admonition title from contents.
   Patch by Jean-François B.
+* #14006: Use ``urllib.request.DataHandler`` in ``parse_data_uri`` to fix
+  parsing of non-base64 data URI.
+  Patch by Shengyu Zhang.
 
 
 Testing
