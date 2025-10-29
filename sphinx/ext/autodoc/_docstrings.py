@@ -297,7 +297,7 @@ def _get_doc(
 
     if props.obj_type not in {'module', 'data'} and _new_docstrings is not None:
         # docstring already returned previously, then modified due to
-        # ``Documenter._find_signature()``. Just return the
+        # ``_extract_signatures_from_docstring()``. Just return the
         # previously-computed result, so that we don't lose the processing.
         return _new_docstrings
 
