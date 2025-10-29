@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple, overload
+from urllib.request import DataHandler, build_opener
 
 import imagesize
 
@@ -90,26 +91,16 @@ def get_image_extension(mimetype: str) -> str | None:
 def parse_data_uri(uri: str) -> DataURI | None:
     if not uri.startswith('data:'):
         return None
-    uri = uri[5:]
-
-    if ',' not in uri:
+    try:
+        response = build_opener(DataHandler).open(uri)
+    except ValueError as e:
         msg = 'malformed data URI'
-        raise ValueError(msg)
+        raise ValueError(msg) from e
+    info = response.info()
+    mimetype = info.get_content_type() or 'text/plain'
+    charset = info.get_content_charset() or 'US-ASCII'
+    image_data = response.read()
 
-    # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
-    mimetype = 'text/plain'
-    charset = 'US-ASCII'
-
-    properties, _, data = uri.partition(',')
-    for prop in properties.split(';'):
-        if prop == 'base64':
-            pass  # skip
-        elif prop.startswith('charset='):
-            charset = prop[8:]
-        elif prop:
-            mimetype = prop
-
-    image_data = base64.b64decode(data)
     return DataURI(mimetype, charset, image_data)
 
 
