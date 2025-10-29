@@ -89,12 +89,10 @@ def test_parse_data_uri() -> None:
 
     # not base64
     uri = (
-        'data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20100%20100%22%20xmlns'
-        '%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ccircle%20cx%3D%2250%22%20cy'
-        '%3D%2250%22%20r%3D%2250%22%20fill%3D%22%23eff2f5%22/%3E%3Ccircle%20cx'
-        '%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22%23116329%22/'
-        '%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2225.0%22%20fill'
-        '%3D%22%23ffffff%22/%3E%3C/svg%3E'
+        'data:image/svg+xml,%3Csvg%20width%3D%22100%22%20height%3D%22100%22%20'
+        'xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ccircle%20cx'
+        '%3D%2250%22%20cy%3D%2250%22%20r%3D%2240%22%20fill%3D%22blue%22%2F%3E'
+        '%3C%2Fsvg%3E'
     )
     image = parse_data_uri(uri)
     assert image is not None
