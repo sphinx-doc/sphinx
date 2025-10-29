@@ -235,6 +235,8 @@ nitpick_ignore = {
     ('py:class', 'pygments.lexer.Lexer'),
     ('py:class', 'sphinx.directives.ObjDescT'),
     ('py:class', 'sphinx.domains.IndexEntry'),
+    # sphinx.application.Sphinx.add_autodocumenter
+    ('py:class', 'sphinx.ext.autodoc.Documenter'),
     ('py:class', 'sphinx.errors.NoUri'),
     ('py:class', 'sphinx.roles.XRefRole'),
     ('py:class', 'sphinx.search.SearchLanguage'),
