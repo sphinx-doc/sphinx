@@ -1629,8 +1629,9 @@ class Sphinx:
         logger.debug('[app] adding autodocumenter: %r', cls)
         from sphinx.ext.autodoc.directive import AutodocDirective
 
-        self.registry.add_documenter(cls.objtype, cls)
-        self.add_directive('auto' + cls.objtype, AutodocDirective, override=override)
+        objtype = cls.objtype  # type: ignore[attr-defined]
+        self.registry.add_documenter(objtype, cls)
+        self.add_directive('auto' + objtype, AutodocDirective, override=override)
 
     def add_autodoc_attrgetter(
         self, typ: type, getter: Callable[[Any, str, Any], Any]

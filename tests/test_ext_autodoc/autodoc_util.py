@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from docutils.statemachine import StringList
 
 from sphinx.ext.autodoc._directive_options import (
-    _AutoDocumenterOptions,
     _process_documenter_options,
 )
 from sphinx.ext.autodoc._generate import _generate_directives
@@ -28,13 +27,11 @@ def do_autodoc(
     options = {} if options is None else options.copy()
     if not app.env.current_document.docname:
         app.env.current_document.docname = 'index'  # set dummy docname
-    option_spec = app.registry.documenters[obj_type].option_spec
-    opts = _process_documenter_options(
-        option_spec=option_spec,
+    doc_options = _process_documenter_options(
+        obj_type=obj_type,
         default_options=app.config.autodoc_default_options,
         options=options,
     )
-    doc_options = _AutoDocumenterOptions.from_directive_options(opts)
 
     config = app.config
     current_document = app.env.current_document

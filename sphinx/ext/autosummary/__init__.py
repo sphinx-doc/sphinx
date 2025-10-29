@@ -175,7 +175,6 @@ def _get_documenter(obj: Any, parent: Any) -> _AutodocObjType:
         )
         parent_obj_type = parent_opt if parent_opt is not None else 'data'
 
-    # Get the correct documenter class for *obj*
     if obj_type := _best_object_type_for_member(
         member=obj,
         member_name='',
