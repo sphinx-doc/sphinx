@@ -52,7 +52,7 @@ special_member_re = re.compile(r'^__\S+__$')
 class ObjectMember:
     """A member of object.
 
-    This is used for the result of `Documenter.get_module_members()` to
+    This is used for the result of `_get_members_to_document()` to
     represent each member of the object.
     """
 
@@ -152,7 +152,7 @@ def _gather_members(
     # document non-skipped members
     member_documenters: list[tuple[_ItemProperties, bool, str]] = []
     for member_name, member, is_attr in filtered_members:
-        # prefer the documenter with the highest priority
+        # prefer the object type with the highest priority
         obj_type = _best_object_type_for_member(
             member=member,
             member_name=member_name,
