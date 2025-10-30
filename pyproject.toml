@@ -124,6 +124,7 @@ test = [
     "defusedxml>=0.7.1",  # for secure XML/HTML parsing
     "setuptools>=70.0",  # for Cython compilation
     "typing_extensions>=4.9",  # for typing_extensions.Unpack
+    "beautifulsoup4>=4.12",  # for HTML parsing in tests
 ]
 translations = [
     "babel>=2.13",
