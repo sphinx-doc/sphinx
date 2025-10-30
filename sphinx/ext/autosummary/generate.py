@@ -67,7 +67,6 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.events import EventManager
-    from sphinx.ext.autodoc import Documenter
     from sphinx.ext.autodoc._property_types import _AutodocObjType
 
 logger = logging.getLogger(__name__)
@@ -105,36 +104,6 @@ class AutosummaryEntry(NamedTuple):
     path: str | None
     template: str
     recursive: bool
-
-
-def setup_documenters(app: Sphinx) -> None:
-    from sphinx.ext.autodoc import (  # type: ignore[attr-defined]
-        AttributeDocumenter,
-        ClassDocumenter,
-        DataDocumenter,
-        DecoratorDocumenter,
-        ExceptionDocumenter,
-        FunctionDocumenter,
-        MethodDocumenter,
-        ModuleDocumenter,
-        PropertyDocumenter,
-        TypeAliasDocumenter,
-    )
-
-    documenters: list[type[Documenter]] = [
-        ModuleDocumenter,
-        ClassDocumenter,
-        ExceptionDocumenter,
-        DataDocumenter,
-        FunctionDocumenter,
-        MethodDocumenter,
-        AttributeDocumenter,
-        DecoratorDocumenter,
-        PropertyDocumenter,
-        TypeAliasDocumenter,
-    ]
-    for documenter in documenters:
-        app.registry.add_documenter(documenter.objtype, documenter)
 
 
 def _underline(title: str, line: str = '=') -> str:
@@ -991,7 +960,6 @@ def main(argv: Sequence[str] = (), /) -> None:
 
     app = DummyApplication(sphinx.locale.get_translator())
     logging.setup(app, sys.stdout, sys.stderr)  # type: ignore[arg-type]
-    setup_documenters(app)  # type: ignore[arg-type]
     args = get_parser().parse_args(argv or sys.argv[1:])
 
     if args.templates:
