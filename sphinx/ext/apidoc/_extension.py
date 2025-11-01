@@ -37,6 +37,7 @@ _ALLOWED_KEYS = _BOOL_KEYS | frozenset({
     'exclude_patterns',
     'automodule_options',
     'max_depth',
+    'template_dir',
 })
 
 
@@ -169,7 +170,24 @@ def _parse_module_options(
         )
     ]
 
-    # TODO template_dir
+    template_dir = _normalize_template_dir(defaults.template_dir, confdir=confdir)
+    if 'template_dir' in options:
+        if options['template_dir'] is None:
+            template_dir = None
+        elif isinstance(options['template_dir'], str):
+            template_dir = _normalize_template_dir(
+                options['template_dir'], confdir=confdir
+            )
+        else:
+            LOGGER.warning(
+                __("apidoc_modules item %i '%s' must be a string"),
+                i,
+                'template_dir',
+                type='apidoc',
+            )
+            template_dir = _normalize_template_dir(
+                defaults.template_dir, confdir=confdir
+            )
 
     max_depth = defaults.max_depth
     if 'max_depth' in options:
@@ -227,6 +245,7 @@ def _parse_module_options(
         implicit_namespaces=bool_options['implicit_namespaces'],
         automodule_options=automodule_options,
         header=module_path.name,
+        template_dir=template_dir,
     )
 
 
@@ -261,3 +280,18 @@ def _check_collection_of_strings(
             )
             return default
     return options[key]
+
+
+def _normalize_template_dir(
+    value: str | Path | None,
+    *,
+    confdir: Path,
+) -> Path | None:
+    """Return a template directory path resolved relative to *confdir*."""
+    if value is None:
+        return None
+
+    path = Path(value)
+    if not path.is_absolute():
+        path = confdir / path
+    return path

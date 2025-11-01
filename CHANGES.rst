@@ -68,6 +68,9 @@ Features added
   Patch by Jean-François B.
 * #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* apidoc: Allow configuring template directories via
+  :confval:`apidoc_template_dir` and the per-module ``template_dir`` option.
+  Patch by Chidera Okara.
 
 Bugs fixed
 ----------

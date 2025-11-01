@@ -110,6 +110,11 @@ The apidoc extension uses the following configuration values:
    :code-py:`'automodule_options'`
      See :confval:`apidoc_automodule_options`.
 
+   :code-py:`'template_dir'`
+     A directory containing templates used when generating documentation files.
+     Paths are interpreted relative to the configuration directory when not
+     absolute. See :confval:`apidoc_template_dir`.
+
 .. confval:: apidoc_exclude_patterns
    :type: :code-py:`Sequence[str]`
    :default: :code-py:`()`
@@ -170,3 +175,10 @@ The apidoc extension uses the following configuration values:
    :default: :code-py:`{'members', 'show-inheritance', 'undoc-members'}`
 
    Options to pass to generated :rst:dir:`automodule` directives.
+
+.. confval:: apidoc_template_dir
+   :type: :code-py:`str`
+   :default: :code-py:`None`
+
+   A directory containing templates that override the built-in apidoc templates.
+   Paths are interpreted relative to the configuration directory.

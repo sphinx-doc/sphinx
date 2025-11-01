@@ -353,4 +353,5 @@ def _full_quickstart(opts: ApidocOptions, /, *, modules: list[str]) -> None:
             d['extensions'].extend(ext.split(','))
 
     if not opts.dry_run:
-        qs.generate(d, silent=True, overwrite=opts.force, templatedir=opts.template_dir)
+        templatedir = str(opts.template_dir) if opts.template_dir is not None else None
+        qs.generate(d, silent=True, overwrite=opts.force, templatedir=templatedir)
