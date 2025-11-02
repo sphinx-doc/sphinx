@@ -67,7 +67,6 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import _AutodocAttrGetter
@@ -388,15 +387,7 @@ class Autosummary(SphinxDirective):
             # -- Grab the summary
 
             # get content from docstrings or attribute documentation
-            attr_docs = {} if analyzer is None else analyzer.attr_docs
-            docstrings = _prepare_docstrings(props=props, attr_docs=attr_docs)
-            docstring_lines = _process_docstrings(
-                docstrings,
-                events=events,
-                props=props,
-                options=opts,
-            )
-            summary = extract_summary(list(docstring_lines), document_settings)
+            summary = extract_summary(props.docstring_lines, document_settings)
 
             items.append((display_name, sig, summary, real_name))
 
