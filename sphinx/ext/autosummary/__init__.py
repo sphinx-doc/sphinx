@@ -307,6 +307,8 @@ class Autosummary(SphinxDirective):
         events = env.events
         get_attr = _AutodocAttrGetter(env._registry.autodoc_attrgetters)
         opts = _AutoDocumenterOptions()
+        ref_context = env.ref_context
+        reread_always = env.reread_always
 
         max_item_chars = 50
 
@@ -346,10 +348,11 @@ class Autosummary(SphinxDirective):
                 type_aliases=config.autodoc_type_aliases,
                 current_document=current_document,
                 config=config,
-                env=env,
                 events=events,
                 get_attr=get_attr,
                 options=opts,
+                ref_context=ref_context,
+                reread_always=reread_always,
             )
             if props is None:
                 logger.warning(

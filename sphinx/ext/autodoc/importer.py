@@ -51,12 +51,12 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping, Sequence
+    from collections.abc import Callable, Mapping, MutableSet, Sequence
     from importlib.machinery import ModuleSpec
     from typing import Any, Protocol, TypeAlias
 
     from sphinx.config import Config
-    from sphinx.environment import BuildEnvironment, _CurrentDocument
+    from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
@@ -493,18 +493,19 @@ def _load_object_by_name(
     type_aliases: dict[str, Any] | None,
     current_document: _CurrentDocument,
     config: Config,
-    env: BuildEnvironment,
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
     parent_modname: str | None = None,
+    ref_context: Mapping[str, str | None],
+    reread_always: MutableSet[str],
 ) -> _ItemProperties | None:
     """Import and load the object given by *name*."""
     parsed = _parse_name(
         name=name,
         objtype=objtype,
         current_document=current_document,
-        env=env,
+        ref_context=ref_context,
     )
     if parsed is None:
         return None
@@ -538,7 +539,8 @@ def _load_object_by_name(
             im_ = None
         if im_ is None:
             logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            env.note_reread()
+            # See BuildEnvironment.note_reread()
+            reread_always.add(current_document.docname)
             return None
         else:
             im = im_
@@ -939,7 +941,7 @@ def _parse_name(
     name: str,
     objtype: _AutodocObjType,
     current_document: _CurrentDocument,
-    env: BuildEnvironment,
+    ref_context: Mapping[str, str | None],
 ) -> tuple[str, tuple[str, ...], str | None, str | None] | None:
     """Parse *name* into module name, path, arguments, and return annotation."""
     # Parse the definition in *name*.
@@ -984,8 +986,8 @@ def _parse_name(
         base=base,
         parents=parents,
         current_document=current_document,
-        ref_context_py_module=env.ref_context.get('py:module'),
-        ref_context_py_class=env.ref_context.get('py:class', ''),
+        ref_context_py_module=ref_context.get('py:module'),
+        ref_context_py_class=ref_context.get('py:class', ''),  # type: ignore[arg-type]
     )
     if resolved is None:
         msg = 'must be implemented in subclasses'

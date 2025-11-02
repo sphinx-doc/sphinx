@@ -16,11 +16,11 @@ from sphinx.util import inspect, logging
 from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Mapping, MutableSet
     from typing import Literal
 
     from sphinx.config import Config
-    from sphinx.environment import BuildEnvironment, _CurrentDocument
+    from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
@@ -38,13 +38,14 @@ def _generate_directives(
     *,
     config: Config,
     current_document: _CurrentDocument,
-    env: BuildEnvironment,
     events: EventManager,
     get_attr: _AttrGetter,
     indent: str,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
     record_dependencies: set[str],
+    ref_context: Mapping[str, str | None],
+    reread_always: MutableSet[str],
     result: StringList,
 ) -> None:
     """Generate reST for the object given by *props*, and possibly for its members.
@@ -136,7 +137,6 @@ def _generate_directives(
         attr_docs=analyzer.attr_docs if analyzer is not None else {},
         config=config,
         current_document=current_document,
-        env=env,
         events=events,
         get_attr=get_attr,
         indent=indent,
@@ -145,6 +145,8 @@ def _generate_directives(
         real_modname=real_modname,
         record_dependencies=record_dependencies,
         result=result,
+        ref_context=ref_context,
+        reread_always=reread_always,
     )
 
 
@@ -204,7 +206,6 @@ def _document_members(
     attr_docs: dict[tuple[str, str], list[str]],
     config: Config,
     current_document: _CurrentDocument,
-    env: BuildEnvironment,
     events: EventManager,
     get_attr: _AttrGetter,
     indent: str,
@@ -212,6 +213,8 @@ def _document_members(
     props: _ItemProperties,
     real_modname: str,
     record_dependencies: set[str],
+    ref_context: Mapping[str, str | None],
+    reread_always: MutableSet[str],
     result: StringList,
 ) -> None:
     """Generate reST for member documentation.
@@ -233,12 +236,13 @@ def _document_members(
         attr_docs=attr_docs,
         config=config,
         current_document=current_document,
-        env=env,
         events=events,
         get_attr=get_attr,
         options=options,
         parent_modname=real_modname,
         props=props,
+        ref_context=ref_context,
+        reread_always=reread_always,
     )
 
     # for implicit module members, check __module__ to avoid
@@ -259,13 +263,14 @@ def _document_members(
             all_members=True,
             config=config,
             current_document=current_document,
-            env=env,
             events=events,
             get_attr=get_attr,
             indent=member_indent,
             options=options,
             props=member_props,
             record_dependencies=record_dependencies,
+            ref_context=ref_context,
+            reread_always=reread_always,
             result=result,
         )
 

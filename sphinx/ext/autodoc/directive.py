@@ -140,6 +140,8 @@ class AutodocDirective(SphinxDirective):
         config = env.config
         current_document = env.current_document
         events = env.events
+        ref_context = env.ref_context
+        reread_always = env.reread_always
 
         props = _load_object_by_name(
             name=name,
@@ -148,10 +150,11 @@ class AutodocDirective(SphinxDirective):
             type_aliases=config.autodoc_type_aliases,
             current_document=current_document,
             config=config,
-            env=env,
             events=events,
             get_attr=get_attr,
             options=documenter_options,
+            ref_context=ref_context,
+            reread_always=reread_always,
         )
         if props is None:
             return []
@@ -162,7 +165,6 @@ class AutodocDirective(SphinxDirective):
             more_content=self.content,
             config=config,
             current_document=current_document,
-            env=env,
             events=events,
             get_attr=get_attr,
             indent='',
@@ -170,6 +172,8 @@ class AutodocDirective(SphinxDirective):
             props=props,
             record_dependencies=record_dependencies,
             result=result,
+            ref_context=ref_context,
+            reread_always=reread_always,
         )
         if not result:
             return []

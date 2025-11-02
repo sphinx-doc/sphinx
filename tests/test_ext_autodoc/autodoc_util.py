@@ -35,8 +35,9 @@ def do_autodoc(
 
     config = app.config
     current_document = app.env.current_document
-    env = app.env
     events = app.events
+    ref_context = app.env.ref_context
+    reread_always: set[str] = set()
     props = _load_object_by_name(
         name=name,
         objtype=obj_type,
@@ -44,17 +45,17 @@ def do_autodoc(
         type_aliases=config.autodoc_type_aliases,
         current_document=current_document,
         config=config,
-        env=env,
         events=events,
         get_attr=safe_getattr,
         options=doc_options,
+        ref_context=ref_context,
+        reread_always=reread_always,
     )
     result = StringList()
     if props is not None:
         _generate_directives(
             config=config,
             current_document=current_document,
-            env=env,
             events=events,
             get_attr=safe_getattr,
             indent='',
@@ -62,5 +63,7 @@ def do_autodoc(
             props=props,
             record_dependencies=set(),
             result=result,
+            ref_context=ref_context,
+            reread_always=reread_always,
         )
     return result
