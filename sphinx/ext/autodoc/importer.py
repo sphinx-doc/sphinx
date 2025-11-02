@@ -497,7 +497,7 @@ def _load_object_by_name(
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
-    real_modname: str | None = None,
+    parent_modname: str | None = None,
 ) -> _ItemProperties | None:
     """Import and load the object given by *name*."""
     parsed = _parse_name(
@@ -926,7 +926,7 @@ def _load_object_by_name(
     props.docstring_lines = _docstring_lines_for_props(
         docstrings,
         props=props,
-        real_modname=real_modname,
+        parent_modname=parent_modname,
         events=events,
         options=options,
     )
@@ -1250,23 +1250,21 @@ def _format_signatures(
     if props.obj_type in {'module', 'data', 'type'}:
         signatures[1:] = ()  # discard all signatures save the first
 
-    if real_modname := props._obj___module__ or props.module_name:
-        try:
-            analyzer = ModuleAnalyzer.for_module(real_modname)
-            # parse right now, to get PycodeErrors on parsing (results will
-            # be cached anyway)
-            analyzer.analyze()
-        except PycodeError as exc:
-            logger.debug('[autodoc] module analyzer failed: %s', exc)
-            # no source file -- e.g. for builtin and C modules
-            analyzer = None
+    analyzer_overloads: dict[str, list[Signature]] = {}
+    try:
+        analyzer = ModuleAnalyzer.for_module(props.canonical_module_name)
+        # parse right now, to get PycodeErrors on parsing (results will
+        # be cached anyway)
+        analyzer.analyze()
+    except PycodeError as exc:
+        logger.debug('[autodoc] module analyzer failed: %s', exc)
+        # no source file -- e.g. for builtin and C modules
     else:
-        analyzer = None
+        analyzer_overloads = analyzer.overloads
 
     if props.obj_type in {'function', 'decorator'}:
         overloaded = (
-            analyzer is not None
-            and props.dotted_parts in analyzer.overloads
+            props.dotted_parts in analyzer_overloads
             and config.autodoc_typehints != 'none'
         )
         is_singledispatch = inspect.is_singledispatch_function(props._obj)
@@ -1311,12 +1309,12 @@ def _format_signatures(
                     options=options,
                     props=dispatch_props,
                 )
-        if overloaded and analyzer is not None:
+        if overloaded:
             actual = inspect.signature(
                 props._obj, type_aliases=config.autodoc_type_aliases
             )
             obj_globals = safe_getattr(props._obj, '__globals__', {})
-            overloads = analyzer.overloads[props.dotted_parts]
+            overloads = analyzer_overloads[props.dotted_parts]
             for overload in overloads:
                 overload = _merge_default_value(actual, overload)
                 overload = evaluate_signature(
@@ -1374,8 +1372,7 @@ def _format_signatures(
 
     if props.obj_type == 'method':
         overloaded = (
-            analyzer is not None
-            and props.dotted_parts in analyzer.overloads
+            props.dotted_parts in analyzer_overloads
             and config.autodoc_typehints != 'none'
         )
         meth = parent.__dict__.get(props.name)
@@ -1423,7 +1420,7 @@ def _format_signatures(
                     options=options,
                     props=dispatch_props,
                 )
-        if overloaded and analyzer is not None:
+        if overloaded:
             from sphinx.ext.autodoc._property_types import _FunctionDefProperties
 
             assert isinstance(props, _FunctionDefProperties)
@@ -1434,7 +1431,7 @@ def _format_signatures(
             )
 
             obj_globals = safe_getattr(props._obj, '__globals__', {})
-            overloads = analyzer.overloads[props.dotted_parts]
+            overloads = analyzer_overloads[props.dotted_parts]
             for overload in overloads:
                 overload = _merge_default_value(actual, overload)
                 overload = evaluate_signature(

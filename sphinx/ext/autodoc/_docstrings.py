@@ -32,31 +32,11 @@ def _docstring_lines_for_props(
     /,
     *,
     props: _ItemProperties,
-    real_modname: str | None,
+    parent_modname: str | None,
     events: EventManager,
     options: _AutoDocumenterOptions,
 ) -> tuple[str, ...]:
-    guess_modname = props._obj___module__ or props.module_name
-    if props.obj_type in {'class', 'exception'}:
-        # Do not pass real_modname and use the name from the __module__
-        # attribute of the class.
-        # If a class gets imported into the module real_modname
-        # the analyzer won't find the source of the class, if
-        # it looks in real_modname.
-        real_modname = guess_modname
-    else:
-        real_modname = real_modname or guess_modname
-    try:
-        analyzer = ModuleAnalyzer.for_module(real_modname)
-        # parse right now, to get PycodeErrors on parsing (results will
-        # be cached anyway)
-        analyzer.analyze()
-    except PycodeError as exc:
-        logger.debug('[autodoc] module analyzer failed: %s', exc)
-        # no source file -- e.g. for builtin and C modules
-        analyzer = None
-
-    attr_docs = {} if analyzer is None else analyzer.attr_docs
+    attr_docs = _attr_docs_for_props(props, parent_modname=parent_modname)
     prepared_docstrings = _prepare_docstrings(
         docstrings, props=props, attr_docs=attr_docs
     )
@@ -69,6 +49,33 @@ def _docstring_lines_for_props(
     return tuple(docstring_lines)
 
 
+def _attr_docs_for_props(
+    props: _ItemProperties, *, parent_modname: str | None
+) -> Mapping[tuple[str, str], list[str]]:
+    if props.obj_type in {'class', 'exception'}:
+        # If a class gets imported into the module ``parent_modname``
+        # the analyzer won't find the source of the class,
+        # if it looks in ``parent_modname``.
+        real_modname = props.module_name
+    elif parent_modname is None:
+        real_modname = props.canonical_module_name
+    else:
+        real_modname = parent_modname
+
+    try:
+        analyzer = ModuleAnalyzer.for_module(real_modname)
+        # parse right now, to get PycodeErrors on parsing (results will
+        # be cached anyway)
+        analyzer.analyze()
+    except PycodeError as exc:
+        logger.debug('[autodoc] module analyzer failed: %s', exc)
+        # no source file -- e.g. for builtin and C modules
+        attr_docs = {}
+    else:
+        attr_docs = analyzer.attr_docs
+    return attr_docs
+
+
 def _prepare_docstrings(
     docstrings: list[list[str]] | None,
     *,
@@ -76,34 +83,23 @@ def _prepare_docstrings(
     attr_docs: Mapping[tuple[str, str], list[str]],
 ) -> list[list[str]] | None:
     """Add content from docstrings, attribute documentation and user."""
-    if docstrings is not None and not docstrings:
-        # append at least a dummy docstring, so that the event
-        # autodoc-process-docstring is fired and can add some
-        # content if desired
-        docstrings = [[]]
-
-    if props.obj_type in {'data', 'attribute'}:
-        return docstrings
-
-    if props.obj_type in {'class', 'exception'}:
-        real_module = props._obj___module__ or props.module_name
-        if props.module_name != real_module:
-            try:
-                # override analyzer to obtain doc-comment around its definition.
-                ma = ModuleAnalyzer.for_module(props.module_name)
-                ma.analyze()
-                attr_docs = ma.attr_docs
-            except PycodeError:
-                pass
-
     # add content from attribute documentation
-    if attr_docs and props.parts:
+    if props.obj_type not in {'data', 'attribute'} and props.parts:
         key = ('.'.join(props.parent_names), props.name)
-        if key in attr_docs:
+        try:
             # make a copy of docstring for attributes to avoid cache
             # the change of autodoc-process-docstring event.
             return [list(attr_docs[key])]
+        except KeyError:
+            pass
 
+    if docstrings is None:
+        return None
+    if not docstrings:
+        # append at least a dummy docstring, so that the event
+        # autodoc-process-docstring is fired and can add some
+        # content if desired
+        docstrings.append([])
     return docstrings
 
 

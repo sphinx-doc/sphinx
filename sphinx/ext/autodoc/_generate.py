@@ -16,7 +16,7 @@ from sphinx.util import inspect, logging
 from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping
+    from collections.abc import Iterator
     from typing import Literal
 
     from sphinx.config import Config
@@ -32,7 +32,7 @@ logger = logging.getLogger('sphinx.ext.autodoc')
 
 def _generate_directives(
     more_content: StringList | None = None,
-    real_modname: str | None = None,
+    parent_modname: str | None = None,
     check_module: bool = False,
     all_members: bool = False,
     *,
@@ -49,26 +49,23 @@ def _generate_directives(
 ) -> None:
     """Generate reST for the object given by *props*, and possibly for its members.
 
-    If *more_content* is given, include that content. If *real_modname* is
+    If *more_content* is given, include that content. If *parent_modname* is
     given, use that module name to find attribute docs. If *check_module* is
     True, only generate if the object is defined in the module name it is
     imported from. If *all_members* is True, document all members.
     """
-    # If there is no real module defined, figure out which to use.
+    # If there is no parent module specified, figure out which to use.
     # The real module is used in the module analyzer to look up the module
     # where the attribute documentation would actually be found in.
     # This is used for situations where you have a module that collects the
     # functions and classes of internal submodules.
-    guess_modname = props._obj___module__ or props.module_name
-    if props.obj_type in {'class', 'exception'}:
-        # Do not pass real_modname and use the name from the __module__
-        # attribute of the class.
-        # If a class gets imported into the module real_modname
-        # the analyzer won't find the source of the class, if
-        # it looks in real_modname.
-        real_modname = guess_modname
+    if parent_modname is None or props.obj_type in {'class', 'exception'}:
+        # If a class gets imported into the module ``parent_modname``
+        # the analyzer won't find the source of the class,
+        # if it looks in ``parent_modname``.
+        real_modname = props.canonical_module_name
     else:
-        real_modname = real_modname or guess_modname
+        real_modname = parent_modname
 
     # try to also get a source code analyzer for attribute docs
     try:
@@ -95,10 +92,10 @@ def _generate_directives(
                 ):
                     record_dependencies.add(module_spec.origin)
 
-    if real_modname != guess_modname:
+    if real_modname != props.canonical_module_name:
         # Add module to dependency list if target object is defined in other module.
         try:
-            srcname, _ = ModuleAnalyzer.get_module_source(guess_modname)
+            srcname, _ = ModuleAnalyzer.get_module_source(props.canonical_module_name)
             record_dependencies.add(str(srcname))
         except PycodeError:
             pass
@@ -123,10 +120,8 @@ def _generate_directives(
     analyzer_source = '' if analyzer is None else analyzer.srcname
     _add_directive_lines(
         more_content=more_content,
-        attr_docs={} if analyzer is None else analyzer.attr_docs,
         is_final=analyzer is not None and props.dotted_parts in analyzer.finals,
         config=config,
-        events=events,
         indent=indent,
         options=options,
         props=props,
@@ -156,10 +151,8 @@ def _generate_directives(
 def _add_directive_lines(
     *,
     more_content: StringList | None,
-    attr_docs: Mapping[tuple[str, str], list[str]],
     is_final: bool,
     config: Config,
-    events: EventManager,
     indent: str,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
@@ -244,7 +237,7 @@ def _document_members(
         events=events,
         get_attr=get_attr,
         options=options,
-        real_modname=real_modname,
+        parent_modname=real_modname,
         props=props,
     )
 
@@ -261,7 +254,7 @@ def _document_members(
         # whatever objects we deduced should not have changed.
         _generate_directives(
             more_content=None,
-            real_modname=real_modname,
+            parent_modname=real_modname,
             check_module=members_check_module and not is_attr,
             all_members=True,
             config=config,
