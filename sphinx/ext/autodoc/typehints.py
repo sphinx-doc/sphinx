@@ -20,12 +20,13 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.util.typing import ExtensionMetadata, _StringifyMode
 
 
 def record_typehints(
     app: Sphinx,
-    objtype: str,
+    obj_type: _AutodocObjType,
     name: str,
     obj: Any,
     options: _AutoDocumenterOptions,
@@ -60,7 +61,7 @@ def record_typehints(
 
 
 def merge_typehints(
-    app: Sphinx, domain: str, objtype: str, contentnode: Element
+    app: Sphinx, domain: str, obj_type: _AutodocObjType, contentnode: Element
 ) -> None:
     if domain != 'py':
         return
@@ -86,7 +87,7 @@ def merge_typehints(
 
         for field_list in field_lists:
             if app.config.autodoc_typehints_description_target == 'all':
-                if objtype == 'class':
+                if obj_type == 'class':
                     modify_field_list(
                         field_list, annotations[fullname], suppress_rtype=True
                     )

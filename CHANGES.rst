@@ -66,6 +66,8 @@ Features added
   Patch by Adam Turner.
 * #13805: LaTeX: add support for ``fontawesome7`` package.
   Patch by Jean-François B.
+* #13508: Initial support for :pep:`695` type aliases.
+  Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
 
 Bugs fixed
 ----------
@@ -123,6 +125,7 @@ Bugs fixed
   configuration variable ``doctest_test_doctest_blocks``.
 * #13885: Coverage builder: Fix TypeError when warning about missing modules.
   Patch by Damien Ayers.
+* #13892: HTML search: fix word exclusion in the search by prefixing words with "-".
 * #13929: Duplicate equation label warnings now have a new warning
   sub-type, ``ref.equation``.
   Patch by Jared Dillard.
@@ -130,7 +133,8 @@ Bugs fixed
   directly defined in certain cases, depending on autodoc processing
   order.
   Patch by Jeremy Maitin-Shepard.
-* #13892: HTML search: fix word exclusion in the search by prefixing words with "-".
+* #13939: LaTeX: page break can separate admonition title from contents.
+  Patch by Jean-François B.
 
 
 Testing

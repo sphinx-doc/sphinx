@@ -85,6 +85,7 @@ dependencies = [
     "roman-numerals-py>=1.0.0",
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
+    "ipython>=9.6.0",
 ]
 dynamic = ["version"]
 
@@ -107,7 +108,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.13.3",
+    "ruff==0.14.0",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -172,7 +173,7 @@ exclude = [
 [tool.mypy]
 files = [
     "doc/conf.py",
-    "doc/development/tutorials/examples/autodoc_intenum.py",
+#    "doc/development/tutorials/examples/autodoc_intenum.py",
     "doc/development/tutorials/examples/helloworld.py",
     "sphinx",
     "tests",

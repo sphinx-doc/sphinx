@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING
 
 from sphinx.ext.autodoc._property_types import (
     _AssignStatementProperties,
     _ClassDefProperties,
     _FunctionDefProperties,
+    _TypeStatementProperties,
 )
 from sphinx.ext.autodoc._sentinels import SUPPRESS
 from sphinx.locale import _
@@ -22,15 +22,12 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc._property_types import _ItemProperties
 
 logger = logging.getLogger('sphinx.ext.autodoc')
-_hide_value_re = re.compile(r'^:meta \s*hide-value:( +|$)')
 
 
 def _directive_header_lines(
-    sig: str,
     *,
     autodoc_typehints: Literal['signature', 'description', 'none', 'both'],
     directive_name: str,
-    docstrings_has_hide_value: bool,
     is_final: bool,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
@@ -42,7 +39,7 @@ def _directive_header_lines(
 
     # emit one signature per line
     # the first line contains the directive prefix
-    sig_line, *sig_lines = sig.split('\n')
+    sig_line, *sig_lines = props.signatures or ('',)
     prefix = f'.. {directive_name}:: '
     yield f'{prefix}{name}{sig_line}'
     # emit remaining lines, indented to the same column
@@ -140,7 +137,7 @@ def _directive_header_lines(
             if (
                 not options.no_value
                 and props._obj_is_sentinel is None  # not any sentinel
-                and not docstrings_has_hide_value
+                and not props._docstrings_has_hide_value
                 and not props._obj_is_mock
             ):
                 yield f'   :value: {props._obj_repr_rst}'
@@ -164,10 +161,16 @@ def _directive_header_lines(
                 and props._obj_is_sentinel is None  # not any sentinel
                 and not props._obj_is_attribute_descriptor
                 and not props._obj_is_generic_alias
-                and not docstrings_has_hide_value
+                and not props._docstrings_has_hide_value
                 and not props._obj_is_mock
             ):
                 yield f'   :value: {props._obj_repr_rst}'
+
+    if props.obj_type == 'type':
+        assert isinstance(props, _TypeStatementProperties)
+
+        if not options.no_value and not props._docstrings_has_hide_value:
+            yield f'   :canonical: {props._obj___value__}'
 
 
 def _add_content(content: StringList, *, result: StringList, indent: str) -> None:

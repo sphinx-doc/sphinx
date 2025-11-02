@@ -26,6 +26,7 @@ if TYPE_CHECKING:
         'property',
         'attribute',
         'data',
+        'type',
     ]
     _AutodocFuncProperty: TypeAlias = Literal[
         'abstractmethod',
@@ -47,7 +48,11 @@ class _ItemProperties:
     parts: tuple[str, ...]
     #: This item's docstring, as a sequence of lines
     docstring_lines: tuple[str, ...]
+    #: The item's signature lines, for use in the directive
+    signatures: tuple[str, ...] = ()
 
+    _docstrings: Sequence[Sequence[str]] | None = None
+    _docstrings_has_hide_value: bool = False
     _obj: Any
     _obj___module__: str | None
 
@@ -73,6 +78,10 @@ class _ItemProperties:
     @property
     def dotted_parts(self) -> str:
         return '.'.join(self.parts)
+
+    @property
+    def _groupwise_order_key(self) -> int:
+        return 0
 
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
@@ -111,6 +120,7 @@ class _ClassDefProperties(_ItemProperties):
     _obj_bases: tuple[str, ...]
     _obj_is_new_type: bool
     _obj_is_typevar: bool
+    _signature_method_name: str = ''
 
     @property
     def doc_as_attr(self) -> bool:
@@ -133,6 +143,10 @@ class _ClassDefProperties(_ItemProperties):
             return None
         return f'{modname}.{qualname}'
 
+    @property
+    def _groupwise_order_key(self) -> int:
+        return 10 if self.obj_type == 'exception' else 20
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _FunctionDefProperties(_ItemProperties):
@@ -142,7 +156,7 @@ class _FunctionDefProperties(_ItemProperties):
 
     _obj___name__: str | None
     _obj___qualname__: str | None
-    _obj_property_type_annotation: str | None = 'default'
+    _obj_property_type_annotation: str | None = None
 
     @property
     def is_abstractmethod(self) -> bool:
@@ -168,6 +182,21 @@ class _FunctionDefProperties(_ItemProperties):
     def is_staticmethod(self) -> bool:
         return 'staticmethod' in self.properties
 
+    @property
+    def _groupwise_order_key(self) -> int:
+        if self.obj_type == 'method':
+            if self.is_classmethod:
+                # document class methods before static methods as
+                # they usually behave as alternative constructors
+                return 48
+            if self.is_staticmethod:
+                # document static members before regular methods
+                return 49
+            return 50
+        if self.obj_type == 'property':
+            return 60
+        return 30
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _AssignStatementProperties(_ItemProperties):
@@ -187,3 +216,20 @@ class _AssignStatementProperties(_ItemProperties):
     )
     _obj_repr_rst: str
     _obj_type_annotation: str | None
+
+    @property
+    def _groupwise_order_key(self) -> int:
+        return 40 if self.obj_type == 'data' else 60
+
+
+@dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
+class _TypeStatementProperties(_ItemProperties):
+    obj_type: Literal['type']
+
+    _obj___name__: str | None
+    _obj___qualname__: str | None
+    _obj___value__: str  # The aliased annotation
+
+    @property
+    def _groupwise_order_key(self) -> int:
+        return 70
