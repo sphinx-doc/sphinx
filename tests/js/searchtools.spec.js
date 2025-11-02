@@ -93,6 +93,43 @@ describe("Basic html theme search", function () {
       expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
+    it("should exclude results where the file index is above 0.", function () {
+      // This is a very constructed test case for fixing the issue that
+      // `(terms[term] || []).includes(file)` raises an error when `terms[term]` is an
+      // int above 0. The condition would be convterted to `(1).includes(3)` which
+      // results in this type error:
+      //    TypeError: (terms[term] || []).includes is not a function
+      eval(loadFixture("search_multiple_exclusions/searchindex.js"));
+
+      [_searchQuery, searchterms, excluded, ..._remainingItems] =
+        Search._parseQuery("page -jumanji");
+
+      // prettier-ignore
+      hits = [
+        [
+          'first',
+          'First Page',
+          '',
+          null,
+          15,
+          'first.rst',
+          'text'
+        ],
+        [
+          'index',
+          'Main Page',
+          '',
+          null,
+          15,
+          'index.rst',
+          'text'
+        ]
+      ];
+
+      expect(excluded).toEqual(new Set(["jumanji"]));
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
+    });
+
     it('should partially-match "sphinx" when in title index', function () {
       eval(loadFixture("partial/searchindex.js"));
 
