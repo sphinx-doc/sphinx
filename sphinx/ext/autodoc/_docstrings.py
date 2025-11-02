@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 
-_OBJECT_INIT_DOCSTRING = (tuple(prepare_docstring(object.__init__.__doc__ or '')),)
-_OBJECT_NEW_DOCSTRING = (tuple(prepare_docstring(object.__new__.__doc__ or '')),)
+_OBJECT_INIT_DOCSTRING = [prepare_docstring(object.__init__.__doc__ or '')]
+_OBJECT_NEW_DOCSTRING = [prepare_docstring(object.__new__.__doc__ or '')]
 
 
 def _docstring_lines_for_props(
@@ -146,11 +146,6 @@ def _get_docstring_lines(
     parent: Any,
     tab_width: int,
 ) -> list[list[str]] | None:
-    """Decode and return lines of the docstring(s) for the object.
-
-    When it returns None, autodoc-process-docstring will not be called for this
-    object.
-    """
     obj = props._obj
 
     if props.obj_type in {'class', 'exception'}:
