@@ -7,15 +7,20 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any, Literal, TypeAlias
+    from typing import Any, TypeAlias
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
 
-    _AutodocObjType = Literal[
-        'module', 'class', 'exception', 'function', 'method', 'attribute'
-    ]
     _AutodocProcessDocstringListener: TypeAlias = Callable[
         [Sphinx, _AutodocObjType, str, Any, dict[str, bool], list[str]], None
+    ]
+    _AutodocProcessSignatureListener: TypeAlias = Callable[  # NoQA: PYI047
+        [Sphinx, _AutodocObjType, str, Any, dict[str, bool], str | None, str | None],
+        tuple[str | None, str | None] | None,
+    ]
+    _AutodocSkipMemberListener: TypeAlias = Callable[  # NoQA: PYI047
+        [Sphinx, _AutodocObjType, str, Any, bool, dict[str, bool]], bool
     ]
 
 
