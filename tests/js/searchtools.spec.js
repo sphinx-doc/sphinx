@@ -66,14 +66,12 @@ describe("Basic html theme search", function () {
       expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
-    it("should find results when excluded terms are used", function () {
-      // This fixture already existed and has the right data to make this test work.
-      // Replace with another matching fixture if necessary.
+    it("should find results when a excluded term is used", function () {
       eval(loadFixture("search_exclusion/searchindex.js"));
 
       // It's important that the searchterm is included in multiple pages while the
       // excluded term is not included in all pages.
-      // In this case the ``for`` is included in the two existing pages while the ``ask``
+      // In this case the ``page`` is included in the two existing pages while the ``penguin``
       // is only included in one page.
       [_searchQuery, searchterms, excluded, ..._remainingItems] =
         Search._parseQuery("page -penguin");
