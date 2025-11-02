@@ -67,12 +67,19 @@ package.
 
 .. automethod:: Sphinx.add_post_transform
 
-.. automethod:: Sphinx.add_js_file
-.. versionchanged:: 7.1  Added CRC32 checksums to asset URIs for improved caching and integrity. When JavaScript files are added, a CRC32 checksum is now appended to the URI (e.g. ``_static/example.js?abcd1234``). This helps browsers detect when files have changed and refresh cached versions automatically. For more details, see the 7.1.0 changelog entry: https://www.sphinx-doc.org/en/master/changes.html#release-7-1-0-released-jul-24-2023 Site authors can also use the configuration options :confval:`html_js_files` and :confval:`html_static_path` to manage static JS files. Files in ``html_static_path`` override those added by extensions.
-.. automethod:: Sphinx.add_css_file
-.. versionchanged:: 7.1
-Added CRC32 checksums to asset URIs for CSS files as well, following the same caching and integrity improvements as :meth:`.Sphinx.add_js_file`.h:`.Sphinx.add_js_file`.
+.. automethod::  Sphinx.add_js_file
 
+   .. versionchanged:: 7.1
+      Added automatic CRC32 checksum for static files.
+      This ensures browsers reload updated JS assets automatically
+      instead of relying on manual cache clearing.
+
+.. automethod:: Sphinx.add_css_file
+   
+   .. versionchanged:: 7.1
+     Added automatic CRC32 checksum for static files.
+     This ensures browsers reload updated CSS assets automatically
+     instead of relying on manual cache clearing.
 .. automethod:: Sphinx.add_latex_package
 
 .. automethod:: Sphinx.add_lexer
