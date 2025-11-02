@@ -179,20 +179,10 @@ const _orderResultsByScoreThenName = (a, b) => {
  * used to exclude search terms later on.
  */
 if (typeof splitQuery === "undefined") {
-  var splitQuery = (query) => {
-    const consecutiveLetters =
-      /[\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu;
-    const searchWords = new RegExp(
-      `(${consecutiveLetters.source})|\\s(-${consecutiveLetters.source})`,
-      "gu",
-    );
-    return Array.from(
-      query
-        .matchAll(searchWords)
-        .map((results) => results[1] ?? results[2]) // select one of the possible groups (e.g. "word" or "-word").
-        .filter((term) => term), // remove remaining empty strings.
-    );
-  };
+  var splitQuery = (query) =>
+    query
+      .split(/(?<!\s)[-]|[^\p{Letter}\p{Number}\-_\p{Emoji_Presentation}]+/gu)
+      .filter((term) => term); // remove remaining empty strings
 }
 
 /**
