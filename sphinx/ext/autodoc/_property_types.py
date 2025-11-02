@@ -51,7 +51,6 @@ class _ItemProperties:
     #: The item's signature lines, for use in the directive
     signatures: tuple[str, ...] = ()
 
-    _docstrings: Sequence[Sequence[str]] | None = None
     _docstrings_has_hide_value: bool = False
     _obj: Any
     _obj___module__: str | None

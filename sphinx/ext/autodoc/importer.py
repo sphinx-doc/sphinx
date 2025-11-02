@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import contextlib
 import importlib
-import itertools
 import os
 import re
 import sys
@@ -20,7 +19,10 @@ from typing import TYPE_CHECKING, NewType, TypeVar
 from weakref import WeakSet
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._docstrings import _get_docstring_lines
+from sphinx.ext.autodoc._docstrings import (
+    _docstring_lines_for_props,
+    _get_docstring_lines,
+)
 from sphinx.ext.autodoc._property_types import (
     _AssignStatementProperties,
     _ClassDefProperties,
@@ -446,7 +448,7 @@ def _is_runtime_instance_attribute_not_commented(
 
 def _get_attribute_comment(
     parent: Any, obj_path: Sequence[str], attrname: str
-) -> tuple[str, ...] | None:
+) -> list[str] | None:
     for cls in inspect.getmro(parent):
         try:
             module = safe_getattr(cls, '__module__')
@@ -457,7 +459,7 @@ def _get_attribute_comment(
             if qualname and obj_path:
                 key = (qualname, attrname)
                 if key in analyzer.attr_docs:
-                    return tuple(analyzer.attr_docs[key])
+                    return list(analyzer.attr_docs[key])
         except (AttributeError, PycodeError):
             pass
 
@@ -495,6 +497,7 @@ def _load_object_by_name(
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
+    real_modname: str | None = None,
 ) -> _ItemProperties | None:
     """Import and load the object given by *name*."""
     parsed = _parse_name(
@@ -883,7 +886,8 @@ def _load_object_by_name(
         class_doc_from = options.class_doc_from
     else:
         class_doc_from = config.autoclass_content
-    props._docstrings = _get_docstring_lines(
+
+    docstrings = _get_docstring_lines(
         props,
         class_doc_from=class_doc_from,
         get_attr=get_attr,
@@ -891,10 +895,12 @@ def _load_object_by_name(
         parent=parent,
         tab_width=options._tab_width,
     )
-    for line in itertools.chain.from_iterable(props._docstrings or ()):
-        if _hide_value_re.match(line):
-            props._docstrings_has_hide_value = True
-            break
+    if docstrings:
+        for docstring_lines in docstrings:
+            for line in docstring_lines:
+                if _hide_value_re.match(line):
+                    props._docstrings_has_hide_value = True
+                    break
 
     # format the object's signature, if any
     try:
@@ -902,6 +908,7 @@ def _load_object_by_name(
             args=args,
             retann=retann,
             config=config,
+            docstrings=docstrings,
             events=events,
             get_attr=get_attr,
             parent=parent,
@@ -914,6 +921,14 @@ def _load_object_by_name(
         return None
     props.signatures = tuple(
         f'{args} -> {retann}' if retann else str(args) for args, retann in signatures
+    )
+
+    props.docstring_lines = _docstring_lines_for_props(
+        docstrings,
+        props=props,
+        real_modname=real_modname,
+        events=events,
+        options=options,
     )
 
     return props
@@ -1154,6 +1169,7 @@ def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
 def _format_signatures(
     *,
     config: Config,
+    docstrings: list[list[str]] | None,
     events: EventManager,
     get_attr: _AttrGetter,
     parent: Any,
@@ -1191,15 +1207,12 @@ def _format_signatures(
         not signatures
         and config.autodoc_docstring_signature
         and props.obj_type not in {'module', 'data', 'type'}
+        and docstrings is not None
     ):
         # only act if a signature is not explicitly given already,
         # and if the feature is enabled
-        signatures[:] = _extract_signatures_from_docstring(
-            config=config,
-            get_attr=get_attr,
-            options=options,
-            parent=parent,
-            props=props,
+        signatures[:] = _extract_signatures_from_docstrings(
+            docstrings, props=props, tab_width=options._tab_width
         )
 
     if not signatures:
@@ -1291,6 +1304,7 @@ def _format_signatures(
                 )
                 signatures += _format_signatures(
                     config=config,
+                    docstrings=None,
                     events=events,
                     get_attr=get_attr,
                     parent=None,
@@ -1402,6 +1416,7 @@ def _format_signatures(
                 )
                 signatures += _format_signatures(
                     config=config,
+                    docstrings=None,
                     events=events,
                     get_attr=get_attr,
                     parent=parent,
@@ -1437,16 +1452,12 @@ def _format_signatures(
     return signatures
 
 
-def _extract_signatures_from_docstring(
-    config: Config,
-    get_attr: _AttrGetter,
-    options: _AutoDocumenterOptions,
-    parent: Any,
+def _extract_signatures_from_docstrings(
+    docstrings: list[list[str]],
+    /,
     props: _ItemProperties,
+    tab_width: int,
 ) -> list[_FormattedSignature]:
-    if props._docstrings is None:
-        return []
-
     signatures: list[_FormattedSignature] = []
 
     # candidates of the object name
@@ -1456,11 +1467,10 @@ def _extract_signatures_from_docstring(
         if hasattr(props._obj, '__mro__'):
             valid_names |= {cls.__name__ for cls in props._obj.__mro__}
 
-    docstrings = props._docstrings or ()
-    _new_docstrings = [list(l) for l in docstrings]
-    tab_width = options._tab_width
+    stripped_docstrings = [list(l) for l in (docstrings or ())]
     for i, doclines in enumerate(docstrings):
-        for j, line in enumerate(doclines):
+        j = 0
+        for j, line in enumerate(doclines):  # NoQA: B007
             if not line:
                 # no lines in docstring, no match
                 break
@@ -1480,11 +1490,6 @@ def _extract_signatures_from_docstring(
             if base not in valid_names:
                 break
 
-            # re-prepare docstring to ignore more leading indentation
-            _new_docstrings[i] = prepare_docstring(
-                '\n'.join(doclines[j + 1 :]), tab_width
-            )
-
             if props.obj_type in {'class', 'exception'} and retann == 'None':
                 # Strip a return value from signatures of constructor in docstring
                 signatures.append((args, ''))
@@ -1492,23 +1497,31 @@ def _extract_signatures_from_docstring(
                 signatures.append((args, retann or ''))
 
         if signatures:
-            # finish the loop when signature found
+            # re-prepare docstring to ignore more leading indentation
+            stripped_docstrings[i] = prepare_docstring(
+                '\n'.join(doclines[j:]), tab_width
+            )
+
+            # finish the loop after finding at least one signature
             break
 
     if not signatures:
         return []
 
-    props._docstrings = _get_docstring_lines(
-        props,
-        class_doc_from=options.class_doc_from
-        if options.class_doc_from is not None
-        else config.autoclass_content,
-        get_attr=get_attr,
-        inherit_docstrings=config.autodoc_inherit_docstrings,
-        parent=parent,
-        tab_width=tab_width,
-        _new_docstrings=tuple(tuple(doc) for doc in _new_docstrings),
-    )
+    # Update docstrings from stripped_docstrings if needed
+    if props.obj_type in {
+        'class',
+        'exception',
+        'function',
+        'method',
+        'property',
+        'decorator',
+    } or (
+        props.obj_type == 'attribute'
+        and isinstance(props, _AssignStatementProperties)
+        and props._obj_is_attribute_descriptor
+    ):
+        docstrings[:] = stripped_docstrings
 
     return signatures
 

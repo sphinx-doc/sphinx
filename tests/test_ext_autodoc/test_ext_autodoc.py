@@ -124,7 +124,7 @@ def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
         _obj_is_new_type=False,
         _obj_is_typevar=False,
     )
-    props._docstrings = _get_docstring_lines(
+    docstrings = _get_docstring_lines(
         props,
         class_doc_from=app.config.autoclass_content,
         get_attr=get_attr,
@@ -134,6 +134,7 @@ def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
     )
     signatures = _format_signatures(
         config=app.config,
+        docstrings=docstrings,
         events=app.events,
         get_attr=get_attr,
         options=options,
@@ -393,6 +394,7 @@ def test_autodoc_process_signature_typehints(app):
     options = _AutoDocumenterOptions()
     _format_signatures(
         config=app.config,
+        docstrings=None,
         events=app.events,
         get_attr=get_attr,
         options=options,

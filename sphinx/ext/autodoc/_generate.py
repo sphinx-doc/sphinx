@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from docutils.statemachine import StringList
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
 from sphinx.ext.autodoc._member_finder import _gather_members
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
 from sphinx.ext.autodoc._sentinels import ALL
@@ -104,7 +103,7 @@ def _generate_directives(
         except PycodeError:
             pass
 
-    has_docstring = any(props._docstrings or ())
+    has_docstring = bool(props.docstring_lines)
     if ismock(props._obj) and not has_docstring:
         logger.warning(
             __('A mocked object is detected: %r'),
@@ -182,14 +181,7 @@ def _add_directive_lines(
     header_lines = StringList(list(lines), source='')
 
     # add content from docstrings or attribute documentation
-    docstrings = _prepare_docstrings(props=props, attr_docs=attr_docs)
-    lines = _process_docstrings(
-        docstrings,
-        events=events,
-        props=props,
-        options=options,
-    )
-    docstring_lines = StringList(list(lines), source=source_name)
+    docstring_lines = StringList(props.docstring_lines, source=source_name)
 
     # add alias information, if applicable
     lines = _body_alias_lines(
@@ -252,6 +244,7 @@ def _document_members(
         events=events,
         get_attr=get_attr,
         options=options,
+        real_modname=real_modname,
         props=props,
     )
 
