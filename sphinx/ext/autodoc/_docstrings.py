@@ -26,9 +26,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 
-_OBJECT_INIT_DOCSTRING = [prepare_docstring(object.__init__.__doc__ or '')]
-_OBJECT_NEW_DOCSTRING = [prepare_docstring(object.__new__.__doc__ or '')]
-
 
 def _docstring_lines_for_props(
     docstrings: list[list[str]] | None,
@@ -146,6 +143,11 @@ def _get_docstring_lines(
     parent: Any,
     tab_width: int,
 ) -> list[list[str]] | None:
+    """Decode and return lines of the docstring(s) for the object.
+
+    When it returns None, autodoc-process-docstring will not be called for this
+    object.
+    """
     obj = props._obj
 
     if props.obj_type in {'class', 'exception'}:
@@ -198,18 +200,19 @@ def _get_docstring_lines(
         return [prepare_docstring(docstring, tab_width) for docstring in docstrings]
 
     if props.obj_type == 'method':
-        docstring = _get_doc(
+        docstring = getdoc(
             obj,
-            props=props,
-            inherit_docstrings=inherit_docstrings,
-            parent=parent,
-            tab_width=tab_width,
+            allow_inherited=inherit_docstrings,
+            cls=parent,
+            name=props.object_name,
         )
-        if props.name == '__init__' and docstring == _OBJECT_INIT_DOCSTRING:
+        if (
+            not docstring
+            or (props.name == '__init__' and docstring == object.__init__.__doc__)
+            or (props.name == '__new__' and docstring == object.__new__.__doc__)
+        ):
             return []
-        if props.name == '__new__' and docstring == _OBJECT_NEW_DOCSTRING:
-            return []
-        return docstring
+        return [prepare_docstring(docstring, tab_width)]
 
     if props.obj_type == 'data':
         # Check the variable has a docstring-comment
@@ -227,13 +230,19 @@ def _get_docstring_lines(
 
         if comment:
             return [comment]
-        return _get_doc(
+
+        if obj is UNINITIALIZED_ATTR:
+            return []
+
+        docstring = getdoc(
             obj,
-            props=props,
-            inherit_docstrings=inherit_docstrings,
-            parent=parent,
-            tab_width=tab_width,
+            allow_inherited=inherit_docstrings,
+            cls=parent,
+            name=props.object_name,
         )
+        if not docstring:
+            return []
+        return [prepare_docstring(docstring, tab_width)]
 
     if props.obj_type == 'attribute':
         from sphinx.ext.autodoc.importer import (
@@ -284,39 +293,15 @@ def _get_docstring_lines(
             # the wrong thing to display
             return None
 
-        return _get_doc(
+        docstring = getdoc(
             obj,
-            props=props,
-            inherit_docstrings=inherit_docstrings,
-            parent=parent,
-            tab_width=tab_width,
+            allow_inherited=inherit_docstrings,
+            cls=parent,
+            name=props.object_name,
         )
-
-    docstring = _get_doc(
-        obj,
-        props=props,
-        inherit_docstrings=inherit_docstrings,
-        parent=parent,
-        tab_width=tab_width,
-    )
-    return docstring
-
-
-def _get_doc(
-    obj: Any,
-    *,
-    props: _ItemProperties,
-    inherit_docstrings: bool,
-    parent: Any,
-    tab_width: int,
-) -> list[list[str]] | None:
-    """Decode and return lines of the docstring(s) for the object.
-
-    When it returns None, autodoc-process-docstring will not be called for this
-    object.
-    """
-    if obj is UNINITIALIZED_ATTR:
-        return []
+        if not docstring:
+            return []
+        return [prepare_docstring(docstring, tab_width)]
 
     docstring = getdoc(
         obj,
@@ -324,9 +309,9 @@ def _get_doc(
         cls=parent,
         name=props.object_name,
     )
-    if docstring:
-        return [prepare_docstring(docstring, tab_width)]
-    return []
+    if not docstring:
+        return []
+    return [prepare_docstring(docstring, tab_width)]
 
 
 def _class_variable_comment(props: _ItemProperties) -> bool:
