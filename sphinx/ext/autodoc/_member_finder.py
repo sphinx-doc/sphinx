@@ -100,7 +100,7 @@ def _gather_members(
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
-    real_modname: str,
+    parent_modname: str,
     props: _ItemProperties,
 ) -> list[tuple[_ItemProperties, bool, str]]:
     """Generate reST for member documentation.
@@ -183,7 +183,7 @@ def _gather_members(
             events=events,
             get_attr=get_attr,
             options=options,
-            real_modname=real_modname,
+            parent_modname=parent_modname,
         )
         if member_props is None:
             continue

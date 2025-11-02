@@ -360,18 +360,6 @@ class Autosummary(SphinxDirective):
                 items.append((display_name, '', '', real_name))
                 continue
 
-            # try to also get a source code analyzer for attribute docs
-            real_module = props._obj___module__ or props.module_name
-            try:
-                analyzer = ModuleAnalyzer.for_module(real_module)
-                # parse right now, to get PycodeErrors on parsing (results will
-                # be cached anyway)
-                analyzer.analyze()
-            except PycodeError as err:
-                logger.debug('[autodoc] module analyzer failed: %s', err)
-                # no source file -- e.g. for builtin and C modules
-                analyzer = None
-
             # -- Grab the signature
 
             if signatures_option == 'none':

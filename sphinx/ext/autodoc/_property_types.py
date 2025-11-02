@@ -82,6 +82,12 @@ class _ItemProperties:
     def _groupwise_order_key(self) -> int:
         return 0
 
+    @property
+    def canonical_module_name(self) -> str:
+        if self._obj___module__ is not None:
+            return self._obj___module__
+        return self.module_name
+
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)
 class _ModuleProperties(_ItemProperties):
