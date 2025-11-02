@@ -52,7 +52,7 @@ if TYPE_CHECKING:
 
 
 # Map of command name to import path.
-_COMMANDS: dict[str, str] = {}
+_COMMANDS: dict[str, str] = {'quickstart': 'sphinx.cmd._quickstart'}
 
 
 def _load_subcommand_descriptions() -> Iterator[tuple[str, str]]:
