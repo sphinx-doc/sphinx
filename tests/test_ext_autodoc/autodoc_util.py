@@ -62,8 +62,8 @@ def do_autodoc(
             options=doc_options,
             props=props,
             record_dependencies=set(),
-            result=result,
             ref_context=ref_context,
             reread_always=reread_always,
+            result=result,
         )
     return result

@@ -7,6 +7,7 @@ source file translated by test_build.
 from __future__ import annotations
 
 import itertools
+import logging
 import sys
 from typing import TYPE_CHECKING
 from warnings import catch_warnings
@@ -55,6 +56,10 @@ processed_signatures = []
 
 
 def test_parse_name(caplog: pytest.LogCaptureFixture) -> None:
+    # work around sphinx.util.logging.setup()
+    logger = logging.getLogger('sphinx')
+    logger.handlers[:] = [caplog.handler]
+
     current_document = _CurrentDocument()
     ref_context: dict[str, Any] = {}
 
@@ -586,9 +591,9 @@ def _assert_getter_works(app, get_attr, options, objtype, name, *attrs):
             options=options,
             props=props,
             record_dependencies=set(),
-            result=StringList(),
             ref_context=ref_context,
             reread_always=reread_always,
+            result=StringList(),
         )
 
     hooked_members = {s[1] for s in getattr_spy}

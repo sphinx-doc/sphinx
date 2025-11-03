@@ -144,9 +144,9 @@ def _generate_directives(
         props=props,
         real_modname=real_modname,
         record_dependencies=record_dependencies,
-        result=result,
         ref_context=ref_context,
         reread_always=reread_always,
+        result=result,
     )
 
 

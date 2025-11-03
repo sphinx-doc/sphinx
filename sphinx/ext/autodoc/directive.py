@@ -171,9 +171,9 @@ class AutodocDirective(SphinxDirective):
             options=documenter_options,
             props=props,
             record_dependencies=record_dependencies,
-            result=result,
             ref_context=ref_context,
             reread_always=reread_always,
+            result=result,
         )
         if not result:
             return []
