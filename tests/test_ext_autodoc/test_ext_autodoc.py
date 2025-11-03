@@ -82,7 +82,7 @@ def test_parse_name(caplog: pytest.LogCaptureFixture) -> None:
     assert parsed == ('test.test_ext_autodoc', [], None, None)
     parsed = parse('module', 'test(arg)')
     assert parsed is None
-    assert 'signature arguments' in caplog.text
+    assert 'signature arguments given for automodule' in caplog.messages[0]
 
     # for functions/classes
     parsed = parse('function', 'test_ext_autodoc.raises')
