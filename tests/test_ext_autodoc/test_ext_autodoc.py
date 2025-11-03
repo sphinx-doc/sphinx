@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import itertools
 import logging
+import pathlib
 import sys
 from typing import TYPE_CHECKING
 from warnings import catch_warnings
@@ -2681,7 +2682,7 @@ def test_autodoc_pep695_type_alias(app):
         '',
         '.. py:data:: pathlike',
         '   :module: target.pep695',
-        '   :value: str | pathlib._local.Path',
+        f'   :value: str | {pathlib.Path.__module__}.Path',
         '',
         '   Any type of path',
         '',
