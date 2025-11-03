@@ -2668,6 +2668,7 @@ def test_autodoc_pep695_type_alias(app):
         '   :module: target.pep695',
         '',
         '   Return length of a buffer-like object.',
+        '',
         '   Tests Union type alias cross-reference resolution.',
         '',
         '',
