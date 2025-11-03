@@ -381,7 +381,7 @@ def test_mathjax3_config(app: SphinxTestApp) -> None:
     testroot='ext-math',
     confoverrides={
         'extensions': ['sphinx.ext.mathjax'],
-        'mathjax3_config': "_static/custom_mathjax_config.js",
+        'mathjax3_config': '_static/custom_mathjax_config.js',
     },
 )
 def test_mathjax3_js_config(app: SphinxTestApp) -> None:
