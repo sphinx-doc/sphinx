@@ -23,19 +23,6 @@ from sphinx.ext.autodoc._directive_options import (
     members_option,
     merge_members_option,
 )
-from sphinx.ext.autodoc._documenters import (
-    AttributeDocumenter,
-    ClassDocumenter,
-    DataDocumenter,
-    DecoratorDocumenter,
-    Documenter,
-    ExceptionDocumenter,
-    FunctionDocumenter,
-    MethodDocumenter,
-    ModuleDocumenter,
-    PropertyDocumenter,
-    TypeAliasDocumenter,
-)
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
 from sphinx.ext.autodoc._member_finder import ObjectMember, special_member_re
 from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS, UNINITIALIZED_ATTR
@@ -45,26 +32,18 @@ from sphinx.ext.autodoc._sentinels import (
 from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR as SLOTSATTR,
 )
+from sphinx.ext.autodoc.directive import AutodocDirective
 from sphinx.ext.autodoc.importer import py_ext_sig_re
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.util.typing import ExtensionMetadata
 
 __all__ = (
     # Useful event listener factories for autodoc-process-docstring
     'cut_lines',
     'between',
-    # Documenters
-    'AttributeDocumenter',
-    'ClassDocumenter',
-    'DataDocumenter',
-    'DecoratorDocumenter',
-    'ExceptionDocumenter',
-    'FunctionDocumenter',
-    'MethodDocumenter',
-    'ModuleDocumenter',
-    'PropertyDocumenter',
     # This class is only used in ``sphinx.ext.autodoc.directive``,
     # but we export it here for compatibility.
     # See: https://github.com/sphinx-doc/sphinx/issues/4538
@@ -93,21 +72,25 @@ __all__ = (
     'ObjectMember',
     'py_ext_sig_re',
     'special_member_re',
-    'Documenter',
 )
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_autodocumenter(ModuleDocumenter)
-    app.add_autodocumenter(ClassDocumenter)
-    app.add_autodocumenter(ExceptionDocumenter)
-    app.add_autodocumenter(DataDocumenter)
-    app.add_autodocumenter(FunctionDocumenter)
-    app.add_autodocumenter(DecoratorDocumenter)
-    app.add_autodocumenter(MethodDocumenter)
-    app.add_autodocumenter(AttributeDocumenter)
-    app.add_autodocumenter(PropertyDocumenter)
-    app.add_autodocumenter(TypeAliasDocumenter)
+    obj_type: _AutodocObjType
+    for obj_type in (
+        'module',
+        'class',
+        'exception',
+        'function',
+        'decorator',
+        'method',
+        'property',
+        'attribute',
+        'data',
+        'type',
+    ):
+        # register the automodule, autoclass, etc. directives
+        app.add_directive(f'auto{obj_type}', AutodocDirective)
 
     app.add_config_value(
         'autoclass_content',

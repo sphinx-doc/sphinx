@@ -173,7 +173,7 @@ exclude = [
 [tool.mypy]
 files = [
     "doc/conf.py",
-    "doc/development/tutorials/examples/autodoc_intenum.py",
+#    "doc/development/tutorials/examples/autodoc_intenum.py",
     "doc/development/tutorials/examples/helloworld.py",
     "sphinx",
     "tests",

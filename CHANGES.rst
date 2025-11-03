@@ -133,6 +133,8 @@ Bugs fixed
   directly defined in certain cases, depending on autodoc processing
   order.
   Patch by Jeremy Maitin-Shepard.
+* #13939: LaTeX: page break can separate admonition title from contents.
+  Patch by Jean-François B.
 
 
 Testing

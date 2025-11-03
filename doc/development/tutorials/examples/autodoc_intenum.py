@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import TYPE_CHECKING
 
 from sphinx.ext.autodoc import ClassDocumenter, bool_option
-from sphinx.ext.autodoc._documenters import _docstring_source_name
+from sphinx.ext.autodoc._generate import _docstring_source_name
 
 if TYPE_CHECKING:
     from typing import Any
@@ -37,9 +37,9 @@ class IntEnumDocumenter(ClassDocumenter):
         analyzer_source = '' if self.analyzer is None else self.analyzer.srcname
         source_name = _docstring_source_name(props=self.props, source=analyzer_source)
         if line.strip():  # not a blank line
-            self.directive.result.append(indent + line, source_name, *lineno)
+            self.result.append(indent + line, source_name, *lineno)
         else:
-            self.directive.result.append('', source_name, *lineno)
+            self.result.append('', source_name, *lineno)
 
     def add_directive_header(self, *, indent: str) -> None:
         super().add_directive_header(indent=indent)
