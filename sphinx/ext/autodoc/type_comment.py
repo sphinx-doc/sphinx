@@ -6,7 +6,6 @@ import ast
 from inspect import Parameter, Signature, getsource
 from typing import TYPE_CHECKING, cast
 
-import sphinx
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import inspect, logging
@@ -15,8 +14,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from sphinx.application import Sphinx
-    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -127,13 +124,8 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
         return None
 
 
-def update_annotations_using_type_comments(
-    app: Sphinx, obj: Any, bound_method: bool
-) -> None:
+def _update_annotations_using_type_comments(obj: Any, bound_method: bool) -> None:
     """Update annotations info of *obj* using type_comments."""
-    if not app.config.autodoc_use_type_comments:
-        return
-
     try:
         type_sig = get_type_comment(obj, bound_method)
         if type_sig:
@@ -152,17 +144,3 @@ def update_annotations_using_type_comments(
         )
     except NotImplementedError as exc:  # failed to ast.unparse()
         logger.warning(__('Failed to parse type_comment for %r: %s'), obj, exc)
-
-
-def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value(
-        'autodoc_use_type_comments', True, 'env', types=frozenset({bool})
-    )
-    app.connect(
-        'autodoc-before-process-signature', update_annotations_using_type_comments
-    )
-
-    return {
-        'version': sphinx.__display_version__,
-        'parallel_read_safe': True,
-    }
