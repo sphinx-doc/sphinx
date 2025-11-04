@@ -23,7 +23,7 @@ def do_autodoc(
     obj_type: _AutodocObjType,
     name: str,
     options: dict[str, Any] | None = None,
-) -> StringList:
+) -> list[str]:
     options = {} if options is None else options.copy()
     if not app.env.current_document.docname:
         app.env.current_document.docname = 'index'  # set dummy docname
@@ -66,4 +66,4 @@ def do_autodoc(
             reread_always=reread_always,
             result=result,
         )
-    return result
+    return result.data
