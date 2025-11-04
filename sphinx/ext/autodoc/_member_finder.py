@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Literal, NewType, TypeVar
 from sphinx.errors import PycodeError
 from sphinx.events import EventManager
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._property_types import _ClassDefProperties, _ModuleProperties
 from sphinx.ext.autodoc._sentinels import ALL, INSTANCE_ATTR, SLOTS_ATTR
-from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
