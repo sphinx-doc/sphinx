@@ -7,6 +7,7 @@ from inspect import Parameter, Signature
 from typing import TYPE_CHECKING, NewType, TypeVar
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._names import py_ext_sig_re
 from sphinx.ext.autodoc._property_types import _AssignStatementProperties
 from sphinx.ext.autodoc.preserve_defaults import update_default_value
 from sphinx.ext.autodoc.type_comment import _update_annotations_using_type_comments
@@ -336,8 +337,6 @@ def _extract_signatures_from_docstrings(
     props: _ItemProperties,
     tab_width: int,
 ) -> list[_FormattedSignature]:
-    from sphinx.ext.autodoc.importer import py_ext_sig_re
-
     signatures: list[_FormattedSignature] = []
 
     # candidates of the object name
