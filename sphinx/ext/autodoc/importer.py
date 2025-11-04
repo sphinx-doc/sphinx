@@ -5,63 +5,33 @@ from __future__ import annotations
 import contextlib
 import importlib
 import os
-import re
 import sys
 import traceback
 import typing
 from importlib.abc import FileLoader
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
-from inspect import Parameter
 from pathlib import Path
-from types import SimpleNamespace
-from typing import TYPE_CHECKING, NewType, TypeVar
+from typing import TYPE_CHECKING
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._docstrings import (
-    _docstring_lines_for_props,
-    _get_docstring_lines,
-)
-from sphinx.ext.autodoc._names import _parse_name
-from sphinx.ext.autodoc._property_types import (
-    _AssignStatementProperties,
-    _ClassDefProperties,
-    _FunctionDefProperties,
-    _ItemProperties,
-    _ModuleProperties,
-    _TypeStatementProperties,
-)
-from sphinx.ext.autodoc._sentinels import (
-    RUNTIME_INSTANCE_ATTRIBUTE,
-    SLOTS_ATTR,
-    UNINITIALIZED_ATTR,
-)
-from sphinx.ext.autodoc._signatures import _format_signatures
-from sphinx.ext.autodoc._type_comments import (
-    _ensure_annotations_from_type_comments,
-    _update_annotations_using_type_comments,
-)
+from sphinx.ext.autodoc._sentinels import RUNTIME_INSTANCE_ATTRIBUTE, UNINITIALIZED_ATTR
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
-from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.inspect import (
     isclass,
     safe_getattr,
 )
-from sphinx.util.typing import get_type_hints, restify, stringify_annotation
+from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, MutableSet, Sequence
+    from collections.abc import Sequence
     from importlib.machinery import ModuleSpec
     from types import ModuleType
     from typing import Any, Protocol
 
-    from sphinx.config import Config
-    from sphinx.environment import _CurrentDocument
-    from sphinx.events import EventManager
-    from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
 
     class _AttrGetter(Protocol):
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
@@ -69,8 +39,6 @@ if TYPE_CHECKING:
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
-
-_hide_value_re = re.compile(r'^:meta \s*hide-value:( +|$)')
 
 
 class _ImportedObject:
@@ -318,7 +286,9 @@ def _import_object(
     obj_path: Sequence[str],
     mock_imports: list[str],
     get_attr: _AttrGetter = safe_getattr,
-) -> _ImportedObject:
+    obj_type: _AutodocObjType,
+    type_aliases: dict[str, Any] | None,
+) -> _ImportedObject | None:
     """Import the object given by *module_name* and *obj_path* and set
     it as *object*.
 
@@ -329,11 +299,33 @@ def _import_object(
             im = _import_from_module_and_path(
                 module_name=module_name, obj_path=obj_path, get_attr=get_attr
             )
-        if ismock(im.obj):
-            im.obj = undecorate(im.obj)
-        return im
-    except ImportError:  # NoQA: TRY203
-        raise
+    except ImportError as exc:
+        if obj_type == 'data':
+            im_ = _import_data_declaration(
+                module_name=module_name,
+                obj_path=obj_path,
+                mock_imports=mock_imports,
+                type_aliases=type_aliases,
+            )
+            if im_ is not None:
+                return im_
+        elif obj_type == 'attribute':
+            im_ = _import_attribute_declaration(
+                module_name=module_name,
+                obj_path=obj_path,
+                mock_imports=mock_imports,
+                type_aliases=type_aliases,
+                get_attr=get_attr,
+            )
+            if im_ is not None:
+                return im_
+
+        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+        return None
+
+    if ismock(im.obj):
+        im.obj = undecorate(im.obj)
+    return im
 
 
 def _import_data_declaration(
@@ -459,466 +451,3 @@ def _is_uninitialized_instance_attribute(
     """Check the subject is an annotation only attribute."""
     annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
     return obj_path[-1] in annotations
-
-
-def _is_slots_attribute(*, parent: Any, obj_path: Sequence[str]) -> bool:
-    """Check the subject is an attribute in __slots__."""
-    try:
-        if parent___slots__ := inspect.getslots(parent):
-            return obj_path[-1] in parent___slots__
-        else:
-            return False
-    except (ValueError, TypeError):
-        return False
-
-
-def _load_object_by_name(
-    *,
-    name: str,
-    objtype: _AutodocObjType,
-    mock_imports: list[str],
-    type_aliases: dict[str, Any] | None,
-    current_document: _CurrentDocument,
-    config: Config,
-    events: EventManager,
-    get_attr: _AttrGetter,
-    options: _AutoDocumenterOptions,
-    parent_modname: str | None = None,
-    ref_context: Mapping[str, str | None],
-    reread_always: MutableSet[str],
-) -> _ItemProperties | None:
-    """Import and load the object given by *name*."""
-    parsed = _parse_name(
-        name=name,
-        objtype=objtype,
-        current_document=current_document,
-        ref_context=ref_context,
-    )
-    if parsed is None:
-        return None
-    module_name, parts, args, retann = parsed
-
-    # Import the module and get the object to document
-    try:
-        im = _import_object(
-            module_name=module_name,
-            obj_path=parts,
-            mock_imports=mock_imports,
-            get_attr=get_attr,
-        )
-    except ImportError as exc:
-        if objtype == 'data':
-            im_ = _import_data_declaration(
-                module_name=module_name,
-                obj_path=parts,
-                mock_imports=mock_imports,
-                type_aliases=type_aliases,
-            )
-        elif objtype == 'attribute':
-            im_ = _import_attribute_declaration(
-                module_name=module_name,
-                obj_path=parts,
-                mock_imports=mock_imports,
-                type_aliases=type_aliases,
-                get_attr=get_attr,
-            )
-        else:
-            im_ = None
-        if im_ is None:
-            logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-            # See BuildEnvironment.note_reread()
-            reread_always.add(current_document.docname)
-            return None
-        else:
-            im = im_
-
-    # Assemble object properties from the imported object.
-    props: _ItemProperties
-    parent = im.parent
-    object_name = im.object_name
-    obj = im.obj
-    obj_properties: set[_AutodocFuncProperty] = set()
-    if objtype == 'module':
-        try:
-            mod_origin = im.module.__spec__.origin  # type: ignore[union-attr]
-        except AttributeError:
-            file_path = None
-        else:
-            file_path = Path(mod_origin) if mod_origin is not None else None
-
-        mod_all = safe_getattr(obj, '__all__', None)
-        if isinstance(mod_all, (list, tuple)) and all(
-            isinstance(e, str) for e in mod_all
-        ):
-            mod_all = tuple(mod_all)
-        elif mod_all is not None:
-            # Invalid __all__ found.
-            msg = __('Ignoring invalid __all__ in module %s: %r')
-            logger.warning(msg, module_name, mod_all, type='autodoc')
-            mod_all = None
-
-        props = _ModuleProperties(
-            obj_type=objtype,
-            module_name=module_name,
-            docstring_lines=(),
-            file_path=file_path,
-            all=mod_all,
-            _obj=obj,
-            _obj___module__=obj.__name__,
-        )
-    elif objtype in {'class', 'exception'}:
-        if isinstance(obj, (NewType, TypeVar)):
-            obj_module_name = getattr(obj, '__module__', module_name)
-            if obj_module_name != module_name and module_name.startswith(
-                obj_module_name
-            ):
-                bases = module_name[len(obj_module_name) :].strip('.').split('.')
-                parts = tuple(bases) + parts
-                module_name = obj_module_name
-
-        if orig_bases := inspect.getorigbases(obj):
-            # A subclass of generic types
-            # refs: PEP-560 <https://peps.python.org/pep-0560/>
-            obj_bases = list(orig_bases)
-        elif hasattr(obj, '__bases__') and obj.__bases__:
-            # A normal class
-            obj_bases = list(obj.__bases__)
-        else:
-            obj_bases = []
-        full_name = '.'.join((module_name, *parts))
-        events.emit(
-            'autodoc-process-bases',
-            full_name,
-            obj,
-            SimpleNamespace(),
-            obj_bases,
-        )
-        if config.autodoc_typehints_format == 'short':
-            mode = 'smart'
-        else:
-            mode = 'fully-qualified-except-typing'
-        base_classes = tuple(restify(cls, mode=mode) for cls in obj_bases)  # type: ignore[arg-type]
-
-        props = _ClassDefProperties(
-            obj_type=objtype,  # type: ignore[arg-type]
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            bases=getattr(obj, '__bases__', None),
-            _obj=obj,
-            _obj___module__=get_attr(obj, '__module__', None),
-            _obj___name__=getattr(obj, '__name__', None),
-            _obj___qualname__=getattr(obj, '__qualname__', None),
-            _obj_bases=base_classes,
-            _obj_is_new_type=isinstance(obj, NewType),
-            _obj_is_typevar=isinstance(obj, TypeVar),
-        )
-    elif objtype in {'function', 'decorator'}:
-        if inspect.isstaticmethod(obj, cls=parent, name=object_name):
-            obj_properties.add('staticmethod')
-        if inspect.isclassmethod(obj):
-            obj_properties.add('classmethod')
-        if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
-            obj_properties.add('async')
-
-        props = _FunctionDefProperties(
-            obj_type=objtype,  # type: ignore[arg-type]
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            properties=frozenset(obj_properties),
-            _obj=obj,
-            _obj___module__=get_attr(obj, '__module__', None),
-            _obj___name__=getattr(obj, '__name__', None),
-            _obj___qualname__=getattr(obj, '__qualname__', None),
-        )
-    elif objtype == 'method':
-        # to distinguish classmethod/staticmethod
-        obj_ = parent.__dict__.get(object_name, obj)
-        if inspect.isstaticmethod(obj_, cls=parent, name=object_name):
-            obj_properties.add('staticmethod')
-        elif (
-            inspect.is_classmethod_like(obj_)
-            or inspect.is_singledispatch_method(obj_)
-            and inspect.is_classmethod_like(obj_.func)
-        ):
-            obj_properties.add('classmethod')
-        if inspect.isabstractmethod(obj_):
-            obj_properties.add('abstractmethod')
-        if inspect.iscoroutinefunction(obj_) or inspect.isasyncgenfunction(obj_):
-            obj_properties.add('async')
-
-        props = _FunctionDefProperties(
-            obj_type=objtype,
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            properties=frozenset(obj_properties),
-            _obj=obj,
-            _obj___module__=get_attr(obj, '__module__', None),
-            _obj___name__=getattr(obj, '__name__', None),
-            _obj___qualname__=getattr(obj, '__qualname__', None),
-        )
-    elif objtype == 'property':
-        if not inspect.isproperty(obj):
-            # Support for class properties. Note: these only work on Python 3.9.
-            __dict__ = safe_getattr(parent, '__dict__', {})
-            obj = __dict__.get(parts[-1])
-            if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
-                obj = obj.__func__
-                obj_properties.add('classmethod')
-            else:
-                return None
-        if inspect.isabstractmethod(obj):
-            obj_properties.add('abstractmethod')
-
-        # get property return type annotation
-        obj_property_type_annotation = None
-        if safe_getattr(obj, 'fget', None):  # property
-            func = obj.fget  # type: ignore[union-attr]
-        elif safe_getattr(obj, 'func', None):  # cached_property
-            func = obj.func  # type: ignore[union-attr]
-        else:
-            func = None
-        if func is not None:
-            # update the annotations of the property getter
-            if config.autodoc_use_type_comments:
-                _update_annotations_using_type_comments(func, False)
-
-            try:
-                signature = inspect.signature(
-                    func, type_aliases=config.autodoc_type_aliases
-                )
-            except TypeError as exc:
-                full_name = '.'.join((module_name, *parts))
-                logger.warning(
-                    __('Failed to get a function signature for %s: %s'),
-                    full_name,
-                    exc,
-                )
-                pass
-            except ValueError:
-                pass
-            else:
-                if config.autodoc_typehints_format == 'short':
-                    mode = 'smart'
-                else:
-                    mode = 'fully-qualified-except-typing'
-                if signature.return_annotation is not Parameter.empty:
-                    short_literals = config.python_display_short_literal_types
-                    obj_property_type_annotation = stringify_annotation(
-                        signature.return_annotation,
-                        mode,  # type: ignore[arg-type]
-                        short_literals=short_literals,
-                    )
-
-        props = _FunctionDefProperties(
-            obj_type=objtype,
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            properties=frozenset(obj_properties),
-            _obj=obj,
-            _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
-            _obj___name__=getattr(parent or obj, '__name__', None),
-            _obj___qualname__=getattr(parent or obj, '__qualname__', None),
-            _obj_property_type_annotation=obj_property_type_annotation,
-        )
-    elif objtype == 'data':
-        # Update __annotations__ to support type_comment and so on
-        _ensure_annotations_from_type_comments(parent)
-
-        # obtain annotation
-        annotations = get_type_hints(
-            parent,
-            None,
-            config.autodoc_type_aliases,
-            include_extras=True,
-        )
-        if config.autodoc_typehints_format == 'short':
-            mode = 'smart'
-        else:
-            mode = 'fully-qualified-except-typing'
-        if parts[-1] in annotations:
-            short_literals = config.python_display_short_literal_types
-            type_annotation = stringify_annotation(
-                annotations[parts[-1]],
-                mode,  # type: ignore[arg-type]
-                short_literals=short_literals,
-            )
-        else:
-            type_annotation = None
-
-        if (
-            obj is RUNTIME_INSTANCE_ATTRIBUTE
-            or obj is SLOTS_ATTR
-            or obj is UNINITIALIZED_ATTR
-        ):
-            obj_sentinel = obj
-        else:
-            obj_sentinel = None
-
-        props = _AssignStatementProperties(
-            obj_type=objtype,
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            value=...,
-            annotation='',
-            class_var=False,
-            instance_var=False,
-            _obj=obj,
-            _obj___module__=get_attr(parent or obj, '__module__', None) or module_name,
-            _obj_is_generic_alias=inspect.isgenericalias(obj),
-            _obj_is_attribute_descriptor=inspect.isattributedescriptor(obj),
-            _obj_is_mock=ismock(obj),
-            _obj_is_sentinel=obj_sentinel,
-            _obj_repr_rst=inspect.object_description(obj),
-            _obj_type_annotation=type_annotation,
-        )
-    elif objtype == 'attribute':
-        if _is_slots_attribute(parent=parent, obj_path=parts):
-            obj = SLOTS_ATTR
-        elif inspect.isenumattribute(obj):
-            obj = obj.value
-        if parent:
-            # Update __annotations__ to support type_comment and so on
-            _ensure_annotations_from_type_comments(parent)
-
-        # obtain annotation
-        annotations = get_type_hints(
-            parent,
-            None,
-            config.autodoc_type_aliases,
-            include_extras=True,
-        )
-        if config.autodoc_typehints_format == 'short':
-            mode = 'smart'
-        else:
-            mode = 'fully-qualified-except-typing'
-        if parts[-1] in annotations:
-            short_literals = config.python_display_short_literal_types
-            type_annotation = stringify_annotation(
-                annotations[parts[-1]],
-                mode,  # type: ignore[arg-type]
-                short_literals=short_literals,
-            )
-        else:
-            type_annotation = None
-
-        if (
-            obj is RUNTIME_INSTANCE_ATTRIBUTE
-            or obj is SLOTS_ATTR
-            or obj is UNINITIALIZED_ATTR
-        ):
-            obj_sentinel = obj
-        else:
-            obj_sentinel = None
-
-        props = _AssignStatementProperties(
-            obj_type=objtype,
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            value=...,
-            annotation='',
-            class_var=False,
-            instance_var=False,
-            _obj=obj,
-            _obj___module__=get_attr(obj, '__module__', None),
-            _obj_is_generic_alias=inspect.isgenericalias(obj),
-            _obj_is_attribute_descriptor=inspect.isattributedescriptor(obj),
-            _obj_is_mock=ismock(obj),
-            _obj_is_sentinel=obj_sentinel,
-            _obj_repr_rst=inspect.object_description(obj),
-            _obj_type_annotation=type_annotation,
-        )
-    elif objtype == 'type':
-        obj_module_name = getattr(obj, '__module__', module_name)
-        if obj_module_name != module_name and module_name.startswith(obj_module_name):
-            bases = module_name[len(obj_module_name) :].strip('.').split('.')
-            parts = tuple(bases) + parts
-            module_name = obj_module_name
-
-        if config.autodoc_typehints_format == 'short':
-            mode = 'smart'
-        else:
-            mode = 'fully-qualified-except-typing'
-        short_literals = config.python_display_short_literal_types
-        ann = stringify_annotation(
-            obj.__value__,
-            mode,  # type: ignore[arg-type]
-            short_literals=short_literals,
-        )
-        props = _TypeStatementProperties(
-            obj_type=objtype,
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            _obj=obj,
-            _obj___module__=get_attr(obj, '__module__', None),
-            _obj___name__=getattr(obj, '__name__', None),
-            _obj___qualname__=getattr(obj, '__qualname__', None),
-            _obj___value__=ann,
-        )
-    else:
-        props = _ItemProperties(
-            obj_type=objtype,
-            module_name=module_name,
-            parts=parts,
-            docstring_lines=(),
-            _obj=obj,
-            _obj___module__=get_attr(obj, '__module__', None),
-        )
-
-    if options.class_doc_from is not None:
-        class_doc_from = options.class_doc_from
-    else:
-        class_doc_from = config.autoclass_content
-
-    docstrings = _get_docstring_lines(
-        props,
-        class_doc_from=class_doc_from,
-        get_attr=get_attr,
-        inherit_docstrings=config.autodoc_inherit_docstrings,
-        parent=parent,
-        tab_width=options._tab_width,
-    )
-    if docstrings:
-        for docstring_lines in docstrings:
-            for line in docstring_lines:
-                if _hide_value_re.match(line):
-                    props._docstrings_has_hide_value = True
-                    break
-
-    # format the object's signature, if any
-    try:
-        signatures = _format_signatures(
-            args=args,
-            retann=retann,
-            autodoc_annotations=current_document.autodoc_annotations,
-            config=config,
-            docstrings=docstrings,
-            events=events,
-            get_attr=get_attr,
-            parent=parent,
-            options=options,
-            props=props,
-        )
-    except Exception as exc:
-        msg = __('error while formatting signature for %s: %s')
-        logger.warning(msg, props.full_name, exc, type='autodoc')
-        return None
-    props.signatures = tuple(
-        f'{args} -> {retann}' if retann else str(args) for args, retann in signatures
-    )
-
-    props.docstring_lines = _docstring_lines_for_props(
-        docstrings,
-        props=props,
-        parent_modname=parent_modname,
-        events=events,
-        options=options,
-    )
-
-    return props

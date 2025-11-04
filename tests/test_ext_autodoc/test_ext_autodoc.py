@@ -23,10 +23,10 @@ from sphinx.ext.autodoc._directive_options import (
 from sphinx.ext.autodoc._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._documenters import Documenter
 from sphinx.ext.autodoc._generate import _generate_directives
+from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._property_types import _ItemProperties
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc.directive import _AutodocAttrGetter
-from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.util.inspect import safe_getattr
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc

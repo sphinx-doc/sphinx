@@ -8,7 +8,7 @@ from sphinx.ext.autodoc._directive_options import (
     _process_documenter_options,
 )
 from sphinx.ext.autodoc._generate import _generate_directives
-from sphinx.ext.autodoc.importer import _load_object_by_name
+from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
