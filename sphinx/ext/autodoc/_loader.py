@@ -27,6 +27,7 @@ from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR,
     UNINITIALIZED_ATTR,
 )
+from sphinx.ext.autodoc._shared import _get_render_mode
 from sphinx.ext.autodoc._signatures import _format_signatures
 from sphinx.ext.autodoc._type_comments import (
     _ensure_annotations_from_type_comments,
@@ -176,6 +177,7 @@ def _make_props_from_imported_object(
     object_name = im.object_name
     obj = im.obj
     obj_properties: set[_AutodocFuncProperty] = set()
+    render_mode = _get_render_mode(config.autodoc_typehints_format)
 
     if objtype == 'module':
         try:
@@ -233,11 +235,7 @@ def _make_props_from_imported_object(
             SimpleNamespace(),
             obj_bases,
         )
-        if config.autodoc_typehints_format == 'short':
-            mode = 'smart'
-        else:
-            mode = 'fully-qualified-except-typing'
-        base_classes = tuple(restify(cls, mode=mode) for cls in obj_bases)  # type: ignore[arg-type]
+        base_classes = tuple(restify(cls, mode=render_mode) for cls in obj_bases)  # type: ignore[arg-type]
 
         return _ClassDefProperties(
             obj_type=objtype,  # type: ignore[arg-type]
@@ -343,15 +341,11 @@ def _make_props_from_imported_object(
             except ValueError:
                 pass
             else:
-                if config.autodoc_typehints_format == 'short':
-                    mode = 'smart'
-                else:
-                    mode = 'fully-qualified-except-typing'
                 if signature.return_annotation is not Parameter.empty:
                     short_literals = config.python_display_short_literal_types
                     obj_property_type_annotation = stringify_annotation(
                         signature.return_annotation,
-                        mode,  # type: ignore[arg-type]
+                        render_mode,  # type: ignore[arg-type]
                         short_literals=short_literals,
                     )
 
@@ -379,15 +373,11 @@ def _make_props_from_imported_object(
             config.autodoc_type_aliases,
             include_extras=True,
         )
-        if config.autodoc_typehints_format == 'short':
-            mode = 'smart'
-        else:
-            mode = 'fully-qualified-except-typing'
         if parts[-1] in annotations:
             short_literals = config.python_display_short_literal_types
             type_annotation = stringify_annotation(
                 annotations[parts[-1]],
-                mode,  # type: ignore[arg-type]
+                render_mode,  # type: ignore[arg-type]
                 short_literals=short_literals,
             )
         else:
@@ -437,15 +427,11 @@ def _make_props_from_imported_object(
             config.autodoc_type_aliases,
             include_extras=True,
         )
-        if config.autodoc_typehints_format == 'short':
-            mode = 'smart'
-        else:
-            mode = 'fully-qualified-except-typing'
         if parts[-1] in annotations:
             short_literals = config.python_display_short_literal_types
             type_annotation = stringify_annotation(
                 annotations[parts[-1]],
-                mode,  # type: ignore[arg-type]
+                render_mode,  # type: ignore[arg-type]
                 short_literals=short_literals,
             )
         else:
@@ -486,14 +472,10 @@ def _make_props_from_imported_object(
             parts = tuple(bases) + parts
             module_name = obj_module_name
 
-        if config.autodoc_typehints_format == 'short':
-            mode = 'smart'
-        else:
-            mode = 'fully-qualified-except-typing'
         short_literals = config.python_display_short_literal_types
         ann = stringify_annotation(
             obj.__value__,
-            mode,  # type: ignore[arg-type]
+            render_mode,  # type: ignore[arg-type]
             short_literals=short_literals,
         )
         return _TypeStatementProperties(

@@ -8,7 +8,9 @@ from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any, NoReturn, Protocol
+    from typing import Any, Literal, NoReturn, Protocol
+
+    from sphinx.util.typing import _RestifyMode
 
     class _AttrGetter(Protocol):  # NoQA: PYI046
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
@@ -43,3 +45,12 @@ class _AutodocAttrGetter:
     def __delattr__(self, key: str) -> NoReturn:
         msg = f'{self.__class__.__name__} is immutable'
         raise AttributeError(msg)
+
+
+def _get_render_mode(
+    typehints_format: Literal['fully-qualified', 'short'],
+    /,
+) -> _RestifyMode:
+    if typehints_format == 'short':
+        return 'smart'
+    return 'fully-qualified-except-typing'
