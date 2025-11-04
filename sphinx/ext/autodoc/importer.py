@@ -14,9 +14,8 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
 from inspect import Parameter
 from pathlib import Path
-from types import ModuleType, SimpleNamespace
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, NewType, TypeVar
-from weakref import WeakSet
 
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._docstrings import (
@@ -38,8 +37,11 @@ from sphinx.ext.autodoc._sentinels import (
     UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc._signatures import _format_signatures
+from sphinx.ext.autodoc._type_comments import (
+    _ensure_annotations_from_type_comments,
+    _update_annotations_using_type_comments,
+)
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
-from sphinx.ext.autodoc.type_comment import _update_annotations_using_type_comments
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
@@ -52,6 +54,7 @@ from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableSet, Sequence
     from importlib.machinery import ModuleSpec
+    from types import ModuleType
     from typing import Any, Protocol
 
     from sphinx.config import Config
@@ -919,81 +922,3 @@ def _load_object_by_name(
     )
 
     return props
-
-
-_objects_with_type_comment_annotations: WeakSet[Any] = WeakSet()
-"""Cache of objects with annotations updated from type comments."""
-
-
-def _ensure_annotations_from_type_comments(obj: Any) -> None:
-    """Ensures `obj.__annotations__` includes type comment information.
-
-    Failures to assign to `__annotations__` are silently ignored.
-
-    If `obj` is a class type, this also ensures that type comment
-    information is incorporated into the `__annotations__` member of
-    all parent classes, if possible.
-
-    This mutates the `__annotations__` of existing imported objects,
-    in order to allow the existing `typing.get_type_hints` method to
-    take the modified annotations into account.
-
-    Modifying existing imported objects is unfortunate but avoids the
-    need to reimplement `typing.get_type_hints` in order to take into
-    account type comment information.
-
-    Note that this does not directly include type comment information
-    from parent classes, but `typing.get_type_hints` takes that into
-    account.
-    """
-    if obj in _objects_with_type_comment_annotations:
-        return
-    _objects_with_type_comment_annotations.add(obj)
-
-    if isinstance(obj, type):
-        for cls in inspect.getmro(obj):
-            modname = safe_getattr(cls, '__module__')
-            mod = sys.modules.get(modname)
-            if mod is not None:
-                _ensure_annotations_from_type_comments(mod)
-
-    elif isinstance(obj, ModuleType):
-        _update_module_annotations_from_type_comments(obj)
-
-
-def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
-    """Adds type comment annotations for a single module.
-
-    Both module-level and class-level annotations are added.
-    """
-    mod_annotations = dict(inspect.getannotations(mod))
-    mod.__annotations__ = mod_annotations
-
-    class_annotations: dict[str, dict[str, Any]] = {}
-
-    try:
-        analyzer = ModuleAnalyzer.for_module(mod.__name__)
-        analyzer.analyze()
-        anns = analyzer.annotations
-        for (classname, attrname), annotation in anns.items():
-            if not classname:
-                annotations = mod_annotations
-            else:
-                cls_annotations = class_annotations.get(classname)
-                if cls_annotations is None:
-                    try:
-                        cls = mod
-                        for part in classname.split('.'):
-                            cls = safe_getattr(cls, part)
-                        annotations = dict(inspect.getannotations(cls))
-                        # Ignore errors setting __annotations__
-                        with contextlib.suppress(TypeError, AttributeError):
-                            cls.__annotations__ = annotations
-                    except AttributeError:
-                        annotations = {}
-                    class_annotations[classname] = annotations
-                else:
-                    annotations = cls_annotations
-            annotations.setdefault(attrname, annotation)
-    except PycodeError:
-        pass
