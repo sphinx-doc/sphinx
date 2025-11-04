@@ -23,8 +23,8 @@ if TYPE_CHECKING:
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+    from sphinx.ext.autodoc._importer import _AttrGetter
     from sphinx.ext.autodoc._property_types import _ItemProperties
-    from sphinx.ext.autodoc.importer import _AttrGetter
     from sphinx.util.typing import _RestifyMode
 
 logger = logging.getLogger('sphinx.ext.autodoc')
