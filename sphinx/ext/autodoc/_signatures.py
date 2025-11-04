@@ -29,8 +29,8 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._importer import _AttrGetter
     from sphinx.ext.autodoc._property_types import _ItemProperties
+    from sphinx.ext.autodoc._shared import _AttrGetter
 
     _FormattedSignature: TypeAlias = tuple[str, str]
 

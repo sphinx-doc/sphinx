@@ -71,7 +71,7 @@ from sphinx.ext.autodoc._importer import _import_module
 from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
-from sphinx.ext.autodoc.directive import _AutodocAttrGetter
+from sphinx.ext.autodoc._shared import _AutodocAttrGetter
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer

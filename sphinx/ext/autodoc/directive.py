@@ -10,51 +10,19 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._generate import _generate_directives
 from sphinx.ext.autodoc._loader import _load_object_by_name
+from sphinx.ext.autodoc._shared import _AutodocAttrGetter
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
-from sphinx.util.inspect import safe_getattr
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-    from typing import Any, NoReturn
+    from collections.abc import Callable
 
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
 
 
 logger = logging.getLogger(__name__)
-
-
-class _AutodocAttrGetter:
-    """getattr() override for types such as Zope interfaces."""
-
-    _attr_getters: Sequence[tuple[type, Callable[[Any, str, Any], Any]]]
-
-    __slots__ = ('_attr_getters',)
-
-    def __init__(
-        self, attr_getters: dict[type, Callable[[Any, str, Any], Any]], /
-    ) -> None:
-        super().__setattr__('_attr_getters', tuple(attr_getters.items()))
-
-    def __call__(self, obj: Any, name: str, *defargs: Any) -> Any:
-        for typ, func in self._attr_getters:
-            if isinstance(obj, typ):
-                return func(obj, name, *defargs)
-
-        return safe_getattr(obj, name, *defargs)
-
-    def __repr__(self) -> str:
-        return f'_AutodocAttrGetter({dict(self._attr_getters)!r})'
-
-    def __setattr__(self, key: str, value: Any) -> NoReturn:
-        msg = f'{self.__class__.__name__} is immutable'
-        raise AttributeError(msg)
-
-    def __delattr__(self, key: str) -> NoReturn:
-        msg = f'{self.__class__.__name__} is immutable'
-        raise AttributeError(msg)
 
 
 class DummyOptionSpec(dict[str, 'Callable[[str], str]']):  # NoQA: FURB189
