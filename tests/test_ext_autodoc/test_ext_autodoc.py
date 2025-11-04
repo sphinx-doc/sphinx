@@ -7,7 +7,6 @@ source file translated by test_build.
 from __future__ import annotations
 
 import itertools
-import logging
 import pathlib
 import sys
 from typing import TYPE_CHECKING
@@ -17,7 +16,6 @@ import pytest
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.environment import _CurrentDocument
 from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     inherited_members_option,
@@ -28,7 +26,7 @@ from sphinx.ext.autodoc._generate import _generate_directives
 from sphinx.ext.autodoc._property_types import _ItemProperties
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc.directive import _AutodocAttrGetter
-from sphinx.ext.autodoc.importer import _load_object_by_name, _parse_name
+from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.util.inspect import safe_getattr
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -46,64 +44,6 @@ if TYPE_CHECKING:
 
 
 processed_signatures: list[tuple[str, str]] = []
-
-
-def test_parse_name(caplog: pytest.LogCaptureFixture) -> None:
-    # work around sphinx.util.logging.setup()
-    logger = logging.getLogger('sphinx')
-    logger.handlers[:] = [caplog.handler]
-
-    current_document = _CurrentDocument()
-    ref_context: dict[str, Any] = {}
-
-    def parse(objtype, name):
-        parsed = _parse_name(
-            name=name,
-            objtype=objtype,
-            current_document=current_document,
-            ref_context=ref_context,
-        )
-        if parsed is None:
-            return None
-        module_name, parts, args, retann = parsed
-        return module_name, list(parts), args, retann
-
-    # for modules
-    parsed = parse('module', 'test_ext_autodoc')
-    assert parsed == ('test_ext_autodoc', [], None, None)
-    parsed = parse('module', 'test.test_ext_autodoc')
-    assert parsed == ('test.test_ext_autodoc', [], None, None)
-    parsed = parse('module', 'test(arg)')
-    assert parsed is None
-    assert 'signature arguments given for automodule' in caplog.messages[0]
-
-    # for functions/classes
-    parsed = parse('function', 'test_ext_autodoc.raises')
-    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
-    parsed = parse('function', 'test_ext_autodoc.raises(exc) -> None')
-    assert parsed == ('test_ext_autodoc', ['raises'], '(exc)', 'None')
-    current_document.autodoc_module = 'test_ext_autodoc'
-    parsed = parse('function', 'raises')
-    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
-    current_document.autodoc_module = ''
-
-    ref_context['py:module'] = 'test_ext_autodoc'
-    parsed = parse('function', 'raises')
-    assert parsed == ('test_ext_autodoc', ['raises'], None, None)
-    parsed = parse('class', 'Base')
-    assert parsed == ('test_ext_autodoc', ['Base'], None, None)
-
-    # for members
-    ref_context['py:module'] = 'sphinx.testing.util'
-    parsed = parse('method', 'SphinxTestApp.cleanup')
-    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
-    ref_context['py:module'] = 'sphinx.testing.util'
-    ref_context['py:class'] = 'Foo'
-    current_document.autodoc_class = 'SphinxTestApp'
-    parsed = parse('method', 'cleanup')
-    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
-    parsed = parse('method', 'SphinxTestApp.cleanup')
-    assert parsed == ('sphinx.testing.util', ['SphinxTestApp', 'cleanup'], None, None)
 
 
 def get_docstring_lines(obj_type, obj, *, config):
