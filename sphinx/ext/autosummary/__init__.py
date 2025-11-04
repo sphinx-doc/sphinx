@@ -67,11 +67,11 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._importer import _import_module
 from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import _AutodocAttrGetter
-from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -700,7 +700,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
         modname = '.'.join(name_parts[:-1])
         if modname:
             try:
-                mod = import_module(modname)
+                mod = _import_module(modname)
                 return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError) as exc:
                 errors.append(exc.__cause__ or exc)
@@ -712,7 +712,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
             last_j = j
             modname = '.'.join(name_parts[:j])
             try:
-                import_module(modname)
+                _import_module(modname)
             except ImportError as exc:
                 errors.append(exc.__cause__ or exc)
 

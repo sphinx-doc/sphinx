@@ -19,10 +19,7 @@ from sphinx.ext.autodoc._sentinels import RUNTIME_INSTANCE_ATTRIBUTE, UNINITIALI
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
-from sphinx.util.inspect import (
-    isclass,
-    safe_getattr,
-)
+from sphinx.util.inspect import isclass, safe_getattr
 from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
@@ -71,18 +68,144 @@ class _ImportedObject:
         return f'<{self.__class__.__name__} {self.__dict__}>'
 
 
-def mangle(subject: Any, name: str) -> str:
-    """Mangle the given name."""
+def _import_object(
+    *,
+    get_attr: _AttrGetter = safe_getattr,
+    mock_imports: list[str],
+    module_name: str,
+    obj_path: Sequence[str],
+    obj_type: _AutodocObjType,
+    type_aliases: dict[str, Any] | None,
+) -> _ImportedObject | None:
+    """Import the module and get the object to document."""
     try:
-        if isclass(subject) and name.startswith('__') and not name.endswith('__'):
-            return f'_{subject.__name__}{name}'
-    except AttributeError:
-        pass
+        with mock(mock_imports):
+            im = _import_from_module_and_path(
+                module_name=module_name, obj_path=obj_path, get_attr=get_attr
+            )
+    except ImportError as exc:
+        if obj_type == 'data':
+            im_ = _import_data_declaration(
+                module_name=module_name,
+                obj_path=obj_path,
+                mock_imports=mock_imports,
+                type_aliases=type_aliases,
+            )
+            if im_ is not None:
+                return im_
+        elif obj_type == 'attribute':
+            im_ = _import_attribute_declaration(
+                module_name=module_name,
+                obj_path=obj_path,
+                mock_imports=mock_imports,
+                type_aliases=type_aliases,
+                get_attr=get_attr,
+            )
+            if im_ is not None:
+                return im_
+        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+        return None
 
-    return name
+    if ismock(im.obj):
+        im.obj = undecorate(im.obj)
+    return im
 
 
-def import_module(modname: str, try_reload: bool = False) -> Any:
+def _import_from_module_and_path(
+    *,
+    module_name: str,
+    obj_path: Sequence[str],
+    get_attr: _AttrGetter = safe_getattr,
+) -> _ImportedObject:
+    obj_path = list(obj_path)
+    if obj_path:
+        logger.debug('[autodoc] from %s import %s', module_name, '.'.join(obj_path))
+    else:
+        logger.debug('[autodoc] import %s', module_name)
+
+    module = None
+    exc_on_importing = None
+    try:
+        while module is None:
+            try:
+                module = _import_module(module_name, try_reload=True)
+                logger.debug('[autodoc] import %s => %r', module_name, module)
+            except ImportError as exc:
+                logger.debug('[autodoc] import %s => failed', module_name)
+                exc_on_importing = exc
+                if '.' not in module_name:
+                    raise
+
+                # retry with parent module
+                module_name, _, name = module_name.rpartition('.')
+                obj_path.insert(0, name)
+
+        obj = module
+        parent = None
+        object_name = ''
+        for attr_name in obj_path:
+            parent = obj
+            logger.debug('[autodoc] getattr(_, %r)', attr_name)
+            mangled_name = _mangle_name(obj, attr_name)
+            obj = get_attr(obj, mangled_name)
+
+            try:
+                logger.debug('[autodoc] => %r', obj)
+            except TypeError:
+                # fallback of failure on logging for broken object
+                # See: https://github.com/sphinx-doc/sphinx/issues/9095
+                logger.debug('[autodoc] => %r', (obj,))
+
+            object_name = attr_name
+        return _ImportedObject(
+            module=module,
+            parent=parent,
+            object_name=object_name,
+            obj=obj,
+        )
+    except (AttributeError, ImportError) as exc:
+        if isinstance(exc, AttributeError) and exc_on_importing:
+            # restore ImportError
+            exc = exc_on_importing
+
+        if obj_path:
+            dotted_objpath = '.'.join(obj_path)
+            err_parts = [
+                f'autodoc: failed to import {dotted_objpath!r} '
+                f'from module {module_name!r}'
+            ]
+        else:
+            err_parts = [f'autodoc: failed to import {module_name!r}']
+
+        if isinstance(exc, ImportError):
+            # _import_module() raises ImportError having real exception obj and
+            # traceback
+            real_exc = exc.args[0]
+            traceback_msg = traceback.format_exception(exc)
+            if isinstance(real_exc, SystemExit):
+                err_parts.append(
+                    'the module executes module level statement '
+                    'and it might call sys.exit().'
+                )
+            elif isinstance(real_exc, ImportError) and real_exc.args:
+                err_parts.append(
+                    f'the following exception was raised:\n{real_exc.args[0]}'
+                )
+            else:
+                err_parts.append(
+                    f'the following exception was raised:\n{traceback_msg}'
+                )
+        else:
+            err_parts.append(
+                f'the following exception was raised:\n{traceback.format_exc()}'
+            )
+
+        errmsg = '; '.join(err_parts)
+        logger.debug(errmsg)
+        raise ImportError(errmsg) from exc
+
+
+def _import_module(modname: str, try_reload: bool = False) -> Any:
     if modname in sys.modules:
         return sys.modules[modname]
 
@@ -172,160 +295,15 @@ def _reload_module(module: ModuleType) -> Any:
         raise ImportError(exc, traceback.format_exc()) from exc
 
 
-def import_object(
-    modname: str,
-    objpath: list[str],
-    objtype: str = '',
-    attrgetter: _AttrGetter = safe_getattr,
-) -> Any:
-    ret = _import_from_module_and_path(
-        module_name=modname, obj_path=objpath, get_attr=attrgetter
-    )
-    if isinstance(ret, _ImportedObject):
-        return [ret.module, ret.parent, ret.object_name, ret.obj]
-    return None
-
-
-def _import_from_module_and_path(
-    *,
-    module_name: str,
-    obj_path: Sequence[str],
-    get_attr: _AttrGetter = safe_getattr,
-) -> _ImportedObject:
-    obj_path = list(obj_path)
-    if obj_path:
-        logger.debug('[autodoc] from %s import %s', module_name, '.'.join(obj_path))
-    else:
-        logger.debug('[autodoc] import %s', module_name)
-
-    module = None
-    exc_on_importing = None
+def _mangle_name(subject: Any, name: str) -> str:
+    """Mangle the given name."""
     try:
-        while module is None:
-            try:
-                module = import_module(module_name, try_reload=True)
-                logger.debug('[autodoc] import %s => %r', module_name, module)
-            except ImportError as exc:
-                logger.debug('[autodoc] import %s => failed', module_name)
-                exc_on_importing = exc
-                if '.' not in module_name:
-                    raise
+        if isclass(subject) and name.startswith('__') and not name.endswith('__'):
+            return f'_{subject.__name__}{name}'
+    except AttributeError:
+        pass
 
-                # retry with parent module
-                module_name, _, name = module_name.rpartition('.')
-                obj_path.insert(0, name)
-
-        obj = module
-        parent = None
-        object_name = ''
-        for attr_name in obj_path:
-            parent = obj
-            logger.debug('[autodoc] getattr(_, %r)', attr_name)
-            mangled_name = mangle(obj, attr_name)
-            obj = get_attr(obj, mangled_name)
-
-            try:
-                logger.debug('[autodoc] => %r', obj)
-            except TypeError:
-                # fallback of failure on logging for broken object
-                # See: https://github.com/sphinx-doc/sphinx/issues/9095
-                logger.debug('[autodoc] => %r', (obj,))
-
-            object_name = attr_name
-        return _ImportedObject(
-            module=module,
-            parent=parent,
-            object_name=object_name,
-            obj=obj,
-        )
-    except (AttributeError, ImportError) as exc:
-        if isinstance(exc, AttributeError) and exc_on_importing:
-            # restore ImportError
-            exc = exc_on_importing
-
-        if obj_path:
-            dotted_objpath = '.'.join(obj_path)
-            err_parts = [
-                f'autodoc: failed to import {dotted_objpath!r} '
-                f'from module {module_name!r}'
-            ]
-        else:
-            err_parts = [f'autodoc: failed to import {module_name!r}']
-
-        if isinstance(exc, ImportError):
-            # import_module() raises ImportError having real exception obj and
-            # traceback
-            real_exc = exc.args[0]
-            traceback_msg = traceback.format_exception(exc)
-            if isinstance(real_exc, SystemExit):
-                err_parts.append(
-                    'the module executes module level statement '
-                    'and it might call sys.exit().'
-                )
-            elif isinstance(real_exc, ImportError) and real_exc.args:
-                err_parts.append(
-                    f'the following exception was raised:\n{real_exc.args[0]}'
-                )
-            else:
-                err_parts.append(
-                    f'the following exception was raised:\n{traceback_msg}'
-                )
-        else:
-            err_parts.append(
-                f'the following exception was raised:\n{traceback.format_exc()}'
-            )
-
-        errmsg = '; '.join(err_parts)
-        logger.debug(errmsg)
-        raise ImportError(errmsg) from exc
-
-
-def _import_object(
-    *,
-    module_name: str,
-    obj_path: Sequence[str],
-    mock_imports: list[str],
-    get_attr: _AttrGetter = safe_getattr,
-    obj_type: _AutodocObjType,
-    type_aliases: dict[str, Any] | None,
-) -> _ImportedObject | None:
-    """Import the object given by *module_name* and *obj_path* and set
-    it as *object*.
-
-    Returns True if successful, False if an error occurred.
-    """
-    try:
-        with mock(mock_imports):
-            im = _import_from_module_and_path(
-                module_name=module_name, obj_path=obj_path, get_attr=get_attr
-            )
-    except ImportError as exc:
-        if obj_type == 'data':
-            im_ = _import_data_declaration(
-                module_name=module_name,
-                obj_path=obj_path,
-                mock_imports=mock_imports,
-                type_aliases=type_aliases,
-            )
-            if im_ is not None:
-                return im_
-        elif obj_type == 'attribute':
-            im_ = _import_attribute_declaration(
-                module_name=module_name,
-                obj_path=obj_path,
-                mock_imports=mock_imports,
-                type_aliases=type_aliases,
-                get_attr=get_attr,
-            )
-            if im_ is not None:
-                return im_
-
-        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
-        return None
-
-    if ismock(im.obj):
-        im.obj = undecorate(im.obj)
-    return im
+    return name
 
 
 def _import_data_declaration(
@@ -338,7 +316,7 @@ def _import_data_declaration(
     # annotation only instance variable (PEP-526)
     try:
         with mock(mock_imports):
-            parent = import_module(module_name)
+            parent = _import_module(module_name)
         annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
         if obj_path[-1] in annotations:
             im = _ImportedObject(

@@ -12,6 +12,7 @@ from sphinx.ext.autodoc._docstrings import (
     _docstring_lines_for_props,
     _get_docstring_lines,
 )
+from sphinx.ext.autodoc._importer import _import_object
 from sphinx.ext.autodoc._names import _parse_name
 from sphinx.ext.autodoc._property_types import (
     _AssignStatementProperties,
@@ -31,7 +32,6 @@ from sphinx.ext.autodoc._type_comments import (
     _ensure_annotations_from_type_comments,
     _update_annotations_using_type_comments,
 )
-from sphinx.ext.autodoc.importer import _import_object
 from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import __
 from sphinx.util import inspect, logging
@@ -46,8 +46,8 @@ if TYPE_CHECKING:
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+    from sphinx.ext.autodoc._importer import _AttrGetter, _ImportedObject
     from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
-    from sphinx.ext.autodoc.importer import _AttrGetter, _ImportedObject
 
 logger = logging.getLogger(__name__)
 

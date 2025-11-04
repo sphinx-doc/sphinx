@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+    from sphinx.ext.autodoc._importer import _AttrGetter
     from sphinx.ext.autodoc._property_types import _AutodocObjType, _ItemProperties
     from sphinx.ext.autodoc._sentinels import (
         ALL_T,
@@ -43,7 +44,6 @@ if TYPE_CHECKING:
         INSTANCE_ATTR_T,
         SLOTS_ATTR_T,
     )
-    from sphinx.ext.autodoc.importer import _AttrGetter
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 special_member_re = re.compile(r'^__\S+__$')
