@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, NewType, TypeVar
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._names import py_ext_sig_re
 from sphinx.ext.autodoc._property_types import _AssignStatementProperties
+from sphinx.ext.autodoc._type_comments import _update_annotations_using_type_comments
 from sphinx.ext.autodoc.preserve_defaults import update_default_value
-from sphinx.ext.autodoc.type_comment import _update_annotations_using_type_comments
 from sphinx.ext.autodoc.typehints import _record_typehints
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
