@@ -13,7 +13,7 @@ from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
-    from typing import Any, Literal
+    from typing import Any
 
     from docutils.nodes import Element
 
@@ -29,11 +29,11 @@ def _record_typehints(
     obj: Any,
     short_literals: bool,
     type_aliases: Mapping[str, str] | None,
-    typehints_format: Literal['fully-qualified', 'short'],
+    unqualified_typehints: bool,
 ) -> None:
     """Record type hints to env object."""
     mode: _StringifyMode
-    if typehints_format == 'short':
+    if unqualified_typehints:
         mode = 'smart'
     else:
         mode = 'fully-qualified'

@@ -1,19 +1,65 @@
-"""Importer utilities for autodoc"""
+"""Shared utilities for autodoc that don't have a better home."""
 
 from __future__ import annotations
 
+import dataclasses
 from typing import TYPE_CHECKING
 
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Mapping, Sequence
     from typing import Any, Literal, NoReturn, Protocol
 
+    from sphinx.config import Config
     from sphinx.util.typing import _RestifyMode
 
     class _AttrGetter(Protocol):  # NoQA: PYI046
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class _AutodocConfig:
+    autoclass_content: Literal['both', 'class', 'init'] = 'class'
+    autodoc_class_signature: Literal['mixed', 'separated'] = 'mixed'
+    autodoc_default_options: Mapping[str, str | bool] = {}.keys().mapping
+    autodoc_docstring_signature: bool = True
+    autodoc_inherit_docstrings: bool = True
+    autodoc_member_order: Literal['alphabetical', 'bysource', 'groupwise'] = (
+        'alphabetical'
+    )
+    autodoc_mock_imports: Sequence[str] = ()
+    autodoc_preserve_defaults: bool = False
+    autodoc_type_aliases: Mapping[str, str] = {}.keys().mapping
+    autodoc_typehints: Literal['signature', 'description', 'none', 'both'] = 'signature'
+    autodoc_typehints_description_target: Literal[
+        'all', 'documented', 'documented_params'
+    ] = 'all'
+    autodoc_typehints_format: Literal['fully-qualified', 'short'] = 'short'
+    autodoc_use_type_comments: bool = True
+
+    python_display_short_literal_types: bool = False
+    strip_signature_backslash: bool = False
+
+    @classmethod
+    def from_config(cls, config: Config) -> _AutodocConfig:
+        return cls(
+            autoclass_content=config.autoclass_content,
+            autodoc_class_signature=config.autodoc_class_signature,
+            autodoc_default_options=config.autodoc_default_options,
+            autodoc_docstring_signature=config.autodoc_docstring_signature,
+            autodoc_inherit_docstrings=config.autodoc_inherit_docstrings,
+            autodoc_member_order=config.autodoc_member_order,
+            autodoc_mock_imports=config.autodoc_mock_imports,
+            autodoc_preserve_defaults=config.autodoc_preserve_defaults,
+            autodoc_type_aliases=config.autodoc_type_aliases,
+            autodoc_typehints=config.autodoc_typehints,
+            autodoc_typehints_description_target=config.autodoc_typehints_description_target,
+            autodoc_typehints_format=config.autodoc_typehints_format,
+            autodoc_use_type_comments=config.autodoc_use_type_comments,
+            python_display_short_literal_types=config.python_display_short_literal_types,
+            strip_signature_backslash=config.strip_signature_backslash,
+        )
 
 
 class _AutodocAttrGetter:

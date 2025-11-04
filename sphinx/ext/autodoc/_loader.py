@@ -43,13 +43,12 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, MutableSet, Sequence
     from typing import Any
 
-    from sphinx.config import Config
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._importer import _ImportedObject
     from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
-    from sphinx.ext.autodoc._shared import _AttrGetter
+    from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
 logger = logging.getLogger(__name__)
 
@@ -60,10 +59,8 @@ def _load_object_by_name(
     *,
     name: str,
     objtype: _AutodocObjType,
-    mock_imports: list[str],
-    type_aliases: dict[str, Any] | None,
     current_document: _CurrentDocument,
-    config: Config,
+    config: _AutodocConfig,
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
@@ -86,10 +83,10 @@ def _load_object_by_name(
     im = _import_object(
         module_name=module_name,
         obj_path=parts,
-        mock_imports=mock_imports,
+        mock_imports=config.autodoc_mock_imports,
         get_attr=get_attr,
         obj_type=objtype,
-        type_aliases=type_aliases,
+        type_aliases=config.autodoc_type_aliases,
     )
     if im is None:
         # See BuildEnvironment.note_reread()
@@ -166,7 +163,7 @@ def _load_object_by_name(
 def _make_props_from_imported_object(
     im: _ImportedObject,
     *,
-    config: Config,
+    config: _AutodocConfig,
     events: EventManager,
     get_attr: _AttrGetter,
     module_name: str,
@@ -235,7 +232,7 @@ def _make_props_from_imported_object(
             SimpleNamespace(),
             obj_bases,
         )
-        base_classes = tuple(restify(cls, mode=render_mode) for cls in obj_bases)  # type: ignore[arg-type]
+        base_classes = tuple(restify(cls, mode=render_mode) for cls in obj_bases)
 
         return _ClassDefProperties(
             obj_type=objtype,  # type: ignore[arg-type]
@@ -345,7 +342,7 @@ def _make_props_from_imported_object(
                     short_literals = config.python_display_short_literal_types
                     obj_property_type_annotation = stringify_annotation(
                         signature.return_annotation,
-                        render_mode,  # type: ignore[arg-type]
+                        render_mode,
                         short_literals=short_literals,
                     )
 
@@ -376,9 +373,7 @@ def _make_props_from_imported_object(
         if parts[-1] in annotations:
             short_literals = config.python_display_short_literal_types
             type_annotation = stringify_annotation(
-                annotations[parts[-1]],
-                render_mode,  # type: ignore[arg-type]
-                short_literals=short_literals,
+                annotations[parts[-1]], render_mode, short_literals=short_literals
             )
         else:
             type_annotation = None
@@ -430,9 +425,7 @@ def _make_props_from_imported_object(
         if parts[-1] in annotations:
             short_literals = config.python_display_short_literal_types
             type_annotation = stringify_annotation(
-                annotations[parts[-1]],
-                render_mode,  # type: ignore[arg-type]
-                short_literals=short_literals,
+                annotations[parts[-1]], render_mode, short_literals=short_literals
             )
         else:
             type_annotation = None
@@ -474,9 +467,7 @@ def _make_props_from_imported_object(
 
         short_literals = config.python_display_short_literal_types
         ann = stringify_annotation(
-            obj.__value__,
-            render_mode,  # type: ignore[arg-type]
-            short_literals=short_literals,
+            obj.__value__, render_mode, short_literals=short_literals
         )
         return _TypeStatementProperties(
             obj_type=objtype,

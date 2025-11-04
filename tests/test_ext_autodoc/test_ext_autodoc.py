@@ -26,7 +26,7 @@ from sphinx.ext.autodoc._generate import _generate_directives
 from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._property_types import _ItemProperties
 from sphinx.ext.autodoc._sentinels import ALL
-from sphinx.ext.autodoc._shared import _AutodocAttrGetter
+from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
 from sphinx.util.inspect import safe_getattr
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -73,7 +73,7 @@ def get_docstring_lines(obj_type, obj, *, config):
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_get_docstring_lines(app):
-    config = app.config
+    config = _AutodocConfig.from_config(app.config)
 
     # objects without docstring
     def f():
@@ -193,7 +193,7 @@ def test_attrgetter_using(app):
 
 def _assert_getter_works(app, get_attr, options, objtype, name, *attrs):
     env = app.env
-    config = app.config
+    config = _AutodocConfig.from_config(app.config)
     current_document = env.current_document
     events = app.events
     ref_context = env.ref_context
@@ -203,8 +203,6 @@ def _assert_getter_works(app, get_attr, options, objtype, name, *attrs):
     props = _load_object_by_name(
         name=name,
         objtype=objtype,
-        mock_imports=config.autodoc_mock_imports,
-        type_aliases=config.autodoc_type_aliases,
         current_document=current_document,
         config=config,
         events=events,

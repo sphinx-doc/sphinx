@@ -19,12 +19,11 @@ from sphinx.util.typing import restify, stringify_annotation
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, MutableSet
 
-    from sphinx.config import Config
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
-    from sphinx.ext.autodoc._shared import _AttrGetter
+    from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
     from sphinx.util.typing import _RestifyMode
 
 logger = logging.getLogger('sphinx.ext.autodoc')
@@ -36,7 +35,7 @@ def _generate_directives(
     check_module: bool = False,
     all_members: bool = False,
     *,
-    config: Config,
+    config: _AutodocConfig,
     current_document: _CurrentDocument,
     events: EventManager,
     get_attr: _AttrGetter,
@@ -154,7 +153,7 @@ def _add_directive_lines(
     *,
     more_content: StringList | None,
     is_final: bool,
-    config: Config,
+    config: _AutodocConfig,
     indent: str,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
@@ -179,10 +178,9 @@ def _add_directive_lines(
     docstring_lines = StringList(props.docstring_lines, source=source_name)
 
     # add alias information, if applicable
-    render_mode = _get_render_mode(config.autodoc_typehints_format)
     lines = _body_alias_lines(
-        render_mode=render_mode,
-        python_display_short_literal_types=config.python_display_short_literal_types,
+        render_mode=_get_render_mode(config.autodoc_typehints_format),
+        short_literals=config.python_display_short_literal_types,
         props=props,
     )
     alias_lines = StringList(list(lines), source='')
@@ -205,7 +203,7 @@ def _document_members(
     all_members: bool,
     analyzer_order: dict[str, int],
     attr_docs: dict[tuple[str, str], list[str]],
-    config: Config,
+    config: _AutodocConfig,
     current_document: _CurrentDocument,
     events: EventManager,
     get_attr: _AttrGetter,
@@ -277,10 +275,7 @@ def _document_members(
 
 
 def _body_alias_lines(
-    *,
-    props: _ItemProperties,
-    render_mode: _RestifyMode,
-    python_display_short_literal_types: bool,
+    *, props: _ItemProperties, render_mode: _RestifyMode, short_literals: bool
 ) -> Iterator[str]:
     """Add content from docstrings, attribute documentation and user."""
     if props.obj_type in {'data', 'attribute'}:
@@ -310,7 +305,6 @@ def _body_alias_lines(
             return
 
         if props._obj_is_typevar:
-            short_literals = python_display_short_literal_types
             attrs = [
                 repr(obj.__name__),
                 *(

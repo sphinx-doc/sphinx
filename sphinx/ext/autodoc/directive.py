@@ -10,7 +10,7 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._generate import _generate_directives
 from sphinx.ext.autodoc._loader import _load_object_by_name
-from sphinx.ext.autodoc._shared import _AutodocAttrGetter
+from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
@@ -105,7 +105,7 @@ class AutodocDirective(SphinxDirective):
         get_attr = _AutodocAttrGetter(registry.autodoc_attrgetters)
         name = self.arguments[0]
         env = self.env
-        config = env.config
+        config = _AutodocConfig.from_config(env.config)
         current_document = env.current_document
         events = env.events
         ref_context = env.ref_context
@@ -114,8 +114,6 @@ class AutodocDirective(SphinxDirective):
         props = _load_object_by_name(
             name=name,
             objtype=objtype,  # type: ignore[arg-type]
-            mock_imports=config.autodoc_mock_imports,
-            type_aliases=config.autodoc_type_aliases,
             current_document=current_document,
             config=config,
             events=events,

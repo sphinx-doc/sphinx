@@ -71,7 +71,7 @@ from sphinx.ext.autodoc._importer import _import_module
 from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
-from sphinx.ext.autodoc._shared import _AutodocAttrGetter
+from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -303,7 +303,7 @@ class Autosummary(SphinxDirective):
 
         document_settings = self.state.document.settings
         env = self.env
-        config = env.config
+        config = _AutodocConfig.from_config(env.config)
         current_document = env.current_document
         events = env.events
         get_attr = _AutodocAttrGetter(env._registry.autodoc_attrgetters)
@@ -345,8 +345,6 @@ class Autosummary(SphinxDirective):
             props = _load_object_by_name(
                 name=full_name,
                 objtype=obj_type,
-                mock_imports=config.autodoc_mock_imports,
-                type_aliases=config.autodoc_type_aliases,
                 current_document=current_document,
                 config=config,
                 events=events,
