@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from typing import Any
 
 
-processed_signatures = []
+processed_signatures: list[tuple[str, str]] = []
 
 
 def test_parse_name(caplog: pytest.LogCaptureFixture) -> None:
