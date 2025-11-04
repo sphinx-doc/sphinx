@@ -13,15 +13,22 @@ from sphinx.ext.autodoc._property_types import (
     _FunctionDefProperties,
 )
 from sphinx.ext.autodoc._signatures import _format_signatures
-from sphinx.ext.autodoc.directive import _AutodocAttrGetter
+from sphinx.util.inspect import safe_getattr
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 processed_signatures = []
+
+sphinx_sig = pytest.mark.sphinx('dummy', testroot='_blank', confoverrides={'extensions': ['sphinx.ext.autodoc']})
 
 
 def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
-    get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
+    config = app.config
+    events = app.events
     options = _AutoDocumenterOptions()
 
     parent = object  # dummy
@@ -41,18 +48,18 @@ def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
     )
     docstrings = _get_docstring_lines(
         props,
-        class_doc_from=app.config.autoclass_content,
-        get_attr=get_attr,
-        inherit_docstrings=app.config.autodoc_inherit_docstrings,
+        class_doc_from=config.autoclass_content,
+        get_attr=safe_getattr,
+        inherit_docstrings=config.autodoc_inherit_docstrings,
         parent=parent,
         tab_width=8,
     )
     signatures = _format_signatures(
         autodoc_annotations={},
-        config=app.config,
+        config=config,
         docstrings=docstrings,
-        events=app.events,
-        get_attr=get_attr,
+        events=events,
+        get_attr=safe_getattr,
         options=options,
         parent=parent,
         props=props,
@@ -65,29 +72,21 @@ def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
     return signatures[0]
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_format_signatures(app):
-    def process_signature(_app, what, name, _obj, _options, _args, _retann):
-        processed_signatures.append((what, name))
-        if name == '.bar':
-            return '42', None
-        return None
+def _process_signature(_app, what, name, _obj, _options, _args, _retann):
+    processed_signatures.append((what, name))
+    if name == '.bar':
+        return '42', None
+    return None
 
-    def skip_member(_app, _what, name, _obj, skip, _options):
-        if name in {'__special1__', '__special2__'}:
-            return skip
-        if name.startswith('__'):
-            return True
-        if name == ('skipmeth', ''):
-            return True
-        return None
 
-    app.connect('autodoc-process-signature', process_signature)
-    app.connect('autodoc-skip-member', skip_member)
-
+@sphinx_sig
+def test_format_module_signatures(app: SphinxTestApp) -> None:
     # no signatures for modules
     assert format_sig('module', 'test', None, app=app) == ()
 
+
+@sphinx_sig
+def test_format_function_signatures(app: SphinxTestApp) -> None:
     # test for functions
     def f(a, b, c=1, **d):
         pass
@@ -134,6 +133,9 @@ def test_format_signatures(app):
     # TODO(picnixz): add more test cases for PEP-695 classes as well (though
     # complex cases are less likely to appear and are painful to test).
 
+
+@sphinx_sig
+def test_format_class_signatures(app: SphinxTestApp) -> None:
     # test for classes
     class D:
         pass
@@ -224,6 +226,11 @@ def test_format_signatures(app):
         '',
     )
 
+
+@sphinx_sig
+def test_format_method_signatures(app: SphinxTestApp) -> None:
+    app.connect('autodoc-process-signature', _process_signature)
+
     # test for methods
     class H:
         def foo1(self, b, *c):
@@ -252,6 +259,9 @@ def test_format_signatures(app):
     # test processing by event handler
     assert format_sig('method', 'bar', H.foo1, app=app) == ('42', '')
 
+
+@sphinx_sig
+def test_format_functools_partial_signatures(app: SphinxTestApp) -> None:
     # test functions created via functools.partial
     from functools import partial
 
@@ -268,7 +278,7 @@ def test_format_signatures(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.sphinx('dummy', testroot='ext-autodoc')
 def test_autodoc_process_signature_typing_generic(app):
     actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
     assert actual == [
@@ -281,7 +291,7 @@ def test_autodoc_process_signature_typing_generic(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@sphinx_sig
 def test_autodoc_process_signature_typehints(app):
     captured = []
 
@@ -305,14 +315,13 @@ def test_autodoc_process_signature_typehints(app):
         properties=frozenset(),
     )
 
-    get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
     options = _AutoDocumenterOptions()
     _format_signatures(
         autodoc_annotations={},
         config=app.config,
         docstrings=None,
         events=app.events,
-        get_attr=get_attr,
+        get_attr=safe_getattr,
         options=options,
         parent=None,
         props=props,
