@@ -142,6 +142,7 @@ def format_sig(obj_type, name, obj, *, app, args=None, retann=None):
         tab_width=8,
     )
     signatures = _format_signatures(
+        autodoc_annotations={},
         config=app.config,
         docstrings=docstrings,
         events=app.events,
@@ -402,6 +403,7 @@ def test_autodoc_process_signature_typehints(app):
     get_attr = _AutodocAttrGetter(app.registry.autodoc_attrgetters)
     options = _AutoDocumenterOptions()
     _format_signatures(
+        autodoc_annotations={},
         config=app.config,
         docstrings=None,
         events=app.events,
