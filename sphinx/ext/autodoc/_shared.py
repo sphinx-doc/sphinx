@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import dataclasses
 from typing import TYPE_CHECKING
 
 from sphinx.util.inspect import safe_getattr
@@ -18,28 +17,44 @@ if TYPE_CHECKING:
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
 
-@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class _AutodocConfig:
-    autoclass_content: Literal['both', 'class', 'init'] = 'class'
-    autodoc_class_signature: Literal['mixed', 'separated'] = 'mixed'
-    autodoc_default_options: Mapping[str, str | bool] = {}.keys().mapping
-    autodoc_docstring_signature: bool = True
-    autodoc_inherit_docstrings: bool = True
-    autodoc_member_order: Literal['alphabetical', 'bysource', 'groupwise'] = (
-        'alphabetical'
+    __slots__ = (
+        'autoclass_content',
+        'autodoc_class_signature',
+        'autodoc_default_options',
+        'autodoc_docstring_signature',
+        'autodoc_inherit_docstrings',
+        'autodoc_member_order',
+        'autodoc_mock_imports',
+        'autodoc_preserve_defaults',
+        'autodoc_type_aliases',
+        'autodoc_typehints',
+        'autodoc_typehints_description_target',
+        'autodoc_typehints_format',
+        'autodoc_use_type_comments',
+        # non-autodoc config
+        'python_display_short_literal_types',
+        'strip_signature_backslash',
     )
-    autodoc_mock_imports: Sequence[str] = ()
-    autodoc_preserve_defaults: bool = False
-    autodoc_type_aliases: Mapping[str, str] = {}.keys().mapping
-    autodoc_typehints: Literal['signature', 'description', 'none', 'both'] = 'signature'
+
+    autoclass_content: Literal['both', 'class', 'init']
+    autodoc_class_signature: Literal['mixed', 'separated']
+    autodoc_default_options: Mapping[str, str | bool]
+    autodoc_docstring_signature: bool
+    autodoc_inherit_docstrings: bool
+    autodoc_member_order: Literal['alphabetical', 'bysource', 'groupwise']
+    autodoc_mock_imports: Sequence[str]
+    autodoc_preserve_defaults: bool
+    autodoc_type_aliases: Mapping[str, str]
+    autodoc_typehints: Literal['signature', 'description', 'none', 'both']
     autodoc_typehints_description_target: Literal[
         'all', 'documented', 'documented_params'
-    ] = 'all'
-    autodoc_typehints_format: Literal['fully-qualified', 'short'] = 'short'
-    autodoc_use_type_comments: bool = True
-
-    python_display_short_literal_types: bool = False
-    strip_signature_backslash: bool = False
+    ]
+    autodoc_typehints_format: Literal['fully-qualified', 'short']
+    autodoc_use_type_comments: bool
+    # non-autodoc config
+    python_display_short_literal_types: bool
+    strip_signature_backslash: bool
 
     @classmethod
     def from_config(cls, config: Config) -> _AutodocConfig:
@@ -60,6 +75,47 @@ class _AutodocConfig:
             python_display_short_literal_types=config.python_display_short_literal_types,
             strip_signature_backslash=config.strip_signature_backslash,
         )
+
+    def __init__(
+        self,
+        *,
+        autoclass_content: Literal['both', 'class', 'init'] = 'class',
+        autodoc_class_signature: Literal['mixed', 'separated'] = 'mixed',
+        autodoc_default_options: Mapping[str, str | bool] = {}.keys().mapping,
+        autodoc_docstring_signature: bool = True,
+        autodoc_inherit_docstrings: bool = True,
+        autodoc_member_order: Literal['alphabetical', 'bysource', 'groupwise'] = (
+            'alphabetical'
+        ),
+        autodoc_mock_imports: Sequence[str] = (),
+        autodoc_preserve_defaults: bool = False,
+        autodoc_type_aliases: Mapping[str, str] = {}.keys().mapping,
+        autodoc_typehints: Literal[
+            'signature', 'description', 'none', 'both'
+        ] = 'signature',
+        autodoc_typehints_description_target: Literal[
+            'all', 'documented', 'documented_params'
+        ] = 'all',
+        autodoc_typehints_format: Literal['fully-qualified', 'short'] = 'short',
+        autodoc_use_type_comments: bool = True,
+        python_display_short_literal_types: bool = False,
+        strip_signature_backslash: bool = False,
+    ) -> None:
+        for name in self.__slots__:
+            super().__setattr__(name, locals()[name])
+
+    def __repr__(self) -> str:
+        items = ((name, getattr(self, name)) for name in self.__slots__)
+        args = ', '.join(f'{name}={value!r}' for name, value in items)
+        return f'_AutodocConfig({args})'
+
+    def __setattr__(self, key: str, value: Any) -> NoReturn:
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
+
+    def __delattr__(self, key: str) -> NoReturn:
+        msg = f'{self.__class__.__name__} is immutable'
+        raise AttributeError(msg)
 
 
 class _AutodocAttrGetter:
