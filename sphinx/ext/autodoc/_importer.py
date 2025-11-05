@@ -23,7 +23,7 @@ from sphinx.util.inspect import isclass, safe_getattr
 from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
     from importlib.machinery import ModuleSpec
     from types import ModuleType
     from typing import Any, Protocol
@@ -71,11 +71,11 @@ class _ImportedObject:
 def _import_object(
     *,
     get_attr: _AttrGetter = safe_getattr,
-    mock_imports: list[str],
+    mock_imports: Sequence[str],
     module_name: str,
     obj_path: Sequence[str],
     obj_type: _AutodocObjType,
-    type_aliases: dict[str, Any] | None,
+    type_aliases: Mapping[str, str] | None,
 ) -> _ImportedObject | None:
     """Import the module and get the object to document."""
     try:
@@ -310,8 +310,8 @@ def _import_data_declaration(
     *,
     module_name: str,
     obj_path: Sequence[str],
-    mock_imports: list[str],
-    type_aliases: dict[str, Any] | None,
+    mock_imports: Sequence[str],
+    type_aliases: Mapping[str, str] | None,
 ) -> _ImportedObject | None:
     # annotation only instance variable (PEP-526)
     try:
@@ -333,8 +333,8 @@ def _import_attribute_declaration(
     *,
     module_name: str,
     obj_path: Sequence[str],
-    mock_imports: list[str],
-    type_aliases: dict[str, Any] | None,
+    mock_imports: Sequence[str],
+    type_aliases: Mapping[str, str] | None,
     get_attr: _AttrGetter = safe_getattr,
 ) -> _ImportedObject | None:
     # Support runtime & uninitialized instance attributes.
@@ -424,7 +424,7 @@ def _get_attribute_comment(
 
 
 def _is_uninitialized_instance_attribute(
-    *, parent: Any, obj_path: Sequence[str], type_aliases: dict[str, Any] | None
+    *, parent: Any, obj_path: Sequence[str], type_aliases: Mapping[str, str] | None
 ) -> bool:
     """Check the subject is an annotation only attribute."""
     annotations = get_type_hints(parent, None, type_aliases, include_extras=True)

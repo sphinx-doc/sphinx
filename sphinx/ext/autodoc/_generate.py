@@ -9,6 +9,7 @@ from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._member_finder import _gather_members
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
 from sphinx.ext.autodoc._sentinels import ALL
+from sphinx.ext.autodoc._shared import _get_render_mode
 from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
@@ -17,14 +18,12 @@ from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, MutableSet
-    from typing import Literal
 
-    from sphinx.config import Config
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._importer import _AttrGetter
     from sphinx.ext.autodoc._property_types import _ItemProperties
+    from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
     from sphinx.util.typing import _RestifyMode
 
 logger = logging.getLogger('sphinx.ext.autodoc')
@@ -36,7 +35,7 @@ def _generate_directives(
     check_module: bool = False,
     all_members: bool = False,
     *,
-    config: Config,
+    config: _AutodocConfig,
     current_document: _CurrentDocument,
     events: EventManager,
     get_attr: _AttrGetter,
@@ -154,7 +153,7 @@ def _add_directive_lines(
     *,
     more_content: StringList | None,
     is_final: bool,
-    config: Config,
+    config: _AutodocConfig,
     indent: str,
     options: _AutoDocumenterOptions,
     props: _ItemProperties,
@@ -180,8 +179,8 @@ def _add_directive_lines(
 
     # add alias information, if applicable
     lines = _body_alias_lines(
-        typehints_format=config.autodoc_typehints_format,
-        python_display_short_literal_types=config.python_display_short_literal_types,
+        render_mode=_get_render_mode(config.autodoc_typehints_format),
+        short_literals=config.python_display_short_literal_types,
         props=props,
     )
     alias_lines = StringList(list(lines), source='')
@@ -204,7 +203,7 @@ def _document_members(
     all_members: bool,
     analyzer_order: dict[str, int],
     attr_docs: dict[tuple[str, str], list[str]],
-    config: Config,
+    config: _AutodocConfig,
     current_document: _CurrentDocument,
     events: EventManager,
     get_attr: _AttrGetter,
@@ -276,10 +275,7 @@ def _document_members(
 
 
 def _body_alias_lines(
-    *,
-    props: _ItemProperties,
-    typehints_format: Literal['fully-qualified', 'short'],
-    python_display_short_literal_types: bool,
+    *, props: _ItemProperties, render_mode: _RestifyMode, short_literals: bool
 ) -> Iterator[str]:
     """Add content from docstrings, attribute documentation and user."""
     if props.obj_type in {'data', 'attribute'}:
@@ -287,11 +283,9 @@ def _body_alias_lines(
 
         assert isinstance(props, _AssignStatementProperties)
 
-        mode = _get_render_mode(typehints_format)
-
         # Support for documenting GenericAliases
         if props._obj_is_generic_alias:
-            alias = restify(props._obj, mode=mode)
+            alias = restify(props._obj, mode=render_mode)
             yield _('alias of %s') % alias
             yield ''
             return
@@ -303,27 +297,25 @@ def _body_alias_lines(
         assert isinstance(props, _ClassDefProperties)
 
         obj = props._obj
-        mode = _get_render_mode(typehints_format)
 
         if props._obj_is_new_type:
-            supertype = restify(obj.__supertype__, mode=mode)
+            supertype = restify(obj.__supertype__, mode=render_mode)
             yield _('alias of %s') % supertype
             yield ''
             return
 
         if props._obj_is_typevar:
-            short_literals = python_display_short_literal_types
             attrs = [
                 repr(obj.__name__),
                 *(
                     stringify_annotation(
-                        constraint, mode, short_literals=short_literals
+                        constraint, render_mode, short_literals=short_literals
                     )
                     for constraint in obj.__constraints__
                 ),
             ]
             if obj.__bound__:
-                attrs.append(rf'bound=\ {restify(obj.__bound__, mode=mode)}')
+                attrs.append(rf'bound=\ {restify(obj.__bound__, mode=render_mode)}')
             if obj.__covariant__:
                 attrs.append('covariant=True')
             if obj.__contravariant__:
@@ -345,7 +337,7 @@ def _body_alias_lines(
 
             if class_var_doc_comment:
                 return
-            alias = restify(obj, mode=mode)
+            alias = restify(obj, mode=render_mode)
             yield _('alias of %s') % alias
             return
 
@@ -367,11 +359,3 @@ def _docstring_source_name(*, props: _ItemProperties, source: str) -> str:
     if source:
         return f'{source}:docstring of {fullname}'
     return f'docstring of {fullname}'
-
-
-def _get_render_mode(
-    typehints_format: Literal['fully-qualified', 'short'],
-) -> _RestifyMode:
-    if typehints_format == 'short':
-        return 'smart'
-    return 'fully-qualified-except-typing'

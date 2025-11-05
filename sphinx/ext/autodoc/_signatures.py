@@ -26,11 +26,10 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from typing import Any, TypeAlias
 
-    from sphinx.config import Config
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._importer import _AttrGetter
     from sphinx.ext.autodoc._property_types import _ItemProperties
+    from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
     _FormattedSignature: TypeAlias = tuple[str, str]
 
@@ -40,7 +39,7 @@ logger = logging.getLogger(__name__)
 def _format_signatures(
     *,
     autodoc_annotations: dict[str, dict[str, str]],
-    config: Config,
+    config: _AutodocConfig,
     docstrings: list[list[str]] | None,
     events: EventManager,
     get_attr: _AttrGetter,
@@ -110,9 +109,9 @@ def _format_signatures(
         autodoc_annotations=autodoc_annotations,
         name=props.full_name,
         obj=props._obj,
-        short_literals=config.python_display_short_literal_types,
+        short_literals=kwargs.get('short_literals', False),
         type_aliases=config.autodoc_type_aliases,
-        typehints_format=config.autodoc_typehints_format,
+        unqualified_typehints=kwargs.get('unqualified_typehints', False),
     )
     if result := events.emit_firstresult(
         'autodoc-process-signature',
@@ -406,7 +405,7 @@ def _extract_signatures_from_docstrings(
 
 
 def _extract_signature_from_object(
-    config: Config,
+    config: _AutodocConfig,
     events: EventManager,
     get_attr: _AttrGetter,
     parent: Any,
@@ -599,7 +598,11 @@ def _get_object_for_signature(
 
 
 def _annotate_to_first_argument(
-    func: Callable[..., Any], typ: type, *, config: Config, props: _ItemProperties
+    func: Callable[..., Any],
+    typ: type,
+    *,
+    config: _AutodocConfig,
+    props: _ItemProperties,
 ) -> Callable[..., Any] | None:
     """Annotate type hint to the first argument of function if needed."""
     try:

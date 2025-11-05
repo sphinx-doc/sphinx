@@ -12,6 +12,7 @@ from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
     _FunctionDefProperties,
 )
+from sphinx.ext.autodoc._shared import _AutodocConfig
 from sphinx.ext.autodoc._signatures import _format_signatures
 from sphinx.util.inspect import safe_getattr
 
@@ -41,7 +42,7 @@ def format_sig(
     args: str | None = None,
     retann: str | None = None,
 ) -> tuple[str, str] | tuple[()]:
-    config = app.config
+    config = _AutodocConfig.from_config(app.config)
     events = app.events
     options = _AutoDocumenterOptions()
 
@@ -374,10 +375,11 @@ def test_autodoc_process_signature_typehints(app: SphinxTestApp) -> None:
         properties=frozenset(),
     )
 
+    config = _AutodocConfig.from_config(app.config)
     options = _AutoDocumenterOptions()
     _format_signatures(
         autodoc_annotations={},
-        config=app.config,
+        config=config,
         docstrings=None,
         events=app.events,
         get_attr=safe_getattr,

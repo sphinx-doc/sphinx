@@ -9,6 +9,7 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._generate import _generate_directives
 from sphinx.ext.autodoc._loader import _load_object_by_name
+from sphinx.ext.autodoc._shared import _AutodocConfig
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
@@ -33,7 +34,7 @@ def do_autodoc(
         options=options,
     )
 
-    config = app.config
+    config = _AutodocConfig.from_config(app.config)
     current_document = app.env.current_document
     events = app.events
     ref_context = app.env.ref_context
@@ -41,8 +42,6 @@ def do_autodoc(
     props = _load_object_by_name(
         name=name,
         objtype=obj_type,
-        mock_imports=config.autodoc_mock_imports,
-        type_aliases=config.autodoc_type_aliases,
         current_document=current_document,
         config=config,
         events=events,

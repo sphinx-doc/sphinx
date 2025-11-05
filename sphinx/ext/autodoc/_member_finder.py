@@ -32,11 +32,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, MutableSet, Sequence, Set
     from typing import Any, Literal
 
-    from sphinx.config import Config
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._importer import _AttrGetter
     from sphinx.ext.autodoc._property_types import _AutodocObjType, _ItemProperties
     from sphinx.ext.autodoc._sentinels import (
         ALL_T,
@@ -44,6 +42,7 @@ if TYPE_CHECKING:
         INSTANCE_ATTR_T,
         SLOTS_ATTR_T,
     )
+    from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 special_member_re = re.compile(r'^__\S+__$')
@@ -94,7 +93,7 @@ def _gather_members(
     indent: str,
     analyzer_order: dict[str, int],
     attr_docs: dict[tuple[str, str], list[str]],
-    config: Config,
+    config: _AutodocConfig,
     current_document: _CurrentDocument,
     events: EventManager,
     get_attr: _AttrGetter,
@@ -176,8 +175,6 @@ def _gather_members(
         member_props = _load_object_by_name(
             name=full_name,
             objtype=obj_type,
-            mock_imports=config.autodoc_mock_imports,
-            type_aliases=config.autodoc_type_aliases,
             current_document=current_document,
             config=config,
             events=events,

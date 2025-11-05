@@ -780,7 +780,7 @@ def signature(
 def evaluate_signature(
     sig: Signature,
     globalns: dict[str, Any] | None = None,
-    localns: dict[str, Any] | None = None,
+    localns: Mapping[str, Any] | None = None,
 ) -> Signature:
     """Evaluate unresolved type annotations in a signature object."""
     if globalns is None:
@@ -804,7 +804,7 @@ def evaluate_signature(
 def _evaluate_forwardref(
     ref: ForwardRef,
     globalns: dict[str, Any] | None,
-    localns: dict[str, Any] | None,
+    localns: Mapping[str, Any] | None,
 ) -> Any:
     """Evaluate a forward reference."""
     if sys.version_info[:2] >= (3, 14):
@@ -826,7 +826,7 @@ def _evaluate_forwardref(
 def _evaluate(
     annotation: Any,
     globalns: dict[str, Any],
-    localns: dict[str, Any],
+    localns: Mapping[str, Any],
 ) -> Any:
     """Evaluate unresolved type annotation."""
     try:
