@@ -109,6 +109,7 @@ Contributors
 * Slawek Figiel -- additional warning suppression
 * Stefan Seefeld -- toctree improvements
 * Stefan van der Walt -- autosummary extension
+* Stefanos Carlström -- minor bug fix
 * Steve Piercy -- documentation improvements
 * Szymon Karpinski -- intersphinx improvements
 * \T. Powers -- HTML output improvements
