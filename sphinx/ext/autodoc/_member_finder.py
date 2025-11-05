@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Literal, NewType, TypeVar
 from sphinx.errors import PycodeError
 from sphinx.events import EventManager
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._property_types import _ClassDefProperties, _ModuleProperties
 from sphinx.ext.autodoc._sentinels import ALL, INSTANCE_ATTR, SLOTS_ATTR
-from sphinx.ext.autodoc.importer import _load_object_by_name
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -29,13 +29,14 @@ from sphinx.util.inspect import (
 from sphinx.util.typing import AnyTypeAliasType
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
+    from collections.abc import Iterable, Iterator, Mapping, MutableSet, Sequence, Set
     from typing import Any, Literal
 
     from sphinx.config import Config
-    from sphinx.environment import BuildEnvironment, _CurrentDocument
+    from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+    from sphinx.ext.autodoc._importer import _AttrGetter
     from sphinx.ext.autodoc._property_types import _AutodocObjType, _ItemProperties
     from sphinx.ext.autodoc._sentinels import (
         ALL_T,
@@ -43,7 +44,6 @@ if TYPE_CHECKING:
         INSTANCE_ATTR_T,
         SLOTS_ATTR_T,
     )
-    from sphinx.ext.autodoc.importer import _AttrGetter
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 special_member_re = re.compile(r'^__\S+__$')
@@ -52,7 +52,7 @@ special_member_re = re.compile(r'^__\S+__$')
 class ObjectMember:
     """A member of object.
 
-    This is used for the result of `Documenter.get_module_members()` to
+    This is used for the result of `_get_members_to_document()` to
     represent each member of the object.
     """
 
@@ -96,11 +96,13 @@ def _gather_members(
     attr_docs: dict[tuple[str, str], list[str]],
     config: Config,
     current_document: _CurrentDocument,
-    env: BuildEnvironment,
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
+    parent_modname: str,
     props: _ItemProperties,
+    ref_context: Mapping[str, str | None],
+    reread_always: MutableSet[str],
 ) -> list[tuple[_ItemProperties, bool, str]]:
     """Generate reST for member documentation.
 
@@ -152,7 +154,7 @@ def _gather_members(
     # document non-skipped members
     member_documenters: list[tuple[_ItemProperties, bool, str]] = []
     for member_name, member, is_attr in filtered_members:
-        # prefer the documenter with the highest priority
+        # prefer the object type with the highest priority
         obj_type = _best_object_type_for_member(
             member=member,
             member_name=member_name,
@@ -178,10 +180,12 @@ def _gather_members(
             type_aliases=config.autodoc_type_aliases,
             current_document=current_document,
             config=config,
-            env=env,
             events=events,
             get_attr=get_attr,
             options=options,
+            parent_modname=parent_modname,
+            ref_context=ref_context,
+            reread_always=reread_always,
         )
         if member_props is None:
             continue

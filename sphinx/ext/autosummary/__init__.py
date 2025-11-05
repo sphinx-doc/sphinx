@@ -67,11 +67,11 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-from sphinx.ext.autodoc._docstrings import _prepare_docstrings, _process_docstrings
+from sphinx.ext.autodoc._importer import _import_module
+from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc.directive import _AutodocAttrGetter
-from sphinx.ext.autodoc.importer import _load_object_by_name, import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -175,7 +175,6 @@ def _get_documenter(obj: Any, parent: Any) -> _AutodocObjType:
         )
         parent_obj_type = parent_opt if parent_opt is not None else 'data'
 
-    # Get the correct documenter class for *obj*
     if obj_type := _best_object_type_for_member(
         member=obj,
         member_name='',
@@ -302,12 +301,15 @@ class Autosummary(SphinxDirective):
             )
             raise ValueError(msg)
 
+        document_settings = self.state.document.settings
         env = self.env
         config = env.config
         current_document = env.current_document
         events = env.events
         get_attr = _AutodocAttrGetter(env._registry.autodoc_attrgetters)
         opts = _AutoDocumenterOptions()
+        ref_context = env.ref_context
+        reread_always = env.reread_always
 
         max_item_chars = 50
 
@@ -347,10 +349,11 @@ class Autosummary(SphinxDirective):
                 type_aliases=config.autodoc_type_aliases,
                 current_document=current_document,
                 config=config,
-                env=env,
                 events=events,
                 get_attr=get_attr,
                 options=opts,
+                ref_context=ref_context,
+                reread_always=reread_always,
             )
             if props is None:
                 logger.warning(
@@ -360,18 +363,6 @@ class Autosummary(SphinxDirective):
                 )
                 items.append((display_name, '', '', real_name))
                 continue
-
-            # try to also get a source code analyzer for attribute docs
-            real_module = props._obj___module__ or props.module_name
-            try:
-                analyzer = ModuleAnalyzer.for_module(real_module)
-                # parse right now, to get PycodeErrors on parsing (results will
-                # be cached anyway)
-                analyzer.analyze()
-            except PycodeError as err:
-                logger.debug('[autodoc] module analyzer failed: %s', err)
-                # no source file -- e.g. for builtin and C modules
-                analyzer = None
 
             # -- Grab the signature
 
@@ -388,15 +379,7 @@ class Autosummary(SphinxDirective):
             # -- Grab the summary
 
             # get content from docstrings or attribute documentation
-            attr_docs = {} if analyzer is None else analyzer.attr_docs
-            docstrings = _prepare_docstrings(props=props, attr_docs=attr_docs)
-            docstring_lines = _process_docstrings(
-                docstrings,
-                events=events,
-                props=props,
-                options=opts,
-            )
-            summary = extract_summary(list(docstring_lines), self.state.document)
+            summary = extract_summary(props.docstring_lines, document_settings)
 
             items.append((display_name, sig, summary, real_name))
 
@@ -538,43 +521,39 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
     return '(%s)' % sig
 
 
-def extract_summary(doc: list[str], document: Any) -> str:
+def extract_summary(doc: Sequence[str], settings: Any) -> str:
     """Extract summary from docstring."""
+    # Find the first stanza (heading, sentence, paragraph, etc.).
+    # If there's a blank line, then we can assume that the stanza has ended,
+    # so anything after shouldn't be part of the summary.
+    first_stanza = []
+    content_started = False
+    for line in doc:
+        is_blank_line = not line or line.isspace()
+        if not content_started:
+            # Skip any blank lines at the start
+            if is_blank_line:
+                continue
+            content_started = True
+        if content_started:
+            if is_blank_line:
+                break
+            first_stanza.append(line)
 
-    def parse(doc: list[str], settings: Any) -> nodes.document:
-        state_machine = RSTStateMachine(state_classes, 'Body')
-        node = new_document('', settings)
-        node.reporter = NullReporter()
-        state_machine.run(doc, node)
-
-        return node
-
-    # Skip a blank lines at the top
-    while doc and not doc[0].strip():
-        doc.pop(0)
-
-    # If there's a blank line, then we can assume the first sentence /
-    # paragraph has ended, so anything after shouldn't be part of the
-    # summary
-    for i, piece in enumerate(doc):
-        if not piece.strip():
-            doc = doc[:i]
-            break
-
-    if doc == []:
+    if not first_stanza:
         return ''
 
     # parse the docstring
-    node = parse(doc, document.settings)
+    node = _parse_summary(first_stanza, settings)
     if isinstance(node[0], nodes.section):
         # document starts with a section heading, so use that.
         summary = node[0].astext().strip()
     elif not isinstance(node[0], nodes.paragraph):
         # document starts with non-paragraph: pick up the first line
-        summary = doc[0].strip()
+        summary = first_stanza[0].strip()
     else:
         # Try to find the "first sentence", which may span multiple lines
-        sentences = periods_re.split(' '.join(doc))
+        sentences = periods_re.split(' '.join(first_stanza))
         if len(sentences) == 1:
             summary = sentences[0].strip()
         else:
@@ -582,7 +561,7 @@ def extract_summary(doc: list[str], document: Any) -> str:
             for i in range(len(sentences)):
                 summary = '. '.join(sentences[: i + 1]).rstrip('.') + '.'
                 node[:] = []
-                node = parse(doc, document.settings)
+                node = _parse_summary(first_stanza, settings)
                 if summary.endswith(WELL_KNOWN_ABBREVIATIONS):
                     pass
                 elif not any(node.findall(nodes.system_message)):
@@ -593,6 +572,15 @@ def extract_summary(doc: list[str], document: Any) -> str:
     summary = literal_re.sub('.', summary)
 
     return summary
+
+
+def _parse_summary(doc: Sequence[str], settings: Any) -> nodes.document:
+    state_machine = RSTStateMachine(state_classes, 'Body')
+    node = new_document('', settings)
+    node.reporter = NullReporter()
+    state_machine.run(doc, node)
+
+    return node
 
 
 def limited_join(
@@ -712,7 +700,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
         modname = '.'.join(name_parts[:-1])
         if modname:
             try:
-                mod = import_module(modname)
+                mod = _import_module(modname)
                 return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError) as exc:
                 errors.append(exc.__cause__ or exc)
@@ -724,7 +712,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
             last_j = j
             modname = '.'.join(name_parts[:j])
             try:
-                import_module(modname)
+                _import_module(modname)
             except ImportError as exc:
                 errors.append(exc.__cause__ or exc)
 
