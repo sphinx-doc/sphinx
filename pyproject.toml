@@ -86,6 +86,7 @@ dependencies = [
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
     "ipython>=9.6.0",
+    "regex>=2025.7.29"
 ]
 dynamic = ["version"]
 

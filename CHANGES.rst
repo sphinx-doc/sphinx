@@ -4,6 +4,10 @@ Release 8.3.0 (in development)
 Dependencies
 ------------
 
+* #14026: Added `regex >= 2025.7.29`_, to support parsing for Unicode classes.
+
+  .. _regex >= 2025.7.29: _https://github.com/mrabarnett/mrab-regex
+
 * #13786: Support `Docutils 0.22`_. Patch by Adam Turner.
 
   .. _Docutils 0.22: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-22-2026-07-29
