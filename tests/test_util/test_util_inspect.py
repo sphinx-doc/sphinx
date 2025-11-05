@@ -115,6 +115,14 @@ def test_TypeAliasForwardRef():
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example') | None"
 
+    alias = alias | None
+    sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
+    assert sig_str == "TypeAliasForwardRef('example') | None"
+
+    alias = None | alias  # NoQA: RUF036
+    sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
+    assert sig_str == "None | TypeAliasForwardRef('example')"
+
 
 def test_TypeAliasNamespace() -> None:
     import logging.config

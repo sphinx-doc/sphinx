@@ -616,6 +616,14 @@ class TypeAliasForwardRef:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self.name!r})'
 
+    def __or__(self, other: Any) -> Any:
+        # When evaluating type hints, our forward ref can appear in type expressions,
+        # i.e. `Alias | None`. This means it needs to support ``__or__`` and ``__ror__``.
+        return typing.Union[self, other]  # NoQA: UP007
+
+    def __ror__(self, other: Any) -> Any:
+        return typing.Union[other, self]  # NoQA: UP007
+
 
 class TypeAliasModule:
     """Pseudo module class for :confval:`autodoc_type_aliases`."""
