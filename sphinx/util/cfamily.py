@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import re
+import regex as re
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -30,9 +30,13 @@ identifier_re = re.compile(
     (   # This 'extends' _anon_identifier_re with the ordinary identifiers,
         # make sure they are in sync.
         (~?\b[a-zA-Z_])  # ordinary identifiers
+    |   \p{XID_Start}    # Unicode-allowed starting characters for identifiers
     |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
-    [a-zA-Z0-9_]*\b
+    (
+        [a-zA-Z0-9_]     # ordinary identifiers
+    |   \p{XID_Continue} # Unicode-allowed continuing characters for identifiers
+    )*\b
     """,
     flags=re.VERBOSE,
 )

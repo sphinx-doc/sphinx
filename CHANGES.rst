@@ -1,6 +1,13 @@
 Release 9.1.1 (in development)
 ==============================
 
+Dependencies
+------------
+
+* #14026: Added `regex >= 2025.7.29`_, to support parsing for Unicode classes.
+
+  .. _regex >= 2025.7.29: _https://github.com/mrabarnett/mrab-regex
+
 Bugs fixed
 ----------
 
