@@ -268,9 +268,9 @@ Sphinx but is set to automatically include it from a third-party site.
    :default: :code-py:`None`
 
    The configuration options for MathJax v3 (which is used by default).
-   A custom javascript file path can be given as a string.
-   If a dictionary is given, it is converted to a JSON object and assigned
-   to the JavaScript variable ``window.MathJax``.
+   Expects a string with the relative path to a javascript file with the config.
+   Alternatively, a dictionary can be given, which is converted to a JSON object
+   and assigned to the JavaScript variable ``window.MathJax``.
    For more information, please read `Configuring MathJax`__.
 
    __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
