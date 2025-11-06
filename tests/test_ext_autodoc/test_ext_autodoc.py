@@ -255,6 +255,7 @@ def test_py_module(caplog: pytest.LogCaptureFixture) -> None:
     # work around sphinx.util.logging.setup()
     logger = logging.getLogger('sphinx')
     logger.handlers[:] = [caplog.handler]
+    caplog.set_level(logging.WARNING)
 
     # without py:module
     actual = do_autodoc('method', 'Class.meth', expect_import_error=True)
@@ -317,6 +318,7 @@ def test_autodoc_warnings(caplog: pytest.LogCaptureFixture) -> None:
     # work around sphinx.util.logging.setup()
     logger = logging.getLogger('sphinx')
     logger.handlers[:] = [caplog.handler]
+    caplog.set_level(logging.WARNING)
 
     current_document = _CurrentDocument(docname='dummy')
 
@@ -2855,6 +2857,7 @@ def test_autodoc(caplog: pytest.LogCaptureFixture) -> None:
     # work around sphinx.util.logging.setup()
     logger = logging.getLogger('sphinx')
     logger.handlers[:] = [caplog.handler]
+    caplog.set_level(logging.WARNING)
 
     config = _AutodocConfig(autodoc_mock_imports=['dummy'])
     options = {'members': None}

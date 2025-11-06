@@ -45,6 +45,7 @@ def test_parse_module_names(caplog: pytest.LogCaptureFixture) -> None:
     # work around sphinx.util.logging.setup()
     logger = logging.getLogger('sphinx')
     logger.handlers[:] = [caplog.handler]
+    caplog.set_level(logging.WARNING)
 
     parsed = parse_name('module', 'test_ext_autodoc')
     assert parsed == ('test_ext_autodoc', [], None, None)

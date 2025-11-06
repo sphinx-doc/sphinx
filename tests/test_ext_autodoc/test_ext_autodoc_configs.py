@@ -638,6 +638,7 @@ def test_mocked_module_imports(caplog: pytest.LogCaptureFixture) -> None:
     # work around sphinx.util.logging.setup()
     logger = logging.getLogger('sphinx')
     logger.handlers[:] = [caplog.handler]
+    caplog.set_level(logging.WARNING)
 
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
