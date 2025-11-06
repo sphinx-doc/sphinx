@@ -66,7 +66,7 @@ class ApidocOptions:
     version: str | None = None
     release: str | None = None
     extensions: Sequence[str] | None = None
-    template_dir: str | None = None
+    template_dir: str | Path | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
@@ -82,6 +82,7 @@ class ApidocDefaults:
     no_headings: bool
     module_first: bool
     implicit_namespaces: bool
+    template_dir: str | Path | None
 
     @classmethod
     def from_config(cls, config: Config, /) -> Self:
@@ -96,4 +97,5 @@ class ApidocDefaults:
             no_headings=config.apidoc_no_headings,
             module_first=config.apidoc_module_first,
             implicit_namespaces=config.apidoc_implicit_namespaces,
+            template_dir=config.apidoc_template_dir,
         )
