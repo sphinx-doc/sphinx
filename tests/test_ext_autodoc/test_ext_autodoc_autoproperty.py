@@ -6,20 +6,16 @@ source file translated by test_build.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
-if TYPE_CHECKING:
-    from sphinx.testing.util import SphinxTestApp
+pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_properties(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'property', 'target.properties.Foo.prop1')
-    assert list(actual) == [
+def test_properties() -> None:
+    actual = do_autodoc('property', 'target.properties.Foo.prop1')
+    assert actual == [
         '',
         '.. py:property:: Foo.prop1',
         '   :module: target.properties',
@@ -30,10 +26,9 @@ def test_properties(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_properties(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'property', 'target.properties.Foo.prop2')
-    assert list(actual) == [
+def test_class_properties() -> None:
+    actual = do_autodoc('property', 'target.properties.Foo.prop2')
+    assert actual == [
         '',
         '.. py:property:: Foo.prop2',
         '   :module: target.properties',
@@ -45,12 +40,9 @@ def test_class_properties(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_properties_with_type_comment(app: SphinxTestApp) -> None:
-    actual = do_autodoc(
-        app, 'property', 'target.properties.Foo.prop1_with_type_comment'
-    )
-    assert list(actual) == [
+def test_properties_with_type_comment() -> None:
+    actual = do_autodoc('property', 'target.properties.Foo.prop1_with_type_comment')
+    assert actual == [
         '',
         '.. py:property:: Foo.prop1_with_type_comment',
         '   :module: target.properties',
@@ -61,12 +53,9 @@ def test_properties_with_type_comment(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_class_properties_with_type_comment(app: SphinxTestApp) -> None:
-    actual = do_autodoc(
-        app, 'property', 'target.properties.Foo.prop2_with_type_comment'
-    )
-    assert list(actual) == [
+def test_class_properties_with_type_comment() -> None:
+    actual = do_autodoc('property', 'target.properties.Foo.prop2_with_type_comment')
+    assert actual == [
         '',
         '.. py:property:: Foo.prop2_with_type_comment',
         '   :module: target.properties',
@@ -78,10 +67,9 @@ def test_class_properties_with_type_comment(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_cached_properties(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'property', 'target.cached_property.Foo.prop')
-    assert list(actual) == [
+def test_cached_properties() -> None:
+    actual = do_autodoc('property', 'target.cached_property.Foo.prop')
+    assert actual == [
         '',
         '.. py:property:: Foo.prop',
         '   :module: target.cached_property',
@@ -90,12 +78,9 @@ def test_cached_properties(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_cached_properties_with_type_comment(app: SphinxTestApp) -> None:
-    actual = do_autodoc(
-        app, 'property', 'target.cached_property.Foo.prop_with_type_comment'
-    )
-    assert list(actual) == [
+def test_cached_properties_with_type_comment() -> None:
+    actual = do_autodoc('property', 'target.cached_property.Foo.prop_with_type_comment')
+    assert actual == [
         '',
         '.. py:property:: Foo.prop_with_type_comment',
         '   :module: target.cached_property',

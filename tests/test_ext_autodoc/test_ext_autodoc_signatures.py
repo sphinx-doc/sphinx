@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Generic, TypeVar
 
 import pytest
 
@@ -16,21 +17,17 @@ from sphinx.ext.autodoc._shared import _AutodocConfig
 from sphinx.ext.autodoc._signatures import _format_signatures
 from sphinx.util.inspect import safe_getattr
 
-from tests.test_ext_autodoc.autodoc_util import do_autodoc
+from tests.test_ext_autodoc.autodoc_util import FakeEvents
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.events import EventManager
     from sphinx.ext.autodoc._property_types import _AutodocObjType
-    from sphinx.testing.util import SphinxTestApp
 
 processed_signatures = []
-
-sphinx_sig = pytest.mark.sphinx(
-    'dummy', testroot='_blank', confoverrides={'extensions': ['sphinx.ext.autodoc']}
-)
 
 
 def format_sig(
@@ -38,12 +35,15 @@ def format_sig(
     name: str,
     obj: Any,
     *,
-    app: Sphinx,
+    config: _AutodocConfig | None = None,
+    events: EventManager | None = None,
     args: str | None = None,
     retann: str | None = None,
 ) -> tuple[str, str] | tuple[()]:
-    config = _AutodocConfig.from_config(app.config)
-    events = app.events
+    if config is None:
+        config = _AutodocConfig()
+    if events is None:
+        events = FakeEvents()
     options = _AutoDocumenterOptions()
 
     parent = object  # dummy
@@ -102,14 +102,12 @@ def _process_signature(
     return None
 
 
-@sphinx_sig
-def test_format_module_signatures(app: SphinxTestApp) -> None:
+def test_format_module_signatures() -> None:
     # no signatures for modules
-    assert format_sig('module', 'test', None, app=app) == ()
+    assert format_sig('module', 'test', None) == ()
 
 
-@sphinx_sig
-def test_format_function_signatures(app: SphinxTestApp) -> None:
+def test_format_function_signatures() -> None:
     # test for functions
     def f(a, b, c=1, **d):  # type: ignore[no-untyped-def]
         pass
@@ -117,12 +115,9 @@ def test_format_function_signatures(app: SphinxTestApp) -> None:
     def g(a='\n'):  # type: ignore[no-untyped-def]
         pass
 
-    assert format_sig('function', 'f', f, app=app) == ('(a, b, c=1, **d)', '')
-    assert format_sig('function', 'f', f, app=app, args='(a, b, c, d)') == (
-        '(a, b, c, d)',
-        '',
-    )
-    assert format_sig('function', 'g', g, app=app) == (r"(a='\n')", '')
+    assert format_sig('function', 'f', f) == ('(a, b, c=1, **d)', '')
+    assert format_sig('function', 'f', f, args='(a, b, c, d)') == ('(a, b, c, d)', '')
+    assert format_sig('function', 'g', g) == (r"(a='\n')", '')
 
 
 @pytest.mark.skipif(
@@ -137,31 +132,22 @@ def test_format_function_signatures(app: SphinxTestApp) -> None:
         ('(a:list[T]   =[], b=None)', '(a: list[T] = [], b=None)'),  # idem
     ],
 )
-@sphinx_sig
-def test_format_function_signatures_pep695(
-    app: SphinxTestApp, params: str, expect: str
-) -> None:
+def test_format_function_signatures_pep695(params: str, expect: str) -> None:
     ns: dict[str, Any] = {}
     exec(f'def f[T]{params}: pass', ns)  # NoQA: S102
     f = ns['f']
-    assert format_sig('function', 'f', f, app=app) == (expect, '')
-    assert format_sig('function', 'f', f, app=app, args='(...)') == (
-        '(...)',
-        '',
-    )
-    assert format_sig('function', 'f', f, app=app, args='(...)', retann='...') == (
+    assert format_sig('function', 'f', f) == (expect, '')
+    assert format_sig('function', 'f', f, args='(...)') == ('(...)', '')
+    assert format_sig('function', 'f', f, args='(...)', retann='...') == (
         '(...)',
         '...',
     )
 
     exec(f'def f[T]{params} -> list[T]: return []', ns)  # NoQA: S102
     f = ns['f']
-    assert format_sig('function', 'f', f, app=app) == (expect, 'list[T]')
-    assert format_sig('function', 'f', f, app=app, args='(...)') == (
-        '(...)',
-        '',
-    )
-    assert format_sig('function', 'f', f, app=app, args='(...)', retann='...') == (
+    assert format_sig('function', 'f', f) == (expect, 'list[T]')
+    assert format_sig('function', 'f', f, args='(...)') == ('(...)', '')
+    assert format_sig('function', 'f', f, args='(...)', retann='...') == (
         '(...)',
         '...',
     )
@@ -170,8 +156,7 @@ def test_format_function_signatures_pep695(
     # complex cases are less likely to appear and are painful to test).
 
 
-@sphinx_sig
-def test_format_class_signatures(app: SphinxTestApp) -> None:
+def test_format_class_signatures() -> None:
     # test for classes
     class D:
         pass
@@ -182,7 +167,7 @@ def test_format_class_signatures(app: SphinxTestApp) -> None:
 
     # an empty init and no init are the same
     for C in (D, E):
-        assert format_sig('class', 'D', C, app=app) == ('()', '')
+        assert format_sig('class', 'D', C) == ('()', '')
 
     class SomeMeta(type):
         def __call__(cls, a, b=None):  # type: ignore[no-untyped-def]
@@ -211,48 +196,39 @@ def test_format_class_signatures(app: SphinxTestApp) -> None:
         pass
 
     # subclasses inherit
-    assert format_sig('class', 'C', F, app=app) == ('(a, b=None)', '')
-    assert format_sig('class', 'C', FNew, app=app) == ('(a, b=None)', '')
-    assert format_sig('class', 'C', FMeta, app=app) == ('(a, b=None)', '')
-    assert format_sig('class', 'C', G, app=app) == ('(a, b=None)', '')
-    assert format_sig('class', 'C', GNew, app=app) == ('(a, b=None)', '')
-    assert format_sig('class', 'C', GMeta, app=app) == ('(a, b=None)', '')
-    assert format_sig('class', 'C', D, app=app, args='(a, b)', retann='X') == (
-        '(a, b)',
-        'X',
-    )
+    assert format_sig('class', 'C', F) == ('(a, b=None)', '')
+    assert format_sig('class', 'C', FNew) == ('(a, b=None)', '')
+    assert format_sig('class', 'C', FMeta) == ('(a, b=None)', '')
+    assert format_sig('class', 'C', G) == ('(a, b=None)', '')
+    assert format_sig('class', 'C', GNew) == ('(a, b=None)', '')
+    assert format_sig('class', 'C', GMeta) == ('(a, b=None)', '')
+    assert format_sig('class', 'C', D, args='(a, b)', retann='X') == ('(a, b)', 'X')
 
 
-@sphinx_sig
-def test_format_class_signatures_text_signature(app: SphinxTestApp) -> None:
+def test_format_class_signatures_text_signature() -> None:
     class ListSubclass(list):  # type: ignore[type-arg]  # NoQA: FURB189
         pass
 
     # only supported if the python implementation decides to document it
     if getattr(list, '__text_signature__', None) is not None:
-        assert format_sig('class', 'C', ListSubclass, app=app) == (
-            '(iterable=(), /)',
-            '',
-        )
+        assert format_sig('class', 'C', ListSubclass) == ('(iterable=(), /)', '')
     else:
-        assert format_sig('class', 'C', ListSubclass, app=app) == ()
+        assert format_sig('class', 'C', ListSubclass) == ()
 
 
-@sphinx_sig
-def test_format_class_signatures_no_text_signature(app: SphinxTestApp) -> None:
+def test_format_class_signatures_no_text_signature() -> None:
     class ExceptionSubclass(Exception):
         pass
 
     # Exception has no __text_signature__ at least in Python 3.11
     if getattr(Exception, '__text_signature__', None) is not None:
         pytest.skip()
-    assert format_sig('class', 'C', ExceptionSubclass, app=app) == ()
+    assert format_sig('class', 'C', ExceptionSubclass) == ()
 
 
-@sphinx_sig
-def test_format_class_signatures_init_both(app: SphinxTestApp) -> None:
+def test_format_class_signatures_init_both() -> None:
     # __init__ have signature at first line of docstring
-    app.config.autoclass_content = 'both'
+    config = _AutodocConfig(autoclass_content='both')
 
     class F2:
         """some docstring for F2."""
@@ -267,18 +243,17 @@ def test_format_class_signatures_init_both(app: SphinxTestApp) -> None:
     class G2(F2):
         pass
 
-    assert format_sig('class', 'F2', F2, app=app) == (
+    assert format_sig('class', 'F2', F2, config=config) == (
         '(a1, a2, kw1=True, kw2=False)',
         '',
     )
-    assert format_sig('class', 'G2', G2, app=app) == (
+    assert format_sig('class', 'G2', G2, config=config) == (
         '(a1, a2, kw1=True, kw2=False)',
         '',
     )
 
 
-@sphinx_sig
-def test_format_method_signatures(app: SphinxTestApp) -> None:
+def test_format_method_signatures() -> None:
     # test for methods
     class H:
         def foo1(self, b, *c):  # type: ignore[no-untyped-def]
@@ -290,75 +265,69 @@ def test_format_method_signatures(app: SphinxTestApp) -> None:
         def foo3(self, d='\n'):  # type: ignore[no-untyped-def]
             pass
 
-    assert format_sig('method', 'H.foo', H.foo1, app=app) == ('(b, *c)', '')
-    assert format_sig('method', 'H.foo', H.foo1, app=app, args='(a)') == ('(a)', '')
-    assert format_sig('method', 'H.foo', H.foo2, app=app) == ('(*c)', '')
-    assert format_sig('method', 'H.foo', H.foo3, app=app) == (r"(d='\n')", '')
+    assert format_sig('method', 'H.foo', H.foo1) == ('(b, *c)', '')
+    assert format_sig('method', 'H.foo', H.foo1, args='(a)') == ('(a)', '')
+    assert format_sig('method', 'H.foo', H.foo2) == ('(*c)', '')
+    assert format_sig('method', 'H.foo', H.foo3) == (r"(d='\n')", '')
 
     # test bound methods interpreted as functions
-    assert format_sig('function', 'foo', H().foo1, app=app) == ('(b, *c)', '')
-    assert format_sig('function', 'foo', H().foo2, app=app) == ('(*c)', '')
-    assert format_sig('function', 'foo', H().foo3, app=app) == (r"(d='\n')", '')
+    assert format_sig('function', 'foo', H().foo1) == ('(b, *c)', '')
+    assert format_sig('function', 'foo', H().foo2) == ('(*c)', '')
+    assert format_sig('function', 'foo', H().foo3) == (r"(d='\n')", '')
 
 
-@sphinx_sig
-def test_format_method_signatures_error_handling(app: SphinxTestApp) -> None:
+def test_format_method_signatures_error_handling() -> None:
     # test exception handling (exception is caught and args is '')
-    app.config.autodoc_docstring_signature = False
-    assert format_sig('function', 'int', int, app=app) == ()
+    config = _AutodocConfig(autodoc_docstring_signature=False)
+    assert format_sig('function', 'int', int, config=config) == ()
 
 
-@sphinx_sig
-def test_format_signatures_event_handler(app: SphinxTestApp) -> None:
-    app.connect('autodoc-process-signature', _process_signature)
+def test_format_signatures_event_handler() -> None:
+    events = FakeEvents()
+    events.connect('autodoc-process-signature', _process_signature)
 
     class H:
         def foo1(self, b, *c):  # type: ignore[no-untyped-def]
             pass
 
     # test processing by event handler
-    assert format_sig('method', 'bar', H.foo1, app=app) == ('42', '')
+    assert format_sig('method', 'bar', H.foo1, events=events) == ('42', '')
 
 
-@sphinx_sig
-def test_format_functools_partial_signatures(app: SphinxTestApp) -> None:
+def test_format_functools_partial_signatures() -> None:
     # test functions created via functools.partial
     from functools import partial
 
     curried1 = partial(lambda a, b, c: None, 'A')
-    assert format_sig('function', 'curried1', curried1, app=app) == ('(b, c)', '')
+    assert format_sig('function', 'curried1', curried1) == ('(b, c)', '')
     curried2 = partial(lambda a, b, c=42: None, 'A')
-    assert format_sig('function', 'curried2', curried2, app=app) == ('(b, c=42)', '')
+    assert format_sig('function', 'curried2', curried2) == ('(b, c=42)', '')
     curried3 = partial(lambda a, b, *c: None, 'A')
-    assert format_sig('function', 'curried3', curried3, app=app) == ('(b, *c)', '')
+    assert format_sig('function', 'curried3', curried3) == ('(b, *c)', '')
     curried4 = partial(lambda a, b, c=42, *d, **e: None, 'A')
-    assert format_sig('function', 'curried4', curried4, app=app) == (
-        '(b, c=42, *d, **e)',
-        '',
-    )
+    assert format_sig('function', 'curried4', curried4) == ('(b, c=42, *d, **e)', '')
 
 
-@pytest.mark.sphinx('dummy', testroot='ext-autodoc')
-def test_autodoc_process_signature_typing_generic(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
-    assert actual == [
-        '',
-        '.. py:class:: A(a, b=None)',
-        '   :module: target.generic_class',
-        '',
-        '   docstring for A',
-        '',
-    ]
+def test_autodoc_process_signature_typing_generic() -> None:
+    T = TypeVar('T')
+
+    class A(Generic[T]):
+        def __init__(self, a, b=None):  # type: ignore[no-untyped-def]
+            pass
+
+    # Test that typing.Generic's __new__ method does not mask
+    # the class's __init__ signature.
+    assert format_sig('class', 'A', A) == ('(a, b=None)', '')
 
 
-@sphinx_sig
-def test_autodoc_process_signature_typehints(app: SphinxTestApp) -> None:
+def test_autodoc_process_signature_typehints() -> None:
     captured = []
 
     def process_signature(*args: Any) -> None:
         captured.append(args)
 
-    app.connect('autodoc-process-signature', process_signature)
+    events = FakeEvents()
+    events.connect('autodoc-process-signature', process_signature)
 
     def func(x: int, y: int) -> int:  # type: ignore[empty-body]
         pass
@@ -375,18 +344,19 @@ def test_autodoc_process_signature_typehints(app: SphinxTestApp) -> None:
         properties=frozenset(),
     )
 
-    config = _AutodocConfig.from_config(app.config)
     options = _AutoDocumenterOptions()
     _format_signatures(
         autodoc_annotations={},
-        config=config,
+        config=_AutodocConfig(),
         docstrings=None,
-        events=app.events,
+        events=events,
         get_attr=safe_getattr,
         options=options,
         parent=None,
         props=props,
     )
+
+    app = events._app
     assert captured == [
         (app, 'function', '.func', func, options, '(x: int, y: int)', 'int')
     ]

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx.ext.autodoc._shared import _AutodocConfig
 from sphinx.testing import restructuredtext
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -16,6 +17,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from sphinx.testing.util import SphinxTestApp
+
+pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
 @contextmanager
@@ -31,18 +34,15 @@ def overwrite_file(path: Path, content: str) -> Iterator[None]:
             path.unlink()
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints': 'signature'},
-)
-def test_autodoc_typehints_signature(app: SphinxTestApp) -> None:
+def test_autodoc_typehints_signature() -> None:
+    config = _AutodocConfig(autodoc_typehints='signature')
+
     options = {
         'members': None,
         'undoc-members': None,
     }
-    actual = do_autodoc(app, 'module', 'target.typehints', options)
-    assert list(actual) == [
+    actual = do_autodoc('module', 'target.typehints', config=config, options=options)
+    assert actual == [
         '',
         '.. py:module:: target.typehints',
         '',
@@ -158,18 +158,15 @@ def test_autodoc_typehints_signature(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints': 'none'},
-)
-def test_autodoc_typehints_none(app: SphinxTestApp) -> None:
+def test_autodoc_typehints_none() -> None:
+    config = _AutodocConfig(autodoc_typehints='none')
+
     options = {
         'members': None,
         'undoc-members': None,
     }
-    actual = do_autodoc(app, 'module', 'target.typehints', options)
-    assert list(actual) == [
+    actual = do_autodoc('module', 'target.typehints', config=config, options=options)
+    assert actual == [
         '',
         '.. py:module:: target.typehints',
         '',
@@ -276,15 +273,12 @@ def test_autodoc_typehints_none(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints': 'none'},
-)
-def test_autodoc_typehints_none_for_overload(app: SphinxTestApp) -> None:
+def test_autodoc_typehints_none_for_overload() -> None:
+    config = _AutodocConfig(autodoc_typehints='none')
+
     options = {'members': None}
-    actual = do_autodoc(app, 'module', 'target.overload', options)
-    assert list(actual) == [
+    actual = do_autodoc('module', 'target.overload', config=config, options=options)
+    assert actual == [
         '',
         '.. py:module:: target.overload',
         '',
@@ -327,56 +321,54 @@ def test_autodoc_typehints_none_for_overload(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints': 'description'},
-    freshenv=True,
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc', freshenv=True)
 def test_autodoc_typehints_description(app: SphinxTestApp) -> None:
+    app.config.autodoc_typehints = 'description'
+
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert (
-        'target.typehints.incr(a, b=1)\n'
-        '\n'
-        '   Parameters:\n'
-        '      * **a** (*int*)\n'
-        '\n'
-        '      * **b** (*int*)\n'
-        '\n'
-        '   Return type:\n'
-        '      int\n'
-    ) in context
-    assert (
-        'target.typehints.tuple_args(x)\n'
-        '\n'
-        '   Parameters:\n'
-        '      **x** (*tuple**[**int**, **int** | **str**]*)\n'
-        '\n'
-        '   Return type:\n'
-        '      tuple[int, int]\n'
-    ) in context
+    expect = '\n'.join((  # NoQA: FLY002
+        'target.typehints.incr(a, b=1)',
+        '',
+        '   Parameters:',
+        '      * **a** (*int*)',
+        '',
+        '      * **b** (*int*)',
+        '',
+        '   Return type:',
+        '      int',
+        '',
+    ))
+    assert expect in context
+    expect = '\n'.join((  # NoQA: FLY002
+        'target.typehints.tuple_args(x)',
+        '',
+        '   Parameters:',
+        '      **x** (*tuple**[**int**, **int** | **str**]*)',
+        '',
+        '   Return type:',
+        '      tuple[int, int]',
+        '',
+    ))
+    assert expect in context
 
     # Overloads still get displayed in the signature
-    assert (
-        'target.overload.sum(x: int, y: int = 0) -> int\n'
-        'target.overload.sum(x: float, y: float = 0.0) -> float\n'
-        'target.overload.sum(x: str, y: str = None) -> str\n'
-        '\n'
-        '   docstring\n'
-    ) in context
+    expect = '\n'.join((  # NoQA: FLY002
+        'target.overload.sum(x: int, y: int = 0) -> int',
+        'target.overload.sum(x: float, y: float = 0.0) -> float',
+        'target.overload.sum(x: str, y: str = None) -> str',
+        '',
+        '   docstring',
+        '',
+    ))
+    assert expect in context
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    confoverrides={
-        'autodoc_typehints': 'description',
-        'autodoc_typehints_description_target': 'documented',
-    },
-    copy_test_root=True,
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
 def test_autodoc_typehints_description_no_undoc(app: SphinxTestApp) -> None:
+    app.config.autodoc_typehints = 'description'
+    app.config.autodoc_typehints_description_target = 'documented'
+
     # No :type: or :rtype: will be injected for `incr`, which does not have
     # a description for its parameters or its return. `tuple_args` does
     # describe them, so :type: and :rtype: will be added.
@@ -396,40 +388,37 @@ def test_autodoc_typehints_description_no_undoc(app: SphinxTestApp) -> None:
         app.build()
     # Restore the original content of the file
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert (
-        'target.typehints.incr(a, b=1)\n'
-        '\n'
-        'target.typehints.decr(a, b=1)\n'
-        '\n'
-        '   Returns:\n'
-        '      decremented number\n'
-        '\n'
-        '   Return type:\n'
-        '      int\n'
-        '\n'
-        'target.typehints.tuple_args(x)\n'
-        '\n'
-        '   Parameters:\n'
-        '      **x** (*tuple**[**int**, **int** | **str**]*) -- arg\n'
-        '\n'
-        '   Returns:\n'
-        '      another tuple\n'
-        '\n'
-        '   Return type:\n'
-        '      tuple[int, int]\n'
-    ) in context
+    expect = '\n'.join((  # NoQA: FLY002
+        'target.typehints.incr(a, b=1)',
+        '',
+        'target.typehints.decr(a, b=1)',
+        '',
+        '   Returns:',
+        '      decremented number',
+        '',
+        '   Return type:',
+        '      int',
+        '',
+        'target.typehints.tuple_args(x)',
+        '',
+        '   Parameters:',
+        '      **x** (*tuple**[**int**, **int** | **str**]*) -- arg',
+        '',
+        '   Returns:',
+        '      another tuple',
+        '',
+        '   Return type:',
+        '      tuple[int, int]',
+        '',
+    ))
+    assert expect in context
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    confoverrides={
-        'autodoc_typehints': 'description',
-        'autodoc_typehints_description_target': 'documented_params',
-    },
-    copy_test_root=True,
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
 def test_autodoc_typehints_description_no_undoc_doc_rtype(app: SphinxTestApp) -> None:
+    app.config.autodoc_typehints = 'description'
+    app.config.autodoc_typehints_description_target = 'documented_params'
+
     # No :type: will be injected for `incr`, which does not have a description
     # for its parameters or its return, just :rtype: will be injected due to
     # autodoc_typehints_description_target. `tuple_args` does describe both, so
@@ -493,13 +482,10 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app: SphinxTestApp) ->
     )
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints': 'description'},
-    copy_test_root=True,
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
 def test_autodoc_typehints_description_with_documented_init(app: SphinxTestApp) -> None:
+    app.config.autodoc_typehints = 'description'
+
     with overwrite_file(
         app.srcdir / 'index.rst',
         '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
@@ -535,18 +521,13 @@ def test_autodoc_typehints_description_with_documented_init(app: SphinxTestApp) 
     )
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    confoverrides={
-        'autodoc_typehints': 'description',
-        'autodoc_typehints_description_target': 'documented',
-    },
-    copy_test_root=True,
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
 def test_autodoc_typehints_description_with_documented_init_no_undoc(
     app: SphinxTestApp,
 ) -> None:
+    app.config.autodoc_typehints = 'description'
+    app.config.autodoc_typehints_description_target = 'documented'
+
     with overwrite_file(
         app.srcdir / 'index.rst',
         '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
@@ -572,18 +553,13 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(
     )
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    confoverrides={
-        'autodoc_typehints': 'description',
-        'autodoc_typehints_description_target': 'documented_params',
-    },
-    copy_test_root=True,
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
 def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(
     app: SphinxTestApp,
 ) -> None:
+    app.config.autodoc_typehints = 'description'
+    app.config.autodoc_typehints_description_target = 'documented_params'
+
     # see test_autodoc_typehints_description_with_documented_init_no_undoc
     # returnvalue_and_documented_params should not change class or method
     # docstring.
@@ -612,23 +588,18 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(
     )
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints': 'description'},
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc')
 def test_autodoc_typehints_description_for_invalid_node(app: SphinxTestApp) -> None:
+    app.config.autodoc_typehints = 'description'
+
     text = '.. py:function:: hello; world'
     restructuredtext.parse(app, text)  # raises no error
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints': 'both'},
-    copy_test_root=True,
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
 def test_autodoc_typehints_both(app: SphinxTestApp) -> None:
+    app.config.autodoc_typehints = 'both'
+
     with overwrite_file(
         app.srcdir / 'index.rst',
         '.. autofunction:: target.typehints.incr\n'
@@ -639,47 +610,48 @@ def test_autodoc_typehints_both(app: SphinxTestApp) -> None:
     ):
         app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert (
-        'target.typehints.incr(a: int, b: int = 1) -> int\n'
-        '\n'
-        '   Parameters:\n'
-        '      * **a** (*int*)\n'
-        '\n'
-        '      * **b** (*int*)\n'
-        '\n'
-        '   Return type:\n'
-        '      int\n'
-    ) in context
-    assert (
-        'target.typehints.tuple_args(x: tuple[int, int | str]) -> tuple[int, int]\n'
-        '\n'
-        '   Parameters:\n'
-        '      **x** (*tuple**[**int**, **int** | **str**]*)\n'
-        '\n'
-        '   Return type:\n'
-        '      tuple[int, int]\n'
-    ) in context
+    expect = '\n'.join((  # NoQA: FLY002
+        'target.typehints.incr(a: int, b: int = 1) -> int',
+        '',
+        '   Parameters:',
+        '      * **a** (*int*)',
+        '',
+        '      * **b** (*int*)',
+        '',
+        '   Return type:',
+        '      int',
+        '',
+    ))
+    assert expect in context
+    expect = '\n'.join((  # NoQA: FLY002
+        'target.typehints.tuple_args(x: tuple[int, int | str]) -> tuple[int, int]',
+        '',
+        '   Parameters:',
+        '      **x** (*tuple**[**int**, **int** | **str**]*)',
+        '',
+        '   Return type:',
+        '      tuple[int, int]',
+        '',
+    ))
+    assert expect in context
 
     # Overloads still get displayed in the signature
-    assert (
-        'target.overload.sum(x: int, y: int = 0) -> int\n'
-        'target.overload.sum(x: float, y: float = 0.0) -> float\n'
-        'target.overload.sum(x: str, y: str = None) -> str\n'
-        '\n'
-        '   docstring\n'
-    ) in context
+    expect = '\n'.join((  # NoQA: FLY002
+        'target.overload.sum(x: int, y: int = 0) -> int',
+        'target.overload.sum(x: float, y: float = 0.0) -> float',
+        'target.overload.sum(x: str, y: str = None) -> str',
+        '',
+        '   docstring',
+        '',
+    ))
+    assert expect in context
 
 
-@pytest.mark.sphinx(
-    'text',
-    testroot='ext-autodoc',
-    srcdir='autodoc_typehints_description_and_type_aliases',
-    confoverrides={
-        'autodoc_typehints': 'description',
-        'autodoc_type_aliases': {'myint': 'myint'},
-    },
-)
+@pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
 def test_autodoc_typehints_description_and_type_aliases(app: SphinxTestApp) -> None:
+    app.config.autodoc_typehints = 'description'
+    app.config.autodoc_type_aliases = {'myint': 'myint'}
+
     with overwrite_file(
         app.srcdir / 'autodoc_type_aliases.rst',
         '.. autofunction:: target.autodoc_type_aliases.sum',
@@ -701,18 +673,15 @@ def test_autodoc_typehints_description_and_type_aliases(app: SphinxTestApp) -> N
     )
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints_format': 'fully-qualified'},
-)
-def test_autodoc_typehints_format_fully_qualified(app: SphinxTestApp) -> None:
+def test_autodoc_typehints_format_fully_qualified() -> None:
+    config = _AutodocConfig(autodoc_typehints_format='fully-qualified')
+
     options = {
         'members': None,
         'undoc-members': None,
     }
-    actual = do_autodoc(app, 'module', 'target.typehints', options)
-    assert list(actual) == [
+    actual = do_autodoc('module', 'target.typehints', config=config, options=options)
+    assert actual == [
         '',
         '.. py:module:: target.typehints',
         '',
@@ -828,16 +797,11 @@ def test_autodoc_typehints_format_fully_qualified(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints_format': 'fully-qualified'},
-)
-def test_autodoc_typehints_format_fully_qualified_for_class_alias(
-    app: SphinxTestApp,
-) -> None:
-    actual = do_autodoc(app, 'class', 'target.classes.Alias')
-    assert list(actual) == [
+def test_autodoc_typehints_format_fully_qualified_for_class_alias() -> None:
+    config = _AutodocConfig(autodoc_typehints_format='fully-qualified')
+
+    actual = do_autodoc('class', 'target.classes.Alias', config=config)
+    assert actual == [
         '',
         '.. py:attribute:: Alias',
         '   :module: target.classes',
@@ -846,16 +810,11 @@ def test_autodoc_typehints_format_fully_qualified_for_class_alias(
     ]
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints_format': 'fully-qualified'},
-)
-def test_autodoc_typehints_format_fully_qualified_for_generic_alias(
-    app: SphinxTestApp,
-) -> None:
-    actual = do_autodoc(app, 'data', 'target.genericalias.L')
-    assert list(actual) == [
+def test_autodoc_typehints_format_fully_qualified_for_generic_alias() -> None:
+    config = _AutodocConfig(autodoc_typehints_format='fully-qualified')
+
+    actual = do_autodoc('data', 'target.genericalias.L', config=config)
+    assert actual == [
         '',
         '.. py:data:: L',
         '   :module: target.genericalias',
@@ -867,16 +826,11 @@ def test_autodoc_typehints_format_fully_qualified_for_generic_alias(
     ]
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_typehints_format': 'fully-qualified'},
-)
-def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(
-    app: SphinxTestApp,
-) -> None:
-    actual = do_autodoc(app, 'class', 'target.typevar.T6')
-    assert list(actual) == [
+def test_autodoc_typehints_format_fully_qualified_for_newtype_alias() -> None:
+    config = _AutodocConfig(autodoc_typehints_format='fully-qualified')
+
+    actual = do_autodoc('class', 'target.typevar.T6', config=config)
+    assert actual == [
         '',
         '.. py:class:: T6',
         '   :module: target.typevar',
