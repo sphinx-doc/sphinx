@@ -3,6 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._importer import (
+    _get_attribute_comment,
+    _is_runtime_instance_attribute_not_commented,
+)
 from sphinx.ext.autodoc._property_types import _ClassDefProperties
 from sphinx.ext.autodoc._sentinels import (
     RUNTIME_INSTANCE_ATTRIBUTE,
@@ -22,7 +26,7 @@ if TYPE_CHECKING:
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
-    from sphinx.ext.autodoc.importer import _AttrGetter
+    from sphinx.ext.autodoc._shared import _AttrGetter
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 
@@ -241,11 +245,6 @@ def _get_docstring_lines(
         return [prepare_docstring(docstring, tab_width)]
 
     if props.obj_type == 'attribute':
-        from sphinx.ext.autodoc.importer import (
-            _get_attribute_comment,
-            _is_runtime_instance_attribute_not_commented,
-        )
-
         # Check the attribute has a docstring-comment
         comment = _get_attribute_comment(
             parent=parent, obj_path=props.parts, attrname=props.parts[-1]
