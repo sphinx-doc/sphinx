@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.cmd import make_mode
 from sphinx.cmd.build import get_parser
 from sphinx.cmd.make_mode import run_make_mode
-from sphinx._cli.util.errors import strip_escape_sequences
 
 if TYPE_CHECKING:
     from typing import Any
