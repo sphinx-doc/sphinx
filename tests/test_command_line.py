@@ -181,6 +181,7 @@ def test_make_mode_parse_arguments_pos_last(
     stderr = capsys.readouterr().err.splitlines()
     # Strip ANSI color codes before checking
     import re
+
     stderr_clean = re.sub(r'\x1b\[[0-9;]+m', '', stderr[-1])
     assert stderr_clean.endswith('error: argument --builder/-b: expected one argument')
 
@@ -201,6 +202,7 @@ def test_make_mode_parse_arguments_pos_middle(
     stderr = capsys.readouterr().err.splitlines()
     # Strip ANSI color codes before checking
     import re
+
     stderr_clean = re.sub(r'\x1b\[[0-9;]+m', '', stderr[-1])
     assert stderr_clean.endswith('error: argument --builder/-b: expected one argument')
 
@@ -241,5 +243,6 @@ def test_make_mode_parse_arguments_pos_intermixed(
     stderr = capsys.readouterr().err.splitlines()
     # Strip ANSI color codes before checking
     import re
+
     stderr_clean = re.sub(r'\x1b\[[0-9;]+m', '', stderr[-1])
     assert stderr_clean.endswith('error: argument --builder/-b: expected one argument')
