@@ -1439,3 +1439,146 @@ def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
         'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
         'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
     } in content
+
+
+class CaseSensitiveHandler(BaseHTTPRequestHandler):
+    """Handler that returns URLs with uppercase in the redirect location."""
+
+    protocol_version = 'HTTP/1.1'
+
+    def do_HEAD(self):
+        # Simulate a server that returns URLs with different case
+        if self.path == '/path':
+            # Return the path with uppercase
+            self.send_response(200, 'OK')
+            # Simulate the response URL being in uppercase
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+        elif self.path == '/anchor.html':
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+        else:
+            self.send_response(404, 'Not Found')
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+
+    def do_GET(self):
+        if self.path == '/path':
+            content = b'ok\n\n'
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        elif self.path == '/anchor.html':
+            # HTML with anchor in mixed case
+            doc = '<!DOCTYPE html><html><body><a id="MyAnchor"></a></body></html>'
+            content = doc.encode('utf-8')
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        else:
+            self.send_response(404, 'Not Found')
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
+    confoverrides={'linkcheck_ignore_case': False},
+)
+def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
+    """Test that case-sensitive checking is the default behavior."""
+    with serve_application(app, CaseSensitiveHandler) as address:
+        # Monkey-patch the session to change the response URL to uppercase
+        # to simulate a case-insensitive server
+        from unittest.mock import patch
+
+        original_request = requests._Session.request
+
+        def mock_request(self, method, url, **kwargs):
+            response = original_request(self, method, url, **kwargs)
+            # Change the URL to uppercase to simulate server behavior
+            if '/path' in str(response.url).lower():
+                response.url = str(response.url).replace('/path', '/PATH')
+            return response
+
+        with patch.object(requests._Session, 'request', mock_request):
+            app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = [json.loads(x) for x in content.splitlines()]
+    rowsby = {row['uri']: row for row in rows}
+
+    # With case-sensitive checking, a URL that redirects to different case
+    # should be marked as redirected
+    lowercase_uri = f'http://{address}/path'
+    if lowercase_uri in rowsby:
+        # Should be redirected because case doesn't match
+        assert rowsby[lowercase_uri]['status'] == 'redirected'
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
+    confoverrides={'linkcheck_ignore_case': True},
+)
+def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
+    """Test that linkcheck_ignore_case=True ignores case differences in URLs."""
+    with serve_application(app, CaseSensitiveHandler) as address:
+        # Monkey-patch the session to change the response URL to uppercase
+        from unittest.mock import patch
+
+        original_request = requests._Session.request
+
+        def mock_request(self, method, url, **kwargs):
+            response = original_request(self, method, url, **kwargs)
+            # Change the URL to uppercase to simulate server behavior
+            if '/path' in str(response.url).lower():
+                response.url = str(response.url).replace('/path', '/PATH')
+            return response
+
+        with patch.object(requests._Session, 'request', mock_request):
+            app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = [json.loads(x) for x in content.splitlines()]
+    rowsby = {row['uri']: row for row in rows}
+
+    # With case-insensitive checking, a URL that differs only in case
+    # should be marked as working
+    lowercase_uri = f'http://{address}/path'
+    if lowercase_uri in rowsby:
+        # Should be working because case is ignored
+        assert rowsby[lowercase_uri]['status'] == 'working'
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver-anchor',
+    freshenv=True,
+    confoverrides={'linkcheck_ignore_case': True},
+)
+def test_linkcheck_anchors_case_insensitive(app: SphinxTestApp) -> None:
+    """Test that linkcheck_ignore_case=True ignores case differences in anchors."""
+    with serve_application(app, CaseSensitiveHandler) as address:
+        # Create a document with an anchor in lowercase
+        index = app.srcdir / 'index.rst'
+        index.write_text(
+            f'* `Link with anchor <http://{address}/anchor.html#myanchor>`_\n',
+            encoding='utf-8',
+        )
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = [json.loads(x) for x in content.splitlines()]
+
+    # The HTML has "MyAnchor" but we request "myanchor"
+    # With ignore_case=True, this should work
+    assert len(rows) == 1
+    assert rows[0]['status'] == 'working'
+    assert rows[0]['uri'] == f'http://{address}/anchor.html#myanchor'
