@@ -179,7 +179,11 @@ def test_make_mode_parse_arguments_pos_last(
     with pytest.raises(SystemExit):
         run_make_mode(args)
     stderr = capsys.readouterr().err.splitlines()
-    assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
+    # Strip ANSI color codes before checking
+    import re
+
+    stderr_clean = re.sub(r'\x1b\[[0-9;]+m', '', stderr[-1])
+    assert stderr_clean.endswith('error: argument --builder/-b: expected one argument')
 
 
 def test_make_mode_parse_arguments_pos_middle(
@@ -196,7 +200,11 @@ def test_make_mode_parse_arguments_pos_middle(
     with pytest.raises(SystemExit):
         run_make_mode(args)
     stderr = capsys.readouterr().err.splitlines()
-    assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
+    # Strip ANSI color codes before checking
+    import re
+
+    stderr_clean = re.sub(r'\x1b\[[0-9;]+m', '', stderr[-1])
+    assert stderr_clean.endswith('error: argument --builder/-b: expected one argument')
 
 
 @pytest.mark.xfail(
@@ -233,4 +241,8 @@ def test_make_mode_parse_arguments_pos_intermixed(
     with pytest.raises(SystemExit):
         run_make_mode(args)
     stderr = capsys.readouterr().err.splitlines()
-    assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
+    # Strip ANSI color codes before checking
+    import re
+
+    stderr_clean = re.sub(r'\x1b\[[0-9;]+m', '', stderr[-1])
+    assert stderr_clean.endswith('error: argument --builder/-b: expected one argument')
