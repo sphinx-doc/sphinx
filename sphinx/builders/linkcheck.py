@@ -706,7 +706,9 @@ def _get_request_headers(
     return {}
 
 
-def contains_anchor(response: Response, anchor: str, *, ignore_case: bool = False) -> bool:
+def contains_anchor(
+    response: Response, anchor: str, *, ignore_case: bool = False
+) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
     parser = AnchorCheckParser(anchor, ignore_case=ignore_case)
     # Read file in chunks. If we find a matching anchor, we break
@@ -833,9 +835,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
     )
-    app.add_config_value(
-        'linkcheck_ignore_case', False, '', types=frozenset({bool})
-    )
+    app.add_config_value('linkcheck_ignore_case', False, '', types=frozenset({bool}))
 
     app.add_event('linkcheck-process-uri')
 
