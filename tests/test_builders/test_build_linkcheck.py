@@ -1443,6 +1443,7 @@ def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
 
 class CaseSensitiveHandler(BaseHTTPRequestHandler):
     """Handler that returns URLs with uppercase in the redirect location."""
+    
     protocol_version = 'HTTP/1.1'
 
     def do_HEAD(self):
@@ -1568,7 +1569,7 @@ def test_linkcheck_anchors_case_insensitive(app: SphinxTestApp) -> None:
         # Create a document with an anchor in lowercase
         index = app.srcdir / 'index.rst'
         index.write_text(
-            f"* `Link with anchor <http://{address}/anchor.html#myanchor>`_\n",
+            f'* `Link with anchor <http://{address}/anchor.html#myanchor>`_\n',
             encoding='utf-8',
         )
         app.build()
