@@ -1502,7 +1502,7 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
             response = original_request(self, method, url, **kwargs)
             # Change the URL to uppercase to simulate server behavior
             if '/path' in str(response.url).lower():
-                response._url = str(response.url).replace('/path', '/PATH')
+                response.url = str(response.url).replace('/path', '/PATH')
             return response
 
         with patch.object(requests._Session, 'request', mock_request):
@@ -1538,7 +1538,7 @@ def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
             response = original_request(self, method, url, **kwargs)
             # Change the URL to uppercase to simulate server behavior
             if '/path' in str(response.url).lower():
-                response._url = str(response.url).replace('/path', '/PATH')
+                response.url = str(response.url).replace('/path', '/PATH')
             return response
 
         with patch.object(requests._Session, 'request', mock_request):
