@@ -546,7 +546,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if anchor and self.check_anchors and response.ok:
                         try:
-                            found = contains_anchor(response, anchor, ignore_case=self.ignore_case)
+                            found = contains_anchor(
+                                response, anchor, ignore_case=self.ignore_case
+                            )
                         except UnicodeDecodeError:
                             return (
                                 _Status.IGNORED,
