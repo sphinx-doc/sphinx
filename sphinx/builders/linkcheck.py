@@ -409,6 +409,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
+        self.ignore_case = config.linkcheck_ignore_case
 
         self._session = requests._Session(
             _ignored_redirects=tuple(map(re.compile, config.linkcheck_ignore))
@@ -545,7 +546,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if anchor and self.check_anchors and response.ok:
                         try:
-                            found = contains_anchor(response, anchor)
+                            found = contains_anchor(
+                                response, anchor, ignore_case=self.ignore_case
+                            )
                         except UnicodeDecodeError:
                             return (
                                 _Status.IGNORED,
@@ -629,8 +632,16 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         netloc = urlsplit(req_url).netloc
         self.rate_limits.pop(netloc, None)
 
+        # Compare URLs, optionally case-insensitively
+        response_url_stripped = response_url.rstrip('/')
+        req_url_stripped = req_url.rstrip('/')
+        if self.ignore_case:
+            urls_match = response_url_stripped.lower() == req_url_stripped.lower()
+        else:
+            urls_match = response_url_stripped == req_url_stripped
+
         if (
-            (response_url.rstrip('/') == req_url.rstrip('/'))
+            urls_match
             or _allowed_redirect(req_url, response_url, self.allowed_redirects)
         ):  # fmt: skip
             return _Status.WORKING, '', 0
@@ -695,9 +706,11 @@ def _get_request_headers(
     return {}
 
 
-def contains_anchor(response: Response, anchor: str) -> bool:
+def contains_anchor(
+    response: Response, anchor: str, *, ignore_case: bool = False
+) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
-    parser = AnchorCheckParser(anchor)
+    parser = AnchorCheckParser(anchor, ignore_case=ignore_case)
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
@@ -715,17 +728,23 @@ def contains_anchor(response: Response, anchor: str) -> bool:
 class AnchorCheckParser(HTMLParser):
     """Specialised HTML parser that looks for a specific anchor."""
 
-    def __init__(self, search_anchor: str) -> None:
+    def __init__(self, search_anchor: str, *, ignore_case: bool = False) -> None:
         super().__init__()
 
         self.search_anchor = search_anchor
+        self.ignore_case = ignore_case
         self.found = False
 
     def handle_starttag(self, tag: Any, attrs: Any) -> None:
         for key, value in attrs:
-            if key in {'id', 'name'} and value == self.search_anchor:
-                self.found = True
-                break
+            if key in {'id', 'name'}:
+                if self.ignore_case:
+                    match = value.lower() == self.search_anchor.lower()
+                else:
+                    match = value == self.search_anchor
+                if match:
+                    self.found = True
+                    break
 
 
 def _allowed_redirect(
@@ -816,6 +835,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
     )
+    app.add_config_value('linkcheck_ignore_case', False, '', types=frozenset({bool}))
 
     app.add_event('linkcheck-process-uri')
 
