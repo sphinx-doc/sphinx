@@ -3813,6 +3813,33 @@ and the number of workers to use.
 
    .. versionadded:: 7.3
 
+.. confval:: linkcheck_ignore_case
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   When :code-py:`True`, the *linkcheck* builder will compare URLs
+   and anchors case-insensitively during validation.
+   This is useful for checking links on case-insensitive servers
+   (for example, some web servers or hosting platforms)
+   that may return URLs with different case than the original link.
+
+   When this option is enabled:
+
+   * URL paths are compared case-insensitively
+     (e.g., ``/Path`` and ``/path`` are considered equal)
+   * HTML anchors are compared case-insensitively
+     (e.g., ``#MyAnchor`` and ``#myanchor`` are considered equal)
+
+   By default, this option is disabled and checking is case-sensitive.
+
+   Example:
+
+   .. code-block:: python
+
+      linkcheck_ignore_case = True
+
+   .. versionadded:: 8.2
+
 .. confval:: linkcheck_rate_limit_timeout
    :type: :code-py:`int`
    :default: :code-py:`300`
