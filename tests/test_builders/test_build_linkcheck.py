@@ -1443,7 +1443,6 @@ def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
 
 class CaseSensitiveHandler(BaseHTTPRequestHandler):
     """Handler that returns URLs with uppercase in the redirect location."""
-    
     protocol_version = 'HTTP/1.1'
 
     def do_HEAD(self):
