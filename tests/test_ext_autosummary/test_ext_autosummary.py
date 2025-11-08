@@ -26,7 +26,6 @@ from sphinx.ext.autosummary.generate import (
 )
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
-from sphinx.util.docutils import new_document
 
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
@@ -86,7 +85,6 @@ def test_extract_summary(capsys):
         pep_reference=False,
         rfc_reference=False,
     )
-    document = new_document('', settings)
 
     # normal case
     doc = [
@@ -95,52 +93,52 @@ def test_extract_summary(capsys):
         '',
         'Second block is here',
     ]
-    assert extract_summary(doc, document) == 'This is a first sentence.'
+    assert extract_summary(doc, settings) == 'This is a first sentence.'
 
     # inliner case
     doc = [
         'This sentence contains *emphasis text having dots.*,',
         'it does not break sentence.',
     ]
-    assert extract_summary(doc, document) == ' '.join(doc)
+    assert extract_summary(doc, settings) == ' '.join(doc)
 
     # abbreviations
     doc = ['Blabla, i.e. bla.']
-    assert extract_summary(doc, document) == ' '.join(doc)
+    assert extract_summary(doc, settings) == ' '.join(doc)
 
     doc = ['Blabla, (i.e. bla).']
-    assert extract_summary(doc, document) == ' '.join(doc)
+    assert extract_summary(doc, settings) == ' '.join(doc)
 
     doc = ['Blabla, e.g. bla.']
-    assert extract_summary(doc, document) == ' '.join(doc)
+    assert extract_summary(doc, settings) == ' '.join(doc)
 
     doc = ['Blabla, (e.g. bla).']
-    assert extract_summary(doc, document) == ' '.join(doc)
+    assert extract_summary(doc, settings) == ' '.join(doc)
 
     doc = ['Blabla, et al. bla.']
-    assert extract_summary(doc, document) == ' '.join(doc)
+    assert extract_summary(doc, settings) == ' '.join(doc)
 
     # literal
     doc = ['blah blah::']
-    assert extract_summary(doc, document) == 'blah blah.'
+    assert extract_summary(doc, settings) == 'blah blah.'
 
     # heading
     doc = [
         'blah blah',
         '=========',
     ]
-    assert extract_summary(doc, document) == 'blah blah'
+    assert extract_summary(doc, settings) == 'blah blah'
 
     doc = [
         '=========',
         'blah blah',
         '=========',
     ]
-    assert extract_summary(doc, document) == 'blah blah'
+    assert extract_summary(doc, settings) == 'blah blah'
 
     # hyperlink target
     doc = ['Do `this <https://www.sphinx-doc.org/>`_ and that. blah blah blah.']
-    extracted = extract_summary(doc, document)
+    extracted = extract_summary(doc, settings)
     assert extracted == 'Do `this <https://www.sphinx-doc.org/>`_ and that.'
 
     _, err = capsys.readouterr()
@@ -155,11 +153,9 @@ def test_extract_summary(capsys):
 )
 def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary
-    import sphinx.ext.autosummary.generate
 
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
-    sphinx.ext.autosummary.generate.setup_documenters(app)
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
     orig_get_items = sphinx.ext.autosummary.Autosummary.get_items
@@ -257,7 +253,6 @@ def test_autosummary_generate_content_for_module(app):
         {},
         config=app.config,
         events=app.events,
-        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -320,7 +315,6 @@ def test_autosummary_generate_content_for_module___all__(app):
         {},
         config=app.config,
         events=app.events,
-        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -372,7 +366,6 @@ def test_autosummary_generate_content_for_module_skipped(app):
         {},
         config=app.config,
         events=app.events,
-        registry=app.registry,
     )
     context = template.render.call_args[0][1]
     assert context['members'] == [
@@ -414,7 +407,6 @@ def test_autosummary_generate_content_for_module_imported_members(app):
         {},
         config=app.config,
         events=app.events,
-        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
@@ -486,7 +478,6 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
         {},
         config=app.config,
         events=app.events,
-        registry=app.registry,
     )
     assert template.render.call_args[0][0] == 'module'
 
