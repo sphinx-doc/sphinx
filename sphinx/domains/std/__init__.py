@@ -693,7 +693,7 @@ class ProductionList(SphinxDirective):
 
     @staticmethod
     def separator_node(*, name: str, max_len: int) -> nodes.Text:
-        """Return seperator between 'name' and 'tokens'."""
+        """Return separator between 'name' and 'tokens'."""
         if name:
             return nodes.Text(' ::= '.rjust(max_len - len(name) + 5))
         return nodes.Text(' ' * (max_len + 5))
