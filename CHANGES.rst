@@ -137,6 +137,8 @@ Bugs fixed
 * #14004: Fix :confval:`autodoc_type_aliases` when they appear in PEP 604
   union syntax (``Alias | Type``).
   Patch by Tamika Nomara.
+* #13383: Emit a warning for duplicate internal hyperlink declarations.
+  Patch by James Addison.
 
 
 Testing
