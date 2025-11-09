@@ -9,52 +9,20 @@ from sphinx.ext.autodoc._directive_options import (
     _process_documenter_options,
 )
 from sphinx.ext.autodoc._generate import _generate_directives
-from sphinx.ext.autodoc.importer import _load_object_by_name
+from sphinx.ext.autodoc._loader import _load_object_by_name
+from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
-from sphinx.util.inspect import safe_getattr
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-    from typing import Any, NoReturn
+    from collections.abc import Callable
 
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
 
 
 logger = logging.getLogger(__name__)
-
-
-class _AutodocAttrGetter:
-    """getattr() override for types such as Zope interfaces."""
-
-    _attr_getters: Sequence[tuple[type, Callable[[Any, str, Any], Any]]]
-
-    __slots__ = ('_attr_getters',)
-
-    def __init__(
-        self, attr_getters: dict[type, Callable[[Any, str, Any], Any]], /
-    ) -> None:
-        super().__setattr__('_attr_getters', tuple(attr_getters.items()))
-
-    def __call__(self, obj: Any, name: str, *defargs: Any) -> Any:
-        for typ, func in self._attr_getters:
-            if isinstance(obj, typ):
-                return func(obj, name, *defargs)
-
-        return safe_getattr(obj, name, *defargs)
-
-    def __repr__(self) -> str:
-        return f'_AutodocAttrGetter({dict(self._attr_getters)!r})'
-
-    def __setattr__(self, key: str, value: Any) -> NoReturn:
-        msg = f'{self.__class__.__name__} is immutable'
-        raise AttributeError(msg)
-
-    def __delattr__(self, key: str) -> NoReturn:
-        msg = f'{self.__class__.__name__} is immutable'
-        raise AttributeError(msg)
 
 
 class DummyOptionSpec(dict[str, 'Callable[[str], str]']):  # NoQA: FURB189
@@ -137,21 +105,22 @@ class AutodocDirective(SphinxDirective):
         get_attr = _AutodocAttrGetter(registry.autodoc_attrgetters)
         name = self.arguments[0]
         env = self.env
-        config = env.config
+        config = _AutodocConfig.from_config(env.config)
         current_document = env.current_document
         events = env.events
+        ref_context = env.ref_context
+        reread_always = env.reread_always
 
         props = _load_object_by_name(
             name=name,
             objtype=objtype,  # type: ignore[arg-type]
-            mock_imports=config.autodoc_mock_imports,
-            type_aliases=config.autodoc_type_aliases,
             current_document=current_document,
             config=config,
-            env=env,
             events=events,
             get_attr=get_attr,
             options=documenter_options,
+            ref_context=ref_context,
+            reread_always=reread_always,
         )
         if props is None:
             return []
@@ -162,13 +131,14 @@ class AutodocDirective(SphinxDirective):
             more_content=self.content,
             config=config,
             current_document=current_document,
-            env=env,
             events=events,
             get_attr=get_attr,
             indent='',
             options=documenter_options,
             props=props,
             record_dependencies=record_dependencies,
+            ref_context=ref_context,
+            reread_always=reread_always,
             result=result,
         )
         if not result:

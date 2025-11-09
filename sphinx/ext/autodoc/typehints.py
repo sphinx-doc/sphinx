@@ -7,46 +7,41 @@ from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
-import sphinx
 from sphinx import addnodes
 from sphinx.util import inspect
 from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Mapping
     from typing import Any
 
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
-    from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _AutodocObjType
-    from sphinx.util.typing import ExtensionMetadata, _StringifyMode
+    from sphinx.util.typing import _StringifyMode
 
 
-def record_typehints(
-    app: Sphinx,
-    obj_type: _AutodocObjType,
+def _record_typehints(
+    *,
+    autodoc_annotations: dict[str, dict[str, str]],
     name: str,
     obj: Any,
-    options: _AutoDocumenterOptions,
-    args: str,
-    retann: str,
+    short_literals: bool,
+    type_aliases: Mapping[str, str] | None,
+    unqualified_typehints: bool,
 ) -> None:
     """Record type hints to env object."""
     mode: _StringifyMode
-    if app.config.autodoc_typehints_format == 'short':
+    if unqualified_typehints:
         mode = 'smart'
     else:
         mode = 'fully-qualified'
 
-    short_literals = app.config.python_display_short_literal_types
-
     try:
         if callable(obj):
-            current_document = app.env.current_document
-            annotation = current_document.autodoc_annotations.setdefault(name, {})
-            sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
+            annotation = autodoc_annotations.setdefault(name, {})
+            sig = inspect.signature(obj, type_aliases=type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
                     annotation[param.name] = stringify_annotation(
@@ -60,7 +55,7 @@ def record_typehints(
         pass
 
 
-def merge_typehints(
+def _merge_typehints(
     app: Sphinx, domain: str, obj_type: _AutodocObjType, contentnode: Element
 ) -> None:
     if domain != 'py':
@@ -231,14 +226,3 @@ def augment_descriptions_with_types(
             field += nodes.field_name('', 'rtype')
             field += nodes.field_body('', nodes.paragraph('', rtype))
             node += field
-
-
-def setup(app: Sphinx) -> ExtensionMetadata:
-    app.connect('autodoc-process-signature', record_typehints)
-    app.connect('object-description-transform', merge_typehints)
-
-    return {
-        'version': sphinx.__display_version__,
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
-    }
