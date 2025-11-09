@@ -9,8 +9,9 @@ from sphinx.locale import __
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Set
-    from typing import Any, Literal, Self
+    from typing import Any, Final, Literal, Self
 
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.ext.autodoc._sentinels import ALL_T, EMPTY_T, SUPPRESS_T
     from sphinx.util.typing import OptionSpec
 
@@ -88,20 +89,6 @@ class _AutoDocumenterOptions:
     @classmethod
     def from_directive_options(cls, opts: Mapping[str, Any], /) -> Self:
         return cls(**{k.replace('-', '_'): v for k, v in opts.items() if v is not None})
-
-    def merge_member_options(self) -> Self:
-        """Merge :private-members: and :special-members: into :members:"""
-        if self.members is ALL:
-            # merging is not needed when members: ALL
-            return self
-
-        members = self.members or []
-        for others in self.private_members, self.special_members:
-            if others is not None and others is not ALL:
-                members.extend(others)
-        new = self.copy()
-        new.members = list(dict.fromkeys(members))  # deduplicate; preserve order
-        return new
 
 
 def identity(x: Any) -> Any:
@@ -198,13 +185,67 @@ class Options(dict[str, object]):  # NoQA: FURB189
             return None
 
 
+_OPTION_SPEC_COMMON: Final[OptionSpec] = {
+    'no-index': bool_option,
+    'no-index-entry': bool_option,
+}
+_OPTION_SPEC_HAS_MEMBERS: Final[OptionSpec] = _OPTION_SPEC_COMMON | {
+    'members': members_option,
+    'exclude-members': exclude_members_option,
+    'undoc-members': bool_option,
+    'private-members': members_option,
+    'special-members': members_option,
+    'member-order': member_order_option,
+    'show-inheritance': bool_option,
+}
+_OPTION_SPEC_MODULE_SPECIFIC: Final[OptionSpec] = {
+    'ignore-module-all': bool_option,
+    'imported-members': bool_option,
+    'deprecated': bool_option,
+    'platform': identity,
+    'synopsis': identity,
+}
+_OPTION_SPEC_CLASS_SPECIFIC: Final[OptionSpec] = {
+    'class-doc-from': class_doc_from_option,
+    'inherited-members': inherited_members_option,
+}
+_OPTION_SPEC_ASSIGNMENT: Final[OptionSpec] = _OPTION_SPEC_COMMON | {
+    'annotation': annotation_option,
+    'no-value': bool_option,
+}
+_OPTION_SPEC_DEPRECATED: Final[OptionSpec] = {
+    'noindex': bool_option,
+}
+_OPTION_SPEC_FUNCTION_DEF: Final = _OPTION_SPEC_COMMON | _OPTION_SPEC_DEPRECATED
+_OPTION_SPECS: Final[Mapping[_AutodocObjType, OptionSpec]] = {
+    'module': _OPTION_SPEC_HAS_MEMBERS
+    | _OPTION_SPEC_MODULE_SPECIFIC
+    | {'inherited-members': inherited_members_option}  # special case
+    | _OPTION_SPEC_DEPRECATED,
+    'class': _OPTION_SPEC_HAS_MEMBERS
+    | _OPTION_SPEC_CLASS_SPECIFIC
+    | _OPTION_SPEC_DEPRECATED,
+    'exception': _OPTION_SPEC_HAS_MEMBERS
+    | _OPTION_SPEC_CLASS_SPECIFIC
+    | _OPTION_SPEC_DEPRECATED,
+    'function': _OPTION_SPEC_FUNCTION_DEF,
+    'decorator': _OPTION_SPEC_FUNCTION_DEF,
+    'method': _OPTION_SPEC_FUNCTION_DEF,
+    'property': _OPTION_SPEC_FUNCTION_DEF,
+    'attribute': _OPTION_SPEC_ASSIGNMENT | _OPTION_SPEC_DEPRECATED,
+    'data': _OPTION_SPEC_ASSIGNMENT | _OPTION_SPEC_DEPRECATED,
+    'type': _OPTION_SPEC_ASSIGNMENT,
+}
+
+
 def _process_documenter_options(
     *,
-    option_spec: OptionSpec,
-    default_options: dict[str, str | bool],
+    obj_type: _AutodocObjType,
+    default_options: Mapping[str, str | bool],
     options: dict[str, str | None],
-) -> dict[str, object]:
-    """Recognize options of Documenter from user input."""
+) -> _AutoDocumenterOptions:
+    """Recognize options of object type from user input."""
+    option_spec = _OPTION_SPECS[obj_type]
     for name in AUTODOC_DEFAULT_OPTIONS:
         if name not in option_spec:
             continue
@@ -224,4 +265,5 @@ def _process_documenter_options(
             # remove '+' from option argument if there's nothing to merge it with
             options[name] = opt_value.removeprefix('+')
 
-    return assemble_option_dict(options.items(), option_spec)  # type: ignore[arg-type]
+    opts = assemble_option_dict(options.items(), option_spec)  # type: ignore[arg-type]
+    return _AutoDocumenterOptions.from_directive_options(opts)

@@ -616,6 +616,14 @@ class TypeAliasForwardRef:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self.name!r})'
 
+    def __or__(self, other: Any) -> Any:
+        # When evaluating type hints, our forward ref can appear in type expressions,
+        # i.e. `Alias | None`. This means it needs to support ``__or__`` and ``__ror__``.
+        return typing.Union[self, other]  # NoQA: UP007
+
+    def __ror__(self, other: Any) -> Any:
+        return typing.Union[other, self]  # NoQA: UP007
+
 
 class TypeAliasModule:
     """Pseudo module class for :confval:`autodoc_type_aliases`."""
@@ -772,7 +780,7 @@ def signature(
 def evaluate_signature(
     sig: Signature,
     globalns: dict[str, Any] | None = None,
-    localns: dict[str, Any] | None = None,
+    localns: Mapping[str, Any] | None = None,
 ) -> Signature:
     """Evaluate unresolved type annotations in a signature object."""
     if globalns is None:
@@ -796,7 +804,7 @@ def evaluate_signature(
 def _evaluate_forwardref(
     ref: ForwardRef,
     globalns: dict[str, Any] | None,
-    localns: dict[str, Any] | None,
+    localns: Mapping[str, Any] | None,
 ) -> Any:
     """Evaluate a forward reference."""
     if sys.version_info[:2] >= (3, 14):
@@ -818,7 +826,7 @@ def _evaluate_forwardref(
 def _evaluate(
     annotation: Any,
     globalns: dict[str, Any],
-    localns: dict[str, Any],
+    localns: Mapping[str, Any],
 ) -> Any:
     """Evaluate unresolved type annotation."""
     try:
@@ -862,8 +870,8 @@ def stringify_signature(
         short_literals=short_literals,
     )
     if retann:
-        return f'({args}) -> {retann}'
-    return f'({args})'
+        return f'{args} -> {retann}'
+    return str(args)
 
 
 def _stringify_signature_to_parts(
@@ -928,6 +936,7 @@ def _stringify_signature_to_parts(
         args.append('/')
 
     concatenated_args = ', '.join(args)
+    concatenated_args = f'({concatenated_args})'
     if (
         sig.return_annotation is EMPTY
         or not show_annotation
