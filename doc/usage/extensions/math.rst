@@ -264,12 +264,13 @@ Sphinx but is set to automatically include it from a third-party site.
       or "defer" key is set.
 
 .. confval:: mathjax3_config
-   :type: :code-py:`dict[str, Any] | None`
+   :type: :code-py:`str | dict[str, Any] | None`
    :default: :code-py:`None`
 
    The configuration options for MathJax v3 (which is used by default).
-   The given dictionary is assigned to the JavaScript variable
-   ``window.MathJax``.
+   Expects a string with the relative path to a JavaScript file with the config.
+   Alternatively, a dictionary can be given, which is converted to a JSON object
+   and assigned to the JavaScript variable ``window.MathJax``.
    For more information, please read `Configuring MathJax`__.
 
    __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration

@@ -105,9 +105,26 @@ def install_mathjax(
                 )
             body = 'MathJax.Hub.Config(%s)' % json.dumps(app.config.mathjax2_config)
             builder.add_js_file('', type='text/x-mathjax-config', body=body)
-        if app.config.mathjax3_config:
-            body = 'window.MathJax = %s' % json.dumps(app.config.mathjax3_config)
-            builder.add_js_file('', body=body)
+        match app.config.mathjax3_config:
+            case _ if not app.config.mathjax3_config:
+                # None, empty string or empty dict
+                pass
+            case str(config_filename):
+                config_filepath = app.srcdir / config_filename
+                if not config_filepath.exists():
+                    msg = f'mathjax3_config file not found: {config_filepath!s}'
+                    raise ExtensionError(msg)
+                if not config_filepath.is_file() or config_filepath.suffix != '.js':
+                    msg = f'mathjax3_config: expected a .js file, but got {config_filepath!s}'
+                    raise ExtensionError(msg)
+                body = config_filepath.read_text(encoding='utf-8')
+                builder.add_js_file('', body=body)
+            case dict(config_dict):
+                body = f'window.MathJax = {json.dumps(config_dict)}'
+                builder.add_js_file('', body=body)
+            case _:
+                msg = 'mathjax3_config must be a str (filename), dict, or None'
+                raise ExtensionError(msg)
 
         options = {}
         if app.config.mathjax_options:
@@ -147,7 +164,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         types=frozenset({dict, NoneType}),
     )
     app.add_config_value(
-        'mathjax3_config', None, 'html', types=frozenset({dict, NoneType})
+        'mathjax3_config', None, 'html', types=frozenset({dict, str, NoneType})
     )
     app.connect('html-page-context', install_mathjax)
 
