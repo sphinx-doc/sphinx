@@ -1565,13 +1565,13 @@ def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
         # Should be working because case is ignored
         assert rowsby[lowercase_uri]['status'] == 'working'
 
+
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-anchor',
     freshenv=True,
     confoverrides={'linkcheck_ignore_case': True},
 )
-
 def test_linkcheck_anchors_remain_case_sensitive(app: SphinxTestApp) -> None:
     """Test that anchors remain case-sensitive even with linkcheck_ignore_case=True."""
     with serve_application(app, CaseSensitiveHandler) as address:
@@ -1585,7 +1585,7 @@ def test_linkcheck_anchors_remain_case_sensitive(app: SphinxTestApp) -> None:
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     rows = [json.loads(x) for x in content.splitlines()]
-    
+
     # The HTML has "MyAnchor" but we request "myanchor"
     # Even with linkcheck_ignore_case=True, anchors should be case-sensitive
     # so this should be broken
