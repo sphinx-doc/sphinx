@@ -3841,6 +3841,7 @@ and the number of workers to use.
       linkcheck_ignore_case = True
 
    .. versionadded:: 8.2
+
    :type: :code-py:`int`
    :default: :code-py:`300`
 
