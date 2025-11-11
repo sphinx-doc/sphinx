@@ -546,9 +546,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if anchor and self.check_anchors and response.ok:
                         try:
-                            found = contains_anchor(
-                                response, anchor, ignore_case=self.ignore_case
-                            )
+                            found = contains_anchor(response, anchor)
                         except UnicodeDecodeError:
                             return (
                                 _Status.IGNORED,
@@ -706,11 +704,9 @@ def _get_request_headers(
     return {}
 
 
-def contains_anchor(
-    response: Response, anchor: str, *, ignore_case: bool = False
-) -> bool:
+def contains_anchor(response: Response, anchor: str) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
-    parser = AnchorCheckParser(anchor, ignore_case=ignore_case)
+    parser = AnchorCheckParser(anchor)
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
@@ -728,24 +724,17 @@ def contains_anchor(
 class AnchorCheckParser(HTMLParser):
     """Specialised HTML parser that looks for a specific anchor."""
 
-    def __init__(self, search_anchor: str, *, ignore_case: bool = False) -> None:
+    def __init__(self, search_anchor: str) -> None:
         super().__init__()
 
         self.search_anchor = search_anchor
-        self.ignore_case = ignore_case
         self.found = False
 
     def handle_starttag(self, tag: Any, attrs: Any) -> None:
         for key, value in attrs:
-            if key in {'id', 'name'}:
-                if self.ignore_case:
-                    match = value.lower() == self.search_anchor.lower()
-                else:
-                    match = value == self.search_anchor
-                if match:
-                    self.found = True
-                    break
-
+            if key in {'id', 'name'} and value == self.search_anchor:
+                self.found = True
+                break
 
 def _allowed_redirect(
     url: str, new_url: str, allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
