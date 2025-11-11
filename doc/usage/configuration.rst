@@ -3817,20 +3817,22 @@ and the number of workers to use.
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
-   When :code-py:`True`, the *linkcheck* builder will compare URLs
-   and anchors case-insensitively during validation.
+   When :code-py:`True`, the *linkcheck* builder will compare URL paths
+   case-insensitively when checking for redirects.
    This is useful for checking links on case-insensitive servers
-   (for example, some web servers or hosting platforms)
+   (for example, GitHub, Windows-based servers, or certain hosting platforms)
    that may return URLs with different case than the original link.
 
-   When this option is enabled:
+   When enabled, URL paths like ``/Path`` and ``/path`` are considered
+   equivalent, preventing false-positive redirect warnings on
+   case-insensitive servers.
 
-   * URL paths are compared case-insensitively
-     (e.g., ``/Path`` and ``/path`` are considered equal)
-   * HTML anchors are compared case-insensitively
-     (e.g., ``#MyAnchor`` and ``#myanchor`` are considered equal)
+   .. note::
 
-   By default, this option is disabled and checking is case-sensitive.
+      This option only affects URL path comparison for redirect detection.
+      HTML anchor checking remains case-sensitive to match browser behavior,
+      where fragment identifiers (``#anchor``) are case-sensitive per the
+      HTML specification.
 
    Example:
 
@@ -3839,8 +3841,6 @@ and the number of workers to use.
       linkcheck_ignore_case = True
 
    .. versionadded:: 8.2
-
-.. confval:: linkcheck_rate_limit_timeout
    :type: :code-py:`int`
    :default: :code-py:`300`
 
