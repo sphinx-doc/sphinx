@@ -736,6 +736,7 @@ class AnchorCheckParser(HTMLParser):
                 self.found = True
                 break
 
+
 def _allowed_redirect(
     url: str, new_url: str, allowed_redirects: dict[re.Pattern[str], re.Pattern[str]]
 ) -> bool:
