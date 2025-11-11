@@ -3842,6 +3842,7 @@ and the number of workers to use.
 
    .. versionadded:: 8.2
 
+.. confval:: linkcheck_rate_limit_timeout
    :type: :code-py:`int`
    :default: :code-py:`300`
 
