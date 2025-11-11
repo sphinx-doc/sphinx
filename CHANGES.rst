@@ -68,6 +68,12 @@ Features added
   Patch by Jean-François B.
 * #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #13742: HTML themes: Add dark mode support to built-in themes (``basic``,
+  ``classic``, ``haiku``, ``nature``, and ``sphinxdoc``). Dark mode
+  automatically activates based on system preferences using
+  ``prefers-color-scheme`` media query. An optional JavaScript toggle
+  (``theme_toggle.js``) is also provided for manual theme switching.
+  Patch by Fazeel Usmani.
 
 Bugs fixed
 ----------
