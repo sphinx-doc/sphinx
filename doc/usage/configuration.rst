@@ -3813,7 +3813,7 @@ and the number of workers to use.
 
    .. versionadded:: 7.3
 
-.. confval:: linkcheck_ignore_case
+.. confval:: linkcheck_allow_url_normalization
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
