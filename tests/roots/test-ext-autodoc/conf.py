@@ -9,4 +9,10 @@ autodoc_mock_imports = [
     'dummy',
 ]
 
+autodoc_type_aliases = {
+    'buffer_like': 'buffer_like',
+    'pathlike': 'pathlike',
+    'Handler': 'Handler',
+}
+
 nitpicky = True

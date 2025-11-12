@@ -241,7 +241,7 @@ _OPTION_SPECS: Final[Mapping[_AutodocObjType, OptionSpec]] = {
 def _process_documenter_options(
     *,
     obj_type: _AutodocObjType,
-    default_options: dict[str, str | bool],
+    default_options: Mapping[str, str | bool],
     options: dict[str, str | None],
 ) -> _AutoDocumenterOptions:
     """Recognize options of object type from user input."""
