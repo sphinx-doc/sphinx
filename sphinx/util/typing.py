@@ -193,7 +193,7 @@ if TYPE_CHECKING:
 def get_type_hints(
     obj: Any,
     globalns: dict[str, Any] | None = None,
-    localns: dict[str, Any] | None = None,
+    localns: Mapping[str, Any] | None = None,
     include_extras: bool = False,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class

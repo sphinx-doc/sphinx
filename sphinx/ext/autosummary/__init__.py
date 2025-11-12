@@ -67,10 +67,11 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._importer import _import_module
+from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
-from sphinx.ext.autodoc.directive import _AutodocAttrGetter
-from sphinx.ext.autodoc.importer import _load_object_by_name, import_module
+from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
@@ -302,7 +303,7 @@ class Autosummary(SphinxDirective):
 
         document_settings = self.state.document.settings
         env = self.env
-        config = env.config
+        config = _AutodocConfig.from_config(env.config)
         current_document = env.current_document
         events = env.events
         get_attr = _AutodocAttrGetter(env._registry.autodoc_attrgetters)
@@ -344,8 +345,6 @@ class Autosummary(SphinxDirective):
             props = _load_object_by_name(
                 name=full_name,
                 objtype=obj_type,
-                mock_imports=config.autodoc_mock_imports,
-                type_aliases=config.autodoc_type_aliases,
                 current_document=current_document,
                 config=config,
                 events=events,
@@ -699,7 +698,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
         modname = '.'.join(name_parts[:-1])
         if modname:
             try:
-                mod = import_module(modname)
+                mod = _import_module(modname)
                 return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError) as exc:
                 errors.append(exc.__cause__ or exc)
@@ -711,7 +710,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
             last_j = j
             modname = '.'.join(name_parts[:j])
             try:
-                import_module(modname)
+                _import_module(modname)
             except ImportError as exc:
                 errors.append(exc.__cause__ or exc)
 
