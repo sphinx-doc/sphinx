@@ -634,7 +634,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         response_url_stripped = response_url.rstrip('/')
         req_url_stripped = req_url.rstrip('/')
         if self.ignore_case:
-            urls_match = response_url_stripped.lower() == req_url_stripped.lower()
+            urls_match = response_url_stripped.casefold() == req_url_stripped.casefold()
         else:
             urls_match = response_url_stripped == req_url_stripped
 
