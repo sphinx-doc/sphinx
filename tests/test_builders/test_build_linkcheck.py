@@ -901,12 +901,7 @@ def test_connect_to_selfsigned_fails(app: SphinxTestApp) -> None:
     assert content['filename'] == 'index.rst'
     assert content['lineno'] == 1
     assert content['uri'] == f'https://{address}/'
-    # Accept either SSL certificate error or timeout (both indicate connection failure)
-    assert (
-        '[SSL: CERTIFICATE_VERIFY_FAILED]' in content['info']
-        or 'timed out' in content['info'].lower()
-        or 'timeout' in content['info'].lower()
-    )
+    assert '[SSL: CERTIFICATE_VERIFY_FAILED]' in content['info']
 
 
 @pytest.mark.sphinx(
