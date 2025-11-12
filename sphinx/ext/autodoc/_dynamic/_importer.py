@@ -15,8 +15,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._dynamic._mock import ismock, mock, undecorate
 from sphinx.ext.autodoc._sentinels import RUNTIME_INSTANCE_ATTRIBUTE, UNINITIALIZED_ATTR
-from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.inspect import isclass, safe_getattr

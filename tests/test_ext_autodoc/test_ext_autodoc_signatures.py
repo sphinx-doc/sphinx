@@ -8,13 +8,13 @@ from typing import Generic, TypeVar
 import pytest
 
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-from sphinx.ext.autodoc._docstrings import _get_docstring_lines
+from sphinx.ext.autodoc._dynamic._docstrings import _get_docstring_lines
+from sphinx.ext.autodoc._dynamic._signatures import _format_signatures
 from sphinx.ext.autodoc._property_types import (
     _ClassDefProperties,
     _FunctionDefProperties,
 )
 from sphinx.ext.autodoc._shared import _AutodocConfig
-from sphinx.ext.autodoc._signatures import _format_signatures
 from sphinx.util.inspect import safe_getattr
 
 from tests.test_ext_autodoc.autodoc_util import FakeEvents

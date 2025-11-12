@@ -23,16 +23,12 @@ from sphinx.ext.autodoc._directive_options import (
     members_option,
     merge_members_option,
 )
+from sphinx.ext.autodoc._dynamic._member_finder import ObjectMember, special_member_re
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
-from sphinx.ext.autodoc._member_finder import ObjectMember, special_member_re
 from sphinx.ext.autodoc._names import py_ext_sig_re
 from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS, UNINITIALIZED_ATTR
-from sphinx.ext.autodoc._sentinels import (
-    INSTANCE_ATTR as INSTANCEATTR,
-)
-from sphinx.ext.autodoc._sentinels import (
-    SLOTS_ATTR as SLOTSATTR,
-)
+from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR as INSTANCEATTR
+from sphinx.ext.autodoc._sentinels import SLOTS_ATTR as SLOTSATTR
 from sphinx.ext.autodoc.directive import AutodocDirective
 from sphinx.ext.autodoc.typehints import _merge_typehints
 
