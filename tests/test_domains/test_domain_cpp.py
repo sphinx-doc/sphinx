@@ -860,6 +860,10 @@ def test_domain_cpp_ast_function_definitions() -> None:
 
     check('function', 'decltype(auto) f()', {1: 'f', 2: '1fv'})
 
+    # Test derived from https://github.com/sphinx-doc/sphinx/issues/14026
+    # Unicode identifiers
+    check('function', 'void f(int *const ξ)', {1: 'f__iPC', 2: '1fPCi'})
+
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
 
