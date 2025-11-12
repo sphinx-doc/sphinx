@@ -415,7 +415,7 @@ class Locale(SphinxTransform):
             # There is no point in having noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
             # completely prevent escaping the noqa.  Outside of literal
-            # blocks, one can always write \\#noqa.
+            # blocks, one can always write \#noqa.
             if not isinstance(node, LITERAL_TYPE_NODES):
                 msgstr, _ = parse_noqa(msgstr)
 
