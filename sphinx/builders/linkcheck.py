@@ -409,7 +409,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
-        self.ignore_case = config.linkcheck_ignore_case
+        self.case_insensitive = config.linkcheck_case_insensitive
 
         self._session = requests._Session(
             _ignored_redirects=tuple(map(re.compile, config.linkcheck_ignore))
@@ -631,15 +631,18 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.rate_limits.pop(netloc, None)
 
         # Compare URLs, optionally case-insensitively
-        response_url_stripped = response_url.rstrip('/')
-        req_url_stripped = req_url.rstrip('/')
-        if self.ignore_case:
-            urls_match = response_url_stripped.casefold() == req_url_stripped.casefold()
-        else:
-            urls_match = response_url_stripped == req_url_stripped
+        def _normalise_url(url: str) -> str:
+            """Reduces a URL to a normal/equality-comparable form."""
+            normalised_url = url.rstrip('/')
+            if self.case_insensitive:
+                normalised_url = normalised_url.casefold()
+            return normalised_url
+
+        normalised_request_url = _normalise_url(req_url)
+        normalised_response_url = _normalise_url(response_url)
 
         if (
-            urls_match
+            normalised_request_url == normalised_response_url
             or _allowed_redirect(req_url, response_url, self.allowed_redirects)
         ):  # fmt: skip
             return _Status.WORKING, '', 0
@@ -825,7 +828,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
     )
-    app.add_config_value('linkcheck_ignore_case', False, '', types=frozenset({bool}))
+    app.add_config_value('linkcheck_case_insensitive', False, '', types=frozenset({bool}))
 
     app.add_event('linkcheck-process-uri')
 

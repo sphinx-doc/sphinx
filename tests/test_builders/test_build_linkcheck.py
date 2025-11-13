@@ -1488,7 +1488,7 @@ class CaseSensitiveHandler(BaseHTTPRequestHandler):
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
-    confoverrides={'linkcheck_ignore_case': False},
+    confoverrides={'linkcheck_case_insensitive': False},
 )
 def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     """Test that case-sensitive checking is the default behavior."""
@@ -1525,10 +1525,10 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
-    confoverrides={'linkcheck_ignore_case': True},
+    confoverrides={'linkcheck_case_insensitive': True},
 )
 def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
-    """Test that linkcheck_ignore_case=True ignores case differences in URLs."""
+    """Test that linkcheck_case_insensitive=True ignores case differences in URLs."""
     with serve_application(app, CaseSensitiveHandler) as address:
         # Monkey-patch the session to change the response URL to uppercase
         from unittest.mock import patch

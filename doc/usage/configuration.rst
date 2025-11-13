@@ -3813,7 +3813,7 @@ and the number of workers to use.
 
    .. versionadded:: 7.3
 
-.. confval:: linkcheck_allow_url_normalization
+.. confval:: linkcheck_case_insensitive
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
@@ -3838,7 +3838,7 @@ and the number of workers to use.
 
    .. code-block:: python
 
-      linkcheck_ignore_case = True
+      linkcheck_case_insensitive = True
 
    .. versionadded:: 8.2
 
