@@ -828,7 +828,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
     )
-    app.add_config_value('linkcheck_case_insensitive', False, '', types=frozenset({bool}))
+    app.add_config_value(
+        'linkcheck_case_insensitive', False, '', types=frozenset({bool})
+    )
 
     app.add_event('linkcheck-process-uri')
 
