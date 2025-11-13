@@ -684,7 +684,7 @@ def import_by_name(
     exceptions: list[BaseException] = functools.reduce(
         operator.iadd, (e.exceptions for e in errors), []
     )
-    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
+    raise ImportExceptionGroup(f'could not import {" or ".join(tried)}', exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
