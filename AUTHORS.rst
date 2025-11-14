@@ -108,6 +108,7 @@ Contributors
 * Steve Piercy -- documentation improvements
 * Szymon Karpinski -- intersphinx improvements
 * \T. Powers -- HTML output improvements
+* Taiki Ohno -- bug fixes in search results
 * Taku Shimizu -- epub3 builder
 * Tamika Nomara -- bug fixes
 * Thomas Lamb -- linkcheck builder
