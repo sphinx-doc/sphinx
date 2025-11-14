@@ -137,6 +137,8 @@ Bugs fixed
 * #14004: Fix :confval:`autodoc_type_aliases` when they appear in PEP 604
   union syntax (``Alias | Type``).
   Patch by Tamika Nomara.
+* #14028: Fix the encoding of URLs in search results.
+  Patch by Taiki Ohno.
 
 
 Testing
