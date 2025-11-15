@@ -138,7 +138,7 @@ Bugs fixed
   union syntax (``Alias | Type``).
   Patch by Tamika Nomara.
 * #14059: LaTeX: Footnotes cause pdflatex error with French language
-  (since August 2025 upstream change to LaTeX French support).
+  (since late June 2025 upstream change to LaTeX ``babel-french``).
   Patch by Jean-François B.
 
 
