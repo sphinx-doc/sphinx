@@ -67,10 +67,19 @@ package.
 
 .. automethod:: Sphinx.add_post_transform
 
-.. automethod:: Sphinx.add_js_file
+.. automethod::  Sphinx.add_js_file
+
+   .. versionchanged:: 7.1
+      Added automatic CRC32 checksum for static files.
+      This ensures browsers reload updated JS assets automatically
+      instead of relying on manual cache clearing.
 
 .. automethod:: Sphinx.add_css_file
-
+   
+   .. versionchanged:: 7.1
+     Added automatic CRC32 checksum for static files.
+     This ensures browsers reload updated CSS assets automatically
+     instead of relying on manual cache clearing.
 .. automethod:: Sphinx.add_latex_package
 
 .. automethod:: Sphinx.add_lexer
