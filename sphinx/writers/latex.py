@@ -1858,7 +1858,8 @@ class LaTeXTranslator(SphinxTranslator):
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if (
-            domain.get_enumerable_node_type(next_node)
+            next_node is not None
+            and domain.get_enumerable_node_type(next_node)
             and domain.get_numfig_title(next_node)
         ):  # fmt: skip
             return
