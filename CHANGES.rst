@@ -137,6 +137,9 @@ Bugs fixed
 * #14004: Fix :confval:`autodoc_type_aliases` when they appear in PEP 604
   union syntax (``Alias | Type``).
   Patch by Tamika Nomara.
+* #14059: LaTeX: Footnotes cause pdflatex error with French language
+  (since late June 2025 upstream change to LaTeX ``babel-french``).
+  Patch by Jean-François B.
 
 
 Testing
