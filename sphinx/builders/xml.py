@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.writers.docutils_xml import XMLTranslator
@@ -87,7 +87,7 @@ class XMLBuilder(Builder):
 
         # copied from docutils.writers.docutils_xml.Writer.translate()
         # so that we can override the translator class
-        visitor: XMLTranslator = self.create_translator(doctree)
+        visitor: XMLTranslator = cast(XMLTranslator, self.create_translator(doctree))
         doctree.walkabout(visitor)
         return ''.join(visitor.output)
 

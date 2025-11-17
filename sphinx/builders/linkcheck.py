@@ -223,7 +223,8 @@ class HyperlinkCollector(SphinxPostTransform):
     def run(self, **kwargs: Any) -> None:
         for node in self.document.findall():
             if uri := self.find_uri(node):
-                self._add_uri(uri, node)
+                if isinstance(node, nodes.Element):
+                    self._add_uri(uri, node)
 
     def find_uri(self, node: nodes.Node) -> str | None:
         """Find a URI for a given node.

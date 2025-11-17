@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from docutils.writers import docutils_xml
 
 if TYPE_CHECKING:
     from typing import Any
+
+    from docutils.writers.docutils_xml import XMLTranslator
 
     from sphinx.builders import Builder
 
@@ -30,9 +32,11 @@ class XMLWriter(docutils_xml.Writer):
 
         # copied from docutils.writers.docutils_xml.Writer.translate()
         # so that we can override the translator class
-        self.visitor = visitor = self.builder.create_translator(self.document)
+        self.visitor = visitor = cast(
+            XMLTranslator, self.builder.create_translator(self.document)
+        )
         self.document.walkabout(visitor)
-        self.output = ''.join(visitor.output)  # type: ignore[attr-defined]
+        self.output = ''.join(visitor.output)
 
 
 class PseudoXMLWriter(docutils_xml.Writer):
