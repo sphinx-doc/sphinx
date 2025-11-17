@@ -243,7 +243,6 @@ module = [
     "tests.test_markup.test_markup",
     # tests/test_theming
     "tests.test_theming.test_templating",
-    "tests.test_theming.test_theming",
     # tests/test_transforms
     "tests.test_transforms.test_transforms_post_transforms_images",
     # tests/test_writers

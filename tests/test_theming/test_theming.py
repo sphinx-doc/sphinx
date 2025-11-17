@@ -23,6 +23,8 @@ from sphinx.theming import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sphinx.testing.util import SphinxTestApp
 
 HERE = Path(__file__).resolve().parent
@@ -98,7 +100,7 @@ def test_theme_api(app: SphinxTestApp) -> None:
     assert not any(p.exists() for p in theme._tmp_dirs)
 
 
-def test_nonexistent_theme_settings(tmp_path):
+def test_nonexistent_theme_settings(tmp_path: Path) -> None:
     # Check that error occurs with a non-existent theme.toml or theme.conf
     # https://github.com/sphinx-doc/sphinx/issues/11668
     with pytest.raises(ThemeError):
@@ -150,10 +152,13 @@ def test_staticfiles(app: SphinxTestApp) -> None:
     testroot='theming',
     confoverrides={'html_theme': 'test-theme'},
 )
-def test_dark_style(app, monkeypatch):
+def test_dark_style(app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 
+    assert isinstance(app.builder, StandaloneHTMLBuilder)
+    assert app.builder.dark_highlighter is not None
     style = app.builder.dark_highlighter.formatter_args.get('style')
+    assert style is not None
     assert style.__name__ == 'MonokaiStyle'
 
     app.build()
@@ -164,7 +169,7 @@ def test_dark_style(app, monkeypatch):
     assert 'media' in css_file.attributes
     assert css_file.attributes['media'] == '(prefers-color-scheme: dark)'
 
-    assert sorted(f.filename for f in app.builder._css_files) == [
+    assert sorted(str(f.filename) for f in app.builder._css_files) == [
         '_static/classic.css',
         '_static/pygments.css',
         '_static/pygments_dark.css',
@@ -212,7 +217,12 @@ def test_theme_sidebars(app: SphinxTestApp) -> None:
         'traditional',
     ],
 )
-def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
+def test_theme_builds(
+    make_app: Callable[..., SphinxTestApp],
+    rootdir: Path,
+    sphinx_test_tempdir: Path,
+    theme_name: str,
+) -> None:
     """Test all the themes included with Sphinx build a simple project and produce valid XML."""
     testroot_path = rootdir / 'test-basic'
     srcdir = sphinx_test_tempdir / f'test-theme-{theme_name}'
