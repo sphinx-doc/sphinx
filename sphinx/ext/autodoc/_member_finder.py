@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import operator
 import re
 from enum import Enum
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, NewType, TypeVar
 
 from sphinx.errors import PycodeError
 from sphinx.events import EventManager
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._loader import _load_object_by_name
 from sphinx.ext.autodoc._property_types import _ClassDefProperties, _ModuleProperties
 from sphinx.ext.autodoc._sentinels import ALL, INSTANCE_ATTR, SLOTS_ATTR
 from sphinx.ext.autodoc.mock import ismock, undecorate
@@ -24,24 +26,23 @@ from sphinx.util.inspect import (
     safe_getattr,
     unwrap_all,
 )
+from sphinx.util.typing import AnyTypeAliasType
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
+    from collections.abc import Iterable, Iterator, Mapping, MutableSet, Sequence, Set
     from typing import Any, Literal
 
+    from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._property_types import (
-        _ClassDefProperties,
-        _ModuleProperties,
-    )
+    from sphinx.ext.autodoc._property_types import _AutodocObjType, _ItemProperties
     from sphinx.ext.autodoc._sentinels import (
         ALL_T,
         EMPTY_T,
         INSTANCE_ATTR_T,
         SLOTS_ATTR_T,
     )
-    from sphinx.ext.autodoc.importer import _AttrGetter
+    from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
 logger = logging.getLogger('sphinx.ext.autodoc')
 special_member_re = re.compile(r'^__\S+__$')
@@ -50,7 +51,7 @@ special_member_re = re.compile(r'^__\S+__$')
 class ObjectMember:
     """A member of object.
 
-    This is used for the result of `Documenter.get_module_members()` to
+    This is used for the result of `_get_members_to_document()` to
     represent each member of the object.
     """
 
@@ -86,14 +87,134 @@ class ObjectMember:
         )
 
 
+def _gather_members(
+    *,
+    want_all: bool,
+    indent: str,
+    analyzer_order: dict[str, int],
+    attr_docs: dict[tuple[str, str], list[str]],
+    config: _AutodocConfig,
+    current_document: _CurrentDocument,
+    events: EventManager,
+    get_attr: _AttrGetter,
+    options: _AutoDocumenterOptions,
+    parent_modname: str,
+    props: _ItemProperties,
+    ref_context: Mapping[str, str | None],
+    reread_always: MutableSet[str],
+) -> list[tuple[_ItemProperties, bool, str]]:
+    """Generate reST for member documentation.
+
+    If *want_all* is True, document all members, else those given by
+    *self.options.members*.
+    """
+    if props.obj_type not in {'module', 'class', 'exception'}:
+        msg = 'must be implemented in subclasses'
+        raise NotImplementedError(msg)
+    assert isinstance(props, (_ModuleProperties, _ClassDefProperties))
+
+    indent += '   ' * (props.obj_type != 'module')
+
+    # set current namespace for finding members
+    current_document.autodoc_module = props.module_name
+    if props.parts:
+        current_document.autodoc_class = props.parts[0]
+
+    inherited_members = frozenset(options.inherited_members or ())
+    found_members = _get_members_to_document(
+        want_all=want_all,
+        get_attr=get_attr,
+        class_signature=config.autodoc_class_signature,
+        inherit_docstrings=config.autodoc_inherit_docstrings,
+        props=props,
+        opt_members=options.members or (),
+        inherited_members=inherited_members,
+        opt_private_members=options.private_members,
+        opt_special_members=options.special_members,
+        ignore_module_all=bool(options.ignore_module_all),
+        attr_docs=attr_docs,
+    )
+    filtered_members = _filter_members(
+        found_members,
+        want_all=want_all,
+        events=events,
+        get_attr=get_attr,
+        class_signature=config.autodoc_class_signature,
+        inherit_docstrings=config.autodoc_inherit_docstrings,
+        options=options,
+        props=props,
+        inherited_members=inherited_members,
+        exclude_members=options.exclude_members,
+        special_members=options.special_members,
+        private_members=options.private_members,
+        undoc_members=options.undoc_members,
+        attr_docs=attr_docs,
+    )
+    # document non-skipped members
+    member_documenters: list[tuple[_ItemProperties, bool, str]] = []
+    for member_name, member, is_attr in filtered_members:
+        # prefer the object type with the highest priority
+        obj_type = _best_object_type_for_member(
+            member=member,
+            member_name=member_name,
+            is_attr=is_attr,
+            parent_obj_type=props.obj_type,
+            parent_props=props,
+        )
+        if not obj_type:
+            # don't know how to document this member
+            continue
+        # give explicitly separated module name, so that members
+        # of inner classes can be documented
+        dotted_parts = '.'.join((*props.parts, member_name))
+        full_name = f'{props.module_name}::{dotted_parts}'
+
+        # We now try to import all objects before ordering them. This is to
+        # avoid possible circular imports if we were to import objects after
+        # their associated documenters have been sorted.
+        member_props = _load_object_by_name(
+            name=full_name,
+            objtype=obj_type,
+            current_document=current_document,
+            config=config,
+            events=events,
+            get_attr=get_attr,
+            options=options,
+            parent_modname=parent_modname,
+            ref_context=ref_context,
+            reread_always=reread_always,
+        )
+        if member_props is None:
+            continue
+        member_documenters.append((member_props, is_attr, indent))
+
+    member_order = options.member_order or config.autodoc_member_order
+    member_documenters = _sort_members(
+        member_documenters,
+        member_order,
+        ignore_module_all=bool(options.ignore_module_all),
+        analyzer_order=analyzer_order,
+        props=props,
+    )
+
+    # reset current objects
+    current_document.autodoc_module = ''
+    current_document.autodoc_class = ''
+
+    return member_documenters
+
+
 def _get_members_to_document(
     *,
     want_all: bool,
     get_attr: _AttrGetter,
+    class_signature: Literal['mixed', 'separated'],
     inherit_docstrings: bool,
     props: _ModuleProperties | _ClassDefProperties,
     opt_members: ALL_T | Sequence[str],
     inherited_members: Set[str],
+    opt_private_members: ALL_T | Sequence[str] | None,
+    opt_special_members: ALL_T | Sequence[str] | None,
     ignore_module_all: bool,
     attr_docs: dict[tuple[str, str], list[str]],
 ) -> list[ObjectMember]:
@@ -128,7 +249,16 @@ def _get_members_to_document(
     else:
         # specific members given
         assert opt_members is not ALL
-        wanted_members = frozenset(opt_members)
+
+        # Merge :private-members: and :special-members: into :members:
+        combined_members = set(opt_members)
+        if opt_private_members is not None and opt_private_members is not ALL:
+            combined_members.update(opt_private_members)
+        if opt_special_members is not None and opt_special_members is not ALL:
+            combined_members.update(opt_special_members)
+        if class_signature == 'separated' and props.obj_type in {'class', 'exception'}:
+            combined_members |= {'__new__', '__init__'}  # show __init__() method
+        wanted_members = frozenset(combined_members)
 
     object_members_map: dict[str, ObjectMember] = {}
     if props.obj_type == 'module':
@@ -301,8 +431,8 @@ def _filter_members(
     events: EventManager,
     get_attr: _AttrGetter,
     options: _AutoDocumenterOptions,
-    orig_name: str,
     props: _ModuleProperties | _ClassDefProperties,
+    class_signature: Literal['mixed', 'separated'],
     inherit_docstrings: bool,
     inherited_members: Set[str],
     exclude_members: EMPTY_T | Set[str] | None,
@@ -327,6 +457,7 @@ def _filter_members(
                 member_cls=obj.class_,
                 get_attr=get_attr,
                 has_attr_doc=has_attr_doc,
+                class_signature=class_signature,
                 inherit_docstrings=inherit_docstrings,
                 inherited_members=inherited_members,
                 parent=props._obj,
@@ -342,7 +473,7 @@ def _filter_members(
                     'autodoc: failed to determine %s.%s (%r) to be documented, '
                     'the following exception was raised:\n%s'
                 ),
-                orig_name,
+                props.full_name,
                 member_name,
                 member_obj,
                 exc,
@@ -369,6 +500,130 @@ def _filter_members(
             # if is_attr is True, the member is documented as an attribute
             is_attr = member_obj is INSTANCE_ATTR or has_attr_doc
             yield member_name, member_obj, is_attr
+
+
+def _best_object_type_for_member(
+    member: Any,
+    member_name: str,
+    is_attr: bool,
+    *,
+    parent_obj_type: str,
+    parent_props: _ItemProperties | None,
+) -> _AutodocObjType | None:
+    """Return the best object type that supports documenting *member*."""
+    filtered = []
+
+    # Don't document submodules automatically: 'module' is never returned.
+
+    try:
+        if isinstance(member, type) and issubclass(member, BaseException):
+            # priority must be higher than 'class'
+            filtered.append((20, 'exception'))
+    except TypeError as exc:
+        # It's possible for a member to be considered a type, but fail
+        # issubclass checks due to not being a class. For example:
+        # https://github.com/sphinx-doc/sphinx/issues/11654#issuecomment-1696790436
+        msg = f'Failed to discern if member {member} is a BaseException subclass.'
+        raise ValueError(msg) from exc
+
+    if isinstance(member, type) or (is_attr and isinstance(member, (NewType, TypeVar))):
+        # priority must be higher than 'function', 'class', and 'attribute'
+        # as NewType can be an attribute and is a class after Python 3.10.
+        filtered.append((15, 'class'))
+
+    if parent_obj_type in {'class', 'exception'}:
+        if inspect.isproperty(member):
+            # priority must be higher than 'attribute'
+            filtered.append((11, 'property'))
+
+        # See _get_documenter() in autosummary, parent_props might be None.
+        elif parent_props is not None:
+            # Support for class properties. Note: these only work on Python 3.9.
+            __dict__ = safe_getattr(parent_props._obj, '__dict__', {})
+            obj = __dict__.get(member_name)
+            if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
+                # priority must be higher than 'attribute'
+                filtered.append((11, 'property'))
+
+    if parent_obj_type != 'module':
+        if inspect.isattributedescriptor(member) or not (
+            inspect.isroutine(member) or isinstance(member, type)
+        ):
+            # priority must be higher than 'method', else it will recognise
+            # some non-data descriptors as methods
+            filtered.append((10, 'attribute'))
+
+    if inspect.isroutine(member) and parent_obj_type != 'module':
+        # priority must be higher than 'function'
+        filtered.append((1, 'method'))
+
+    if (
+        inspect.isfunction(member)
+        or inspect.isbuiltin(member)
+        or (inspect.isroutine(member) and parent_obj_type == 'module')
+    ):
+        # supports functions, builtins and bound methods exported
+        # at the module level
+        filtered.extend(((0, 'function'), (-1, 'decorator')))
+
+    if isinstance(member, AnyTypeAliasType):
+        filtered.append((0, 'type'))
+
+    if parent_obj_type == 'module' and is_attr:
+        filtered.append((-10, 'data'))
+
+    if filtered:
+        # return the highest priority object type
+        return max(filtered, key=operator.itemgetter(0))[1]  # type: ignore[return-value]
+    return None
+
+
+def _sort_members(
+    documenters: list[tuple[_ItemProperties, bool, str]],
+    order: Literal['alphabetical', 'bysource', 'groupwise'],
+    *,
+    ignore_module_all: bool,
+    analyzer_order: dict[str, int],
+    props: _ItemProperties,
+) -> list[tuple[_ItemProperties, bool, str]]:
+    """Sort the given member list."""
+    if order == 'groupwise':
+        # sort by group; alphabetically within groups
+        def group_order(entry: tuple[_ItemProperties, bool, str]) -> tuple[int, str]:
+            return entry[0]._groupwise_order_key, entry[0].full_name
+
+        documenters.sort(key=group_order)
+    elif order == 'bysource':
+        if (
+            isinstance(props, _ModuleProperties)
+            and not ignore_module_all
+            and (module_all := props.all)
+        ):
+            # Sort by __all__
+            module_all_idx = {name: idx for idx, name in enumerate(module_all)}
+            module_all_len = len(module_all)
+
+            def source_order(entry: tuple[_ItemProperties, bool, str]) -> int:
+                fullname = entry[0].dotted_parts
+                return module_all_idx.get(fullname, module_all_len)
+
+            documenters.sort(key=source_order)
+
+        # By default, member discovery order matches source order,
+        # as dicts are insertion-ordered from Python 3.7.
+        elif analyzer_order:
+            # sort by source order, by virtue of the module analyzer
+            order_len = len(analyzer_order)
+
+            def source_order(entry: tuple[_ItemProperties, bool, str]) -> int:
+                fullname = entry[0].dotted_parts
+                return analyzer_order.get(fullname, order_len)
+
+            documenters.sort(key=source_order)
+    else:  # alphabetical
+        documenters.sort(key=lambda entry: entry[0].full_name)
+
+    return documenters
 
 
 def unmangle(subject: Any, name: str) -> str | None:
@@ -483,6 +738,7 @@ def _should_keep_member(
     member_cls: Any,
     get_attr: _AttrGetter,
     has_attr_doc: bool,
+    class_signature: Literal['mixed', 'separated'],
     inherit_docstrings: bool,
     inherited_members: Set[str],
     parent: Any,
@@ -552,12 +808,16 @@ def _should_keep_member(
 
     if special_member_re.match(member_name):
         # special __methods__
+        if member_name == '__doc__' or is_filtered_inherited_member:
+            return False
         if special_members and member_name in special_members:
-            if member_name == '__doc__':  # NoQA: SIM114
-                return False
-            elif is_filtered_inherited_member:
-                return False
             return has_doc
+        if (
+            class_signature == 'separated'
+            and member_name in {'__new__', '__init__'}
+            and inspect.isclass(parent)
+        ):
+            return has_doc  # show __init__() method
         return False
 
     if is_private:

@@ -89,6 +89,7 @@ Contributors
 * Martin Larralde -- additional napoleon admonitions
 * Martin Liška -- option directive and role improvements
 * Martin Mahner -- nature theme
+* Martin Matouš -- initial support for PEP 695
 * Matthew Fernandez -- todo extension fix
 * Matthew Woodcraft -- text output improvements
 * Matthias Geier -- style improvements
@@ -108,6 +109,7 @@ Contributors
 * Szymon Karpinski -- intersphinx improvements
 * \T. Powers -- HTML output improvements
 * Taku Shimizu -- epub3 builder
+* Tamika Nomara -- bug fixes
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes
 * Till Hoffmann -- doctest option to exit after first failed test

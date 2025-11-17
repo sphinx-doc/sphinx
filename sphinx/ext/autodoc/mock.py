@@ -129,7 +129,7 @@ class MockLoader(Loader):
 class MockFinder(MetaPathFinder):
     """A finder for mocking."""
 
-    def __init__(self, modnames: list[str]) -> None:
+    def __init__(self, modnames: Sequence[str]) -> None:
         super().__init__()
         self.modnames = modnames
         self.loader = MockLoader(self)
@@ -155,7 +155,7 @@ class MockFinder(MetaPathFinder):
 
 
 @contextlib.contextmanager
-def mock(modnames: list[str]) -> Iterator[None]:
+def mock(modnames: Sequence[str]) -> Iterator[None]:
     """Insert mock modules during context::
 
     with mock(['target.module.name']):

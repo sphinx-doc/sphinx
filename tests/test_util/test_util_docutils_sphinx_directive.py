@@ -39,7 +39,7 @@ def make_directive_and_state(
     inliner = Inliner()
     inliner.init_customizations(document.settings)
     state.inliner = inliner
-    state.parent = None
+    state.parent = document
     state.memo = SimpleNamespace(
         document=document,
         reporter=document.reporter,
