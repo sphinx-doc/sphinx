@@ -2,22 +2,20 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from sphinx.ext.autodoc._shared import _AutodocConfig
 
-if TYPE_CHECKING:
-    from sphinx.testing.util import SphinxTestApp
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
+
+pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_field(app: SphinxTestApp) -> None:
-    app.config.autoclass_content = 'class'
+def test_private_field() -> None:
+    config = _AutodocConfig(autoclass_content='class')
     options = {'members': None}
-    actual = do_autodoc(app, 'module', 'target.private', options)
-    assert list(actual) == [
+    actual = do_autodoc('module', 'target.private', config=config, options=options)
+    assert actual == [
         '',
         '.. py:module:: target.private',
         '',
@@ -39,15 +37,14 @@ def test_private_field(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_field_and_private_members(app: SphinxTestApp) -> None:
-    app.config.autoclass_content = 'class'
+def test_private_field_and_private_members() -> None:
+    config = _AutodocConfig(autoclass_content='class')
     options = {
         'members': None,
         'private-members': None,
     }
-    actual = do_autodoc(app, 'module', 'target.private', options)
-    assert list(actual) == [
+    actual = do_autodoc('module', 'target.private', config=config, options=options)
+    assert actual == [
         '',
         '.. py:module:: target.private',
         '',
@@ -84,15 +81,14 @@ def test_private_field_and_private_members(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_members(app: SphinxTestApp) -> None:
-    app.config.autoclass_content = 'class'
+def test_private_members() -> None:
+    config = _AutodocConfig(autoclass_content='class')
     options = {
         'members': None,
         'private-members': '_PUBLIC_CONSTANT,_public_function',
     }
-    actual = do_autodoc(app, 'module', 'target.private', options)
-    assert list(actual) == [
+    actual = do_autodoc('module', 'target.private', config=config, options=options)
+    assert actual == [
         '',
         '.. py:module:: target.private',
         '',
@@ -114,12 +110,11 @@ def test_private_members(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_attributes(app: SphinxTestApp) -> None:
-    app.config.autoclass_content = 'class'
+def test_private_attributes() -> None:
+    config = _AutodocConfig(autoclass_content='class')
     options = {'members': None}
-    actual = do_autodoc(app, 'class', 'target.private.Foo', options)
-    assert list(actual) == [
+    actual = do_autodoc('class', 'target.private.Foo', config=config, options=options)
+    assert actual == [
         '',
         '.. py:class:: Foo()',
         '   :module: target.private',
@@ -136,15 +131,14 @@ def test_private_attributes(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_private_attributes_and_private_members(app: SphinxTestApp) -> None:
-    app.config.autoclass_content = 'class'
+def test_private_attributes_and_private_members() -> None:
+    config = _AutodocConfig(autoclass_content='class')
     options = {
         'members': None,
         'private-members': None,
     }
-    actual = do_autodoc(app, 'class', 'target.private.Foo', options)
-    assert list(actual) == [
+    actual = do_autodoc('class', 'target.private.Foo', config=config, options=options)
+    assert actual == [
         '',
         '.. py:class:: Foo()',
         '   :module: target.private',

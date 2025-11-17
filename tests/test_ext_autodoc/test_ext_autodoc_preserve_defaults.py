@@ -2,27 +2,25 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 
-from tests.test_extensions.autodoc_util import do_autodoc
+from sphinx.ext.autodoc._shared import _AutodocConfig
 
-if TYPE_CHECKING:
-    from sphinx.testing.util import SphinxTestApp
+from tests.test_ext_autodoc.autodoc_util import do_autodoc
+
+pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_preserve_defaults': True},
-)
-def test_preserve_defaults(app: SphinxTestApp) -> None:
+def test_preserve_defaults() -> None:
+    config = _AutodocConfig(autodoc_preserve_defaults=True)
+
     color = '0xFFFFFF'
 
     options = {'members': None}
-    actual = do_autodoc(app, 'module', 'target.preserve_defaults', options)
-    assert list(actual) == [
+    actual = do_autodoc(
+        'module', 'target.preserve_defaults', config=config, options=options
+    )
+    assert actual == [
         '',
         '.. py:module:: target.preserve_defaults',
         '',
@@ -102,15 +100,15 @@ def test_preserve_defaults(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='ext-autodoc',
-    confoverrides={'autodoc_preserve_defaults': True},
-)
-def test_preserve_defaults_special_constructs(app: SphinxTestApp) -> None:
+def test_preserve_defaults_special_constructs() -> None:
+    config = _AutodocConfig(autodoc_preserve_defaults=True)
+
     options = {'members': None}
     actual = do_autodoc(
-        app, 'module', 'target.preserve_defaults_special_constructs', options
+        'module',
+        'target.preserve_defaults_special_constructs',
+        config=config,
+        options=options,
     )
 
     # * dataclasses.dataclass:
@@ -127,8 +125,7 @@ def test_preserve_defaults_special_constructs(app: SphinxTestApp) -> None:
     # In the future, it might be possible to find some additional default
     # values by parsing the source code of the annotations but the task is
     # rather complex.
-
-    assert list(actual) == [
+    assert actual == [
         '',
         '.. py:module:: target.preserve_defaults_special_constructs',
         '',

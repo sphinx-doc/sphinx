@@ -702,14 +702,14 @@ def test_extra_keywords() -> None:
 #     raise DefinitionError
 
 
-def split_warnings(warning: StringIO):
+def split_warnings(warning: StringIO) -> list[str]:
     ws = warning.getvalue().split('\n')
     assert len(ws) >= 1
     assert ws[-1] == ''
     return ws[:-1]
 
 
-def filter_warnings(warning: StringIO, file):
+def filter_warnings(warning: StringIO, file: str) -> list[str]:
     lines = split_warnings(warning)
     res = [
         l

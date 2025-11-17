@@ -742,7 +742,7 @@ class PythonDomain(Domain):
         'staticmethod': ObjType(_('static method'), 'meth', 'obj'),
         'attribute': ObjType(_('attribute'), 'attr', 'obj'),
         'property': ObjType(_('property'), 'attr', '_prop', 'obj'),
-        'type': ObjType(_('type alias'), 'type', 'obj'),
+        'type': ObjType(_('type alias'), 'type', 'class', 'obj'),
         'module': ObjType(_('module'), 'mod', 'obj'),
     }
 
@@ -952,6 +952,14 @@ class PythonDomain(Domain):
         searchmode = 1 if node.hasattr('refspecific') else 0
         matches = self.find_obj(env, modname, clsname, target, type, searchmode)
 
+        if not matches and type == 'class':
+            # fallback to data/attr (for type aliases)
+            # type aliases are documented as data/attr but referenced as class
+            matches = self.find_obj(env, modname, clsname, target, 'data', searchmode)
+            if not matches:
+                matches = self.find_obj(
+                    env, modname, clsname, target, 'attr', searchmode
+                )
         if not matches and type == 'attr':
             # fallback to meth (for property; Sphinx 2.4.x)
             # this ensures that `:attr:` role continues to refer to the old property entry

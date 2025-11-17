@@ -30,8 +30,6 @@ from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
-    from typing import Any
-
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -416,8 +414,6 @@ def test_html_style(app: SphinxTestApp) -> None:
     },
 )
 def test_html_sidebar(app: SphinxTestApp) -> None:
-    ctx: dict[str, Any] = {}
-
     # default for alabaster
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -433,12 +429,12 @@ def test_html_sidebar(app: SphinxTestApp) -> None:
     assert '<h3>This Page</h3>' in result
 
     assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
-    app.builder.add_sidebars('index', ctx)
-    assert ctx['sidebars'] == [
+    sidebars = app.builder._get_sidebars('index')
+    assert sidebars == (
         'localtoc.html',
         'searchfield.html',
         'sourcelink.html',
-    ]
+    )
 
     # only sourcelink.html
     app.config.html_sidebars = {'**': ['sourcelink.html']}
@@ -456,8 +452,8 @@ def test_html_sidebar(app: SphinxTestApp) -> None:
     assert '<h3>This Page</h3>' in result
 
     assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
-    app.builder.add_sidebars('index', ctx)
-    assert ctx['sidebars'] == ['sourcelink.html']
+    sidebars = app.builder._get_sidebars('index')
+    assert sidebars == ('sourcelink.html',)
 
     # no sidebars
     app.config.html_sidebars = {'**': []}
@@ -477,8 +473,8 @@ def test_html_sidebar(app: SphinxTestApp) -> None:
     assert '<h3>This Page</h3>' not in result
 
     assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
-    app.builder.add_sidebars('index', ctx)
-    assert ctx['sidebars'] == []
+    sidebars = app.builder._get_sidebars('index')
+    assert sidebars == ()
 
 
 @pytest.mark.parametrize(

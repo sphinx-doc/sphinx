@@ -1040,31 +1040,30 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename: str) -> _StrPath:
         return _StrPath(self.get_output_path(pagename))
 
-    def add_sidebars(self, pagename: str, ctx: dict[str, Any]) -> None:
-        def has_wildcard(pattern: str) -> bool:
-            return any(char in pattern for char in '*?[')
-
+    def _get_sidebars(self, pagename: str, /) -> tuple[str, ...]:
         matched = None
 
         # default sidebars settings for selected theme
-        sidebars = list(self.theme.sidebar_templates)
+        sidebars = self.theme.sidebar_templates
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
         msg = __('page %s matches two patterns in html_sidebars: %r and %r')
         for pattern, pat_sidebars in html_sidebars.items():
             if patmatch(pagename, pattern):
-                if matched and has_wildcard(pattern):
+                if matched and _has_wildcard(pattern):
                     # warn if both patterns contain wildcards
-                    if has_wildcard(matched):
+                    if _has_wildcard(matched):
                         logger.warning(msg, pagename, matched, pattern)
                     # else the already matched pattern is more specific
                     # than the present one, because it contains no wildcard
                     continue
                 matched = pattern
-                sidebars = pat_sidebars
+                sidebars = tuple(pat_sidebars)
+        return sidebars
 
-        ctx['sidebars'] = list(sidebars)
+    def add_sidebars(self, pagename: str, ctx: dict[str, Any]) -> None:
+        ctx['sidebars'] = list(self._get_sidebars(pagename))
 
     # --------- these are overwritten by the serialization builder
 
@@ -1123,7 +1122,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['hasdoc'] = hasdoc
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
-        self.add_sidebars(pagename, ctx)
+        ctx['sidebars'] = list(self._get_sidebars(pagename))
         ctx.update(addctx)
 
         # 'blah.html' should have content_root = './' not ''.
@@ -1290,6 +1289,10 @@ class StandaloneHTMLBuilder(Builder):
                 with open(search_index_tmp, 'wb') as fb:
                     self.indexer.dump(fb, self.indexer_format)
             Path(search_index_tmp).replace(search_index_path)
+
+
+def _has_wildcard(pattern: str, /) -> bool:
+    return any(char in pattern for char in '*?[')
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
