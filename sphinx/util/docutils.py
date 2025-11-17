@@ -680,7 +680,9 @@ class SphinxRole:
         # .. versionadded:: 3.0
         if lineno is None:
             lineno = self.lineno
-        return self.inliner.reporter.get_source_and_line(lineno)
+        source, line = self.inliner.reporter.get_source_and_line(lineno)
+        assert source is not None and line is not None
+        return str(source), line
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         # .. versionadded:: 2.0
