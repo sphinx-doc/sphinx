@@ -1442,19 +1442,12 @@ def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
 
 
 class CaseSensitiveHandler(BaseHTTPRequestHandler):
-    """Handler that returns URLs with uppercase in the redirect location."""
+    """Simple test server for case sensitivity tests."""
 
     protocol_version = 'HTTP/1.1'
 
     def do_HEAD(self):
-        # Simulate a server that returns URLs with different case
         if self.path == '/path':
-            # Return the path with uppercase
-            self.send_response(200, 'OK')
-            # Simulate the response URL being in uppercase
-            self.send_header('Content-Length', '0')
-            self.end_headers()
-        elif self.path == '/anchor.html':
             self.send_response(200, 'OK')
             self.send_header('Content-Length', '0')
             self.end_headers()
@@ -1466,14 +1459,6 @@ class CaseSensitiveHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/path':
             content = b'ok\n\n'
-            self.send_response(200, 'OK')
-            self.send_header('Content-Length', str(len(content)))
-            self.end_headers()
-            self.wfile.write(content)
-        elif self.path == '/anchor.html':
-            # HTML with anchor in mixed case
-            doc = '<!DOCTYPE html><html><body><a id="MyAnchor"></a></body></html>'
-            content = doc.encode('utf-8')
             self.send_response(200, 'OK')
             self.send_header('Content-Length', str(len(content)))
             self.end_headers()
