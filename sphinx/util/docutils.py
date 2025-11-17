@@ -911,7 +911,7 @@ def _get_settings(
             defaults=defaults,
             read_config_files=read_config_files,
         )
-    return option_parser.get_default_values()  # type: ignore[return-value]
+    return option_parser.get_default_values()
 
 
 if docutils.__version_info__[:2] < (0, 22):
@@ -925,6 +925,6 @@ if docutils.__version_info__[:2] < (0, 22):
         return n_options
 
 else:
-    from docutils.parsers.rst.roles import (  # type: ignore[attr-defined, no-redef]
+    from docutils.parsers.rst.roles import (
         normalize_options as _normalize_options,  # NoQA: F401
     )
