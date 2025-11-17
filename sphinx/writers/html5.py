@@ -17,7 +17,6 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
-
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -475,7 +474,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_classifier(self, node: Element) -> None:
         self.body.append('</span>')
 
-        next_node: Node = node.next_node(descend=False, siblings=True)
+        next_node: Node | None = node.next_node(descend=False, siblings=True)
         if not isinstance(next_node, nodes.classifier):
             # close `<dt>` tag at the tail of classifiers
             self.body.append('</dt>')
@@ -486,7 +485,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def depart_term(self, node: Element) -> None:
-        next_node: Node = node.next_node(descend=False, siblings=True)
+        next_node: Node | None = node.next_node(descend=False, siblings=True)
         if isinstance(next_node, nodes.classifier):
             # Leave the end tag to `self.depart_classifier()`, in case
             # there's a classifier.
