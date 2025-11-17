@@ -501,7 +501,9 @@ class SphinxDirective(Directive):
 
         .. versionadded:: 3.0
         """
-        return self.state_machine.get_source_and_line(self.lineno)
+        source, line = self.state_machine.get_source_and_line(self.lineno)
+        assert source is not None and line is not None
+        return source, line
 
     def set_source_info(self, node: Node) -> None:
         """Set source and line number to the node.
