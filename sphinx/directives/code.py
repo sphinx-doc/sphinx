@@ -141,7 +141,10 @@ class CodeBlock(SphinxDirective):
             hl_lines = None
 
         if 'dedent' in self.options:
-            location = self.state_machine.get_source_and_line(self.lineno)
+            source, line = self.state_machine.get_source_and_line(self.lineno)
+            location: tuple[str, int] | None = (
+                (source, line) if source is not None and line is not None else None
+            )
             lines = code.splitlines(True)
             lines = dedent_lines(lines, self.options['dedent'], location=location)
             code = ''.join(lines)
@@ -454,7 +457,10 @@ class LiteralInclude(SphinxDirective):
             self.options['diff'] = path
 
         try:
-            location = self.state_machine.get_source_and_line(self.lineno)
+            source, line = self.state_machine.get_source_and_line(self.lineno)
+            location: tuple[str, int] | None = (
+                (source, line) if source is not None and line is not None else None
+            )
             rel_filename, filename = self.env.relfn2path(self.arguments[0])
             self.env.note_dependency(rel_filename)
 
