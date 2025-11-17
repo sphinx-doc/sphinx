@@ -2292,6 +2292,12 @@ def test_autodoc_pep695_type_alias() -> None:
         '   This is PEP695 type alias of PEP695 alias.',
         '',
         '',
+        # Undocumented alias should not inherit any documentations
+        '.. py:type:: Pep695AliasUndoced',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
+        '',
+        '',
         '.. py:type:: Pep695AliasUnion',
         '   :module: target.pep695',
         '   :canonical: str | int',
