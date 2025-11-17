@@ -1,3 +1,3 @@
 This file is encoded in latin-1 but at first read as utf-8.
 
-Max StrauÃŸ aÃŸ in MÃ¼nchen eine LeberkÃ¤ssemmel.
+Max Strauß aß in München eine Leberkässemmel.
