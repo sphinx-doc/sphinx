@@ -394,7 +394,7 @@ def traverse_translatable_index(
 
 
 def nested_parse_with_titles(
-    state: RSTState, content: StringList, node: Node, content_offset: int = 0
+    state: RSTState, content: StringList, node: Element, content_offset: int = 0
 ) -> int:
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
