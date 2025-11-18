@@ -2,6 +2,7 @@ from __future__ import annotations
 
 __all__ = ('http_server',)
 
+import os
 import socket
 from contextlib import contextmanager
 from http.server import ThreadingHTTPServer
@@ -19,10 +20,16 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
 
+TESTS_ROOT: Final[Path] = Path(__file__).resolve().parent
+TEST_ROOTS_DIR: Final[Path] = TESTS_ROOT / (
+    'roots-read-only'
+    if 'CI' in os.environ and (TESTS_ROOT / 'roots-read-only').is_dir()
+    else 'roots'
+)
+
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
 #     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
-TESTS_ROOT: Final[Path] = Path(__file__).resolve().parent
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
