@@ -140,7 +140,9 @@ Bugs fixed
 * #14059: LaTeX: Footnotes cause pdflatex error with French language
   (since late June 2025 upstream change to LaTeX ``babel-french``).
   Patch by Jean-François B.
-
+* #14067: EPUB: unify path separators in manifest items to forward slashes,
+  resolve duplicates manifest on Windows OS.
+  Patch by Akihiro Takizawa.
 
 Testing
 -------
