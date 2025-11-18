@@ -409,7 +409,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
-        self.case_insensitive = config.linkcheck_case_insensitive
+        self.case_insensitive = not config.linkcheck_case_sensitive
 
         self._session = requests._Session(
             _ignored_redirects=tuple(map(re.compile, config.linkcheck_ignore))
@@ -635,7 +635,12 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             """Reduces a URL to a normal/equality-comparable form."""
             normalised_url = url.rstrip('/')
             if self.case_insensitive:
-                normalised_url = normalised_url.casefold()
+                # Only casefold the URL before the fragment; fragments are case-sensitive
+                if '#' in normalised_url:
+                    url_part, fragment = normalised_url.split('#', 1)
+                    normalised_url = url_part.casefold() + '#' + fragment
+                else:
+                    normalised_url = normalised_url.casefold()
             return normalised_url
 
         normalised_request_url = _normalise_url(req_url)
@@ -771,6 +776,21 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
     return None
 
 
+def handle_deprecated_linkcheck_case_config(app: Sphinx, config: Config) -> None:
+    """Handle backward compatibility for renamed linkcheck_case_insensitive config."""
+    # Check if the old config name is used (i.e., user set it to a non-None value)
+    if config.linkcheck_case_insensitive is not None:
+        logger.warning(
+            __(
+                'The configuration value "linkcheck_case_insensitive" is deprecated. '
+                'Use "linkcheck_case_sensitive" instead (with inverted logic: '
+                'linkcheck_case_sensitive = not linkcheck_case_insensitive).'
+            )
+        )
+        # Apply the old config value with inverted logic
+        config.linkcheck_case_sensitive = not config.linkcheck_case_insensitive
+
+
 def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
     """Compile patterns to the regexp objects."""
     if config.linkcheck_allowed_redirects is _SENTINEL_LAR:
@@ -828,13 +848,14 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
     )
-    app.add_config_value(
-        'linkcheck_case_insensitive', False, '', types=frozenset({bool})
-    )
+    app.add_config_value('linkcheck_case_sensitive', True, '', types=frozenset({bool}))
+    # Deprecated config value for backward compatibility
+    app.add_config_value('linkcheck_case_insensitive', None, '', types=frozenset({bool, type(None)}))
 
     app.add_event('linkcheck-process-uri')
 
     # priority 900 to happen after ``check_confval_types()``
+    app.connect('config-inited', handle_deprecated_linkcheck_case_config, priority=899)
     app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=900)
 
     # FIXME: Disable URL rewrite handler for github.com temporarily.

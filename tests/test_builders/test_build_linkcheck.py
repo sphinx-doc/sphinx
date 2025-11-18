@@ -1448,6 +1448,12 @@ class CaseSensitiveHandler(BaseHTTPRequestHandler):
 
     def do_HEAD(self):
         if self.path == '/path':
+            # Redirect lowercase /path to uppercase /Path
+            self.send_response(301, 'Moved Permanently')
+            self.send_header('Location', f'http://{self.headers["Host"]}/Path')
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+        elif self.path == '/Path':
             self.send_response(200, 'OK')
             self.send_header('Content-Length', '0')
             self.end_headers()
@@ -1458,6 +1464,12 @@ class CaseSensitiveHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/path':
+            # Redirect lowercase /path to uppercase /Path
+            self.send_response(301, 'Moved Permanently')
+            self.send_header('Location', f'http://{self.headers["Host"]}/Path')
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+        elif self.path == '/Path':
             content = b'ok\n\n'
             self.send_response(200, 'OK')
             self.send_header('Content-Length', str(len(content)))
@@ -1473,26 +1485,12 @@ class CaseSensitiveHandler(BaseHTTPRequestHandler):
     'linkcheck',
     testroot='linkcheck-case-check',
     freshenv=True,
-    confoverrides={'linkcheck_case_insensitive': False},
+    confoverrides={'linkcheck_case_sensitive': True},
 )
 def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     """Test that case-sensitive checking is the default behavior."""
     with serve_application(app, CaseSensitiveHandler) as address:
-        # Monkey-patch the session to change the response URL to uppercase
-        # to simulate a case-insensitive server
-        from unittest.mock import patch
-
-        original_request = requests._Session.request
-
-        def mock_request(self, method, url, **kwargs):
-            response = original_request(self, method, url, **kwargs)
-            # Change the URL to uppercase to simulate server behavior
-            if '/path' in str(response.url).lower():
-                response.url = str(response.url).replace('/path', '/PATH')
-            return response
-
-        with patch.object(requests._Session, 'request', mock_request):
-            app.build()
+        app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     rows = [json.loads(x) for x in content.splitlines()]
@@ -1509,25 +1507,12 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     'linkcheck',
     testroot='linkcheck-case-check',
     freshenv=True,
-    confoverrides={'linkcheck_case_insensitive': True},
+    confoverrides={'linkcheck_case_sensitive': False},
 )
 def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
-    """Test that linkcheck_case_insensitive=True ignores case differences in URLs."""
+    """Test that linkcheck_case_sensitive=False ignores case differences in URLs."""
     with serve_application(app, CaseSensitiveHandler) as address:
-        # Monkey-patch the session to change the response URL to uppercase
-        from unittest.mock import patch
-
-        original_request = requests._Session.request
-
-        def mock_request(self, method, url, **kwargs):
-            response = original_request(self, method, url, **kwargs)
-            # Change the URL to uppercase to simulate server behavior
-            if '/path' in str(response.url).lower():
-                response.url = str(response.url).replace('/path', '/PATH')
-            return response
-
-        with patch.object(requests._Session, 'request', mock_request):
-            app.build()
+        app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     rows = [json.loads(x) for x in content.splitlines()]
