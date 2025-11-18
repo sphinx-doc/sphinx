@@ -1441,32 +1441,16 @@ def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
     } in content
 
 
-class CaseSensitiveHandler(BaseHTTPRequestHandler):
-    """Simple test server for case sensitivity tests."""
+class CapitalisePathHandler(BaseHTTPRequestHandler):
+    """Simple test server that capitalises URL paths via redirects."""
 
     protocol_version = 'HTTP/1.1'
-
-    def do_HEAD(self):
-        if self.path == '/path':
-            # Redirect lowercase /path to uppercase /Path
-            self.send_response(301, 'Moved Permanently')
-            self.send_header('Location', '/Path')
-            self.send_header('Content-Length', '0')
-            self.end_headers()
-        elif self.path == '/Path':
-            self.send_response(200, 'OK')
-            self.send_header('Content-Length', '0')
-            self.end_headers()
-        else:
-            self.send_response(404, 'Not Found')
-            self.send_header('Content-Length', '0')
-            self.end_headers()
 
     def do_GET(self):
         if self.path == '/path':
             # Redirect lowercase /path to uppercase /Path
             self.send_response(301, 'Moved Permanently')
-            self.send_header('Location', f'http://{self.headers["Host"]}/Path')
+            self.send_header('Location', '/Path')
             self.send_header('Content-Length', '0')
             self.end_headers()
         elif self.path == '/Path':
@@ -1489,7 +1473,7 @@ class CaseSensitiveHandler(BaseHTTPRequestHandler):
 )
 def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     """Test that case-sensitive checking is the default behavior."""
-    with serve_application(app, CaseSensitiveHandler) as address:
+    with serve_application(app, CapitalisePathHandler) as address:
         app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -1498,9 +1482,7 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
 
     # With case-sensitive checking, a URL that redirects to different case
     # should be marked as redirected
-    lowercase_uri = f'http://{address}/path'
-    assert lowercase_uri in rowsby, f'Expected {lowercase_uri} to be checked'
-    assert rowsby[lowercase_uri]['status'] == 'redirected'
+    assert rowsby[f'http://{address}/path']['status'] == 'redirected'
 
 
 @pytest.mark.sphinx(
@@ -1511,7 +1493,7 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
 )
 def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
     """Test that linkcheck_case_sensitive=False ignores case differences in URLs."""
-    with serve_application(app, CaseSensitiveHandler) as address:
+    with serve_application(app, CapitalisePathHandler) as address:
         app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -1520,6 +1502,4 @@ def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
 
     # With case-insensitive checking, a URL that differs only in case
     # should be marked as working
-    lowercase_uri = f'http://{address}/path'
-    assert lowercase_uri in rowsby, f'Expected {lowercase_uri} to be checked'
-    assert rowsby[lowercase_uri]['status'] == 'working'
+    assert rowsby[f'http://{address}/path']['status'] == 'working'
