@@ -244,7 +244,7 @@ def _get_docstring_lines(
             return []
         return [prepare_docstring(docstring, tab_width)]
 
-    if props.obj_type == 'attribute':
+    if props.obj_type in {'attribute', 'type'}:
         # Check the attribute has a docstring-comment
         comment = _get_attribute_comment(
             parent=parent, obj_path=props.parts, attrname=props.parts[-1]
