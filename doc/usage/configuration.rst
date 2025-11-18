@@ -3821,8 +3821,11 @@ and the number of workers to use.
    whether a hyperlink's destination is the same as the URL
    written in the documentation.
 
-   By default, *linkcheck* requires the destination URL to match the written URL case-sensitively.  This means that a link to ``http://webserver.test/USERNAME`` in
-   the documentation that the server redirects to ``http://webserver.test/username`` will be reported as ``redirected``.
+   By default, *linkcheck* requires the destination URL to match the written
+   URL case-sensitively.  This means that a link to
+   ``http://webserver.test/USERNAME`` in the documentation that the server
+   redirects to ``http://webserver.test/username`` will be reported as
+   ``redirected``.
 
    To allow a more lenient URL comparison, that will report the previous case as
    ``working`` instead, configure this setting to ``False``.

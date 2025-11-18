@@ -850,7 +850,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     app.add_config_value('linkcheck_case_sensitive', True, '', types=frozenset({bool}))
     # Deprecated config value for backward compatibility
-    app.add_config_value('linkcheck_case_insensitive', None, '', types=frozenset({bool, type(None)}))
+    app.add_config_value(
+        'linkcheck_case_insensitive', None, '', types=frozenset({bool, type(None)})
+    )
 
     app.add_event('linkcheck-process-uri')
 
