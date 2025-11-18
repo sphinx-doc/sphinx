@@ -1469,7 +1469,6 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
     'linkcheck',
     testroot='linkcheck-case-check',
     freshenv=True,
-    confoverrides={'linkcheck_case_sensitive': True},
 )
 def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     """Test that case-sensitive checking is the default behavior."""
@@ -1480,7 +1479,7 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     rows = [json.loads(x) for x in content.splitlines()]
     rowsby = {row['uri']: row for row in rows}
 
-    # With case-sensitive checking, a URL that redirects to different case
+    # With case-sensitive checking (default), a URL that redirects to different case
     # should be marked as redirected
     assert rowsby[f'http://{address}/path']['status'] == 'redirected'
 
@@ -1489,10 +1488,10 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     'linkcheck',
     testroot='linkcheck-case-check',
     freshenv=True,
-    confoverrides={'linkcheck_case_sensitive': False},
+    confoverrides={'linkcheck_case_insensitive': [r'http://localhost:\d+/.*']},
 )
 def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
-    """Test that linkcheck_case_sensitive=False ignores case differences in URLs."""
+    """Test that URLs matching linkcheck_case_insensitive patterns ignore case differences."""
     with serve_application(app, CapitalisePathHandler) as address:
         app.build()
 
@@ -1500,6 +1499,6 @@ def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
     rows = [json.loads(x) for x in content.splitlines()]
     rowsby = {row['uri']: row for row in rows}
 
-    # With case-insensitive checking, a URL that differs only in case
+    # With case-insensitive pattern matching, a URL that differs only in case
     # should be marked as working
     assert rowsby[f'http://{address}/path']['status'] == 'working'

@@ -3813,27 +3813,35 @@ and the number of workers to use.
 
    .. versionadded:: 7.3
 
-.. confval:: linkcheck_case_sensitive
-   :type: :code-py:`bool`
-   :default: :code-py:`True`
+.. confval:: linkcheck_case_insensitive
+   :type: :code-py:`list` of :code-py:`str`
+   :default: :code-py:`[]`
 
-   This setting controls how the *linkcheck* builder decides
-   whether a hyperlink's destination is the same as the URL
-   written in the documentation.
+   A list of regular expressions that match URLs for which the *linkcheck*
+   builder should perform case-insensitive comparisons. This is useful for
+   links to websites that normalise URL casing (for example, GitHub) or
+   servers that are case-insensitive (for example, Windows-based servers).
 
-   By default, *linkcheck* requires the destination URL to match the written
-   URL case-sensitively.  This means that a link to
-   ``http://webserver.test/USERNAME`` in the documentation that the server
-   redirects to ``http://webserver.test/username`` will be reported as
-   ``redirected``.
+   By default, *linkcheck* requires the destination URL to match the
+   documented URL case-sensitively. For example, a link to
+   ``http://example.com/PATH`` that redirects to ``http://example.com/path``
+   will be reported as ``redirected``.
 
-   To allow a more lenient URL comparison, that will report the previous case as
-   ``working`` instead, configure this setting to ``False``.
+   If the URL matches a pattern in this list, such redirects will instead be
+   reported as ``working``.
+
+   For example, to treat all GitHub URLs as case-insensitive:
+
+   .. code-block:: python
+
+      linkcheck_case_insensitive = [
+          r'https://github\.com/.*',
+      ]
 
    .. note::
 
-      HTML anchor checking is always case-sensitive, and is
-      not affected by this setting.
+      HTML anchor checking is always case-sensitive and is not affected by
+      this setting.
 
    .. versionadded:: 8.2
 

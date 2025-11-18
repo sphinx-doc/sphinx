@@ -409,7 +409,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
-        self.case_insensitive = not config.linkcheck_case_sensitive
+        self.case_insensitive_patterns: list[re.Pattern[str]] = list(
+            map(re.compile, config.linkcheck_case_insensitive)
+        )
 
         self._session = requests._Session(
             _ignored_redirects=tuple(map(re.compile, config.linkcheck_ignore))
@@ -630,11 +632,16 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         netloc = urlsplit(req_url).netloc
         self.rate_limits.pop(netloc, None)
 
+        # Check if URL should be compared case-insensitively based on patterns
+        is_case_insensitive = any(
+            pattern.match(req_url) for pattern in self.case_insensitive_patterns
+        )
+
         # Compare URLs, optionally case-insensitively
         def _normalise_url(url: str) -> str:
             """Reduces a URL to a normal/equality-comparable form."""
             normalised_url = url.rstrip('/')
-            if self.case_insensitive:
+            if is_case_insensitive:
                 # Only casefold the URL before the fragment; fragments are case-sensitive
                 if '#' in normalised_url:
                     url_part, fragment = normalised_url.split('#', 1)
@@ -833,7 +840,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
     )
-    app.add_config_value('linkcheck_case_sensitive', True, '', types=frozenset({bool}))
+    app.add_config_value(
+        'linkcheck_case_insensitive', [], '', types=frozenset({list, tuple})
+    )
 
     app.add_event('linkcheck-process-uri')
 
