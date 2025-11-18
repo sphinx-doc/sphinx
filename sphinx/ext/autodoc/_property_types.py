@@ -51,7 +51,6 @@ class _ItemProperties:
     #: The item's signature lines, for use in the directive
     signatures: tuple[str, ...] = ()
 
-    _docstrings: Sequence[Sequence[str]] | None = None
     _docstrings_has_hide_value: bool = False
     _obj: Any
     _obj___module__: str | None
@@ -82,6 +81,12 @@ class _ItemProperties:
     @property
     def _groupwise_order_key(self) -> int:
         return 0
+
+    @property
+    def canonical_module_name(self) -> str:
+        if self._obj___module__ is not None:
+            return self._obj___module__
+        return self.module_name
 
 
 @dataclasses.dataclass(frozen=False, kw_only=True, slots=True)

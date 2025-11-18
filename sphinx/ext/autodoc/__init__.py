@@ -25,6 +25,7 @@ from sphinx.ext.autodoc._directive_options import (
 )
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
 from sphinx.ext.autodoc._member_finder import ObjectMember, special_member_re
+from sphinx.ext.autodoc._names import py_ext_sig_re
 from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS, UNINITIALIZED_ATTR
 from sphinx.ext.autodoc._sentinels import (
     INSTANCE_ATTR as INSTANCEATTR,
@@ -33,7 +34,7 @@ from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR as SLOTSATTR,
 )
 from sphinx.ext.autodoc.directive import AutodocDirective
-from sphinx.ext.autodoc.importer import py_ext_sig_re
+from sphinx.ext.autodoc.typehints import _merge_typehints
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -140,15 +141,20 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'autodoc_inherit_docstrings', True, 'env', types=frozenset({bool})
     )
+    app.add_config_value(
+        'autodoc_preserve_defaults', False, 'env', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'autodoc_use_type_comments', True, 'env', types=frozenset({bool})
+    )
+
     app.add_event('autodoc-before-process-signature')
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
     app.add_event('autodoc-process-bases')
 
-    app.setup_extension('sphinx.ext.autodoc.preserve_defaults')
-    app.setup_extension('sphinx.ext.autodoc.type_comment')
-    app.setup_extension('sphinx.ext.autodoc.typehints')
+    app.connect('object-description-transform', _merge_typehints)
 
     return {
         'version': sphinx.__display_version__,
