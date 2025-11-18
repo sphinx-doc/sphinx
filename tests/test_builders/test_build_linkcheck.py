@@ -1471,7 +1471,7 @@ class CaseSensitiveHandler(BaseHTTPRequestHandler):
 
 @pytest.mark.sphinx(
     'linkcheck',
-    testroot='linkcheck-localserver',
+    testroot='linkcheck-case-check',
     freshenv=True,
     confoverrides={'linkcheck_case_insensitive': False},
 )
@@ -1501,14 +1501,13 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     # With case-sensitive checking, a URL that redirects to different case
     # should be marked as redirected
     lowercase_uri = f'http://{address}/path'
-    if lowercase_uri in rowsby:
-        # Should be redirected because case doesn't match
-        assert rowsby[lowercase_uri]['status'] == 'redirected'
+    assert lowercase_uri in rowsby, f'Expected {lowercase_uri} to be checked'
+    assert rowsby[lowercase_uri]['status'] == 'redirected'
 
 
 @pytest.mark.sphinx(
     'linkcheck',
-    testroot='linkcheck-localserver',
+    testroot='linkcheck-case-check',
     freshenv=True,
     confoverrides={'linkcheck_case_insensitive': True},
 )
@@ -1537,6 +1536,5 @@ def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
     # With case-insensitive checking, a URL that differs only in case
     # should be marked as working
     lowercase_uri = f'http://{address}/path'
-    if lowercase_uri in rowsby:
-        # Should be working because case is ignored
-        assert rowsby[lowercase_uri]['status'] == 'working'
+    assert lowercase_uri in rowsby, f'Expected {lowercase_uri} to be checked'
+    assert rowsby[lowercase_uri]['status'] == 'working'
