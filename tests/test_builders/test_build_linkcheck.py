@@ -1450,7 +1450,7 @@ class CaseSensitiveHandler(BaseHTTPRequestHandler):
         if self.path == '/path':
             # Redirect lowercase /path to uppercase /Path
             self.send_response(301, 'Moved Permanently')
-            self.send_header('Location', f'http://{self.headers["Host"]}/Path')
+            self.send_header('Location', '/Path')
             self.send_header('Content-Length', '0')
             self.end_headers()
         elif self.path == '/Path':
