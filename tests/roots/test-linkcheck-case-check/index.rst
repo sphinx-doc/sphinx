@@ -1,1 +1,3 @@
-`local server path <http://localhost:7777/path>`_
+`path1 <http://localhost:7777/path1>`_
+
+`path2 <http://localhost:7777/path2>`_
