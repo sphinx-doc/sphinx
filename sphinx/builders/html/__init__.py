@@ -571,7 +571,7 @@ class StandaloneHTMLBuilder(Builder):
             }
         self.globalcontext |= self.config.html_context
 
-        if self.copysource:
+        if self.config.html_copy_source:
             # Create _sources
             ensuredir(self._sources_dir)
 
