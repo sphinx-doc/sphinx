@@ -1442,18 +1442,37 @@ def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
 
 
 class CapitalisePathHandler(BaseHTTPRequestHandler):
-    """Simple test server that capitalises URL paths via redirects."""
+    """Test server that capitalises URL paths via redirects."""
 
     protocol_version = 'HTTP/1.1'
 
-    def do_GET(self):
-        if self.path == '/path':
-            # Redirect lowercase /path to uppercase /Path
+    def do_HEAD(self):
+        # Use same logic as GET but don't send body
+        if self.path.startswith('/') and len(self.path) > 1 and self.path[1:].islower():
+            # Redirect lowercase paths to capitalized versions
             self.send_response(301, 'Moved Permanently')
-            self.send_header('Location', '/Path')
+            self.send_header('Location', '/' + self.path[1:].capitalize())
             self.send_header('Content-Length', '0')
             self.end_headers()
-        elif self.path == '/Path':
+        elif self.path.startswith('/') and len(self.path) > 1 and self.path[1].isupper() and self.path[2:].islower():
+            # Serve capitalized paths
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+        else:
+            self.send_response(404, 'Not Found')
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+
+    def do_GET(self):
+        if self.path.startswith('/') and len(self.path) > 1 and self.path[1:].islower():
+            # Redirect lowercase paths to capitalized versions
+            self.send_response(301, 'Moved Permanently')
+            self.send_header('Location', '/' + self.path[1:].capitalize())
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+        elif self.path.startswith('/') and len(self.path) > 1 and self.path[1].isupper() and self.path[2:].islower():
+            # Serve capitalized paths
             content = b'ok\n\n'
             self.send_response(200, 'OK')
             self.send_header('Content-Length', str(len(content)))
@@ -1479,9 +1498,10 @@ def test_linkcheck_case_sensitive(app: SphinxTestApp) -> None:
     rows = [json.loads(x) for x in content.splitlines()]
     rowsby = {row['uri']: row for row in rows}
 
-    # With case-sensitive checking (default), a URL that redirects to different case
+    # With case-sensitive checking (default), URLs that redirect to different case
     # should be marked as redirected
-    assert rowsby[f'http://{address}/path']['status'] == 'redirected'
+    assert rowsby[f'http://{address}/path1']['status'] == 'redirected'
+    assert rowsby[f'http://{address}/path2']['status'] == 'redirected'
 
 
 @pytest.mark.sphinx(
@@ -1499,6 +1519,29 @@ def test_linkcheck_case_insensitive(app: SphinxTestApp) -> None:
     rows = [json.loads(x) for x in content.splitlines()]
     rowsby = {row['uri']: row for row in rows}
 
-    # With case-insensitive pattern matching, a URL that differs only in case
+    # With case-insensitive pattern matching, URLs that differ only in case
     # should be marked as working
-    assert rowsby[f'http://{address}/path']['status'] == 'working'
+    assert rowsby[f'http://{address}/path1']['status'] == 'working'
+    assert rowsby[f'http://{address}/path2']['status'] == 'working'
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-case-check',
+    freshenv=True,
+    confoverrides={'linkcheck_case_insensitive': [r'http://localhost:\d+/path1']},
+)
+def test_linkcheck_mixed_case_sensitivity(app: SphinxTestApp) -> None:
+    """Test both case-sensitive and case-insensitive checking in one test."""
+    with serve_application(app, CapitalisePathHandler) as address:
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = [json.loads(x) for x in content.splitlines()]
+    rowsby = {row['uri']: row for row in rows}
+
+    # path1 matches case-insensitive pattern → should be 'working'
+    assert rowsby[f'http://{address}/path1']['status'] == 'working'
+
+    # path2 doesn't match pattern → should be 'redirected'
+    assert rowsby[f'http://{address}/path2']['status'] == 'redirected'
