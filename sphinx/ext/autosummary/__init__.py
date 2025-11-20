@@ -275,7 +275,7 @@ class Autosummary(SphinxDirective):
                     return import_ivar_by_name(name, prefixes)
                 except ImportError as exc2:
                     if exc2.__cause__:
-                        errors: list[BaseException] = [*exc.exceptions, exc2.__cause__]
+                        errors: list[Exception] = [*exc.exceptions, exc2.__cause__]
                     else:
                         errors = [*exc.exceptions, exc2]
 
@@ -609,18 +609,11 @@ def limited_join(
 
 # -- Importing items -----------------------------------------------------------
 
-
-class ImportExceptionGroup(Exception):
+class ImportExceptionGroup(ExceptionGroup):
     """Exceptions raised during importing the target objects.
 
-    It contains an error messages and a list of exceptions as its arguments.
+    It contains an error message and a list of exceptions as its arguments.
     """
-
-    def __init__(
-        self, message: str | None, exceptions: Sequence[BaseException]
-    ) -> None:
-        super().__init__(message)
-        self.exceptions = list(exceptions)
 
 
 def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
@@ -681,15 +674,16 @@ def import_by_name(
             tried.append(prefixed_name)
             errors.append(exc)
 
-    exceptions: list[BaseException] = functools.reduce(
+    exceptions: list[Exception] = functools.reduce(
         operator.iadd, (e.exceptions for e in errors), []
     )
-    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
+    msg = f'could not import {" or ".join(tried)}'
+    raise ImportExceptionGroup(msg, exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
     """Import a Python object given its full name."""
-    errors: list[BaseException] = []
+    errors: list[Exception] = []
 
     try:
         name_parts = name.split('.')

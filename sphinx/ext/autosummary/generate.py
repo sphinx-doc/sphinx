@@ -670,7 +670,7 @@ def generate_autosummary_docs(
                 qualname = name.replace(modname + '.', '')
             except ImportError as exc2:
                 if exc2.__cause__:
-                    exceptions: list[BaseException] = [*exc.exceptions, exc2.__cause__]
+                    exceptions: list[Exception] = [*exc.exceptions, exc2.__cause__]
                 else:
                     exceptions = [*exc.exceptions, exc2]
 
