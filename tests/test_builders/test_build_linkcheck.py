@@ -1454,7 +1454,12 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
             self.send_header('Location', '/' + self.path[1:].capitalize())
             self.send_header('Content-Length', '0')
             self.end_headers()
-        elif self.path.startswith('/') and len(self.path) > 1 and self.path[1].isupper() and self.path[2:].islower():
+        elif (
+            self.path.startswith('/')
+            and len(self.path) > 1
+            and self.path[1].isupper()
+            and self.path[2:].islower()
+        ):
             # Serve capitalized paths
             self.send_response(200, 'OK')
             self.send_header('Content-Length', '0')
@@ -1471,7 +1476,12 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
             self.send_header('Location', '/' + self.path[1:].capitalize())
             self.send_header('Content-Length', '0')
             self.end_headers()
-        elif self.path.startswith('/') and len(self.path) > 1 and self.path[1].isupper() and self.path[2:].islower():
+        elif (
+            self.path.startswith('/')
+            and len(self.path) > 1
+            and self.path[1].isupper()
+            and self.path[2:].islower()
+        ):
             # Serve capitalized paths
             content = b'ok\n\n'
             self.send_response(200, 'OK')
