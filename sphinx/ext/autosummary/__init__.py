@@ -275,7 +275,7 @@ class Autosummary(SphinxDirective):
                     return import_ivar_by_name(name, prefixes)
                 except ImportError as exc2:
                     if exc2.__cause__:
-                        errors: list[Exception] = [*exc.exceptions, exc2.__cause__]
+                        errors: list[BaseException] = [*exc.exceptions, exc2.__cause__]
                     else:
                         errors = [*exc.exceptions, exc2]
 
@@ -609,7 +609,7 @@ def limited_join(
 
 # -- Importing items -----------------------------------------------------------
 
-class ImportExceptionGroup(ExceptionGroup):
+class ImportExceptionGroup(BaseExceptionGroup):
     """Exceptions raised during importing the target objects.
 
     It contains an error message and a list of exceptions as its arguments.
@@ -674,7 +674,7 @@ def import_by_name(
             tried.append(prefixed_name)
             errors.append(exc)
 
-    exceptions: list[Exception] = functools.reduce(
+    exceptions: list[BaseException] = functools.reduce(
         operator.iadd, (e.exceptions for e in errors), []
     )
     msg = f'could not import {" or ".join(tried)}'
@@ -683,7 +683,7 @@ def import_by_name(
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
     """Import a Python object given its full name."""
-    errors: list[Exception] = []
+    errors: list[BaseException] = []
 
     try:
         name_parts = name.split('.')
