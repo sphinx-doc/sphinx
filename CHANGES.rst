@@ -68,6 +68,8 @@ Features added
   Patch by Jean-François B.
 * #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #14075: autosummary: Provide more context in import exception stack traces.
+  Patch by Philipp A.
 
 Bugs fixed
 ----------
