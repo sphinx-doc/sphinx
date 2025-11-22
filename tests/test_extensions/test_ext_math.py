@@ -126,7 +126,7 @@ def test_mathjax_options(app: SphinxTestApp) -> None:
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
     assert (
-        '<script async="async" integrity="sha384-0123456789" src="%s"></script>'
+        '<script defer="defer" integrity="sha384-0123456789" src="%s"></script>'
     ) % MATHJAX_URL in content
 
 
@@ -460,7 +460,7 @@ def test_mathjax_path(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<script async="async" src="_static/MathJax.js"></script>' in content
+    assert '<script defer="defer" src="_static/MathJax.js"></script>' in content
 
 
 @pytest.mark.sphinx(
@@ -476,7 +476,7 @@ def test_mathjax_path_config(app: SphinxTestApp) -> None:
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
-        '<script async="async" src="_static/MathJax.js?config=scipy-mathjax"></script>'
+        '<script defer="defer" src="_static/MathJax.js?config=scipy-mathjax"></script>'
     ) in content
 
 

@@ -113,12 +113,12 @@ def install_mathjax(
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
         if 'async' not in options and 'defer' not in options:
-            if app.config.mathjax3_config:
-                # Load MathJax v3/v4 via "defer" method
-                options['defer'] = 'defer'
-            else:
+            if app.config.mathjax2_config:
                 # Load other MathJax via "async" method
                 options['async'] = 'async'
+            else:
+                # Load MathJax v3/v4 via "defer" method
+                options['defer'] = 'defer'
         builder.add_js_file(app.config.mathjax_path, **options)
 
 
