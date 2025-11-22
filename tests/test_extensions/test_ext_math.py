@@ -126,10 +126,8 @@ def test_mathjax_options(app: SphinxTestApp) -> None:
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
     assert (
-        '<script async="async" integrity="sha384-0123456789" '
-        'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
-        '</script>'
-    ) in content
+        '<script async="async" integrity="sha384-0123456789" src="%s"></script>'
+    ) % MATHJAX_URL in content
 
 
 @pytest.mark.sphinx(
