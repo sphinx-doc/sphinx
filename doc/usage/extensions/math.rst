@@ -263,16 +263,30 @@ Sphinx but is set to automatically include it from a third-party site.
       Allow to change the loading method (async or defer) of MathJax if "async"
       or "defer" key is set.
 
-.. confval:: mathjax3_config
+.. confval:: mathjax4_config
    :type: :code-py:`dict[str, Any] | None`
    :default: :code-py:`None`
 
-   The configuration options for MathJax v3 (which is used by default).
+   The configuration options for MathJax v4 (which is used by default).
    The given dictionary is assigned to the JavaScript variable
    ``window.MathJax``.
    For more information, please read `Configuring MathJax`__.
 
    __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
+
+   .. versionadded:: ?.?
+
+.. confval:: mathjax3_config
+   :type: :code-py:`dict[str, Any] | None`
+   :default: :code-py:`None`
+
+   The configuration options for MathJax v3 (which can be loaded via
+   :confval:`mathjax_path`).
+   The given dictionary is assigned to the JavaScript variable
+   ``window.MathJax``.
+   For more information, please read `Configuring MathJax`__.
+
+   __ https://docs.mathjax.org/en/v3.2/web/configuration.html#configuration
 
    .. versionadded:: 4.0
 
