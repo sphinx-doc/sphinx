@@ -221,11 +221,11 @@ Sphinx but is set to automatically include it from a third-party site.
 
 .. note::
 
-   Version 8.3 allows to configure MathJax using a Javascript file by passing a string to
-   ``mathjax3_config`` / ``mathjax4_config``. This is useful for more complex configurations
-   that are difficult to express using a Python dictionary. Some examples, MathJax 4.0
-   offers so called `Pre- and Post-Filters <MathJaxFilters_>`_ that can be configured this way.
-
+   Version 8.3 allows to configure MathJax using a JavaScript file by passing a
+   relative file path as a string to ``mathjax3_config``/``mathjax4_config``.
+   This is useful for more complex configurations that are difficult to express
+   using a Python dictionary. For example, MathJax 4.0 offers so called
+   `Pre- and Post-Filters <MathJaxFilters_>`_ that can be configured this way.
 
 .. confval:: mathjax_path
    :type: :code-py:`str`
