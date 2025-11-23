@@ -196,6 +196,7 @@ are built:
 .. module:: sphinx.ext.mathjax
    :synopsis: Render math using JavaScript via MathJax.
 
+
 .. warning::
    Version 4.0 changes the version of MathJax used to version 3. You may need to
    override ``mathjax_path`` to
@@ -216,6 +217,14 @@ Sphinx but is set to automatically include it from a third-party site.
 
    You should use the math :rst:dir:`directive <math>` and
    :rst:role:`role <math>`, not the native MathJax ``$$``, ``\(``, etc.
+
+
+.. note::
+
+   Version 8.3 allows to configure MathJax using a Javascript file by passing a string to
+   ``mathjax3_config`` / ``mathjax4_config``. This is useful for more complex configurations
+   that are difficult to express using a Python dictionary. Some examples, MathJax 4.0
+   offers so called `Pre- and Post-Filters <MathJaxFilters_>`_ that can be configured this way.
 
 
 .. confval:: mathjax_path
@@ -276,6 +285,7 @@ Sphinx but is set to automatically include it from a third-party site.
    __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
 
    .. versionadded:: 4.0
+   .. versionchanged:: 8.3 Now also accepts a string with the path to a JavaScript file.
 
 .. confval:: mathjax2_config
    :type: :code-py:`dict[str, Any] | None`
@@ -361,3 +371,4 @@ Config value:
 .. _MathJax: https://www.mathjax.org/
 .. _jsMath: https://www.math.union.edu/~dpvc/jsMath/
 .. _LaTeX preview package: https://www.gnu.org/software/auctex/preview-latex.html
+.. _MathJaxFilters: https://docs.mathjax.org/en/v4.0/advanced/synchronize/filters.html#mathjax-pre-and-post-filters
