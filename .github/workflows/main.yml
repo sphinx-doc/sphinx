@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - ".github/workflows/main.yml"
+      - ".pytest.toml"
       - "sphinx/**"
       - "tests/**"
   pull_request:
     paths:
       - ".github/workflows/main.yml"
+      - ".pytest.toml"
       - "sphinx/**"
       - "tests/**"
 
