@@ -152,6 +152,8 @@ Bugs fixed
   Patch by Jean-François B.
 * #13916: HTML Search: do not clear text fragments from the URL on page load.
   Patch by Harmen Stoppels.
+* #13944: autodoc: show traceback during import in human readable representation.
+  Patch by Florian Best.
 
 
 Testing
