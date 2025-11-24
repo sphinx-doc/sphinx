@@ -80,7 +80,7 @@ const SphinxHighlight = {
       || url.searchParams.get("highlight")
       || "";
     localStorage.removeItem("sphinx_highlight_terms");
-    // run replaceState only if "highlight" is present; otherwise it
+    // Update history only if '?highlight' is present; otherwise it
     // clears text fragments (not set in window.location by the browser)
     if (url.searchParams.has("highlight")) {
       url.searchParams.delete("highlight");
