@@ -1456,7 +1456,7 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
         elif (
             self.path.startswith('/') and len(self.path) > 1 and self.path[1:].isupper()
         ):
-            # Serve uppercase paths
+            # Serve uppercase paths (no redirect)
             content = b'ok\n\n'
             self.send_response(200, 'OK')
             self.send_header('Content-Length', str(len(content)))
@@ -1474,11 +1474,12 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
     freshenv=True,
 )
 @pytest.mark.parametrize(
-    ('case_insensitive_pattern', 'expected_path1', 'expected_path2'),
+    ('case_insensitive_pattern', 'expected_path1', 'expected_path2', 'expected_path3'),
     [
-        ([], 'redirected', 'redirected'),  # default: case-sensitive
+        ([], 'redirected', 'redirected', 'working'),  # default: case-sensitive
         (
             [r'http://localhost:\d+/.*'],
+            'working',
             'working',
             'working',
         ),  # all URLs case-insensitive
@@ -1486,6 +1487,7 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
             [r'http://localhost:\d+/path1'],
             'working',
             'redirected',
+            'working',
         ),  # only path1 case-insensitive
     ],
 )
@@ -1494,6 +1496,7 @@ def test_linkcheck_case_sensitivity(
     case_insensitive_pattern: list[str],
     expected_path1: str,
     expected_path2: str,
+    expected_path3: str,
 ) -> None:
     """Test case-sensitive and case-insensitive URL checking."""
     app.config.linkcheck_case_insensitive = case_insensitive_pattern
@@ -1508,3 +1511,4 @@ def test_linkcheck_case_sensitivity(
     # Verify expected status for each path
     assert rowsby[f'http://{address}/path1']['status'] == expected_path1
     assert rowsby[f'http://{address}/path2']['status'] == expected_path2
+    assert rowsby[f'http://{address}/PATH3']['status'] == expected_path3
