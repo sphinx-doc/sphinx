@@ -71,6 +71,13 @@ Features added
 * #14023: Add the new :confval:`mathjax_config_path` option
   to load MathJax configuration from a file.
   Patch by Randolf Scholz and Adam Turner.
+* #14022: Use MathJax v4 by default in the :mod:`sphinx.ext.mathjax` extension,
+  from v3 previously.
+  To keep using an older version, set the :confval:`mathjax_path` option.
+  Also add the new :confval:`mathjax4_config` option to configure MathJax v4.
+  Note that MathJax v3 is mostly compatible with MathJax v4, so existing
+  :confval:`mathjax3_config` settings should not need to change.
+  Patch by Matthias Geier.
 
 Bugs fixed
 ----------
