@@ -24,4 +24,8 @@ markers = [
     "apidoc",
 ]
 testpaths = ["tests"]
-strict = true
+
+strict_config = true
+strict_markers = true
+#strict_parametrization_ids = true
+strict_xfail = true
