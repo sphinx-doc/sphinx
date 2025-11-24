@@ -193,6 +193,12 @@ def test_text_inconsistency_warnings(app):
         }
         + warning_fmt
         % {
+            'reftype': 'citation references',
+            'original': "\\['\\[ref2\\]_'\\]",
+            'translated': "\\['\\[ref3\\]_'\\]",
+        }
+        + warning_fmt
+        % {
             'reftype': 'references',
             'original': "\\['reference_'\\]",
             'translated': "\\['reference_', 'reference_'\\]",

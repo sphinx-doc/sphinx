@@ -197,8 +197,8 @@ are built:
    :synopsis: Render math using JavaScript via MathJax.
 
 .. warning::
-   Version 4.0 changes the version of MathJax used to version 3. You may need to
-   override ``mathjax_path`` to
+   Sphinx 4.0 changes the version of MathJax used to version 3.
+   You may need to override :confval:`mathjax_path` to
    ``https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML``
    or update your configuration options for version 3
    (see :confval:`mathjax3_config`).
@@ -216,6 +216,13 @@ Sphinx but is set to automatically include it from a third-party site.
 
    You should use the math :rst:dir:`directive <math>` and
    :rst:role:`role <math>`, not the native MathJax ``$$``, ``\(``, etc.
+
+.. tip::
+
+   MathJax configuration can be supplied in a JavaScript file
+   by using the :confval:`mathjax_config_path` option.
+   This is useful for more complex configurations that are hard to express
+   only using a Python dictionary, for example JavaScript functions.
 
 
 .. confval:: mathjax_path
@@ -268,8 +275,9 @@ Sphinx but is set to automatically include it from a third-party site.
    :default: :code-py:`None`
 
    The configuration options for MathJax v3 (which is used by default).
-   The given dictionary is assigned to the JavaScript variable
-   ``window.MathJax``.
+   If given, the dictionary is converted to a JSON object
+   and assigned to the JavaScript variable ``window.MathJax``.
+
    For more information, please read `Configuring MathJax`__.
 
    __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
@@ -317,6 +325,28 @@ Sphinx but is set to automatically include it from a third-party site.
 
       This has been renamed to :confval:`mathjax2_config`.
       :confval:`mathjax_config` is still supported for backwards compatibility.
+
+.. confval:: mathjax_config_path
+   :type: :code-py:`str`
+   :default: :code-py:`''`
+
+   If given, this must be the path of a JavaScript (:file:`.js`) file
+   (path relative to the :term:`configuration directory`)
+   that contains the configuration options for MathJax.
+   Example:
+
+   .. code-block:: python
+
+      mathjax_config_path = 'mathjax-config.js'
+
+   .. important:: The user is responsible for ensuring that the given file
+                  is compatible with the version of MathJax being used.
+
+   For more information, please read `Configuring MathJax`__.
+
+   __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
+
+   .. versionadded:: 8.3
 
 :mod:`sphinxcontrib.jsmath` -- Render math via JavaScript
 ---------------------------------------------------------

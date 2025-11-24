@@ -135,10 +135,9 @@ class _NodeUpdater:
         warning_msg: str,
     ) -> None:
         """Warn about mismatches between references in original and translated content."""
-        # FIXME: could use a smarter strategy than len(old_refs) == len(new_refs)
-        if not self.noqa and len(old_refs) != len(new_refs):
-            old_ref_rawsources = [ref.rawsource for ref in old_refs]
-            new_ref_rawsources = [ref.rawsource for ref in new_refs]
+        old_ref_rawsources = [ref.rawsource for ref in old_refs]
+        new_ref_rawsources = [ref.rawsource for ref in new_refs]
+        if not self.noqa and old_ref_rawsources != new_ref_rawsources:
             logger.warning(
                 warning_msg.format(old_ref_rawsources, new_ref_rawsources),
                 location=self.node,
