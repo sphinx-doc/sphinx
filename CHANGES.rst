@@ -76,6 +76,8 @@ Features added
   This is useful for links to websites that normalise URL casing (e.g. GitHub)
   or case-insensitive servers.
   Patch by Fazeel Usmani and James Addison.
+* #14075: autosummary: Provide more context in import exception stack traces.
+  Patch by Philipp A.
 
 Bugs fixed
 ----------

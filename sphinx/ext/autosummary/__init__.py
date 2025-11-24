@@ -610,17 +610,11 @@ def limited_join(
 # -- Importing items -----------------------------------------------------------
 
 
-class ImportExceptionGroup(Exception):
+class ImportExceptionGroup(BaseExceptionGroup):
     """Exceptions raised during importing the target objects.
 
-    It contains an error messages and a list of exceptions as its arguments.
+    It contains an error message and a list of exceptions as its arguments.
     """
-
-    def __init__(
-        self, message: str | None, exceptions: Sequence[BaseException]
-    ) -> None:
-        super().__init__(message)
-        self.exceptions = list(exceptions)
 
 
 def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
@@ -684,7 +678,8 @@ def import_by_name(
     exceptions: list[BaseException] = functools.reduce(
         operator.iadd, (e.exceptions for e in errors), []
     )
-    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
+    msg = f'could not import {" or ".join(tried)}'
+    raise ImportExceptionGroup(msg, exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
