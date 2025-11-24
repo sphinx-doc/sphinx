@@ -126,8 +126,10 @@ def test_mathjax_options(app: SphinxTestApp) -> None:
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
     assert (
-        '<script defer="defer" integrity="sha384-0123456789" src="%s"></script>'
-    ) % MATHJAX_URL in content
+        '<script defer="defer" integrity="sha384-0123456789" '
+        f'src="{MATHJAX_URL}">'
+        '</script>'
+    ) in content
 
 
 @pytest.mark.sphinx(
@@ -390,7 +392,7 @@ def test_mathjax3_config(app: SphinxTestApp) -> None:
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert FAKE_MATHJAX_URL in content
-    assert '<script defer="defer" src="%s">' % FAKE_MATHJAX_URL in content
+    assert f'<script defer="defer" src="{FAKE_MATHJAX_URL}">' in content
     assert '<script>window.MathJax = {"extensions": ["tex2jax.js"]}</script>' in content
 
 
@@ -426,7 +428,7 @@ def test_mathjax2_config(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<script async="async" src="%s">' % FAKE_MATHJAX_URL in content
+    assert f'<script async="async" src="{FAKE_MATHJAX_URL}">' in content
     assert (
         '<script type="text/x-mathjax-config">'
         'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'

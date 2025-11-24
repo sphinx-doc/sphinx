@@ -111,6 +111,10 @@ def install_mathjax(
             body = f'window.MathJax = {json.dumps(app.config.mathjax3_config)}'
             builder.add_js_file('', body=body)
 
+        if app.config.mathjax4_config:
+            body = f'window.MathJax = {json.dumps(app.config.mathjax4_config)}'
+            builder.add_js_file('', body=body)
+
         if app.config.mathjax_config_path:
             config_path = app.confdir / app.config.mathjax_config_path
             if not config_path.exists():
@@ -160,14 +164,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         types=frozenset({dict, NoneType}),
     )
     app.add_config_value(
-        'mathjax4_config', None, 'html', types=frozenset({dict, NoneType})
+        'mathjax3_config', None, 'html', types=frozenset({dict, NoneType})
     )
-    # MathJax v3 and v4 configurations are compatible.
     app.add_config_value(
-        'mathjax3_config',
-        lambda c: c.mathjax4_config,
-        'html',
-        types=frozenset({dict, NoneType}),
+        'mathjax4_config', None, 'html', types=frozenset({dict, NoneType})
     )
     app.add_config_value('mathjax_config_path', '', 'html', types=frozenset({str}))
     app.connect('html-page-context', install_mathjax)

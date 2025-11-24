@@ -196,12 +196,15 @@ are built:
 .. module:: sphinx.ext.mathjax
    :synopsis: Render math using JavaScript via MathJax.
 
-.. warning::
-   Sphinx 4.0 changes the version of MathJax used to version 3.
-   You may need to override :confval:`mathjax_path` to
-   ``https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML``
-   or update your configuration options for version 3
-   (see :confval:`mathjax3_config`).
+.. attention::
+
+   The default version of MathJax changed
+   from version 2 to version 3 in Sphinx 4.0, and
+   from version 3 to version 4 in Sphinx 8.3.
+
+   You may need to override :confval:`mathjax_path` to load an older version,
+   or update your :confval:`configuration options <mathjax4_config>`.
+   In general, MathJax v3 and v4 options are compatible.
 
 .. versionadded:: 1.1
 
@@ -227,7 +230,7 @@ Sphinx but is set to automatically include it from a third-party site.
 
 .. confval:: mathjax_path
    :type: :code-py:`str`
-   :default: :code-py:`'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'`
+   :default: :code-py:`'https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js'`
 
    The path to the JavaScript file to include in the HTML files in order to load
    MathJax.
@@ -251,6 +254,24 @@ Sphinx but is set to automatically include it from a third-party site.
    shared location.
 
    You can also give a full ``https://`` URL different from the CDN URL.
+
+   .. versionchanged:: 4.0
+      The default version of MathJax is now version 3.
+      To keep using MathJax v2, you must explicitly load it via this option.
+      For example:
+
+      .. code-block:: python
+
+         mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
+
+   .. versionchanged:: 8.3
+      The default version of MathJax is now version 4.
+      To keep using MathJax v3, you must explicitly load it via this option.
+      For example:
+
+      .. code-block:: python
+
+         mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 .. confval:: mathjax_options
    :type: :code-py:`dict[str, Any]`
@@ -279,9 +300,16 @@ Sphinx but is set to automatically include it from a third-party site.
    ``window.MathJax``.
    For more information, please read `Configuring MathJax`__.
 
-   __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
+   __ https://docs.mathjax.org/en/stable/web/configuration.html#configuration
 
-   .. versionadded:: ?.?
+
+   For help converting your old MathJax configuration to to the new
+   :confval:`mathjax4_config`, see `Converting your old Configuration to v4`__.
+
+   __ https://docs.mathjax.org/en/stable/web/
+      configuration.html#converting-your-old-configuration-to-v4
+
+   .. versionadded:: 8.3
 
 .. confval:: mathjax3_config
    :type: :code-py:`dict[str, Any] | None`
@@ -291,6 +319,7 @@ Sphinx but is set to automatically include it from a third-party site.
    :confval:`mathjax_path`).
    If given, the dictionary is converted to a JSON object
    and assigned to the JavaScript variable ``window.MathJax``.
+
    For more information, please read `Configuring MathJax`__.
 
    __ https://docs.mathjax.org/en/v3.2/web/configuration.html#configuration
@@ -306,7 +335,7 @@ Sphinx but is set to automatically include it from a third-party site.
    The value is used as a parameter of ``MathJax.Hub.Config()``.
    For more information, please read `Using in-line configuration options`__.
 
-   __ https://docs.mathjax.org/en/v2.7-latest/
+   __ https://docs.mathjax.org/en/v2.7/
       configuration.html#using-in-line-configuration-options
 
    For example::
@@ -315,6 +344,12 @@ Sphinx but is set to automatically include it from a third-party site.
            'extensions': ['tex2jax.js'],
            'jax': ['input/TeX', 'output/HTML-CSS'],
        }
+
+   For help converting your old MathJax configuration to to the new
+   :confval:`mathjax3_config`, see `Converting Your v2 Configuration to v3`__.
+
+   __ https://docs.mathjax.org/en/v3.2/web/
+      configuration.html#converting-your-v2-configuration-to-v3
 
    .. versionadded:: 4.0
 
@@ -325,12 +360,6 @@ Sphinx but is set to automatically include it from a third-party site.
    :default: :code-py:`None`
 
    Former name of :confval:`mathjax2_config`.
-
-   For help converting your old MathJax configuration to to the new
-   :confval:`mathjax3_config`, see `Converting Your v2 Configuration to v3`__.
-
-   __ https://docs.mathjax.org/en/latest/web/
-      configuration.html#converting-your-v2-configuration-to-v3
 
    .. versionadded:: 1.8
 
