@@ -157,8 +157,7 @@ def test_dark_style(app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch) -> None
 
     assert isinstance(app.builder, StandaloneHTMLBuilder)
     assert app.builder.dark_highlighter is not None
-    style = app.builder.dark_highlighter.formatter_args.get('style')
-    assert style is not None
+    style = app.builder.dark_highlighter.formatter_args['style']
     assert style.__name__ == 'MonokaiStyle'
 
     app.build()
