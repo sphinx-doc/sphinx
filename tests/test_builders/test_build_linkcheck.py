@@ -1493,7 +1493,7 @@ def test_linkcheck_case_sensitivity(
     expected_path3: str,
 ) -> None:
     """Test case-sensitive and case-insensitive URL checking."""
-    app.config.linkcheck_case_insensitive = case_insensitive_pattern
+    app.config.linkcheck_case_insensitive_urls = case_insensitive_pattern
 
     with serve_application(app, CapitalisePathHandler) as address:
         app.build()

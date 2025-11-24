@@ -48,11 +48,6 @@ Features added
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner and James Addison.
-* #14046: linkcheck: Add :confval:`linkcheck_case_insensitive` configuration to
-  allow case-insensitive URL comparison for specific URL patterns.
-  This is useful for links to websites that normalise URL casing (for example,
-  GitHub) or case-insensitive servers.
-  Patch by Fazeel Usmani.
 * #13497: Support C domain objects in the table of contents.
 * #13500: LaTeX: add support for ``fontawesome6`` package.
   Patch by Jean-François B.
@@ -76,6 +71,11 @@ Features added
 * #14023: Add the new :confval:`mathjax_config_path` option
   to load MathJax configuration from a file.
   Patch by Randolf Scholz and Adam Turner.
+* #14046: linkcheck: Add the :confval:`linkcheck_case_insensitive_urls` option
+  to allow case-insensitive URL comparison for specific URL patterns.
+  This is useful for links to websites that normalise URL casing (e.g. GitHub)
+  or case-insensitive servers.
+  Patch by Fazeel Usmani and James Addison.
 
 Bugs fixed
 ----------

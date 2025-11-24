@@ -3813,37 +3813,40 @@ and the number of workers to use.
 
    .. versionadded:: 7.3
 
-.. confval:: linkcheck_case_insensitive
-   :type: :code-py:`list` of :code-py:`str`
-   :default: :code-py:`[]`
+.. confval:: linkcheck_case_insensitive_urls
+   :type: :code-py:`Set[str] | Sequence[str]`
+   :default: :code-py:`()`
 
-   A list of regular expressions that match URLs for which the *linkcheck*
+   A collection of regular expressions that match URLs for which the *linkcheck*
    builder should perform case-insensitive comparisons. This is useful for
-   links to websites that normalise URL casing (for example, GitHub) or
-   servers that are case-insensitive (for example, Windows-based servers).
+   links to websites that are case-insensitive or normalise URL casing.
 
    By default, *linkcheck* requires the destination URL to match the
-   documented URL case-sensitively. For example, a link to
-   ``http://example.com/PATH`` that redirects to ``http://example.com/path``
-   will be reported as ``redirected``.
+   documented URL case-sensitively.
+   For example, a link to ``http://example.org/PATH`` that redirects to
+   ``http://example.org/path`` will be reported as ``redirected``.
 
-   If the URL matches a pattern in this list, such redirects will instead be
-   reported as ``working``.
+   If the URL matches a pattern contained in :confval:`!linkcheck_case_insensitive_urls`,
+   it would instead be reported as ``working``.
 
    For example, to treat all GitHub URLs as case-insensitive:
 
    .. code-block:: python
 
-      linkcheck_case_insensitive = [
+      linkcheck_case_insensitive_urls = [
           r'https://github\.com/.*',
       ]
 
-   .. note::
+   Or, to treat all URLs as case-insensitive:
 
-      HTML anchor checking is always case-sensitive and is not affected by
-      this setting.
+   .. code-block:: python
 
-   .. versionadded:: 8.2
+      linkcheck_case_insensitive_urls = ['.*']
+
+   .. note:: URI fragments (HTML anchors) are not affected by this option.
+             They are always checked with case-sensitive comparisons.
+
+   .. versionadded:: 8.3
 
 .. confval:: linkcheck_rate_limit_timeout
    :type: :code-py:`int`
