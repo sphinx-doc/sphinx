@@ -95,29 +95,42 @@ def install_mathjax(
 
     builder = cast('StandaloneHTMLBuilder', app.builder)
     page_has_equations = context.get('has_maths_elements', False)
+
+    # Enable mathjax only if equations exists
     if app.registry.html_assets_policy == 'always' or page_has_equations:
-        # Enable mathjax only if equations exists
         if app.config.mathjax2_config:
             if app.config.mathjax_path == MATHJAX_URL:
                 logger.warning(
                     'mathjax_config/mathjax2_config does not work '
                     'for the current MathJax version, use mathjax4_config instead'
                 )
-            body = 'MathJax.Hub.Config(%s)' % json.dumps(app.config.mathjax2_config)
+            body = f'MathJax.Hub.Config({json.dumps(app.config.mathjax2_config)})'
             builder.add_js_file('', type='text/x-mathjax-config', body=body)
+
         if app.config.mathjax3_config:
-            body = 'window.MathJax = %s' % json.dumps(app.config.mathjax3_config)
+            body = f'window.MathJax = {json.dumps(app.config.mathjax3_config)}'
+            builder.add_js_file('', body=body)
+
+        if app.config.mathjax_config_path:
+            config_path = app.confdir / app.config.mathjax_config_path
+            if not config_path.exists():
+                msg = f'mathjax_config_path file not found: {config_path}'
+                raise ExtensionError(msg)
+            if not config_path.is_file() or config_path.suffix != '.js':
+                msg = f'mathjax_config_path: expected a .js file, but got {config_path}'
+                raise ExtensionError(msg)
+            body = config_path.read_text(encoding='utf-8')
             builder.add_js_file('', body=body)
 
         options = {}
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
         if 'async' not in options and 'defer' not in options:
-            if app.config.mathjax2_config:
-                # Load other MathJax via "async" method
+            if app.config.mathjax2_config or app.config.mathjax_config:
+                # Load old MathJax versions via the 'async' method
                 options['async'] = 'async'
             else:
-                # Load MathJax v3/v4 via "defer" method
+                # Load MathJax v3+ via the 'defer' method
                 options['defer'] = 'defer'
         builder.add_js_file(app.config.mathjax_path, **options)
 
@@ -156,6 +169,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'html',
         types=frozenset({dict, NoneType}),
     )
+    app.add_config_value('mathjax_config_path', '', 'html', types=frozenset({str}))
     app.connect('html-page-context', install_mathjax)
 
     return {
