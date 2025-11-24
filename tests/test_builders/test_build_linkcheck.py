@@ -1453,7 +1453,9 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
             self.send_header('Location', self.path.upper())
             self.send_header('Content-Length', '0')
             self.end_headers()
-        elif self.path.startswith('/') and len(self.path) > 1 and self.path[1:].isupper():
+        elif (
+            self.path.startswith('/') and len(self.path) > 1 and self.path[1:].isupper()
+        ):
             # Serve uppercase paths
             content = b'ok\n\n'
             self.send_response(200, 'OK')
@@ -1472,11 +1474,19 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
     freshenv=True,
 )
 @pytest.mark.parametrize(
-    'case_insensitive_pattern,expected_path1,expected_path2',
+    ('case_insensitive_pattern', 'expected_path1', 'expected_path2'),
     [
         ([], 'redirected', 'redirected'),  # default: case-sensitive
-        ([r'http://localhost:\d+/.*'], 'working', 'working'),  # all URLs case-insensitive
-        ([r'http://localhost:\d+/path1'], 'working', 'redirected'),  # only path1 case-insensitive
+        (
+            [r'http://localhost:\d+/.*'],
+            'working',
+            'working',
+        ),  # all URLs case-insensitive
+        (
+            [r'http://localhost:\d+/path1'],
+            'working',
+            'redirected',
+        ),  # only path1 case-insensitive
     ],
 )
 def test_linkcheck_case_sensitivity(
