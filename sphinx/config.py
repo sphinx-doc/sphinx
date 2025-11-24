@@ -288,7 +288,7 @@ class Config:
         'numfig_secnum_depth': _Opt(1, 'env', frozenset((int, types.NoneType))),
         # numfig_format will be initialized in init_numfig_format()
         'numfig_format': _Opt({}, 'env', frozenset((dict,))),
-        'numfig_reset': _Opt(False, 'env', frozenset((bool,))),
+        'numfig_restart': _Opt(False, 'env', frozenset((bool,))),
         'maximum_signature_line_length': _Opt(
             None, 'env', frozenset((int, types.NoneType))
         ),
