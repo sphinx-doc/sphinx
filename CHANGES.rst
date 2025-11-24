@@ -68,8 +68,8 @@ Features added
   Patch by Jean-François B.
 * #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
-* #14023: Allow ``mathjax3_config`` to be a string pointing to a JS file.
-  Patch by Randolf Scholz.
+* #14023: Add ``mathjax_config_path`` to load MathJax configuration from a file.
+  Patch by Randolf Scholz and Adam Turner.
 
 Bugs fixed
 ----------

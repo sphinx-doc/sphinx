@@ -381,16 +381,18 @@ def test_mathjax3_config(app: SphinxTestApp) -> None:
     testroot='ext-math',
     confoverrides={
         'extensions': ['sphinx.ext.mathjax'],
-        'mathjax3_config': '_static/custom_mathjax_config.js',
+        'mathjax_config_path': '_static/custom_mathjax_config.js',
     },
 )
-def test_mathjax3_js_config(app: SphinxTestApp) -> None:
+def test_mathjax_config_path(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert MATHJAX_URL in content
-    assert '<script defer="defer" src="%s">' % MATHJAX_URL in content
-    assert '<script>window.MathJax = {"extensions": ["tex2jax.js"]}</script>' in content
+    assert f'<script defer="defer" src="{MATHJAX_URL}">' in content
+    assert (
+        '<script>window.MathJax = {"extensions": ["tex2jax.js"]}\n</script>'
+    ) in content
 
 
 @pytest.mark.sphinx(
