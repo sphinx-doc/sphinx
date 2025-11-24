@@ -1,0 +1,27 @@
+# https://docs.pytest.org/en/stable/reference/reference.html#configuration-options
+
+[pytest]
+minversion = "9.0"
+
+# https://docs.pytest.org/en/stable/reference/reference.html#command-line-flags
+addopts = [
+    "-ra",
+    "--import-mode=prepend",
+#    "--pythonwarnings=error",
+]
+
+empty_parameter_set_mark = "xfail"
+filterwarnings = [
+    "all",
+    "ignore::DeprecationWarning:docutils.io",
+    "ignore:Distutils was imported before Setuptools:UserWarning:_distutils_hack",
+    "ignore:Setuptools is replacing distutils:UserWarning:_distutils_hack",
+    "ignore::DeprecationWarning:pyximport.pyximport",
+    "ignore::ImportWarning:importlib._bootstrap",
+]
+log_cli_level = "INFO"
+markers = [
+    "apidoc",
+]
+testpaths = ["tests"]
+strict = true

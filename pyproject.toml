@@ -118,7 +118,7 @@ package = [
     "twine>=6.1",
 ]
 test = [
-    "pytest>=8.0",
+    "pytest>=9.0",
     "pytest-xdist[psutil]>=3.4",
     "cython>=3.0",  # for Cython compilation
     "defusedxml>=0.7.1",  # for secure XML/HTML parsing
@@ -303,31 +303,6 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = ["tests.test_util.typing_test_data"]
 ignore_errors = true
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = [
-    "-ra",
-    "--import-mode=prepend",
-#    "--pythonwarnings=error",
-    "--strict-config",
-    "--strict-markers",
-]
-empty_parameter_set_mark = "xfail"
-filterwarnings = [
-    "all",
-    "ignore::DeprecationWarning:docutils.io",
-    "ignore:Distutils was imported before Setuptools:UserWarning:_distutils_hack",
-    "ignore:Setuptools is replacing distutils:UserWarning:_distutils_hack",
-    "ignore::DeprecationWarning:pyximport.pyximport",
-    "ignore::ImportWarning:importlib._bootstrap",
-]
-log_cli_level = "INFO"
-markers = [
-    "apidoc",
-]
-testpaths = ["tests"]
-xfail_strict = true
 
 [tool.coverage.run]
 branch = true
