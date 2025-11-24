@@ -71,6 +71,11 @@ Features added
 * #14023: Add the new :confval:`mathjax_config_path` option
   to load MathJax configuration from a file.
   Patch by Randolf Scholz and Adam Turner.
+* #14046: linkcheck: Add the :confval:`linkcheck_case_insensitive_urls` option
+  to allow case-insensitive URL comparison for specific URL patterns.
+  This is useful for links to websites that normalise URL casing (e.g. GitHub)
+  or case-insensitive servers.
+  Patch by Fazeel Usmani and James Addison.
 
 Bugs fixed
 ----------

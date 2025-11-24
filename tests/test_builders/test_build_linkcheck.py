@@ -1439,3 +1439,70 @@ def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
         'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
         'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
     } in content
+
+
+class CapitalisePathHandler(BaseHTTPRequestHandler):
+    """Test server that uppercases URL paths via redirects."""
+
+    protocol_version = 'HTTP/1.1'
+
+    def do_GET(self):
+        if self.path.islower():
+            # Redirect lowercase paths to uppercase versions
+            self.send_response(301, 'Moved Permanently')
+            self.send_header('Location', self.path.upper())
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+        else:
+            # Serve uppercase paths
+            content = b'ok\n\n'
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-case-check',
+    freshenv=True,
+)
+@pytest.mark.parametrize(
+    ('case_insensitive_pattern', 'expected_path1', 'expected_path2', 'expected_path3'),
+    [
+        ([], 'redirected', 'redirected', 'working'),  # default: case-sensitive
+        (
+            [r'http://localhost:\d+/.*'],
+            'working',
+            'working',
+            'working',
+        ),  # all URLs case-insensitive
+        (
+            [r'http://localhost:\d+/path1'],
+            'working',
+            'redirected',
+            'working',
+        ),  # only path1 case-insensitive
+    ],
+)
+def test_linkcheck_case_sensitivity(
+    app: SphinxTestApp,
+    case_insensitive_pattern: list[str],
+    expected_path1: str,
+    expected_path2: str,
+    expected_path3: str,
+) -> None:
+    """Test case-sensitive and case-insensitive URL checking."""
+    app.config.linkcheck_case_insensitive_urls = case_insensitive_pattern
+
+    with serve_application(app, CapitalisePathHandler) as address:
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = [json.loads(x) for x in content.splitlines()]
+    rowsby = {row['uri']: row for row in rows}
+
+    # Verify expected status for each path
+    assert rowsby[f'http://{address}/path1']['status'] == expected_path1
+    assert rowsby[f'http://{address}/path2']['status'] == expected_path2
+    assert rowsby[f'http://{address}/PATH3']['status'] == expected_path3
