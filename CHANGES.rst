@@ -68,6 +68,9 @@ Features added
   Patch by Jean-François B.
 * #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #14023: Add the new :confval:`mathjax_config_path` option
+  to load MathJax configuration from a file.
+  Patch by Randolf Scholz and Adam Turner.
 * #14075: autosummary: Provide more context in import exception stack traces.
   Patch by Philipp A.
 
