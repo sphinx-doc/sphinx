@@ -50,6 +50,7 @@ Contributors
 * Dimitri Papadopoulos Orfanos -- linting and spelling
 * Dmitry Shachnev -- modernisation and reproducibility
 * Doug Hellmann -- graphviz improvements
+* Elijah Greenstein -- numfig_restart option
 * Eric Larson -- better error messages
 * Eric N. Vander Weele -- autodoc improvements
 * Eric Wieser -- autodoc improvements

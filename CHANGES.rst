@@ -68,8 +68,8 @@ Features added
   Patch by Jean-François B.
 * #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
-* Add :confval:`numfig_restart` option to make it possible to restart figure
-  numbering at each ``:numbered:`` toctree. Patch by Elijah Greenstein.
+* #14081: Add :confval:`numfig_restart` option to make it possible to restart
+  figure numbering at each ``:numbered:`` toctree. Patch by Elijah Greenstein.
 
 Bugs fixed
 ----------
