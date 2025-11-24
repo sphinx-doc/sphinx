@@ -6,46 +6,40 @@ source file translated by test_build.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing import Any
-
-    from sphinx.testing.util import SphinxTestApp
-
 import pytest
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
+pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_classes(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.classes.Foo')
-    assert list(actual) == [
+
+def test_classes() -> None:
+    actual = do_autodoc('function', 'target.classes.Foo')
+    assert actual == [
         '',
         '.. py:function:: Foo()',
         '   :module: target.classes',
         '',
     ]
 
-    actual = do_autodoc(app, 'function', 'target.classes.Bar')
-    assert list(actual) == [
+    actual = do_autodoc('function', 'target.classes.Bar')
+    assert actual == [
         '',
         '.. py:function:: Bar(x, y)',
         '   :module: target.classes',
         '',
     ]
 
-    actual = do_autodoc(app, 'function', 'target.classes.Baz')
-    assert list(actual) == [
+    actual = do_autodoc('function', 'target.classes.Baz')
+    assert actual == [
         '',
         '.. py:function:: Baz(x, y)',
         '   :module: target.classes',
         '',
     ]
 
-    actual = do_autodoc(app, 'function', 'target.classes.Qux')
-    assert list(actual) == [
+    actual = do_autodoc('function', 'target.classes.Qux')
+    assert actual == [
         '',
         '.. py:function:: Qux(foo, bar)',
         '   :module: target.classes',
@@ -53,10 +47,9 @@ def test_classes(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_callable(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.callable.function')
-    assert list(actual) == [
+def test_callable() -> None:
+    actual = do_autodoc('function', 'target.callable.function')
+    assert actual == [
         '',
         '.. py:function:: function(arg1, arg2, **kwargs)',
         '   :module: target.callable',
@@ -66,10 +59,9 @@ def test_callable(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_method(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.callable.method')
-    assert list(actual) == [
+def test_method() -> None:
+    actual = do_autodoc('function', 'target.callable.method')
+    assert actual == [
         '',
         '.. py:function:: method(arg1, arg2)',
         '   :module: target.callable',
@@ -79,10 +71,9 @@ def test_method(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_builtin_function(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'os.umask')
-    assert list(actual) == [
+def test_builtin_function() -> None:
+    actual = do_autodoc('function', 'os.umask')
+    assert actual == [
         '',
         '.. py:function:: umask(mask, /)',
         '   :module: os',
@@ -92,10 +83,9 @@ def test_builtin_function(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_methoddescriptor(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'builtins.int.__add__')
-    assert list(actual) == [
+def test_methoddescriptor() -> None:
+    actual = do_autodoc('function', 'builtins.int.__add__')
+    assert actual == [
         '',
         '.. py:function:: __add__(self, value, /)',
         '   :module: builtins.int',
@@ -105,10 +95,9 @@ def test_methoddescriptor(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_decorated(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.decorator.foo')
-    assert list(actual) == [
+def test_decorated() -> None:
+    actual = do_autodoc('function', 'target.decorator.foo')
+    assert actual == [
         '',
         '.. py:function:: foo(name=None, age=None)',
         '   :module: target.decorator',
@@ -116,11 +105,9 @@ def test_decorated(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_singledispatch(app: SphinxTestApp) -> None:
-    options: dict[str, Any] = {}
-    actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
-    assert list(actual) == [
+def test_singledispatch() -> None:
+    actual = do_autodoc('function', 'target.singledispatch.func')
+    assert actual == [
         '',
         '.. py:function:: func(arg, kwarg=None)',
         '                 func(arg: float, kwarg=None)',
@@ -134,10 +121,9 @@ def test_singledispatch(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_cfunction(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'time.asctime')
-    assert list(actual) == [
+def test_cfunction() -> None:
+    actual = do_autodoc('function', 'time.asctime')
+    assert actual == [
         '',
         '.. py:function:: asctime([tuple]) -> string',
         '   :module: time',
@@ -149,10 +135,9 @@ def test_cfunction(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_wrapped_function(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.wrappedfunction.slow_function')
-    assert list(actual) == [
+def test_wrapped_function() -> None:
+    actual = do_autodoc('function', 'target.wrappedfunction.slow_function')
+    assert actual == [
         '',
         '.. py:function:: slow_function(message, timeout)',
         '   :module: target.wrappedfunction',
@@ -162,10 +147,9 @@ def test_wrapped_function(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_wrapped_function_contextmanager(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.wrappedfunction.feeling_good')
-    assert list(actual) == [
+def test_wrapped_function_contextmanager() -> None:
+    actual = do_autodoc('function', 'target.wrappedfunction.feeling_good')
+    assert actual == [
         '',
         '.. py:function:: feeling_good(x: int, y: int) -> ~typing.Generator',
         '   :module: target.wrappedfunction',
@@ -175,10 +159,9 @@ def test_wrapped_function_contextmanager(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_coroutine(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
-    assert list(actual) == [
+def test_coroutine() -> None:
+    actual = do_autodoc('function', 'target.functions.coroutinefunc')
+    assert actual == [
         '',
         '.. py:function:: coroutinefunc()',
         '   :module: target.functions',
@@ -187,10 +170,9 @@ def test_coroutine(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_synchronized_coroutine(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
-    assert list(actual) == [
+def test_synchronized_coroutine() -> None:
+    actual = do_autodoc('function', 'target.coroutine.sync_func')
+    assert actual == [
         '',
         '.. py:function:: sync_func()',
         '   :module: target.coroutine',
@@ -198,10 +180,9 @@ def test_synchronized_coroutine(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_async_generator(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.functions.asyncgenerator')
-    assert list(actual) == [
+def test_async_generator() -> None:
+    actual = do_autodoc('function', 'target.functions.asyncgenerator')
+    assert actual == [
         '',
         '.. py:function:: asyncgenerator()',
         '   :module: target.functions',
@@ -210,10 +191,9 @@ def test_async_generator(app: SphinxTestApp) -> None:
     ]
 
 
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_slice_function_arg(app: SphinxTestApp) -> None:
-    actual = do_autodoc(app, 'function', 'target.functions.slice_arg_func')
-    assert list(actual) == [
+def test_slice_function_arg() -> None:
+    actual = do_autodoc('function', 'target.functions.slice_arg_func')
+    assert actual == [
         '',
         '.. py:function:: slice_arg_func(arg: float64[:, :])',
         '   :module: target.functions',

@@ -82,7 +82,7 @@ dependencies = [
     "alabaster>=0.7.14",
     "imagesize>=1.3",
     "requests>=2.30.0",
-    "roman-numerals-py>=1.0.0",
+    "roman-numerals>=1.0.0",
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
     "ipython>=9.6.0",
@@ -173,7 +173,7 @@ exclude = [
 [tool.mypy]
 files = [
     "doc/conf.py",
-    "doc/development/tutorials/examples/autodoc_intenum.py",
+#    "doc/development/tutorials/examples/autodoc_intenum.py",
     "doc/development/tutorials/examples/helloworld.py",
     "sphinx",
     "tests",
@@ -224,7 +224,6 @@ module = [
     # tests/test_builders
     "tests.test_builders.test_build",
     "tests.test_builders.test_build_html",
-    "tests.test_builders.test_build_html_5_output",
     "tests.test_builders.test_build_linkcheck",
     # tests/test_directives
     "tests.test_directives.test_directive_code",
@@ -243,11 +242,6 @@ module = [
     "tests.test_markup.test_markup",
     # tests/test_theming
     "tests.test_theming.test_templating",
-    "tests.test_theming.test_theming",
-    # tests/test_transforms
-    "tests.test_transforms.test_transforms_post_transforms_images",
-    # tests/test_writers
-    "tests.test_writers.test_docutilsconf",
 ]
 disallow_untyped_defs = false
 
