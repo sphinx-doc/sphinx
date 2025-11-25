@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
     from sphinx.ext.autodoc._property_types import _AutodocObjType
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -64,14 +63,7 @@ class AutodocDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self) -> list[Node]:
-        reporter = self.state.document.reporter
-
-        try:
-            source, lineno = reporter.get_source_and_line(  # type: ignore[attr-defined]
-                self.lineno
-            )
-        except AttributeError:
-            source, lineno = (None, None)
+        source, lineno = self.get_source_info()
         logger.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)
 
         # get target object type / strip prefix (auto-)

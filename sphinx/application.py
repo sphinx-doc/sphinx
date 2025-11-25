@@ -1627,7 +1627,7 @@ class Sphinx:
            Add *override* keyword.
         """
         logger.debug('[app] adding autodocumenter: %r', cls)
-        from sphinx.ext.autodoc.directive import AutodocDirective
+        from sphinx.ext.autodoc._directive import AutodocDirective
 
         objtype = cls.objtype  # type: ignore[attr-defined]
         self.registry.add_documenter(objtype, cls)
