@@ -228,8 +228,6 @@ module = [
     # tests/test_directives
     "tests.test_directives.test_directive_code",
     "tests.test_directives.test_directives_no_typesetting",
-    # tests/test_environment
-    "tests.test_environment.test_environment_toctree",
     # tests/test_ext_autodoc
     "tests.test_ext_autodoc.test_ext_autodoc_autoclass",
     # tests/test_ext_autosummary
