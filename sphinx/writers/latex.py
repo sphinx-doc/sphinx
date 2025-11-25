@@ -1365,7 +1365,7 @@ class LaTeXTranslator(SphinxTranslator):
                 r'\sphinxmultirow{%d}{%d}{%%' % (cell.height, cell.cell_id) + CR
             )
             context = '}%' + CR + context
-        # 8.3.0 wraps ALL cells contents in "varwidth".  This fixes a
+        # 9.0 wraps ALL cells contents in "varwidth".  This fixes a
         # number of issues and allows more usage of tabulary.
         #
         # "varwidth" usage allows a *tight fit* to multiple paragraphs,

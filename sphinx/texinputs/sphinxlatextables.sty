@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatextables}[2025/06/30 v8.3.0 tables]%
+\ProvidesPackage{sphinxlatextables}[2025/06/30 v9.0.0 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -44,7 +44,7 @@
 % - \sphinxthistablewithnovlinesstyle
 % - \sphinxbeforeendvarwidth
 
-% At 8.3.0, ALL table cell contents are wrapped into a varwidth environment.
+% At 9.0, ALL table cell contents are wrapped into a varwidth environment.
 % This helps solve issues such as #3447, #8828, and helps use tabulary
 % in many more cases hence obtain better looking tables.
 \def\sphinxbeforeendvarwidth{\par\vskip-\baselineskip\hbox{\strut}}
@@ -53,12 +53,12 @@
 % standard "depth". Else it may lack any depth if without descenders such as
 % "p" or "q" letters and the horizontal line or color panel will look strange.
 % It originates in PR #3435 from 2017 which solved *many* table issues for
-% merged cells (and injected the varwidth technique now at 8.3.0 applied to
+% merged cells (and injected the varwidth technique now at 9.0 applied to
 % all cells).  The original used \vbox{\hbox{\strut}} but that \vbox appears
 % to do nothing, and it was decided after some testing (July 2025) to remove
 % it, the original rationale for it being now lost.
 
-% These conditionals added at 8.3.0 for nested tables not to break row colors
+% These conditionals added at 9.0 for nested tables not to break row colors
 % (#13635).  Nested tables are only partially supported by Sphinx LaTeX.
 % The method here is with no changes to neither writer nor templates.
 \newif\ifspx@intable
@@ -273,11 +273,11 @@
 %       them and compare their relative importance.  Its goal is to choose the
 %       column width so that, roughly, all columns will look about evenly
 %       filled.  "Horizontal" rendering is incompatible with many LaTeX
-%       structures such as lists, so prior to Sphinx 8.3.0 cells with such
+%       structures such as lists, so prior to Sphinx 9.0 cells with such
 %       "problematic" contents caused Sphinx to use tabular not tabulary; the
 %       tabular would then render each column in absence of :widths: option or
 %       tabularcolumns directive the same width equal to available text width
-%       divided by number of columns.  At 8.3.0, "problematic" contents is
+%       divided by number of columns.  At 9.0, "problematic" contents is
 %       wrapped into a "varwidth" environment, as was already done formerly
 %       for merged cells, and this avoids tabulary causing errors such as
 %       "incompatible with LR mode"; \sphinxcolwidth is used which sets

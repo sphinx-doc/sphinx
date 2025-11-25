@@ -346,7 +346,7 @@ Sphinx but is set to automatically include it from a third-party site.
 
    __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
 
-   .. versionadded:: 8.3
+   .. versionadded:: 9.0
 
 :mod:`sphinxcontrib.jsmath` -- Render math via JavaScript
 ---------------------------------------------------------

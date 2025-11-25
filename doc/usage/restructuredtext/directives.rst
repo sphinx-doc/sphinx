@@ -552,7 +552,7 @@ Describing changes between versions
       There must be no blank line between the directive head and the explanation;
       this is to make these blocks visually continuous in the markup.
 
-   .. version-changed:: 8.3
+   .. version-changed:: 9.0
       The :rst:dir:`versionadded` directive was renamed to :rst:dir:`version-added`.
       The previous name is retained as an alias.
 
@@ -570,7 +570,7 @@ Describing changes between versions
    Similar to :rst:dir:`version-added`, but describes when and what changed in
    the named feature in some way (new parameters, changed side effects, etc.).
 
-   .. version-changed:: 8.3
+   .. version-changed:: 9.0
       The :rst:dir:`versionchanged` directive was renamed to :rst:dir:`version-changed`.
       The previous name is retained as an alias.
 
@@ -590,7 +590,7 @@ Describing changes between versions
    A *brief* explanation can also be given,
    for example to tell the reader what to use instead.
 
-   .. version-changed:: 8.3
+   .. version-changed:: 9.0
       The :rst:dir:`deprecated` directive was renamed to :rst:dir:`version-deprecated`.
       The previous name is retained as an alias
 
@@ -611,7 +611,7 @@ Describing changes between versions
 
    .. version-added:: 7.3
 
-   .. version-changed:: 8.3
+   .. version-changed:: 9.0
       The :rst:dir:`versionremoved` directive was renamed to :rst:dir:`version-removed`.
       The previous name is retained as an alias.
 
@@ -1492,7 +1492,7 @@ Check the :confval:`latex_table_style`.
    complex contents such as multiple paragraphs, blockquotes, lists, literal
    blocks, will render correctly to LaTeX output.
 
-.. versionchanged:: 8.3.0
+.. versionchanged:: 9.0
    The partial support of the LaTeX builder for nesting a table in another
    has been extended.
    Formerly Sphinx would raise an error if ``longtable`` class was specified
@@ -1579,12 +1579,12 @@ Check the :confval:`latex_table_style`.
    preamble, as in fact Sphinx uses ``T`` and sets it by default to be an
    alias of ``J``.
 
-.. versionchanged:: 8.3.0
+.. versionchanged:: 9.0
 
    Formerly, Sphinx did not use ``tabulary`` if the table had at least one
    cell containing "problematic" elements such as lists, object descriptions,
    blockquotes (etc...) because such contents are not out-of-the-box
-   compatible with ``tabulary``.  At ``8.3.0`` a technique, which was already
+   compatible with ``tabulary``.  At ``9.0`` a technique, which was already
    in use for merged cells, was extended to such cases, and the sole
    "problematic" contents are code-blocks and nested tables.  So tables
    containing (only) cells with multiple paragraphs, bullet or enumerated
