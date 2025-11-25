@@ -287,7 +287,7 @@ locales.  The translations are kept as gettext ``.po`` files translated from the
 master template :file:`sphinx/locale/sphinx.pot`.
 
 These Sphinx core messages are translated using the online `Transifex
-<https://explore.transifex.com/sphinx-doc/sphinx-1//>`__ platform.
+<https://explore.transifex.com/sphinx-doc/sphinx-1/>`__ platform.
 
 Translated strings from the platform are pulled into the Sphinx repository
 by a maintainer before a new release.
