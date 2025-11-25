@@ -8,14 +8,38 @@ from typing import TYPE_CHECKING, cast
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.ext.autodoc._dynamic._type_annotations import _record_typehints
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any
 
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc._legacy_class_based._directive_options import Options
     from sphinx.ext.autodoc._property_types import _AutodocObjType
+
+
+# Retained: legacy class-based
+def record_typehints(
+    app: Sphinx,
+    objtype: str,
+    name: str,
+    obj: Any,
+    options: Options,
+    args: str,
+    retann: str,
+) -> None:
+    """Record type hints to env object."""
+    _record_typehints(
+        autodoc_annotations=app.env.current_document.autodoc_annotations,
+        name=name,
+        obj=obj,
+        short_literals=app.config.python_display_short_literal_types,
+        type_aliases=app.config.autodoc_type_aliases,
+        unqualified_typehints=app.config.autodoc_typehints_format == 'short',
+    )
 
 
 def _merge_typehints(

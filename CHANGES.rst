@@ -14,6 +14,12 @@ Incompatible changes
 * #13639: :py:meth:`!SphinxComponentRegistry.create_source_parser` no longer
   has an *app* parameter, instead taking *config* and *env*.
   Patch by Adam Turner.
+* #13751, #14089: :mod:`sphinx.ext.autodoc` has been substantially rewritten,
+  and there may be some incompatible changes in edge cases, especially when
+  extensions interact with autodoc internals.
+  The :confval:`autodoc_use_legacy_class_based` option has been added to
+  use the legacy (pre-8.3) implementation of autodoc.
+  Patches by Adam Turner.
 
 Deprecated
 ----------

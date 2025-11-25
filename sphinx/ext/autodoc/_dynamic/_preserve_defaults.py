@@ -20,7 +20,6 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from typing import Any
 
-
 logger = logging.getLogger(__name__)
 _LAMBDA_NAME = (lambda: None).__name__
 
