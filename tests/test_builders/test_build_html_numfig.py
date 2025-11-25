@@ -1185,13 +1185,13 @@ def test_numfig_with_singlehtml(
             True,
         ),
         ('index.html', './/li/p/a/span', '^Fig. 1$', True),
-        ('index.html', './/li/p/a/span', '^Figure1.2$', True),      # baz.rst
+        ('index.html', './/li/p/a/span', '^Figure1.2$', True),  # baz.rst
         ('index.html', './/li/p/a/span', '^Table 1$', True),
-        ('index.html', './/li/p/a/span', '^Table:1.2$', True),      # baz.rst
+        ('index.html', './/li/p/a/span', '^Table:1.2$', True),  # baz.rst
         ('index.html', './/li/p/a/span', '^Listing 1$', True),
-        ('index.html', './/li/p/a/span', '^Code-1.2$', True),       # baz.rst
+        ('index.html', './/li/p/a/span', '^Code-1.2$', True),  # baz.rst
         ('index.html', './/li/p/a/span', '^Section.1$', True),
-        ('index.html', './/li/p/a/span', '^Section.1.1$', True),    # bar.rst
+        ('index.html', './/li/p/a/span', '^Section.1.1$', True),  # bar.rst
         ('index.html', './/li/p/a/span', '^Fig.1 should be Fig.1$', True),
         ('index.html', './/li/p/a/span', '^Sect.1 Foo$', True),
         (
@@ -1402,13 +1402,13 @@ def test_numfig_restart(
             True,
         ),
         ('index.html', './/li/p/a/span', '^Fig. 1$', True),
-        ('index.html', './/li/p/a/span', '^Figure1.1.2$', True),      # baz.rst
+        ('index.html', './/li/p/a/span', '^Figure1.1.2$', True),  # baz.rst
         ('index.html', './/li/p/a/span', '^Table 1$', True),
-        ('index.html', './/li/p/a/span', '^Table:1.1.2$', True),      # baz.rst
+        ('index.html', './/li/p/a/span', '^Table:1.1.2$', True),  # baz.rst
         ('index.html', './/li/p/a/span', '^Listing 1$', True),
-        ('index.html', './/li/p/a/span', '^Code-1.1.2$', True),       # baz.rst
+        ('index.html', './/li/p/a/span', '^Code-1.1.2$', True),  # baz.rst
         ('index.html', './/li/p/a/span', '^Section.1$', True),
-        ('index.html', './/li/p/a/span', '^Section.1.1$', True),    # bar.rst
+        ('index.html', './/li/p/a/span', '^Section.1.1$', True),  # bar.rst
         ('index.html', './/li/p/a/span', '^Fig.1 should be Fig.1$', True),
         ('index.html', './/li/p/a/span', '^Sect.1 Foo$', True),
         (
