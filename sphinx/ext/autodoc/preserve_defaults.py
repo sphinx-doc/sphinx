@@ -23,9 +23,6 @@ from sphinx.ext.autodoc._dynamic._preserve_defaults import (
 from sphinx.ext.autodoc._dynamic._preserve_defaults import (
     get_default_value as get_default_value,  # NoQA: PLC0414
 )
-from sphinx.ext.autodoc._dynamic._preserve_defaults import (
-    get_function_def as get_function_def,  # NoQA: PLC0414
-)
 from sphinx.ext.autodoc._dynamic._preserve_defaults import update_default_value
 from sphinx.util import logging
 
