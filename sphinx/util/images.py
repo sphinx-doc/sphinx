@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import base64
-import urllib.parse
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple, overload
+from urllib.parse import unquote_to_bytes
 
 import imagesize
 
@@ -99,20 +99,20 @@ def parse_data_uri(uri: str) -> DataURI | None:
     # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
     mimetype = 'text/plain'
     charset = 'US-ASCII'
-    base64_encoded = False
 
     uri = uri[5:]
     properties, _, data = uri.partition(',')
     for prop in properties.split(';'):
         if prop == 'base64':
-            base64_encoded = True
+            pass  # skip
         elif prop.lower().startswith('charset='):
             charset = prop[8:]
         elif prop:
             mimetype = prop.lower()
 
-    data = urllib.parse.unquote_to_bytes(data)  # data might be percent-encoded
-    image_data = base64.decodebytes(data) if base64_encoded else data
+    image_data = unquote_to_bytes(data)  # data might be percent-encoded
+    if properties.endswith(';base64'):
+        image_data = base64.decodebytes(image_data)
     return DataURI(mimetype, charset, image_data)
 
 
