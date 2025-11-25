@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING
 from docutils.statemachine import StringList
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._loader import _load_object_by_name
-from sphinx.ext.autodoc._member_finder import _gather_members
+from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
+from sphinx.ext.autodoc._dynamic._member_finder import _gather_members
+from sphinx.ext.autodoc._dynamic._mock import ismock
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc._shared import _get_render_mode
-from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging

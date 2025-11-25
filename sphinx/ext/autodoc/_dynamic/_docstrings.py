@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._importer import (
+from sphinx.ext.autodoc._dynamic._importer import (
     _get_attribute_comment,
     _is_runtime_instance_attribute_not_commented,
 )

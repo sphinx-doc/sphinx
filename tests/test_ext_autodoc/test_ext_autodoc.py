@@ -20,8 +20,8 @@ from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     inherited_members_option,
 )
-from sphinx.ext.autodoc._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._documenters import Documenter
+from sphinx.ext.autodoc._dynamic._docstrings import _get_docstring_lines
 from sphinx.ext.autodoc._generate import _auto_document_object
 from sphinx.ext.autodoc._property_types import _ItemProperties
 from sphinx.ext.autodoc._sentinels import ALL
