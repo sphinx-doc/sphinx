@@ -154,6 +154,8 @@ Bugs fixed
   Patch by Harmen Stoppels.
 * #13944: autodoc: show traceback during import in human readable representation.
   Patch by Florian Best.
+* #14006: Support images with data URIs that aren't base64-encoded.
+  Patch by Shengyu Zhang and Adam Turner.
 
 
 Testing
