@@ -971,7 +971,7 @@ Automatically document type aliases
 
 .. rst:directive:: autotype
 
-   .. versionadded:: 8.3
+   .. versionadded:: 9.0
 
    Document a :pep:`695` type alias (the :keyword:`type` statement).
    By default, the directive only inserts the docstring of the alias itself:
@@ -1008,7 +1008,7 @@ There are also config values that you can set:
    :default: :code-py:`False`
 
    If true, autodoc will use the legacy class-based implementation.
-   This is the behaviour prior to Sphinx 8.3.
+   This is the behaviour prior to Sphinx 9.0.
    It is based on the ``Documenter`` class hierarchy.
 
    This setting is provided for backwards compatibility if your documentation

@@ -1157,9 +1157,9 @@ Options for source files
    The recommended encoding is ``'utf-8-sig'``.
 
    .. versionadded:: 0.5
-   .. deprecated:: 8.3
+   .. deprecated:: 9.0
       Support for source encodings other than UTF-8 is deprecated.
-      Sphinx 10 will only support UTF-8 files.
+      Sphinx 11 will only support UTF-8 files.
 
 .. confval:: source_suffix
    :type: :code-py:`dict[str, str] | Sequence[str] | str`
@@ -3671,7 +3671,7 @@ and which failures and redirects it ignores.
 
    .. versionadded:: 4.1
 
-   .. versionchanged:: 8.3
+   .. versionchanged:: 9.0
       Setting :confval:`!linkcheck_allowed_redirects` to an empty dictionary
       may now be used to warn on all redirects encountered
       by the *linkcheck* builder.
@@ -3847,7 +3847,7 @@ and the number of workers to use.
    .. note:: URI fragments (HTML anchors) are not affected by this option.
              They are always checked with case-sensitive comparisons.
 
-   .. versionadded:: 8.3
+   .. versionadded:: 9.0
 
 .. confval:: linkcheck_rate_limit_timeout
    :type: :code-py:`int`
