@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import sphinx
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.ext.autodoc._directive import AutodocDirective
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
 from sphinx.ext.autodoc._legacy_class_based._directive_options import (
@@ -64,6 +64,7 @@ from sphinx.ext.autodoc.typehints import _merge_typehints
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.util.typing import ExtensionMetadata
 
