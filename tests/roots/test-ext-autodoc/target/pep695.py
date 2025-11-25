@@ -22,7 +22,7 @@ class Foo:
 type Pep695Alias = Foo
 """This is PEP695 type alias."""
 
-type Pep695AliasUndoced = Foo
+type Pep695AliasUndocumented = Foo
 
 TypeAliasTypeExplicit = TypeAliasType('TypeAliasTypeExplicit', Foo)  # NoQA: UP040
 """This is an explicitly constructed typing.TypeAlias."""
