@@ -9,7 +9,7 @@
 % by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2025/08/03 v8.3.0 Sphinx LaTeX package (sphinx-doc)]
+\ProvidesPackage{sphinx}[2025/11/16 v8.3.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -1175,7 +1175,9 @@
 %% PYGMENTS
 % stylesheet for highlighting with pygments
 \RequirePackage{sphinxhighlight}
-
+\let\spx@PYG\PYG
+% See sphinxlatexliterals.sty for \spx@FV@Tab
+\protected\def\PYG#1#2{\spx@PYG{#1}{\let\FV@Tab\spx@FV@Tab#2}}
 
 %% TABLES
 %
