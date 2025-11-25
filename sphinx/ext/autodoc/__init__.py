@@ -10,9 +10,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import sphinx
-from sphinx.config import ENUM
+from sphinx.config import ENUM, Config
 from sphinx.ext.autodoc._directive import AutodocDirective
-from sphinx.ext.autodoc._directive_options import (
+from sphinx.ext.autodoc._event_listeners import between, cut_lines
+from sphinx.ext.autodoc._legacy_class_based._directive_options import (
+    Options,
     annotation_option,
     bool_option,
     class_doc_from_option,
@@ -23,12 +25,41 @@ from sphinx.ext.autodoc._directive_options import (
     members_option,
     merge_members_option,
 )
-from sphinx.ext.autodoc._dynamic._member_finder import ObjectMember, special_member_re
-from sphinx.ext.autodoc._event_listeners import between, cut_lines
-from sphinx.ext.autodoc._names import py_ext_sig_re
-from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS, UNINITIALIZED_ATTR
-from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR as INSTANCEATTR
-from sphinx.ext.autodoc._sentinels import SLOTS_ATTR as SLOTSATTR
+from sphinx.ext.autodoc._legacy_class_based._documenters import (
+    AttributeDocumenter,
+    ClassDocumenter,
+    ClassLevelDocumenter,
+    DataDocumenter,
+    DataDocumenterMixinBase,
+    DecoratorDocumenter,
+    DocstringSignatureMixin,
+    DocstringStripSignatureMixin,
+    Documenter,
+    ExceptionDocumenter,
+    FunctionDocumenter,
+    GenericAliasMixin,
+    MethodDocumenter,
+    ModuleDocumenter,
+    ModuleLevelDocumenter,
+    NonDataDescriptorMixin,
+    ObjectMember,
+    PropertyDocumenter,
+    RuntimeInstanceAttributeMixin,
+    SlotsMixin,
+    UninitializedGlobalVariableMixin,
+    UninitializedInstanceAttributeMixin,
+    autodoc_attrgetter,
+    py_ext_sig_re,
+    special_member_re,
+)
+from sphinx.ext.autodoc._legacy_class_based._sentinels import (
+    ALL,
+    EMPTY,
+    INSTANCEATTR,
+    SLOTSATTR,
+    SUPPRESS,
+    UNINITIALIZED_ATTR,
+)
 from sphinx.ext.autodoc.typehints import _merge_typehints
 
 if TYPE_CHECKING:
@@ -40,10 +71,20 @@ __all__ = (
     # Useful event listener factories for autodoc-process-docstring
     'cut_lines',
     'between',
+    # Documenters
+    'AttributeDocumenter',
+    'ClassDocumenter',
+    'DataDocumenter',
+    'DecoratorDocumenter',
+    'ExceptionDocumenter',
+    'FunctionDocumenter',
+    'MethodDocumenter',
+    'ModuleDocumenter',
+    'PropertyDocumenter',
     # This class is only used in ``sphinx.ext.autodoc.directive``,
     # but we export it here for compatibility.
     # See: https://github.com/sphinx-doc/sphinx/issues/4538
-    # 'Options',
+    'Options',
     # Option spec functions.
     # Exported for compatibility.
     'annotation_option',
@@ -68,26 +109,23 @@ __all__ = (
     'ObjectMember',
     'py_ext_sig_re',
     'special_member_re',
+    'ModuleLevelDocumenter',
+    'ClassLevelDocumenter',
+    'DocstringSignatureMixin',
+    'DocstringStripSignatureMixin',
+    'DataDocumenterMixinBase',
+    'GenericAliasMixin',
+    'UninitializedGlobalVariableMixin',
+    'NonDataDescriptorMixin',
+    'SlotsMixin',
+    'RuntimeInstanceAttributeMixin',
+    'UninitializedInstanceAttributeMixin',
+    'autodoc_attrgetter',
+    'Documenter',
 )
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    obj_type: _AutodocObjType
-    for obj_type in (
-        'module',
-        'class',
-        'exception',
-        'function',
-        'decorator',
-        'method',
-        'property',
-        'attribute',
-        'data',
-        'type',
-    ):
-        # register the automodule, autoclass, etc. directives
-        app.add_directive(f'auto{obj_type}', AutodocDirective)
-
     app.add_config_value(
         'autoclass_content',
         'class',
@@ -142,6 +180,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'autodoc_use_type_comments', True, 'env', types=frozenset({bool})
     )
+    app.add_config_value(
+        'autodoc_use_legacy_class_based', False, 'env', types=frozenset({bool})
+    )
 
     app.add_event('autodoc-before-process-signature')
     app.add_event('autodoc-process-docstring')
@@ -151,7 +192,50 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     app.connect('object-description-transform', _merge_typehints)
 
+    app.connect('config-inited', _register_directives)
+
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,
     }
+
+
+def _register_directives(app: Sphinx, config: Config) -> None:
+    if not config.autodoc_use_legacy_class_based:
+        obj_type: _AutodocObjType
+        for obj_type in (
+            'module',
+            'class',
+            'exception',
+            'function',
+            'decorator',
+            'method',
+            'property',
+            'attribute',
+            'data',
+            'type',
+        ):
+            # register the automodule, autoclass, etc. directives
+            app.add_directive(f'auto{obj_type}', AutodocDirective)
+    else:
+        from sphinx.ext.autodoc.preserve_defaults import update_defvalue
+        from sphinx.ext.autodoc.type_comment import (
+            update_annotations_using_type_comments,
+        )
+        from sphinx.ext.autodoc.typehints import record_typehints
+
+        app.add_autodocumenter(ModuleDocumenter)
+        app.add_autodocumenter(ClassDocumenter)
+        app.add_autodocumenter(ExceptionDocumenter)
+        app.add_autodocumenter(DataDocumenter)
+        app.add_autodocumenter(FunctionDocumenter)
+        app.add_autodocumenter(DecoratorDocumenter)
+        app.add_autodocumenter(MethodDocumenter)
+        app.add_autodocumenter(AttributeDocumenter)
+        app.add_autodocumenter(PropertyDocumenter)
+
+        app.connect('autodoc-before-process-signature', update_defvalue)
+        app.connect(
+            'autodoc-before-process-signature', update_annotations_using_type_comments
+        )
+        app.connect('autodoc-process-signature', record_typehints)
