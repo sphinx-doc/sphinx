@@ -293,17 +293,17 @@ class BuildEnvironment:
 
     @property
     def app(self) -> Sphinx:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         return self._app
 
     @app.setter
     def app(self, app: Sphinx) -> None:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         self._app = app
 
     @app.deleter
     def app(self) -> None:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         del self._app
 
     @property

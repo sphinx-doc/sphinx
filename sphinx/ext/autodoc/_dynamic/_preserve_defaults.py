@@ -9,10 +9,8 @@ from __future__ import annotations
 import ast
 import inspect
 import types
-import warnings
 from typing import TYPE_CHECKING
 
-from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -30,36 +28,6 @@ class DefaultValue:
 
     def __repr__(self) -> str:
         return self.name
-
-
-def get_function_def(obj: Any) -> ast.FunctionDef | None:
-    """Get FunctionDef object from living object.
-
-    This tries to parse original code for living object and returns
-    AST node for given *obj*.
-    """
-    warnings.warn(
-        'sphinx.ext.autodoc.preserve_defaults.get_function_def is'
-        ' deprecated and scheduled for removal in Sphinx 9.'
-        ' Use sphinx.ext.autodoc.preserve_defaults._get_arguments() to'
-        ' extract AST arguments objects from a lambda or regular'
-        ' function.',
-        RemovedInSphinx90Warning,
-        stacklevel=2,
-    )
-
-    try:
-        source = inspect.getsource(obj)
-        if source.startswith((' ', '\t')):
-            # subject is placed inside class or block.  To read its docstring,
-            # this adds if-block before the declaration.
-            module = ast.parse('if True:\n' + source)
-            return module.body[0].body[0]  # type: ignore[attr-defined]
-        else:
-            module = ast.parse(source)
-            return module.body[0]  # type: ignore[return-value]
-    except (OSError, TypeError):  # failed to load source code
-        return None
 
 
 def _get_arguments(obj: Any, /) -> ast.arguments | None:
