@@ -97,3 +97,4 @@ def test_parse_data_uri() -> None:
     image = parse_data_uri(uri)
     assert image is not None
     assert image.mimetype == 'image/svg+xml'
+    assert b'%' not in image.data
