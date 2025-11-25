@@ -124,7 +124,7 @@ def test_mathjax_options(app: SphinxTestApp) -> None:
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
     assert (
-        '<script async="async" integrity="sha384-0123456789" '
+        '<script defer="defer" integrity="sha384-0123456789" '
         'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
         '</script>'
     ) in content
@@ -381,6 +381,25 @@ def test_mathjax3_config(app: SphinxTestApp) -> None:
     testroot='ext-math',
     confoverrides={
         'extensions': ['sphinx.ext.mathjax'],
+        'mathjax_config_path': '_static/custom_mathjax_config.js',
+    },
+)
+def test_mathjax_config_path_config(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert MATHJAX_URL in content
+    assert f'<script defer="defer" src="{MATHJAX_URL}">' in content
+    assert (
+        '<script>window.MathJax = {"extensions": ["tex2jax.js"]}\n</script>'
+    ) in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
         'mathjax2_config': {'extensions': ['tex2jax.js']},
     },
 )
@@ -441,7 +460,7 @@ def test_mathjax_path(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<script async="async" src="_static/MathJax.js"></script>' in content
+    assert '<script defer="defer" src="_static/MathJax.js"></script>' in content
 
 
 @pytest.mark.sphinx(
@@ -457,7 +476,7 @@ def test_mathjax_path_config(app: SphinxTestApp) -> None:
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (
-        '<script async="async" src="_static/MathJax.js?config=scipy-mathjax"></script>'
+        '<script defer="defer" src="_static/MathJax.js?config=scipy-mathjax"></script>'
     ) in content
 
 

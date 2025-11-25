@@ -68,6 +68,16 @@ Features added
   Patch by Jean-François B.
 * #13508: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #14023: Add the new :confval:`mathjax_config_path` option
+  to load MathJax configuration from a file.
+  Patch by Randolf Scholz and Adam Turner.
+* #14046: linkcheck: Add the :confval:`linkcheck_case_insensitive_urls` option
+  to allow case-insensitive URL comparison for specific URL patterns.
+  This is useful for links to websites that normalise URL casing (e.g. GitHub)
+  or case-insensitive servers.
+  Patch by Fazeel Usmani and James Addison.
+* #14075: autosummary: Provide more context in import exception stack traces.
+  Patch by Philipp A.
 
 Bugs fixed
 ----------
@@ -140,6 +150,10 @@ Bugs fixed
 * #14059: LaTeX: Footnotes cause pdflatex error with French language
   (since late June 2025 upstream change to LaTeX ``babel-french``).
   Patch by Jean-François B.
+* #13916: HTML Search: do not clear text fragments from the URL on page load.
+  Patch by Harmen Stoppels.
+* #13944: autodoc: show traceback during import in human readable representation.
+  Patch by Florian Best.
 
 
 Testing

@@ -1587,7 +1587,7 @@ Check the :confval:`latex_table_style`.
    compatible with ``tabulary``.  At ``8.3.0`` a technique, which was already
    in use for merged cells, was extended to such cases, and the sole
    "problematic" contents are code-blocks and nested tables.  So tables
-   containing (only) cells with mutliple paragraphs, bullet or enumerated
+   containing (only) cells with multiple paragraphs, bullet or enumerated
    lists, or line blocks, will now better fit to their contents (if not
    rendered by ``longtable``).  Cells with object descriptions or admonitions
    will still have a tendency to induce the table to fill the full text area
@@ -1726,7 +1726,7 @@ There is this directive:
    Multiple production lists with the same *production_group*
    thus define rules in the same scope.
    This can also be used to split the description of a long or complex grammar
-   accross multiple ``productionlist`` directives with the same *production_group*.
+   across multiple ``productionlist`` directives with the same *production_group*.
 
    The definition can contain token names which are marked as interpreted text,
    (e.g. "``sum ::= `integer` "+" `integer```"),
