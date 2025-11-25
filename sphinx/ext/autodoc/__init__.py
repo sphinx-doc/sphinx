@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.config import ENUM
+from sphinx.ext.autodoc._directive import AutodocDirective
 from sphinx.ext.autodoc._directive_options import (
-    Options,
     annotation_option,
     bool_option,
     class_doc_from_option,
@@ -29,7 +29,6 @@ from sphinx.ext.autodoc._names import py_ext_sig_re
 from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS, UNINITIALIZED_ATTR
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR as INSTANCEATTR
 from sphinx.ext.autodoc._sentinels import SLOTS_ATTR as SLOTSATTR
-from sphinx.ext.autodoc.directive import AutodocDirective
 from sphinx.ext.autodoc.typehints import _merge_typehints
 
 if TYPE_CHECKING:
@@ -44,7 +43,7 @@ __all__ = (
     # This class is only used in ``sphinx.ext.autodoc.directive``,
     # but we export it here for compatibility.
     # See: https://github.com/sphinx-doc/sphinx/issues/4538
-    'Options',
+    # 'Options',
     # Option spec functions.
     # Exported for compatibility.
     'annotation_option',

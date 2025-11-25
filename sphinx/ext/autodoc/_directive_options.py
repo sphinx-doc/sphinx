@@ -169,22 +169,6 @@ def merge_members_option(options: dict[str, Any]) -> None:
                     members.append(member)
 
 
-class Options(dict[str, object]):  # NoQA: FURB189
-    """A dict/attribute hybrid that returns None on nonexisting keys."""
-
-    def __repr__(self) -> str:
-        return f'Options({super().__repr__()})'
-
-    def copy(self) -> Options:
-        return Options(super().copy())
-
-    def __getattr__(self, name: str) -> Any:
-        try:
-            return self[name.replace('_', '-')]
-        except KeyError:
-            return None
-
-
 _OPTION_SPEC_COMMON: Final[OptionSpec] = {
     'no-index': bool_option,
     'no-index-entry': bool_option,
