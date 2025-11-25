@@ -12,7 +12,6 @@ import types
 import warnings
 from typing import TYPE_CHECKING
 
-import sphinx
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
@@ -21,8 +20,6 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from typing import Any
 
-    from sphinx.application import Sphinx
-    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 _LAMBDA_NAME = (lambda: None).__name__
@@ -125,11 +122,8 @@ def get_default_value(lines: list[str], position: ast.expr) -> str | None:
         return None
 
 
-def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
-    """Update defvalue info of *obj* using type_comments."""
-    if not app.config.autodoc_preserve_defaults:
-        return
-
+def update_default_value(obj: Any, bound_method: bool) -> None:
+    """Update default value info of *obj* using type_comments."""
     try:
         lines = inspect.getsource(obj).splitlines()
         if lines[0].startswith((' ', '\t')):
@@ -194,15 +188,3 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         logger.warning(
             __('Failed to parse a default argument value for %r: %s'), obj, exc
         )
-
-
-def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value(
-        'autodoc_preserve_defaults', False, 'env', types=frozenset({bool})
-    )
-    app.connect('autodoc-before-process-signature', update_defvalue)
-
-    return {
-        'version': sphinx.__display_version__,
-        'parallel_read_safe': True,
-    }

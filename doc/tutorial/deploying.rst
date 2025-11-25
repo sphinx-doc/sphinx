@@ -175,7 +175,7 @@ After you have published your sources on GitHub, create a file named
 contents:
 
 .. code-block:: yaml
-   :caption: .github/workflows/
+   :caption: .github/workflows/sphinx.yml
 
    name: "Sphinx: Render docs"
 

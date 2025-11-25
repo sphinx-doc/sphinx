@@ -28,7 +28,11 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
-    from sphinx.ext.autodoc._event_listeners import _AutodocProcessDocstringListener
+    from sphinx.ext.autodoc._event_listeners import (
+        _AutodocProcessDocstringListener,
+        _AutodocProcessSignatureListener,
+        _AutodocSkipMemberListener,
+    )
     from sphinx.ext.todo import todo_node
 
 
@@ -291,20 +295,7 @@ class EventManager:
     def connect(
         self,
         name: Literal['autodoc-process-signature'],
-        callback: Callable[
-            [
-                Sphinx,
-                Literal[
-                    'module', 'class', 'exception', 'function', 'method', 'attribute'
-                ],
-                str,
-                Any,
-                dict[str, bool],
-                str | None,
-                str | None,
-            ],
-            tuple[str | None, str | None] | None,
-        ],
+        callback: _AutodocProcessSignatureListener,
         priority: int,
     ) -> int: ...
 
@@ -320,19 +311,7 @@ class EventManager:
     def connect(
         self,
         name: Literal['autodoc-skip-member'],
-        callback: Callable[
-            [
-                Sphinx,
-                Literal[
-                    'module', 'class', 'exception', 'function', 'method', 'attribute'
-                ],
-                str,
-                Any,
-                bool,
-                dict[str, bool],
-            ],
-            bool,
-        ],
+        callback: _AutodocSkipMemberListener,
         priority: int,
     ) -> int: ...
 

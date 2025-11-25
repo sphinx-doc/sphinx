@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{sphinxpackagefootnote}%
- [2024/05/17 v7.3.x Sphinx custom footnotehyper package (Sphinx team)]
+ [2025/11/15 v8.3.0 Sphinx custom footnotehyper package (Sphinx team)]
 %%
 %% Package: sphinxpackagefootnote
 %% Version: based on footnotehyper.sty 2021/02/04 v1.1d
@@ -19,11 +19,13 @@
 % - \sphinxfootnotemark[N]
 % where N is a number.
 %
-%% Some small differences from upstream footnotehyper.sty:
+%% Some small differences from footnotehyper.sty 2021/02/04 v1.1d:
 %% - a tabulary compatibility layer (partial but enough for Sphinx),
 %% - usage of \spx@opt@BeforeFootnote
 %% - usage of \sphinxunactivateextrasandspace from sphinx.sty,
 %% - \sphinxlongtablepatch
+%% - fix for a change of babel-french from late June 2025
+%%   (\localleftbox undefined with pdflatex/xelatex, issue #14059)
 %%
 %% Starting with Sphinx v4.5.0, inherited footnotehyper macros for
 %% footnote/footnotetext receive some Sphinx specific extras to
@@ -274,8 +276,11 @@
    \fi
 }%
 \def\FNH@check{%
-   \ifx\@makefntextFB\@undefined\expandafter\FNH@check@
-                           \else\expandafter\FNH@frenchb@
+   \ifx\@makefntextFB\@undefined
+       \expandafter\FNH@check@
+   \else
+       \providecommand\localleftbox[1]{}%
+       \expandafter\FNH@frenchb@
    \fi
 }%
 \def\FNH@frenchb@{%
