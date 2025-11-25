@@ -82,7 +82,7 @@ dependencies = [
     "alabaster>=0.7.14",
     "imagesize>=1.3",
     "requests>=2.30.0",
-    "roman-numerals-py>=1.0.0",
+    "roman-numerals>=1.0.0",
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
     "ipython>=9.6.0",
@@ -108,7 +108,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.14.0",
+    "ruff==0.14.6",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -118,7 +118,7 @@ package = [
     "twine>=6.1",
 ]
 test = [
-    "pytest>=8.0",
+    "pytest>=9.0",
     "pytest-xdist[psutil]>=3.4",
     "cython>=3.0",  # for Cython compilation
     "defusedxml>=0.7.1",  # for secure XML/HTML parsing
@@ -132,7 +132,7 @@ translations = [
 types = [
     "mypy==1.18.2",
     "pyrefly",
-    "pyright==1.1.406",
+    "pyright==1.1.407",
     "ty",
     { include-group = "type-stubs" },
 ]
@@ -142,8 +142,8 @@ type-stubs = [
     "types-defusedxml==0.7.0.20250822",
     "types-docutils==0.21.0.20250525",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.19.0.20250809",
-    "types-requests==2.32.4.20250809",
+    "types-Pygments==2.19.0.20251121",
+    "types-requests==2.32.4.20250913",
     "types-urllib3==1.26.25.14",
 ]
 
@@ -173,7 +173,7 @@ exclude = [
 [tool.mypy]
 files = [
     "doc/conf.py",
-#    "doc/development/tutorials/examples/autodoc_intenum.py",
+    "doc/development/tutorials/examples/autodoc_intenum.py",
     "doc/development/tutorials/examples/helloworld.py",
     "sphinx",
     "tests",
@@ -224,7 +224,6 @@ module = [
     # tests/test_builders
     "tests.test_builders.test_build",
     "tests.test_builders.test_build_html",
-    "tests.test_builders.test_build_html_5_output",
     "tests.test_builders.test_build_linkcheck",
     # tests/test_directives
     "tests.test_directives.test_directive_code",
@@ -243,11 +242,6 @@ module = [
     "tests.test_markup.test_markup",
     # tests/test_theming
     "tests.test_theming.test_templating",
-    "tests.test_theming.test_theming",
-    # tests/test_transforms
-    "tests.test_transforms.test_transforms_post_transforms_images",
-    # tests/test_writers
-    "tests.test_writers.test_docutilsconf",
 ]
 disallow_untyped_defs = false
 
@@ -309,31 +303,6 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = ["tests.test_util.typing_test_data"]
 ignore_errors = true
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = [
-    "-ra",
-    "--import-mode=prepend",
-#    "--pythonwarnings=error",
-    "--strict-config",
-    "--strict-markers",
-]
-empty_parameter_set_mark = "xfail"
-filterwarnings = [
-    "all",
-    "ignore::DeprecationWarning:docutils.io",
-    "ignore:Distutils was imported before Setuptools:UserWarning:_distutils_hack",
-    "ignore:Setuptools is replacing distutils:UserWarning:_distutils_hack",
-    "ignore::DeprecationWarning:pyximport.pyximport",
-    "ignore::ImportWarning:importlib._bootstrap",
-]
-log_cli_level = "INFO"
-markers = [
-    "apidoc",
-]
-testpaths = ["tests"]
-xfail_strict = true
 
 [tool.coverage.run]
 branch = true

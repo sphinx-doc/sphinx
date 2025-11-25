@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._importer import (
+from sphinx.ext.autodoc._dynamic._importer import (
     _get_attribute_comment,
     _is_runtime_instance_attribute_not_commented,
 )
@@ -88,7 +88,7 @@ def _prepare_docstrings(
 ) -> list[list[str]] | None:
     """Add content from docstrings, attribute documentation and user."""
     # add content from attribute documentation
-    if props.obj_type not in {'data', 'attribute'} and props.parts:
+    if props.obj_type not in {'data', 'attribute', 'type'} and props.parts:
         key = ('.'.join(props.parent_names), props.name)
         try:
             # make a copy of docstring for attributes to avoid cache
@@ -297,6 +297,20 @@ def _get_docstring_lines(
         if not docstring:
             return []
         return [prepare_docstring(docstring, tab_width)]
+
+    if props.obj_type == 'type':
+        try:
+            analyzer = ModuleAnalyzer.for_module(props.module_name)
+            analyzer.analyze()
+        except PycodeError:
+            return None
+
+        key = ('', props.name)
+        if key in analyzer.attr_docs:
+            if comment := list(analyzer.attr_docs[key]):
+                return [comment]
+
+        return None
 
     docstring = getdoc(
         obj,

@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from sphinx.ext.autodoc._importer import _import_module
+from sphinx.ext.autodoc._dynamic._importer import _import_module
 
 
 def test_import_native_module_stubs(rootdir: Path) -> None:

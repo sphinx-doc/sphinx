@@ -57,6 +57,7 @@ Contributors
 * Etienne Desautels -- apidoc module
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Filip Vavera -- napoleon todo directive
+* Florian Best -- log improvements
 * Glenn Matthews -- python domain signature improvements
 * Gregory Szorc -- performance improvements
 * Henrique Bastos -- SVG support for graphviz extension

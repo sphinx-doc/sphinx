@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain, Index
     from sphinx.environment import BuildEnvironment
-    from sphinx.ext.autodoc._documenters import Documenter
+    from sphinx.ext.autodoc._legacy_class_based._documenters import Documenter
     from sphinx.util.docfields import Field
     from sphinx.util.typing import (
         ExtensionMetadata,
