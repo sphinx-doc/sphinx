@@ -32,7 +32,7 @@ from sphinx.builders.html._assets import (
 )
 from sphinx.builders.html._build_info import BuildInfo
 from sphinx.config import ENUM
-from sphinx.deprecation import _deprecation_warning
+from sphinx.deprecation import _deprecation_warning as _deprecation_warning
 from sphinx.domains import Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -258,13 +258,6 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.dark_highlighter = None
 
-    @property
-    def css_files(self) -> list[_CascadingStyleSheet]:
-        _deprecation_warning(
-            __name__, f'{self.__class__.__name__}.css_files', remove=(9, 0)
-        )
-        return self._css_files
-
     def init_css_files(self) -> None:
         self._css_files = []
         self.add_css_file('pygments.css', priority=200)
@@ -293,12 +286,6 @@ class StandaloneHTMLBuilder(Builder):
 
         if (asset := _CascadingStyleSheet(filename, **kwargs)) not in self._css_files:
             self._css_files.append(asset)
-
-    @property
-    def script_files(self) -> list[_JavaScript]:
-        canonical_name = f'{self.__class__.__name__}.script_files'
-        _deprecation_warning(__name__, canonical_name, remove=(9, 0))
-        return self._js_files
 
     def init_js_files(self) -> None:
         self._js_files = []
@@ -1556,26 +1543,3 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
-
-
-# deprecated name -> (object to return, canonical path or empty string, removal version)
-_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'Stylesheet': (
-        _CascadingStyleSheet,
-        'sphinx.builders.html._assets._CascadingStyleSheet',
-        (9, 0),
-    ),
-    'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
-}
-
-
-def __getattr__(name: str) -> Any:
-    if name not in _DEPRECATED_OBJECTS:
-        msg = f'module {__name__!r} has no attribute {name!r}'
-        raise AttributeError(msg)
-
-    from sphinx.deprecation import _deprecation_warning
-
-    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=remove)
-    return deprecated_object

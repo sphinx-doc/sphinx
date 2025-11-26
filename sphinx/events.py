@@ -87,7 +87,7 @@ class EventManager:
 
     @property
     def app(self) -> Sphinx:
-        _deprecation_warning(__name__, 'EventManager.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'EventManager.app', remove=(11, 0))
         return self._app
 
     # ---- Core events -------------------------------------------------------
