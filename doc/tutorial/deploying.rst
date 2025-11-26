@@ -225,7 +225,7 @@ following contents:
 And finally, you are ready to `publish GitHub Pages from a branch`_. For
 that, go to :guilabel:`Settings`, then :guilabel:`Pages` on the left sidebar,
 select the ``Deploy from a branch`` item in the "Source" dropdown menu,
-select the ``gh-page`` branch in the "Barnch" dropdown menu, and click
+select the ``gh-page`` branch in the "Branch" dropdown menu, and click
 :guilabel:`Save`. After a few minutes, you should be able to see your HTML at
 the designated URL.
 
