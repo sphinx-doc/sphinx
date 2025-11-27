@@ -315,7 +315,10 @@ def _fetch_inventory_group(
         for fail in failures:
             LOGGER.info(*fail)
     else:
-        issues = '\n'.join(f[0] % f[1:] for f in failures)
+        issues = '\n'.join(
+            f[0] % f[1:] if len(f) > 1 and '%' in f[0] else ' -'.join(f for f in f)
+            for f in failures
+        )
         LOGGER.warning(
             '%s\n%s',
             __('failed to reach any of the inventories with the following issues:'),
