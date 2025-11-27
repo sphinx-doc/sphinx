@@ -1486,7 +1486,7 @@ Options for warning control
       ``ref.any``,
       ``toc.duplicate_entry``, ``toc.empty_glob``, and ``toc.not_included``.
 
-   .. versionadded:: 8.3
+   .. versionadded:: 9.0
       ``duration``.
 
 

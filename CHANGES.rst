@@ -54,7 +54,6 @@ Features added
 * #13439: linkcheck: Permit warning on every redirect with
   ``linkcheck_allowed_redirects = {}``.
   Patch by Adam Turner and James Addison.
-* #13468: Add config options to :mod:`sphinx.ext.duration`.
 * #13497: Support C domain objects in the table of contents.
 * #13500: LaTeX: add support for ``fontawesome6`` package.
   Patch by Jean-François B.
@@ -85,6 +84,8 @@ Features added
   Patch by Fazeel Usmani and James Addison.
 * #14075: autosummary: Provide more context in import exception stack traces.
   Patch by Philipp A.
+* #13468: Add config options to :mod:`sphinx.ext.duration`.
+  Patch by Erik Bedard and Adam Turner.
 
 Bugs fixed
 ----------
