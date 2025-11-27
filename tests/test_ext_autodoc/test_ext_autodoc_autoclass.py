@@ -12,6 +12,12 @@ import pytest
 
 from tests.test_ext_autodoc.autodoc_util import FakeEvents, do_autodoc
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from typing import Any
+
+    from sphinx.application import Sphinx
+
 pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
@@ -298,19 +304,22 @@ def test_show_inheritance_for_decendants_of_generic_type() -> None:
     ]
 
 
+def _autodoc_process_bases(
+    app: Sphinx, name: str, obj: Any, options: dict[str, bool], bases: list[type]
+) -> None:
+    assert name == 'target.classes.Quux'
+    assert obj.__module__ == 'target.classes'
+    assert obj.__name__ == 'Quux'
+    assert vars(options) == {}
+    assert bases == [typing.List[typing.Union[int, float]]]  # NoQA: UP006, UP007
+
+    bases.pop()
+    bases.extend([int, str])
+
+
 def test_autodoc_process_bases() -> None:
-    def autodoc_process_bases(app, name, obj, options, bases):
-        assert name == 'target.classes.Quux'
-        assert obj.__module__ == 'target.classes'
-        assert obj.__name__ == 'Quux'
-        assert vars(options) == {}
-        assert bases == [typing.List[typing.Union[int, float]]]  # NoQA: UP006, UP007
-
-        bases.pop()
-        bases.extend([int, str])
-
     events = FakeEvents()
-    events.connect('autodoc-process-bases', autodoc_process_bases)
+    events.connect('autodoc-process-bases', _autodoc_process_bases)
 
     options = {'show-inheritance': None}
     actual = do_autodoc('class', 'target.classes.Quux', events=events, options=options)
@@ -377,7 +386,7 @@ def test_class_doc_from_both() -> None:
 
 
 def test_class_alias() -> None:
-    def autodoc_process_docstring(*args):
+    def autodoc_process_docstring(*args: Any) -> None:
         """A handler always raises an error.
         This confirms this handler is never called for class aliases.
         """
