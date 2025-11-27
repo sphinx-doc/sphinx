@@ -120,7 +120,6 @@ class ConnectionMeasurement:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck',
-    freshenv=True,
 )
 def test_defaults(app: SphinxTestApp) -> None:
     with serve_application(app, DefaultsHandler) as address:
@@ -208,7 +207,6 @@ def test_defaults(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck',
-    freshenv=True,
     confoverrides={'linkcheck_anchors': False},
 )
 def test_check_link_response_only(app: SphinxTestApp) -> None:
@@ -227,7 +225,6 @@ def test_check_link_response_only(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-too-many-retries',
-    freshenv=True,
 )
 def test_too_many_retries(app: SphinxTestApp) -> None:
     with serve_application(app, DefaultsHandler) as address:
@@ -260,7 +257,6 @@ def test_too_many_retries(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-raw-node',
-    freshenv=True,
     copy_test_root=True,
 )
 def test_raw_node(app: SphinxTestApp) -> None:
@@ -296,7 +292,6 @@ def test_raw_node(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-anchors-ignore',
-    freshenv=True,
     confoverrides={'linkcheck_anchors_ignore': ['^!', '^top$']},
 )
 def test_anchors_ignored(app: SphinxTestApp) -> None:
@@ -372,7 +367,6 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-anchors-ignore-for-url',
-    freshenv=True,
 )
 def test_anchors_ignored_for_url(app: SphinxTestApp) -> None:
     with serve_application(app, AnchorsIgnoreForUrlHandler) as address:
@@ -418,7 +412,6 @@ def test_anchors_ignored_for_url(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-anchor',
-    freshenv=True,
 )
 def test_raises_for_invalid_status(app: SphinxTestApp) -> None:
     class InternalServerErrorHandler(BaseHTTPRequestHandler):
@@ -440,7 +433,6 @@ def test_raises_for_invalid_status(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-anchor',
-    freshenv=True,
 )
 def test_incomplete_html_anchor(app: SphinxTestApp) -> None:
     class IncompleteHTMLDocumentHandler(BaseHTTPRequestHandler):
@@ -466,7 +458,6 @@ def test_incomplete_html_anchor(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-anchor',
-    freshenv=True,
 )
 def test_decoding_error_anchor_ignored(app: SphinxTestApp) -> None:
     class NonASCIIHandler(BaseHTTPRequestHandler):
@@ -545,7 +536,6 @@ def custom_handler(
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_auth_header_uses_first_match(app: SphinxTestApp) -> None:
     with serve_application(
@@ -567,7 +557,6 @@ def test_auth_header_uses_first_match(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
     confoverrides={'linkcheck_allow_unauthorized': False},
 )
 def test_unauthorized_broken(app: SphinxTestApp) -> None:
@@ -586,7 +575,6 @@ def test_unauthorized_broken(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]},
 )
 def test_auth_header_no_match(app: SphinxTestApp) -> None:
@@ -605,7 +593,6 @@ def test_auth_header_no_match(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_linkcheck_request_headers(app: SphinxTestApp) -> None:
     def check_headers(self: BaseHTTPRequestHandler) -> bool:
@@ -631,7 +618,6 @@ def test_linkcheck_request_headers(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_linkcheck_request_headers_no_slash(app: SphinxTestApp) -> None:
     def check_headers(self: BaseHTTPRequestHandler) -> bool:
@@ -657,7 +643,6 @@ def test_linkcheck_request_headers_no_slash(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
     confoverrides={
         'linkcheck_request_headers': {
             'http://do.not.match.org': {'Accept': 'application/json'},
@@ -711,7 +696,6 @@ def make_redirect_handler(*, support_head: bool = True) -> type[BaseHTTPRequestH
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_follows_redirects_on_HEAD(
     app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
@@ -740,7 +724,6 @@ def test_follows_redirects_on_HEAD(
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_follows_redirects_on_GET(
     app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
@@ -770,7 +753,6 @@ def test_follows_redirects_on_GET(
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
     confoverrides={'linkcheck_allowed_redirects': {}},  # warn about any redirects
 )
 def test_warns_disallowed_redirects(
@@ -871,7 +853,6 @@ class OKHandler(BaseHTTPRequestHandler):
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-https',
-    freshenv=True,
 )
 def test_invalid_ssl(get_request: mock.Mock, app: SphinxTestApp) -> None:
     # Link indicates SSL should be used (https) but the server does not handle it.
@@ -891,7 +872,6 @@ def test_invalid_ssl(get_request: mock.Mock, app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-https',
-    freshenv=True,
 )
 def test_connect_to_selfsigned_fails(app: SphinxTestApp) -> None:
     with serve_application(app, OKHandler, tls_enabled=True) as address:
@@ -909,7 +889,6 @@ def test_connect_to_selfsigned_fails(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-https',
-    freshenv=True,
     confoverrides={'tls_verify': False},
 )
 def test_connect_to_selfsigned_with_tls_verify_false(app: SphinxTestApp) -> None:
@@ -931,7 +910,6 @@ def test_connect_to_selfsigned_with_tls_verify_false(app: SphinxTestApp) -> None
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-https',
-    freshenv=True,
     confoverrides={'tls_cacerts': CERT_FILE},
 )
 def test_connect_to_selfsigned_with_tls_cacerts(app: SphinxTestApp) -> None:
@@ -953,7 +931,6 @@ def test_connect_to_selfsigned_with_tls_cacerts(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-https',
-    freshenv=True,
 )
 def test_connect_to_selfsigned_with_requests_env_var(
     monkeypatch: pytest.MonkeyPatch, app: SphinxTestApp
@@ -977,7 +954,6 @@ def test_connect_to_selfsigned_with_requests_env_var(
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-https',
-    freshenv=True,
     confoverrides={'tls_cacerts': 'does/not/exist'},
 )
 def test_connect_to_selfsigned_nonexistent_cert_file(app: SphinxTestApp) -> None:
@@ -1019,7 +995,6 @@ class InfiniteRedirectOnHeadHandler(BaseHTTPRequestHandler):
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_TooManyRedirects_on_HEAD(
     app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
@@ -1116,7 +1091,6 @@ def make_retry_after_handler(
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_too_many_requests_retry_after_int_delay(
     app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
@@ -1153,7 +1127,6 @@ def test_too_many_requests_retry_after_int_delay(
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_too_many_requests_retry_after_HTTP_date(
     tz: str | None,
@@ -1204,7 +1177,6 @@ def test_too_many_requests_retry_after_HTTP_date(
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_too_many_requests_retry_after_without_header(
     app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
@@ -1237,7 +1209,6 @@ def test_too_many_requests_retry_after_without_header(
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
     confoverrides={
         'linkcheck_report_timeouts_as_broken': False,
         'linkcheck_timeout': 0.01,
@@ -1265,7 +1236,6 @@ def test_requests_timeout(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
     confoverrides={'linkcheck_rate_limit_timeout': 0.0},
 )
 def test_too_many_requests_user_timeout(app: SphinxTestApp) -> None:
@@ -1413,7 +1383,6 @@ class ConnectionResetHandler(BaseHTTPRequestHandler):
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver',
-    freshenv=True,
 )
 def test_get_after_head_raises_connection_error(app: SphinxTestApp) -> None:
     with serve_application(app, ConnectionResetHandler) as address:
@@ -1434,7 +1403,6 @@ def test_get_after_head_raises_connection_error(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-documents_exclude',
-    freshenv=True,
 )
 def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
     with serve_application(app, DefaultsHandler):
@@ -1486,7 +1454,6 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-case-check',
-    freshenv=True,
 )
 @pytest.mark.parametrize(
     ('case_insensitive_pattern', 'expected_path1', 'expected_path2', 'expected_path3'),
