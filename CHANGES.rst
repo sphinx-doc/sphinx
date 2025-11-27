@@ -171,9 +171,9 @@ Bugs fixed
   Patch by Florian Best.
 * #14006: Support images with data URIs that aren't base64-encoded.
   Patch by Shengyu Zhang and Adam Turner.
-* #12797: Fix
-  ``TypeError: Some type variables (...) are not listed in Generic[...]``
-  when inheriting from both Generic and autodoc mocked class.
+* #12797: Fix ``Some type variables (...) are not listed in Generic[...]``
+  TypeError when inheriting from both Generic and autodoc mocked class.
+  Patch by Ikor Jefocur and Daniel Sperber.
 
 
 Testing

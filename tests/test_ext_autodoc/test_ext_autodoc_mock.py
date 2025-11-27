@@ -33,7 +33,7 @@ def test_MockModule() -> None:
     assert repr(mock) == 'mocked_module'
 
 
-def test_MockObject():
+def test_MockObject() -> None:
     mock = _MockObject()
     assert isinstance(mock.some_attr, _MockObject)
     assert isinstance(mock.some_method, _MockObject)
@@ -41,7 +41,7 @@ def test_MockObject():
     assert isinstance(mock.attr1.attr2.meth(), _MockObject)
 
     # subclassing
-    class SubClass(mock.SomeClass):
+    class SubClass(mock.SomeClass):  # type: ignore[misc,name-defined]
         """docstring of SubClass"""
 
         def method(self):
@@ -56,24 +56,31 @@ def test_MockObject():
     # parametrized type
     T = TypeVar('T')
 
-    class SubClass2(mock.SomeClass[T]):
+    class SubClass2(mock.SomeClass[T]):  # type: ignore[misc,name-defined]
         """docstring of SubClass"""
 
-    obj2 = SubClass2()
+    obj2 = SubClass2()  # type: ignore[var-annotated]
     assert SubClass2.__doc__ == 'docstring of SubClass'
     assert isinstance(obj2, SubClass2)
+
+
+def test_MockObject_generic() -> None:
+    mock = _MockObject()
+
+    # parametrized type
+    T = TypeVar('T')
 
     # test subclass with typing.Generic
     # Creating this class would raise an error on Python3.11+
     # as mock objects are detected as typevars if hasattr(__typing_subst__) is True.
 
-    assert not hasattr(mock.SomeClass, '__typing_subst__')
+    assert not hasattr(mock.SomeClass, '__typing_subst__')  # type: ignore[attr-defined]
     S = TypeVar('S')
 
-    class GenericClass(mock.SomeClass, Generic[T, S]):
+    class GenericClass(mock.SomeClass, Generic[T, S]):  # type: ignore[misc,name-defined]
         """docstring of GenericSubclass"""
 
-    obj3 = GenericClass()
+    obj3 = GenericClass()  # type: ignore[var-annotated]
     assert isinstance(obj3, _MockObject)
     assert isinstance(obj3.some_attr, _MockObject)
     assert isinstance(obj3.some_method(), _MockObject)
@@ -82,8 +89,10 @@ def test_MockObject():
 
     # check that Generic Subscriptions still works
 
-    class GenericSubclass(GenericClass[mock.MockedClass, S]):
+    class GenericSubclass(GenericClass[mock.MockedClass, S]):  # type: ignore[name-defined]
         """docstring of GenericSubclass"""
+
+    assert issubclass(GenericSubclass, GenericClass)
 
 
 def test_mock() -> None:

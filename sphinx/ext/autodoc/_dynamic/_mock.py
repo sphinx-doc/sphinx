@@ -14,7 +14,7 @@ from sphinx.util import logging
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterator, Sequence, Set
     from typing import Any
 
     from typing_extensions import TypeIs
@@ -30,7 +30,7 @@ class _MockObject:
     __sphinx_mock__ = True
     __sphinx_decorator_args__: tuple[Any, ...] = ()
     # Attributes listed here should not be mocked and rather raise an Attribute error:
-    __sphinx_empty_attrs__: set[str] = {'__typing_subst__'}
+    __sphinx_empty_attrs__: Set[str] = frozenset(('__typing_subst__',))
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:  # NoQA: ARG004
         if len(args) == 3 and isinstance(args[1], tuple):
