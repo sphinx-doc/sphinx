@@ -74,7 +74,7 @@ def test_MockObject_generic() -> None:
     # Creating this class would raise an error on Python3.11+
     # as mock objects are detected as typevars if hasattr(__typing_subst__) is True.
 
-    assert not hasattr(mock.SomeClass, '__typing_subst__')  # type: ignore[attr-defined]
+    assert not hasattr(mock.SomeClass, '__typing_subst__')
     S = TypeVar('S')
 
     class GenericClass(mock.SomeClass, Generic[T, S]):  # type: ignore[misc,name-defined]
