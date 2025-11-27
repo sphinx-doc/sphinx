@@ -302,6 +302,9 @@ include = [
     "tests",
     "utils",
 ]
+exclude = [
+    "tests/roots",
+]
 
 reportArgumentType = "none"
 reportAssignmentType = "none"
