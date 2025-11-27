@@ -1420,6 +1420,7 @@ Options for warning control
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
+   * ``duration``
    * ``intersphinx.external``
 
    You can choose from these types.  You can also give only the first
@@ -1484,6 +1485,9 @@ Options for warning control
       ``i18n.babel``, ``i18n.not_readable``, ``i18n.not_writeable``,
       ``ref.any``,
       ``toc.duplicate_entry``, ``toc.empty_glob``, and ``toc.not_included``.
+
+   .. versionadded:: 9.0
+      ``duration``.
 
 
 Builder options

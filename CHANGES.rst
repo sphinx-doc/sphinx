@@ -84,6 +84,15 @@ Features added
   Patch by Fazeel Usmani and James Addison.
 * #14075: autosummary: Provide more context in import exception stack traces.
   Patch by Philipp A.
+* #13468: Add config options to :mod:`sphinx.ext.duration`.
+  Patch by Erik Bedard and Adam Turner.
+* #14022: Use MathJax v4 by default in the :mod:`sphinx.ext.mathjax` extension,
+  from v3 previously.
+  To keep using an older version, set the :confval:`mathjax_path` option.
+  Also add the new :confval:`mathjax4_config` option to configure MathJax v4.
+  Note that MathJax v3 is mostly compatible with MathJax v4, so existing
+  :confval:`mathjax3_config` settings should not need to change.
+  Patch by Matthias Geier.
 
 Bugs fixed
 ----------
@@ -162,6 +171,9 @@ Bugs fixed
   Patch by Florian Best.
 * #14006: Support images with data URIs that aren't base64-encoded.
   Patch by Shengyu Zhang and Adam Turner.
+* #12797: Fix ``Some type variables (...) are not listed in Generic[...]``
+  TypeError when inheriting from both Generic and autodoc mocked class.
+  Patch by Ikor Jefocur and Daniel Sperber.
 
 
 Testing

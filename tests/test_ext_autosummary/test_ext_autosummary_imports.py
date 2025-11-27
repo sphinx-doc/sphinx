@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-import_cycle')
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_autosummary_import_cycle(app):
+def test_autosummary_import_cycle(app: SphinxTestApp) -> None:
     app.build()
 
     doctree = app.env.get_doctree('index')
@@ -46,12 +46,27 @@ def test_autosummary_import_cycle(app):
             addnodes.desc,  # [6]
         ),
     )
+    doctree_4 = doctree[4]
+    assert isinstance(doctree_4, nodes.Element)
+    doctree_4_0 = doctree_4[0]
+    assert isinstance(doctree_4_0, nodes.Element)
+    doctree_4_0_0 = doctree_4_0[0]
+    assert isinstance(doctree_4_0_0, nodes.Element)
+    doctree_4_0_0_2 = doctree_4_0_0[2]
+    assert isinstance(doctree_4_0_0_2, nodes.Element)
+    doctree_4_0_0_2_0 = doctree_4_0_0_2[0]
+    assert isinstance(doctree_4_0_0_2_0, nodes.Element)
+    doctree_4_0_0_2_0_0 = doctree_4_0_0_2_0[0]
+    assert isinstance(doctree_4_0_0_2_0_0, nodes.Element)
+    doctree_4_0_0_2_0_0_0 = doctree_4_0_0_2_0_0[0]
+    assert isinstance(doctree_4_0_0_2_0_0_0, nodes.Element)
+
     assert_node(
-        doctree[4][0][0][2][0],
+        doctree_4_0_0_2[0],
         ([nodes.entry, nodes.paragraph, (nodes.reference, nodes.Text)], nodes.entry),
     )
     assert_node(
-        doctree[4][0][0][2][0][0][0][0],
+        doctree_4_0_0_2_0_0_0[0],
         nodes.reference,
         refid='spam.eggs.Ham',
         reftitle='spam.eggs.Ham',

@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 # more information for mathjax secure url is here:
 # https://docs.mathjax.org/en/latest/web/start.html#using-mathjax-from-a-content-delivery-network-cdn
-MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js'
 
 logger = sphinx.util.logging.getLogger(__name__)
 
@@ -102,13 +102,17 @@ def install_mathjax(
             if app.config.mathjax_path == MATHJAX_URL:
                 logger.warning(
                     'mathjax_config/mathjax2_config does not work '
-                    'for the current MathJax version, use mathjax3_config instead'
+                    'for the current MathJax version, use mathjax4_config instead'
                 )
             body = f'MathJax.Hub.Config({json.dumps(app.config.mathjax2_config)})'
             builder.add_js_file('', type='text/x-mathjax-config', body=body)
 
         if app.config.mathjax3_config:
             body = f'window.MathJax = {json.dumps(app.config.mathjax3_config)}'
+            builder.add_js_file('', body=body)
+
+        if app.config.mathjax4_config:
+            body = f'window.MathJax = {json.dumps(app.config.mathjax4_config)}'
             builder.add_js_file('', body=body)
 
         if app.config.mathjax_config_path:
@@ -161,6 +165,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     app.add_config_value(
         'mathjax3_config', None, 'html', types=frozenset({dict, NoneType})
+    )
+    app.add_config_value(
+        'mathjax4_config', None, 'html', types=frozenset({dict, NoneType})
     )
     app.add_config_value('mathjax_config_path', '', 'html', types=frozenset({str}))
     app.connect('html-page-context', install_mathjax)

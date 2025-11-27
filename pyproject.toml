@@ -220,34 +220,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_versioning",
-    # tests/test_builders
-    "tests.test_builders.test_build",
-    "tests.test_builders.test_build_html",
-    "tests.test_builders.test_build_linkcheck",
-    # tests/test_directives
-    "tests.test_directives.test_directive_code",
-    "tests.test_directives.test_directives_no_typesetting",
-    # tests/test_ext_autodoc
-    "tests.test_ext_autodoc.test_ext_autodoc_autoclass",
-    # tests/test_ext_autosummary
-    "tests.test_ext_autosummary.test_ext_autosummary_imports",
-    # tests/test_ext_intersphinx
-    "tests.test_ext_intersphinx.test_ext_intersphinx_cache",
-    # tests/test_ext_napoleon
-    "tests.test_ext_napoleon.test_ext_napoleon",
-    # tests/test_extensions
-    "tests.test_extensions.test_ext_math",
-    # tests/test_markup
-    "tests.test_markup.test_markup",
-    # tests/test_theming
-    "tests.test_theming.test_templating",
-]
-disallow_untyped_defs = false
-
-[[tool.mypy.overrides]]
-module = [
-    # tests/
     "tests.test_search",
     # tests/test_builders
     "tests.test_builders.test_build_latex",
