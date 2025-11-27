@@ -84,6 +84,8 @@ Features added
   Patch by Fazeel Usmani and James Addison.
 * #14075: autosummary: Provide more context in import exception stack traces.
   Patch by Philipp A.
+* #13468: Add config options to :mod:`sphinx.ext.duration`.
+  Patch by Erik Bedard and Adam Turner.
 
 Bugs fixed
 ----------
