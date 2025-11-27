@@ -3,13 +3,10 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
-from docutils.statemachine import StringList
-
 from sphinx.environment import _CurrentDocument
 from sphinx.events import EventManager
 from sphinx.ext.autodoc._directive_options import _process_documenter_options
-from sphinx.ext.autodoc._generate import _generate_directives
-from sphinx.ext.autodoc._loader import _load_object_by_name
+from sphinx.ext.autodoc._generate import _auto_document_object
 from sphinx.ext.autodoc._shared import _AutodocConfig
 from sphinx.util.inspect import safe_getattr
 
@@ -65,34 +62,22 @@ def do_autodoc(
         options=options,
     )
 
-    props = _load_object_by_name(
+    content = _auto_document_object(
         name=name,
-        objtype=obj_type,
-        current_document=current_document,
+        obj_type=obj_type,
         config=config,
+        current_document=current_document,
         events=events,
         get_attr=safe_getattr,
+        more_content=None,
         options=doc_options,
+        record_dependencies=set(),
         ref_context=ref_context,
         reread_always=reread_always,
     )
     if expect_import_error:
-        assert props is None
+        assert content is None
         return []
 
-    assert props is not None
-    result = StringList()
-    _generate_directives(
-        config=config,
-        current_document=current_document,
-        events=events,
-        get_attr=safe_getattr,
-        indent='',
-        options=doc_options,
-        props=props,
-        record_dependencies=set(),
-        ref_context=ref_context,
-        reread_always=reread_always,
-        result=result,
-    )
-    return result.data
+    assert content is not None
+    return content.data

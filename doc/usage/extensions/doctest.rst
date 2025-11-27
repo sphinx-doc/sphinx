@@ -459,4 +459,4 @@ The doctest extension uses the following configuration values:
 
    Exit when the first failure is encountered.
 
-   .. versionadded:: 8.3
+   .. versionadded:: 9.0

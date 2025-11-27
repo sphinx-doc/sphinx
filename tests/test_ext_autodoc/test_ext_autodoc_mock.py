@@ -9,7 +9,13 @@ from typing import TypeVar
 
 import pytest
 
-from sphinx.ext.autodoc.mock import _MockModule, _MockObject, ismock, mock, undecorate
+from sphinx.ext.autodoc._dynamic._mock import (
+    _MockModule,
+    _MockObject,
+    ismock,
+    mock,
+    undecorate,
+)
 
 
 def test_MockModule() -> None:

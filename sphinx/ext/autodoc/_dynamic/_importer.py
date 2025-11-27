@@ -15,8 +15,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._dynamic._mock import ismock, mock, undecorate
 from sphinx.ext.autodoc._sentinels import RUNTIME_INSTANCE_ATTRIBUTE, UNINITIALIZED_ATTR
-from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.inspect import isclass, safe_getattr
@@ -181,7 +181,7 @@ def _import_from_module_and_path(
             # _import_module() raises ImportError having real exception obj and
             # traceback
             real_exc = exc.args[0]
-            traceback_msg = traceback.format_exception(exc)
+            traceback_msg = ''.join(traceback.format_exception(exc))
             if isinstance(real_exc, SystemExit):
                 err_parts.append(
                     'the module executes module level statement '

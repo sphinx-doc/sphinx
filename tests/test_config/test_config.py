@@ -13,11 +13,9 @@ import sphinx
 from sphinx.config import (
     ENUM,
     Config,
-    _Opt,
     check_confval_types,
     is_serializable,
 )
-from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util.tags import Tags
@@ -63,19 +61,6 @@ def test_is_serializable() -> None:
     x: CircularDict = {'a': 1, 'b': {'c': 1}}
     x['b'] = x
     check_is_serializable(x, circular=True)
-
-
-def test_config_opt_deprecated(recwarn):
-    opt = _Opt('default', '', ())
-
-    with pytest.warns(RemovedInSphinx90Warning):
-        _default, _rebuild, _valid_types = opt
-
-    with pytest.warns(RemovedInSphinx90Warning):
-        _ = opt[0]
-
-    with pytest.warns(RemovedInSphinx90Warning):
-        _ = list(opt)
 
 
 @pytest.mark.sphinx(

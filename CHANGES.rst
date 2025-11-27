@@ -1,4 +1,4 @@
-Release 8.3.0 (in development)
+Release 9.0.0 (in development)
 ==============================
 
 Dependencies
@@ -14,6 +14,12 @@ Incompatible changes
 * #13639: :py:meth:`!SphinxComponentRegistry.create_source_parser` no longer
   has an *app* parameter, instead taking *config* and *env*.
   Patch by Adam Turner.
+* #13751, #14089: :mod:`sphinx.ext.autodoc` has been substantially rewritten,
+  and there may be some incompatible changes in edge cases, especially when
+  extensions interact with autodoc internals.
+  The :confval:`autodoc_use_legacy_class_based` option has been added to
+  use the legacy (pre-9.0) implementation of autodoc.
+  Patches by Adam Turner.
 
 Deprecated
 ----------
@@ -71,6 +77,15 @@ Features added
 * #14023: Add the new :confval:`mathjax_config_path` option
   to load MathJax configuration from a file.
   Patch by Randolf Scholz and Adam Turner.
+* #14046: linkcheck: Add the :confval:`linkcheck_case_insensitive_urls` option
+  to allow case-insensitive URL comparison for specific URL patterns.
+  This is useful for links to websites that normalise URL casing (e.g. GitHub)
+  or case-insensitive servers.
+  Patch by Fazeel Usmani and James Addison.
+* #14075: autosummary: Provide more context in import exception stack traces.
+  Patch by Philipp A.
+* #13468: Add config options to :mod:`sphinx.ext.duration`.
+  Patch by Erik Bedard and Adam Turner.
 * #14022: Use MathJax v4 by default in the :mod:`sphinx.ext.mathjax` extension,
   from v3 previously.
   To keep using an older version, set the :confval:`mathjax_path` option.
@@ -150,6 +165,12 @@ Bugs fixed
 * #14059: LaTeX: Footnotes cause pdflatex error with French language
   (since late June 2025 upstream change to LaTeX ``babel-french``).
   Patch by Jean-François B.
+* #13916: HTML Search: do not clear text fragments from the URL on page load.
+  Patch by Harmen Stoppels.
+* #13944: autodoc: show traceback during import in human readable representation.
+  Patch by Florian Best.
+* #14006: Support images with data URIs that aren't base64-encoded.
+  Patch by Shengyu Zhang and Adam Turner.
 
 
 Testing

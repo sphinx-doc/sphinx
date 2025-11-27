@@ -322,10 +322,14 @@ def test_imgmath_numfig_html(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-math-compat')
-def test_math_compat(app):
+def test_math_compat(app: SphinxTestApp) -> None:
     with warnings.catch_warnings(record=True):
         app.build(force_all=True)
         doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+        doctree_0 = doctree[0]
+        assert isinstance(doctree_0, nodes.Element)
+        doctree_0_1 = doctree_0[1]
+        assert isinstance(doctree_0_1, nodes.Element)
 
         assert_node(
             doctree,
@@ -340,7 +344,7 @@ def test_math_compat(app):
             ],
         )
         assert_node(
-            doctree[0][1][1],
+            doctree_0_1[1],
             (
                 'Inline: ',
                 [nodes.math, 'E=mc^2'],
@@ -349,7 +353,7 @@ def test_math_compat(app):
             ),
         )
         assert_node(
-            doctree[0][2],
+            doctree_0[2],
             (
                 [nodes.title, 'block'],
                 [nodes.math_block, 'a^2+b^2=c^2\n\n'],
