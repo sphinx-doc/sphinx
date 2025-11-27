@@ -51,7 +51,7 @@ def test_duration(app: SphinxTestApp) -> None:
 def test_n_slowest_value(app: SphinxTestApp) -> None:
     app.build()
 
-    matches = re.findall(r'\d+\.\d{3}s\s+[A-Za-z0-9]+\n', app.status.getvalue())
+    matches = re.findall(r'\d+\.\d{3}s\s+[A-Za-z0-9/]+\n', app.status.getvalue())
     assert len(matches) == 2
 
 
@@ -65,7 +65,7 @@ def test_n_slowest_all(app: SphinxTestApp) -> None:
     app.build()
 
     assert 'slowest reading durations' in app.status.getvalue()
-    matches = re.findall(r'\d+\.\d{3}s\s+[A-Za-z0-9]+\n', app.status.getvalue())
+    matches = re.findall(r'\d+\.\d{3}s\s+[A-Za-z0-9/]+\n', app.status.getvalue())
     assert len(matches) > 0
 
 
