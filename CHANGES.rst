@@ -1,4 +1,4 @@
-Release 8.3.0 (in development)
+Release 9.0.0 (in development)
 ==============================
 
 Dependencies
@@ -14,6 +14,12 @@ Incompatible changes
 * #13639: :py:meth:`!SphinxComponentRegistry.create_source_parser` no longer
   has an *app* parameter, instead taking *config* and *env*.
   Patch by Adam Turner.
+* #13751, #14089: :mod:`sphinx.ext.autodoc` has been substantially rewritten,
+  and there may be some incompatible changes in edge cases, especially when
+  extensions interact with autodoc internals.
+  The :confval:`autodoc_use_legacy_class_based` option has been added to
+  use the legacy (pre-9.0) implementation of autodoc.
+  Patches by Adam Turner.
 
 Deprecated
 ----------
@@ -66,10 +72,34 @@ Features added
   Patch by Adam Turner.
 * #13805: LaTeX: add support for ``fontawesome7`` package.
   Patch by Jean-François B.
+* #13508: Initial support for :pep:`695` type aliases.
+  Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #14023: Add the new :confval:`mathjax_config_path` option
+  to load MathJax configuration from a file.
+  Patch by Randolf Scholz and Adam Turner.
+* #14046: linkcheck: Add the :confval:`linkcheck_case_insensitive_urls` option
+  to allow case-insensitive URL comparison for specific URL patterns.
+  This is useful for links to websites that normalise URL casing (e.g. GitHub)
+  or case-insensitive servers.
+  Patch by Fazeel Usmani and James Addison.
+* #14075: autosummary: Provide more context in import exception stack traces.
+  Patch by Philipp A.
+* #13468: Add config options to :mod:`sphinx.ext.duration`.
+  Patch by Erik Bedard and Adam Turner.
+* #14022: Use MathJax v4 by default in the :mod:`sphinx.ext.mathjax` extension,
+  from v3 previously.
+  To keep using an older version, set the :confval:`mathjax_path` option.
+  Also add the new :confval:`mathjax4_config` option to configure MathJax v4.
+  Note that MathJax v3 is mostly compatible with MathJax v4, so existing
+  :confval:`mathjax3_config` settings should not need to change.
+  Patch by Matthias Geier.
 
 Bugs fixed
 ----------
 
+* #13926: multiple py:type directives for the same canonical type no
+  longer result in spurious duplicate object description warnings.
+  Patch by Jeremy Maitin-Shepard.
 * #1327: LaTeX: tables using longtable raise error if
   :rst:dir:`tabularcolumns` specifies automatic widths
   (``L``, ``R``, ``C``, or ``J``).
@@ -118,6 +148,29 @@ Bugs fixed
   for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
 * #13858: doctest: doctest blocks are now correctly added to a group defined by the
   configuration variable ``doctest_test_doctest_blocks``.
+* #13885: Coverage builder: Fix TypeError when warning about missing modules.
+  Patch by Damien Ayers.
+* #13929: Duplicate equation label warnings now have a new warning
+  sub-type, ``ref.equation``.
+  Patch by Jared Dillard.
+* #13935: autoclass: parent class members no longer considered
+  directly defined in certain cases, depending on autodoc processing
+  order.
+  Patch by Jeremy Maitin-Shepard.
+* #13939: LaTeX: page break can separate admonition title from contents.
+  Patch by Jean-François B.
+* #14004: Fix :confval:`autodoc_type_aliases` when they appear in PEP 604
+  union syntax (``Alias | Type``).
+  Patch by Tamika Nomara.
+* #14059: LaTeX: Footnotes cause pdflatex error with French language
+  (since late June 2025 upstream change to LaTeX ``babel-french``).
+  Patch by Jean-François B.
+* #13916: HTML Search: do not clear text fragments from the URL on page load.
+  Patch by Harmen Stoppels.
+* #13944: autodoc: show traceback during import in human readable representation.
+  Patch by Florian Best.
+* #14006: Support images with data URIs that aren't base64-encoded.
+  Patch by Shengyu Zhang and Adam Turner.
 * #12797: Fix
   ``TypeError: Some type variables (...) are not listed in Generic[...]``
   when inheriting from both Generic and autodoc mocked class.

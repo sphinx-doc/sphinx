@@ -578,7 +578,6 @@ def test_numfig_with_numbered_toctree(
         },
     },
 )
-@pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
 def test_numfig_with_prefix_warn(app: SphinxTestApp) -> None:
     app.build()
     warnings = app.warning.getvalue()
@@ -800,7 +799,6 @@ def test_numfig_with_prefix_warn(app: SphinxTestApp) -> None:
         },
     },
 )
-@pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
 def test_numfig_with_prefix(
     app: SphinxTestApp,
     cached_etree_parse: Callable[[Path], ElementTree],

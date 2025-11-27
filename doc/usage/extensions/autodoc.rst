@@ -966,10 +966,62 @@ Automatically document attributes or data
       ``:no-value:`` has no effect.
 
 
+Automatically document type aliases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. rst:directive:: autotype
+
+   .. versionadded:: 9.0
+
+   Document a :pep:`695` type alias (the :keyword:`type` statement).
+   By default, the directive only inserts the docstring of the alias itself:
+
+   The directive can also contain content of its own,
+   which will be inserted into the resulting non-auto directive source
+   after the docstring (but before any automatic member documentation).
+
+   Therefore, you can also mix automatic and non-automatic member documentation.
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: no-index
+      :type:
+
+      Do not generate an index entry for the documented class
+      or any auto-documented members.
+
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented class
+      or any auto-documented members.
+      Unlike ``:no-index:``, cross-references are still created.
+
+
 Configuration
 -------------
 
 There are also config values that you can set:
+
+.. confval:: autodoc_use_legacy_class_based
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   If true, autodoc will use the legacy class-based implementation.
+   This is the behaviour prior to Sphinx 9.0.
+   It is based on the ``Documenter`` class hierarchy.
+
+   This setting is provided for backwards compatibility if your documentation
+   or an extension you use uses or monkeypatches the legacy class-based API
+   in Python code.
+   If this is the case, set ``autodoc_use_legacy_class_based = True``
+   in your :file:`conf.py`.
+   Please also add a comment to `the tracking issue on GitHub
+   <https://github.com/sphinx-doc/sphinx/issues/14089>`__ so that the maintainers
+   are aware of your use case, for possible future improvements.
+
+   .. note:: The legacy class-based implementation does not support
+             PEP 695 type aliases.
 
 .. confval:: autoclass_content
    :type: :code-py:`str`
@@ -1379,7 +1431,7 @@ autodoc provides the following additional events:
       ``'(parameter_1, parameter_2)'``, or ``None`` if introspection didn't
       succeed and signature wasn't specified in the directive.
    :param return_annotation: function return annotation as a string of the form
-      ``' -> annotation'``, or ``None`` if there is no return annotation
+      ``'annotation'``, or ``''`` if there is no return annotation.
 
 The :mod:`sphinx.ext.autodoc` module provides factory functions for commonly
 needed docstring processing in event :event:`autodoc-process-docstring`:

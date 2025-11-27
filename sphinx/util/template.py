@@ -42,7 +42,7 @@ class BaseRenderer:
 
 class FileRenderer(BaseRenderer):
     def __init__(self, search_path: Sequence[str | os.PathLike[str]]) -> None:
-        if isinstance(search_path, str | os.PathLike):
+        if isinstance(search_path, (str, os.PathLike)):
             search_path = [search_path]
         else:
             # filter "None" paths

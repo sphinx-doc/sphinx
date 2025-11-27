@@ -193,6 +193,12 @@ def test_text_inconsistency_warnings(app):
         }
         + warning_fmt
         % {
+            'reftype': 'citation references',
+            'original': "\\['\\[ref2\\]_'\\]",
+            'translated': "\\['\\[ref3\\]_'\\]",
+        }
+        + warning_fmt
+        % {
             'reftype': 'references',
             'original': "\\['reference_'\\]",
             'translated': "\\['reference_', 'reference_'\\]",
@@ -1101,29 +1107,29 @@ def test_html_versionchanges(app):
 
     expect1 = (
         """<p><span class="versionmodified deprecated">Deprecated since version 1.0: </span>"""
-        """THIS IS THE <em>FIRST</em> PARAGRAPH OF DEPRECATED.</p>\n"""
-        """<p>THIS IS THE <em>SECOND</em> PARAGRAPH OF DEPRECATED.</p>\n"""
+        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSION-DEPRECATED.</p>\n"""
+        """<p>THIS IS THE <em>SECOND</em> PARAGRAPH OF VERSION-DEPRECATED.</p>\n"""
     )
     matched_content = get_content(result, 'deprecated')
     assert matched_content == expect1
 
     expect2 = (
         """<p><span class="versionmodified added">Added in version 1.0: </span>"""
-        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n"""
+        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSION-ADDED.</p>\n"""
     )
     matched_content = get_content(result, 'versionadded')
     assert matched_content == expect2
 
     expect3 = (
         """<p><span class="versionmodified changed">Changed in version 1.0: </span>"""
-        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONCHANGED.</p>\n"""
+        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSION-CHANGED.</p>\n"""
     )
     matched_content = get_content(result, 'versionchanged')
     assert matched_content == expect3
 
     expect4 = (
         """<p><span class="versionmodified removed">Removed in version 1.0: </span>"""
-        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONREMOVED.</p>\n"""
+        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSION-REMOVED.</p>\n"""
     )
     matched_content = get_content(result, 'versionremoved')
     assert matched_content == expect4

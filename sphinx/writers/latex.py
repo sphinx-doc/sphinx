@@ -173,7 +173,7 @@ class Table:
             # types is used.  The next test will have false positive from
             # syntax such as >{\RaggedRight} but it will catch *{3}{J} which
             # does require tabulary and would crash tabular
-            # It is user responsability not to use a tabulary column type for
+            # It is user responsibility not to use a tabulary column type for
             # a column having a problematic cell.
             if any(c in 'LRCJT' for c in self.colspec):
                 return 'tabulary'
@@ -1365,7 +1365,7 @@ class LaTeXTranslator(SphinxTranslator):
                 r'\sphinxmultirow{%d}{%d}{%%' % (cell.height, cell.cell_id) + CR
             )
             context = '}%' + CR + context
-        # 8.3.0 wraps ALL cells contents in "varwidth".  This fixes a
+        # 9.0 wraps ALL cells contents in "varwidth".  This fixes a
         # number of issues and allows more usage of tabulary.
         #
         # "varwidth" usage allows a *tight fit* to multiple paragraphs,
@@ -1563,7 +1563,7 @@ class LaTeXTranslator(SphinxTranslator):
         ):
             # insert blank line, if the paragraph follows a non-paragraph node in a compound
             self.body.append(r'\noindent' + CR)
-        elif index == 1 and isinstance(node.parent, nodes.footnote | footnotetext):
+        elif index == 1 and isinstance(node.parent, (nodes.footnote, footnotetext)):
             # don't insert blank line, if the paragraph is second child of a footnote
             # (first one is label node)
             pass
@@ -2287,7 +2287,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -2296,7 +2296,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)

@@ -1,7 +1,7 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexadmonitions}[2025/04/24 v8.3.0 admonitions]
+\ProvidesPackage{sphinxlatexadmonitions}[2025/10/24 v9.0.0 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -53,6 +53,7 @@
 % - \spx@boxes@fcolorbox@setup from sphinxpackageboxes.sty
 %
 \RequirePackage{framed}
+\RequirePackage{needspace}
 % Those are required either before or after by sphinx.sty anyhow, but for
 % clarity we list them here:
 \RequirePackage{sphinxlatexgraphics}
@@ -107,7 +108,12 @@
 %
 % Code adapted from framed.sty's "snugshade" environment.
 % Nesting works (inner frames do not allow page breaks).
+%
+% At 9.0, avoid admonition title getting separated from contents at a
+% page break.
+\newcommand\sphinxheavyboxneedspacecommand{\needspace{5\baselineskip}}
 \newenvironment{sphinxheavybox}{\par
+   \sphinxheavyboxneedspacecommand
    % (MEMO: it is not a problem here if there is no sphinx<type>ShadowColor,
    %  as it used only if set)
    \spx@boxes@fcolorbox@setup{\spx@noticetype}%
