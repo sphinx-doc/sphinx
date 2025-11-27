@@ -4459,6 +4459,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         lineSpec: bool,
     ) -> None:
         verify_description_mode(mode)
+        assert self.templates is not None
         for t in self.templates:
             t.describe_signature_as_introducer(
                 signode, 'lastIsName', env, symbol, lineSpec
