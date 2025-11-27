@@ -200,7 +200,7 @@ are built:
 
    The default version of MathJax changed
    from version 2 to version 3 in Sphinx 4.0, and
-   from version 3 to version 4 in Sphinx 8.3.
+   from version 3 to version 4 in Sphinx 9.0.
 
    You may need to override :confval:`mathjax_path` to load an older version,
    or update your :confval:`configuration options <mathjax4_config>`.
@@ -264,7 +264,7 @@ Sphinx but is set to automatically include it from a third-party site.
 
          mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
-   .. versionchanged:: 8.3
+   .. versionchanged:: 9.0
       The default version of MathJax is now version 4.
       To keep using MathJax v3, you must explicitly load it via this option.
       For example:
@@ -309,7 +309,7 @@ Sphinx but is set to automatically include it from a third-party site.
    __ https://docs.mathjax.org/en/stable/web/
       configuration.html#converting-your-old-configuration-to-v4
 
-   .. versionadded:: 8.3
+   .. versionadded:: 9.0
 
 .. confval:: mathjax3_config
    :type: :code-py:`dict[str, Any] | None`
