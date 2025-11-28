@@ -85,7 +85,6 @@ dependencies = [
     "roman-numerals>=1.0.0",
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
-    "ipython>=9.6.0",
 ]
 dynamic = ["version"]
 
