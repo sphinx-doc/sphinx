@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
 
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -50,7 +50,7 @@ jobs:
       with:
         python-version: "3"
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -71,7 +71,7 @@ jobs:
       with:
         python-version: "3"
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -92,7 +92,7 @@ jobs:
       with:
         python-version: "3"
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -105,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -113,7 +113,7 @@ jobs:
       with:
         python-version: "3"
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -128,9 +128,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up Node.js
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
         node-version: "20"
         cache: "npm"

@@ -18,7 +18,7 @@ from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
 
-from tests.utils import TESTS_ROOT
+from tests.utils import TEST_ROOTS_DIR
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -297,7 +297,7 @@ def force_colors():
 def test_log_no_ansi_colors(tmp_path):
     with force_colors():
         wfile = tmp_path / 'warnings.txt'
-        srcdir = TESTS_ROOT / 'roots' / 'test-nitpicky-warnings'
+        srcdir = TEST_ROOTS_DIR / 'test-nitpicky-warnings'
         argv = list(map(str, ['-b', 'html', srcdir, tmp_path, '-n', '-w', wfile]))
         retcode = build_main(argv)
         assert retcode == 0

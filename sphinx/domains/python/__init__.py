@@ -56,16 +56,6 @@ _TYPING_ALL = frozenset(typing.__all__)
 
 logger = logging.getLogger(__name__)
 
-pairindextypes = {
-    'module': 'module',
-    'keyword': 'keyword',
-    'operator': 'operator',
-    'object': 'object',
-    'exception': 'exception',
-    'statement': 'statement',
-    'builtin': 'built-in function',
-}
-
 
 class ObjectEntry(NamedTuple):
     docname: str

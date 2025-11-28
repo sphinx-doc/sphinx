@@ -193,7 +193,7 @@ if TYPE_CHECKING:
 def get_type_hints(
     obj: Any,
     globalns: dict[str, Any] | None = None,
-    localns: dict[str, Any] | None = None,
+    localns: Mapping[str, Any] | None = None,
     include_extras: bool = False,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
@@ -253,7 +253,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                  'smart'
                      Show the name of the annotation.
     """
-    from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
+    from sphinx.ext.autodoc._dynamic._mock import ismock, ismockmodule  # lazy loading
     from sphinx.util.inspect import isgenericalias, object_description  # lazy loading
 
     valid_modes = {'fully-qualified-except-typing', 'smart'}
@@ -425,7 +425,7 @@ def stringify_annotation(
 
     :param short_literals: Render :py:class:`Literals` in PEP 604 style (``|``).
     """
-    from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
+    from sphinx.ext.autodoc._dynamic._mock import ismock, ismockmodule  # lazy loading
 
     valid_modes = {'fully-qualified-except-typing', 'fully-qualified', 'smart'}
     if mode not in valid_modes:

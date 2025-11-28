@@ -53,9 +53,11 @@ Contributors
 * Eric Larson -- better error messages
 * Eric N. Vander Weele -- autodoc improvements
 * Eric Wieser -- autodoc improvements
+* Erik Bedard -- config options for :mod:`sphinx.ext.duration`
 * Etienne Desautels -- apidoc module
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Filip Vavera -- napoleon todo directive
+* Florian Best -- log improvements
 * Glenn Matthews -- python domain signature improvements
 * Gregory Szorc -- performance improvements
 * Henrique Bastos -- SVG support for graphviz extension
@@ -110,6 +112,7 @@ Contributors
 * Szymon Karpinski -- intersphinx improvements
 * \T. Powers -- HTML output improvements
 * Taku Shimizu -- epub3 builder
+* Tamika Nomara -- bug fixes
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes
 * Till Hoffmann -- doctest option to exit after first failed test
