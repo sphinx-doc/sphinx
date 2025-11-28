@@ -52,7 +52,8 @@ def test_is_serializable() -> None:
     subject = [1, [2, {3, 'a'}], {'x': {'y': frozenset((4, 5))}}]
     check_is_serializable(subject, circular=False)
 
-    a, b = [1], [2]  # type: (CircularList, CircularList)
+    a: CircularList = [1]
+    b: CircularList = [2]
     a.append(b)
     b.append(a)
     check_is_serializable(a, circular=True)
@@ -139,7 +140,8 @@ def test_config_pickle_protocol(protocol: int) -> None:
 
 
 def test_config_pickle_circular_reference_in_list():
-    a, b = [1], [2]  # type: (CircularList, CircularList)
+    a: CircularList = [1]
+    b: CircularList = [2]
     a.append(b)
     b.append(a)
 
@@ -184,9 +186,9 @@ def test_config_pickle_circular_reference_in_list():
         u: list[list[object] | int],
         v: list[list[object] | int],
         *,
-        counter: Counter[type, int] | None = None,
+        counter: Counter[type] | None = None,
         guard: frozenset[int] = frozenset(),
-    ) -> Counter[type, int]:
+    ) -> Counter[type]:
         counter = Counter() if counter is None else counter
 
         if id(u) in guard and id(v) in guard:
@@ -248,7 +250,7 @@ def test_config_pickle_circular_reference_in_dict():
         u: dict[str, dict[str, object] | int],
         v: dict[str, dict[str, object] | int],
         *,
-        counter: Counter[type, int] | None = None,
+        counter: Counter[type] | None = None,
         guard: frozenset[int] = frozenset(),
     ) -> Counter:
         counter = Counter() if counter is None else counter
