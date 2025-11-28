@@ -17,6 +17,8 @@ from sphinx.testing.util import assert_node
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
+FAKE_MATHJAX_URL = 'https://example.org/fake-mathjax.js'
+
 
 def has_binary(binary: str) -> bool:
     try:
@@ -125,7 +127,7 @@ def test_mathjax_options(app: SphinxTestApp) -> None:
     shutil.rmtree(app.outdir)
     assert (
         '<script defer="defer" integrity="sha384-0123456789" '
-        'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
+        f'src="{MATHJAX_URL}">'
         '</script>'
     ) in content
 
@@ -320,10 +322,14 @@ def test_imgmath_numfig_html(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-math-compat')
-def test_math_compat(app):
+def test_math_compat(app: SphinxTestApp) -> None:
     with warnings.catch_warnings(record=True):
         app.build(force_all=True)
         doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+        doctree_0 = doctree[0]
+        assert isinstance(doctree_0, nodes.Element)
+        doctree_0_1 = doctree_0[1]
+        assert isinstance(doctree_0_1, nodes.Element)
 
         assert_node(
             doctree,
@@ -338,7 +344,7 @@ def test_math_compat(app):
             ],
         )
         assert_node(
-            doctree[0][1][1],
+            doctree_0_1[1],
             (
                 'Inline: ',
                 [nodes.math, 'E=mc^2'],
@@ -347,7 +353,7 @@ def test_math_compat(app):
             ),
         )
         assert_node(
-            doctree[0][2],
+            doctree_0[2],
             (
                 [nodes.title, 'block'],
                 [nodes.math_block, 'a^2+b^2=c^2\n\n'],
@@ -364,15 +370,33 @@ def test_math_compat(app):
     testroot='ext-math',
     confoverrides={
         'extensions': ['sphinx.ext.mathjax'],
+        'mathjax4_config': {'extensions': ['tex2jax.js']},
+    },
+)
+def test_mathjax4_config(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert MATHJAX_URL in content
+    assert '<script defer="defer" src="%s">' % MATHJAX_URL in content
+    assert '<script>window.MathJax = {"extensions": ["tex2jax.js"]}</script>' in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
         'mathjax3_config': {'extensions': ['tex2jax.js']},
+        'mathjax_path': FAKE_MATHJAX_URL,
     },
 )
 def test_mathjax3_config(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert MATHJAX_URL in content
-    assert '<script defer="defer" src="%s">' % MATHJAX_URL in content
+    assert FAKE_MATHJAX_URL in content
+    assert f'<script defer="defer" src="{FAKE_MATHJAX_URL}">' in content
     assert '<script>window.MathJax = {"extensions": ["tex2jax.js"]}</script>' in content
 
 
@@ -401,13 +425,14 @@ def test_mathjax_config_path_config(app: SphinxTestApp) -> None:
     confoverrides={
         'extensions': ['sphinx.ext.mathjax'],
         'mathjax2_config': {'extensions': ['tex2jax.js']},
+        'mathjax_path': FAKE_MATHJAX_URL,
     },
 )
 def test_mathjax2_config(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<script async="async" src="%s">' % MATHJAX_URL in content
+    assert f'<script async="async" src="{FAKE_MATHJAX_URL}">' in content
     assert (
         '<script type="text/x-mathjax-config">'
         'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
@@ -421,10 +446,10 @@ def test_mathjax2_config(app: SphinxTestApp) -> None:
     confoverrides={
         'extensions': ['sphinx.ext.mathjax'],
         'mathjax_options': {'async': 'async'},
-        'mathjax3_config': {'extensions': ['tex2jax.js']},
+        'mathjax4_config': {'extensions': ['tex2jax.js']},
     },
 )
-def test_mathjax_options_async_for_mathjax3(app: SphinxTestApp) -> None:
+def test_mathjax_options_async_for_mathjax4(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -505,6 +530,7 @@ def test_mathjax_is_not_installed_if_no_equations(app: SphinxTestApp) -> None:
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert 'MathJax.js' not in content
+    assert MATHJAX_URL not in content
 
 
 @pytest.mark.sphinx(
@@ -571,6 +597,7 @@ def test_mathjax_is_not_installed_if_no_equations_singlehtml(
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert 'MathJax.js' not in content
+    assert MATHJAX_URL not in content
 
 
 @pytest.mark.sphinx(

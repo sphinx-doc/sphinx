@@ -85,7 +85,6 @@ dependencies = [
     "roman-numerals>=1.0.0",
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
-    "ipython>=9.6.0",
 ]
 dynamic = ["version"]
 
@@ -220,34 +219,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     # tests/
-    "tests.test_versioning",
-    # tests/test_builders
-    "tests.test_builders.test_build",
-    "tests.test_builders.test_build_html",
-    "tests.test_builders.test_build_linkcheck",
-    # tests/test_directives
-    "tests.test_directives.test_directive_code",
-    "tests.test_directives.test_directives_no_typesetting",
-    # tests/test_ext_autodoc
-    "tests.test_ext_autodoc.test_ext_autodoc_autoclass",
-    # tests/test_ext_autosummary
-    "tests.test_ext_autosummary.test_ext_autosummary_imports",
-    # tests/test_ext_intersphinx
-    "tests.test_ext_intersphinx.test_ext_intersphinx_cache",
-    # tests/test_ext_napoleon
-    "tests.test_ext_napoleon.test_ext_napoleon",
-    # tests/test_extensions
-    "tests.test_extensions.test_ext_math",
-    # tests/test_markup
-    "tests.test_markup.test_markup",
-    # tests/test_theming
-    "tests.test_theming.test_templating",
-]
-disallow_untyped_defs = false
-
-[[tool.mypy.overrides]]
-module = [
-    # tests/
     "tests.test_search",
     # tests/test_builders
     "tests.test_builders.test_build_latex",
@@ -330,56 +301,45 @@ include = [
     "tests",
     "utils",
 ]
+exclude = [
+    "tests/roots",
+]
 
 reportArgumentType = "none"
 reportAssignmentType = "none"
 reportAttributeAccessIssue = "none"
 reportCallIssue = "none"
 reportConstantRedefinition = "none"
-reportDeprecated = "none"
 reportGeneralTypeIssues = "none"
 reportIncompatibleMethodOverride = "none"
 reportIncompatibleVariableOverride = "none"
-reportInconsistentOverload = "none"
 reportIndexIssue = "none"
-reportInvalidTypeArguments = "none"
 reportInvalidTypeForm = "none"
-reportInvalidTypeVarUse = "none"
 reportMissingImports = "none"
 reportMissingModuleSource = "none"
 reportMissingParameterType = "none"
 reportMissingTypeArgument = "none"
 reportMissingTypeStubs = "none"
 reportOperatorIssue = "none"
-reportOptionalIterable = "none"
 reportOptionalMemberAccess = "none"
-reportOptionalOperand = "none"
 reportOptionalSubscript = "none"
 reportPossiblyUnboundVariable = "none"
 reportPrivateUsage = "none"
 reportRedeclaration = "none"
 reportReturnType = "none"
-reportSelfClsParameterName = "none"
-reportTypeCommentUsage = "none"
-reportTypedDictNotRequiredAccess = "none"
-reportUndefinedVariable = "none"
 reportUnknownArgumentType = "none"
 reportUnknownLambdaType = "none"
 reportUnknownMemberType = "none"
 reportUnknownParameterType = "none"
 reportUnknownVariableType = "none"
 reportUnnecessaryComparison = "none"
-reportUnnecessaryContains = "none"
 reportUnnecessaryIsInstance = "none"
-reportUnsupportedDunderAll = "none"
 reportUntypedBaseClass = "none"
-reportUntypedFunctionDecorator = "none"
 reportUntypedNamedTuple = "none"
 reportUnusedClass = "none"
 reportUnusedFunction = "none"
 reportUnusedImport = "none"
 reportUnusedVariable = "none"
-reportWildcardImportFromLibrary = "none"
 
 [tool.uv]
 default-groups = "all"
