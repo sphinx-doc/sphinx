@@ -247,6 +247,13 @@ def test_properties() -> None:
         '',
         '      docstring',
         '',
+        '',
+        '   .. py:property:: Foo.prop3_with_undefined_anotation',
+        '      :module: target.properties',
+        '      :type: TypeCheckingOnlyName',
+        '',
+        '      docstring',
+        '',
     ]
 
 
