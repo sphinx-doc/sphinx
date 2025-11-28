@@ -1,3 +1,8 @@
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    TypeCheckingOnlyName = int
+
+
 class Foo:
     """docstring"""
 
@@ -19,4 +24,8 @@ class Foo:
     @property
     def prop2_with_type_comment(cls):
         # type: () -> int
+        """docstring"""
+
+    @property
+    def prop3_with_undefined_anotation(self) -> TypeCheckingOnlyName:
         """docstring"""

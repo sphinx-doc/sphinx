@@ -87,3 +87,18 @@ def test_cached_properties_with_type_comment() -> None:
         '   :type: int',
         '',
     ]
+
+
+def test_property_with_undefined_annotation() -> None:
+    actual = do_autodoc(
+        'property', 'target.properties.Foo.prop3_with_undefined_anotation'
+    )
+    assert actual == [
+        '',
+        '.. py:property:: Foo.prop3_with_undefined_anotation',
+        '   :module: target.properties',
+        '   :type: TypeCheckingOnlyName',
+        '',
+        '   docstring',
+        '',
+    ]
