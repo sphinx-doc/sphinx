@@ -91,11 +91,12 @@ def test_cached_properties_with_type_comment() -> None:
     ]
 
 
-@pytest.mark.skipif(
-    sys.version_info[:2] < (3, 14),
-    reason='deferred evaluation of annotations introduced in Python 3.14',
-)
 def test_property_with_undefined_annotation() -> None:
+    if sys.version_info[:2] >= (3, 14):
+        type_checking_only_name = 'TypeCheckingOnlyName'
+    else:
+        type_checking_only_name = 'int'
+
     actual = do_autodoc(
         'property', 'target.properties.Foo.prop3_with_undefined_anotation'
     )
@@ -103,7 +104,7 @@ def test_property_with_undefined_annotation() -> None:
         '',
         '.. py:property:: Foo.prop3_with_undefined_anotation',
         '   :module: target.properties',
-        '   :type: TypeCheckingOnlyName',
+        f'   :type: {type_checking_only_name}',
         '',
         '   docstring',
         '',
