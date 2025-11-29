@@ -98,6 +98,8 @@ Features added
   Note that MathJax v3 is mostly compatible with MathJax v4, so existing
   :confval:`mathjax3_config` settings should not need to change.
   Patch by Matthias Geier.
+* #14029: intersphinx: Fix error in format string interpolation.
+  Patch by Matthieu de Cibeins.
 
 Bugs fixed
 ----------
