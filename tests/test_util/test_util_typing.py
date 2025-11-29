@@ -75,7 +75,7 @@ from typing import (
 )
 from weakref import WeakSet
 
-from sphinx.ext.autodoc.mock import mock
+from sphinx.ext.autodoc._dynamic._mock import mock
 from sphinx.util.typing import _INVALID_BUILTIN_CLASSES, restify, stringify_annotation
 
 

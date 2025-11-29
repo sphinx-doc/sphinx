@@ -16,7 +16,7 @@ T_co = TypeVar('T_co', covariant=True)
 T_contra = TypeVar('T_contra', contravariant=True)
 
 
-def f2(x: List[T], y: List[T_co], z: T) -> List[T_contra]:
+def f2(x: List[T], y: List[T_co], z: T) -> List[T_contra]:  # pyright: ignore[reportInvalidTypeVarUse]
     pass
 
 

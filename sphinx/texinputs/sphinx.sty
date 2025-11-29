@@ -9,7 +9,7 @@
 % by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2025/08/03 v8.3.0 Sphinx LaTeX package (sphinx-doc)]
+\ProvidesPackage{sphinx}[2025/08/03 v9.0.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -872,8 +872,8 @@
 %
 % We let Sphinx use, listed in order of priority:
 % - a user-specified package via iconpackage key,
-% - fontawesome7 (supported since 8.3.0),
-% - fontawesome6 (supported since 8.3.0),
+% - fontawesome7 (supported since 9.0.0),
+% - fontawesome6 (supported since 9.0.0),
 % - fontawesome5,
 % - fontawesome, 
 % - or nothing at all, and then icons are not drawn.
@@ -904,7 +904,7 @@
 }%
 % Unfortunately icon macro names are not the same across fontawesome,
 % fontawesome5, fontawesome6  and fontawesome7 LaTeX packages.
-% At 8.3.0 we refactor the
+% At 9.0.0 we refactor the
 % icon support code into something easier to maintain in future in case of a
 % fontawesome8, etc...
 %

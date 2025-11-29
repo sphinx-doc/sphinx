@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util.docutils import new_document
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 WEBP_DATA = (
     b'RIFF\xa8\x01\x00\x00WEBPVP8X\n\x00\x00\x00'
@@ -33,7 +37,7 @@ WEBP_DATA = (
 )
 
 
-def test_guess_mimetype_webp(tmp_path):
+def test_guess_mimetype_webp(tmp_path: Path) -> None:
     document = new_document('<source>')
     document.settings.env = SimpleNamespace(srcdir=tmp_path)
     converter = ImageConverter(document)
