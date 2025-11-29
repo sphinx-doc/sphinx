@@ -186,5 +186,6 @@ Bugs fixed
   resolve duplicates in the manifest on Windows.
   Patch by Akihiro Takizawa.
 
+
 Testing
 -------
