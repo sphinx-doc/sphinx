@@ -320,7 +320,7 @@ class TextWrapper(textwrap.TextWrapper):
 
     @staticmethod
     def _find_break_end(word: str, space_left: int) -> int:
-        """Break word by unicode width instead of len(word).
+        """Break word by Unicode width instead of len(word).
 
         The returned position 'end' satisfies::
 
@@ -328,7 +328,7 @@ class TextWrapper(textwrap.TextWrapper):
             assert end == len(word) or column_width(word[:end+1]) > space_left
         """
         total = 0
-        for end, c in enumerate(word, 1):
+        for end, c in enumerate(word, start=1):
             total += column_width(c)
             if total > space_left:
                 return end - 1
@@ -339,24 +339,13 @@ class TextWrapper(textwrap.TextWrapper):
 
         This '_split' splits wide-characters into chunks by one character.
         """
-
-        def column_width_safe(x: str) -> int:
-            # Handle characters that are 0-width. We should refine
-            # the grouping to prevent splitting a word at combining
-            # characters or in a group of combining characters with
-            # at most one non-combining character as the combining
-            # characters may act on the right or left character.
-            #
-            # See https://github.com/sphinx-doc/sphinx/issues/13741.
-            return max(1, column_width(x))
-
         chunks: list[str] = []
         for chunk in super()._split(text):
-            for w, g in groupby(chunk, column_width_safe):
+            for w, g in groupby(chunk, _column_width_safe):
                 if w <= 1:
-                    chunks.extend(super()._split(''.join(g)))
+                    chunks += super()._split(''.join(g))
                 else:
-                    chunks.extend(list(g))
+                    chunks += g
         return chunks
 
     def _handle_long_word(
@@ -383,6 +372,17 @@ class TextWrapper(textwrap.TextWrapper):
             reversed_chunks[-1] = chunk[end:]
         elif not cur_line:
             cur_line.append(reversed_chunks.pop())
+
+
+def _column_width_safe(x: str) -> int:
+    # Handle characters that are 0-width. We should refine
+    # the grouping to prevent splitting a word at combining
+    # characters or in a group of combining characters with
+    # at most one non-combining character as the combining
+    # characters may act on the right or left character.
+    #
+    # See https://github.com/sphinx-doc/sphinx/issues/13741.
+    return max(1, column_width(x))
 
 
 MAXWIDTH = 70
