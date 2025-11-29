@@ -44,6 +44,11 @@ Deprecated
   having replaced them with standard Python I/O.
   The entire :py:mod:`!sphinx.io` module will be removed in Sphinx 10.
   Patch by Adam Turner.
+* #13631: :func:`!sphinx.environment.adapters.toctree.global_toctree_for_doc`
+  and :meth:`!sphinx.environment.BuildEnvironment.get_and_resolve_doctree`
+  will require a *tags* keyword argument from Sphinx 11.
+  It may optionally be passed from Sphinx 9 onwards.
+  Patch by Adam Turner.
 
 Features added
 --------------
