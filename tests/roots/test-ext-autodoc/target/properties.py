@@ -1,7 +1,5 @@
-import sys
-
 TYPE_CHECKING = False
-if sys.version_info[:2] < (3, 14) or TYPE_CHECKING:
+if TYPE_CHECKING:
     TypeCheckingOnlyName = int
 
 

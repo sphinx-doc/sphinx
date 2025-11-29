@@ -6,6 +6,8 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -89,6 +91,10 @@ def test_cached_properties_with_type_comment() -> None:
     ]
 
 
+@pytest.mark.skipif(
+    sys.version_info[:2] < (3, 14),
+    reason='deferred evaluation of annotations introduced in Python 3.14',
+)
 def test_property_with_undefined_annotation() -> None:
     actual = do_autodoc(
         'property', 'target.properties.Foo.prop3_with_undefined_anotation'
