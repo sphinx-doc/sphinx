@@ -963,7 +963,7 @@ class StandardDomain(Domain):
                     location=node,
                 )
             elif name in self.anonlabels:
-                logger.warning(
+                logger.info(
                     __('duplicate label %s, other instance in %s'),
                     name,
                     env.doc2path(self.anonlabels[name][0]),
