@@ -312,8 +312,8 @@ class _InventoryItem:
     def __getitem__(self, key: int | slice) -> str | tuple[str, ...]:
         warnings.warn(
             'The tuple interface for _InventoryItem objects is deprecated.'
-            ' Please directly access `.project_name`, `.project_version`, '
-            '`.uri` and `.displayname`.',
+            ' Please access the `project_name`, `project_version`, '
+            '`uri`, and `displayname` attributes directly.',
             RemovedInSphinx10Warning,
             stacklevel=2,
         )
@@ -323,8 +323,8 @@ class _InventoryItem:
     def __iter__(self) -> Iterator[str]:
         warnings.warn(
             'The iter() interface for _InventoryItem objects is deprecated.'
-            ' Please directly access `.project_name`, `.project_version`, '
-            '`.uri` and `.displayname`.',
+            ' Please access the `project_name`, `project_version`, '
+            '`uri`, and `displayname` attributes directly.',
             RemovedInSphinx10Warning,
             stacklevel=2,
         )
