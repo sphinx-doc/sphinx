@@ -448,7 +448,6 @@ class EventManager:
                 modname = safe_getattr(listener.handler, '__module__', None)
                 msg = __('Handler %r for event %r threw an exception')
                 raise ExtensionError(
-
                     msg % (listener.handler, name),
                     exc,
                     modname=modname,
