@@ -21,6 +21,12 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
+name_aliases = {
+    'version-added': 'versionadded',
+    'version-changed': 'versionchanged',
+    'version-deprecated': 'deprecated',
+    'version-removed': 'versionremoved',
+}
 
 versionlabels = {
     'versionadded': _('Added in version %s'),
@@ -56,12 +62,13 @@ class VersionChange(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
+        name = name_aliases.get(self.name, self.name)
         node = addnodes.versionmodified()
         node.document = self.state.document
         self.set_source_info(node)
-        node['type'] = self.name
+        node['type'] = name
         node['version'] = self.arguments[0]
-        text = versionlabels[self.name] % self.arguments[0]
+        text = versionlabels[name] % self.arguments[0]
         if len(self.arguments) == 2:
             inodes, messages = self.parse_inline(
                 self.arguments[1], lineno=self.lineno + 1
@@ -73,7 +80,7 @@ class VersionChange(SphinxDirective):
             messages = []
         if self.content:
             node += self.parse_content_to_nodes()
-        classes = ['versionmodified', versionlabel_classes[self.name]]
+        classes = ['versionmodified', versionlabel_classes[name]]
         if len(node) > 0 and isinstance(node[0], nodes.paragraph):
             # the contents start with a paragraph
             if node[0].rawsource:
@@ -168,9 +175,13 @@ class ChangeSetDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(ChangeSetDomain)
+    app.add_directive('version-deprecated', VersionChange)
     app.add_directive('deprecated', VersionChange)
+    app.add_directive('version-added', VersionChange)
     app.add_directive('versionadded', VersionChange)
+    app.add_directive('version-changed', VersionChange)
     app.add_directive('versionchanged', VersionChange)
+    app.add_directive('version-removed', VersionChange)
     app.add_directive('versionremoved', VersionChange)
 
     return {

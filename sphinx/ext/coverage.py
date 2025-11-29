@@ -156,7 +156,7 @@ def _determine_py_coverage_modules(
         logger.warning(
             __(
                 'the following modules are specified in coverage_modules '
-                'but were not documented'
+                'but were not documented: %s'
             ),
             ', '.join(missing_modules),
         )

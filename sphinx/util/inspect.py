@@ -103,7 +103,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
             if ispartial(obj):
                 obj = obj.func
             elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
-                obj = obj.__wrapped__
+                obj = obj.__wrapped__  # pyright: ignore[reportFunctionMemberAccess]
             elif isclassmethod(obj) or isstaticmethod(obj):
                 obj = obj.__func__
             else:
@@ -114,7 +114,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
         if ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
-            obj = obj.__wrapped__
+            obj = obj.__wrapped__  # pyright: ignore[reportFunctionMemberAccess]
         elif isclassmethod(obj) or isstaticmethod(obj):
             obj = obj.__func__
         else:
@@ -131,7 +131,7 @@ def getall(obj: Any) -> Sequence[str] | None:
     __all__ = safe_getattr(obj, '__all__', None)
     if __all__ is None:
         return None
-    if isinstance(__all__, list | tuple) and all(isinstance(e, str) for e in __all__):
+    if isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__):
         return __all__
     raise ValueError(__all__)
 
@@ -160,7 +160,7 @@ def getmro(obj: Any) -> tuple[type, ...]:
     return ()
 
 
-def getorigbases(obj: Any) -> tuple[Any, ...] | None:
+def getorigbases(obj: Any) -> tuple[type, ...] | None:
     """Safely get ``obj.__orig_bases__``.
 
     This returns ``None`` if the object is not a class or if ``__orig_bases__``
@@ -195,7 +195,7 @@ def getslots(obj: Any) -> dict[str, Any] | dict[str, None] | None:
         return __slots__
     elif isinstance(__slots__, str):
         return {__slots__: None}
-    elif isinstance(__slots__, list | tuple):
+    elif isinstance(__slots__, (list, tuple)):
         return dict.fromkeys(__slots__)
     else:
         raise ValueError
@@ -225,7 +225,7 @@ def unpartial(obj: Any) -> Any:
 
 def ispartial(obj: Any) -> TypeIs[partial[Any] | partialmethod[Any]]:
     """Check if the object is a partial function or method."""
-    return isinstance(obj, partial | partialmethod)
+    return isinstance(obj, (partial, partialmethod))
 
 
 def isclassmethod(
@@ -385,7 +385,7 @@ def is_singledispatch_function(obj: Any) -> bool:
         inspect.isfunction(obj)
         and hasattr(obj, 'dispatch')
         and hasattr(obj, 'register')
-        and obj.dispatch.__module__ == 'functools'
+        and obj.dispatch.__module__ == 'functools'  # pyright: ignore[reportFunctionMemberAccess]
     )
 
 
@@ -443,12 +443,12 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> TypeIs[property | cached_property[Any]]:
     """Check if the object is property (possibly cached)."""
-    return isinstance(obj, property | cached_property)
+    return isinstance(obj, (property, cached_property))
 
 
 def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
     """Check if the object is a generic alias."""
-    return isinstance(obj, types.GenericAlias | typing._BaseGenericAlias)  # type: ignore[attr-defined]
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -616,6 +616,14 @@ class TypeAliasForwardRef:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self.name!r})'
 
+    def __or__(self, other: Any) -> Any:
+        # When evaluating type hints, our forward ref can appear in type expressions,
+        # i.e. `Alias | None`. This means it needs to support ``__or__`` and ``__ror__``.
+        return typing.Union[self, other]  # NoQA: UP007
+
+    def __ror__(self, other: Any) -> Any:
+        return typing.Union[other, self]  # NoQA: UP007
+
 
 class TypeAliasModule:
     """Pseudo module class for :confval:`autodoc_type_aliases`."""
@@ -702,6 +710,16 @@ def _should_unwrap(subject: _SignatureType) -> bool:
     )
 
 
+# Python 3.14 uses deferred evaluation of annotations by default.
+# Using annotationlib's FORWARDREF format gives us more robust handling
+# of forward references in type annotations.
+signature_kwds: dict[str, Any] = {}
+if sys.version_info[:2] >= (3, 14):
+    import annotationlib  # type: ignore[import-not-found]
+
+    signature_kwds['annotation_format'] = annotationlib.Format.FORWARDREF
+
+
 def signature(
     subject: _SignatureType,
     bound_method: bool = False,
@@ -718,12 +736,16 @@ def signature(
 
     try:
         if _should_unwrap(subject):
-            signature = inspect.signature(subject)  # type: ignore[arg-type]
+            signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
         else:
-            signature = inspect.signature(subject, follow_wrapped=True)  # type: ignore[arg-type]
+            signature = inspect.signature(
+                subject,  # type: ignore[arg-type]
+                follow_wrapped=True,
+                **signature_kwds,
+            )
     except ValueError:
         # follow built-in wrappers up (ex. functools.lru_cache)
-        signature = inspect.signature(subject)  # type: ignore[arg-type]
+        signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
     parameters = list(signature.parameters.values())
     return_annotation = signature.return_annotation
 
@@ -772,7 +794,7 @@ def signature(
 def evaluate_signature(
     sig: Signature,
     globalns: dict[str, Any] | None = None,
-    localns: dict[str, Any] | None = None,
+    localns: Mapping[str, Any] | None = None,
 ) -> Signature:
     """Evaluate unresolved type annotations in a signature object."""
     if globalns is None:
@@ -796,7 +818,7 @@ def evaluate_signature(
 def _evaluate_forwardref(
     ref: ForwardRef,
     globalns: dict[str, Any] | None,
-    localns: dict[str, Any] | None,
+    localns: Mapping[str, Any] | None,
 ) -> Any:
     """Evaluate a forward reference."""
     if sys.version_info[:2] >= (3, 14):
@@ -809,7 +831,7 @@ def _evaluate_forwardref(
         # before 3.12.4 still has the old signature).
         #
         # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(
+        return ref._evaluate(  # pyright: ignore[reportDeprecated]
             globalns, localns, type_params=(), recursive_guard=frozenset()
         )  # type: ignore[call-arg]
     return ref._evaluate(globalns, localns, recursive_guard=frozenset())
@@ -818,7 +840,7 @@ def _evaluate_forwardref(
 def _evaluate(
     annotation: Any,
     globalns: dict[str, Any],
-    localns: dict[str, Any],
+    localns: Mapping[str, Any],
 ) -> Any:
     """Evaluate unresolved type annotation."""
     try:
@@ -854,6 +876,25 @@ def stringify_signature(
                                   (ex. io.StringIO -> StringIO)
     :param short_literals: If enabled, use short literal types.
     """
+    args, retann = _stringify_signature_to_parts(
+        sig=sig,
+        show_annotation=show_annotation,
+        show_return_annotation=show_return_annotation,
+        unqualified_typehints=unqualified_typehints,
+        short_literals=short_literals,
+    )
+    if retann:
+        return f'{args} -> {retann}'
+    return str(args)
+
+
+def _stringify_signature_to_parts(
+    sig: Signature,
+    show_annotation: bool = True,
+    show_return_annotation: bool = True,
+    unqualified_typehints: bool = False,
+    short_literals: bool = False,
+) -> tuple[str, str]:
     mode: _StringifyMode
     if unqualified_typehints:
         mode = 'smart'
@@ -909,17 +950,18 @@ def stringify_signature(
         args.append('/')
 
     concatenated_args = ', '.join(args)
+    concatenated_args = f'({concatenated_args})'
     if (
         sig.return_annotation is EMPTY
         or not show_annotation
         or not show_return_annotation
     ):
-        return f'({concatenated_args})'
+        retann = ''
     else:
         retann = stringify_annotation(
             sig.return_annotation, mode, short_literals=short_literals
         )
-        return f'({concatenated_args}) -> {retann}'
+    return concatenated_args, retann
 
 
 def signature_from_str(signature: str) -> Signature:
@@ -1051,10 +1093,8 @@ def getdoc(
     return doc
 
 
-def _getdoc_internal(
-    obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr
-) -> str | None:
-    doc = attrgetter(obj, '__doc__', None)
+def _getdoc_internal(obj: Any, /) -> str | None:
+    doc = safe_getattr(obj, '__doc__', None)
     if isinstance(doc, str):
         return doc
     return None

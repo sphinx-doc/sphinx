@@ -64,7 +64,7 @@ class SphinxTransform(Transform):
         """Reference to the :class:`.Sphinx` object."""
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(10, 0))
+        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(11, 0))
         return self.env._app
 
     @property
@@ -241,7 +241,7 @@ class ApplySourceWorkaround(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall():
-            if isinstance(node, nodes.TextElement | nodes.image | nodes.topic):
+            if isinstance(node, (nodes.TextElement, nodes.image, nodes.topic)):
                 apply_source_workaround(node)
 
 
@@ -482,7 +482,7 @@ def _reorder_index_target_nodes(start_node: nodes.target) -> None:
     # as we want *consecutive* target & index nodes.
     node: nodes.Node
     for node in start_node.findall(descend=False, siblings=True):
-        if isinstance(node, nodes.target | addnodes.index):
+        if isinstance(node, (nodes.target, addnodes.index)):
             nodes_to_reorder.append(node)
             continue
         break  # must be a consecutive run of target or index nodes

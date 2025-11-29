@@ -64,7 +64,7 @@ if TYPE_CHECKING:
         ALL = enum.auto()
 
         def __contains__(self, item: object) -> Literal[True]: return True
-        def append(self, item: object) -> None: pass
+        def __add__(self, other: object) -> Self: pass
     ALL_T: TypeAlias = Literal[_AllTC.ALL]
     ALL: Final[ALL_T] = _AllTC.ALL
 
