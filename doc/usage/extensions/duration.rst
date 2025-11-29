@@ -23,7 +23,7 @@ the :confval:`extensions` list in your :file:`conf.py`:
 
 
 Configuration
-=============
+-------------
 
 .. confval:: duration_print_total
    :type: :code-py:`bool`
