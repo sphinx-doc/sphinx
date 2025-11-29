@@ -185,6 +185,8 @@ Bugs fixed
 * #14067: EPUB: unify path separators in manifest items to forward slashes;
   resolve duplicates in the manifest on Windows.
   Patch by Akihiro Takizawa.
+* #13741: text builder: fix an infinite loop when processing CSV tables.
+  Patch by Bénédikt Tran.
 
 
 Testing
