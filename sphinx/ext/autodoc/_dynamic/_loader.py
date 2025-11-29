@@ -8,11 +8,17 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, NewType, TypeVar
 
-from sphinx.ext.autodoc._docstrings import (
+from sphinx.ext.autodoc._dynamic._docstrings import (
     _docstring_lines_for_props,
     _get_docstring_lines,
 )
-from sphinx.ext.autodoc._importer import _import_object
+from sphinx.ext.autodoc._dynamic._importer import _import_object
+from sphinx.ext.autodoc._dynamic._mock import ismock
+from sphinx.ext.autodoc._dynamic._signatures import _format_signatures
+from sphinx.ext.autodoc._dynamic._type_comments import (
+    _ensure_annotations_from_type_comments,
+    _update_annotations_using_type_comments,
+)
 from sphinx.ext.autodoc._names import _parse_name
 from sphinx.ext.autodoc._property_types import (
     _AssignStatementProperties,
@@ -28,12 +34,6 @@ from sphinx.ext.autodoc._sentinels import (
     UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc._shared import _get_render_mode
-from sphinx.ext.autodoc._signatures import _format_signatures
-from sphinx.ext.autodoc._type_comments import (
-    _ensure_annotations_from_type_comments,
-    _update_annotations_using_type_comments,
-)
-from sphinx.ext.autodoc.mock import ismock
 from sphinx.locale import __
 from sphinx.util import inspect, logging
 from sphinx.util.inspect import safe_getattr
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._importer import _ImportedObject
+    from sphinx.ext.autodoc._dynamic._importer import _ImportedObject
     from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
     from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
