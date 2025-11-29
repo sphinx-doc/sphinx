@@ -182,8 +182,8 @@ Bugs fixed
 * #13945: autodoc: Fix handling of undefined names in annotations by using
   the ``FORWARDREF`` :mod:`annotationlib` format.
   Patch by Rui Pinheiro and Adam Turner.
-* #14067: EPUB: unify path separators in manifest items to forward slashes,
-  resolve duplicates manifest on Windows OS.
+* #14067: EPUB: unify path separators in manifest items to forward slashes;
+  resolve duplicates in the manifest on Windows.
   Patch by Akihiro Takizawa.
 
 Testing

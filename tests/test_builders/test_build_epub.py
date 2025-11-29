@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import subprocess
 import xml.etree.ElementTree as ET
+from collections import Counter
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
@@ -557,7 +558,6 @@ def test_epub_manifest_path_separator_normalization(app: SphinxTestApp) -> None:
 
     # Parse manifest and spine elements
     # Verify that all idrefs in spine match ids in manifest
-    from xml.etree import ElementTree as ET
 
     tree = ET.parse(str(opf_path))  # noqa: S314
     root = tree.getroot()
@@ -620,8 +620,6 @@ def test_epub_manifest_subdirectory_paths(app: SphinxTestApp) -> None:
     opf_path = app.outdir / 'content.opf'
     assert opf_path.exists()
 
-    from xml.etree import ElementTree as ET
-
     tree = ET.parse(str(opf_path))  # noqa: S314
     root = tree.getroot()
 
@@ -654,7 +652,6 @@ def test_epub_spine_idref_consistency(app: SphinxTestApp) -> None:
     app.build()
 
     opf_path = app.outdir / 'content.opf'
-    from xml.etree import ElementTree as ET
 
     tree = ET.parse(str(opf_path))  # noqa: S314
     root = tree.getroot()
@@ -680,8 +677,6 @@ def test_epub_spine_idref_consistency(app: SphinxTestApp) -> None:
 
     # Warn if the same href is referenced multiple times
     # (normally each file should appear only once in spine)
-    from collections import Counter
-
     href_counts = Counter(spine_hrefs)
     duplicated_hrefs: list[str | None] = [
         href for href, count in href_counts.items() if count > 1
@@ -689,7 +684,4 @@ def test_epub_spine_idref_consistency(app: SphinxTestApp) -> None:
 
     # Note: Some EPUBs may intentionally reference the same file multiple times,
     # so this is logged as informational rather than a strict error
-    if duplicated_hrefs:
-        print(
-            f'Info: The following hrefs are referenced multiple times in spine: {duplicated_hrefs}'
-        )
+    assert len(duplicated_hrefs) == 0
