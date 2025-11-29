@@ -174,6 +174,9 @@ Bugs fixed
 * #12797: Fix ``Some type variables (...) are not listed in Generic[...]``
   TypeError when inheriting from both Generic and autodoc mocked class.
   Patch by Ikor Jefocur and Daniel Sperber.
+* #13945: autodoc: Fix handling of undefined names in annotations by using
+  the ``FORWARDREF`` :mod:`annotationlib` format.
+  Patch by Rui Pinheiro and Adam Turner.
 
 
 Testing
