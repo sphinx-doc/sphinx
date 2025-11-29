@@ -6,6 +6,7 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import sys
 import typing
 
 import pytest
@@ -208,6 +209,11 @@ def test_decorators() -> None:
 
 
 def test_properties() -> None:
+    if sys.version_info[:2] >= (3, 14):
+        type_checking_only_name = 'TypeCheckingOnlyName'
+    else:
+        type_checking_only_name = 'int'
+
     options = {'members': None}
     actual = do_autodoc('class', 'target.properties.Foo', options=options)
     assert actual == [
@@ -244,6 +250,13 @@ def test_properties() -> None:
         '      :module: target.properties',
         '      :classmethod:',
         '      :type: int',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:property:: Foo.prop3_with_undefined_anotation',
+        '      :module: target.properties',
+        f'      :type: {type_checking_only_name}',
         '',
         '      docstring',
         '',

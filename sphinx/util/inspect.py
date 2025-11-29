@@ -710,6 +710,16 @@ def _should_unwrap(subject: _SignatureType) -> bool:
     )
 
 
+# Python 3.14 uses deferred evaluation of annotations by default.
+# Using annotationlib's FORWARDREF format gives us more robust handling
+# of forward references in type annotations.
+signature_kwds: dict[str, Any] = {}
+if sys.version_info[:2] >= (3, 14):
+    import annotationlib  # type: ignore[import-not-found]
+
+    signature_kwds['annotation_format'] = annotationlib.Format.FORWARDREF
+
+
 def signature(
     subject: _SignatureType,
     bound_method: bool = False,
@@ -726,12 +736,16 @@ def signature(
 
     try:
         if _should_unwrap(subject):
-            signature = inspect.signature(subject)  # type: ignore[arg-type]
+            signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
         else:
-            signature = inspect.signature(subject, follow_wrapped=True)  # type: ignore[arg-type]
+            signature = inspect.signature(
+                subject,  # type: ignore[arg-type]
+                follow_wrapped=True,
+                **signature_kwds,
+            )
     except ValueError:
         # follow built-in wrappers up (ex. functools.lru_cache)
-        signature = inspect.signature(subject)  # type: ignore[arg-type]
+        signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
     parameters = list(signature.parameters.values())
     return_annotation = signature.return_annotation
 
