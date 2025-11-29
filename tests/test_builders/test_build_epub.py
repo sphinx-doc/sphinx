@@ -638,9 +638,7 @@ def test_epub_manifest_subdirectory_paths(app: SphinxTestApp) -> None:
         if href is not None and '/' in href:
             # Verify the path is correctly constructed
             parts: list[str] = href.split('/')
-            assert all(part for part in parts), (
-                f"href '{href}' contains empty path segments"
-            )
+            assert all(parts), f"href '{href}' contains empty path segments"
 
 
 @pytest.mark.sphinx('epub', testroot='basic')
