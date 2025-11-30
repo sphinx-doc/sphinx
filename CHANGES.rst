@@ -20,6 +20,8 @@ Incompatible changes
   The :confval:`autodoc_use_legacy_class_based` option has been added to
   use the legacy (pre-9.0) implementation of autodoc.
   Patches by Adam Turner.
+* #13355: Don't include escaped title content in the search index.
+  Patch by Will Lachance.
 
 Deprecated
 ----------

@@ -38,7 +38,7 @@ describe("Basic html theme search", function () {
       // prettier-ignore
       hits = [[
         "index",
-        "&lt;no title&gt;",
+        "<no title>",
         "",
         null,
         5,
