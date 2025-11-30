@@ -349,6 +349,8 @@ class TocTreeCollector(EnvironmentCollector):
                     else:
                         _walk_doctree(docname, subnode, secnum)
                 elif isinstance(subnode, addnodes.toctree):
+                    if docname in env.numbered_toctrees and env.config.numfig_restart:
+                        fignum_counter.clear()
                     for _title, subdocname in subnode['entries']:
                         if url_re.match(subdocname) or subdocname == 'self':
                             # don't mess with those

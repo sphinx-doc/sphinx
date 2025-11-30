@@ -359,6 +359,25 @@ Options for figure numbering
 
    .. versionadded:: 1.3
 
+
+.. confval:: numfig_restart
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   If :code-py:`True`, then Sphinx restarts figure numbering every time Sphinx
+   encounters a :rst:dir:`toctree` directive with the ``:numbered:`` option
+   activated. You can use this option to make HTML/EPUB figure numbers
+   correspond to LaTeX figure numbers when using :confval:`latex_documents` to
+   group files into multiple LaTeX documents.
+
+   .. note::
+
+      This option does not change the figure numbers assigned by the LaTeX
+      builder.
+
+   .. versionadded:: 8.3
+
+
 .. confval:: numfig_secnum_depth
    :type: :code-py:`int`
    :default: :code-py:`1`

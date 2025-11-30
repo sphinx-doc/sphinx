@@ -1143,3 +1143,437 @@ def test_numfig_with_singlehtml(
 ) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
+
+
+@pytest.mark.parametrize(
+    ('fname', 'path', 'check', 'be_found'),
+    [
+        (
+            'index.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1 $',
+            True,
+        ),
+        (
+            'index.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 2 $',
+            True,
+        ),
+        (
+            'index.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1 $',
+            True,
+        ),
+        (
+            'index.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 2 $',
+            True,
+        ),
+        (
+            'index.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1 $',
+            True,
+        ),
+        (
+            'index.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 2 $',
+            True,
+        ),
+        ('index.html', './/li/p/a/span', '^Fig. 1$', True),
+        ('index.html', './/li/p/a/span', '^Figure1.2$', True),  # baz.rst
+        ('index.html', './/li/p/a/span', '^Table 1$', True),
+        ('index.html', './/li/p/a/span', '^Table:1.2$', True),  # baz.rst
+        ('index.html', './/li/p/a/span', '^Listing 1$', True),
+        ('index.html', './/li/p/a/span', '^Code-1.2$', True),  # baz.rst
+        ('index.html', './/li/p/a/span', '^Section.1$', True),
+        ('index.html', './/li/p/a/span', '^Section.1.1$', True),  # bar.rst
+        ('index.html', './/li/p/a/span', '^Fig.1 should be Fig.1$', True),
+        ('index.html', './/li/p/a/span', '^Sect.1 Foo$', True),
+        (
+            'foo.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.2 $',
+            True,
+        ),
+        (
+            'foo.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.3 $',
+            True,
+        ),
+        (
+            'foo.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.4 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.2 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.3 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.4 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.2 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.3 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.4 $',
+            True,
+        ),
+        (
+            'bar.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.3 $',
+            True,
+        ),
+        (
+            'bar.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.4 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.3 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.4 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.3 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.4 $',
+            True,
+        ),
+        (
+            'baz.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.2 $',
+            True,
+        ),
+        (
+            'baz.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.2 $',
+            True,
+        ),
+        (
+            'baz.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.2 $',
+            True,
+        ),
+    ],
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='numfig',
+    confoverrides={'numfig': True, 'numfig_restart': True},
+)
+@pytest.mark.test_params(shared_result='test_build_html_numfig_restart')
+def test_numfig_restart(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str | None,
+    be_found: bool,
+) -> None:
+    # Set up two numbered toctrees
+    index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
+    index = index.replace('   foo', '   foo\n\n.. toctree::\n   :numbered:\n')
+    (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
+
+
+@pytest.mark.parametrize(
+    ('fname', 'path', 'check', 'be_found'),
+    [
+        (
+            'index.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1 $',
+            True,
+        ),
+        (
+            'index.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 2 $',
+            True,
+        ),
+        (
+            'index.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1 $',
+            True,
+        ),
+        (
+            'index.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 2 $',
+            True,
+        ),
+        (
+            'index.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1 $',
+            True,
+        ),
+        (
+            'index.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 2 $',
+            True,
+        ),
+        ('index.html', './/li/p/a/span', '^Fig. 1$', True),
+        ('index.html', './/li/p/a/span', '^Figure1.1.2$', True),  # baz.rst
+        ('index.html', './/li/p/a/span', '^Table 1$', True),
+        ('index.html', './/li/p/a/span', '^Table:1.1.2$', True),  # baz.rst
+        ('index.html', './/li/p/a/span', '^Listing 1$', True),
+        ('index.html', './/li/p/a/span', '^Code-1.1.2$', True),  # baz.rst
+        ('index.html', './/li/p/a/span', '^Section.1$', True),
+        ('index.html', './/li/p/a/span', '^Section.1.1$', True),  # bar.rst
+        ('index.html', './/li/p/a/span', '^Fig.1 should be Fig.1$', True),
+        ('index.html', './/li/p/a/span', '^Sect.1 Foo$', True),
+        (
+            'foo.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.1.2 $',
+            True,
+        ),
+        (
+            'foo.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.2.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.1.2 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.2.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.1.1 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.1.2 $',
+            True,
+        ),
+        (
+            'foo.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.2.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.1.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.1.3 $',
+            True,
+        ),
+        (
+            'bar.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.2.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.1.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.1.3 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.2.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.1.1 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.1.3 $',
+            True,
+        ),
+        (
+            'bar.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.2.1 $',
+            True,
+        ),
+        (
+            'baz.html',
+            FIGURE_CAPTION + "/span[@class='caption-number']",
+            '^Fig. 1.1.2 $',
+            True,
+        ),
+        (
+            'baz.html',
+            ".//table/caption/span[@class='caption-number']",
+            '^Table 1.1.2 $',
+            True,
+        ),
+        (
+            'baz.html',
+            ".//div[@class='code-block-caption']/span[@class='caption-number']",
+            '^Listing 1.1.2 $',
+            True,
+        ),
+    ],
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='numfig',
+    confoverrides={'numfig': True, 'numfig_restart': True, 'numfig_secnum_depth': 2},
+)
+@pytest.mark.test_params(shared_result='test_build_html_numfig_restart_secnum_depth_2')
+def test_numfig_restart_secnum_depth_2(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str | None,
+    be_found: bool,
+) -> None:
+    # Set up two numbered toctrees
+    index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
+    index = index.replace('   foo', '   foo\n\n.. toctree::\n   :numbered:\n')
+    (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
