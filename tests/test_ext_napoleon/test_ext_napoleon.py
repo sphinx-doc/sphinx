@@ -11,69 +11,79 @@ import pytest
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import ParamSpec, TypeVar
 
-def simple_decorator(f):
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
+
+    _P = ParamSpec('_P')
+    _R = TypeVar('_R')
+
+
+def simple_decorator(f: Callable[_P, _R]) -> Callable[_P, _R]:
     """A simple decorator that does nothing, for tests to use."""
 
     @functools.wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         return f(*args, **kwargs)
 
     return wrapper
 
 
-def _private_doc():
+def _private_doc() -> None:
     """module._private_doc.DOCSTRING"""
     pass
 
 
-def _private_undoc():
+def _private_undoc() -> None:
     pass
 
 
-def __special_doc__():  # NoQA: N807
+def __special_doc__() -> None:  # NoQA: N807
     """module.__special_doc__.DOCSTRING"""
     pass
 
 
-def __special_undoc__():  # NoQA: N807
+def __special_undoc__() -> None:  # NoQA: N807
     pass
 
 
 class SampleClass:
-    def _private_doc(self):
+    def _private_doc(self) -> None:
         """SampleClass._private_doc.DOCSTRING"""
         pass
 
-    def _private_undoc(self):
+    def _private_undoc(self) -> None:
         pass
 
-    def __special_doc__(self):  # NoQA: PLW3201
+    def __special_doc__(self) -> None:  # NoQA: PLW3201
         """SampleClass.__special_doc__.DOCSTRING"""
         pass
 
-    def __special_undoc__(self):  # NoQA: PLW3201
+    def __special_undoc__(self) -> None:  # NoQA: PLW3201
         pass
 
     @simple_decorator
-    def __decorated_func__(self):  # NoQA: PLW3201
+    def __decorated_func__(self) -> None:  # NoQA: PLW3201
         """Doc"""
         pass
 
 
 class SampleError(Exception):
-    def _private_doc(self):
+    def _private_doc(self) -> None:
         """SampleError._private_doc.DOCSTRING"""
         pass
 
-    def _private_undoc(self):
+    def _private_undoc(self) -> None:
         pass
 
-    def __special_doc__(self):  # NoQA: PLW3201
+    def __special_doc__(self) -> None:  # NoQA: PLW3201
         """SampleError.__special_doc__.DOCSTRING"""
         pass
 
-    def __special_undoc__(self):  # NoQA: PLW3201
+    def __special_undoc__(self) -> None:  # NoQA: PLW3201
         pass
 
 
@@ -81,7 +91,7 @@ SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')  
 
 
 class TestProcessDocstring:
-    def test_modify_in_place(self):
+    def test_modify_in_place(self) -> None:
         lines = [
             'Summary line.',
             '',
@@ -109,10 +119,10 @@ class TestProcessDocstring:
 
 
 class TestSetup:
-    def test_unknown_app_type(self):
+    def test_unknown_app_type(self) -> None:
         setup(object())  # type: ignore[arg-type]
 
-    def test_add_config_values(self):
+    def test_add_config_values(self) -> None:
         app = mock.Mock(Sphinx)
         setup(app)
         for name, _default, _rebuild, _types in Config._config_values:
@@ -143,7 +153,7 @@ class TestSetup:
 class TestSkipMember:
     def assert_skip(
         self,
-        what: str,
+        what: _AutodocObjType,
         member: str,
         obj: object,
         expect_default_skip: bool,
@@ -160,7 +170,7 @@ class TestSkipMember:
         setattr(app.config, config_name, False)
         assert None is _skip_member(app, what, member, obj, skip, mock.Mock())
 
-    def test_namedtuple(self):
+    def test_namedtuple(self) -> None:
         # Since python 3.7, namedtuple._asdict() has not been documented
         # because there is no way to check the method is a member of the
         # namedtuple class.  This testcase confirms only it does not
@@ -174,7 +184,7 @@ class TestSkipMember:
             'napoleon_include_private_with_doc',
         )
 
-    def test_class_private_doc(self):
+    def test_class_private_doc(self) -> None:
         self.assert_skip(
             'class',
             '_private_doc',
@@ -183,7 +193,7 @@ class TestSkipMember:
             'napoleon_include_private_with_doc',
         )
 
-    def test_class_private_undoc(self):
+    def test_class_private_undoc(self) -> None:
         self.assert_skip(
             'class',
             '_private_undoc',
@@ -192,7 +202,7 @@ class TestSkipMember:
             'napoleon_include_private_with_doc',
         )
 
-    def test_class_special_doc(self):
+    def test_class_special_doc(self) -> None:
         self.assert_skip(
             'class',
             '__special_doc__',
@@ -201,7 +211,7 @@ class TestSkipMember:
             'napoleon_include_special_with_doc',
         )
 
-    def test_class_special_undoc(self):
+    def test_class_special_undoc(self) -> None:
         self.assert_skip(
             'class',
             '__special_undoc__',
@@ -210,7 +220,7 @@ class TestSkipMember:
             'napoleon_include_special_with_doc',
         )
 
-    def test_class_decorated_doc(self):
+    def test_class_decorated_doc(self) -> None:
         self.assert_skip(
             'class',
             '__decorated_func__',
@@ -219,7 +229,7 @@ class TestSkipMember:
             'napoleon_include_special_with_doc',
         )
 
-    def test_exception_private_doc(self):
+    def test_exception_private_doc(self) -> None:
         self.assert_skip(
             'exception',
             '_private_doc',
@@ -228,7 +238,7 @@ class TestSkipMember:
             'napoleon_include_private_with_doc',
         )
 
-    def test_exception_private_undoc(self):
+    def test_exception_private_undoc(self) -> None:
         self.assert_skip(
             'exception',
             '_private_undoc',
@@ -237,7 +247,7 @@ class TestSkipMember:
             'napoleon_include_private_with_doc',
         )
 
-    def test_exception_special_doc(self):
+    def test_exception_special_doc(self) -> None:
         self.assert_skip(
             'exception',
             '__special_doc__',
@@ -246,7 +256,7 @@ class TestSkipMember:
             'napoleon_include_special_with_doc',
         )
 
-    def test_exception_special_undoc(self):
+    def test_exception_special_undoc(self) -> None:
         self.assert_skip(
             'exception',
             '__special_undoc__',
@@ -255,7 +265,7 @@ class TestSkipMember:
             'napoleon_include_special_with_doc',
         )
 
-    def test_module_private_doc(self):
+    def test_module_private_doc(self) -> None:
         self.assert_skip(
             'module',
             '_private_doc',
@@ -264,7 +274,7 @@ class TestSkipMember:
             'napoleon_include_private_with_doc',
         )
 
-    def test_module_private_undoc(self):
+    def test_module_private_undoc(self) -> None:
         self.assert_skip(
             'module',
             '_private_undoc',
@@ -273,7 +283,7 @@ class TestSkipMember:
             'napoleon_include_private_with_doc',
         )
 
-    def test_module_special_doc(self):
+    def test_module_special_doc(self) -> None:
         self.assert_skip(
             'module',
             '__special_doc__',
@@ -282,7 +292,7 @@ class TestSkipMember:
             'napoleon_include_special_with_doc',
         )
 
-    def test_module_special_undoc(self):
+    def test_module_special_undoc(self) -> None:
         self.assert_skip(
             'module',
             '__special_undoc__',

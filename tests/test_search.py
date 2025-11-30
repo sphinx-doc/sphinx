@@ -154,8 +154,17 @@ def test_term_in_heading_and_section(app: SphinxTestApp) -> None:
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert '"textinhead":2' in searchindex
-    assert '"textinhead":0' in searchindex
+    assert '"textinhead":3' in searchindex
+    assert '"textinhead":1' in searchindex
+
+
+@pytest.mark.sphinx('html', testroot='search')
+def test_escaped_title(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    searchindex = load_searchindex(app.outdir / 'searchindex.js')
+    print(searchindex)
+    assert 'escapedtitle' in searchindex['docnames']
+    assert 'escaped title with < and > in it' in searchindex['titles']
 
 
 @pytest.mark.sphinx('html', testroot='search')
@@ -388,7 +397,7 @@ def test_search_index_gen_zh(app: SphinxTestApp) -> None:
 def test_nosearch(app: SphinxTestApp) -> None:
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
-    assert index['docnames'] == ['index', 'nosearch', 'tocitem']
+    assert index['docnames'] == ['escapedtitle', 'index', 'nosearch', 'tocitem']
     # latex is in 'nosearch.rst', and nowhere else
     assert 'latex' not in index['terms']
     # cat is in 'index.rst' but is marked with the 'no-search' class
@@ -396,7 +405,7 @@ def test_nosearch(app: SphinxTestApp) -> None:
     # bat is indexed from 'index.rst' and 'tocitem.rst' (document IDs 0, 2), and
     # not from 'nosearch.rst' (document ID 1)
     assert 'bat' in index['terms']
-    assert index['terms']['bat'] == [0, 2]
+    assert index['terms']['bat'] == [1, 3]
 
 
 @pytest.mark.sphinx(
@@ -408,7 +417,7 @@ def test_nosearch(app: SphinxTestApp) -> None:
 def test_parallel(app: SphinxTestApp) -> None:
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
-    assert index['docnames'] == ['index', 'nosearch', 'tocitem']
+    assert index['docnames'] == ['escapedtitle', 'index', 'nosearch', 'tocitem']
 
 
 @pytest.mark.sphinx('html', testroot='search')

@@ -616,6 +616,14 @@ class TypeAliasForwardRef:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self.name!r})'
 
+    def __or__(self, other: Any) -> Any:
+        # When evaluating type hints, our forward ref can appear in type expressions,
+        # i.e. `Alias | None`. This means it needs to support ``__or__`` and ``__ror__``.
+        return typing.Union[self, other]  # NoQA: UP007
+
+    def __ror__(self, other: Any) -> Any:
+        return typing.Union[other, self]  # NoQA: UP007
+
 
 class TypeAliasModule:
     """Pseudo module class for :confval:`autodoc_type_aliases`."""
@@ -702,6 +710,16 @@ def _should_unwrap(subject: _SignatureType) -> bool:
     )
 
 
+# Python 3.14 uses deferred evaluation of annotations by default.
+# Using annotationlib's FORWARDREF format gives us more robust handling
+# of forward references in type annotations.
+signature_kwds: dict[str, Any] = {}
+if sys.version_info[:2] >= (3, 14):
+    import annotationlib  # type: ignore[import-not-found]
+
+    signature_kwds['annotation_format'] = annotationlib.Format.FORWARDREF
+
+
 def signature(
     subject: _SignatureType,
     bound_method: bool = False,
@@ -718,12 +736,16 @@ def signature(
 
     try:
         if _should_unwrap(subject):
-            signature = inspect.signature(subject)  # type: ignore[arg-type]
+            signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
         else:
-            signature = inspect.signature(subject, follow_wrapped=True)  # type: ignore[arg-type]
+            signature = inspect.signature(
+                subject,  # type: ignore[arg-type]
+                follow_wrapped=True,
+                **signature_kwds,
+            )
     except ValueError:
         # follow built-in wrappers up (ex. functools.lru_cache)
-        signature = inspect.signature(subject)  # type: ignore[arg-type]
+        signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
     parameters = list(signature.parameters.values())
     return_annotation = signature.return_annotation
 
@@ -772,7 +794,7 @@ def signature(
 def evaluate_signature(
     sig: Signature,
     globalns: dict[str, Any] | None = None,
-    localns: dict[str, Any] | None = None,
+    localns: Mapping[str, Any] | None = None,
 ) -> Signature:
     """Evaluate unresolved type annotations in a signature object."""
     if globalns is None:
@@ -796,7 +818,7 @@ def evaluate_signature(
 def _evaluate_forwardref(
     ref: ForwardRef,
     globalns: dict[str, Any] | None,
-    localns: dict[str, Any] | None,
+    localns: Mapping[str, Any] | None,
 ) -> Any:
     """Evaluate a forward reference."""
     if sys.version_info[:2] >= (3, 14):
@@ -809,7 +831,7 @@ def _evaluate_forwardref(
         # before 3.12.4 still has the old signature).
         #
         # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(
+        return ref._evaluate(  # pyright: ignore[reportDeprecated]
             globalns, localns, type_params=(), recursive_guard=frozenset()
         )  # type: ignore[call-arg]
     return ref._evaluate(globalns, localns, recursive_guard=frozenset())
@@ -818,7 +840,7 @@ def _evaluate_forwardref(
 def _evaluate(
     annotation: Any,
     globalns: dict[str, Any],
-    localns: dict[str, Any],
+    localns: Mapping[str, Any],
 ) -> Any:
     """Evaluate unresolved type annotation."""
     try:

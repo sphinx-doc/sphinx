@@ -10,10 +10,15 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
     from sphinx.testing.util import SphinxTestApp
 
 
-def test_root_doc_not_found(tmp_path, make_app):
+def test_root_doc_not_found(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
     (tmp_path / 'conf.py').touch()
     assert [p.name for p in tmp_path.iterdir()] == ['conf.py']
 
@@ -56,11 +61,12 @@ def test_multiple_parents_toctree(app: SphinxTestApp) -> None:
 
 @pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('dummy', testroot='images')
-def test_image_glob(app):
+def test_image_glob(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     # index.rst
     doctree = app.env.get_doctree('index')
+    assert isinstance(doctree[0], nodes.Element)
 
     assert isinstance(doctree[0][1], nodes.image)
     assert doctree[0][1]['candidates'] == {'*': 'rimg.png'}
@@ -90,6 +96,7 @@ def test_image_glob(app):
 
     # subdir/index.rst
     doctree = app.env.get_doctree('subdir/index')
+    assert isinstance(doctree[0], nodes.Element)
 
     assert isinstance(doctree[0][1], nodes.image)
     assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}

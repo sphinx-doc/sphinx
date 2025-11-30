@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autodoc._dynamic._importer import _import_module
 
 
 def test_import_native_module_stubs(rootdir: Path) -> None:
@@ -11,7 +11,7 @@ def test_import_native_module_stubs(rootdir: Path) -> None:
 
     sys_path = list(sys.path)
     sys.path.insert(0, str(fish_licence_root))
-    halibut = import_module('fish_licence.halibut')
+    halibut = _import_module('fish_licence.halibut')
     sys.path[:] = sys_path
 
     assert halibut.__file__.endswith('halibut.pyi')

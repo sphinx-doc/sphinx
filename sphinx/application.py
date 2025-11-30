@@ -52,8 +52,14 @@ if TYPE_CHECKING:
     from sphinx.config import ENUM, _ConfigRebuild
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
-    from sphinx.ext.autodoc._documenters import Documenter
-    from sphinx.ext.autodoc._event_listeners import _AutodocProcessDocstringListener
+    from sphinx.ext.autodoc._event_listeners import (
+        _AutodocBeforeProcessSignatureListener,
+        _AutodocProcessBasesListener,
+        _AutodocProcessDocstringListener,
+        _AutodocProcessSignatureListener,
+        _AutodocSkipMemberListener,
+    )
+    from sphinx.ext.autodoc._legacy_class_based._documenters import Documenter
     from sphinx.ext.todo import todo_node
     from sphinx.extension import Extension
     from sphinx.registry import (
@@ -717,7 +723,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-before-process-signature'],
-        callback: Callable[[Sphinx, Any, bool], None],
+        callback: _AutodocBeforeProcessSignatureListener,
         priority: int = 500,
     ) -> int: ...
 
@@ -725,20 +731,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-process-signature'],
-        callback: Callable[
-            [
-                Sphinx,
-                Literal[
-                    'module', 'class', 'exception', 'function', 'method', 'attribute'
-                ],
-                str,
-                Any,
-                dict[str, bool],
-                str | None,
-                str | None,
-            ],
-            tuple[str | None, str | None] | None,
-        ],
+        callback: _AutodocProcessSignatureListener,
         priority: int = 500,
     ) -> int: ...
 
@@ -746,7 +739,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-process-bases'],
-        callback: Callable[[Sphinx, str, Any, dict[str, bool], list[str]], None],
+        callback: _AutodocProcessBasesListener,
         priority: int = 500,
     ) -> int: ...
 
@@ -754,19 +747,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-skip-member'],
-        callback: Callable[
-            [
-                Sphinx,
-                Literal[
-                    'module', 'class', 'exception', 'function', 'method', 'attribute'
-                ],
-                str,
-                Any,
-                bool,
-                dict[str, bool],
-            ],
-            bool,
-        ],
+        callback: _AutodocSkipMemberListener,
         priority: int = 500,
     ) -> int: ...
 
@@ -1650,8 +1631,9 @@ class Sphinx:
         logger.debug('[app] adding autodocumenter: %r', cls)
         from sphinx.ext.autodoc.directive import AutodocDirective
 
-        self.registry.add_documenter(cls.objtype, cls)
-        self.add_directive('auto' + cls.objtype, AutodocDirective, override=override)
+        objtype = cls.objtype
+        self.registry.add_documenter(objtype, cls)
+        self.add_directive('auto' + objtype, AutodocDirective, override=override)
 
     def add_autodoc_attrgetter(
         self, typ: type, getter: Callable[[Any, str, Any], Any]
