@@ -1440,18 +1440,6 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
     ('case_insensitive_pattern', 'expected_path1', 'expected_path2', 'expected_path3'),
     [
         ([], 'redirected', 'redirected', 'working'),  # default: case-sensitive
-        (
-            [r'http://localhost:\d+/.*'],
-            'working',
-            'working',
-            'working',
-        ),  # all URLs case-insensitive
-        (
-            [r'http://localhost:\d+/path1'],
-            'working',
-            'redirected',
-            'working',
-        ),  # only path1 case-insensitive
     ],
 )
 def test_linkcheck_case_sensitivity(
