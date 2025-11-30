@@ -357,7 +357,9 @@ class BaseParser:
 
     def warn(self, msg: str) -> None:
         subtype = 'c' if self.language == 'C' else 'cpp'
-        logger.warning(msg, location=self.location, type='code_parser', subtype=subtype)
+        logger.warning(
+            msg, location=self.location, type='source_code_parser', subtype=subtype
+        )
 
     def match(self, regex: re.Pattern[str]) -> bool:
         match = regex.match(self.definition, self.pos)
