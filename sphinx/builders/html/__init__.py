@@ -32,7 +32,6 @@ from sphinx.builders.html._assets import (
 )
 from sphinx.builders.html._build_info import BuildInfo
 from sphinx.config import ENUM
-from sphinx.deprecation import _deprecation_warning as _deprecation_warning
 from sphinx.domains import Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
