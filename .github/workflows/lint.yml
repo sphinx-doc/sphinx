@@ -80,6 +80,27 @@ jobs:
     - name: Type check with pyright
       run: pyright
 
+  ty:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: uv pip install -r pyproject.toml --group package --group test --group types
+    - name: Type check with ty
+      run: ty check
+
   docs-lint:
     runs-on: ubuntu-latest
 
