@@ -34,7 +34,7 @@ from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Callable, Iterator
     from typing import Any, Literal, TypeAlias
 
     from requests import Response
@@ -385,9 +385,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.documents_exclude: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_exclude_documents)
         )
-        self.ignore_case: Sequence[re.Pattern[str]] = tuple(
-            map(re.compile, config.linkcheck_case_insensitive_urls)
-        )
         self.auth = [
             (re.compile(pattern), auth_info)
             for pattern, auth_info in config.linkcheck_auth
@@ -632,15 +629,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         netloc = urlsplit(req_url).netloc
         self.rate_limits.pop(netloc, None)
 
-        # Check if URL should be normalised case-insensitively
-        ignore_case = any(pat.match(req_url) for pat in self.ignore_case)
-        normalised_req_url = self._normalise_url(req_url, ignore_case=ignore_case)
-        normalised_response_url = self._normalise_url(
-            response_url, ignore_case=ignore_case
-        )
-
         if (
-            normalised_response_url == normalised_req_url
+            (response_url.rstrip('/') == req_url.rstrip('/'))
             or _allowed_redirect(req_url, response_url, self.allowed_redirects)
         ):  # fmt: skip
             return _Status.WORKING, '', 0
@@ -685,17 +675,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             next_check = time.time() + delay
         self.rate_limits[netloc] = RateLimit(delay, next_check)
         return next_check
-
-    @staticmethod
-    def _normalise_url(url: str, *, ignore_case: bool) -> str:
-        normalised_url = url.rstrip('/')
-        if not ignore_case:
-            return normalised_url
-        # URI fragments are case-sensitive
-        url_part, sep, fragment = normalised_url.partition('#')
-        if sep:
-            return f'{url_part}#{fragment}'
-        return url_part
 
 
 def _get_request_headers(
@@ -836,12 +815,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     app.add_config_value(
         'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
-    )
-    app.add_config_value(
-        'linkcheck_case_insensitive_urls',
-        (),
-        '',
-        types=frozenset({frozenset, list, set, tuple}),
     )
 
     app.add_event('linkcheck-process-uri')
