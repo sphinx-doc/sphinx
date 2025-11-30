@@ -356,7 +356,13 @@ class GoogleDocstring:
         self._what = what
         self._name = name
         self._obj = obj
-        self._opt = options
+        if options:
+            try:
+                self._no_index = options.no_index or options.noindex
+            except (AttributeError, TypeError):
+                self._no_index = False
+        else:
+            self._no_index = False
         if isinstance(docstring, str):
             lines = docstring.splitlines()
         else:
@@ -875,9 +881,8 @@ class GoogleDocstring:
                     lines.append(f':vartype {_name}: {_type}')
             else:
                 lines.append('.. attribute:: ' + _name)
-                if self._opt:
-                    if 'no-index' in self._opt or 'noindex' in self._opt:
-                        lines.append('   :no-index:')
+                if self._no_index:
+                    lines.append('   :no-index:')
                 lines.append('')
 
                 fields = self._format_field('', '', _desc)
@@ -943,9 +948,8 @@ class GoogleDocstring:
         lines: list[str] = []
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append(f'.. method:: {_name}')
-            if self._opt:
-                if 'no-index' in self._opt or 'noindex' in self._opt:
-                    lines.append('   :no-index:')
+            if self._no_index:
+                lines.append('   :no-index:')
             if _desc:
                 lines.extend(['', *self._indent(_desc, 3)])
             lines.append('')
