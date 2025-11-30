@@ -694,8 +694,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         # URI fragments are case-sensitive
         url_part, sep, fragment = normalised_url.partition('#')
         if sep:
-            return f'{url_part.casefold()}#{fragment}'
-        return url_part.casefold()
+            return f'{url_part}#{fragment}'
+        return url_part
 
 
 def _get_request_headers(
