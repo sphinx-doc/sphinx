@@ -111,9 +111,8 @@ lint = [
     "sphinx-lint>=0.9",
 ]
 package = [
-    "betterproto==2.0.0b6",  # resolution fails without betterproto
     "build",
-    "pypi-attestations==0.0.27",
+    "pypi-attestations==0.0.28",
     "twine>=6.1",
 ]
 test = [
