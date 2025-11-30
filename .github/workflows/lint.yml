@@ -99,7 +99,7 @@ jobs:
     - name: Install dependencies
       run: uv pip install -r pyproject.toml --group package --group test --group types
     - name: Type check with ty
-      run: ty check
+      run: ty check --color=always --output-format=github
 
   docs-lint:
     runs-on: ubuntu-latest
