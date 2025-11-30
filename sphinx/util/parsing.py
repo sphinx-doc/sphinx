@@ -49,7 +49,7 @@ def nested_parse_to_nodes(
         If this is True, then title underlines must match those in
         the surrounding document, otherwise the behaviour is undefined.
 
-        Warning: Up to Docutils 0.21, sections with an decoration style
+        Warning: Up to Docutils 0.21, sections with a decoration style
         matching a level that is higher than the current section level are
         silently discarded! Since Docutils 0.22.1, an error is reported.
 
