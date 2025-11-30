@@ -8,7 +8,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx import version_info
 from sphinx._cli.util.errors import strip_escape_sequences
+from sphinx.deprecation import RemovedInSphinx11Warning
 from sphinx.errors import SphinxError
 
 if TYPE_CHECKING:
@@ -17,15 +19,38 @@ if TYPE_CHECKING:
 
     from sphinx.testing.util import SphinxTestApp
 
-ENV_WARNINGS = """\
-{root}/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+if version_info >= (11, 0, 0):
+    # this code can be removed when we prepare Sphinx 11 for release
+    msg = 'From Sphinx 11, duplicate labels should always warn by default'
+    raise RemovedInSphinx11Warning(msg)
+else:
+    DUPLICATE_LABEL_WARNINGS = version_info >= (10, 0, 0)
+
+ENV_WARNINGS = (
+    (
+        """
+{root}/includes/shared-hyperlinks.rst:\\d+: WARNING: duplicate label ambiguous_shared_hyperlink, other instance in {root}/hyperlinks.rst
+"""
+        if DUPLICATE_LABEL_WARNINGS
+        else ''
+    )
+    + """{root}/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent. \\[docutils\\]
 {root}/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file '{root}/wrongenc.inc' seems to be wrong, try giving an :encoding: option \\[docutils\\]
-{root}/index.rst:\\d+: WARNING: invalid single index entry '' \\[index\\]
+{root}/index.rst:\\d+: WARNING: invalid single index entry '' \\[index\\]"""
+    + (
+        """
+{root}/index.rst:\\d+: WARNING: duplicate label ambiguous_hyperlink, other instance in {root}/hyperlinks.rst
+{root}/includes/shared-hyperlinks.rst:\\d+: WARNING: duplicate label ambiguous_shared_hyperlink, other instance in {root}/includes/shared-hyperlinks.rst"""
+        if DUPLICATE_LABEL_WARNINGS
+        else ''
+    )
+    + """
 {root}/index.rst:\\d+: WARNING: image file not readable: foo.png \\[image.not_readable\\]
 {root}/index.rst:\\d+: WARNING: download file not readable: {root}/nonexisting.png \\[download.not_readable\\]
 """
+)
 
 HTML_WARNINGS = (
     ENV_WARNINGS
@@ -92,7 +117,7 @@ def test_html_warnings_exception_on_warning(app: SphinxTestApp) -> None:
         pytest.fail('Expected an exception to be raised')
     except SphinxError:
         tb = traceback.format_exc()
-        assert 'unindent_warning' in tb
+        assert 'duplicate label' in tb or not DUPLICATE_LABEL_WARNINGS
         assert 'pending_warnings' not in tb
 
 

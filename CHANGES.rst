@@ -191,6 +191,9 @@ Bugs fixed
   Patch by Akihiro Takizawa.
 * #13741: text builder: fix an infinite loop when processing CSV tables.
   Patch by Bénédikt Tran.
+* #13383: Emit an info-level message about duplicate internal hyperlink
+  declarations.
+  Patch by James Addison.
 
 
 Testing
