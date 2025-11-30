@@ -8,11 +8,13 @@ from collections import namedtuple
 from inspect import cleandoc
 from itertools import product
 from textwrap import dedent
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
 
+from sphinx.ext.autodoc import Options
 from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (
@@ -1238,7 +1240,7 @@ Returns Style:
             actual = GoogleDocstring(docstring, test_config)
             assert str(actual) == expected
 
-    def test_noindex(self):
+    def test_no_index(self):
         docstring = """
 Attributes:
     arg
@@ -1267,7 +1269,7 @@ Methods:
             config=config,
             app=None,
             what='module',
-            options={'no-index': True},
+            options=SimpleNamespace(no_index=True),
         )
         assert str(actual) == expected
 
