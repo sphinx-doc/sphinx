@@ -405,13 +405,19 @@ def _process_docstring(
         .. note:: `lines` is modified *in place*
 
     """
+    result_lines = lines
     docstring: GoogleDocstring
     if app.config.napoleon_numpy_docstring:
-        docstring = NumpyDocstring(lines, app.config, app, what, name, obj, options)
-        lines[:] = docstring.lines()
-    elif app.config.napoleon_google_docstring:
-        docstring = GoogleDocstring(lines, app.config, app, what, name, obj, options)
-        lines[:] = docstring.lines()
+        docstring = NumpyDocstring(
+            result_lines, app.config, app, what, name, obj, options
+        )
+        result_lines = docstring.lines()
+    if app.config.napoleon_google_docstring:
+        docstring = GoogleDocstring(
+            result_lines, app.config, app, what, name, obj, options
+        )
+        result_lines = docstring.lines()
+    lines[:] = result_lines.copy()
 
 
 def _skip_member(
