@@ -181,9 +181,9 @@ nitpick_ignore = {
         'template<typename TOuter> template<typename TInner> Wrapper::Outer<TOuter>::Inner',
     ),
     ('cpp:identifier', 'MyContainer'),
-    ('js:func', 'SomeError'),
-    ('js:func', 'number'),
-    ('js:func', 'string'),
+    ('js:class', 'SomeError'),
+    ('js:class', 'number'),
+    ('js:class', 'string'),
     ('py:attr', 'srcline'),
     # sphinx.application.Sphinx.connect
     ('py:class', '_AutodocProcessDocstringListener'),
