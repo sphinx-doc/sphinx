@@ -29,6 +29,12 @@ def test_autosectionlabel_html(app: SphinxTestApp) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<li><p><a class="reference internal" href="#custom-label">'
+        '<span class="std std-ref">Installation</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
         '<li><p><a class="reference internal" href="#for-windows-users">'
         '<span class="std std-ref">For Windows users</span></a></p></li>'
     )
