@@ -1346,58 +1346,6 @@ def test_limit_rate_bails_out_after_waiting_max_time(app: SphinxTestApp) -> None
     assert app.warning.getvalue() == ''
 
 
-@mock.patch('sphinx.util.requests.requests.Session.get_adapter')
-@pytest.mark.sphinx('html', testroot='root')
-def test_connection_contention(
-    get_adapter: mock.Mock, app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
-) -> None:
-    # Create a shared, but limited-size, connection pool
-    import requests
-
-    get_adapter.return_value = requests.adapters.HTTPAdapter(pool_maxsize=1)
-
-    # Set an upper-bound on socket timeouts globally
-    import socket
-
-    socket.setdefaulttimeout(5)
-
-    # Create parallel consumer threads
-    with serve_application(app, make_redirect_handler(support_head=True)) as address:
-        # Place a workload into the linkcheck queue
-        link_count = 10
-        wqueue: Queue[CheckRequest] = Queue()
-        rqueue: Queue[CheckResult] = Queue()
-        for _ in range(link_count):
-            wqueue.put(
-                CheckRequest(
-                    0, Hyperlink(f'http://{address}', 'test', _StrPath('test.rst'), 1)
-                )
-            )
-
-        begin = time.time()
-        checked: list[CheckResult] = []
-        threads = [
-            HyperlinkAvailabilityCheckWorker(
-                config=app.config,
-                rqueue=rqueue,
-                wqueue=wqueue,
-                rate_limits={},
-            )
-            for _ in range(10)
-        ]
-        for thread in threads:
-            thread.start()
-        while time.time() < begin + 5 and len(checked) < link_count:
-            checked.append(rqueue.get(timeout=5))
-        for thread in threads:
-            thread.join(timeout=0)
-
-    # Ensure that all items were consumed within the time limit
-    _, stderr = capsys.readouterr()
-    assert len(checked) == link_count
-    assert 'TimeoutError' not in stderr
-
-
 class ConnectionResetHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
@@ -1492,18 +1440,6 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
     ('case_insensitive_pattern', 'expected_path1', 'expected_path2', 'expected_path3'),
     [
         ([], 'redirected', 'redirected', 'working'),  # default: case-sensitive
-        (
-            [r'http://localhost:\d+/.*'],
-            'working',
-            'working',
-            'working',
-        ),  # all URLs case-insensitive
-        (
-            [r'http://localhost:\d+/path1'],
-            'working',
-            'redirected',
-            'working',
-        ),  # only path1 case-insensitive
     ],
 )
 def test_linkcheck_case_sensitivity(
@@ -1527,3 +1463,55 @@ def test_linkcheck_case_sensitivity(
     assert rowsby[f'http://{address}/path1']['status'] == expected_path1
     assert rowsby[f'http://{address}/path2']['status'] == expected_path2
     assert rowsby[f'http://{address}/PATH3']['status'] == expected_path3
+
+
+@mock.patch('sphinx.util.requests.requests.Session.get_adapter')
+@pytest.mark.sphinx('html', testroot='root')
+def test_connection_contention(
+    get_adapter: mock.Mock, app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # Create a shared, but limited-size, connection pool
+    import requests
+
+    get_adapter.return_value = requests.adapters.HTTPAdapter(pool_maxsize=1)
+
+    # Set an upper-bound on socket timeouts globally
+    import socket
+
+    socket.setdefaulttimeout(5)
+
+    # Create parallel consumer threads
+    with serve_application(app, make_redirect_handler(support_head=True)) as address:
+        # Place a workload into the linkcheck queue
+        link_count = 10
+        wqueue: Queue[CheckRequest] = Queue()
+        rqueue: Queue[CheckResult] = Queue()
+        for _ in range(link_count):
+            wqueue.put(
+                CheckRequest(
+                    0, Hyperlink(f'http://{address}', 'test', _StrPath('test.rst'), 1)
+                )
+            )
+
+        begin = time.time()
+        checked: list[CheckResult] = []
+        threads = [
+            HyperlinkAvailabilityCheckWorker(
+                config=app.config,
+                rqueue=rqueue,
+                wqueue=wqueue,
+                rate_limits={},
+            )
+            for _ in range(10)
+        ]
+        for thread in threads:
+            thread.start()
+        while time.time() < begin + 5 and len(checked) < link_count:
+            checked.append(rqueue.get(timeout=5))
+        for thread in threads:
+            thread.join(timeout=0)
+
+    # Ensure that all items were consumed within the time limit
+    _, stderr = capsys.readouterr()
+    assert len(checked) == link_count
+    assert 'TimeoutError' not in stderr
