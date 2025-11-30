@@ -16,9 +16,11 @@ from sphinx.util.typing import get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from typing import Literal
 
     from sphinx.application import Sphinx
     from sphinx.config import Config as SphinxConfig
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
 
 logger = logging.getLogger(__name__)
 
@@ -328,10 +330,10 @@ class GoogleDocstring:
         docstring: str | list[str],
         config: SphinxConfig | None = None,
         app: Sphinx | None = None,
-        what: str = '',
+        what: _AutodocObjType | Literal['object'] = 'object',
         name: str = '',
-        obj: Any = None,
-        options: Any = None,
+        obj: Any | None = None,
+        options: Any | None = None,
     ) -> None:
         self._app = app
         if config:
@@ -343,7 +345,7 @@ class GoogleDocstring:
 
             self._config = Config()  # type: ignore[assignment]
 
-        if not what:
+        if what == 'object':
             if inspect.isclass(obj):
                 what = 'class'
             elif inspect.ismodule(obj):
@@ -353,7 +355,7 @@ class GoogleDocstring:
             else:
                 what = 'object'
 
-        self._what = what
+        self._what: _AutodocObjType | Literal['object'] = what
         self._name = name
         self._obj = obj
         self._opt = options
@@ -1206,10 +1208,10 @@ class NumpyDocstring(GoogleDocstring):
         docstring: str | list[str],
         config: SphinxConfig | None = None,
         app: Sphinx | None = None,
-        what: str = '',
+        what: _AutodocObjType | Literal['object'] = 'object',
         name: str = '',
-        obj: Any = None,
-        options: Any = None,
+        obj: Any | None = None,
+        options: Any | None = None,
     ) -> None:
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)

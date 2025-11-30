@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import ParamSpec, TypeVar
 
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
+
     _P = ParamSpec('_P')
     _R = TypeVar('_R')
 
@@ -151,7 +153,7 @@ class TestSetup:
 class TestSkipMember:
     def assert_skip(
         self,
-        what: str,
+        what: _AutodocObjType,
         member: str,
         obj: object,
         expect_default_skip: bool,

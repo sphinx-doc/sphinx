@@ -1378,7 +1378,7 @@ Docstring preprocessing
 
 autodoc provides the following additional events:
 
-.. event:: autodoc-process-docstring (app, what, name, obj, options, lines)
+.. event:: autodoc-process-docstring (app, obj_type, name, obj, options, lines)
 
    .. versionadded:: 0.4
 
@@ -1387,9 +1387,9 @@ autodoc provides the following additional events:
    can modify **in place** to change what Sphinx puts into the output.
 
    :param app: the Sphinx application object
-   :param what: the type of the object which the docstring belongs to (one of
-      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
-      ``'attribute'``)
+   :param obj_type: the type of the object which the docstring belongs to (one of
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
+      ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
@@ -1409,7 +1409,7 @@ autodoc provides the following additional events:
    :param obj: the object itself
    :param bound_method: a boolean indicates an object is bound method or not
 
-.. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation)
+.. event:: autodoc-process-signature (app, obj_type, name, obj, options, signature, return_annotation)
 
    .. versionadded:: 0.5
 
@@ -1418,9 +1418,9 @@ autodoc provides the following additional events:
    what Sphinx puts into the output.
 
    :param app: the Sphinx application object
-   :param what: the type of the object which the docstring belongs to (one of
-      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
-      ``'attribute'``)
+   :param obj_type: the type of the object which the docstring belongs to (one of
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
+      ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
@@ -1439,17 +1439,17 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
 .. autofunction:: cut_lines
 .. autofunction:: between
 
-.. event:: autodoc-process-bases (app, name, obj, options, bases)
+.. event:: autodoc-process-bases (app, name, obj, _unused, bases)
 
    Emitted when autodoc has read and processed a class to determine the
    base-classes.  *bases* is a list of classes that the event handler can
    modify **in place** to change what Sphinx puts into the output.  It's
-   emitted only if ``show-inheritance`` option given.
+   emitted only if the ``show-inheritance`` option is given.
 
    :param app: the Sphinx application object
    :param name: the fully qualified name of the object
    :param obj: the object itself
-   :param options: the options given to the class directive
+   :param _unused: unused placeholder
    :param bases: the list of base classes signature. see above.
 
    .. versionadded:: 4.1
@@ -1465,7 +1465,7 @@ Skipping members
 autodoc allows the user to define a custom method for determining whether a
 member should be included in the documentation by using the following event:
 
-.. event:: autodoc-skip-member (app, what, name, obj, skip, options)
+.. event:: autodoc-skip-member (app, obj_type, name, obj, skip, options)
 
    .. versionadded:: 0.5
 
@@ -1479,9 +1479,9 @@ member should be included in the documentation by using the following event:
    autodoc and other enabled extensions.
 
    :param app: the Sphinx application object
-   :param what: the type of the object which the docstring belongs to (one of
-      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
-      ``'attribute'``)
+   :param obj_type: the type of the object which the docstring belongs to (one of
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
+      ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param skip: a boolean indicating if autodoc will skip this member if the
