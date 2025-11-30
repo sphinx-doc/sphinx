@@ -1452,7 +1452,7 @@ def test_linkcheck_case_sensitivity(
     """Test case-sensitive and case-insensitive URL checking."""
     app.config.linkcheck_case_insensitive_urls = case_insensitive_pattern
 
-    with serve_application(app, DefaultsHandler) as address:
+    with serve_application(app, CapitalisePathHandler) as address:
         app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
