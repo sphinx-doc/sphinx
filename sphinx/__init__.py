@@ -27,7 +27,7 @@ version_info: Final = (9, 0, 0, 'candidate', 3)
 package_dir: Final = _StrPath(__file__).resolve().parent
 del _StrPath
 
-_in_development = False
+_in_development = True
 if _in_development:
     # Only import subprocess if needed
     import subprocess
