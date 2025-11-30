@@ -7,7 +7,7 @@ from docutils.statemachine import StringList
 from docutils.utils import assemble_option_dict
 
 from sphinx.ext.autodoc._legacy_class_based._directive_options import Options
-from sphinx.util import logging
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
@@ -20,8 +20,6 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc._legacy_class_based._documenters import Documenter
-
-logger = logging.getLogger(__name__)
 
 
 # common option names for autodoc directives
@@ -145,7 +143,7 @@ class AutodocDirective(SphinxDirective):
             )
         except AttributeError:
             source, lineno = (None, None)
-        logger.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)
+        LOGGER.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)
 
         # look up target Documenter
         objtype = self.name[4:]  # strip prefix (auto-).
@@ -158,7 +156,7 @@ class AutodocDirective(SphinxDirective):
             )
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
-            logger.error(  # NoQA: TRY400
+            LOGGER.error(  # NoQA: TRY400
                 'An option to %s is either unknown or has an invalid value: %s',
                 self.name,
                 exc,
@@ -175,7 +173,7 @@ class AutodocDirective(SphinxDirective):
         if not params.result:
             return []
 
-        logger.debug('[autodoc] output:\n%s', '\n'.join(params.result))
+        LOGGER.debug('[autodoc] output:\n%s', '\n'.join(params.result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible

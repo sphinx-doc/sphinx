@@ -11,18 +11,16 @@ from typing import TYPE_CHECKING, cast
 from weakref import WeakSet
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.pycode.ast import unparse as ast_unparse
-from sphinx.util import inspect, logging
+from sphinx.util import inspect
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
-
-
-logger = logging.getLogger(__name__)
 
 
 _objects_with_type_comment_annotations: WeakSet[Any] = WeakSet()
@@ -118,11 +116,11 @@ def _update_annotations_using_type_comments(obj: Any, bound_method: bool) -> Non
             if 'return' not in obj.__annotations__:
                 obj.__annotations__['return'] = type_sig.return_annotation
     except KeyError as exc:
-        logger.warning(
+        LOGGER.warning(
             __('Failed to update signature for %r: parameter not found: %s'), obj, exc
         )
     except NotImplementedError as exc:  # failed to ast.unparse()
-        logger.warning(__('Failed to parse type_comment for %r: %s'), obj, exc)
+        LOGGER.warning(__('Failed to parse type_comment for %r: %s'), obj, exc)
 
 
 def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:

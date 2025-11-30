@@ -278,6 +278,7 @@ select = [
 
 logger-objects = [
     "sphinx.ext.apidoc._shared.LOGGER",
+    "sphinx.ext.autodoc._shared.LOGGER",
     "sphinx.ext.intersphinx._shared.LOGGER",
 ]
 

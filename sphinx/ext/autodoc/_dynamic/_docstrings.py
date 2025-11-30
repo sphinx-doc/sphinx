@@ -13,9 +13,10 @@ from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR,
     UNINITIALIZED_ATTR,
 )
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import inspect, logging
+from sphinx.util import inspect
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import getdoc
 
@@ -27,8 +28,6 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
     from sphinx.ext.autodoc._shared import _AttrGetter
-
-logger = logging.getLogger('sphinx.ext.autodoc')
 
 
 def _docstring_lines_for_props(
@@ -72,7 +71,7 @@ def _attr_docs_for_props(
         # be cached anyway)
         analyzer.analyze()
     except PycodeError as exc:
-        logger.debug('[autodoc] module analyzer failed: %s', exc)
+        LOGGER.debug('[autodoc] module analyzer failed: %s', exc)
         # no source file -- e.g. for builtin and C modules
         attr_docs = {}
     else:
@@ -265,7 +264,7 @@ def _get_docstring_lines(
                     return [prepare_docstring(docstring)]
                 return []
             except ValueError as exc:
-                logger.warning(
+                LOGGER.warning(
                     __('Invalid __slots__ found on %s. Ignored.'),
                     (parent.__qualname__, exc),
                     type='autodoc',

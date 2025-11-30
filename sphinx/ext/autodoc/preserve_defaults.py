@@ -24,14 +24,11 @@ from sphinx.ext.autodoc._dynamic._preserve_defaults import (
     get_default_value as get_default_value,  # NoQA: PLC0414
 )
 from sphinx.ext.autodoc._dynamic._preserve_defaults import update_default_value
-from sphinx.util import logging
 
 if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.application import Sphinx
-
-logger = logging.getLogger(__name__)
 
 
 # Retained: legacy class-based

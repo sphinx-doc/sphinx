@@ -6,8 +6,7 @@ from docutils import nodes
 
 from sphinx.ext.autodoc._directive_options import _process_documenter_options
 from sphinx.ext.autodoc._generate import _auto_document_object
-from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
-from sphinx.util import logging
+from sphinx.ext.autodoc._shared import LOGGER, _AutodocAttrGetter, _AutodocConfig
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
 
@@ -19,8 +18,6 @@ if TYPE_CHECKING:
     from docutils.statemachine import StringList
 
     from sphinx.ext.autodoc._property_types import _AutodocObjType
-
-logger = logging.getLogger(__name__)
 
 
 class DummyOptionSpec(dict[str, 'Callable[[str], str]']):  # NoQA: FURB189
@@ -64,7 +61,7 @@ class AutodocDirective(SphinxDirective):
 
     def run(self) -> list[Node]:
         source, lineno = self.get_source_info()
-        logger.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)
+        LOGGER.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)
 
         # get target object type / strip prefix (auto-)
         assert self.name.startswith('auto')
@@ -84,10 +81,11 @@ class AutodocDirective(SphinxDirective):
             )
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
-            logger.error(  # NoQA: TRY400
+            LOGGER.error(  # NoQA: TRY400
                 'An option to %s is either unknown or has an invalid value: %s',
                 self.name,
                 exc,
+                exc_info=exc,
                 location=(env.current_document.docname, lineno),
             )
             return []
@@ -114,6 +112,6 @@ class AutodocDirective(SphinxDirective):
         if not content:
             return []
 
-        logger.debug('[autodoc] output:\n%s', '\n'.join(content))
+        LOGGER.debug('[autodoc] output:\n%s', '\n'.join(content))
 
         return parse_generated_content(self.state, content, titles_allowed)
