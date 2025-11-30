@@ -14,6 +14,10 @@ Incompatible changes
 * #13639: :py:meth:`!SphinxComponentRegistry.create_source_parser` no longer
   has an *app* parameter, instead taking *config* and *env*.
   Patch by Adam Turner.
+* #13679: Non-decodable characters in source files now raise an error.
+  Such bytes have been replaced with '?' along with logging a warning
+  since Sphinx 2.0.
+  Patch by Adam Turner.
 * #13751, #14089: :mod:`sphinx.ext.autodoc` has been substantially rewritten,
   and there may be some incompatible changes in edge cases, especially when
   extensions interact with autodoc internals.
@@ -37,9 +41,6 @@ Deprecated
   Patch by Adam Turner.
 * #13665: Deprecate support for non-UTF 8 source encodings,
   scheduled for removal in Sphinx 10.
-  Patch by Adam Turner.
-* #13679: Non-decodable characters in source files will raise an error in Sphinx 9.
-  Currently, such bytes are replaced with '?' along with logging a warning.
   Patch by Adam Turner.
 * #13682: Deprecate :py:mod:`!sphinx.io`.
   Sphinx no longer uses the :py:mod:`!sphinx.io` classes,
