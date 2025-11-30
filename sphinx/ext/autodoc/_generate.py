@@ -6,14 +6,15 @@ from typing import TYPE_CHECKING
 from docutils.statemachine import StringList
 
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._member_finder import _gather_members
+from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
+from sphinx.ext.autodoc._dynamic._member_finder import _gather_members
+from sphinx.ext.autodoc._dynamic._mock import ismock
 from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
 from sphinx.ext.autodoc._sentinels import ALL
-from sphinx.ext.autodoc._shared import _get_render_mode
-from sphinx.ext.autodoc.mock import ismock
+from sphinx.ext.autodoc._shared import LOGGER, _get_render_mode
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import inspect, logging
+from sphinx.util import inspect
 from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
@@ -22,11 +23,55 @@ if TYPE_CHECKING:
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._property_types import _ItemProperties
+    from sphinx.ext.autodoc._property_types import _AutodocObjType, _ItemProperties
     from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
     from sphinx.util.typing import _RestifyMode
 
-logger = logging.getLogger('sphinx.ext.autodoc')
+
+def _auto_document_object(
+    *,
+    config: _AutodocConfig,
+    current_document: _CurrentDocument,
+    events: EventManager,
+    get_attr: _AttrGetter,
+    more_content: StringList | None,
+    name: str,
+    obj_type: _AutodocObjType,
+    options: _AutoDocumenterOptions,
+    record_dependencies: set[str],
+    ref_context: Mapping[str, str | None],
+    reread_always: MutableSet[str],
+) -> StringList | None:
+    props = _load_object_by_name(
+        name=name,
+        objtype=obj_type,
+        current_document=current_document,
+        config=config,
+        events=events,
+        get_attr=get_attr,
+        options=options,
+        ref_context=ref_context,
+        reread_always=reread_always,
+    )
+    if props is None:
+        return None
+
+    result = StringList()
+    _generate_directives(
+        more_content=more_content,
+        config=config,
+        current_document=current_document,
+        events=events,
+        get_attr=get_attr,
+        indent='',
+        options=options,
+        props=props,
+        record_dependencies=record_dependencies,
+        ref_context=ref_context,
+        reread_always=reread_always,
+        result=result,
+    )
+    return result
 
 
 def _generate_directives(
@@ -75,7 +120,7 @@ def _generate_directives(
         analyzer.analyze()
         record_dependencies.add(analyzer.srcname)
     except PycodeError as exc:
-        logger.debug('[autodoc] module analyzer failed: %s', exc)
+        LOGGER.debug('[autodoc] module analyzer failed: %s', exc)
         # no source file -- e.g. for builtin and C modules
         analyzer = None
         # at least add the module source file as a dependency
@@ -102,7 +147,7 @@ def _generate_directives(
 
     has_docstring = bool(props.docstring_lines)
     if ismock(props._obj) and not has_docstring:
-        logger.warning(
+        LOGGER.warning(
             __('A mocked object is detected: %r'),
             props.full_name,
             type='autodoc',

@@ -6,10 +6,7 @@ Reference: https://www.rfc-editor.org/rfc/rfc7231#section-7.1.1.1
 from __future__ import annotations
 
 import time
-import warnings
 from email.utils import parsedate_tz
-
-from sphinx.deprecation import RemovedInSphinx90Warning
 
 _WEEKDAY_NAME = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
 _MONTH_NAME = ('',  # Placeholder for indexing purposes
@@ -32,19 +29,17 @@ def rfc1123_to_epoch(rfc1123: str) -> float:
     if t is None:
         raise ValueError
     if not rfc1123.endswith(' GMT'):
-        warnings.warn(
+        msg = (
             'HTTP-date string does not meet RFC 7231 requirements '
-            f"(must end with 'GMT'): {rfc1123!r}",
-            RemovedInSphinx90Warning,
-            stacklevel=3,
+            f"(must end with 'GMT'): {rfc1123!r}"
         )
+        raise ValueError(msg)
+    gmt_offset = t[9]
+    if gmt_offset != 0:
+        msg = (
+            'HTTP-date string does not meet RFC 7231 requirements '
+            f'(must be GMT time): {rfc1123!r}'
+        )
+        raise ValueError(msg)
     epoch_secs = time.mktime(time.struct_time(t[:9])) + _GMT_OFFSET
-    if (gmt_offset := t[9]) != 0:
-        warnings.warn(
-            'HTTP-date string does not meet RFC 7231 requirements '
-            f'(must be GMT time): {rfc1123!r}',
-            RemovedInSphinx90Warning,
-            stacklevel=3,
-        )
-        return epoch_secs - (gmt_offset or 0)
     return epoch_secs

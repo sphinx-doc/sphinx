@@ -8,51 +8,38 @@ from typing import TYPE_CHECKING, cast
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.util import inspect
-from sphinx.util.typing import stringify_annotation
+from sphinx.ext.autodoc._dynamic._type_annotations import _record_typehints
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Iterable
     from typing import Any
 
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc._legacy_class_based._directive_options import Options
     from sphinx.ext.autodoc._property_types import _AutodocObjType
-    from sphinx.util.typing import _StringifyMode
 
 
-def _record_typehints(
-    *,
-    autodoc_annotations: dict[str, dict[str, str]],
+# Retained: legacy class-based
+def record_typehints(
+    app: Sphinx,
+    objtype: str,
     name: str,
     obj: Any,
-    short_literals: bool,
-    type_aliases: Mapping[str, str] | None,
-    unqualified_typehints: bool,
+    options: Options,
+    args: str,
+    retann: str,
 ) -> None:
     """Record type hints to env object."""
-    mode: _StringifyMode
-    if unqualified_typehints:
-        mode = 'smart'
-    else:
-        mode = 'fully-qualified'
-
-    try:
-        if callable(obj):
-            annotation = autodoc_annotations.setdefault(name, {})
-            sig = inspect.signature(obj, type_aliases=type_aliases)
-            for param in sig.parameters.values():
-                if param.annotation is not param.empty:
-                    annotation[param.name] = stringify_annotation(
-                        param.annotation, mode, short_literals=short_literals
-                    )
-            if sig.return_annotation is not sig.empty:
-                annotation['return'] = stringify_annotation(
-                    sig.return_annotation, mode, short_literals=short_literals
-                )
-    except (TypeError, ValueError):
-        pass
+    _record_typehints(
+        autodoc_annotations=app.env.current_document.autodoc_annotations,
+        name=name,
+        obj=obj,
+        short_literals=app.config.python_display_short_literal_types,
+        type_aliases=app.config.autodoc_type_aliases,
+        unqualified_typehints=app.config.autodoc_typehints_format == 'short',
+    )
 
 
 def _merge_typehints(

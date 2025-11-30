@@ -8,13 +8,14 @@ from typing import TYPE_CHECKING, Literal, NewType, TypeVar
 from sphinx.errors import PycodeError
 from sphinx.events import EventManager
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-from sphinx.ext.autodoc._loader import _load_object_by_name
+from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
+from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
 from sphinx.ext.autodoc._property_types import _ClassDefProperties, _ModuleProperties
 from sphinx.ext.autodoc._sentinels import ALL, INSTANCE_ATTR, SLOTS_ATTR
-from sphinx.ext.autodoc.mock import ismock, undecorate
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import inspect, logging
+from sphinx.util import inspect
 from sphinx.util.docstrings import separate_metadata
 from sphinx.util.inspect import (
     getannotations,
@@ -44,7 +45,6 @@ if TYPE_CHECKING:
     )
     from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
-logger = logging.getLogger('sphinx.ext.autodoc')
 special_member_re = re.compile(r'^__\S+__$')
 
 
@@ -420,7 +420,7 @@ def _get_members_to_document(
                 'attribute %s is listed in :members: but is missing '
                 'as it was not found in object %r'
             )
-            logger.warning(msg, name, props._obj, type='autodoc')
+            LOGGER.warning(msg, name, props._obj, type='autodoc')
     return obj_members_seq
 
 
@@ -468,7 +468,7 @@ def _filter_members(
                 undoc_members=undoc_members,
             )
         except Exception as exc:
-            logger.warning(
+            LOGGER.warning(
                 __(
                     'autodoc: failed to determine %s.%s (%r) to be documented, '
                     'the following exception was raised:\n%s'
