@@ -14,7 +14,6 @@ from unittest import mock
 
 import pytest
 
-from sphinx.ext.autodoc import Options
 from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (
