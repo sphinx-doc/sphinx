@@ -8,7 +8,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx import version_info
 from sphinx._cli.util.errors import strip_escape_sequences
+from sphinx.deprecation import RemovedInSphinx11Warning
 from sphinx.errors import SphinxError
 
 if TYPE_CHECKING:
@@ -17,7 +19,12 @@ if TYPE_CHECKING:
 
     from sphinx.testing.util import SphinxTestApp
 
-DUPLICATE_LABEL_WARNINGS = False
+if version_info >= (11, 0, 0):
+    # this code can be removed when we prepare Sphinx 11 for release
+    msg = 'From Sphinx 11, duplicate labels should always warn by default'
+    raise RemovedInSphinx11Warning(msg)
+else:
+    DUPLICATE_LABEL_WARNINGS = version_info >= (10, 0, 0)
 
 ENV_WARNINGS = (
     (
