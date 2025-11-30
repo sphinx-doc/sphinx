@@ -102,8 +102,6 @@ Features added
   Patch by Matthias Geier.
 * #14029: intersphinx: Fix error in format string interpolation.
   Patch by Matthieu de Cibeins.
-* #13217: Remove extra parentheses from :rst:dir:`js:function` arguments and errors.
-  Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------
@@ -193,6 +191,8 @@ Bugs fixed
   Patch by Akihiro Takizawa.
 * #13741: text builder: fix an infinite loop when processing CSV tables.
   Patch by Bénédikt Tran.
+* #13217: Remove extra parentheses from :rst:dir:`js:function` arguments and errors.
+  Patch by Shengyu Zhang.
 
 
 Testing
