@@ -283,6 +283,7 @@ def _fetch_inventory_group(
             inv = _load_inventory(raw_data, target_uri=project.target_uri)
             cache_path_mtime = int(cache_path.stat().st_mtime)
             cache[project.target_uri] = project.name, cache_path_mtime, inv.data
+            updated = True
             break
 
         # decide whether the inventory must be read: always read local
