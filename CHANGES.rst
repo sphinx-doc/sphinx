@@ -192,5 +192,6 @@ Bugs fixed
 * #13355: Don't include escaped title content in the search index.
   Patch by Will Lachance.
 
+
 Testing
 -------
