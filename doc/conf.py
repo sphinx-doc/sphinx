@@ -188,7 +188,10 @@ nitpick_ignore = {
     # sphinx.application.Sphinx.connect
     ('py:class', '_AutodocProcessDocstringListener'),
     # sphinx.application.Sphinx.connect
+    ('py:class', '_AutodocBeforeProcessSignatureListener'),
+    # sphinx.application.Sphinx.connect
     ('py:class', '_AutodocProcessSignatureListener'),
+    ('py:class', '_AutodocProcessBasesListener'),  # sphinx.application.Sphinx.connect
     ('py:class', '_AutodocSkipMemberListener'),  # sphinx.application.Sphinx.connect
     ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
     # sphinx.application.Sphinx.add_html_math_renderer

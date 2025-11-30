@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.config import _ConfigRebuild
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.util.typing import ExtensionMetadata
 
 
@@ -362,7 +363,12 @@ def _patch_python_domain() -> None:
 
 
 def _process_docstring(
-    app: Sphinx, what: str, name: str, obj: Any, options: Any, lines: list[str]
+    app: Sphinx,
+    what: _AutodocObjType,
+    name: str,
+    obj: Any,
+    options: Any,
+    lines: list[str],
 ) -> None:
     """Process the docstring for a given python object.
 
@@ -399,23 +405,17 @@ def _process_docstring(
         .. note:: `lines` is modified *in place*
 
     """
-    result_lines = lines
     docstring: GoogleDocstring
     if app.config.napoleon_numpy_docstring:
-        docstring = NumpyDocstring(
-            result_lines, app.config, app, what, name, obj, options
-        )
-        result_lines = docstring.lines()
-    if app.config.napoleon_google_docstring:
-        docstring = GoogleDocstring(
-            result_lines, app.config, app, what, name, obj, options
-        )
-        result_lines = docstring.lines()
-    lines[:] = result_lines.copy()
+        docstring = NumpyDocstring(lines, app.config, app, what, name, obj, options)
+        lines[:] = docstring.lines()
+    elif app.config.napoleon_google_docstring:
+        docstring = GoogleDocstring(lines, app.config, app, what, name, obj, options)
+        lines[:] = docstring.lines()
 
 
 def _skip_member(
-    app: Sphinx, what: str, name: str, obj: Any, skip: bool, options: Any
+    app: Sphinx, what: _AutodocObjType, name: str, obj: Any, skip: bool, options: Any
 ) -> bool | None:
     """Determine if private and special class members are included in docs.
 
