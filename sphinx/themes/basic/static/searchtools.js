@@ -103,7 +103,7 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   linkEl.innerHTML = _escapeHTML(title);
   if (descr) {
     listItem.appendChild(document.createElement("span")).innerHTML =
-      " (" + _escapeHTML(descr) + ")";
+      ` (${_escapeHTML(descr)})`;
     // highlight search terms in the description
     if (SPHINX_HIGHLIGHT_ENABLED)
       // SPHINX_HIGHLIGHT_ENABLED is set in sphinx_highlight.js
