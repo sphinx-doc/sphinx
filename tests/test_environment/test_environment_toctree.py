@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import docutils
 import pytest
 from docutils import nodes
-from docutils.nodes import bullet_list, list_item, literal, reference, title
+from docutils.nodes import Element, bullet_list, list_item, literal, reference, title
 
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_process_doc(app):
+def test_process_doc(app: SphinxTestApp) -> None:
     app.build()
     # tocs
     toctree = app.env.tocs['index']
@@ -67,13 +67,20 @@ def test_process_doc(app):
         ],
     )
 
+    toctree_0 = toctree[0]
+    assert isinstance(toctree_0, Element)
+    toctree_0_0 = toctree_0[0]
+    assert isinstance(toctree_0_0, Element)
     assert_node(
-        toctree[0][0],
-        [compact_paragraph, reference, 'Welcome to Sphinx Tests’s documentation!'],
+        toctree_0_0,
+        [compact_paragraph, reference, "Welcome to Sphinx Tests's documentation!"],
     )
-    assert_node(toctree[0][0][0], reference, anchorname='')
+    assert_node(toctree_0_0[0], reference, anchorname='')
+
+    toctree_0_1 = toctree_0[1]
+    assert isinstance(toctree_0_1, Element)
     assert_node(
-        toctree[0][1][0],
+        toctree_0_1[0],
         addnodes.toctree,
         caption='Table of Contents',
         glob=False,
@@ -91,9 +98,11 @@ def test_process_doc(app):
     )
 
     # only branch
-    assert_node(toctree[0][1][1], addnodes.only, expr='html')
+    toctree_0_1_1 = toctree_0_1[1]
+    assert isinstance(toctree_0_1_1, Element)
+    assert_node(toctree_0_1_1, addnodes.only, expr='html')
     assert_node(
-        toctree[0][1][1],
+        toctree_0_1_1,
         [
             only,
             list_item,
@@ -103,9 +112,15 @@ def test_process_doc(app):
             ),
         ],
     )
-    assert_node(toctree[0][1][1][0][0][0], reference, anchorname='#section-for-html')
+    toctree_0_1_1_0 = toctree_0_1_1[0]
+    assert isinstance(toctree_0_1_1_0, Element)
+    toctree_0_1_1_0_0 = toctree_0_1_1_0[0]
+    assert isinstance(toctree_0_1_1_0_0, Element)
+    assert_node(toctree_0_1_1_0_0[0], reference, anchorname='#section-for-html')
+    toctree_0_1_1_0_1 = toctree_0_1_1_0[1]
+    assert isinstance(toctree_0_1_1_0_1, Element)
     assert_node(
-        toctree[0][1][1][0][1][0],
+        toctree_0_1_1_0_1[0],
         addnodes.toctree,
         caption=None,
         glob=False,
@@ -117,28 +132,34 @@ def test_process_doc(app):
         numbered=0,
     )
     assert_node(
-        toctree[0][1][2],
+        toctree_0_1[2],
         (
             [compact_paragraph, reference, 'subsection'],
             [bullet_list, list_item, compact_paragraph, reference, 'subsubsection'],
         ),
     )
 
+    toctree_1 = toctree[1]
+    assert isinstance(toctree_1, Element)
+    toctree_1_0 = toctree_1[0]
+    assert isinstance(toctree_1_0, Element)
     assert_node(
-        toctree[1][0],
+        toctree_1_0,
         [
             compact_paragraph,
             reference,
-            'Test for combination of ‘globaltoc.html’ and hidden toctree',
+            "Test for combination of 'globaltoc.html' and hidden toctree",
         ],
     )
     assert_node(
-        toctree[1][0][0],
+        toctree_1_0[0],
         reference,
         anchorname='#test-for-combination-of-globaltoc-html-and-hidden-toctree',
     )
+    toctree_1_1 = toctree_1[1]
+    assert isinstance(toctree_1_1, Element)
     assert_node(
-        toctree[1][1][0],
+        toctree_1_1[0],
         addnodes.toctree,
         caption=None,
         entries=[],
@@ -149,7 +170,7 @@ def test_process_doc(app):
         numbered=0,
     )
     assert_node(
-        toctree[1][1][1],
+        toctree_1_1[1],
         addnodes.toctree,
         caption=None,
         glob=False,
@@ -163,7 +184,9 @@ def test_process_doc(app):
         ],
     )
 
-    assert_node(toctree[2][0], [compact_paragraph, reference, 'Indices and tables'])
+    toctree_2 = toctree[2]
+    assert isinstance(toctree_2, Element)
+    assert_node(toctree_2[0], [compact_paragraph, reference, 'Indices and tables'])
 
     # other collections
     assert app.env.toc_num_entries['index'] == 6
@@ -182,7 +205,7 @@ def test_process_doc(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='toctree-glob')
-def test_glob(app):
+def test_glob(app: SphinxTestApp) -> None:
     includefiles = [
         'foo',
         'bar/index',
@@ -215,9 +238,16 @@ def test_glob(app):
         ],
     )
 
-    assert_node(toctree[0][0], [compact_paragraph, reference, 'test-toctree-glob'])
+    toctree_0 = toctree[0]
+    assert isinstance(toctree_0, Element)
+    assert_node(toctree_0[0], [compact_paragraph, reference, 'test-toctree-glob'])
+
+    toctree_0_1 = toctree_0[1]
+    assert isinstance(toctree_0_1, Element)
+    toctree_0_1_0 = toctree_0_1[0]
+    assert isinstance(toctree_0_1_0, Element)
     assert_node(
-        toctree[0][1][0],
+        toctree_0_1_0,
         [
             list_item,
             (
@@ -226,8 +256,10 @@ def test_glob(app):
             ),
         ],
     )
+    toctree_0_1_0_1 = toctree_0_1_0[1]
+    assert isinstance(toctree_0_1_0_1, Element)
     assert_node(
-        toctree[0][1][0][1][0],
+        toctree_0_1_0_1[0],
         addnodes.toctree,
         caption=None,
         glob=True,
@@ -244,11 +276,13 @@ def test_glob(app):
             (None, 'bar/bar_3'),
             (None, 'baz'),
             (None, 'qux/index'),
-            ('hyperref', 'https://sphinx-doc.org/?q=sphinx'),
+            ('hyperref', 'https://sphinx-doc.org/?q= sphinx'),
         ],
     )
+    toctree_0_1_1 = toctree_0_1[1]
+    assert isinstance(toctree_0_1_1, Element)
     assert_node(
-        toctree[0][1][1],
+        toctree_0_1_1,
         [
             list_item,
             (
@@ -257,8 +291,10 @@ def test_glob(app):
             ),
         ],
     )
+    toctree_0_1_1_1 = toctree_0_1_1[1]
+    assert isinstance(toctree_0_1_1_1, Element)
     assert_node(
-        toctree[0][1][1][1][0],
+        toctree_0_1_1_1[0],
         addnodes.toctree,
         caption=None,
         glob=True,
@@ -290,7 +326,7 @@ def test_glob(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='toctree-domain-objects')
-def test_domain_objects(app):
+def test_domain_objects(app: SphinxTestApp) -> None:
     app.build()
 
     assert app.env.toc_num_entries['index'] == 0
@@ -336,15 +372,23 @@ def test_domain_objects(app):
         ],
     )
 
-    assert_node(toctree[0][0], [compact_paragraph, reference, 'test-domain-objects'])
+    toctree_0 = toctree[0]
+    assert isinstance(toctree_0, Element)
+    assert_node(toctree_0[0], [compact_paragraph, reference, 'test-domain-objects'])
 
+    toctree_0_1 = toctree_0[1]
+    assert isinstance(toctree_0_1, Element)
     assert_node(
-        toctree[0][1][0],
+        toctree_0_1[0],
         [list_item, ([compact_paragraph, reference, literal, 'world()'])],
     )
 
+    toctree_0_1_1 = toctree_0_1[1]
+    assert isinstance(toctree_0_1_1, Element)
+    toctree_0_1_1_1 = toctree_0_1_1[1]
+    assert isinstance(toctree_0_1_1_1, Element)
     assert_node(
-        toctree[0][1][1][1][3],
+        toctree_0_1_1_1[3],
         [
             list_item,
             ([compact_paragraph, reference, literal, 'HelloWorldPrinter.print()']),
@@ -472,7 +516,7 @@ def test_domain_objects_document_scoping(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_toc(app):
+def test_document_toc(app: SphinxTestApp) -> None:
     app.build()
     toctree = document_toc(app.env, 'index', app.tags)
 
@@ -505,31 +549,39 @@ def test_document_toc(app):
             ),
         ],
     )
+    item0 = toctree[0]
+    assert isinstance(item0, Element)
     assert_node(
-        toctree[0][0],
-        [compact_paragraph, reference, 'Welcome to Sphinx Tests’s documentation!'],
+        item0[0],
+        [compact_paragraph, reference, "Welcome to Sphinx Tests's documentation!"],
     )
+    item01 = item0[1]
+    assert isinstance(item01, Element)
     assert_node(
-        toctree[0][1][1],
+        item01[1],
         (
             [compact_paragraph, reference, 'subsection'],
             [bullet_list, list_item, compact_paragraph, reference, 'subsubsection'],
         ),
     )
+    item1 = toctree[1]
+    assert isinstance(item1, Element)
     assert_node(
-        toctree[1][0],
+        item1[0],
         [
             compact_paragraph,
             reference,
-            'Test for combination of ‘globaltoc.html’ and hidden toctree',
+            "Test for combination of 'globaltoc.html' and hidden toctree",
         ],
     )
-    assert_node(toctree[2][0], [compact_paragraph, reference, 'Indices and tables'])
+    item2 = toctree[2]
+    assert isinstance(item2, Element)
+    assert_node(item2[0], [compact_paragraph, reference, 'Indices and tables'])
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_toc_only(app):
+def test_document_toc_only(app: SphinxTestApp) -> None:
     app.build()
     StandaloneHTMLBuilder(app, app.env)  # adds format/builder tags
     toctree = document_toc(app.env, 'index', app.tags)
@@ -564,38 +616,46 @@ def test_document_toc_only(app):
             ),
         ],
     )
+    item0_only = toctree[0]
+    assert isinstance(item0_only, Element)
     assert_node(
-        toctree[0][0],
-        [compact_paragraph, reference, 'Welcome to Sphinx Tests’s documentation!'],
+        item0_only[0],
+        [compact_paragraph, reference, "Welcome to Sphinx Tests's documentation!"],
     )
+    item01_only = item0_only[1]
+    assert isinstance(item01_only, Element)
     assert_node(
-        toctree[0][1][1],
+        item01_only[1],
         (
             [compact_paragraph, reference, 'Section for HTML'],
             [bullet_list, addnodes.toctree],
         ),
     )
     assert_node(
-        toctree[0][1][2],
+        item01_only[2],
         (
             [compact_paragraph, reference, 'subsection'],
             [bullet_list, list_item, compact_paragraph, reference, 'subsubsection'],
         ),
     )
+    item1_only = toctree[1]
+    assert isinstance(item1_only, Element)
     assert_node(
-        toctree[1][0],
+        item1_only[0],
         [
             compact_paragraph,
             reference,
-            'Test for combination of ‘globaltoc.html’ and hidden toctree',
+            "Test for combination of 'globaltoc.html' and hidden toctree",
         ],
     )
-    assert_node(toctree[2][0], [compact_paragraph, reference, 'Indices and tables'])
+    item2_only = toctree[2]
+    assert isinstance(item2_only, Element)
+    assert_node(item2_only[0], [compact_paragraph, reference, 'Indices and tables'])
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_document_toc_tocdepth(app):
+def test_document_toc_tocdepth(app: SphinxTestApp) -> None:
     app.build()
     toctree = document_toc(app.env, 'tocdepth', app.tags)
 
@@ -610,19 +670,23 @@ def test_document_toc_tocdepth(app):
             ),
         ],
     )
-    assert_node(toctree[0][0], [compact_paragraph, reference, 'level 1'])
+    item0_tocdepth = toctree[0]
+    assert isinstance(item0_tocdepth, Element)
+    assert_node(item0_tocdepth[0], [compact_paragraph, reference, 'level 1'])
     assert_node(
-        toctree[0][1], [bullet_list, list_item, compact_paragraph, reference, 'level 2']
+        item0_tocdepth[1],
+        [bullet_list, list_item, compact_paragraph, reference, 'level 2'],
     )
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_global_toctree_for_doc(app):
+def test_global_toctree_for_doc(app: SphinxTestApp) -> None:
     app.build()
     toctree = global_toctree_for_doc(
         app.env, 'index', app.builder, tags=app.tags, collapse=False
     )
+    assert toctree is not None
     assert_node(
         toctree,
         [
@@ -631,8 +695,10 @@ def test_global_toctree_for_doc(app):
         ],
     )
 
+    item1 = toctree[1]
+    assert isinstance(item1, Element)
     assert_node(
-        toctree[1],
+        item1,
         (
             [list_item, ([compact_paragraph, reference, 'foo'], bullet_list)],
             [list_item, compact_paragraph, reference, 'bar'],
@@ -641,12 +707,16 @@ def test_global_toctree_for_doc(app):
                 list_item,
                 compact_paragraph,
                 reference,
-                'Welcome to Sphinx Tests’s documentation!',
+                "Welcome to Sphinx Tests's documentation!",
             ],
         ),
     )
+    item10 = item1[0]
+    assert isinstance(item10, Element)
+    item101 = item10[1]
+    assert isinstance(item101, Element)
     assert_node(
-        toctree[1][0][1],
+        item101,
         (
             [list_item, compact_paragraph, reference, 'quux'],
             [list_item, compact_paragraph, reference, 'foo.1'],
@@ -654,39 +724,74 @@ def test_global_toctree_for_doc(app):
         ),
     )
 
-    assert_node(toctree[1][0][0][0], reference, refuri='foo', secnumber=[1])
-    assert_node(toctree[1][0][1][0][0][0], reference, refuri='quux', secnumber=[1, 1])
-    assert_node(
-        toctree[1][0][1][1][0][0], reference, refuri='foo#foo-1', secnumber=[1, 2]
-    )
-    assert_node(
-        toctree[1][0][1][2][0][0], reference, refuri='foo#foo-2', secnumber=[1, 3]
-    )
-    assert_node(toctree[1][1][0][0], reference, refuri='bar', secnumber=[2])
-    assert_node(toctree[1][2][0][0], reference, refuri='https://sphinx-doc.org/')
-    assert_node(toctree[1][3][0][0], reference, refuri='')
+    item100 = item10[0]
+    assert isinstance(item100, Element)
+    assert_node(item100[0], reference, refuri='foo', secnumber=[1])
+    item1010 = item101[0]
+    assert isinstance(item1010, Element)
+    item1010_0 = item1010[0]
+    assert isinstance(item1010_0, Element)
+    item1010_00 = item1010_0[0]
+    assert isinstance(item1010_00, Element)
+    assert_node(item1010_00[0], reference, refuri='quux', secnumber=[1, 1])
+    item1011 = item101[1]
+    assert isinstance(item1011, Element)
+    item1011_0 = item1011[0]
+    assert isinstance(item1011_0, Element)
+    assert_node(item1011_0[0], reference, refuri='foo#foo-1', secnumber=[1, 2])
+    item1012 = item101[2]
+    assert isinstance(item1012, Element)
+    item1012_0 = item1012[0]
+    assert isinstance(item1012_0, Element)
+    assert_node(item1012_0[0], reference, refuri='foo#foo-2', secnumber=[1, 3])
+    item11 = item1[1]
+    assert isinstance(item11, Element)
+    item11_0 = item11[0]
+    assert isinstance(item11_0, Element)
+    assert_node(item11_0[0], reference, refuri='bar', secnumber=[2])
+    item12 = item1[2]
+    assert isinstance(item12, Element)
+    item12_0 = item12[0]
+    assert isinstance(item12_0, Element)
+    assert_node(item12_0[0], reference, refuri='https://sphinx-doc.org/')
+    item13 = item1[3]
+    assert isinstance(item13, Element)
+    item13_0 = item13[0]
+    assert isinstance(item13_0, Element)
+    assert_node(item13_0[0], reference, refuri='')
 
+    item2 = toctree[2]
+    assert isinstance(item2, Element)
+    assert_node(item2, [bullet_list, list_item, compact_paragraph, reference, 'baz'])
+    item3 = toctree[3]
+    assert isinstance(item3, Element)
     assert_node(
-        toctree[2], [bullet_list, list_item, compact_paragraph, reference, 'baz']
-    )
-    assert_node(
-        toctree[3],
+        item3,
         (
             [list_item, compact_paragraph, reference, 'Latest reference'],
             [list_item, compact_paragraph, reference, 'Python'],
         ),
     )
-    assert_node(toctree[3][0][0][0], reference, refuri='https://sphinx-doc.org/latest/')
-    assert_node(toctree[3][1][0][0], reference, refuri='https://python.org/')
+    item30 = item3[0]
+    assert isinstance(item30, Element)
+    item30_0 = item30[0]
+    assert isinstance(item30_0, Element)
+    assert_node(item30_0[0], reference, refuri='https://sphinx-doc.org/latest/')
+    item31 = item3[1]
+    assert isinstance(item31, Element)
+    item31_0 = item31[0]
+    assert isinstance(item31_0, Element)
+    assert_node(item31_0[0], reference, refuri='https://python.org/')
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_global_toctree_for_doc_collapse(app):
+def test_global_toctree_for_doc_collapse(app: SphinxTestApp) -> None:
     app.build()
     toctree = global_toctree_for_doc(
         app.env, 'index', app.builder, tags=app.tags, collapse=True
     )
+    assert toctree is not None
     assert_node(
         toctree,
         [
@@ -695,8 +800,10 @@ def test_global_toctree_for_doc_collapse(app):
         ],
     )
 
+    item1_collapse = toctree[1]
+    assert isinstance(item1_collapse, Element)
     assert_node(
-        toctree[1],
+        item1_collapse,
         (
             [list_item, compact_paragraph, reference, 'foo'],
             [list_item, compact_paragraph, reference, 'bar'],
@@ -705,36 +812,67 @@ def test_global_toctree_for_doc_collapse(app):
                 list_item,
                 compact_paragraph,
                 reference,
-                'Welcome to Sphinx Tests’s documentation!',
+                "Welcome to Sphinx Tests's documentation!",
             ],
         ),
     )
-    assert_node(toctree[1][0][0][0], reference, refuri='foo', secnumber=[1])
-    assert_node(toctree[1][1][0][0], reference, refuri='bar', secnumber=[2])
-    assert_node(toctree[1][2][0][0], reference, refuri='https://sphinx-doc.org/')
-    assert_node(toctree[1][3][0][0], reference, refuri='')
+    item10_collapse = item1_collapse[0]
+    assert isinstance(item10_collapse, Element)
+    item10_collapse_0 = item10_collapse[0]
+    assert isinstance(item10_collapse_0, Element)
+    assert_node(item10_collapse_0[0], reference, refuri='foo', secnumber=[1])
+    item11_collapse = item1_collapse[1]
+    assert isinstance(item11_collapse, Element)
+    item11_collapse_0 = item11_collapse[0]
+    assert isinstance(item11_collapse_0, Element)
+    assert_node(item11_collapse_0[0], reference, refuri='bar', secnumber=[2])
+    item12_collapse = item1_collapse[2]
+    assert isinstance(item12_collapse, Element)
+    item12_collapse_0 = item12_collapse[0]
+    assert isinstance(item12_collapse_0, Element)
+    assert_node(item12_collapse_0[0], reference, refuri='https://sphinx-doc.org/')
+    item13_collapse = item1_collapse[3]
+    assert isinstance(item13_collapse, Element)
+    item13_collapse_0 = item13_collapse[0]
+    assert isinstance(item13_collapse_0, Element)
+    assert_node(item13_collapse_0[0], reference, refuri='')
 
+    item2_collapse = toctree[2]
+    assert isinstance(item2_collapse, Element)
     assert_node(
-        toctree[2], [bullet_list, list_item, compact_paragraph, reference, 'baz']
+        item2_collapse, [bullet_list, list_item, compact_paragraph, reference, 'baz']
     )
+    item3_collapse = toctree[3]
+    assert isinstance(item3_collapse, Element)
     assert_node(
-        toctree[3],
+        item3_collapse,
         (
             [list_item, compact_paragraph, reference, 'Latest reference'],
             [list_item, compact_paragraph, reference, 'Python'],
         ),
     )
-    assert_node(toctree[3][0][0][0], reference, refuri='https://sphinx-doc.org/latest/')
-    assert_node(toctree[3][1][0][0], reference, refuri='https://python.org/')
+    item30_collapse = item3_collapse[0]
+    assert isinstance(item30_collapse, Element)
+    item30_collapse_0 = item30_collapse[0]
+    assert isinstance(item30_collapse_0, Element)
+    assert_node(
+        item30_collapse_0[0], reference, refuri='https://sphinx-doc.org/latest/'
+    )
+    item31_collapse = item3_collapse[1]
+    assert isinstance(item31_collapse, Element)
+    item31_collapse_0 = item31_collapse[0]
+    assert isinstance(item31_collapse_0, Element)
+    assert_node(item31_collapse_0[0], reference, refuri='https://python.org/')
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_global_toctree_for_doc_maxdepth(app):
+def test_global_toctree_for_doc_maxdepth(app: SphinxTestApp) -> None:
     app.build()
     toctree = global_toctree_for_doc(
         app.env, 'index', app.builder, tags=app.tags, collapse=False, maxdepth=3
     )
+    assert toctree is not None
     assert_node(
         toctree,
         [
@@ -748,8 +886,10 @@ def test_global_toctree_for_doc_maxdepth(app):
         ],
     )
 
+    item1_maxdepth = toctree[1]
+    assert isinstance(item1_maxdepth, Element)
     assert_node(
-        toctree[1],
+        item1_maxdepth,
         (
             [
                 list_item,
@@ -764,12 +904,16 @@ def test_global_toctree_for_doc_maxdepth(app):
                 list_item,
                 compact_paragraph,
                 reference,
-                'Welcome to Sphinx Tests’s documentation!',
+                "Welcome to Sphinx Tests's documentation!",
             ],
         ),
     )
+    item10_maxdepth = item1_maxdepth[0]
+    assert isinstance(item10_maxdepth, Element)
+    item101_maxdepth = item10_maxdepth[1]
+    assert isinstance(item101_maxdepth, Element)
     assert_node(
-        toctree[1][0][1],
+        item101_maxdepth,
         (
             [list_item, compact_paragraph, reference, 'quux'],
             [
@@ -782,46 +926,92 @@ def test_global_toctree_for_doc_maxdepth(app):
             [list_item, compact_paragraph, reference, 'foo.2'],
         ),
     )
+    item1011_maxdepth = item101_maxdepth[1]
+    assert isinstance(item1011_maxdepth, Element)
+    item10111_maxdepth = item1011_maxdepth[1]
+    assert isinstance(item10111_maxdepth, Element)
     assert_node(
-        toctree[1][0][1][1][1],
+        item10111_maxdepth,
         [bullet_list, list_item, compact_paragraph, reference, 'foo.1-1'],
     )
 
-    assert_node(toctree[1][0][0][0], reference, refuri='foo', secnumber=[1])
-    assert_node(toctree[1][0][1][0][0][0], reference, refuri='quux', secnumber=[1, 1])
+    item100_maxdepth = item10_maxdepth[0]
+    assert isinstance(item100_maxdepth, Element)
+    assert_node(item100_maxdepth[0], reference, refuri='foo', secnumber=[1])
+    item1010_maxdepth = item101_maxdepth[0]
+    assert isinstance(item1010_maxdepth, Element)
+    item1010_maxdepth_0 = item1010_maxdepth[0]
+    assert isinstance(item1010_maxdepth_0, Element)
+    item1010_maxdepth_00 = item1010_maxdepth_0[0]
+    assert isinstance(item1010_maxdepth_00, Element)
+    assert_node(item1010_maxdepth_00[0], reference, refuri='quux', secnumber=[1, 1])
+    item10110_maxdepth = item1011_maxdepth[0]
+    assert isinstance(item10110_maxdepth, Element)
+    assert_node(item10110_maxdepth[0], reference, refuri='foo#foo-1', secnumber=[1, 2])
+    item101110_maxdepth = item10111_maxdepth[0]
+    assert isinstance(item101110_maxdepth, Element)
+    item101110_maxdepth_0 = item101110_maxdepth[0]
+    assert isinstance(item101110_maxdepth_0, Element)
+    item101110_maxdepth_00 = item101110_maxdepth_0[0]
+    assert isinstance(item101110_maxdepth_00, Element)
     assert_node(
-        toctree[1][0][1][1][0][0], reference, refuri='foo#foo-1', secnumber=[1, 2]
-    )
-    assert_node(
-        toctree[1][0][1][1][1][0][0][0],
+        item101110_maxdepth_00[0],
         reference,
         refuri='foo#foo-1-1',
         secnumber=[1, 2, 1],
     )
-    assert_node(
-        toctree[1][0][1][2][0][0], reference, refuri='foo#foo-2', secnumber=[1, 3]
-    )
-    assert_node(toctree[1][1][0][0], reference, refuri='bar', secnumber=[2])
-    assert_node(toctree[1][2][0][0], reference, refuri='https://sphinx-doc.org/')
-    assert_node(toctree[1][3][0][0], reference, refuri='')
+    item1012_maxdepth = item101_maxdepth[2]
+    assert isinstance(item1012_maxdepth, Element)
+    item1012_maxdepth_0 = item1012_maxdepth[0]
+    assert isinstance(item1012_maxdepth_0, Element)
+    assert_node(item1012_maxdepth_0[0], reference, refuri='foo#foo-2', secnumber=[1, 3])
+    item11_maxdepth = item1_maxdepth[1]
+    assert isinstance(item11_maxdepth, Element)
+    item11_maxdepth_0 = item11_maxdepth[0]
+    assert isinstance(item11_maxdepth_0, Element)
+    assert_node(item11_maxdepth_0[0], reference, refuri='bar', secnumber=[2])
+    item12_maxdepth = item1_maxdepth[2]
+    assert isinstance(item12_maxdepth, Element)
+    item12_maxdepth_0 = item12_maxdepth[0]
+    assert isinstance(item12_maxdepth_0, Element)
+    assert_node(item12_maxdepth_0[0], reference, refuri='https://sphinx-doc.org/')
+    item13_maxdepth = item1_maxdepth[3]
+    assert isinstance(item13_maxdepth, Element)
+    item13_maxdepth_0 = item13_maxdepth[0]
+    assert isinstance(item13_maxdepth_0, Element)
+    assert_node(item13_maxdepth_0[0], reference, refuri='')
 
+    item2_maxdepth = toctree[2]
+    assert isinstance(item2_maxdepth, Element)
     assert_node(
-        toctree[2], [bullet_list, list_item, compact_paragraph, reference, 'baz']
+        item2_maxdepth, [bullet_list, list_item, compact_paragraph, reference, 'baz']
     )
+    item3_maxdepth = toctree[3]
+    assert isinstance(item3_maxdepth, Element)
     assert_node(
-        toctree[3],
+        item3_maxdepth,
         (
             [list_item, compact_paragraph, reference, 'Latest reference'],
             [list_item, compact_paragraph, reference, 'Python'],
         ),
     )
-    assert_node(toctree[3][0][0][0], reference, refuri='https://sphinx-doc.org/latest/')
-    assert_node(toctree[3][1][0][0], reference, refuri='https://python.org/')
+    item30_maxdepth = item3_maxdepth[0]
+    assert isinstance(item30_maxdepth, Element)
+    item30_maxdepth_0 = item30_maxdepth[0]
+    assert isinstance(item30_maxdepth_0, Element)
+    assert_node(
+        item30_maxdepth_0[0], reference, refuri='https://sphinx-doc.org/latest/'
+    )
+    item31_maxdepth = item3_maxdepth[1]
+    assert isinstance(item31_maxdepth, Element)
+    item31_maxdepth_0 = item31_maxdepth[0]
+    assert isinstance(item31_maxdepth_0, Element)
+    assert_node(item31_maxdepth_0[0], reference, refuri='https://python.org/')
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_global_toctree_for_doc_includehidden(app):
+def test_global_toctree_for_doc_includehidden(app: SphinxTestApp) -> None:
     app.build()
     toctree = global_toctree_for_doc(
         app.env,
@@ -831,6 +1021,7 @@ def test_global_toctree_for_doc_includehidden(app):
         collapse=False,
         includehidden=False,
     )
+    assert toctree is not None
     assert_node(
         toctree,
         [
@@ -843,8 +1034,10 @@ def test_global_toctree_for_doc_includehidden(app):
         ],
     )
 
+    item1_includehidden = toctree[1]
+    assert isinstance(item1_includehidden, Element)
     assert_node(
-        toctree[1],
+        item1_includehidden,
         (
             [
                 list_item,
@@ -859,12 +1052,16 @@ def test_global_toctree_for_doc_includehidden(app):
                 list_item,
                 compact_paragraph,
                 reference,
-                'Welcome to Sphinx Tests’s documentation!',
+                "Welcome to Sphinx Tests's documentation!",
             ],
         ),
     )
+    item10_includehidden = item1_includehidden[0]
+    assert isinstance(item10_includehidden, Element)
+    item101_includehidden = item10_includehidden[1]
+    assert isinstance(item101_includehidden, Element)
     assert_node(
-        toctree[1][0][1],
+        item101_includehidden,
         (
             [list_item, compact_paragraph, reference, 'quux'],
             [list_item, compact_paragraph, reference, 'foo.1'],
@@ -872,24 +1069,53 @@ def test_global_toctree_for_doc_includehidden(app):
         ),
     )
 
-    assert_node(toctree[1][0][0][0], reference, refuri='foo', secnumber=[1])
-    assert_node(toctree[1][0][1][0][0][0], reference, refuri='quux', secnumber=[1, 1])
+    item100_includehidden = item10_includehidden[0]
+    assert isinstance(item100_includehidden, Element)
+    assert_node(item100_includehidden[0], reference, refuri='foo', secnumber=[1])
+    item1010_includehidden = item101_includehidden[0]
+    assert isinstance(item1010_includehidden, Element)
+    item1010_includehidden_0 = item1010_includehidden[0]
+    assert isinstance(item1010_includehidden_0, Element)
+    item1010_includehidden_00 = item1010_includehidden_0[0]
+    assert isinstance(item1010_includehidden_00, Element)
     assert_node(
-        toctree[1][0][1][1][0][0], reference, refuri='foo#foo-1', secnumber=[1, 2]
+        item1010_includehidden_00[0], reference, refuri='quux', secnumber=[1, 1]
     )
+    item1011_includehidden = item101_includehidden[1]
+    assert isinstance(item1011_includehidden, Element)
+    item1011_includehidden_0 = item1011_includehidden[0]
+    assert isinstance(item1011_includehidden_0, Element)
     assert_node(
-        toctree[1][0][1][2][0][0], reference, refuri='foo#foo-2', secnumber=[1, 3]
+        item1011_includehidden_0[0], reference, refuri='foo#foo-1', secnumber=[1, 2]
     )
-    assert_node(toctree[1][1][0][0], reference, refuri='bar', secnumber=[2])
-    assert_node(toctree[1][2][0][0], reference, refuri='https://sphinx-doc.org/')
+    item1012_includehidden = item101_includehidden[2]
+    assert isinstance(item1012_includehidden, Element)
+    item1012_includehidden_0 = item1012_includehidden[0]
+    assert isinstance(item1012_includehidden_0, Element)
+    assert_node(
+        item1012_includehidden_0[0], reference, refuri='foo#foo-2', secnumber=[1, 3]
+    )
+    item11_includehidden = item1_includehidden[1]
+    assert isinstance(item11_includehidden, Element)
+    item11_includehidden_0 = item11_includehidden[0]
+    assert isinstance(item11_includehidden_0, Element)
+    assert_node(item11_includehidden_0[0], reference, refuri='bar', secnumber=[2])
+    item12_includehidden = item1_includehidden[2]
+    assert isinstance(item12_includehidden, Element)
+    item12_includehidden_0 = item12_includehidden[0]
+    assert isinstance(item12_includehidden_0, Element)
+    assert_node(item12_includehidden_0[0], reference, refuri='https://sphinx-doc.org/')
 
+    item2_includehidden = toctree[2]
+    assert isinstance(item2_includehidden, Element)
     assert_node(
-        toctree[2], [bullet_list, list_item, compact_paragraph, reference, 'baz']
+        item2_includehidden,
+        [bullet_list, list_item, compact_paragraph, reference, 'baz'],
     )
 
 
 @pytest.mark.sphinx('xml', testroot='toctree-index')
-def test_toctree_index(app):
+def test_toctree_index(app: SphinxTestApp) -> None:
     app.build()
     toctree = app.env.tocs['index']
     assert_node(
@@ -911,8 +1137,12 @@ def test_toctree_index(app):
             ]),
         ],
     )
+    toctree_0 = toctree[0]
+    assert isinstance(toctree_0, Element)
+    toctree_0_1 = toctree_0[1]
+    assert isinstance(toctree_0_1, Element)
     assert_node(
-        toctree[0][1][1],
+        toctree_0_1[1],
         addnodes.toctree,
         caption='Indices',
         glob=False,
@@ -925,7 +1155,7 @@ def test_toctree_index(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='toctree-only')
-def test_toctree_only(app):
+def test_toctree_only(app: SphinxTestApp) -> None:
     # regression test for https://github.com/sphinx-doc/sphinx/issues/13022
     # we mainly care that this doesn't fail
 
@@ -961,11 +1191,11 @@ def test_toctree_only(app):
     assert toc.pformat('  ') == expected_pformat
 
 
-def test_toctree_copy_only():
+def test_toctree_copy_only() -> None:
     # regression test for https://github.com/sphinx-doc/sphinx/issues/13022
     # ensure ``_toctree_copy()`` properly filters out ``only`` nodes,
     # including nested nodes.
-    node = nodes.literal('lobster!', 'lobster!')
+    node: Element = nodes.literal('lobster!', 'lobster!')
     node = nodes.reference('', '', node, anchorname='', internal=True, refuri='index')
     node = addnodes.only('', node, expr='lobster')
     node = addnodes.compact_paragraph('', '', node, skip_section_number=True)
