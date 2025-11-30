@@ -501,7 +501,9 @@ class SphinxDirective(Directive):
 
         .. versionadded:: 3.0
         """
-        return self.state_machine.get_source_and_line(self.lineno)
+        source, line = self.state_machine.get_source_and_line(self.lineno)
+        assert source is not None and line is not None
+        return source, line
 
     def set_source_info(self, node: Node) -> None:
         """Set source and line number to the node.
@@ -678,7 +680,9 @@ class SphinxRole:
         # .. versionadded:: 3.0
         if lineno is None:
             lineno = self.lineno
-        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore[attr-defined]
+        source, line = self.inliner.reporter.get_source_and_line(lineno)
+        assert source is not None and line is not None
+        return str(source), line
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         # .. versionadded:: 2.0
@@ -911,7 +915,7 @@ def _get_settings(
             defaults=defaults,
             read_config_files=read_config_files,
         )
-    return option_parser.get_default_values()  # type: ignore[return-value]
+    return option_parser.get_default_values()
 
 
 if docutils.__version_info__[:2] < (0, 22):
@@ -925,6 +929,6 @@ if docutils.__version_info__[:2] < (0, 22):
         return n_options
 
 else:
-    from docutils.parsers.rst.roles import (  # type: ignore[attr-defined, no-redef]
+    from docutils.parsers.rst.roles import (
         normalize_options as _normalize_options,  # NoQA: F401
     )

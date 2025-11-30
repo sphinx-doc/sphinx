@@ -458,9 +458,12 @@ class DocFieldTransformer:
                 fieldarg = argname
 
         translatable_content = nodes.inline(field_body.rawsource, translatable=True)
-        translatable_content.document = field_body.parent.document
-        translatable_content.source = field_body.parent.source
-        translatable_content.line = field_body.parent.line
+        parent = field_body.parent
+        assert parent is not None
+        assert parent.document is not None
+        translatable_content.document = parent.document
+        translatable_content.source = parent.source
+        translatable_content.line = parent.line
         translatable_content += content
 
         # grouped entries need to be collected in one entry, while others

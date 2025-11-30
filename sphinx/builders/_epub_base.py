@@ -294,7 +294,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for target in tree.findall(nodes.target):
             self._update_node_id(target)
 
-            next_node: Node = target.next_node(ascend=True)
+            next_node: Node | None = target.next_node(ascend=True)
             if isinstance(next_node, nodes.Element):
                 self._update_node_id(next_node)
 

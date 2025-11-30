@@ -41,7 +41,7 @@ def multiply_length(length: str, scale: int) -> str:
     return f'{int(result)}{unit}'
 
 
-class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
+class HTML5Translator(SphinxTranslator, BaseTranslator):
     """Our custom HTML translator."""
 
     builder: StandaloneHTMLBuilder
@@ -361,7 +361,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: Element) -> None:
+    def visit_comment(self, node: nodes.comment) -> None:
         raise nodes.SkipNode
 
     # overwritten
@@ -474,7 +474,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     def depart_classifier(self, node: Element) -> None:
         self.body.append('</span>')
 
-        next_node: Node = node.next_node(descend=False, siblings=True)
+        next_node: Node | None = node.next_node(descend=False, siblings=True)
         if not isinstance(next_node, nodes.classifier):
             # close `<dt>` tag at the tail of classifiers
             self.body.append('</dt>')
@@ -485,7 +485,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     # overwritten
     def depart_term(self, node: Element) -> None:
-        next_node: Node = node.next_node(descend=False, siblings=True)
+        next_node: Node | None = node.next_node(descend=False, siblings=True)
         if isinstance(next_node, nodes.classifier):
             # Leave the end tag to `self.depart_classifier()`, in case
             # there's a classifier.
