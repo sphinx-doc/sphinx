@@ -223,7 +223,6 @@ module = [
     "tests.test_config.test_config",
     # tests/test_directives
     "tests.test_directives.test_directive_other",
-    "tests.test_directives.test_directive_patch",
     # tests/test_domains
     "tests.test_domains.test_domain_c",
     "tests.test_domains.test_domain_cpp",
