@@ -47,8 +47,13 @@ def test_code_directive(app: SphinxTestApp) -> None:
     )
 
 
+def _as_element(node: nodes.Node) -> nodes.Element:
+    assert isinstance(node, nodes.Element)
+    return node
+
+
 @pytest.mark.sphinx('html', testroot='directive-csv-table')
-def test_csv_table_directive(app):
+def test_csv_table_directive(app: SphinxTestApp) -> None:
     # relative path from current document
     text = '.. csv-table::\n   :file: example.csv\n'
     doctree = restructuredtext.parse(app, text, docname='subdir/index')
@@ -62,8 +67,12 @@ def test_csv_table_directive(app):
             ],
         ),
     )
+    table = _as_element(doctree[0])
+    tgroup = _as_element(table[0])
+    tbody = _as_element(tgroup[3])
+    first_row = _as_element(tbody[0])
     assert_node(
-        doctree[0][0][3][0],
+        first_row,
         (
             [nodes.entry, nodes.paragraph, 'FOO'],
             [nodes.entry, nodes.paragraph, 'BAR'],
@@ -84,8 +93,12 @@ def test_csv_table_directive(app):
             ],
         ),
     )
+    table = _as_element(doctree[0])
+    tgroup = _as_element(table[0])
+    tbody = _as_element(tgroup[3])
+    first_row = _as_element(tbody[0])
     assert_node(
-        doctree[0][0][3][0],
+        first_row,
         (
             [nodes.entry, nodes.paragraph, 'foo'],
             [nodes.entry, nodes.paragraph, 'bar'],

@@ -107,7 +107,7 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.14.6",
+    "ruff==0.14.7",
     "sphinx-lint>=0.9",
 ]
 package = [
@@ -219,13 +219,10 @@ ignore_missing_imports = true
 module = [
     # tests/
     "tests.test_search",
-    # tests/test_builders
-    "tests.test_builders.test_build_latex",
     # tests/test_config
     "tests.test_config.test_config",
     # tests/test_directives
     "tests.test_directives.test_directive_other",
-    "tests.test_directives.test_directive_patch",
     # tests/test_domains
     "tests.test_domains.test_domain_c",
     "tests.test_domains.test_domain_cpp",
