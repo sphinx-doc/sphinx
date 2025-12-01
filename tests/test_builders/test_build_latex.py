@@ -116,24 +116,26 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
     def do_GET(self) -> None:
-        content: bytes | None = None
-        content_type: str | None = None
-        if self.path == '/sphinx.png':
-            with open('tests/roots/test-local-logo/images/img.png', 'rb') as f:
-                content = f.read()
-            content_type = 'image/png'
+        if self.path != '/sphinx.png':
+            self._send_not_found()
+            return
 
-        if content is not None:
-            assert content_type is not None
-            self.send_response(200, 'OK')
-            self.send_header('Content-Length', str(len(content)))
-            self.send_header('Content-Type', content_type)
-            self.end_headers()
-            self.wfile.write(content)
-        else:
-            self.send_response(404, 'Not Found')
-            self.send_header('Content-Length', '0')
-            self.end_headers()
+        with open('tests/roots/test-local-logo/images/img.png', 'rb') as f:
+            content = f.read()
+
+        self._send_bytes(content, 'image/png')
+
+    def _send_bytes(self, content: bytes, content_type: str) -> None:
+        self.send_response(200, 'OK')
+        self.send_header('Content-Length', str(len(content)))
+        self.send_header('Content-Type', content_type)
+        self.end_headers()
+        self.wfile.write(content)
+
+    def _send_not_found(self) -> None:
+        self.send_response(404, 'Not Found')
+        self.send_header('Content-Length', '0')
+        self.end_headers()
 
 
 @skip_if_requested
