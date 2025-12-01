@@ -121,9 +121,8 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
             self._send_not_found()
             return
 
-        content = (
-            TEST_ROOTS_DIR / 'test-local-logo' / 'images' / 'img.png'
-        ).read_bytes()
+        img_path = TEST_ROOTS_DIR / 'test-local-logo' / 'images' / 'img.png'
+        content = img_path.read_bytes()
 
         self._send_bytes(content, 'image/png')
 
