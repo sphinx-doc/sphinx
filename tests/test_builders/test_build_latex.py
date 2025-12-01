@@ -46,7 +46,7 @@ STYLEFILES = [
 
 
 # only run latex if all needed packages are there
-def kpsetest(*filenames):
+def kpsetest(*filenames: str) -> bool:
     try:
         subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)  # NoQA: S607
         return True
@@ -56,8 +56,11 @@ def kpsetest(*filenames):
 
 # compile latex document with app.config.latex_engine
 def compile_latex_document(
-    app, filename='projectnamenotset.tex', docclass='manual', runtwice=False
-):
+    app: SphinxTestApp,
+    filename: str = 'projectnamenotset.tex',
+    docclass: str = 'manual',
+    runtwice: bool = False,
+) -> None:
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
@@ -112,14 +115,16 @@ skip_if_docutils_not_at_least_at_0_22 = pytest.mark.skipif(
 class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
-    def do_GET(self):
-        content, content_type = None, None
+    def do_GET(self) -> None:
+        content: bytes | None = None
+        content_type: str | None = None
         if self.path == '/sphinx.png':
             with open('tests/roots/test-local-logo/images/img.png', 'rb') as f:
                 content = f.read()
             content_type = 'image/png'
 
-        if content:
+        if content is not None:
+            assert content_type is not None
             self.send_response(200, 'OK')
             self.send_header('Content-Length', str(len(content)))
             self.send_header('Content-Type', content_type)
@@ -153,8 +158,12 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
     freshenv=True,
 )
 def test_build_latex_doc(
-    app, engine, docclass, python_maximum_signature_line_length, runtwice
-):
+    app: SphinxTestApp,
+    engine: str,
+    docclass: str,
+    python_maximum_signature_line_length: int | None,
+    runtwice: bool,
+) -> None:
     app.config.python_maximum_signature_line_length = (
         python_maximum_signature_line_length
     )
@@ -189,7 +198,9 @@ def test_build_latex_doc(
     'latex',
     testroot='latex-images-css3-lengths',
 )
-def test_build_latex_with_css3_lengths(app, engine):
+def test_build_latex_with_css3_lengths(
+    app: SphinxTestApp, engine: str
+) -> None:
     app.config.latex_engine = engine
     app.config.latex_documents = [(*app.config.latex_documents[0][:4], 'howto')]
     app.builder.init()
@@ -1605,7 +1616,7 @@ def test_latex_table_tabulars(app: SphinxTestApp) -> None:
         content = re.sub(r'\\sphinxstepscope', '', content)  # filter a separator
         tables[sectname] = content.strip()
 
-    def get_expected(name):
+    def get_expected(name: str) -> str:
         return (
             (app.srcdir / 'expects' / (name + '.tex'))
             .read_text(encoding='utf8')
@@ -1645,7 +1656,7 @@ def test_latex_table_longtable(app: SphinxTestApp) -> None:
         content = re.sub(r'\\sphinxstepscope', '', content)  # filter a separator
         tables[sectname] = content.strip()
 
-    def get_expected(name):
+    def get_expected(name: str) -> str:
         return (
             (app.srcdir / 'expects' / (name + '.tex'))
             .read_text(encoding='utf8')
@@ -1682,7 +1693,7 @@ def test_latex_table_complex_tables(app: SphinxTestApp) -> None:
         sectname, _, content = chap.partition('}')
         tables[sectname] = content.strip()
 
-    def get_expected(name):
+    def get_expected(name: str) -> str:
         return (
             (app.srcdir / 'expects' / (name + '.tex'))
             .read_text(encoding='utf8')
@@ -1994,7 +2005,7 @@ def test_latex_figure_in_admonition(app: SphinxTestApp) -> None:
         assert f'{type} directive.\n\n\\begin{{figure}}[H]' in result
 
 
-def test_default_latex_documents():
+def test_default_latex_documents() -> None:
     from sphinx.util import texescape
 
     texescape.init()
@@ -2003,8 +2014,8 @@ def test_default_latex_documents():
         'project': 'STASI™ Documentation',
         'author': "Wolfgang Schäuble & G'Beckstein.",
     })
-    config.add('latex_engine', None, True, None)
-    config.add('latex_theme', 'manual', True, None)
+    config.add('latex_engine', None, 'env', (str, type(None)))
+    config.add('latex_theme', 'manual', 'env', (str,))
     expected = [
         (
             'index',
