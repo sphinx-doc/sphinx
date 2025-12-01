@@ -17,6 +17,8 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -361,7 +363,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: nodes.comment) -> None:
+    def visit_comment(
+        self, node: nodes.comment, sub: Callable[[str, str], str] | None = None
+    ) -> None:
         raise nodes.SkipNode
 
     # overwritten

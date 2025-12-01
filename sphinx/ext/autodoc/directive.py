@@ -141,6 +141,7 @@ class AutodocDirective(SphinxDirective):
             source, lineno = reporter.get_source_and_line(self.lineno)
         except AttributeError:
             source, lineno = (None, None)
+        lineno = lineno or self.lineno
         LOGGER.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)
 
         # look up target Documenter

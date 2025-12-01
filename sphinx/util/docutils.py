@@ -32,7 +32,7 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Sequence
+    from collections.abc import Callable, Iterator, Mapping, Sequence
     from types import ModuleType, TracebackType
     from typing import Any, Protocol
 
@@ -466,7 +466,10 @@ class SphinxFileOutput(FileOutput):
             if on_disk == data:
                 return data
 
-        return super().write(data)
+        super_write: Callable[[str], str] = super().write
+        # TODO: Upstream docutils typing should annotate FileOutput.write so this
+        # temporary typed alias is unnecessary.
+        return super_write(data)
 
 
 class SphinxDirective(Directive):

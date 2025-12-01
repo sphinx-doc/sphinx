@@ -58,7 +58,7 @@ def make_directive_and_state(
         content_offset=0,
         block_text='',
         state=state,
-        state_machine=state.state_machine,
+        state_machine=sm,
     )
     return state, directive
 

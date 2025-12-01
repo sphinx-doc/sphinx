@@ -22,8 +22,8 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
-    from typing import Any, Literal, TypeAlias
+    from collections.abc import Generator, Iterable, Sequence
+    from typing import Any, ClassVar, Literal, TypeAlias
 
     from docutils.nodes import Node
     from typing_extensions import TypeIs
@@ -365,13 +365,14 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
 
     default_priority = 750
+    smartquotes_action: ClassVar[str] = SmartQuotes.smartquotes_action
 
     def apply(self, **kwargs: Any) -> None:
         if not self.is_available():
             return
 
         # override default settings with :confval:`smartquotes_action`
-        self.smartquotes_action = self.config.smartquotes_action
+        type(self).smartquotes_action = self.config.smartquotes_action
 
         super().apply()
 
