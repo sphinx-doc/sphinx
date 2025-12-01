@@ -349,7 +349,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['target'] = node['target']
         if 'rel' in node:
             atts['rel'] = node['rel']
-        self.body.append(self.starttag(node, 'a', '', **atts))
+        # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
+        # **attributes; current stub treats the 4th arg as empty: bool.
+        self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
 
         if node.get('secnumber'):
             self.body.append(
@@ -376,8 +378,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             tag_name = 'details'
             if collapsible == 'open':
                 attributes['open'] = 'open'
+        # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
+        # **attributes; current stub treats the 4th arg as empty: bool.
         self.body.append(
-            self.starttag(node, tag_name, CLASS=f'admonition {name}', **attributes)
+            self.starttag(
+                node,
+                tag_name,
+                CLASS=f'admonition {name}',
+                **attributes,  # type: ignore[arg-type]
+            )
         )
         self.context.append(f'</{tag_name}>\n')
         if name:
@@ -728,14 +737,18 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         elif 'refuri' in node:
             atts['class'] += ' external'
             atts['href'] = node['refuri']
-            self.body.append(self.starttag(node, 'a', '', **atts))
+            # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
+            # **attributes; current stub treats the 4th arg as empty: bool.
+            self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
             atts['href'] = posixpath.join(
                 self.builder.dlpath, urllib.parse.quote(node['filename'])
             )
-            self.body.append(self.starttag(node, 'a', '', **atts))
+            # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
+            # **attributes; current stub treats the 4th arg as empty: bool.
+            self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
             self.context.append('</a>')
         else:
             self.context.append('')
@@ -912,7 +925,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         attrs = {}
         if explanation := node.get('explanation', ''):
             attrs['title'] = explanation
-        self.body.append(self.starttag(node, 'abbr', '', **attrs))
+        # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
+        # **attributes; current stub treats the 4th arg as empty: bool.
+        self.body.append(self.starttag(node, 'abbr', '', **attrs))  # type: ignore[arg-type]
 
     def depart_abbreviation(self, node: Element) -> None:
         self.body.append('</abbr>')
@@ -937,7 +952,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         if 'width' in node:
             atts['style'] = 'width: %s' % node['width']
-        tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
+        # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
+        # **attributes; current stub treats the 4th arg as empty: bool.
+        tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)  # type: ignore[arg-type]
         self.body.append(tag)
 
     def depart_table(self, node: nodes.table) -> None:
