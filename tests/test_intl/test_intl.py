@@ -379,6 +379,25 @@ def test_text_glossary_term_inconsistencies(app):
 
 
 @sphinx_intl
+@pytest.mark.sphinx('text', testroot='intl')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_text_refs_reordered_no_warning(app):
+    app.build()
+    # --- refs_reordered: verify no inconsistency warnings
+    result = (app.outdir / 'refs_reordered.txt').read_text(encoding='utf8')
+    # Verify the translation was applied
+    assert 'MULTIPLE REFS REORDERED' in result
+    assert 'SINGLE REF WITH TRANSLATED DISPLAY TEXT' in result
+
+    warnings = getwarning(app.warning)
+    # Should NOT have any inconsistent_references warnings for refs_reordered.txt
+    unexpected_warning_expr = '.*/refs_reordered.txt.*inconsistent.*references'
+    assert not re.search(unexpected_warning_expr, warnings), (
+        f'Unexpected warning found: {warnings!r}'
+    )
+
+
+@sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_section(app):
