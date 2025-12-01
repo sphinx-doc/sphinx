@@ -123,7 +123,6 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
 
         img_path = TEST_ROOTS_DIR / 'test-local-logo' / 'images' / 'img.png'
         content = img_path.read_bytes()
-
         self._send_bytes(content, 'image/png')
 
     def _send_bytes(self, content: bytes, content_type: str) -> None:
