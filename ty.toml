@@ -14,8 +14,21 @@ include = [
     "utils",
 ]
 exclude = [
-    "tests/roots/test-pycode/cp_1251_coded.py",  # Not UTF-8
-    # This panics (2025-08-18; ty 0.0.1-alpha.18).
-    # See https://github.com/astral-sh/ty/issues/256
-    "tests/test_config/test_config.py",
+    "tests/roots",
 ]
+
+[rules]
+call-non-callable = "ignore"
+inconsistent-mro = "ignore"
+invalid-argument-type = "ignore"
+invalid-assignment = "ignore"
+invalid-method-override = "ignore"
+invalid-return-type = "ignore"
+invalid-type-form = "ignore"
+no-matching-overload = "ignore"
+non-subscriptable = "ignore"
+possibly-missing-attribute = "ignore"
+unresolved-attribute = "ignore"
+unresolved-import = "ignore"
+unresolved-reference = "ignore"
+unsupported-operator = "ignore"

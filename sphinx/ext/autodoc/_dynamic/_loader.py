@@ -8,11 +8,17 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, NewType, TypeVar
 
-from sphinx.ext.autodoc._docstrings import (
+from sphinx.ext.autodoc._dynamic._docstrings import (
     _docstring_lines_for_props,
     _get_docstring_lines,
 )
-from sphinx.ext.autodoc._importer import _import_object
+from sphinx.ext.autodoc._dynamic._importer import _import_object
+from sphinx.ext.autodoc._dynamic._mock import ismock
+from sphinx.ext.autodoc._dynamic._signatures import _format_signatures
+from sphinx.ext.autodoc._dynamic._type_comments import (
+    _ensure_annotations_from_type_comments,
+    _update_annotations_using_type_comments,
+)
 from sphinx.ext.autodoc._names import _parse_name
 from sphinx.ext.autodoc._property_types import (
     _AssignStatementProperties,
@@ -27,15 +33,9 @@ from sphinx.ext.autodoc._sentinels import (
     SLOTS_ATTR,
     UNINITIALIZED_ATTR,
 )
-from sphinx.ext.autodoc._shared import _get_render_mode
-from sphinx.ext.autodoc._signatures import _format_signatures
-from sphinx.ext.autodoc._type_comments import (
-    _ensure_annotations_from_type_comments,
-    _update_annotations_using_type_comments,
-)
-from sphinx.ext.autodoc.mock import ismock
+from sphinx.ext.autodoc._shared import LOGGER, _get_render_mode
 from sphinx.locale import __
-from sphinx.util import inspect, logging
+from sphinx.util import inspect
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 
@@ -46,11 +46,10 @@ if TYPE_CHECKING:
     from sphinx.environment import _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-    from sphinx.ext.autodoc._importer import _ImportedObject
+    from sphinx.ext.autodoc._dynamic._importer import _ImportedObject
     from sphinx.ext.autodoc._property_types import _AutodocFuncProperty, _AutodocObjType
     from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
-logger = logging.getLogger(__name__)
 
 _hide_value_re = re.compile(r'^:meta \s*hide-value:( +|$)')
 
@@ -143,7 +142,7 @@ def _load_object_by_name(
         )
     except Exception as exc:
         msg = __('error while formatting signature for %s: %s')
-        logger.warning(msg, props.full_name, exc, type='autodoc')
+        LOGGER.warning(msg, props.full_name, exc, type='autodoc')
         return None
     props.signatures = tuple(
         f'{args} -> {retann}' if retann else str(args) for args, retann in signatures
@@ -192,7 +191,7 @@ def _make_props_from_imported_object(
         elif mod_all is not None:
             # Invalid __all__ found.
             msg = __('Ignoring invalid __all__ in module %s: %r')
-            logger.warning(msg, module_name, mod_all, type='autodoc')
+            LOGGER.warning(msg, module_name, mod_all, type='autodoc')
             mod_all = None
 
         return _ModuleProperties(
@@ -329,7 +328,7 @@ def _make_props_from_imported_object(
                 )
             except TypeError as exc:
                 full_name = '.'.join((module_name, *parts))
-                logger.warning(
+                LOGGER.warning(
                     __('Failed to get a function signature for %s: %s'),
                     full_name,
                     exc,

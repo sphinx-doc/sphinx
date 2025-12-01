@@ -280,15 +280,34 @@ To do so, use `sphinx-autobuild`_ to run the following command:
 .. _sphinx-autobuild: https://github.com/sphinx-doc/sphinx-autobuild
 
 Translations
-~~~~~~~~~~~~
+------------
 
 The parts of messages in Sphinx that go into builds are translated into several
 locales.  The translations are kept as gettext ``.po`` files translated from the
 master template :file:`sphinx/locale/sphinx.pot`.
 
+These Sphinx core messages are translated using the online `Transifex
+<https://explore.transifex.com/sphinx-doc/sphinx-1/>`__ platform.
+
+Translated strings from the platform are pulled into the Sphinx repository
+by a maintainer before a new release.
+
+We do not accept pull requests altering the translation files directly.
+Instead, please contribute translations via the Transifex platform.
+
+Translations notes for maintainers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `transifex CLI <https://developers.transifex.com/docs/cli>`__ (``tx``)
+can be used to pull translations in ``.po`` format from Transifex.
+To do this, go to :file:`sphinx/locale` and then run ``tx pull -f -l LANG``
+where ``LANG`` is an existing language identifier.
+It is good practice to run ``python utils/babel_runner.py update`` afterwards
+to make sure the ``.po`` file has the canonical Babel formatting.
+
 Sphinx uses `Babel <https://babel.pocoo.org/en/latest/>`_ to extract messages
 and maintain the catalog files.  The :file:`utils` directory contains a helper
-script, ``babel_runner.py``.
+script, :file:`utils/babel_runner.py`.
 
 * Use ``python babel_runner.py extract`` to update the ``.pot`` template.
 * Use ``python babel_runner.py update`` to update all existing language
@@ -301,18 +320,9 @@ When an updated ``.po`` file is submitted, run
 ``python babel_runner.py compile`` to commit both the source and the compiled
 catalogs.
 
-When a new locale is submitted, add a new directory with the ISO 639-1 language
+When a new locale is added, add a new directory with the ISO 639-1 language
 identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
 values for :confval:`language` in :file:`doc/usage/configuration.rst`.
-
-The Sphinx core messages can also be translated on `Transifex
-<https://www.transifex.com/sphinx-doc/sphinx-1/>`_.  There ``tx`` client tool,
-which is provided by the ``transifex_client`` Python package, can be used to
-pull translations in ``.po`` format from Transifex.  To do this, go to
-:file:`sphinx/locale` and then run ``tx pull -f -l LANG`` where ``LANG`` is an
-existing language identifier.  It is good practice to run
-``python babel_runner.py update`` afterwards to make sure the ``.po`` file has the
-canonical Babel formatting.
 
 
 Debugging tips

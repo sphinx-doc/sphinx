@@ -69,35 +69,7 @@ def __getattr__(name: str) -> Any:
 
         return mod
 
-    # RemovedInSphinx90Warning
-    if name == 'split_index_msg':
-        from sphinx.util.index_entries import split_index_msg as obj
-
-        canonical_name = f'{obj.__module__}.{obj.__qualname__}'
-        _deprecation_warning(__name__, name, canonical_name, remove=(9, 0))
-        return obj
-
-    if name == 'split_into':
-        from sphinx.util.index_entries import _split_into as obj
-
-        _deprecation_warning(__name__, name, '', remove=(9, 0))
-        return obj
-
-    if name == 'ExtensionError':
-        from sphinx.errors import ExtensionError as obj  # NoQA: N813
-
-        canonical_name = f'{obj.__module__}.{obj.__qualname__}'
-        _deprecation_warning(__name__, name, canonical_name, remove=(9, 0))
-        return obj
-
-    if name in {'md5', 'sha1'}:
-        obj = globals()[f'_{name}']
-        canonical_name = f'hashlib.{name}'
-        _deprecation_warning(__name__, name, canonical_name, remove=(9, 0))
-        return obj
-
     # RemovedInSphinx10Warning
-
     if name in {'DownloadFiles', 'FilenameUniqDict'}:
         from sphinx.util import _files as mod
 

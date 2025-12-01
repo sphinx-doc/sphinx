@@ -4,17 +4,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
-    from typing import Any, Literal, NoReturn, Protocol
+    from typing import Any, Final, Literal, NoReturn, Protocol
 
     from sphinx.config import Config
     from sphinx.util.typing import _RestifyMode
 
     class _AttrGetter(Protocol):  # NoQA: PYI046
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
+
+
+LOGGER: Final[logging.SphinxLoggerAdapter] = logging.getLogger('sphinx.ext.autodoc')
 
 
 class _AutodocConfig:

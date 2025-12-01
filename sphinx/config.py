@@ -5,13 +5,11 @@ from __future__ import annotations
 import time
 import traceback
 import types
-import warnings
 from contextlib import chdir
 from os import getenv
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
-from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -194,15 +192,6 @@ class _Opt:
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
         super().__setattr__('description', description)
-
-    def __getitem__(self, item: int | slice) -> Any:
-        warnings.warn(
-            f'The {self.__class__.__name__!r} object tuple interface is deprecated, '
-            "use attribute access instead for 'default', 'rebuild', and 'valid_types'.",
-            RemovedInSphinx90Warning,
-            stacklevel=2,
-        )
-        return (self.default, self.rebuild, self.valid_types)[item]
 
 
 class Config:

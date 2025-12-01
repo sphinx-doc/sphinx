@@ -8,6 +8,7 @@ from collections import namedtuple
 from inspect import cleandoc
 from itertools import product
 from textwrap import dedent
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest import mock
 
@@ -1238,7 +1239,7 @@ Returns Style:
             actual = GoogleDocstring(docstring, test_config)
             assert str(actual) == expected
 
-    def test_noindex(self):
+    def test_no_index(self):
         docstring = """
 Attributes:
     arg
@@ -1267,7 +1268,7 @@ Methods:
             config=config,
             app=None,
             what='module',
-            options={'no-index': True},
+            options=SimpleNamespace(no_index=True),
         )
         assert str(actual) == expected
 

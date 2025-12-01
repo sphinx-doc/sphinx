@@ -109,6 +109,14 @@ def _decorator(f: Callable[[], Any]) -> Callable[[], Any]:
     return wrapper
 
 
+def forward_reference_in_args(x: Foo) -> None:  # type: ignore[name-defined] # noqa: F821
+    pass
+
+
+def forward_reference_in_return() -> Foo:  # type: ignore[name-defined] # noqa: F821
+    pass
+
+
 def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
@@ -174,6 +182,13 @@ def test_signature() -> None:
 
     sig = inspect.stringify_signature(inspect.signature(func))
     assert sig == '(a, b, c=1, d=2, *e, **f)'
+
+    # forward references
+    sig = inspect.stringify_signature(inspect.signature(forward_reference_in_args))
+    assert sig == '(x: Foo) -> None'
+
+    sig = inspect.stringify_signature(inspect.signature(forward_reference_in_return))
+    assert sig == '() -> Foo'
 
 
 def test_signature_partial() -> None:

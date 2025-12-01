@@ -10,7 +10,6 @@ from sphinx.ext.autodoc._property_types import (
 )
 from sphinx.ext.autodoc._sentinels import SUPPRESS
 from sphinx.locale import _
-from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -20,8 +19,6 @@ if TYPE_CHECKING:
 
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
-
-logger = logging.getLogger('sphinx.ext.autodoc')
 
 
 def _directive_header_lines(
