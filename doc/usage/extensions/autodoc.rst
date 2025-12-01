@@ -1393,9 +1393,8 @@ autodoc provides the following additional events:
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
-      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``no-index`` that are true if the flag option of same name was given to the
-      auto directive
+      corresponding to the options used in the auto directive, e.g.
+      ``inherited_members``, ``undoc_members``, or ``show_inheritance``.
    :param lines: the lines of the docstring, see above
 
 .. event:: autodoc-before-process-signature (app, obj, bound_method)
@@ -1424,9 +1423,8 @@ autodoc provides the following additional events:
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
-      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``no-index`` that are true if the flag option of same name was given to the
-      auto directive
+      corresponding to the options used in the auto directive, e.g.
+      ``inherited_members``, ``undoc_members``, or ``show_inheritance``.
    :param signature: function signature, as a string of the form
       ``'(parameter_1, parameter_2)'``, or ``None`` if introspection didn't
       succeed and signature wasn't specified in the directive.
@@ -1487,6 +1485,5 @@ member should be included in the documentation by using the following event:
    :param skip: a boolean indicating if autodoc will skip this member if the
       user handler does not override the decision
    :param options: the options given to the directive: an object with attributes
-      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``no-index`` that are true if the flag option of same name was given to the
-      auto directive
+      corresponding to the options used in the auto directive, e.g.
+      ``inherited_members``, ``undoc_members``, or ``show_inheritance``.

@@ -4,6 +4,10 @@ Release 9.0.1 (in development)
 Bugs fixed
 ----------
 
+* #13942: autodoc: Restore the mapping interface for options objects.
+  Patch by Adam Turner.
+* #13942: autodoc: Deprecate the mapping interface for options objects.
+  Patch by Adam Turner.
 
 Release 9.0.0 (released Nov 30, 2025)
 =====================================
