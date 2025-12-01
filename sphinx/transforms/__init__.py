@@ -372,7 +372,9 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
             return
 
         # override default settings with :confval:`smartquotes_action`
-        type(self).smartquotes_action = self.config.smartquotes_action
+        # TODO: Update docutils typing so smartquotes_action accepts any
+        # iterable of characters and can be overridden per-instance.
+        self.smartquotes_action = self.config.smartquotes_action  # type: ignore[misc]
 
         super().apply()
 
