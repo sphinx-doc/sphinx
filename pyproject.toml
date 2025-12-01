@@ -219,8 +219,6 @@ ignore_missing_imports = true
 module = [
     # tests/
     "tests.test_search",
-    # tests/test_builders
-    "tests.test_builders.test_build_latex",
     # tests/test_config
     "tests.test_config.test_config",
     # tests/test_directives
