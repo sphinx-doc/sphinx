@@ -143,7 +143,7 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
         type_comment = getattr(subject, 'type_comment', None)
         if type_comment:
             function = ast.parse(type_comment, mode='func_type', type_comments=True)
-            return signature_from_ast(subject, bound_method, function)  # type: ignore[arg-type]
+            return signature_from_ast(subject, bound_method, function)
         else:
             return None
     except (OSError, TypeError):  # failed to load source code
