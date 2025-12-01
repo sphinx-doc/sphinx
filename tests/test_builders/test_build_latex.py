@@ -200,9 +200,7 @@ def test_build_latex_doc(
     'latex',
     testroot='latex-images-css3-lengths',
 )
-def test_build_latex_with_css3_lengths(
-    app: SphinxTestApp, engine: str
-) -> None:
+def test_build_latex_with_css3_lengths(app: SphinxTestApp, engine: str) -> None:
     app.config.latex_engine = engine
     app.config.latex_documents = [(*app.config.latex_documents[0][:4], 'howto')]
     app.builder.init()
