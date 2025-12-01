@@ -10,6 +10,7 @@ from contextlib import chdir
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
+from types import NoneType
 from typing import TYPE_CHECKING
 
 import docutils
@@ -2015,7 +2016,7 @@ def test_default_latex_documents() -> None:
         'project': 'STASI™ Documentation',
         'author': "Wolfgang Schäuble & G'Beckstein.",
     })
-    config.add('latex_engine', None, 'env', (str, type(None)))
+    config.add('latex_engine', None, 'env', (str, NoneType))
     config.add('latex_theme', 'manual', 'env', (str,))
     expected = [
         (
