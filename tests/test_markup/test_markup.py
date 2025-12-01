@@ -50,6 +50,7 @@ def new_document(env: BuildEnvironment) -> nodes.document:
 
 def new_inliner(env: BuildEnvironment) -> SimpleNamespace:
     document = new_document(env)
+
     def _get_source_and_line(line: int | None = 1) -> tuple[str, int | None]:
         return 'dummy.rst', line
 

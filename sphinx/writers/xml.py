@@ -33,7 +33,7 @@ class XMLWriter(docutils_xml.Writer):
         # copied from docutils.writers.docutils_xml.Writer.translate()
         # so that we can override the translator class
         self.visitor = visitor = cast(
-            XMLTranslator, self.builder.create_translator(self.document)
+            'XMLTranslator', self.builder.create_translator(self.document)
         )
         self.document.walkabout(visitor)
         self.output = ''.join(visitor.output)

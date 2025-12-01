@@ -505,7 +505,8 @@ class SphinxDirective(Directive):
         .. versionadded:: 3.0
         """
         source, line = self.state_machine.get_source_and_line(self.lineno)
-        assert source is not None and line is not None
+        assert source is not None
+        assert line is not None
         return source, line
 
     def set_source_info(self, node: Node) -> None:
@@ -684,7 +685,8 @@ class SphinxRole:
         if lineno is None:
             lineno = self.lineno
         source, line = self.inliner.reporter.get_source_and_line(lineno)
-        assert source is not None and line is not None
+        assert source is not None
+        assert line is not None
         return str(source), line
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:

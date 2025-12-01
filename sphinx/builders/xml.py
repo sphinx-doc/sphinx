@@ -87,7 +87,7 @@ class XMLBuilder(Builder):
 
         # copied from docutils.writers.docutils_xml.Writer.translate()
         # so that we can override the translator class
-        visitor: XMLTranslator = cast(XMLTranslator, self.create_translator(doctree))
+        visitor: XMLTranslator = cast('XMLTranslator', self.create_translator(doctree))
         doctree.walkabout(visitor)
         return ''.join(visitor.output)
 

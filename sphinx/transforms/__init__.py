@@ -22,7 +22,7 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable, Sequence
+    from collections.abc import Generator, Iterable
     from typing import Any, ClassVar, Literal, TypeAlias
 
     from docutils.nodes import Node
