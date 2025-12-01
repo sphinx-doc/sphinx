@@ -24,7 +24,7 @@ from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_map
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
-from tests.utils import http_server
+from tests.utils import TEST_ROOTS_DIR, http_server
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -120,8 +120,9 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
             self._send_not_found()
             return
 
-        with open('tests/roots/test-local-logo/images/img.png', 'rb') as f:
-            content = f.read()
+        content = (
+            TEST_ROOTS_DIR / 'test-local-logo' / 'images' / 'img.png'
+        ).read_bytes()
 
         self._send_bytes(content, 'image/png')
 
