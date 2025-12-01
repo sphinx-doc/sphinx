@@ -71,9 +71,14 @@ def test_csv_table_directive(app: SphinxTestApp) -> None:
     tgroup = _as_element(table[0])
     tbody = _as_element(tgroup[3])
     first_row = _as_element(tbody[0])
-    assert_node(first_row, [nodes.entry, nodes.paragraph, 'FOO'])
-    assert_node(first_row[1], [nodes.entry, nodes.paragraph, 'BAR'])
-    assert_node(first_row[2], [nodes.entry, nodes.paragraph, 'BAZ'])
+    assert_node(
+        first_row,
+        (
+            [nodes.entry, nodes.paragraph, 'FOO'],
+            [nodes.entry, nodes.paragraph, 'BAR'],
+            [nodes.entry, nodes.paragraph, 'BAZ'],
+        ),
+    )
 
     # absolute path from source directory
     text = '.. csv-table::\n   :file: /example.csv\n'
@@ -92,9 +97,14 @@ def test_csv_table_directive(app: SphinxTestApp) -> None:
     tgroup = _as_element(table[0])
     tbody = _as_element(tgroup[3])
     first_row = _as_element(tbody[0])
-    assert_node(first_row, [nodes.entry, nodes.paragraph, 'foo'])
-    assert_node(first_row[1], [nodes.entry, nodes.paragraph, 'bar'])
-    assert_node(first_row[2], [nodes.entry, nodes.paragraph, 'baz'])
+    assert_node(
+        first_row,
+        (
+            [nodes.entry, nodes.paragraph, 'foo'],
+            [nodes.entry, nodes.paragraph, 'bar'],
+            [nodes.entry, nodes.paragraph, 'baz'],
+        ),
+    )
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
