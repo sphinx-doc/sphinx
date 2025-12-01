@@ -14,17 +14,15 @@ from typing import TYPE_CHECKING
 from warnings import catch_warnings
 
 import pytest
-from docutils.statemachine import StringList
 
 from sphinx.environment import _CurrentDocument
 from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
     inherited_members_option,
 )
-from sphinx.ext.autodoc._docstrings import _get_docstring_lines
-from sphinx.ext.autodoc._documenters import Documenter
-from sphinx.ext.autodoc._generate import _generate_directives
-from sphinx.ext.autodoc._loader import _load_object_by_name
+from sphinx.ext.autodoc._dynamic._docstrings import _get_docstring_lines
+from sphinx.ext.autodoc._generate import _auto_document_object
+from sphinx.ext.autodoc._legacy_class_based._documenters import Documenter
 from sphinx.ext.autodoc._property_types import _ItemProperties
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
@@ -217,31 +215,19 @@ def _assert_getter_works(
     current_document = _CurrentDocument()
     events = FakeEvents()
 
-    props = _load_object_by_name(
-        name=name,
-        objtype=objtype,
-        current_document=current_document,
+    _auto_document_object(
         config=config,
+        current_document=current_document,
         events=events,
         get_attr=get_attr,
+        more_content=None,
+        name=name,
+        obj_type=objtype,
         options=options,
+        record_dependencies=set(),
         ref_context={},
         reread_always=set(),
     )
-    if props is not None:
-        _generate_directives(
-            config=config,
-            current_document=current_document,
-            events=events,
-            get_attr=get_attr,
-            indent='',
-            options=options,
-            props=props,
-            record_dependencies=set(),
-            ref_context={},
-            reread_always=set(),
-            result=StringList(),
-        )
 
     hooked_members = {s[1] for s in getattr_spy}
     documented_members = {s[1] for s in processed_signatures}
@@ -2290,6 +2276,12 @@ def test_autodoc_pep695_type_alias() -> None:
         '   :canonical: ~target.pep695.Pep695AliasC',
         '',
         '   This is PEP695 type alias of PEP695 alias.',
+        '',
+        '',
+        # Undocumented alias should not inherit any documentation
+        '.. py:type:: Pep695AliasUndocumented',
+        '   :module: target.pep695',
+        '   :canonical: ~target.pep695.Foo',
         '',
         '',
         '.. py:type:: Pep695AliasUnion',

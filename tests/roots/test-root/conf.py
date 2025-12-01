@@ -35,6 +35,7 @@ keep_warnings = True
 pygments_style = 'sphinx'
 show_authors = True
 numfig = True
+linkcheck_timeout = 0.25
 
 html_sidebars = {
     '**': [

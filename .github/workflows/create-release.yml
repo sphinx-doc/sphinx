@@ -27,7 +27,7 @@ jobs:
       attestations: write  # for actions/attest
       id-token: write  # for actions/attest & PyPI trusted publishing
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Set up Python
@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: "3"
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           version: latest
           enable-cache: false
@@ -81,7 +81,7 @@ jobs:
           BUNDLE_PATH: "${{ steps.attest.outputs.bundle-path }}"
 
       - name: Upload attestation bundles
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: attestation-bundles
           path: /tmp/attestation-bundles/
@@ -97,20 +97,18 @@ jobs:
     environment: release
     if: github.repository_owner == 'sphinx-doc'
     permissions:
-      contents: write  # for softprops/action-gh-release to create GitHub release
+      contents: write  # needed to create a GitHub release
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Get release version
-        id: get_version
-        uses: actions/github-script@v8
-        with:
-          script: core.setOutput('version', context.ref.replace("refs/tags/v", ""))
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
-        with:
-          name: "Sphinx ${{ steps.get_version.outputs.version }}"
-          body: "Changelog: https://www.sphinx-doc.org/en/master/changes.html"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: >-
+          gh release create "${TAG}"
+          --title "Sphinx ${TAG#v}"
+          --notes "Changelog: https://www.sphinx-doc.org/en/master/changes.html"

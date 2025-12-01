@@ -64,7 +64,7 @@ class SphinxTransform(Transform):
         """Reference to the :class:`.Sphinx` object."""
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(10, 0))
+        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(11, 0))
         return self.env._app
 
     @property

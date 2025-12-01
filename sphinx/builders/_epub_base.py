@@ -613,9 +613,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 continue
             if refnode['refuri'] in self.ignored_files:
                 continue
-            spine = Spine(html.escape(self.make_id(refnode['refuri'])), True)
+            refuri = refnode['refuri'].replace(os.sep, '/')
+            spine = Spine(html.escape(self.make_id(refuri)), True)
             metadata['spines'].append(spine)
-            spinefiles.add(refnode['refuri'])
+            spinefiles.add(refuri)
         for info in self.domain_indices:
             spine = Spine(html.escape(self.make_id(info[0] + self.out_suffix)), True)
             metadata['spines'].append(spine)

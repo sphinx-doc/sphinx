@@ -19,6 +19,7 @@ from sphinx.util import requests
 from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from pathlib import Path
 
     from sphinx.application import Sphinx
@@ -226,6 +227,17 @@ class _InvConfig:
         )
 
 
+def _display_failures(failures: Sequence[tuple[str, ...]]) -> str:
+    """Format a list of failure tuples into a readable multi-line string."""
+    formatted = []
+    for failure_args in failures:
+        try:
+            formatted.append(failure_args[0] % failure_args[1:])
+        except TypeError:
+            formatted.append(' - '.join(failure_args))
+    return '\n'.join(formatted)
+
+
 def _fetch_inventory_group(
     *,
     project: _IntersphinxProject,
@@ -271,6 +283,7 @@ def _fetch_inventory_group(
             inv = _load_inventory(raw_data, target_uri=project.target_uri)
             cache_path_mtime = int(cache_path.stat().st_mtime)
             cache[project.target_uri] = project.name, cache_path_mtime, inv.data
+            updated = True
             break
 
         # decide whether the inventory must be read: always read local
@@ -315,11 +328,9 @@ def _fetch_inventory_group(
         for fail in failures:
             LOGGER.info(*fail)
     else:
-        issues = '\n'.join(f[0] % f[1:] for f in failures)
         LOGGER.warning(
-            '%s\n%s',
-            __('failed to reach any of the inventories with the following issues:'),
-            issues,
+            __('failed to reach any of the inventories with the following issues:\n%s'),
+            _display_failures(failures),
         )
     return updated
 

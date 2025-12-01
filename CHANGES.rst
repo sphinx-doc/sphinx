@@ -1,5 +1,12 @@
-Release 8.3.0 (in development)
+Release 9.0.1 (in development)
 ==============================
+
+Bugs fixed
+----------
+
+
+Release 9.0.0 (released Nov 30, 2025)
+=====================================
 
 Dependencies
 ------------
@@ -14,13 +21,25 @@ Incompatible changes
 * #13639: :py:meth:`!SphinxComponentRegistry.create_source_parser` no longer
   has an *app* parameter, instead taking *config* and *env*.
   Patch by Adam Turner.
+* #13679: Non-decodable characters in source files now raise an error.
+  Such bytes have been replaced with '?' along with logging a warning
+  since Sphinx 2.0.
+  Patch by Adam Turner.
+* #13751, #14089: :mod:`sphinx.ext.autodoc` has been substantially rewritten,
+  and there may be some incompatible changes in edge cases, especially when
+  extensions interact with autodoc internals.
+  The :confval:`autodoc_use_legacy_class_based` option has been added to
+  use the legacy (pre-9.0) implementation of autodoc.
+  Patches by Adam Turner.
+* #13355: Don't include escaped title content in the search index.
+  Patch by Will Lachance.
 
 Deprecated
 ----------
 
 * 13627: Deprecate remaining public :py:attr:`!.app` attributes,
   including ``builder.app``, ``env.app``, ``events.app``,
-  and ``SphinxTransform.`app``.
+  and ``SphinxTransform.app``.
   Patch by Adam Turner.
 * #13637: Deprecate the :py:meth:`!set_application` method
   of :py:class:`~sphinx.parsers.Parser` objects.
@@ -30,13 +49,15 @@ Deprecated
 * #13665: Deprecate support for non-UTF 8 source encodings,
   scheduled for removal in Sphinx 10.
   Patch by Adam Turner.
-* #13679: Non-decodable characters in source files will raise an error in Sphinx 9.
-  Currently, such bytes are replaced with '?' along with logging a warning.
-  Patch by Adam Turner.
 * #13682: Deprecate :py:mod:`!sphinx.io`.
   Sphinx no longer uses the :py:mod:`!sphinx.io` classes,
   having replaced them with standard Python I/O.
   The entire :py:mod:`!sphinx.io` module will be removed in Sphinx 10.
+  Patch by Adam Turner.
+* #13631: :func:`!sphinx.environment.adapters.toctree.global_toctree_for_doc`
+  and :meth:`!sphinx.environment.BuildEnvironment.get_and_resolve_doctree`
+  will require a *tags* keyword argument from Sphinx 11.
+  It may optionally be passed from Sphinx 9 onwards.
   Patch by Adam Turner.
 
 Features added
@@ -66,8 +87,32 @@ Features added
   Patch by Adam Turner.
 * #13805: LaTeX: add support for ``fontawesome7`` package.
   Patch by Jean-François B.
-* #13508: Initial support for :pep:`695` type aliases.
+* #13508: autodoc: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #14023: Add the new :confval:`mathjax_config_path` option
+  to load MathJax configuration from a file.
+  Patch by Randolf Scholz and Adam Turner.
+* #14046: linkcheck: Add the :confval:`linkcheck_case_insensitive_urls` option
+  to allow case-insensitive URL comparison for specific URL patterns.
+  This is useful for links to websites that normalise URL casing (e.g. GitHub)
+  or case-insensitive servers.
+  Patch by Fazeel Usmani and James Addison.
+* #14075: autosummary: Provide more context in import exception stack traces.
+  Patch by Philipp A.
+* #13468: Add config options to :mod:`sphinx.ext.duration`.
+  Patch by Erik Bedard and Adam Turner.
+* #14022: Use MathJax v4 by default in the :mod:`sphinx.ext.mathjax` extension,
+  from v3 previously.
+  To keep using an older version, set the :confval:`mathjax_path` option.
+  Also add the new :confval:`mathjax4_config` option to configure MathJax v4.
+  Note that MathJax v3 is mostly compatible with MathJax v4, so existing
+  :confval:`mathjax3_config` settings should not need to change.
+  Patch by Matthias Geier.
+* #14029: intersphinx: Fix error in format string interpolation.
+  Patch by Matthieu de Cibeins.
+* #13894: Add ``source_code_parser`` type to :confval:`suppress_warnings`
+  for grouping issues related to the C and C++ parsers.
+  Patch by Valentin H.
 
 Bugs fixed
 ----------
@@ -140,6 +185,25 @@ Bugs fixed
 * #14059: LaTeX: Footnotes cause pdflatex error with French language
   (since late June 2025 upstream change to LaTeX ``babel-french``).
   Patch by Jean-François B.
+* #13916: HTML Search: do not clear text fragments from the URL on page load.
+  Patch by Harmen Stoppels.
+* #13944: autodoc: show traceback during import in human readable representation.
+  Patch by Florian Best.
+* #14006: Support images with data URIs that aren't base64-encoded.
+  Patch by Shengyu Zhang and Adam Turner.
+* #12797: Fix ``Some type variables (...) are not listed in Generic[...]``
+  TypeError when inheriting from both Generic and autodoc mocked class.
+  Patch by Ikor Jefocur and Daniel Sperber.
+* #13945: autodoc: Fix handling of undefined names in annotations by using
+  the ``FORWARDREF`` :mod:`annotationlib` format.
+  Patch by Rui Pinheiro and Adam Turner.
+* #14067: EPUB: unify path separators in manifest items to forward slashes;
+  resolve duplicates in the manifest on Windows.
+  Patch by Akihiro Takizawa.
+* #13741: text builder: fix an infinite loop when processing CSV tables.
+  Patch by Bénédikt Tran.
+* #13217: Remove extra parentheses from :rst:dir:`js:function` arguments and errors.
+  Patch by Shengyu Zhang.
 
 
 Testing

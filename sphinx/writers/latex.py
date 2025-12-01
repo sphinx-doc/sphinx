@@ -173,7 +173,7 @@ class Table:
             # types is used.  The next test will have false positive from
             # syntax such as >{\RaggedRight} but it will catch *{3}{J} which
             # does require tabulary and would crash tabular
-            # It is user responsability not to use a tabulary column type for
+            # It is user responsibility not to use a tabulary column type for
             # a column having a problematic cell.
             if any(c in 'LRCJT' for c in self.colspec):
                 return 'tabulary'
@@ -1365,7 +1365,7 @@ class LaTeXTranslator(SphinxTranslator):
                 r'\sphinxmultirow{%d}{%d}{%%' % (cell.height, cell.cell_id) + CR
             )
             context = '}%' + CR + context
-        # 8.3.0 wraps ALL cells contents in "varwidth".  This fixes a
+        # 9.0 wraps ALL cells contents in "varwidth".  This fixes a
         # number of issues and allows more usage of tabulary.
         #
         # "varwidth" usage allows a *tight fit* to multiple paragraphs,

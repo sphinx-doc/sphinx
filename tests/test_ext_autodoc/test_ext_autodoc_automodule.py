@@ -12,8 +12,8 @@ import typing
 
 import pytest
 
+from sphinx.ext.autodoc._dynamic._mock import _MockObject
 from sphinx.ext.autodoc._shared import _AutodocConfig
-from sphinx.ext.autodoc.mock import _MockObject
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
