@@ -251,8 +251,6 @@ module = [
     "tests.test_extensions.test_ext_inheritance_diagram",
     # tests/test_intl
     "tests.test_intl.test_intl",
-    # tests/test_transforms
-    "tests.test_transforms.test_transforms_post_transforms",
     # tests/test_util
     "tests.test_util.test_util_i18n",
     "tests.test_util.test_util_inspect",
