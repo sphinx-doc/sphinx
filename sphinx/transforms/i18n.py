@@ -135,7 +135,7 @@ class _NodeUpdater:
         new_refs: Sequence[nodes.Element],
         warning_msg: str,
         *,
-        key_func: Callable[[nodes.Element], Any] | None = None,
+        key_func: Callable[[nodes.Element], Any] = attrgetter('rawsource'),
         ignore_order: bool = False,
     ) -> None:
         """Warn about mismatches between references in original and translated content.
@@ -146,11 +146,8 @@ class _NodeUpdater:
             This allows translators to reorder references while still catching
             missing or extra references.
         """
-        if key_func is None:
-            key_func = attrgetter('rawsource')
-
-        old_ref_keys = [key_func(ref) for ref in old_refs]
-        new_ref_keys = [key_func(ref) for ref in new_refs]
+        old_ref_keys = list(map(key_func, old_refs))
+        new_ref_keys = list(map(key_func, new_refs))
 
         if ignore_order:
             old_ref_keys = sorted(old_ref_keys, key=lambda x: (x is None, x))
