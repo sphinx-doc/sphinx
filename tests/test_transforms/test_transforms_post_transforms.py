@@ -153,7 +153,9 @@ class TestSigElementFallbackTransform:
         class BaseCustomTranslatorClass(nodes.NodeVisitor):
             """Base class for a custom translator class, orthogonal to ``SphinxTranslator``."""
 
-            def __init__(self, document: nodes.document, _builder: Builder | None) -> None:
+            def __init__(
+                self, document: nodes.document, _builder: Builder | None = None
+            ) -> None:
                 super().__init__(document)
                 # ignore other arguments
 
