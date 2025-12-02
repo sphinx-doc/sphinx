@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import re
 import shutil
 import subprocess
@@ -110,6 +111,35 @@ def test_imgmath_svg_embed(app: SphinxTestApp) -> None:
     shutil.rmtree(app.outdir)
     html = r'<img src="data:image/svg\+xml;base64,[\w\+/=]+"'
     assert re.search(html, content, re.DOTALL)
+
+
+@pytest.mark.skipif(
+    not has_binary('dvisvgm'),
+    reason='Requires dvisvgm" binary',
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math-simple',
+    parallel=4,
+    confoverrides={
+        'extensions': ['sphinx.ext.imgmath'],
+        'imgmath_image_format': 'svg',
+        'imgmath_embed': True,
+    },
+)
+def test_imgmath_svg_parallel(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
+    if "dvisvgm command 'dvisvgm' cannot be run" in app.warning.getvalue():
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
+    html = base64.b64encode(b'<!-- DEPTH=0 -->\n<!-- DEPTH=0 -->\n').decode()
+    assert not re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.sphinx(
