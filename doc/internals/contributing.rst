@@ -179,8 +179,9 @@ Style and type checks can be run as follows:
 
 .. code-block:: shell
 
-    ruff check .
-    mypy
+    uv run ruff check
+    uv run ruff format
+    uv run mypy
 
 
 Unit tests
