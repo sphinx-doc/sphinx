@@ -109,16 +109,13 @@ These are the basic steps needed to start developing on Sphinx.
        uv sync
 
    **Alternative:** If you prefer not to use :program:`uv`, you can use
-   :program:`pip` and :program:`virtualenv`:
+   :program:`pip`:
 
    .. code-block:: shell
 
        python -m venv .venv
        . .venv/bin/activate
        pip install -e .
-
-   :program:`uv` is faster, provides a better development experience,
-   and ensures a consistent environment through dependency locking.
 
 #. Create a new working branch. Choose any name you like.
 
@@ -222,11 +219,11 @@ You can also test by installing dependencies in your local environment:
 
      uv run pytest
 
-  Or with :program:`pip`:
+Or with :program:`pip`:
 
   .. code-block:: shell
 
-     pip install -e ".[test]"
+     python -m pip install . --group test
      pytest
 
 To run JavaScript tests, use :program:`npm`:
