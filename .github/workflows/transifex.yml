@@ -36,7 +36,7 @@ jobs:
       shell: bash
     - uses: astral-sh/setup-uv@v7
     - name: Extract and push translations
-      run: uv run --locked --group translations python utils/babel_runner.py extract
+      run: uv run --locked --no-default-groups --group translations python utils/babel_runner.py extract
     - name: Push translations to transifex.com
       run: |
         cd sphinx/locale
@@ -66,7 +66,7 @@ jobs:
       shell: bash
     - uses: astral-sh/setup-uv@v7
     - name: Extract translations
-      run: uv run --locked --group translations python utils/babel_runner.py extract
+      run: uv run --locked --no-default-groups --group translations python utils/babel_runner.py extract
     - name: Pull translations from transifex.com
       run: |
         cd sphinx/locale
@@ -74,7 +74,7 @@ jobs:
       env:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
     - name: Compile message catalogs
-      run: uv run --locked --group translations python utils/babel_runner.py compile
+      run: uv run --locked --no-default-groups --group translations python utils/babel_runner.py compile
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       with:
