@@ -4,6 +4,8 @@ Release 9.0.2 (in development)
 Bugs fixed
 ----------
 
+* #14142: autodoc: Restore :mod:`!sphinx.ext.autodoc.mock`.
+  Patch by Adam Turner.
 
 Release 9.0.1 (released Dec 01, 2025)
 =====================================

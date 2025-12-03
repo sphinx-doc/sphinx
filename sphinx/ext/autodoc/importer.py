@@ -8,21 +8,18 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._dynamic._importer import (
-    _find_type_stub_spec as _find_type_stub_spec,  # NoQA: PLC0414
+    _find_type_stub_spec,  # NoQA: F401
+    _reload_module,  # NoQA: F401
+    _StubFileLoader,  # NoQA: F401
 )
 from sphinx.ext.autodoc._dynamic._importer import (
     _import_module as import_module,
 )
 from sphinx.ext.autodoc._dynamic._importer import _mangle_name as mangle
-from sphinx.ext.autodoc._dynamic._importer import (
-    _reload_module as _reload_module,  # NoQA: PLC0414
-)
-from sphinx.ext.autodoc._dynamic._importer import (
-    _StubFileLoader as _StubFileLoader,  # NoQA: PLC0414
-)
-from sphinx.ext.autodoc._dynamic._member_finder import _filter_enum_dict, unmangle
 from sphinx.ext.autodoc._dynamic._member_finder import (
-    _is_native_enum_api as _is_native_enum_api,  # NoQA: PLC0414
+    _filter_enum_dict,
+    _is_native_enum_api,  # NoQA: F401
+    unmangle,
 )
 from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
 from sphinx.ext.autodoc._shared import LOGGER
