@@ -100,22 +100,22 @@ These are the basic steps needed to start developing on Sphinx.
 
    .. code-block:: shell
 
-      pip install uv
+      python -m pip install -U uv
 
-   Then, setup your environment:
+   Then, set up your environment:
 
    .. code-block:: shell
 
        uv sync
 
    **Alternative:** If you prefer not to use :program:`uv`, you can use
-   :program:`pip` and :program:`virtualenv`:
+   :program:`pip`:
 
    .. code-block:: shell
 
        python -m venv .venv
        . .venv/bin/activate
-       pip install -e .
+       python -m pip install -e .
 
    :program:`uv` is faster, provides a better development experience,
    and ensures a consistent environment through dependency locking.
@@ -182,8 +182,9 @@ Style and type checks can be run as follows:
 
 .. code-block:: shell
 
-    ruff check .
-    mypy
+    uv run ruff check
+    uv run ruff format
+    uv run mypy
 
 
 Unit tests
@@ -222,11 +223,11 @@ You can also test by installing dependencies in your local environment:
 
      uv run pytest
 
-  Or with :program:`pip`:
+Or with :program:`pip`:
 
   .. code-block:: shell
 
-     pip install -e ".[test]"
+     python -m pip install . --group test
      pytest
 
 To run JavaScript tests, use :program:`npm`:
