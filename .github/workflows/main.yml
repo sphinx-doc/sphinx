@@ -23,8 +23,6 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
-  PYTHONDEVMODE: "1"  # -X dev
-  PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
 
 jobs:
   ubuntu:
@@ -64,7 +62,7 @@ jobs:
     - name: Test with pytest
       run: uv run --locked --python ${{ matrix.python }} --with "docutils~=${{ matrix.docutils }}.0" --group test pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"
 
   windows:
     runs-on: windows-latest
@@ -89,7 +87,7 @@ jobs:
     - name: Test with pytest
       run: uv run --locked --group test pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"
 
   macos:
     runs-on: macos-latest
@@ -106,7 +104,7 @@ jobs:
     - name: Test with pytest
       run: uv run --locked --group test pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"
 
   docutils-latest:
     runs-on: ubuntu-latest
@@ -129,7 +127,7 @@ jobs:
     - name: Test with pytest
       run: uv run --locked --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" --group test pytest -n logical --dist=worksteal -vv
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"
         DO_EPUBCHECK: "1"
         EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
 
@@ -148,7 +146,7 @@ jobs:
     - name: Test with pytest
       run: uv run --locked --with alabaster==1.0.0 --group test pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"
 
   latex:
     runs-on: ubuntu-latest
@@ -165,7 +163,7 @@ jobs:
     - name: Test with pytest
       run: uv run --locked --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" --group test pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"
         DO_EPUBCHECK: "1"
 
   coverage:
