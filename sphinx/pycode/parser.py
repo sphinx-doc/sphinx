@@ -9,7 +9,6 @@ import inspect
 import itertools
 import operator
 import re
-import sys
 import tokenize
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
@@ -21,12 +20,8 @@ if TYPE_CHECKING:
     from inspect import Signature
     from typing import Any
 
-if sys.version_info[:2] >= (3, 12):
-    AssignmentLike = ast.Assign | ast.AnnAssign | ast.TypeAlias
-    AssignmentLikeType = (ast.Assign, ast.AnnAssign, ast.TypeAlias)
-else:
-    AssignmentLike = ast.Assign | ast.AnnAssign
-    AssignmentLikeType = (ast.Assign, ast.AnnAssign)
+AssignmentLike = ast.Assign | ast.AnnAssign | ast.TypeAlias
+AssignmentLikeType = (ast.Assign, ast.AnnAssign, ast.TypeAlias)
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
@@ -506,13 +501,12 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles AsyncFunctionDef node and set context."""
         self.visit_FunctionDef(node)  # type: ignore[arg-type]
 
-    def visit_TypeAlias(self, node: ast.TypeAlias) -> None:  # type: ignore[name-defined]
+    def visit_TypeAlias(self, node: ast.TypeAlias) -> None:
         """Handles TypeAlias node and picks up a variable comment.
 
         .. note:: TypeAlias node refers to `type Foo = Bar` (PEP 695) assignment,
                   NOT `Foo: TypeAlias = Bar` (PEP 613).
         """
-        # Python 3.12+
         current_line = self.get_line(node.lineno)
         self._collect_doc_comment(node, [node.name.id], current_line)
 

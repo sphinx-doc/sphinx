@@ -531,8 +531,8 @@ def _get_object_for_signature(
         else:
             if isinstance(object_sig, Signature):
                 return object_sig, False
-            if sys.version_info[:2] in {(3, 12), (3, 13)} and callable(object_sig):
-                # Support for enum.Enum.__signature__ in Python 3.12
+            if sys.version_info[:2] <= (3, 14) and callable(object_sig):
+                # Support for enum.Enum.__signature__ in Python 3.12 & 3.13
                 if isinstance(object_sig_str := object_sig(), str):
                     return inspect.signature_from_str(object_sig_str), False
 

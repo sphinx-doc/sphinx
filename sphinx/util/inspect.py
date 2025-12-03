@@ -436,7 +436,7 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
     """Check if the object is wrapped coroutine-function."""
     if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
         # staticmethod, classmethod and partial method are not a wrapped coroutine-function
-        # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
+        # Note: staticmethod and classmethod are a kind of wrapper
         return False
     return hasattr(obj, '__wrapped__')
 
@@ -833,7 +833,7 @@ def _evaluate_forwardref(
         # See: https://github.com/python/cpython/pull/118104.
         return ref._evaluate(  # pyright: ignore[reportDeprecated]
             globalns, localns, type_params=(), recursive_guard=frozenset()
-        )  # type: ignore[call-arg]
+        )
     return ref._evaluate(globalns, localns, recursive_guard=frozenset())
 
 
