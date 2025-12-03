@@ -93,15 +93,32 @@ These are the basic steps needed to start developing on Sphinx.
       git clone https://github.com/<USERNAME>/sphinx
       cd sphinx
 
-#. Setup a virtual environment and install dependencies.
+#. Install uv and setup your environment.
 
-   This is not necessary for unit testing, thanks to :program:`tox`,
-   but it is necessary if you wish to run :program:`sphinx-build` locally
-   or run unit tests without the help of :program:`tox`:
+   We recommend using :program:`uv` for dependency management.
+   Install it with:
+
+   .. code-block:: shell
+
+      pip install uv
+
+   Then, setup your environment:
 
    .. code-block:: shell
 
        uv sync
+
+   **Alternative:** If you prefer not to use :program:`uv`, you can use
+   :program:`pip` and :program:`virtualenv`:
+
+   .. code-block:: shell
+
+       python -m venv .venv
+       . .venv/bin/activate
+       pip install -e .
+
+   :program:`uv` is faster, provides a better development experience,
+   and ensures a consistent environment through dependency locking.
 
 #. Create a new working branch. Choose any name you like.
 
@@ -204,6 +221,13 @@ You can also test by installing dependencies in your local environment:
   .. code-block:: shell
 
      uv run pytest
+
+  Or with :program:`pip`:
+
+  .. code-block:: shell
+
+     pip install -e ".[test]"
+     pytest
 
 To run JavaScript tests, use :program:`npm`:
 
