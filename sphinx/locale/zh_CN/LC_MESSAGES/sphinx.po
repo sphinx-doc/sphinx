@@ -3214,7 +3214,7 @@ msgstr "环境变量; %s"
 #: domains/std/__init__.py:116
 #, python-format
 msgid "%s; configuration value"
-msgstr "%s；配置值"
+msgstr "%s; 配置值"
 
 #: domains/std/__init__.py:172
 msgid "Type"
