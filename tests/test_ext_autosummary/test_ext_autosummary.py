@@ -256,9 +256,9 @@ def test_autosummary_generate_content_for_module(app):
         config=app.config,
         events=app.events,
     )
-    assert template.render.extract_node(template.render.call_args, 0, 0) == 'module'
+    assert template.render.call_args[0][0] == 'module'
 
-    context = template.render.extract_node(template.render.call_args, 0, 1)
+    context = template.render.call_args[0][1]
     assert context['members'] == [
         'CONSTANT1',
         'CONSTANT2',
@@ -318,9 +318,9 @@ def test_autosummary_generate_content_for_module___all__(app):
         config=app.config,
         events=app.events,
     )
-    assert template.render.extract_node(template.render.call_args, 0, 0) == 'module'
+    assert template.render.call_args[0][0] == 'module'
 
-    context = template.render.extract_node(template.render.call_args, 0, 1)
+    context = template.render.call_args[0][1]
     assert context['members'] == [
         'CONSTANT1',
         'Exc',
@@ -369,7 +369,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
         config=app.config,
         events=app.events,
     )
-    context = template.render.extract_node(template.render.call_args, 0, 1)
+    context = template.render.call_args[0][1]
     assert context['members'] == [
         'CONSTANT1',
         'CONSTANT2',
@@ -410,9 +410,9 @@ def test_autosummary_generate_content_for_module_imported_members(app):
         config=app.config,
         events=app.events,
     )
-    assert template.render.extract_node(template.render.call_args, 0, 0) == 'module'
+    assert template.render.call_args[0][0] == 'module'
 
-    context = template.render.extract_node(template.render.call_args, 0, 1)
+    context = template.render.call_args[0][1]
     assert context['members'] == [
         'CONSTANT1',
         'CONSTANT2',
@@ -481,9 +481,9 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
         config=app.config,
         events=app.events,
     )
-    assert template.render.extract_node(template.render.call_args, 0, 0) == 'module'
+    assert template.render.call_args[0][0] == 'module'
 
-    context = template.render.extract_node(template.render.call_args, 0, 1)
+    context = template.render.call_args[0][1]
     assert context['members'] == [
         'Foo',
         'InheritedAttrClass',

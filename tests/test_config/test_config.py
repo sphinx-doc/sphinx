@@ -529,7 +529,7 @@ def test_conf_warning_message(logger, name, default, annotation, actual, message
     config.add(name, default, False, annotation or ())
     check_confval_types(None, config)
     assert logger.warning.called
-    assert logger.warning.extract_node(logger.warning.call_args, 0, 0) == message
+    assert logger.warning.call_args[0][0] == message
 
 
 @mock.patch('sphinx.config.logger')
@@ -683,7 +683,7 @@ def test_conf_py_language_none_warning(logger, tmp_path):
 
     # Then a warning is raised
     assert logger.warning.called
-    assert logger.warning.extract_node(logger.warning.call_args, 0, 0) == (
+    assert logger.warning.call_args[0][0] == (
         "Invalid configuration value found: 'language = None'. "
         'Update your configuration to a valid language code. '
         "Falling back to 'en' (English)."
