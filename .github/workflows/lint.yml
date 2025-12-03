@@ -14,7 +14,6 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
-  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   # If you update any of these commands, don't forget to update the equivalent
@@ -54,10 +53,8 @@ jobs:
       with:
         version: latest
         enable-cache: false
-    - name: Install dependencies
-      run: uv pip install -r pyproject.toml --group package --group test --group types
     - name: Type check with mypy
-      run: mypy
+      run: uv run --group package --group test --group types mypy
 
   pyright:
     runs-on: ubuntu-latest
@@ -75,10 +72,8 @@ jobs:
       with:
         version: latest
         enable-cache: false
-    - name: Install dependencies
-      run: uv pip install -r pyproject.toml --group package --group test --group types
     - name: Type check with pyright
-      run: pyright
+      run: uv run --group package --group test --group types pyright
 
   ty:
     runs-on: ubuntu-latest
@@ -96,10 +91,8 @@ jobs:
       with:
         version: latest
         enable-cache: false
-    - name: Install dependencies
-      run: uv pip install -r pyproject.toml --group package --group test --group types
     - name: Type check with ty
-      run: ty check --color=always
+      run: uv run --group package --group test --group types ty check --color=always
 
   docs-lint:
     runs-on: ubuntu-latest
@@ -117,10 +110,8 @@ jobs:
       with:
         version: latest
         enable-cache: false
-    - name: Install dependencies
-      run: uv pip install --group lint
     - name: Lint documentation with sphinx-lint
-      run: make doclinter
+      run: uv run --group lint make doclinter
 
   twine:
     runs-on: ubuntu-latest
@@ -138,12 +129,8 @@ jobs:
       with:
         version: latest
         enable-cache: false
-    - name: Install dependencies
-      run: uv pip install --group package
     - name: Lint with twine
-      run: |
-        python -m build .
-        twine check dist/*
+      run: uv run --group package python -m build . && twine check dist/*
 
   prettier:
     runs-on: ubuntu-latest

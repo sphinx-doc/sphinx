@@ -14,7 +14,6 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
-  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   verbose:
@@ -35,13 +34,5 @@ jobs:
       with:
         version: latest
         enable-cache: false
-    - name: Install dependencies
-      run: uv pip install . --group docs
     - name: Render the documentation
-      run: >
-        sphinx-build
-        -M html ./doc ./build/sphinx
-        --verbose
-        --jobs=auto
-        --show-traceback
-        --fail-on-warning
+      run: uv run --group docs sphinx-build -M html ./doc ./build/sphinx --verbose --jobs=auto --show-traceback --fail-on-warning

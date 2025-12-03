@@ -15,7 +15,6 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
-  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   publish-pypi:
@@ -40,14 +39,11 @@ jobs:
           version: latest
           enable-cache: false
 
-      - name: Install build dependencies (pypa/build, twine)
-        run: uv pip install --group package
-
       - name: Build distribution
-        run: python -m build
+        run: uv run --group package python -m build .
 
       - name: Check distribution
-        run: twine check dist/*
+        run: uv run --group package twine check dist/*
 
       - name: Create Sigstore attestations for built distributions
         uses: actions/attest@v1
