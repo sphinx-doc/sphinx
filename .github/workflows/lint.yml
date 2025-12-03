@@ -110,7 +110,7 @@ jobs:
         python-version: "3"
     - uses: astral-sh/setup-uv@v7
     - name: Lint with twine
-      run: uv run --locked --group package python -m build . && twine check dist/*
+      run: uv run --locked --no-default-groups --group package python -m build . && uv run --locked --no-default-groups --group package twine check dist/*.{whl,tar.gz}
 
   prettier:
     runs-on: ubuntu-latest
