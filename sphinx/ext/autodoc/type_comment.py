@@ -6,12 +6,8 @@ from typing import TYPE_CHECKING
 
 from sphinx.ext.autodoc._dynamic._type_comments import (
     _update_annotations_using_type_comments,
-)
-from sphinx.ext.autodoc._dynamic._type_comments import (
-    not_suppressed as not_suppressed,  # NoQA: PLC0414
-)
-from sphinx.ext.autodoc._dynamic._type_comments import (
-    signature_from_ast as signature_from_ast,  # NoQA: PLC0414
+    not_suppressed,  # NoQA: F401
+    signature_from_ast,  # NoQA: F401
 )
 
 if TYPE_CHECKING:
