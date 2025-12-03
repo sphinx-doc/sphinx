@@ -60,7 +60,7 @@ jobs:
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - uses: astral-sh/setup-uv@v7
     - name: Test with pytest
-      run: uv run --locked --python ${{ matrix.python }} --with "docutils~=${{ matrix.docutils }}.0" --group test pytest -n logical --dist=worksteal -vv --durations 25
+      run: uv run --locked --python ${{ matrix.python }} --with "docutils~=${{ matrix.docutils }}.0" --only-group test pytest -n logical --dist=worksteal -vv --durations 25
       env:
         PYTHONWARNINGS: "error"
 
@@ -85,7 +85,7 @@ jobs:
       run: choco install --no-progress graphviz
     - uses: astral-sh/setup-uv@v7
     - name: Test with pytest
-      run: uv run --locked --group test pytest -vv --durations 25
+      run: uv run --locked --only-group test pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"
 
@@ -102,7 +102,7 @@ jobs:
       run: brew install graphviz
     - uses: astral-sh/setup-uv@v7
     - name: Test with pytest
-      run: uv run --locked --group test pytest -vv --durations 25
+      run: uv run --locked --only-group test pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"
 
@@ -125,7 +125,7 @@ jobs:
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - uses: astral-sh/setup-uv@v7
     - name: Test with pytest
-      run: uv run --locked --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" --group test pytest -n logical --dist=worksteal -vv
+      run: uv run --locked --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" --only-group test pytest -n logical --dist=worksteal -vv
       env:
         PYTHONWARNINGS: "error"
         DO_EPUBCHECK: "1"
@@ -144,7 +144,7 @@ jobs:
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - uses: astral-sh/setup-uv@v7
     - name: Test with pytest
-      run: uv run --locked --with alabaster==1.0.0 --group test pytest -n logical --dist=worksteal -vv --durations 25
+      run: uv run --locked --with alabaster==1.0.0 --only-group test pytest -n logical --dist=worksteal -vv --durations 25
       env:
         PYTHONWARNINGS: "error"
 
@@ -161,7 +161,7 @@ jobs:
         persist-credentials: false
     - uses: astral-sh/setup-uv@v7
     - name: Test with pytest
-      run: uv run --locked --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" --group test pytest -vv --durations 25
+      run: uv run --locked --with "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils" --only-group test pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"
         DO_EPUBCHECK: "1"
@@ -180,6 +180,6 @@ jobs:
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - uses: astral-sh/setup-uv@v7
     - name: Test with pytest
-      run: uv run --locked --with pytest-cov --group test pytest -vv --cov . --cov-append --cov-config pyproject.toml
+      run: uv run --locked --with pytest-cov --only-group test pytest -vv --cov . --cov-append --cov-config pyproject.toml
     - name: codecov
       uses: codecov/codecov-action@v5
