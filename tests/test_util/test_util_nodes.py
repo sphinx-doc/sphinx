@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 from docutils import frontend, nodes
@@ -23,7 +23,9 @@ from sphinx.util.nodes import (
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from docutils.nodes import document
+    from docutils.nodes import Element, document
+
+    from sphinx.testing.util import SphinxTestApp
 
 
 def _transform(doctree: nodes.document) -> None:
@@ -225,16 +227,18 @@ def test_make_id(app, prefix, term, expected):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_make_id_already_registered(app):
+def test_make_id_already_registered(app: SphinxTestApp) -> None:
     document = create_new_document()
-    document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
+    document.ids['term-Sphinx'] = cast(
+        'Element', True
+    )  # register "term-Sphinx" manually
     assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_make_id_sequential(app):
+def test_make_id_sequential(app: SphinxTestApp) -> None:
     document = create_new_document()
-    document.ids['term-0'] = True
+    document.ids['term-0'] = cast('Element', True)
     assert make_id(app.env, document, 'term') == 'term-1'
 
 
@@ -249,7 +253,7 @@ def test_make_id_sequential(app):
         ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
     ],
 )
-def test_split_explicit_target(title, expected):
+def test_split_explicit_target(title: str, expected: tuple[bool, str, str]) -> None:
     assert split_explicit_title(title) == expected
 
 

@@ -231,7 +231,6 @@ module = [
     "tests.test_domains.test_domain_py_fields",
     "tests.test_domains.test_domain_py_pyfunction",
     "tests.test_domains.test_domain_py_pyobject",
-    "tests.test_domains.test_domain_rst",
     "tests.test_domains.test_domain_std",
     # tests/test_environment
     "tests.test_environment.test_environment_toctree",
