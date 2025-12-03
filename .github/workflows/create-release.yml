@@ -33,17 +33,13 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3"
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: latest
-          enable-cache: false
+      - uses: astral-sh/setup-uv@v7
 
       - name: Build distribution
-        run: uv run --group package python -m build .
+        run: uv run --locked --group package python -m build .
 
       - name: Check distribution
-        run: uv run --group package twine check dist/*
+        run: uv run --locked --group package twine check dist/*
 
       - name: Create Sigstore attestations for built distributions
         uses: actions/attest@v1

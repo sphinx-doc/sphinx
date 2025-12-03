@@ -29,10 +29,6 @@ jobs:
         python-version: "3"
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        version: latest
-        enable-cache: false
+    - uses: astral-sh/setup-uv@v7
     - name: Render the documentation
-      run: uv run --group docs sphinx-build -M html ./doc ./build/sphinx --verbose --jobs=auto --show-traceback --fail-on-warning
+      run: uv run --locked --group docs sphinx-build -M html ./doc ./build/sphinx --verbose --jobs=auto --show-traceback --fail-on-warning
