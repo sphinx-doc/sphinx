@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Final, Protocol, TypeAlias
+    from typing import Final, Protocol
 
     from typing_extensions import TypeIs
 
@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     class _AttrGetter(Protocol):
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
-    _RoutineType: TypeAlias = (
+    type _RoutineType = (
         types.FunctionType
         | types.LambdaType
         | types.MethodType
@@ -57,7 +57,7 @@ if TYPE_CHECKING:
         | types.MethodDescriptorType
         | types.ClassMethodDescriptorType
     )
-    _SignatureType: TypeAlias = (
+    type _SignatureType = (
         Callable[..., Any] | staticmethod[Any, Any] | classmethod[Any, Any, Any]
     )
 

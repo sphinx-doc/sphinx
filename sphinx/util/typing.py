@@ -16,18 +16,18 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Annotated, Any, Final, Literal, Protocol, TypeAlias
+    from typing import Annotated, Any, Final, Literal, Protocol
 
     from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.util.inventory import _InventoryItem
 
-    _RestifyMode: TypeAlias = Literal[
+    type _RestifyMode = Literal[
         'fully-qualified-except-typing',
         'smart',
     ]
-    _StringifyMode: TypeAlias = Literal[
+    type _StringifyMode = Literal[
         'fully-qualified-except-typing',
         'fully-qualified',
         'smart',
@@ -125,10 +125,10 @@ def is_invalid_builtin_class(obj: Any) -> str:
 
 
 # Text like nodes which are initialized with text and rawsource
-TextlikeNode: TypeAlias = nodes.Text | nodes.TextElement
+type TextlikeNode = nodes.Text | nodes.TextElement
 
 # path matcher
-PathMatcher: TypeAlias = Callable[[str], bool]
+type PathMatcher = Callable[[str], bool]
 
 # common role functions
 if TYPE_CHECKING:
@@ -147,19 +147,19 @@ if TYPE_CHECKING:
         ) -> tuple[list[nodes.Node], list[nodes.system_message]]: ...
 
 else:
-    RoleFunction: TypeAlias = Callable[
+    type RoleFunction = Callable[
         [str, str, str, int, Inliner, dict[str, typing.Any], Sequence[str]],
         tuple[list[nodes.Node], list[nodes.system_message]],
     ]
 
 # A option spec for directive
-OptionSpec: TypeAlias = dict[str, Callable[[str], typing.Any]]
+type OptionSpec = dict[str, Callable[[str], typing.Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
-TitleGetter: TypeAlias = Callable[[nodes.Node], str]
+type TitleGetter = Callable[[nodes.Node], str]
 
 # inventory data on memory
-Inventory: TypeAlias = dict[str, dict[str, '_InventoryItem']]
+type Inventory = dict[str, dict[str, _InventoryItem]]
 
 
 class ExtensionMetadata(typing.TypedDict, total=False):
@@ -183,7 +183,7 @@ class ExtensionMetadata(typing.TypedDict, total=False):
 
 
 if TYPE_CHECKING:
-    _ExtensionSetupFunc: TypeAlias = Callable[[Sphinx], ExtensionMetadata]  # NoQA: PYI047 (false positive)
+    type _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]  # NoQA: PYI047 (false positive)
 
 
 def get_type_hints(

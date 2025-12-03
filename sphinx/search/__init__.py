@@ -21,21 +21,18 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Set
-    from typing import Any, Protocol, TypeVar
+    from typing import Any, Protocol
 
     from docutils.nodes import Node
 
     from sphinx.environment import BuildEnvironment
 
-    _T_co = TypeVar('_T_co', covariant=True)
-    _T_contra = TypeVar('_T_contra', contravariant=True)
+    class _ReadableStream[T_co](Protocol):
+        def read(self, n: int = ..., /) -> T_co: ...
+        def readline(self, n: int = ..., /) -> T_co: ...
 
-    class _ReadableStream(Protocol[_T_co]):
-        def read(self, n: int = ..., /) -> _T_co: ...
-        def readline(self, n: int = ..., /) -> _T_co: ...
-
-    class _WritableStream(Protocol[_T_contra]):
-        def write(self, s: _T_contra, /) -> object: ...
+    class _WritableStream[T_contra](Protocol):
+        def write(self, s: T_contra, /) -> object: ...
 
 
 _NON_MINIFIED_JS_PATH = package_dir.joinpath('search', 'non-minified-js')

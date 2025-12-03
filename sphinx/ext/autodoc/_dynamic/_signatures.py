@@ -27,14 +27,14 @@ from sphinx.util.inspect import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
     from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
-    _FormattedSignature: TypeAlias = tuple[str, str]
+    type _FormattedSignature = tuple[str, str]
 
 
 def _format_signatures(

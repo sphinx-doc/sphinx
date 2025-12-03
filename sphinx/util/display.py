@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from types import TracebackType
     from typing import Any, ParamSpec, TypeVar
 
-    T = TypeVar('T')
     P = ParamSpec('P')
     R = TypeVar('R')
 
@@ -27,7 +26,7 @@ def display_chunk(chunk: Any) -> str:
     return str(chunk)
 
 
-def status_iterator(
+def status_iterator[T](
     iterable: Iterable[T],
     summary: str,
     color: str = 'darkgreen',
