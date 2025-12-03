@@ -161,26 +161,26 @@ def test_config_pickle_circular_reference_in_list():
     check_is_serializable(actual.b, circular=True)
 
     assert actual.a[0] == 1
-    assert actual.a[1][0] == 2
-    assert actual.a[1][1][0] == 1
-    assert actual.a[1][1][1][0] == 2
+    assert actual.extract_node(a, 1, 0) == 2
+    assert actual.extract_node(a, 1, 1, 0) == 1
+    assert actual.extract_node(a, 1, 1, 1, 0) == 2
 
     assert actual.b[0] == 2
-    assert actual.b[1][0] == 1
-    assert actual.b[1][1][0] == 2
-    assert actual.b[1][1][1][0] == 1
+    assert actual.extract_node(b, 1, 0) == 1
+    assert actual.extract_node(b, 1, 1, 0) == 2
+    assert actual.extract_node(b, 1, 1, 1, 0) == 1
 
     assert len(actual.a) == 2
     assert len(actual.a[1]) == 2
-    assert len(actual.a[1][1]) == 2
-    assert len(actual.a[1][1][1]) == 2
-    assert len(actual.a[1][1][1][1]) == 2
+    assert len(actual.extract_node(a, 1, 1)) == 2
+    assert len(actual.extract_node(a, 1, 1, 1)) == 2
+    assert len(actual.extract_node(a, 1, 1, 1, 1)) == 2
 
     assert len(actual.b) == 2
     assert len(actual.b[1]) == 2
-    assert len(actual.b[1][1]) == 2
-    assert len(actual.b[1][1][1]) == 2
-    assert len(actual.b[1][1][1][1]) == 2
+    assert len(actual.extract_node(b, 1, 1)) == 2
+    assert len(actual.extract_node(b, 1, 1, 1)) == 2
+    assert len(actual.extract_node(b, 1, 1, 1, 1)) == 2
 
     def check(
         u: list[list[object] | int],
@@ -213,10 +213,10 @@ def test_config_pickle_circular_reference_in_list():
     #   check(actual.a[0], a[0]) -> ++counter[dict]
     #       ++counter[int] (a[0] is an int)
     #   check(actual.a[1], a[1]) -> ++counter[dict]
-    #       check(actual.a[1][0], a[1][0]) -> ++counter[dict]
-    #           ++counter[int] (a[1][0] is an int)
-    #       check(actual.a[1][1], a[1][1]) -> ++counter[dict]
-    #           recursive guard since a[1][1] == a
+    #       check(actual.extract_node(a, 1, 0), extract_node(a, 1, 0)) -> ++counter[dict]
+    #           ++counter[int] (extract_node(a, 1, 0) is an int)
+    #       check(actual.extract_node(a, 1, 1), extract_node(a, 1, 1)) -> ++counter[dict]
+    #           recursive guard since extract_node(a, 1, 1) == a
     assert counter[type(a[0])] == 2
     assert counter[type(a[1])] == 4
 
@@ -529,7 +529,7 @@ def test_conf_warning_message(logger, name, default, annotation, actual, message
     config.add(name, default, False, annotation or ())
     check_confval_types(None, config)
     assert logger.warning.called
-    assert logger.warning.call_args[0][0] == message
+    assert logger.warning.extract_node(logger.warning.call_args, 0, 0) == message
 
 
 @mock.patch('sphinx.config.logger')
@@ -683,7 +683,7 @@ def test_conf_py_language_none_warning(logger, tmp_path):
 
     # Then a warning is raised
     assert logger.warning.called
-    assert logger.warning.call_args[0][0] == (
+    assert logger.warning.extract_node(logger.warning.call_args, 0, 0) == (
         "Invalid configuration value found: 'language = None'. "
         'Update your configuration to a valid language code. '
         "Falling back to 'en' (English)."

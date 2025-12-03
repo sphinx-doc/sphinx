@@ -27,6 +27,8 @@ from sphinx.ext.autosummary.generate import (
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
@@ -254,9 +256,9 @@ def test_autosummary_generate_content_for_module(app):
         config=app.config,
         events=app.events,
     )
-    assert template.render.call_args[0][0] == 'module'
+    assert template.render.extract_node(template.render.call_args, 0, 0) == 'module'
 
-    context = template.render.call_args[0][1]
+    context = template.render.extract_node(template.render.call_args, 0, 1)
     assert context['members'] == [
         'CONSTANT1',
         'CONSTANT2',
@@ -316,9 +318,9 @@ def test_autosummary_generate_content_for_module___all__(app):
         config=app.config,
         events=app.events,
     )
-    assert template.render.call_args[0][0] == 'module'
+    assert template.render.extract_node(template.render.call_args, 0, 0) == 'module'
 
-    context = template.render.call_args[0][1]
+    context = template.render.extract_node(template.render.call_args, 0, 1)
     assert context['members'] == [
         'CONSTANT1',
         'Exc',
@@ -367,7 +369,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
         config=app.config,
         events=app.events,
     )
-    context = template.render.call_args[0][1]
+    context = template.render.extract_node(template.render.call_args, 0, 1)
     assert context['members'] == [
         'CONSTANT1',
         'CONSTANT2',
@@ -408,9 +410,9 @@ def test_autosummary_generate_content_for_module_imported_members(app):
         config=app.config,
         events=app.events,
     )
-    assert template.render.call_args[0][0] == 'module'
+    assert template.render.extract_node(template.render.call_args, 0, 0) == 'module'
 
-    context = template.render.call_args[0][1]
+    context = template.render.extract_node(template.render.call_args, 0, 1)
     assert context['members'] == [
         'CONSTANT1',
         'CONSTANT2',
@@ -479,9 +481,9 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
         config=app.config,
         events=app.events,
     )
-    assert template.render.call_args[0][0] == 'module'
+    assert template.render.extract_node(template.render.call_args, 0, 0) == 'module'
 
-    context = template.render.call_args[0][1]
+    context = template.render.extract_node(template.render.call_args, 0, 1)
     assert context['members'] == [
         'Foo',
         'InheritedAttrClass',
@@ -548,23 +550,34 @@ def test_autosummary_generate(app):
             ),
         ],
     )
-    assert_node(doctree[4][0], addnodes.toctree, caption='An autosummary')
+    assert_node(extract_node(doctree, 4, 0), addnodes.toctree, caption='An autosummary')
 
-    assert len(doctree[3][0][0][2]) == 8
-    assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
-    assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
-    assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.Foo.Bar()\n\n'
-    assert doctree[3][0][0][2][3].astext() == (
+    assert len(extract_node(doctree, 3, 0, 0, 2)) == 8
+    assert (
+        extract_node(doctree, 3, 0, 0, 2, 0).astext() == 'autosummary_dummy_module\n\n'
+    )
+    assert (
+        extract_node(doctree, 3, 0, 0, 2, 1).astext()
+        == 'autosummary_dummy_module.Foo()\n\n'
+    )
+    assert (
+        extract_node(doctree, 3, 0, 0, 2, 2).astext()
+        == 'autosummary_dummy_module.Foo.Bar()\n\n'
+    )
+    assert extract_node(doctree, 3, 0, 0, 2, 3).astext() == (
         'autosummary_dummy_module.Foo.value\n\ndocstring'
     )
-    assert doctree[3][0][0][2][4].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
-    assert doctree[3][0][0][2][5].astext() == (
+    assert (
+        extract_node(doctree, 3, 0, 0, 2, 4).astext()
+        == 'autosummary_dummy_module.bar(x[, y])\n\n'
+    )
+    assert extract_node(doctree, 3, 0, 0, 2, 5).astext() == (
         'autosummary_dummy_module.qux\n\na module-level attribute'
     )
-    assert doctree[3][0][0][2][6].astext() == (
+    assert extract_node(doctree, 3, 0, 0, 2, 6).astext() == (
         'autosummary_dummy_inherited_module.InheritedAttrClass()\n\n'
     )
-    assert doctree[3][0][0][2][7].astext() == (
+    assert extract_node(doctree, 3, 0, 0, 2, 7).astext() == (
         'autosummary_dummy_inherited_module.InheritedAttrClass.subclassattr\n\nother docstring'
     )
 

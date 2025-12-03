@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ('http_server',)
+__all__ = ('http_server', 'extract_node', 'extract_element')
 
 import os
 import socket
@@ -12,11 +12,15 @@ from threading import Thread
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
+from docutils.nodes import Element
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from http.server import HTTPServer
     from socketserver import BaseRequestHandler
     from typing import Final
+
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
 
@@ -130,3 +134,44 @@ def serve_application(
         rewrite_hyperlinks(app, server),
     ):
         yield f'localhost:{server.server_port}'
+
+
+def extract_node(node: Node, *indices: int) -> Node:
+    """Walk down a docutils node tree by repeatedly indexing children.
+    Returns a Node (could be Element, Text, etc.)
+
+    Example:
+        extract_node(doc, 0, 2, 1) == doc[0][2][1]
+    """
+    current: Node = node
+
+    for depth, i in enumerate(indices):
+        assert isinstance(current, Element), (
+            f'Expected Element at depth {depth} before indexing with [{i}], '
+            f'got {type(current).__name__!r}'
+        )
+        try:
+            current = current[i]
+        except IndexError as e:
+            msg = (
+                f'Index {i} out of range at depth {depth} for '
+                f'{type(current).__name__!r}'
+            )
+            raise AssertionError(msg) from e
+
+    return current
+
+
+def extract_element(node: Node, *indices: int) -> Element:
+    """Walk down a docutils node tree and return an Element.
+    Asserts the final result is an Element (for attribute/dict access).
+
+    Example:
+        elem = extract_node(doc, 0, 2, 1)
+        elem['uri']  # Safe: guaranteed to be Element
+    """
+    result = extract_node(node, *indices)
+    assert isinstance(result, Element), (
+        f'Expected final result to be Element, got {type(result).__name__!r}'
+    )
+    return result
