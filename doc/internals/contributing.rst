@@ -93,7 +93,7 @@ These are the basic steps needed to start developing on Sphinx.
       git clone https://github.com/<USERNAME>/sphinx
       cd sphinx
 
-#. Install uv and setup your environment.
+#. Install uv and set up your environment.
 
    We recommend using :program:`uv` for dependency management.
    Install it with:
@@ -116,9 +116,6 @@ These are the basic steps needed to start developing on Sphinx.
        python -m venv .venv
        . .venv/bin/activate
        python -m pip install -e .
-
-   :program:`uv` is faster, provides a better development experience,
-   and ensures a consistent environment through dependency locking.
 
 #. Create a new working branch. Choose any name you like.
 
