@@ -150,8 +150,10 @@ class _NodeUpdater:
         new_ref_keys = list(map(key_func, new_refs))
 
         if ignore_order:
-            old_ref_keys = sorted(old_ref_keys, key=lambda x: (x is None, x))
-            new_ref_keys = sorted(new_ref_keys, key=lambda x: (x is None, x))
+            # The ref_keys lists may contain ``None``, so compare hashes.
+            # Recall objects which compare equal have the same hash value.
+            old_ref_keys.sort(key=hash)
+            new_ref_keys.sort(key=hash)
 
         if not self.noqa and old_ref_keys != new_ref_keys:
             old_ref_rawsources = [ref.rawsource for ref in old_refs]
