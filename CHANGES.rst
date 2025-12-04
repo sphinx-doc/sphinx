@@ -4,6 +4,9 @@ Release 9.0.4 (in development)
 Bugs fixed
 ----------
 
+* #14143: Fix spurious build warnings when translators reorder references
+  in strings, or use translated display text in references.
+  Patch by Matt Wang.
 
 Release 9.0.3 (released Dec 04, 2025)
 =====================================
