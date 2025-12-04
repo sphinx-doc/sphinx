@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from operator import attrgetter
 from re import DOTALL, match
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -28,7 +29,7 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from docutils.frontend import Values
 
@@ -133,11 +134,30 @@ class _NodeUpdater:
         old_refs: Sequence[nodes.Element],
         new_refs: Sequence[nodes.Element],
         warning_msg: str,
+        *,
+        key_func: Callable[[nodes.Element], Any] = attrgetter('rawsource'),
+        ignore_order: bool = False,
     ) -> None:
-        """Warn about mismatches between references in original and translated content."""
-        old_ref_rawsources = [ref.rawsource for ref in old_refs]
-        new_ref_rawsources = [ref.rawsource for ref in new_refs]
-        if not self.noqa and old_ref_rawsources != new_ref_rawsources:
+        """Warn about mismatches between references in original and translated content.
+
+        :param key_func: A function to extract the comparison key from each reference.
+            Defaults to extracting the ``rawsource`` attribute.
+        :param ignore_order: If True, ignore the order of references when comparing.
+            This allows translators to reorder references while still catching
+            missing or extra references.
+        """
+        old_ref_keys = list(map(key_func, old_refs))
+        new_ref_keys = list(map(key_func, new_refs))
+
+        if ignore_order:
+            # The ref_keys lists may contain ``None``, so compare hashes.
+            # Recall objects which compare equal have the same hash value.
+            old_ref_keys.sort(key=hash)
+            new_ref_keys.sort(key=hash)
+
+        if not self.noqa and old_ref_keys != new_ref_keys:
+            old_ref_rawsources = [ref.rawsource for ref in old_refs]
+            new_ref_rawsources = [ref.rawsource for ref in new_refs]
             logger.warning(
                 warning_msg.format(old_ref_rawsources, new_ref_rawsources),
                 location=self.node,
@@ -347,6 +367,10 @@ class _NodeUpdater:
                 'inconsistent term references in translated message.'
                 ' original: {0}, translated: {1}'
             ),
+            # Compare by reftarget only, allowing translated display text.
+            # Ignore order since translators may legitimately reorder references.
+            key_func=lambda ref: ref.get('reftarget'),
+            ignore_order=True,
         )
 
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
