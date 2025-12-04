@@ -4,6 +4,8 @@ Release 9.0.3 (in development)
 Bugs fixed
 ----------
 
+* #14142: autodoc: Restore some missing exports in :mod:`!sphinx.ext.autodoc`.
+  Patch by Adam Turner.
 
 Release 9.0.2 (released Dec 03, 2025)
 =====================================

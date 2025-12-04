@@ -12,6 +12,9 @@ from typing import TYPE_CHECKING
 import sphinx
 from sphinx.config import ENUM
 from sphinx.ext.autodoc._directive import AutodocDirective
+from sphinx.ext.autodoc._dynamic._importer import (
+    _import_module as import_module,
+)
 from sphinx.ext.autodoc._event_listeners import between, cut_lines
 from sphinx.ext.autodoc._legacy_class_based._directive_options import (
     Options,
@@ -60,6 +63,8 @@ from sphinx.ext.autodoc._legacy_class_based._sentinels import (
     SUPPRESS,
     UNINITIALIZED_ATTR,
 )
+from sphinx.ext.autodoc.importer import get_class_members, import_object
+from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.ext.autodoc.typehints import _merge_typehints
 
 if TYPE_CHECKING:
@@ -123,6 +128,12 @@ __all__ = (
     'UninitializedInstanceAttributeMixin',
     'autodoc_attrgetter',
     'Documenter',
+    'get_class_members',
+    'import_module',
+    'import_object',
+    'ismock',
+    'mock',
+    'undecorate',
 )
 
 
