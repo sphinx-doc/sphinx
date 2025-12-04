@@ -180,14 +180,17 @@ const _orderResultsByScoreThenName = (a, b) => {
  * Default splitQuery function. Can be overridden in ``sphinx.search`` with a
  * custom function per language.
  *
- * The regular expression works by splitting the string on consecutive characters
- * that are not Unicode letters, numbers, underscores, or emoji characters.
- * This is the same as ``\W+`` in Python, preserving the surrogate pair area.
+ * The `consecutiveLetters` regular expression works by matching consecutive characters
+ * that are Unicode letters, numbers, underscores, or emoji characters.
+ *
+ * The `searchWords` regular expression works by matching a word like structure
+ * that matches the `consecutiveLetters` with or without a leading hyphen '-' which is
+ * used to exclude search terms later on.
  */
 if (typeof splitQuery === "undefined") {
   var splitQuery = (query) =>
     query
-      .split(/[^\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu)
+      .split(/(?<!\s)[-]|[^\p{Letter}\p{Number}\-_\p{Emoji_Presentation}]+/gu)
       .filter((term) => term); // remove remaining empty strings
 }
 
@@ -636,15 +639,18 @@ const Search = {
 
       // ensure that none of the excluded terms is in the search result
       if (
-        [...excludedTerms].some(
-          (term) =>
-            terms[term] === file
-            || titleTerms[term] === file
-            || (terms[term] || []).includes(file)
-            || (titleTerms[term] || []).includes(file),
-        )
+        [...excludedTerms].some((excludedTerm) => {
+          // Both mappings will contain either a single integer or a list of integers.
+          // Converting them to lists makes the comparison more readable.
+          let excludedTermFiles = [].concat(terms[excludedTerm]);
+          let excludedTitleFiles = [].concat(titleTerms[excludedTerm]);
+          return (
+            excludedTermFiles.includes(file)
+            || excludedTitleFiles.includes(file)
+          );
+        })
       )
-        break;
+        continue;
 
       // select one (max) score for the file.
       const score = Math.max(...wordList.map((w) => scoreMap.get(file).get(w)));
