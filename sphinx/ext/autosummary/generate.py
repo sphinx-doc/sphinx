@@ -368,7 +368,7 @@ def generate_autosummary_content(
             )
             ns['modules'] = imported_modules + modules
             ns['all_modules'] = all_imported_modules + all_modules
-    elif doc.objtype == 'class':
+    elif objtype == 'class':
         ns['members'] = list(_get_class_members(obj))
         obj_classinfo = _get_class_members(obj, False)
         obj_local = [j for j, k in obj_classinfo.items() if k == obj]
@@ -461,13 +461,7 @@ def _skip_member(
         return False
 
 
-#def _get_class_members(obj: Any, return_object: bool = True) -> dict[str, Any]:
-#    members = sphinx.ext.autodoc.importer.get_class_members(obj, None, safe_getattr)
-#    if return_object:
-#        return {name: member.object for name, member in members.items()}
-#    else:
-#        return {name: member.class_ for name, member in members.items()}
-def _get_class_members(obj: Any) -> dict[str, Any]:
+def _get_class_members(obj: Any, return_object: bool = True) -> dict[str, Any]:
     """Get members and attributes of target class."""
     # TODO: Simplify
     # the members directly defined in the class
@@ -537,7 +531,10 @@ def _get_class_members(obj: Any) -> dict[str, Any]:
     except AttributeError:
         pass
 
-    return members_simpler
+    if return_object:
+        return {name: member.object for name, member in members_simpler.items()}
+    else:
+        return {name: member.class_ for name, member in members_simpler.items()}
 
 
 def _get_module_members(obj: Any, *, config: Config) -> dict[str, Any]:
