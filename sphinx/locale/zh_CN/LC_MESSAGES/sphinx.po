@@ -8,6 +8,7 @@
 # Alpha Du <alphanow@gmail.com>, 2025
 # Dormouse Young <dormouse.young@gmail.com>, 2024
 # Freesand Leo <yuqinju@163.com>, 2024
+# gerhardt.gao <gerhardt.gao@gmail.com>, 2025
 # Hsiaoming Yang <me@lepture.com>, 2018
 # Izabel Wang <izabelwang@pku.edu.cn>, 2020
 # Izabel Wang <izabelwang@pku.edu.cn>, 2020
@@ -30,9 +31,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-01 16:14+0000\n"
+"POT-Creation-Date: 2025-12-04 06:45+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
-"Last-Translator: Tyson Tan <tysontanx@gmail.com>, 2025\n"
+"Last-Translator: gerhardt.gao <gerhardt.gao@gmail.com>, 2025\n"
 "Language-Team: Chinese (China) (http://app.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3214,7 +3215,7 @@ msgstr "环境变量; %s"
 #: domains/std/__init__.py:116
 #, python-format
 msgid "%s; configuration value"
-msgstr "%s；配置值"
+msgstr "%s; 配置值"
 
 #: domains/std/__init__.py:172
 msgid "Type"

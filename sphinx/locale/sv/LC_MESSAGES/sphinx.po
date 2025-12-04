@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-01 16:14+0000\n"
+"POT-Creation-Date: 2025-12-04 06:45+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>, 2025\n"
 "Language-Team: Swedish (http://app.transifex.com/sphinx-doc/sphinx-1/language/sv/)\n"
@@ -1426,7 +1426,7 @@ msgstr "====================== långsammaste lästiderna =======================
 #: ext/duration.py:139
 #, python-format
 msgid "%.3fs %s"
-msgstr ""
+msgstr "%.3fs %s"
 
 #: ext/linkcode.py:86 ext/viewcode.py:232
 msgid "[source]"
@@ -3962,7 +3962,7 @@ msgstr ""
 #: ext/autodoc/_legacy_class_based/_documenters.py:1764
 #, python-format
 msgid "missing attribute %s in object %s"
-msgstr ""
+msgstr "saknar attributet %s i objektet %s"
 
 #: ext/autodoc/_legacy_class_based/_documenters.py:1876
 #, python-format
