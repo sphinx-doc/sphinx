@@ -368,7 +368,7 @@ def generate_autosummary_content(
             )
             ns['modules'] = imported_modules + modules
             ns['all_modules'] = all_imported_modules + all_modules
-    elif objtype == 'class':
+    elif obj_type == 'class':
         ns['members'] = list(_get_class_members(obj))
         obj_classinfo = _get_class_members(obj, False)
         obj_local = [j for j, k in obj_classinfo.items() if k == obj]
