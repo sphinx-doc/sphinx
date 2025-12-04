@@ -43,6 +43,14 @@ def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
     return unicodedata.normalize('NFC', new_path)
 
 
+def normalize_path(filepath: Path, /) -> Path:
+    """Normalize path by removing redundant separators and up-level references.
+
+    This *does not* resolve symbolic links.
+    """
+    return filepath.__class__(os.path.normpath(filepath))
+
+
 def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
@@ -179,9 +187,9 @@ def _relative_path(path: Path, root: Path, /) -> Path:
     """
     # Path.relative_to() requires fully-resolved paths (no '..').
     if '..' in path.parts:
-        path = path.resolve()
+        path = normalize_path(path)
     if '..' in root.parts:
-        root = root.resolve()
+        root = normalize_path(root)
 
     if path.anchor != root.anchor or '..' in root.parts:
         # If the drives are different, no relative path exists.

@@ -31,7 +31,7 @@ from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import _last_modified_time, _relative_path
+from sphinx.util.osutil import _last_modified_time, _relative_path, normalize_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Mapping, Set
@@ -463,7 +463,7 @@ class BuildEnvironment:
         """
         file_name = Path(filename)
         if file_name.parts[:1] in {('/',), ('\\',)}:
-            abs_fn = self.srcdir.joinpath(*file_name.parts[1:]).resolve()
+            abs_fn = normalize_path(self.srcdir.joinpath(*file_name.parts[1:]))
         else:
             if not docname:
                 if self.docname:
@@ -472,7 +472,7 @@ class BuildEnvironment:
                     msg = 'docname'
                     raise KeyError(msg)
             doc_dir = self.doc2path(docname, base=False).parent
-            abs_fn = self.srcdir.joinpath(doc_dir, file_name).resolve()
+            abs_fn = normalize_path(self.srcdir.joinpath(doc_dir, file_name))
 
         rel_fn = _relative_path(abs_fn, self.srcdir)
         return rel_fn.as_posix(), os.fspath(abs_fn)
