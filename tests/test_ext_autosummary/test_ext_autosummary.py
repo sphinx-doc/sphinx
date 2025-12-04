@@ -508,7 +508,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
     assert context['objtype'] == 'module'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx(testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module_imported_members_inherited_class(app):
     import autosummary_dummy_inherited_module
 
@@ -521,9 +521,10 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_clas
         template,
         None,
         True,
-        app,
         False,
         {},
+        config=app.config,
+        events=app.events,
     )
     assert template.render.call_args[0][0] == 'class'
 
@@ -587,7 +588,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_clas
     assert context['objtype'] == 'class'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx(testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module_imported_members_complex_inheritance(
     app,
 ):
@@ -606,9 +607,10 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
         template=template_jerry,
         template_name=None,
         imported_members=True,
-        app=app,
         recursive=False,
         context={},
+        config=app.config,
+        events=app.events,
     )
     assert template_jerry.render.call_args[0][0] == 'class'
 
@@ -752,9 +754,10 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
         template=template_baby,
         template_name=None,
         imported_members=True,
-        app=app,
         recursive=False,
         context={},
+        config=app.config,
+        events=app.events,
     )
 
     context2 = template_baby.render.call_args[0][1]
