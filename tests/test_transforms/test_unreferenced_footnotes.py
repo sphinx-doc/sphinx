@@ -1,9 +1,16 @@
 """Test the ``UnreferencedFootnotesDetector`` transform."""
 
-from pathlib import Path
+from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.testing.util import SphinxTestApp
-from sphinx.util.console import strip_colors
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from sphinx.testing.util import SphinxTestApp
 
 
 def test_warnings(make_app: type[SphinxTestApp], tmp_path: Path) -> None:
@@ -29,7 +36,7 @@ Title
     )
     app = make_app(srcdir=tmp_path)
     app.build()
-    warnings = strip_colors(app.warning.getvalue()).lstrip()
+    warnings = strip_escape_sequences(app.warning.getvalue()).lstrip()
     warnings = warnings.replace(str(tmp_path / 'index.rst'), 'source/index.rst')
     assert (
         warnings

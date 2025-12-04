@@ -1,25 +1,33 @@
 """Tests sphinx.util.fileutil functions."""
 
+from __future__ import annotations
+
 import re
+from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.jinja2glue import BuiltinTemplateLoader
-from sphinx.util.console import strip_colors
 from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
+from sphinx.util.template import BaseRenderer
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
-class DummyTemplateLoader(BuiltinTemplateLoader):
+class DummyTemplateLoader(BuiltinTemplateLoader, BaseRenderer):
     def __init__(self) -> None:
         super().__init__()
         builder = mock.Mock()
         builder.config.templates_path = []
-        builder.app.translator = None
+        builder._translator = None
         self.init(builder)
 
 
-def test_copy_asset_file(tmp_path):
+def test_copy_asset_file(tmp_path: Path) -> None:
     renderer = DummyTemplateLoader()
 
     # copy normal file
@@ -62,7 +70,7 @@ def test_copy_asset_file(tmp_path):
     assert (subdir2 / 'asset.txt.jinja').read_text(encoding='utf8') == '# {{var1}} data'
 
 
-def test_copy_asset(tmp_path):
+def test_copy_asset(tmp_path: Path) -> None:
     renderer = DummyTemplateLoader()
 
     # prepare source files
@@ -77,6 +85,10 @@ def test_copy_asset(tmp_path):
     (source / '_templates' / 'sidebar.html.jinja').write_text(
         'sidebar: {{var2}}', encoding='utf8'
     )
+    sibling = tmp_path / 'sibling'
+    sibling.mkdir(parents=True, exist_ok=True)
+    sibling.joinpath('spam').mkdir(parents=True, exist_ok=True)
+    sibling.joinpath('spam', 'ham').touch()
 
     # copy a single file
     assert not (tmp_path / 'test1').exists()
@@ -102,7 +114,7 @@ def test_copy_asset(tmp_path):
     assert sidebar == 'sidebar: baz'
 
     # copy with exclusion
-    def excluded(path):
+    def excluded(path: str) -> bool:
         return 'sidebar.html' in path or 'basic.css' in path
 
     destdir = tmp_path / 'test3'
@@ -119,33 +131,41 @@ def test_copy_asset(tmp_path):
     assert (destdir / '_templates' / 'layout.html').exists()
     assert not (destdir / '_templates' / 'sidebar.html').exists()
 
+    # copy sibling
+    assert not (tmp_path / 'test4').exists()
+    copy_asset(source / '../sibling', tmp_path / 'test4')
+    assert (tmp_path / 'test4').is_dir()
+    assert (tmp_path / 'test4' / 'spam').is_dir()
+    assert (tmp_path / 'test4' / 'spam' / 'ham').is_file()
+    assert (tmp_path / 'test4' / 'spam' / 'ham').read_bytes() == b''
+
 
 @pytest.mark.sphinx('html', testroot='html_assets')
-def test_copy_asset_template(app):
+def test_copy_asset_template(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     expected_msg = r'^Writing evaluated template result to [^\n]*\bAPI.html$'
-    output = strip_colors(app.status.getvalue())
+    output = strip_escape_sequences(app.status.getvalue())
     assert re.findall(expected_msg, output, flags=re.MULTILINE)
 
 
 @pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
-def test_copy_asset_overwrite(app):
+def test_copy_asset_overwrite(app: SphinxTestApp) -> None:
     app.build()
     src = app.srcdir / 'myext_static' / 'custom-styles.css'
     dst = app.outdir / '_static' / 'custom-styles.css'
-    assert strip_colors(app.warning.getvalue()) == (
+    assert strip_escape_sequences(app.warning.getvalue()) == (
         f'WARNING: Aborted attempted copy from {src} to {dst} '
         '(the destination path has existing data). '
         '[misc.copy_overwrite]\n'
     )
 
 
-def test_template_basename():
-    assert _template_basename('asset.txt') is None
-    assert _template_basename('asset.txt.jinja') == 'asset.txt'
-    assert _template_basename('sidebar.html.jinja') == 'sidebar.html'
+def test_template_basename() -> None:
+    assert _template_basename(Path('asset.txt')) is None
+    assert _template_basename(Path('asset.txt.jinja')) == Path('asset.txt')
+    assert _template_basename(Path('sidebar.html.jinja')) == Path('sidebar.html')
 
 
-def test_legacy_template_basename():
-    assert _template_basename('asset.txt_t') == 'asset.txt'
+def test_legacy_template_basename() -> None:
+    assert _template_basename(Path('asset.txt_t')) == Path('asset.txt')

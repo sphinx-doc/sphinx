@@ -20,8 +20,8 @@ grid table
 | cell5-1                     |
 +---------+---------+---------+
 
-grid table with tabularcolumns having no vline
-----------------------------------------------
+grid table with tabularcolumns
+------------------------------
 
 .. tabularcolumns:: TTT
 

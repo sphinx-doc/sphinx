@@ -17,7 +17,8 @@ from typing import TYPE_CHECKING
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from typing import Any
+    from types import TracebackType
+    from typing import Any, Self
 
 # SEP separates path elements in the canonical file names
 #
@@ -46,8 +47,8 @@ def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split('#')[0].split(SEP)
-    t2 = to.split('#')[0].split(SEP)
+    b2 = base.partition('#')[0].split(SEP)
+    t2 = to.partition('#')[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1], strict=False):
         if x != y:
@@ -176,9 +177,14 @@ def _relative_path(path: Path, root: Path, /) -> Path:
     It returns the original path if *path* and *root* are on different drives,
     which may happen on Windows.
     """
+    # Path.relative_to() requires fully-resolved paths (no '..').
+    if '..' in path.parts:
+        path = path.resolve()
+    if '..' in root.parts:
+        root = root.resolve()
+
     if path.anchor != root.anchor or '..' in root.parts:
         # If the drives are different, no relative path exists.
-        # Path.relative_to() requires fully-resolved paths (no '..').
         return path
     if sys.version_info[:2] < (3, 12):
         return Path(os.path.relpath(path, root))
@@ -226,19 +232,22 @@ class FileAvoidWrite:
         try:
             with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
-                if old_content == buf:
-                    return
+            if old_content == buf:
+                return
         except OSError:
             pass
 
         with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
-    def __enter__(self) -> FileAvoidWrite:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> bool:
         self.close()
         return True
@@ -253,7 +262,8 @@ class FileAvoidWrite:
 
 
 def rmtree(path: str | os.PathLike[str], /) -> None:
-    if os.path.isdir(path):
+    path = Path(path)
+    if path.is_dir():
         shutil.rmtree(path)
     else:
         os.remove(path)

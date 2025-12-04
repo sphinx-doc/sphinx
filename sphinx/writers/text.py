@@ -6,9 +6,8 @@ import math
 import os
 import re
 import textwrap
-from collections.abc import Iterable, Iterator, Sequence
 from itertools import chain, groupby, pairwise
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -18,6 +17,9 @@ from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+    from typing import Any, ClassVar
+
     from docutils.nodes import Element, Text
 
     from sphinx.builders.text import TextBuilder
@@ -290,18 +292,18 @@ class TextWrapper(textwrap.TextWrapper):
             else:
                 indent = self.initial_indent
 
+            # Note that column_width(x) > len(x) is possible,
+            # but _handle_long_word() handles negative widths.
             width = self.width - column_width(indent)
 
             if self.drop_whitespace and not chunks[-1].strip() and lines:
                 del chunks[-1]
 
             while chunks:
-                l = column_width(chunks[-1])
-
-                if cur_len + l <= width:
+                chunk_width = column_width(chunks[-1])
+                if cur_len + chunk_width <= width:
                     cur_line.append(chunks.pop())
-                    cur_len += l
-
+                    cur_len += chunk_width
                 else:
                     break
 
@@ -316,45 +318,71 @@ class TextWrapper(textwrap.TextWrapper):
 
         return lines
 
-    def _break_word(self, word: str, space_left: int) -> tuple[str, str]:
-        """Break line by unicode width instead of len(word)."""
+    @staticmethod
+    def _find_break_end(word: str, space_left: int) -> int:
+        """Break word by Unicode width instead of len(word).
+
+        The returned position 'end' satisfies::
+
+            assert column_width(word[:end]) <= space_left
+            assert end == len(word) or column_width(word[:end+1]) > space_left
+        """
         total = 0
-        for i, c in enumerate(word):
+        for end, c in enumerate(word, start=1):
             total += column_width(c)
             if total > space_left:
-                return word[: i - 1], word[i - 1 :]
-        return word, ''
+                return end - 1
+        return len(word)
 
     def _split(self, text: str) -> list[str]:
         """Override original method that only split by 'wordsep_re'.
 
         This '_split' splits wide-characters into chunks by one character.
         """
-
-        def split(t: str) -> list[str]:
-            return super(TextWrapper, self)._split(t)
-
         chunks: list[str] = []
-        for chunk in split(text):
-            for w, g in groupby(chunk, column_width):
-                if w == 1:
-                    chunks.extend(split(''.join(g)))
+        for chunk in super()._split(text):
+            for w, g in groupby(chunk, _column_width_safe):
+                if w <= 1:
+                    chunks += super()._split(''.join(g))
                 else:
-                    chunks.extend(list(g))
+                    chunks += g
         return chunks
 
     def _handle_long_word(
         self, reversed_chunks: list[str], cur_line: list[str], cur_len: int, width: int
     ) -> None:
-        """Override original method for using self._break_word() instead of slice."""
-        space_left = max(width - cur_len, 1)
-        if self.break_long_words:
-            l, r = self._break_word(reversed_chunks[-1], space_left)
-            cur_line.append(l)
-            reversed_chunks[-1] = r
+        """Override using self._find_break() instead of str.find()."""
+        # Make sure at least one character is stripped off on every pass.
+        #
+        # Do NOT use space_left = max(width - cur_len, 1) as corner cases
+        # with "self.drop_whitespace == False" and "self.width == 1" fail.
+        space_left = 1 if width < 1 else (width - cur_len)
 
+        if self.break_long_words:
+            # Some characters may have len(X) < space_left < column_width(X)
+            # so we should only wrap chunks for which len(X) > space_left.
+            end = space_left
+            chunk = reversed_chunks[-1]
+            if space_left > 0:
+                end = self._find_break_end(chunk, space_left)
+            if end == 0 and space_left:
+                # force processing at least one character
+                end = 1
+            cur_line.append(chunk[:end])
+            reversed_chunks[-1] = chunk[end:]
         elif not cur_line:
             cur_line.append(reversed_chunks.pop())
+
+
+def _column_width_safe(x: str) -> int:
+    # Handle characters that are 0-width. We should refine
+    # the grouping to prevent splitting a word at combining
+    # characters or in a group of combining characters with
+    # at most one non-combining character as the combining
+    # characters may act on the right or left character.
+    #
+    # See https://github.com/sphinx-doc/sphinx/issues/13741.
+    return max(1, column_width(x))
 
 
 MAXWIDTH = 70
@@ -381,7 +409,7 @@ class TextWriter(writers.Writer):  # type: ignore[type-arg]
         assert isinstance(self.document, nodes.document)
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
-        self.output = cast(TextTranslator, visitor).body
+        self.output = cast('TextTranslator', visitor).body
 
 
 class TextTranslator(SphinxTranslator):
@@ -406,6 +434,7 @@ class TextTranslator(SphinxTranslator):
         self.sectionlevel = 0
         self.lineblocklevel = 0
         self.table: Table
+        self.in_production_list = False
 
         self.context: list[str] = []
         """Heterogeneous stack.
@@ -646,6 +675,7 @@ class TextTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = ', '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.param_separator = self.param_separator.rstrip()
         self.context.append(sig_close_paren)
@@ -697,7 +727,8 @@ class TextTranslator(SphinxTranslator):
                 or is_required
                 and (is_last_group or next_is_required)
             ):
-                self.add_text(self.param_separator)
+                if not is_last_group or opt_param_left_at_level or self.trailing_comma:
+                    self.add_text(self.param_separator)
                 self.end_state(wrap=False, end=None)
 
         elif self.required_params_left:
@@ -738,20 +769,27 @@ class TextTranslator(SphinxTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
             # If it's the first time we go down one level, add the separator before the
-            # bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.add_text(self.param_separator)
             self.add_text(']')
             # End the line if we have just closed the last bracket of this group of
             # optional parameters.
-            if self.optional_param_level == 0:
+            if level == 0:
                 self.end_state(wrap=False, end=None)
 
         else:
             self.add_text(']')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
@@ -776,22 +814,20 @@ class TextTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.new_state()
-        productionlist = cast(Iterable[addnodes.production], node)
-        names = (production['tokenname'] for production in productionlist)
-        maxlen = max(len(name) for name in names)
-        lastname = None
-        for production in productionlist:
-            if production['tokenname']:
-                self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
-                lastname = production['tokenname']
-            elif lastname is not None:
-                self.add_text('%s    ' % (' ' * len(lastname)))
-            self.add_text(production.astext() + self.nl)
+        self.in_production_list = True
+
+    def depart_productionlist(self, node: Element) -> None:
+        self.in_production_list = False
         self.end_state(wrap=False)
-        raise nodes.SkipNode
+
+    def visit_production(self, node: Element) -> None:
+        pass
+
+    def depart_production(self, node: Element) -> None:
+        pass
 
     def visit_footnote(self, node: Element) -> None:
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         self._footnote = label.astext().strip()
         self.new_state(len(self._footnote) + 3)
 
@@ -923,8 +959,8 @@ class TextTranslator(SphinxTranslator):
         self.end_state(wrap=False)
 
     def visit_acks(self, node: Element) -> None:
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.new_state(0)
         self.add_text(', '.join(n.astext() for n in list_items) + '.')
         self.end_state()
@@ -1214,17 +1250,21 @@ class TextTranslator(SphinxTranslator):
         self.add_text('**')
 
     def visit_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('**')
 
     def depart_literal_strong(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('**')
 
     def visit_abbreviation(self, node: Element) -> None:
         self.add_text('')
 
     def depart_abbreviation(self, node: Element) -> None:
-        if node.hasattr('explanation'):
-            self.add_text(' (%s)' % node['explanation'])
+        if explanation := node.get('explanation', ''):
+            self.add_text(f' ({explanation})')
 
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)
@@ -1239,9 +1279,13 @@ class TextTranslator(SphinxTranslator):
         self.add_text('*')
 
     def visit_literal(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('"')
 
     def depart_literal(self, node: Element) -> None:
+        if self.in_production_list:
+            return
         self.add_text('"')
 
     def visit_subscript(self, node: Element) -> None:
@@ -1316,14 +1360,14 @@ class TextTranslator(SphinxTranslator):
             self.end_state(wrap=False)
         raise nodes.SkipNode
 
-    def visit_math(self, node: Element) -> None:
+    def visit_math(self, node: nodes.math) -> None:
         pass
 
-    def depart_math(self, node: Element) -> None:
+    def depart_math(self, node: nodes.math) -> None:
         pass
 
-    def visit_math_block(self, node: Element) -> None:
+    def visit_math_block(self, node: nodes.math_block) -> None:
         self.new_state()
 
-    def depart_math_block(self, node: Element) -> None:
+    def depart_math_block(self, node: nodes.math_block) -> None:
         self.end_state()

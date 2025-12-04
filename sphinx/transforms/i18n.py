@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import contextlib
+from operator import attrgetter
 from re import DOTALL, match
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, TypeVar
 
+import docutils.utils
 from docutils import nodes
-from docutils.io import StringInput
 
 from sphinx import addnodes
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
@@ -17,6 +17,7 @@ from sphinx.locale import __
 from sphinx.locale import init as init_locale
 from sphinx.transforms import SphinxTransform
 from sphinx.util import get_filetype, logging
+from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import (
@@ -28,10 +29,14 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
+
+    from docutils.frontend import Values
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
+    from sphinx.registry import SphinxComponentRegistry
     from sphinx.util.typing import ExtensionMetadata
 
 
@@ -47,48 +52,48 @@ EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
 N = TypeVar('N', bound=nodes.Node)
 
 
-def publish_msgstr(
-    app: Sphinx,
+def _publish_msgstr(
     source: str,
     source_path: str,
     source_line: int,
+    *,
     config: Config,
-    settings: Any,
+    env: BuildEnvironment,
+    registry: SphinxComponentRegistry,
+    settings: Values,
 ) -> nodes.Element:
     """Publish msgstr (single line) into docutils document
 
-    :param sphinx.application.Sphinx app: sphinx application
     :param str source: source text
     :param str source_path: source path for warning indication
     :param source_line: source line for warning indication
-    :param sphinx.config.Config config: sphinx config
     :param docutils.frontend.Values settings: docutils settings
+    :param sphinx.config.Config config: sphinx config
+    :param sphinx.environment.BuildEnvironment env: sphinx environment
+    :param sphinx.registry.SphinxComponentRegistry registry: sphinx registry
     :return: document
     :rtype: docutils.nodes.document
     """
+    filetype = get_filetype(config.source_suffix, source_path)
+    doc = docutils.utils.new_document(
+        f'{source_path}:{source_line}:<translated>', settings
+    )
+    doc.reporter = LoggingReporter.from_reporter(doc.reporter)
+
+    # clear rst_prolog temporarily
+    rst_prolog = config.rst_prolog
+    config.rst_prolog = None
     try:
-        # clear rst_prolog temporarily
-        rst_prolog = config.rst_prolog
-        config.rst_prolog = None
-
-        from sphinx.io import SphinxI18nReader
-
-        reader = SphinxI18nReader()
-        reader.setup(app)
-        filetype = get_filetype(config.source_suffix, source_path)
-        parser = app.registry.create_source_parser(app, filetype)
-        doc = reader.read(
-            source=StringInput(
-                source=source, source_path=f'{source_path}:{source_line}:<translated>'
-            ),
-            parser=parser,
-            settings=settings,
-        )
-        with contextlib.suppress(IndexError):  # empty node
-            return doc[0]
-        return doc
+        parser = registry.create_source_parser(filetype, config=config, env=env)
+        parser.parse(source, doc)
+        doc.current_source = doc.current_line = None
     finally:
         config.rst_prolog = rst_prolog
+
+    try:
+        return doc[0]  # type: ignore[return-value]
+    except IndexError:  # empty node
+        return doc
 
 
 def parse_noqa(source: str) -> tuple[str, bool]:
@@ -100,9 +105,7 @@ def parse_noqa(source: str) -> tuple[str, bool]:
 
 
 class PreserveTranslatableMessages(SphinxTransform):
-    """
-    Preserve original translatable messages before translation
-    """
+    """Preserve original translatable messages before translation"""
 
     default_priority = 10  # this MUST be invoked before Locale transform
 
@@ -131,10 +134,28 @@ class _NodeUpdater:
         old_refs: Sequence[nodes.Element],
         new_refs: Sequence[nodes.Element],
         warning_msg: str,
+        *,
+        key_func: Callable[[nodes.Element], Any] = attrgetter('rawsource'),
+        ignore_order: bool = False,
     ) -> None:
-        """Warn about mismatches between references in original and translated content."""
-        # FIXME: could use a smarter strategy than len(old_refs) == len(new_refs)
-        if not self.noqa and len(old_refs) != len(new_refs):
+        """Warn about mismatches between references in original and translated content.
+
+        :param key_func: A function to extract the comparison key from each reference.
+            Defaults to extracting the ``rawsource`` attribute.
+        :param ignore_order: If True, ignore the order of references when comparing.
+            This allows translators to reorder references while still catching
+            missing or extra references.
+        """
+        old_ref_keys = list(map(key_func, old_refs))
+        new_ref_keys = list(map(key_func, new_refs))
+
+        if ignore_order:
+            # The ref_keys lists may contain ``None``, so compare hashes.
+            # Recall objects which compare equal have the same hash value.
+            old_ref_keys.sort(key=hash)
+            new_ref_keys.sort(key=hash)
+
+        if not self.noqa and old_ref_keys != new_ref_keys:
             old_ref_rawsources = [ref.rawsource for ref in old_refs]
             new_ref_rawsources = [ref.rawsource for ref in new_refs]
             logger.warning(
@@ -346,6 +367,10 @@ class _NodeUpdater:
                 'inconsistent term references in translated message.'
                 ' original: {0}, translated: {1}'
             ),
+            # Compare by reftarget only, allowing translated display text.
+            # Ignore order since translators may legitimately reorder references.
+            key_func=lambda ref: ref.get('reftarget'),
+            ignore_order=True,
         )
 
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
@@ -380,9 +405,7 @@ class _NodeUpdater:
 
 
 class Locale(SphinxTransform):
-    """
-    Replace translatable nodes with their translated doctree.
-    """
+    """Replace translatable nodes with their translated doctree."""
 
     default_priority = 20
 
@@ -390,7 +413,9 @@ class Locale(SphinxTransform):
         settings, source = self.document.settings, self.document['source']
         msgstr = ''
 
-        textdomain = docname_to_domain(self.env.docname, self.config.gettext_compact)
+        textdomain = docname_to_domain(
+            self.env.current_document.docname, self.config.gettext_compact
+        )
 
         # fetch translations
         srcdir = self.env.srcdir
@@ -439,13 +464,14 @@ class Locale(SphinxTransform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
-            patch = publish_msgstr(
-                self.app,
+            patch = _publish_msgstr(
                 msgstr,
                 source,
                 node.line,  # type: ignore[arg-type]
-                self.config,
-                settings,
+                config=self.config,
+                env=self.env,
+                registry=self.env._registry,
+                settings=settings,
             )
             # FIXME: no warnings about inconsistent references in this part
             # XXX doctest and other block markup
@@ -459,13 +485,14 @@ class Locale(SphinxTransform):
             if isinstance(node, nodes.term):
                 for _id in node['ids']:
                     term, first_classifier = split_term_classifiers(msgstr)
-                    patch = publish_msgstr(
-                        self.app,
+                    patch = _publish_msgstr(
                         term or '',
                         source,
                         node.line,  # type: ignore[arg-type]
-                        self.config,
-                        settings,
+                        config=self.config,
+                        env=self.env,
+                        registry=self.env._registry,
+                        settings=settings,
                     )
                     updater.patch = make_glossary_term(
                         self.env,
@@ -536,13 +563,14 @@ class Locale(SphinxTransform):
                 # This generates: <section ...><title>msgstr</title></section>
                 msgstr = msgstr + '\n' + '=' * len(msgstr) * 2
 
-            patch = publish_msgstr(
-                self.app,
+            patch = _publish_msgstr(
                 msgstr,
                 source,
                 node.line,  # type: ignore[arg-type]
-                self.config,
-                settings,
+                config=self.config,
+                env=self.env,
+                registry=self.env._registry,
+                settings=settings,
             )
             # Structural Subelements phase2
             if isinstance(node, nodes.title):
@@ -609,16 +637,14 @@ class Locale(SphinxTransform):
 
 
 class TranslationProgressTotaliser(SphinxTransform):
-    """
-    Calculate the number of translated and untranslated nodes.
-    """
+    """Calculate the number of translated and untranslated nodes."""
 
     default_priority = 25  # MUST happen after Locale
 
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         total = translated = 0
@@ -634,16 +660,14 @@ class TranslationProgressTotaliser(SphinxTransform):
 
 
 class AddTranslationClasses(SphinxTransform):
-    """
-    Add ``translated`` or ``untranslated`` classes to indicate translation status.
-    """
+    """Add ``translated`` or ``untranslated`` classes to indicate translation status."""
 
     default_priority = 950
 
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         if not self.config.translation_progress_classes:
@@ -674,16 +698,14 @@ class AddTranslationClasses(SphinxTransform):
 
 
 class RemoveTranslatableInline(SphinxTransform):
-    """
-    Remove inline nodes used for translation as placeholders.
-    """
+    """Remove inline nodes used for translation as placeholders."""
 
     default_priority = 999
 
     def apply(self, **kwargs: Any) -> None:
         from sphinx.builders.gettext import MessageCatalogBuilder
 
-        if isinstance(self.app.builder, MessageCatalogBuilder):
+        if issubclass(self.env._builder_cls, MessageCatalogBuilder):
             return
 
         matcher = NodeMatcher(nodes.inline, translatable=Any)

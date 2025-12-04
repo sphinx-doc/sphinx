@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.transforms.references import DanglingReferences
 
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -23,7 +25,7 @@ class SphinxDanglingReferences(DanglingReferences):
 
             # suppress INFO level messages for a while
             reporter.report_level = max(reporter.WARNING_LEVEL, reporter.report_level)
-            super().apply()  # type: ignore[no-untyped-call]
+            super().apply()
         finally:
             reporter.report_level = report_level
 
@@ -34,7 +36,9 @@ class SphinxDomains(SphinxTransform):
     default_priority = 850
 
     def apply(self, **kwargs: Any) -> None:
-        self.env.domains._process_doc(self.env, self.env.docname, self.document)
+        self.env.domains._process_doc(
+            self.env, self.env.current_document.docname, self.document
+        )
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

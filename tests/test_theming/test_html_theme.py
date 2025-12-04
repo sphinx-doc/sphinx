@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('html', testroot='theming')
-def test_theme_options(app):
+def test_theme_options(app: SphinxTestApp) -> None:
     app.build()
 
     result = (app.outdir / '_static' / 'documentation_options.js').read_text(
@@ -20,7 +27,7 @@ def test_theme_options(app):
         'html_theme_options.enable_search_shortcuts': False,
     },
 )
-def test_theme_options_with_override(app):
+def test_theme_options_with_override(app: SphinxTestApp) -> None:
     app.build()
 
     result = (app.outdir / '_static' / 'documentation_options.js').read_text(
@@ -31,7 +38,7 @@ def test_theme_options_with_override(app):
 
 
 @pytest.mark.sphinx('html', testroot='build-html-theme-having-multiple-stylesheets')
-def test_theme_having_multiple_stylesheets(app):
+def test_theme_having_multiple_stylesheets(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 

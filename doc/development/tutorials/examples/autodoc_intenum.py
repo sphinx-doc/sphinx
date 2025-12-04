@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from sphinx.ext.autodoc import ClassDocumenter, bool_option
+from sphinx.ext.autodoc import ClassDocumenter, Documenter, bool_option
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.statemachine import StringList
 
     from sphinx.application import Sphinx
@@ -21,7 +23,7 @@ class IntEnumDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(
-        cls, member: Any, membername: str, isattr: bool, parent: Any
+        cls, member: Any, membername: str, isattr: bool, parent: Documenter
     ) -> bool:
         try:
             return issubclass(member, IntEnum)

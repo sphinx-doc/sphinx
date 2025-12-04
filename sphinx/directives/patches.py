@@ -2,23 +2,26 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Node, make_id
+from docutils.nodes import make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
 from docutils.parsers.rst.directives.misc import Meta
-from docutils.parsers.rst.roles import set_classes
 
 from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, _normalize_options
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
@@ -38,7 +41,7 @@ class Figure(images.Figure):  # type: ignore[misc]
             return result
 
         assert len(result) == 1
-        figure_node = cast(nodes.figure, result[0])
+        figure_node = cast('nodes.figure', result[0])
         if name:
             # set ``name`` to figure_node if given
             self.options['name'] = name
@@ -46,7 +49,7 @@ class Figure(images.Figure):  # type: ignore[misc]
 
         # copy lineno from image node
         if figure_node.line is None and len(figure_node) == 2:
-            caption = cast(nodes.caption, figure_node[1])
+            caption = cast('nodes.caption', figure_node[1])
             figure_node.line = caption.line
 
         return [figure_node]
@@ -68,11 +71,11 @@ class CSVTable(tables.CSVTable):  # type: ignore[misc]
                         'an absolute path as a relative path from source directory. '
                         'Please update your document.'
                     ),
-                    location=(env.docname, self.lineno),
+                    location=(env.current_document.docname, self.lineno),
                 )
             else:
                 abspath = env.srcdir / self.options['file'][1:]
-                doc_dir = env.doc2path(env.docname).parent
+                doc_dir = env.doc2path(env.current_document.docname).parent
                 self.options['file'] = relpath(abspath, doc_dir)
 
         return super().run()
@@ -96,7 +99,7 @@ class Code(SphinxDirective):
     def run(self) -> list[Node]:
         self.assert_has_content()
 
-        set_classes(self.options)
+        self.options = _normalize_options(self.options)
         code = '\n'.join(self.content)
         node = nodes.literal_block(
             code,
@@ -115,8 +118,9 @@ class Code(SphinxDirective):
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
-            node['language'] = self.env.temp_data.get(
-                'highlight_language', self.config.highlight_language
+            node['language'] = (
+                self.env.current_document.highlight_language
+                or self.config.highlight_language
             )
 
         if 'number-lines' in self.options:
@@ -138,10 +142,17 @@ class MathDirective(SphinxDirective):
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,
+        'no-wrap': directives.flag,
         'nowrap': directives.flag,
     }
 
     def run(self) -> list[Node]:
+        # Copy the old option name to the new one
+        # xref RemovedInSphinx90Warning
+        # deprecate nowrap in Sphinx 9.0
+        if 'no-wrap' not in self.options and 'nowrap' in self.options:
+            self.options['no-wrap'] = self.options['nowrap']
+
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
@@ -150,11 +161,11 @@ class MathDirective(SphinxDirective):
             latex,
             latex,
             classes=self.options.get('class', []),
-            docname=self.env.docname,
+            docname=self.env.current_document.docname,
             number=None,
             label=label,
-            nowrap='nowrap' in self.options,
         )
+        node['no-wrap'] = node['nowrap'] = 'no-wrap' in self.options
         self.add_name(node)
         self.set_source_info(node)
 
@@ -163,12 +174,12 @@ class MathDirective(SphinxDirective):
         return ret
 
     def add_target(self, ret: list[Node]) -> None:
-        node = cast(nodes.math_block, ret[0])
+        node = cast('nodes.math_block', ret[0])
 
         # assign label automatically if math_number_all enabled
         if node['label'] == '' or (self.config.math_number_all and not node['label']):  # NoQA: PLC1901
             seq = self.env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = f'{self.env.docname}:{seq}'
+            node['label'] = f'{self.env.current_document.docname}:{seq}'
 
         # no targets and numbers are needed
         if not node['label']:
@@ -176,7 +187,9 @@ class MathDirective(SphinxDirective):
 
         # register label to domain
         domain = self.env.domains.math_domain
-        domain.note_equation(self.env.docname, node['label'], location=node)
+        domain.note_equation(
+            self.env.current_document.docname, node['label'], location=node
+        )
         node['number'] = domain.get_equation_number_for(node['label'])
 
         # add target node
@@ -201,7 +214,7 @@ class Rubric(SphinxDirective):
     }
 
     def run(self) -> list[nodes.rubric | nodes.system_message]:
-        set_classes(self.options)
+        self.options = _normalize_options(self.options)
         rubric_text = self.arguments[0]
         textnodes, messages = self.parse_inline(rubric_text, lineno=self.lineno)
         if 'heading-level' in self.options:

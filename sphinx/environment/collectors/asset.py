@@ -19,6 +19,8 @@ from sphinx.util.images import guess_mimetype
 from sphinx.util.osutil import _relative_path
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -38,14 +40,14 @@ class ImageCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         env.images.merge_other(docnames, other.images)
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process and rewrite image URIs."""
-        docname = app.env.docname
+        docname = app.env.current_document.docname
 
         for node in doctree.findall(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
@@ -71,9 +73,9 @@ class ImageCollector(EnvironmentCollector):
                 # Search language-specific figures at first
                 i18n_imguri = get_image_filename_for_language(imguri, app.env)
                 _, full_i18n_imgpath = app.env.relfn2path(i18n_imguri, docname)
-                self.collect_candidates(app.env, full_i18n_imgpath, candidates, node)
+                self.collect_candidates(app.srcdir, full_i18n_imgpath, candidates, node)
 
-                self.collect_candidates(app.env, full_imgpath, candidates, node)
+                self.collect_candidates(app.srcdir, full_imgpath, candidates, node)
             else:
                 # substitute imguri by figure_language_filename
                 # (ex. foo.png -> foo.en.png)
@@ -91,7 +93,7 @@ class ImageCollector(EnvironmentCollector):
             # into a single directory)
             for imgpath in candidates.values():
                 app.env.note_dependency(imgpath)
-                if not os.access(os.path.join(app.srcdir, imgpath), os.R_OK):
+                if not os.access(app.srcdir / imgpath, os.R_OK):
                     logger.warning(
                         __('image file not readable: %s'),
                         imgpath,
@@ -104,18 +106,18 @@ class ImageCollector(EnvironmentCollector):
 
     def collect_candidates(
         self,
-        env: BuildEnvironment,
+        srcdir: Path,
         imgpath: str,
         candidates: dict[str, str],
         node: Node,
     ) -> None:
         globbed: dict[str, list[str]] = {}
-        for filename in glob(imgpath):
-            new_imgpath = _relative_path(Path(filename), env.srcdir)
+        for filename in glob(imgpath):  # NoQA: PTH207
+            new_imgpath = _relative_path(Path(filename), srcdir)
             try:
                 mimetype = guess_mimetype(filename)
                 if mimetype is None:
-                    basename, suffix = os.path.splitext(filename)
+                    _basename, suffix = os.path.splitext(filename)
                     mimetype = 'image/x-' + suffix[1:]
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath.as_posix())
@@ -142,7 +144,7 @@ class DownloadFileCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         env.dlfiles.merge_other(docnames, other.dlfiles)
@@ -154,7 +156,9 @@ class DownloadFileCollector(EnvironmentCollector):
             if '://' in targetname:
                 node['refuri'] = targetname
             else:
-                rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
+                rel_filename, filename = app.env.relfn2path(
+                    targetname, app.env.current_document.docname
+                )
                 app.env.note_dependency(rel_filename)
                 if not os.access(filename, os.R_OK):
                     logger.warning(
@@ -166,8 +170,8 @@ class DownloadFileCollector(EnvironmentCollector):
                     )
                     continue
                 node['filename'] = app.env.dlfiles.add_file(
-                    app.env.docname, rel_filename
-                )
+                    app.env.current_document.docname, rel_filename
+                ).as_posix()
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

@@ -1,5 +1,8 @@
 """Test the Pygments highlighting bridge."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pygments
@@ -10,7 +13,15 @@ from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
 
-if tuple(map(int, pygments.__version__.split('.')))[:2] < (2, 18):
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import TextIO
+
+    from pygments.token import _TokenType
+
+    from sphinx.testing.util import SphinxTestApp
+
+if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 18):
     from pygments.formatter import Formatter
 
     Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
@@ -28,18 +39,16 @@ class MyLexer(RegexLexer):
 
 
 class MyFormatter(HtmlFormatter[str]):
-    def format(self, tokensource, outfile):
-        for tok in tokensource:
-            outfile.write(tok[1])
-
-
-class ComplainOnUnhighlighted(PygmentsBridge):
-    def unhighlighted(self, source):
-        raise AssertionError('should highlight %r' % source)
+    def format(
+        self,
+        tokensource: Iterable[tuple[_TokenType, str]],
+        outfile: TextIO,
+    ) -> None:
+        outfile.writelines(tok[1] for tok in tokensource)
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_add_lexer(app):
+def test_add_lexer(app: SphinxTestApp) -> None:
     app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')
@@ -47,8 +56,8 @@ def test_add_lexer(app):
     assert '<span class="n">a</span>b' in ret
 
 
-def test_detect_interactive():
-    bridge = ComplainOnUnhighlighted('html')
+def test_detect_interactive() -> None:
+    bridge = PygmentsBridge('html')
     blocks = [
         """
         >>> testing()
@@ -60,13 +69,13 @@ def test_detect_interactive():
         assert ret.startswith('<div class="highlight">')
 
 
-def test_lexer_options():
+def test_lexer_options() -> None:
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('//comment', 'php', opts={'startinline': True})
     assert '<span class="c1">//comment</span>' in ret
 
 
-def test_set_formatter():
+def test_set_formatter() -> None:
     PygmentsBridge.html_formatter = MyFormatter
     try:
         bridge = PygmentsBridge('html')
@@ -77,7 +86,7 @@ def test_set_formatter():
 
 
 @mock.patch('sphinx.highlighting.logger')
-def test_default_highlight(logger):
+def test_default_highlight(logger: mock.Mock) -> None:
     bridge = PygmentsBridge('html')
 
     # default: highlights as python3

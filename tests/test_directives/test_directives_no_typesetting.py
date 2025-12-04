@@ -1,11 +1,21 @@
 """Tests the directives"""
 
+from __future__ import annotations
+
 import pytest
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
+
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from typing import TypeAlias
+
+    from sphinx.testing.util import SphinxTestApp
+
+    _IndexEntry: TypeAlias = tuple[str, str, str, str, str | None]
 
 DOMAINS = [
     # directive, no-index, no-index-entry, signature of f, signature of g, index entry of g
@@ -74,8 +84,14 @@ DOMAINS = [
 )
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting(
-    app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+    app: SphinxTestApp,
+    directive: str,
+    no_index: bool,
+    no_index_entry: bool,
+    sig_f: str,
+    sig_g: str,
+    index_g: _IndexEntry,
+) -> None:
     text = f'.. {directive}:: {sig_f}\n   :no-typesetting:\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, nodes.target))
@@ -87,8 +103,14 @@ def test_object_description_no_typesetting(
 )
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_twice(
-    app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+    app: SphinxTestApp,
+    directive: str,
+    no_index: bool,
+    no_index_entry: bool,
+    sig_f: str,
+    sig_g: str,
+    index_g: _IndexEntry,
+) -> None:
     text = (
         f'.. {directive}:: {sig_f}\n'
         f'   :no-typesetting:\n'
@@ -106,8 +128,14 @@ def test_object_description_no_typesetting_twice(
 )
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_noindex_orig(
-    app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+    app: SphinxTestApp,
+    directive: str,
+    no_index: bool,
+    no_index_entry: bool,
+    sig_f: str,
+    sig_g: str,
+    index_g: _IndexEntry,
+) -> None:
     if not no_index:
         pytest.skip(f'{directive} does not support :no-index: option')
     text = f'.. {directive}:: {sig_f}\n   :no-index:\n.. {directive}:: {sig_g}\n'
@@ -122,8 +150,14 @@ def test_object_description_no_typesetting_noindex_orig(
 )
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_noindex(
-    app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+    app: SphinxTestApp,
+    directive: str,
+    no_index: bool,
+    no_index_entry: bool,
+    sig_f: str,
+    sig_g: str,
+    index_g: _IndexEntry,
+) -> None:
     if not no_index:
         pytest.skip(f'{directive} does not support :no-index: option')
     text = (
@@ -145,8 +179,14 @@ def test_object_description_no_typesetting_noindex(
 )
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_no_index_entry(
-    app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+    app: SphinxTestApp,
+    directive: str,
+    no_index: bool,
+    no_index_entry: bool,
+    sig_f: str,
+    sig_g: str,
+    index_g: _IndexEntry,
+) -> None:
     if not no_index_entry:
         pytest.skip(f'{directive} does not support :no-index-entry: option')
     text = (
@@ -168,8 +208,14 @@ def test_object_description_no_typesetting_no_index_entry(
 )
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_code(
-    app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+    app: SphinxTestApp,
+    directive: str,
+    no_index: bool,
+    no_index_entry: bool,
+    sig_f: str,
+    sig_g: str,
+    index_g: _IndexEntry,
+) -> None:
     text = (
         f'.. {directive}:: {sig_f}\n'
         f'   :no-typesetting:\n'
@@ -199,8 +245,14 @@ def test_object_description_no_typesetting_code(
 )
 @pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_heading(
-    app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
-):
+    app: SphinxTestApp,
+    directive: str,
+    no_index: bool,
+    no_index_entry: bool,
+    sig_f: str,
+    sig_g: str,
+    index_g: _IndexEntry,
+) -> None:
     text = (
         f'.. {directive}:: {sig_f}\n'
         f'   :no-typesetting:\n'

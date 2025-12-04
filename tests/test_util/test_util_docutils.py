@@ -17,10 +17,13 @@ from sphinx.util.docutils import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from sphinx.builders import Builder
+    from sphinx.testing.util import SphinxTestApp
 
 
-def test_register_node():
+def test_register_node() -> None:
     class custom_node(nodes.Element):
         pass
 
@@ -40,36 +43,36 @@ def test_register_node():
     assert not hasattr(nodes.SparseNodeVisitor, 'depart_custom_node')
 
 
-def test_SphinxFileOutput(tmpdir):
+def test_SphinxFileOutput(tmp_path: Path) -> None:
     content = 'Hello Sphinx World'
 
     # write test.txt at first
-    filename = str(tmpdir / 'test.txt')
-    output = SphinxFileOutput(destination_path=filename)
+    filename = tmp_path / 'test.txt'
+    output = SphinxFileOutput(destination_path=str(filename))
     output.write(content)
     os.utime(filename, ns=(0, 0))
 
     # overwrite it again
     output.write(content)
-    assert os.stat(filename).st_mtime_ns != 0  # updated
+    assert filename.stat().st_mtime_ns != 0  # updated
 
     # write test2.txt at first
-    filename = str(tmpdir / 'test2.txt')
-    output = SphinxFileOutput(destination_path=filename, overwrite_if_changed=True)
+    filename = tmp_path / 'test2.txt'
+    output = SphinxFileOutput(destination_path=str(filename), overwrite_if_changed=True)
     output.write(content)
     os.utime(filename, ns=(0, 0))
 
     # overwrite it again
     output.write(content)
-    assert os.stat(filename).st_mtime_ns == 0  # not updated
+    assert filename.stat().st_mtime_ns == 0  # not updated
 
     # overwrite it again (content changed)
     output.write(content + '; content change')
-    assert os.stat(filename).st_mtime_ns != 0  # updated
+    assert filename.stat().st_mtime_ns != 0  # updated
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_SphinxTranslator(app):
+def test_SphinxTranslator(app: SphinxTestApp) -> None:
     class CustomNode(nodes.inline):
         pass
 
@@ -78,16 +81,16 @@ def test_SphinxTranslator(app):
             self.called: list[str] = []
             super().__init__(document, builder)
 
-        def visit_document(self, node):
+        def visit_document(self, node: nodes.document) -> None:
             pass
 
-        def depart_document(self, node):
+        def depart_document(self, node: nodes.document) -> None:
             pass
 
-        def visit_inline(self, node):
+        def visit_inline(self, node: nodes.inline) -> None:
             self.called.append('visit_inline')
 
-        def depart_inline(self, node):
+        def depart_inline(self, node: nodes.inline) -> None:
             self.called.append('depart_inline')
 
     document = new_document('')

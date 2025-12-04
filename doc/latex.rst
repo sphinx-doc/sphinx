@@ -500,7 +500,7 @@ Keys that don't need to be overridden unless in special cases are:
    .. hint::
 
       If the key value is set to
-      :code-tex:`r'\\newcommand\sphinxbackoftitlepage{<Extra
+      :code-tex:`r'\\newcommand\\sphinxbackoftitlepage{<Extra
       material>}\\sphinxmaketitle'`, then ``<Extra material>`` will be
       typeset on back of title page (``'manual'`` docclass only).
 
@@ -1006,18 +1006,20 @@ The color used in the above example is available from having passed the
 
 ``iconpackage``
 
-    The name of the LaTeX package used for icons in the admonition titles.  It
-    defaults to ``fontawesome5`` or to fall-back ``fontawesome``.  In case
-    neither one is available the option value will automatically default to
-    ``none``, which means that no attempt at loading a package is done.
-    Independently of this setting, arbitrary LaTeX code can be associated to
-    each admonition type via ``div.<type>_icon-title`` keys which are
-    described in the :ref:`additionalcss` section.  If these keys are not
-    used, Sphinx will either apply its default choices of icons (if
-    ``fontawesome{5,}`` is available) or not draw the icon at all.  Notice that
-    if fall-back ``fontawesome`` is used the common icon for :dudir:`caution`
-    and :dudir:`danger` will default to "bolt" not "radiation", which is only
-    found in ``fontawesome5``.
+    The name of the LaTeX package used for rendering icons in the admonition
+    titles.  Its default is set dynamically to either ``fontawesome7``,
+    ``fontawesome6``,
+    ``fontawesome5``, ``fontawesome``, or ``none``, in decreasing order of
+    priority and depending on whether
+    packages with those names exist in the used LaTeX installation.  The LaTeX
+    code for each admonition icon will use ``\faIcon`` command if with
+    ``fontawesome{5,6,7}`` and
+    ``\faicon`` if with ``fontawesome``.
+    If no "Font Awesome" related package is found (or if the option is set
+    forcefully to ``none``) the icons are silently dropped.  User can set this
+    option to some specific package and must configure then the
+    ``div.note_title-icon`` and similar keys to use then that LaTeX package
+    interface (see the :ref:`additionalcss` section about this).
 
     .. versionadded:: 7.4.0
 
@@ -1410,17 +1412,21 @@ The next keys, for admonitions, :dudir:`topic`, contents_, and
   (it applies only to the icon, not to the title of the admonition).
 
 - ``div.<type>_title-icon``: the LaTeX code responsible for producing the
-  icon.  For example, the default for :dudir:`note` is
-  ``div.note_title-icon=\faIcon{info-circle}``.  This uses a command from the
-  LaTeX ``fontawesome5`` package, which is loaded automatically if available.
-
-  If neither ``fontawesome5`` nor fall-back ``fontawesome`` (for which the
-  associated command is :code-tex:`\\faicon`, not :code-tex:`\\faIcon`) are
-  found, or if the ``iconpackage`` key of :ref:`'sphinxsetup'
-  <latexsphinxsetup>` is set to load some other user-chosen package, or no
-  package at all, all the ``title-icons`` default to empty LaTeX code.  It is
-  up to user to employ this interface to inject the icon (or anything else)
-  into the PDF output.
+  icon for the given ``<admonition type>``.
+  For example the default for :dudir:`note` is
+  ``div.note_title-icon=\faIcon{info-circle}`` with ``fontawesome5``, but
+  ``div.note_title-icon=\faIcon{circle-info}`` with ``fontawesome6``
+  and ``fontawesome7``.
+  If you want to modify the icons used by Sphinx, employ in these keys
+  the ``\faIcon`` LaTeX command if one of ``fontawesome5``, ``6`` or ``7`` is
+  on your LaTeX installation.
+  If your system only provides the
+  ``fontawesome`` package use its command ``\faicon`` (not ``\faIcon``)
+  in order to modify the choice of icons.  The ``iconpackage`` key of
+  ``'sphinxsetup'`` can be used to force usage of one among
+  ``fontawesome{,5,6,7}`` or be the name of some other icon-providing package.
+  In that latter case you must configure the ``div.<type>_title-icon`` keys
+  to use the LaTeX commands appropriate to that custom icon package.
 
 .. note::
 
@@ -1694,7 +1700,7 @@ Macros
   .. hint::
 
      If adding to preamble the loading of ``tocloft`` package, also add to
-     preamble :code-tex:`\\renewcommand\sphinxtableofcontentshook{}` else it
+     preamble :code-tex:`\\renewcommand\\sphinxtableofcontentshook{}` else it
      will reset :code-tex:`\\l@section` and :code-tex:`\\l@subsection`
      cancelling ``tocloft`` customization.
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple, overload
+from urllib.parse import unquote_to_bytes
 
 import imagesize
 
@@ -56,11 +57,11 @@ def get_image_size(filename: str | PathLike[str]) -> tuple[int, int] | None:
 
 
 @overload
-def guess_mimetype(filename: PathLike[str] | str, default: str) -> str: ...  # NoQA: E704
+def guess_mimetype(filename: PathLike[str] | str, default: str) -> str: ...
 
 
 @overload
-def guess_mimetype(  # NoQA: E704
+def guess_mimetype(
     filename: PathLike[str] | str, default: None = None
 ) -> str | None: ...
 
@@ -91,20 +92,27 @@ def parse_data_uri(uri: str) -> DataURI | None:
     if not uri.startswith('data:'):
         return None
 
+    if ',' not in uri:
+        msg = 'malformed data URI'
+        raise ValueError(msg)
+
     # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
     mimetype = 'text/plain'
     charset = 'US-ASCII'
 
-    properties, data = uri[5:].split(',', 1)
+    uri = uri[5:]
+    properties, _, data = uri.partition(',')
     for prop in properties.split(';'):
         if prop == 'base64':
             pass  # skip
-        elif prop.startswith('charset='):
+        elif prop.lower().startswith('charset='):
             charset = prop[8:]
         elif prop:
-            mimetype = prop
+            mimetype = prop.lower()
 
-    image_data = base64.b64decode(data)
+    image_data = unquote_to_bytes(data)  # data might be percent-encoded
+    if properties.endswith(';base64'):
+        image_data = base64.decodebytes(image_data)
     return DataURI(mimetype, charset, image_data)
 
 

@@ -69,4 +69,6 @@ subsubsection
 
    otherdoc
 
-* Embedded standalone hyperlink reference(refs: #5948): `subsection <section1_>`_.
+* Named hyperlink reference with embedded alias reference: `subsection <section1_>`_.
+
+  .. See: https://github.com/sphinx-doc/sphinx/issues/5948

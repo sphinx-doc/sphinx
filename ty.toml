@@ -1,0 +1,34 @@
+# Configuration file for Ty_.
+# n.b. Ty is early in development.
+#      Sphinx's current primary/reference type-checker is mypy.
+#
+# .. _Ty: https://docs.astral.sh/ty/
+
+[src]
+include = [
+    "doc/conf.py",
+    "doc/development/tutorials/examples/autodoc_intenum.py",
+    "doc/development/tutorials/examples/helloworld.py",
+    "sphinx",
+    "tests",
+    "utils",
+]
+exclude = [
+    "tests/roots",
+]
+
+[rules]
+call-non-callable = "ignore"
+inconsistent-mro = "ignore"
+invalid-argument-type = "ignore"
+invalid-assignment = "ignore"
+invalid-method-override = "ignore"
+invalid-return-type = "ignore"
+invalid-type-form = "ignore"
+no-matching-overload = "ignore"
+non-subscriptable = "ignore"
+possibly-missing-attribute = "ignore"
+unresolved-attribute = "ignore"
+unresolved-import = "ignore"
+unresolved-reference = "ignore"
+unsupported-operator = "ignore"

@@ -12,7 +12,7 @@ import tempfile
 import tomllib
 from importlib.metadata import entry_points
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 from sphinx import package_dir
@@ -25,9 +25,11 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Required, TypedDict
+    from typing import Any, Required, TypedDict
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.registry import SphinxComponentRegistry
 
     class _ThemeToml(TypedDict, total=False):
         theme: Required[_ThemeTomlTheme]
@@ -148,25 +150,33 @@ class Theme:
 class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
-    def __init__(self, app: Sphinx) -> None:
+    def __init__(
+        self,
+        *,
+        confdir: Path,
+        app: Sphinx,
+        config: Config,
+        registry: SphinxComponentRegistry,
+    ) -> None:
         self._app = app
-        self._themes = app.registry.html_themes
+        self._confdir = confdir
+        self._themes = registry.html_themes
         self._entry_point_themes: dict[str, Callable[[], None]] = {}
         self._load_builtin_themes()
-        if getattr(app.config, 'html_theme_path', None):
-            self._load_additional_themes(app.config.html_theme_path)
+        if html_theme_path := getattr(config, 'html_theme_path', None):
+            self._load_additional_themes(html_theme_path)
         self._load_entry_point_themes()
 
     def _load_builtin_themes(self) -> None:
         """Load built-in themes."""
-        themes = self._find_themes(Path(package_dir, 'themes'))
+        themes = self._find_themes(package_dir / 'themes')
         for name, theme in themes.items():
             self._themes[name] = _StrPath(theme)
 
     def _load_additional_themes(self, theme_paths: list[str]) -> None:
         """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
-            abs_theme_path = (self._app.confdir / theme_path).resolve()
+            abs_theme_path = (self._confdir / theme_path).resolve()
             themes = self._find_themes(abs_theme_path)
             for name, theme in themes.items():
                 self._themes[name] = _StrPath(theme)

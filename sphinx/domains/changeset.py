@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from docutils import nodes
 
@@ -13,6 +13,7 @@ from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Node
 
@@ -20,19 +21,25 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
+name_aliases = {
+    'version-added': 'versionadded',
+    'version-changed': 'versionchanged',
+    'version-deprecated': 'deprecated',
+    'version-removed': 'versionremoved',
+}
 
 versionlabels = {
-    'versionadded':   _('Added in version %s'),
+    'versionadded': _('Added in version %s'),
     'versionchanged': _('Changed in version %s'),
-    'deprecated':     _('Deprecated since version %s'),
+    'deprecated': _('Deprecated since version %s'),
     'versionremoved': _('Removed in version %s'),
 }
 
 versionlabel_classes = {
-    'versionadded':     'added',
-    'versionchanged':   'changed',
-    'deprecated':       'deprecated',
-    'versionremoved':   'removed',
+    'versionadded': 'added',
+    'versionchanged': 'changed',
+    'deprecated': 'deprecated',
+    'versionremoved': 'removed',
 }
 
 
@@ -41,14 +48,12 @@ class ChangeSet(NamedTuple):
     docname: str
     lineno: int
     module: str | None
-    descname: str | None
+    descname: str
     content: str
 
 
 class VersionChange(SphinxDirective):
-    """
-    Directive to describe a change/addition/deprecation in a specific version.
-    """
+    """Directive to describe a change/addition/deprecation in a specific version."""
 
     has_content = True
     required_arguments = 1
@@ -57,14 +62,17 @@ class VersionChange(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
+        name = name_aliases.get(self.name, self.name)
         node = addnodes.versionmodified()
         node.document = self.state.document
         self.set_source_info(node)
-        node['type'] = self.name
+        node['type'] = name
         node['version'] = self.arguments[0]
-        text = versionlabels[self.name] % self.arguments[0]
+        text = versionlabels[name] % self.arguments[0]
         if len(self.arguments) == 2:
-            inodes, messages = self.parse_inline(self.arguments[1], lineno=self.lineno + 1)
+            inodes, messages = self.parse_inline(
+                self.arguments[1], lineno=self.lineno + 1
+            )
             para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
             self.set_source_info(para)
             node.append(para)
@@ -72,7 +80,7 @@ class VersionChange(SphinxDirective):
             messages = []
         if self.content:
             node += self.parse_content_to_nodes()
-        classes = ['versionmodified', versionlabel_classes[self.name]]
+        classes = ['versionmodified', versionlabel_classes[name]]
         if len(node) > 0 and isinstance(node[0], nodes.paragraph):
             # the contents start with a paragraph
             if node[0].rawsource:
@@ -81,21 +89,29 @@ class VersionChange(SphinxDirective):
                 content.source = node[0].source
                 content.line = node[0].line
                 content += node[0].children
-                node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
+                node[0].replace_self(
+                    nodes.paragraph('', '', content, translatable=False)
+                )
 
             para = node[0]
             para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
         elif len(node) > 0:
             # the contents do not starts with a paragraph
-            para = nodes.paragraph('', '',
-                                   nodes.inline('', '%s: ' % text, classes=classes),
-                                   translatable=False)
+            para = nodes.paragraph(
+                '',
+                '',
+                nodes.inline('', '%s: ' % text, classes=classes),
+                translatable=False,
+            )
             node.insert(0, para)
         else:
             # the contents are empty
-            para = nodes.paragraph('', '',
-                                   nodes.inline('', '%s.' % text, classes=classes),
-                                   translatable=False)
+            para = nodes.paragraph(
+                '',
+                '',
+                nodes.inline('', '%s.' % text, classes=classes),
+                translatable=False,
+            )
             node.append(para)
 
         domain = self.env.domains.changeset_domain
@@ -112,8 +128,8 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data: dict[str, dict[str, list[ChangeSet]]] = {
-        'changes': {},      # version -> list of ChangeSet
+    initial_data: ClassVar[dict[str, dict[str, list[ChangeSet]]]] = {
+        'changes': {},  # version -> list of ChangeSet
     }
 
     @property
@@ -123,9 +139,15 @@ class ChangeSetDomain(Domain):
     def note_changeset(self, node: addnodes.versionmodified) -> None:
         version = node['version']
         module = self.env.ref_context.get('py:module')
-        objname = self.env.temp_data.get('object')
-        changeset = ChangeSet(node['type'], self.env.docname, node.line,  # type: ignore[arg-type]
-                              module, objname, node.astext())
+        objname = self.env.current_document.obj_desc_name
+        changeset = ChangeSet(
+            node['type'],
+            self.env.current_document.docname,
+            node.line,  # type: ignore[arg-type]
+            module,
+            objname,
+            node.astext(),
+        )
         self.changesets.setdefault(version, []).append(changeset)
 
     def clear_doc(self, docname: str) -> None:
@@ -143,7 +165,7 @@ class ChangeSetDomain(Domain):
                     changes.append(changeset)
 
     def process_doc(
-        self, env: BuildEnvironment, docname: str, document: nodes.document,
+        self, env: BuildEnvironment, docname: str, document: nodes.document
     ) -> None:
         pass  # nothing to do here. All changesets are registered on calling directive.
 
@@ -153,9 +175,13 @@ class ChangeSetDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(ChangeSetDomain)
+    app.add_directive('version-deprecated', VersionChange)
     app.add_directive('deprecated', VersionChange)
+    app.add_directive('version-added', VersionChange)
     app.add_directive('versionadded', VersionChange)
+    app.add_directive('version-changed', VersionChange)
     app.add_directive('versionchanged', VersionChange)
+    app.add_directive('version-removed', VersionChange)
     app.add_directive('versionremoved', VersionChange)
 
     return {

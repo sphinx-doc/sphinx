@@ -8,10 +8,12 @@ from docutils.parsers.rst import Directive
 
 from sphinx import addnodes
 
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.todo',
-              'sphinx.ext.coverage',
-              'sphinx.ext.extlinks']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.extlinks',
+]
 
 jsmath_path = 'dummy.js'
 
@@ -33,10 +35,18 @@ keep_warnings = True
 pygments_style = 'sphinx'
 show_authors = True
 numfig = True
+linkcheck_timeout = 0.25
 
-html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
-                        'customsb.html', 'searchbox.html'],
-                 'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html']}
+html_sidebars = {
+    '**': [
+        'localtoc.html',
+        'relations.html',
+        'sourcelink.html',
+        'customsb.html',
+        'searchbox.html',
+    ],
+    'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html'],
+}
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
@@ -122,11 +132,13 @@ latex_elements = {
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
-extlinks = {'issue': ('https://bugs.python.org/issue%s', 'issue %s'),
-            'pyurl': ('https://python.org/%s', None)}
+extlinks = {
+    'issue': ('https://bugs.python.org/issue%s', 'issue %s'),
+    'pyurl': ('https://python.org/%s', None),
+}
 
 # modify tags from conf.py
-tags.add('confpytag')
+tags.add('confpytag')  # NoQA: F821 (tags is injected into conf.py)
 
 
 # -- extension API
@@ -149,8 +161,9 @@ def setup(app):
     import parsermod
 
     app.add_directive('clsdir', ClassDirective)
-    app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
-                        userdesc_parse, objname='user desc')
+    app.add_object_type(
+        'userdesc', 'userdescrole', '%s (userdesc)', userdesc_parse, objname='user desc'
+    )
     app.add_js_file('file://moo.js')
     app.add_source_suffix('.foo', 'foo')
     app.add_source_parser(parsermod.Parser)

@@ -2,18 +2,25 @@
 
 from __future__ import annotations
 
+import os
 import warnings
 
 
-class RemovedInSphinx90Warning(DeprecationWarning):
+class RemovedInSphinx10Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx10Warning(PendingDeprecationWarning):
+class RemovedInSphinx11Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx90Warning
+RemovedInNextVersionWarning = RemovedInSphinx10Warning
+
+
+# By default, all Sphinx deprecation warnings will be emitted.
+# To avoid this, set the environment variable: PYTHONWARNINGS=
+if 'PYTHONWARNINGS' not in os.environ:
+    warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
 
 
 def _deprecation_warning(
@@ -43,7 +50,7 @@ def _deprecation_warning(
            'deprecated_name': (
                object_to_return,
                'fully_qualified_replacement_name',
-               (9, 0),
+               (10, 0),
            ),
        }
 
@@ -59,10 +66,10 @@ def _deprecation_warning(
            _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
     """
-    if remove == (9, 0):
-        warning_class: type[Warning] = RemovedInSphinx90Warning
-    elif remove == (10, 0):
-        warning_class = RemovedInSphinx10Warning
+    if remove == (10, 0):
+        warning_class: type[Warning] = RemovedInSphinx10Warning
+    elif remove == (11, 0):
+        warning_class = RemovedInSphinx11Warning
     else:
         msg = f'removal version {remove!r} is invalid!'
         raise RuntimeError(msg)

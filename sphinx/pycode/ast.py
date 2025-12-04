@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import ast
-from typing import NoReturn, overload
+from typing import TYPE_CHECKING, overload
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: '+',
@@ -29,11 +32,11 @@ OPERATORS: dict[type[ast.AST], str] = {
 
 
 @overload
-def unparse(node: None, code: str = '') -> None: ...  # NoQA: E704
+def unparse(node: None, code: str = '') -> None: ...
 
 
 @overload
-def unparse(node: ast.AST, code: str = '') -> str: ...  # NoQA: E704
+def unparse(node: ast.AST, code: str = '') -> str: ...
 
 
 def unparse(node: ast.AST | None, code: str = '') -> str | None:
@@ -131,7 +134,7 @@ class _UnparseVisitor(ast.NodeVisitor):
     def visit_Constant(self, node: ast.Constant) -> str:
         if node.value is Ellipsis:
             return '...'
-        elif isinstance(node.value, int | float | complex):
+        elif isinstance(node.value, (int, float, complex)):
             if self.code:
                 return ast.get_source_segment(self.code, node) or repr(node.value)
             else:
@@ -198,6 +201,9 @@ class _UnparseVisitor(ast.NodeVisitor):
             return '(%s,)' % self.visit(node.elts[0])
         else:
             return '(' + ', '.join(self.visit(e) for e in node.elts) + ')'
+
+    def visit_Starred(self, node: ast.Starred) -> str:
+        return f'*{self.visit(node.value)}'
 
     def generic_visit(self, node: ast.AST) -> NoReturn:
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)

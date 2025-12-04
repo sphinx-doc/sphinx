@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from docutils import nodes
-from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
+from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.states import (
     Inliner,
     RSTState,
@@ -30,22 +30,23 @@ def make_directive_and_state(
     if input_lines is not None:
         sm.input_lines = input_lines
     state = RSTState(sm)
-    state.document = new_document('<tests>')
-    state.document.settings.env = env
-    state.document.settings.tab_width = 4
-    state.document.settings.pep_references = None
-    state.document.settings.rfc_references = None
+    document = state.document = new_document('<tests>')
+    document.settings.env = env
+    document.settings.tab_width = 4
+    document.settings.pep_references = None
+    document.settings.rfc_references = None
     inliner = Inliner()
-    inliner.init_customizations(state.document.settings)
+    inliner.init_customizations(document.settings)
     state.inliner = inliner
-    state.parent = None
+    state.parent = document
     state.memo = SimpleNamespace(
-        document=state.document,
+        document=document,
+        reporter=document.reporter,
         language=english,
-        inliner=state.inliner,
-        reporter=state.document.reporter,
-        section_level=0,
         title_styles=[],
+        section_level=0,
+        section_bubble_up_kludge=False,
+        inliner=inliner,
     )
     directive = SphinxDirective(
         name='test_directive',
@@ -61,14 +62,14 @@ def make_directive_and_state(
     return state, directive
 
 
-def test_sphinx_directive_env():
+def test_sphinx_directive_env() -> None:
     state, directive = make_directive_and_state(env=SimpleNamespace())
 
     assert hasattr(directive, 'env')
     assert directive.env is state.document.settings.env
 
 
-def test_sphinx_directive_config():
+def test_sphinx_directive_config() -> None:
     env = SimpleNamespace(config=object())
     state, directive = make_directive_and_state(env=env)
 
@@ -77,7 +78,7 @@ def test_sphinx_directive_config():
     assert directive.config is state.document.settings.env.config
 
 
-def test_sphinx_directive_get_source_info():
+def test_sphinx_directive_get_source_info() -> None:
     env = SimpleNamespace()
     input_lines = StringList(['spam'], source='<source>')
     directive = make_directive(env=env, input_lines=input_lines)
@@ -85,7 +86,7 @@ def test_sphinx_directive_get_source_info():
     assert directive.get_source_info() == ('<source>', 1)
 
 
-def test_sphinx_directive_set_source_info():
+def test_sphinx_directive_set_source_info() -> None:
     env = SimpleNamespace()
     input_lines = StringList(['spam'], source='<source>')
     directive = make_directive(env=env, input_lines=input_lines)
@@ -96,7 +97,7 @@ def test_sphinx_directive_set_source_info():
     assert node.line == 1
 
 
-def test_sphinx_directive_get_location():
+def test_sphinx_directive_get_location() -> None:
     env = SimpleNamespace()
     input_lines = StringList(['spam'], source='<source>')
     directive = make_directive(env=env, input_lines=input_lines)
@@ -104,7 +105,7 @@ def test_sphinx_directive_get_location():
     assert directive.get_location() == '<source>:1'
 
 
-def test_sphinx_directive_parse_content_to_nodes():
+def test_sphinx_directive_parse_content_to_nodes() -> None:
     directive = make_directive(env=SimpleNamespace())
     content = 'spam\n====\n\nEggs! *Lobster thermidor.*'
     directive.content = StringList(content.split('\n'), source='<source>')
@@ -120,7 +121,7 @@ def test_sphinx_directive_parse_content_to_nodes():
     assert node.children[1].astext() == 'Eggs! Lobster thermidor.'
 
 
-def test_sphinx_directive_parse_text_to_nodes():
+def test_sphinx_directive_parse_text_to_nodes() -> None:
     directive = make_directive(env=SimpleNamespace())
     content = 'spam\n====\n\nEggs! *Lobster thermidor.*'
 
@@ -135,7 +136,7 @@ def test_sphinx_directive_parse_text_to_nodes():
     assert node.children[1].astext() == 'Eggs! Lobster thermidor.'
 
 
-def test_sphinx_directive_parse_inline():
+def test_sphinx_directive_parse_inline() -> None:
     directive = make_directive(env=SimpleNamespace())
     content = 'Eggs! *Lobster thermidor.*'
 

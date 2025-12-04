@@ -1,8 +1,14 @@
 """Test the Builder class."""
 
+from __future__ import annotations
+
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx(
@@ -11,7 +17,7 @@ import pytest
     srcdir='test_builder',
     freshenv=True,
 )
-def test_incremental_reading(app):
+def test_incremental_reading(app: SphinxTestApp) -> None:
     # first reading
     updated = app.builder.read()
     assert set(updated) == app.env.found_docs == set(app.env.all_docs)
@@ -38,7 +44,7 @@ def test_incremental_reading(app):
     testroot='warnings',
     freshenv=True,
 )
-def test_incremental_reading_for_missing_files(app):
+def test_incremental_reading_for_missing_files(app: SphinxTestApp) -> None:
     # first reading
     updated = app.builder.read()
     assert set(updated) == app.env.found_docs == set(app.env.all_docs)

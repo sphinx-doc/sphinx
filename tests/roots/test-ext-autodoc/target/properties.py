@@ -1,3 +1,10 @@
+import sys
+
+TYPE_CHECKING = False
+if sys.version_info[:2] < (3, 14) or TYPE_CHECKING:
+    TypeCheckingOnlyName = int
+
+
 class Foo:
     """docstring"""
 
@@ -7,7 +14,7 @@ class Foo:
 
     @classmethod
     @property
-    def prop2(self) -> int:
+    def prop2(cls) -> int:
         """docstring"""
 
     @property
@@ -17,6 +24,10 @@ class Foo:
 
     @classmethod
     @property
-    def prop2_with_type_comment(self):
+    def prop2_with_type_comment(cls):
         # type: () -> int
+        """docstring"""
+
+    @property
+    def prop3_with_undefined_anotation(self) -> TypeCheckingOnlyName:
         """docstring"""

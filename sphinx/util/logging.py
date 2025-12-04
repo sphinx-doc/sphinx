@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import logging
 import logging.handlers
+import os.path
 from collections import defaultdict
 from contextlib import contextmanager, nullcontext
-from os.path import abspath
-from typing import IO, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import get_source_line
 
+from sphinx._cli.util.colour import colourise
 from sphinx.errors import SphinxWarning
-from sphinx.util.console import colorize
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence, Set
-    from typing import NoReturn
+    from collections.abc import Iterator, Mapping, Sequence, Set
+    from typing import IO, Any, NoReturn
 
     from docutils.nodes import Node
 
@@ -49,14 +49,11 @@ VERBOSITY_MAP: defaultdict[int, int] = defaultdict(
     },
 )
 
-COLOR_MAP: defaultdict[int, str] = defaultdict(
-    lambda: 'blue',
-    {
-        logging.ERROR: 'darkred',
-        logging.WARNING: 'red',
-        logging.DEBUG: 'darkgray',
-    },
-)
+COLOR_MAP: dict[int, str] = {
+    logging.ERROR: 'darkred',
+    logging.WARNING: 'red',
+    logging.DEBUG: 'darkgray',
+}
 
 
 def getLogger(name: str) -> SphinxLoggerAdapter:
@@ -129,7 +126,7 @@ class SphinxWarningLogRecord(SphinxLogRecord):
             return 'WARNING: '
 
 
-class SphinxLoggerAdapter(logging.LoggerAdapter):
+class SphinxLoggerAdapter(logging.LoggerAdapter[logging.Logger]):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
@@ -146,7 +143,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def verbose(self, msg: str, *args: Any, **kwargs: Any) -> None:
         self.log(VERBOSE, msg, *args, **kwargs)
 
-    def process(self, msg: str, kwargs: dict) -> tuple[str, dict]:  # type: ignore[override]
+    def process(self, msg: str, kwargs: dict[str, Any]) -> tuple[str, dict[str, Any]]:  # type: ignore[override]
         extra = kwargs.setdefault('extra', {})
         for keyword in self.KEYWORDS:
             if keyword in kwargs:
@@ -161,9 +158,9 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         self,
         msg: object,
         *args: object,
-        type: None | str = None,
-        subtype: None | str = None,
-        location: None | str | tuple[str | None, int | None] | Node = None,
+        type: str | None = None,
+        subtype: str | None = None,
+        location: str | tuple[str | None, int | None] | Node | None = None,
         nonl: bool = True,
         color: str | None = None,
         once: bool = False,
@@ -204,13 +201,13 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         )
 
 
-class WarningStreamHandler(logging.StreamHandler):
+class WarningStreamHandler(logging.StreamHandler['SafeEncodingWriter']):
     """StreamHandler for warnings."""
 
     pass
 
 
-class NewLineStreamHandler(logging.StreamHandler):
+class NewLineStreamHandler(logging.StreamHandler['SafeEncodingWriter']):
     """StreamHandler which switches line terminator by record.nonl flag."""
 
     def emit(self, record: logging.LogRecord) -> None:
@@ -433,7 +430,7 @@ class WarningSuppressor(logging.Filter):
     """Filter logs by `suppress_warnings`."""
 
     def __init__(self, app: Sphinx) -> None:
-        self.app = app
+        self._app = app
         super().__init__()
 
     def filter(self, record: logging.LogRecord) -> bool:
@@ -441,7 +438,7 @@ class WarningSuppressor(logging.Filter):
         subtype = getattr(record, 'subtype', '')
 
         try:
-            suppress_warnings = self.app.config.suppress_warnings
+            suppress_warnings = self._app.config.suppress_warnings
         except AttributeError:
             # config is not initialized yet (ex. in conf.py)
             suppress_warnings = ()
@@ -449,7 +446,7 @@ class WarningSuppressor(logging.Filter):
         if is_suppressed_warning(type, subtype, suppress_warnings):
             return False
         else:
-            self.app._warncount += 1
+            self._app._warncount += 1
             return True
 
 
@@ -471,7 +468,9 @@ class OnceFilter(logging.Filter):
 
     def __init__(self, name: str = '') -> None:
         super().__init__(name)
-        self.messages: dict[str, list] = {}
+        self.messages: dict[
+            str, list[tuple[object, ...] | Mapping[str, object] | None]
+        ] = {}
 
     def filter(self, record: logging.LogRecord) -> bool:
         once = getattr(record, 'once', '')
@@ -497,7 +496,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     LogRecordClass: type[logging.LogRecord]
 
     def __init__(self, app: Sphinx) -> None:
-        self.app = app
+        self._app = app
         super().__init__()
 
     def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
@@ -510,15 +509,15 @@ class SphinxLogRecordTranslator(logging.Filter):
             docname, lineno = location
             if docname:
                 if lineno:
-                    record.location = f'{self.app.env.doc2path(docname)}:{lineno}'
+                    record.location = f'{self._app.env.doc2path(docname)}:{lineno}'
                 else:
-                    record.location = f'{self.app.env.doc2path(docname)}'
+                    record.location = f'{self._app.env.doc2path(docname)}'
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
             record.location = get_node_location(location)
         elif location and ':' not in location:
-            record.location = f'{self.app.env.doc2path(location)}'
+            record.location = f'{self._app.env.doc2path(location)}'
 
         return True
 
@@ -538,7 +537,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
         ret = super().filter(record)
 
         try:
-            show_warning_types = self.app.config.show_warning_types
+            show_warning_types = self._app.config.show_warning_types
         except AttributeError:
             # config is not initialized yet (ex. in conf.py)
             show_warning_types = False
@@ -555,9 +554,9 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 def get_node_location(node: Node) -> str | None:
     source, line = get_source_line(node)
     if source and line:
-        return f'{abspath(source)}:{line}'
+        return f'{os.path.abspath(source)}:{line}'
     if source:
-        return f'{abspath(source)}:'
+        return f'{os.path.abspath(source)}:'
     if line:
         return f'<unknown>:{line}'
     return None
@@ -566,20 +565,21 @@ def get_node_location(node: Node) -> str | None:
 class ColorizeFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         message = super().format(record)
-        color = getattr(record, 'color', None)
-        if color is None:
-            color = COLOR_MAP.get(record.levelno)
-
-        if color:
-            return colorize(color, message)
-        else:
+        colour_name = getattr(record, 'color', '')
+        if not colour_name:
+            colour_name = COLOR_MAP.get(record.levelno, '')
+        if not colour_name:
+            return message
+        try:
+            return colourise(colour_name, message)
+        except ValueError:
             return message
 
 
 class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
 
-    def __init__(self, stream: IO) -> None:
+    def __init__(self, stream: IO[str]) -> None:
         self.stream = stream
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
 
@@ -601,15 +601,19 @@ class SafeEncodingWriter:
 class LastMessagesWriter:
     """Stream writer storing last 10 messages in memory to save trackback"""
 
-    def __init__(self, app: Sphinx, stream: IO) -> None:
-        self.app = app
+    def __init__(self, app: Sphinx, stream: IO[str]) -> None:
+        self._app = app
 
     def write(self, data: str) -> None:
-        self.app.messagelog.append(data)
+        self._app.messagelog.append(data)
 
 
-def setup(app: Sphinx, status: IO, warning: IO) -> None:
+def setup(
+    app: Sphinx, status: IO[str], warning: IO[str], *, verbosity: int = 0
+) -> None:
     """Setup root logger for Sphinx"""
+    log_level = VERBOSITY_MAP[max(verbosity, 0)]
+
     logger = logging.getLogger(NAMESPACE)
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
@@ -621,7 +625,7 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
     info_handler = NewLineStreamHandler(SafeEncodingWriter(status))
     info_handler.addFilter(InfoFilter())
     info_handler.addFilter(InfoLogRecordTranslator(app))
-    info_handler.setLevel(VERBOSITY_MAP[app.verbosity])
+    info_handler.setLevel(log_level)
     info_handler.setFormatter(ColorizeFormatter())
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
@@ -635,7 +639,7 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
 
     messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))
     messagelog_handler.addFilter(InfoFilter())
-    messagelog_handler.setLevel(VERBOSITY_MAP[app.verbosity])
+    messagelog_handler.setLevel(log_level)
 
     logger.addHandler(info_handler)
     logger.addHandler(warning_handler)

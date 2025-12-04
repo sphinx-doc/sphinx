@@ -2,22 +2,22 @@
 
 from __future__ import annotations
 
-import os.path
-import warnings
-from typing import TYPE_CHECKING, Any
-
-from docutils.frontend import OptionParser
-from docutils.io import FileOutput
+from typing import TYPE_CHECKING
 
 from sphinx import addnodes
+from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
+from sphinx.util.docutils import _get_settings
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
-from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
+from sphinx.writers.manpage import (
+    ManualPageTranslator,
+    ManualPageWriter,
+    NestedInlineTransform,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -30,16 +30,14 @@ logger = logging.getLogger(__name__)
 
 
 class ManualPageBuilder(Builder):
-    """
-    Builds groff output in manual page format.
-    """
+    """Builds groff output in manual page format."""
 
     name = 'man'
     format = 'man'
     epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
-    supported_image_types: list[str] = []
+    supported_image_types = []
 
     def init(self) -> None:
         if not self.config.man_pages:
@@ -55,16 +53,9 @@ class ManualPageBuilder(Builder):
 
     @progress_message(__('writing'))
     def write_documents(self, _docnames: Set[str]) -> None:
-        docwriter = ManualPageWriter(self)
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
-            # DeprecationWarning: The frontend.OptionParser class will be replaced
-            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-            docsettings: Any = OptionParser(
-                defaults=self.env.settings,
-                components=(docwriter,),
-                read_config_files=True,
-            ).get_default_values()
+        docsettings = _get_settings(
+            ManualPageWriter, defaults=self.env.settings, read_config_files=True
+        )
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
@@ -87,16 +78,12 @@ class ManualPageBuilder(Builder):
 
             if self.config.man_make_section_directory:
                 dirname = 'man%s' % section
-                ensuredir(os.path.join(self.outdir, dirname))
+                ensuredir(self.outdir / dirname)
                 targetname = f'{dirname}/{name}.{section}'
             else:
                 targetname = f'{name}.{section}'
 
-            logger.info(darkgreen(targetname) + ' { ')
-            destination = FileOutput(
-                destination_path=os.path.join(self.outdir, targetname),
-                encoding='utf-8',
-            )
+            logger.info('%s { ', darkgreen(targetname))
 
             tree = self.env.get_doctree(docname)
             docnames: set[str] = set()
@@ -110,7 +97,11 @@ class ManualPageBuilder(Builder):
             for pendingnode in largetree.findall(addnodes.pending_xref):
                 pendingnode.replace_self(pendingnode.children)
 
-            docwriter.write(largetree, destination)
+            transform = NestedInlineTransform(largetree)
+            transform.apply()
+            visitor: ManualPageTranslator = self.create_translator(largetree, self)  # type: ignore[assignment]
+            largetree.walkabout(visitor)
+            (self.outdir / targetname).write_text(visitor.astext(), encoding='utf-8')
 
     def finish(self) -> None:
         pass
@@ -133,9 +124,13 @@ def default_man_pages(config: Config) -> list[tuple[str, str, str, list[str], in
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(ManualPageBuilder)
 
-    app.add_config_value('man_pages', default_man_pages, '')
-    app.add_config_value('man_show_urls', False, '')
-    app.add_config_value('man_make_section_directory', False, '')
+    app.add_config_value(
+        'man_pages', default_man_pages, '', types=frozenset({list, tuple})
+    )
+    app.add_config_value('man_show_urls', False, '', types=frozenset({bool}))
+    app.add_config_value(
+        'man_make_section_directory', False, '', types=frozenset({bool})
+    )
 
     return {
         'version': 'builtin',

@@ -10,6 +10,8 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.transforms import SphinxContentsFilter
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
@@ -26,7 +28,7 @@ class TitleCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         for docname in docnames:
@@ -53,8 +55,8 @@ class TitleCollector(EnvironmentCollector):
         else:
             # document has no title
             titlenode += nodes.Text(doctree.get('title', '<no title>'))
-        app.env.titles[app.env.docname] = titlenode
-        app.env.longtitles[app.env.docname] = longtitlenode
+        app.env.titles[app.env.current_document.docname] = titlenode
+        app.env.longtitles[app.env.current_document.docname] = longtitlenode
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

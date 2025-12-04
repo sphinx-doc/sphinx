@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import re
 import unicodedata
+from io import StringIO
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from docutils import nodes
@@ -95,12 +96,11 @@ class NodeMatcher(Generic[N]):
         confounds type checkers' ability to determine the return type of the iterator.
         """
         for found in node.findall(self):
-            yield cast(N, found)
+            yield cast('N', found)
 
 
 def get_full_module_name(node: Node) -> str:
-    """
-    Return full module dotted path like: 'docutils.nodes.paragraph'
+    """Return full module dotted path like: 'docutils.nodes.paragraph'
 
     :param nodes.Node node: target node
     :return: full module dotted path
@@ -109,8 +109,7 @@ def get_full_module_name(node: Node) -> str:
 
 
 def repr_domxml(node: Node, length: int = 80) -> str:
-    """
-    return DOM XML representation of the specified node like:
+    """Return DOM XML representation of the specified node like:
     '<paragraph translatable="False"><inline classes="versionadded">Added in version...'
 
     :param nodes.Node node: target node
@@ -181,7 +180,8 @@ def apply_source_workaround(node: Element) -> None:
         )
         node.source, node.line = node.parent.source, node.parent.line
 
-    # workaround: literal_block under bullet list (#4913)
+    # workaround: literal_block under bullet list
+    # See: https://github.com/sphinx-doc/sphinx/issues/4913
     if isinstance(node, nodes.literal_block) and node.source is None:
         with contextlib.suppress(ValueError):
             node.source = get_node_source(node)
@@ -197,10 +197,14 @@ def apply_source_workaround(node: Element) -> None:
     if isinstance(
         node,
         (
-            nodes.rubric  # #1305 rubric directive
-            | nodes.line  # #1477 line node
-            | nodes.image  # #3093 image directive in substitution
-            | nodes.field_name  # #3335 field list syntax
+            # https://github.com/sphinx-doc/sphinx/issues/1305 rubric directive
+            nodes.rubric,
+            # https://github.com/sphinx-doc/sphinx/issues/1477 line node
+            nodes.line,
+            # https://github.com/sphinx-doc/sphinx/issues/3093 image directive in substitution
+            nodes.image,
+            # https://github.com/sphinx-doc/sphinx/issues/3335 field list syntax
+            nodes.field_name,
         ),
     ):
         logger.debug(
@@ -286,6 +290,35 @@ IMAGE_TYPE_NODES = (
 )  # fmt: skip
 
 
+def _clean_extracted_message(text: str) -> str:
+    """Remove trailing backslashes from each line of *text*."""
+    if '\\' in text:
+        # TODO(picnixz): if possible, find a regex alternative
+        # that is not vulnerable to a ReDOS (the code below is
+        # equivalent to re.sub(r'[ \t]*\\[ \t]*$', text, re.MULTILINE)).
+        buffer = StringIO()
+        for line in text.splitlines(keepends=True):
+            split = line.rsplit('\\', maxsplit=1)
+            if len(split) == 2:
+                prefix, suffix = split
+                if re.match(r'^[ \t]*\s$', suffix):
+                    # The line ends with some NL character, preceded by
+                    # one or more whitespaces (to be dropped), the backslash,
+                    # and possibly other whitespaces on its left.
+                    buffer.write(prefix.rstrip(' \t'))
+                    buffer.write(suffix.lstrip(' \t'))
+                elif not suffix:
+                    # backslash is at the end of the LAST line
+                    buffer.write(prefix.rstrip(' \t'))
+                else:
+                    # backslash is is in the middle of the line
+                    buffer.write(line)
+            else:
+                buffer.write(line)
+        text = buffer.getvalue()
+    return text.replace('\n', ' ').strip()
+
+
 def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
     """Extract translatable messages from a document tree."""
     for node in doctree.findall(is_translatable):
@@ -308,7 +341,8 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
         elif isinstance(node, nodes.meta):
             msg = node['content']
         else:
-            msg = node.rawsource.replace('\n', ' ').strip()  # type: ignore[attr-defined]
+            text = node.rawsource  # type: ignore[attr-defined]
+            msg = _clean_extracted_message(text)
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
@@ -401,8 +435,6 @@ def process_index_entry(
     entry: str,
     targetid: str,
 ) -> list[tuple[str, str, str, str, str | None]]:
-    from sphinx.domains.python import pairindextypes
-
     indexentries: list[tuple[str, str, str, str, str | None]] = []
     entry = entry.strip()
     oentry = entry
@@ -410,42 +442,46 @@ def process_index_entry(
     if entry.startswith('!'):
         main = 'main'
         entry = entry[1:].lstrip()
-    for index_type in pairindextypes:
+
+    for index_type in (
+        'module',
+        'keyword',
+        'operator',
+        'object',
+        'exception',
+        'statement',
+        'builtin',
+    ):
         if entry.startswith(f'{index_type}:'):
             value = entry[len(index_type) + 1 :].strip()
-            value = f'{pairindextypes[index_type]}; {value}'
-            # xref RemovedInSphinx90Warning
-            logger.warning(
-                __(
-                    '%r is deprecated for index entries (from entry %r). '
-                    "Use 'pair: %s' instead."
-                ),
-                index_type,
-                entry,
-                value,
-                type='index',
-            )
-            indexentries.append(('pair', value, targetid, main, None))
+            if index_type == 'builtin':
+                value = f'built-in function; {value}'
+            else:
+                value = f'{index_type}; {value}'
+            msg = __(
+                '%r is no longer supported for index entries (from entry %r). '
+                "Use 'pair: %s' instead."
+            ) % (index_type, entry, value)
+            raise ValueError(msg)
+
+    for index_type in indextypes:
+        if entry.startswith(f'{index_type}:'):
+            value = entry[len(index_type) + 1 :].strip()
+            if index_type == 'double':
+                index_type = 'pair'
+            indexentries.append((index_type, value, targetid, main, None))
             break
+    # shorthand notation for single entries
     else:
-        for index_type in indextypes:
-            if entry.startswith(f'{index_type}:'):
-                value = entry[len(index_type) + 1 :].strip()
-                if index_type == 'double':
-                    index_type = 'pair'
-                indexentries.append((index_type, value, targetid, main, None))
-                break
-        # shorthand notation for single entries
-        else:
-            for value in oentry.split(','):
-                value = value.strip()
-                main = ''
-                if value.startswith('!'):
-                    main = 'main'
-                    value = value[1:].lstrip()
-                if not value:
-                    continue
-                indexentries.append(('single', value, targetid, main, None))
+        for value in oentry.split(','):
+            value = value.strip()
+            main = ''
+            if value.startswith('!'):
+                main = 'main'
+                value = value[1:].lstrip()
+            if not value:
+                continue
+            indexentries.append(('single', value, targetid, main, None))
     return indexentries
 
 
@@ -471,7 +507,7 @@ def inline_all_toctrees(
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
-                    logger.info(indent + colorfunc(includefile))
+                    logger.info(indent + colorfunc(includefile))  # NoQA: G003
                     subtree = inline_all_toctrees(
                         builder,
                         docnameset,
@@ -487,6 +523,8 @@ def inline_all_toctrees(
                         __('toctree contains ref to nonexisting file %r'),
                         includefile,
                         location=docname,
+                        type='toc',
+                        subtype='not_readable',
                     )
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
@@ -709,7 +747,7 @@ def _copy_except__document(el: Element) -> Element:
     """Monkey-patch ```nodes.Element.copy``` to not copy the ``_document``
     attribute.
 
-    xref: https://github.com/sphinx-doc/sphinx/issues/11116#issuecomment-1376767086
+    See: https://github.com/sphinx-doc/sphinx/issues/11116#issuecomment-1376767086
     """
     newnode = object.__new__(el.__class__)
     # set in Element.__init__()

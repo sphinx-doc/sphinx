@@ -14,6 +14,8 @@ from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    import os
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -37,42 +39,57 @@ class ImagemagickConverter(ImageConverter):
             subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError as exc:
-            logger.warning(__(
-                "Unable to run the image conversion command %r. "
-                "'sphinx.ext.imgconverter' requires ImageMagick by default. "
-                "Ensure it is installed, or set the 'image_converter' option "
-                "to a custom conversion command.\n\n"
-                "Traceback: %s",
-            ), self.config.image_converter, exc)
+            logger.warning(
+                __(
+                    'Unable to run the image conversion command %r. '
+                    "'sphinx.ext.imgconverter' requires ImageMagick by default. "
+                    "Ensure it is installed, or set the 'image_converter' option "
+                    'to a custom conversion command.\n\n'
+                    'Traceback: %s',
+                ),
+                self.config.image_converter,
+                exc,
+            )
             return False
         except CalledProcessError as exc:
-            logger.warning(__('convert exited with error:\n'
-                              '[stderr]\n%r\n[stdout]\n%r'),
-                           exc.stderr, exc.stdout)
+            logger.warning(
+                __('convert exited with error:\n[stderr]\n%r\n[stdout]\n%r'),
+                exc.stderr,
+                exc.stdout,
+            )
             return False
 
-    def convert(self, _from: str, _to: str) -> bool:
+    def convert(
+        self, _from: str | os.PathLike[str], _to: str | os.PathLike[str]
+    ) -> bool:
         """Converts the image to expected one."""
         try:
             # append an index 0 to source filename to pick up the first frame
             # (or first page) of image (ex. Animation GIF, PDF)
-            _from += '[0]'
+            from_ = f'{_from}[0]'
 
-            args = ([
-                self.config.image_converter, *self.config.image_converter_args, _from, _to,
-            ])
+            args = [
+                self.config.image_converter,
+                *self.config.image_converter_args,
+                from_,
+                _to,
+            ]
             logger.debug('Invoking %r ...', args)
             subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError:
-            logger.warning(__('convert command %r cannot be run, '
-                              'check the image_converter setting'),
-                           self.config.image_converter)
+            logger.warning(
+                __(
+                    'convert command %r cannot be run, check the image_converter setting'
+                ),
+                self.config.image_converter,
+            )
             return False
         except CalledProcessError as exc:
-            raise ExtensionError(__('convert exited with error:\n'
-                                    '[stderr]\n%r\n[stdout]\n%r') %
-                                 (exc.stderr, exc.stdout)) from exc
+            raise ExtensionError(
+                __('convert exited with error:\n[stderr]\n%r\n[stdout]\n%r')
+                % (exc.stderr, exc.stdout)
+            ) from exc
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
@@ -80,14 +97,20 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     if sys.platform == 'win32':
         # On Windows, we use Imagemagik v7 by default to avoid the trouble for
         # convert.exe bundled with Windows.
-        app.add_config_value('image_converter', 'magick', 'env')
-        app.add_config_value('image_converter_args', ['convert'], 'env')
+        app.add_config_value('image_converter', 'magick', 'env', types=frozenset({str}))
+        app.add_config_value(
+            'image_converter_args', ['convert'], 'env', types=frozenset({list, tuple})
+        )
     else:
         # On other platform, we use Imagemagick v6 by default.  Especially,
         # Debian/Ubuntu are still based of v6.  So we can't use "magick" command
         # for these platforms.
-        app.add_config_value('image_converter', 'convert', 'env')
-        app.add_config_value('image_converter_args', [], 'env')
+        app.add_config_value(
+            'image_converter', 'convert', 'env', types=frozenset({str})
+        )
+        app.add_config_value(
+            'image_converter_args', [], 'env', types=frozenset({list, tuple})
+        )
 
     return {
         'version': sphinx.__display_version__,

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from jinja2 import TemplateNotFound
 from jinja2.loaders import BaseLoader
@@ -18,10 +18,11 @@ from sphinx.util import rst, texescape
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
     from jinja2.environment import Environment
 
-_TEMPLATES_PATH = Path(package_dir, 'templates')
+_TEMPLATES_PATH = package_dir / 'templates'
 _LATEX_TEMPLATES_PATH = _TEMPLATES_PATH / 'latex'
 
 
@@ -41,7 +42,7 @@ class BaseRenderer:
 
 class FileRenderer(BaseRenderer):
     def __init__(self, search_path: Sequence[str | os.PathLike[str]]) -> None:
-        if isinstance(search_path, str | os.PathLike):
+        if isinstance(search_path, (str, os.PathLike)):
             search_path = [search_path]
         else:
             # filter "None" paths

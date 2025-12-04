@@ -25,32 +25,29 @@ jobs:
     if: github.repository_owner == 'sphinx-doc'
     permissions:
       attestations: write  # for actions/attest
-      id-token: write  # for PyPI trusted publishing
+      id-token: write  # for actions/attest & PyPI trusted publishing
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3"
       - name: Install uv
-        run: >
-          curl --no-progress-meter --location --fail
-          --proto '=https' --tlsv1.2
-          "https://astral.sh/uv/install.sh"
-          | sh
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: latest
+          enable-cache: false
 
       - name: Install build dependencies (pypa/build, twine)
-        run: |
-          uv pip install build "twine>=5.1"
-          # resolution fails without betterproto and protobuf-specs
-          uv pip install "pypi-attestations~=0.0.12" "sigstore-protobuf-specs==0.3.2" "betterproto==2.0.0b6"
+        run: uv pip install --group package
 
       - name: Build distribution
         run: python -m build
 
       - name: Check distribution
-        run: |
-          twine check dist/*
+        run: twine check dist/*
 
       - name: Create Sigstore attestations for built distributions
         uses: actions/attest@v1
@@ -62,61 +59,37 @@ jobs:
           show-summary: "true"
 
       - name: Convert attestations to PEP 740
-        # workflow_ref example: sphinx-doc/sphinx/.github/workflows/create-release.yml@refs/heads/master
         run: >
           python utils/convert_attestations.py
-          "${{ steps.attest.outputs.bundle-path }}"
-          "https://github.com/${{ github.workflow_ref }}"
+          "$BUNDLE_PATH"
+          "$SIGNER_IDENTITY"
+        env:
+          BUNDLE_PATH: "${{ steps.attest.outputs.bundle-path }}"
+          # workflow_ref example: sphinx-doc/sphinx/.github/workflows/create-release.yml@refs/heads/master
+          # this forms the "signer identity" for the attestations
+          SIGNER_IDENTITY: "https://github.com/${{ github.workflow_ref }}"
 
       - name: Inspect PEP 740 attestations
-        run: |
-          python -m pypi_attestations inspect dist/*.publish.attestation
+        run: pypi-attestations inspect dist/*.publish.attestation
 
       - name: Prepare attestation bundles for uploading
         run: |
           mkdir -p /tmp/attestation-bundles
-          cp "${{ steps.attest.outputs.bundle-path }}" /tmp/attestation-bundles/
+          cp "$BUNDLE_PATH" /tmp/attestation-bundles/
           cp dist/*.publish.attestation /tmp/attestation-bundles/
+        env:
+          BUNDLE_PATH: "${{ steps.attest.outputs.bundle-path }}"
 
       - name: Upload attestation bundles
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: attestation-bundles
           path: /tmp/attestation-bundles/
 
-      - name: Mint PyPI API token
-        id: mint-token
-        uses: actions/github-script@v7
-        with:
-          # language=JavaScript
-          script: |
-            // retrieve the ambient OIDC token
-            const oidc_request_token = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
-            const oidc_request_url = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
-            const oidc_resp = await fetch(`${oidc_request_url}&audience=pypi`, {
-              headers: {Authorization: `bearer ${oidc_request_token}`},
-            });
-            const oidc_token = (await oidc_resp.json()).value;
-  
-            // exchange the OIDC token for an API token
-            const mint_resp = await fetch('https://pypi.org/_/oidc/github/mint-token', {
-              method: 'post',
-              body: `{"token": "${oidc_token}"}` ,
-              headers: {'Content-Type': 'application/json'},
-            });
-            const api_token = (await mint_resp.json()).token;
-
-            // mask the newly minted API token, so that we don't accidentally leak it
-            core.setSecret(api_token)
-            core.setOutput('api-token', api_token)
-
       - name: Upload to PyPI
         env:
           TWINE_NON_INTERACTIVE: "true"
-          TWINE_USERNAME: "__token__"
-          TWINE_PASSWORD: "${{ steps.mint-token.outputs.api-token }}"
-        run: |
-          twine upload dist/* --attestations
+        run: twine upload dist/* --attestations
 
   github-release:
     runs-on: ubuntu-latest
@@ -124,18 +97,18 @@ jobs:
     environment: release
     if: github.repository_owner == 'sphinx-doc'
     permissions:
-      contents: write  # for softprops/action-gh-release to create GitHub release
+      contents: write  # needed to create a GitHub release
     steps:
-      - uses: actions/checkout@v4
-      - name: Get release version
-        id: get_version
-        uses: actions/github-script@v7
+      - uses: actions/checkout@v6
         with:
-          script: core.setOutput('version', context.ref.replace("refs/tags/v", ""))
+          persist-credentials: false
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
-        with:
-          name: "Sphinx ${{ steps.get_version.outputs.version }}"
-          body: "Changelog: https://www.sphinx-doc.org/en/master/changes.html"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: >-
+          gh release create "${TAG}"
+          --title "Sphinx ${TAG#v}"
+          --notes "Changelog: https://www.sphinx-doc.org/en/master/changes.html"

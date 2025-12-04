@@ -4,8 +4,6 @@ from __future__ import annotations
 
 __all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
 
-import contextlib
-import os
 import sys
 from io import StringIO
 from types import MappingProxyType
@@ -17,10 +15,10 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
-from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Mapping, Sequence
     from pathlib import Path
     from typing import Any
@@ -46,7 +44,7 @@ def assert_node(node: Node, cls: Any = None, xpath: str = '', **kwargs: Any) -> 
                     assert_node(node[0], cls[1:], xpath=xpath + '[0]', **kwargs)
         elif isinstance(cls, tuple):
             assert (
-                isinstance(node, list | nodes.Element)
+                isinstance(node, (list, nodes.Element))
             ), f'The node{xpath} does not have any items'  # fmt: skip
             assert (
                 len(node) == len(cls)
@@ -224,15 +222,16 @@ class SphinxTestApp(sphinx.application.Sphinx):
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
         _clean_up_global_state()
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(self.docutils_conf_path)
+        try:
+            self.docutils_conf_path.unlink(missing_ok=True)
+        except OSError as exc:
+            if exc.errno != 30:  # Ignore "read-only file system" errors
+                raise
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self._builder_name!r}>'
 
-    def build(
-        self, force_all: bool = False, filenames: list[str] | None = None
-    ) -> None:
+    def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
         self.env._pickled_doctree_cache.clear()
         super().build(force_all, filenames)
 
@@ -244,10 +243,8 @@ class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
     if it has already been built and there are any output files.
     """
 
-    def build(
-        self, force_all: bool = False, filenames: list[str] | None = None
-    ) -> None:
-        if not os.listdir(self.outdir):
+    def build(self, force_all: bool = False, filenames: Sequence[Path] = ()) -> None:
+        if not list(self.outdir.iterdir()):
             # if listdir is empty, do build.
             super().build(force_all, filenames)
             # otherwise, we can use built cache
@@ -269,21 +266,3 @@ def _clean_up_global_state() -> None:
 
     # clean up autodoc global state
     sphinx.pycode.ModuleAnalyzer.cache.clear()
-
-
-# deprecated name -> (object to return, canonical path or '', removal version)
-_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
-}
-
-
-def __getattr__(name: str) -> Any:
-    if name not in _DEPRECATED_OBJECTS:
-        msg = f'module {__name__!r} has no attribute {name!r}'
-        raise AttributeError(msg)
-
-    from sphinx.deprecation import _deprecation_warning
-
-    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=remove)
-    return deprecated_object

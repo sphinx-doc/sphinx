@@ -1,87 +1,79 @@
 """Test various Sphinx-specific markup extensions."""
 
+from __future__ import annotations
+
 import re
-import warnings
 from types import SimpleNamespace
 
 import pytest
-from docutils import frontend, nodes, utils
+from docutils import nodes, utils
 from docutils.parsers.rst import Parser as RstParser
 
 from sphinx import addnodes
-from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.environment import default_settings
 from sphinx.roles import XRefRole
 from sphinx.testing.util import assert_node
 from sphinx.transforms import SphinxSmartQuotes
 from sphinx.util import texescape
-from sphinx.util.docutils import sphinx_domains
+from sphinx.util.docutils import _get_settings, sphinx_domains
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from docutils.frontend import Values
 
-@pytest.fixture
-def settings(app):
+    from sphinx.environment import BuildEnvironment
+    from sphinx.testing.util import SphinxTestApp
+
+
+def new_settings(env: BuildEnvironment) -> Values:
     texescape.init()  # otherwise done by the latex builder
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        # DeprecationWarning: The frontend.OptionParser class will be replaced
-        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        optparser = frontend.OptionParser(
-            components=(RstParser, HTMLWriter, LaTeXWriter),
-            defaults=default_settings,
-        )
-    settings = optparser.get_default_values()
+    settings = _get_settings(
+        RstParser, HTMLWriter, LaTeXWriter, defaults=default_settings
+    )
     settings.smart_quotes = True
-    settings.env = app.builder.env
-    settings.env.temp_data['docname'] = 'dummy'
+    settings.env = env
+    settings.env.current_document.docname = 'dummy'
     settings.contentsname = 'dummy'
-    domain_context = sphinx_domains(settings.env)
-    domain_context.enable()
-    yield settings
-    domain_context.disable()
+    return settings
 
 
-@pytest.fixture
-def new_document(settings):
-    def create():
-        document = utils.new_document('test data', settings)
-        document['file'] = 'dummy'
-        return document
-
-    return create
+def new_document(env: BuildEnvironment) -> nodes.document:
+    settings = new_settings(env)
+    document = utils.new_document('test data', settings)
+    document['file'] = 'dummy'
+    return document
 
 
-@pytest.fixture
-def inliner(new_document):
-    document = new_document()
-    document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)
+def new_inliner(env: BuildEnvironment) -> SimpleNamespace:
+    document = new_document(env)
+    document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)  # type: ignore[attr-defined]
     return SimpleNamespace(document=document, reporter=document.reporter)
 
 
-@pytest.fixture
-def parse(new_document):
-    def parse_(rst):
-        document = new_document()
-        parser = RstParser()
-        parser.parse(rst, document)
-        SphinxSmartQuotes(document, startnode=None).apply()  # type: ignore[no-untyped-call]
-        for msg in list(document.findall(nodes.system_message)):
-            if msg['level'] == 1:
-                msg.replace_self([])
-        return document
-
-    return parse_
+def parse_rst(rst: str, *, env: BuildEnvironment) -> nodes.document:
+    document = new_document(env)
+    parser = RstParser()
+    domain_context = sphinx_domains(env)
+    domain_context.enable()
+    parser.parse(rst, document)
+    domain_context.disable()
+    SphinxSmartQuotes(document, startnode=None).apply()
+    for msg in list(document.findall(nodes.system_message)):
+        if msg['level'] == 1:
+            msg.replace_self([])
+    return document
 
 
 # since we're not resolving the markup afterwards, these nodes may remain
 class ForgivingTranslator:
-    def visit_pending_xref(self, node):
+    def visit_pending_xref(self, node: nodes.Element) -> None:
         pass
 
-    def depart_pending_xref(self, node):
+    def depart_pending_xref(self, node: nodes.Element) -> None:
         pass
 
 
@@ -93,76 +85,31 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
     pass
 
 
-@pytest.fixture
-def verify_re_html(app, parse):
-    def verify(rst, html_expected):
-        document = parse(rst)
-        KeyboardTransform(document).apply()
-        html_translator = ForgivingHTMLTranslator(document, app.builder)
-        document.walkabout(html_translator)
-        html_translated = ''.join(html_translator.fragment).strip()
-        assert re.match(html_expected, html_translated), 'from ' + rst
-
-    return verify
+def rst_to_html(rst: str, *, app: SphinxTestApp) -> str:
+    document = parse_rst(rst, env=app.env)
+    html_translator = ForgivingHTMLTranslator(document, app.builder)
+    document.walkabout(html_translator)
+    html_translated = ''.join(html_translator.fragment).strip()
+    return html_translated
 
 
-@pytest.fixture
-def verify_re_latex(app, parse):
-    def verify(rst, latex_expected):
-        document = parse(rst)
-        app.builder = LaTeXBuilder(app, app.env)
-        app.builder.init()
-        theme = app.builder.themes.get('manual')
-        latex_translator = ForgivingLaTeXTranslator(document, app.builder, theme)
-        latex_translator.first_document = -1  # don't write \begin{document}
-        document.walkabout(latex_translator)
-        latex_translated = ''.join(latex_translator.body).strip()
-        assert re.match(latex_expected, latex_translated), 'from ' + repr(rst)
-
-    return verify
-
-
-@pytest.fixture
-def verify_re(verify_re_html, verify_re_latex):
-    def verify_re_(rst, html_expected, latex_expected):
-        if html_expected:
-            verify_re_html(rst, html_expected)
-        if latex_expected:
-            verify_re_latex(rst, latex_expected)
-
-    return verify_re_
-
-
-@pytest.fixture
-def verify(verify_re_html, verify_re_latex):
-    def verify_(rst, html_expected, latex_expected):
-        if html_expected:
-            verify_re_html(rst, re.escape(html_expected) + '$')
-        if latex_expected:
-            verify_re_latex(rst, re.escape(latex_expected) + '$')
-
-    return verify_
-
-
-@pytest.fixture
-def get_verifier(verify, verify_re):
-    v = {
-        'verify': verify,
-        'verify_re': verify_re,
-    }
-
-    def get(name):
-        return v[name]
-
-    return get
+def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
+    document = parse_rst(rst, env=app.env)
+    app.builder = LaTeXBuilder(app, app.env)
+    app.builder.init()
+    theme = app.builder.themes.get('manual')
+    latex_translator = ForgivingLaTeXTranslator(document, app.builder, theme)
+    latex_translator.first_document = -1  # don't write \begin{document}
+    document.walkabout(latex_translator)
+    latex_translated = ''.join(latex_translator.body).strip()
+    return latex_translated
 
 
 @pytest.mark.parametrize(
-    ('type', 'rst', 'html_expected', 'latex_expected'),
+    ('rst', 'html_expected', 'latex_expected'),
     [
         (
             # cve role
-            'verify',
             ':cve:`2020-10735`',
             (
                 '<p><span class="target" id="index-0"></span><a class="cve reference external" '
@@ -179,7 +126,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # cve role with anchor
-            'verify',
             ':cve:`2020-10735#id1`',
             (
                 '<p><span class="target" id="index-0"></span><a class="cve reference external" '
@@ -196,7 +142,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # cwe role
-            'verify',
             ':cwe:`787`',
             (
                 '<p><span class="target" id="index-0"></span><a class="cwe reference external" '
@@ -213,7 +158,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # cwe role with anchor
-            'verify',
             ':cwe:`787#id1`',
             (
                 '<p><span class="target" id="index-0"></span><a class="cwe reference external" '
@@ -230,7 +174,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # pep role
-            'verify',
             ':pep:`8`',
             (
                 '<p><span class="target" id="index-0"></span><a class="pep reference external" '
@@ -245,7 +188,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # pep role with anchor
-            'verify',
             ':pep:`8#id1`',
             (
                 '<p><span class="target" id="index-0"></span><a class="pep reference external" '
@@ -262,7 +204,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # rfc role
-            'verify',
             ':rfc:`2324`',
             (
                 '<p><span class="target" id="index-0"></span><a class="rfc reference external" '
@@ -277,7 +218,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # rfc role with anchor
-            'verify',
             ':rfc:`2324#section-1`',
             (
                 '<p><span class="target" id="index-0"></span><a class="rfc reference external" '
@@ -292,25 +232,13 @@ def get_verifier(verify, verify_re):
             ),
         ),
         (
-            # correct interpretation of code with whitespace
-            'verify_re',
-            '``code   sample``',
-            (
-                '<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
-                'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'
-            ),
-            r'\\sphinxAtStartPar\n\\sphinxcode{\\sphinxupquote{code   sample}}',
-        ),
-        (
             # interpolation of arrows in menuselection
-            'verify',
             ':menuselection:`a --> b`',
             '<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>',
             '\\sphinxAtStartPar\n\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
         ),
         (
             # interpolation of ampersands in menuselection
-            'verify',
             ':menuselection:`&Foo -&&- &Bar`',
             (
                 '<p><span class="menuselection"><span class="accelerator">F</span>oo '
@@ -324,7 +252,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # interpolation of ampersands in guilabel
-            'verify',
             ':guilabel:`&Foo -&&- &Bar`',
             (
                 '<p><span class="guilabel"><span class="accelerator">F</span>oo '
@@ -337,53 +264,55 @@ def get_verifier(verify, verify_re):
         ),
         (
             # no ampersands in guilabel
-            'verify',
             ':guilabel:`Foo`',
             '<p><span class="guilabel">Foo</span></p>',
             '\\sphinxAtStartPar\n\\sphinxguilabel{Foo}',
         ),
         (
             # kbd role
-            'verify',
             ':kbd:`space`',
             '<p><kbd class="kbd docutils literal notranslate">space</kbd></p>',
             '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{space}}',
         ),
         (
             # kbd role
-            'verify',
             ':kbd:`Control+X`',
             (
-                '<p><kbd class="kbd compound docutils literal notranslate">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">Control</kbd>'
                 '+'
                 '<kbd class="kbd docutils literal notranslate">X</kbd>'
-                '</kbd></p>'
-            ),
-            '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{Control+X}}',
-        ),
-        (
-            # kbd role
-            'verify',
-            ':kbd:`Alt+^`',
-            (
-                '<p><kbd class="kbd compound docutils literal notranslate">'
-                '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
-                '+'
-                '<kbd class="kbd docutils literal notranslate">^</kbd>'
-                '</kbd></p>'
+                '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\sphinxkeyboard{\\sphinxupquote{Alt+\\textasciicircum{}}}'
+                '\\sphinxkeyboard{\\sphinxupquote{Control}}'
+                '+'
+                '\\sphinxkeyboard{\\sphinxupquote{X}}'
             ),
         ),
         (
             # kbd role
-            'verify',
+            ':kbd:`Alt+^`',
+            (
+                '<p>'
+                '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
+                '+'
+                '<kbd class="kbd docutils literal notranslate">^</kbd>'
+                '</p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\sphinxkeyboard{\\sphinxupquote{Alt}}'
+                '+'
+                '\\sphinxkeyboard{\\sphinxupquote{\\textasciicircum{}}}'
+            ),
+        ),
+        (
+            # kbd role
             ':kbd:`M-x  M-s`',
             (
-                '<p><kbd class="kbd compound docutils literal notranslate">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
                 '-'
                 '<kbd class="kbd docutils literal notranslate">x</kbd>'
@@ -391,57 +320,66 @@ def get_verifier(verify, verify_re):
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
                 '-'
                 '<kbd class="kbd docutils literal notranslate">s</kbd>'
-                '</kbd></p>'
+                '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\sphinxkeyboard{\\sphinxupquote{M\\sphinxhyphen{}x  M\\sphinxhyphen{}s}}'
+                '\\sphinxkeyboard{\\sphinxupquote{M}}'
+                '\\sphinxhyphen{}'
+                '\\sphinxkeyboard{\\sphinxupquote{x}}'
+                '  '
+                '\\sphinxkeyboard{\\sphinxupquote{M}}'
+                '\\sphinxhyphen{}'
+                '\\sphinxkeyboard{\\sphinxupquote{s}}'
             ),
         ),
         (
             # kbd role
-            'verify',
             ':kbd:`-`',
             '<p><kbd class="kbd docutils literal notranslate">-</kbd></p>',
             '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}',
         ),
         (
             # kbd role
-            'verify',
             ':kbd:`Caps Lock`',
             '<p><kbd class="kbd docutils literal notranslate">Caps Lock</kbd></p>',
             '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{Caps Lock}}',
         ),
         (
             # kbd role
-            'verify',
             ':kbd:`sys   rq`',
             '<p><kbd class="kbd docutils literal notranslate">sys   rq</kbd></p>',
             '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{sys   rq}}',
         ),
         (
-            # non-interpolation of dashes in option role
-            'verify_re',
-            ':option:`--with-option`',
+            # kbd role
+            ':kbd:`⌘+⇧+M`',
             (
-                '<p><code( class="xref std std-option docutils literal notranslate")?>'
-                '<span class="pre">--with-option</span></code></p>$'
+                '<p>'
+                '<kbd class="kbd docutils literal notranslate">⌘</kbd>'
+                '+'
+                '<kbd class="kbd docutils literal notranslate">⇧</kbd>'
+                '+'
+                '<kbd class="kbd docutils literal notranslate">M</kbd>'
+                '</p>'
             ),
             (
-                r'\\sphinxAtStartPar\n'
-                r'\\sphinxcode{\\sphinxupquote{\\sphinxhyphen{}\\sphinxhyphen{}with\\sphinxhyphen{}option}}$'
+                '\\sphinxAtStartPar\n'
+                '\\sphinxkeyboard{\\sphinxupquote{⌘}}'
+                '+'
+                '\\sphinxkeyboard{\\sphinxupquote{⇧}}'
+                '+'
+                '\\sphinxkeyboard{\\sphinxupquote{M}}'
             ),
         ),
         (
             # verify smarty-pants quotes
-            'verify',
             '"John"',
             '<p>“John”</p>',
             '\\sphinxAtStartPar\n“John”',
         ),
         (
             # ... but not in literal text
-            'verify',
             '``"John"``',
             (
                 '<p><code class="docutils literal notranslate"><span class="pre">'
@@ -451,21 +389,18 @@ def get_verifier(verify, verify_re):
         ),
         (
             # verify classes for inline roles
-            'verify',
             ':manpage:`mp(1)`',
             '<p><em class="manpage">mp(1)</em></p>',
             '\\sphinxAtStartPar\n\\sphinxstyleliteralemphasis{\\sphinxupquote{mp(1)}}',
         ),
         (
             # correct escaping in normal mode
-            'verify',
             'Γ\\\\∞$',
             None,
             '\\sphinxAtStartPar\nΓ\\textbackslash{}\\(\\infty\\)\\$',
         ),
         (
             # in verbatim code fragments
-            'verify',
             '::\n\n @Γ\\∞${}',
             None,
             (
@@ -475,22 +410,13 @@ def get_verifier(verify, verify_re):
             ),
         ),
         (
-            # in URIs
-            'verify_re',
-            '`test <https://www.google.com/~me/>`_',
-            None,
-            r'\\sphinxAtStartPar\n\\sphinxhref{https://www.google.com/~me/}{test}.*',
-        ),
-        (
             # description list: simple
-            'verify',
             'term\n    description',
             '<dl class="simple">\n<dt>term</dt><dd><p>description</p>\n</dd>\n</dl>',
             None,
         ),
         (
             # description list: with classifiers
-            'verify',
             'term : class1 : class2\n    description',
             (
                 '<dl class="simple">\n<dt>term<span class="classifier">class1</span>'
@@ -500,7 +426,6 @@ def get_verifier(verify, verify_re):
         ),
         (
             # glossary (description list): multiple terms
-            'verify',
             '.. glossary::\n\n   term1\n   term2\n       description',
             (
                 '<dl class="simple glossary">\n'
@@ -512,40 +437,81 @@ def get_verifier(verify, verify_re):
             ),
             None,
         ),
-    ],
-)
-@pytest.mark.sphinx('html', testroot='root')
-def test_inline(get_verifier, type, rst, html_expected, latex_expected):
-    verifier = get_verifier(type)
-    verifier(rst, html_expected, latex_expected)
-
-
-@pytest.mark.parametrize(
-    ('type', 'rst', 'html_expected', 'latex_expected'),
-    [
         (
-            'verify',
+            # backslash escaping (docutils 0.16)
             r'4 backslashes \\\\',
             r'<p>4 backslashes \\</p>',
             None,
         ),
     ],
 )
-@pytest.mark.sphinx('html', testroot='root')
-def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expected):
-    verifier = get_verifier(type)
-    verifier(rst, html_expected, latex_expected)
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_inline(
+    app: SphinxTestApp, rst: str, html_expected: str, latex_expected: str
+) -> None:
+    if html_expected:
+        html_translated = rst_to_html(rst, app=app)
+        assert html_expected == html_translated, f'from {rst!r}'
+    if latex_expected:
+        latex_translated = rst_to_latex(rst, app=app)
+        assert latex_expected == latex_translated, f'from {rst!r}'
 
 
-@pytest.mark.sphinx('html', testroot='root', confoverrides={'latex_engine': 'xelatex'})
 @pytest.mark.parametrize(
-    ('type', 'rst', 'html_expected', 'latex_expected'),
+    ('rst', 'html_expected', 'latex_expected'),
+    [
+        (
+            # correct interpretation of code with whitespace
+            '``code   sample``',
+            (
+                '<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
+                'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'
+            ),
+            r'\\sphinxAtStartPar\n\\sphinxcode{\\sphinxupquote{code   sample}}',
+        ),
+        (
+            # non-interpolation of dashes in option role
+            ':option:`--with-option`',
+            (
+                '<p><code( class="xref std std-option docutils literal notranslate")?>'
+                '<span class="pre">--with-option</span></code></p>$'
+            ),
+            (
+                r'\\sphinxAtStartPar\n'
+                r'\\sphinxcode{\\sphinxupquote{\\sphinxhyphen{}\\sphinxhyphen{}with\\sphinxhyphen{}option}}$'
+            ),
+        ),
+        (
+            # in URIs
+            '`test <https://www.google.com/~me/>`_',
+            None,
+            r'\\sphinxAtStartPar\n\\sphinxhref{https://www.google.com/~me/}{test}.*',
+        ),
+    ],
+)
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_inline_regex(
+    app: SphinxTestApp, rst: str, html_expected: str, latex_expected: str
+) -> None:
+    if html_expected:
+        html_translated = rst_to_html(rst, app=app)
+        assert re.match(html_expected, html_translated), f'from {rst!r}'
+    if latex_expected:
+        latex_translated = rst_to_latex(rst, app=app)
+        assert re.match(latex_expected, latex_translated), f'from {rst!r}'
+
+
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='_blank',
+    confoverrides={'latex_engine': 'xelatex'},
+)
+@pytest.mark.parametrize(
+    ('rst', 'latex_expected'),
     [
         (
             # in verbatim code fragments
-            'verify',
             '::\n\n @Γ\\∞${}',
-            None,
             (
                 '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
                 '@Γ\\PYGZbs{}∞\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
@@ -555,55 +521,66 @@ def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expecte
     ],
 )
 def test_inline_for_unicode_latex_engine(
-    get_verifier, type, rst, html_expected, latex_expected
-):
-    verifier = get_verifier(type)
-    verifier(rst, html_expected, latex_expected)
+    app: SphinxTestApp, rst: str, latex_expected: str
+) -> None:
+    latex_translated = rst_to_latex(rst, app=app)
+    assert latex_expected == latex_translated, f'from {rst!r}'
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_samp_role(parse):
+@pytest.mark.sphinx('dummy', testroot='_blank')
+def test_samp_role(app: SphinxTestApp) -> None:
     # no braces
     text = ':samp:`a{b}c`'
-    doctree = parse(text)
+    doctree = parse_rst(text, env=app.env)
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+
     assert_node(
-        doctree[0], [nodes.paragraph, nodes.literal, ('a', [nodes.emphasis, 'b'], 'c')]
+        doctree_0, [nodes.paragraph, nodes.literal, ('a', [nodes.emphasis, 'b'], 'c')]
     )
     # nested braces
     text = ':samp:`a{{b}}c`'
-    doctree = parse(text)
+    doctree = parse_rst(text, env=app.env)
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+
     assert_node(
-        doctree[0],
+        doctree_0,
         [nodes.paragraph, nodes.literal, ('a', [nodes.emphasis, '{b'], '}c')],
     )
 
     # half-opened braces
     text = ':samp:`a{bc`'
-    doctree = parse(text)
+    doctree = parse_rst(text, env=app.env)
     assert_node(doctree[0], [nodes.paragraph, nodes.literal, 'a{bc'])
 
     # escaped braces
     text = ':samp:`a\\\\{b}c`'
-    doctree = parse(text)
+    doctree = parse_rst(text, env=app.env)
     assert_node(doctree[0], [nodes.paragraph, nodes.literal, 'a{b}c'])
 
     # no braces (whitespaces are keeped as is)
     text = ':samp:`code   sample`'
-    doctree = parse(text)
+    doctree = parse_rst(text, env=app.env)
     assert_node(doctree[0], [nodes.paragraph, nodes.literal, 'code   sample'])
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_download_role(parse):
+@pytest.mark.sphinx('dummy', testroot='_blank')
+def test_download_role(app: SphinxTestApp) -> None:
     # implicit
     text = ':download:`sphinx.rst`'
-    doctree = parse(text)
+    doctree = parse_rst(text, env=app.env)
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+    doctree_0_0 = doctree_0[0]
+    assert isinstance(doctree_0_0, nodes.Element)
+
     assert_node(
-        doctree[0],
+        doctree_0,
         [nodes.paragraph, addnodes.download_reference, nodes.literal, 'sphinx.rst'],
     )
     assert_node(
-        doctree[0][0],
+        doctree_0_0,
         refdoc='dummy',
         refdomain='',
         reftype='download',
@@ -611,17 +588,22 @@ def test_download_role(parse):
         reftarget='sphinx.rst',
         refwarn=False,
     )
-    assert_node(doctree[0][0][0], classes=['xref', 'download'])
+    assert_node(doctree_0_0[0], classes=['xref', 'download'])
 
     # explicit
     text = ':download:`reftitle <sphinx.rst>`'
-    doctree = parse(text)
+    doctree = parse_rst(text, env=app.env)
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+    doctree_0_0 = doctree_0[0]
+    assert isinstance(doctree_0_0, nodes.Element)
+
     assert_node(
-        doctree[0],
+        doctree_0,
         [nodes.paragraph, addnodes.download_reference, nodes.literal, 'reftitle'],
     )
     assert_node(
-        doctree[0][0],
+        doctree_0[0],
         refdoc='dummy',
         refdomain='',
         reftype='download',
@@ -629,15 +611,16 @@ def test_download_role(parse):
         reftarget='sphinx.rst',
         refwarn=False,
     )
-    assert_node(doctree[0][0][0], classes=['xref', 'download'])
+    assert_node(doctree_0_0[0], classes=['xref', 'download'])
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_XRefRole(inliner):
+@pytest.mark.sphinx('dummy', testroot='_blank')
+def test_XRefRole(app: SphinxTestApp) -> None:
+    inliner = new_inliner(app.env)
     role = XRefRole()
 
     # implicit
-    doctrees, errors = role('ref', 'rawtext', 'text', 5, inliner, {}, [])
+    doctrees, errors = role('ref', 'rawtext', 'text', 5, inliner, {}, [])  # type: ignore[arg-type]
     assert len(doctrees) == 1
     assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text'])
     assert_node(
@@ -652,7 +635,7 @@ def test_XRefRole(inliner):
     assert errors == []
 
     # explicit
-    doctrees, errors = role('ref', 'rawtext', 'title <target>', 5, inliner, {}, [])
+    doctrees, errors = role('ref', 'rawtext', 'title <target>', 5, inliner, {}, [])  # type: ignore[arg-type]
     assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'title'])
     assert_node(
         doctrees[0],
@@ -665,11 +648,11 @@ def test_XRefRole(inliner):
     )
 
     # bang
-    doctrees, errors = role('ref', 'rawtext', '!title <target>', 5, inliner, {}, [])
+    doctrees, errors = role('ref', 'rawtext', '!title <target>', 5, inliner, {}, [])  # type: ignore[arg-type]
     assert_node(doctrees[0], [nodes.literal, 'title <target>'])
 
     # refdomain
-    doctrees, errors = role('test:doc', 'rawtext', 'text', 5, inliner, {}, [])
+    doctrees, errors = role('test:doc', 'rawtext', 'text', 5, inliner, {}, [])  # type: ignore[arg-type]
     assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text'])
     assert_node(
         doctrees[0],
@@ -683,7 +666,7 @@ def test_XRefRole(inliner):
 
     # fix_parens
     role = XRefRole(fix_parens=True)
-    doctrees, errors = role('ref', 'rawtext', 'text()', 5, inliner, {}, [])
+    doctrees, errors = role('ref', 'rawtext', 'text()', 5, inliner, {}, [])  # type: ignore[arg-type]
     assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text()'])
     assert_node(
         doctrees[0],
@@ -697,7 +680,7 @@ def test_XRefRole(inliner):
 
     # lowercase
     role = XRefRole(lowercase=True)
-    doctrees, errors = role('ref', 'rawtext', 'TEXT', 5, inliner, {}, [])
+    doctrees, errors = role('ref', 'rawtext', 'TEXT', 5, inliner, {}, [])  # type: ignore[arg-type]
     assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'TEXT'])
     assert_node(
         doctrees[0],
@@ -711,23 +694,35 @@ def test_XRefRole(inliner):
 
 
 @pytest.mark.sphinx('dummy', testroot='prolog')
-def test_rst_prolog(app):
+def test_rst_prolog(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     rst = app.env.get_doctree('restructuredtext')
     md = app.env.get_doctree('markdown')
 
     # rst_prolog
-    assert_node(rst[0], nodes.paragraph)
-    assert_node(rst[0][0], nodes.emphasis)
-    assert_node(rst[0][0][0], nodes.Text)
-    assert rst[0][0][0] == 'Hello world'
+    rst_0 = rst[0]
+    assert isinstance(rst_0, nodes.Element)
+    rst_0_0 = rst_0[0]
+    assert isinstance(rst_0_0, nodes.Element)
+
+    assert_node(rst_0, nodes.paragraph)
+    assert_node(rst_0_0, nodes.emphasis)
+    assert_node(rst_0_0[0], nodes.Text)
+    assert rst_0_0[0] == 'Hello world'
 
     # rst_epilog
-    assert_node(rst[-1], nodes.section)
-    assert_node(rst[-1][-1], nodes.paragraph)
-    assert_node(rst[-1][-1][0], nodes.emphasis)
-    assert_node(rst[-1][-1][0][0], nodes.Text)
-    assert rst[-1][-1][0][0] == 'Good-bye world'
+    rst_1 = rst[-1]
+    assert isinstance(rst_1, nodes.Element)
+    rst_1_1 = rst_1[-1]
+    assert isinstance(rst_1_1, nodes.Element)
+    rst_1_1_0 = rst_1_1[0]
+    assert isinstance(rst_1_1_0, nodes.Element)
+
+    assert_node(rst_1, nodes.section)
+    assert_node(rst_1_1, nodes.paragraph)
+    assert_node(rst_1_1_0, nodes.emphasis)
+    assert_node(rst_1_1_0[0], nodes.Text)
+    assert rst_1_1_0[0] == 'Good-bye world'
 
     # rst_prolog & rst_epilog on exlucding reST parser
     assert not md.rawsource.startswith('*Hello world*.')
@@ -735,12 +730,15 @@ def test_rst_prolog(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='keep_warnings')
-def test_keep_warnings_is_True(app):
+def test_keep_warnings_is_True(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
-    assert_node(doctree[0], nodes.section)
-    assert len(doctree[0]) == 2
-    assert_node(doctree[0][1], nodes.system_message)
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+
+    assert_node(doctree_0, nodes.section)
+    assert len(doctree_0) == 2
+    assert_node(doctree_0[1], nodes.system_message)
 
 
 @pytest.mark.sphinx(
@@ -748,49 +746,73 @@ def test_keep_warnings_is_True(app):
     testroot='keep_warnings',
     confoverrides={'keep_warnings': False},
 )
-def test_keep_warnings_is_False(app):
+def test_keep_warnings_is_False(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
-    assert_node(doctree[0], nodes.section)
-    assert len(doctree[0]) == 1
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+
+    assert_node(doctree_0, nodes.section)
+    assert len(doctree_0) == 1
 
 
 @pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
-def test_compact_refonly_bullet_list(app):
+def test_compact_refonly_bullet_list(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
-    assert_node(doctree[0], nodes.section)
-    assert len(doctree[0]) == 5
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+    doctree_0_2 = doctree_0[2]
+    assert isinstance(doctree_0_2, nodes.Element)
+    doctree_0_2_0 = doctree_0_2[0]
+    assert isinstance(doctree_0_2_0, nodes.Element)
+    doctree_0_4 = doctree_0[4]
+    assert isinstance(doctree_0_4, nodes.Element)
+    doctree_0_4_0 = doctree_0_4[0]
+    assert isinstance(doctree_0_4_0, nodes.Element)
 
-    assert doctree[0][1].astext() == 'List A:'
-    assert_node(doctree[0][2], nodes.bullet_list)
-    assert_node(doctree[0][2][0][0], addnodes.compact_paragraph)
-    assert doctree[0][2][0][0].astext() == 'genindex'
+    assert_node(doctree_0, nodes.section)
+    assert len(doctree_0) == 5
 
-    assert doctree[0][3].astext() == 'List B:'
-    assert_node(doctree[0][4], nodes.bullet_list)
-    assert_node(doctree[0][4][0][0], nodes.paragraph)
-    assert doctree[0][4][0][0].astext() == 'Hello'
+    assert doctree_0[1].astext() == 'List A:'
+    assert_node(doctree_0_2, nodes.bullet_list)
+    assert_node(doctree_0_2_0[0], addnodes.compact_paragraph)
+    assert doctree_0_2_0[0].astext() == 'genindex'
+
+    assert doctree_0[3].astext() == 'List B:'
+    assert_node(doctree_0_4, nodes.bullet_list)
+    assert_node(doctree_0_4_0[0], nodes.paragraph)
+    assert doctree_0_4_0[0].astext() == 'Hello'
 
 
 @pytest.mark.sphinx('dummy', testroot='default_role')
-def test_default_role1(app):
+def test_default_role1(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     # default-role: pep
     doctree = app.env.get_doctree('index')
-    assert_node(doctree[0], nodes.section)
-    assert_node(doctree[0][1], nodes.paragraph)
-    assert_node(doctree[0][1][0], addnodes.index)
-    assert_node(doctree[0][1][1], nodes.target)
-    assert_node(doctree[0][1][2], nodes.reference, classes=['pep'])
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+    doctree_0_1 = doctree_0[1]
+    assert isinstance(doctree_0_1, nodes.Element)
+
+    assert_node(doctree_0, nodes.section)
+    assert_node(doctree_0_1, nodes.paragraph)
+    assert_node(doctree_0_1[0], addnodes.index)
+    assert_node(doctree_0_1[1], nodes.target)
+    assert_node(doctree_0_1[2], nodes.reference, classes=['pep'])
 
     # no default-role
     doctree = app.env.get_doctree('foo')
-    assert_node(doctree[0], nodes.section)
-    assert_node(doctree[0][1], nodes.paragraph)
-    assert_node(doctree[0][1][0], nodes.title_reference)
-    assert_node(doctree[0][1][1], nodes.Text)
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+    doctree_0_1 = doctree_0[1]
+    assert isinstance(doctree_0_1, nodes.Element)
+
+    assert_node(doctree_0, nodes.section)
+    assert_node(doctree_0_1, nodes.paragraph)
+    assert_node(doctree_0_1[0], nodes.title_reference)
+    assert_node(doctree_0_1[1], nodes.Text)
 
 
 @pytest.mark.sphinx(
@@ -798,20 +820,30 @@ def test_default_role1(app):
     testroot='default_role',
     confoverrides={'default_role': 'guilabel'},
 )
-def test_default_role2(app):
+def test_default_role2(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     # default-role directive is stronger than configratuion
     doctree = app.env.get_doctree('index')
-    assert_node(doctree[0], nodes.section)
-    assert_node(doctree[0][1], nodes.paragraph)
-    assert_node(doctree[0][1][0], addnodes.index)
-    assert_node(doctree[0][1][1], nodes.target)
-    assert_node(doctree[0][1][2], nodes.reference, classes=['pep'])
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+    doctree_0_1 = doctree_0[1]
+    assert isinstance(doctree_0_1, nodes.Element)
+
+    assert_node(doctree_0, nodes.section)
+    assert_node(doctree_0_1, nodes.paragraph)
+    assert_node(doctree_0_1[0], addnodes.index)
+    assert_node(doctree_0_1[1], nodes.target)
+    assert_node(doctree_0_1[2], nodes.reference, classes=['pep'])
 
     # default_role changes the default behavior
     doctree = app.env.get_doctree('foo')
-    assert_node(doctree[0], nodes.section)
-    assert_node(doctree[0][1], nodes.paragraph)
-    assert_node(doctree[0][1][0], nodes.inline, classes=['guilabel'])
-    assert_node(doctree[0][1][1], nodes.Text)
+    doctree_0 = doctree[0]
+    assert isinstance(doctree_0, nodes.Element)
+    doctree_0_1 = doctree_0[1]
+    assert isinstance(doctree_0_1, nodes.Element)
+
+    assert_node(doctree_0, nodes.section)
+    assert_node(doctree_0_1, nodes.paragraph)
+    assert_node(doctree_0_1[0], nodes.inline, classes=['guilabel'])
+    assert_node(doctree_0_1[1], nodes.Text)

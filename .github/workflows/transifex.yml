@@ -1,6 +1,10 @@
 name: Synchronise translations
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/transifex.yml"
+      - "utils/babel_runner.py"
   schedule:
   # 22:38 GMT, every Sunday. Chosen to be a random time.
   - cron: "38 22 * * SUN"
@@ -9,15 +13,21 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_COLOR: "1"
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
+
 jobs:
   push:
     if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Install transifex client
@@ -25,8 +35,13 @@ jobs:
         mkdir -p /tmp/tx_cli && cd $_
         curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
       shell: bash
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: pip install --upgrade babel jinja2
+      run: uv pip install --group translations
     - name: Extract translations from source code
       run: python utils/babel_runner.py extract
     - name: Push translations to transifex.com
@@ -44,9 +59,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Install transifex client
@@ -54,8 +71,13 @@ jobs:
         mkdir -p /tmp/tx_cli && cd $_
         curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
       shell: bash
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: pip install --upgrade babel jinja2
+      run: uv pip install --group translations
     - name: Extract translations from source code
       run: python utils/babel_runner.py extract
     - name: Pull translations from transifex.com

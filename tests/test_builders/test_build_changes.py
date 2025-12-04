@@ -1,10 +1,17 @@
 """Test the ChangesBuilder class."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
+
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('changes', testroot='changes')
-def test_build(app):
+def test_build(app: SphinxTestApp) -> None:
     app.build()
 
     # TODO: Use better checking of html content
@@ -32,7 +39,7 @@ def test_build(app):
     srcdir='changes-none',
     confoverrides={'version': '0.7', 'release': '0.7b1'},
 )
-def test_no_changes(app):
+def test_no_changes(app: SphinxTestApp) -> None:
     app.build()
 
     assert 'no changes in version 0.7.' in app.status.getvalue()

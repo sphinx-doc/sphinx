@@ -8,15 +8,18 @@ from gettext import NullTranslations, translation
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from sphinx import package_dir
+
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterable
     from typing import Any
 
+_LOCALE_DIR = Path(package_dir, 'locale')
+
 
 class _TranslationProxy:
-    """
-    The proxy implementation attempts to be as complete as possible, so that
+    """The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
 
@@ -141,9 +144,6 @@ def init(
     return translator, has_translation
 
 
-_LOCALE_DIR = Path(__file__).resolve().parent
-
-
 def init_console(
     locale_dir: str | os.PathLike[str] | None = None,
     catalog: str = 'sphinx',
@@ -207,7 +207,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]  # NoQA: E501
+            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]
         else:
             translator = get_translator(catalog, namespace)
             return translator.gettext(message)

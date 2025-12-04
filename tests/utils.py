@@ -2,6 +2,7 @@ from __future__ import annotations
 
 __all__ = ('http_server',)
 
+import os
 import socket
 from contextlib import contextmanager
 from http.server import ThreadingHTTPServer
@@ -19,20 +20,26 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
 
+TESTS_ROOT: Final[Path] = Path(__file__).resolve().parent
+TEST_ROOTS_DIR: Final[Path] = TESTS_ROOT / (
+    'roots-read-only'
+    if 'CI' in os.environ and (TESTS_ROOT / 'roots-read-only').is_dir()
+    else 'roots'
+)
+
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
 #     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
-TESTS_ROOT: Final[Path] = Path(__file__).resolve().parent
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
-        """
-        Constructs a threaded HTTP server.  The default port number of ``0``
-        delegates selection of a port number to bind to to Python.
+        """Constructs a threaded HTTP server.
 
-        Ref: https://docs.python.org/3.11/library/socketserver.html#asynchronous-mixins
+        The default port number of ``0`` delegates selection of a port number
+        to bind to Python.
+        See: https://docs.python.org/3/library/socketserver.html#asynchronous-mixins
         """
         super().__init__(daemon=True)
         self.server = ThreadingHTTPServer(('localhost', port), handler)
@@ -77,8 +84,7 @@ def http_server(
 
 @contextmanager
 def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Iterator[None]:
-    """
-    Rewrite hyperlinks that refer to network location 'localhost:7777',
+    """Rewrite hyperlinks that refer to network location 'localhost:7777',
     allowing that location to vary dynamically with the arbitrary test HTTP
     server port assigned during unit testing.
 
@@ -109,8 +115,7 @@ def serve_application(
     tls_enabled: bool = False,
     port: int = 0,
 ) -> Iterator[str]:
-    """
-    Prepare a temporary server to handle HTTP requests related to the links
+    """Prepare a temporary server to handle HTTP requests related to the links
     found in a Sphinx application project.
 
     :param app: The Sphinx application.

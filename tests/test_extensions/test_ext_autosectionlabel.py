@@ -1,12 +1,18 @@
 """Test sphinx.ext.autosectionlabel extension."""
 
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel')
-def test_autosectionlabel_html(app, skipped_labels=False):
+def test_autosectionlabel_html(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -46,7 +52,8 @@ def test_autosectionlabel_html(app, skipped_labels=False):
     )
     assert re.search(html, content, re.DOTALL)
 
-    # for smart_quotes (refs: #4027)
+    # for smart_quotes
+    # See: https://github.com/sphinx-doc/sphinx/issues/4027
     html = (
         '<li><p><a class="reference internal" '
         'href="#this-one-s-got-an-apostrophe">'
@@ -58,7 +65,7 @@ def test_autosectionlabel_html(app, skipped_labels=False):
 
 # Reuse test definition from above, just change the test root directory
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel-prefix-document')
-def test_autosectionlabel_prefix_document_html(app):
+def test_autosectionlabel_prefix_document_html(app: SphinxTestApp) -> None:
     test_autosectionlabel_html(app)
 
 
@@ -67,7 +74,7 @@ def test_autosectionlabel_prefix_document_html(app):
     testroot='ext-autosectionlabel',
     confoverrides={'autosectionlabel_maxdepth': 3},
 )
-def test_autosectionlabel_maxdepth(app):
+def test_autosectionlabel_maxdepth(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

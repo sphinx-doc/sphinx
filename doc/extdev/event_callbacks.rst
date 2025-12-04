@@ -7,7 +7,7 @@ Connecting callback functions to events is a simple way to extend Sphinx,
 by hooking into the build process at various points.
 
 Use :meth:`.Sphinx.connect` in an extension's ``setup`` function,
-or a ``setup`` function in your projects :file:`conf.py`,
+or a ``setup`` function in your project's :file:`conf.py`,
 to connect functions to the events:
 
 .. code-block:: python
@@ -22,7 +22,7 @@ to connect functions to the events:
 
    Extensions can add their own events by using :meth:`.Sphinx.add_event`,
    and calling them them with
-   :meth:`.Sphinx.emit` or :meth:`.Sphinx.emit_firstresult`.
+   :meth:`.EventManager.emit` or :meth:`.EventManager.emit_firstresult`.
 
 Core events overview
 --------------------
@@ -70,8 +70,8 @@ Below is an overview of the core event that happens during a build.
       14. apply post-transforms (by priority): docutils.document -> docutils.document
       15. event.doctree-resolved(app, doctree, docname)
           - In the event that any reference nodes fail to resolve, the following may emit:
-          - event.missing-reference(env, node, contnode)
-          - event.warn-missing-reference(domain, node)
+          - event.missing-reference(app, env, node, contnode)
+          - event.warn-missing-reference(app, domain, node)
 
    16. Generate output files
    17. event.build-finished(app, exception)

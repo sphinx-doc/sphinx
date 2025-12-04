@@ -182,7 +182,7 @@ With
 Tables
 ------
 
-.. tabularcolumns:: |L|p{5cm}|R|
+.. tabularcolumns:: |*{1}{L|}p{5cm}|*{1}{R}|
 
 .. _my-table:
 
@@ -222,6 +222,20 @@ Tables with multirow and multicol:
    +    +
    |    |
    +----+
+
+   +---+---+
+   | +---+ |
+   | | h | |
+   | +---+ |
+   +---+---+
+
+   .. rst-class:: longtable
+
+   +---+---+
+   | +---+ |
+   | | h | |
+   | +---+ |
+   +---+---+
 
 .. list-table::
    :header-rows: 0
@@ -278,27 +292,38 @@ Figures
 Version markup
 --------------
 
-.. versionadded:: 0.6
+.. version-added:: 0.6
    Some funny **stuff**.
 
-.. versionchanged:: 0.6
+.. version-changed:: 0.6
    Even more funny stuff.
 
-.. deprecated:: 0.6
+.. version-deprecated:: 0.6
    Boring stuff.
 
-.. versionremoved:: 0.6
+.. version-removed:: 0.6
    Goodbye boring stuff.
 
-.. versionadded:: 1.2
+.. version-added:: 1.2
 
-   First paragraph of versionadded.
+   First paragraph of version-added.
 
-.. versionchanged:: 1.2
-   First paragraph of versionchanged.
+.. version-changed:: 1.2
+   First paragraph of version-changed.
 
-   Second paragraph of versionchanged.
+   Second paragraph of version-changed.
 
+.. version-added:: 0.6
+   Deprecated alias for version-added.
+
+.. version-changed:: 0.6
+   Deprecated alias for version-changed.
+
+.. deprecated:: 0.6
+   Deprecated alias for version-deprecated.
+
+.. versionremoved:: 0.6
+   Deprecated alias for version-removed.
 
 Code blocks
 -----------
@@ -469,3 +494,9 @@ Smart quotes
 
 .. [#] Like footnotes.
 
+
+Link in a title: `Field lists <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists>`_
+---------------------------------------------------------------------------------------------------------------------
+
+Again: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists
+------------------------------------------------------------------------------------------

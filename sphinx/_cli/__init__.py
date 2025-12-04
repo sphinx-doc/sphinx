@@ -64,7 +64,7 @@ def _load_subcommand_descriptions() -> Iterator[tuple[str, str]]:
             # log an error here, but don't fail the full enumeration
             print(f'Failed to load the description for {command}', file=sys.stderr)
         else:
-            yield command, description.split('\n\n', 1)[0]
+            yield command, description.partition('\n\n')[0]
 
 
 class _RootArgumentParser(argparse.ArgumentParser):
@@ -168,11 +168,8 @@ class _RootArgumentParser(argparse.ArgumentParser):
         raise ValueError(msg)
 
     def error(self, message: str) -> NoReturn:
-        sys.stderr.write(
-            __(
-                "{0}: error: {1}\nRun '{0} --help' for information"  # NoQA: COM812
-            ).format(self.prog, message)
-        )
+        msg = __("{0}: error: {1}\nRun '{0} --help' for information")
+        sys.stderr.write(msg.format(self.prog, message))
         raise SystemExit(2)
 
 

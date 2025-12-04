@@ -21,21 +21,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3"
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v7
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: uv pip install .[docs]
+      run: uv pip install . --group docs
     - name: Render the documentation
       run: >
         sphinx-build

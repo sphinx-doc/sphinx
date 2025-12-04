@@ -58,6 +58,9 @@ Options
    *info*
      Build Texinfo files and run them through :program:`makeinfo`.
 
+   *help*
+      Output a list of valid builder targets, and exit.
+
    .. note::
 
       The default output directory locations when using *make-mode*
@@ -141,7 +144,7 @@ Options
    .. versionchanged:: 6.2
       Add ``--jobs`` long option.
 
-.. option:: -c path, --config-dir path
+.. option:: -c path, --conf-dir path
 
    Don't look for the :file:`conf.py` in the source directory, but use the given
    configuration directory instead.  Note that various other files and paths
@@ -152,7 +155,7 @@ Options
    .. versionadded:: 0.3
 
    .. versionchanged:: 7.3
-      Add ``--config-dir`` long option.
+      Add ``--conf-dir`` long option.
 
 .. option:: -C, --isolated
 
@@ -272,13 +275,13 @@ Options
    From Sphinx 8.1, :option:`!--keep-going` is always enabled.
    Previously, it was only applicable whilst using :option:`--fail-on-warning`,
    which by default exited :program:`sphinx-build` on the first warning.
-   Using :option:`!--keep-going` runs :program:`!sphinx-build` to completion
+   Using :option:`!--keep-going` runs :program:`sphinx-build` to completion
    and exits with exit status 1 if errors are encountered.
 
    .. versionadded:: 1.8
    .. versionchanged:: 8.1
       :program:`sphinx-build` no longer exits on the first warning,
-      meaning that in effect :option:`!--fail-on-warning` is always enabled.
+      meaning that in effect :option:`!--keep-going` is always enabled.
       The option is retained for compatibility, but may be removed at some
       later date.
 

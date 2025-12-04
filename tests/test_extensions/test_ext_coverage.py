@@ -1,12 +1,18 @@
 """Test the coverage builder."""
 
+from __future__ import annotations
+
 import pickle
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('coverage', testroot='root')
-def test_build(app):
+def test_build(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     py_undoc = (app.outdir / 'python.txt').read_text(encoding='utf8')
@@ -32,12 +38,12 @@ def test_build(app):
     assert 'api.h' in c_undoc
     assert ' * Py_SphinxTest' in c_undoc
 
-    undoc_py, undoc_c, py_undocumented, py_documented = pickle.loads(
+    undoc_py, undoc_c, _py_undocumented, _py_documented = pickle.loads(
         (app.outdir / 'undoc.pickle').read_bytes()
     )
     assert len(undoc_c) == 1
     # the key is the full path to the header file, which isn't testable
-    assert list(undoc_c.values())[0] == {('function', 'Py_SphinxTest')}
+    assert next(iter(undoc_c.values())) == {('function', 'Py_SphinxTest')}
 
     assert 'autodoc_target' in undoc_py
     assert 'funcs' in undoc_py['autodoc_target']
@@ -50,7 +56,7 @@ def test_build(app):
 
 
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
-def test_coverage_ignore_pyobjects(app):
+def test_coverage_ignore_pyobjects(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     actual = (app.outdir / 'python.txt').read_text(encoding='utf8')
     expected = """\
@@ -95,7 +101,7 @@ Classes:
 @pytest.mark.sphinx(
     'coverage', testroot='root', confoverrides={'coverage_show_missing_items': True}
 )
-def test_show_missing_items(app):
+def test_show_missing_items(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     assert 'undocumented' in app.status.getvalue()
@@ -110,8 +116,8 @@ def test_show_missing_items(app):
 @pytest.mark.sphinx(
     'coverage', testroot='root', confoverrides={'coverage_show_missing_items': True}
 )
-def test_show_missing_items_quiet(app):
-    app.quiet = True
+def test_show_missing_items_quiet(app: SphinxTestApp) -> None:
+    app.config._verbosity = -1  # mimics status=None / app.quiet = True
     app.build(force_all=True)
 
     assert (

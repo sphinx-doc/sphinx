@@ -9,7 +9,7 @@
 % by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2024/10/11 v8.1.1 Sphinx LaTeX package (sphinx-doc)]
+\ProvidesPackage{sphinx}[2025/08/03 v9.0.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -67,7 +67,7 @@
    Footnote rendering may have had problems, due to extra package or
    document class; check latex log for instructions}%
 \@namedef{sphinx_buildwarning_badiconpackage}{%
-   You have set iconpackage=\spx@opt@iconpackage, but this LaTeX package
+   You have set iconpackage=\spx@usr@iconpackage, but this LaTeX package
    is not found}%
 
 %% OPTION HANDLING
@@ -672,7 +672,7 @@
 % defaults for them remain not to have specific colour.
 %
 % 7.4.0 adds keys for admonition titles: for background and foreground colors,
-% and for icons (whose defaults are picked from Free Fontawesome 5).
+% and for icons.
 \def\spx@tempa#1{%
   \expandafter\spx@tempb
   \csname if#1withshadowcolor\expandafter\endcsname
@@ -869,80 +869,125 @@
 }
 
 % 7.4.0 Support for icons in admonition titles
-% We try to
-% - get Sphinx PDF builds to process fine in absence of fontawesome5
-% - use fontawesome5 if present, but not if user prefers another package
-% - provide an interface for using other LaTeX code for icons
-% - provide an interface for using some other package than fontawesome5
-% Indeed we can't load fontawesome5 unconditionally even if available,
-% as it proves incompatible with fontawesome package.
-% We thus must delay its loading.
-\IfFileExists{fontawesome5.sty}{%
-  \DeclareStringOption[fontawesome5]{iconpackage}%
+%
+% We let Sphinx use, listed in order of priority:
+% - a user-specified package via iconpackage key,
+% - fontawesome7 (supported since 9.0.0),
+% - fontawesome6 (supported since 9.0.0),
+% - fontawesome5,
+% - fontawesome, 
+% - or nothing at all, and then icons are not drawn.
+% To allow a user-specified package, an extra interface
+% is provided for specifying the icon-drawing LaTeX code.
+%
+% We can't load fontawesome7 (or 6 or 5) unconditionally even if available, as it
+% is incompatible with fontawesome package which may be preferred by user.  We
+% thus must delay loading the package to at begin document, and for now can
+% only set the default value of iconpackage key.
+\IfFileExists{fontawesome7.sty}{%
+  \DeclareStringOption[fontawesome7]{iconpackage}%
 }%
 {%
-  \IfFileExists{fontawesome.sty}
-  {\DeclareStringOption[fontawesome]{iconpackage}}
-  {\DeclareStringOption[none]{iconpackage}}%
+  \IfFileExists{fontawesome6.sty}{%
+    \DeclareStringOption[fontawesome6]{iconpackage}%
+  }%
+  {%
+   \IfFileExists{fontawesome5.sty}{%
+     \DeclareStringOption[fontawesome5]{iconpackage}%
+   }%
+   {%
+    \IfFileExists{fontawesome.sty}
+    {\DeclareStringOption[fontawesome]{iconpackage}}
+    {\DeclareStringOption[none]{iconpackage}}%
+   }%
+  }%
 }%
-\newcommand\spx@faIcon[2][]{}%
-% The above \spx@faIcon which gobbles one mandatory and one optional
-% argument is put into use only if both fontawesome5 and fontawesome
-% LaTeX packages are not available, as part of the defaults for the
-% div.*_title-icon keys (these keys can be redefined via the sphinxsetup
-% interface).
+% Unfortunately icon macro names are not the same across fontawesome,
+% fontawesome5, fontawesome6  and fontawesome7 LaTeX packages.
+% At 9.0.0 we refactor the
+% icon support code into something easier to maintain in future in case of a
+% fontawesome8, etc...
 %
-\def\spxstring@fontawesome{fontawesome}
-\def\spxstring@fontawesomev{fontawesome5}
+% TODO: Handle spaces possibly caused by bad user usage of iconpackage key?
+%       This would need to check how LaTeX handle spaces in package name
+%       in \RequirePackage command.  Things in this area may have changed
+%       recently (2025/04).
 \AtBeginDocument{%
   \ifx\spx@opt@iconpackage\spxstring@none
   \else
       \IfFileExists{\spx@opt@iconpackage.sty}
-         {\RequirePackage{\spx@opt@iconpackage}%
-          \ifx\spx@opt@iconpackage\spxstring@fontawesomev
-              \renewcommand\spx@faIcon{\faIcon}%
-          \else
-          \ifx\spx@opt@iconpackage\spxstring@fontawesome
-              \renewcommand\spx@faIcon[2][]{\faicon{##2}}%
-              % The \ifdefined's are a bit silly because we know that
-              % fontawesome.sty does not provide it, but perhaps
-              % there can be some new release of that package?
-              \ifdefined\faicon@lightbulb\else
-                   \let\faicon@lightbulb\faLightbulbO
-              \fi
-              \ifdefined\faicon@radiation\else
-                   \let\faicon@radiation\faBolt
-              \fi
-              \ifdefined\faicon@pen\else
-                   \let\faicon@pen\faPencil
-              \fi
-          % if neither has been required, \spx@faIcon will simply swallow
-          % its argument and it is up to user
-          % to set the various div.*_title-icon keys appropriately.
-          \fi\fi %
-         }%
+         {\RequirePackage{\spx@opt@iconpackage}}%
          {%
-         \sphinxbuildwarning{badiconpackage}%
-         \PackageWarningNoLine{sphinx}{%
-            You have set iconpackage=\spx@opt@iconpackage\MessageBreak
-            But \spx@opt@iconpackage.sty is not found by LaTeX}
+          \let\spx@usr@iconpackage\spx@opt@iconpackage
+          \sphinxbuildwarning{badiconpackage}%
+          \PackageWarningNoLine{sphinx}{%
+            You have set iconpackage=\spx@usr@iconpackage\MessageBreak
+            But \spx@usr@iconpackage.sty is not found by LaTeX}
+          \let\spx@opt@iconpackage\spxstring@none
          }%
   \fi
 }
 
+% Icon defaults depending on package used.
+% Attention! no extra spaces (to align here) when using \@namedef!
+
+\@namedef{spx@fontawesome6@note}{\faIcon{circle-info}}
+\@namedef{spx@fontawesome6@hint}{\faIcon[regular]{lightbulb}}
+\@namedef{spx@fontawesome6@tip}{\faIcon[regular]{lightbulb}}
+\@namedef{spx@fontawesome6@seealso}{\faIcon{share}}
+\@namedef{spx@fontawesome6@todo}{\faIcon{pen}}
+\@namedef{spx@fontawesome6@important}{\faIcon{circle-pause}}
+\@namedef{spx@fontawesome6@caution}{\faIcon{radiation}}
+\@namedef{spx@fontawesome6@warning}{\faIcon{triangle-exclamation}}
+\@namedef{spx@fontawesome6@attention}{\faIcon{triangle-exclamation}}
+\@namedef{spx@fontawesome6@danger}{\faIcon{radiation}}
+\@namedef{spx@fontawesome6@error}{\faIcon{circle-xmark}}
+
+% Turns out that fontawesome7 commands for our target icons are
+% same as with fontawesome6.  So make a loop to spare a few lines here.
+\@for\x:=note,hint,tip,seealso,todo,important,caution,warning,attention,%
+         danger,error%
+\do{\expandafter\let\csname spx@fontawesome7@\x\expandafter\endcsname
+                    \csname spx@fontawesome6@\x\endcsname}
+
+\@namedef{spx@fontawesome5@note}{\faIcon{info-circle}}
+\@namedef{spx@fontawesome5@hint}{\faIcon[regular]{lightbulb}}
+\@namedef{spx@fontawesome5@tip}{\faIcon[regular]{lightbulb}}
+\@namedef{spx@fontawesome5@seealso}{\faIcon{share}}
+\@namedef{spx@fontawesome5@todo}{\faIcon{pen}}
+\@namedef{spx@fontawesome5@important}{\faIcon{pause-circle}}
+\@namedef{spx@fontawesome5@caution}{\faIcon{radiation}}
+\@namedef{spx@fontawesome5@warning}{\faIcon{exclamation-triangle}}
+\@namedef{spx@fontawesome5@attention}{\faIcon{exclamation-triangle}}
+\@namedef{spx@fontawesome5@danger}{\faIcon{radiation}}
+\@namedef{spx@fontawesome5@error}{\faIcon{times-circle}}
+
+\def\spx@fontawesome@note     {\faicon{info-circle}}
+\def\spx@fontawesome@hint     {\faicon{lightbulb-o}}
+\def\spx@fontawesome@tip      {\faicon{lightbulb-o}}
+\def\spx@fontawesome@seealso  {\faicon{share}}
+\def\spx@fontawesome@todo     {\faicon{pencil}}
+\def\spx@fontawesome@important{\faicon{pause-circle}}
+\def\spx@fontawesome@caution  {\faicon{bolt}}
+\def\spx@fontawesome@warning  {\faicon{exclamation-triangle}}
+\def\spx@fontawesome@attention{\faicon{exclamation-triangle}}
+\def\spx@fontawesome@danger   {\faicon{bolt}}
+\def\spx@fontawesome@error    {\faicon{times-circle}}
+
+% \spx@none@{note,hint,...} left undefined, the \@nameuse will be \relax
+\def\spx@titleicon@default#1{\@nameuse{spx@\spx@opt@iconpackage @#1}}
 \setkeys{sphinx}{
-% Icon defaults.
-  div.note_title-icon      = \spx@faIcon{info-circle},
-  div.hint_title-icon      = \spx@faIcon[regular]{lightbulb},
-  div.tip_title-icon       = \spx@faIcon[regular]{lightbulb},
-  div.seealso_title-icon   = \spx@faIcon{share},
-  div.todo_title-icon      = \spx@faIcon{pen},
-  div.important_title-icon = \spx@faIcon{pause-circle},
-  div.caution_title-icon   = \spx@faIcon{radiation},
-  div.warning_title-icon   = \spx@faIcon{exclamation-triangle},
-  div.attention_title-icon = \spx@faIcon{exclamation-triangle},
-  div.danger_title-icon    = \spx@faIcon{radiation},
-  div.error_title-icon     = \spx@faIcon{times-circle},
+  div.note_title-icon      = \spx@titleicon@default{note},
+  div.hint_title-icon      = \spx@titleicon@default{hint},
+  div.tip_title-icon       = \spx@titleicon@default{tip},
+  div.seealso_title-icon   = \spx@titleicon@default{seealso},
+  div.todo_title-icon      = \spx@titleicon@default{todo},
+  div.important_title-icon = \spx@titleicon@default{important},
+  div.caution_title-icon   = \spx@titleicon@default{caution},
+  div.warning_title-icon   = \spx@titleicon@default{warning},
+  div.attention_title-icon = \spx@titleicon@default{attention},
+  div.danger_title-icon    = \spx@titleicon@default{danger},
+  div.error_title-icon     = \spx@titleicon@default{error},
 % MEMO: the new at 8.1.0 defaults for contents/topic/sidebar directives
 % use no icons, they use \sphinxdotitlerow which detects automatically
 % whether title-icon key has been set or not.
@@ -1098,12 +1143,13 @@
 % Some of these defaults got already set.  But we now list them all explicitly
 % for a complete initial configuration of reset storage.
 % At 7.4.0, \fboxrule and \fboxsep replaced by 0.4pt and 3pt which are anyhow
-% the defaults for these LaTeX dimensions.
+% the defaults for these LaTeX dimensions. 8.2.0 corrected border-radius
+% default back to 3pt (\fboxsep) not 0.4pt (\fboxrule).
 \let\spx@boxes@sphinxbox@defaults\@gobble
 \sphinxboxsetup{%
                 border-width=0.4pt,
                 padding=3pt,
-                border-radius=0.4pt,
+                border-radius=3pt,
                 box-shadow=none,
 % MEMO: as xcolor is loaded, \spx@defineorletcolor has a "\colorlet" branch
 % which makes this syntax acceptable and avoids duplicating here the values.
@@ -1191,5 +1237,25 @@
 % FIXME: this line should be dropped, as "9" is default anyhow.
 \ifdefined\pdfcompresslevel\pdfcompresslevel = 9 \fi
 
-
+%%% SUPPORT FOR CSS3 EXTRA LENGTH UNITS
+% cf rstdim_to_latexdim in latex.py
+%
+\def\sphinxchdimen{\dimexpr\fontcharwd\font`0\relax}
+% TODO: decide if we want rather \textwidth/\textheight.
+\newdimen\sphinxvwdimen
+  \sphinxvwdimen=\dimexpr0.01\paperwidth\relax
+\newdimen\sphinxvhdimen
+  \sphinxvhdimen=\dimexpr0.01\paperheight\relax
+\newdimen\sphinxvmindimen
+  \sphinxvmindimen=\dimexpr
+     \ifdim\paperwidth<\paperheight\sphinxvwdimen\else\sphinxvhdimen\fi
+                   \relax
+\newdimen\sphinxvmaxdimen
+  \sphinxvmaxdimen=\dimexpr
+     \ifdim\paperwidth<\paperheight\sphinxvhdimen\else\sphinxvwdimen\fi
+                   \relax
+\newdimen\sphinxQdimen
+  \sphinxQdimen=0.25mm
+% MEMO: \sphinxremdimen is defined in the template as it needs
+% the config variable pointsize.
 \endinput

@@ -9,10 +9,12 @@ import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import Literal
+
 
 script_dir = Path(__file__).resolve().parent
 package_dir = script_dir.parent
@@ -92,11 +94,11 @@ def bump_version(
         lines = f.read().splitlines(keepends=True)
 
     for i, line in enumerate(lines):
-        if line.startswith('__version__ = '):
-            lines[i] = f"__version__ = '{version}'\n"
+        if line.startswith('__version__: Final = '):
+            lines[i] = f"__version__: Final = '{version}'\n"
             continue
-        if line.startswith('version_info = '):
-            lines[i] = f'version_info = {version_info.release_tuple}\n'
+        if line.startswith('version_info: Final = '):
+            lines[i] = f'version_info: Final = {version_info.release_tuple}\n'
             continue
         if line.startswith('_in_development = '):
             lines[i] = f'_in_development = {in_develop}\n'

@@ -38,35 +38,46 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
 
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.testing.util import SphinxTestApp
 
-def parse(sig):
+
+def parse(sig: str, *, env: BuildEnvironment) -> str:
     m = py_sig_re.match(sig)
     if m is None:
         raise ValueError
-    name_prefix, tp_list, name, arglist, retann = m.groups()
+    _name_prefix, _tp_list, _name, arglist, _retann = m.groups()
     signode = addnodes.desc_signature(sig, '')
-    _pseudo_parse_arglist(signode, arglist)
+    _pseudo_parse_arglist(signode, arglist, env=env)
     return signode.astext()
 
 
-def test_function_signatures():
-    rv = parse('func(a=1) -> int object')
-    assert rv == '(a=1)'
+def test_function_signatures(app: Sphinx) -> None:
+    rv = parse("compile(source : string, filename, symbol='file')", env=app.env)
+    assert rv == "(source: string, filename, symbol='file')"
 
-    rv = parse('func(a=1, [b=None])')
-    assert rv == '(a=1, [b=None])'
+    for params, expect in [
+        ('(a=1)', '(a=1)'),
+        ('(a: int = 1)', '(a: int = 1)'),
+        ('(a=1, [b=None])', '(a=1, [b=None])'),
+        ('(a=1[, b=None])', '(a=1, [b=None])'),
+        ('(a=[], [b=None])', '(a=[], [b=None])'),
+        ('(a=[][, b=None])', '(a=[], [b=None])'),
+        ('(a: Foo[Bar]=[][, b=None])', '(a: Foo[Bar] = [], [b=None])'),
+    ]:
+        rv = parse(f'func{params}', env=app.env)
+        assert rv == expect
 
-    rv = parse('func(a=1[, b=None])')
-    assert rv == '(a=1, [b=None])'
-
-    rv = parse("compile(source : string, filename, symbol='file')")
-    assert rv == "(source : string, filename, symbol='file')"
-
-    rv = parse('func(a=[], [b=None])')
-    assert rv == '(a=[], [b=None])'
-
-    rv = parse('func(a=[][, b=None])')
-    assert rv == '(a=[], [b=None])'
+        # Note: 'def f[Foo[Bar]]()' is not valid Python but people might write
+        # it in a reST document to convene the intent of a higher-kinded type
+        # variable.
+        for tparams in ['', '[Foo]', '[Foo[Bar]]']:
+            for retann in ['', '-> Foo', '-> Foo[Bar]', '-> anything else']:
+                rv = parse(f'func{tparams}{params} {retann}'.rstrip(), env=app.env)
+                assert rv == expect
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -316,7 +327,7 @@ def test_domain_py_find_obj(app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_get_full_qualified_name():
+def test_get_full_qualified_name() -> None:
     env = Mock(domaindata={})
     domain = PythonDomain(env)
 
@@ -344,7 +355,7 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation(app):
     doctree = _parse_annotation('int', app.env)
     assert_node(doctree, ([pending_xref, 'int'],))
@@ -503,8 +514,30 @@ def test_parse_annotation(app):
         ),
     )
 
+    doctree = _parse_annotation('*tuple[str, int]', app.env)
+    assert_node(
+        doctree,
+        (
+            [desc_sig_operator, '*'],
+            [pending_xref, 'tuple'],
+            [desc_sig_punctuation, '['],
+            [pending_xref, 'str'],
+            [desc_sig_punctuation, ','],
+            desc_sig_space,
+            [pending_xref, 'int'],
+            [desc_sig_punctuation, ']'],
+        ),
+    )
+    assert_node(
+        doctree[1],
+        pending_xref,
+        refdomain='py',
+        reftype='class',
+        reftarget='tuple',
+    )
 
-@pytest.mark.sphinx('html', testroot='root')
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation('~typing.Dict[str, str]', app.env)
     assert_node(
@@ -524,7 +557,7 @@ def test_parse_annotation_suppress(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_Literal(app):
     doctree = _parse_annotation('Literal[True, False]', app.env)
     assert_node(
@@ -814,7 +847,7 @@ def test_modindex_common_prefix(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_no_index_entry(app):
     text = '.. py:function:: f()\n.. py:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
@@ -835,6 +868,15 @@ def test_no_index_entry(app):
         entries=[('single', 'f (built-in class)', 'f', '', None)],
     )
     assert_node(doctree[2], addnodes.index, entries=[])
+
+    text = '.. py:module:: f\n.. py:module:: g\n   :no-index-entry:\n'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, nodes.target, nodes.target))
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('pair', 'module; f', 'module-f', '', None)],
+    )
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
@@ -1073,7 +1115,134 @@ def test_domain_py_python_maximum_signature_line_length_in_text(app):
     assert expected_parameter_list_foo in content
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx(
+    'html',
+    testroot='domain-py-python_maximum_signature_line_length',
+    confoverrides={'python_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_html(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    expected_parameter_list_hello = """\
+
+<dl>
+<dd>\
+<em class="sig-param">\
+<span class="n"><span class="pre">name</span></span>\
+<span class="p"><span class="pre">:</span></span>\
+<span class="w"> </span>\
+<span class="n"><span class="pre">str</span></span>\
+</em>\
+</dd>
+</dl>
+
+<span class="sig-paren">)</span> \
+<span class="sig-return">\
+<span class="sig-return-icon">&#x2192;</span> \
+<span class="sig-return-typehint"><span class="pre">str</span></span>\
+</span>\
+<a class="headerlink" href="#hello" title="Link to this definition">¶</a>\
+</dt>\
+"""
+    assert expected_parameter_list_hello in content
+
+    param_line_fmt = '<dd>{}</dd>\n'
+    param_name_fmt = (
+        '<em class="sig-param"><span class="n"><span class="pre">{}</span></span></em>'
+    )
+    optional_fmt = '<span class="optional">{}</span>'
+
+    expected_a = param_line_fmt.format(
+        optional_fmt.format('[')
+        + param_name_fmt.format('a')
+        + ','
+        + optional_fmt.format('['),
+    )
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format(
+        param_name_fmt.format('b')
+        + ','
+        + optional_fmt.format(']')
+        + optional_fmt.format(']'),
+    )
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format(param_name_fmt.format('c') + ',')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format(
+        param_name_fmt.format('d') + optional_fmt.format('[') + ','
+    )
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format(param_name_fmt.format('e') + ',')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format(
+        param_name_fmt.format('f') + optional_fmt.format(']')
+    )
+    assert expected_f in content
+
+    expected_parameter_list_foo = """\
+
+<dl>
+{}{}{}{}{}{}</dl>
+
+<span class="sig-paren">)</span>\
+<a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
+</dt>\
+""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx(
+    'text',
+    testroot='domain-py-python_maximum_signature_line_length',
+    freshenv=True,
+    confoverrides={'python_trailing_comma_in_multi_line_signatures': False},
+)
+def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_text(app):
+    app.build()
+    content = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    param_line_fmt = STDINDENT * ' ' + '{}\n'
+
+    expected_parameter_list_hello = '(\n{}) -> str'.format(
+        param_line_fmt.format('name: str')
+    )
+
+    assert expected_parameter_list_hello in content
+
+    expected_a = param_line_fmt.format('[a,[')
+    assert expected_a in content
+
+    expected_b = param_line_fmt.format('b,]]')
+    assert expected_b in content
+
+    expected_c = param_line_fmt.format('c,')
+    assert expected_c in content
+
+    expected_d = param_line_fmt.format('d[,')
+    assert expected_d in content
+
+    expected_e = param_line_fmt.format('e,')
+    assert expected_e in content
+
+    expected_f = param_line_fmt.format('f]')
+    assert expected_f in content
+
+    expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(
+        expected_a,
+        expected_b,
+        expected_c,
+        expected_d,
+        expected_e,
+        expected_f,
+    )
+    assert expected_parameter_list_foo in content
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_module_content_line_number(app):
     text = '.. py:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
@@ -1189,7 +1358,7 @@ def test_short_literal_types(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_function_pep_695(app):
     text = """.. py:function:: func[\
         S,\
@@ -1316,7 +1485,7 @@ def test_function_pep_695(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_class_def_pep_695(app):
     # Non-concrete unbound generics are allowed at runtime but type checkers
     # should fail (https://peps.python.org/pep-0695/#type-parameter-scopes)
@@ -1332,7 +1501,10 @@ def test_class_def_pep_695(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,
@@ -1369,7 +1541,7 @@ def test_class_def_pep_695(app):
     )
 
 
-@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_class_def_pep_696(app):
     # test default values for type variables without using PEP 696 AST parser
     text = """.. py:class:: Class[\
@@ -1394,7 +1566,10 @@ def test_class_def_pep_696(app):
                     [
                         desc_signature,
                         (
-                            [desc_annotation, ('class', desc_sig_space)],
+                            [
+                                desc_annotation,
+                                ([desc_sig_keyword, 'class'], desc_sig_space),
+                            ],
                             [desc_name, 'Class'],
                             [
                                 desc_type_parameter_list,
@@ -1568,6 +1743,10 @@ def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
 
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
+
 
 @pytest.mark.parametrize(
     ('tp_list', 'tptext'),
@@ -1581,6 +1760,10 @@ def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
+
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
 
 
 @pytest.mark.parametrize(
@@ -1605,3 +1788,109 @@ def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
     assert doctree.astext() == f'\n\nf{tptext}()\n\n'
+
+    text = f'.. py:function:: f{tp_list}() -> Annotated[T, Qux[int]()]'
+    doctree = restructuredtext.parse(app, text)
+    assert doctree.astext() == f'\n\nf{tptext}() -> Annotated[T, Qux[int]()]\n\n'
+
+
+def test_deco_role(app):
+    text = """\
+.. py:decorator:: foo.bar
+   :no-contents-entry:
+   :no-index-entry:
+   :no-typesetting:
+"""
+
+    doctree = restructuredtext.parse(app, text + '\n:py:deco:`foo.bar`')
+    assert doctree.astext() == '\n\n\n\n@foo.bar'
+
+    doctree = restructuredtext.parse(app, text + '\n:py:deco:`~foo.bar`')
+    assert doctree.astext() == '\n\n\n\n@bar'
+
+
+def test_pytype_canonical(app):
+    text = """\
+.. py:type:: A
+   :canonical: int
+
+.. py:type:: B
+   :canonical: int
+ """
+
+    doctree = restructuredtext.parse(app, text)
+    assert not app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='domain-py-xref-type-alias')
+def test_type_alias_xref_resolution(app: SphinxTestApp) -> None:
+    """Test that type aliases in function signatures can be cross-referenced.
+
+    This tests the fix for issue https://github.com/sphinx-doc/sphinx/issues/10785
+    where type aliases documented as :py:data: but referenced as :py:class: in
+    function signatures would not resolve properly.
+
+    Tests both a Union type alias and a generic type alias to ensure our
+    domain fallback mechanism works for various type alias patterns.
+    """
+    app.config.nitpicky = True
+    app.build()
+
+    # In nitpicky mode, check that no warnings were generated for type alias cross-references
+    warnings_text = app.warning.getvalue()
+    assert 'py:class reference target not found: pathlike' not in warnings_text, (
+        f'Type alias cross-reference failed in nitpicky mode. Warnings: {warnings_text}'
+    )
+    assert 'py:class reference target not found: Handler' not in warnings_text, (
+        f'Type alias cross-reference failed for Handler. Warnings: {warnings_text}'
+    )
+
+    # Core functionality test: Verify type alias links are generated in function signatures
+    html_content = (app.outdir / 'index.html').read_text(encoding='utf8')
+
+    # Both type aliases should be documented and have anchors
+    assert 'id="alias_module.pathlike"' in html_content, (
+        'pathlike type alias definition anchor not found in HTML'
+    )
+    assert 'id="alias_module.Handler"' in html_content, (
+        'Handler type alias definition anchor not found in HTML'
+    )
+
+    # The critical test: type aliases in function signatures should be clickable links
+    # This tests the original issue - function signature type annotations should resolve
+    assert (
+        '<a class="reference internal" href="#alias_module.pathlike"' in html_content
+    ), 'pathlike type alias not linked in function signature'
+
+    assert (
+        '<a class="reference internal" href="#alias_module.Handler"' in html_content
+    ), 'Handler type alias not linked in function signature'
+
+    # Verify the links are specifically in the function signature contexts
+    # Test pathlike in read_file function signature
+    read_file_match = re.search(
+        r'<span class="pre">read_file</span>.*?</dt>', html_content, re.DOTALL
+    )
+    assert read_file_match is not None, 'Could not find read_file function signature'
+    read_file_signature = read_file_match.group(0)
+    assert (
+        '<a class="reference internal" href="#alias_module.pathlike"'
+        in read_file_signature
+    ), 'pathlike type alias link not found in read_file function signature'
+
+    # Test Handler in process_error function signature
+    process_error_match = re.search(
+        r'<span class="pre">process_error</span>.*?</dt>', html_content, re.DOTALL
+    )
+    assert process_error_match is not None, (
+        'Could not find process_error function signature'
+    )
+    process_error_signature = process_error_match.group(0)
+    assert (
+        '<a class="reference internal" href="#alias_module.Handler"'
+        in process_error_signature
+    ), 'Handler type alias link not found in process_error function signature'
+    assert (
+        '<a class="reference internal" href="#alias_module.HandlerType"'
+        in process_error_signature
+    ), 'HandlerType type alias link not found in process_error function signature'

@@ -1,17 +1,26 @@
 """Test the HTML builder and check output against XPath."""
 
-import os
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+    from xml.etree.ElementTree import ElementTree
+
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
-def test_numfig_disabled_warn(app):
+def test_numfig_disabled_warn(app: SphinxTestApp) -> None:
     app.build()
     warnings = app.warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' in warnings
@@ -68,7 +77,14 @@ def test_numfig_disabled_warn(app):
 )
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
-def test_numfig_disabled(app, cached_etree_parse, fname, path, check, be_found):
+def test_numfig_disabled(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str | None,
+    be_found: bool,
+) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
@@ -79,7 +95,7 @@ def test_numfig_disabled(app, cached_etree_parse, fname, path, check, be_found):
     srcdir='test_numfig_without_numbered_toctree_warn',
     confoverrides={'numfig': True},
 )
-def test_numfig_without_numbered_toctree_warn(app):
+def test_numfig_without_numbered_toctree_warn(app: SphinxTestApp) -> None:
     app.build()
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
@@ -300,14 +316,19 @@ def test_numfig_without_numbered_toctree_warn(app):
     confoverrides={'numfig': True},
 )
 def test_numfig_without_numbered_toctree(
-    app, cached_etree_parse, fname, path, check, be_found
-):
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str | None,
+    be_found: bool,
+) -> None:
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
 
-    if not os.listdir(app.outdir):
+    if not list(app.outdir.iterdir()):
         app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
@@ -318,7 +339,7 @@ def test_numfig_without_numbered_toctree(
     confoverrides={'numfig': True},
 )
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
-def test_numfig_with_numbered_toctree_warn(app):
+def test_numfig_with_numbered_toctree_warn(app: SphinxTestApp) -> None:
     app.build()
     warnings = app.warning.getvalue()
     assert (
@@ -533,8 +554,13 @@ def test_numfig_with_numbered_toctree_warn(app):
 )
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_numbered_toctree(
-    app, cached_etree_parse, fname, path, check, be_found
-):
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str | None,
+    be_found: bool,
+) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
@@ -553,7 +579,7 @@ def test_numfig_with_numbered_toctree(
     },
 )
 @pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
-def test_numfig_with_prefix_warn(app):
+def test_numfig_with_prefix_warn(app: SphinxTestApp) -> None:
     app.build()
     warnings = app.warning.getvalue()
     assert (
@@ -775,7 +801,14 @@ def test_numfig_with_prefix_warn(app):
     },
 )
 @pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
-def test_numfig_with_prefix(app, cached_etree_parse, fname, path, check, be_found):
+def test_numfig_with_prefix(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str | None,
+    be_found: bool,
+) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
@@ -786,7 +819,7 @@ def test_numfig_with_prefix(app, cached_etree_parse, fname, path, check, be_foun
     confoverrides={'numfig': True, 'numfig_secnum_depth': 2},
 )
 @pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
-def test_numfig_with_secnum_depth_warn(app):
+def test_numfig_with_secnum_depth_warn(app: SphinxTestApp) -> None:
     app.build()
     warnings = app.warning.getvalue()
     assert (
@@ -1001,8 +1034,13 @@ def test_numfig_with_secnum_depth_warn(app):
 )
 @pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
 def test_numfig_with_secnum_depth(
-    app, cached_etree_parse, fname, path, check, be_found
-):
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str | None,
+    be_found: bool,
+) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
@@ -1098,6 +1136,10 @@ def test_numfig_with_secnum_depth(
     confoverrides={'numfig': True},
 )
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
-def test_numfig_with_singlehtml(app, cached_etree_parse, expect):
+def test_numfig_with_singlehtml(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    expect: tuple[str, str, bool],
+) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)

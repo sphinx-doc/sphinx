@@ -95,6 +95,8 @@ package.
 
 .. automethod:: Sphinx.is_parallel_allowed
 
+.. automethod:: Sphinx.set_html_assets_policy
+
 .. exception:: ExtensionError
 
    All these methods raise this exception if something went wrong with the
@@ -103,6 +105,13 @@ package.
 
 Emitting events
 ---------------
+
+.. attention::
+
+   Extension developers should prefer using the event manager (``events``)
+   object directly, via :meth:`.EventManager.emit`
+   and :meth:`.EventManager.emit_firstresult`,
+   which have identical behaviour to the methods below.
 
 .. class:: Sphinx
    :no-index:

@@ -56,7 +56,7 @@ Run the following command::
    Or, if writing documentation for a Python package,
    place the dependencies in the `pyproject.toml file`__::
 
-      $ pip install .[docs]
+      $ pip install . --group docs
 
    __ https://pip.pypa.io/en/stable/reference/requirements-file-format/
    __ https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies
@@ -168,7 +168,7 @@ __ https://www.macports.org/ports.php?by=library&substr=py313-sphinx
 Windows
 ~~~~~~~
 
-Sphinx can be install using `Chocolatey`__.
+Sphinx can be installed using `Chocolatey`__.
 
 __ https://chocolatey.org/
 

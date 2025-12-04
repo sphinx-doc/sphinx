@@ -10,6 +10,7 @@ import time
 import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
+from io import StringIO
 from queue import Queue
 from typing import TYPE_CHECKING
 from unittest import mock
@@ -19,17 +20,18 @@ import pytest
 from urllib3.poolmanager import PoolManager
 
 import sphinx.util.http_date
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.linkcheck import (
     CheckRequest,
-    CheckResult,
     Hyperlink,
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
     compile_linkcheck_allowed_redirects,
 )
+from sphinx.errors import ConfigError
+from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.console import strip_colors
 
 from tests.utils import CERT_FILE, serve_application
 
@@ -37,17 +39,21 @@ ts_re = re.compile(r'.*\[(?P<ts>.*)\].*')
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from typing import Any
+    from pathlib import Path
+    from typing import Any, Self
 
     from urllib3 import HTTPConnectionPool
 
+    from sphinx.builders.linkcheck import (
+        CheckResult,
+    )
     from sphinx.testing.util import SphinxTestApp
 
 
 class DefaultsHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
-    def do_HEAD(self):
+    def do_HEAD(self) -> None:
         if self.path[1:].rstrip() in {'', 'anchor.html'}:
             self.send_response(200, 'OK')
             self.send_header('Content-Length', '0')
@@ -57,7 +63,7 @@ class DefaultsHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Length', '0')
             self.end_headers()
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         if self.path[1:].rstrip() == '':
             content = b'ok\n\n'
         elif self.path[1:].rstrip() == 'anchor.html':
@@ -89,25 +95,25 @@ class ConnectionMeasurement:
             new=self._collect_connections(),
         )
 
-    def _collect_connections(self) -> Callable[[object, str], HTTPConnectionPool]:
-        def connection_collector(obj, url):
+    def _collect_connections(self) -> Callable[[PoolManager, str], HTTPConnectionPool]:
+        def connection_collector(obj: PoolManager, url: str) -> HTTPConnectionPool:
             connection = self.urllib3_connection_from_url(obj, url)  # type: ignore[no-untyped-call]
             self.connections.add(connection)
             return connection
 
         return connection_collector
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         self.patcher.start()
         return self
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args: object, **kwargs: Any) -> None:
         for connection in self.connections:
             connection.close()
         self.patcher.stop()
 
     @property
-    def connection_count(self):
+    def connection_count(self) -> int:
         return len(self.connections)
 
 
@@ -255,6 +261,7 @@ def test_too_many_retries(app: SphinxTestApp) -> None:
     'linkcheck',
     testroot='linkcheck-raw-node',
     freshenv=True,
+    copy_test_root=True,
 )
 def test_raw_node(app: SphinxTestApp) -> None:
     with serve_application(app, OKHandler) as address:
@@ -340,14 +347,14 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
                 return False
         return True
 
-    def do_HEAD(self):
+    def do_HEAD(self) -> None:
         if self.path in {'/valid', '/ignored'}:
             self.send_response(200, 'OK')
         else:
             self.send_response(404, 'Not Found')
         self.end_headers()
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         if self.path == '/valid':
             self.send_response(200, 'OK')
             content = "<h1 id='valid-anchor'>valid anchor</h1>\n"
@@ -417,7 +424,7 @@ def test_raises_for_invalid_status(app: SphinxTestApp) -> None:
     class InternalServerErrorHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
-        def do_GET(self):
+        def do_GET(self) -> None:
             self.send_error(500, 'Internal Server Error')
 
     with serve_application(app, InternalServerErrorHandler) as address:
@@ -435,11 +442,11 @@ def test_raises_for_invalid_status(app: SphinxTestApp) -> None:
     testroot='linkcheck-localserver-anchor',
     freshenv=True,
 )
-def test_incomplete_html_anchor(app):
+def test_incomplete_html_anchor(app: SphinxTestApp) -> None:
     class IncompleteHTMLDocumentHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
-        def do_GET(self):
+        def do_GET(self) -> None:
             content = b'this is <div id="anchor">not</div> a valid HTML document'
             self.send_response(200, 'OK')
             self.send_header('Content-Length', str(len(content)))
@@ -461,11 +468,11 @@ def test_incomplete_html_anchor(app):
     testroot='linkcheck-localserver-anchor',
     freshenv=True,
 )
-def test_decoding_error_anchor_ignored(app):
+def test_decoding_error_anchor_ignored(app: SphinxTestApp) -> None:
     class NonASCIIHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
-        def do_GET(self):
+        def do_GET(self) -> None:
             content = b'\x80\x00\x80\x00'  # non-ASCII byte-string
             self.send_response(200, 'OK')
             self.send_header('Content-Length', str(len(content)))
@@ -484,10 +491,9 @@ def test_decoding_error_anchor_ignored(app):
 
 def custom_handler(
     valid_credentials: tuple[str, str] | None = None,
-    success_criteria: Callable[[Any], bool] = lambda _: True,
+    success_criteria: Callable[[BaseHTTPRequestHandler], bool] = lambda _: True,
 ) -> type[BaseHTTPRequestHandler]:
-    """
-    Returns an HTTP request handler that authenticates the client and then determines
+    """Returns an HTTP request handler that authenticates the client and then determines
     an appropriate HTTP response code, based on caller-provided credentials and optional
     success criteria, respectively.
     """
@@ -500,7 +506,7 @@ def custom_handler(
     def authenticated(
         method: Callable[[CustomHandler], None],
     ) -> Callable[[CustomHandler], None]:
-        def method_if_authenticated(self):
+        def method_if_authenticated(self: CustomHandler) -> None:
             if expected_token is None:
                 return method(self)
             elif not self.headers['Authorization']:
@@ -512,6 +518,7 @@ def custom_handler(
                 self.send_response(403, 'Forbidden')
                 self.send_header('Content-Length', '0')
                 self.end_headers()
+            return None
 
         return method_if_authenticated
 
@@ -519,11 +526,11 @@ def custom_handler(
         protocol_version = 'HTTP/1.1'
 
         @authenticated
-        def do_HEAD(self):
+        def do_HEAD(self) -> None:
             self.do_GET()
 
         @authenticated
-        def do_GET(self):
+        def do_GET(self) -> None:
             if success_criteria(self):
                 self.send_response(200, 'OK')
                 self.send_header('Content-Length', '0')
@@ -601,7 +608,7 @@ def test_auth_header_no_match(app: SphinxTestApp) -> None:
     freshenv=True,
 )
 def test_linkcheck_request_headers(app: SphinxTestApp) -> None:
-    def check_headers(self):
+    def check_headers(self: BaseHTTPRequestHandler) -> bool:
         if 'X-Secret' in self.headers:
             return False
         return self.headers['Accept'] == 'text/html'
@@ -627,7 +634,7 @@ def test_linkcheck_request_headers(app: SphinxTestApp) -> None:
     freshenv=True,
 )
 def test_linkcheck_request_headers_no_slash(app: SphinxTestApp) -> None:
-    def check_headers(self):
+    def check_headers(self: BaseHTTPRequestHandler) -> bool:
         if 'X-Secret' in self.headers:
             return False
         return self.headers['Accept'] == 'application/json'
@@ -659,7 +666,7 @@ def test_linkcheck_request_headers_no_slash(app: SphinxTestApp) -> None:
     },
 )
 def test_linkcheck_request_headers_default(app: SphinxTestApp) -> None:
-    def check_headers(self):
+    def check_headers(self: BaseHTTPRequestHandler) -> bool:
         if self.headers['X-Secret'] != 'open sesami':
             return False
         return self.headers['Accept'] != 'application/json'
@@ -673,7 +680,7 @@ def test_linkcheck_request_headers_default(app: SphinxTestApp) -> None:
     assert content['status'] == 'working'
 
 
-def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]:
+def make_redirect_handler(*, support_head: bool = True) -> type[BaseHTTPRequestHandler]:
     class RedirectOnceHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
@@ -694,7 +701,7 @@ def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]
             self.send_header('Content-Length', '0')
             self.end_headers()
 
-        def log_date_time_string(self):
+        def log_date_time_string(self) -> str:
             """Strip date and time from logged messages for assertions."""
             return ''
 
@@ -706,10 +713,13 @@ def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]
     testroot='linkcheck-localserver',
     freshenv=True,
 )
-def test_follows_redirects_on_HEAD(app, capsys):
+def test_follows_redirects_on_HEAD(
+    app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
+) -> None:
     with serve_application(app, make_redirect_handler(support_head=True)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
-    stdout, stderr = capsys.readouterr()
+    _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         'index.rst:1: [redirected with Found] '
@@ -721,6 +731,9 @@ def test_follows_redirects_on_HEAD(app, capsys):
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
         """,
     )
+    assert (
+        f'redirect  http://{address}/ - with Found to http://{address}/?redirected=1\n'
+    ) in strip_escape_sequences(app.status.getvalue())
     assert app.warning.getvalue() == ''
 
 
@@ -729,10 +742,13 @@ def test_follows_redirects_on_HEAD(app, capsys):
     testroot='linkcheck-localserver',
     freshenv=True,
 )
-def test_follows_redirects_on_GET(app, capsys):
+def test_follows_redirects_on_GET(
+    app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
+) -> None:
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
-    stdout, stderr = capsys.readouterr()
+    _stdout, stderr = capsys.readouterr()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         'index.rst:1: [redirected with Found] '
@@ -745,7 +761,65 @@ def test_follows_redirects_on_GET(app, capsys):
         127.0.0.1 - - [] "GET /?redirected=1 HTTP/1.1" 204 -
         """,
     )
+    assert (
+        f'redirect  http://{address}/ - with Found to http://{address}/?redirected=1\n'
+    ) in strip_escape_sequences(app.status.getvalue())
     assert app.warning.getvalue() == ''
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
+    confoverrides={'linkcheck_allowed_redirects': {}},  # warn about any redirects
+)
+def test_warns_disallowed_redirects(
+    app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with serve_application(app, make_redirect_handler()) as address:
+        compile_linkcheck_allowed_redirects(app, app.config)
+        app.build()
+    _stdout, stderr = capsys.readouterr()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    assert content == (
+        'index.rst:1: [redirected with Found] '
+        f'http://{address}/ to http://{address}/?redirected=1\n'
+    )
+    assert stderr == textwrap.dedent(
+        """\
+        127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
+        127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
+        """,
+    )
+    assert len(app.warning.getvalue().splitlines()) == 1
+
+
+def test_linkcheck_allowed_redirects_config(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
+    tmp_path.joinpath('conf.py').touch()
+    tmp_path.joinpath('index.rst').touch()
+
+    # ``linkcheck_allowed_redirects = None`` is rejected
+    warning_stream = StringIO()
+    with pytest.raises(ConfigError):
+        make_app(
+            'linkcheck',
+            srcdir=tmp_path,
+            confoverrides={'linkcheck_allowed_redirects': None},
+            warning=warning_stream,
+        )
+    assert strip_escape_sequences(warning_stream.getvalue()).splitlines() == [
+        "WARNING: The config value `linkcheck_allowed_redirects' has type `NoneType'; expected `dict'."
+    ]
+
+    # ``linkcheck_allowed_redirects = {}`` is permitted
+    app = make_app(
+        'linkcheck',
+        srcdir=tmp_path,
+        confoverrides={'linkcheck_allowed_redirects': {}},
+    )
+    assert strip_escape_sequences(app.warning.getvalue()) == ''
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
@@ -773,19 +847,19 @@ def test_linkcheck_allowed_redirects(app: SphinxTestApp) -> None:
     assert (
         f'index.rst:3: WARNING: redirect  http://{address}/path2 - with Found to '
         f'http://{address}/?redirected=1\n'
-    ) in strip_colors(app.warning.getvalue())
+    ) in strip_escape_sequences(app.warning.getvalue())
     assert len(app.warning.getvalue().splitlines()) == 1
 
 
 class OKHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
-    def do_HEAD(self):
+    def do_HEAD(self) -> None:
         self.send_response(200, 'OK')
         self.send_header('Content-Length', '0')
         self.end_headers()
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         content = b'ok\n'
         self.send_response(200, 'OK')
         self.send_header('Content-Length', str(len(content)))
@@ -799,7 +873,7 @@ class OKHandler(BaseHTTPRequestHandler):
     testroot='linkcheck-localserver-https',
     freshenv=True,
 )
-def test_invalid_ssl(get_request, app):
+def test_invalid_ssl(get_request: mock.Mock, app: SphinxTestApp) -> None:
     # Link indicates SSL should be used (https) but the server does not handle it.
     with serve_application(app, OKHandler) as address:
         app.build()
@@ -881,7 +955,9 @@ def test_connect_to_selfsigned_with_tls_cacerts(app: SphinxTestApp) -> None:
     testroot='linkcheck-localserver-https',
     freshenv=True,
 )
-def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
+def test_connect_to_selfsigned_with_requests_env_var(
+    monkeypatch: pytest.MonkeyPatch, app: SphinxTestApp
+) -> None:
     monkeypatch.setenv('REQUESTS_CA_BUNDLE', CERT_FILE)
     with serve_application(app, OKHandler, tls_enabled=True) as address:
         app.build()
@@ -923,13 +999,13 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app: SphinxTestApp) -> None
 class InfiniteRedirectOnHeadHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
-    def do_HEAD(self):
+    def do_HEAD(self) -> None:
         self.send_response(302, 'Found')
-        self.send_header('Location', '/')
+        self.send_header('Location', '/redirected')
         self.send_header('Content-Length', '0')
         self.end_headers()
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         content = b'ok\n'
         self.send_response(200, 'OK')
         self.send_header('Content-Length', str(len(content)))
@@ -945,7 +1021,9 @@ class InfiniteRedirectOnHeadHandler(BaseHTTPRequestHandler):
     testroot='linkcheck-localserver',
     freshenv=True,
 )
-def test_TooManyRedirects_on_HEAD(app, monkeypatch):
+def test_TooManyRedirects_on_HEAD(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
     import requests.sessions
 
     monkeypatch.setattr(requests.sessions, 'DEFAULT_REDIRECT_LIMIT', 5)
@@ -965,13 +1043,62 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
     }
 
 
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
+def test_ignore_local_redirection(app: SphinxTestApp) -> None:
+    with serve_application(app, InfiniteRedirectOnHeadHandler) as address:
+        app.config.linkcheck_ignore = [f'http://{address}/redirected']
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+    assert content == {
+        'code': 302,
+        'status': 'ignored',
+        'filename': 'index.rst',
+        'lineno': 1,
+        'uri': f'http://{address}/',
+        'info': f'ignored redirect: http://{address}/redirected',
+    }
+
+
+class RemoteDomainRedirectHandler(InfiniteRedirectOnHeadHandler):
+    protocol_version = 'HTTP/1.1'
+
+    def do_GET(self) -> None:
+        self.send_response(301, 'Found')
+        if self.path == '/':
+            self.send_header('Location', '/local')
+        elif self.path == '/local':
+            self.send_header('Location', 'http://example.test/migrated')
+        self.send_header('Content-Length', '0')
+        self.end_headers()
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
+def test_ignore_remote_redirection(app: SphinxTestApp) -> None:
+    with serve_application(app, RemoteDomainRedirectHandler) as address:
+        app.config.linkcheck_ignore = ['http://example.test']
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+    assert content == {
+        'code': 301,
+        'status': 'ignored',
+        'filename': 'index.rst',
+        'lineno': 1,
+        'uri': f'http://{address}/',
+        'info': 'ignored redirect: http://example.test/migrated',
+    }
+
+
 def make_retry_after_handler(
     responses: list[tuple[int, str | None]],
 ) -> type[BaseHTTPRequestHandler]:
     class RetryAfterHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
-        def do_HEAD(self):
+        def do_HEAD(self) -> None:
             status, retry_after = responses.pop(0)
             self.send_response(status)
             if retry_after:
@@ -979,7 +1106,7 @@ def make_retry_after_handler(
             self.send_header('Content-Length', '0')
             self.end_headers()
 
-        def log_date_time_string(self):
+        def log_date_time_string(self) -> str:
             """Strip date and time from logged messages for assertions."""
             return ''
 
@@ -991,7 +1118,9 @@ def make_retry_after_handler(
     testroot='linkcheck-localserver',
     freshenv=True,
 )
-def test_too_many_requests_retry_after_int_delay(app, capsys):
+def test_too_many_requests_retry_after_int_delay(
+    app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
+) -> None:
     with (
         serve_application(
             app, make_retry_after_handler([(429, '0'), (200, None)])
@@ -1010,7 +1139,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys):
         'info': '',
     }
     rate_limit_log = f'-rate limited-   http://{address}/ | sleeping...\n'
-    assert rate_limit_log in strip_colors(app.status.getvalue())
+    assert rate_limit_log in strip_escape_sequences(app.status.getvalue())
     _stdout, stderr = capsys.readouterr()
     assert stderr == textwrap.dedent(
         """\
@@ -1026,7 +1155,12 @@ def test_too_many_requests_retry_after_int_delay(app, capsys):
     testroot='linkcheck-localserver',
     freshenv=True,
 )
-def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
+def test_too_many_requests_retry_after_HTTP_date(
+    tz: str | None,
+    app: SphinxTestApp,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     retry_after = wsgiref.handlers.format_date_time(time.time())
 
     with monkeypatch.context() as m:
@@ -1042,6 +1176,12 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
             app, make_retry_after_handler([(429, retry_after), (200, None)])
         ) as address:
             app.build()
+
+    # Undo side-effects: the monkeypatch context manager clears the TZ environment
+    # variable, but we also need to reset Python's internal notion of the current
+    # timezone.
+    if sys.platform != 'win32':
+        time.tzset()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
@@ -1066,7 +1206,9 @@ def test_too_many_requests_retry_after_HTTP_date(tz, app, monkeypatch, capsys):
     testroot='linkcheck-localserver',
     freshenv=True,
 )
-def test_too_many_requests_retry_after_without_header(app, capsys):
+def test_too_many_requests_retry_after_without_header(
+    app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
+) -> None:
     with (
         serve_application(
             app, make_retry_after_handler([(429, None), (200, None)])
@@ -1105,7 +1247,7 @@ def test_requests_timeout(app: SphinxTestApp) -> None:
     class DelayedResponseHandler(BaseHTTPRequestHandler):
         protocol_version = 'HTTP/1.1'
 
-        def do_GET(self):
+        def do_GET(self) -> None:
             time.sleep(0.2)  # wait before sending any response data
             self.send_response(200, 'OK')
             self.send_header('Content-Length', '0')
@@ -1206,7 +1348,9 @@ def test_limit_rate_bails_out_after_waiting_max_time(app: SphinxTestApp) -> None
 
 @mock.patch('sphinx.util.requests.requests.Session.get_adapter')
 @pytest.mark.sphinx('html', testroot='root')
-def test_connection_contention(get_adapter, app, capsys):
+def test_connection_contention(
+    get_adapter: mock.Mock, app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
+) -> None:
     # Create a shared, but limited-size, connection pool
     import requests
 
@@ -1257,10 +1401,10 @@ def test_connection_contention(get_adapter, app, capsys):
 class ConnectionResetHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
-    def do_HEAD(self):
+    def do_HEAD(self) -> None:
         self.close_connection = True
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         self.send_response(200, 'OK')
         self.send_header('Content-Length', '0')
         self.end_headers()
@@ -1316,3 +1460,70 @@ def test_linkcheck_exclude_documents(app: SphinxTestApp) -> None:
         'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
         'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
     } in content
+
+
+class CapitalisePathHandler(BaseHTTPRequestHandler):
+    """Test server that uppercases URL paths via redirects."""
+
+    protocol_version = 'HTTP/1.1'
+
+    def do_GET(self) -> None:
+        if self.path.islower():
+            # Redirect lowercase paths to uppercase versions
+            self.send_response(301, 'Moved Permanently')
+            self.send_header('Location', self.path.upper())
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+        else:
+            # Serve uppercase paths
+            content = b'ok\n\n'
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-case-check',
+    freshenv=True,
+)
+@pytest.mark.parametrize(
+    ('case_insensitive_pattern', 'expected_path1', 'expected_path2', 'expected_path3'),
+    [
+        ([], 'redirected', 'redirected', 'working'),  # default: case-sensitive
+        (
+            [r'http://localhost:\d+/.*'],
+            'working',
+            'working',
+            'working',
+        ),  # all URLs case-insensitive
+        (
+            [r'http://localhost:\d+/path1'],
+            'working',
+            'redirected',
+            'working',
+        ),  # only path1 case-insensitive
+    ],
+)
+def test_linkcheck_case_sensitivity(
+    app: SphinxTestApp,
+    case_insensitive_pattern: list[str],
+    expected_path1: str,
+    expected_path2: str,
+    expected_path3: str,
+) -> None:
+    """Test case-sensitive and case-insensitive URL checking."""
+    app.config.linkcheck_case_insensitive_urls = case_insensitive_pattern
+
+    with serve_application(app, CapitalisePathHandler) as address:
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = [json.loads(x) for x in content.splitlines()]
+    rowsby = {row['uri']: row for row in rows}
+
+    # Verify expected status for each path
+    assert rowsby[f'http://{address}/path1']['status'] == expected_path1
+    assert rowsby[f'http://{address}/path2']['status'] == expected_path2
+    assert rowsby[f'http://{address}/PATH3']['status'] == expected_path3

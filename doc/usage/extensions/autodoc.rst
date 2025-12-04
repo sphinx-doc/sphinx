@@ -326,6 +326,15 @@ Automatically document modules
 
       .. versionadded:: 0.4
 
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented module
+      or any auto-documented members.
+      Unlike ``:no-index:``, cross-references are still created.
+
+      .. versionadded:: 8.2
+
    .. rst:directive:option:: platform: platforms
       :type: comma separated list
 
@@ -577,6 +586,15 @@ Automatically document classes or exceptions
       or any auto-documented members.
 
       .. versionadded:: 0.4
+
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented class
+      or any auto-documented members.
+      Unlike ``:no-index:``, cross-references are still created.
+
+      .. versionadded:: 8.2
 
    .. rst:directive:option:: class-doc-from
       :type: class, init, or both
@@ -854,6 +872,14 @@ Automatically document function-like objects
 
       .. versionadded:: 0.4
 
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented function.
+      Unlike ``:no-index:``, cross-references are still created.
+
+      .. versionadded:: 8.2
+
 
 Automatically document attributes or data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -900,10 +926,17 @@ Automatically document attributes or data
    .. rst:directive:option:: no-index
       :type:
 
-      Do not generate an index entry for the documented class
-      or any auto-documented members.
+      Do not generate an index entry for the documented variable or constant.
 
       .. versionadded:: 0.4
+
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented variable or constant.
+      Unlike ``:no-index:``, cross-references are still created.
+
+      .. versionadded:: 8.2
 
    .. rst:directive:option:: annotation: value
       :type: string
@@ -933,10 +966,62 @@ Automatically document attributes or data
       ``:no-value:`` has no effect.
 
 
+Automatically document type aliases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. rst:directive:: autotype
+
+   .. versionadded:: 9.0
+
+   Document a :pep:`695` type alias (the :keyword:`type` statement).
+   By default, the directive only inserts the docstring of the alias itself:
+
+   The directive can also contain content of its own,
+   which will be inserted into the resulting non-auto directive source
+   after the docstring (but before any automatic member documentation).
+
+   Therefore, you can also mix automatic and non-automatic member documentation.
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: no-index
+      :type:
+
+      Do not generate an index entry for the documented class
+      or any auto-documented members.
+
+   .. rst:directive:option:: no-index-entry
+      :type:
+
+      Do not generate an index entry for the documented class
+      or any auto-documented members.
+      Unlike ``:no-index:``, cross-references are still created.
+
+
 Configuration
 -------------
 
 There are also config values that you can set:
+
+.. confval:: autodoc_use_legacy_class_based
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   If true, autodoc will use the legacy class-based implementation.
+   This is the behaviour prior to Sphinx 9.0.
+   It is based on the ``Documenter`` class hierarchy.
+
+   This setting is provided for backwards compatibility if your documentation
+   or an extension you use uses or monkeypatches the legacy class-based API
+   in Python code.
+   If this is the case, set ``autodoc_use_legacy_class_based = True``
+   in your :file:`conf.py`.
+   Please also add a comment to `the tracking issue on GitHub
+   <https://github.com/sphinx-doc/sphinx/issues/14089>`__ so that the maintainers
+   are aware of your use case, for possible future improvements.
+
+   .. note:: The legacy class-based implementation does not support
+             PEP 695 type aliases.
 
 .. confval:: autoclass_content
    :type: :code-py:`str`
@@ -986,10 +1071,12 @@ There are also config values that you can set:
 
    * ``'alphabetical'``:
      Use alphabetical order.
+
    * ``'groupwise'``: order by member type. The order is:
 
      * for modules, exceptions, classes, functions, data
-     * for classes: methods, then properties and attributes
+     * for classes: class methods, static methods, methods,
+                    and properties/attributes
 
      Members are ordered alphabetically within groups.
 
@@ -1037,6 +1124,8 @@ There are also config values that you can set:
    * ``'show-inheritance'``: See :rst:dir:`autoclass:show-inheritance`.
    * ``'class-doc-from'``: See :rst:dir:`autoclass:class-doc-from`.
    * ``'no-value'``: See :rst:dir:`autodata:no-value`.
+   * ``'no-index'``: See :rst:dir:`automodule:no-index`.
+   * ``'no-index-entry'``: See :rst:dir:`automodule:no-index-entry`.
 
    .. versionadded:: 1.8
 
@@ -1228,6 +1317,26 @@ There are also config values that you can set:
       Added as an experimental feature.  This will be integrated into autodoc core
       in the future.
 
+.. confval:: autodoc_use_type_comments
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Attempt to read ``# type: ...`` comments from source code
+   to supplement missing type annotations, if True.
+
+   This can be disabled if your source code does not use type comments,
+   for example if it exclusively uses type annotations or
+   does not use type hints of any kind.
+
+   .. versionadded:: 8.2
+
+      Added the option to disable the use of type comments in
+      via the new :confval:`!autodoc_use_type_comments` option,
+      which defaults to :code-py:`True` for backwards compatibility.
+      The default will change to :code-py:`False` in Sphinx 10.
+
+      .. xref RemovedInSphinx10Warning
+
 .. confval:: autodoc_warningiserror
    :type: :code-py:`bool`
    :default: :code-py:`True`
@@ -1269,7 +1378,7 @@ Docstring preprocessing
 
 autodoc provides the following additional events:
 
-.. event:: autodoc-process-docstring (app, what, name, obj, options, lines)
+.. event:: autodoc-process-docstring (app, obj_type, name, obj, options, lines)
 
    .. versionadded:: 0.4
 
@@ -1278,15 +1387,14 @@ autodoc provides the following additional events:
    can modify **in place** to change what Sphinx puts into the output.
 
    :param app: the Sphinx application object
-   :param what: the type of the object which the docstring belongs to (one of
-      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
-      ``'attribute'``)
+   :param obj_type: the type of the object which the docstring belongs to (one of
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
+      ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
-      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``no-index`` that are true if the flag option of same name was given to the
-      auto directive
+      corresponding to the options used in the auto directive, e.g.
+      ``inherited_members``, ``undoc_members``, or ``show_inheritance``.
    :param lines: the lines of the docstring, see above
 
 .. event:: autodoc-before-process-signature (app, obj, bound_method)
@@ -1300,7 +1408,7 @@ autodoc provides the following additional events:
    :param obj: the object itself
    :param bound_method: a boolean indicates an object is bound method or not
 
-.. event:: autodoc-process-signature (app, what, name, obj, options, signature, return_annotation)
+.. event:: autodoc-process-signature (app, obj_type, name, obj, options, signature, return_annotation)
 
    .. versionadded:: 0.5
 
@@ -1309,20 +1417,19 @@ autodoc provides the following additional events:
    what Sphinx puts into the output.
 
    :param app: the Sphinx application object
-   :param what: the type of the object which the docstring belongs to (one of
-      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
-      ``'attribute'``)
+   :param obj_type: the type of the object which the docstring belongs to (one of
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
+      ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
-      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``no-index`` that are true if the flag option of same name was given to the
-      auto directive
+      corresponding to the options used in the auto directive, e.g.
+      ``inherited_members``, ``undoc_members``, or ``show_inheritance``.
    :param signature: function signature, as a string of the form
       ``'(parameter_1, parameter_2)'``, or ``None`` if introspection didn't
       succeed and signature wasn't specified in the directive.
    :param return_annotation: function return annotation as a string of the form
-      ``' -> annotation'``, or ``None`` if there is no return annotation
+      ``'annotation'``, or ``''`` if there is no return annotation.
 
 The :mod:`sphinx.ext.autodoc` module provides factory functions for commonly
 needed docstring processing in event :event:`autodoc-process-docstring`:
@@ -1330,17 +1437,17 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
 .. autofunction:: cut_lines
 .. autofunction:: between
 
-.. event:: autodoc-process-bases (app, name, obj, options, bases)
+.. event:: autodoc-process-bases (app, name, obj, _unused, bases)
 
    Emitted when autodoc has read and processed a class to determine the
    base-classes.  *bases* is a list of classes that the event handler can
    modify **in place** to change what Sphinx puts into the output.  It's
-   emitted only if ``show-inheritance`` option given.
+   emitted only if the ``show-inheritance`` option is given.
 
    :param app: the Sphinx application object
    :param name: the fully qualified name of the object
    :param obj: the object itself
-   :param options: the options given to the class directive
+   :param _unused: unused placeholder
    :param bases: the list of base classes signature. see above.
 
    .. versionadded:: 4.1
@@ -1356,7 +1463,7 @@ Skipping members
 autodoc allows the user to define a custom method for determining whether a
 member should be included in the documentation by using the following event:
 
-.. event:: autodoc-skip-member (app, what, name, obj, skip, options)
+.. event:: autodoc-skip-member (app, obj_type, name, obj, skip, options)
 
    .. versionadded:: 0.5
 
@@ -1370,14 +1477,13 @@ member should be included in the documentation by using the following event:
    autodoc and other enabled extensions.
 
    :param app: the Sphinx application object
-   :param what: the type of the object which the docstring belongs to (one of
-      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
-      ``'attribute'``)
+   :param obj_type: the type of the object which the docstring belongs to (one of
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
+      ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param skip: a boolean indicating if autodoc will skip this member if the
       user handler does not override the decision
    :param options: the options given to the directive: an object with attributes
-      ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``no-index`` that are true if the flag option of same name was given to the
-      auto directive
+      corresponding to the options used in the auto directive, e.g.
+      ``inherited_members``, ``undoc_members``, or ``show_inheritance``.

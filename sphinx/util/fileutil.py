@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import posixpath
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import logging
@@ -13,6 +13,7 @@ from sphinx.util.osutil import _relative_path, copyfile, ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from typing import Any
 
     from sphinx.util.template import BaseRenderer
     from sphinx.util.typing import PathMatcher
@@ -20,16 +21,16 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _template_basename(filename: str | os.PathLike[str]) -> str | None:
+def _template_basename(filename: Path) -> Path | None:
     """Given an input filename:
     If the input looks like a template, then return the filename output should
     be written to.  Otherwise, return no result (None).
     """
-    basename = os.path.basename(filename)
-    if basename.lower().endswith('_t'):
-        return str(filename)[:-2]
-    elif basename.lower().endswith('.jinja'):
-        return str(filename)[:-6]
+    basename = filename.name.lower()
+    if basename.endswith('_t'):
+        return filename.with_name(filename.name[:-2])
+    elif basename.endswith('.jinja'):
+        return filename.with_name(filename.name[:-6])
     return None
 
 
@@ -52,13 +53,14 @@ def copy_asset_file(
     :param renderer: The template engine.  If not given, SphinxRenderer is used by default
     :param bool force: Overwrite the destination file even if it exists.
     """
-    if not os.path.exists(source):
+    source = Path(source)
+    if not source.exists():
         return
 
     destination = Path(destination)
     if destination.is_dir():
         # Use source filename if destination points a directory
-        destination /= os.path.basename(source)
+        destination /= source.name
 
     if _template_basename(source) and context is not None:
         if renderer is None:
@@ -66,8 +68,7 @@ def copy_asset_file(
 
             renderer = SphinxRenderer()
 
-        with open(source, encoding='utf-8') as fsrc:
-            template_content = fsrc.read()
+        template_content = source.read_text(encoding='utf-8')
         rendered_template = renderer.render_string(template_content, context)
 
         if not force and destination.exists() and template_content != rendered_template:
@@ -85,15 +86,14 @@ def copy_asset_file(
             return
 
         destination = _template_basename(destination) or destination
-        with open(destination, 'w', encoding='utf-8') as fdst:
-            msg = __('Writing evaluated template result to %s')
-            logger.info(
-                msg,
-                os.fsdecode(destination),
-                type='misc',
-                subtype='template_evaluation',
-            )
-            fdst.write(rendered_template)
+        msg = __('Writing evaluated template result to %s')
+        logger.info(
+            msg,
+            os.fsdecode(destination),
+            type='misc',
+            subtype='template_evaluation',
+        )
+        destination.write_text(rendered_template, encoding='utf-8')
     else:
         copyfile(source, destination, force=force)
 
@@ -140,7 +140,8 @@ def copy_asset(
         return
 
     for root, dirs, files in os.walk(source, followlinks=True):
-        reldir = _relative_path(Path(root), source).as_posix()
+        root_p = Path(root)
+        reldir = _relative_path(root_p, source).as_posix()
         for dir in dirs.copy():
             if excluded(posixpath.join(reldir, dir)):
                 dirs.remove(dir)
