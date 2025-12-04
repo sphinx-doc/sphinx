@@ -37,6 +37,7 @@ from sphinx.ext.autodoc._dynamic._importer import _import_module
 from sphinx.ext.autodoc._dynamic._member_finder import _filter_enum_dict, unmangle
 from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR, SLOTS_ATTR
+from sphinx.ext.autodoc.importer import get_class_members as autodoc_import_gcm
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
     _get_documenter,
@@ -462,7 +463,7 @@ def _skip_member(
 
 
 def _get_class_info(obj: Any) -> dict[str, Any]:
-    members = sphinx.ext.autodoc.importer.get_class_members(obj, None, safe_getattr)
+    members = autodoc_import_gcm(obj, None, safe_getattr)
     return {name: member.class_ for name, member in members.items()}
 
 
