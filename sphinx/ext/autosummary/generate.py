@@ -370,7 +370,7 @@ def generate_autosummary_content(
             ns['all_modules'] = all_imported_modules + all_modules
     elif obj_type == 'class':
         ns['members'] = list(_get_class_members(obj))
-        obj_classinfo = _get_class_members(obj, False)
+        obj_classinfo = _get_class_info(obj)
         obj_local = [j for j, k in obj_classinfo.items() if k == obj]
 
         ns['inherited_members'] = [
@@ -403,7 +403,7 @@ def generate_autosummary_content(
 
         inherited_set = set(ns['inherited_members'])
         for cl in obj.__mro__:
-            classinfo = _get_class_members(cl, False)
+            classinfo = _get_class_info(cl)
             local = [j for j, k in classinfo.items() if k == cl]
 
             for i in local:
@@ -461,7 +461,12 @@ def _skip_member(
         return False
 
 
-def _get_class_members(obj: Any, return_object: bool = True) -> dict[str, Any]:
+def _get_class_info(obj: Any) -> dict[str, Any]:
+    members = sphinx.ext.autodoc.importer.get_class_members(obj, None, safe_getattr)
+    return {name: member.class_ for name, member in members.items()}
+
+
+def _get_class_members(obj: Any) -> dict[str, Any]:
     """Get members and attributes of target class."""
     # TODO: Simplify
     # the members directly defined in the class
@@ -531,10 +536,7 @@ def _get_class_members(obj: Any, return_object: bool = True) -> dict[str, Any]:
     except AttributeError:
         pass
 
-    if return_object:
-        return {name: member.object for name, member in members_simpler.items()}
-    else:
-        return {name: member.class_ for name, member in members_simpler.items()}
+    return members_simpler
 
 
 def _get_module_members(obj: Any, *, config: Config) -> dict[str, Any]:
