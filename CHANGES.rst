@@ -1,3 +1,28 @@
+Release 9.0.4 (in development)
+==============================
+
+Bugs fixed
+----------
+
+
+Release 9.0.3 (released Dec 04, 2025)
+=====================================
+
+Bugs fixed
+----------
+
+* #14142: autodoc: Restore some missing exports in :mod:`!sphinx.ext.autodoc`.
+  Patch by Adam Turner.
+
+Release 9.0.2 (released Dec 03, 2025)
+=====================================
+
+Bugs fixed
+----------
+
+* #14142: autodoc: Restore :mod:`!sphinx.ext.autodoc.mock`.
+  Patch by Adam Turner.
+
 Release 9.0.1 (released Dec 01, 2025)
 =====================================
 
