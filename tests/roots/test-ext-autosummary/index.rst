@@ -15,4 +15,5 @@
    autosummary_dummy_module.qux
    autosummary_dummy_inherited_module.InheritedAttrClass
    autosummary_dummy_inherited_module.InheritedAttrClass.subclassattr
+   autosummary_dummy_complex_inheritance
    autosummary_importfail
