@@ -5,6 +5,8 @@ Dependencies
 ------------
 
 * #14153: Drop Python 3.11 support.
+* #12555: Drop Docutils 0.20 support.
+  Patch by Adam Turner
 
 Incompatible changes
 --------------------
