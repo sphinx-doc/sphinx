@@ -599,37 +599,24 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
 
     builtin_obj = _temp()
     built_in_members = dir(builtin_obj)
-
-    # A class with annotation
-    class _temp2:
-        to_be_removed: int = 0
-
-    builtin_obj2 = _temp2()
-    built_in_members2 = dir(builtin_obj2)
     built_in_attr = [
-        i for i in dir(builtin_obj2) if not callable(getattr(builtin_obj2, i))
+        i for i in dir(builtin_obj) if not callable(getattr(builtin_obj, i))
     ]
 
-    built_in_members2.remove('to_be_removed')
-    built_in_attr.remove('to_be_removed')
-
     # The following is used to process the expected builtin members for different
-    # versions of Python. The base list is for v3.11 (the latest testing when added)
-    # and new builtin attributes/methods in later versions can be appended below.
+    # versions of Python. The base list above has no annotations.
 
-    # attr_3_11 = ['__annotations__', '__dict__', '__doc__', '__module__', '__weakref__']
+    def concat_and_sort(list1, list2):
+        return sorted(list1 + list2)
 
-    # def concat_and_sort(list1, list2):
-    #    return sorted(list1 + list2)
-
-    # built_in_attr = concat_and_sort(built_in_attr, ['__annotations__'])
-
-    # if sys.version_info[:2] >= (3, 13):
-    #     add_3_13 = ['__firstlineno__', '__static_attributes__']
-    #     built_in_attr = concat_and_sort(built_in_attr, add_3_13)
-
-    # if sys.version_info[:2] >= (3, 14):
-    #     built_in_attr = concat_and_sort(built_in_attr, ['__annotate__'])
+    if sys.version_info[:2] >= (3, 14):
+        add_3_14 = ['__annotate_func__', '__annotations_cache__']
+        built_in_attr = concat_and_sort(built_in_attr, add_3_14)
+        built_in_members2 = concat_and_sort(built_in_members, add_3_14)
+    else:
+        add_3_11 = ['__annotations__']
+        built_in_attr = concat_and_sort(built_in_attr, add_3_11)
+        built_in_members2 = concat_and_sort(built_in_members, add_3_11)
 
     template_jerry = Mock()
 
