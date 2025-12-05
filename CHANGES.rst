@@ -122,6 +122,9 @@ Features added
   Patch by Jean-François B.
 * #13508: autodoc: Initial support for :pep:`695` type aliases.
   Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #14081: Add :confval:`numfig_restart` option to make it possible to restart
+  figure numbering at each ``:numbered:`` toctree.
+  Patch by Elijah Greenstein.
 * #14023: Add the new :confval:`mathjax_config_path` option
   to load MathJax configuration from a file.
   Patch by Randolf Scholz and Adam Turner.
