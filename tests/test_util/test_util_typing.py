@@ -198,13 +198,10 @@ def test_is_invalid_builtin_class() -> None:
         WrapperDescriptorType,
         # weakref
         WeakSet,
+        # zipfile
+        zipfile.Path,
+        zipfile.CompleteDirs,
     )
-    if sys.version_info[:2] >= (3, 12):
-        invalid_types += (
-            # zipfile
-            zipfile.Path,
-            zipfile.CompleteDirs,
-        )
     if sys.version_info[:2] == (3, 13):
         invalid_types += (
             # pathlib
@@ -225,11 +222,6 @@ def test_is_invalid_builtin_class() -> None:
             ('pathlib._local', 'PurePosixPath'),
             ('pathlib._local', 'PureWindowsPath'),
             ('pathlib._local', 'WindowsPath'),
-        }
-    if sys.version_info[:2] < (3, 12):
-        invalid_names |= {
-            ('zipfile._path', 'Path'),
-            ('zipfile._path', 'CompleteDirs'),
         }
     assert set(_INVALID_BUILTIN_CLASSES) == invalid_names
 
@@ -488,14 +480,9 @@ def test_restify_Unpack() -> None:
         label: str
 
     # Unpack is considered as typing special form so we always have '~'
-    if sys.version_info[:2] >= (3, 12):
-        expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
-        assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
-        assert restify(UnpackCompat['X'], 'smart') == expect
-    else:
-        expect = r':py:obj:`~typing_extensions.Unpack`\ [:py:class:`X`]'
-        assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
-        assert restify(UnpackCompat['X'], 'smart') == expect
+    expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
+    assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
+    assert restify(UnpackCompat['X'], 'smart') == expect
 
     expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
     assert restify(t.Unpack['X'], 'fully-qualified-except-typing') == expect

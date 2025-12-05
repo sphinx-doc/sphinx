@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -41,10 +41,7 @@ def optional_int(argument: str) -> int | None:
         return value
 
 
-ObjDescT = TypeVar('ObjDescT')
-
-
-class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
+class ObjectDescription[ObjDescT](SphinxDirective):
     """Directive to describe a class, function or similar object.
 
     Not used directly, but subclassed (in domain-specific directives)

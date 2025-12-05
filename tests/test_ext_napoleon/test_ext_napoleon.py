@@ -14,19 +14,15 @@ from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import ParamSpec, TypeVar
 
     from sphinx.ext.autodoc._property_types import _AutodocObjType
 
-    _P = ParamSpec('_P')
-    _R = TypeVar('_R')
 
-
-def simple_decorator(f: Callable[_P, _R]) -> Callable[_P, _R]:
+def simple_decorator[**P, R](f: Callable[P, R]) -> Callable[P, R]:
     """A simple decorator that does nothing, for tests to use."""
 
     @functools.wraps(f)
-    def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         return f(*args, **kwargs)
 
     return wrapper

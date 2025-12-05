@@ -11,7 +11,7 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     from typing import Final
 
-__version__: Final = '9.0.3'
+__version__: Final = '9.1.0'
 __display_version__: Final = __version__  # used for command line version
 
 #: Version info for better programmatic use.
@@ -22,7 +22,7 @@ __display_version__: Final = __version__  # used for command line version
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info: Final = (9, 0, 3, 'beta', 0)
+version_info: Final = (9, 1, 0, 'beta', 1)
 
 package_dir: Final = _StrPath(__file__).resolve().parent
 del _StrPath

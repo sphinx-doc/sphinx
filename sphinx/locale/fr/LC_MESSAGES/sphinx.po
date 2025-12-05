@@ -35,7 +35,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-01 16:14+0000\n"
+"POT-Creation-Date: 2025-12-04 06:45+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Denis Bitouzé <dbitouze@wanadoo.fr>, 2020-2025\n"
 "Language-Team: French (http://app.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
@@ -1206,7 +1206,7 @@ msgstr "les modules suivants sont documentés mais n'ont pas été spécifiés d
 msgid ""
 "the following modules are specified in coverage_modules but were not "
 "documented: %s"
-msgstr ""
+msgstr "Les modules suivants sont spécifiés dans coverage_modules mais n'ont pas été documentés : %s"
 
 #: ext/coverage.py:172
 #, python-brace-format, python-format
@@ -1433,17 +1433,17 @@ msgstr "libellé dupliqué %s, l'autre instance se trouve dans %s"
 #: ext/duration.py:47
 #, python-format
 msgid "Reading duration %.3fs exceeded the duration limit %.3fs"
-msgstr ""
+msgstr "La durée de lecture %.3fs a dépassé la limite de durée %.3fs"
 
 #: ext/duration.py:117
 msgid ""
 "====================== total reading duration =========================="
-msgstr ""
+msgstr "====================== durée totale de lecture =========================="
 
 #: ext/duration.py:124
 #, python-format
 msgid "Total time reading %d file%s: %dm %.3fs"
-msgstr ""
+msgstr "Temps total de lecture %d fichier%s: %dm %.3fs"
 
 #: ext/duration.py:136
 msgid ""
@@ -1453,7 +1453,7 @@ msgstr "====================== durées de lecture les plus lentes ==============
 #: ext/duration.py:139
 #, python-format
 msgid "%.3fs %s"
-msgstr ""
+msgstr "%.3fs %s"
 
 #: ext/linkcode.py:86 ext/viewcode.py:232
 msgid "[source]"
@@ -2655,7 +2655,7 @@ msgstr "rôle par défaut %s introuvable"
 msgid ""
 "%r is no longer supported for index entries (from entry %r). Use 'pair: %s' "
 "instead."
-msgstr ""
+msgstr "%r n'est plus pris en charge pour les entrées d'index (à partir de l'entrée %r). Utilisez 'pair: %s' à la place."
 
 #: util/nodes.py:523
 #, python-format
@@ -3842,7 +3842,7 @@ msgstr "quelques problèmes ont été rencontrés avec quelques uns des inventai
 msgid ""
 "failed to reach any of the inventories with the following issues:\n"
 "%s"
-msgstr ""
+msgstr "n'a réussi à atteindre aucun des inventaires en raison des problèmes suivants :\n%s"
 
 #: ext/intersphinx/_load.py:411
 #, python-format
@@ -3947,7 +3947,7 @@ msgstr "Échec pour obtenir la signature de la méthode pour %s : %s"
 #: ext/autodoc/_dynamic/_signatures.py:500
 #, python-format
 msgid "Failed to get a signature for %s: %s"
-msgstr ""
+msgstr "Impossible d'obtenir une signature pour %s: %s"
 
 #: ext/autodoc/_dynamic/_preserve_defaults.py:156
 #, python-format
