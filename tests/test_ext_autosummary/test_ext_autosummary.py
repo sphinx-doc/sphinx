@@ -599,7 +599,19 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
 
     builtin_obj = _temp()
     built_in_members = dir(builtin_obj)
-    built_in_attr = [i for i in dir(builtin_obj) if not callable(getattr(builtin_obj, i))]
+
+    # A class with annotation
+    class _temp2:
+        to_be_removed: int = 0
+
+    builtin_obj2 = _temp2()
+    built_in_members2 = dir(builtin_obj2)
+    built_in_attr = [
+        i for i in dir(builtin_obj2) if not callable(getattr(builtin_obj2, i))
+    ]
+
+    built_in_members2.remove('to_be_removed')
+    built_in_attr.remove('to_be_removed')
 
     # The following is used to process the expected builtin members for different
     # versions of Python. The base list is for v3.11 (the latest testing when added)
@@ -607,10 +619,10 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
 
     # attr_3_11 = ['__annotations__', '__dict__', '__doc__', '__module__', '__weakref__']
 
-    def concat_and_sort(list1, list2):
-        return sorted(list1 + list2)
+    # def concat_and_sort(list1, list2):
+    #    return sorted(list1 + list2)
 
-    built_in_attr = concat_and_sort(built_in_attr, ['__annotations__'])
+    # built_in_attr = concat_and_sort(built_in_attr, ['__annotations__'])
 
     # if sys.version_info[:2] >= (3, 13):
     #     add_3_13 = ['__firstlineno__', '__static_attributes__']
@@ -894,8 +906,7 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
     assert context2['members'] == [
         'BabyInnerClass',
         '__private_baby_name',
-        '__annotations__',
-        *built_in_members,
+        *built_in_members2,
         'addition',
         'get_age',
         'get_name',
