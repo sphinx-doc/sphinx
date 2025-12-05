@@ -592,11 +592,31 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_clas
 def test_autosummary_generate_content_for_module_imported_members_complex_inheritance(
     app,
 ):
-    import autosummary_dummy_complex_inheritance_module
+    import autosummary_dummy_complex_inheritance_module  # type: ignore[import-not-found]
 
-    built_in_attr = autosummary_dummy_complex_inheritance_module.built_in_attr
-    built_in_members = autosummary_dummy_complex_inheritance_module.built_in_members
-    built_in_members2 = autosummary_dummy_complex_inheritance_module.built_in_members2
+    class _temp:
+        pass
+
+    builtin_obj = _temp()
+    built_in_members = dir(builtin_obj)
+
+    # The following is used to process the expected builtin members for different
+    # versions of Python. The base list is for v3.11 (the latest testing when added)
+    # and new builtin attributes/methods in later versions can be appended below.
+
+    attr_3_11 = ['__annotations__', '__dict__', '__doc__', '__module__', '__weakref__']
+
+    def concat_and_sort(list1, list2):
+        return sorted(list1 + list2)
+
+    built_in_attr = attr_3_11
+
+    if sys.version_info[:2] >= (3, 13):
+        add_3_13 = ['__firstlineno__', '__static_attributes__']
+        built_in_attr = concat_and_sort(built_in_attr, add_3_13)
+
+    if sys.version_info[:2] >= (3, 14):
+        built_in_attr = concat_and_sort(built_in_attr, ['__annotate__'])
 
     template_jerry = Mock()
 
@@ -873,7 +893,8 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
     assert context2['members'] == [
         'BabyInnerClass',
         '__private_baby_name',
-        *built_in_members2,
+        '__annotations__',
+        *built_in_members,
         'addition',
         'get_age',
         'get_name',
