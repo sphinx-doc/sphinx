@@ -22,12 +22,12 @@ from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.nodes import NodeMatcher
 
-from tests.utils import extract_node
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from io import StringIO
     from pathlib import Path
+
+    from sphinx.testing.util import SphinxTestApp
 
 _CATALOG_LOCALE = 'xx'
 
@@ -41,7 +41,7 @@ sphinx_intl = pytest.mark.sphinx(
 )
 
 
-def read_po(pathname):
+def read_po(pathname: str | Path) -> Catalog:
     with open(pathname, encoding='utf-8') as f:
         return pofile.read_po(f)
 
@@ -94,7 +94,7 @@ def assert_elem(elem, texts=None, refs=None, names=None):
         assert _names == names
 
 
-def assert_count(expected_expr, result, count):
+def assert_count(expected_expr: str, result: str, count: int) -> None:
     find_pair = (expected_expr, result)
     assert len(re.findall(*find_pair)) == count, find_pair
 
@@ -759,9 +759,7 @@ def test_translation_progress_substitution(app):
 
     doctree = app.env.get_doctree('translation_progress')
 
-    assert (
-        extract_node(doctree, 0, 19, 0) == '68.75%'
-    )  # 11 out of 16 lines are translated
+    assert doctree[0][19][0] == '68.75%'  # 11 out of 16 lines are translated
 
 
 @pytest.mark.sphinx(
@@ -782,40 +780,40 @@ def test_translation_progress_classes_true(app):
     doctree = app.env.get_doctree('translation_progress')
 
     # title
-    assert 'translated' in extract_node(doctree, 0, 0)['classes']
+    assert 'translated' in doctree[0][0]['classes']
 
     # translated lines
-    assert 'translated' in extract_node(doctree, 0, 1)['classes']
-    assert 'translated' in extract_node(doctree, 0, 2)['classes']
-    assert 'translated' in extract_node(doctree, 0, 3)['classes']
-    assert 'translated' in extract_node(doctree, 0, 4)['classes']
-    assert 'translated' in extract_node(doctree, 0, 5)['classes']
-    assert 'translated' in extract_node(doctree, 0, 6)['classes']
-    assert 'translated' in extract_node(doctree, 0, 7)['classes']
-    assert 'translated' in extract_node(doctree, 0, 8)['classes']
+    assert 'translated' in doctree[0][1]['classes']
+    assert 'translated' in doctree[0][2]['classes']
+    assert 'translated' in doctree[0][3]['classes']
+    assert 'translated' in doctree[0][4]['classes']
+    assert 'translated' in doctree[0][5]['classes']
+    assert 'translated' in doctree[0][6]['classes']
+    assert 'translated' in doctree[0][7]['classes']
+    assert 'translated' in doctree[0][8]['classes']
 
-    assert extract_node(doctree, 0, 9)['classes'] == []  # comment node
+    assert doctree[0][9]['classes'] == []  # comment node
 
     # idempotent
-    assert 'translated' in extract_node(doctree, 0, 10)['classes']
-    assert 'translated' in extract_node(doctree, 0, 11)['classes']
+    assert 'translated' in doctree[0][10]['classes']
+    assert 'translated' in doctree[0][11]['classes']
 
-    assert extract_node(doctree, 0, 12)['classes'] == []  # comment node
+    assert doctree[0][12]['classes'] == []  # comment node
 
     # untranslated
-    assert 'untranslated' in extract_node(doctree, 0, 13)['classes']
-    assert 'untranslated' in extract_node(doctree, 0, 14)['classes']
+    assert 'untranslated' in doctree[0][13]['classes']
+    assert 'untranslated' in doctree[0][14]['classes']
 
-    assert extract_node(doctree, 0, 15)['classes'] == []  # comment node
+    assert doctree[0][15]['classes'] == []  # comment node
 
     # missing
-    assert 'untranslated' in extract_node(doctree, 0, 16)['classes']
-    assert 'untranslated' in extract_node(doctree, 0, 17)['classes']
+    assert 'untranslated' in doctree[0][16]['classes']
+    assert 'untranslated' in doctree[0][17]['classes']
 
-    assert extract_node(doctree, 0, 18)['classes'] == []  # comment node
+    assert doctree[0][18]['classes'] == []  # comment node
 
     # substitution reference
-    assert 'untranslated' in extract_node(doctree, 0, 19)['classes']
+    assert 'untranslated' in doctree[0][19]['classes']
 
     assert len(doctree[0]) == 20
 
@@ -1077,7 +1075,7 @@ def test_html_index_entries(app):
     # https://github.com/sphinx-doc/sphinx/issues/976
     result = (app.outdir / 'genindex.html').read_text(encoding='utf8')
 
-    def wrap(tag, keyword):
+    def wrap(tag: str, keyword: str) -> str:
         start_tag = '<%s[^>]*>' % tag
         end_tag = '</%s>' % tag
         return rf'{start_tag}\s*{keyword}\s*{end_tag}'
@@ -1116,7 +1114,7 @@ def test_html_index_entries(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_versionchanges(app):
+def test_html_versionchanges(app: SphinxTestApp) -> None:
     app.build()
     # --- versionchanges
     result = (app.outdir / 'versionchange.html').read_text(encoding='utf8')
@@ -1229,11 +1227,8 @@ def test_xml_footnotes(app):
 
     # check node_id for footnote_references which refer same footnote
     # See: https://github.com/sphinx-doc/sphinx/issues/3002
-    assert extract_node(para0, 0, 4).text == extract_node(para0, 0, 6).text == '100'
-    assert (
-        extract_node(para0, 0, 4).attrib['ids']
-        != extract_node(para0, 0, 6).attrib['ids']
-    )
+    assert para0[0][4].text == para0[0][6].text == '100'
+    assert para0[0][4].attrib['ids'] != para0[0][6].attrib['ids']
 
     footnote0 = secs[0].findall('footnote')
     assert_elem(footnote0[0], ['1', 'THIS IS A AUTO NUMBERED FOOTNOTE.'], None, ['1'])
@@ -1740,7 +1735,9 @@ def test_additional_targets_should_be_translated(app):
     },
     copy_test_root=True,
 )
-def test_additional_targets_should_be_translated_substitution_definitions(app):
+def test_additional_targets_should_be_translated_substitution_definitions(
+    app: SphinxTestApp,
+) -> None:
     app.build(force_all=True)
 
     # [prolog_epilog_substitution.txt]
@@ -1777,7 +1774,7 @@ def test_text_references(app):
     },
     copy_test_root=True,
 )
-def test_text_prolog_epilog_substitution(app):
+def test_text_prolog_epilog_substitution(app: SphinxTestApp) -> None:
     app.build()
 
     result = (app.outdir / 'prolog_epilog_substitution.txt').read_text(encoding='utf8')
@@ -1811,22 +1808,19 @@ def test_image_glob_intl(app):
     # index.rst
     doctree = app.env.get_doctree('index')
     assert_node(
-        extract_node(doctree, 0, 1),
-        nodes.image,
-        uri='rimg.xx.png',
-        candidates={'*': 'rimg.xx.png'},
+        doctree[0][1], nodes.image, uri='rimg.xx.png', candidates={'*': 'rimg.xx.png'}
     )
 
-    assert isinstance(extract_node(doctree, 0, 2), nodes.figure)
+    assert isinstance(doctree[0][2], nodes.figure)
     assert_node(
-        extract_node(doctree, 0, 2, 0),
+        doctree[0][2][0],
         nodes.image,
         uri='rimg.xx.png',
         candidates={'*': 'rimg.xx.png'},
     )
 
     assert_node(
-        extract_node(doctree, 0, 3),
+        doctree[0][3],
         nodes.image,
         uri='img.*',
         candidates={
@@ -1836,9 +1830,9 @@ def test_image_glob_intl(app):
         },
     )
 
-    assert isinstance(extract_node(doctree, 0, 4), nodes.figure)
+    assert isinstance(doctree[0][4], nodes.figure)
     assert_node(
-        extract_node(doctree, 0, 4, 0),
+        doctree[0][4][0],
         nodes.image,
         uri='img.*',
         candidates={
@@ -1851,14 +1845,14 @@ def test_image_glob_intl(app):
     # subdir/index.rst
     doctree = app.env.get_doctree('subdir/index')
     assert_node(
-        extract_node(doctree, 0, 1),
+        doctree[0][1],
         nodes.image,
         uri='subdir/rimg.xx.png',
         candidates={'*': 'subdir/rimg.xx.png'},
     )
 
     assert_node(
-        extract_node(doctree, 0, 2),
+        doctree[0][2],
         nodes.image,
         uri='subdir/svgimg.*',
         candidates={
@@ -1867,9 +1861,9 @@ def test_image_glob_intl(app):
         },
     )
 
-    assert isinstance(extract_node(doctree, 0, 3), nodes.figure)
+    assert isinstance(doctree[0][3], nodes.figure)
     assert_node(
-        extract_node(doctree, 0, 3, 0),
+        doctree[0][3][0],
         nodes.image,
         uri='subdir/svgimg.*',
         candidates={
@@ -1895,22 +1889,19 @@ def test_image_glob_intl_using_figure_language_filename(app):
     # index.rst
     doctree = app.env.get_doctree('index')
     assert_node(
-        extract_node(doctree, 0, 1),
-        nodes.image,
-        uri='rimg.png.xx',
-        candidates={'*': 'rimg.png.xx'},
+        doctree[0][1], nodes.image, uri='rimg.png.xx', candidates={'*': 'rimg.png.xx'}
     )
 
-    assert isinstance(extract_node(doctree, 0, 2), nodes.figure)
+    assert isinstance(doctree[0][2], nodes.figure)
     assert_node(
-        extract_node(doctree, 0, 2, 0),
+        doctree[0][2][0],
         nodes.image,
         uri='rimg.png.xx',
         candidates={'*': 'rimg.png.xx'},
     )
 
     assert_node(
-        extract_node(doctree, 0, 3),
+        doctree[0][3],
         nodes.image,
         uri='img.*',
         candidates={
@@ -1920,9 +1911,9 @@ def test_image_glob_intl_using_figure_language_filename(app):
         },
     )
 
-    assert isinstance(extract_node(doctree, 0, 4), nodes.figure)
+    assert isinstance(doctree[0][4], nodes.figure)
     assert_node(
-        extract_node(doctree, 0, 4, 0),
+        doctree[0][4][0],
         nodes.image,
         uri='img.*',
         candidates={
@@ -1935,14 +1926,14 @@ def test_image_glob_intl_using_figure_language_filename(app):
     # subdir/index.rst
     doctree = app.env.get_doctree('subdir/index')
     assert_node(
-        extract_node(doctree, 0, 1),
+        doctree[0][1],
         nodes.image,
         uri='subdir/rimg.png',
         candidates={'*': 'subdir/rimg.png'},
     )
 
     assert_node(
-        extract_node(doctree, 0, 2),
+        doctree[0][2],
         nodes.image,
         uri='subdir/svgimg.*',
         candidates={
@@ -1951,9 +1942,9 @@ def test_image_glob_intl_using_figure_language_filename(app):
         },
     )
 
-    assert isinstance(extract_node(doctree, 0, 3), nodes.figure)
+    assert isinstance(doctree[0][3], nodes.figure)
     assert_node(
-        extract_node(doctree, 0, 3, 0),
+        doctree[0][3][0],
         nodes.image,
         uri='subdir/svgimg.*',
         candidates={
