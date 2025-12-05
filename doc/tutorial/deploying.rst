@@ -231,6 +231,59 @@ the designated URL.
 
 .. _publish GitHub Pages from a branch: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-from-a-branch
 
+Incremental build
+.................
+
+If building your documentation takes too long, you can consider using another
+GitHub Action `sphinx-notes/pages`_ which provides incremental build support.
+
+After you have published your sources on GitHub, create a file named
+``.github/workflows/sphinx.yml`` in your repository with the following
+contents:
+
+.. code-block:: yaml
+   :caption: .github/workflows/sphinx.yml
+
+   name: "Sphinx: Render docs"
+
+   on: push
+
+   jobs:
+     build:
+       runs-on: ubuntu-latest
+       environment:
+         name: github-pages
+         url: ${{ steps.deployment.outputs.page_url }}
+       permissions:
+         pages: write
+         id-token: write
+       steps:
+       - id: deployment
+         uses: sphinx-notes/pages@v3
+         with:
+            cache: true
+
+The `sphinx-notes/pages`_ action is all-in-one: you don't need to go through
+multiple steps to clone the repository, build the documentation, and upload the
+artifacts. The crucial ``cache: true`` option enables incremental build support,
+which is available out of the box and requires no additional configuration.
+
+Next, if you have any dependencies for documentation building, create a file
+``docs/requirements.txt`` and add the following contents:
+
+.. code-block::
+   :caption: docs/requirements.txt
+
+   furo==2021.11.16
+
+And finally, you are ready to `publish GitHub Pages with a custom Github Action`_.
+For that, go to :guilabel:`Settings`, then :guilabel:`Pages` on the left sidebar,
+select the ``Github Actions`` item in the "Source" dropdown menu.
+After a few minutes, you should be able to see your HTML at the designated URL.
+
+.. _sphinx-notes/pages: https://github.com/sphinx-notes/pages
+.. _publish GitHub Pages with a custom Github Action: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-with-a-custom-github-actions-workflow
+
 GitLab Pages
 ~~~~~~~~~~~~
 
