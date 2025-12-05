@@ -1,0 +1,16 @@
+:tocdepth: 2
+
+i18n with reordered and translated references
+==============================================
+
+.. glossary::
+
+   term one
+      First glossary term
+
+   term two
+      Second glossary term
+
+1. Multiple refs reordered: :term:`term one` and :term:`term two`.
+
+2. Single ref with translated display text: :term:`term one`.
