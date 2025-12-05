@@ -602,6 +602,11 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
     built_in_attr = [
         i for i in dir(builtin_obj) if not callable(getattr(builtin_obj, i))
     ]
+    built_in_methods = [
+        i
+        for i in dir(builtin_obj)
+        if (callable(getattr(builtin_obj, i)) and i != '__class__')
+    ]
 
     # The following is used to process the expected builtin members for different
     # versions of Python. The base list above has no annotations.
@@ -617,6 +622,21 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
         add_3_11 = ['__annotations__']
         built_in_attr = concat_and_sort(built_in_attr, add_3_11)
         built_in_members2 = concat_and_sort(built_in_members, add_3_11)
+
+    # This list should be expanded if more builtins are added in future versions
+    non_inherited = [
+        '__module__',
+        '__init__',
+        '__firstlineno__',
+        '__static_attributes__',
+        '__doc__',
+    ]
+    built_in_inherited = [i for i in built_in_members if i not in non_inherited]
+
+    non_base_inherit = ['__dict__', '__weakref__']
+    built_inh_qual = [
+        f'builtins.object.{i}' for i in built_in_inherited if i not in non_base_inherit
+    ]
 
     template_jerry = Mock()
 
@@ -651,31 +671,12 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
 
     assert context['all_attributes'] == [
         *built_in_attr,
+        '_private_normal_parent',
         'relation',
     ]
     assert context['all_methods'] == [
-        '__delattr__',
-        '__dir__',
-        '__eq__',
-        '__format__',
-        '__ge__',
-        '__getattribute__',
-        '__getstate__',
-        '__gt__',
-        '__hash__',
-        '__init__',
-        '__init_subclass__',
-        '__le__',
-        '__lt__',
-        '__ne__',
-        '__new__',
-        '__reduce__',
-        '__reduce_ex__',
-        '__repr__',
-        '__setattr__',
-        '__sizeof__',
-        '__str__',
-        '__subclasshook__',
+        *built_in_methods,
+        '_private_parent_method',
         'addition',
         'get_age',
         'get_name',
@@ -699,56 +700,16 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
         'autosummary_dummy_complex_inheritance_module.Job.get_salary',
         'autosummary_dummy_complex_inheritance_module.Child.addition',
         'autosummary_dummy_complex_inheritance_module.Child.get_name',
+        'autosummary_dummy_complex_inheritance_module.Parent._private_normal_parent',
+        'autosummary_dummy_complex_inheritance_module.Parent._private_parent_method',
         'autosummary_dummy_complex_inheritance_module.Parent.relation',
-        'builtins.object.__class__',
-        'builtins.object.__delattr__',
-        'builtins.object.__dir__',
-        'builtins.object.__eq__',
-        'builtins.object.__format__',
-        'builtins.object.__ge__',
-        'builtins.object.__getattribute__',
-        'builtins.object.__getstate__',
-        'builtins.object.__gt__',
-        'builtins.object.__hash__',
-        'builtins.object.__init_subclass__',
-        'builtins.object.__le__',
-        'builtins.object.__lt__',
-        'builtins.object.__ne__',
-        'builtins.object.__new__',
-        'builtins.object.__reduce__',
-        'builtins.object.__reduce_ex__',
-        'builtins.object.__repr__',
-        'builtins.object.__setattr__',
-        'builtins.object.__sizeof__',
-        'builtins.object.__str__',
-        'builtins.object.__subclasshook__',
+        *built_inh_qual,
     ]
 
     assert context['inherited_members'] == [
-        '__class__',
-        '__delattr__',
-        '__dict__',
-        '__dir__',
-        '__eq__',
-        '__format__',
-        '__ge__',
-        '__getattribute__',
-        '__getstate__',
-        '__gt__',
-        '__hash__',
-        '__init_subclass__',
-        '__le__',
-        '__lt__',
-        '__ne__',
-        '__new__',
-        '__reduce__',
-        '__reduce_ex__',
-        '__repr__',
-        '__setattr__',
-        '__sizeof__',
-        '__str__',
-        '__subclasshook__',
-        '__weakref__',
+        *built_in_inherited,
+        '_private_normal_parent',
+        '_private_parent_method',
         'addition',
         'get_age',
         'get_name',
@@ -758,6 +719,8 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
 
     assert context['members'] == [
         *built_in_members,
+        '_private_normal_parent',
+        '_private_parent_method',
         'addition',
         'get_age',
         'get_name',
@@ -792,31 +755,12 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
     assert context2['all_attributes'] == [
         '__private_baby_name',
         *built_in_attr,
+        '_private_normal_parent',
         'relation',
     ]
     assert context2['all_methods'] == [
-        '__delattr__',
-        '__dir__',
-        '__eq__',
-        '__format__',
-        '__ge__',
-        '__getattribute__',
-        '__getstate__',
-        '__gt__',
-        '__hash__',
-        '__init__',
-        '__init_subclass__',
-        '__le__',
-        '__lt__',
-        '__ne__',
-        '__new__',
-        '__reduce__',
-        '__reduce_ex__',
-        '__repr__',
-        '__setattr__',
-        '__sizeof__',
-        '__str__',
-        '__subclasshook__',
+        *built_in_methods,
+        '_private_parent_method',
         'addition',
         'get_age',
         'get_name',
@@ -835,56 +779,16 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
         'autosummary_dummy_complex_inheritance_module.Child.get_name',
         'autosummary_dummy_complex_inheritance_module.Parent.__dict__',
         'autosummary_dummy_complex_inheritance_module.Parent.__weakref__',
+        'autosummary_dummy_complex_inheritance_module.Parent._private_normal_parent',
+        'autosummary_dummy_complex_inheritance_module.Parent._private_parent_method',
         'autosummary_dummy_complex_inheritance_module.Parent.relation',
-        'builtins.object.__class__',
-        'builtins.object.__delattr__',
-        'builtins.object.__dir__',
-        'builtins.object.__eq__',
-        'builtins.object.__format__',
-        'builtins.object.__ge__',
-        'builtins.object.__getattribute__',
-        'builtins.object.__getstate__',
-        'builtins.object.__gt__',
-        'builtins.object.__hash__',
-        'builtins.object.__init_subclass__',
-        'builtins.object.__le__',
-        'builtins.object.__lt__',
-        'builtins.object.__ne__',
-        'builtins.object.__new__',
-        'builtins.object.__reduce__',
-        'builtins.object.__reduce_ex__',
-        'builtins.object.__repr__',
-        'builtins.object.__setattr__',
-        'builtins.object.__sizeof__',
-        'builtins.object.__str__',
-        'builtins.object.__subclasshook__',
+        *built_inh_qual,
     ]
 
     assert context2['inherited_members'] == [
-        '__class__',
-        '__delattr__',
-        '__dict__',
-        '__dir__',
-        '__eq__',
-        '__format__',
-        '__ge__',
-        '__getattribute__',
-        '__getstate__',
-        '__gt__',
-        '__hash__',
-        '__init_subclass__',
-        '__le__',
-        '__lt__',
-        '__ne__',
-        '__new__',
-        '__reduce__',
-        '__reduce_ex__',
-        '__repr__',
-        '__setattr__',
-        '__sizeof__',
-        '__str__',
-        '__subclasshook__',
-        '__weakref__',
+        *built_in_inherited,
+        '_private_normal_parent',
+        '_private_parent_method',
         'addition',
         'get_name',
         'relation',
@@ -894,6 +798,8 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
         'BabyInnerClass',
         '__private_baby_name',
         *built_in_members2,
+        '_private_normal_parent',
+        '_private_parent_method',
         'addition',
         'get_age',
         'get_name',

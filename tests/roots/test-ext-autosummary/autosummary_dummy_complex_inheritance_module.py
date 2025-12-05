@@ -3,6 +3,7 @@ import sys
 
 class Parent:
     relation = 'Family'
+    _private_normal_parent = "I'm a normal private"
 
     def __init__(self):
         self.name = 'Andrew'
@@ -13,6 +14,9 @@ class Parent:
 
     def get_age(self):
         return f'Parent class -  {self.age}'
+
+    def _private_parent_method(self):
+        return 'Private method in parent.'
 
     # Test mangled name behaviour
     __get_age = get_age  # private copy of original get_age method
