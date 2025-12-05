@@ -31,7 +31,7 @@ def _transform(doctree: nodes.document) -> None:
 
 
 def create_new_document() -> document:
-    settings = frontend.get_default_settings(rst.Parser)
+    settings = frontend.get_default_settings(rst.Parser())
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document

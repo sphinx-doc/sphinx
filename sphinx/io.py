@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from docutils.io import FileInput
 from docutils.readers import standalone
@@ -16,8 +16,6 @@ from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
 if TYPE_CHECKING:
-    from typing import Any
-
     from docutils import nodes
     from docutils.frontend import Values
     from docutils.io import Input
@@ -32,7 +30,7 @@ logger = logging.getLogger(__name__)
 warnings.warn('sphinx.io is deprecated', RemovedInSphinx10Warning, stacklevel=2)
 
 
-class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
+class SphinxBaseReader(standalone.Reader[Any]):
     """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
@@ -92,15 +90,17 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
     def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
-        if not self.parser:  # type: ignore[has-type]
+        if not self.parser:
             self.parser = parser
         self.settings = settings
         self.input = self.read_source(settings.env)
         self.parse()
+        assert self.document is not None
         return self.document
 
     def read_source(self, env: BuildEnvironment) -> str:
         """Read content from source and do post-process."""
+        assert self.source is not None
         content = self.source.read()
 
         # emit "source-read" event

@@ -528,7 +528,7 @@ class BibliographyTransform(SphinxPostTransform):
             citations += node
 
         if len(citations) > 0:
-            self.document += citations  # type: ignore[attr-defined]
+            self.document += citations
 
 
 class CitationReferenceTransform(SphinxPostTransform):

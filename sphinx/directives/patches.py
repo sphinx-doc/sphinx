@@ -18,6 +18,7 @@ from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import ClassVar
 
     from docutils.nodes import Node
@@ -29,12 +30,12 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Figure(images.Figure):  # type: ignore[misc]
+class Figure(images.Figure):
     """The figure directive which applies `:name:` option to the figure node
     instead of the image node.
     """
 
-    def run(self) -> list[Node]:
+    def run(self) -> Sequence[Node]:
         name = self.options.pop('name', None)
         result = super().run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
@@ -55,12 +56,12 @@ class Figure(images.Figure):  # type: ignore[misc]
         return [figure_node]
 
 
-class CSVTable(tables.CSVTable):  # type: ignore[misc]
+class CSVTable(tables.CSVTable):
     """The csv-table directive which searches a CSV file from Sphinx project's source
     directory when an absolute path is given via :file: option.
     """
 
-    def run(self) -> list[Node]:
+    def run(self) -> Sequence[nodes.table | nodes.system_message]:
         if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
             env = self.state.document.settings.env
             filename = Path(self.options['file'])
