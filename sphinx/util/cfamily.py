@@ -13,13 +13,13 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any, NoReturn, TypeAlias
+    from typing import Any, NoReturn
 
     from docutils.nodes import TextElement
 
     from sphinx.config import Config
 
-    StringifyTransform: TypeAlias = Callable[[Any], str]
+    type StringifyTransform = Callable[[Any], str]
 
 logger = logging.getLogger(__name__)
 

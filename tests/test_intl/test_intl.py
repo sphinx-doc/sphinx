@@ -879,7 +879,8 @@ def mock_time_and_i18n() -> Iterator[tuple[pytest.MonkeyPatch, _MockClock]]:
         _set_mtime_ns(self.mo_path, time.time_ns())
 
     # see: https://github.com/pytest-dev/pytest/issues/363
-    with pytest.MonkeyPatch.context() as mock:
+    # see: https://github.com/astral-sh/ty/issues/1787
+    with pytest.MonkeyPatch.context() as mock:  # ty: ignore[missing-argument]
         clock: _MockClock
         if os.name == 'posix':
             clock = _MockUnixClock()

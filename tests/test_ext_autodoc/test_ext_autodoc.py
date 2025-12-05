@@ -1420,12 +1420,10 @@ class _EnumFormatter:
                 )
             else:
                 return '(*values)'
-        if sys.version_info[:2] >= (3, 12):
-            return (
-                '(value, names=None, *values, module=None, '
-                'qualname=None, type=None, start=1, boundary=None)'
-            )
-        return '(value)'
+        return (
+            '(value, names=None, *values, module=None, '
+            'qualname=None, type=None, start=1, boundary=None)'
+        )
 
     def method(
         self,
@@ -2206,10 +2204,6 @@ def test_autodoc_GenericAlias() -> None:
     ]
 
 
-@pytest.mark.skipif(
-    sys.version_info[:2] < (3, 12),
-    reason='type statement introduced in Python 3.12',
-)
 def test_autodoc_pep695_type_alias() -> None:
     config = _AutodocConfig(
         autodoc_type_aliases={

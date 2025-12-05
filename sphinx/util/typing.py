@@ -7,7 +7,7 @@ import sys
 import types
 import typing
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAliasType
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -16,28 +16,24 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Annotated, Any, Final, Literal, Protocol, TypeAlias
+    from typing import Annotated, Any, Final, Literal, Protocol
 
     from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.util.inventory import _InventoryItem
 
-    _RestifyMode: TypeAlias = Literal[
+    type _RestifyMode = Literal[
         'fully-qualified-except-typing',
         'smart',
     ]
-    _StringifyMode: TypeAlias = Literal[
+    type _StringifyMode = Literal[
         'fully-qualified-except-typing',
         'fully-qualified',
         'smart',
     ]
 
-AnyTypeAliasType: tuple[type, ...] = ()
-if sys.version_info[:2] >= (3, 12):
-    from typing import TypeAliasType
-
-    AnyTypeAliasType += (TypeAliasType,)
+AnyTypeAliasType: tuple[type, ...] = (TypeAliasType,)
 
 try:
     import typing_extensions
@@ -129,10 +125,10 @@ def is_invalid_builtin_class(obj: Any) -> str:
 
 
 # Text like nodes which are initialized with text and rawsource
-TextlikeNode: TypeAlias = nodes.Text | nodes.TextElement
+type TextlikeNode = nodes.Text | nodes.TextElement
 
 # path matcher
-PathMatcher: TypeAlias = Callable[[str], bool]
+type PathMatcher = Callable[[str], bool]
 
 # common role functions
 if TYPE_CHECKING:
@@ -151,19 +147,19 @@ if TYPE_CHECKING:
         ) -> tuple[list[nodes.Node], list[nodes.system_message]]: ...
 
 else:
-    RoleFunction: TypeAlias = Callable[
+    type RoleFunction = Callable[
         [str, str, str, int, Inliner, dict[str, typing.Any], Sequence[str]],
         tuple[list[nodes.Node], list[nodes.system_message]],
     ]
 
 # A option spec for directive
-OptionSpec: TypeAlias = dict[str, Callable[[str], typing.Any]]
+type OptionSpec = dict[str, Callable[[str], typing.Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
-TitleGetter: TypeAlias = Callable[[nodes.Node], str]
+type TitleGetter = Callable[[nodes.Node], str]
 
 # inventory data on memory
-Inventory: TypeAlias = dict[str, dict[str, '_InventoryItem']]
+type Inventory = dict[str, dict[str, _InventoryItem]]
 
 
 class ExtensionMetadata(typing.TypedDict, total=False):
@@ -187,7 +183,7 @@ class ExtensionMetadata(typing.TypedDict, total=False):
 
 
 if TYPE_CHECKING:
-    _ExtensionSetupFunc: TypeAlias = Callable[[Sphinx], ExtensionMetadata]  # NoQA: PYI047 (false positive)
+    type _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]  # NoQA: PYI047 (false positive)
 
 
 def get_type_hints(
@@ -304,9 +300,6 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 else:
                     meta_args.append(repr(m))
             meta = ', '.join(meta_args)
-            if sys.version_info[:2] <= (3, 11):
-                # Hardcoded to fix errors on Python 3.11 and earlier.
-                return rf':py:class:`~typing.Annotated`\ [{args}, {meta}]'
             return (
                 f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
                 rf'\ [{args}, {meta}]'
@@ -476,7 +469,7 @@ def stringify_annotation(
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif fixed_annotation := is_invalid_builtin_class(annotation):
         return module_prefix + fixed_annotation
-    elif _is_annotated_form(annotation):  # for py310+
+    elif _is_annotated_form(annotation):
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
         args = getattr(annotation, '__args__', None)
@@ -578,7 +571,7 @@ def stringify_annotation(
                 _format_literal_arg_stringify(a, mode=mode) for a in annotation_args
             )
             return f'{module_prefix}Literal[{args}]'
-        elif _is_annotated_form(annotation):  # for py310+
+        elif _is_annotated_form(annotation):
             args = stringify_annotation(
                 annotation_args[0], mode=mode, short_literals=short_literals
             )
@@ -603,11 +596,6 @@ def stringify_annotation(
                 else:
                     meta_args.append(repr(m))
             meta = ', '.join(meta_args)
-            if sys.version_info[:2] <= (3, 11):
-                if mode == 'fully-qualified-except-typing':
-                    return f'Annotated[{args}, {meta}]'
-                module_prefix = module_prefix.replace('builtins', 'typing')
-                return f'{module_prefix}Annotated[{args}, {meta}]'
             return f'{module_prefix}Annotated[{args}, {meta}]'
         elif all(is_system_TypeVar(a) for a in annotation_args):
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])

@@ -249,7 +249,7 @@ After you have published your sources on GitLab, create a file named
 
    pages:
      stage: deploy
-     image: python:3.12-slim
+     image: python:3.14-slim
      before_script:
        - apt-get update && apt-get install make --no-install-recommends -y
        - python -m pip install sphinx furo
