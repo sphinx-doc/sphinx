@@ -15,7 +15,7 @@ project_includes = [
 project_excludes = [
     "**/tests/roots*",
 ]
-python_version = "3.11"
+python_version = "3.12"
 replace_imports_with_any = [
     "imagesize",
     "pyximport",

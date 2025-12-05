@@ -17,7 +17,6 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     import os
     from collections.abc import Collection, Iterable, Iterator, Sequence, Set
-    from typing import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild: TypeAlias = Literal[
+type _ConfigRebuild = Literal[
     '',
     'env',
     'epub',
@@ -92,7 +91,7 @@ class ENUM:
         return all(item in self._candidates for item in value)
 
 
-_OptValidTypes: TypeAlias = frozenset[type] | ENUM
+type _OptValidTypes = frozenset[type] | ENUM
 
 
 class _Opt:

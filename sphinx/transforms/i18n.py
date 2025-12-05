@@ -5,7 +5,7 @@ from __future__ import annotations
 from operator import attrgetter
 from re import DOTALL, match
 from textwrap import indent
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 import docutils.utils
 from docutils import nodes
@@ -47,9 +47,6 @@ logger = logging.getLogger(__name__)
 # * refexplict: For allow to give (or not to give) an explicit title
 #               to the pending_xref on translation
 EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
-
-
-N = TypeVar('N', bound=nodes.Node)
 
 
 def _publish_msgstr(
@@ -234,7 +231,7 @@ class _NodeUpdater:
 
     def update_autofootnote_references(self) -> None:
         # auto-numbered foot note reference should use original 'ids'.
-        def list_replace_or_append(lst: list[N], old: N, new: N) -> None:
+        def list_replace_or_append[N: nodes.Node](lst: list[N], old: N, new: N) -> None:
             if old in lst:
                 lst[lst.index(old)] = new
             else:

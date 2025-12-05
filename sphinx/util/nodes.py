@@ -6,7 +6,7 @@ import contextlib
 import re
 import unicodedata
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -36,10 +36,7 @@ explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<([^<]*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
-N = TypeVar('N', bound=Node)
-
-
-class NodeMatcher(Generic[N]):
+class NodeMatcher[N: Node]:
     """A helper class for Node.findall().
 
     It checks that the given node is an instance of the specified node-classes and
