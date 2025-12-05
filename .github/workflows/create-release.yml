@@ -15,7 +15,6 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
-  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   publish-pypi:
@@ -34,20 +33,13 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3"
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: latest
-          enable-cache: false
-
-      - name: Install build dependencies (pypa/build, twine)
-        run: uv pip install --group package
+      - uses: astral-sh/setup-uv@v7
 
       - name: Build distribution
-        run: python -m build
+        run: uv run --locked --no-default-groups --group package python -m build .
 
       - name: Check distribution
-        run: twine check dist/*
+        run: uv run --locked --no-default-groups --group package twine check dist/*.{whl,tar.gz}
 
       - name: Create Sigstore attestations for built distributions
         uses: actions/attest@v1
