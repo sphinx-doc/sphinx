@@ -17,7 +17,7 @@ license = "BSD-2-Clause"
 license-files = [
     "LICENSE.rst",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 
 # Classifiers list: https://pypi.org/classifiers/
 classifiers = [
@@ -35,7 +35,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -76,7 +75,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.9",
     "Jinja2>=3.1",
     "Pygments>=2.17",
-    "docutils>=0.20,<0.23",
+    "docutils>=0.21,<0.23",
     "snowballstemmer>=2.2",
     "babel>=2.13",
     "alabaster>=0.7.14",
@@ -180,7 +179,7 @@ files = [
 exclude = [
     "tests/roots",
 ]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 show_column_numbers = true
 show_error_context = true

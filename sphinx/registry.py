@@ -22,7 +22,7 @@ from sphinx.util.logging import prefixed_warnings
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterator, Mapping, Sequence
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from docutils import nodes
     from docutils.nodes import Element, Node, TextElement
@@ -49,15 +49,13 @@ if TYPE_CHECKING:
     # visit/depart function
     # the parameters should be (SphinxTranslator, Element)
     # or any subtype of either, but mypy rejects this.
-    _NodeHandler: TypeAlias = Callable[[Any, Any], None]
-    _NodeHandlerPair: TypeAlias = tuple[_NodeHandler, _NodeHandler | None]
+    type _NodeHandler = Callable[[Any, Any], None]
+    type _NodeHandlerPair = tuple[_NodeHandler, _NodeHandler | None]
 
-    _MathsRenderer: TypeAlias = Callable[[HTML5Translator, nodes.math], None]
-    _MathsBlockRenderer: TypeAlias = Callable[[HTML5Translator, nodes.math_block], None]
-    _MathsInlineRenderers: TypeAlias = tuple[_MathsRenderer, _MathsRenderer | None]
-    _MathsBlockRenderers: TypeAlias = tuple[
-        _MathsBlockRenderer, _MathsBlockRenderer | None
-    ]
+    type _MathsRenderer = Callable[[HTML5Translator, nodes.math], None]
+    type _MathsBlockRenderer = Callable[[HTML5Translator, nodes.math_block], None]
+    type _MathsInlineRenderers = tuple[_MathsRenderer, _MathsRenderer | None]
+    type _MathsBlockRenderers = tuple[_MathsBlockRenderer, _MathsBlockRenderer | None]
 
 logger = logging.getLogger(__name__)
 
