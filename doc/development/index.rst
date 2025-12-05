@@ -8,7 +8,7 @@ develop their own extensions for Sphinx.
 Sphinx possesses significant extensibility capabilities
 including the ability to hook into almost every point of the build process.
 If you simply wish to use Sphinx with existing extensions,
-refer to :doc:`/usage/index`.
+refer to :doc:`/usage/extensions/index`.
 For a more detailed discussion of the extension interface see :doc:`/extdev/index`.
 
 .. toctree::
