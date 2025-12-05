@@ -1,0 +1,244 @@
+==========
+Sphinx 9.0
+==========
+
+
+Release 9.0.4 (released Dec 04, 2025)
+=====================================
+
+Bugs fixed
+----------
+
+* #14143: Fix spurious build warnings when translators reorder references
+  in strings, or use translated display text in references.
+  Patch by Matt Wang.
+
+Release 9.0.3 (released Dec 04, 2025)
+=====================================
+
+Bugs fixed
+----------
+
+* #14142: autodoc: Restore some missing exports in :mod:`!sphinx.ext.autodoc`.
+  Patch by Adam Turner.
+
+Release 9.0.2 (released Dec 03, 2025)
+=====================================
+
+Bugs fixed
+----------
+
+* #14142: autodoc: Restore :mod:`!sphinx.ext.autodoc.mock`.
+  Patch by Adam Turner.
+
+Release 9.0.1 (released Dec 01, 2025)
+=====================================
+
+Bugs fixed
+----------
+
+* #13942: autodoc: Restore the mapping interface for options objects.
+  Patch by Adam Turner.
+* #13942: autodoc: Deprecate the mapping interface for options objects.
+  Patch by Adam Turner.
+* #13387: Update translations.
+
+Release 9.0.0 (released Nov 30, 2025)
+=====================================
+
+Dependencies
+------------
+
+* #13786: Support `Docutils 0.22`_. Patch by Adam Turner.
+
+  .. _Docutils 0.22: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-22-2026-07-29
+
+Incompatible changes
+--------------------
+
+* #13639: :py:meth:`!SphinxComponentRegistry.create_source_parser` no longer
+  has an *app* parameter, instead taking *config* and *env*.
+  Patch by Adam Turner.
+* #13679: Non-decodable characters in source files now raise an error.
+  Such bytes have been replaced with '?' along with logging a warning
+  since Sphinx 2.0.
+  Patch by Adam Turner.
+* #13751, #14089: :mod:`sphinx.ext.autodoc` has been substantially rewritten,
+  and there may be some incompatible changes in edge cases, especially when
+  extensions interact with autodoc internals.
+  The :confval:`autodoc_use_legacy_class_based` option has been added to
+  use the legacy (pre-9.0) implementation of autodoc.
+  Patches by Adam Turner.
+* #13355: Don't include escaped title content in the search index.
+  Patch by Will Lachance.
+
+Deprecated
+----------
+
+* 13627: Deprecate remaining public :py:attr:`!.app` attributes,
+  including ``builder.app``, ``env.app``, ``events.app``,
+  and ``SphinxTransform.app``.
+  Patch by Adam Turner.
+* #13637: Deprecate the :py:meth:`!set_application` method
+  of :py:class:`~sphinx.parsers.Parser` objects.
+  Patch by Adam Turner.
+* #13644: Deprecate the :py:attr:`!Parser.config` and :py:attr:`!env` attributes.
+  Patch by Adam Turner.
+* #13665: Deprecate support for non-UTF 8 source encodings,
+  scheduled for removal in Sphinx 10.
+  Patch by Adam Turner.
+* #13682: Deprecate :py:mod:`!sphinx.io`.
+  Sphinx no longer uses the :py:mod:`!sphinx.io` classes,
+  having replaced them with standard Python I/O.
+  The entire :py:mod:`!sphinx.io` module will be removed in Sphinx 10.
+  Patch by Adam Turner.
+* #13631: :func:`!sphinx.environment.adapters.toctree.global_toctree_for_doc`
+  and :meth:`!sphinx.environment.BuildEnvironment.get_and_resolve_doctree`
+  will require a *tags* keyword argument from Sphinx 11.
+  It may optionally be passed from Sphinx 9 onwards.
+  Patch by Adam Turner.
+
+Features added
+--------------
+
+* #13332: Add :confval:`doctest_fail_fast` option to exit after the first failed
+  test.
+  Patch by Till Hoffmann.
+* #13439: linkcheck: Permit warning on every redirect with
+  ``linkcheck_allowed_redirects = {}``.
+  Patch by Adam Turner and James Addison.
+* #13497: Support C domain objects in the table of contents.
+* #13500: LaTeX: add support for ``fontawesome6`` package.
+  Patch by Jean-François B.
+* #13509: autodoc: Detect :py:func:`typing_extensions.overload <typing.overload>`
+  and :py:func:`~typing.final` decorators.
+  Patch by Spencer Brown.
+* #13535: html search: Update to the latest version of Snowball (v3.0.1).
+  Patch by Adam Turner.
+* #13647: LaTeX: allow more cases of table nesting.
+  Patch by Jean-François B.
+* #13657: LaTeX: support CSS3 length units.
+  Patch by Jean-François B.
+* #13684: intersphinx: Add a file-based cache for remote inventories.
+  The location of the cache directory must not be relied upon externally,
+  as it may change without notice or warning in future releases.
+  Patch by Adam Turner.
+* #13805: LaTeX: add support for ``fontawesome7`` package.
+  Patch by Jean-François B.
+* #13508: autodoc: Initial support for :pep:`695` type aliases.
+  Patch by Martin Matouš, Jeremy Maitin-Shepard, and Adam Turner.
+* #14023: Add the new :confval:`mathjax_config_path` option
+  to load MathJax configuration from a file.
+  Patch by Randolf Scholz and Adam Turner.
+* #14046: linkcheck: Add the :confval:`linkcheck_case_insensitive_urls` option
+  to allow case-insensitive URL comparison for specific URL patterns.
+  This is useful for links to websites that normalise URL casing (e.g. GitHub)
+  or case-insensitive servers.
+  Patch by Fazeel Usmani and James Addison.
+* #14075: autosummary: Provide more context in import exception stack traces.
+  Patch by Philipp A.
+* #13468: Add config options to :mod:`sphinx.ext.duration`.
+  Patch by Erik Bedard and Adam Turner.
+* #14022: Use MathJax v4 by default in the :mod:`sphinx.ext.mathjax` extension,
+  from v3 previously.
+  To keep using an older version, set the :confval:`mathjax_path` option.
+  Also add the new :confval:`mathjax4_config` option to configure MathJax v4.
+  Note that MathJax v3 is mostly compatible with MathJax v4, so existing
+  :confval:`mathjax3_config` settings should not need to change.
+  Patch by Matthias Geier.
+* #14029: intersphinx: Fix error in format string interpolation.
+  Patch by Matthieu de Cibeins.
+* #13894: Add ``source_code_parser`` type to :confval:`suppress_warnings`
+  for grouping issues related to the C and C++ parsers.
+  Patch by Valentin H.
+
+Bugs fixed
+----------
+
+* #13926: multiple py:type directives for the same canonical type no
+  longer result in spurious duplicate object description warnings.
+  Patch by Jeremy Maitin-Shepard.
+* #1327: LaTeX: tables using longtable raise error if
+  :rst:dir:`tabularcolumns` specifies automatic widths
+  (``L``, ``R``, ``C``, or ``J``).
+  Patch by Jean-François B.
+* #3447: LaTeX: when assigning longtable class to table for PDF, it may render
+  "horizontally" and overflow in right margin.
+  Patch by Jean-François B.
+* #8828: LaTeX: adding a footnote to a longtable cell causes table to occupy
+  full width.
+  Patch by Jean-François B.
+* #11498: LaTeX: Table in cell fails to build if it has many rows.
+  Patch by Jean-François B.
+* #11515: LaTeX: longtable does not allow nested table.
+  Patch by Jean-François B.
+* #11973: LaTeX: links in table captions do not work in PDF.
+  Patch by Jean-François B.
+* #12821: LaTeX: URLs/links in section titles should render in PDF.
+  Patch by Jean-François B.
+* #13369: Correctly parse and cross-reference unpacked type annotations.
+  Patch by Alicia Garcia-Raboso.
+* #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
+  Patch by Shengyu Zhang and Adam Turner.
+* #13597: LaTeX: table nested in a merged cell leads to invalid LaTeX mark-up
+  and PDF cannot be built.
+  Patch by Jean-François B.
+* #13619: LaTeX: possible duplicated footnotes in PDF from object signatures
+  (typically if :confval:`latex_show_urls` ``= 'footnote'``).
+  Patch by Jean-François B.
+* #13635: LaTeX: if a cell contains a table, row coloring is turned off for
+  the next table cells.
+  Patch by Jean-François B.
+* #13685: gettext: Correctly ignore trailing backslashes.
+  Patch by Bénédikt Tran.
+* #13712: intersphinx: Don't add "v" prefix to non-numeric versions.
+  Patch by Szymon Karpinski.
+* #13688: HTML builder: Replace ``<em class="property">`` with
+  ``<span class="property">`` for attribute type annotations
+  to improve `semantic HTML structure
+  <https://html.spec.whatwg.org/multipage/text-level-semantics.html>`__.
+  Patch by Mark Ostroth.
+* #13812 (discussion): LaTeX: long :rst:dir:`confval` value does not wrap at
+  spaces in PDF.
+  Patch by Jean-François B.
+* #10785: Autodoc: Allow type aliases defined in the project to be properly
+  cross-referenced when used as type annotations. This makes it possible
+  for objects documented as ``:py:data:`` to be hyperlinked in function signatures.
+* #13858: doctest: doctest blocks are now correctly added to a group defined by the
+  configuration variable ``doctest_test_doctest_blocks``.
+* #13885: Coverage builder: Fix TypeError when warning about missing modules.
+  Patch by Damien Ayers.
+* #13929: Duplicate equation label warnings now have a new warning
+  sub-type, ``ref.equation``.
+  Patch by Jared Dillard.
+* #13935: autoclass: parent class members no longer considered
+  directly defined in certain cases, depending on autodoc processing
+  order.
+  Patch by Jeremy Maitin-Shepard.
+* #13939: LaTeX: page break can separate admonition title from contents.
+  Patch by Jean-François B.
+* #14004: Fix :confval:`autodoc_type_aliases` when they appear in PEP 604
+  union syntax (``Alias | Type``).
+  Patch by Tamika Nomara.
+* #14059: LaTeX: Footnotes cause pdflatex error with French language
+  (since late June 2025 upstream change to LaTeX ``babel-french``).
+  Patch by Jean-François B.
+* #13916: HTML Search: do not clear text fragments from the URL on page load.
+  Patch by Harmen Stoppels.
+* #13944: autodoc: show traceback during import in human readable representation.
+  Patch by Florian Best.
+* #14006: Support images with data URIs that aren't base64-encoded.
+  Patch by Shengyu Zhang and Adam Turner.
+* #12797: Fix ``Some type variables (...) are not listed in Generic[...]``
+  TypeError when inheriting from both Generic and autodoc mocked class.
+  Patch by Ikor Jefocur and Daniel Sperber.
+* #13945: autodoc: Fix handling of undefined names in annotations by using
+  the ``FORWARDREF`` :mod:`annotationlib` format.
+  Patch by Rui Pinheiro and Adam Turner.
+* #14067: EPUB: unify path separators in manifest items to forward slashes;
+  resolve duplicates in the manifest on Windows.
+  Patch by Akihiro Takizawa.
+* #13741: text builder: fix an infinite loop when processing CSV tables.
+  Patch by Bénédikt Tran.
+* #13217: Remove extra parentheses from :rst:dir:`js:function` arguments and errors.
+  Patch by Shengyu Zhang.
