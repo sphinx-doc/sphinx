@@ -21,6 +21,8 @@ from sphinx.addnodes import (
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+from tests.utils import extract_node
+
 
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_info_field_list(app):
@@ -66,7 +68,7 @@ def test_info_field_list(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0],
+        extract_node(doctree, 3, 1, 0, 0),
         (
             [nodes.field_name, 'Parameters'],
             [
@@ -84,7 +86,7 @@ def test_info_field_list(app):
 
     # :param str name:
     assert_node(
-        doctree[3][1][0][0][1][0][0][0],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 0, 0),
         (
             [addnodes.literal_strong, 'name'],
             ' (',
@@ -95,7 +97,7 @@ def test_info_field_list(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0][1][0][0][0][2],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 0, 0, 2),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -105,7 +107,7 @@ def test_info_field_list(app):
 
     # :param age: + :type age:
     assert_node(
-        doctree[3][1][0][0][1][0][1][0],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 1, 0),
         (
             [addnodes.literal_strong, 'age'],
             ' (',
@@ -116,7 +118,7 @@ def test_info_field_list(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0][1][0][1][0][2],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 1, 0, 2),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -126,7 +128,7 @@ def test_info_field_list(app):
 
     # :param items: + :type items:
     assert_node(
-        doctree[3][1][0][0][1][0][2][0],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 2, 0),
         (
             [addnodes.literal_strong, 'items'],
             ' (',
@@ -142,7 +144,7 @@ def test_info_field_list(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0][1][0][2][0][2],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 2, 0, 2),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -150,7 +152,7 @@ def test_info_field_list(app):
         **{'py:module': 'example', 'py:class': 'Class'},
     )
     assert_node(
-        doctree[3][1][0][0][1][0][2][0][4],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 2, 0, 4),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -160,7 +162,7 @@ def test_info_field_list(app):
 
     # :param Dict[str, str] params:
     assert_node(
-        doctree[3][1][0][0][1][0][3][0],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 3, 0),
         (
             [addnodes.literal_strong, 'params'],
             ' (',
@@ -176,7 +178,7 @@ def test_info_field_list(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0][1][0][3][0][2],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 3, 0, 2),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -184,7 +186,7 @@ def test_info_field_list(app):
         **{'py:module': 'example', 'py:class': 'Class'},
     )
     assert_node(
-        doctree[3][1][0][0][1][0][3][0][4],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 3, 0, 4),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -192,7 +194,7 @@ def test_info_field_list(app):
         **{'py:module': 'example', 'py:class': 'Class'},
     )
     assert_node(
-        doctree[3][1][0][0][1][0][3][0][6],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 3, 0, 6),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -243,7 +245,7 @@ def test_info_field_list_piped_type(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0][1],
+        extract_node(doctree, 3, 1, 0, 0, 1),
         (
             [
                 nodes.paragraph,
@@ -261,7 +263,7 @@ def test_info_field_list_piped_type(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0][1][0][2],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 2),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -269,7 +271,7 @@ def test_info_field_list_piped_type(app):
         **{'py:module': 'example', 'py:class': 'Class'},
     )
     assert_node(
-        doctree[3][1][0][0][1][0][4],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 4),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -320,7 +322,7 @@ def test_info_field_list_Literal(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0][1],
+        extract_node(doctree, 3, 1, 0, 0, 1),
         (
             [
                 nodes.paragraph,
@@ -343,7 +345,7 @@ def test_info_field_list_Literal(app):
         ),
     )
     assert_node(
-        doctree[3][1][0][0][1][0][2],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 2),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -365,13 +367,13 @@ def test_info_field_list_var(app):
         ),
     )
     assert_node(
-        doctree[1][1][0][0],
+        extract_node(doctree, 1, 1, 0, 0),
         ([nodes.field_name, 'Variables'], [nodes.field_body, nodes.paragraph]),
     )
 
     # :var int attr:
     assert_node(
-        doctree[1][1][0][0][1][0],
+        extract_node(doctree, 1, 1, 0, 0, 1, 0),
         (
             [addnodes.literal_strong, 'attr'],
             ' (',
@@ -382,7 +384,7 @@ def test_info_field_list_var(app):
         ),
     )
     assert_node(
-        doctree[1][1][0][0][1][0][2],
+        extract_node(doctree, 1, 1, 0, 0, 1, 0, 2),
         pending_xref,
         refdomain='py',
         reftype='class',
@@ -406,7 +408,7 @@ def test_info_field_list_napoleon_deliminator_of(app):
 
     # :param list of str list_str_var:
     assert_node(
-        doctree[3][1][0][0][1][0][0][0],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 0, 0),
         (
             [addnodes.literal_strong, 'list_str_var'],
             ' (',
@@ -421,7 +423,7 @@ def test_info_field_list_napoleon_deliminator_of(app):
 
     # :param tuple of tuple of int tuple_int_var:
     assert_node(
-        doctree[3][1][0][0][1][0][1][0],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 1, 0),
         (
             [addnodes.literal_strong, 'tuple_int_var'],
             ' (',
@@ -452,7 +454,7 @@ def test_info_field_list_napoleon_deliminator_or(app):
 
     # :param bool or str bool_str_var:
     assert_node(
-        doctree[3][1][0][0][1][0][0][0],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 0, 0),
         (
             [addnodes.literal_strong, 'bool_str_var'],
             ' (',
@@ -467,7 +469,7 @@ def test_info_field_list_napoleon_deliminator_or(app):
 
     # :param str or float or int str_float_int_var:
     assert_node(
-        doctree[3][1][0][0][1][0][1][0],
+        extract_node(doctree, 3, 1, 0, 0, 1, 0, 1, 0),
         (
             [addnodes.literal_strong, 'str_float_int_var'],
             ' (',
@@ -571,20 +573,39 @@ def test_type_field(app):
             ],
         ),
     )
-    assert_node(doctree[1][0][1][2], pending_xref, reftarget='int', refspecific=True)
     assert_node(
-        doctree[3][0][1][2], pending_xref, reftarget='builtins.int', refspecific=False
+        extract_node(doctree, 1, 0, 1, 2),
+        pending_xref,
+        reftarget='int',
+        refspecific=True,
     )
     assert_node(
-        doctree[5][0][1][2],
+        extract_node(doctree, 3, 0, 1, 2),
+        pending_xref,
+        reftarget='builtins.int',
+        refspecific=False,
+    )
+    assert_node(
+        extract_node(doctree, 5, 0, 1, 2),
         pending_xref,
         reftarget='typing.Optional',
         refspecific=False,
     )
     assert_node(
-        doctree[5][0][1][4], pending_xref, reftarget='typing.Tuple', refspecific=False
+        extract_node(doctree, 5, 0, 1, 4),
+        pending_xref,
+        reftarget='typing.Tuple',
+        refspecific=False,
     )
-    assert_node(doctree[5][0][1][6], pending_xref, reftarget='int', refspecific=False)
     assert_node(
-        doctree[5][0][1][9], pending_xref, reftarget='typing.Any', refspecific=False
+        extract_node(doctree, 5, 0, 1, 6),
+        pending_xref,
+        reftarget='int',
+        refspecific=False,
+    )
+    assert_node(
+        extract_node(doctree, 5, 0, 1, 9),
+        pending_xref,
+        reftarget='typing.Any',
+        refspecific=False,
     )

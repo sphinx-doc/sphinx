@@ -27,6 +27,8 @@ if TYPE_CHECKING:
     from io import StringIO
     from pathlib import Path
 
+    from sphinx.testing.util import SphinxTestApp
+
 _CATALOG_LOCALE = 'xx'
 
 sphinx_intl = pytest.mark.sphinx(
@@ -39,7 +41,7 @@ sphinx_intl = pytest.mark.sphinx(
 )
 
 
-def read_po(pathname):
+def read_po(pathname: str | Path) -> Catalog:
     with open(pathname, encoding='utf-8') as f:
         return pofile.read_po(f)
 
@@ -92,7 +94,7 @@ def assert_elem(elem, texts=None, refs=None, names=None):
         assert _names == names
 
 
-def assert_count(expected_expr, result, count):
+def assert_count(expected_expr: str, result: str, count: int) -> None:
     find_pair = (expected_expr, result)
     assert len(re.findall(*find_pair)) == count, find_pair
 
@@ -1074,7 +1076,7 @@ def test_html_index_entries(app):
     # https://github.com/sphinx-doc/sphinx/issues/976
     result = (app.outdir / 'genindex.html').read_text(encoding='utf8')
 
-    def wrap(tag, keyword):
+    def wrap(tag: str, keyword: str) -> str:
         start_tag = '<%s[^>]*>' % tag
         end_tag = '</%s>' % tag
         return rf'{start_tag}\s*{keyword}\s*{end_tag}'
@@ -1113,7 +1115,7 @@ def test_html_index_entries(app):
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_html_versionchanges(app):
+def test_html_versionchanges(app: SphinxTestApp) -> None:
     app.build()
     # --- versionchanges
     result = (app.outdir / 'versionchange.html').read_text(encoding='utf8')
@@ -1734,7 +1736,9 @@ def test_additional_targets_should_be_translated(app):
     },
     copy_test_root=True,
 )
-def test_additional_targets_should_be_translated_substitution_definitions(app):
+def test_additional_targets_should_be_translated_substitution_definitions(
+    app: SphinxTestApp,
+) -> None:
     app.build(force_all=True)
 
     # [prolog_epilog_substitution.txt]
@@ -1771,7 +1775,7 @@ def test_text_references(app):
     },
     copy_test_root=True,
 )
-def test_text_prolog_epilog_substitution(app):
+def test_text_prolog_epilog_substitution(app: SphinxTestApp) -> None:
     app.build()
 
     result = (app.outdir / 'prolog_epilog_substitution.txt').read_text(encoding='utf8')

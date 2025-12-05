@@ -12,6 +12,8 @@ from sphinx import addnodes
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
@@ -24,7 +26,7 @@ def test_toctree(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[(None, 'foo'), (None, 'bar/index'), (None, 'baz')],
         includefiles=['foo', 'bar/index', 'baz'],
     )
@@ -38,7 +40,7 @@ def test_relative_toctree(app):
     doctree = restructuredtext.parse(app, text, 'bar/index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[
             (None, 'bar/bar_1'),
             (None, 'bar/bar_2'),
@@ -63,7 +65,7 @@ def test_toctree_urls_and_titles(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[
             ('Sphinx', 'https://www.sphinx-doc.org/'),
             (None, 'https://readthedocs.org/'),
@@ -81,7 +83,7 @@ def test_toctree_glob(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[(None, 'baz'), (None, 'foo'), (None, 'quux')],
         includefiles=['baz', 'foo', 'quux'],
     )
@@ -93,7 +95,7 @@ def test_toctree_glob(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[(None, 'foo'), (None, 'baz'), (None, 'quux')],
         includefiles=['foo', 'baz', 'quux'],
     )
@@ -105,7 +107,7 @@ def test_toctree_glob(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[(None, 'baz'), (None, 'foo'), (None, 'quux'), (None, 'foo')],
         includefiles=['baz', 'foo', 'quux', 'foo'],
     )
@@ -119,7 +121,7 @@ def test_toctree_glob_and_url(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[(None, 'https://example.com/?q=sphinx')],
         includefiles=[],
     )
@@ -133,7 +135,7 @@ def test_reversed_toctree(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[(None, 'baz'), (None, 'bar/index'), (None, 'foo')],
         includefiles=['baz', 'bar/index', 'foo'],
     )
@@ -156,7 +158,7 @@ def test_toctree_twice(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(
-        doctree[0][0],
+        extract_node(doctree, 0, 0),
         entries=[(None, 'foo'), (None, 'foo')],
         includefiles=['foo', 'foo'],
     )
