@@ -1,3 +1,24 @@
+Release 9.1.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+-------
+
 Release 9.0.4 (released Dec 04, 2025)
 =====================================
 
