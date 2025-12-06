@@ -47,7 +47,7 @@ def note_toctree(
     env.toctree_includes.setdefault(docname, []).extend(include_files)
 
 
-def document_toc(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
+def document_toc(env: BuildEnvironment, docname: str, tags: Tags) -> Element:
     """Get the (local) table of contents for a document.
 
     Note that this is only the sections within the document.

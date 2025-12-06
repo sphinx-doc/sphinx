@@ -232,8 +232,6 @@ module = [
     "tests.test_domains.test_domain_py_pyobject",
     "tests.test_domains.test_domain_rst",
     "tests.test_domains.test_domain_std",
-    # tests/test_environment
-    "tests.test_environment.test_environment_toctree",
     # tests/test_ext_autodoc
     "tests.test_ext_autodoc.test_ext_autodoc",
     "tests.test_ext_autodoc.test_ext_autodoc_events",
