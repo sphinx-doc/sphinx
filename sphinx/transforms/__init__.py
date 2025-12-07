@@ -23,7 +23,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
-    from typing import Any, ClassVar, Literal, TypeAlias
+    from typing import Any, ClassVar, Literal
 
     from docutils.nodes import Node
     from typing_extensions import TypeIs
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
 
-    _DEFAULT_SUBSTITUTION_NAMES: TypeAlias = Literal[
+    type _DEFAULT_SUBSTITUTION_NAMES = Literal[
         'version',
         'release',
         'today',

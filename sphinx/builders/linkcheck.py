@@ -35,7 +35,7 @@ from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
-    from typing import Any, Literal, TypeAlias
+    from typing import Any, Literal
 
     from requests import Response
 
@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
-    _URIProperties: TypeAlias = tuple['_Status', str, int]
+    type _URIProperties = tuple[_Status, str, int]
 
 
 class _Status(StrEnum):

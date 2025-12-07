@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from typing import Generic, TypeVar
 
 import pytest
@@ -120,10 +119,6 @@ def test_format_function_signatures() -> None:
     assert format_sig('function', 'g', g) == (r"(a='\n')", '')
 
 
-@pytest.mark.skipif(
-    sys.version_info[:2] < (3, 12),
-    reason='type statement introduced in Python 3.12',
-)
 @pytest.mark.parametrize(
     ('params', 'expect'),
     [
@@ -220,9 +215,9 @@ def test_format_class_signatures_no_text_signature() -> None:
     class ExceptionSubclass(Exception):
         pass
 
-    # Exception has no __text_signature__ at least in Python 3.11
+    # Exception has no __text_signature__ as at Python 3.14
     if getattr(Exception, '__text_signature__', None) is not None:
-        pytest.skip()
+        pytest.xfail('Exception.__text_signature__ exists!')
     assert format_sig('class', 'C', ExceptionSubclass) == ()
 
 
