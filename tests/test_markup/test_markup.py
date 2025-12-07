@@ -23,13 +23,13 @@ from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from docutils.frontend import Values # pyright: ignore[reportDeprecated]
+    from docutils.frontend import Values  # pyright: ignore[reportDeprecated]
 
     from sphinx.environment import BuildEnvironment
     from sphinx.testing.util import SphinxTestApp
 
 
-def new_settings(env: BuildEnvironment) -> Values: # pyright: ignore[reportDeprecated]
+def new_settings(env: BuildEnvironment) -> Values:  # pyright: ignore[reportDeprecated]
     texescape.init()  # otherwise done by the latex builder
     settings = _get_settings(
         RstParser, HTMLWriter, LaTeXWriter, defaults=default_settings
