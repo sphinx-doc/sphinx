@@ -69,6 +69,7 @@ Contributors
 * Ian Lee -- quickstart improvements
 * Jacob Mason -- websupport library (GSOC project)
 * James Addison -- linkcheck and HTML search improvements
+* Janne Cederberg -- sphinx.js discovery bug-fix
 * Jeppe Pihl -- literalinclude improvements
 * Jeremy Maitin-Shepard -- C++ domain improvements
 * Joel Wurtz -- cellspanning support in LaTeX
