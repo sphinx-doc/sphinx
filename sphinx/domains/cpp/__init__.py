@@ -649,7 +649,7 @@ class AliasNode(nodes.Element):
 
 
 class AliasTransform(SphinxTransform):
-    default_priority = ReferencesResolver.default_priority - 1
+    default_priority = ReferencesResolver.default_priority - 1 # pyright: ignore[reportOptionalOperand]
 
     def _render_symbol(
         self,

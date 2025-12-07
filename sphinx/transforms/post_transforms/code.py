@@ -92,7 +92,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
     see :confval:`trim_doctest_flags` for more information.
     """
 
-    default_priority = HighlightLanguageTransform.default_priority + 1
+    default_priority = HighlightLanguageTransform.default_priority + 1 # pyright: ignore[reportOptionalOperand]
 
     def apply(self, **kwargs: Any) -> None:
         for lbnode in self.document.findall(nodes.literal_block):

@@ -31,7 +31,7 @@ from sphinx.util.nodes import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from docutils.frontend import Values
+    from docutils.frontend import Values # pyright: ignore[reportDeprecated]
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -57,7 +57,7 @@ def _publish_msgstr(
     config: Config,
     env: BuildEnvironment,
     registry: SphinxComponentRegistry,
-    settings: Values,
+    settings: Values, # pyright: ignore[reportDeprecated]
 ) -> nodes.Element:
     """Publish msgstr (single line) into docutils document
 
