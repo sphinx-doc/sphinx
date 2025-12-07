@@ -190,7 +190,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def _get_translations_js(self) -> Path | None:
         for dir_ in self.config.locale_dirs:
-            js_file = Path(dir_, self.config.language, 'LC_MESSAGES', 'sphinx.js')
+            js_file = Path(self.srcdir, dir_, self.config.language, 'LC_MESSAGES', 'sphinx.js')
             if js_file.is_file():
                 return js_file
 
