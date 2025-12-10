@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import docutils
+import docutils.frontend
 from docutils import nodes
-from docutils.frontend import OptionParser  # pyright: ignore[reportDeprecated]
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
 from docutils.readers import standalone
@@ -37,7 +37,6 @@ if TYPE_CHECKING:
     from typing import Any, Protocol
 
     from docutils import Component
-    from docutils.frontend import Values  # pyright: ignore[reportDeprecated]
     from docutils.nodes import Element, Node, system_message
     from docutils.parsers import Parser
     from docutils.parsers.rst.states import Inliner
@@ -49,6 +48,8 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.events import EventManager
     from sphinx.util.typing import RoleFunction
+
+    type _DocutilsSettings = docutils.frontend.Values  # pyright: ignore[reportDeprecated]  # ty: ignore[deprecated]
 
     class _LanguageModule(Protocol):
         labels: dict[str, str]
@@ -816,7 +817,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__: tuple[Values, Reporter]  # pyright: ignore[reportDeprecated]
+__document_cache__: tuple[_DocutilsSettings, Reporter]
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:
@@ -909,30 +910,32 @@ def _get_settings(
     *components: Component | type[Component],
     defaults: Mapping[str, Any],
     read_config_files: bool = False,
-) -> Values:  # pyright: ignore[reportDeprecated]
+) -> _DocutilsSettings:
     with warnings.catch_warnings(action='ignore', category=DeprecationWarning):
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
         # DeprecationWarning: The frontend.Option class will be removed
         # in Docutils 0.21 or later.
-        option_parser = OptionParser(  # pyright: ignore[reportDeprecated]
+        option_parser = docutils.frontend.OptionParser(  # pyright: ignore[reportDeprecated]  # ty: ignore[deprecated]
             components=components,
             defaults=defaults,
             read_config_files=read_config_files,
         )
-    return option_parser.get_default_values()
+    with warnings.catch_warnings(action='ignore', category=DeprecationWarning):
+        # DeprecationWarning:  frontend.Values class will be removed
+        # in Docutils 2.0 or later.
+        settings = option_parser.get_default_values()
+    return settings
 
 
 if docutils.__version_info__[:2] < (0, 22):
-    from docutils.parsers.rst.roles import (
-        set_classes,  # pyright: ignore[reportDeprecated]
-    )
+    from docutils.parsers.rst import roles
 
     def _normalize_options(options: dict[str, Any] | None) -> dict[str, Any]:
         if options is None:
             return {}
         n_options = options.copy()
-        set_classes(n_options)  # pyright: ignore[reportDeprecated]
+        roles.set_classes(n_options)  # pyright: ignore[reportDeprecated]  # ty: ignore[deprecated]
         return n_options
 
 else:

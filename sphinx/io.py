@@ -17,12 +17,12 @@ from sphinx.util.docutils import LoggingReporter
 
 if TYPE_CHECKING:
     from docutils import nodes
-    from docutils.frontend import Values  # pyright: ignore[reportDeprecated]
     from docutils.io import Input
     from docutils.parsers import Parser
     from docutils.transforms import Transform
 
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.docutils import _DocutilsSettings
 
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,12 @@ class SphinxStandaloneReader(SphinxBaseReader):
     def _setup_transforms(self, transforms: list[type[Transform]], /) -> None:
         self.transforms = self.transforms + transforms
 
-    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
+    def read(
+        self,
+        source: Input,  # type: ignore[type-arg]
+        parser: Parser,
+        settings: _DocutilsSettings,
+    ) -> nodes.document:
         self.source = source
         if not self.parser:
             self.parser = parser
