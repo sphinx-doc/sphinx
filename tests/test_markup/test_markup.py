@@ -23,13 +23,12 @@ from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from docutils.frontend import Values
-
     from sphinx.environment import BuildEnvironment
     from sphinx.testing.util import SphinxTestApp
+    from sphinx.util.docutils import _DocutilsSettings
 
 
-def new_settings(env: BuildEnvironment) -> Values:
+def new_settings(env: BuildEnvironment) -> _DocutilsSettings:
     texescape.init()  # otherwise done by the latex builder
     settings = _get_settings(
         RstParser, HTMLWriter, LaTeXWriter, defaults=default_settings
@@ -50,7 +49,11 @@ def new_document(env: BuildEnvironment) -> nodes.document:
 
 def new_inliner(env: BuildEnvironment) -> SimpleNamespace:
     document = new_document(env)
-    document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)  # type: ignore[attr-defined]
+
+    def _get_source_and_line(line: int | None = 1) -> tuple[str, int | None]:
+        return 'dummy.rst', line
+
+    document.reporter.get_source_and_line = _get_source_and_line
     return SimpleNamespace(document=document, reporter=document.reporter)
 
 

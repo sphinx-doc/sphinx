@@ -18,7 +18,7 @@ from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -62,7 +62,7 @@ class SphinxPostTransform(SphinxTransform):
 class ReferencesResolver(SphinxPostTransform):
     """Resolves cross-references on doctrees."""
 
-    default_priority = 10
+    default_priority: ClassVar[int] = 10
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.findall(addnodes.pending_xref):
