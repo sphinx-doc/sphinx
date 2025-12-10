@@ -31,12 +31,11 @@ from sphinx.util.nodes import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from docutils.frontend import Values
-
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.registry import SphinxComponentRegistry
+    from sphinx.util.docutils import _DocutilsSettings
     from sphinx.util.typing import ExtensionMetadata
 
 
@@ -57,14 +56,14 @@ def _publish_msgstr(
     config: Config,
     env: BuildEnvironment,
     registry: SphinxComponentRegistry,
-    settings: Values,
+    settings: _DocutilsSettings,
 ) -> nodes.Element:
     """Publish msgstr (single line) into docutils document
 
     :param str source: source text
     :param str source_path: source path for warning indication
     :param source_line: source line for warning indication
-    :param docutils.frontend.Values settings: docutils settings
+    :param sphinx.util.docutils._DocutilsSettings settings: docutils settings
     :param sphinx.config.Config config: sphinx config
     :param sphinx.environment.BuildEnvironment env: sphinx environment
     :param sphinx.registry.SphinxComponentRegistry registry: sphinx registry
@@ -107,7 +106,8 @@ class PreserveTranslatableMessages(SphinxTransform):
     default_priority = 10  # this MUST be invoked before Locale transform
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.findall(addnodes.translatable):
+        matcher = NodeMatcher(addnodes.translatable)  # type: ignore[type-abstract]
+        for node in matcher.findall(self.document):
             node.preserve_original_messages()
 
 

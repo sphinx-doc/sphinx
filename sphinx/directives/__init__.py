@@ -325,8 +325,14 @@ class DefaultRole(SphinxDirective):
             docutils.unregister_role('')
             return []
         role_name = self.arguments[0]
+        # TODO: TYPING: Upstream docutils should widen roles.role() to accept
+        #       the RST language module shape (has a `roles` mapping);
+        #       current stub requires _LanguageModule from docutils.languages.
         role, messages = roles.role(
-            role_name, self.state_machine.language, self.lineno, self.state.reporter
+            role_name,
+            self.state_machine.language,  # type: ignore[arg-type]
+            self.lineno,
+            self.state.reporter,
         )
         if role:
             docutils.register_role('', role)  # type: ignore[arg-type]

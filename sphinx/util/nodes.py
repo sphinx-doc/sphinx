@@ -391,8 +391,8 @@ def traverse_translatable_index(
 
 
 def nested_parse_with_titles(
-    state: RSTState, content: StringList, node: Node, content_offset: int = 0
-) -> str:
+    state: RSTState, content: StringList, node: Element, content_offset: int = 0
+) -> int:
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -682,8 +682,10 @@ def set_source_info(directive: Directive, node: Node) -> None:
 
 
 def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
-    gsal = inliner.reporter.get_source_and_line  # type: ignore[attr-defined]
-    node.source, node.line = gsal(lineno)
+    gsal = inliner.reporter.get_source_and_line
+    source, line = gsal(lineno)
+    node.source = source  # type: ignore[assignment]
+    node.line = line
 
 
 def copy_source_info(src: Element, dst: Element) -> None:

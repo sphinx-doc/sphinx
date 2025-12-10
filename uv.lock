@@ -1376,7 +1376,7 @@ translations = [
 type-stubs = [
     { name = "types-colorama", specifier = "==0.4.15.20250801" },
     { name = "types-defusedxml", specifier = "==0.7.0.20250822" },
-    { name = "types-docutils", specifier = "==0.21.0.20250525" },
+    { name = "types-docutils", specifier = "==0.22.3.20251115" },
     { name = "types-pillow", specifier = "==10.2.0.20240822" },
     { name = "types-pygments", specifier = "==2.19.0.20251121" },
     { name = "types-requests", specifier = "==2.32.4.20250913" },
@@ -1389,7 +1389,7 @@ types = [
     { name = "ty" },
     { name = "types-colorama", specifier = "==0.4.15.20250801" },
     { name = "types-defusedxml", specifier = "==0.7.0.20250822" },
-    { name = "types-docutils", specifier = "==0.21.0.20250525" },
+    { name = "types-docutils", specifier = "==0.22.3.20251115" },
     { name = "types-pillow", specifier = "==10.2.0.20240822" },
     { name = "types-pygments", specifier = "==2.19.0.20251121" },
     { name = "types-requests", specifier = "==2.32.4.20250913" },
@@ -1555,11 +1555,11 @@ wheels = [
 
 [[package]]
 name = "types-docutils"
-version = "0.21.0.20250525"
+version = "0.22.3.20251115"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b1/f9/a330a3d1fa33538dd45ba152f3bdb2ad996c7e401f6220333a5ea7fabaad/types_docutils-0.21.0.20250525.tar.gz", hash = "sha256:7e6dd58d3ee1dca2aae94f51d40e619a7fd5c6b5a319b84f0805ab279495699f", size = 38114, upload-time = "2025-05-25T03:13:49.428Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/eb/d7/576ec24bf61a280f571e1f22284793adc321610b9bcfba1bf468cf7b334f/types_docutils-0.22.3.20251115.tar.gz", hash = "sha256:0f79ea6a7bd4d12d56c9f824a0090ffae0ea4204203eb0006392906850913e16", size = 56828, upload-time = "2025-11-15T02:59:57.371Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f2/ec/f88997ce25147444f7fbe4d0471b51d4db6adfa6fc0339ccaab8e7840e60/types_docutils-0.21.0.20250525-py3-none-any.whl", hash = "sha256:8e652336a7c4bfbef2f11ac889f6c6dfdaf29b4608601b3c96f753ad7be846f4", size = 62002, upload-time = "2025-05-25T03:13:48.474Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/01/61ac9eb38f1f978b47443dc6fd2e0a3b0f647c2da741ddad30771f1b2b6f/types_docutils-0.22.3.20251115-py3-none-any.whl", hash = "sha256:c6e53715b65395d00a75a3a8a74e352c669bc63959e65a207dffaa22f4a2ad6e", size = 91951, upload-time = "2025-11-15T02:59:56.413Z" },
 ]
 
 [[package]]

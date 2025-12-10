@@ -105,7 +105,8 @@ class AutodocDirective(SphinxDirective):
             get_attr=_AutodocAttrGetter(env._registry.autodoc_attrgetters),
             more_content=self.content,
             options=documenter_options,
-            record_dependencies=record_dependencies,
+            # TODO: TYPING: Upstream docutils should expose DependencyList as a MutableSet[str]
+            record_dependencies=record_dependencies,  # type: ignore[arg-type]
             ref_context=env.ref_context,
             reread_always=env.reread_always,
         )
