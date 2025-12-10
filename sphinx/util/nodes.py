@@ -684,7 +684,7 @@ def set_source_info(directive: Directive, node: Node) -> None:
 def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
     gsal = inliner.reporter.get_source_and_line
     source, line = gsal(lineno)
-    node.source = str(source) if source is not None else None
+    node.source = source  # type: ignore[assignment]
     node.line = line
 
 

@@ -290,7 +290,10 @@ class TexinfoTranslator(SphinxTranslator):
         ]
         # each section is also a node
         for section in self.document.findall(nodes.section):
-            title = cast('nodes.TextElement', section.next_node(nodes.Titular))
+            # TODO: TYPING: Node.next_node() should accept the non-Node
+            #       mixin classes in docutils.nodes.
+            title = section.next_node(nodes.Titular)  # type: ignore[type-var]
+            assert isinstance(title, nodes.Node)
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
 

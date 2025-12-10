@@ -22,7 +22,7 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
+    from collections.abc import Iterable, Iterator
     from typing import Any, ClassVar, Literal
 
     from docutils.nodes import Node
@@ -372,8 +372,9 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
             return
 
         # override default settings with :confval:`smartquotes_action`
-        # TODO: Update docutils typing so smartquotes_action accepts any
-        # iterable of characters and can be overridden per-instance.
+        # TODO: TYPING: Upstream docutils should be updated so that
+        #       smartquotes_action accepts any iterable of characters
+        #       and can be overridden per-instance.
         self.smartquotes_action = self.config.smartquotes_action  # type: ignore[misc]
 
         super().apply()
@@ -399,14 +400,9 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         language = self.env.settings['language_code']
         return any(tag in smartchars.quotes for tag in normalize_language_tag(language))
 
-    def get_tokens(
-        self,
-        txtnodes: Iterable[Node],
-    ) -> Generator[
-        tuple[Literal['literal', 'plain'], str],
-        None,
-        None,
-    ]:
+    def get_tokens(  # type: ignore[override]
+        self, txtnodes: Iterable[Node]
+    ) -> Iterator[tuple[Literal['literal', 'plain'], str]]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:

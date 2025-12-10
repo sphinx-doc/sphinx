@@ -93,12 +93,7 @@ class AutodocDirective(SphinxDirective):
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible
-        dependency_queue = self.state.document.settings.record_dependencies
-        record_dependencies: set[str] = (
-            set(dependency_queue.list) if dependency_queue else set()
-        )
-        # TODO: Upstream docutils typing should expose DependencyList as a MutableSet[str]
-        # so we don't need to shuttle through a set here.
+        record_dependencies = self.state.document.settings.record_dependencies
 
         # generate the output
         content = _auto_document_object(
@@ -110,16 +105,14 @@ class AutodocDirective(SphinxDirective):
             get_attr=_AutodocAttrGetter(env._registry.autodoc_attrgetters),
             more_content=self.content,
             options=documenter_options,
-            record_dependencies=record_dependencies,
+            # TODO: TYPING: Upstream docutils should expose DependencyList as a MutableSet[str]
+            record_dependencies=record_dependencies,  # type: ignore[arg-type]
             ref_context=env.ref_context,
             reread_always=env.reread_always,
         )
         if not content:
             return []
 
-        if dependency_queue is not None:
-            for dependency in record_dependencies:
-                dependency_queue.add(dependency)
         LOGGER.debug('[autodoc] output:\n%s', '\n'.join(content))
 
         return parse_generated_content(self.state, content, titles_allowed)

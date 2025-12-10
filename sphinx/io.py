@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.io import FileInput
 from docutils.readers import standalone
@@ -16,6 +16,8 @@ from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils import nodes
     from docutils.io import Input
     from docutils.parsers import Parser
@@ -30,7 +32,7 @@ logger = logging.getLogger(__name__)
 warnings.warn('sphinx.io is deprecated', RemovedInSphinx10Warning, stacklevel=2)
 
 
-class SphinxBaseReader(standalone.Reader[Any]):
+class SphinxBaseReader(standalone.Reader['Any']):
     """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.

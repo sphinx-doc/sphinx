@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from docutils.writers import docutils_xml
 
@@ -32,9 +32,8 @@ class XMLWriter(docutils_xml.Writer):
 
         # copied from docutils.writers.docutils_xml.Writer.translate()
         # so that we can override the translator class
-        self.visitor = visitor = cast(
-            'XMLTranslator', self.builder.create_translator(self.document)
-        )
+        visitor: XMLTranslator = self.builder.create_translator(self.document)
+        self.visitor = visitor
         self.document.walkabout(visitor)
         self.output = ''.join(visitor.output)
 

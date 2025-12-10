@@ -349,8 +349,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['target'] = node['target']
         if 'rel' in node:
             atts['rel'] = node['rel']
-        # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
-        # **attributes; current stub treats the 4th arg as empty: bool.
+        # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+        #       to accept **attributes; current stub treats the 4th parameter
+        #       as empty: bool.
         self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
 
         if node.get('secnumber'):
@@ -378,8 +379,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             tag_name = 'details'
             if collapsible == 'open':
                 attributes['open'] = 'open'
-        # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
-        # **attributes; current stub treats the 4th arg as empty: bool.
+        # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+        #       to accept **attributes; current stub treats the 4th parameter
+        #       as empty: bool.
         self.body.append(
             self.starttag(
                 node,
@@ -737,8 +739,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         elif 'refuri' in node:
             atts['class'] += ' external'
             atts['href'] = node['refuri']
-            # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
-            # **attributes; current stub treats the 4th arg as empty: bool.
+            # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+            #       to accept **attributes; current stub treats the 4th parameter
+            #       as empty: bool.
             self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
             self.context.append('</a>')
         elif 'filename' in node:
@@ -746,8 +749,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['href'] = posixpath.join(
                 self.builder.dlpath, urllib.parse.quote(node['filename'])
             )
-            # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
-            # **attributes; current stub treats the 4th arg as empty: bool.
+            # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+            #       to accept **attributes; current stub treats the 4th parameter
+            #       as empty: bool.
             self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
             self.context.append('</a>')
         else:
@@ -925,8 +929,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         attrs = {}
         if explanation := node.get('explanation', ''):
             attrs['title'] = explanation
-        # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
-        # **attributes; current stub treats the 4th arg as empty: bool.
+        # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+        #       to accept **attributes; current stub treats the 4th parameter
+        #       as empty: bool.
         self.body.append(self.starttag(node, 'abbr', '', **attrs))  # type: ignore[arg-type]
 
     def depart_abbreviation(self, node: Element) -> None:
@@ -952,8 +957,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         if 'width' in node:
             atts['style'] = 'width: %s' % node['width']
-        # TODO: Upstream docutils-stubs should type HTMLTranslator.starttag to accept
-        # **attributes; current stub treats the 4th arg as empty: bool.
+        # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+        #       to accept **attributes; current stub treats the 4th parameter
+        #       as empty: bool.
         tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)  # type: ignore[arg-type]
         self.body.append(tag)
 

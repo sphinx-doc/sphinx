@@ -106,10 +106,8 @@ class PreserveTranslatableMessages(SphinxTransform):
     default_priority = 10  # this MUST be invoked before Locale transform
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.findall(
-            lambda candidate: isinstance(candidate, addnodes.translatable)
-        ):
-            assert isinstance(node, addnodes.translatable)
+        matcher = NodeMatcher(addnodes.translatable)  # type: ignore[type-abstract]
+        for node in matcher.findall(self.document):
             node.preserve_original_messages()
 
 
