@@ -133,24 +133,21 @@ class _NodeUpdater:
         warning_msg: str,
         *,
         key_func: Callable[[nodes.Element], Any] = attrgetter('rawsource'),
-        ignore_order: bool = False,
     ) -> None:
         """Warn about mismatches between references in original and translated content.
+        Ignores the order of references when comparing. This allows translators to
+        reorder references while still catching missing or extra references.
 
         :param key_func: A function to extract the comparison key from each reference.
             Defaults to extracting the ``rawsource`` attribute.
-        :param ignore_order: If True, ignore the order of references when comparing.
-            This allows translators to reorder references while still catching
-            missing or extra references.
         """
         old_ref_keys = list(map(key_func, old_refs))
         new_ref_keys = list(map(key_func, new_refs))
 
-        if ignore_order:
-            # The ref_keys lists may contain ``None``, so compare hashes.
-            # Recall objects which compare equal have the same hash value.
-            old_ref_keys.sort(key=hash)
-            new_ref_keys.sort(key=hash)
+        # The ref_keys lists may contain ``None``, so compare hashes.
+        # Recall objects which compare equal have the same hash value.
+        old_ref_keys.sort(key=hash)
+        new_ref_keys.sort(key=hash)
 
         if not self.noqa and old_ref_keys != new_ref_keys:
             old_ref_rawsources = [ref.rawsource for ref in old_refs]
@@ -365,9 +362,7 @@ class _NodeUpdater:
                 ' original: {0}, translated: {1}'
             ),
             # Compare by reftarget only, allowing translated display text.
-            # Ignore order since translators may legitimately reorder references.
             key_func=lambda ref: ref.get('reftarget'),
-            ignore_order=True,
         )
 
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
