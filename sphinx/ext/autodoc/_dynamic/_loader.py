@@ -464,9 +464,10 @@ def _make_props_from_imported_object(
             parts = tuple(bases) + parts
             module_name = obj_module_name
 
+        obj_value = getattr(obj, '__value__', obj)
         short_literals = config.python_display_short_literal_types
         ann = stringify_annotation(
-            obj.__value__, render_mode, short_literals=short_literals
+            obj_value, render_mode, short_literals=short_literals
         )
         return _TypeStatementProperties(
             obj_type=objtype,
