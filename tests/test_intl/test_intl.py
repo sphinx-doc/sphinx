@@ -166,9 +166,13 @@ def test_text_inconsistency_warnings(app):
         '\n* FOR CITATION [ref3].\n'
         '\n* reference FOR reference.\n'
         '\n* ORPHAN REFERENCE: I18N WITH REFS INCONSISTENCY.\n'
+        '\n* [refs] [translations] [order] is ignored.\n'
         '\n[1] THIS IS A AUTO NUMBERED FOOTNOTE.\n'
         '\n[ref2] THIS IS A CITATION.\n'
         '\n[100] THIS IS A NUMBERED FOOTNOTE.\n'
+        '\n[order] order\n'
+        '\n[refs] references\n'
+        '\n[translations] translations\n'
     )
     assert result == expect
 

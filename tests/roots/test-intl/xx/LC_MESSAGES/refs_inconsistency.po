@@ -28,6 +28,9 @@ msgstr "reference_ FOR reference_."
 msgid "normal text."
 msgstr "ORPHAN REFERENCE: `I18N WITH REFS INCONSISTENCY`_."
 
+msgid "we ignore the [order]_ of the [refs]_ in [translations]_."
+msgstr "[refs]_ [translations]_ [order]_ is ignored."
+
 msgid "This is a auto numbered footnote."
 msgstr "THIS IS A AUTO NUMBERED FOOTNOTE."
 
