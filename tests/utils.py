@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-__all__ = ('http_server', 'extract_node', 'extract_element')
+__all__ = (
+    'http_server',
+    'extract_node',
+    'extract_element',
+)
 
 import os
 import socket
@@ -12,7 +16,7 @@ from threading import Thread
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
-from docutils.nodes import Element
+from docutils import nodes
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -20,7 +24,7 @@ if TYPE_CHECKING:
     from socketserver import BaseRequestHandler
     from typing import Final
 
-    from docutils.nodes import Node
+    from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
 
@@ -136,42 +140,48 @@ def serve_application(
         yield f'localhost:{server.server_port}'
 
 
-def extract_node(node: Node, *indices: int) -> Node:
+def extract_node(node: Node, /, *indices: int) -> Node:
     """Walk down a docutils node tree by repeatedly indexing children.
+
     Returns a Node (could be Element, Text, etc.)
 
-    Example:
+    Example::
+
         extract_node(doc, 0, 2, 1) == doc[0][2][1]
     """
     current: Node = node
 
     for depth, i in enumerate(indices):
-        assert isinstance(current, Element), (
-            f'Expected Element at depth {depth} before indexing with [{i}], '
-            f'got {type(current).__name__!r}'
+        path = ''.join(f'[{i}]' for i in indices[:depth])
+        assert isinstance(current, nodes.Element), (
+            f'Expected node{path} (at depth {depth}) to be an Element '
+            f'before indexing with [{i}], got {type(current).__name__!r}'
         )
         try:
             current = current[i]
-        except IndexError as e:
+        except IndexError as exc:
             msg = (
-                f'Index {i} out of range at depth {depth} for '
-                f'{type(current).__name__!r}'
+                f'Index {i} out of range for node{path} (at depth {depth}) '
+                f'for {type(current).__name__!r}'
             )
-            raise AssertionError(msg) from e
+            raise AssertionError(msg) from exc
 
     return current
 
 
-def extract_element(node: Node, *indices: int) -> Element:
+def extract_element(node: Node, /, *indices: int) -> Element:
     """Walk down a docutils node tree and return an Element.
+
     Asserts the final result is an Element (for attribute/dict access).
 
-    Example:
-        elem = extract_node(doc, 0, 2, 1)
-        elem['uri']  # Safe: guaranteed to be Element
+    Example::
+
+        node = extract_node(doc, 0, 2, 1)
+        node['uri']  # Safe: guaranteed to be docutils.nodes.Element
     """
     result = extract_node(node, *indices)
-    assert isinstance(result, Element), (
-        f'Expected final result to be Element, got {type(result).__name__!r}'
-    )
-    return result
+    if isinstance(result, nodes.Element):
+        return result
+    path = ''.join(f'[{i}]' for i in indices)
+    msg = f'Expected node{path} to be an Element, got {type(result).__name__!r}'
+    raise AssertionError(msg)
