@@ -81,7 +81,7 @@ jobs:
           BUNDLE_PATH: "${{ steps.attest.outputs.bundle-path }}"
 
       - name: Upload attestation bundles
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: attestation-bundles
           path: /tmp/attestation-bundles/
