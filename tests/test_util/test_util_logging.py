@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import codecs
 import os
 from contextlib import contextmanager
 from pathlib import Path
@@ -21,6 +20,9 @@ from sphinx.util.parallel import ParallelTasks
 from tests.utils import TEST_ROOTS_DIR
 
 if TYPE_CHECKING:
+    import io
+    from collections.abc import Iterator
+
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -124,16 +126,16 @@ def test_once_warning_log(app: SphinxTestApp) -> None:
     assert 'WARNING: message: 1\nWARNING: message: 2\n' in warnings
 
 
-def test_is_suppressed_warning():
+def test_is_suppressed_warning() -> None:
     suppress_warnings = ['ref', 'files.*', 'rest.duplicated_labels']
 
-    assert is_suppressed_warning(None, None, suppress_warnings) is False
-    assert is_suppressed_warning('ref', None, suppress_warnings) is True
+    assert is_suppressed_warning(None, None, suppress_warnings) is False  # type: ignore[arg-type]
+    assert is_suppressed_warning('ref', None, suppress_warnings) is True  # type: ignore[arg-type]
     assert is_suppressed_warning('ref', 'numref', suppress_warnings) is True
     assert is_suppressed_warning('ref', 'option', suppress_warnings) is True
     assert is_suppressed_warning('files', 'image', suppress_warnings) is True
     assert is_suppressed_warning('files', 'stylesheet', suppress_warnings) is True
-    assert is_suppressed_warning('rest', None, suppress_warnings) is False
+    assert is_suppressed_warning('rest', None, suppress_warnings) is False  # type: ignore[arg-type]
     assert is_suppressed_warning('rest', 'syntax', suppress_warnings) is False
     assert is_suppressed_warning('rest', 'duplicated_labels', suppress_warnings) is True
 
@@ -281,7 +283,7 @@ def test_pending_warnings(app: SphinxTestApp) -> None:
 
 
 @contextmanager
-def force_colors():
+def force_colors() -> Iterator[None]:
     forcecolor = os.environ.get('FORCE_COLOR', None)
 
     try:
@@ -294,7 +296,7 @@ def force_colors():
             os.environ['FORCE_COLOR'] = forcecolor
 
 
-def test_log_no_ansi_colors(tmp_path):
+def test_log_no_ansi_colors(tmp_path: Path) -> None:
     with force_colors():
         wfile = tmp_path / 'warnings.txt'
         srcdir = TEST_ROOTS_DIR / 'test-nitpicky-warnings'
@@ -341,7 +343,7 @@ def test_logging_in_ParallelTasks(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
 
-    def child_process():
+    def child_process() -> None:
         logger.info('message1')
         logger.warning('message2', location='index')
 
@@ -353,12 +355,15 @@ def test_logging_in_ParallelTasks(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_output_with_unencodable_char(app):
-    class StreamWriter(codecs.StreamWriter):
-        def write(self, object):
+def test_output_with_unencodable_char(app: SphinxTestApp) -> None:
+    class StreamWriter:
+        def __init__(self, stream: io.StringIO) -> None:
+            self.stream = stream
+
+        def write(self, object: str) -> None:
             self.stream.write(object.encode('cp1252').decode('cp1252'))
 
-    logging.setup(app, StreamWriter(app.status), app.warning, verbosity=0)
+    logging.setup(app, StreamWriter(app.status), app.warning, verbosity=0)  # type: ignore[arg-type]
     logger = logging.getLogger(__name__)
 
     # info with UnicodeEncodeError
@@ -388,7 +393,7 @@ def test_prefixed_warnings(app: SphinxTestApp) -> None:
     assert 'WARNING: message5' in app.warning.getvalue()
 
 
-def test_get_node_location_abspath():
+def test_get_node_location_abspath() -> None:
     # Ensure that node locations are reported as an absolute path,
     # even if the source attribute is a relative path.
 
