@@ -999,7 +999,7 @@ def test_getdoc_inherited_decorated_method():
 
 def test_is_builtin_class_method() -> None:
     class MyInt(int):
-        def my_method(self) -> None:
+        def my_method(self):
             pass
 
     assert inspect.is_builtin_class_method(MyInt, 'to_bytes')
