@@ -34,6 +34,7 @@ from sphinx.writers.text import STDINDENT
 from tests.utils import extract_node
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from io import StringIO
 
 
@@ -43,15 +44,15 @@ class Config:
     c_extra_keywords = _macro_keywords
 
 
-def parse(name, string):
-    parser = DefinitionParser(string, location=None, config=Config())
+def parse(name: str, string: str):
+    parser = DefinitionParser(string, location=None, config=Config())  # type: ignore[arg-type]
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
     parser.assert_end()
     return ast
 
 
-def _check(name, input, id_dict, output, key, as_text_output):
+def _check(name: str, input: str, id_dict, output, key, as_text_output):
     if key is None:
         key = name
     key += ' '
@@ -104,14 +105,13 @@ def _check(name, input, id_dict, output, key, as_text_output):
         # except NoOldIdError:
         #     id_actual.append(None)
 
-    res = [True]
-    for i in range(1, _max_id + 1):
-        res.append(id_expected[i] == id_actual[i])
+    res_bools = [True]
+    res_bools.extend(id_expected[i] == id_actual[i] for i in range(1, _max_id + 1))
 
-    if not all(res):
+    if not all(res_bools):
         print('input:    %s' % input.rjust(20))
         for i in range(1, _max_id + 1):
-            if res[i]:
+            if res_bools[i]:
                 continue
             print('Error in id version %d.' % i)
             print('result:   %s' % id_actual[i])
@@ -120,7 +120,9 @@ def _check(name, input, id_dict, output, key, as_text_output):
         raise DefinitionError
 
 
-def check(name, input, id_dict, output=None, key=None, as_text_output=None):
+def check(
+    name: str, input, id_dict, output=None, key=None, as_text_output=None
+) -> None:
     if output is None:
         output = input
     # First, check without semicolon
@@ -138,8 +140,8 @@ def check(name, input, id_dict, output=None, key=None, as_text_output=None):
 
 
 def test_domain_c_ast_expressions() -> None:
-    def expr_check(expr, output=None):
-        parser = DefinitionParser(expr, location=None, config=Config())
+    def expr_check(expr: str, output: str | None = None) -> None:
+        parser = DefinitionParser(expr, location=None, config=Config())  # type: ignore[arg-type]
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         parser.assert_end()
@@ -339,8 +341,8 @@ def test_domain_c_ast_expressions() -> None:
 
 
 def test_domain_c_ast_fundamental_types() -> None:
-    def types():
-        def signed(t):
+    def types() -> Generator[str]:
+        def signed(t: str) -> Generator[str]:
             yield t
             yield 'signed  ' + t
             yield 'unsigned  ' + t
