@@ -301,7 +301,7 @@ def test_autosummary_generate_content_for_module(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module___all__(app):
-    import autosummary_dummy_module
+    import autosummary_dummy_module  # ty: ignore[unresolved-import]
 
     template = Mock()
     app.config.autosummary_ignore_module_all = False
@@ -347,7 +347,7 @@ def test_autosummary_generate_content_for_module___all__(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module_skipped(app):
-    import autosummary_dummy_module
+    import autosummary_dummy_module  # ty: ignore[unresolved-import]
 
     template = Mock()
 
@@ -394,7 +394,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module_imported_members(app):
-    import autosummary_dummy_module
+    import autosummary_dummy_module  # ty: ignore[unresolved-import]
 
     template = Mock()
 

@@ -6,6 +6,7 @@ import pickle
 import shutil
 
 import pytest
+from docutils.utils import DependencyList
 
 from sphinx.testing.util import SphinxTestApp
 from sphinx.versioning import add_uids, get_ratio, merge_doctrees
@@ -19,7 +20,8 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
 
-original = original_uids = None
+original: nodes.document
+original_uids: list[str]
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -61,11 +63,11 @@ def test_add_uids() -> None:
 def test_pickleablility() -> None:
     # we have to modify the doctree so we can pickle it
     copy = original.copy()
-    copy.reporter = None
-    copy.transformer = None
+    copy.reporter = None  # type: ignore[assignment]
+    copy.transformer = None  # type: ignore[assignment]
     copy.settings.warning_stream = None
     copy.settings.env = None
-    copy.settings.record_dependencies = None
+    copy.settings.record_dependencies = DependencyList()
     loaded = pickle.loads(pickle.dumps(copy, pickle.HIGHEST_PROTOCOL))
     assert all(getattr(n, 'uid', False) for n in loaded.findall(is_paragraph))
 
