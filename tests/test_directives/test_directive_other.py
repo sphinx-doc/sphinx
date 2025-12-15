@@ -147,6 +147,7 @@ def test_toctree_class(app):
     app.env.find_files(app.config, app.builder)
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
+    assert isinstance(doctree[0], nodes.compound)
     assert doctree[0].attributes['classes'] == ['toctree-wrapper', 'custom-toc']
 
 
@@ -209,5 +210,5 @@ def test_include_include_read_event_nested_includes(app):
     doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, addnodes.document)
     assert len(doctree.children) == 3
-    assert_node(doctree.children[1], nodes.paragraph)
+    assert isinstance(doctree.children[1], nodes.paragraph)
     assert doctree.children[1].rawsource == 'The amazing foo.'

@@ -188,7 +188,7 @@ class TestSigElementFallbackTransform:
         visitor_methods = {f'visit_{tp.__name__}' for tp in desc_sig_elements_list}
         visitor_methods.update(f'visit_{name}' for name in add_visitor_method_for)
         class_dict = dict.fromkeys(visitor_methods, BaseCustomTranslatorClass.mark_node)
-        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)
+        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)  # ty: ignore[invalid-return-type]
 
     @pytest.mark.parametrize(
         'add_visitor_method_for',

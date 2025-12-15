@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
 
 from sphinx.ext.inheritance_diagram import (
     InheritanceDiagram,
@@ -32,6 +33,7 @@ def test_inheritance_diagram(app: SphinxTestApp) -> None:
     def new_run(self):
         result = orig_run(self)
         node = result[0]
+        assert isinstance(node.document, nodes.document)
         source = Path(node.document.current_source).stem
         graphs[source] = node['graph']
         return result

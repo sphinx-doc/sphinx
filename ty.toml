@@ -15,20 +15,12 @@ include = [
 ]
 exclude = [
     "tests/roots",
+    "tests/test_util/typing_test_data.py",
 ]
 
 [rules]
-call-non-callable = "ignore"
-inconsistent-mro = "ignore"
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
 invalid-method-override = "ignore"
-invalid-return-type = "ignore"
-invalid-type-form = "ignore"
-no-matching-overload = "ignore"
 non-subscriptable = "ignore"
 possibly-missing-attribute = "ignore"
-unresolved-attribute = "ignore"
-unresolved-import = "ignore"
-unresolved-reference = "ignore"
-unsupported-operator = "ignore"

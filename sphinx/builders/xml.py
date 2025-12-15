@@ -89,7 +89,7 @@ class XMLBuilder(Builder):
         # so that we can override the translator class
         visitor: XMLTranslator = self.create_translator(doctree)  # type: ignore[assignment]
         doctree.walkabout(visitor)
-        return ''.join(visitor.output)
+        return ''.join(visitor.output)  # ty: ignore[unresolved-attribute]
 
     def finish(self) -> None:
         pass
