@@ -2639,10 +2639,6 @@ def test_singledispatchmethod_classmethod_automethod() -> None:
     ]
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15),
-    reason='Cython does not support Python 3.15 yet.',
-)
 @pytest.mark.skipif(pyximport is None, reason='Cython is not installed')
 def test_cython() -> None:
     options = {
