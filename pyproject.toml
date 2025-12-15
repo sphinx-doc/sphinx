@@ -230,13 +230,11 @@ module = [
     "tests.test_domains.test_domain_py_fields",
     "tests.test_domains.test_domain_py_pyfunction",
     "tests.test_domains.test_domain_py_pyobject",
-    "tests.test_domains.test_domain_rst",
     "tests.test_domains.test_domain_std",
     # tests/test_environment
     "tests.test_environment.test_environment_toctree",
     # tests/test_ext_autodoc
     "tests.test_ext_autodoc.test_ext_autodoc",
-    "tests.test_ext_autodoc.test_ext_autodoc_events",
     "tests.test_ext_autodoc.test_ext_autodoc_mock",
     # tests/test_ext_autosummary
     "tests.test_ext_autosummary.test_ext_autosummary",
@@ -246,14 +244,9 @@ module = [
     "tests.test_ext_napoleon.test_ext_napoleon_docstring",
     # tests/test_extensions
     "tests.test_extensions.test_ext_apidoc",
-    "tests.test_extensions.test_ext_doctest",
     "tests.test_extensions.test_ext_inheritance_diagram",
-    # tests/test_intl
-    "tests.test_intl.test_intl",
     # tests/test_util
-    "tests.test_util.test_util_i18n",
     "tests.test_util.test_util_inspect",
-    "tests.test_util.test_util_logging",
     "tests.test_util.test_util_nodes",
     "tests.test_util.test_util_typing",
 ]

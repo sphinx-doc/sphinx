@@ -218,7 +218,7 @@ date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
 def babel_format_date(
-    date: datetime,
+    date: dt.datetime,
     format: str,
     locale: str,
     formatter: Formatter = babel.dates.format_date,

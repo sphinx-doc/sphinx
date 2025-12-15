@@ -251,7 +251,7 @@ def test_make_id_sequential(app):
         ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
     ],
 )
-def test_split_explicit_target(title, expected):
+def test_split_explicit_target(title: str, expected: tuple[bool, str, str]) -> None:
     assert split_explicit_title(title) == expected
 
 
