@@ -739,7 +739,7 @@ def test_compact_refonly_bullet_list(app: SphinxTestApp) -> None:
     assert_node(extract_node(doctree, 0, 2, 0, 0), addnodes.compact_paragraph)
     assert extract_node(doctree, 0, 2, 0, 0).astext() == 'genindex'
 
-    assert extract_node(doctree, 0, 2).astext() == 'List B:'
+    assert extract_node(doctree, 0, 3).astext() == 'List B:'
     assert_node(extract_node(doctree, 0, 4), nodes.bullet_list)
     assert_node(extract_node(doctree, 0, 4, 0, 0), nodes.paragraph)
     assert extract_node(doctree, 0, 4, 0, 0).astext() == 'Hello'
