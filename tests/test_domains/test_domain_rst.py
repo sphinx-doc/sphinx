@@ -19,6 +19,8 @@ from sphinx.domains.rst import parse_directive
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
@@ -240,7 +242,7 @@ def test_rst_directive_and_directive_option(app):
         ),
     )
     assert_node(
-        doctree[1][1][0],
+        extract_node(doctree, 1, 1, 0),
         entries=[
             (
                 'pair',
@@ -252,10 +254,11 @@ def test_rst_directive_and_directive_option(app):
         ],
     )
     assert_node(
-        doctree[1][1][1], ([desc_signature, desc_name, ':bar:'], [desc_content, ()])
+        extract_node(doctree, 1, 1, 1),
+        ([desc_signature, desc_name, ':bar:'], [desc_content, ()]),
     )
     assert_node(
-        doctree[1][1][1],
+        extract_node(doctree, 1, 1, 1),
         addnodes.desc,
         desctype='directive:option',
         domain='rst',
