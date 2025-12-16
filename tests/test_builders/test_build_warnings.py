@@ -113,8 +113,9 @@ def test_html_warnings_exception_on_warning(app: SphinxTestApp) -> None:
         pytest.fail('Expected an exception to be raised')
     except SphinxError:
         tb = traceback.format_exc()
-        assert 'duplicate label' in tb or not DUPLICATE_LABEL_WARNINGS
+        assert 'unindent_warning' in tb
         assert 'pending_warnings' not in tb
+        assert 'duplicate label' in tb or not DUPLICATE_LABEL_WARNINGS
 
 
 @pytest.mark.sphinx(
