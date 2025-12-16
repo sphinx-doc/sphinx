@@ -127,7 +127,7 @@ translations = [
     "Jinja2>=3.1",
 ]
 types = [
-    "mypy==1.19.0",
+    "mypy==1.19.1",
     "pyrefly",
     "pyright==1.1.407",
     "ty",
