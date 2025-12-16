@@ -287,7 +287,7 @@ class CustomReSTDispatcher:
         lineno: int,
         reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        return self.role_func(
+        return self.role_func(  # ty: ignore[invalid-return-type]
             role_name,
             language_module,  # type: ignore[return-value]
             lineno,
@@ -939,5 +939,5 @@ if docutils.__version_info__[:2] < (0, 22):
 
 else:
     from docutils.parsers.rst.roles import (
-        normalize_options as _normalize_options,  # NoQA: F401
+        normalize_options as _normalize_options,  # NoQA: F401  # ty: ignore[unresolved-import]
     )

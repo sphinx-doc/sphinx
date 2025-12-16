@@ -27,12 +27,12 @@ class _Sentinel:
     def __or__(self, other: object) -> _SpecialForm:
         from typing import Union
 
-        return Union[self, other]  # NoQA: UP007
+        return Union[self, other]  # NoQA: UP007  # ty: ignore[invalid-type-form, invalid-return-type]
 
     def __ror__(self, other: object) -> _SpecialForm:
         from typing import Union
 
-        return Union[other, self]  # NoQA: UP007
+        return Union[other, self]  # NoQA: UP007  # ty: ignore[invalid-type-form, invalid-return-type]
 
     def __getstate__(self) -> NoReturn:
         msg = f'Cannot pickle {self._name}'

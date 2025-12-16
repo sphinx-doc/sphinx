@@ -51,7 +51,8 @@ def parse(name, string):
     parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
     if name == 'enum':
-        ast.scoped = None  # simulate unscoped enum
+        # simulate unscoped enum
+        ast.scoped = None  # ty: ignore[unresolved-attribute]
     return ast
 
 

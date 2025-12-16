@@ -416,10 +416,10 @@ def test_restify_type_ForwardRef():
     assert restify(ForwardRef('MyInt')) == ':py:class:`MyInt`'
 
     assert (
-        restify(list[ForwardRef('MyInt')]) == ':py:class:`list`\\ [:py:class:`MyInt`]'
+        restify(list[ForwardRef('MyInt')]) == ':py:class:`list`\\ [:py:class:`MyInt`]'  # ty: ignore[invalid-type-form]
     )
 
-    ann_rst = restify(Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]])
+    ann_rst = restify(Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]])  # ty: ignore[invalid-type-form]
     assert ann_rst == (
         ':py:class:`~typing.Tuple`\\ [:py:class:`dict`\\ [:py:class:`MyInt`, :py:class:`str`], :py:class:`list`\\ [:py:class:`~typing.List`\\ [:py:class:`int`]]]'
     )
@@ -978,7 +978,7 @@ def test_stringify_broken_type_hints() -> None:
 
 def test_stringify_mock() -> None:
     with mock(['unknown']):
-        import unknown
+        import unknown  # ty: ignore[unresolved-import]
 
         ann_str = stringify_annotation(unknown, 'fully-qualified-except-typing')
         assert ann_str == 'unknown'
@@ -994,20 +994,21 @@ def test_stringify_type_ForwardRef():
     assert stringify_annotation(ForwardRef('MyInt')) == 'MyInt'
     assert stringify_annotation(ForwardRef('MyInt'), 'smart') == 'MyInt'
 
-    assert stringify_annotation(list[ForwardRef('MyInt')]) == 'list[MyInt]'
-    assert stringify_annotation(list[ForwardRef('MyInt')], 'smart') == 'list[MyInt]'
+    assert stringify_annotation(list[ForwardRef('MyInt')]) == 'list[MyInt]'  # ty: ignore[invalid-type-form]
+    assert stringify_annotation(list[ForwardRef('MyInt')], 'smart') == 'list[MyInt]'  # ty: ignore[invalid-type-form]
 
     ann_str = stringify_annotation(
-        Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]]
+        Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]]  # ty: ignore[invalid-type-form]
     )
     assert ann_str == 'Tuple[dict[MyInt, str], list[List[int]]]'
     ann_str = stringify_annotation(
-        Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]],
+        Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]],  # ty: ignore[invalid-type-form]
         'fully-qualified-except-typing',
     )
     assert ann_str == 'Tuple[dict[MyInt, str], list[List[int]]]'
     ann_str = stringify_annotation(
-        Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]], 'smart'
+        Tuple[dict[ForwardRef('MyInt'), str], list[List[int]]],  # ty: ignore[invalid-type-form]
+        'smart',
     )
     assert ann_str == '~typing.Tuple[dict[MyInt, str], list[~typing.List[int]]]'
 
