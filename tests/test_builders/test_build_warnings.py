@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 # xref RemovedInSphinx11Warning
-# From Sphinx 11, duplicate labels should always warn by default'
+# From Sphinx 10, duplicate labels should always warn by default
 DUPLICATE_LABEL_WARNINGS = version_info >= (10, 0, 0)
 
 ENV_WARNINGS = (
