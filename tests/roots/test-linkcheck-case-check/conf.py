@@ -1,1 +1,1 @@
-# Empty config for linkcheck case sensitivity tests
+linkcheck_timeout = 0.25

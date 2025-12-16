@@ -11,11 +11,9 @@ from sphinx.testing.util import assert_node
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from typing import TypeAlias
-
     from sphinx.testing.util import SphinxTestApp
 
-    _IndexEntry: TypeAlias = tuple[str, str, str, str, str | None]
+    type _IndexEntry = tuple[str, str, str, str, str | None]
 
 DOMAINS = [
     # directive, no-index, no-index-entry, signature of f, signature of g, index entry of g

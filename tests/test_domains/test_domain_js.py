@@ -26,6 +26,12 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
 
+from tests.utils import extract_node
+
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from sphinx.testing.util import SphinxTestApp
+
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
 def test_domain_js_xrefs(app):
@@ -235,7 +241,7 @@ def test_js_function(app):
         ),
     )
     assert_node(
-        doctree[1][0][1],
+        extract_node(doctree, 1, 0, 1),
         [
             desc_parameterlist,
             (
@@ -395,10 +401,14 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equa
         no_index=False,
     )
     assert_node(
-        doctree[1][0][1],
+        extract_node(doctree, 1, 0, 1),
         [desc_parameterlist, desc_parameter, ([desc_sig_name, 'name'])],
     )
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+    assert_node(
+        extract_node(doctree, 1, 0, 1),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
+    )
 
 
 @pytest.mark.sphinx(
@@ -441,10 +451,14 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_forc
         no_index=False,
     )
     assert_node(
-        doctree[1][0][1],
+        extract_node(doctree, 1, 0, 1),
         [desc_parameterlist, desc_parameter, ([desc_sig_name, 'names'])],
     )
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+    assert_node(
+        extract_node(doctree, 1, 0, 1),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
+    )
 
 
 @pytest.mark.sphinx(
@@ -485,10 +499,14 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_brea
         no_index=False,
     )
     assert_node(
-        doctree[1][0][1],
+        extract_node(doctree, 1, 0, 1),
         [desc_parameterlist, desc_parameter, ([desc_sig_name, 'names'])],
     )
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
+    assert_node(
+        extract_node(doctree, 1, 0, 1),
+        desc_parameterlist,
+        multi_line_parameter_list=True,
+    )
 
 
 @pytest.mark.sphinx(
@@ -529,10 +547,14 @@ def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][1],
+        extract_node(doctree, 1, 0, 1),
         [desc_parameterlist, desc_parameter, ([desc_sig_name, 'name'])],
     )
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+    assert_node(
+        extract_node(doctree, 1, 0, 1),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
+    )
 
 
 @pytest.mark.sphinx(
@@ -573,10 +595,14 @@ def test_jsfunction_signature_with_maximum_signature_line_length_force_single(ap
         no_index=False,
     )
     assert_node(
-        doctree[1][0][1],
+        extract_node(doctree, 1, 0, 1),
         [desc_parameterlist, desc_parameter, ([desc_sig_name, 'names'])],
     )
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+    assert_node(
+        extract_node(doctree, 1, 0, 1),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
+    )
 
 
 @pytest.mark.sphinx(
@@ -617,10 +643,14 @@ def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][1],
+        extract_node(doctree, 1, 0, 1),
         [desc_parameterlist, desc_parameter, ([desc_sig_name, 'names'])],
     )
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=True)
+    assert_node(
+        extract_node(doctree, 1, 0, 1),
+        desc_parameterlist,
+        multi_line_parameter_list=True,
+    )
 
 
 @pytest.mark.sphinx(
@@ -657,8 +687,12 @@ def test_javascript_maximum_signature_line_length_overrides_global(app):
         no_index=False,
     )
     expected_sig = [desc_parameterlist, desc_parameter, [desc_sig_name, 'name']]
-    assert_node(doctree[1][0][1], expected_sig)
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+    assert_node(extract_node(doctree, 1, 0, 1), expected_sig)
+    assert_node(
+        extract_node(doctree, 1, 0, 1),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
+    )
 
 
 @pytest.mark.sphinx(
@@ -892,3 +926,19 @@ def test_domain_js_javascript_trailing_comma_in_multi_line_signatures_in_text(ap
         expected_f,
     )
     assert expected_parameter_list_foo in content
+
+
+# See: https://github.com/sphinx-doc/sphinx/issues/13217
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_js_function_parentheses_in_arguments_and_errors(app: SphinxTestApp) -> None:
+    text = """\
+.. js:function:: $.getJSON(href)
+
+   :param string href:
+   :throws err:
+"""
+    doctree = restructuredtext.parse(app, text)
+    refnodes = list(doctree.findall(addnodes.pending_xref))
+    assert len(refnodes) == 2
+    assert_node(refnodes[0], [addnodes.pending_xref, nodes.literal, 'string'])
+    assert_node(refnodes[1], [addnodes.pending_xref, nodes.literal, 'err'])

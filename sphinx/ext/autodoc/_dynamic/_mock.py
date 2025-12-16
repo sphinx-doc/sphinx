@@ -10,7 +10,7 @@ from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
 from typing import TYPE_CHECKING
 
-from sphinx.util import logging
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
@@ -18,8 +18,6 @@ if TYPE_CHECKING:
     from typing import Any
 
     from typing_extensions import TypeIs
-
-logger = logging.getLogger(__name__)
 
 
 class _MockObject:
@@ -122,7 +120,7 @@ class MockLoader(Loader):
         self.finder = finder
 
     def create_module(self, spec: ModuleSpec) -> ModuleType:
-        logger.debug('[autodoc] adding a mock module as %s!', spec.name)
+        LOGGER.debug('[autodoc] adding a mock module as %s!', spec.name)
         self.finder.mocked_modules.append(spec.name)
         return _MockModule(spec.name)
 

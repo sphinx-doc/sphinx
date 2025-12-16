@@ -11,14 +11,14 @@ import inspect
 import types
 from typing import TYPE_CHECKING
 
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
-from sphinx.util import logging
 
 if TYPE_CHECKING:
     from typing import Any
 
-logger = logging.getLogger(__name__)
+
 _LAMBDA_NAME = (lambda: None).__name__
 
 
@@ -152,6 +152,6 @@ def update_default_value(obj: Any, bound_method: bool) -> None:
         # In this case, we can't set __signature__.
         return
     except NotImplementedError as exc:  # failed to ast_unparse()
-        logger.warning(
+        LOGGER.warning(
             __('Failed to parse a default argument value for %r: %s'), obj, exc
         )

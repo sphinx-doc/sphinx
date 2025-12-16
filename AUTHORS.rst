@@ -117,6 +117,7 @@ Contributors
 * Thomas Waldmann -- apidoc module fixes
 * Till Hoffmann -- doctest option to exit after first failed test
 * Tim Hoffmann -- theme improvements
+* Valentin Heinisch -- warning types improvement
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder

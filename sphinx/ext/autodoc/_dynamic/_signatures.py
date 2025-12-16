@@ -14,9 +14,10 @@ from sphinx.ext.autodoc._dynamic._type_comments import (
 )
 from sphinx.ext.autodoc._names import py_ext_sig_re
 from sphinx.ext.autodoc._property_types import _AssignStatementProperties
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import inspect, logging
+from sphinx.util import inspect
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import (
     _stringify_signature_to_parts,
@@ -26,16 +27,14 @@ from sphinx.util.inspect import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
     from sphinx.ext.autodoc._property_types import _ItemProperties
     from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
 
-    _FormattedSignature: TypeAlias = tuple[str, str]
-
-logger = logging.getLogger(__name__)
+    type _FormattedSignature = tuple[str, str]
 
 
 def _format_signatures(
@@ -101,7 +100,7 @@ def _format_signatures(
             )
         except Exception as exc:
             msg = __('error while formatting arguments for %s: %s')
-            logger.warning(msg, props.full_name, exc, type='autodoc')
+            LOGGER.warning(msg, props.full_name, exc, type='autodoc')
 
     if props.obj_type in {'attribute', 'property'}:
         # Only keep the return annotation
@@ -138,7 +137,7 @@ def _format_signatures(
         # be cached anyway)
         analyzer.analyze()
     except PycodeError as exc:
-        logger.debug('[autodoc] module analyzer failed: %s', exc)
+        LOGGER.debug('[autodoc] module analyzer failed: %s', exc)
         # no source file -- e.g. for builtin and C modules
     else:
         analyzer_overloads = analyzer.overloads
@@ -499,7 +498,7 @@ def _get_signature_object(
                 msg = __('Failed to get a method signature for %s: %s')
             else:
                 msg = __('Failed to get a signature for %s: %s')
-            logger.warning(msg, props.full_name, exc)
+            LOGGER.warning(msg, props.full_name, exc)
             return None
         except ValueError:
             # Still no signature: happens e.g. for old-style classes
@@ -532,8 +531,8 @@ def _get_object_for_signature(
         else:
             if isinstance(object_sig, Signature):
                 return object_sig, False
-            if sys.version_info[:2] in {(3, 12), (3, 13)} and callable(object_sig):
-                # Support for enum.Enum.__signature__ in Python 3.12
+            if sys.version_info[:2] <= (3, 14) and callable(object_sig):
+                # Support for enum.Enum.__signature__ in Python 3.12 & 3.13
                 if isinstance(object_sig_str := object_sig(), str):
                     return inspect.signature_from_str(object_sig_str), False
 
@@ -611,7 +610,7 @@ def _annotate_to_first_argument(
         sig = inspect.signature(func, type_aliases=config.autodoc_type_aliases)
     except TypeError as exc:
         msg = __('Failed to get a function signature for %s: %s')
-        logger.warning(msg, props.full_name, exc)
+        LOGGER.warning(msg, props.full_name, exc)
         return None
     except ValueError:
         return None

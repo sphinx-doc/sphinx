@@ -436,6 +436,7 @@ class Glossary(SphinxDirective):
         in_comment = False
         was_empty = True
         messages: list[Node] = []
+        indent_len = 0
         for line, (source, lineno) in zip(
             self.content, self.content.items, strict=True
         ):
@@ -945,7 +946,7 @@ class StandardDomain(Domain):
             node = document.ids[labelid]
             if isinstance(node, nodes.target) and 'refid' in node:
                 # indirect hyperlink targets
-                node = document.ids.get(node['refid'])  # type: ignore[assignment]
+                node = document.ids[node['refid']]
                 labelid = node['names'][0]
             if (
                 node.tagname == 'footnote'
@@ -1050,7 +1051,7 @@ class StandardDomain(Domain):
         if typ == 'ref':
             resolver = self._resolve_ref_xref
         elif typ == 'numref':
-            resolver = self._resolve_numref_xref  # type: ignore[assignment]
+            resolver = self._resolve_numref_xref
         elif typ == 'keyword':
             resolver = self._resolve_keyword_xref
         elif typ == 'doc':
@@ -1099,7 +1100,7 @@ class StandardDomain(Domain):
         target: str,
         node: pending_xref,
         contnode: Element,
-    ) -> nodes.reference | Element | None:
+    ) -> nodes.reference | None:
         if target in self.labels:
             docname, labelid, figname = self.labels.get(target, ('', '', ''))
         else:
@@ -1119,12 +1120,12 @@ class StandardDomain(Domain):
             logger.warning(
                 __('numfig is disabled. :numref: is ignored.'), location=node
             )
-            return contnode
+            return contnode  # type: ignore[return-value]
 
         try:
             fignumber = self.get_fignumber(env, builder, figtype, docname, target_node)
             if fignumber is None:
-                return contnode
+                return contnode  # type: ignore[return-value]
         except ValueError:
             logger.warning(
                 __(
@@ -1133,7 +1134,7 @@ class StandardDomain(Domain):
                 labelid,
                 location=node,
             )
-            return contnode
+            return contnode  # type: ignore[return-value]
 
         try:
             if node['refexplicit']:
@@ -1143,7 +1144,7 @@ class StandardDomain(Domain):
 
             if figname is None and '{name}' in title:
                 logger.warning(__('the link has no caption: %s'), title, location=node)
-                return contnode
+                return contnode  # type: ignore[return-value]
             else:
                 fignum = '.'.join(map(str, fignumber))
                 if '{name}' in title or 'number' in title:
@@ -1159,10 +1160,10 @@ class StandardDomain(Domain):
             logger.warning(
                 __('invalid numfig_format: %s (%r)'), title, exc, location=node
             )
-            return contnode
+            return contnode  # type: ignore[return-value]
         except TypeError:
             logger.warning(__('invalid numfig_format: %s'), title, location=node)
-            return contnode
+            return contnode  # type: ignore[return-value]
 
         return self.build_reference_node(
             fromdocname,

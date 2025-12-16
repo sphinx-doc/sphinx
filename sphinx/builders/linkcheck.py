@@ -31,11 +31,11 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging, requests
 from sphinx.util._uri import encode_uri
 from sphinx.util.http_date import rfc1123_to_epoch
-from sphinx.util.nodes import get_node_line
+from sphinx.util.nodes import NodeMatcher, get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
-    from typing import Any, Literal, TypeAlias
+    from typing import Any, Literal
 
     from requests import Response
 
@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
-    _URIProperties: TypeAlias = tuple['_Status', str, int]
+    type _URIProperties = tuple[_Status, str, int]
 
 
 class _Status(StrEnum):
@@ -221,7 +221,8 @@ class HyperlinkCollector(SphinxPostTransform):
     default_priority = 800
 
     def run(self, **kwargs: Any) -> None:
-        for node in self.document.findall():
+        matcher = NodeMatcher(nodes.image, nodes.raw, nodes.reference)
+        for node in matcher.findall(self.document):
             if uri := self.find_uri(node):
                 self._add_uri(uri, node)
 

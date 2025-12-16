@@ -8,25 +8,22 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._dynamic._importer import (
-    _find_type_stub_spec as _find_type_stub_spec,  # NoQA: PLC0414
+    _find_type_stub_spec,  # NoQA: F401
+    _reload_module,  # NoQA: F401
+    _StubFileLoader,  # NoQA: F401
 )
 from sphinx.ext.autodoc._dynamic._importer import (
     _import_module as import_module,
 )
 from sphinx.ext.autodoc._dynamic._importer import _mangle_name as mangle
-from sphinx.ext.autodoc._dynamic._importer import (
-    _reload_module as _reload_module,  # NoQA: PLC0414
-)
-from sphinx.ext.autodoc._dynamic._importer import (
-    _StubFileLoader as _StubFileLoader,  # NoQA: PLC0414
-)
-from sphinx.ext.autodoc._dynamic._member_finder import _filter_enum_dict, unmangle
 from sphinx.ext.autodoc._dynamic._member_finder import (
-    _is_native_enum_api as _is_native_enum_api,  # NoQA: PLC0414
+    _filter_enum_dict,
+    _is_native_enum_api,  # NoQA: F401
+    unmangle,
 )
 from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import logging
 from sphinx.util.inspect import (
     getannotations,
     getmro,
@@ -45,7 +42,6 @@ if TYPE_CHECKING:
 
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
-logger = logging.getLogger(__name__)
 
 
 # Retained: legacy class-based
@@ -56,9 +52,9 @@ def import_object(
     attrgetter: _AttrGetter = safe_getattr,
 ) -> Any:
     if objpath:
-        logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
+        LOGGER.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
     else:
-        logger.debug('[autodoc] import %s', modname)
+        LOGGER.debug('[autodoc] import %s', modname)
 
     try:
         module = None
@@ -67,9 +63,9 @@ def import_object(
         while module is None:
             try:
                 module = import_module(modname, try_reload=True)
-                logger.debug('[autodoc] import %s => %r', modname, module)
+                LOGGER.debug('[autodoc] import %s => %r', modname, module)
             except ImportError as exc:
-                logger.debug('[autodoc] import %s => failed', modname)
+                LOGGER.debug('[autodoc] import %s => failed', modname)
                 exc_on_importing = exc
                 if '.' in modname:
                     # retry with parent module
@@ -83,16 +79,16 @@ def import_object(
         object_name = None
         for attrname in objpath:
             parent = obj
-            logger.debug('[autodoc] getattr(_, %r)', attrname)
+            LOGGER.debug('[autodoc] getattr(_, %r)', attrname)
             mangled_name = mangle(obj, attrname)
             obj = attrgetter(obj, mangled_name)
 
             try:
-                logger.debug('[autodoc] => %r', obj)
+                LOGGER.debug('[autodoc] => %r', obj)
             except TypeError:
                 # fallback of failure on logging for broken object
                 # See: https://github.com/sphinx-doc/sphinx/issues/9095
-                logger.debug('[autodoc] => %r', (obj,))
+                LOGGER.debug('[autodoc] => %r', (obj,))
 
             object_name = attrname
         return [module, parent, object_name, obj]
@@ -129,7 +125,7 @@ def import_object(
                 '; the following exception was raised:\n%s' % traceback.format_exc()
             )
 
-        logger.debug(errmsg)
+        LOGGER.debug(errmsg)
         raise ImportError(errmsg) from exc
 
 

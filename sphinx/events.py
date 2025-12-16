@@ -29,6 +29,8 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc._event_listeners import (
+        _AutodocBeforeProcessSignatureListener,
+        _AutodocProcessBasesListener,
         _AutodocProcessDocstringListener,
         _AutodocProcessSignatureListener,
         _AutodocSkipMemberListener,
@@ -80,9 +82,15 @@ class EventManager:
         self._reraise_errors: bool = app.pdb
 
     def add(self, name: str) -> None:
-        """Register a custom Sphinx event."""
+        """Register a custom Sphinx event called *name*.
+
+        This is needed to be able to emit the event.
+
+        :param name: The name of the event.
+        """
         if name in self.events:
-            raise ExtensionError(__('Event %r already present') % name)
+            msg = __('Event %r already present')
+            raise ExtensionError(msg % name)
         self.events[name] = ''
 
     @property
@@ -287,7 +295,7 @@ class EventManager:
     def connect(
         self,
         name: Literal['autodoc-before-process-signature'],
-        callback: Callable[[Sphinx, Any, bool], None],
+        callback: _AutodocBeforeProcessSignatureListener,
         priority: int,
     ) -> int: ...
 
@@ -303,7 +311,7 @@ class EventManager:
     def connect(
         self,
         name: Literal['autodoc-process-bases'],
-        callback: Callable[[Sphinx, str, Any, dict[str, bool], list[str]], None],
+        callback: _AutodocProcessBasesListener,
         priority: int,
     ) -> int: ...
 
@@ -353,9 +361,30 @@ class EventManager:
     ) -> int: ...
 
     def connect(self, name: str, callback: Callable[..., Any], priority: int) -> int:
-        """Connect a handler to specific event."""
+        """Connect a handler to specific event.
+
+        Register *callback* to be called when the *name* event is emitted.
+
+        See :ref:`event callbacks <events>` for details on available core events
+        and the arguments of their corresponding callback functions.
+
+        :param name:
+            The name of the target event.
+        :param callback:
+            Callback function for the event.
+        :param priority:
+            The priority of the callback.
+            The callbacks will be invoked in ascending order of *priority*.
+        :return:
+            A listener ID, for use with the :meth:`disconnect` method.
+
+        .. versionchanged:: 3.0
+
+           Support *priority*
+        """
         if name not in self.events:
-            raise ExtensionError(__('Unknown event name: %s') % name)
+            msg = __('Unknown event name: %s')
+            raise ExtensionError(msg % name)
 
         listener_id = self.next_listener_id
         self.next_listener_id += 1
@@ -363,7 +392,11 @@ class EventManager:
         return listener_id
 
     def disconnect(self, listener_id: int) -> None:
-        """Disconnect a handler."""
+        """Disconnect the handler given by *listener_id*.
+
+        :param listener_id:
+            A listener_id previously returned by :meth:`connect`.
+        """
         for listeners in self.listeners.values():
             for listener in listeners.copy():
                 if listener.id == listener_id:
@@ -375,9 +408,25 @@ class EventManager:
         *args: Any,
         allowed_exceptions: tuple[type[Exception], ...] = (),
     ) -> list[Any]:
-        """Emit a Sphinx event."""
-        # not every object likes to be repr()'d (think
-        # random stuff coming via autodoc)
+        """Emit a Sphinx event.
+
+        This emits the *name* event and passes *args* to the handler functions.
+        Return the return values of all handlers as a list.
+        Do not emit core Sphinx events in extensions!
+
+        :param name:
+            The name of the event that will be emitted.
+        :param args:
+            The arguments for the event, to be passed to the handler functions.
+        :param allowed_exceptions:
+            The list of exceptions that are allowed in the handlers.
+
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
+        """
+        # not every object likes to be repr()'d
+        # (think random stuff coming via autodoc)
         try:
             repr_args = repr(args)
         except Exception:
@@ -399,9 +448,9 @@ class EventManager:
                 if self._reraise_errors:
                     raise
                 modname = safe_getattr(listener.handler, '__module__', None)
+                msg = __('Handler %r for event %r threw an exception')
                 raise ExtensionError(
-                    __('Handler %r for event %r threw an exception')
-                    % (listener.handler, name),
+                    msg % (listener.handler, name),
                     exc,
                     modname=modname,
                 ) from exc
@@ -413,9 +462,22 @@ class EventManager:
         *args: Any,
         allowed_exceptions: tuple[type[Exception], ...] = (),
     ) -> Any:
-        """Emit a Sphinx event and returns first result.
+        """Emit a Sphinx event and return the first result.
 
-        This returns the result of the first handler that doesn't return ``None``.
+        This emits the *name* event and passes *args* to the handler functions.
+        The first non-None result is returned.
+
+        :param name:
+            The name of the event that will be emitted.
+        :param args:
+            The arguments for the event, to be passed to the handler functions.
+        :param allowed_exceptions:
+            The list of exceptions that are allowed in the handlers.
+
+        .. versionadded:: 0.5
+        .. versionchanged:: 3.1
+
+           Added *allowed_exceptions* to specify path-through exceptions
         """
         for result in self.emit(name, *args, allowed_exceptions=allowed_exceptions):
             if result is not None:

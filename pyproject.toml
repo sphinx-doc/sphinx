@@ -17,7 +17,7 @@ license = "BSD-2-Clause"
 license-files = [
     "LICENSE.rst",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 
 # Classifiers list: https://pypi.org/classifiers/
 classifiers = [
@@ -35,7 +35,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -76,7 +75,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.9",
     "Jinja2>=3.1",
     "Pygments>=2.17",
-    "docutils>=0.20,<0.23",
+    "docutils>=0.21,<0.23",
     "snowballstemmer>=2.2",
     "babel>=2.13",
     "alabaster>=0.7.14",
@@ -107,13 +106,12 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "ruff==0.14.6",
+    "ruff==0.14.9",
     "sphinx-lint>=0.9",
 ]
 package = [
-    "betterproto==2.0.0b6",  # resolution fails without betterproto
     "build",
-    "pypi-attestations==0.0.27",
+    "pypi-attestations==0.0.28",
     "twine>=6.1",
 ]
 test = [
@@ -129,7 +127,7 @@ translations = [
     "Jinja2>=3.1",
 ]
 types = [
-    "mypy==1.18.2",
+    "mypy==1.19.1",
     "pyrefly",
     "pyright==1.1.407",
     "ty",
@@ -139,7 +137,7 @@ type-stubs = [
     # align with versions used elsewhere
     "types-colorama==0.4.15.20250801",
     "types-defusedxml==0.7.0.20250822",
-    "types-docutils==0.21.0.20250525",
+    "types-docutils==0.22.3.20251115",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20251121",
     "types-requests==2.32.4.20250913",
@@ -181,7 +179,7 @@ files = [
 exclude = [
     "tests/roots",
 ]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 show_column_numbers = true
 show_error_context = true
@@ -220,13 +218,10 @@ ignore_missing_imports = true
 module = [
     # tests/
     "tests.test_search",
-    # tests/test_builders
-    "tests.test_builders.test_build_latex",
     # tests/test_config
     "tests.test_config.test_config",
     # tests/test_directives
     "tests.test_directives.test_directive_other",
-    "tests.test_directives.test_directive_patch",
     # tests/test_domains
     "tests.test_domains.test_domain_c",
     "tests.test_domains.test_domain_cpp",
@@ -235,13 +230,11 @@ module = [
     "tests.test_domains.test_domain_py_fields",
     "tests.test_domains.test_domain_py_pyfunction",
     "tests.test_domains.test_domain_py_pyobject",
-    "tests.test_domains.test_domain_rst",
     "tests.test_domains.test_domain_std",
     # tests/test_environment
     "tests.test_environment.test_environment_toctree",
     # tests/test_ext_autodoc
     "tests.test_ext_autodoc.test_ext_autodoc",
-    "tests.test_ext_autodoc.test_ext_autodoc_events",
     "tests.test_ext_autodoc.test_ext_autodoc_mock",
     # tests/test_ext_autosummary
     "tests.test_ext_autosummary.test_ext_autosummary",
@@ -251,16 +244,9 @@ module = [
     "tests.test_ext_napoleon.test_ext_napoleon_docstring",
     # tests/test_extensions
     "tests.test_extensions.test_ext_apidoc",
-    "tests.test_extensions.test_ext_doctest",
     "tests.test_extensions.test_ext_inheritance_diagram",
-    # tests/test_intl
-    "tests.test_intl.test_intl",
-    # tests/test_transforms
-    "tests.test_transforms.test_transforms_post_transforms",
     # tests/test_util
-    "tests.test_util.test_util_i18n",
     "tests.test_util.test_util_inspect",
-    "tests.test_util.test_util_logging",
     "tests.test_util.test_util_nodes",
     "tests.test_util.test_util_typing",
 ]

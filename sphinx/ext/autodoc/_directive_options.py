@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING
 
 from docutils.utils import assemble_option_dict
 
+from sphinx.deprecation import RemovedInSphinx11Warning
 from sphinx.ext.autodoc._sentinels import ALL, EMPTY, SUPPRESS
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Set
+    from collections.abc import Iterable, Iterator, Mapping, Set
     from typing import Any, Final, Literal, Self
 
     from sphinx.ext.autodoc._property_types import _AutodocObjType
@@ -89,6 +91,99 @@ class _AutoDocumenterOptions:
     @classmethod
     def from_directive_options(cls, opts: Mapping[str, Any], /) -> Self:
         return cls(**{k.replace('-', '_'): v for k, v in opts.items() if v is not None})
+
+    # Mapping interface:
+
+    def __getitem__(self, item: str) -> Any:
+        warnings.warn(
+            'The mapping interface for autodoc options objects is deprecated, '
+            'and will be removed in Sphinx 11. Use attribute access instead.',
+            RemovedInSphinx11Warning,
+            stacklevel=2,
+        )
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(item) from None
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        msg = f'{self.__class__.__name__!r} object does not support indexed assignment'
+        raise TypeError(msg)
+
+    def __delitem__(self, key: str) -> None:
+        msg = f'{self.__class__.__name__!r} object does not support indexed deletion'
+        raise TypeError(msg)
+
+    def __contains__(self, item: str) -> bool:
+        warnings.warn(
+            'The mapping interface for autodoc options objects is deprecated, '
+            'and will be removed in Sphinx 11. Use attribute access instead.',
+            RemovedInSphinx11Warning,
+            stacklevel=2,
+        )
+        return hasattr(self, item)
+
+    def __keys(self) -> list[str]:
+        return [key for key in dir(self) if not key.startswith('_')]
+
+    def __iter__(self) -> Iterator[str]:
+        warnings.warn(
+            'The mapping interface for autodoc options objects is deprecated, '
+            'and will be removed in Sphinx 11. Use attribute access instead.',
+            RemovedInSphinx11Warning,
+            stacklevel=2,
+        )
+        yield from self.__keys()
+
+    def __len__(self) -> int:
+        warnings.warn(
+            'The mapping interface for autodoc options objects is deprecated, '
+            'and will be removed in Sphinx 11. Use attribute access instead.',
+            RemovedInSphinx11Warning,
+            stacklevel=2,
+        )
+        return len(self.__keys())
+
+    def keys(self) -> Iterable[str]:
+        warnings.warn(
+            'The mapping interface for autodoc options objects is deprecated, '
+            'and will be removed in Sphinx 11. Use attribute access instead.',
+            RemovedInSphinx11Warning,
+            stacklevel=2,
+        )
+        yield from self.__keys()
+
+    def items(self) -> Iterable[tuple[str, Any]]:
+        warnings.warn(
+            'The mapping interface for autodoc options objects is deprecated, '
+            'and will be removed in Sphinx 11. Use attribute access instead.',
+            RemovedInSphinx11Warning,
+            stacklevel=2,
+        )
+        for key in self.__keys():
+            yield key, getattr(self, key)
+
+    def values(self) -> Iterable[Any]:
+        warnings.warn(
+            'The mapping interface for autodoc options objects is deprecated, '
+            'and will be removed in Sphinx 11. Use attribute access instead.',
+            RemovedInSphinx11Warning,
+            stacklevel=2,
+        )
+        for key in self.__keys():
+            yield getattr(self, key)
+
+    def get(self, key: str, default: Any | None = None) -> Any | None:
+        warnings.warn(
+            'The mapping interface for autodoc options objects is deprecated, '
+            'and will be removed in Sphinx 11. Use attribute access instead.',
+            RemovedInSphinx11Warning,
+            stacklevel=2,
+        )
+        try:
+            return getattr(self, key)
+        except AttributeError:
+            return default
 
 
 def identity(x: Any) -> Any:

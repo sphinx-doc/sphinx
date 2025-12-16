@@ -49,11 +49,9 @@ extension. These are:
 
 **Application**
    The application object (usually called ``app``) is an instance of
-   :class:`.Sphinx`.  It controls most high-level functionality, such as the
-   setup of extensions, event dispatching and producing output (logging).
-
-   If you have the environment object, the application is available as
-   ``env.app``.
+   :class:`.Sphinx`.
+   It controls most high-level functionality, such as loading config,
+   initialising the environment, and the setup of extensions.
 
 **Environment**
    The build environment object (usually called ``env``) is an instance of
@@ -67,6 +65,8 @@ extension. These are:
 
    If you have the application or builder object, the environment is available
    as ``app.env`` or ``builder.env``.
+   In :class:`.SphinxDirective`, :class:`.SphinxRole`, or :class:`.SphinxTransform`
+   subclasses, the environment is available as ``self.env``.
 
 **Builder**
    The builder object (usually called ``builder``) is an instance of a specific
@@ -82,7 +82,17 @@ extension. These are:
    configuration values set in :file:`conf.py` as attributes.  It is an instance
    of :class:`.Config`.
 
-   The config is available as ``app.config`` or ``env.config``.
+   The config is available as ``env.config``, ``builder.config``, or ``app.config``.
+   In :class:`.SphinxDirective`, :class:`.SphinxRole`, or :class:`.SphinxTransform`
+   subclasses, the environment is available as ``self.config``.
+
+**Events**
+   The event manager object (usually called ``events``) manages and dispatches
+   Sphinx's events system.
+   It is an instance of :class:`.EventManager`.
+
+   The event manager is available as ``env.events``, ``builder.events``,
+   or ``app.events``.
 
 To see an example of use of these objects, refer to
 :ref:`the tutorials <extension-tutorials-index>`.
@@ -232,6 +242,7 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    projectapi
    envapi
    builderapi
+   eventapi
    collectorapi
    markupapi
    domainapi

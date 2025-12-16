@@ -248,6 +248,8 @@ class BuildEnvironment:
         # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
         __dict__.update(_pickled_doctree_cache={}, _write_doc_doctree_cache={})
+        # clear attributes set in Sphinx._post_init_env()
+        __dict__.pop('_builder_cls', None)
         return __dict__
 
     def __setstate__(self, state: dict[str, Any]) -> None:

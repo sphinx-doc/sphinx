@@ -24,6 +24,8 @@ from sphinx.domains.std import StandardDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
@@ -192,27 +194,32 @@ def test_glossary(app):
         ),
     )
     assert_node(
-        doctree[0][0][0][0][1],
+        extract_node(doctree, 0, 0, 0, 0, 1),
         entries=[('single', 'term1', 'term-term1', 'main', None)],
     )
     assert_node(
-        doctree[0][0][0][1][1],
+        extract_node(doctree, 0, 0, 0, 1, 1),
         entries=[('single', 'TERM2', 'term-TERM2', 'main', None)],
     )
-    assert_node(doctree[0][0][0][2], [definition, nodes.paragraph, 'description'])
     assert_node(
-        doctree[0][0][1][0][1],
+        extract_node(doctree, 0, 0, 0, 2), [definition, nodes.paragraph, 'description']
+    )
+    assert_node(
+        extract_node(doctree, 0, 0, 1, 0, 1),
         entries=[('single', 'term3', 'term-term3', 'main', 'classifier')],
     )
     assert_node(
-        doctree[0][0][1][1],
+        extract_node(doctree, 0, 0, 1, 1),
         [definition, nodes.paragraph, 'description\ndescription'],
     )
     assert_node(
-        doctree[0][0][2][0][1],
+        extract_node(doctree, 0, 0, 2, 0, 1),
         entries=[('single', 'term4', 'term-term4', 'main', 'class1')],
     )
-    assert_node(doctree[0][0][2][1], [nodes.definition, nodes.paragraph, 'description'])
+    assert_node(
+        extract_node(doctree, 0, 0, 2, 1),
+        [nodes.definition, nodes.paragraph, 'description'],
+    )
 
     # index
     domain = app.env.domains.standard_domain
@@ -302,7 +309,10 @@ def test_glossary_comment(app):
             ],
         ),
     )
-    assert_node(doctree[0][0][0][1], [nodes.definition, nodes.paragraph, 'description'])
+    assert_node(
+        extract_node(doctree, 0, 0, 0, 1),
+        [nodes.definition, nodes.paragraph, 'description'],
+    )
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
@@ -332,9 +342,12 @@ def test_glossary_comment2(app):
             ],
         ),
     )
-    assert_node(doctree[0][0][0][1], [nodes.definition, nodes.paragraph, 'description'])
     assert_node(
-        doctree[0][0][1][1],
+        extract_node(doctree, 0, 0, 0, 1),
+        [nodes.definition, nodes.paragraph, 'description'],
+    )
+    assert_node(
+        extract_node(doctree, 0, 0, 1, 1),
         [nodes.definition, nodes.paragraph, 'description\ndescription'],
     )
 
@@ -373,8 +386,14 @@ def test_glossary_sorted(app):
             ],
         ),
     )
-    assert_node(doctree[0][0][0][2], [nodes.definition, nodes.paragraph, 'description'])
-    assert_node(doctree[0][0][1][1], [nodes.definition, nodes.paragraph, 'description'])
+    assert_node(
+        extract_node(doctree, 0, 0, 0, 2),
+        [nodes.definition, nodes.paragraph, 'description'],
+    )
+    assert_node(
+        extract_node(doctree, 0, 0, 1, 1),
+        [nodes.definition, nodes.paragraph, 'description'],
+    )
 
 
 @pytest.mark.sphinx('html', testroot='_blank')

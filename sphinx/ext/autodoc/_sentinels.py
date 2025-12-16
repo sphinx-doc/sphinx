@@ -2,7 +2,7 @@ from __future__ import annotations
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from typing import Final, Literal, NoReturn, Self, TypeAlias, _SpecialForm
+    from typing import Final, Literal, NoReturn, Self, _SpecialForm
 
 
 class _Sentinel:
@@ -27,12 +27,12 @@ class _Sentinel:
     def __or__(self, other: object) -> _SpecialForm:
         from typing import Union
 
-        return Union[self, other]  # NoQA: UP007
+        return Union[self, other]  # NoQA: UP007  # ty: ignore[invalid-type-form, invalid-return-type]
 
     def __ror__(self, other: object) -> _SpecialForm:
         from typing import Union
 
-        return Union[other, self]  # NoQA: UP007
+        return Union[other, self]  # NoQA: UP007  # ty: ignore[invalid-type-form, invalid-return-type]
 
     def __getstate__(self) -> NoReturn:
         msg = f'Cannot pickle {self._name}'
@@ -65,14 +65,14 @@ if TYPE_CHECKING:
 
         def __contains__(self, item: object) -> Literal[True]: return True
         def __add__(self, other: object) -> Self: pass
-    ALL_T: TypeAlias = Literal[_AllTC.ALL]
+    type ALL_T = Literal[_AllTC.ALL]
     ALL: Final[ALL_T] = _AllTC.ALL
 
     class _EmptyTC(enum.Enum):
         EMPTY = enum.auto()
 
         def __contains__(self, item: object) -> Literal[False]: return False
-    EMPTY_T: TypeAlias = Literal[_EmptyTC.EMPTY]
+    type EMPTY_T = Literal[_EmptyTC.EMPTY]
     EMPTY: Final[EMPTY_T] = _EmptyTC.EMPTY
 
     class _SentinelTC(enum.Enum):
@@ -81,13 +81,13 @@ if TYPE_CHECKING:
         SLOTS_ATTR = enum.auto()
         SUPPRESS = enum.auto()
         UNINITIALIZED_ATTR = enum.auto()
-    INSTANCE_ATTR_T: TypeAlias = Literal[_SentinelTC.INSTANCE_ATTR]
-    RUNTIME_INSTANCE_ATTRIBUTE_T: TypeAlias = Literal[
+    type INSTANCE_ATTR_T = Literal[_SentinelTC.INSTANCE_ATTR]
+    type RUNTIME_INSTANCE_ATTRIBUTE_T = Literal[
         _SentinelTC.RUNTIME_INSTANCE_ATTRIBUTE
     ]
-    SLOTS_ATTR_T: TypeAlias = Literal[_SentinelTC.SLOTS_ATTR]
-    SUPPRESS_T: TypeAlias = Literal[_SentinelTC.SUPPRESS]
-    UNINITIALIZED_ATTR_T: TypeAlias = Literal[_SentinelTC.UNINITIALIZED_ATTR]
+    type SLOTS_ATTR_T = Literal[_SentinelTC.SLOTS_ATTR]
+    type SUPPRESS_T = Literal[_SentinelTC.SUPPRESS]
+    type UNINITIALIZED_ATTR_T = Literal[_SentinelTC.UNINITIALIZED_ATTR]
     INSTANCE_ATTR: Final[INSTANCE_ATTR_T] = _SentinelTC.INSTANCE_ATTR
     RUNTIME_INSTANCE_ATTRIBUTE: Final[RUNTIME_INSTANCE_ATTRIBUTE_T] = (
         _SentinelTC.RUNTIME_INSTANCE_ATTRIBUTE

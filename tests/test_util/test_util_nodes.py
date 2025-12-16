@@ -31,7 +31,9 @@ def _transform(doctree: nodes.document) -> None:
 
 
 def create_new_document() -> document:
-    settings = frontend.get_default_settings(rst.Parser)
+    # TODO: TYPING: Upstream docutils should accept both instances and subclasses
+    #       of SettingsSpec here.
+    settings = frontend.get_default_settings(rst.Parser)  # type: ignore[arg-type]
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
@@ -249,7 +251,7 @@ def test_make_id_sequential(app):
         ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
     ],
 )
-def test_split_explicit_target(title, expected):
+def test_split_explicit_target(title: str, expected: tuple[bool, str, str]) -> None:
     assert split_explicit_title(title) == expected
 
 

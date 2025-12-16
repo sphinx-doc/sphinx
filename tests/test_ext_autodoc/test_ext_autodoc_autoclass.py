@@ -318,7 +318,7 @@ def test_show_inheritance_for_decendants_of_generic_type() -> None:
 
 
 def _autodoc_process_bases(
-    app: Sphinx, name: str, obj: Any, options: dict[str, bool], bases: list[type]
+    app: Sphinx, name: str, obj: Any, options: Any, bases: list[type]
 ) -> None:
     assert name == 'target.classes.Quux'
     assert obj.__module__ == 'target.classes'
