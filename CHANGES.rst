@@ -20,5 +20,8 @@ Features added
 Bugs fixed
 ----------
 
+* #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
+  Patch by Adam Turner
+
 Testing
 -------
