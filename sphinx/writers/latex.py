@@ -1850,7 +1850,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
-        next_node: Node = node
+        next_node: Node | None = node
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
@@ -1858,7 +1858,8 @@ class LaTeXTranslator(SphinxTranslator):
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if (
-            domain.get_enumerable_node_type(next_node)
+            next_node is not None
+            and domain.get_enumerable_node_type(next_node)
             and domain.get_numfig_title(next_node)
         ):  # fmt: skip
             return

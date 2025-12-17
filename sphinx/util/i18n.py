@@ -21,7 +21,7 @@ from sphinx.util.osutil import SEP, _last_modified_time
 if TYPE_CHECKING:
     import datetime as dt
     from collections.abc import Iterator
-    from typing import Protocol, TypeAlias
+    from typing import Protocol
 
     from babel.core import Locale
 
@@ -53,7 +53,7 @@ if TYPE_CHECKING:
             locale: str | Locale | None = ...,
         ) -> str: ...
 
-    Formatter: TypeAlias = DateFormatter | TimeFormatter | DatetimeFormatter
+    type Formatter = DateFormatter | TimeFormatter | DatetimeFormatter
 
 from datetime import UTC
 
@@ -218,7 +218,7 @@ date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
 def babel_format_date(
-    date: datetime,
+    date: dt.datetime,
     format: str,
     locale: str,
     formatter: Formatter = babel.dates.format_date,

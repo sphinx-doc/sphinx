@@ -34,7 +34,7 @@ def test_catalog_info_for_sub_domain_file_and_path() -> None:
     assert cat.mo_path == Path('path', 'sub', 'domain.mo')
 
 
-def test_catalog_outdated(tmp_path):
+def test_catalog_outdated(tmp_path: Path) -> None:
     (tmp_path / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tmp_path, 'test', 'utf-8')
     assert cat.is_outdated()  # if mo is not exist
@@ -48,7 +48,7 @@ def test_catalog_outdated(tmp_path):
     assert cat.is_outdated()  # if mo is exist and older than po
 
 
-def test_catalog_write_mo(tmp_path):
+def test_catalog_write_mo(tmp_path: Path) -> None:
     (tmp_path / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tmp_path, 'test', 'utf-8')
     cat.write_mo('en')
@@ -58,8 +58,8 @@ def test_catalog_write_mo(tmp_path):
         assert read_mo(f) is not None
 
 
-def test_format_date():
-    date = datetime.date(2016, 2, 7)
+def test_format_date() -> None:
+    date = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)  # NoQA: DTZ001
 
     # strftime format
     format = '%B %d, %Y'
@@ -75,28 +75,25 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='en') == format
 
     format = '%B %d, %Y, %H:%M:%S %I %p'
-    datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)  # NoQA: DTZ001
-    formatted = i18n.format_date(format, date=datet, language='en')
+    formatted = i18n.format_date(format, date=date, language='en')
     assert formatted == 'February 07, 2016, 05:11:17 05 AM'
 
     format = '%B %-d, %Y, %-H:%-M:%-S %-I %p'
-    formatted = i18n.format_date(format, date=datet, language='en')
+    formatted = i18n.format_date(format, date=date, language='en')
     assert formatted == 'February 7, 2016, 5:11:17 5 AM'
     format = '%x'
-    assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
     format = '%X'
-    assert i18n.format_date(format, date=datet, language='en') == '5:11:17\u202fAM'
-    assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=date, language='en') == '5:11:17\u202fAM'
     format = '%c'
-    formatted = i18n.format_date(format, date=datet, language='en')
+    formatted = i18n.format_date(format, date=date, language='en')
     assert formatted == 'Feb 7, 2016, 5:11:17\u202fAM'
-    assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
 
     # timezone
     format = '%Z'
-    assert i18n.format_date(format, date=datet, language='en') == 'UTC'
+    assert i18n.format_date(format, date=date, language='en') == 'UTC'
     format = '%z'
-    assert i18n.format_date(format, date=datet, language='en') == '+0000'
+    assert i18n.format_date(format, date=date, language='en') == '+0000'
 
 
 def test_format_date_timezone() -> None:
@@ -163,7 +160,7 @@ def test_get_filename_for_language(app: SphinxTestApp) -> None:
     assert get_filename('foo.png', app.env) == '/subdir/en/foo.png'
 
 
-def test_CatalogRepository(tmp_path):
+def test_CatalogRepository(tmp_path: Path) -> None:
     for po_file in (
         (tmp_path / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po'),
         (tmp_path / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po'),

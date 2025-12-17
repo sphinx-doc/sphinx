@@ -93,17 +93,29 @@ These are the basic steps needed to start developing on Sphinx.
       git clone https://github.com/<USERNAME>/sphinx
       cd sphinx
 
-#. Setup a virtual environment.
+#. Install uv and set up your environment.
 
-   This is not necessary for unit testing, thanks to :program:`tox`,
-   but it is necessary if you wish to run :program:`sphinx-build` locally
-   or run unit tests without the help of :program:`tox`:
+   We recommend using :program:`uv` for dependency management.
+   Install it with:
 
    .. code-block:: shell
 
-       virtualenv ~/.venv
-       . ~/.venv/bin/activate
-       pip install -e .
+      python -m pip install -U uv
+
+   Then, set up your environment:
+
+   .. code-block:: shell
+
+       uv sync
+
+   **Alternative:** If you prefer not to use :program:`uv`, you can use
+   :program:`pip`:
+
+   .. code-block:: shell
+
+       python -m venv .venv
+       . .venv/bin/activate
+       python -m pip install -e .
 
 #. Create a new working branch. Choose any name you like.
 
@@ -167,8 +179,9 @@ Style and type checks can be run as follows:
 
 .. code-block:: shell
 
-    ruff check .
-    mypy
+    uv run ruff check
+    uv run ruff format
+    uv run mypy
 
 
 Unit tests
@@ -188,24 +201,31 @@ of targets and allows testing against multiple different Python environments:
 
      tox -av
 
-* To run unit tests for a specific Python version, such as Python 3.13:
+* To run unit tests for a specific Python version, such as Python 3.14:
 
   .. code-block:: shell
 
-     tox -e py313
+     tox -e py314
 
 * Arguments to :program:`pytest` can be passed via :program:`tox`,
   e.g., in order to run a particular test:
 
   .. code-block:: shell
 
-     tox -e py313 tests/test_module.py::test_new_feature
+     tox -e py314 tests/test_module.py::test_new_feature
 
 You can also test by installing dependencies in your local environment:
 
   .. code-block:: shell
 
-     pip install . --group test
+     uv run pytest
+
+Or with :program:`pip`:
+
+  .. code-block:: shell
+
+     python -m pip install . --group test
+     pytest
 
 To run JavaScript tests, use :program:`npm`:
 

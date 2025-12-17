@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -41,10 +41,7 @@ def optional_int(argument: str) -> int | None:
         return value
 
 
-ObjDescT = TypeVar('ObjDescT')
-
-
-class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
+class ObjectDescription[ObjDescT](SphinxDirective):
     """Directive to describe a class, function or similar object.
 
     Not used directly, but subclassed (in domain-specific directives)
@@ -328,8 +325,14 @@ class DefaultRole(SphinxDirective):
             docutils.unregister_role('')
             return []
         role_name = self.arguments[0]
+        # TODO: TYPING: Upstream docutils should widen roles.role() to accept
+        #       the RST language module shape (has a `roles` mapping);
+        #       current stub requires _LanguageModule from docutils.languages.
         role, messages = roles.role(
-            role_name, self.state_machine.language, self.lineno, self.state.reporter
+            role_name,
+            self.state_machine.language,  # type: ignore[arg-type]
+            self.lineno,
+            self.state.reporter,
         )
         if role:
             docutils.register_role('', role)  # type: ignore[arg-type]

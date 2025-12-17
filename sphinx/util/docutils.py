@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import docutils
+import docutils.frontend
 from docutils import nodes
-from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
 from docutils.readers import standalone
@@ -37,7 +37,6 @@ if TYPE_CHECKING:
     from typing import Any, Protocol
 
     from docutils import Component
-    from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
     from docutils.parsers import Parser
     from docutils.parsers.rst.states import Inliner
@@ -49,6 +48,8 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.events import EventManager
     from sphinx.util.typing import RoleFunction
+
+    type _DocutilsSettings = docutils.frontend.Values  # pyright: ignore[reportDeprecated]  # ty: ignore[deprecated]
 
     class _LanguageModule(Protocol):
         labels: dict[str, str]
@@ -286,7 +287,7 @@ class CustomReSTDispatcher:
         lineno: int,
         reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        return self.role_func(
+        return self.role_func(  # ty: ignore[invalid-return-type]
             role_name,
             language_module,  # type: ignore[return-value]
             lineno,
@@ -466,7 +467,9 @@ class SphinxFileOutput(FileOutput):
             if on_disk == data:
                 return data
 
-        return super().write(data)
+        # TODO: TYPING: Upstream docutils should annotate FileOutput.write()
+        #       so that this suppression is unnecessary.
+        return super().write(data)  # type: ignore[no-untyped-call]
 
 
 class SphinxDirective(Directive):
@@ -501,7 +504,10 @@ class SphinxDirective(Directive):
 
         .. versionadded:: 3.0
         """
-        return self.state_machine.get_source_and_line(self.lineno)
+        source, line = self.state_machine.get_source_and_line(self.lineno)
+        assert source is not None
+        assert line is not None
+        return source, line
 
     def set_source_info(self, node: Node) -> None:
         """Set source and line number to the node.
@@ -678,7 +684,10 @@ class SphinxRole:
         # .. versionadded:: 3.0
         if lineno is None:
             lineno = self.lineno
-        return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore[attr-defined]
+        source, line = self.inliner.reporter.get_source_and_line(lineno)
+        assert source is not None
+        assert line is not None
+        return str(source), line
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         # .. versionadded:: 2.0
@@ -807,7 +816,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__: tuple[Values, Reporter]
+__document_cache__: tuple[_DocutilsSettings, Reporter]
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:
@@ -900,31 +909,35 @@ def _get_settings(
     *components: Component | type[Component],
     defaults: Mapping[str, Any],
     read_config_files: bool = False,
-) -> Values:
+) -> _DocutilsSettings:
     with warnings.catch_warnings(action='ignore', category=DeprecationWarning):
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
         # DeprecationWarning: The frontend.Option class will be removed
         # in Docutils 0.21 or later.
-        option_parser = OptionParser(
+        option_parser = docutils.frontend.OptionParser(  # pyright: ignore[reportDeprecated]  # ty: ignore[deprecated]
             components=components,
             defaults=defaults,
             read_config_files=read_config_files,
         )
-    return option_parser.get_default_values()  # type: ignore[return-value]
+    with warnings.catch_warnings(action='ignore', category=DeprecationWarning):
+        # DeprecationWarning:  frontend.Values class will be removed
+        # in Docutils 2.0 or later.
+        settings = option_parser.get_default_values()
+    return settings
 
 
 if docutils.__version_info__[:2] < (0, 22):
-    from docutils.parsers.rst.roles import set_classes
+    from docutils.parsers.rst import roles
 
     def _normalize_options(options: dict[str, Any] | None) -> dict[str, Any]:
         if options is None:
             return {}
         n_options = options.copy()
-        set_classes(n_options)
+        roles.set_classes(n_options)  # pyright: ignore[reportDeprecated]  # ty: ignore[deprecated]
         return n_options
 
 else:
-    from docutils.parsers.rst.roles import (  # type: ignore[attr-defined, no-redef]
-        normalize_options as _normalize_options,  # NoQA: F401
+    from docutils.parsers.rst.roles import (
+        normalize_options as _normalize_options,  # NoQA: F401  # ty: ignore[unresolved-import]
     )

@@ -485,7 +485,7 @@ def _filter_members(
         # should be skipped
         if events is not None:
             # let extensions preprocess docstrings
-            skip_user = events.emit_firstresult(
+            skip_member = events.emit_firstresult(
                 'autodoc-skip-member',
                 props.obj_type,
                 member_name,
@@ -493,8 +493,8 @@ def _filter_members(
                 not keep,
                 options,
             )
-            if skip_user is not None:
-                keep = not skip_user
+            if skip_member is not None:
+                keep = not skip_member
 
         if keep:
             # if is_attr is True, the member is documented as an attribute
@@ -528,7 +528,7 @@ def _best_object_type_for_member(
 
     if isinstance(member, type) or (is_attr and isinstance(member, (NewType, TypeVar))):
         # priority must be higher than 'function', 'class', and 'attribute'
-        # as NewType can be an attribute and is a class after Python 3.10.
+        # as NewType can be an attribute and is a class.
         filtered.append((15, 'class'))
 
     if parent_obj_type in {'class', 'exception'}:

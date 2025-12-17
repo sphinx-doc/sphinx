@@ -858,7 +858,7 @@ def test_autodoc_type_aliases() -> None:
 
 
 def test_autodoc_default_options() -> None:
-    if (3, 11, 7) <= sys.version_info < (3, 12) or sys.version_info >= (3, 12, 1):
+    if sys.version_info[:3] >= (3, 12, 1):
         list_of_weak_references = '      list of weak references to the object'
     else:
         list_of_weak_references = '      list of weak references to the object (if defined)'  # fmt: skip
@@ -935,7 +935,7 @@ def test_autodoc_default_options() -> None:
 
 
 def test_autodoc_default_options_with_values() -> None:
-    if (3, 11, 7) <= sys.version_info < (3, 12) or sys.version_info >= (3, 12, 1):
+    if sys.version_info[:3] >= (3, 12, 1):
         list_of_weak_references = '      list of weak references to the object'
     else:
         list_of_weak_references = '      list of weak references to the object (if defined)'  # fmt: skip

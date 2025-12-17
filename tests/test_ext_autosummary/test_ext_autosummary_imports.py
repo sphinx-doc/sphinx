@@ -11,6 +11,8 @@ from sphinx import addnodes
 from sphinx.ext.autosummary import autosummary_table
 from sphinx.testing.util import assert_node
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
@@ -46,27 +48,12 @@ def test_autosummary_import_cycle(app: SphinxTestApp) -> None:
             addnodes.desc,  # [6]
         ),
     )
-    doctree_4 = doctree[4]
-    assert isinstance(doctree_4, nodes.Element)
-    doctree_4_0 = doctree_4[0]
-    assert isinstance(doctree_4_0, nodes.Element)
-    doctree_4_0_0 = doctree_4_0[0]
-    assert isinstance(doctree_4_0_0, nodes.Element)
-    doctree_4_0_0_2 = doctree_4_0_0[2]
-    assert isinstance(doctree_4_0_0_2, nodes.Element)
-    doctree_4_0_0_2_0 = doctree_4_0_0_2[0]
-    assert isinstance(doctree_4_0_0_2_0, nodes.Element)
-    doctree_4_0_0_2_0_0 = doctree_4_0_0_2_0[0]
-    assert isinstance(doctree_4_0_0_2_0_0, nodes.Element)
-    doctree_4_0_0_2_0_0_0 = doctree_4_0_0_2_0_0[0]
-    assert isinstance(doctree_4_0_0_2_0_0_0, nodes.Element)
-
     assert_node(
-        doctree_4_0_0_2[0],
+        extract_node(doctree, 4, 0, 0, 2, 0),
         ([nodes.entry, nodes.paragraph, (nodes.reference, nodes.Text)], nodes.entry),
     )
     assert_node(
-        doctree_4_0_0_2_0_0_0[0],
+        extract_node(doctree, 4, 0, 0, 2, 0, 0, 0, 0),
         nodes.reference,
         refid='spam.eggs.Ham',
         reftitle='spam.eggs.Ham',

@@ -53,6 +53,8 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
     from sphinx.ext.autodoc._event_listeners import (
+        _AutodocBeforeProcessSignatureListener,
+        _AutodocProcessBasesListener,
         _AutodocProcessDocstringListener,
         _AutodocProcessSignatureListener,
         _AutodocSkipMemberListener,
@@ -721,7 +723,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-before-process-signature'],
-        callback: Callable[[Sphinx, Any, bool], None],
+        callback: _AutodocBeforeProcessSignatureListener,
         priority: int = 500,
     ) -> int: ...
 
@@ -737,7 +739,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-process-bases'],
-        callback: Callable[[Sphinx, str, Any, dict[str, bool], list[str]], None],
+        callback: _AutodocProcessBasesListener,
         priority: int = 500,
     ) -> int: ...
 
