@@ -24,6 +24,8 @@ Bugs fixed
   Patch by Adam Turner
 * #13713: Fix compatibility with MyST-Parser.
   Patch by Adam Turner
+* Fix tests for Python 3.15.
+  Patch by Adam Turner
 
 Testing
 -------
