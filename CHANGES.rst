@@ -26,6 +26,8 @@ Bugs fixed
   Patch by Adam Turner
 * Fix tests for Python 3.15.
   Patch by Adam Turner
+* #14089: autodoc: Fix default option parsing.
+  Patch by Adam Turner
 
 Testing
 -------
