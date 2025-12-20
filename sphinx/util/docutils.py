@@ -500,14 +500,12 @@ class SphinxDirective(Directive):
         """
         return self.env.config
 
-    def get_source_info(self) -> tuple[str, int]:
+    def get_source_info(self) -> tuple[str | None, int | None]:
         """Get source and line number.
 
         .. versionadded:: 3.0
         """
         source, line = self.state_machine.get_source_and_line(self.lineno)
-        assert source is not None
-        assert line is not None
         return source, line
 
     def set_source_info(self, node: Node) -> None:
@@ -681,18 +679,20 @@ class SphinxRole:
         """
         return self.env.config
 
-    def get_source_info(self, lineno: int | None = None) -> tuple[str, int]:
+    def get_source_info(
+        self, lineno: int | None = None
+    ) -> tuple[str | os.PathLike[str] | None, int | None]:
         # .. versionadded:: 3.0
         if lineno is None:
             lineno = self.lineno
         source, line = self.inliner.reporter.get_source_and_line(lineno)
-        assert source is not None
-        assert line is not None
-        return str(source), line
+        return source, line
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         # .. versionadded:: 2.0
-        node.source, node.line = self.get_source_info(lineno)
+        source, line = self.get_source_info(lineno)
+        node.source = str(source) if source is not None else None
+        node.line = line
 
     def get_location(self) -> str:
         """Get current location info for logging.

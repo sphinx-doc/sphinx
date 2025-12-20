@@ -28,6 +28,8 @@ Bugs fixed
   Patch by Adam Turner
 * #14089: autodoc: Fix default option parsing.
   Patch by Adam Turner
+* Remove incorrect static typing assertions.
+  Patch by Adam Turner
 
 Testing
 -------

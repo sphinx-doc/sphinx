@@ -71,7 +71,7 @@ class DocumenterBridge:
         env: BuildEnvironment,
         reporter: Reporter | None,
         options: Options,
-        lineno: int,
+        lineno: int | None,
         state: Any,
     ) -> None:
         self.env = env
