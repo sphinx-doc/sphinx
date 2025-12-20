@@ -282,14 +282,23 @@ class _NodeUpdater:
         is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
         old_refs = list(is_refnamed_ref.findall(self.node))
         new_refs = list(is_refnamed_ref.findall(self.patch))
-        self.compare_references(
-            old_refs,
-            new_refs,
-            __(
-                'inconsistent references in translated message.'
-                ' original: {0}, translated: {1}'
-            ),
-        )
+        
+        # Only compare the count of references, not their refnames.
+        # Translators are allowed to change display text (which changes refname),
+        # and the fixup mechanism below will correct the refnames if needed.
+        if not self.noqa and len(old_refs) != len(new_refs):
+            old_ref_rawsources = [ref.rawsource for ref in old_refs]
+            new_ref_rawsources = [ref.rawsource for ref in new_refs]
+            logger.warning(
+                __(
+                    'inconsistent references in translated message.'
+                    ' original: {0}, translated: {1}'
+                ).format(old_ref_rawsources, new_ref_rawsources),
+                location=self.node,
+                type='i18n',
+                subtype='inconsistent_references',
+            )
+        
         old_ref_names = [r['refname'] for r in old_refs]
         new_ref_names = [r['refname'] for r in new_refs]
         orphans = [*({*old_ref_names} - {*new_ref_names})]

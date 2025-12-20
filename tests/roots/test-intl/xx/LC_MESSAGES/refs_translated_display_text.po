@@ -1,0 +1,51 @@
+# Test for translated display text in references.
+# These should NOT trigger inconsistency warnings (issue #14162).
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Test\n"
+"Language-Team: xx\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with translated display text for references"
+msgstr "I18N WITH TRANSLATED DISPLAY TEXT FOR REFERENCES"
+
+msgid "The encoding used for the locale."
+msgstr "THE ENCODING USED FOR THE LOCALE."
+
+msgid "Test cases from issue #14162"
+msgstr "TEST CASES FROM ISSUE #14162"
+
+# Case 2: Add translated display text for hyperlink
+# Original: vectorcall_
+# Translated: add display text but keep same target
+msgid "Add translated display text for hyperlink (case 2): vectorcall_."
+msgstr "ADD TRANSLATED DISPLAY TEXT FOR HYPERLINK (CASE 2): `VECTORCALL <vectorcall_>`_."
+
+# Case 3: Translated display text for hyperlink
+# Original: `Improved suggestions <URL>`_
+# Translated: translate display text but keep same URL
+msgid "Translated display text for hyperlink (case 3): `Improved suggestions <https://github.com/example/pr/1>`_."
+msgstr "TRANSLATED DISPLAY TEXT FOR HYPERLINK (CASE 3): `SUGGERIMENTI MIGLIORATI <https://github.com/example/pr/1>`_."
+
+# Case 4: Use translated hyperlink tag
+# Original: `Documentation bugs`_
+# Translated: translate tag name
+msgid "Use translated hyperlink tag (case 4): `Documentation bugs`_."
+msgstr "USE TRANSLATED HYPERLINK TAG (CASE 4): `TRANSLATED DOCUMENTATION BUGS <Documentation bugs_>`_."
+
+# Case 5: Translated glossary term
+# Original: :term:`locale encoding`
+# Translated: translate display text using explicit target syntax
+msgid "Translated glossary term (case 5): :term:`locale encoding`."
+msgstr "TRANSLATED GLOSSARY TERM (CASE 5): :term:`CODIFICAÇÃO DA LOCALIDADE <locale encoding>`."
+
+# Multiple refs: should allow translating display text
+msgid "Multiple translated refs: vectorcall_ and `Documentation bugs`_."
+msgstr "MULTIPLE TRANSLATED REFS: `TRANSLATED DOCUMENTATION BUGS <Documentation bugs_>`_ AND `VECTORCALL <vectorcall_>`_."

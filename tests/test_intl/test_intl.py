@@ -414,6 +414,38 @@ def test_text_refs_reordered_no_warning(app: SphinxTestApp) -> None:
 
 
 @sphinx_intl
+@pytest.mark.sphinx('text', testroot='intl')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_text_refs_translated_display_text_no_warning(app: SphinxTestApp) -> None:
+    """Test that translated display text in references doesn't trigger warnings.
+    
+    This test covers cases 2-5 from issue #14162:
+    - Case 2: Add translated display text for hyperlink
+    - Case 3: Translated display text for hyperlink
+    - Case 4: Use translated hyperlink tag
+    - Case 5: Translated glossary term
+    """
+    app.build()
+    result = (app.outdir / 'refs_translated_display_text.txt').read_text(encoding='utf8')
+    
+    # Verify the translations were applied
+    assert 'I18N WITH TRANSLATED DISPLAY TEXT FOR REFERENCES' in result
+    assert 'TEST CASES FROM ISSUE #14162' in result
+    assert 'ADD TRANSLATED DISPLAY TEXT FOR HYPERLINK (CASE 2)' in result
+    assert 'TRANSLATED DISPLAY TEXT FOR HYPERLINK (CASE 3)' in result
+    assert 'USE TRANSLATED HYPERLINK TAG (CASE 4)' in result
+    assert 'TRANSLATED GLOSSARY TERM (CASE 5)' in result
+    assert 'MULTIPLE TRANSLATED REFS' in result
+
+    warnings = getwarning(app.warning)
+    # Should NOT have any inconsistent_references warnings for refs_translated_display_text.txt
+    unexpected_warning_expr = '.*/refs_translated_display_text.txt.*inconsistent.*references'
+    assert not re.search(unexpected_warning_expr, warnings), (
+        f'Unexpected warning found: {warnings!r}'
+    )
+
+
+@sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_section(app: SphinxTestApp) -> None:

@@ -1,0 +1,24 @@
+:tocdepth: 2
+
+i18n with translated display text for references
+=================================================
+
+.. _vectorcall: https://peps.python.org/pep-0590/
+.. _Documentation bugs: https://github.com/sphinx-doc/sphinx/issues
+
+.. glossary::
+
+   locale encoding
+      The encoding used for the locale.
+
+.. rubric:: Test cases from issue #14162
+
+1. Add translated display text for hyperlink (case 2): vectorcall_.
+
+2. Translated display text for hyperlink (case 3): `Improved suggestions <https://github.com/example/pr/1>`_.
+
+3. Use translated hyperlink tag (case 4): `Documentation bugs`_.
+
+4. Translated glossary term (case 5): :term:`locale encoding`.
+
+5. Multiple translated refs: vectorcall_ and `Documentation bugs`_.
