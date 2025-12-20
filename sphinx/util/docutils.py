@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import docutils
 import docutils.frontend
+import docutils.writers
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
@@ -879,6 +880,8 @@ def _parse_str_to_doctree(
     transformer.add_transforms(_READER_TRANSFORMS)
     transformer.add_transforms(transforms)
     transformer.add_transforms(parser.get_transforms())
+    # https://github.com/sphinx-doc/sphinx/issues/13713
+    transformer.components['writer'] = _DummyWriter()  # type: ignore[index]
 
     if default_role:
         default_role_cm = rst.default_role(env.current_document.docname, default_role)
@@ -925,6 +928,11 @@ def _get_settings(
         # in Docutils 2.0 or later.
         settings = option_parser.get_default_values()
     return settings
+
+
+class _DummyWriter(docutils.writers.Writer):  # type: ignore[type-arg]
+    # compat for MyST-Parser
+    supported = ('html',)
 
 
 if docutils.__version_info__[:2] < (0, 22):
