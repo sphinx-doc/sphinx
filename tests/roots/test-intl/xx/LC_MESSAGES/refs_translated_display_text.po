@@ -36,9 +36,9 @@ msgstr "TRANSLATED DISPLAY TEXT FOR HYPERLINK (CASE 3): `SUGGERIMENTI MIGLIORATI
 
 # Case 4: Use translated hyperlink tag
 # Original: `Documentation bugs`_
-# Translated: translate tag name
+# Translated: translate tag name - the fixup mechanism will correct the refname
 msgid "Use translated hyperlink tag (case 4): `Documentation bugs`_."
-msgstr "USE TRANSLATED HYPERLINK TAG (CASE 4): `TRANSLATED DOCUMENTATION BUGS <Documentation bugs_>`_."
+msgstr "USE TRANSLATED HYPERLINK TAG (CASE 4): `TRANSLATED DOCUMENTATION BUGS`_."
 
 # Case 5: Translated glossary term
 # Original: :term:`locale encoding`
@@ -46,6 +46,6 @@ msgstr "USE TRANSLATED HYPERLINK TAG (CASE 4): `TRANSLATED DOCUMENTATION BUGS <D
 msgid "Translated glossary term (case 5): :term:`locale encoding`."
 msgstr "TRANSLATED GLOSSARY TERM (CASE 5): :term:`CODIFICAÇÃO DA LOCALIDADE <locale encoding>`."
 
-# Multiple refs: should allow translating display text
+# Multiple refs: should allow translating display text and rely on fixup
 msgid "Multiple translated refs: vectorcall_ and `Documentation bugs`_."
-msgstr "MULTIPLE TRANSLATED REFS: `TRANSLATED DOCUMENTATION BUGS <Documentation bugs_>`_ AND `VECTORCALL <vectorcall_>`_."
+msgstr "MULTIPLE TRANSLATED REFS: `TRANSLATED DOCUMENTATION BUGS`_ AND `VECTORCALL <vectorcall_>`_."

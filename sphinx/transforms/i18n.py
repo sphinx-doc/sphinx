@@ -283,8 +283,8 @@ class _NodeUpdater:
         old_refs = list(is_refnamed_ref.findall(self.node))
         new_refs = list(is_refnamed_ref.findall(self.patch))
         
-        # Only compare the count of references, not their refnames.
-        # Translators are allowed to change display text (which changes refname),
+        # Only compare the count of references, not their content.
+        # Translators are allowed to change display text (which affects rawsource comparison),
         # and the fixup mechanism below will correct the refnames if needed.
         if not self.noqa and len(old_refs) != len(new_refs):
             old_ref_rawsources = [ref.rawsource for ref in old_refs]
