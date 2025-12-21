@@ -22,6 +22,14 @@ Bugs fixed
 
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
+* #13713: Fix compatibility with MyST-Parser.
+  Patch by Adam Turner
+* Fix tests for Python 3.15.
+  Patch by Adam Turner
+* #14089: autodoc: Fix default option parsing.
+  Patch by Adam Turner
+* Remove incorrect static typing assertions.
+  Patch by Adam Turner
 
 Testing
 -------
