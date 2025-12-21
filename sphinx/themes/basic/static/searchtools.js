@@ -98,8 +98,7 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
     linkUrl = docName + docLinkSuffix;
   }
   let linkEl = listItem.appendChild(document.createElement("a"));
-  const encodedLinkUrl = linkUrl.split("/").map(encodeURIComponent).join("/");
-  linkEl.href = encodedLinkUrl + anchor;
+  linkEl.href = linkUrl + anchor;
   linkEl.dataset.score = score;
   linkEl.innerHTML = _escapeHTML(title);
   if (descr) {
