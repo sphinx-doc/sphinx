@@ -60,6 +60,7 @@ Contributors
 * Florian Best -- log improvements
 * Glenn Matthews -- python domain signature improvements
 * Gregory Szorc -- performance improvements
+* Günter Milde -- various small fixes
 * Henrique Bastos -- SVG support for graphviz extension
 * Hernan Grecco -- search improvements
 * Hong Xu -- svg support in imgmath extension and various bug fixes

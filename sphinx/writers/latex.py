@@ -2108,6 +2108,12 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_abbreviation(self, node: Element) -> None:
         self.body.append(self.context.pop())
 
+    def visit_acronym(self, node: Element) -> None:
+        self.visit_abbreviation(node)
+
+    def depart_acronym(self, node: Element) -> None:
+        self.depart_abbreviation(node)
+
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)
 

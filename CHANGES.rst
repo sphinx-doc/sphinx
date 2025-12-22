@@ -33,6 +33,10 @@ Bugs fixed
   Patch by Adam Turner
 * Remove incorrect static typing assertions.
   Patch by Adam Turner
+* #14050: LaTeXTranslator fails to build documents using the "acronym"
+  standard role.
+  Patch (PR #14202) by Günter Milde
+
 
 Testing
 -------
