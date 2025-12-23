@@ -20,9 +20,6 @@ Features added
 Bugs fixed
 ----------
 
-* LaTeX: Fix rendering for grid filled merged vertical cell
-  (PR #14024).
-  Patch by Tim Nordell
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
 * #13713: Fix compatibility with MyST-Parser.
@@ -36,6 +33,8 @@ Bugs fixed
 * #14050: LaTeXTranslator fails to build documents using the "acronym"
   standard role.
   Patch by Günter Milde
+* LaTeX: Fix rendering for grid filled merged vertical cell.
+  Patch by Tim Nordell
 * #14207: Fix creating ``HTMLThemeFactory`` objects in third-party extensions.
   Patch by Adam Turner
 
