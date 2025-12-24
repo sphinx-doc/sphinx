@@ -402,7 +402,8 @@ Docutils supports the following directives:
 
     .. _rstclass:
 
-  - :dudir:`class <setting-class-attributes>` (assign a class attribute to the next element)
+  - :dudir:`class <setting-class-attributes>`
+    (assign a class attribute to the next element)
 
     .. note::
 
