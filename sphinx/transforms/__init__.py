@@ -22,10 +22,10 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from typing import Any, Literal, TypeAlias
+    from collections.abc import Iterable, Iterator
+    from typing import Any, ClassVar, Literal
 
-    from docutils.nodes import Node, Text
+    from docutils.nodes import Node
     from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
 
-    _DEFAULT_SUBSTITUTION_NAMES: TypeAlias = Literal[
+    type _DEFAULT_SUBSTITUTION_NAMES = Literal[
         'version',
         'release',
         'today',
@@ -92,7 +92,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            super().apply_transforms()  # type: ignore[misc]
+            super().apply_transforms()
         else:
             # wrap the target node by document node during transforming
             try:
@@ -281,6 +281,7 @@ class ExtraTranslatableNodes(SphinxTransform):
             return isinstance(node, target_nodes)
 
         for node in self.document.findall(is_translatable_node):
+            assert isinstance(node, nodes.Element)
             node['translatable'] = True
 
 
@@ -364,13 +365,17 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
 
     default_priority = 750
+    smartquotes_action: ClassVar[str] = SmartQuotes.smartquotes_action
 
     def apply(self, **kwargs: Any) -> None:
         if not self.is_available():
             return
 
         # override default settings with :confval:`smartquotes_action`
-        self.smartquotes_action = self.config.smartquotes_action
+        # TODO: TYPING: Upstream docutils should be updated so that
+        #       smartquotes_action accepts any iterable of characters
+        #       and can be overridden per-instance.
+        self.smartquotes_action = self.config.smartquotes_action  # type: ignore[misc]
 
         super().apply()
 
@@ -395,7 +400,9 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         language = self.env.settings['language_code']
         return any(tag in smartchars.quotes for tag in normalize_language_tag(language))
 
-    def get_tokens(self, txtnodes: list[Text]) -> Iterator[tuple[str, str]]:
+    def get_tokens(  # type: ignore[override]
+        self, txtnodes: Iterable[Node]
+    ) -> Iterator[tuple[Literal['literal', 'plain'], str]]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:

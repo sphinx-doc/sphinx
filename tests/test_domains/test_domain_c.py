@@ -31,6 +31,8 @@ from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError
 from sphinx.writers.text import STDINDENT
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from io import StringIO
 
@@ -989,7 +991,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -1001,7 +1003,9 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 
@@ -1050,7 +1054,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -1062,7 +1066,9 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 
@@ -1111,7 +1117,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -1122,7 +1128,11 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
             ),
         ],
     )
-    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
+    assert_node(
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=True,
+    )
 
 
 @pytest.mark.sphinx(
@@ -1170,7 +1180,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -1182,7 +1192,9 @@ def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 
@@ -1231,7 +1243,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -1243,7 +1255,9 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 
@@ -1292,7 +1306,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_break(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -1303,7 +1317,11 @@ def test_cfunction_signature_with_maximum_signature_line_length_break(app):
             ),
         ],
     )
-    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
+    assert_node(
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=True,
+    )
 
 
 @pytest.mark.sphinx(
@@ -1350,7 +1368,7 @@ def test_c_maximum_signature_line_length_overrides_global(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -1362,7 +1380,9 @@ def test_c_maximum_signature_line_length_overrides_global(app):
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 

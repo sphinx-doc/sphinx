@@ -12,6 +12,8 @@ from sphinx import addnodes
 from sphinx.testing import restructuredtext
 from sphinx.util.docutils import _parse_str_to_doctree
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -58,13 +60,13 @@ def test_object_description_sections(app: SphinxTestApp) -> None:
 
     assert isinstance(doctree[0], addnodes.index)
     assert isinstance(doctree[1], addnodes.desc)
-    assert isinstance(doctree[1][0], addnodes.desc_signature)
-    assert isinstance(doctree[1][1], addnodes.desc_content)
-    assert isinstance(doctree[1][1][0], nodes.section)
-    assert isinstance(doctree[1][1][0][0], nodes.title)
-    assert doctree[1][1][0][0][0] == 'Overview'
-    assert isinstance(doctree[1][1][0][1], nodes.paragraph)
-    assert doctree[1][1][0][1][0] == 'Lorem ipsum dolar sit amet'
+    assert isinstance(extract_node(doctree, 1, 0), addnodes.desc_signature)
+    assert isinstance(extract_node(doctree, 1, 1), addnodes.desc_content)
+    assert isinstance(extract_node(doctree, 1, 1, 0), nodes.section)
+    assert isinstance(extract_node(doctree, 1, 1, 0, 0), nodes.title)
+    assert extract_node(doctree, 1, 1, 0, 0, 0) == 'Overview'
+    assert isinstance(extract_node(doctree, 1, 1, 0, 1), nodes.paragraph)
+    assert extract_node(doctree, 1, 1, 0, 1, 0) == 'Lorem ipsum dolar sit amet'
 
 
 @pytest.mark.sphinx('html', testroot='_blank')

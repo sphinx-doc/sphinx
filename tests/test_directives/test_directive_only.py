@@ -32,7 +32,9 @@ def test_sectioning(app: SphinxTestApp) -> None:
 def _get_sections(section: nodes.Node) -> list[str | list[Any]]:
     if not isinstance(section, nodes.section):
         return list(map(_get_sections, section.children))
-    title = section.next_node(nodes.title).astext().strip()
+    next_title_node = section.next_node(nodes.title)
+    assert next_title_node is not None
+    title = next_title_node.astext().strip()
     subsections = []
     children = section.children.copy()
     while children:

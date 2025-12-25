@@ -10,11 +10,7 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
-    from typing import Any, ParamSpec, TypeVar
-
-    T = TypeVar('T')
-    P = ParamSpec('P')
-    R = TypeVar('R')
+    from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +23,7 @@ def display_chunk(chunk: Any) -> str:
     return str(chunk)
 
 
-def status_iterator(
+def status_iterator[T](
     iterable: Iterable[T],
     summary: str,
     color: str = 'darkgreen',
@@ -90,7 +86,7 @@ class progress_message:
 
         return False
 
-    def __call__(self, f: Callable[P, R]) -> Callable[P, R]:
+    def __call__[**P, R](self, f: Callable[P, R]) -> Callable[P, R]:
         @functools.wraps(f)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]
             with self:

@@ -23,10 +23,9 @@ from sphinx.util.tags import Tags
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
-    from typing import TypeAlias
 
-    CircularList: TypeAlias = list[int | 'CircularList']
-    CircularDict: TypeAlias = dict[str, int | 'CircularDict']
+    type CircularList = list[int | 'CircularList']
+    type CircularDict = dict[str, int | 'CircularDict']
 
 
 def check_is_serializable(subject: object, *, circular: bool) -> None:

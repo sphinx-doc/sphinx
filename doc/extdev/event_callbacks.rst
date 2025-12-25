@@ -161,7 +161,7 @@ Here is a more detailed list of these events.
    :param docname: ``str``
    :param content: ``list[str]``
       with a single element,
-      representing the content of the included file.
+      representing the content of the source file.
 
    Emitted when a source file has been read.
 

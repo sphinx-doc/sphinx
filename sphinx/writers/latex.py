@@ -1298,9 +1298,10 @@ class LaTeXTranslator(SphinxTranslator):
                 # insert suitable strut for equalizing row heights in given multirow
                 self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
             else:  # use \multicolumn for wide multirow cell
+                left_colsep = _colsep if cell.col == 0 else ''
                 self.body.append(
                     r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}'
-                    % (cell.width, _colsep, _colsep, cell.cell_id)
+                    % (cell.width, left_colsep, _colsep, cell.cell_id)
                 )
 
     def depart_row(self, node: Element) -> None:
@@ -1850,7 +1851,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
-        next_node: Node = node
+        next_node: Node | None = node
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
@@ -1858,7 +1859,8 @@ class LaTeXTranslator(SphinxTranslator):
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if (
-            domain.get_enumerable_node_type(next_node)
+            next_node is not None
+            and domain.get_enumerable_node_type(next_node)
             and domain.get_numfig_title(next_node)
         ):  # fmt: skip
             return
@@ -2105,6 +2107,12 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_abbreviation(self, node: Element) -> None:
         self.body.append(self.context.pop())
+
+    def visit_acronym(self, node: Element) -> None:
+        self.visit_abbreviation(node)
+
+    def depart_acronym(self, node: Element) -> None:
+        self.depart_abbreviation(node)
 
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)

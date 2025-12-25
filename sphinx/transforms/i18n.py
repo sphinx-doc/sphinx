@@ -5,7 +5,7 @@ from __future__ import annotations
 from operator import attrgetter
 from re import DOTALL, match
 from textwrap import indent
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 import docutils.utils
 from docutils import nodes
@@ -31,12 +31,11 @@ from sphinx.util.nodes import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from docutils.frontend import Values
-
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.registry import SphinxComponentRegistry
+    from sphinx.util.docutils import _DocutilsSettings
     from sphinx.util.typing import ExtensionMetadata
 
 
@@ -49,9 +48,6 @@ logger = logging.getLogger(__name__)
 EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
 
 
-N = TypeVar('N', bound=nodes.Node)
-
-
 def _publish_msgstr(
     source: str,
     source_path: str,
@@ -60,14 +56,14 @@ def _publish_msgstr(
     config: Config,
     env: BuildEnvironment,
     registry: SphinxComponentRegistry,
-    settings: Values,
+    settings: _DocutilsSettings,
 ) -> nodes.Element:
     """Publish msgstr (single line) into docutils document
 
     :param str source: source text
     :param str source_path: source path for warning indication
     :param source_line: source line for warning indication
-    :param docutils.frontend.Values settings: docutils settings
+    :param sphinx.util.docutils._DocutilsSettings settings: docutils settings
     :param sphinx.config.Config config: sphinx config
     :param sphinx.environment.BuildEnvironment env: sphinx environment
     :param sphinx.registry.SphinxComponentRegistry registry: sphinx registry
@@ -110,7 +106,8 @@ class PreserveTranslatableMessages(SphinxTransform):
     default_priority = 10  # this MUST be invoked before Locale transform
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.findall(addnodes.translatable):
+        matcher = NodeMatcher(addnodes.translatable)  # type: ignore[type-abstract]
+        for node in matcher.findall(self.document):
             node.preserve_original_messages()
 
 
@@ -136,24 +133,21 @@ class _NodeUpdater:
         warning_msg: str,
         *,
         key_func: Callable[[nodes.Element], Any] = attrgetter('rawsource'),
-        ignore_order: bool = False,
     ) -> None:
         """Warn about mismatches between references in original and translated content.
+        Ignores the order of references when comparing. This allows translators to
+        reorder references while still catching missing or extra references.
 
         :param key_func: A function to extract the comparison key from each reference.
             Defaults to extracting the ``rawsource`` attribute.
-        :param ignore_order: If True, ignore the order of references when comparing.
-            This allows translators to reorder references while still catching
-            missing or extra references.
         """
         old_ref_keys = list(map(key_func, old_refs))
         new_ref_keys = list(map(key_func, new_refs))
 
-        if ignore_order:
-            # The ref_keys lists may contain ``None``, so compare hashes.
-            # Recall objects which compare equal have the same hash value.
-            old_ref_keys.sort(key=hash)
-            new_ref_keys.sort(key=hash)
+        # The ref_keys lists may contain ``None``, so compare hashes.
+        # Recall objects which compare equal have the same hash value.
+        old_ref_keys.sort(key=hash)
+        new_ref_keys.sort(key=hash)
 
         if not self.noqa and old_ref_keys != new_ref_keys:
             old_ref_rawsources = [ref.rawsource for ref in old_refs]
@@ -234,7 +228,7 @@ class _NodeUpdater:
 
     def update_autofootnote_references(self) -> None:
         # auto-numbered foot note reference should use original 'ids'.
-        def list_replace_or_append(lst: list[N], old: N, new: N) -> None:
+        def list_replace_or_append[N: nodes.Node](lst: list[N], old: N, new: N) -> None:
             if old in lst:
                 lst[lst.index(old)] = new
             else:
@@ -368,9 +362,7 @@ class _NodeUpdater:
                 ' original: {0}, translated: {1}'
             ),
             # Compare by reftarget only, allowing translated display text.
-            # Ignore order since translators may legitimately reorder references.
             key_func=lambda ref: ref.get('reftarget'),
-            ignore_order=True,
         )
 
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
