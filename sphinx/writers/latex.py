@@ -57,6 +57,7 @@ ENUMERATE_LIST_STYLE = defaultdict(
         'upperroman': r'\Roman',
     },
 )
+VERBATIM_CHUNKSIZE = 500
 
 CR = '\n'
 BLANKLINE = '\n\n'
@@ -2260,6 +2261,53 @@ class LaTeXTranslator(SphinxTranslator):
             hllines = str(highlight_args.get('hl_lines', []))[1:-1]
             if hllines:
                 self.body.append(CR + r'\fvset{hllines={, %s,}}%%' % hllines)
+
+            _hlcodelines = hlcode.splitlines()
+            _chunksize = VERBATIM_CHUNKSIZE
+            _nbofchunks = (len(_hlcodelines) + _chunksize - 3) // _chunksize
+            if _nbofchunks > 1:
+                _e = _hlcodelines[0][22:]
+                # TODO: confirm firstnumber key if present from highlighter output
+                # is always with numeric value and not auto or last.
+                _idx1 = _e.find('firstnumber=')
+                if _idx1 > -1:
+                    _e1 = _e[_idx1:]
+                    _idx2 = _e1.find(',')
+                    self.body.append(
+                        CR + r'\def\sphinxverbatimfirstnumber{%s}%%' % _e1[12:_idx2]
+                    )
+                else:
+                    self.body.append(CR + r'\def\sphinxverbatimfirstnumber{1}%')
+                _hlcodelines[0] = r'\begin{sphinxLongVerbatimFirst}' + _e
+                _hlcodelines[-1] = r'\end{sphinxLongVerbatimLast}'
+                hlcode = (
+                    CR.join(_hlcodelines[: _chunksize + 1])
+                    + CR
+                    + r'\end{sphinxLongVerbatimFirst}'
+                    + CR
+                )
+                _lineno = _chunksize + 1
+                if _e[-1] == ']':
+                    _e = _e[:-1] + ',firstnumber=last]'
+                else:
+                    _e = '[firstnumber=last]'
+                for _ in range(_nbofchunks - 2):
+                    hlcode += (
+                        r'\begin{sphinxLongVerbatimMiddle}'
+                        + _e
+                        + CR
+                        + CR.join(_hlcodelines[_lineno : _lineno + _chunksize])
+                        + CR
+                        + r'\end{sphinxLongVerbatimMiddle}'
+                        + CR
+                    )
+                    _lineno += _chunksize
+                hlcode += (
+                    r'\begin{sphinxLongVerbatimLast}'
+                    + _e
+                    + CR
+                    + CR.join(_hlcodelines[_lineno:])
+                )
             self.body.append(CR + hlcode + CR)
             if hllines:
                 self.body.append(r'\sphinxresetverbatimhllines' + CR)
