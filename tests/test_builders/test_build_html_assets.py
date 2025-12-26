@@ -180,3 +180,26 @@ def test_javscript_loading_method(app: SphinxTestApp) -> None:
     assert '<script src="_static/normal.js"></script>' in content
     assert '<script async="async" src="_static/early.js"></script>' in content
     assert '<script defer="defer" src="_static/late.js"></script>' in content
+
+
+@pytest.mark.sphinx('html', testroot='ext_static_dir')
+def test_extension_static_dir(app: SphinxTestApp) -> None:
+    """Test that extension static directories are copied."""
+    app.build(force_all=True)
+
+    # Verify extension static files were copied to _static
+    assert (app.outdir / '_static' / 'js' / 'myext.js').exists()
+    assert (app.outdir / '_static' / 'css' / 'myext.css').exists()
+
+    # Verify JS and CSS are included in the HTML output
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '_static/js/myext.js' in content
+    assert '_static/css/myext.css' in content
+
+
+@pytest.mark.sphinx('html', testroot='ext_static_dir')
+def test_extension_static_dir_registry(app: SphinxTestApp) -> None:
+    """Test that extension static directories are registered in the registry."""
+    # Verify the static dir is registered
+    assert len(app.registry.static_dirs) == 1
+    assert app.registry.static_dirs[0].name == 'static'
