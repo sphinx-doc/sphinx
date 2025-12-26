@@ -40,6 +40,8 @@ Bugs fixed
 * #3099: LaTeX: Fix PDF build crashes if a code-block contains more than
   circa 1350 codelines (about 27 a4-sized pages at default pointsize).
   Patch by Jean-François B.
+* #14064: LaTeX: TABs ending up in sphinxVerbatim fail to obey tab stops.
+  Patch by Jean-François B.
 
 Testing
 -------
