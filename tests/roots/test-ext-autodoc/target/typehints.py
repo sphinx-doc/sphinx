@@ -62,6 +62,16 @@ def complex_func(arg1, arg2, arg3=None, *args, **kwargs):
     pass
 
 
+def docstring_typed_params(opc_meta, nested):
+    """Legacy typed field syntax using balanced delimiters.
+
+    :param dict(str, str) opc_meta: metadata mapping
+    :param dict(str, Tuple[int, int]) nested: nested mapping
+    """
+
+    pass
+
+
 def missing_attr(c,
                  a,  # type: str
                  b=None  # type: Optional[str]

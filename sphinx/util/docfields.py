@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -33,6 +33,37 @@ def _is_single_paragraph(node: nodes.field_body) -> bool:
     if isinstance(node[0], nodes.paragraph):
         return True
     return False
+
+
+def _split_typed_field_argument(fieldarg: str) -> Optional[Tuple[str, str]]:
+    """Split *fieldarg* into type/name around the first top-level whitespace."""
+    stripped = fieldarg.lstrip()
+    if not stripped:
+        return None
+
+    depth = 0
+    opening = {
+        '(': ')',
+        '[': ']',
+        '{': '}',
+        '<': '>',
+    }
+    closing = {v: k for k, v in opening.items()}
+
+    for index, char in enumerate(stripped):
+        if char in opening:
+            depth += 1
+        elif char in closing:
+            if depth > 0:
+                depth -= 1
+        elif char.isspace() and depth == 0:
+            type_part = stripped[:index].rstrip()
+            name_part = stripped[index:].lstrip()
+            if type_part and name_part:
+                return type_part, name_part
+            return None
+
+    return None
 
 
 class Field:
@@ -297,13 +328,10 @@ class DocFieldTransformer:
 
             # also support syntax like ``:param type name:``
             if typedesc.is_typed:
-                try:
-                    argtype, argname = fieldarg.split(None, 1)
-                except ValueError:
-                    pass
-                else:
-                    types.setdefault(typename, {})[argname] = \
-                        [nodes.Text(argtype)]
+                split_result = _split_typed_field_argument(fieldarg)
+                if split_result:
+                    argtype, argname = split_result
+                    types.setdefault(typename, {})[argname] = [nodes.Text(argtype)]
                     fieldarg = argname
 
             translatable_content = nodes.inline(field_body.rawsource,

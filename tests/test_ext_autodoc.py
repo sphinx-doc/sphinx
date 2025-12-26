@@ -1904,6 +1904,22 @@ def test_autodoc_typed_inherited_instance_variables(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_docstring_typed_params(app):
+    actual = do_autodoc(app, 'function', 'target.typehints.docstring_typed_params')
+    assert list(actual) == [
+        '',
+        '.. py:function:: docstring_typed_params(opc_meta, nested)',
+        '   :module: target.typehints',
+        '',
+        '   Legacy typed field syntax using balanced delimiters.',
+        '',
+        '   :param dict(str, str) opc_meta: metadata mapping',
+        '   :param dict(str, Tuple[int, int]) nested: nested mapping',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_GenericAlias(app):
     options = {"members": None,
                "undoc-members": None}

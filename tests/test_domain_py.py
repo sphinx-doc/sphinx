@@ -984,6 +984,38 @@ def test_info_field_list(app):
                 **{"py:module": "example", "py:class": "Class"})
 
 
+def test_info_field_list_param_parentheses_commas(app):
+    text = (".. py:function:: func\n"
+            "\n"
+            "   :param dict(str, str) opc_meta: blah\n")
+    doctree = restructuredtext.parse(app, text)
+
+    field_list = doctree.traverse(nodes.field_list)[0]
+    paragraph = field_list[0][1][0]
+
+    assert_node(paragraph[0], addnodes.literal_strong, "opc_meta")
+    assert_node(paragraph[2], pending_xref, refdomain="py", reftype="class", reftarget="dict")
+    assert_node(paragraph[4], pending_xref, refdomain="py", reftype="class", reftarget="str")
+    assert_node(paragraph[6], pending_xref, refdomain="py", reftype="class", reftarget="str")
+
+
+def test_info_field_list_param_nested_tuple(app):
+    text = (".. py:function:: func\n"
+            "\n"
+            "   :param dict(str, Tuple[int, int]) opc_meta: blah\n")
+    doctree = restructuredtext.parse(app, text)
+
+    field_list = doctree.traverse(nodes.field_list)[0]
+    paragraph = field_list[0][1][0]
+
+    assert_node(paragraph[0], addnodes.literal_strong, "opc_meta")
+    assert_node(paragraph[2], pending_xref, refdomain="py", reftype="class", reftarget="dict")
+    assert_node(paragraph[4], pending_xref, refdomain="py", reftype="class", reftarget="str")
+    assert_node(paragraph[6], pending_xref, refdomain="py", reftype="class", reftarget="Tuple")
+    assert_node(paragraph[8], pending_xref, refdomain="py", reftype="class", reftarget="int")
+    assert_node(paragraph[10], pending_xref, refdomain="py", reftype="class", reftarget="int")
+
+
 def test_info_field_list_var(app):
     text = (".. py:class:: Class\n"
             "\n"
