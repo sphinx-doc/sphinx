@@ -878,6 +878,30 @@ class StandaloneHTMLBuilder(Builder):
                     force=True,
                 )
 
+    def copy_extension_static_files(self, context: dict[str, Any]) -> None:
+        """Copy static files registered by extensions."""
+        def onerror(filename: str, error: Exception) -> None:
+            msg = __("Failed to copy a file in extension static directory: %s: %r")
+            logger.warning(msg, filename, error)
+
+        excluded = Matcher([*self.config.exclude_patterns, '**/.*'])
+        for static_dir in self._registry.static_dirs:
+            if static_dir.is_dir():
+                copy_asset(
+                    static_dir,
+                    self._static_dir,
+                    excluded=excluded,
+                    context=context,
+                    renderer=self.templates,
+                    onerror=onerror,
+                    force=True,
+                )
+            else:
+                logger.warning(
+                    __("extension static directory %r does not exist"),
+                    static_dir,
+                )
+
     def copy_html_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(
@@ -929,6 +953,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.copy_translation_js()
                 self.copy_stemmer_js()
                 self.copy_theme_static_files(context)
+                self.copy_extension_static_files(context)
                 self.copy_html_static_files(context)
                 self.copy_html_logo()
                 self.copy_html_favicon()

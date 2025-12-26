@@ -71,6 +71,8 @@ package.
 
 .. automethod:: Sphinx.add_css_file
 
+.. automethod:: Sphinx.add_static_dir
+
 .. automethod:: Sphinx.add_latex_package
 
 .. automethod:: Sphinx.add_lexer

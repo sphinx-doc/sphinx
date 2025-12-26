@@ -1591,6 +1591,33 @@ class Sphinx:
                 filename, priority=priority, **kwargs
             )
 
+    def add_static_dir(self, path: str | os.PathLike[str]) -> None:
+        """Register a static directory to include in HTML output.
+
+        The directory's contents will be copied to the ``_static`` directory
+        during HTML build. Files from extension static directories are copied
+        after theme static files but before user-configured ``html_static_path``
+        directories.
+
+        :param path: The path to a directory containing static files.
+                     This is typically relative to the extension's package
+                     directory.
+
+        Example::
+
+            from pathlib import Path
+
+            def setup(app):
+                app.add_static_dir(Path(__file__).parent / 'static')
+                app.add_js_file('/js/my_extension.js')
+
+        .. versionadded:: 8.2
+        """
+        from pathlib import Path as PathLib
+
+        logger.debug('[app] adding static_dir: %r', path)
+        self.registry.add_static_dir(PathLib(path))
+
     def add_latex_package(
         self, packagename: str, options: str | None = None, after_hyperref: bool = False
     ) -> None:
