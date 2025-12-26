@@ -121,6 +121,7 @@ The ``toctree`` directive is the central element.
 
    .. rst:directive:option:: class: class names
       :type: a list of class names, separated by spaces
+      :no-contents-entry:
 
       Assign `class attributes`_.
       This is a :dudir:`common option <common-options>`.
@@ -135,6 +136,7 @@ The ``toctree`` directive is the central element.
 
    .. rst:directive:option:: name: label
       :type: text
+      :no-contents-entry:
 
       An implicit target name that can be referenced using :rst:role:`ref`.
       This is a :dudir:`common option <common-options>`.
@@ -149,6 +151,7 @@ The ``toctree`` directive is the central element.
 
    .. rst:directive:option:: caption
       :type: text
+      :no-contents-entry:
 
       Add a caption to the toctree.
       For example::
@@ -162,6 +165,7 @@ The ``toctree`` directive is the central element.
 
    .. rst:directive:option:: numbered
                              numbered: depth
+      :no-contents-entry:
 
       If you want to have section numbers even in HTML output,
       add the ``:numbered:`` option to the *top-level* toctree.
@@ -186,6 +190,7 @@ The ``toctree`` directive is the central element.
          Added the numeric *depth* argument.
 
    .. rst:directive:option:: titlesonly
+      :no-contents-entry:
 
       Only list document titles, not other headings of the same level.
       For example::
@@ -199,6 +204,7 @@ The ``toctree`` directive is the central element.
       .. versionadded:: 1.0
 
    .. rst:directive:option:: glob
+      :no-contents-entry:
 
       Parse glob wildcards in toctree entries.
       All entries are matched against the list of available documents,
@@ -219,6 +225,7 @@ The ``toctree`` directive is the central element.
       .. versionadded:: 0.3
 
    .. rst:directive:option:: reversed
+      :no-contents-entry:
 
       Reverse the order of the entries in the list.
       This is particularly useful when using the ``:glob:`` option.
@@ -226,6 +233,7 @@ The ``toctree`` directive is the central element.
       .. versionadded:: 1.5
 
    .. rst:directive:option:: hidden
+      :no-contents-entry:
 
       A hidden toctree only defines the document hierarchy.
       It will not insert links into the document at the location of the directive.
@@ -237,6 +245,7 @@ The ``toctree`` directive is the central element.
       .. versionadded:: 0.6
 
    .. rst:directive:option:: includehidden
+      :no-contents-entry:
 
       If you want one global table of contents showing the complete document structure,
       you can add the ``:includehidden:`` option to the *top-level* toctree directive.
@@ -643,18 +652,21 @@ Presentational
 
    .. rst:directive:option:: class: class names
       :type: a list of class names, separated by spaces
+      :no-contents-entry:
 
       Assign `class attributes`_.
       This is a :dudir:`common option <common-options>`.
 
    .. rst:directive:option:: name: label
       :type: text
+      :no-contents-entry:
 
       An implicit target name that can be referenced using :rst:role:`ref`.
       This is a :dudir:`common option <common-options>`.
 
    .. rst:directive:option:: heading-level: n
       :type: number from 1 to 6
+      :no-contents-entry:
 
       .. versionadded:: 7.4.1
 
@@ -683,6 +695,7 @@ Presentational
 
    .. rst:directive:option:: columns: n
       :type: int
+      :no-contents-entry:
 
       The number of columns; defaults to 2.
       For example::
@@ -772,6 +785,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: linenothreshold: threshold
       :type: number (optional)
+      :no-contents-entry:
 
       Enable to generate line numbers for code blocks.
 
@@ -787,6 +801,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: force
       :type: no value
+      :no-contents-entry:
 
       If given, minor errors on highlighting are ignored.
 
@@ -817,6 +832,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: linenos
       :type: no value
+      :no-contents-entry:
 
       Enable to generate line numbers for the code block::
 
@@ -827,6 +843,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: lineno-start: number
       :type: number
+      :no-contents-entry:
 
       Set the first line number of the code block.  If present, ``linenos``
       option is also automatically activated::
@@ -840,6 +857,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: emphasize-lines: line numbers
       :type: comma separated numbers
+      :no-contents-entry:
 
       Emphasize particular lines of the code block::
 
@@ -858,6 +876,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: force
       :type: no value
+      :no-contents-entry:
 
       Ignore minor errors on highlighting.
 
@@ -865,6 +884,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: caption: caption of code block
       :type: text
+      :no-contents-entry:
 
       Set a caption to the code block.
 
@@ -872,6 +892,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: name: a label for hyperlink
       :type: text
+      :no-contents-entry:
 
       Define implicit target name that can be referenced by using
       :rst:role:`ref`.  For example::
@@ -900,6 +921,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: class: class names
       :type: a list of class names separated by spaces
+      :no-contents-entry:
 
       Assign `class attributes`_.
       This is a :dudir:`common option <common-options>`.
@@ -908,6 +930,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: dedent: number
       :type: number or no value
+      :no-contents-entry:
 
       Strip indentation characters from the code block.  When number given,
       leading N characters are removed.  When no argument given, leading spaces
@@ -942,6 +965,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: class: class names
       :type: a list of class names, separated by spaces
+      :no-contents-entry:
 
       Assign `class attributes`_.
       This is a :dudir:`common option <common-options>`.
@@ -952,6 +976,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: name: label
       :type: text
+      :no-contents-entry:
 
       An implicit target name that can be referenced using :rst:role:`ref`.
       This is a :dudir:`common option <common-options>`.
@@ -960,6 +985,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: caption: caption
       :type: text
+      :no-contents-entry:
 
       Add a caption above the included content.
       If no argument is given, the filename is used as the caption.
@@ -970,6 +996,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: dedent: number
       :type: number or no value
+      :no-contents-entry:
 
       Strip indentation characters from the included content.
       When a number is given, the leading N characters are removed.
@@ -982,6 +1009,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: tab-width: N
       :type: number
+      :no-contents-entry:
 
       Expand tabs to N spaces.
 
@@ -989,6 +1017,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: encoding
       :type: text
+      :no-contents-entry:
 
       Explicitly specify the encoding of the file.
       This overwrites the default encoding (UTF-8).
@@ -1003,6 +1032,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: linenos
       :type: no value
+      :no-contents-entry:
 
       Show line numbers alongside the included content.
       By default, line numbers are counted from 1.
@@ -1010,11 +1040,13 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: lineno-start: number
       :type: number
+      :no-contents-entry:
 
       Set line number for the first line to show.
       If given, this automatically activates ``:linenos:``.
 
    .. rst:directive:option:: lineno-match
+      :no-contents-entry:
 
       When including only parts of a file and show the original line numbers.
       This is only allowed only when the selection consists of contiguous lines.
@@ -1023,6 +1055,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: emphasize-lines: line numbers
       :type: comma separated numbers
+      :no-contents-entry:
 
       Emphasise particular lines of the included content.
       For example:
@@ -1034,6 +1067,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: language: language
       :type: text
+      :no-contents-entry:
 
       Select a highlighting language (`Pygments lexer`_) different from
       the current file's standard language
@@ -1043,6 +1077,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: force
       :type: no value
+      :no-contents-entry:
 
       Ignore minor errors in highlighting.
 
@@ -1052,6 +1087,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: pyobject: object
       :type: text
+      :no-contents-entry:
 
       For Python files, only include the specified class, function or method:
 
@@ -1064,6 +1100,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: lines: line numbers
       :type: comma separated numbers
+      :no-contents-entry:
 
       Specify exactly which lines to include::
 
@@ -1078,6 +1115,7 @@ __ https://pygments.org/docs/lexers
                              start-after: text
                              end-before: text
                              end-at: text
+      :no-contents-entry:
 
       Another way to control which part of the file is included is to use
       the ``start-after`` and ``end-before`` options (or only one of them).
@@ -1134,6 +1172,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: prepend: line
       :type: text
+      :no-contents-entry:
 
       Prepend a line before the included code.
       This can be useful for example when highlighting
@@ -1143,6 +1182,7 @@ __ https://pygments.org/docs/lexers
 
    .. rst:directive:option:: append: line
       :type: text
+      :no-contents-entry:
 
       Append a line after the included code.
       This can be useful for example when highlighting
@@ -1151,6 +1191,7 @@ __ https://pygments.org/docs/lexers
       .. versionadded:: 1.0
 
    .. rst:directive:option:: diff: filename
+      :no-contents-entry:
 
       Show the diff of two files.
       For example:
@@ -1237,6 +1278,7 @@ Glossary
    .. rubric:: Options
 
    .. rst:directive:option:: sorted
+      :no-contents-entry:
 
       Sort the entries alphabetically.
 
@@ -1398,6 +1440,7 @@ mainly contained in information units, such as the language reference.
 
    .. rst:directive:option:: name: a label for hyperlink
       :type: text
+      :no-contents-entry:
 
       Define implicit target name that can be referenced by using
       :rst:role:`ref`.  For example::
@@ -1408,6 +1451,7 @@ mainly contained in information units, such as the language reference.
    .. versionadded:: 3.0
 
 .. rst:role:: index
+   :no-contents-entry:
 
    While the :rst:dir:`index` directive is a block-level markup and links to the
    beginning of the next paragraph, there is also a corresponding role that sets
@@ -1644,6 +1688,7 @@ or use Python raw strings (``r"raw"``).
 
    .. rst:directive:option:: class: class names
       :type: a list of class names, separated by spaces
+      :no-contents-entry:
 
       Assign `class attributes`_.
       This is a :dudir:`common option <common-options>`.
@@ -1652,12 +1697,14 @@ or use Python raw strings (``r"raw"``).
 
    .. rst:directive:option:: name: label
       :type: text
+      :no-contents-entry:
 
       An implicit target name that can be referenced using :rst:role:`ref`.
       This is a :dudir:`common option <common-options>`.
 
    .. rst:directive:option:: label: label
       :type: text
+      :no-contents-entry:
 
       Normally, equations are not numbered.  If you want your equation to get a
       number, use the ``label`` option.  When given, it selects an internal label
@@ -1666,6 +1713,7 @@ or use Python raw strings (``r"raw"``).
       style depends on the output format.
 
    .. rst:directive:option:: no-wrap
+      :no-contents-entry:
 
       Prevent wrapping of the given math in a math environment.
       When you give this option, you must make sure
