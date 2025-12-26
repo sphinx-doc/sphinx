@@ -783,20 +783,23 @@ class PyMethod(PyObject):
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls
+        is_property = 'property' in self.options
         try:
             clsname, methname = name.rsplit('.', 1)
             if modname and self.env.config.add_module_names:
                 clsname = '.'.join([modname, clsname])
         except ValueError:
             if modname:
+                if is_property:
+                    return _('%s (in module %s)') % (name, modname)
                 return _('%s() (in module %s)') % (name, modname)
             else:
-                return '%s()' % name
+                return name if is_property else '%s()' % name
 
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
-        elif 'property' in self.options:
-            return _('%s() (%s property)') % (methname, clsname)
+        elif is_property:
+            return _('%s (%s property)') % (methname, clsname)
         elif 'staticmethod' in self.options:
             return _('%s() (%s static method)') % (methname, clsname)
         else:

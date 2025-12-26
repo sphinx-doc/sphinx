@@ -756,7 +756,7 @@ def test_pymethod_options(app):
 
     # :property:
     assert_node(doctree[1][1][8], addnodes.index,
-                entries=[('single', 'meth5() (Class property)', 'Class.meth5', '', None)])
+                entries=[('single', 'meth5 (Class property)', 'Class.meth5', '', None)])
     assert_node(doctree[1][1][9], ([desc_signature, ([desc_annotation, ("property", desc_sig_space)],
                                                      [desc_name, "meth5"])],
                                    [desc_content, ()]))
@@ -782,6 +782,35 @@ def test_pymethod_options(app):
                                     [desc_content, ()]))
     assert 'Class.meth7' in domain.objects
     assert domain.objects['Class.meth7'] == ('index', 'Class.meth7', 'method', False)
+
+
+def test_pymethod_property_without_class(app):
+    text = (".. py:module:: example\n"
+            "\n"
+            ".. py:method:: module_property\n"
+            "   :property:\n")
+    domain = app.env.get_domain('py')
+    doctree = restructuredtext.parse(app, text)
+
+    indexes = list(doctree.traverse(addnodes.index))
+    entries = [entry for node in indexes for entry in node['entries']]
+    assert ('single', 'module_property (in module example)', 'example.module_property', '', None) in entries
+    for _, text, *_ in entries:
+        if text.startswith('module_property'):
+            assert '()' not in text
+    assert 'example.module_property' in domain.objects
+    assert domain.objects['example.module_property'] == ('index', 'example.module_property', 'method', False)
+
+
+@pytest.mark.sphinx('html', testroot='domain-py-method-property')
+def test_pymethod_property_genindex(app):
+    app.build()
+    result = (app.outdir / 'genindex.html').read_text()
+
+    assert 'bar() (Foo property)' not in result
+    assert 'bar (Foo property)' in result
+    assert 'baz() (Foo property)' not in result
+    assert 'baz (Foo property)' in result
 
 
 def test_pyclassmethod(app):
