@@ -59,6 +59,33 @@
 % 1, 2, 3, 4 by own Sphinx fully native Verbatim. This would greatly simplify
 % in particular wrapping long code lines in a way allowing page breaks.
 \RequirePackage{fancyvrb}
+% Next line is in attempt to let TAB characters (ascii 9) obey tab stops,
+% MEMO: attow (2025/12/26), a TAB can not be found inside a code-block
+%       rendered by sphinxVerbatim because it has been replaced earlier by a
+%       fixed number of spaces, as applies also to HTML output (#14065).
+%       (default: 8 spaces per TAB). But this is not the case for contents
+%       inserted via a literalinclude, and next line will have an impact on
+%       TABs. cf #13656, #14064, #14065.
+\fvset{obeytabs}
+% MEMO: The actual hard work will be done by next macro, which is a variant
+%       of the fancyvrb.sty one, adapted to our context.  The trigger which
+%       maps the TABs to this macro is \FV@ObeyTabs.  The main location where
+%       \FV@ObeyTabs has an effect is in \spx@verb@@PreProcessLine.
+\def\FV@@ObeyTabs#1{\setbox\FV@TabBox=\hbox{#1}\unhbox\FV@TabBox}
+% Tab stops are located every 8 positions as per fancyvrb's default setting
+% for its tabsize option.  However, fancyvrb has a bug/limitation, and
+% its \FV@Tab inside the #1 argument above can work only at "top level",
+% i.e. breakage happens if the TAB character (hence \FV@Tab) is in the
+% (second) argument of the Pygmentize \PYG highlighting macro.
+%
+% Hence, we prepare a "safe" variant, which is the one which will be used if
+% found in the second argument of \PYG macro.  For how this ends up into \PYG
+% see sphinx.sty.
+\def\spx@FV@Tab{\allowbreak\hbox to\FancyVerbTabSize\fontdimen2\font{\hss\FV@TabChar}}
+% MEMO: \FV@TabChar does nothing without option showtabs (which we do not
+%       use). With the option showtabs, it would draw something similar to
+%       a ->| at the end of the inserted horizontal whitespace.
+
 % For parsed-literal blocks.
 \RequirePackage{alltt}
 % Display "real" single quotes in literal blocks.
@@ -371,7 +398,7 @@
   %       (cf \spx@verb@@PreProcessLine; refs: #8686)
   % MEMO: formerly we did something with \fboxsep in relation to the LaTeX
   %       bug graphics/4524 for \colorbox, but as we don't use \colorbox...
-  \setbox\z@\hb@xt@\linewidth{\strut#1\hss}%
+  \setbox\z@\hb@xt@\linewidth{\FV@ObeyTabs{\strut#1}\hss}%
   % MEMO: \colorbox would lead to \color{sphinxVerbatimHighlightColor}
   % plus \color@block, which results in doubled (a color.sty feature)
   % color command send to device driver and more importantly has
@@ -388,13 +415,9 @@
   % we added a group only for \FV@RightListNumber not be influenced by the
   % \current@color, if \fvset has been used to set numbers to the right.
 }%
-% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
-% do not make it to the tex file, they have been converted to spaces earlier.
-% But, if this was not the case, the support would be implemented here via
-% \newcommand\sphinxVerbatimFormatLine[1]{\FV@ObeyTabs{\strut #1}}%
-\newcommand\sphinxVerbatimFormatLine[1]{\strut#1}%
-% MEMO: if verbatimwrapslines is set to true (default) the #1 above is
-% simply \box\spx@tempboxb, from the next two macros.
+% MEMO: if verbatimwrapslines is set to true (which is default) the #1 here is
+% already a box, and the \FV@ObeyTabs here does nothing of significance.
+\newcommand\sphinxVerbatimFormatLine[1]{\FV@ObeyTabs{\strut #1}}%
 % The next two macros are a deep hack of fancyvrb.sty core line processing in
 % order to wrap too long lines, either at spaces and natural break-points,
 % (soft wrap) or optionally at any character (hard wrap).  This requires deep
@@ -450,13 +473,7 @@
      \setbox\spx@tempboxa=\vtop{\hsize\linewidth
           \raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
-% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
-% do not make it to the tex file, they have been converted to spaces earlier.
-% But, if this was not the case, the support would be implemented here via
-%     \FV@ObeyTabs{\strut\spx@verb@FV@Line\strut}%
-% And one would need a similar change in the measuring phase done by
-% \spx@verb@DecideIfWillDoForceWrap
-                   \strut\spx@verb@FV@Line\strut
+          \FV@ObeyTabs{\strut\spx@verb@FV@Line\strut}%
 % MEMO: since LaTeX 2021-06-01, there might be some hooks executed at
 % start and end of paragraphs (in future: PDF tagging), but we need an
 % explicit \par here for that.  Else the kernel hooks at start of paragraph
@@ -545,7 +562,7 @@
 % Avoid TeX reporting Overfull \hbox'es during this measuring phase. Setting
 % \hbadness to \@M to avoid Underfull reports is unneeded due to \raggedright.
           \hfuzz\maxdimen
-          \spx@everypar{}\noindent\strut\FV@Line\strut\spx@par
+          \spx@everypar{}\noindent\FV@ObeyTabs{\strut\FV@Line\strut}\spx@par
           \spx@verb@getwidths}%
     \ifdim\spx@verb@maxwidth>
           \dimexpr\linewidth+\spx@opt@verbatimmaxoverfull\fontcharwd\font`X \relax
@@ -589,6 +606,8 @@
     \fi
 }%
 % auxiliary macros to implement "cut long line even in middle of word"
+% MEMO: it is important that this is does not rely on any specific \PYG
+% meaning, it only relies on its presence in the mark-up, not its meaning.
 \catcode`Z=3 % safe delimiter
 \def\spx@verb@wrapPYG{%
     \futurelet\spx@nexttoken\spx@verb@wrapPYG@i
