@@ -2287,7 +2287,10 @@ class LaTeXTranslator(SphinxTranslator):
                     + CR
                 )
                 _lineno = _chunksize + 1
-                if _e[-1] == ']':
+                # _e always starts with r'[commandchars=\\\{\}' and ends with
+                # ']' but let's make sure, for maximal generality, that _e[:-1]
+                # does not trigger index out of range.
+                if _e:
                     _e = _e[:-1] + ',firstnumber=last]'
                 else:
                     _e = '[firstnumber=last]'
