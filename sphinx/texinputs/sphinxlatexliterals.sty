@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexliterals}[2025/08/06 v9.0.0 code-blocks and parsed literals]
+\ProvidesPackage{sphinxlatexliterals}[2025/12/26 v9.1.0 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -18,6 +18,9 @@
 %
 % - environments:
 %   - sphinxVerbatim
+%   - sphinxLongVerbatimFirst
+%   - sphinxLongVerbatimMiddle
+%   - sphinxLongVerbatimLast
 %   - sphinxVerbatimintable
 %   - sphinxalltt
 %
@@ -297,7 +300,7 @@
 \newcommand{\sphinxliteralblockwithoutcaptionneedspace}{1.5\baselineskip}
 % The title (caption) is specified from outside as macro \sphinxVerbatimTitle.
 % \sphinxVerbatimTitle is reset to empty after each use of Verbatim.
-\newcommand*\sphinxVerbatimTitle {}
+\let\sphinxVerbatimTitle\@empty
 % This box to typeset the caption before framed.sty multiple passes for framing.
 \newbox\sphinxVerbatim@TitleBox
 % This box to measure contents if nested as inner \MakeFramed requires then
@@ -323,8 +326,31 @@
 }
 \newcommand*{\sphinxverbatimsmallskipamount}{\smallskipamount}
 % serves to implement line highlighting
+%
+% HTML interprets the argument of :emphasize-lines: as referring to effective
+% line numbers in output (i.e. first line is always associated with number 1
+% even though the actual printed line number, or the original line number in
+% the source may differ, due to seeting of :lineno-start:).  This is why we do
+% not use here \c@FancyVerbLine, but resort to \FV@CodeLineNo, for PDF output
+% to follow same rules as HTML.
 \newcommand\sphinxFancyVerbFormatLine[1]{%
   \expandafter\sphinx@verbatim@checkifhl\expandafter{\the\FV@CodeLineNo}%
+  \ifin@
+     \sphinxVerbatimHighlightLine{#1}%
+  \else
+     \sphinxVerbatimFormatLine{#1}%
+  \fi
+}%
+% This complicates matters for the LongVerbatim environment added at 9.1.0: we
+% need a dedicated variant, working in sync with mark-up from the LaTeX writer
+% for initialization/reset of \sphinxverbatimfirstnumber.  We could extend
+% this to be used with legacy Verbatim (used code-blocks of up to 500 code
+% lines), but to minimize risks of overlooked consequences we, for time being,
+% keep the legacy code as is.
+\newcommand\sphinxLongVerbatimFancyVerbFormatLine[1]{%
+  \expandafter\sphinx@verbatim@checkifhl\expandafter{%
+        \the\numexpr\c@FancyVerbLine - \sphinxverbatimfirstnumber + \@ne
+        }%
   \ifin@
      \sphinxVerbatimHighlightLine{#1}%
   \else
@@ -657,9 +683,13 @@
     \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
     \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%
 }%
-\newenvironment{sphinxVerbatim}{%
-  % first, let's check if there is a caption
-  \ifx\sphinxVerbatimTitle\empty
+%
+% For matters of 9.1.0 LongVerbatim, we extract from original Verbatim various
+% pieces.  Also, @Before and @After assignments are made global, to support an
+% optional bottom caption (btw, it seems this is not documented at user
+% level?!) position also with LongVerbatim and one needs to always set them, as
+% they are not undone anymore at end of scope.
+\def\sphinxverbatim@preparetitle@none{%
       \sphinxvspacefixafterfrenchlists
       \parskip\z@skip
       \vskip\sphinxverbatimsmallskipamount
@@ -670,11 +700,12 @@
           \needspace{\sphinxliteralblockwithoutcaptionneedspace}%
           \phantomsection\sphinxLiteralBlockLabel
       \fi
-  \else
-     \parskip\z@skip
-     \if t\spx@opt@literalblockcappos
+      \global\let\sphinxVerbatim@Before\@empty
+      \global\let\sphinxVerbatim@After\@empty
+}%
+\def\sphinxverbatim@preparetitle@top{%
        \vskip\spx@abovecaptionskip
-       \def\sphinxVerbatim@Before
+       \gdef\sphinxVerbatim@Before
            {\sphinxVerbatim@Title\nointerlineskip
             \kern\dimexpr-\dp\strutbox+\sphinxbelowcaptionspace
                  % MEMO: prior to 7.4.0 a test was done for presence or
@@ -683,27 +714,44 @@
                  % assumed, so this got removed.
                  % caption package adds \abovecaptionskip vspace, remove it
             \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax}%
-     \else
+       \global\let\sphinxVerbatim@After\@empty
+}%
+\def\sphinxverbatim@preparetitle@bottom{%
        \vskip\sphinxverbatimsmallskipamount
-       \def\sphinxVerbatim@After
+       \global\let\sphinxVerbatim@Before\@empty
+       \gdef\sphinxVerbatim@After
           {\nointerlineskip\kern\dimexpr\dp\strutbox
            % MEMO: 7.4.0 removes here too an optional removal of bottom padding
            \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax
            \sphinxVerbatim@Title}%
-     \fi
+}%
+\def\sphinxverbatim@preparetitle@setbox{%
      \def\@captype{literalblock}%
      \capstart
      % \sphinxVerbatimTitle must reset color
-     \setbox\sphinxVerbatim@TitleBox
+     \global\setbox\sphinxVerbatim@TitleBox
             \hbox{\begin{minipage}{\linewidth}%
      % caption package may detect wrongly if top or bottom, so we help it
                     \spx@ifcaptionpackage
                       {\caption@setposition{\spx@opt@literalblockcappos}}{}%
                     \sphinxVerbatimTitle
                   \end{minipage}}%
+}%
+\def\sphinxverbatim@preparetitle{%
+  % first, let's check if there is a caption
+  \ifx\sphinxVerbatimTitle\@empty
+     \sphinxverbatim@preparetitle@none
+  \else
+     \parskip\z@skip
+     \if t\spx@opt@literalblockcappos
+       \sphinxverbatim@preparetitle@top
+     \else
+       \sphinxverbatim@preparetitle@bottom
+     \fi
+     \sphinxverbatim@preparetitle@setbox
   \fi
-  \global\let\sphinxLiteralBlockLabel\empty
-  \global\let\sphinxVerbatimTitle\empty
+}%
+\def\sphinxverbatim@prepareframecommands{%
   % the "FrameCommand"'s are also responsible to attach the "Title".
   \let\FrameCommand     \sphinxVerbatim@FrameCommand
   % those will also check status of the pre_box-decoration-break option
@@ -715,9 +763,8 @@
       \let\sphinxVerbatim@Continued\@empty
       \let\sphinxVerbatim@Continues\@empty
   \fi
-  % initialization for \spx@boxes@fcolorbox from sphinxpackageboxes.sty
-  % it will take into account status of verbatimwithframe Boolean
-  \spx@verb@boxes@fcolorbox@setup
+}%
+\def\sphinxverbatim@hackfancyvrb{%
   \ifspx@opt@verbatimwrapslines
     % deep hack into fancyvrb's internal processing of input lines
     \let\FV@@PreProcessLine\spx@verb@@PreProcessLine
@@ -729,7 +776,8 @@
     \fvset{codes*=\sphinxbreaksviaactive}%
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
-  \VerbatimEnvironment
+}%
+\def\sphinxverbatim@Verbatim{%
   % workaround to fancyvrb's check of current list depth
   \def\@toodeep {\advance\@listdepth\@ne}%
   % The list environment is needed to control perfectly the vertical space.
@@ -782,7 +830,7 @@
      % will fetch its optional arguments if any
      \OriginalVerbatim
 }%
-{%
+\def\sphinxverbatim@EndVerbatim{%
   \endOriginalVerbatim
   \color@endgroup % matches the \color@begingroup
   \ifspx@inframed
@@ -800,8 +848,10 @@
    \ifdim\dimexpr
          \ht\sphinxVerbatim@ContentsBox+
          \dp\sphinxVerbatim@ContentsBox+
-         \ht\sphinxVerbatim@TitleBox+
-         \dp\sphinxVerbatim@TitleBox+
+         \ifx\sphinxVerbatimTitle\@empty\else % added at 9.1.0 (now global @TitleBox)
+             \ht\sphinxVerbatim@TitleBox+
+             \dp\sphinxVerbatim@TitleBox+
+         \fi
          % 6.2.0 uses here the dimen registers from sphinxpackageboxes.sty,
          % they got setup by \spx@verb@boxes@fcolorbox@setup
          \spx@boxes@padding@top+
@@ -826,6 +876,7 @@
     % FIXME? a bottom caption may end up isolated at top of next page
     %        (no problem with a top caption, which is default)
     \spx@opt@verbatimwithframefalse
+    % MEMO: next line has an effect only if Title does exist.
     \def\sphinxVerbatim@Title{\noindent\box\sphinxVerbatim@TitleBox\par}%
     \sphinxVerbatim@Before
     \noindent\unvbox\sphinxVerbatim@ContentsBox\par
@@ -847,6 +898,143 @@
     \ifsphinxverbatimwithminipage\end{minipage}\fi
   \fi
   \endtrivlist
+}%
+\newenvironment{sphinxVerbatim}{%
+  \sphinxverbatim@preparetitle
+  \sphinxverbatim@prepareframecommands
+  % initialization for \spx@boxes@fcolorbox from sphinxpackageboxes.sty
+  % it will take into account status of verbatimwithframe Boolean
+  \spx@verb@boxes@fcolorbox@setup
+  \sphinxverbatim@hackfancyvrb
+  \VerbatimEnvironment
+  \sphinxverbatim@Verbatim
+}%
+{%
+  \sphinxverbatim@EndVerbatim
+  \global\let\sphinxLiteralBlockLabel\@empty
+  \global\let\sphinxVerbatimTitle\@empty
+}
+\def\sphinxlongverbatim@preparefirstframecommands{%
+  \def\FrameCommand {%
+      \spx@boxes@fcolorbox@setup@openbottom
+      \spx@boxes@padding@bottom\z@
+      \spx@verb@FrameCommand\sphinxVerbatim@Before\@empty
+  }%
+  \let\FirstFrameCommand\sphinxVerbatim@FirstFrameCommand
+  \let\MidFrameCommand  \sphinxVerbatim@MidFrameCommand
+  \def\LastFrameCommand {%
+      \spx@boxes@fcolorbox@setup@openbottom
+      \spx@boxes@padding@bottom\z@
+      \spx@verb@FrameCommand\@empty\@empty
+  }%
+  \ifspx@opt@verbatimhintsturnover\else
+      \let\sphinxVerbatim@Continued\@empty
+      \let\sphinxVerbatim@Continues\@empty
+  \fi
+}%
+\newenvironment{sphinxLongVerbatimFirst}{%
+  \sphinxverbatim@preparetitle
+  \sphinxlongverbatim@preparefirstframecommands
+  \spx@verb@boxes@fcolorbox@setup
+  \sphinxverbatim@hackfancyvrb
+  \let\FancyVerbFormatLine\sphinxLongVerbatimFancyVerbFormatLine
+  \VerbatimEnvironment
+  \sphinxverbatim@Verbatim
+}%
+{%
+  \sphinxverbatim@EndVerbatim
+}
+\def\sphinxLongVerbatimStitch
+   {\vspace{-\dimexpr\baselineskip-\FrameHeightAdjust\relax}}
+\def\sphinxlongverbatim@preparemiddleframecommands{%
+  \def\FrameCommand {%
+      \spx@boxes@fcolorbox@setup@openboth
+      \spx@boxes@padding@top\z@
+      \spx@boxes@padding@bottom\z@
+      \spx@verb@FrameCommand\sphinxLongVerbatimStitch
+                            \@empty
+  }%
+  \def\FirstFrameCommand {%
+      \ifspx@pre@border@open
+        \spx@boxes@fcolorbox@setup@openboth
+      \else
+        \spx@boxes@fcolorbox@setup@opentop
+      \fi
+      \spx@boxes@padding@top\z@
+      \spx@verb@FrameCommand\sphinxLongVerbatimStitch
+                            \sphinxVerbatim@Continues
+  }%
+  \let\MidFrameCommand  \sphinxVerbatim@MidFrameCommand
+  \def\LastFrameCommand {%
+      \ifspx@pre@border@open
+        \spx@boxes@fcolorbox@setup@openboth
+      \else
+        \spx@boxes@fcolorbox@setup@openbottom
+      \fi
+      \spx@boxes@padding@bottom\z@
+      \spx@verb@FrameCommand\sphinxVerbatim@Continued\@empty
+  }%
+  %
+  \ifspx@opt@verbatimhintsturnover\else
+      \let\sphinxVerbatim@Continued\@empty
+      \let\sphinxVerbatim@Continues\@empty
+  \fi
+}%
+\newenvironment{sphinxLongVerbatimMiddle}{%
+  \parskip\z@skip
+  \sphinxlongverbatim@preparemiddleframecommands
+  \spx@verb@boxes@fcolorbox@setup
+  \sphinxverbatim@hackfancyvrb
+  \let\FancyVerbFormatLine\sphinxLongVerbatimFancyVerbFormatLine
+  \VerbatimEnvironment
+  \sphinxverbatim@Verbatim
+}%
+{%
+  \sphinxverbatim@EndVerbatim
+}
+\def\sphinxlongverbatim@preparelastframecommands{%
+  \def\FrameCommand {%
+      \spx@boxes@fcolorbox@setup@opentop
+      \spx@boxes@padding@top\z@
+      \spx@verb@FrameCommand\sphinxLongVerbatimStitch
+                            \sphinxVerbatim@After
+  }%
+  \def\FirstFrameCommand {%
+      \ifspx@pre@border@open
+        \spx@boxes@fcolorbox@setup@openboth
+      \else
+        \spx@boxes@fcolorbox@setup@opentop
+      \fi
+      \spx@boxes@padding@bottom\z@
+      \spx@verb@FrameCommand\sphinxLongVerbatimStitch
+                            \sphinxVerbatim@Continues
+  }%
+  \let\MidFrameCommand  \sphinxVerbatim@MidFrameCommand
+  \def\LastFrameCommand {%
+      \ifspx@pre@border@open
+        \spx@boxes@fcolorbox@setup@opentop
+      \fi
+      \spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@After
+  }%
+  %
+  \ifspx@opt@verbatimhintsturnover\else
+      \let\sphinxVerbatim@Continued\@empty
+      \let\sphinxVerbatim@Continues\@empty
+  \fi
+}%
+\newenvironment{sphinxLongVerbatimLast}{%
+  \parskip\z@skip
+  \sphinxlongverbatim@preparelastframecommands
+  \spx@verb@boxes@fcolorbox@setup
+  \sphinxverbatim@hackfancyvrb
+  \let\FancyVerbFormatLine\sphinxLongVerbatimFancyVerbFormatLine
+  \VerbatimEnvironment
+  \sphinxverbatim@Verbatim
+}%
+{%
+  \sphinxverbatim@EndVerbatim
+  \global\let\sphinxLiteralBlockLabel\@empty
+  \global\let\sphinxVerbatimTitle\@empty
 }
 \newenvironment {sphinxVerbatimNoFrame}
   {\spx@opt@verbatimwithframefalse
