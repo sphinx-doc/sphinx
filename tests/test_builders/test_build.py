@@ -59,6 +59,9 @@ def test_multiple_parents_toctree(app: SphinxTestApp) -> None:
     assert (
         "document is referenced in multiple toctrees: ['bravo', 'delta'], selecting: delta <- charlie"
     ) in app.status.getvalue()
+    assert (
+        "document is referenced in multiple toctrees: ['index', 'pdfindex'], selecting: pdfindex <- delta"
+    ) not in app.status.getvalue()
 
 
 @pytest.mark.usefixtures('_http_teapot')
