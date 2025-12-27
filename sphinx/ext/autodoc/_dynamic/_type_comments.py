@@ -50,7 +50,8 @@ def _ensure_annotations_from_type_comments(obj: Any) -> None:
     """
     if obj in _objects_with_type_comment_annotations:
         return
-    _objects_with_type_comment_annotations.add(obj)
+    with contextlib.suppress(TypeError):
+        _objects_with_type_comment_annotations.add(obj)
 
     if isinstance(obj, type):
         for cls in inspect.getmro(obj):
