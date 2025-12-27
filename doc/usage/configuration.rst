@@ -1157,9 +1157,9 @@ Options for source files
    The recommended encoding is ``'utf-8-sig'``.
 
    .. versionadded:: 0.5
-   .. deprecated:: 8.3
+   .. deprecated:: 9.0
       Support for source encodings other than UTF-8 is deprecated.
-      Sphinx 10 will only support UTF-8 files.
+      Sphinx 11 will only support UTF-8 files.
 
 .. confval:: source_suffix
    :type: :code-py:`dict[str, str] | Sequence[str] | str`
@@ -1394,6 +1394,7 @@ Options for warning control
    * ``ref.any``
    * ``ref.citation``
    * ``ref.doc``
+   * ``ref.equation``
    * ``ref.footnote``
    * ``ref.keyword``
    * ``ref.numref``
@@ -1401,6 +1402,8 @@ Options for warning control
    * ``ref.python``
    * ``ref.ref``
    * ``ref.term``
+   * ``source_code_parser.c``
+   * ``source_code_parser.cpp``
    * ``toc.circular``
    * ``toc.duplicate_entry``
    * ``toc.empty_glob``
@@ -1419,6 +1422,7 @@ Options for warning control
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
+   * ``duration``
    * ``intersphinx.external``
 
    You can choose from these types.  You can also give only the first
@@ -1483,6 +1487,9 @@ Options for warning control
       ``i18n.babel``, ``i18n.not_readable``, ``i18n.not_writeable``,
       ``ref.any``,
       ``toc.duplicate_entry``, ``toc.empty_glob``, and ``toc.not_included``.
+
+   .. versionadded:: 9.0
+      ``duration``.
 
 
 Builder options
@@ -3670,7 +3677,7 @@ and which failures and redirects it ignores.
 
    .. versionadded:: 4.1
 
-   .. versionchanged:: 8.3
+   .. versionchanged:: 9.0
       Setting :confval:`!linkcheck_allowed_redirects` to an empty dictionary
       may now be used to warn on all redirects encountered
       by the *linkcheck* builder.
@@ -3811,6 +3818,42 @@ and the number of workers to use.
       are treated as "broken" by default.
 
    .. versionadded:: 7.3
+
+.. confval:: linkcheck_case_insensitive_urls
+   :type: :code-py:`Set[str] | Sequence[str]`
+   :default: :code-py:`()`
+
+   A collection of regular expressions that match URLs for which the *linkcheck*
+   builder should perform case-insensitive comparisons. This is useful for
+   links to websites that are case-insensitive or normalise URL casing.
+
+   By default, *linkcheck* requires the destination URL to match the
+   documented URL case-sensitively.
+   For example, a link to ``http://example.org/PATH`` that redirects to
+   ``http://example.org/path`` will be reported as ``redirected``.
+
+   If the URL matches a pattern contained in
+   :confval:`!linkcheck_case_insensitive_urls`,
+   it would instead be reported as ``working``.
+
+   For example, to treat all GitHub URLs as case-insensitive:
+
+   .. code-block:: python
+
+      linkcheck_case_insensitive_urls = [
+          r'https://github\.com/.*',
+      ]
+
+   Or, to treat all URLs as case-insensitive:
+
+   .. code-block:: python
+
+      linkcheck_case_insensitive_urls = ['.*']
+
+   .. note:: URI fragments (HTML anchors) are not affected by this option.
+             They are always checked with case-sensitive comparisons.
+
+   .. versionadded:: 9.0
 
 .. confval:: linkcheck_rate_limit_timeout
    :type: :code-py:`int`

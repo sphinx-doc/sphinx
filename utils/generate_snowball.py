@@ -3,7 +3,7 @@
 """Refresh and update language stemming data from the Snowball project."""
 
 # /// script
-# requires-python = ">=3.11"
+# requires-python = ">=3.12"
 # dependencies = [
 #     "requests>=2.30",
 # ]
@@ -55,7 +55,14 @@ def regenerate_stopwords() -> None:
     STOPWORDS_DIR.joinpath('__init__.py').touch()
 
     for lang_code, lang_name, url in STOPWORD_URLS:
-        data = requests.get(url, timeout=5).content.decode('utf-8')
+        content = requests.get(url, timeout=5).content
+        try:
+            data = content.decode('utf-8')
+        except UnicodeDecodeError:
+            if lang_code == 'ru':
+                data = content.decode('koi8-r')
+            else:
+                data = content.decode('latin-1')
 
         # record the original source of the stopwords list
         txt_path = STOPWORDS_DIR / f'{lang_code}.txt'

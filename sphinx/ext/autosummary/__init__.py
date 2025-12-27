@@ -55,29 +55,26 @@ import posixpath
 import re
 import sys
 from inspect import Parameter
-from pathlib import Path
 from types import ModuleType
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx import addnodes
-from sphinx.config import Config
-from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
+from sphinx.ext.autodoc._dynamic._importer import _import_module
+from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
+from sphinx.ext.autodoc._dynamic._member_finder import _best_object_type_for_member
+from sphinx.ext.autodoc._dynamic._mock import mock
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
-from sphinx.ext.autodoc.directive import DocumenterBridge
-from sphinx.ext.autodoc.importer import import_module
-from sphinx.ext.autodoc.mock import mock
+from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
 from sphinx.locale import __
-from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util.docutils import (
     NullReporter,
@@ -97,8 +94,8 @@ if TYPE_CHECKING:
     from docutils.nodes import Node, system_message
 
     from sphinx.application import Sphinx
-    from sphinx.ext.autodoc import Documenter
-    from sphinx.extension import Extension
+    from sphinx.environment import BuildEnvironment
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
 
@@ -157,80 +154,36 @@ def autosummary_table_visit_html(
 # -- autodoc integration -------------------------------------------------------
 
 
-class FakeApplication:
-    verbosity = 0
+def _get_documenter(obj: Any, parent: Any) -> _AutodocObjType:
+    """Get the best object type suitable for documenting the given object.
 
-    def __init__(self) -> None:
-        self.doctreedir = Path()
-        self.events = None
-        self.extensions: dict[str, Extension] = {}
-        self.srcdir = Path()
-        self.config = Config()
-        self.project = Project('', {})
-        self.registry = SphinxComponentRegistry()
-
-
-class FakeDirective(DocumenterBridge):
-    def __init__(self) -> None:
-        settings = Struct(tab_width=8)
-        document = Struct(settings=settings)
-        app = FakeApplication()
-        app.config.add('autodoc_class_signature', 'mixed', 'env', ())
-        env = BuildEnvironment(app)  # type: ignore[arg-type]
-        opts = _AutoDocumenterOptions()
-        state = Struct(document=document)
-        super().__init__(env, None, opts, 0, state)
-
-
-def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
-    """Get an autodoc.Documenter class suitable for documenting the given
-    object.
-
-    *obj* is the Python object to be documented, and *parent* is an
-    another Python object (e.g. a module or a class) to which *obj*
-    belongs to.
+    *obj* is the Python object to be documented, and *parent* is another
+    Python object (e.g. a module or a class) to which *obj* belongs.
     """
-    return _get_documenter(obj, parent, registry=app.registry)
-
-
-def _get_documenter(
-    obj: Any, parent: Any, *, registry: SphinxComponentRegistry
-) -> type[Documenter]:
-    """Get an autodoc.Documenter class suitable for documenting the given
-    object.
-
-    *obj* is the Python object to be documented, and *parent* is an
-    another Python object (e.g. a module or a class) to which *obj*
-    belongs to.
-    """
-    from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
-
     if inspect.ismodule(obj):
-        # ModuleDocumenter.can_document_member always returns False
-        return ModuleDocumenter
+        return 'module'
 
-    # Construct a fake documenter for *parent*
-    if parent is not None:
-        parent_doc_cls = _get_documenter(parent, None, registry=registry)
+    if parent is None or inspect.ismodule(parent):
+        parent_obj_type = 'module'
     else:
-        parent_doc_cls = ModuleDocumenter
+        parent_opt = _best_object_type_for_member(
+            member=parent,
+            member_name='',
+            is_attr=False,
+            parent_obj_type='module',
+            parent_props=None,
+        )
+        parent_obj_type = parent_opt if parent_opt is not None else 'data'
 
-    if hasattr(parent, '__name__'):
-        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
-    else:
-        parent_doc = parent_doc_cls(FakeDirective(), '')
-
-    # Get the correct documenter class for *obj*
-    classes = [
-        cls
-        for cls in registry.documenters.values()
-        if cls.can_document_member(obj, '', False, parent_doc)
-    ]
-    if classes:
-        classes.sort(key=lambda cls: cls.priority)
-        return classes[-1]
-    else:
-        return DataDocumenter
+    if obj_type := _best_object_type_for_member(
+        member=obj,
+        member_name='',
+        is_attr=False,
+        parent_obj_type=parent_obj_type,
+        parent_props=None,
+    ):
+        return obj_type
+    return 'data'
 
 
 # -- .. autosummary:: ----------------------------------------------------------
@@ -257,11 +210,6 @@ class Autosummary(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        opts = _AutoDocumenterOptions()
-        self.bridge = DocumenterBridge(
-            self.env, self.state.document.reporter, opts, self.lineno, self.state
-        )
-
         names = [
             x.strip().split()[0]
             for x in self.content
@@ -333,22 +281,6 @@ class Autosummary(SphinxDirective):
 
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
-    def create_documenter(
-        self,
-        obj: Any,
-        parent: Any,
-        full_name: str,
-        *,
-        registry: SphinxComponentRegistry,
-    ) -> Documenter:
-        """Get an autodoc.Documenter class suitable for documenting the given
-        object.
-
-        Wraps _get_documenter and is meant as a hook for extensions.
-        """
-        doccls = _get_documenter(obj, parent, registry=registry)
-        return doccls(self.bridge, full_name)
-
     def get_items(self, names: list[str]) -> list[tuple[str, str | None, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
@@ -368,6 +300,16 @@ class Autosummary(SphinxDirective):
                 f"{signatures_option!r}. Valid values are 'none', 'short', 'long'"
             )
             raise ValueError(msg)
+
+        document_settings = self.state.document.settings
+        env = self.env
+        config = _AutodocConfig.from_config(env.config)
+        current_document = env.current_document
+        events = env.events
+        get_attr = _AutodocAttrGetter(env._registry.autodoc_attrgetters)
+        opts = _AutoDocumenterOptions()
+        ref_context = env.ref_context
+        reread_always = env.reread_always
 
         max_item_chars = 50
 
@@ -391,26 +333,27 @@ class Autosummary(SphinxDirective):
                 )
                 continue
 
-            self.bridge.result = StringList()  # initialize for each documenter
-            full_name = real_name
-            if not isinstance(obj, ModuleType):
+            obj_type = _get_documenter(obj, parent)
+            if isinstance(obj, ModuleType):
+                full_name = real_name
+            else:
                 # give explicitly separated module name, so that members
                 # of inner classes can be documented
-                full_name = modname + '::' + full_name[len(modname) + 1 :]
+                full_name = f'{modname}::{real_name[len(modname) + 1 :]}'
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = self.create_documenter(
-                obj, parent, full_name, registry=self.env._registry
+            props = _load_object_by_name(
+                name=full_name,
+                objtype=obj_type,
+                current_document=current_document,
+                config=config,
+                events=events,
+                get_attr=get_attr,
+                options=opts,
+                ref_context=ref_context,
+                reread_always=reread_always,
             )
-            if not documenter.parse_name():
-                logger.warning(
-                    __('failed to parse name %s'),
-                    real_name,
-                    location=self.get_location(),
-                )
-                items.append((display_name, '', '', real_name))
-                continue
-            if not documenter.import_object():
+            if props is None:
                 logger.warning(
                     __('failed to import object %s'),
                     real_name,
@@ -419,45 +362,22 @@ class Autosummary(SphinxDirective):
                 items.append((display_name, '', '', real_name))
                 continue
 
-            # try to also get a source code analyzer for attribute docs
-            try:
-                documenter.analyzer = ModuleAnalyzer.for_module(
-                    documenter.get_real_modname()
-                )
-                # parse right now, to get PycodeErrors on parsing (results will
-                # be cached anyway)
-                documenter.analyzer.find_attr_docs()
-            except PycodeError as err:
-                logger.debug('[autodoc] module analyzer failed: %s', err)
-                # no source file -- e.g. for builtin and C modules
-                documenter.analyzer = None
-
             # -- Grab the signature
 
             if signatures_option == 'none':
                 sig = None
-            else:
-                try:
-                    sig = documenter.format_signature(show_annotation=False)
-                except TypeError:
-                    # the documenter does not support ``show_annotation`` option
-                    sig = documenter.format_signature()
-                if not sig:
-                    sig = ''
-                elif signatures_option == 'short':
-                    if sig != '()':
-                        sig = '(…)'
-                else:  # signatures_option == 'long'
-                    max_chars = max(10, max_item_chars - len(display_name))
-                    sig = mangle_signature(sig, max_chars=max_chars)
+            elif not props.signatures:
+                sig = ''
+            elif signatures_option == 'short':
+                sig = '()' if props.signatures == ('()',) else '(…)'
+            else:  # signatures_option == 'long'
+                max_chars = max(10, max_item_chars - len(display_name))
+                sig = mangle_signature('\n'.join(props.signatures), max_chars=max_chars)
 
             # -- Grab the summary
 
-            # bodge for ModuleDocumenter
-            documenter._extra_indent = ''  # type: ignore[attr-defined]
-
-            documenter.add_content(None)
-            summary = extract_summary(self.bridge.result.data[:], self.state.document)
+            # get content from docstrings or attribute documentation
+            summary = extract_summary(props.docstring_lines, document_settings)
 
             items.append((display_name, sig, summary, real_name))
 
@@ -599,43 +519,39 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
     return '(%s)' % sig
 
 
-def extract_summary(doc: list[str], document: Any) -> str:
+def extract_summary(doc: Sequence[str], settings: Any) -> str:
     """Extract summary from docstring."""
+    # Find the first stanza (heading, sentence, paragraph, etc.).
+    # If there's a blank line, then we can assume that the stanza has ended,
+    # so anything after shouldn't be part of the summary.
+    first_stanza = []
+    content_started = False
+    for line in doc:
+        is_blank_line = not line or line.isspace()
+        if not content_started:
+            # Skip any blank lines at the start
+            if is_blank_line:
+                continue
+            content_started = True
+        if content_started:
+            if is_blank_line:
+                break
+            first_stanza.append(line)
 
-    def parse(doc: list[str], settings: Any) -> nodes.document:
-        state_machine = RSTStateMachine(state_classes, 'Body')
-        node = new_document('', settings)
-        node.reporter = NullReporter()
-        state_machine.run(doc, node)
-
-        return node
-
-    # Skip a blank lines at the top
-    while doc and not doc[0].strip():
-        doc.pop(0)
-
-    # If there's a blank line, then we can assume the first sentence /
-    # paragraph has ended, so anything after shouldn't be part of the
-    # summary
-    for i, piece in enumerate(doc):
-        if not piece.strip():
-            doc = doc[:i]
-            break
-
-    if doc == []:
+    if not first_stanza:
         return ''
 
     # parse the docstring
-    node = parse(doc, document.settings)
+    node = _parse_summary(first_stanza, settings)
     if isinstance(node[0], nodes.section):
         # document starts with a section heading, so use that.
         summary = node[0].astext().strip()
     elif not isinstance(node[0], nodes.paragraph):
         # document starts with non-paragraph: pick up the first line
-        summary = doc[0].strip()
+        summary = first_stanza[0].strip()
     else:
         # Try to find the "first sentence", which may span multiple lines
-        sentences = periods_re.split(' '.join(doc))
+        sentences = periods_re.split(' '.join(first_stanza))
         if len(sentences) == 1:
             summary = sentences[0].strip()
         else:
@@ -643,7 +559,7 @@ def extract_summary(doc: list[str], document: Any) -> str:
             for i in range(len(sentences)):
                 summary = '. '.join(sentences[: i + 1]).rstrip('.') + '.'
                 node[:] = []
-                node = parse(doc, document.settings)
+                node = _parse_summary(first_stanza, settings)
                 if summary.endswith(WELL_KNOWN_ABBREVIATIONS):
                     pass
                 elif not any(node.findall(nodes.system_message)):
@@ -654,6 +570,15 @@ def extract_summary(doc: list[str], document: Any) -> str:
     summary = literal_re.sub('.', summary)
 
     return summary
+
+
+def _parse_summary(doc: Sequence[str], settings: Any) -> nodes.document:
+    state_machine = RSTStateMachine(state_classes, 'Body')
+    node = new_document('', settings)
+    node.reporter = NullReporter()
+    state_machine.run(doc, node)
+
+    return node
 
 
 def limited_join(
@@ -685,17 +610,11 @@ def limited_join(
 # -- Importing items -----------------------------------------------------------
 
 
-class ImportExceptionGroup(Exception):
+class ImportExceptionGroup(BaseExceptionGroup):
     """Exceptions raised during importing the target objects.
 
-    It contains an error messages and a list of exceptions as its arguments.
+    It contains an error message and a list of exceptions as its arguments.
     """
-
-    def __init__(
-        self, message: str | None, exceptions: Sequence[BaseException]
-    ) -> None:
-        super().__init__(message)
-        self.exceptions = list(exceptions)
 
 
 def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
@@ -759,7 +678,8 @@ def import_by_name(
     exceptions: list[BaseException] = functools.reduce(
         operator.iadd, (e.exceptions for e in errors), []
     )
-    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
+    msg = f'could not import {" or ".join(tried)}'
+    raise ImportExceptionGroup(msg, exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
@@ -773,7 +693,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
         modname = '.'.join(name_parts[:-1])
         if modname:
             try:
-                mod = import_module(modname)
+                mod = _import_module(modname)
                 return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError) as exc:
                 errors.append(exc.__cause__ or exc)
@@ -785,7 +705,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
             last_j = j
             modname = '.'.join(name_parts[:j])
             try:
-                import_module(modname)
+                _import_module(modname)
             except ImportError as exc:
                 errors.append(exc.__cause__ or exc)
 

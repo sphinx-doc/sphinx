@@ -175,7 +175,7 @@ After you have published your sources on GitHub, create a file named
 contents:
 
 .. code-block:: yaml
-   :caption: .github/workflows/
+   :caption: .github/workflows/sphinx.yml
 
    name: "Sphinx: Render docs"
 
@@ -222,13 +222,14 @@ following contents:
 
    furo==2021.11.16
 
-And finally, you are ready to `enable GitHub Pages on your repository`_. For
+And finally, you are ready to `publish GitHub Pages from a branch`_. For
 that, go to :guilabel:`Settings`, then :guilabel:`Pages` on the left sidebar,
-select the ``gh-pages`` branch in the "Source" dropdown menu, and click
+select the ``Deploy from a branch`` item in the "Source" dropdown menu,
+select the ``gh-page`` branch in the "Branch" dropdown menu, and click
 :guilabel:`Save`. After a few minutes, you should be able to see your HTML at
 the designated URL.
 
-.. _enable GitHub Pages on your repository: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+.. _publish GitHub Pages from a branch: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-from-a-branch
 
 GitLab Pages
 ~~~~~~~~~~~~
@@ -248,7 +249,7 @@ After you have published your sources on GitLab, create a file named
 
    pages:
      stage: deploy
-     image: python:3.12-slim
+     image: python:3.14-slim
      before_script:
        - apt-get update && apt-get install make --no-install-recommends -y
        - python -m pip install sphinx furo

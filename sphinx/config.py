@@ -5,13 +5,11 @@ from __future__ import annotations
 import time
 import traceback
 import types
-import warnings
 from contextlib import chdir
 from os import getenv
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
-from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -19,7 +17,6 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     import os
     from collections.abc import Collection, Iterable, Iterator, Sequence, Set
-    from typing import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -28,7 +25,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild: TypeAlias = Literal[
+type _ConfigRebuild = Literal[
     '',
     'env',
     'epub',
@@ -65,7 +62,7 @@ def is_serializable(obj: object, *, _seen: frozenset[int] = frozenset()) -> bool
             is_serializable(key, _seen=seen) and is_serializable(value, _seen=seen)
             for key, value in obj.items()
         )
-    elif isinstance(obj, list | tuple | set | frozenset):
+    elif isinstance(obj, (list, tuple, set, frozenset)):
         seen = _seen | {id(obj)}
         return all(is_serializable(item, _seen=seen) for item in obj)
 
@@ -89,12 +86,12 @@ class ENUM:
         return f'ENUM({", ".join(sorted(map(repr, self._candidates)))})'
 
     def match(self, value: str | bool | None | Sequence[str | bool | None]) -> bool:  # NoQA: RUF036
-        if isinstance(value, str | bool | None):
+        if isinstance(value, (str, bool, types.NoneType)):
             return value in self._candidates
         return all(item in self._candidates for item in value)
 
 
-_OptValidTypes: TypeAlias = frozenset[type] | ENUM
+type _OptValidTypes = frozenset[type] | ENUM
 
 
 class _Opt:
@@ -165,7 +162,7 @@ class _Opt:
                 other.valid_types,
                 other.description,
             )
-            return self_tpl > other_tpl
+            return self_tpl > other_tpl  # ty: ignore[unsupported-operator]
         return NotImplemented
 
     def __hash__(self) -> int:
@@ -194,15 +191,6 @@ class _Opt:
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
         super().__setattr__('description', description)
-
-    def __getitem__(self, item: int | slice) -> Any:
-        warnings.warn(
-            f'The {self.__class__.__name__!r} object tuple interface is deprecated, '
-            "use attribute access instead for 'default', 'rebuild', and 'valid_types'.",
-            RemovedInSphinx90Warning,
-            stacklevel=2,
-        )
-        return (self.default, self.rebuild, self.valid_types)[item]
 
 
 class Config:
@@ -630,8 +618,8 @@ def _validate_valid_types(
 ) -> frozenset[type] | ENUM:
     if not valid_types:
         return frozenset()
-    if isinstance(valid_types, frozenset | ENUM):
-        return valid_types
+    if isinstance(valid_types, (frozenset, ENUM)):
+        return valid_types  # ty: ignore[invalid-return-type]
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
     if valid_types is Any:
@@ -663,7 +651,7 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
             source_suffix,
             config.source_suffix,
         )
-    elif isinstance(source_suffix, list | tuple):
+    elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
         config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
         logger.info(

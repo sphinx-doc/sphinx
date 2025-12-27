@@ -537,7 +537,8 @@ Describing changes between versions
            pair: changes; in version
            pair: removed; in version
 
-.. rst:directive:: .. versionadded:: version [brief explanation]
+.. rst:directive:: .. version-added:: version [brief explanation]
+                   .. versionadded:: version [brief explanation]
 
    This directive documents the version of the project
    which added the described feature.
@@ -551,56 +552,75 @@ Describing changes between versions
       There must be no blank line between the directive head and the explanation;
       this is to make these blocks visually continuous in the markup.
 
+   .. version-changed:: 9.0
+      The :rst:dir:`versionadded` directive was renamed to :rst:dir:`version-added`.
+      The previous name is retained as an alias.
+
    Example::
 
-      .. versionadded:: 2.5
+      .. version-added:: 2.5
          The *spam* parameter.
 
-   .. versionadded:: 2.5
+   .. version-added:: 2.5
       The *spam* parameter.
 
-.. rst:directive:: .. versionchanged:: version [brief explanation]
+.. rst:directive:: .. version-changed:: version [brief explanation]
+                   .. versionchanged:: version [brief explanation]
 
-   Similar to :rst:dir:`versionadded`, but describes when and what changed in
+   Similar to :rst:dir:`version-added`, but describes when and what changed in
    the named feature in some way (new parameters, changed side effects, etc.).
+
+   .. version-changed:: 9.0
+      The :rst:dir:`versionchanged` directive was renamed to :rst:dir:`version-changed`.
+      The previous name is retained as an alias.
 
    Example::
 
-      .. versionchanged:: 2.8
+      .. version-changed:: 2.8
          The *spam* parameter is now of type *boson*.
 
-   .. versionchanged:: 2.8
+   .. version-changed:: 2.8
       The *spam* parameter is now of type *boson*.
 
-.. rst:directive:: .. deprecated:: version [brief explanation]
+.. rst:directive:: .. version-deprecated:: version [brief explanation]
+                   .. deprecated:: version [brief explanation]
 
-   Similar to :rst:dir:`versionadded`, but describes when the feature was
+   Similar to :rst:dir:`version-added`, but describes when the feature was
    deprecated.
    A *brief* explanation can also be given,
    for example to tell the reader what to use instead.
 
+   .. version-changed:: 9.0
+      The :rst:dir:`deprecated` directive was renamed to :rst:dir:`version-deprecated`.
+      The previous name is retained as an alias
+
    Example::
 
-      .. deprecated:: 3.1
+      .. version-deprecated:: 3.1
          Use :py:func:`spam` instead.
 
-   .. deprecated:: 3.1
+   .. version-deprecated:: 3.1
       Use :py:func:`!spam` instead.
 
-.. rst:directive:: .. versionremoved:: version [brief explanation]
+.. rst:directive:: .. version-removed:: version [brief explanation]
+                   .. versionremoved:: version [brief explanation]
 
-   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   Similar to :rst:dir:`version-added`, but describes when the feature was removed.
    An explanation may be provided to tell the reader what to use instead,
    or why the feature was removed.
 
-   .. versionadded:: 7.3
+   .. version-added:: 7.3
+
+   .. version-changed:: 9.0
+      The :rst:dir:`versionremoved` directive was renamed to :rst:dir:`version-removed`.
+      The previous name is retained as an alias.
 
    Example::
 
-      .. versionremoved:: 4.0
+      .. version-removed:: 4.0
          The :py:func:`spam` function is more flexible, and should be used instead.
 
-   .. versionremoved:: 4.0
+   .. version-removed:: 4.0
       The :py:func:`!spam` function is more flexible, and should be used instead.
 
 
@@ -1472,7 +1492,7 @@ Check the :confval:`latex_table_style`.
    complex contents such as multiple paragraphs, blockquotes, lists, literal
    blocks, will render correctly to LaTeX output.
 
-.. versionchanged:: 8.3.0
+.. versionchanged:: 9.0
    The partial support of the LaTeX builder for nesting a table in another
    has been extended.
    Formerly Sphinx would raise an error if ``longtable`` class was specified
@@ -1559,15 +1579,15 @@ Check the :confval:`latex_table_style`.
    preamble, as in fact Sphinx uses ``T`` and sets it by default to be an
    alias of ``J``.
 
-.. versionchanged:: 8.3.0
+.. versionchanged:: 9.0
 
    Formerly, Sphinx did not use ``tabulary`` if the table had at least one
    cell containing "problematic" elements such as lists, object descriptions,
    blockquotes (etc...) because such contents are not out-of-the-box
-   compatible with ``tabulary``.  At ``8.3.0`` a technique, which was already
+   compatible with ``tabulary``.  At ``9.0`` a technique, which was already
    in use for merged cells, was extended to such cases, and the sole
    "problematic" contents are code-blocks and nested tables.  So tables
-   containing (only) cells with mutliple paragraphs, bullet or enumerated
+   containing (only) cells with multiple paragraphs, bullet or enumerated
    lists, or line blocks, will now better fit to their contents (if not
    rendered by ``longtable``).  Cells with object descriptions or admonitions
    will still have a tendency to induce the table to fill the full text area
@@ -1706,7 +1726,7 @@ There is this directive:
    Multiple production lists with the same *production_group*
    thus define rules in the same scope.
    This can also be used to split the description of a long or complex grammar
-   accross multiple ``productionlist`` directives with the same *production_group*.
+   across multiple ``productionlist`` directives with the same *production_group*.
 
    The definition can contain token names which are marked as interpreted text,
    (e.g. "``sum ::= `integer` "+" `integer```"),

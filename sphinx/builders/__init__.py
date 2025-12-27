@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import codecs
 import pickle
 import re
 import time
@@ -11,6 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, final
 
 from docutils import nodes
+from docutils.utils import DependencyList
 
 from sphinx._cli.util.colour import bold
 from sphinx.deprecation import _deprecation_warning
@@ -139,7 +139,7 @@ class Builder:
     def app(self) -> Sphinx:
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(10, 0))
+        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(11, 0))
         return self._app
 
     @property
@@ -641,15 +641,8 @@ class Builder:
 
         filename = env.doc2path(docname)
 
-        # set up error_handler for the target document
-        # xref RemovedInSphinx90Warning
-        error_handler = _UnicodeDecodeErrorHandler(docname)
-        codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
-
         # read the source file
-        content = filename.read_text(
-            encoding=env.settings['input_encoding'], errors='sphinx'
-        )
+        content = filename.read_text(encoding=env.settings['input_encoding'])
 
         # TODO: move the "source-read" event to here.
 
@@ -695,7 +688,7 @@ class Builder:
         doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.record_dependencies = None
+        doctree.settings.record_dependencies = DependencyList()
 
         doctree_filename = self.doctreedir / f'{docname}.doctree'
         doctree_filename.parent.mkdir(parents=True, exist_ok=True)
@@ -895,30 +888,3 @@ def _write_docname(
     builder.phase = BuildPhase.WRITING
     builder.write_doc_serialized(docname, doctree)
     builder.write_doc(docname, doctree)
-
-
-class _UnicodeDecodeErrorHandler:
-    """Custom error handler for open() that warns and replaces."""
-
-    def __init__(self, docname: str, /) -> None:
-        self.docname = docname
-
-    def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
-        obj = error.object
-        line_start = obj.rfind(b'\n', 0, error.start)
-        line_end = obj.find(b'\n', error.start)
-        if line_end == -1:
-            line_end = len(obj)
-        line_num = obj.count(b'\n', 0, error.start) + 1
-        logger.warning(
-            __(
-                "undecodable source characters, replacing with '?': '%s>>>%s<<<%s'. "
-                'This will become an error in Sphinx 9.0.'
-                # xref RemovedInSphinx90Warning
-            ),
-            obj[line_start + 1 : error.start].decode(errors='backslashreplace'),
-            obj[error.start : error.end].decode(errors='backslashreplace'),
-            obj[error.end : line_end].decode(errors='backslashreplace'),
-            location=(self.docname, line_num),
-        )
-        return '?', error.end

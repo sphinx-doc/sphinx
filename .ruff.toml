@@ -1,4 +1,4 @@
-target-version = "py311"  # Pin Ruff to Python 3.11
+target-version = "py312"  # Pin Ruff to Python 3.12
 line-length = 88
 output-format = "full"
 
@@ -275,6 +275,7 @@ select = [
 
 logger-objects = [
     "sphinx.ext.apidoc._shared.LOGGER",
+    "sphinx.ext.autodoc._shared.LOGGER",
     "sphinx.ext.intersphinx._shared.LOGGER",
 ]
 

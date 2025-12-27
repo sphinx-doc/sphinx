@@ -53,11 +53,14 @@ Contributors
 * Eric Larson -- better error messages
 * Eric N. Vander Weele -- autodoc improvements
 * Eric Wieser -- autodoc improvements
+* Erik Bedard -- config options for :mod:`sphinx.ext.duration`
 * Etienne Desautels -- apidoc module
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Filip Vavera -- napoleon todo directive
+* Florian Best -- log improvements
 * Glenn Matthews -- python domain signature improvements
 * Gregory Szorc -- performance improvements
+* Günter Milde -- various small fixes
 * Henrique Bastos -- SVG support for graphviz extension
 * Hernan Grecco -- search improvements
 * Hong Xu -- svg support in imgmath extension and various bug fixes
@@ -89,6 +92,7 @@ Contributors
 * Martin Larralde -- additional napoleon admonitions
 * Martin Liška -- option directive and role improvements
 * Martin Mahner -- nature theme
+* Martin Matouš -- initial support for PEP 695
 * Matthew Fernandez -- todo extension fix
 * Matthew Woodcraft -- text output improvements
 * Matthias Geier -- style improvements
@@ -99,6 +103,7 @@ Contributors
 * Pauli Virtanen -- autodoc improvements, autosummary extension
 * Rafael Fontenelle -- internationalisation
 * \A. Rafey Khan -- improved intersphinx typing
+* Rui Pinheiro -- Python 3.14 forward references support
 * Roland Meister -- epub builder
 * Sebastian Wiesner -- image handling, distutils support
 * Slawek Figiel -- additional warning suppression
@@ -108,10 +113,12 @@ Contributors
 * Szymon Karpinski -- intersphinx improvements
 * \T. Powers -- HTML output improvements
 * Taku Shimizu -- epub3 builder
+* Tamika Nomara -- bug fixes
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes
 * Till Hoffmann -- doctest option to exit after first failed test
 * Tim Hoffmann -- theme improvements
+* Valentin Heinisch -- warning types improvement
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder

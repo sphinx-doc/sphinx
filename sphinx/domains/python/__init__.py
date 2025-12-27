@@ -56,16 +56,6 @@ _TYPING_ALL = frozenset(typing.__all__)
 
 logger = logging.getLogger(__name__)
 
-pairindextypes = {
-    'module': 'module',
-    'keyword': 'keyword',
-    'operator': 'operator',
-    'object': 'object',
-    'exception': 'exception',
-    'statement': 'statement',
-    'builtin': 'built-in function',
-}
-
 
 class ObjectEntry(NamedTuple):
     docname: str
@@ -742,7 +732,7 @@ class PythonDomain(Domain):
         'staticmethod': ObjType(_('static method'), 'meth', 'obj'),
         'attribute': ObjType(_('attribute'), 'attr', 'obj'),
         'property': ObjType(_('property'), 'attr', '_prop', 'obj'),
-        'type': ObjType(_('type alias'), 'type', 'obj'),
+        'type': ObjType(_('type alias'), 'type', 'class', 'obj'),
         'module': ObjType(_('module'), 'mod', 'obj'),
     }
 

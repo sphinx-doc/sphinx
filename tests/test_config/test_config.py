@@ -13,11 +13,9 @@ import sphinx
 from sphinx.config import (
     ENUM,
     Config,
-    _Opt,
     check_confval_types,
     is_serializable,
 )
-from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util.tags import Tags
@@ -25,10 +23,9 @@ from sphinx.util.tags import Tags
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
-    from typing import TypeAlias
 
-    CircularList: TypeAlias = list[int | 'CircularList']
-    CircularDict: TypeAlias = dict[str, int | 'CircularDict']
+    type CircularList = list[int | 'CircularList']
+    type CircularDict = dict[str, int | 'CircularDict']
 
 
 def check_is_serializable(subject: object, *, circular: bool) -> None:
@@ -54,7 +51,8 @@ def test_is_serializable() -> None:
     subject = [1, [2, {3, 'a'}], {'x': {'y': frozenset((4, 5))}}]
     check_is_serializable(subject, circular=False)
 
-    a, b = [1], [2]  # type: (CircularList, CircularList)
+    a: CircularList = [1]
+    b: CircularList = [2]
     a.append(b)
     b.append(a)
     check_is_serializable(a, circular=True)
@@ -63,19 +61,6 @@ def test_is_serializable() -> None:
     x: CircularDict = {'a': 1, 'b': {'c': 1}}
     x['b'] = x
     check_is_serializable(x, circular=True)
-
-
-def test_config_opt_deprecated(recwarn):
-    opt = _Opt('default', '', ())
-
-    with pytest.warns(RemovedInSphinx90Warning):
-        _default, _rebuild, _valid_types = opt
-
-    with pytest.warns(RemovedInSphinx90Warning):
-        _ = opt[0]
-
-    with pytest.warns(RemovedInSphinx90Warning):
-        _ = list(opt)
 
 
 @pytest.mark.sphinx(
@@ -154,7 +139,8 @@ def test_config_pickle_protocol(protocol: int) -> None:
 
 
 def test_config_pickle_circular_reference_in_list():
-    a, b = [1], [2]  # type: (CircularList, CircularList)
+    a: CircularList = [1]
+    b: CircularList = [2]
     a.append(b)
     b.append(a)
 
@@ -199,9 +185,9 @@ def test_config_pickle_circular_reference_in_list():
         u: list[list[object] | int],
         v: list[list[object] | int],
         *,
-        counter: Counter[type, int] | None = None,
+        counter: Counter[type] | None = None,
         guard: frozenset[int] = frozenset(),
-    ) -> Counter[type, int]:
+    ) -> Counter[type]:
         counter = Counter() if counter is None else counter
 
         if id(u) in guard and id(v) in guard:
@@ -263,7 +249,7 @@ def test_config_pickle_circular_reference_in_dict():
         u: dict[str, dict[str, object] | int],
         v: dict[str, dict[str, object] | int],
         *,
-        counter: Counter[type, int] | None = None,
+        counter: Counter[type] | None = None,
         guard: frozenset[int] = frozenset(),
     ) -> Counter:
         counter = Counter() if counter is None else counter

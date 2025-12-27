@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
-from sphinx.ext.autodoc import ClassDocumenter, bool_option
+from sphinx.ext.autodoc import ClassDocumenter, Documenter, bool_option
 
 if TYPE_CHECKING:
     from typing import Any
@@ -23,7 +23,7 @@ class IntEnumDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(
-        cls, member: Any, membername: str, isattr: bool, parent: Any
+        cls, member: Any, membername: str, isattr: bool, parent: Documenter
     ) -> bool:
         try:
             return issubclass(member, IntEnum)
@@ -41,7 +41,7 @@ class IntEnumDocumenter(ClassDocumenter):
         super().add_content(more_content)
 
         source_name = self.get_sourcename()
-        enum_object: IntEnum = self.props._obj
+        enum_object: IntEnum = self.object
         use_hex = self.options.hex
         self.add_line('', source_name)
 

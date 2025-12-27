@@ -57,6 +57,7 @@ ENUMERATE_LIST_STYLE = defaultdict(
         'upperroman': r'\Roman',
     },
 )
+VERBATIM_CHUNKSIZE = 500
 
 CR = '\n'
 BLANKLINE = '\n\n'
@@ -173,7 +174,7 @@ class Table:
             # types is used.  The next test will have false positive from
             # syntax such as >{\RaggedRight} but it will catch *{3}{J} which
             # does require tabulary and would crash tabular
-            # It is user responsability not to use a tabulary column type for
+            # It is user responsibility not to use a tabulary column type for
             # a column having a problematic cell.
             if any(c in 'LRCJT' for c in self.colspec):
                 return 'tabulary'
@@ -1298,9 +1299,10 @@ class LaTeXTranslator(SphinxTranslator):
                 # insert suitable strut for equalizing row heights in given multirow
                 self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
             else:  # use \multicolumn for wide multirow cell
+                left_colsep = _colsep if cell.col == 0 else ''
                 self.body.append(
                     r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}'
-                    % (cell.width, _colsep, _colsep, cell.cell_id)
+                    % (cell.width, left_colsep, _colsep, cell.cell_id)
                 )
 
     def depart_row(self, node: Element) -> None:
@@ -1365,7 +1367,7 @@ class LaTeXTranslator(SphinxTranslator):
                 r'\sphinxmultirow{%d}{%d}{%%' % (cell.height, cell.cell_id) + CR
             )
             context = '}%' + CR + context
-        # 8.3.0 wraps ALL cells contents in "varwidth".  This fixes a
+        # 9.0 wraps ALL cells contents in "varwidth".  This fixes a
         # number of issues and allows more usage of tabulary.
         #
         # "varwidth" usage allows a *tight fit* to multiple paragraphs,
@@ -1563,7 +1565,7 @@ class LaTeXTranslator(SphinxTranslator):
         ):
             # insert blank line, if the paragraph follows a non-paragraph node in a compound
             self.body.append(r'\noindent' + CR)
-        elif index == 1 and isinstance(node.parent, nodes.footnote | footnotetext):
+        elif index == 1 and isinstance(node.parent, (nodes.footnote, footnotetext)):
             # don't insert blank line, if the paragraph is second child of a footnote
             # (first one is label node)
             pass
@@ -1850,7 +1852,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
-        next_node: Node = node
+        next_node: Node | None = node
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
@@ -1858,7 +1860,8 @@ class LaTeXTranslator(SphinxTranslator):
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if (
-            domain.get_enumerable_node_type(next_node)
+            next_node is not None
+            and domain.get_enumerable_node_type(next_node)
             and domain.get_numfig_title(next_node)
         ):  # fmt: skip
             return
@@ -2106,6 +2109,12 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_abbreviation(self, node: Element) -> None:
         self.body.append(self.context.pop())
 
+    def visit_acronym(self, node: Element) -> None:
+        self.visit_abbreviation(node)
+
+    def depart_acronym(self, node: Element) -> None:
+        self.depart_abbreviation(node)
+
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)
 
@@ -2252,6 +2261,56 @@ class LaTeXTranslator(SphinxTranslator):
             hllines = str(highlight_args.get('hl_lines', []))[1:-1]
             if hllines:
                 self.body.append(CR + r'\fvset{hllines={, %s,}}%%' % hllines)
+
+            _hlcodelines = hlcode.splitlines()
+            _chunksize = VERBATIM_CHUNKSIZE
+            _nbofchunks = (len(_hlcodelines) + _chunksize - 3) // _chunksize
+            if _nbofchunks > 1:
+                _e = _hlcodelines[0][22:]
+                # TODO: confirm firstnumber key if present from highlighter output
+                # is always with numeric value and not auto or last.
+                _idx1 = _e.find('firstnumber=')
+                if _idx1 > -1:
+                    _e1 = _e[_idx1:]
+                    _idx2 = _e1.find(',')
+                    self.body.append(
+                        CR + r'\def\sphinxverbatimfirstnumber{%s}%%' % _e1[12:_idx2]
+                    )
+                else:
+                    self.body.append(CR + r'\def\sphinxverbatimfirstnumber{1}%')
+                _hlcodelines[0] = r'\begin{sphinxLongVerbatimFirst}' + _e
+                _hlcodelines[-1] = r'\end{sphinxLongVerbatimLast}'
+                hlcode = (
+                    CR.join(_hlcodelines[: _chunksize + 1])
+                    + CR
+                    + r'\end{sphinxLongVerbatimFirst}'
+                    + CR
+                )
+                _lineno = _chunksize + 1
+                # _e always starts with r'[commandchars=\\\{\}' and ends with
+                # ']' but let's make sure, for maximal generality, that _e[:-1]
+                # does not trigger index out of range.
+                if _e:
+                    _e = _e[:-1] + ',firstnumber=last]'
+                else:
+                    _e = '[firstnumber=last]'
+                for _ in range(_nbofchunks - 2):
+                    hlcode += (
+                        r'\begin{sphinxLongVerbatimMiddle}'
+                        + _e
+                        + CR
+                        + CR.join(_hlcodelines[_lineno : _lineno + _chunksize])
+                        + CR
+                        + r'\end{sphinxLongVerbatimMiddle}'
+                        + CR
+                    )
+                    _lineno += _chunksize
+                hlcode += (
+                    r'\begin{sphinxLongVerbatimLast}'
+                    + _e
+                    + CR
+                    + CR.join(_hlcodelines[_lineno:])
+                )
             self.body.append(CR + hlcode + CR)
             if hllines:
                 self.body.append(r'\sphinxresetverbatimhllines' + CR)
@@ -2287,7 +2346,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -2296,7 +2355,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)
