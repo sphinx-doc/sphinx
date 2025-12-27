@@ -1576,7 +1576,7 @@ class Sphinx:
         """Register a static directory to include in HTML output.
 
         The directory's contents will be copied to the ``_static`` directory
-        during HTML build. Files from extension static directories are copied
+        during an HTML build. Files from extension static directories are copied
         after theme static files but before user-configured ``html_static_path``
         directories.
 
