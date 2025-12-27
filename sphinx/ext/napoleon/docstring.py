@@ -225,7 +225,7 @@ def _convert_type_spec(
     combined_tokens = _recombine_set_tokens(tokens)
     types = [(token, _token_type(token, debug_location)) for token in combined_tokens]
 
-    converters = {
+    converters: dict[str, Callable[[str], str]] = {
         'literal': lambda x: f'``{x}``',
         'obj': lambda x: _convert_type_spec_obj(x, translations),
         'control': lambda x: f'*{x}*',
@@ -233,10 +233,7 @@ def _convert_type_spec(
         'reference': lambda x: x,
     }
 
-    converted = ''.join(
-        converters.get(type_)(token)  # type: ignore[misc]
-        for token, type_ in types
-    )
+    converted = ''.join(converters[type_](token) for token, type_ in types)
 
     return converted
 
@@ -1219,6 +1216,64 @@ class NumpyDocstring(GoogleDocstring):
     ) -> None:
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
+
+    def _parse(self) -> None:
+        self._parsed_lines = self._consume_empty()
+
+        if self._name and self._what in {'attribute', 'data', 'property'}:
+            res: list[str] = []
+            with contextlib.suppress(StopIteration):
+                res = self._parse_attribute_docstring()
+
+            self._parsed_lines.extend(res)
+            return
+
+        sections: list[tuple[str, list[str]]] = []
+
+        while self._lines:
+            if self._is_section_header():
+                try:
+                    section = self._consume_section_header()
+                    self._is_in_section = True
+                    self._section_indent = self._get_current_indent()
+                    if _directive_regex.match(section):
+                        lines = [section, *self._consume_to_next_section()]
+                        sections.append((section, lines))
+                    else:
+                        lines = self._sections[section.lower()](section)
+                        sections.append((section.lower(), lines))
+                finally:
+                    self._is_in_section = False
+                    self._section_indent = 0
+            else:
+                if not self._parsed_lines and not sections:
+                    lines = self._consume_contiguous() + self._consume_empty()
+                    self._parsed_lines.extend(lines)
+                else:
+                    lines = self._consume_to_next_section()
+                    sections.append(('_msg', lines))
+
+        # Reorder sections: Attributes and Methods should come after Parameters
+        excluded_sections = {'attributes', 'methods'}
+        attributes_secs = [s for s in sections if s[0] == 'attributes']
+        methods_secs = [s for s in sections if s[0] == 'methods']
+        other_secs = [s for s in sections if s[0] not in excluded_sections]
+
+        insert_idx = 0
+        for i, (name, _section_lines) in enumerate(other_secs):
+            if name == 'parameters':
+                insert_idx = i + 1
+                break
+
+        final_sections = (
+            other_secs[:insert_idx]
+            + attributes_secs
+            + methods_secs
+            + other_secs[insert_idx:]
+        )
+
+        for _name, lines in final_sections:
+            self._parsed_lines.extend(lines)
 
     def _escape_args_and_kwargs(self, name: str) -> str:
         func = super()._escape_args_and_kwargs
