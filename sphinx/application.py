@@ -1484,6 +1484,9 @@ class Sphinx:
         A JavaScript file can be added to the specific HTML page when an extension
         calls this method on :event:`html-page-context` event.
 
+        .. seealso::
+           :meth:`add_static_dir` for copying static files to the output directory
+
         .. versionadded:: 0.5
 
         .. versionchanged:: 1.8
@@ -1548,6 +1551,9 @@ class Sphinx:
 
         A CSS file can be added to the specific HTML page when an extension calls
         this method on :event:`html-page-context` event.
+
+        .. seealso::
+           :meth:`add_static_dir` for copying static files to the output directory
 
         .. versionadded:: 1.0
 
