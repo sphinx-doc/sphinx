@@ -10,6 +10,7 @@ import pickle
 import sys
 from collections import deque
 from io import StringIO
+from pathlib import Path
 from typing import TYPE_CHECKING, overload
 
 from docutils.parsers.rst import roles
@@ -37,7 +38,6 @@ from sphinx.util.tags import Tags
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Collection, Iterable, Sequence, Set
-    from pathlib import Path
     from typing import IO, Any, Final, Literal
 
     from docutils import nodes
@@ -1600,10 +1600,8 @@ class Sphinx:
 
         .. versionadded:: 9.1
         """
-        from pathlib import Path as PathLib
-
         logger.debug('[app] adding static_dir: %r', path)
-        self.registry.add_static_dir(PathLib(path))
+        self.registry.add_static_dir(Path(path))
 
     def add_latex_package(
         self, packagename: str, options: str | None = None, after_hyperref: bool = False
