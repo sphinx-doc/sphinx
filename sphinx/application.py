@@ -1606,8 +1606,9 @@ class Sphinx:
 
         .. versionadded:: 9.1
         """
+        path = Path(path)
         logger.debug('[app] adding static_dir: %r', path)
-        self.registry.add_static_dir(Path(path))
+        self.registry.add_static_dir(path)
 
     def add_latex_package(
         self, packagename: str, options: str | None = None, after_hyperref: bool = False
