@@ -42,6 +42,8 @@ Bugs fixed
   Patch by Jean-François B.
 * #14064: LaTeX: TABs ending up in sphinxVerbatim fail to obey tab stops.
   Patch by Jean-François B.
+* #14089: autodoc: Improve support for non-weakreferencable objects.
+  Patch by Adam Turner
 
 Testing
 -------
