@@ -1749,6 +1749,12 @@ and also make use of these options.
       The files under :confval:`html_static_path` are excluded from source
       files.
 
+   .. seealso::
+
+      Extension and theme developers can use
+      :meth:`~sphinx.application.Sphinx.add_static_dir` to copy static files
+      to the output directory.
+
 .. confval:: html_extra_path
    :type: :code-py:`list[str]`
    :default: :code-py:`[]`

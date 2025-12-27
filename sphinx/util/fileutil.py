@@ -122,6 +122,10 @@ def copy_asset(
     :param renderer: The template engine.  If not given, SphinxRenderer is used by default
     :param onerror: The error handler.
     :param bool force: Overwrite the destination file even if it exists.
+
+    .. seealso::
+       :meth:`~sphinx.application.Sphinx.add_static_dir` for copying static files to the
+       output directory
     """
     source = Path(source)
     if not source.exists():
