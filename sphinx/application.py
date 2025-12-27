@@ -1608,10 +1608,16 @@ class Sphinx:
             from pathlib import Path
 
             def setup(app):
+                # All files in this directory are copied to _static/,
+                # preserving the subdirectory structure
                 app.add_static_dir(Path(__file__).parent / 'static')
-                app.add_js_file('/js/my_extension.js')
 
-        .. versionadded:: 8.2
+                # Add JavaScript and CSS files to HTML pages,
+                # the paths are relative to _static/
+                app.add_js_file('js/my_extension.js')
+                app.add_css_file('css/my_extension.css')
+
+        .. versionadded:: 9.1
         """
         from pathlib import Path as PathLib
 
