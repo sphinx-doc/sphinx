@@ -876,7 +876,7 @@ class StandaloneHTMLBuilder(Builder):
                 )
             else:
                 logger.warning(
-                    __("extension static directory %r does not exist"),
+                    __('extension static directory %r does not exist'),
                     static_dir,
                 )
 
