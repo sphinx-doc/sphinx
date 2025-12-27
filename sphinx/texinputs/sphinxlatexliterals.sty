@@ -39,9 +39,10 @@
 \RequirePackage{sphinxpackageboxes}
 % 7.4.0 removes unneeded usage of \spx@boxes@border
 
-% also in sphinxlatexadmonitions.sty:
-% This is a workaround to a "feature" of French lists, when literal block
-% follows immediately; usable generally (does only \par then), a priori...
+% Also in sphinxlatexadmonitions.sty:
+% This is a workaround to a "feature" of babel-french latex package,
+% which causes bad vertical spacing when a literal block follows a list.
+% Due to the conditional here, this should be usable generally.
 \providecommand*\sphinxvspacefixafterfrenchlists{%
    \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
 }
@@ -55,11 +56,14 @@
 % 3- optional line emphasizing
 % 4- while still allowing expansion of Pygments latex mark-up
 % Other aspects such as framing, caption handling, codeline wrapping are
-% added on top of it. We should stop using fancyvrb and implement
-% 1, 2, 3, 4 by own Sphinx fully native Verbatim. This would greatly simplify
-% in particular wrapping long code lines in a way allowing page breaks.
+% added on top of it.
+% Perhaps we could cease using fancyvrb and implement 1, 2, 3, 4 by own
+% pure LaTeX code.  This would allow in particular to wrap long code lines
+% in a manner allowing a pagebreak in the middle.  But dropping fancyvrb
+% and keeping its native features and those we added by hacking into it
+% would be a significant effort.
 \RequirePackage{fancyvrb}
-% Next line is in attempt to let TAB characters (ascii 9) obey tab stops,
+% Next line is in order to let TAB characters (ascii 9) obey tab stops,
 % MEMO: attow (2025/12/26), a TAB can not be found inside a code-block
 %       rendered by sphinxVerbatim because it has been replaced earlier by a
 %       fixed number of spaces, as applies also to HTML output (#14065).
@@ -67,20 +71,30 @@
 %       inserted via a literalinclude, and next line will have an impact on
 %       TABs. cf #13656, #14064, #14065.
 \fvset{obeytabs}
-% MEMO: The actual hard work will be done by next macro, which is a variant
-%       of the fancyvrb.sty one, adapted to our context.  The trigger which
-%       maps the TABs to this macro is \FV@ObeyTabs.  The main location where
-%       \FV@ObeyTabs has an effect is in \spx@verb@@PreProcessLine.
+% MEMO: with the above option, fancyvrb executes at each code-block some
+%       initialization code which does in particular two things:
+%       - make TABs act according to something called \FV@TrueTab,
+%       - make some wrapper of each code line, called \FV@ObeyTabs,
+%         act like something called \FV@@ObeyTabs and thus provide
+%         the correct context for \FV@TrueTab.
+%       We need a special variant of \FV@@ObeyTabs for compatibility with
+%       our added feature of wrapping long code lines.  Here it is:
 \def\FV@@ObeyTabs#1{\setbox\FV@TabBox=\hbox{#1}\unhbox\FV@TabBox}
+%       In code further down this file we use \FV@ObeyTabs, not \FV@@ObeyTabs,
+%       knowing that the former is mapper to the latter.  At some locations
+%       the argument #1 is already a typeset box and nothing happens.  One of
+%       the two main locations where there will be an effect is the occurrence
+%       in \spx@verb@@PreProcessLine.
+%
 % Tab stops are located every 8 positions as per fancyvrb's default setting
-% for its tabsize option.  However, fancyvrb has a bug/limitation, and
-% its \FV@Tab inside the #1 argument above can work only at "top level",
-% i.e. breakage happens if the TAB character (hence \FV@Tab) is in the
-% (second) argument of the Pygmentize \PYG highlighting macro.
+% for its tabsize option.  However, fancyvrb has a bug/limitation, and its
+% \FV@TrueTab acting inside the #1 above can work only at "top level",
+% i.e. breakage (or rather loss of contents) happens if the TAB character
+% (hence \FV@TrueTab) is located in the (second) argument of \PYG.
 %
 % Hence, we prepare a "safe" variant, which is the one which will be used if
-% found in the second argument of \PYG macro.  For how this ends up into \PYG
-% see sphinx.sty.
+% found in the second argument of \PYG.  For how this ends up into \PYG, see
+% sphinx.sty.
 \def\spx@FV@Tab{\allowbreak\hbox to\FancyVerbTabSize\fontdimen2\font{\hss\FV@TabChar}}
 % MEMO: \FV@TabChar does nothing without option showtabs (which we do not
 %       use). With the option showtabs, it would draw something similar to
@@ -416,7 +430,8 @@
   % \current@color, if \fvset has been used to set numbers to the right.
 }%
 % MEMO: if verbatimwrapslines is set to true (which is default) the #1 here is
-% already a box, and the \FV@ObeyTabs here does nothing of significance.
+% already a box, and the \FV@ObeyTabs here can not modify it.  The real action
+% happens in \spx@verb@@PreProcessLine.
 \newcommand\sphinxVerbatimFormatLine[1]{\FV@ObeyTabs{\strut #1}}%
 % The next two macros are a deep hack of fancyvrb.sty core line processing in
 % order to wrap too long lines, either at spaces and natural break-points,
