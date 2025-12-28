@@ -57,11 +57,9 @@
 % 4- while still allowing expansion of Pygments latex mark-up
 % Other aspects such as framing, caption handling, codeline wrapping are
 % added on top of it.
-% Perhaps we could cease using fancyvrb and implement 1, 2, 3, 4 by own
-% pure LaTeX code.  This would allow in particular to wrap long code lines
-% in a manner allowing a pagebreak in the middle.  But dropping fancyvrb
-% and keeping its native features and those we added by hacking into it
-% would be a significant effort.
+% Perhaps we could cease using fancyvrb and implement 1, 2, 3, 4 by own pure
+% LaTeX code.  But dropping fancyvrb and keeping its native features and those
+% we added by hacking into it would require a significant effort.
 \RequirePackage{fancyvrb}
 % Next line is in order to let TAB characters (ascii 9) obey tab stops,
 % MEMO: attow (2025/12/26), a TAB can not be found inside a code-block
@@ -371,7 +369,7 @@
 % HTML interprets the argument of :emphasize-lines: as referring to effective
 % line numbers in output (i.e. first line is always associated with number 1
 % even though the actual printed line number, or the original line number in
-% the source may differ, due to seeting of :lineno-start:).  This is why we do
+% the source may differ, due to setting of :lineno-start:).  This is why we do
 % not use here \c@FancyVerbLine, but resort to \FV@CodeLineNo, for PDF output
 % to follow same rules as HTML.
 \newcommand\sphinxFancyVerbFormatLine[1]{%
