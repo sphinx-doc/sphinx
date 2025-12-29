@@ -37,14 +37,14 @@ Bugs fixed
   Patch by Tim Nordell
 * #14207: Fix creating ``HTMLThemeFactory`` objects in third-party extensions.
   Patch by Adam Turner
-* #3099: LaTeX: Fix PDF build crashes if a code-block contains more than
+* #3099: LaTeX: PDF build crashes if a code-block contains more than
   circa 1350 codelines (about 27 a4-sized pages at default pointsize).
   Patch by Jean-François B.
 * #14064: LaTeX: TABs ending up in sphinxVerbatim fail to obey tab stops.
   Patch by Jean-François B.
 * #14089: autodoc: Improve support for non-weakreferencable objects.
   Patch by Adam Turner
-* LaTeX: fix accidental removal at ``3.5.0`` (#8854) of the documentation of
+* LaTeX: Fix accidental removal at ``3.5.0`` (#8854) of the documentation of
   ``literalblockcappos`` key of  :ref:`'sphinxsetup' <latexsphinxsetup>`.
   Patch by Jean-François B.
 
