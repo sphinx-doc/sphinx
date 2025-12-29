@@ -44,6 +44,9 @@ Bugs fixed
   Patch by Jean-François B.
 * #14089: autodoc: Improve support for non-weakreferencable objects.
   Patch by Adam Turner
+* LaTeX: fix accidental removal at ``3.5.0`` (#8854) of the documentation of
+  ``literalblockcappos`` key of  :ref:`'sphinxsetup' <latexsphinxsetup>`.
+  Patch by Jean-François B.
 
 Testing
 -------
