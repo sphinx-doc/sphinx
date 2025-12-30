@@ -472,7 +472,7 @@ class SphinxComponentRegistry:
 
     def add_static_dir(self, path: Path) -> None:
         """Register a static directory for extensions."""
-        logger.debug('[app] adding static_dir: %r', path)
+        logger.debug("[app] adding static_dir: '%s'", path)
         self.static_dirs.append(path)
 
     def has_latex_package(self, name: str) -> bool:

@@ -1739,6 +1739,11 @@ and also make use of these options.
       An alternative approach is to use :confval:`html_extra_path`,
       which allows copying dotfiles under the directories.
 
+   .. seealso::
+
+      :meth:`~sphinx.application.Sphinx.add_static_dir`, for use in extensions
+      to copy static files to the output directory.
+
    .. versionchanged:: 0.4
       The paths in :confval:`html_static_path` can now contain subdirectories.
 
@@ -1748,12 +1753,6 @@ and also make use of these options.
    .. versionchanged:: 1.8
       The files under :confval:`html_static_path` are excluded from source
       files.
-
-   .. seealso::
-
-      Extension and theme developers can use
-      :meth:`~sphinx.application.Sphinx.add_static_dir` to copy static files
-      to the output directory.
 
 .. confval:: html_extra_path
    :type: :code-py:`list[str]`

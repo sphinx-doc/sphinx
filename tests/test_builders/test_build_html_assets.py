@@ -188,8 +188,8 @@ def test_extension_static_dir(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     # Verify extension static files were copied to _static
-    assert (app.outdir / '_static' / 'js' / 'myext.js').exists()
-    assert (app.outdir / '_static' / 'css' / 'myext.css').exists()
+    assert (app.outdir / '_static' / 'js' / 'myext.js').is_file()
+    assert (app.outdir / '_static' / 'css' / 'myext.css').is_file()
 
     # Verify JS and CSS are included in the HTML output
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

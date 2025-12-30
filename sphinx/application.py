@@ -1581,10 +1581,14 @@ class Sphinx:
     def add_static_dir(self, path: str | os.PathLike[str]) -> None:
         """Register a static directory to include in HTML output.
 
-        The directory's contents will be copied to the ``_static`` directory
-        during an HTML build. Files from extension static directories are copied
-        after theme static files but before user-configured ``html_static_path``
-        directories.
+        The given directory's contents will be copied to the ``_static``
+        directory during an HTML build. Files from extension static directories
+        are copied after theme static files and before any directories from
+        the user-configured ``html_static_path`` setting.
+
+        Sphinx has built-in support for ``static/`` directories in themes;
+        theme developers should only use this method to register further
+        directories to be copied.
 
         :param path: The path to a directory containing static files.
                      This is typically relative to the extension's package
@@ -1607,7 +1611,7 @@ class Sphinx:
         .. versionadded:: 9.1
         """
         path = Path(path)
-        logger.debug('[app] adding static_dir: %r', path)
+        logger.debug("[app] adding static_dir: '%s'", path)
         self.registry.add_static_dir(path)
 
     def add_latex_package(

@@ -115,6 +115,9 @@ def copy_asset(
 
     Use ``copy_asset_file`` instead to copy a single file.
 
+    Use ``app.add_static_dir()`` instead to copy static files to
+    the output directory.
+
     :param source: The path to source file or directory
     :param destination: The path to destination directory
     :param excluded: The matcher to determine the given path should be copied or not
@@ -122,10 +125,6 @@ def copy_asset(
     :param renderer: The template engine.  If not given, SphinxRenderer is used by default
     :param onerror: The error handler.
     :param bool force: Overwrite the destination file even if it exists.
-
-    .. seealso::
-       :meth:`~sphinx.application.Sphinx.add_static_dir` for copying static files to the
-       output directory
     """
     source = Path(source)
     if not source.exists():
