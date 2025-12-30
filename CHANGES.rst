@@ -35,6 +35,8 @@ Bugs fixed
   Patch by Günter Milde
 * LaTeX: Fix rendering for grid filled merged vertical cell.
   Patch by Tim Nordell
+* #14228: LaTeX: Fix overrun footer for cases of merged vertical table cells.
+  Patch by Tim Nordell
 * #14207: Fix creating ``HTMLThemeFactory`` objects in third-party extensions.
   Patch by Adam Turner
 * #3099: LaTeX: PDF build crashes if a code-block contains more than
