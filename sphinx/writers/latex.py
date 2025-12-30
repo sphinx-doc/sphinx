@@ -1307,15 +1307,16 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_row(self, node: Element) -> None:
         assert self.table is not None
-        self.body.append(r'\\' + CR)
         cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
         underlined = [
             cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]
             for cell in cells
         ]
         if all(underlined):
+            self.body.append(r'\\' + CR)
             self.body.append(r'\sphinxhline')
         else:
+            self.body.append(r'\\*' + CR)
             i = 0
             underlined.extend([False])  # sentinel
             if underlined[0] is False:
