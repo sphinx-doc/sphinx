@@ -191,9 +191,9 @@ Utilities
     :members:
     :show-inheritance:
 
-Usage
------
+Examples
+--------
 
-If you want to know more detailed usage,
+For practical examples,
 please refer to :file:`tests/conftest.py` and other :file:`test_*.py` files
 under the :file:`tests/` directory of the Sphinx source code.
