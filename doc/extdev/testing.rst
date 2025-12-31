@@ -20,44 +20,21 @@ as follows:
 Markers
 ~~~~~~~
 
-.. py:decorator:: pytest.mark.test_params(...)
+.. py:decorator:: pytest.mark.sphinx(buildername='html', *, testroot='root', ...)
 
-    Parameters associated with a test.
+   Arguments to initialize the Sphinx test application.
 
-    :param str shared_result: A key that allows sharing the build result, status, and warning between tests that use the same key.
-
-    When multiple tests with a module are marked with the same
-    ``shared_result`` value, they will share the same build result as
-    well as status and warning buffers. This allows related tests to
-    avoid redundant rebuilds and reuse the same build context.
-
-    .. code-block:: python
-
-        @pytest.mark.test_params(shared_result="html_build")
-        def test_html_title(app: SphinxTestApp) -> None:
-            app.build()
-            # ... test something about the HTML output ...
-
-        @pytest.mark.test_params(shared_result="html_build")
-        def test_html_index(app: SphinxTestApp) -> None:
-            app.build()
-            # ... test something else about the HTML output ...
-
-.. py:decorator:: pytest.mark.sphinx(buildername="html", *, testroot="root", ...)
-
-    Arguments to initialize the Sphinx test application.
-
-    :param str buildername: Builder to use.
-    :param str testroot: Test root directory to use.
-    :param srcdir: Source directory (overridden when ``shared_result`` is used).
-    :param dict confoverrides: Configuration values to override.
-    :param bool freshenv: Whether to refresh the environment.
-    :param bool warningiserror: Treat warnings as errors.
-    :param tags: List of tags to set.
-    :param int verbosity: Verbosity level.
-    :param int parallel: Number of parallel processes.
-    :param builddir: Build directory.
-    :param docutils_conf: Docutils configuration.
+   :param str buildername: Builder to use.
+   :param str testroot: Test root directory to use.
+   :param srcdir: Source directory (overridden when ``shared_result`` is used).
+   :param dict confoverrides: Configuration values to override.
+   :param bool freshenv: Whether to refresh the environment.
+   :param bool warningiserror: Treat warnings as errors.
+   :param tags: List of tags to set.
+   :param int verbosity: Verbosity level.
+   :param int parallel: Number of parallel processes.
+   :param builddir: Build directory.
+   :param docutils_conf: Docutils configuration.
 
     .. code-block:: python
 
@@ -65,6 +42,31 @@ Markers
         def test_html_output(app: SphinxTestApp) -> None:
             app.build()
             # ... test something about the HTML output ...
+
+.. py:decorator:: pytest.mark.test_params(...)
+
+   Parameters associated with a test.
+
+   :param str shared_result:
+       A key that allows sharing the build result, status, and warnings
+       between tests that use the same key.
+
+   When multiple tests with a module are marked with the same
+   ``shared_result`` value, they will share the same build result as
+   well as status and warning buffers. This allows related tests to
+   avoid redundant rebuilds and reuse the same build context.
+
+   .. code-block:: python
+
+      @pytest.mark.test_params(shared_result="html_build")
+      def test_html_title(app: SphinxTestApp) -> None:
+          app.build()
+          # ... test something about the HTML output ...
+
+      @pytest.mark.test_params(shared_result="html_build")
+      def test_html_index(app: SphinxTestApp) -> None:
+          app.build()
+          # ... test something else about the HTML output ...
 
 Fixtures
 ~~~~~~~~
