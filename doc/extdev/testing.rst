@@ -6,8 +6,8 @@ Testing API
 Sphinx provides utility functions and pytest fixtures to make it easier
 to write test suites that build multiple Sphinx documentation projects.
 
-Using ``pytest`` plugin
------------------------
+Using the ``pytest`` plugin
+---------------------------
 
 To use pytest helpers that are provided by ``sphinx.testing``, add the
 ``'sphinx.testing.fixtures'`` plugin to your :file:`conftest.py` file
@@ -194,6 +194,6 @@ Utilities
 Examples
 --------
 
-For practical examples,
-please refer to :file:`tests/conftest.py` and other :file:`test_*.py` files
-under the :file:`tests/` directory of the Sphinx source code.
+For practical examples, refer to :file:`tests/conftest.py`
+and other :file:`test_*.py` files under the :file:`tests/` directory
+of the Sphinx source code.
