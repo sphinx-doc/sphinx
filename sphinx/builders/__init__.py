@@ -6,6 +6,7 @@ import pickle
 import re
 import time
 from contextlib import nullcontext
+from multiprocessing.pool import Pool
 from pathlib import Path
 from typing import TYPE_CHECKING, final
 
@@ -607,25 +608,25 @@ class Builder:
             self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
-        def read_process(docs: list[str]) -> bytes:
+        def read_process(docs: list[str]) -> tuple[list[str], bytes]:
             self.env._app = self._app
             for docname in docs:
                 self.read_doc(docname, _cache=False)
             # allow pickling self to send it back
-            return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
+            return docs, pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
         def merge(docs: list[str], otherenv: bytes) -> None:
             env = pickle.loads(otherenv)
             self.env.merge_info_from(docs, env, self._app)
 
-            next(progress)
+        with Pool(processes=nproc) as pool:
+            # run read_process() in parallel
+            results = pool.imap(read_process, chunks)
 
-        tasks = ParallelTasks(nproc)
-        for chunk in chunks:
-            tasks.add_task(read_process, chunk, merge)
+            for (docs, bytes), _ in zip(results, progress):
+                # merge the results back into the main environment
+                merge(docs, bytes)
 
-        # make sure all threads have finished
-        tasks.join()
         logger.info('')
 
     @final
@@ -786,8 +787,17 @@ class Builder:
         firstname, docnames = docnames[0], docnames[1:]
         _write_docname(firstname, env=self.env, builder=self, tags=self.tags)
 
-        tasks = ParallelTasks(nproc)
-        chunks = make_chunks(docnames, nproc)
+
+        input_data = []
+        for docname in docnames:
+            doctree = self.env.get_and_resolve_doctree(
+                docname, self, tags=self.tags
+            )
+            self.write_doc_serialized(docname, doctree)
+            input_data.append((docname, doctree))
+
+
+        chunks = make_chunks(input_data, nproc)
 
         # create a status_iterator to step progressbar after writing a document
         # (see: ``on_chunk_done()`` function)
@@ -799,22 +809,12 @@ class Builder:
             self.config.verbosity,
         )
 
-        def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
-            next(progress)
+        with Pool(processes=nproc) as pool:
+            result = pool.imap(write_process, chunks)
+            for _ in zip(result, progress):
+                # just step the progress bar
+                pass
 
-        self.phase = BuildPhase.RESOLVING
-        for chunk in chunks:
-            arg = []
-            for docname in chunk:
-                doctree = self.env.get_and_resolve_doctree(
-                    docname, self, tags=self.tags
-                )
-                self.write_doc_serialized(docname, doctree)
-                arg.append((docname, doctree))
-            tasks.add_task(write_process, arg, on_chunk_done)
-
-        # make sure all threads have finished
-        tasks.join()
         logger.info('')
 
     def prepare_writing(self, docnames: Set[str]) -> None:
