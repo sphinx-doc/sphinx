@@ -98,7 +98,10 @@ def app_params(
             pytest.fail(msg)
         kwargs['srcdir'] = test_params['shared_result']
         restore = shared_result.restore(test_params['shared_result'])
-        kwargs.update(restore)
+        if restore:
+            kwargs.update(restore)
+        else:
+            kwargs['freshenv'] = True
 
     # ##### prepare Application params
 
@@ -193,10 +196,11 @@ def make_app(test_params: dict[str, Any]) -> Iterator[Callable[..., SphinxTestAp
 
     def make(*args: Any, **kwargs: Any) -> SphinxTestApp:
         status, warning = StringIO(), StringIO()
+        restored = 'status' in kwargs
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
         app_: SphinxTestApp
-        if test_params['shared_result']:
+        if test_params['shared_result'] and restored:
             app_ = SphinxTestAppWrapperForSkipBuilding(*args, **kwargs)
         else:
             app_ = SphinxTestApp(*args, **kwargs)
