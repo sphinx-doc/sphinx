@@ -17,6 +17,9 @@ Features added
 
 Bugs fixed
 ----------
+* #13383: Emit an info-level message about duplicate internal hyperlink
+  declarations.
+  Patch by James Addison.
 
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
