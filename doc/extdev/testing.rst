@@ -25,29 +25,29 @@ Markers
    Arguments to initialize the Sphinx test application.
 
    :param str buildername: Builder to use.
-   :param str testroot: Test root directory to use.
-   :param srcdir: Source directory (overridden when ``shared_result`` is used).
-   :param dict confoverrides: Configuration values to override.
-   :param bool freshenv: Whether to refresh the environment.
-   :param bool warningiserror: Treat warnings as errors.
-   :param tags: List of tags to set.
-   :param int verbosity: Verbosity level.
-   :param int parallel: Number of parallel processes.
-   :param builddir: Build directory.
-   :param docutils_conf: Docutils configuration.
+   :kwparam str testroot: Test root directory to use.
+   :kwparam srcdir: Source directory to use.
+   :kwparam dict confoverrides: Configuration values to override.
+   :kwparam bool freshenv: Whether to refresh the environment.
+   :kwparam bool warningiserror: Treat warnings as errors.
+   :kwparam tags: List of tags to set.
+   :kwparam int verbosity: Verbosity level.
+   :kwparam int parallel: Number of parallel processes.
+   :kwparam builddir: Build directory.
+   :kwparam docutils_conf: Docutils configuration.
 
-    .. code-block:: python
+   .. code-block:: python
 
-        @pytest.mark.sphinx("html", testroot="something")
-        def test_html_output(app: SphinxTestApp) -> None:
-            app.build()
-            # ... test something about the HTML output ...
+      @pytest.mark.sphinx('html', testroot='something')
+      def test_html_output(app: SphinxTestApp) -> None:
+          app.build()
+          # ... test something about the HTML output ...
 
-.. py:decorator:: pytest.mark.test_params(...)
+.. py:decorator:: pytest.mark.test_params(*, shared_result=...)
 
    Parameters associated with a test.
 
-   :param str shared_result:
+   :kwparam str shared_result:
        A key that allows sharing the build result, status, and warnings
        between tests that use the same key.
 
@@ -56,14 +56,16 @@ Markers
    well as status and warning buffers. This allows related tests to
    avoid redundant rebuilds and reuse the same build context.
 
+   .. attention:: *shared_result* and *srcdir* are mutually incompatible.
+
    .. code-block:: python
 
-      @pytest.mark.test_params(shared_result="html_build")
+      @pytest.mark.test_params(shared_result='html_build')
       def test_html_title(app: SphinxTestApp) -> None:
           app.build()
           # ... test something about the HTML output ...
 
-      @pytest.mark.test_params(shared_result="html_build")
+      @pytest.mark.test_params(shared_result='html_build')
       def test_html_index(app: SphinxTestApp) -> None:
           app.build()
           # ... test something else about the HTML output ...
@@ -71,112 +73,86 @@ Markers
 Fixtures
 ~~~~~~~~
 
-.. py:function:: sphinx.testing.fixtures.rootdir
+.. py:data:: sphinx.testing.fixtures.rootdir
+   :type: pathlib.Path | None
 
-    :scope: session
+   :scope: session
 
-    Defaults to ``None`` so tests operate on (empty) temporary paths.
+   Default is ``None``, meaning tests use empty temporary directories.
 
-    Can be overridden in a project's :file:`conftest.py` to return a
-    :class:`~pathlib.Path` to a directory, containing multiple Sphinx
-    documentation sources under sub-directories prefixed with `test-`.
+   Can be overridden in a project's :file:`conftest.py` to return a
+   :class:`~pathlib.Path` to a directory, containing multiple Sphinx
+   documentation sources under sub-directories prefixed with ``test-``.
 
-    .. code-block:: python
+   .. code-block:: python
 
-        @pytest.fixture(scope='session')
-        def rootdir() -> pathlib.Path | None:
-            return pathlib.Path(__file__).parent / 'docsets'
+      @pytest.fixture(scope='session')
+      def rootdir() -> Path:
+          return Path(__file__).resolve().parent / 'roots'
 
-    .. code-block:: text
+   .. code-block:: text
 
-        tests/
-        ├── conftest.py  <-- defines rootdir fixture
-        ├── docsets/
-        ├── test-example1/
-        │   ├── conf.py
-        │   └── index.rst
-        ├── test-example2/
-        │   ├── conf.py
-        │   └── index.rst
-        └── test_something.py
+      tests/
+      ├── conftest.py  <-- defines rootdir fixture
+      ├── roots/
+      │   ├── test-example1/
+      │   │   ├── conf.py
+      │   │   └── index.rst
+      │   └── test-example2/
+      │       ├── conf.py
+      │       └── index.rst
+      └── test_something.py
 
-.. py:function:: sphinx.testing.fixtures.sphinx_test_tempdir
+.. py:data:: sphinx.testing.fixtures.sphinx_test_tempdir
+   :type: pathlib.Path
 
-    :scope: session
+   :scope: session
 
-    Base temporary directory :class:`~pathlib.Path` used for building
-    the test apps.
+   Base temporary directory :class:`~pathlib.Path` used for building
+   the test apps.
 
-.. py:function:: sphinx.testing.fixtures.app_params
+.. py:data:: sphinx.testing.fixtures.app_params
+   :type: tuple[Sequence[Any], Mapping[str, Any]]
 
-    The positional ``args`` and keyword ``kwargs`` used to build the
-    :py:class:`~sphinx.testing.util.SphinxTestApp` for this test. These are derived from the
-    :py:func:`pytest.mark.sphinx`, :py:func:`pytest.mark.test_params`,
-    and default settings.
+   :scope: function
 
-    If ``rootdir`` fixture is not :py:obj:`None`, the contents of
-    ``rootdir / f'test-{testroot}'`` get copied into the source directory
-    that the app would build in.
+   The positional keyword arguments used to create the
+   :class:`~sphinx.testing.util.SphinxTestApp` for this test.
+   These are derived from the markers_ applied to the test function.
 
-    Returns a namedtuple of ``(args, kwargs)``.
+   Returns a namedtuple of ``(args, kwargs)``.
 
-.. py:function:: sphinx.testing.fixtures.make_app
+.. py:function:: sphinx.testing.fixtures.make_app(*args: Any, **kwargs: Any) -> SphinxTestApp
 
-    Factory function that constructs a :class:`~sphinx.testing.util.SphinxTestApp`
-    from ``app_params``.
+   :scope: function
 
-    .. code-block:: python
+   Factory function that constructs a :class:`~sphinx.testing.util.SphinxTestApp`
+   instance for use in tests. This is the preferred way to create instances
+   of the :class:`~sphinx.application.Sphinx` object, as it handles clean-up.
+   The arguments are the same as those to ``SphinxTestApp``.
 
-        def test_something(make_app: Callable[..., SphinxTestApp]) -> None:
-            app = make_app("html")
-            app.build()
-            # ... test something about the built documentation ...
+   .. code-block:: python
 
-.. py:function:: sphinx.testing.fixtures.app
+      def test_something(make_app: Callable[..., SphinxTestApp]) -> None:
+          app = make_app('html')
+          app.build()
+          # ... test something about the built documentation ...
 
-    A :class:`~sphinx.testing.util.SphinxTestApp` constructed from
-    ``app_params``.
+.. py:data:: sphinx.testing.fixtures.app
+   :type: SphinxTestApp
 
-    .. code-block:: python
+   :scope: function
 
-        def test_something(app: SphinxTestApp) -> None:
-            app.build()
-            # ... test something about the built documentation ...
+   Provides a :class:`~sphinx.testing.util.SphinxTestApp` instance.
+   This is the most common way to get a Sphinx application for testing.
 
-.. py:function:: sphinx.testing.fixtures.if_graphviz_found
+   The app can be configured by using the :deco:`pytest.mark.sphinx` marker.
 
-    Skip the test if :confval:`graphviz_dot` is not configured or the binary is
-    unavailable.
+   .. code-block:: python
 
-    .. code-block:: python
-
-        @pytest.mark.usefixtures('if_graphviz_found')
-        def test_graphviz_diagram(app: SphinxTestApp) -> None:
-            app.build()
-            # ... test something about the graphviz diagram ...
-
-.. py:function:: sphinx.testing.fixtures.rollback_sysmodules
-
-    Iterator that snapshots ``sys.modules`` before the test and removes any
-    modules imported during the test body. Helps tests reload target modules to
-    clear caches.
-
-    This mostly exists to help test :mod:`sphinx.ext.autodoc`.
-
-    .. code-block:: python
-
-        @pytest.mark.usefixtures('rollback_sysmodules')
-        def test_module_reload(app: SphinxTestApp) -> None:
-            import my_extension
-            # ... test something about my_extension ...
-
-.. py:function:: sphinx.testing.fixtures.status
-
-    Compatibility fixture returning ``app.status`` (``StringIO``).
-
-.. py:function:: sphinx.testing.fixtures.warning
-
-    Compatibility fixture returning ``app.warning`` (``StringIO``).
+      def test_something(app: SphinxTestApp) -> None:
+          app.build()
+          # ... test something about the built documentation ...
 
 Utilities
 ---------
@@ -184,10 +160,6 @@ Utilities
 .. autoclass:: sphinx.testing.util.SphinxTestApp
     :members:
     :show-inheritance:
-
-    .. py:attribute:: extras
-
-        A dictionary to store arbitrary data associated with this app.
 
 .. autoclass:: sphinx.testing.util.SphinxTestAppWrapperForSkipBuilding
     :members:
