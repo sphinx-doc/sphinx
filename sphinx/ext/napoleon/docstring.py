@@ -358,7 +358,7 @@ class GoogleDocstring:
         self._what: _AutodocObjType | Literal['object'] = what
         self._name = name
         self._obj = obj
-        if options:
+        if options is not None:
             try:
                 self._no_index = options.no_index or options.noindex
             except (AttributeError, TypeError):
