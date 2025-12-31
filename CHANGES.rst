@@ -1,5 +1,5 @@
-Release 9.1.0 (in development)
-==============================
+Release 9.1.0 (released Dec 31, 2025)
+=====================================
 
 Dependencies
 ------------
@@ -7,12 +7,6 @@ Dependencies
 * #14153: Drop Python 3.11 support.
 * #12555: Drop Docutils 0.20 support.
   Patch by Adam Turner
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
 
 Features added
 --------------
@@ -53,6 +47,3 @@ Bugs fixed
 * LaTeX: Fix accidental removal at ``3.5.0`` (#8854) of the documentation of
   ``literalblockcappos`` key of  :ref:`'sphinxsetup' <latexsphinxsetup>`.
   Patch by Jean-François B.
-
-Testing
--------
