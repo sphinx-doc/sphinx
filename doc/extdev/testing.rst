@@ -73,6 +73,49 @@ Markers
 Fixtures
 ~~~~~~~~
 
+.. py:data:: sphinx.testing.fixtures.app
+   :type: SphinxTestApp
+
+   :scope: function
+
+   Provides a :class:`~sphinx.testing.util.SphinxTestApp` instance.
+   This is the most common way to get a Sphinx application for testing.
+
+   The app can be configured by using the :deco:`pytest.mark.sphinx` marker.
+
+   .. code-block:: python
+
+      def test_something(app: SphinxTestApp) -> None:
+          app.build()
+          # ... test something about the built documentation ...
+
+.. py:function:: sphinx.testing.fixtures.make_app(*args: Any, **kwargs: Any) -> SphinxTestApp
+
+   :scope: function
+
+   Factory function that constructs a :class:`~sphinx.testing.util.SphinxTestApp`
+   instance for use in tests. This is the preferred way to create instances
+   of the :class:`~sphinx.application.Sphinx` object, as it handles clean-up.
+   The arguments are the same as those to ``SphinxTestApp``.
+
+   .. code-block:: python
+
+      def test_something(make_app: Callable[..., SphinxTestApp]) -> None:
+          app = make_app('html')
+          app.build()
+          # ... test something about the built documentation ...
+
+.. py:data:: sphinx.testing.fixtures.app_params
+   :type: tuple[Sequence[Any], Mapping[str, Any]]
+
+   :scope: function
+
+   The positional keyword arguments used to create the
+   :class:`~sphinx.testing.util.SphinxTestApp` for this test.
+   These are derived from the markers_ applied to the test function.
+
+   Returns a namedtuple of ``(args, kwargs)``.
+
 .. py:data:: sphinx.testing.fixtures.rootdir
    :type: pathlib.Path | None
 
@@ -111,59 +154,16 @@ Fixtures
    Base temporary directory :class:`~pathlib.Path` used for building
    the test apps.
 
-.. py:data:: sphinx.testing.fixtures.app_params
-   :type: tuple[Sequence[Any], Mapping[str, Any]]
-
-   :scope: function
-
-   The positional keyword arguments used to create the
-   :class:`~sphinx.testing.util.SphinxTestApp` for this test.
-   These are derived from the markers_ applied to the test function.
-
-   Returns a namedtuple of ``(args, kwargs)``.
-
-.. py:function:: sphinx.testing.fixtures.make_app(*args: Any, **kwargs: Any) -> SphinxTestApp
-
-   :scope: function
-
-   Factory function that constructs a :class:`~sphinx.testing.util.SphinxTestApp`
-   instance for use in tests. This is the preferred way to create instances
-   of the :class:`~sphinx.application.Sphinx` object, as it handles clean-up.
-   The arguments are the same as those to ``SphinxTestApp``.
-
-   .. code-block:: python
-
-      def test_something(make_app: Callable[..., SphinxTestApp]) -> None:
-          app = make_app('html')
-          app.build()
-          # ... test something about the built documentation ...
-
-.. py:data:: sphinx.testing.fixtures.app
-   :type: SphinxTestApp
-
-   :scope: function
-
-   Provides a :class:`~sphinx.testing.util.SphinxTestApp` instance.
-   This is the most common way to get a Sphinx application for testing.
-
-   The app can be configured by using the :deco:`pytest.mark.sphinx` marker.
-
-   .. code-block:: python
-
-      def test_something(app: SphinxTestApp) -> None:
-          app.build()
-          # ... test something about the built documentation ...
-
 Utilities
 ---------
 
 .. autoclass:: sphinx.testing.util.SphinxTestApp
-    :members:
-    :show-inheritance:
+   :members:
+   :show-inheritance:
 
 .. autoclass:: sphinx.testing.util.SphinxTestAppWrapperForSkipBuilding
-    :members:
-    :show-inheritance:
+   :members:
+   :show-inheritance:
 
 Examples
 --------
