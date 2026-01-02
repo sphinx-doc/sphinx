@@ -673,6 +673,7 @@ are recognized and formatted nicely:
 * ``var``, ``ivar``, ``cvar``: Description of a variable.
 * ``vartype``: Type of a variable.  Creates a link if possible.
 * ``returns``, ``return``: Description of the return value.
+* ``yields``, ``yield``: Description of the yielded value(s) of a generator.
 * ``rtype``: Return type.  Creates a link if possible.
 * ``meta``: Add metadata to description of the python object.  The metadata will
   not be shown on output document.  For example, ``:meta private:`` indicates
