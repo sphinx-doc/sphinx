@@ -43,11 +43,11 @@ Build environment API
 
       Dictionary mapping docnames to the docutils node for their main title.
 
+   **Per-document attributes**
+
    .. autoattribute:: docname
 
    .. autoattribute:: parser
-
-   **Per-document attributes**
 
    .. attribute:: current_document
 
