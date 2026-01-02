@@ -14,8 +14,8 @@ language, this will not take too long.
 
 .. seealso::
 
-   The authoritative `reStructuredText User Documentation
-   <https://docutils.sourceforge.io/rst.html>`__ (note double trailing underscores).
+   The authoritative `reStructuredText User Documentation <https://docutils.sourceforge.io/rst.html>`__
+   explains the reference syntax (note double trailing underscores).
 
    The "ref" links in this document link to the description of
    the individual constructs in the reStructuredText reference.
