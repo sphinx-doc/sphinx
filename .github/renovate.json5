@@ -1,11 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "enabledManagers": ["github-actions", "uv"],
+  "enabledManagers": ["github-actions", "pep621"],
   "dependencyDashboard": true,
   "semanticCommits": "enabled",
   "schedule": ["every day"],
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["every week"]
+    "schedule": ["every month"]
   }
 }
