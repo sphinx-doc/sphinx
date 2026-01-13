@@ -81,7 +81,9 @@ class Theme:
         for config in reversed(configs.values()):
             options |= config.options
             if config.stylesheets is not None:
-                self.stylesheets = config.stylesheets
+                for stylesheet in config.stylesheets:
+                    if stylesheet not in self.stylesheets:
+                        self.stylesheets += (stylesheet,)
             if config.sidebar_templates is not None:
                 self.sidebar_templates = config.sidebar_templates
             if config.pygments_style_default is not None:
