@@ -47,3 +47,4 @@ Bugs fixed
 * LaTeX: Fix accidental removal at ``3.5.0`` (#8854) of the documentation of
   ``literalblockcappos`` key of  :ref:`'sphinxsetup' <latexsphinxsetup>`.
   Patch by Jean-François B.
+ * Merge inherited stylesheets in HTML themes instead of overwriting them. Fixes #9093.
