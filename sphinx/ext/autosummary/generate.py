@@ -873,19 +873,23 @@ def find_autosummary_in_lines(
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
-        epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
-        description=__("""
-Generate ReStructuredText using autosummary directives.
+        epilog=str(__('For more information, visit <https://www.sphinx-doc.org/>.')),
+        description=str(
+            __(
+                """
+ Generate ReStructuredText using autosummary directives.
 
-sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
-the reStructuredText files from the autosummary directives contained in the
-given input files.
+ sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
+ the reStructuredText files from the autosummary directives contained in the
+ given input files.
 
-The format of the autosummary directive is documented in the
-``sphinx.ext.autosummary`` Python module and can be read using::
+ The format of the autosummary directive is documented in the
+ ``sphinx.ext.autosummary`` Python module and can be read using::
 
-  pydoc sphinx.ext.autosummary
-"""),
+   pydoc sphinx.ext.autosummary
+ """
+            )
+        ),
     )
 
     parser.add_argument(
@@ -896,7 +900,8 @@ The format of the autosummary directive is documented in the
     )
 
     parser.add_argument(
-        'source_file', nargs='+', help=__('source files to generate rST files for')
+        'source_file', nargs='+',
+        help=str(__('source files to generate rST files for')),
     )
 
     parser.add_argument(
@@ -904,7 +909,7 @@ The format of the autosummary directive is documented in the
         '--output-dir',
         action='store',
         dest='output_dir',
-        help=__('directory to place all output in'),
+        help=str(__('directory to place all output in')),
     )
     parser.add_argument(
         '-s',
@@ -912,7 +917,7 @@ The format of the autosummary directive is documented in the
         action='store',
         dest='suffix',
         default='rst',
-        help=__('default suffix for files (default: %(default)s)'),
+        help=str(__('default suffix for files (default: %(default)s)')),
     )
     parser.add_argument(
         '-t',
@@ -920,7 +925,7 @@ The format of the autosummary directive is documented in the
         action='store',
         dest='templates',
         default=None,
-        help=__('custom template directory (default: %(default)s)'),
+        help=str(__('custom template directory (default: %(default)s)')),
     )
     parser.add_argument(
         '-i',
@@ -928,7 +933,7 @@ The format of the autosummary directive is documented in the
         action='store_true',
         dest='imported_members',
         default=False,
-        help=__('document imported members (default: %(default)s)'),
+        help=str(__('document imported members (default: %(default)s)')),
     )
     parser.add_argument(
         '-a',
@@ -936,9 +941,11 @@ The format of the autosummary directive is documented in the
         action='store_true',
         dest='respect_module_all',
         default=False,
-        help=__(
-            'document exactly the members in module __all__ attribute. '
-            '(default: %(default)s)'
+        help=str(
+            __(
+                'document exactly the members in module __all__ attribute. '
+                '(default: %(default)s)'
+            )
         ),
     )
     parser.add_argument(
@@ -946,8 +953,8 @@ The format of the autosummary directive is documented in the
         action='store_true',
         dest='remove_old',
         default=False,
-        help=__(
-            'Remove existing files in the output directory that were not generated'
+        help=str(
+            __('Remove existing files in the output directory that were not generated')
         ),
     )
 
