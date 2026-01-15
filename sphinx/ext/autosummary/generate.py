@@ -900,7 +900,8 @@ def get_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        'source_file', nargs='+',
+        'source_file',
+        nargs='+',
         help=str(__('source files to generate rST files for')),
     )
 
