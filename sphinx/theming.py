@@ -81,12 +81,7 @@ class Theme:
         for config in reversed(configs.values()):
             options |= config.options
             if config.stylesheets is not None:
-                for stylesheet in config.stylesheets:
-                    # Force conversion to string to resolve TranslationProxies
-                    # and avoid TypeErrors during membership checks.
-                    stylesheet_str = str(stylesheet)
-                    if stylesheet_str not in self.stylesheets:
-                        self.stylesheets += (stylesheet_str,)
+                self.stylesheets = config.stylesheets
             if config.sidebar_templates is not None:
                 self.sidebar_templates = config.sidebar_templates
             if config.pygments_style_default is not None:
