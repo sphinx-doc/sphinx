@@ -76,7 +76,7 @@ def parse_version(version: str) -> VersionInfo:
     # - "X.Y.ZrcN" -> (X, Y, Z, 'candidate', N)
     if matched := re.fullmatch(r'(\d+)\.(\d+)\.(\d+)(a|b|rc)(\d+)', version):
         major, minor, micro, level, serial = matched.groups()
-        return VersionInfo(int(major), int(minor), int(micro), level, int(serial))
+        return VersionInfo(int(major), int(minor), int(micro), level, int(serial))  # type: ignore[arg-type]
     msg = f'Unknown version format: {version}'
     raise RuntimeError(msg)
 
