@@ -97,7 +97,6 @@ Contributors
 * Matthew Woodcraft -- text output improvements
 * Matthias Geier -- style improvements
 * Michael Droettboom -- inheritance_diagram extension
-* Michael Hughes -- Merge inherited stylesheets in HTML themes
 * Michael Wilson -- Intersphinx HTTP basic auth support
 * Nathan Damon -- bugfix in validation of static paths in html builders
 * Nils Kattenbeck -- pygments dark style
