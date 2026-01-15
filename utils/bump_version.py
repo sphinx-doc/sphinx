@@ -78,7 +78,7 @@ def parse_version(version: str) -> VersionInfo:
         major, minor, micro, level, serial = matched.groups()
         return VersionInfo(int(major), int(minor), int(micro), level, int(serial))  # type: ignore[arg-type]
 
-    msg = f'Unknown version format: {version}'
+    msg = f'Unknown version: {version}'
     raise RuntimeError(msg)
 
 
