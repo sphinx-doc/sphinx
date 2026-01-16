@@ -80,7 +80,7 @@ class Theme:
         self.pygments_style_dark: str | None = None
         for config in reversed(configs.values()):
             options |= config.options
-            for stylesheet in config.stylesheets:
+            for stylesheet in config.stylesheets or ():
                 # Force conversion to string to resolve TranslationProxies
                 # and avoid TypeErrors during membership checks.
                 stylesheet_str = str(stylesheet)
