@@ -75,7 +75,7 @@ def test_theme_api(app: SphinxTestApp) -> None:
     assert len(theme.get_theme_dirs()) == 2
 
     # direct setting
-    assert theme.get_config('theme', 'stylesheet') == 'custom.css'
+    assert theme.get_config('theme', 'stylesheet') == 'basic.css, custom.css'
     # inherited setting
     assert theme.get_config('options', 'nosidebar') == 'false'
     # nonexisting setting
@@ -169,6 +169,7 @@ def test_dark_style(app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch) -> None
     assert css_file.attributes['media'] == '(prefers-color-scheme: dark)'
 
     assert sorted(str(f.filename) for f in app.builder._css_files) == [
+        '_static/basic.css',
         '_static/classic.css',
         '_static/pygments.css',
         '_static/pygments_dark.css',
