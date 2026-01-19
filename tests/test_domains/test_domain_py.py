@@ -1065,15 +1065,15 @@ def test_domain_py_python_maximum_signature_line_length_in_html(app):
     )
     assert expected_f in content
 
-    expected_parameter_list_foo = """\
+    expected_parameter_list_foo = f"""\
 
 <dl>
-{}{}{}{}{}{}</dl>
+{expected_a}{expected_b}{expected_c}{expected_d}{expected_e}{expected_f}</dl>
 
 <span class="sig-paren">)</span>\
 <a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
 </dt>\
-""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+"""
     assert expected_parameter_list_foo in content
 
 
@@ -1110,14 +1110,7 @@ def test_domain_py_python_maximum_signature_line_length_in_text(app):
     expected_f = param_line_fmt.format('f,]')
     assert expected_f in content
 
-    expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(
-        expected_a,
-        expected_b,
-        expected_c,
-        expected_d,
-        expected_e,
-        expected_f,
-    )
+    expected_parameter_list_foo = f'(\n{expected_a}{expected_b}{expected_c}{expected_d}{expected_e}{expected_f})'
     assert expected_parameter_list_foo in content
 
 
@@ -1190,15 +1183,15 @@ def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_html(app):
     )
     assert expected_f in content
 
-    expected_parameter_list_foo = """\
+    expected_parameter_list_foo = f"""\
 
 <dl>
-{}{}{}{}{}{}</dl>
+{expected_a}{expected_b}{expected_c}{expected_d}{expected_e}{expected_f}</dl>
 
 <span class="sig-paren">)</span>\
 <a class="headerlink" href="#foo" title="Link to this definition">¶</a>\
 </dt>\
-""".format(expected_a, expected_b, expected_c, expected_d, expected_e, expected_f)
+"""
     assert expected_parameter_list_foo in content
 
 
@@ -1237,14 +1230,7 @@ def test_domain_py_python_trailing_comma_in_multi_line_signatures_in_text(app):
     expected_f = param_line_fmt.format('f]')
     assert expected_f in content
 
-    expected_parameter_list_foo = '(\n{}{}{}{}{}{})'.format(
-        expected_a,
-        expected_b,
-        expected_c,
-        expected_d,
-        expected_e,
-        expected_f,
-    )
+    expected_parameter_list_foo = f'(\n{expected_a}{expected_b}{expected_c}{expected_d}{expected_e}{expected_f})'
     assert expected_parameter_list_foo in content
 
 
