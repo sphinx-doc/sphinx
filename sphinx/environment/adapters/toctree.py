@@ -204,7 +204,7 @@ def _resolve_toctree(
 
     # prune the tree to maxdepth, also set toc depth and current classes
     _toctree_add_classes(newnode, 1, docname)
-    newnode = _toctree_copy(newnode, 1, maxdepth if prune else 0, collapse, tags)
+    _toctree_prune(newnode, 1, maxdepth if prune else 0, collapse, tags)
 
     if (
         isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0
@@ -482,6 +482,7 @@ def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
                     subnode = subnode.parent
 
 
+# Note: Equivalent to _toctree_prune, but prunes into a copy.
 def _toctree_copy[ET: Element](
     node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
 ) -> ET:
@@ -493,6 +494,7 @@ def _toctree_copy[ET: Element](
     return copied[0]  # type: ignore[return-value]
 
 
+# Note: Equivalent to _toctree_prune_seq, but prunes into a copy.
 def _toctree_copy_seq(
     node: Node,
     depth: int,
@@ -554,6 +556,78 @@ def _toctree_copy_seq(
         for child in sub_node_copy.children:
             child.parent = sub_node_copy
         return [sub_node_copy]
+
+    msg = f'Unexpected node type {node.__class__.__name__!r}!'
+    raise ValueError(msg)
+
+
+# Note: Equivalent to _toctree_copy, but prunes in-place.
+def _toctree_prune(
+    node: Node, depth: int, maxdepth: int, collapse: bool, tags: Tags
+) -> None:
+    """Utility: Cut and deep-copy a TOC at a specified depth."""
+    assert not isinstance(node, addnodes.only)
+    depth = max(depth - 1, 1)
+    _toctree_prune_seq(node, depth, maxdepth, collapse, tags, initial_call=True)
+
+
+# Note: Equivalent to _toctree_copy_seq, but prunes in-place.
+def _toctree_prune_seq(
+    node: Node,
+    depth: int,
+    maxdepth: int,
+    collapse: bool,
+    tags: Tags,
+    *,
+    initial_call: bool = False,
+    is_current: bool = False,
+) -> None:
+    if isinstance(node, (addnodes.compact_paragraph, nodes.list_item)):
+        # for <p> and <li>, just recurse
+        for subnode in node.children:
+            _toctree_prune_seq(
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        return
+
+    if isinstance(node, nodes.bullet_list):
+        # for <ul>, copy if the entry is top-level
+        # or, copy if the depth is within bounds and;
+        # collapsing is disabled or the sub-entry's parent is 'current'.
+        # The boolean is constant so is calculated outwith the loop.
+        keep_bullet_list_sub_nodes = depth <= 1 or (
+            (depth <= maxdepth or maxdepth <= 0)
+            and (not collapse or is_current or 'iscurrent' in node)
+        )
+        if not keep_bullet_list_sub_nodes and not initial_call:
+            node.replace_self([])
+            return
+        depth += 1
+        for subnode in node.children:
+            _toctree_prune_seq(
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        return
+
+    if isinstance(node, addnodes.toctree):
+        return
+
+    if isinstance(node, addnodes.only):
+        # only keep children if the only node matches the tags
+        if not _only_node_keep_children(node, tags):
+            node.replace_self([])
+            return
+        for subnode in node.children:
+            _toctree_prune_seq(
+                subnode, depth, maxdepth, collapse, tags, is_current='iscurrent' in node
+            )
+        children = list(node.children)
+        node.children = []
+        node.replace_self(children)
+        return
+
+    if isinstance(node, (nodes.reference, nodes.title)):
+        return
 
     msg = f'Unexpected node type {node.__class__.__name__!r}!'
     raise ValueError(msg)
