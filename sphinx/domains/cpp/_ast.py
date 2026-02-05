@@ -117,6 +117,7 @@ class ASTIdentifier(ASTBase):
             target_text = prefix + self.name + templateArgs
             pnode = addnodes.pending_xref(
                 '',
+                refdoc=env.docname,
                 refdomain='cpp',
                 reftype='identifier',
                 reftarget=target_text,
@@ -143,6 +144,7 @@ class ASTIdentifier(ASTBase):
             target_text = 'operator""' + self.name
             pnode = addnodes.pending_xref(
                 '',
+                refdoc=env.docname,
                 refdomain='cpp',
                 reftype='identifier',
                 reftarget=target_text,
@@ -1617,6 +1619,7 @@ class ASTOperator(ASTBase):
             target_text = prefix + str(self) + templateArgs
             pnode = addnodes.pending_xref(
                 '',
+                refdoc=env.docname,
                 refdomain='cpp',
                 reftype='identifier',
                 reftarget=target_text,
