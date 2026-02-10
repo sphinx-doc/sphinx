@@ -239,6 +239,7 @@ def _is_unpack_form(obj: Any) -> bool:
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
+    
     """Convert a type-like object to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
@@ -249,8 +250,10 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                  'smart'
                      Show the name of the annotation.
     """
+    
     from sphinx.ext.autodoc._dynamic._mock import ismock, ismockmodule  # lazy loading
     from sphinx.util.inspect import isgenericalias, object_description  # lazy loading
+    
 
     valid_modes = {'fully-qualified-except-typing', 'smart'}
     if mode not in valid_modes:
@@ -261,6 +264,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
     # things that are not types
     if cls is None or cls == types.NoneType:
         return ':py:obj:`None`'
+
     if cls is Ellipsis:
         return '...'
     if isinstance(cls, str):
