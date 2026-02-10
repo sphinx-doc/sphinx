@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 import docutils
 import pygments
 import pytest
+from docutils import nodes
 
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
@@ -2095,6 +2096,47 @@ def test_latex_elements_extrapackages(app: SphinxTestApp) -> None:
 def test_latex_nested_tables(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     assert app.warning.getvalue() == ''
+
+
+def test_latex_table_empty_body() -> None:
+    """Regression test for issue #14271.
+
+    Tables with header rows but no body rows (as produced by e.g.
+    myst_parser from Markdown) should not crash the LaTeX builder
+    with a StopIteration in LaTeXFootnoteVisitor.depart_table.
+    """
+    from docutils.utils import new_document
+
+    from sphinx.builders.latex.transforms import LaTeXFootnoteVisitor
+
+    document = new_document('<test>')
+
+    # Build a table node with thead but no tbody, as myst_parser would
+    # generate from a Markdown table with only a header row.
+    table = nodes.table()
+    tgroup = nodes.tgroup(cols=2)
+    table += tgroup
+    tgroup += nodes.colspec(colwidth=50)
+    tgroup += nodes.colspec(colwidth=50)
+    thead = nodes.thead()
+    tgroup += thead
+    row = nodes.row()
+    thead += row
+    entry1 = nodes.entry()
+    entry1 += nodes.paragraph(text='Header 1')
+    row += entry1
+    entry2 = nodes.entry()
+    entry2 += nodes.paragraph(text='Header 2')
+    row += entry2
+
+    section = nodes.section()
+    section += table
+    document += section
+
+    # This should not raise StopIteration
+    visitor = LaTeXFootnoteVisitor(document, [])
+    visitor.table_footnotes = []
+    table.walkabout(visitor)
 
 
 @pytest.mark.sphinx('latex', testroot='latex-container')
