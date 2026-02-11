@@ -13,12 +13,12 @@ from sphinx import package_dir
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterable
-    from typing import Any
+    from typing import Any, Self, SupportsIndex
 
 _LOCALE_DIR = Path(package_dir, 'locale')
 
 
-class _TranslationProxy(str):
+class _TranslationProxy(str):  # NoQA: FURB189
     """The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
 
@@ -32,8 +32,8 @@ class _TranslationProxy(str):
     __slots__ = '_catalogue', '_namespace', '_message'
 
     def __new__(
-        cls, catalogue: str, namespace: str, message: str
-    ) -> _TranslationProxy:
+        cls, _catalogue: str, _namespace: str, message: str
+    ) -> Self:
         return str.__new__(cls, message)
 
     def __init__(self, catalogue: str, namespace: str, message: str) -> None:
@@ -95,13 +95,13 @@ class _TranslationProxy(str):
     def __lt__(self, string: str) -> bool:
         return self.__str__() < string
 
-    def __contains__(self, char: str) -> bool:
+    def __contains__(self, char: object) -> bool:
         return char in self.__str__()
 
     def __len__(self) -> int:
         return len(self.__str__())
 
-    def __getitem__(self, index: int | slice) -> str:
+    def __getitem__(self, index: SupportsIndex | slice) -> str:
         return self.__str__()[index]
 
 
@@ -214,7 +214,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]
+            return _TranslationProxy(catalog, namespace, message)
         else:
             translator = get_translator(catalog, namespace)
             return translator.gettext(message)
