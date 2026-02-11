@@ -24,3 +24,5 @@ invalid-assignment = "ignore"
 invalid-method-override = "ignore"
 not-subscriptable = "ignore"
 possibly-missing-attribute = "ignore"
+# ``# type: ignore`` comments are needed by mypy; don't warn about them in ty.
+unused-type-ignore-comment = "ignore"
