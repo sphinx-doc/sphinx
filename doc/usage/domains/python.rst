@@ -27,7 +27,7 @@ declarations:
    .. rst:directive:option:: platform: platforms
       :type: comma separated list
 
-      Indicate platforms which the module is available (if it is available on
+      Indicate platforms on which the module is available (if it is available on
       all platforms, the option should be omitted).  The keys are short
       identifiers; examples that are in use include "IRIX", "Mac", "Windows"
       and "Unix".  It is important to use a key which has already been used when
@@ -36,7 +36,7 @@ declarations:
    .. rst:directive:option:: synopsis: purpose
       :type: text
 
-      Consist of one sentence describing the module's purpose -- it is currently
+      Consists of one sentence describing the module's purpose -- it is currently
       only used in the Global Module Index.
 
    .. rst:directive:option:: deprecated
@@ -89,7 +89,7 @@ The following directives are provided for module and class contents:
       .. versionadded:: 2.1
 
    .. rst:directive:option:: canonical
-      :type: full qualified name including module name
+      :type: fully qualified name including module name
 
       Describe the location where the object is defined if the object is
       imported from other modules
@@ -153,7 +153,7 @@ The following directives are provided for module and class contents:
       .. versionadded:: 2.4
 
    .. rst:directive:option:: canonical
-      :type: full qualified name including module name
+      :type: fully qualified name including module name
 
       Describe the location where the object is defined if the object is
       imported from other modules
@@ -245,7 +245,7 @@ The following directives are provided for module and class contents:
       .. versionadded:: 8.2
 
    .. rst:directive:option:: canonical
-      :type: full qualified name including module name
+      :type: fully qualified name including module name
 
       Describe the location where the object is defined if the object is
       imported from other modules
@@ -313,7 +313,7 @@ The following directives are provided for module and class contents:
       .. versionadded:: 2.4
 
    .. rst:directive:option:: canonical
-      :type: full qualified name including module name
+      :type: fully qualified name including module name
 
       Describe the location where the object is defined if the object is
       imported from other modules
@@ -464,7 +464,7 @@ The following directives are provided for module and class contents:
       .. versionadded:: 2.1
 
    .. rst:directive:option:: canonical
-      :type: full qualified name including module name
+      :type: fully qualified name including module name
 
       Describe the location where the object is defined if the object is
       imported from other modules
@@ -802,7 +802,7 @@ a matching identifier is found:
 
    Reference a data attribute of an object.
 
-   .. note:: The role is also able to refer to property.
+   .. note:: The role is also able to refer to a property.
 
 .. rst:role:: py:type
 

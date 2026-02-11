@@ -18,7 +18,7 @@ Math support for HTML outputs in Sphinx
    :language: Python
 
 Since mathematical notation isn't natively supported by HTML in any way, Sphinx
-gives a math support to HTML document with several extensions.  These use the
+gives math support to HTML documents with several extensions.  These use the
 reStructuredText math :rst:dir:`directive <math>` and :rst:role:`role <math>`.
 
 :mod:`sphinx.ext.imgmath` -- Render math as images
@@ -303,7 +303,7 @@ Sphinx but is set to automatically include it from a third-party site.
    __ https://docs.mathjax.org/en/stable/web/configuration.html#configuration
 
 
-   For help converting your old MathJax configuration to to the new
+   For help converting your old MathJax configuration to the new
    :confval:`mathjax4_config`, see `Converting your old Configuration to v4`__.
 
    __ https://docs.mathjax.org/en/stable/web/
@@ -345,7 +345,7 @@ Sphinx but is set to automatically include it from a third-party site.
            'jax': ['input/TeX', 'output/HTML-CSS'],
        }
 
-   For help converting your old MathJax configuration to to the new
+   For help converting your old MathJax configuration to the new
    :confval:`mathjax3_config`, see `Converting Your v2 Configuration to v3`__.
 
    __ https://docs.mathjax.org/en/v3.2/web/

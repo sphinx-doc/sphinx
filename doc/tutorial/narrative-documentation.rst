@@ -118,7 +118,7 @@ And make the sentence you added in ``index.rst`` look like this:
    Check out the :doc:`usage` section for further information, including how to
    :ref:`install <installation>` the project.
 
-Notice a trick here: the ``install`` part specifies how the link will look like
+Notice a trick here: the ``install`` part specifies what the link will look like
 (we want it to be a specific word, so the sentence makes sense), whereas the
 ``<installation>`` part refers to the actual label we want to add a
 cross-reference to. If you do not include an explicit title, hence using

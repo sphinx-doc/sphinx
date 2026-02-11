@@ -63,7 +63,7 @@ Sphinx
       :class: sphinx-feature
 
       Add documentation :ref:`translations <intl>`
-      multiple languages to reach a global audience.
+      in multiple languages to reach a global audience.
 
    .. admonition:: 🌟 Active Community and Support
       :class: sphinx-feature

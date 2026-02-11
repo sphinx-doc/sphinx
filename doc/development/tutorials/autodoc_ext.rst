@@ -4,7 +4,7 @@ Developing autodoc extensions
 =============================
 
 The objective of this tutorial is to create an extension that adds
-support for new type for autodoc. This autodoc extension will format
+support for a new type for autodoc. This autodoc extension will format
 the ``IntEnum`` class from Python standard library. (module ``enum``)
 
 Overview
@@ -29,7 +29,7 @@ Prerequisites
 
 We need the same setup as in
 :ref:`the previous extensions <tutorial-extend-build>`.
-This time, we will be putting out extension
+This time, we will be putting our extension
 in a file called :file:`autodoc_intenum.py`.
 The :file:`my_enums.py` will contain the sample enums we will document.
 
@@ -71,10 +71,10 @@ We want to import certain objects from the autodoc extension:
 
 There are several different documenter classes such as ``MethodDocumenter``
 or ``AttributeDocumenter`` available in the autodoc extension but
-our new class is the subclass of ``ClassDocumenter`` which a
+our new class is the subclass of ``ClassDocumenter`` which is a
 documenter class used by autodoc to document classes.
 
-This is the definition of our new the auto-documenter class:
+This is the definition of our new auto-documenter class:
 
 .. literalinclude:: examples/autodoc_intenum.py
    :language: python

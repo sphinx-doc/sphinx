@@ -24,7 +24,7 @@ This extension features one additional builder, the :class:`CoverageBuilder`.
    these will be executed by the coverage builder when ``sphinx-build`` is run.
 
    If you document scripts (as opposed to library modules),
-   make sure their main routine is protected by a
+   make sure their main routine is protected by an
    ``if __name__ == '__main__'`` condition.
 
 .. note::

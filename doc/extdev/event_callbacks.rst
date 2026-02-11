@@ -21,13 +21,13 @@ to connect functions to the events:
 .. seealso::
 
    Extensions can add their own events by using :meth:`.Sphinx.add_event`,
-   and calling them them with
+   and calling them with
    :meth:`.EventManager.emit` or :meth:`.EventManager.emit_firstresult`.
 
 Core events overview
 --------------------
 
-Below is an overview of the core event that happens during a build.
+Below is an overview of the core events that happen during a build.
 
 .. code-block:: none
 
@@ -237,7 +237,7 @@ Here is a more detailed list of these events.
    *contnode* as a child.
    If the handler can not resolve the cross-reference,
    it can either return ``None`` to let other handlers try,
-   or raise :class:`~sphinx.errors.NoUri` to prevent other handlers in
+   or raise :class:`~sphinx.errors.NoUri` to prevent other handlers from
    trying and suppress a warning about this cross-reference being unresolved.
 
    .. versionadded:: 0.5
@@ -325,8 +325,8 @@ Here is a more detailed list of these events.
    :param app: :class:`.Sphinx`
    :param env: :class:`.BuildEnvironment`
 
-   Emitted when Consistency checks phase.  You can check consistency of
-   metadata for whole of documents.
+   Emitted during the consistency checks phase.  You can check
+   consistency of metadata for all documents.
 
    .. versionadded:: 1.6
 
@@ -349,7 +349,7 @@ Here is a more detailed list of these events.
    cleanup.  This event is emitted even when the build process raised an
    exception, given as the *exception* argument.  The exception is reraised in
    the application after the event handlers have run.  If the build process
-   raised no exception, *exception* will be ``None``.  This allows to customize
+   raised no exception, *exception* will be ``None``.  This allows customizing
    cleanup actions depending on the exception status.
 
    .. versionadded:: 0.5
@@ -394,7 +394,7 @@ These events are emitted by specific builders.
    values.
 
    The *doctree* argument will be a doctree when
-   the page is created from a reStructuredText documents;
+   the page is created from a reStructuredText document;
    it will be ``None`` when the page is created from an HTML template alone.
 
    You can return a string from the handler, it will then replace
@@ -417,7 +417,7 @@ These events are emitted by specific builders.
    :param uri: ``str`` of the collected URI
    :returns: ``str`` or ``None``
 
-   Emitted when the linkcheck builder collects hyperlinks from document.
+   Emitted when the linkcheck builder collects hyperlinks from a document.
 
    The event handlers can modify the URI by returning a string.
 

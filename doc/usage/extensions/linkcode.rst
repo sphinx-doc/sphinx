@@ -17,7 +17,7 @@ somewhere on the web. The intent is similar to the
 found somewhere on the Internet.
 
 In your configuration, you need to specify a :confval:`linkcode_resolve`
-function that returns an URL based on the object.
+function that returns a URL based on the object.
 
 
 Configuration

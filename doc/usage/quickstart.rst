@@ -161,7 +161,7 @@ To do so, use `sphinx-autobuild`_ to run the following command:
 
 However, :program:`sphinx-quickstart` script creates a :file:`Makefile` and a
 :file:`make.bat` which make life even easier for you. These can be executed by
-running :command:`make` with the name of the builder. For example.
+running :command:`make` with the name of the builder. For example:
 
 .. code-block:: console
 

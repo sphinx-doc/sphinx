@@ -34,7 +34,7 @@ It adds this directive:
    them.
 
    .. versionchanged:: 2.0
-      The value of for ``parts`` can also be negative, indicating how many
+      The value for ``parts`` can also be negative, indicating how many
       parts to drop from the left.  For example, if all your class names start
       with ``lib.``, you can give ``:parts: -1`` to remove that prefix from the
       displayed node names.

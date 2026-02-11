@@ -84,8 +84,8 @@ Glossary
       a block; and most objects can be cross-referenced to.
 
    RemoveInSphinxXXXWarning
-      The feature which is warned will be removed in Sphinx-XXX version.
-      It usually caused from Sphinx extensions which is using deprecated.
+      The feature which is warned about will be removed in Sphinx-XXX version.
+      It is usually caused by Sphinx extensions which are using deprecated APIs.
       See also :ref:`when-deprecation-warnings-are-displayed`.
 
    role

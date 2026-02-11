@@ -47,7 +47,7 @@ Configuration
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
-   If this is ``True``, :rst:dir:`todo` emits a warning for each TODO entries.
+   If this is ``True``, :rst:dir:`todo` emits a warning for each TODO entry.
 
    .. versionadded:: 1.5
 
@@ -55,12 +55,12 @@ Configuration
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
-   If this is ``True``, :rst:dir:`todolist` produce output without file path and
+   If this is ``True``, :rst:dir:`todolist` produces output without file path and
    line.
 
    .. versionadded:: 1.4
 
-autodoc provides the following an additional event:
+autodoc provides the following additional event:
 
 .. event:: todo-defined (app, node)
 

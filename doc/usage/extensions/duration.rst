@@ -72,7 +72,7 @@ Configuration
    :type: :code-py:`str | None`
    :default: :code-py:`'sphinx-reading-durations.json'`
 
-   Write all reading durations to a JSON file in the output directory
+   Write all reading durations to a JSON file in the output directory.
    The file contents are a map of the document names to reading durations,
    where document names are strings and durations are floats in seconds.
    Set this value to an empty string or ``None`` to disable writing the file,

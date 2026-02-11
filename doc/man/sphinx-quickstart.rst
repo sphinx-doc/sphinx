@@ -163,7 +163,7 @@ Options
    * ``make.bat.jinja``
    * ``make.bat.new.jinja``
 
-   In detail, please refer the system template files Sphinx provides.
+   In detail, please refer to the system template files Sphinx provides.
    (``sphinx/templates/quickstart``)
 
 .. option:: -d NAME=VALUE

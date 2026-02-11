@@ -327,7 +327,7 @@ and build directories. Sphinx will then try to build only these output files
 Environment Variables
 ---------------------
 
-The :program:`sphinx-build` refers following environment variables:
+The :program:`sphinx-build` refers to the following environment variables:
 
 .. describe:: MAKE
 
@@ -372,7 +372,7 @@ variables to customize behavior:
 
 .. describe:: NO_COLOR
 
-   When set (regardless of value), :program:`sphinx-build`  will not use color
+   When set (regardless of value), :program:`sphinx-build` will not use color
    in terminal output. ``NO_COLOR`` takes precedence over ``FORCE_COLOR``. See
    `no-color.org <https://no-color.org/>`__ for other libraries supporting this
    community standard.
@@ -391,7 +391,7 @@ variables to customize behavior:
 Deprecation Warnings
 --------------------
 
-If any deprecation warning like ``RemovedInSphinxXXXWarning`` are displayed
+If any deprecation warnings like ``RemovedInSphinxXXXWarning`` are displayed
 when building a user's document, some Sphinx extension is using deprecated
 features. In that case, please report it to author of the extension.
 

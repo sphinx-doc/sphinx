@@ -32,7 +32,7 @@ Membership
 Core membership is predicated on continued active contribution to the project.
 In general, prospective cores should demonstrate:
 
-- a good understanding of one of more components of Sphinx
+- a good understanding of one or more components of Sphinx
 
 - a history of helpful, constructive contributions
 

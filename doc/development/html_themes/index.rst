@@ -8,7 +8,7 @@ HTML theme development
 .. note::
 
    This document provides information about creating your own theme. If you
-   simply wish to use a pre-existing HTML themes, refer to
+   simply wish to use a pre-existing HTML theme, refer to
    :doc:`/usage/theming`.
 
 Sphinx supports changing the appearance of its HTML output via *themes*.  A
@@ -59,7 +59,7 @@ The ``[theme]`` table defines the theme's settings:
 
 * **stylesheets** (list of strings): A list of CSS filenames which will be
   included in generated HTML header.
-  Setting the   :confval:`html_style` config value will override this setting.
+  Setting the :confval:`html_style` config value will override this setting.
 
   Other mechanisms for including multiple stylesheets include ``@import`` in CSS
   or using a custom HTML template with appropriate ``<link rel="stylesheet">`` tags.
@@ -132,7 +132,7 @@ Python :mod:`configparser` module) and has the following structure:
   want to also inherit the stylesheet, include it via CSS' ``@import`` in your
   own.
 
-* The **stylesheet** setting gives a list of CSS filenames separated commas which
+* The **stylesheet** setting gives a list of CSS filenames separated by commas which
   will be referenced in the HTML header.  You can also use CSS' ``@import``
   technique to include one from the other, or use a custom HTML template that
   adds ``<link rel="stylesheet">`` tags as necessary.  Setting the
@@ -166,7 +166,7 @@ Convert ``theme.conf`` to ``theme.toml``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 INI-style theme configuration files (``theme.conf``) can be converted to TOML
-via a helper programme distributed with Sphinx.
+via a helper program distributed with Sphinx.
 This is intended for one-time use, and may be removed without notice in a future
 version of Sphinx.
 
@@ -175,7 +175,7 @@ version of Sphinx.
    $ python -m sphinx.theming conf_to_toml [THEME DIRECTORY PATH]
 
 The required argument is a path to a directory containing a ``theme.conf`` file.
-The programme will write a ``theme.toml`` file in the same directory,
+The program will write a ``theme.toml`` file in the same directory,
 and will not modify the original ``theme.conf`` file.
 
 .. versionadded:: 7.3

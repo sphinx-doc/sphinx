@@ -727,7 +727,7 @@ code blocks using multiple varied syntaxes. Finally, the
 :rst:dir:`literalinclude` directive is useful for including entire code files
 in your documentation.
 
-In all cases, Syntax highlighting is provided by `Pygments
+In all cases, syntax highlighting is provided by `Pygments
 <https://pygments.org>`_. When using literal blocks, this is configured using
 any :rst:dir:`highlight` directives in the source file. When a ``highlight``
 directive is encountered, it is used until the next ``highlight`` directive is
@@ -752,7 +752,7 @@ If highlighting with the selected language fails (i.e. Pygments emits an
 
 .. important::
 
-   The list of lexer aliases supported is tied to the Pygment version. If you
+   The list of lexer aliases supported is tied to the Pygments version. If you
    want to ensure consistent highlighting, you should fix your version of
    Pygments.
 
@@ -1017,7 +1017,7 @@ __ https://pygments.org/docs/lexers
    .. rst:directive:option:: lineno-match
 
       When including only parts of a file and show the original line numbers.
-      This is only allowed only when the selection consists of contiguous lines.
+      This is only allowed when the selection consists of contiguous lines.
 
       .. versionadded:: 1.3
 
@@ -1084,7 +1084,7 @@ __ https://pygments.org/docs/lexers
       If ``start-after`` is given as a string option,
       only lines that follow the first line containing that string are included.
       If ``end-before`` is given as a string option,
-      only lines that precede the first lines containing that string are included.
+      only lines that precede the first line containing that string are included.
       The ``start-at`` and ``end-at`` options behave in a similar way,
       but the lines containing the matched string are included.
 
@@ -1119,7 +1119,7 @@ __ https://pygments.org/docs/lexers
 
          These options can be useful when working with tag comments.
          Using ``:start-after: [initialise]`` and ``:end-before: [initialised]``
-         keeps the lines between between the two comments below:
+         keeps the lines between the two comments below:
 
          .. code-block:: py
 
@@ -1219,7 +1219,7 @@ Glossary
 
    Note that "key" is used for grouping key as is.
    The "key" isn't normalized; key "A" and "a" become different groups.
-   The whole characters in "key" is used instead of a first character; it is
+   All characters in "key" are used instead of just the first character; it is
    used for "Combining Character Sequence" and "Surrogate Pairs" grouping key.
 
    In i18n situation, you can specify "localized term : key" even if original
@@ -1325,7 +1325,7 @@ mainly contained in information units, such as the language reference.
                     single: execution; context
 
       - ``single: execution`` creates an index entry labelled ``execution``.
-      - ``single: execution; context`` creates an sub-entry of ``execution``
+      - ``single: execution; context`` creates a sub-entry of ``execution``
         labelled ``context``.
    pair
       A shortcut to create two index entries.

@@ -13,7 +13,7 @@ The major, minor, and micro version parts should be altered as follows:
   public API updates.
 
 * The minor version part should be incremented for most releases of Sphinx, where
-  backwards-compatibility of API and features are preserves.
+  backwards-compatibility of API and features are preserved.
 
 * The micro version part should only be incremented for urgent bugfix-only releases.
 
@@ -96,7 +96,7 @@ But you can also explicitly enable the pending ones using e.g.
 Python version support policy
 -----------------------------
 
-Sphinx supports at all minor versions of Python released in the past 3 years
+Sphinx supports all minor versions of Python released in the past 3 years
 from the anticipated release date with a minimum of 3 minor versions of Python.
 This policy is derived from `SPEC 0`_, a scientific Python domain standard.
 

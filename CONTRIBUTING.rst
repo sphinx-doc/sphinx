@@ -10,7 +10,7 @@ Our contributing guide can be found online at:
 
 https://www.sphinx-doc.org/en/master/internals/contributing.html
 
-You can also browse it from this repository from
+You can also browse it in this repository at
 ``doc/internals/contributing.rst``
 
 Sphinx uses GitHub to host source code, track patches and bugs, and more.

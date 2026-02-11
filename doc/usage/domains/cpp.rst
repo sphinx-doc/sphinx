@@ -136,7 +136,7 @@ visibility statement (``public``, ``private`` or ``protected``).
       .. cpp:type:: template<typename T> \
                     MyContainer = std::vector<T>
 
-   The example are rendered as follows.
+   The examples are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
       :no-contents-entry:
@@ -311,7 +311,7 @@ Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 Aliasing Declarations
 ---------------------
 
-Sometimes it may be helpful list declarations elsewhere than their main
+Sometimes it may be helpful to list declarations elsewhere than their main
 documentation, e.g., when creating a synopsis of a class interface.
 The following directive can be used for this purpose.
 
@@ -465,7 +465,7 @@ Inline Expressions and Types
 Namespacing
 -----------
 
-Declarations in the C++ domain are as default placed in global scope.  The
+Declarations in the C++ domain are by default placed in global scope.  The
 current scope can be changed using three namespace directives.  They manage a
 stack declarations where ``cpp:namespace`` resets the stack and changes a given
 scope.
@@ -684,7 +684,7 @@ and template arguments for the prefix of qualified names. For example:
 - ``template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner``
   (:cpp:class:`template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner`)
 
-Currently the lookup only succeed if the template parameter identifiers are
+Currently the lookup only succeeds if the template parameter identifiers are
 equal strings.  That is, ``template\<typename UOuter> Wrapper::Outer`` will not
 work.
 

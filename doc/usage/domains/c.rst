@@ -206,7 +206,7 @@ Aliasing Declarations
 
 .. c:namespace-push:: @alias
 
-Sometimes it may be helpful list declarations elsewhere than their main
+Sometimes it may be helpful to list declarations elsewhere than their main
 documentation, e.g., when creating a synopsis of an interface.
 The following directive can be used for this purpose.
 
@@ -266,8 +266,8 @@ Inline Expressions and Types
 .. rst:role:: c:expr
               c:texpr
 
-   Insert a C expression or type either as inline code (``cpp:expr``)
-   or inline text (``cpp:texpr``). For example::
+   Insert a C expression or type either as inline code (``c:expr``)
+   or inline text (``c:texpr``). For example::
 
       .. c:var:: int a = 42
 
@@ -301,7 +301,7 @@ Namespacing
 
 .. versionadded:: 3.1
 
-The C language it self does not support namespacing, but it can sometimes be
+The C language itself does not support namespacing, but it can sometimes be
 useful to emulate it in documentation, e.g., to show alternate declarations.
 The feature may also be used to document members of structs/unions/enums
 separate from their parent declaration.

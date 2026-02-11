@@ -51,7 +51,7 @@ extension. These are:
    The application object (usually called ``app``) is an instance of
    :class:`.Sphinx`.
    It controls most high-level functionality, such as loading config,
-   initialising the environment, and the setup of extensions.
+   initializing the environment, and the setup of extensions.
 
 **Environment**
    The build environment object (usually called ``env``) is an instance of
@@ -59,7 +59,7 @@ extension. These are:
    documents, stores all metadata about the document collection and is
    serialized to disk after each build.
 
-   Its API provides methods to do with access to metadata, resolving references,
+   Its API provides methods for accessing metadata, resolving references,
    etc.  It can also be used by extensions to cache information that should
    persist for incremental rebuilds.
 
@@ -180,7 +180,7 @@ Metadata keys currently recognized are:
   If no version string is returned, ``'unknown version'`` is used by default.
 
 ``'env_version'``
-  A non-zero positive integer integer that records
+  A non-zero positive integer that records
   the version of data stored in the environment by the extension.
 
   .. attention::
@@ -205,7 +205,7 @@ Metadata keys currently recognized are:
      When *parallel-read-safe* is ``True``,
      the extension must satisfy the following conditions:
 
-     * The core logic of the extension is parallelly executable during
+     * The core logic of the extension is executable in parallel during
        the reading phase.
      * It has event handlers for :event:`env-merge-info` and
        :event:`env-purge-doc` events if it stores data to the build
@@ -222,7 +222,7 @@ Metadata keys currently recognized are:
      When *parallel-write-safe* is ``True``,
      the extension must satisfy the following conditions:
 
-     * The core logic of the extension is parallelly executable during
+     * The core logic of the extension is executable in parallel during
        the writing phase.
 
 

@@ -458,7 +458,7 @@ the directive start or if options are present, by the same amount as the
 options.
 
 Be careful as the indent is not a fixed number of whitespace, e.g. three, but
-any number whitespace.  This can be surprising when a fixed indent is used
+any number of whitespace.  This can be surprising when a fixed indent is used
 throughout the document and can make a difference for directives which are
 sensitive to whitespace. Compare::
 

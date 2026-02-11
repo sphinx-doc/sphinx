@@ -34,7 +34,7 @@ Logging API
 
       **color**
         The color of logs.  By default, error level logs are colored as
-        ``"darkred"``, critical level ones is not colored, and warning level
+        ``"darkred"``, critical level ones are not colored, and warning level
         ones are colored as ``"red"``.
 
    .. method:: SphinxLoggerAdapter.log(level, msg, *args, **kwargs)
@@ -52,7 +52,7 @@ Logging API
         The default is ``False``.
 
       **location**
-        Where the message emitted.  For more detail, see
+        Where the message was emitted.  For more detail, see
         :meth:`SphinxLoggerAdapter.warning`.
 
       **color**

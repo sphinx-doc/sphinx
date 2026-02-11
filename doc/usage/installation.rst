@@ -104,7 +104,7 @@ Install either ``python3-sphinx`` using :command:`apt-get`:
 
    $ apt-get install python3-sphinx
 
-If it not already present, this will install Python for you.
+If it is not already present, this will install Python for you.
 
 RHEL, CentOS
 """"""""""""
@@ -115,7 +115,7 @@ Install ``python-sphinx`` using :command:`yum`:
 
    $ yum install python-sphinx
 
-If it not already present, this will install Python for you.
+If it is not already present, this will install Python for you.
 
 Other distributions
 """""""""""""""""""
@@ -190,7 +190,7 @@ __ https://chocolatey.org/packages/sphinx/
 Docker
 ------
 
-Docker images for Sphinx are published on the `Docker Hub`_.  There are two kind
+Docker images for Sphinx are published on the `Docker Hub`_.  There are two kinds
 of images:
 
 - `sphinxdoc/sphinx`_
@@ -200,7 +200,7 @@ of images:
 .. _sphinxdoc/sphinx: https://hub.docker.com/r/sphinxdoc/sphinx
 .. _sphinxdoc/sphinx-latexpdf: https://hub.docker.com/r/sphinxdoc/sphinx-latexpdf
 
-Former one is used for standard usage of Sphinx, and latter one is mainly used for
+The former is used for standard usage of Sphinx, and the latter is mainly used for
 PDF builds using LaTeX.  Please choose one for your purpose.
 
 .. note::
@@ -211,14 +211,14 @@ PDF builds using LaTeX.  Please choose one for your purpose.
 .. hint::
 
    When using docker images, please use ``docker run`` command to invoke sphinx
-   commands.  For example, you can use following command to create a Sphinx
+   commands.  For example, you can use the following command to create a Sphinx
    project:
 
    .. code-block:: console
 
       $ docker run -it --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
 
-   And you can use the following command to build HTML document:
+   And you can use the following command to build HTML documents:
 
    .. code-block:: console
 
@@ -244,7 +244,7 @@ Installation from source
 ------------------------
 
 You can install Sphinx directly from a clone of the `Git repository`__.  This
-can be done either by cloning the repo and installing from the local clone, on
+can be done either by cloning the repo and installing from the local clone, or
 simply installing directly via :command:`git`.
 
 ::

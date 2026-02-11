@@ -85,7 +85,7 @@ Sphinx </tutorial/more-sphinx-customization>`.
 
 .. note::
 
-   Generating a PDF using Sphinx can be done running ``make latexpdf``,
+   Generating a PDF using Sphinx can be done by running ``make latexpdf``,
    provided that the system has a working LaTeX installation,
    as explained in the documentation of :class:`sphinx.builders.latex.LaTeXBuilder`.
    Although this is perfectly feasible, such installations are often big,

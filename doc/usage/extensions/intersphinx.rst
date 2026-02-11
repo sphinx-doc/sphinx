@@ -224,7 +224,7 @@ The Intersphinx extension provides the following role.
    Use Intersphinx to perform lookup only in external projects, and not the
    current project. Intersphinx still needs to know the type of object you
    would like to find, so the general form of this role is to write the
-   cross-refererence as if the object is in the current project, but then prefix
+   cross-reference as if the object is in the current project, but then prefix
    it with ``:external``.
    The two forms are then
 

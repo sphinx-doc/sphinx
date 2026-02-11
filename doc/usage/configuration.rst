@@ -22,8 +22,8 @@ Configuration
 
 The :term:`configuration directory` must contain a file named :file:`conf.py`.
 This file (containing Python code) is called the "build configuration file"
-and contains (almost) all configuration needed to customise Sphinx input
-and output behaviour.
+and contains (almost) all configuration needed to customize Sphinx input
+and output behavior.
 
 An optional file `docutils.conf`_ can be added to the configuration
 directory to adjust `Docutils`_ configuration if not otherwise overridden or
@@ -158,7 +158,7 @@ Project information
    This may be something like :code-py:`version = '4.2'`.
    The full project version is defined in :confval:`release`.
 
-   If your project does not draw a meaningful distinction between
+   If your project does not draw a meaningful distinction
    between a 'full' and 'major' version,
    set both :code-py:`version` and :code-py:`release` to the same value.
 
@@ -173,7 +173,7 @@ Project information
    This may be something like :code-py:`release = '4.2.1b0'`.
    The major (short) project version is defined in :confval:`version`.
 
-   If your project does not draw a meaningful distinction between
+   If your project does not draw a meaningful distinction
    between a 'full' and 'major' version,
    set both :code-py:`version` and :code-py:`release` to the same value.
 
@@ -481,7 +481,7 @@ Options for HTTP requests
 
 .. _intl-options:
 
-Options for internationalisation
+Options for internationalization
 --------------------------------
 
 These options influence Sphinx's *Native Language Support*.
@@ -589,7 +589,7 @@ See the documentation on :ref:`intl` for details.
    .. note::
       The :option:`-v option to sphinx-build <sphinx-build -v>`
       is useful to check the :confval:`!locale_dirs` setting is working as expected.
-      If the message catalog directory not found, debug messages are emitted.
+      If the message catalog directory is not found, debug messages are emitted.
 
    .. versionadded:: 0.5
 
@@ -873,7 +873,7 @@ Options for markup
    :default: :code-py:`False`
 
    Trim spaces before footnote references that are
-   necessary for the  reStructuredText parser to recognise the footnote,
+   necessary for the reStructuredText parser to recognise the footnote,
    but do not look too nice in the output.
 
    .. versionadded:: 0.6
@@ -993,7 +993,7 @@ Options for the nitpicky mode
    For example, ``(r'py:.*', r'foo.*bar\.B.*')`` will ignore nitpicky warnings
    for all python entities that start with ``'foo'``
    and have ``'bar.B'`` in them,
-   such as  :code-py:`('py:const', 'foo_package.bar.BAZ_VALUE')`
+   such as :code-py:`('py:const', 'foo_package.bar.BAZ_VALUE')`
    or :code-py:`('py:class', 'food.bar.Barman')`.
 
    .. versionadded:: 4.1
@@ -1167,7 +1167,7 @@ Options for source files
 
    A dictionary mapping the file extensions (suffixes)
    of source files to their file types.
-   Sphinx considers all files files with suffixes in :code-py:`source_suffix`
+   Sphinx considers all files with suffixes in :code-py:`source_suffix`
    to be source files.
    Example:
 
@@ -1235,7 +1235,7 @@ Options for smart quotes
    The default :code-py:`'qDe'` educates
    normal **q**\ uote characters ``"``, ``'``,
    em- and en-**D**\ ashes ``---``, ``--``,
-   and **e**\ llipses ``...``..
+   and **e**\ llipses ``...``.
 
    :code-py:`'q'`
       Convert quotation marks
@@ -1550,7 +1550,7 @@ and also make use of these options.
    use CSS ``@import`` to import the theme's stylesheet.
 
    .. versionchanged:: 5.1
-      The value can be a iterable of strings.
+      The value can be an iterable of strings.
 
 .. confval:: html_title
    :type: :code-py:`str`
@@ -1819,7 +1819,7 @@ and also make use of these options.
 
    The keys can contain `glob-style patterns`_,
    in which case all matching documents will get the specified sidebars.
-   (A warning is emitted when a more than one glob-style pattern
+   (A warning is emitted when more than one glob-style pattern
    matches for any document.)
 
    Each value must be a list of strings which specifies
@@ -1858,7 +1858,7 @@ and also make use of these options.
    sidebars for all other pages (except that the local TOC is replaced by the
    global TOC).
 
-   Note that this value only has no effect if
+   Note that this value has no effect if
    the chosen theme does not possess a sidebar,
    like the builtin **scrolls** and **haiku** themes.
 
@@ -1935,7 +1935,7 @@ and also make use of these options.
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   If True, the  reStructuredText sources are included in the HTML build as
+   If True, the reStructuredText sources are included in the HTML build as
    :file:`_sources/{docname}`.
 
 .. confval:: html_show_sourcelink
@@ -1953,7 +1953,7 @@ and also make use of these options.
 
    The suffix to append to source links
    (see :confval:`html_show_sourcelink`),
-   unless files they have this suffix already.
+   unless they have this suffix already.
 
    .. versionadded:: 1.5
 
@@ -2213,7 +2213,7 @@ and also make use of these options.
    scale option (*scale*, *width*, or *height*)
    to their original full-resolution image.
    This will not overwrite any link given by the *target* option
-   on the the :dudir:`image` directive, if present.
+   on the :dudir:`image` directive, if present.
 
    .. tip::
 
@@ -2236,7 +2236,7 @@ and also make use of these options.
    :default: :code-py:`'mathjax'`
 
    The maths renderer to use for HTML output.
-   The bundled renders are *mathjax* and *imgmath*.
+   The bundled renderers are *mathjax* and *imgmath*.
    You must also load the relevant extension in :confval:`extensions`.
 
    .. versionadded:: 1.8
@@ -2377,7 +2377,7 @@ so the HTML options also apply where appropriate.
    ``'query'`` with the text entered by the user in the search box,
    and ``'lang'`` with the user's system language.
 
-   Set this to to :code-py:`None` to disable remote search.
+   Set this to :code-py:`None` to disable remote search.
 
 .. confval:: applehelp_remote_url
    :type: :code-py:`str`
@@ -2393,7 +2393,7 @@ so the HTML options also apply where appropriate.
    an English speaking customer,
    it will look at ``https://example.com/help/Foo/en.lproj/index.html``.
 
-   Set this to to :code-py:`None` for no remote content.
+   Set this to :code-py:`None` for no remote content.
 
 .. confval:: applehelp_index_anchors
    :type: :code-py:`bool`
@@ -2568,7 +2568,7 @@ so the HTML options also apply where appropriate.
    :type: :code-py:`str`
    :default: :code-py:`'unknown'`
 
-   The name of a person, organisation, etc. that played a secondary role
+   The name of a person, organization, etc. that played a secondary role
    in the creation of the content of an EPUB Publication.
 
    .. versionadded:: 1.4
@@ -2749,7 +2749,7 @@ so the HTML options also apply where appropriate.
    :type: :code-py:`'default' | 'includehidden'`
    :default: :code-py:`'default'`
 
-   This setting control the scope of the EPUB table of contents.
+   This setting controls the scope of the EPUB table of contents.
    The setting can have the following values:
 
    :code-py:`'default'`
@@ -2778,7 +2778,7 @@ so the HTML options also apply where appropriate.
    :default: :code-py:`0`
 
    This option specifies the maximum width of images.
-   If it is set to a valuevgreater than zero,
+   If it is set to a value greater than zero,
    images with a width larger than the given value are scaled accordingly.
    If it is zero, no scaling is performed.
    You need the Python Image Library (Pillow_) installed to use this option.
@@ -3189,7 +3189,7 @@ These options influence LaTeX output.
 
    Use Xindy_ to prepare the index of general terms.
    By default, the LaTeX builder uses :program:`makeindex`
-   for preparing the index of general terms .
+   for preparing the index of general terms.
    Using Xindy_ means that words with UTF-8 characters will be
    ordered correctly for the :confval:`language`.
 
