@@ -31,9 +31,7 @@ class _TranslationProxy(str):  # NoQA: FURB189
 
     __slots__ = '_catalogue', '_namespace', '_message'
 
-    def __new__(
-        cls, _catalogue: str, _namespace: str, message: str
-    ) -> Self:
+    def __new__(cls, catalogue: str, namespace: str, message: str) -> Self:  # noqa: ARG004
         return str.__new__(cls, message)
 
     def __init__(self, catalogue: str, namespace: str, message: str) -> None:
@@ -96,6 +94,8 @@ class _TranslationProxy(str):  # NoQA: FURB189
         return self.__str__() < string
 
     def __contains__(self, char: object) -> bool:
+        if not isinstance(char, str):
+            return False
         return char in self.__str__()
 
     def __len__(self) -> int:
