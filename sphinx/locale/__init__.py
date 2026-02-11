@@ -18,12 +18,23 @@ if TYPE_CHECKING:
 _LOCALE_DIR = Path(package_dir, 'locale')
 
 
-class _TranslationProxy:
+class _TranslationProxy(str):
     """The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
+
+    Inheriting from :class:`str` is needed so that C-level string checks
+    (e.g. :func:`re.sub` in Python 3.15's :mod:`argparse`) accept proxy
+    objects.  The base ``str`` buffer holds the untranslated message;
+    all dunder methods still delegate to the *translated* text via
+    :meth:`__str__`.
     """
 
     __slots__ = '_catalogue', '_namespace', '_message'
+
+    def __new__(
+        cls, catalogue: str, namespace: str, message: str
+    ) -> _TranslationProxy:
+        return str.__new__(cls, message)
 
     def __init__(self, catalogue: str, namespace: str, message: str) -> None:
         self._catalogue = catalogue
@@ -43,14 +54,10 @@ class _TranslationProxy:
     def __getattr__(self, name: str) -> Any:
         return getattr(self.__str__(), name)
 
-    def __getstate__(self) -> tuple[str, str, str]:
-        return self._catalogue, self._namespace, self._message
-
-    def __setstate__(self, tup: tuple[str, str, str]) -> None:
-        self._catalogue, self._namespace, self._message = tup
-
-    def __copy__(self) -> _TranslationProxy:
-        return _TranslationProxy(self._catalogue, self._namespace, self._message)
+    def __reduce__(
+        self,
+    ) -> tuple[type[_TranslationProxy], tuple[str, str, str]]:
+        return (self.__class__, (self._catalogue, self._namespace, self._message))
 
     def __repr__(self) -> str:
         try:
