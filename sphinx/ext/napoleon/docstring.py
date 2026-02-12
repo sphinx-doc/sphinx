@@ -225,7 +225,7 @@ def _convert_type_spec(
     combined_tokens = _recombine_set_tokens(tokens)
     types = [(token, _token_type(token, debug_location)) for token in combined_tokens]
 
-    converters: dict[str, Callable[[str], str]] = {
+    converters = {
         'literal': lambda x: f'``{x}``',
         'obj': lambda x: _convert_type_spec_obj(x, translations),
         'control': lambda x: f'*{x}*',
@@ -233,7 +233,10 @@ def _convert_type_spec(
         'reference': lambda x: x,
     }
 
-    converted = ''.join(converters[type_](token) for token, type_ in types)
+    converted = ''.join(
+        converters.get(type_)(token)  # type: ignore[misc]
+        for token, type_ in types
+    )
 
     return converted
 
@@ -1253,24 +1256,40 @@ class NumpyDocstring(GoogleDocstring):
                     lines = self._consume_to_next_section()
                     sections.append(('_msg', lines))
 
-        # Reorder sections: Attributes and Methods should come after Parameters
-        excluded_sections = {'attributes', 'methods'}
-        attributes_secs = [s for s in sections if s[0] == 'attributes']
-        methods_secs = [s for s in sections if s[0] == 'methods']
-        other_secs = [s for s in sections if s[0] not in excluded_sections]
-
-        insert_idx = 0
-        for i, (name, _section_lines) in enumerate(other_secs):
-            if name == 'parameters':
-                insert_idx = i + 1
-                break
-
-        final_sections = (
-            other_secs[:insert_idx]
-            + attributes_secs
-            + methods_secs
-            + other_secs[insert_idx:]
-        )
+        # Reorder sections: "Attributes" and "Methods" should come after
+        # "Parameters" when that section is present.
+        moved_sections = {'attributes', 'methods'}
+        if any(name in moved_sections for name, _section_lines in sections):
+            try:
+                next(
+                    i for i, (name, _section_lines) in enumerate(sections)
+                    if name == 'parameters'
+                )
+            except StopIteration:
+                final_sections = sections
+            else:
+                deferred_sections = [
+                    section
+                    for section in sections
+                    if section[0] in moved_sections
+                ]
+                regular_sections = [
+                    section
+                    for section in sections
+                    if section[0] not in moved_sections
+                ]
+                insert_idx = next(
+                    i
+                    for i, (name, _section_lines) in enumerate(regular_sections)
+                    if name == 'parameters'
+                )
+                final_sections = (
+                    regular_sections[: insert_idx + 1]
+                    + deferred_sections
+                    + regular_sections[insert_idx + 1 :]
+                )
+        else:
+            final_sections = sections
 
         for _name, lines in final_sections:
             self._parsed_lines.extend(lines)
