@@ -1522,3 +1522,21 @@ def test_linkcheck_case_sensitivity(
     assert rowsby[f'http://{address}/path1']['status'] == expected_path1
     assert rowsby[f'http://{address}/path2']['status'] == expected_path2
     assert rowsby[f'http://{address}/PATH3']['status'] == expected_path3
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-ignore-status-codes',
+    freshenv=True,
+)
+def test_ignore_status_codes(app: SphinxTestApp) -> None:
+    class TeapotServerErrorHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_GET(self) -> None:
+            self.send_error(418, "I'm a teapot")
+
+    with serve_application(app, TeapotServerErrorHandler) as address:
+        app.build()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
+    assert not content
