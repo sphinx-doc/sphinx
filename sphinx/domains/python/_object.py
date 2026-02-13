@@ -151,16 +151,24 @@ class PyXrefMixin:
 
 
 class PyField(PyXrefMixin, Field):
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node | None = None, env: BuildEnvironment | None = None,
-                  inliner: Inliner | None = None, location: Node | None = None) -> Node:
+    def make_xref(
+        self,
+        rolename: str,
+        domain: str,
+        target: str,
+        innernode: type[TextlikeNode] = nodes.emphasis,
+        contnode: Node | None = None,
+        env: BuildEnvironment | None = None,
+        inliner: Inliner | None = None,
+        location: Node | None = None,
+    ) -> Node:
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
             rolename = 'obj'
 
-        return super().make_xref(rolename, domain, target, innernode, contnode,
-                                 env, inliner, location)
+        return super().make_xref(
+            rolename, domain, target, innernode, contnode, env, inliner, location
+        )
 
 
 class PyGroupedField(PyXrefMixin, GroupedField):
@@ -168,16 +176,24 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 
 
 class PyTypedField(PyXrefMixin, TypedField):
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node | None = None, env: BuildEnvironment | None = None,
-                  inliner: Inliner | None = None, location: Node | None = None) -> Node:
+    def make_xref(
+        self,
+        rolename: str,
+        domain: str,
+        target: str,
+        innernode: type[TextlikeNode] = nodes.emphasis,
+        contnode: Node | None = None,
+        env: BuildEnvironment | None = None,
+        inliner: Inliner | None = None,
+        location: Node | None = None,
+    ) -> Node:
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
             rolename = 'obj'
 
-        return super().make_xref(rolename, domain, target, innernode, contnode,
-                                 env, inliner, location)
+        return super().make_xref(
+            rolename, domain, target, innernode, contnode, env, inliner, location
+        )
 
 
 class PyObject(ObjectDescription[tuple[str, str]]):
