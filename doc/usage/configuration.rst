@@ -3952,6 +3952,23 @@ and the number of workers to use.
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_ignore_status_codes
+   :type: :code-py:`dict`
+   :default: :code-py:`{}`
+
+   A dictionary that maps regular expressions for URLs to status codes that
+   should be ignored.
+
+   Example:
+
+   .. code-block:: python
+
+      linkcheck_ignore_status_codes = {
+          r"^https://doi.org/": [403]
+      }
+
+   .. versionadded:: 9.2
+
 
 Domain options
 ==============

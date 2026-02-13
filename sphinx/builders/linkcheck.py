@@ -393,6 +393,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             (re.compile(pattern), auth_info)
             for pattern, auth_info in config.linkcheck_auth
         ]
+        self.ignore_status_codes = [
+            (re.compile(pattern), frozenset(codes))
+            for pattern, codes in config.linkcheck_ignore_status_codes.items()
+        ]
 
         self.timeout: int | float | None = config.linkcheck_timeout
         self.request_headers: dict[str, dict[str, str]] = (
@@ -596,6 +600,16 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 )
 
             except HTTPError as err:
+                if any(
+                    pattern.match(req_url) and status_code in codes
+                    for pattern, codes in self.ignore_status_codes
+                ):
+                    return (
+                        _Status.IGNORED,
+                        f'ignored status: {status_code}',
+                        status_code,
+                    )
+
                 error_message = str(err)
 
                 # Unauthorized: the client did not provide required credentials
@@ -844,8 +858,12 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         '',
         types=frozenset({frozenset, list, set, tuple}),
     )
+    app.add_config_value(
+        'linkcheck_ignore_status_codes', {}, '', types=frozenset({dict})
+    )
 
     app.add_event('linkcheck-process-uri')
+    app.add_event('linkcheck-process-result')
 
     # priority 900 to happen after ``check_confval_types()``
     app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=900)
