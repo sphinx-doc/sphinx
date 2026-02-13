@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -151,7 +151,16 @@ class PyXrefMixin:
 
 
 class PyField(PyXrefMixin, Field):
-    pass
+    def make_xref(self, rolename: str, domain: str, target: str,
+                  innernode: Type[TextlikeNode] = nodes.emphasis,
+                  contnode: Node = None, env: BuildEnvironment = None,
+                  inliner: Inliner = None, location: Node = None) -> Node:
+        if rolename == 'class' and target == 'None':
+            # None is not a type, so use obj role instead.
+            rolename = 'obj'
+
+        return super().make_xref(rolename, domain, target, innernode, contnode,
+                                 env, inliner, location)
 
 
 class PyGroupedField(PyXrefMixin, GroupedField):
@@ -159,7 +168,16 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 
 
 class PyTypedField(PyXrefMixin, TypedField):
-    pass
+    def make_xref(self, rolename: str, domain: str, target: str,
+                  innernode: Type[TextlikeNode] = nodes.emphasis,
+                  contnode: Node = None, env: BuildEnvironment = None,
+                  inliner: Inliner = None, location: Node = None) -> Node:
+        if rolename == 'class' and target == 'None':
+            # None is not a type, so use obj role instead.
+            rolename = 'obj'
+
+        return super().make_xref(rolename, domain, target, innernode, contnode,
+                                 env, inliner, location)
 
 
 class PyObject(ObjectDescription[tuple[str, str]]):
