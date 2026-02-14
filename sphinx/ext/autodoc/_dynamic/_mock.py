@@ -72,6 +72,12 @@ class _MockObject:
         call.__sphinx_decorator_args__ = args
         return call
 
+    def __or__(self, other: Any) -> _MockObject:
+        return self
+
+    def __ror__(self, other: Any) -> _MockObject:
+        return self
+
     def __repr__(self) -> str:
         return self.__display_name__
 

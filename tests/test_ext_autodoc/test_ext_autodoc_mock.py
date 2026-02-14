@@ -64,6 +64,20 @@ def test_MockObject() -> None:
     assert isinstance(obj2, SubClass2)
 
 
+def test_MockObject_union_type() -> None:
+    mock = _MockObject()
+
+    # PEP 604: X | Y union syntax should work with mock objects
+    result = mock.SomeClass | None
+    assert isinstance(result, _MockObject)
+
+    result = None | mock.SomeClass
+    assert isinstance(result, _MockObject)
+
+    result = mock.SomeClass | mock.OtherClass
+    assert isinstance(result, _MockObject)
+
+
 def test_MockObject_generic() -> None:
     mock = _MockObject()
 
