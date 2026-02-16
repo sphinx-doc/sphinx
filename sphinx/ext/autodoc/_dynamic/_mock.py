@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import os
 import sys
+import typing
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
@@ -14,6 +15,7 @@ from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
+    import types
     from collections.abc import Iterator, Sequence, Set
     from typing import Any
 
@@ -72,11 +74,11 @@ class _MockObject:
         call.__sphinx_decorator_args__ = args
         return call
 
-    def __or__(self, other: Any) -> _MockObject:
-        return self
+    def __or__(self, other: Any) -> types.UnionType:
+        return typing.Union[self, other]  # noqa: UP007
 
-    def __ror__(self, other: Any) -> _MockObject:
-        return self
+    def __ror__(self, other: Any) -> types.UnionType:
+        return typing.Union[other, self]  # noqa: UP007
 
     def __repr__(self) -> str:
         return self.__display_name__
