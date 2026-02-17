@@ -1322,7 +1322,9 @@ def test_limit_rate_doubles_previous_wait_time(app: SphinxTestApp) -> None:
         (None, 'http://www.sphinx-doc.org', False),
         (r'http://www.sphinx-doc.org/', 'http://www.sphinx-doc.org', False),
         (r'http://www.sphinx-doc.org/.*', 'http://www.sphinx-doc.org/robots.txt', True),
-        # (None, 'https://example.org', True),  # TODO: automatically ignore IETF reserved domains
+        (None, 'https://example.org', True),
+        (None, 'https://example.com/some/random/path.html', True),
+        (None, 'https://unresolvable.invalid/another/invalid/url.html#fragment', True),
     ],
 )
 def test_uri_should_be_ignored(ignore_pattern, input_url, url_should_be_ignored):
