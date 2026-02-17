@@ -23,10 +23,12 @@ from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.linkcheck import (
     CheckRequest,
     Hyperlink,
+    HyperlinkAvailabilityChecker,
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
     compile_linkcheck_allowed_redirects,
 )
+from sphinx.config import Config
 from sphinx.errors import ConfigError
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
@@ -1312,6 +1314,29 @@ def test_limit_rate_doubles_previous_wait_time(app: SphinxTestApp) -> None:
             FakeResponse.url, FakeResponse.headers.get('Retry-After')
         )
     assert next_check == 120.0
+
+
+@pytest.mark.parametrize(
+    ('ignore_pattern', 'input_url', 'url_should_be_ignored'),
+    [
+        (None, 'http://www.sphinx-doc.org', False),
+        (r'http://www.sphinx-doc.org/', 'http://www.sphinx-doc.org', False),
+        (r'http://www.sphinx-doc.org/.*', 'http://www.sphinx-doc.org/robots.txt', True),
+        # (None, 'https://example.org', True),  # TODO: automatically ignore IETF reserved domains
+    ],
+)
+def test_uri_should_be_ignored(ignore_pattern, input_url, url_should_be_ignored):
+    """Test the logic that determines whether URLs should be ignored"""
+    ignore_patterns = [ignore_pattern] if ignore_pattern else []
+
+    config = Config()
+    config.linkcheck_workers = None
+    config.linkcheck_ignore = ignore_patterns
+    checker = HyperlinkAvailabilityChecker(config=config)
+
+    result = checker.is_ignored_uri(input_url)
+
+    assert result == url_should_be_ignored
 
 
 @pytest.mark.sphinx(
