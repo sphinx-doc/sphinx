@@ -295,7 +295,6 @@ class Hyperlink(NamedTuple):
 
 
 class HyperlinkAvailabilityChecker:
-
     # https://datatracker.ietf.org/doc/html/rfc2606#section-2
     # ... minus https://github.com/sphinx-doc/sphinx/issues/14307#issuecomment-3910787066
     IETF_RESERVED_TLDS = frozenset({
