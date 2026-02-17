@@ -1325,6 +1325,7 @@ def test_limit_rate_doubles_previous_wait_time(app: SphinxTestApp) -> None:
         (None, 'https://example.org', True),
         (None, 'https://example.com/some/random/path.html', True),
         (None, 'https://unresolvable.invalid/another/invalid/url.html#fragment', True),
+        (None, 'https://subdomain.of.invalid/yet/another/ignorable/url.html', True),
     ],
 )
 def test_uri_should_be_ignored(ignore_pattern, input_url, url_should_be_ignored):
