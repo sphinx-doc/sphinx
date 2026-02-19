@@ -14,6 +14,10 @@ Features added
 * Add :meth:`~sphinx.application.Sphinx.add_static_dir` for copying static
   assets from extensions to the build output.
   Patch by Jared Dillard
+* Docutils: Add :confval:`docutils_report_level` for changing the default
+  reporting level of Docutils. Also add :confval:`docutils_warning_level` to
+  change the level of Docutils logs to be interpreted as warnings.
+  Patch by Randolph Sapp
 
 Bugs fixed
 ----------

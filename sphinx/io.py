@@ -71,7 +71,7 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[type-arg]
 
         # substitute reporter
         reporter = document.reporter
-        document.reporter = LoggingReporter.from_reporter(reporter)
+        document.reporter = LoggingReporter.from_reporter(reporter, self.settings.env)
 
         return document
 
