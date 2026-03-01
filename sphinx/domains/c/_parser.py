@@ -150,7 +150,7 @@ class DefinitionParser(BaseParser):
 
         # character-literal
         if self.match(char_literal_re):
-            prefix = self.last_match.group(1)  # may be None when no prefix  # ty: ignore[unresolved-attribute]
+            prefix = self.last_match.group(1)  # ty: ignore[unresolved-attribute]
             data = self.last_match.group(2)  # ty: ignore[unresolved-attribute]
             try:
                 return ASTCharLiteral(prefix, data)
