@@ -211,7 +211,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if s is not None:
             # something is already declared with that name
             return
-        decl_clone = symbol.declaration.clone()
+        decl_clone = symbol.declaration.clone()  # ty: ignore[unresolved-attribute]
         decl_clone.enumeratorScopedSymbol = symbol
         Symbol(
             parent=target_symbol,
@@ -247,10 +247,10 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
                 location=self.get_location(),
             )
 
-        name = ast.symbol.get_full_nested_name().get_display_string().lstrip(':')
+        name = ast.symbol.get_full_nested_name().get_display_string().lstrip(':')  # ty: ignore[unresolved-attribute]
         # Add index entry, but not if it's a declaration inside a concept
         is_in_concept = False
-        s = ast.symbol.parent
+        s = ast.symbol.parent  # ty: ignore[unresolved-attribute]
         while s is not None:
             decl = s.declaration
             s = s.parent
@@ -278,7 +278,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             # if the name is not unique, the first one will win
             names = self.env.domaindata['cpp']['names']
             if name not in names:
-                names[name] = ast.symbol.docname
+                names[name] = ast.symbol.docname  # ty: ignore[unresolved-attribute]
             # always add the newest id
             assert newest_id
             signode['ids'].append(newest_id)
@@ -424,7 +424,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         self.env.ref_context['cpp:parent_key'] = last_symbol.get_lookup_key()
         self.env.current_document.cpp_domain_name = (
             *self.env.current_document.cpp_domain_name,
-            last_symbol.identOrOp._stringify(str),
+            last_symbol.identOrOp._stringify(str),  # ty: ignore[unresolved-attribute]
         )
 
     def after_content(self) -> None:
@@ -672,7 +672,7 @@ class AliasTransform(SphinxTransform):
         if not skip_this:
             signode = addnodes.desc_signature('', '')
             nodes.append(signode)
-            s.declaration.describe_signature(
+            s.declaration.describe_signature(  # ty: ignore[unresolved-attribute]
                 signode, 'markName', self.env, render_options
             )
 

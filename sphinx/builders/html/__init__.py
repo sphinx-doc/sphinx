@@ -575,7 +575,7 @@ class StandaloneHTMLBuilder(Builder):
                     'link': self.get_relative_uri(docname, related[2]),
                     'title': self.render_partial(titles[related[2]])['title'],
                 }
-                rellinks.append((related[2], next['title'], 'N', _('next')))
+                rellinks.append((related[2], next['title'], 'N', _('next')))  # ty: ignore[unresolved-attribute]
             except KeyError:
                 next = None
         if related and related[1]:
@@ -584,7 +584,7 @@ class StandaloneHTMLBuilder(Builder):
                     'link': self.get_relative_uri(docname, related[1]),
                     'title': self.render_partial(titles[related[1]])['title'],
                 }
-                rellinks.append((related[1], prev['title'], 'P', _('previous')))
+                rellinks.append((related[1], prev['title'], 'P', _('previous')))  # ty: ignore[unresolved-attribute]
             except KeyError:
                 # the relation is (somehow) not in the TOC tree, handle
                 # that gracefully

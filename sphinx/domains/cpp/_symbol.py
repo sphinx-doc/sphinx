@@ -321,7 +321,7 @@ class Symbol:
     def children_recurse_anon(self) -> Iterator[Symbol]:
         for c in self._children:
             yield c
-            if not c.identOrOp.is_anon():
+            if not c.identOrOp.is_anon():  # ty: ignore[unresolved-attribute]
                 continue
 
             yield from c.children_recurse_anon
@@ -959,8 +959,8 @@ class Symbol:
                 else:
                     our_object_type = our_child.declaration.objectType
                     other_object_type = other_child.declaration.objectType
-                    our_child_parent_decl = our_child.parent.declaration
-                    other_child_parent_decl = other_child.parent.declaration
+                    our_child_parent_decl = our_child.parent.declaration  # ty: ignore[unresolved-attribute]
+                    other_child_parent_decl = other_child.parent.declaration  # ty: ignore[unresolved-attribute]
                     if (
                         other_object_type == our_object_type
                         and other_object_type in {'templateParam', 'functionParam'}

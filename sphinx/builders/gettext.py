@@ -264,7 +264,7 @@ class MessageCatalogBuilder(I18nBuilder):
         logger.info(bold(__('building [%s]: ')), self.name, nonl=True)
         logger.info(__('targets for %d template files'), len(files))
 
-        extract_translations = self.templates.environment.extract_translations
+        extract_translations = self.templates.environment.extract_translations  # ty: ignore[unresolved-attribute]
 
         for template in status_iterator(
             files,

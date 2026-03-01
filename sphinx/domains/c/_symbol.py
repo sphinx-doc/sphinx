@@ -143,22 +143,22 @@ class Symbol:
         return self._children_by_name.values()
 
     def _add_child(self, child: Symbol) -> None:
-        name = child.ident.name
+        name = child.ident.name  # ty: ignore[unresolved-attribute]
         if name in self._children_by_name:
             # Duplicate so don't add - will be reported in _add_symbols()
             return
         self._children_by_name[name] = child
         child_docname: str = child.docname
         self._children_by_docname.setdefault(child_docname, {})[name] = child
-        if child.ident.is_anonymous:
+        if child.ident.is_anonymous:  # ty: ignore[unresolved-attribute]
             self._anon_children.add(child)
 
     def _remove_child(self, child: Symbol) -> None:
-        name = child.ident.name
+        name = child.ident.name  # ty: ignore[unresolved-attribute]
         self._children_by_name.pop(name, None)
         if children := self._children_by_docname.get(child.docname):
             children.pop(name, None)
-        if child.ident.is_anonymous:
+        if child.ident.is_anonymous:  # ty: ignore[unresolved-attribute]
             self._anon_children.discard(child)
 
     def _fill_empty(self, declaration: ASTDeclaration, docname: str, line: int) -> None:
@@ -551,7 +551,7 @@ class Symbol:
 
         assert other is not None
         for other_child in other._children:
-            other_name = other_child.ident.name
+            other_name = other_child.ident.name  # ty: ignore[unresolved-attribute]
             if other_name not in self._children_by_name:
                 # TODO: hmm, should we prune by docnames?
                 other_child.parent = self

@@ -16,6 +16,7 @@ SPHINX_MODULE_PATH = Path(sphinx.__file__).resolve().with_suffix('.py')
 
 
 def test_ModuleAnalyzer_get_module_source() -> None:
+    assert sphinx.__spec__ is not None
     assert isinstance(sphinx.__spec__.loader, SourceFileLoader)  # type checking
     assert ModuleAnalyzer.get_module_source('sphinx') == (
         Path(sphinx.__file__),

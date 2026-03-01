@@ -498,10 +498,10 @@ class GoogleDocstring:
         if prefer_type and not _type:
             _type, _name = _name, _type
 
-        if _type and self._config.napoleon_preprocess_types:
+        if _type and self._config.napoleon_preprocess_types:  # ty: ignore[unresolved-attribute]
             _type = _convert_type_spec(
                 _type,
-                translations=self._config.napoleon_type_aliases or {},
+                translations=self._config.napoleon_type_aliases or {},  # ty: ignore[unresolved-attribute]
                 debug_location=self._get_location(),
             )
 
@@ -549,10 +549,10 @@ class GoogleDocstring:
 
                 _type = before
 
-            if _type and preprocess_types and self._config.napoleon_preprocess_types:
+            if _type and preprocess_types and self._config.napoleon_preprocess_types:  # ty: ignore[unresolved-attribute]
                 _type = _convert_type_spec(
                     _type,
-                    translations=self._config.napoleon_type_aliases or {},
+                    translations=self._config.napoleon_type_aliases or {},  # ty: ignore[unresolved-attribute]
                     debug_location=self._get_location(),
                 )
 
@@ -805,8 +805,8 @@ class GoogleDocstring:
         )
 
     def _load_custom_sections(self) -> None:
-        if self._config.napoleon_custom_sections is not None:
-            for entry in self._config.napoleon_custom_sections:
+        if self._config.napoleon_custom_sections is not None:  # ty: ignore[unresolved-attribute]
+            for entry in self._config.napoleon_custom_sections:  # ty: ignore[unresolved-attribute]
                 if isinstance(entry, str):
                     # if entry is just a label, add to sections list,
                     # using generic section logic.
@@ -876,7 +876,7 @@ class GoogleDocstring:
         for _name, _type, _desc in self._consume_fields():
             if not _type:
                 _type = self._lookup_annotation(_name)
-            if self._config.napoleon_use_ivar:
+            if self._config.napoleon_use_ivar:  # ty: ignore[unresolved-attribute]
                 field = f':ivar {_name}: '
                 lines.extend(self._format_block(field, _desc))
                 if _type:
@@ -893,7 +893,7 @@ class GoogleDocstring:
                     lines.append('')
                     lines.extend(self._indent([f':type: {_type}'], 3))
                 lines.append('')
-        if self._config.napoleon_use_ivar:
+        if self._config.napoleon_use_ivar:  # ty: ignore[unresolved-attribute]
             lines.append('')
         return lines
 
@@ -902,7 +902,7 @@ class GoogleDocstring:
             'example': _('Example'),
             'examples': _('Examples'),
         }
-        use_admonition = self._config.napoleon_use_admonition_for_examples
+        use_admonition = self._config.napoleon_use_admonition_for_examples  # ty: ignore[unresolved-attribute]
         label = labels.get(section.lower(), section)
         return self._parse_generic_section(label, use_admonition)
 
@@ -939,7 +939,7 @@ class GoogleDocstring:
 
     def _parse_keyword_arguments_section(self, section: str) -> list[str]:
         fields = self._consume_fields()
-        if self._config.napoleon_use_keyword:
+        if self._config.napoleon_use_keyword:  # ty: ignore[unresolved-attribute]
             return self._format_docutils_params(
                 fields, field_role='keyword', type_role='kwtype'
             )
@@ -958,11 +958,11 @@ class GoogleDocstring:
         return lines
 
     def _parse_notes_section(self, section: str) -> list[str]:
-        use_admonition = self._config.napoleon_use_admonition_for_notes
+        use_admonition = self._config.napoleon_use_admonition_for_notes  # ty: ignore[unresolved-attribute]
         return self._parse_generic_section(_('Notes'), use_admonition)
 
     def _parse_other_parameters_section(self, section: str) -> list[str]:
-        if self._config.napoleon_use_param:
+        if self._config.napoleon_use_param:  # ty: ignore[unresolved-attribute]
             # Allow to declare multiple parameters at once (ex: x, y: int)
             fields = self._consume_fields(multiple=True)
             return self._format_docutils_params(fields)
@@ -971,7 +971,7 @@ class GoogleDocstring:
             return self._format_fields(_('Other Parameters'), fields)
 
     def _parse_parameters_section(self, section: str) -> list[str]:
-        if self._config.napoleon_use_param:
+        if self._config.napoleon_use_param:  # ty: ignore[unresolved-attribute]
             # Allow to declare multiple parameters at once (ex: x, y: int)
             fields = self._consume_fields(multiple=True)
             return self._format_docutils_params(fields)
@@ -998,7 +998,7 @@ class GoogleDocstring:
         return lines
 
     def _parse_receives_section(self, section: str) -> list[str]:
-        if self._config.napoleon_use_param:
+        if self._config.napoleon_use_param:  # ty: ignore[unresolved-attribute]
             # Allow to declare multiple parameters at once (ex: x, y: int)
             fields = self._consume_fields(multiple=True)
             return self._format_docutils_params(fields)
@@ -1007,13 +1007,13 @@ class GoogleDocstring:
             return self._format_fields(_('Receives'), fields)
 
     def _parse_references_section(self, section: str) -> list[str]:
-        use_admonition = self._config.napoleon_use_admonition_for_references
+        use_admonition = self._config.napoleon_use_admonition_for_references  # ty: ignore[unresolved-attribute]
         return self._parse_generic_section(_('References'), use_admonition)
 
     def _parse_returns_section(self, section: str) -> list[str]:
         fields = self._consume_returns_section()
         multi = len(fields) > 1
-        use_rtype = False if multi else self._config.napoleon_use_rtype
+        use_rtype = False if multi else self._config.napoleon_use_rtype  # ty: ignore[unresolved-attribute]
         lines: list[str] = []
 
         for _name, _type, _desc in fields:
@@ -1086,7 +1086,7 @@ class GoogleDocstring:
         return lines
 
     def _lookup_annotation(self, _name: str) -> str:
-        if self._config.napoleon_attr_annotations:
+        if self._config.napoleon_attr_annotations:  # ty: ignore[unresolved-attribute]
             if self._what in {'module', 'class', 'exception'} and self._obj:
                 # cache the class annotations
                 if not hasattr(self, '_annotations'):
@@ -1245,10 +1245,10 @@ class NumpyDocstring(GoogleDocstring):
         if prefer_type and not _type:
             _type, _name = _name, _type
 
-        if self._config.napoleon_preprocess_types:
+        if self._config.napoleon_preprocess_types:  # ty: ignore[unresolved-attribute]
             _type = _convert_type_spec(
                 _type,
-                translations=self._config.napoleon_type_aliases or {},
+                translations=self._config.napoleon_type_aliases or {},  # ty: ignore[unresolved-attribute]
                 debug_location=self._get_location(),
             )
 
@@ -1367,7 +1367,7 @@ class NumpyDocstring(GoogleDocstring):
             description: list[str],
             role: str | None,
         ) -> tuple[str, list[str], str | None]:
-            translations = self._config.napoleon_type_aliases
+            translations = self._config.napoleon_type_aliases  # ty: ignore[unresolved-attribute]
             if role is not None or not translations:
                 return func, description, role
 

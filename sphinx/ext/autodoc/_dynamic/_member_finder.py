@@ -241,9 +241,9 @@ def _get_members_to_document(
         if (
             props.obj_type == 'module'
             and not ignore_module_all
-            and props.all is not None
+            and props.all is not None  # ty: ignore[unresolved-attribute]
         ):
-            wanted_members = frozenset(props.all)
+            wanted_members = frozenset(props.all)  # ty: ignore[unresolved-attribute]
         else:
             wanted_members = ALL
     else:
