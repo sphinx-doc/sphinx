@@ -1,3 +1,29 @@
+Release 9.2.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+* #14326: The sidebar button in the classic theme has changed from a ``<div>``
+  to a ``<button>``. If you have custom styles for ``div#sidebarbutton``, you
+  may need to change the filter to ``#sidebarbutton``.
+  Patch by Hugo van Kemenade
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+-------
+
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
 
