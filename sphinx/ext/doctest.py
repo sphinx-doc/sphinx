@@ -11,7 +11,7 @@ import re
 import sys
 import time
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -21,6 +21,7 @@ from packaging.version import Version
 import sphinx
 from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
+from sphinx.directives.code import BaseCodeBlock
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Set
     from typing import Any, ClassVar
 
-    from docutils.nodes import Element, Node, TextElement
+    from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
@@ -63,7 +64,7 @@ def is_allowed_version(spec: str, version: str) -> bool:
 # set up the necessary directives
 
 
-class TestDirective(SphinxDirective):
+class TestDirective(BaseCodeBlock, SphinxDirective):
     """Base class for doctest-related directives."""
 
     has_content = True
@@ -74,32 +75,54 @@ class TestDirective(SphinxDirective):
     def run(self) -> list[Node]:
         # use ordinary docutils nodes for test code: they get special attributes
         # so that our builder recognizes them, and the other builders are happy.
-        code = '\n'.join(self.content)
-        test = None
-        if self.name == 'doctest':
-            if '<BLANKLINE>' in code:
-                # convert <BLANKLINE>s to ordinary blank lines for presentation
-                test = code
-                code = blankline_re.sub('', code)
-            if (
-                doctestopt_re.search(code)
-                and 'no-trim-doctest-flags' not in self.options
-            ):
-                if not test:
-                    test = code
-                code = doctestopt_re.sub('', code)
-        nodetype: type[TextElement] = nodes.literal_block
-        if self.name in {'testsetup', 'testcleanup'} or 'hide' in self.options:
-            nodetype = nodes.comment
+        test = '\n'.join(self.content)  # This is the code that doctest will run
+
         if self.arguments:
             groups = [x.strip() for x in self.arguments[0].split(',')]
         else:
             groups = ['default']
-        node = nodetype(code, code, testnodetype=self.name, groups=groups)
+
+        if self.name in {'testsetup', 'testcleanup'} or 'hide' in self.options:
+            # Invisible block: content can be the unformatted test
+            node = nodes.comment(test, test)
+        else:
+            # Visible block: content has to be formatted according to the BaseCodeBlock
+            # options. This uses the node built by BaseCodeBlock.run and adapts it.
+            node = super().run()[0]
+
+            if self.name == 'doctest':
+                # Step 1: get the actual code from the built node. The structure of the node
+                # differs if there's a caption.
+
+                # If caption wrapping occurred, the literal_block is inside the container
+                if isinstance(node, nodes.container):
+                    literal = node[1]  # node[0] is caption, node[1] is literal_block
+                else:
+                    literal = node
+                assert isinstance(literal, nodes.literal_block)
+                rawsource = literal.rawsource
+
+                # Step 2: modify the source code to remove <BLANKLINE> tags and optionally
+                # remove doctest flags.
+                if '<BLANKLINE>' in rawsource:
+                    # convert <BLANKLINE>s to ordinary blank lines for presentation
+                    rawsource = blankline_re.sub('', rawsource)
+                if (
+                    doctestopt_re.search(rawsource)
+                    and 'no-trim-doctest-flags' not in self.options
+                ):
+                    rawsource = doctestopt_re.sub('', rawsource)
+
+                # Step 3: update the rawsource and text content of the literal_block.
+                # rawsource is metadata; the displayed text comes from the Text child node,
+                # which is immutable (Text subclasses str) and must be replaced.
+                literal.rawsource = rawsource
+                literal[:] = [nodes.Text(rawsource)]
+
+        node['testnodetype'] = self.name
+        node['groups'] = groups
         self.set_source_info(node)
-        if test is not None:
-            # only save if it differs from code
-            node['test'] = test
+        node['test'] = test
         if self.name == 'doctest':
             node['language'] = 'pycon'
         elif self.name == 'testcode':
@@ -160,7 +183,8 @@ class TestcleanupDirective(TestDirective):
 
 
 class DoctestDirective(TestDirective):
-    option_spec: ClassVar[OptionSpec] = {
+    option_spec: ClassVar[OptionSpec] = TestDirective.option_spec.copy()
+    option_spec |= {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
@@ -171,7 +195,8 @@ class DoctestDirective(TestDirective):
 
 
 class TestcodeDirective(TestDirective):
-    option_spec: ClassVar[OptionSpec] = {
+    option_spec: ClassVar[OptionSpec] = TestDirective.option_spec.copy()
+    option_spec |= {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'pyversion': directives.unchanged_required,
@@ -181,7 +206,8 @@ class TestcodeDirective(TestDirective):
 
 
 class TestoutputDirective(TestDirective):
-    option_spec: ClassVar[OptionSpec] = {
+    option_spec: ClassVar[OptionSpec] = TestDirective.option_spec.copy()
+    option_spec |= {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
@@ -654,8 +680,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
 
 def _condition_default(node: Node) -> bool:
+    # literal_block is for visible block of code, comment if for invisible block of code, and
+    # container is for visible block of code with a caption.
     return (
-        isinstance(node, (nodes.literal_block, nodes.comment))
+        isinstance(node, (nodes.literal_block, nodes.comment, nodes.container))
         and 'testnodetype' in node
     )
 
