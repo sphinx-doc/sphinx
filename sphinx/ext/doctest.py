@@ -11,7 +11,7 @@ import re
 import sys
 import time
 from io import StringIO
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives

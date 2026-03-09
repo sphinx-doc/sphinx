@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 from collections import Counter
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -24,6 +23,7 @@ from sphinx.ext.doctest import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from pathlib import Path
 
     from sphinx.testing.util import SphinxTestApp
 
