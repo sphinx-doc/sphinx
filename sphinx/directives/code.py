@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import textwrap
 from difflib import unified_diff
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -183,9 +183,10 @@ class CodeBlock(BaseCodeBlock):
         result = super().run()[0]
         # If caption wrapping occurred, the literal_block is inside the container
         if isinstance(result, nodes.container):
-            literal = result[1]  # result[0] is caption, result[1] is literal_block
+            # result[0] is caption, result[1] is literal_block
+            literal = cast('Element', result[1])
         else:
-            literal = result
+            literal = cast('Element', result)
         if self.arguments:
             # highlight language specified
             literal['language'] = self.arguments[0]

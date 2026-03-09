@@ -11,7 +11,7 @@ import re
 import sys
 import time
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -82,13 +82,14 @@ class TestDirective(BaseCodeBlock, SphinxDirective):
         else:
             groups = ['default']
 
+        node: Element
         if self.name in {'testsetup', 'testcleanup'} or 'hide' in self.options:
             # Invisible block: content can be the unformatted test
             node = nodes.comment(test, test)
         else:
             # Visible block: content has to be formatted according to the BaseCodeBlock
             # options. This uses the node built by BaseCodeBlock.run and adapts it.
-            node = super().run()[0]
+            node = cast('Element', super().run()[0])
 
             if self.name == 'doctest':
                 # Step 1: get the actual code from the built node. The structure of the node
