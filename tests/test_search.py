@@ -177,6 +177,7 @@ def test_term_in_raw_directive(app: SphinxTestApp) -> None:
 
 
 def test_IndexBuilder():
+
     settings = frontend.get_default_settings(rst.Parser)
     parser = rst.Parser()
 
@@ -483,3 +484,33 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
         f'Search index fixture {existing_searchindex} does not match regenerated copy.'
     )
     assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg
+
+
+def test_quoted_docname():
+
+    settings = frontend.get_default_settings(rst.Parser)
+    parser = rst.Parser()
+
+    domain = DummyDomain(
+        'dummy',
+        [
+            ('objname', 'objdispname', 'objtype', 'docname', '#anchor', 1),
+        ],
+    )
+    env = DummyEnvironment('1.0', DummyDomainsContainer(dummy=domain))
+    doc = utils.new_document('test data', settings)
+    doc['file'] = 'dummy'
+    parser.parse(FILE_CONTENTS, doc)
+
+    index = IndexBuilder(env, 'en', {}, '')
+    index.feed('doc#name', 'filename', 'title', doc)
+    index.feed('doc$name', 'filename', 'title', doc)
+    index.feed('doc%name', 'filename', 'title', doc)
+    index.feed('doc?name', 'filename', 'title', doc)
+    print(index.freeze()['docnames'])
+    assert index.freeze()['docnames'] == (
+        'doc%23name',
+        'doc%24name',
+        'doc%25name',
+        'doc%3Fname',
+    )
