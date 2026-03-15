@@ -177,7 +177,6 @@ def test_term_in_raw_directive(app: SphinxTestApp) -> None:
 
 
 def test_IndexBuilder():
-
     settings = frontend.get_default_settings(rst.Parser)
     parser = rst.Parser()
 
