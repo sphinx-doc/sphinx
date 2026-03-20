@@ -23,6 +23,7 @@ from sphinx.ext.autosummary.generate import (
     AutosummaryEntry,
     generate_autosummary_content,
     generate_autosummary_docs,
+    get_parser,
 )
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
@@ -998,3 +999,14 @@ def test_autogen_remove_old(rootdir, tmp_path):
         assert set(tmp_path.iterdir()) == {
             tmp_path / 'sphinx.application.TemplateBridge.rst'
         }
+
+
+def test_autogen_parser_help_is_str() -> None:
+    parser = get_parser()
+
+    assert isinstance(parser.description, str)
+    assert isinstance(parser.epilog, str)
+    assert all(
+        action.help is None or isinstance(action.help, str)
+        for action in parser._actions
+    )
