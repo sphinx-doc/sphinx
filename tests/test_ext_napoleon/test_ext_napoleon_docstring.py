@@ -1644,7 +1644,9 @@ class TestNumpyDocstring:
 
         actual = str(NumpyDocstring(docstring, Config(napoleon_use_param=True)))
         assert actual.index(':param arg1:') < actual.index('.. attribute:: attr1')
-        assert actual.index('.. attribute:: attr1') < actual.index('.. method:: do_it()')
+        assert actual.index('.. attribute:: attr1') < actual.index(
+            '.. method:: do_it()'
+        )
 
     def test_type_preprocessor(self):
         docstring = dedent("""

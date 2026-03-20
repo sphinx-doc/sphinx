@@ -1262,21 +1262,18 @@ class NumpyDocstring(GoogleDocstring):
         if any(name in moved_sections for name, _section_lines in sections):
             try:
                 next(
-                    i for i, (name, _section_lines) in enumerate(sections)
+                    i
+                    for i, (name, _section_lines) in enumerate(sections)
                     if name == 'parameters'
                 )
             except StopIteration:
                 final_sections = sections
             else:
                 deferred_sections = [
-                    section
-                    for section in sections
-                    if section[0] in moved_sections
+                    section for section in sections if section[0] in moved_sections
                 ]
                 regular_sections = [
-                    section
-                    for section in sections
-                    if section[0] not in moved_sections
+                    section for section in sections if section[0] not in moved_sections
                 ]
                 insert_idx = next(
                     i
