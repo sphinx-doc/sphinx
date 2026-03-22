@@ -96,6 +96,7 @@ Special nodes
 
 You should not need to generate the nodes below in extensions.
 
+.. autoclass:: translatable
 .. autoclass:: glossary
 .. autoclass:: toctree
 .. autoclass:: start_of_file
