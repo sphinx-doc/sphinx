@@ -91,6 +91,10 @@ New inline nodes
 Special nodes
 -------------
 
+.. autoclass:: translatable
+
+   Abstract base class for nodes with custom translation handling.
+
 .. autoclass:: only
 .. autoclass:: highlightlang
 
