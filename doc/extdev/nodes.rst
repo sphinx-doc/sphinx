@@ -91,7 +91,7 @@ New inline nodes
 Special nodes
 -------------
 
-.. autoclass:: translatable
+.. autoclass:: sphinx.addnodes.translatable
 
    Abstract base class for nodes with custom translation handling.
 
