@@ -1,5 +1,10 @@
 /*
  * Base JavaScript utilities for all Sphinx HTML documentation.
+ *
+ * SPDX-FileCopyrightText: Sphinx team (see AUTHORS file)
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
+ * @license magnet:?xt=urn:btih:87f119ba0b429ba17a44b4bffcab33165ebdacc0&dn=freebsd.txt BSD-2-Clause
  */
 "use strict";
 
@@ -148,3 +153,5 @@ const Documentation = {
 const _ = Documentation.gettext;
 
 _ready(Documentation.init);
+
+// @license-end

@@ -1,4 +1,11 @@
-/* Highlighting utilities for Sphinx HTML documentation. */
+/*
+ * Highlighting utilities for Sphinx HTML documentation.
+ *
+ * SPDX-FileCopyrightText: Sphinx team (see AUTHORS file)
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
+ * @license magnet:?xt=urn:btih:87f119ba0b429ba17a44b4bffcab33165ebdacc0&dn=freebsd.txt BSD-2-Clause
+ */
 "use strict";
 
 const SPHINX_HIGHLIGHT_ENABLED = true;
@@ -157,3 +164,5 @@ _ready(() => {
   if (typeof Search === "undefined") SphinxHighlight.highlightSearchWords();
   SphinxHighlight.initEscapeListener();
 });
+
+// @license-end
