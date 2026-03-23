@@ -9,7 +9,7 @@
 {%- endblock %}
 
 {%- block sidebarextra %}{% if theme_collapsiblesidebar|tobool %}
-<button id="sidebarbutton" title="{{ _('Collapse sidebar') }}">
+<button type="button" id="sidebarbutton" title="{{ _('Collapse sidebar') }}">
 <span>{{ '»' if theme_rightsidebar|tobool else '«' }}</span>
 </button>
 {% endif %}{% endblock %}
