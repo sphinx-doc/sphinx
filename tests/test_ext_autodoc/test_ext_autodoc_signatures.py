@@ -355,3 +355,16 @@ def test_autodoc_process_signature_typehints() -> None:
     assert captured == [
         (app, 'function', '.func', func, options, '(x: int, y: int)', 'int')
     ]
+
+
+def test_get_type_comment_empty_module_body():
+    """get_type_comment returns None when getsource yields empty AST body."""
+    from unittest.mock import patch
+
+    from sphinx.ext.autodoc._dynamic._type_comments import get_type_comment
+
+    with patch(
+        'sphinx.ext.autodoc._dynamic._type_comments.getsource',
+        return_value='\n',
+    ):
+        assert get_type_comment(lambda: None) is None
