@@ -282,7 +282,6 @@ class _NodeUpdater:
         is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
         old_refs = list(is_refnamed_ref.findall(self.node))
         new_refs = list(is_refnamed_ref.findall(self.patch))
-        
         # Only compare the count of references, not their content.
         # Translators are allowed to change display text (which affects rawsource comparison),
         # and the fixup mechanism below will correct the refnames if needed.
@@ -298,7 +297,6 @@ class _NodeUpdater:
                 type='i18n',
                 subtype='inconsistent_references',
             )
-        
         old_ref_names = [r['refname'] for r in old_refs]
         new_ref_names = [r['refname'] for r in new_refs]
         orphans = [*({*old_ref_names} - {*new_ref_names})]
@@ -363,7 +361,6 @@ class _NodeUpdater:
         # This code restricts to change ref-targets in the translation.
         old_xrefs = [*self.node.findall(addnodes.pending_xref)]
         new_xrefs = [*self.patch.findall(addnodes.pending_xref)]
-        
         # Only compare the count of cross-references, not their targets.
         # For term references, translators may translate both display text and
         # the term name itself (when the glossary is also translated).
@@ -380,7 +377,6 @@ class _NodeUpdater:
                 type='i18n',
                 subtype='inconsistent_references',
             )
-
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
 
         def get_ref_key(node: addnodes.pending_xref) -> tuple[str, str, str] | None:

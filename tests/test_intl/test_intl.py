@@ -425,7 +425,7 @@ def test_text_refs_translated_display_text_no_warning(app: SphinxTestApp) -> Non
     - Case 4: Use translated hyperlink tag
     - Case 5: Translated glossary term (with explicit target syntax)
     - Additional: Term references with translated glossary term names
-    - Additional: Term references with newlines from PO file wrapping
+    - Additional: Term references with newlines from PO file wrapping.
     """
     app.build()
     result = (app.outdir / 'refs_translated_display_text.txt').read_text(encoding='utf8')
