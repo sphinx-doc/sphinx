@@ -363,16 +363,23 @@ class _NodeUpdater:
         # This code restricts to change ref-targets in the translation.
         old_xrefs = [*self.node.findall(addnodes.pending_xref)]
         new_xrefs = [*self.patch.findall(addnodes.pending_xref)]
-        self.compare_references(
-            old_xrefs,
-            new_xrefs,
-            __(
-                'inconsistent term references in translated message.'
-                ' original: {0}, translated: {1}'
-            ),
-            # Compare by reftarget only, allowing translated display text.
-            key_func=lambda ref: ref.get('reftarget'),
-        )
+        
+        # Only compare the count of cross-references, not their targets.
+        # For term references, translators may translate both display text and
+        # the term name itself (when the glossary is also translated).
+        # For other xrefs, the fixup mechanism below handles target corrections.
+        if not self.noqa and len(old_xrefs) != len(new_xrefs):
+            old_xref_rawsources = [ref.rawsource for ref in old_xrefs]
+            new_xref_rawsources = [ref.rawsource for ref in new_xrefs]
+            logger.warning(
+                __(
+                    'inconsistent term references in translated message.'
+                    ' original: {0}, translated: {1}'
+                ).format(old_xref_rawsources, new_xref_rawsources),
+                location=self.node,
+                type='i18n',
+                subtype='inconsistent_references',
+            )
 
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
 

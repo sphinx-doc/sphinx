@@ -10,6 +10,24 @@ i18n with translated display text for references
 
    locale encoding
       The encoding used for the locale.
+   
+   abstract base class
+      A base class that is abstract.
+   
+   text encoding
+      The encoding used for text.
+   
+   decorator
+      A function decorator.
+   
+   abstrakcyjna klasa bazowa
+      Translated: A base class that is abstract.
+   
+   kodowanie tekstu
+      Translated: The encoding used for text.
+   
+   dekorator
+      Translated: A function decorator.
 
 .. rubric:: Test cases from issue #14162
 
@@ -22,3 +40,13 @@ i18n with translated display text for references
 4. Translated glossary term (case 5): :term:`locale encoding`.
 
 5. Multiple translated refs: vectorcall_ and `Documentation bugs`_.
+
+.. rubric:: Additional term reference cases
+
+6. Term with explicit target and newline in source: :term:`virtual <abstract base class>`.
+
+7. Term without explicit target: :term:`text encoding`.
+
+8. Simple term reference: :term:`decorator`.
+
+9. Multiple term refs: :term:`text encoding` and :term:`decorator`.

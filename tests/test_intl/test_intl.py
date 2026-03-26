@@ -419,11 +419,13 @@ def test_text_refs_reordered_no_warning(app: SphinxTestApp) -> None:
 def test_text_refs_translated_display_text_no_warning(app: SphinxTestApp) -> None:
     """Test that translated display text in references doesn't trigger warnings.
     
-    This test covers cases 2-5 from issue #14162:
+    This test covers cases 2-5 from issue #14162 plus additional term reference cases:
     - Case 2: Add translated display text for hyperlink
     - Case 3: Translated display text for hyperlink
     - Case 4: Use translated hyperlink tag
-    - Case 5: Translated glossary term
+    - Case 5: Translated glossary term (with explicit target syntax)
+    - Additional: Term references with translated glossary term names
+    - Additional: Term references with newlines from PO file wrapping
     """
     app.build()
     result = (app.outdir / 'refs_translated_display_text.txt').read_text(encoding='utf8')
@@ -436,6 +438,7 @@ def test_text_refs_translated_display_text_no_warning(app: SphinxTestApp) -> Non
     assert 'USE TRANSLATED HYPERLINK TAG (CASE 4)' in result
     assert 'TRANSLATED GLOSSARY TERM (CASE 5)' in result
     assert 'MULTIPLE TRANSLATED REFS' in result
+    assert 'ADDITIONAL TERM REFERENCE CASES' in result
 
     warnings = getwarning(app.warning)
     # Should NOT have any inconsistent_references warnings for refs_translated_display_text.txt

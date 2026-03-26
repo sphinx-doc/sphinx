@@ -19,6 +19,24 @@ msgstr "I18N WITH TRANSLATED DISPLAY TEXT FOR REFERENCES"
 msgid "The encoding used for the locale."
 msgstr "THE ENCODING USED FOR THE LOCALE."
 
+msgid "A base class that is abstract."
+msgstr "A BASE CLASS THAT IS ABSTRACT."
+
+msgid "The encoding used for text."
+msgstr "THE ENCODING USED FOR TEXT."
+
+msgid "A function decorator."
+msgstr "A FUNCTION DECORATOR."
+
+msgid "Translated: A base class that is abstract."
+msgstr "TRANSLATED: A BASE CLASS THAT IS ABSTRACT."
+
+msgid "Translated: The encoding used for text."
+msgstr "TRANSLATED: THE ENCODING USED FOR TEXT."
+
+msgid "Translated: A function decorator."
+msgstr "TRANSLATED: A FUNCTION DECORATOR."
+
 msgid "Test cases from issue #14162"
 msgstr "TEST CASES FROM ISSUE #14162"
 
@@ -49,3 +67,28 @@ msgstr "TRANSLATED GLOSSARY TERM (CASE 5): :term:`CODIFICAÇÃO DA LOCALIDADE <l
 # Multiple refs: should allow translating display text and rely on fixup
 msgid "Multiple translated refs: vectorcall_ and `Documentation bugs`_."
 msgstr "MULTIPLE TRANSLATED REFS: `TRANSLATED DOCUMENTATION BUGS`_ AND `VECTORCALL <vectorcall_>`_."
+
+msgid "Additional term reference cases"
+msgstr "ADDITIONAL TERM REFERENCE CASES"
+
+# Term with explicit target - simulating newline in original (from PO wrapping)
+# and translated glossary term name as target
+msgid ""
+"Term with explicit target and newline in source: :term:`virtual <abstract "
+"base class>`."
+msgstr ""
+"TERM WITH EXPLICIT TARGET AND NEWLINE IN SOURCE: :term:`wirtualną "
+"<abstrakcyjna klasa bazowa>`."
+
+# Term without explicit target - translate the term name itself
+# This simulates when the glossary is also translated
+msgid "Term without explicit target: :term:`text encoding`."
+msgstr "TERM WITHOUT EXPLICIT TARGET: :term:`kodowanie tekstu`."
+
+# Simple term reference - translate the term name
+msgid "Simple term reference: :term:`decorator`."
+msgstr "SIMPLE TERM REFERENCE: :term:`dekorator`."
+
+# Multiple term refs with translated names
+msgid "Multiple term refs: :term:`text encoding` and :term:`decorator`."
+msgstr "MULTIPLE TERM REFS: :term:`kodowanie tekstu` AND :term:`dekorator`."
