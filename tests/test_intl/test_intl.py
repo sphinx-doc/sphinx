@@ -428,7 +428,9 @@ def test_text_refs_translated_display_text_no_warning(app: SphinxTestApp) -> Non
     - Additional: Term references with newlines from PO file wrapping.
     """
     app.build()
-    result = (app.outdir / 'refs_translated_display_text.txt').read_text(encoding='utf8')
+    result = (app.outdir / 'refs_translated_display_text.txt').read_text(
+        encoding='utf8'
+    )
 
     # Verify the translations were applied
     assert 'I18N WITH TRANSLATED DISPLAY TEXT FOR REFERENCES' in result
@@ -442,7 +444,9 @@ def test_text_refs_translated_display_text_no_warning(app: SphinxTestApp) -> Non
 
     warnings = getwarning(app.warning)
     # Should NOT have any inconsistent_references warnings for refs_translated_display_text.txt
-    unexpected_warning_expr = '.*/refs_translated_display_text.txt.*inconsistent.*references'
+    unexpected_warning_expr = (
+        '.*/refs_translated_display_text.txt.*inconsistent.*references'
+    )
     assert not re.search(unexpected_warning_expr, warnings), (
         f'Unexpected warning found: {warnings!r}'
     )
