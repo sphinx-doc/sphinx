@@ -873,13 +873,14 @@ def find_autosummary_in_lines(
 def get_parser() -> argparse.ArgumentParser:
     # argparse (Python 3.15+) may apply regex/string operations to help/description.
     # Ensure translated messages are real strings, not lazy translation proxies.
-    def _t(s) -> str:
+    def _t(s: str) -> str:
         return str(s)
 
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
         epilog=_t(__('For more information, visit <https://www.sphinx-doc.org/>.')),
-        description=_t(__("""
+        description=_t(
+            __("""
 Generate ReStructuredText using autosummary directives.
 
 sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
@@ -890,7 +891,8 @@ The format of the autosummary directive is documented in the
 ``sphinx.ext.autosummary`` Python module and can be read using::
 
   pydoc sphinx.ext.autosummary
-""")),
+""")
+        ),
     )
 
     parser.add_argument(
@@ -941,19 +943,21 @@ The format of the autosummary directive is documented in the
         action='store_true',
         dest='respect_module_all',
         default=False,
-        help=_t(__(
-            'document exactly the members in module __all__ attribute. '
-            '(default: %(default)s)'
-        )),
+        help=_t(
+            __(
+                'document exactly the members in module __all__ attribute. '
+                '(default: %(default)s)'
+            )
+        ),
     )
     parser.add_argument(
         '--remove-old',
         action='store_true',
         dest='remove_old',
         default=False,
-        help=_t(__(
-            'Remove existing files in the output directory that were not generated'
-        )),
+        help=_t(
+            __('Remove existing files in the output directory that were not generated')
+        ),
     )
 
     return parser
