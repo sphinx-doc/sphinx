@@ -418,7 +418,7 @@ def test_text_refs_reordered_no_warning(app: SphinxTestApp) -> None:
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_refs_translated_display_text_no_warning(app: SphinxTestApp) -> None:
     """Test that translated display text in references doesn't trigger warnings.
-    
+
     This test covers cases 2-5 from issue #14162 plus additional term reference cases:
     - Case 2: Add translated display text for hyperlink
     - Case 3: Translated display text for hyperlink
@@ -429,7 +429,7 @@ def test_text_refs_translated_display_text_no_warning(app: SphinxTestApp) -> Non
     """
     app.build()
     result = (app.outdir / 'refs_translated_display_text.txt').read_text(encoding='utf8')
-    
+
     # Verify the translations were applied
     assert 'I18N WITH TRANSLATED DISPLAY TEXT FOR REFERENCES' in result
     assert 'TEST CASES FROM ISSUE #14162' in result
