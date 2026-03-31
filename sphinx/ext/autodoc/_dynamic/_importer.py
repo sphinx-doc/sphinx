@@ -209,6 +209,8 @@ def _import_module(modname: str, try_reload: bool = False) -> Any:
     if modname in sys.modules:
         return sys.modules[modname]
 
+    print(f"-D- Importing {modname} ...")
+
     skip_pyi = bool(os.getenv('SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS', ''))
     original_module_names = frozenset(sys.modules)
     try:
@@ -246,6 +248,9 @@ def _import_module(modname: str, try_reload: bool = False) -> Any:
         finally:
             typing.TYPE_CHECKING = False  # type: ignore[misc]
         module = sys.modules[modname]
+
+    print(f"-D- Done.")
+
     return module
 
 

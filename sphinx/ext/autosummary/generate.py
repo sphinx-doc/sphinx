@@ -18,12 +18,13 @@ import argparse
 import importlib
 import inspect
 import locale
+import os
 import pkgutil
 import pydoc
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, Callable
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -33,6 +34,7 @@ from sphinx import __display_version__, package_dir
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import PycodeError
+from sphinx.events import EventManager
 from sphinx.ext.autodoc._dynamic._importer import _import_module
 from sphinx.ext.autodoc._dynamic._member_finder import _filter_enum_dict, unmangle
 from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
@@ -60,21 +62,19 @@ from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
 if TYPE_CHECKING:
-    import os
     from collections.abc import Sequence, Set
     from gettext import NullTranslations
     from typing import Any
 
     from sphinx.application import Sphinx
-    from sphinx.events import EventManager
     from sphinx.ext.autodoc._property_types import _AutodocObjType
 
 logger = logging.getLogger(__name__)
 
 
-class _DummyEvents:
-    def emit_firstresult(self, *args: Any) -> None:
-        pass
+# class _DummyEvents:
+#     def emit_firstresult(self, *args: Any) -> None:
+#         pass
 
 
 class DummyApplication:
@@ -82,7 +82,9 @@ class DummyApplication:
 
     def __init__(self, translator: NullTranslations) -> None:
         self.config = Config()
-        self.events = _DummyEvents()
+        self.pdb = None
+        self.events = EventManager(self)
+        self.events.add('autodoc-skip-member')
         self.registry = SphinxComponentRegistry()
         self.messagelog: list[str] = []
         self.srcdir = _StrPath('/')
@@ -97,6 +99,34 @@ class DummyApplication:
 
     def emit_firstresult(self, *args: Any) -> None:
         pass
+
+    def connect(
+        self, event: str, callback: Callable[..., Any], priority: int = 500
+    ) -> int:
+        """Register *callback* to be called when *event* is emitted.
+
+        For details on available core events and the arguments of callback
+        functions, please see :ref:`events`.
+
+        :param event: The name of target event
+        :param callback: Callback function for the event
+        :param priority: The priority of the callback.  The callbacks will be invoked
+                         in order of *priority* (ascending).
+        :return: A listener ID.  It can be used for :meth:`disconnect`.
+
+        .. versionchanged:: 3.0
+
+           Support *priority*
+        """
+        listener_id = self.events.connect(event, callback, priority)
+        logger.debug(
+            '[app] connecting event %r (%d): %r [id=%s]',
+            event,
+            priority,
+            callback,
+            listener_id,
+        )
+        return listener_id
 
 
 class AutosummaryEntry(NamedTuple):
@@ -965,6 +995,17 @@ def main(argv: Sequence[str] = (), /) -> None:
     if args.templates:
         app.config.templates_path.append(str(Path(args.templates).resolve()))
     app.config.autosummary_ignore_module_all = not args.respect_module_all
+
+    if os.path.exists(os.path.join(os.getcwd(), 'conf.py')):
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('conf', os.path.join(os.getcwd(), 'conf.py'))
+            conf = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(conf)
+            if hasattr(conf, 'setup'):
+                conf.setup(app)  # type: ignore[attr-defined]
+        except Exception as e:
+            logger.error(f"Error loading conf.py {e}")
 
     written_files = generate_autosummary_docs(
         args.source_file,
