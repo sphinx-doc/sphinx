@@ -394,7 +394,11 @@ def generate_autosummary_content(
                 public_members = None
 
             modules, all_modules = _get_modules(
-                obj, skip=skip, name=name, public_members=public_members
+                obj,
+                skip=skip,
+                name=name,
+                events=events,
+                public_members=public_members,
             )
             ns['modules'] = imported_modules + modules
             ns['all_modules'] = all_imported_modules + all_modules
@@ -610,6 +614,7 @@ def _get_modules(
     *,
     skip: Sequence[str],
     name: str,
+    events: EventManager,
     public_members: Sequence[str] | None = None,
 ) -> tuple[list[str], list[str]]:
     items: list[str] = []
@@ -622,9 +627,13 @@ def _get_modules(
         try:
             module = _import_module(fullname)
         except ImportError:
-            pass
+            module = None
         else:
             if module and hasattr(module, '__sphinx_mock__'):
+                continue
+
+        if module:
+            if _skip_member(module, fullname, 'module', events=events):
                 continue
 
         items.append(modname)
