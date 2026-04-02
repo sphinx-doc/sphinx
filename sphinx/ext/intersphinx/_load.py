@@ -401,7 +401,7 @@ def _fetch_inventory_url(
     except Exception as err:
         err.args = (
             'intersphinx inventory %r not fetchable due to %s: %s',
-            inv_location,
+            _get_safe_url(inv_location),
             err.__class__,
             str(err),
         )
@@ -409,7 +409,7 @@ def _fetch_inventory_url(
 
     if inv_location != new_inv_location:
         msg = __('intersphinx inventory has moved: %s -> %s')
-        LOGGER.info(msg, inv_location, new_inv_location)
+        LOGGER.info(msg, _get_safe_url(inv_location), _get_safe_url(new_inv_location))
 
         if target_uri in {
             inv_location,
