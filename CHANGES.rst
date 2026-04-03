@@ -1,3 +1,12 @@
+Release in development
+======================
+
+Bugs fixed
+----------
+
+* #14339: linkcheck: Apply :confval:`linkcheck_retries` to HTTP timeouts when
+  :confval:`linkcheck_report_timeouts_as_broken` is false (default).
+
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
 

@@ -478,12 +478,18 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return _Status.BROKEN, '', 0
 
         # need to actually check the URI
-        status: _Status
         status, info, code = _Status.UNKNOWN, '', 0
-        for _ in range(self.retries):
+        for attempt in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
-            if status != _Status.BROKEN:
+            if attempt + 1 >= self.retries:
                 break
+            # ``linkcheck_retries`` applies to broken links; also retry transient
+            # timeouts when they are reported as such (not when folded into "broken").
+            if status == _Status.BROKEN:
+                continue
+            if status == _Status.TIMEOUT and self._timeout_status == _Status.TIMEOUT:
+                continue
+            break
 
         return status, info, code
 

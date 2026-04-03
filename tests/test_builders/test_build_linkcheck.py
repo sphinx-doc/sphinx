@@ -1261,6 +1261,49 @@ def test_requests_timeout(app: SphinxTestApp) -> None:
     'linkcheck',
     testroot='linkcheck-localserver',
     freshenv=True,
+    confoverrides={
+        'linkcheck_report_timeouts_as_broken': False,
+        'linkcheck_timeout': 0.05,
+        'linkcheck_retries': 3,
+    },
+)
+def test_retries_after_transient_timeout(app: SphinxTestApp) -> None:
+    """linkcheck_retries must retry when the server is slow (issue #14339)."""
+    get_n = [0]
+
+    class SlowThenFastHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_HEAD(self) -> None:
+            # Force a GET so each attempt measures response latency from do_GET.
+            self.send_response(405, 'Method Not Allowed')
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+
+        def do_GET(self) -> None:
+            get_n[0] += 1
+            count = get_n[0]
+            if count <= 2:
+                time.sleep(0.15)
+            content = b'ok\n'
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+    with serve_application(app, SlowThenFastHandler):
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+
+    assert content['status'] == 'working'
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver',
+    freshenv=True,
     confoverrides={'linkcheck_rate_limit_timeout': 0.0},
 )
 def test_too_many_requests_user_timeout(app: SphinxTestApp) -> None:
