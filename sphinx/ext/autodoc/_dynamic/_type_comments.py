@@ -151,6 +151,8 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
         return None
     except SyntaxError:  # failed to parse type_comments
         return None
+    except IndexError:  # ast.parse returned empty module (e.g. source is whitespace)
+        return None
 
 
 def signature_from_ast(
