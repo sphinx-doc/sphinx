@@ -399,11 +399,12 @@ def _fetch_inventory_url(
             raw_data = r.content
             new_inv_location = r.url
     except Exception as err:
+        safe_url = _get_safe_url(inv_location)
         err.args = (
             'intersphinx inventory %r not fetchable due to %s: %s',
-            _get_safe_url(inv_location),
+            safe_url,
             err.__class__,
-            str(err),
+            str(err).replace(inv_location, safe_url),
         )
         raise
 

@@ -666,41 +666,23 @@ def test_getsafeurl_unauthed() -> None:
     assert actual == expected
 
 
-@mock.patch('sphinx.ext.intersphinx._load.requests.get')
-def test_fetch_inventory_url_error_hides_credentials(get_request):
+def test_fetch_inventory_url_error_hides_credentials(capsys):
     """Credentials should not appear in error messages on fetch failure."""
-    from sphinx.ext.intersphinx._load import _fetch_inventory_url
 
-    get_request.side_effect = ConnectionError('connection refused')
-    with pytest.raises(ConnectionError, match='connection refused'):
-        _fetch_inventory_url(
-            target_uri='https://hostname/',
-            inv_location='https://user:secret@hostname/' + INVENTORY_FILENAME,
-            config=_InvConfig(
-                intersphinx_cache_limit=5,
-                intersphinx_timeout=None,
-                tls_verify=False,
-                tls_cacerts=None,
-                user_agent='',
-            ),
-        )
-    # Also verify the rewritten error args don't contain the password
-    try:
-        _fetch_inventory_url(
-            target_uri='https://hostname/',
-            inv_location='https://user:secret@hostname/' + INVENTORY_FILENAME,
-            config=_InvConfig(
-                intersphinx_cache_limit=5,
-                intersphinx_timeout=None,
-                tls_verify=False,
-                tls_cacerts=None,
-                user_agent='',
-            ),
-        )
-    except ConnectionError as exc:
-        error_text = str(exc.args)
-        assert 'secret' not in error_text
-        assert 'user@hostname' in error_text
+    class ErrorHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_error(500, 'Internal Server Error')
+
+        def log_message(*args, **kwargs):
+            pass
+
+    with http_server(ErrorHandler) as server:
+        url = f'http://user:secret@localhost:{server.server_port}/{INVENTORY_FILENAME}'
+        inspect_main([url])
+
+    _, stderr = capsys.readouterr()
+    assert 'secret' not in stderr
+    assert 'user@localhost' in stderr
 
 
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
@@ -724,6 +706,7 @@ def test_fetch_inventory_redirect_hides_credentials(get_request, InventoryFile, 
     )
     status_output = app.status.getvalue()
     assert 'secret' not in status_output
+    assert 'user@hostname' in status_output
 
 
 def test_inspect_main_noargs(capsys):
