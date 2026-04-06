@@ -666,6 +666,53 @@ def test_getsafeurl_unauthed() -> None:
     assert actual == expected
 
 
+@mock.patch('sphinx.ext.intersphinx._load.requests.get')
+def test_fetch_inventory_url_error_hides_credentials(get_request):
+    """Credentials should not appear in error messages on fetch failure."""
+    get_request.side_effect = Exception('connection refused')
+    with pytest.raises(Exception) as exc_info:
+        from sphinx.ext.intersphinx._load import _fetch_inventory_url
+
+        _fetch_inventory_url(
+            target_uri='https://hostname/',
+            inv_location='https://user:secret@hostname/' + INVENTORY_FILENAME,
+            config=_InvConfig(
+                intersphinx_cache_limit=5,
+                intersphinx_timeout=None,
+                tls_verify=False,
+                tls_cacerts=None,
+                user_agent='',
+            ),
+        )
+    # The password must not appear in the error args
+    error_text = str(exc_info.value.args)
+    assert 'secret' not in error_text
+    assert 'user@hostname' in error_text
+
+
+@mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
+@mock.patch('sphinx.ext.intersphinx._load.requests.get')
+@pytest.mark.sphinx('html', testroot='root')
+def test_fetch_inventory_redirect_hides_credentials(get_request, InventoryFile, app):
+    """Credentials should not appear in redirect log messages."""
+    mocked_get = get_request.return_value.__enter__.return_value
+    intersphinx_setup(app)
+    mocked_get.content = b'# Sphinx inventory version 2'
+
+    mocked_get.url = 'https://user:secret@hostname/new/' + INVENTORY_FILENAME
+
+    target_uri = 'https://hostname/'
+    raw_data, target_uri = _fetch_inventory_data(
+        target_uri=target_uri,
+        inv_location='https://user:secret@hostname/' + INVENTORY_FILENAME,
+        config=_InvConfig.from_config(app.config),
+        srcdir=app.srcdir,
+        cache_path=None,
+    )
+    status_output = app.status.getvalue()
+    assert 'secret' not in status_output
+
+
 def test_inspect_main_noargs(capsys):
     """inspect_main interface, without arguments"""
     assert inspect_main([]) == 1
