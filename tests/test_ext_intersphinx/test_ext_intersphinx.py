@@ -669,10 +669,10 @@ def test_getsafeurl_unauthed() -> None:
 @mock.patch('sphinx.ext.intersphinx._load.requests.get')
 def test_fetch_inventory_url_error_hides_credentials(get_request):
     """Credentials should not appear in error messages on fetch failure."""
-    get_request.side_effect = Exception('connection refused')
-    with pytest.raises(Exception) as exc_info:
-        from sphinx.ext.intersphinx._load import _fetch_inventory_url
+    from sphinx.ext.intersphinx._load import _fetch_inventory_url
 
+    get_request.side_effect = ConnectionError('connection refused')
+    with pytest.raises(ConnectionError, match='connection refused'):
         _fetch_inventory_url(
             target_uri='https://hostname/',
             inv_location='https://user:secret@hostname/' + INVENTORY_FILENAME,
@@ -684,10 +684,23 @@ def test_fetch_inventory_url_error_hides_credentials(get_request):
                 user_agent='',
             ),
         )
-    # The password must not appear in the error args
-    error_text = str(exc_info.value.args)
-    assert 'secret' not in error_text
-    assert 'user@hostname' in error_text
+    # Also verify the rewritten error args don't contain the password
+    try:
+        _fetch_inventory_url(
+            target_uri='https://hostname/',
+            inv_location='https://user:secret@hostname/' + INVENTORY_FILENAME,
+            config=_InvConfig(
+                intersphinx_cache_limit=5,
+                intersphinx_timeout=None,
+                tls_verify=False,
+                tls_cacerts=None,
+                user_agent='',
+            ),
+        )
+    except ConnectionError as exc:
+        error_text = str(exc.args)
+        assert 'secret' not in error_text
+        assert 'user@hostname' in error_text
 
 
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
@@ -702,7 +715,7 @@ def test_fetch_inventory_redirect_hides_credentials(get_request, InventoryFile, 
     mocked_get.url = 'https://user:secret@hostname/new/' + INVENTORY_FILENAME
 
     target_uri = 'https://hostname/'
-    raw_data, target_uri = _fetch_inventory_data(
+    _, target_uri = _fetch_inventory_data(
         target_uri=target_uri,
         inv_location='https://user:secret@hostname/' + INVENTORY_FILENAME,
         config=_InvConfig.from_config(app.config),
