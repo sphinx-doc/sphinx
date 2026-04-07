@@ -685,28 +685,41 @@ def test_fetch_inventory_url_error_hides_credentials(capsys):
     assert 'user@localhost' in stderr
 
 
-@mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
-@mock.patch('sphinx.ext.intersphinx._load.requests.get')
 @pytest.mark.sphinx('html', testroot='root')
-def test_fetch_inventory_redirect_hides_credentials(get_request, InventoryFile, app):
+def test_fetch_inventory_redirect_hides_credentials(app):
     """Credentials should not appear in redirect log messages."""
-    mocked_get = get_request.return_value.__enter__.return_value
+
+    class RedirectHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            if '/new/' not in self.path:
+                self.send_response(302)
+                new_url = f'http://localhost:{self.server.server_port}/new/{INVENTORY_FILENAME}'
+                self.send_header('Location', new_url)
+                self.end_headers()
+            else:
+                self.send_response(200, 'OK')
+                self.end_headers()
+                self.wfile.write(INVENTORY_V2)
+
+        def log_message(*args, **kwargs):
+            pass
+
     intersphinx_setup(app)
-    mocked_get.content = b'# Sphinx inventory version 2'
 
-    mocked_get.url = 'https://user:secret@hostname/new/' + INVENTORY_FILENAME
+    with http_server(RedirectHandler) as server:
+        port = server.server_port
+        inv_location = f'http://user:secret@localhost:{port}/{INVENTORY_FILENAME}'
+        _fetch_inventory_data(
+            target_uri=f'http://localhost:{port}/',
+            inv_location=inv_location,
+            config=_InvConfig.from_config(app.config),
+            srcdir=app.srcdir,
+            cache_path=None,
+        )
 
-    target_uri = 'https://hostname/'
-    _, target_uri = _fetch_inventory_data(
-        target_uri=target_uri,
-        inv_location='https://user:secret@hostname/' + INVENTORY_FILENAME,
-        config=_InvConfig.from_config(app.config),
-        srcdir=app.srcdir,
-        cache_path=None,
-    )
     status_output = app.status.getvalue()
     assert 'secret' not in status_output
-    assert 'user@hostname' in status_output
+    assert 'user@localhost' in status_output
 
 
 def test_inspect_main_noargs(capsys):
