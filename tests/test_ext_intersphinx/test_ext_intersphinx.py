@@ -710,9 +710,10 @@ def test_fetch_inventory_redirect_hides_credentials(capsys, caplog):
         inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
-    full_output = stdout + stderr + '\n'.join(caplog.messages)
-    assert 'secret' not in full_output
-    assert 'user@localhost' in full_output
+    assert 'secret' not in stdout
+    assert 'secret' not in stderr
+    assert not any('secret' in message for message in caplog.messages)
+    assert any('user@localhost' in message for message in caplog.messages)
 
 
 def test_inspect_main_noargs(capsys):
