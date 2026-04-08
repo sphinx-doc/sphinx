@@ -686,8 +686,7 @@ def test_fetch_inventory_url_error_hides_credentials(capsys):
     assert 'user@localhost' in stderr
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_fetch_inventory_redirect_hides_credentials(app):
+def test_fetch_inventory_redirect_hides_credentials(capsys, caplog):
     """Credentials should not appear in redirect log messages."""
 
     class RedirectHandler(http.server.BaseHTTPRequestHandler):
@@ -705,22 +704,15 @@ def test_fetch_inventory_redirect_hides_credentials(app):
         def log_message(*args, **kwargs):
             pass
 
-    intersphinx_setup(app)
-
     with http_server(RedirectHandler) as server:
         port = server.server_port
-        inv_location = f'http://user:secret@localhost:{port}/{INVENTORY_FILENAME}'
-        _fetch_inventory_data(
-            target_uri=f'http://localhost:{port}/',
-            inv_location=inv_location,
-            config=_InvConfig.from_config(app.config),
-            srcdir=app.srcdir,
-            cache_path=None,
-        )
+        url = f'http://user:secret@localhost:{port}/{INVENTORY_FILENAME}'
+        inspect_main([url])
 
-    status_output = app.status.getvalue()
-    assert 'secret' not in status_output
-    assert 'user@localhost' in status_output
+    stdout, stderr = capsys.readouterr()
+    full_output = stdout + stderr + '\n'.join(caplog.messages)
+    assert 'secret' not in full_output
+    assert 'user@localhost' in full_output
 
 
 def test_inspect_main_noargs(capsys):
