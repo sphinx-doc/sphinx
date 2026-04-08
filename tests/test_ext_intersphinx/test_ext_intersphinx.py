@@ -680,7 +680,8 @@ def test_fetch_inventory_url_error_hides_credentials(capsys):
         url = f'http://user:secret@localhost:{server.server_port}/{INVENTORY_FILENAME}'
         inspect_main([url])
 
-    _, stderr = capsys.readouterr()
+    stdout, stderr = capsys.readouterr()
+    assert 'secret' not in stdout
     assert 'secret' not in stderr
     assert 'user@localhost' in stderr
 
