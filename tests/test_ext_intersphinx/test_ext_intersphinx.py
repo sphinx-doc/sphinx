@@ -666,7 +666,7 @@ def test_getsafeurl_unauthed() -> None:
     assert actual == expected
 
 
-def test_fetch_inventory_url_error_hides_credentials(capsys):
+def test_fetch_inventory_url_error_hides_credentials(capsys, caplog):
     """Credentials should not appear in error messages on fetch failure."""
 
     class ErrorHandler(http.server.BaseHTTPRequestHandler):
@@ -683,6 +683,7 @@ def test_fetch_inventory_url_error_hides_credentials(capsys):
     stdout, stderr = capsys.readouterr()
     assert 'secret' not in stdout
     assert 'secret' not in stderr
+    assert not any('secret' in message for message in caplog.messages)
     assert 'user@localhost' in stderr
 
 
@@ -705,8 +706,7 @@ def test_fetch_inventory_redirect_hides_credentials(capsys, caplog):
             pass
 
     with http_server(RedirectHandler) as server:
-        port = server.server_port
-        url = f'http://user:secret@localhost:{port}/{INVENTORY_FILENAME}'
+        url = f'http://user:secret@localhost:{server.server_port}/{INVENTORY_FILENAME}'
         inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
