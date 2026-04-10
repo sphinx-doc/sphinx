@@ -70,10 +70,10 @@ class _MockObject:
 
 def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
                    attributes: Any = None) -> Any:
-    attrs = {'__module__': module, '__display_name__': module + '.' + name}
+    attrs = {'__module__': module, '__display_name__': module + '.' + str(name)}
     attrs.update(attributes or {})
 
-    return type(name, (superclass,), attrs)
+    return type(str(name), (superclass,), attrs)
 
 
 class _MockModule(ModuleType):
