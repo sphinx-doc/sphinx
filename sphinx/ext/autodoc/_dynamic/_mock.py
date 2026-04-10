@@ -85,13 +85,13 @@ def _make_subclass(
 ) -> Any:
     attrs = {
         '__module__': module,
-        '__display_name__': module + '.' + name,
-        '__name__': name,
+        '__display_name__': module + '.' + str(name),
+        '__name__': str(name),
         '__sphinx_decorator_args__': decorator_args,
     }
     attrs.update(attributes or {})
 
-    return type(name, (superclass,), attrs)
+    return type(str(name), (superclass,), attrs)
 
 
 class _MockModule(ModuleType):
