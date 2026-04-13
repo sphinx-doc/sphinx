@@ -876,6 +876,9 @@ def test_domain_cpp_ast_function_definitions() -> None:
            2: '8ψcomputed',
            3: '8ψcomputed',
            4: '8ψcomputed'})
+    check('function', 'norm₂(V x)', {1: 'norm₂__V', 2: '5norm₂1V', 3: '5norm₂1V', 4: '5norm₂1V'})
+    check('function', '∇(V x)', {1: '∇__V', 2: '1∇1V', 3: '1∇1V', 4: '1∇1V'})
+    check('function', 'compute∂(V x)', {1: 'compute∂__V', 2: '8compute∂1V', 3: '8compute∂1V', 4: '8compute∂1V'})
 
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.

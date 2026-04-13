@@ -31,12 +31,14 @@ identifier_re = re.compile(
         # make sure they are in sync.
         (~?\b[a-zA-Z_])  # ordinary identifiers
     |   \p{XID_Start}    # Unicode-allowed starting characters for identifiers
+    |   \p{ID_Compat_Math_Start}    # Unicode-allowed starting mathematical characters for identifiers
     |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
     (
         [a-zA-Z0-9_]     # ordinary identifiers
     |   \p{XID_Continue} # Unicode-allowed continuing characters for identifiers
-    )*\b
+    |   \p{ID_Compat_Math_Continue} # Unicode-allowed continuing mathematical characters for identifiers
+    )*
     """,
     flags=re.VERBOSE,
 )
