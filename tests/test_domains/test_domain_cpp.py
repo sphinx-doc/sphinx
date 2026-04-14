@@ -863,6 +863,32 @@ def test_domain_cpp_ast_function_definitions() -> None:
 
     check('function', 'decltype(auto) f()', {1: 'f', 2: '1fv'})
 
+    # Tests derived from
+    # https://github.com/sphinx-doc/sphinx/issues/14026 Unicode
+    # identifiers
+    check('function', 'void f(int *const ξ)', {1: 'f__iPC', 2: '1fPCi'})
+    check(
+        'function',
+        'template<typename Ξ> Ξ ξcompute(Ξ ξ)',
+        {2: 'I0E8ξcompute1Ξ', 3: 'I0E8ξcompute1Ξ', 4: 'I0E8ξcompute1Ξ1Ξ'},
+    )
+    check(
+        'function',
+        'ΨStruct ψcompute(double i)',
+        {1: 'ψcompute__double', 2: '8ψcomputed', 3: '8ψcomputed', 4: '8ψcomputed'},
+    )
+    check(
+        'function',
+        'norm₂(V x)',
+        {1: 'norm₂__V', 2: '5norm₂1V', 3: '5norm₂1V', 4: '5norm₂1V'},
+    )
+    check('function', '∇(V x)', {1: '∇__V', 2: '1∇1V', 3: '1∇1V', 4: '1∇1V'})
+    check(
+        'function',
+        'compute∂(V x)',
+        {1: 'compute∂__V', 2: '8compute∂1V', 3: '8compute∂1V', 4: '8compute∂1V'},
+    )
+
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
 
@@ -1050,6 +1076,16 @@ def test_domain_cpp_ast_class_definitions() -> None:
         'class',
         'template<int... Is> {key}T<(Is)...>',
         {2: 'I_DpiE1TIJX(Is)EEE', 3: 'I_DpiE1TIJX2IsEEE'},
+    )
+
+    # Test derived from
+    # https://github.com/sphinx-doc/sphinx/issues/14026 Unicode
+    # identifier
+    check(
+        'class',
+        'public ΨStruct',
+        {1: 'ΨStruct', 2: '7ΨStruct', 3: '7ΨStruct', 4: '7ΨStruct'},
+        output='{key}ΨStruct',
     )
 
 

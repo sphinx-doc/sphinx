@@ -84,6 +84,8 @@ dependencies = [
     "roman-numerals>=1.0.0",
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
+    "ipython>=9.6.0",
+    "regex>=2025.7.29"
 ]
 dynamic = ["version"]
 
@@ -142,6 +144,7 @@ type-stubs = [
     "types-Pygments==2.19.0.20251121",
     "types-requests==2.32.4.20250913",
     "types-urllib3==1.26.25.14",
+    "types-regex>=2025.7.29"
 ]
 
 [tool.flit.module]
