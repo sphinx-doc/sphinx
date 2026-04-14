@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from types import NoneType
 from typing import TYPE_CHECKING
 
