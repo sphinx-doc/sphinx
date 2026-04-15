@@ -452,7 +452,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         figtype = self._domains.standard_domain.get_enumerable_node_type(node)
         if figtype:
-            if len(node['ids']) == 0:
+            if not node['ids']:
                 msg = __('Any IDs not assigned for %s node') % node.tagname
                 logger.warning(msg, location=node)
             else:

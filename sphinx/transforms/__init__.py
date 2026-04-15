@@ -206,12 +206,18 @@ class AutoNumbering(SphinxTransform):
         domain: StandardDomain = self.env.domains.standard_domain
 
         for node in self.document.findall(nodes.Element):
-            if (
-                domain.is_enumerable_node(node)
-                and domain.get_numfig_title(node) is not None
-                and node['ids'] == []
-            ):
+            if not domain.is_enumerable_node(node):
+                continue
+            refname = domain.get_numfig_title(node)
+            if refname and node['ids'] == []:
+                if not node['names'] and getattr(self.document.settings, 'legacy_ids', True):
+                    # cf. https://docutils.sf.net/docs/user/config.html#legacy-ids
+                    node['names'].append(nodes.fully_normalize_name(refname))
                 self.document.note_implicit_target(node)
+                # Since Docutils 0.23, implicit targets don't get an ID
+                # at registration if "legacy_ids" is False:
+                if not getattr(self.document.settings, 'legacy_ids', True):
+                    self.document.set_id(node)
 
 
 class SortIds(SphinxTransform):
