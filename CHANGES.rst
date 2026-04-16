@@ -13,6 +13,8 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14399: Fix tests for Python 3.15.0a5+
+  Patch by Edgar Ramírez-Mondragón
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

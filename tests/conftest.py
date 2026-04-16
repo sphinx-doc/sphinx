@@ -27,13 +27,20 @@ def _init_console(
     locale_dir: str | os.PathLike[str] | None = sphinx.locale._LOCALE_DIR,
     catalog: str = 'sphinx',
 ) -> tuple[gettext.NullTranslations, bool]:
-    """Monkeypatch ``init_console`` to skip its action.
+    """Monkeypatch ``init_console`` to skip locale loading.
 
     Some tests rely on warning messages in English. We don't want
     CLI tests to bleed over those tests and make their warnings
     translated.
+
+    We still register a NullTranslations so that ``__()`` (the console
+    translation function) returns a plain ``str`` rather than a lazy
+    ``_TranslationProxy``.  NullTranslations passes every message through
+    unchanged, so all strings stay in English.
     """
-    return gettext.NullTranslations(), False
+    null = gettext.NullTranslations()
+    sphinx.locale.translators['console', catalog] = null
+    return null, False
 
 
 sphinx.locale.init_console = _init_console
