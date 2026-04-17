@@ -210,8 +210,8 @@ class AutoNumbering(SphinxTransform):
                 continue
             refname = domain.get_numfig_title(node)
             if refname and node['ids'] == []:
-                if (not node['names']
-                    and not getattr(self.document.settings, 'legacy_ids', True)
+                if not node['names'] and not getattr(
+                    self.document.settings, 'legacy_ids', True
                 ):
                     # cf. https://docutils.sf.net/docs/user/config.html#legacy-ids
                     node['names'].append(nodes.fully_normalize_name(refname))
