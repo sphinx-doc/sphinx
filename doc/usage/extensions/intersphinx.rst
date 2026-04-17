@@ -149,7 +149,7 @@ linking:
 
       intersphinx_resolve_self = 'astropy'
 
-   Projects re-using *Astropy*'s documentation or inheriting their docstrings
+   Projects reusing *Astropy*'s documentation or inheriting their docstrings
    would then configure their :confval:`!intersphinx_mapping` with
    an :code-py:`'astropy'` key, pointing to *astropy*'s :file:`objects.inv`.
    For example:
