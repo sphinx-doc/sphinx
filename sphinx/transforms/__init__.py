@@ -210,12 +210,13 @@ class AutoNumbering(SphinxTransform):
                 continue
             refname = domain.get_numfig_title(node)
             if refname and node['ids'] == []:
-                if not node['names'] and not getattr(self.document.settings, 'legacy_ids', True):
+                if not node['names'] and not getattr(self.document.settings,
+                                                     'legacy_ids', True):
                     # cf. https://docutils.sf.net/docs/user/config.html#legacy-ids
                     node['names'].append(nodes.fully_normalize_name(refname))
                 self.document.note_implicit_target(node)
-                # Since Docutils 0.23, implicit targets don't get an ID
-                # at registration if "legacy_ids" is False:
+                # Since Docutils 0.23, `note_implicit_targets()` does not
+                # set an ID if "legacy_ids" is False:
                 if not getattr(self.document.settings, 'legacy_ids', True):
                     self.document.set_id(node)
 
@@ -508,7 +509,7 @@ def _reorder_index_target_nodes(start_node: nodes.target) -> None:
         first_idx = parent.index(nodes_to_reorder[0])
         last_idx = parent.index(nodes_to_reorder[-1])
         if first_idx + len(nodes_to_reorder) - 1 == last_idx:
-            parent[first_idx : last_idx + 1] = sorted(nodes_to_reorder, key=_sort_key)
+            parent[first_idx:last_idx+1] = sorted(nodes_to_reorder, key=_sort_key)
 
 
 def _sort_key(node: nodes.Node) -> int:
