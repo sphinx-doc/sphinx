@@ -1458,13 +1458,19 @@ class Sphinx:
                        ``body`` is given, its value will be added as the content
                        of the  ``<script>`` tag.
 
+        For local files, Sphinx appends a CRC32 checksum of the file contents
+        to the generated URI as a ``?v=<checksum>`` query parameter for cache
+        busting.  The query parameter is omitted for the ``epub`` and
+        ``htmlhelp`` builders, which do not allow URI query components, and
+        for fully qualified URLs.
+
         Example::
 
             app.add_js_file('example.js')
-            # => <script src="_static/example.js"></script>
+            # => <script src="_static/example.js?v=11e425e5"></script>
 
             app.add_js_file('example.js', loading_method='async')
-            # => <script src="_static/example.js" async="async"></script>
+            # => <script src="_static/example.js?v=11e425e5" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
             # => <script>var myVariable = 'foo';</script>
@@ -1484,8 +1490,18 @@ class Sphinx:
         A JavaScript file can be added to the specific HTML page when an extension
         calls this method on :event:`html-page-context` event.
 
+        Extensions supplying a local JavaScript file must also register the
+        directory containing it via :meth:`add_static_dir` so that Sphinx
+        copies the file to the output ``_static`` directory at build time.
+
+        Site authors (as opposed to extension developers) should prefer the
+        :confval:`html_js_files` configuration value combined with
+        :confval:`html_static_path`, rather than calling this method directly.
+
         .. seealso::
-           :meth:`add_static_dir` for copying static files to the output directory
+           :meth:`add_static_dir` for copying static files to the output directory;
+           :confval:`html_js_files` and :confval:`html_static_path` for the
+           equivalent configuration-driven mechanism.
 
         .. versionadded:: 0.5
 
@@ -1498,6 +1514,9 @@ class Sphinx:
         .. versionchanged:: 4.4
            Take loading_method argument.  Allow to change the loading method of the
            JavaScript file.
+        .. versionchanged:: 7.1
+           A CRC32 checksum of the file contents is appended to the generated
+           URI as a ``?v=<checksum>`` query parameter for cache busting.
         """
         if loading_method == 'async':
             kwargs['async'] = 'async'
@@ -1524,17 +1543,23 @@ class Sphinx:
         :param kwargs: Extra keyword arguments are included as attributes of the
                        ``<link>`` tag.
 
+        For local files, Sphinx appends a CRC32 checksum of the file contents
+        to the generated URI as a ``?v=<checksum>`` query parameter for cache
+        busting.  The query parameter is omitted for the ``epub`` and
+        ``htmlhelp`` builders, which do not allow URI query components, and
+        for fully qualified URLs.
+
         Example::
 
             app.add_css_file('custom.css')
-            # => <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+            # => <link rel="stylesheet" href="_static/custom.css?v=8a4fdb85" type="text/css" />
 
             app.add_css_file('print.css', media='print')
-            # => <link rel="stylesheet" href="_static/print.css"
+            # => <link rel="stylesheet" href="_static/print.css?v=8a4fdb85"
             #          type="text/css" media="print" />
 
             app.add_css_file('fancy.css', rel='alternate stylesheet', title='fancy')
-            # => <link rel="alternate stylesheet" href="_static/fancy.css"
+            # => <link rel="alternate stylesheet" href="_static/fancy.css?v=8a4fdb85"
             #          type="text/css" title="fancy" />
 
         .. list-table:: priority range for CSS files
@@ -1552,8 +1577,18 @@ class Sphinx:
         A CSS file can be added to the specific HTML page when an extension calls
         this method on :event:`html-page-context` event.
 
+        Extensions supplying a local CSS file must also register the
+        directory containing it via :meth:`add_static_dir` so that Sphinx
+        copies the file to the output ``_static`` directory at build time.
+
+        Site authors (as opposed to extension developers) should prefer the
+        :confval:`html_css_files` configuration value combined with
+        :confval:`html_static_path`, rather than calling this method directly.
+
         .. seealso::
-           :meth:`add_static_dir` for copying static files to the output directory
+           :meth:`add_static_dir` for copying static files to the output directory;
+           :confval:`html_css_files` and :confval:`html_static_path` for the
+           equivalent configuration-driven mechanism.
 
         .. versionadded:: 1.0
 
@@ -1570,6 +1605,9 @@ class Sphinx:
 
         .. versionchanged:: 3.5
            Take priority argument.  Allow to add a CSS file to the specific page.
+        .. versionchanged:: 7.1
+           A CRC32 checksum of the file contents is appended to the generated
+           URI as a ``?v=<checksum>`` query parameter for cache busting.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
