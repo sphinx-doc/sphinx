@@ -234,7 +234,7 @@ def _display_failures(failures: Sequence[tuple[str, ...]]) -> str:
         try:
             formatted.append(failure_args[0] % failure_args[1:])
         except TypeError:
-            formatted.append(' - '.join(failure_args))
+            formatted.append(' - '.join(map(str, failure_args)))
     return '\n'.join(formatted)
 
 
