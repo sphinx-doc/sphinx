@@ -944,4 +944,4 @@ def test_display_failures():
         'intersphinx inventory has moved: - http://example.com - http://proxyhost.net'
         in issues
     )
-    assert "22 - Invalid argument" in issues
+    assert '22 - Invalid argument' in issues
