@@ -18,6 +18,8 @@ Features added
 Bugs fixed
 ----------
 
+* #14323: std domain: Fix parsing and references for option directives with
+  conjoined placeholders, such as ``-S<value>``.
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
 * #13713: Fix compatibility with MyST-Parser.
