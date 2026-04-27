@@ -158,6 +158,7 @@ def test_cmd_option_with_conjoined_placeholder(app: SphinxTestApp) -> None:
         pending_xref(),
         nodes.paragraph(),
     )
+    assert refnode is not None
     assert_node(refnode, nodes.reference, refid='cmdoption-S')
 
 
