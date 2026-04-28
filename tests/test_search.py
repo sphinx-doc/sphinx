@@ -388,6 +388,13 @@ def test_search_index_gen_zh(app: SphinxTestApp) -> None:
     assert 'chinesetesttwo' in index['terms']
     assert 'cas' in index['terms']
 
+    language_data = (app.outdir / '_static' / 'language_data.js').read_text(
+        encoding='utf-8'
+    )
+    assert 'var EnglishStemmer' in language_data
+    assert 'window.Stemmer = EnglishStemmer;' in language_data
+    assert 'ChineseStemmer' not in language_data
+
 
 @pytest.mark.sphinx(
     'html',
