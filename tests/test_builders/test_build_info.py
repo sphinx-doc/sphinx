@@ -3,8 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
-
+from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.html._build_info import BuildInfo
 
 if TYPE_CHECKING:
@@ -20,8 +19,12 @@ def test_build_info_theme_hash_is_set(
     """BuildInfo should include a theme_hash when a theme is provided."""
     (tmp_path / 'conf.py').touch()
     (tmp_path / 'index.rst').write_text('Test\n====\n', encoding='utf-8')
+
     app = make_app('html', srcdir=tmp_path)
-    build_info = app.builder.create_build_info()
+    builder = app.builder
+    assert isinstance(builder, StandaloneHTMLBuilder)
+
+    build_info = builder.create_build_info()
     assert build_info.theme_hash != ''
 
 
@@ -31,34 +34,42 @@ def test_build_info_theme_hash_changes_when_theme_file_changes(
     """BuildInfo theme_hash should change when a theme file is modified."""
     (tmp_path / 'conf.py').touch()
     (tmp_path / 'index.rst').write_text('Test\n====\n', encoding='utf-8')
+
     app = make_app('html', srcdir=tmp_path)
+    builder = app.builder
+    assert isinstance(builder, StandaloneHTMLBuilder)
 
     # Get initial theme hash
-    build_info_before = app.builder.create_build_info()
+    build_info_before = builder.create_build_info()
 
     # Modify a theme template file
-    theme_dir = app.builder.theme._dirs[0]
+    theme_dir = builder.theme._dirs[0]
     theme_files = list(theme_dir.rglob('*.html'))
     assert theme_files, 'No HTML files found in theme'
+
     theme_files[0].write_bytes(
         theme_files[0].read_bytes() + b'\n<!-- test change -->'
     )
 
     # Get new theme hash
-    build_info_after = app.builder.create_build_info()
+    build_info_after = builder.create_build_info()
 
     assert build_info_before.theme_hash != build_info_after.theme_hash
-    
+
+
 def test_build_info_equality_with_same_theme(
     make_app: Callable[..., SphinxTestApp], tmp_path: Path
 ) -> None:
     """Two BuildInfo objects with same theme should be equal."""
     (tmp_path / 'conf.py').touch()
     (tmp_path / 'index.rst').write_text('Test\n====\n', encoding='utf-8')
-    app = make_app('html', srcdir=tmp_path)
 
-    build_info_1 = app.builder.create_build_info()
-    build_info_2 = app.builder.create_build_info()
+    app = make_app('html', srcdir=tmp_path)
+    builder = app.builder
+    assert isinstance(builder, StandaloneHTMLBuilder)
+
+    build_info_1 = builder.create_build_info()
+    build_info_2 = builder.create_build_info()
 
     assert build_info_1 == build_info_2
 
@@ -69,9 +80,12 @@ def test_build_info_dump_and_load_preserves_theme_hash(
     """theme_hash should survive a dump/load round trip."""
     (tmp_path / 'conf.py').touch()
     (tmp_path / 'index.rst').write_text('Test\n====\n', encoding='utf-8')
-    app = make_app('html', srcdir=tmp_path)
 
-    build_info = app.builder.create_build_info()
+    app = make_app('html', srcdir=tmp_path)
+    builder = app.builder
+    assert isinstance(builder, StandaloneHTMLBuilder)
+
+    build_info = builder.create_build_info()
     build_info_path = tmp_path / '.buildinfo'
 
     # Dump and reload
@@ -84,6 +98,7 @@ def test_build_info_dump_and_load_preserves_theme_hash(
 def test_build_info_load_without_theme_hash(tmp_path: Path) -> None:
     """Old .buildinfo files without theme_hash should still load correctly."""
     build_info_path = tmp_path / '.buildinfo'
+
     build_info_path.write_text(
         '# Sphinx build info version 1\n'
         '# This file records the configuration used when building these files. '
@@ -92,7 +107,9 @@ def test_build_info_load_without_theme_hash(tmp_path: Path) -> None:
         'tags: def456\n',
         encoding='utf-8',
     )
+
     loaded = BuildInfo.load(build_info_path)
+
     assert loaded.config_hash == 'abc123'
     assert loaded.tags_hash == 'def456'
-    assert loaded.theme_hash == ''  
+    assert loaded.theme_hash == ''
