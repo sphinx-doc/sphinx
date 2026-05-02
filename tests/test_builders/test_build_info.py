@@ -1,4 +1,5 @@
 """Test the BuildInfo class and theme rebuild detection."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -47,9 +48,7 @@ def test_build_info_theme_hash_changes_when_theme_file_changes(
     theme_files = list(theme_dir.rglob('*.html'))
     assert theme_files, 'No HTML files found in theme'
 
-    theme_files[0].write_bytes(
-        theme_files[0].read_bytes() + b'\n<!-- test change -->'
-    )
+    theme_files[0].write_bytes(theme_files[0].read_bytes() + b'\n<!-- test change -->')
 
     # Get new theme hash
     build_info_after = builder.create_build_info()
