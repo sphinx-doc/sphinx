@@ -18,6 +18,10 @@ Features added
 Bugs fixed
 ----------
 
+* #13230: Fix the ``toc.empty_glob`` warning sub-type not being suppressible
+  via :confval:`suppress_warnings`, due to a missing ``type='toc'`` argument
+  in the toctree directive's warning call.
+  Patch by Ferdinand Schwenk.
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
 * #13713: Fix compatibility with MyST-Parser.
