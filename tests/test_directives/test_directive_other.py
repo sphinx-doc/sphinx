@@ -128,6 +128,28 @@ def test_toctree_glob_and_url(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
+def test_toctree_glob_empty_emits_warning(app):
+    """An unmatched glob pattern emits a toc.empty_glob warning."""
+    text = '.. toctree::\n   :glob:\n\n   nonexistent*\n'
+    app.env.find_files(app.config, app.builder)
+    restructuredtext.parse(app, text, 'index')
+    assert "toctree glob pattern 'nonexistent*' didn't match any documents" in app._warning.getvalue()
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='toctree-glob',
+    confoverrides={'suppress_warnings': ['toc.empty_glob']},
+)
+def test_toctree_glob_empty_suppressed(app):
+    """suppress_warnings=['toc.empty_glob'] must suppress the empty glob warning."""
+    text = '.. toctree::\n   :glob:\n\n   nonexistent*\n'
+    app.env.find_files(app.config, app.builder)
+    restructuredtext.parse(app, text, 'index')
+    assert app._warning.getvalue() == ''
+
+
+@pytest.mark.sphinx('html', testroot='toctree-glob')
 def test_reversed_toctree(app):
     text = '.. toctree::\n   :reversed:\n\n   foo\n   bar/index\n   baz\n'
 
