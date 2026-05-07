@@ -844,6 +844,11 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         '',
         types=frozenset({frozenset, list, set, tuple}),
     )
+    app.add_config_value('linkcheck_cache', False, '', types=frozenset({bool}))
+    app.add_config_value(
+        'linkcheck_cache_file', 'linkcheck_cache.json', '', types=frozenset({str})
+    )
+    app.add_config_value('linkcheck_cache_duration', 7.0, '', types=frozenset({float}))
 
     app.add_event('linkcheck-process-uri')
 

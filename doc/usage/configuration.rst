@@ -3952,6 +3952,34 @@ and the number of workers to use.
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_cache
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   Whether to cache the successful linkcheck results of each url check.
+   If a :confval:`cache file <linkcheck_cache_file>` of a previous build is present,
+   the previous successful results will be re-used until its age exceeds the
+   configured :confval:`duration <linkcheck_cache_duration>`.
+
+   .. versionadded:: TBD
+
+.. confval:: linkcheck_cache_file
+   :type: :code-py:`str`
+   :default: :code-py:`linkcheck_cache.json`
+
+   File where the to read and write the linkcheck cache states.
+   The path is relative to the builddir.
+
+   .. versionadded:: TBD
+
+.. confval:: linkcheck_cache_duration
+   :type: :code-py:`float`
+   :default: :code-py:`7.0`
+
+   The number of days to reuse a successful linkcheck result.
+
+   .. versionadded:: TBD
+
 
 Domain options
 ==============
