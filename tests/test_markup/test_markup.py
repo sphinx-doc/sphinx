@@ -21,15 +21,16 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
+from tests.utils import extract_node
+
 TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from docutils.frontend import Values
-
     from sphinx.environment import BuildEnvironment
     from sphinx.testing.util import SphinxTestApp
+    from sphinx.util.docutils import _DocutilsSettings
 
 
-def new_settings(env: BuildEnvironment) -> Values:
+def new_settings(env: BuildEnvironment) -> _DocutilsSettings:
     texescape.init()  # otherwise done by the latex builder
     settings = _get_settings(
         RstParser, HTMLWriter, LaTeXWriter, defaults=default_settings
@@ -50,7 +51,11 @@ def new_document(env: BuildEnvironment) -> nodes.document:
 
 def new_inliner(env: BuildEnvironment) -> SimpleNamespace:
     document = new_document(env)
-    document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)  # type: ignore[attr-defined]
+
+    def _get_source_and_line(line: int | None = 1) -> tuple[str, int | None]:
+        return 'dummy.rst', line
+
+    document.reporter.get_source_and_line = _get_source_and_line
     return SimpleNamespace(document=document, reporter=document.reporter)
 
 
@@ -532,20 +537,14 @@ def test_samp_role(app: SphinxTestApp) -> None:
     # no braces
     text = ':samp:`a{b}c`'
     doctree = parse_rst(text, env=app.env)
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-
     assert_node(
-        doctree_0, [nodes.paragraph, nodes.literal, ('a', [nodes.emphasis, 'b'], 'c')]
+        doctree[0], [nodes.paragraph, nodes.literal, ('a', [nodes.emphasis, 'b'], 'c')]
     )
     # nested braces
     text = ':samp:`a{{b}}c`'
     doctree = parse_rst(text, env=app.env)
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-
     assert_node(
-        doctree_0,
+        doctree[0],
         [nodes.paragraph, nodes.literal, ('a', [nodes.emphasis, '{b'], '}c')],
     )
 
@@ -570,17 +569,12 @@ def test_download_role(app: SphinxTestApp) -> None:
     # implicit
     text = ':download:`sphinx.rst`'
     doctree = parse_rst(text, env=app.env)
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-    doctree_0_0 = doctree_0[0]
-    assert isinstance(doctree_0_0, nodes.Element)
-
     assert_node(
-        doctree_0,
+        doctree[0],
         [nodes.paragraph, addnodes.download_reference, nodes.literal, 'sphinx.rst'],
     )
     assert_node(
-        doctree_0_0,
+        extract_node(doctree, 0, 0),
         refdoc='dummy',
         refdomain='',
         reftype='download',
@@ -588,22 +582,17 @@ def test_download_role(app: SphinxTestApp) -> None:
         reftarget='sphinx.rst',
         refwarn=False,
     )
-    assert_node(doctree_0_0[0], classes=['xref', 'download'])
+    assert_node(extract_node(doctree, 0, 0, 0), classes=['xref', 'download'])
 
     # explicit
     text = ':download:`reftitle <sphinx.rst>`'
     doctree = parse_rst(text, env=app.env)
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-    doctree_0_0 = doctree_0[0]
-    assert isinstance(doctree_0_0, nodes.Element)
-
     assert_node(
-        doctree_0,
+        doctree[0],
         [nodes.paragraph, addnodes.download_reference, nodes.literal, 'reftitle'],
     )
     assert_node(
-        doctree_0[0],
+        extract_node(doctree, 0, 0),
         refdoc='dummy',
         refdomain='',
         reftype='download',
@@ -611,7 +600,7 @@ def test_download_role(app: SphinxTestApp) -> None:
         reftarget='sphinx.rst',
         refwarn=False,
     )
-    assert_node(doctree_0_0[0], classes=['xref', 'download'])
+    assert_node(extract_node(doctree, 0, 0, 0), classes=['xref', 'download'])
 
 
 @pytest.mark.sphinx('dummy', testroot='_blank')
@@ -700,29 +689,17 @@ def test_rst_prolog(app: SphinxTestApp) -> None:
     md = app.env.get_doctree('markdown')
 
     # rst_prolog
-    rst_0 = rst[0]
-    assert isinstance(rst_0, nodes.Element)
-    rst_0_0 = rst_0[0]
-    assert isinstance(rst_0_0, nodes.Element)
-
-    assert_node(rst_0, nodes.paragraph)
-    assert_node(rst_0_0, nodes.emphasis)
-    assert_node(rst_0_0[0], nodes.Text)
-    assert rst_0_0[0] == 'Hello world'
+    assert isinstance(rst[0], nodes.paragraph)
+    assert_node(extract_node(rst, 0, 0), nodes.emphasis)
+    assert_node(extract_node(rst, 0, 0, 0), nodes.Text)
+    assert extract_node(rst, 0, 0, 0) == 'Hello world'
 
     # rst_epilog
-    rst_1 = rst[-1]
-    assert isinstance(rst_1, nodes.Element)
-    rst_1_1 = rst_1[-1]
-    assert isinstance(rst_1_1, nodes.Element)
-    rst_1_1_0 = rst_1_1[0]
-    assert isinstance(rst_1_1_0, nodes.Element)
-
-    assert_node(rst_1, nodes.section)
-    assert_node(rst_1_1, nodes.paragraph)
-    assert_node(rst_1_1_0, nodes.emphasis)
-    assert_node(rst_1_1_0[0], nodes.Text)
-    assert rst_1_1_0[0] == 'Good-bye world'
+    assert isinstance(rst[-1], nodes.section)
+    assert_node(extract_node(rst, -1, -1), nodes.paragraph)
+    assert_node(extract_node(rst, -1, -1, 0), nodes.emphasis)
+    assert_node(extract_node(rst, -1, -1, 0, 0), nodes.Text)
+    assert extract_node(rst, -1, -1, 0, 0) == 'Good-bye world'
 
     # rst_prolog & rst_epilog on exlucding reST parser
     assert not md.rawsource.startswith('*Hello world*.')
@@ -733,12 +710,9 @@ def test_rst_prolog(app: SphinxTestApp) -> None:
 def test_keep_warnings_is_True(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-
-    assert_node(doctree_0, nodes.section)
-    assert len(doctree_0) == 2
-    assert_node(doctree_0[1], nodes.system_message)
+    assert isinstance(doctree[0], nodes.section)
+    assert len(doctree[0]) == 2
+    assert_node(extract_node(doctree, 0, 1), nodes.system_message)
 
 
 @pytest.mark.sphinx(
@@ -749,40 +723,26 @@ def test_keep_warnings_is_True(app: SphinxTestApp) -> None:
 def test_keep_warnings_is_False(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-
-    assert_node(doctree_0, nodes.section)
-    assert len(doctree_0) == 1
+    assert isinstance(doctree[0], nodes.section)
+    assert len(doctree[0]) == 1
 
 
 @pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
 def test_compact_refonly_bullet_list(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-    doctree_0_2 = doctree_0[2]
-    assert isinstance(doctree_0_2, nodes.Element)
-    doctree_0_2_0 = doctree_0_2[0]
-    assert isinstance(doctree_0_2_0, nodes.Element)
-    doctree_0_4 = doctree_0[4]
-    assert isinstance(doctree_0_4, nodes.Element)
-    doctree_0_4_0 = doctree_0_4[0]
-    assert isinstance(doctree_0_4_0, nodes.Element)
+    assert isinstance(doctree[0], nodes.section)
+    assert len(doctree[0]) == 5
 
-    assert_node(doctree_0, nodes.section)
-    assert len(doctree_0) == 5
+    assert extract_node(doctree, 0, 1).astext() == 'List A:'
+    assert_node(extract_node(doctree, 0, 2), nodes.bullet_list)
+    assert_node(extract_node(doctree, 0, 2, 0, 0), addnodes.compact_paragraph)
+    assert extract_node(doctree, 0, 2, 0, 0).astext() == 'genindex'
 
-    assert doctree_0[1].astext() == 'List A:'
-    assert_node(doctree_0_2, nodes.bullet_list)
-    assert_node(doctree_0_2_0[0], addnodes.compact_paragraph)
-    assert doctree_0_2_0[0].astext() == 'genindex'
-
-    assert doctree_0[3].astext() == 'List B:'
-    assert_node(doctree_0_4, nodes.bullet_list)
-    assert_node(doctree_0_4_0[0], nodes.paragraph)
-    assert doctree_0_4_0[0].astext() == 'Hello'
+    assert extract_node(doctree, 0, 3).astext() == 'List B:'
+    assert_node(extract_node(doctree, 0, 4), nodes.bullet_list)
+    assert_node(extract_node(doctree, 0, 4, 0, 0), nodes.paragraph)
+    assert extract_node(doctree, 0, 4, 0, 0).astext() == 'Hello'
 
 
 @pytest.mark.sphinx('dummy', testroot='default_role')
@@ -791,28 +751,18 @@ def test_default_role1(app: SphinxTestApp) -> None:
 
     # default-role: pep
     doctree = app.env.get_doctree('index')
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-    doctree_0_1 = doctree_0[1]
-    assert isinstance(doctree_0_1, nodes.Element)
-
-    assert_node(doctree_0, nodes.section)
-    assert_node(doctree_0_1, nodes.paragraph)
-    assert_node(doctree_0_1[0], addnodes.index)
-    assert_node(doctree_0_1[1], nodes.target)
-    assert_node(doctree_0_1[2], nodes.reference, classes=['pep'])
+    assert isinstance(doctree[0], nodes.section)
+    assert_node(extract_node(doctree, 0, 1), nodes.paragraph)
+    assert_node(extract_node(doctree, 0, 1, 0), addnodes.index)
+    assert_node(extract_node(doctree, 0, 1, 1), nodes.target)
+    assert_node(extract_node(doctree, 0, 1, 2), nodes.reference, classes=['pep'])
 
     # no default-role
     doctree = app.env.get_doctree('foo')
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-    doctree_0_1 = doctree_0[1]
-    assert isinstance(doctree_0_1, nodes.Element)
-
-    assert_node(doctree_0, nodes.section)
-    assert_node(doctree_0_1, nodes.paragraph)
-    assert_node(doctree_0_1[0], nodes.title_reference)
-    assert_node(doctree_0_1[1], nodes.Text)
+    assert isinstance(doctree[0], nodes.section)
+    assert_node(extract_node(doctree, 0, 1), nodes.paragraph)
+    assert_node(extract_node(doctree, 0, 1, 0), nodes.title_reference)
+    assert_node(extract_node(doctree, 0, 1, 1), nodes.Text)
 
 
 @pytest.mark.sphinx(
@@ -825,25 +775,15 @@ def test_default_role2(app: SphinxTestApp) -> None:
 
     # default-role directive is stronger than configratuion
     doctree = app.env.get_doctree('index')
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-    doctree_0_1 = doctree_0[1]
-    assert isinstance(doctree_0_1, nodes.Element)
-
-    assert_node(doctree_0, nodes.section)
-    assert_node(doctree_0_1, nodes.paragraph)
-    assert_node(doctree_0_1[0], addnodes.index)
-    assert_node(doctree_0_1[1], nodes.target)
-    assert_node(doctree_0_1[2], nodes.reference, classes=['pep'])
+    assert isinstance(doctree[0], nodes.section)
+    assert_node(extract_node(doctree, 0, 1), nodes.paragraph)
+    assert_node(extract_node(doctree, 0, 1, 0), addnodes.index)
+    assert_node(extract_node(doctree, 0, 1, 1), nodes.target)
+    assert_node(extract_node(doctree, 0, 1, 2), nodes.reference, classes=['pep'])
 
     # default_role changes the default behavior
     doctree = app.env.get_doctree('foo')
-    doctree_0 = doctree[0]
-    assert isinstance(doctree_0, nodes.Element)
-    doctree_0_1 = doctree_0[1]
-    assert isinstance(doctree_0_1, nodes.Element)
-
-    assert_node(doctree_0, nodes.section)
-    assert_node(doctree_0_1, nodes.paragraph)
-    assert_node(doctree_0_1[0], nodes.inline, classes=['guilabel'])
-    assert_node(doctree_0_1[1], nodes.Text)
+    assert isinstance(doctree[0], nodes.section)
+    assert_node(extract_node(doctree, 0, 1), nodes.paragraph)
+    assert_node(extract_node(doctree, 0, 1, 0), nodes.inline, classes=['guilabel'])
+    assert_node(extract_node(doctree, 0, 1, 1), nodes.Text)

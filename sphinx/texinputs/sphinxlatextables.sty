@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatextables}[2025/06/30 v9.0.0 tables]%
+\ProvidesPackage{sphinxlatextables}[2025/12/30 v9.1.0 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -776,7 +776,7 @@
   \leaders\hrule\@height\arrayrulewidth\hfill}%
   \cr
 % the last one will need to be compensated, this is job of \sphinxclines
-  \noalign{\vskip-\arrayrulewidth}%
+  \noalign{\nobreak\vskip-\arrayrulewidth}%
 }
 \def\spx@table@fixvlinejoin{%
   {\CT@arc@ % this is the color command set up by \arrayrulecolor
@@ -800,7 +800,7 @@
   \hfill
   \spx@table@fixvlinejoin
   \cr
-  \noalign{\vskip-\arrayrulewidth}%
+  \noalign{\nobreak\vskip-\arrayrulewidth}%
 }
 % This "fixclines" is also needed if no \sphinxcline emitted and is useful
 % even in extreme case with no \sphinxvlinecrossing either, to give correct
@@ -819,6 +819,7 @@
   \spx@table@fixvlinejoin% fill small gap at right-bordered table
   \cr
   % this final one does NO \vskip-\arrayrulewidth... that's the whole point
+  \noalign{\nobreak}%
 }
 %%%% end of \cline workarounds
 

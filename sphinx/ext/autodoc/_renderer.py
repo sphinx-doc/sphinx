@@ -61,8 +61,6 @@ def _directive_header_lines(
             yield f'   :platform: {options.platform}'
         if options.deprecated:
             yield '   :deprecated:'
-        if options.no_index_entry:
-            yield '   :no-index-entry:'
 
     if props.obj_type in {'class', 'exception'}:
         assert isinstance(props, _ClassDefProperties)

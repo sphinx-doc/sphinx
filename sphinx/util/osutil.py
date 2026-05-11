@@ -186,8 +186,6 @@ def _relative_path(path: Path, root: Path, /) -> Path:
     if path.anchor != root.anchor or '..' in root.parts:
         # If the drives are different, no relative path exists.
         return path
-    if sys.version_info[:2] < (3, 12):
-        return Path(os.path.relpath(path, root))
     return path.relative_to(root, walk_up=True)
 
 

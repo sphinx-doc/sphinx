@@ -13,7 +13,7 @@ from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from docutils.nodes import Node, TextElement
 
@@ -35,7 +35,7 @@ class HighlightLanguageTransform(SphinxTransform):
     removes ``highlightlang`` node from doctree.
     """
 
-    default_priority = 400
+    default_priority: ClassVar[int] = 400
 
     def apply(self, **kwargs: Any) -> None:
         visitor = HighlightLanguageVisitor(

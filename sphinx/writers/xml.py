@@ -9,10 +9,12 @@ from docutils.writers import docutils_xml
 if TYPE_CHECKING:
     from typing import Any
 
+    from docutils.writers.docutils_xml import XMLTranslator
+
     from sphinx.builders import Builder
 
 
-class XMLWriter(docutils_xml.Writer):  # type: ignore[misc]
+class XMLWriter(docutils_xml.Writer):
     output: str
 
     def __init__(self, builder: Builder) -> None:
@@ -21,6 +23,7 @@ class XMLWriter(docutils_xml.Writer):  # type: ignore[misc]
         self._config = builder.config
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
+        assert self.document is not None
         self.document.settings.newlines = self.document.settings.indents = (
             self._config.xml_pretty
         )
@@ -29,12 +32,13 @@ class XMLWriter(docutils_xml.Writer):  # type: ignore[misc]
 
         # copied from docutils.writers.docutils_xml.Writer.translate()
         # so that we can override the translator class
-        self.visitor = visitor = self.builder.create_translator(self.document)
+        visitor: XMLTranslator = self.builder.create_translator(self.document)  # type: ignore[assignment]
+        self.visitor = visitor
         self.document.walkabout(visitor)
-        self.output = ''.join(visitor.output)  # type: ignore[attr-defined]
+        self.output = ''.join(visitor.output)
 
 
-class PseudoXMLWriter(docutils_xml.Writer):  # type: ignore[misc]
+class PseudoXMLWriter(docutils_xml.Writer):
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""
 
@@ -49,6 +53,7 @@ class PseudoXMLWriter(docutils_xml.Writer):  # type: ignore[misc]
         self.builder = builder
 
     def translate(self) -> None:
+        assert self.document is not None
         self.output = self.document.pformat()
 
     def supports(self, format: str) -> bool:

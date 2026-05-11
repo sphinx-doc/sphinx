@@ -528,7 +528,7 @@ def _best_object_type_for_member(
 
     if isinstance(member, type) or (is_attr and isinstance(member, (NewType, TypeVar))):
         # priority must be higher than 'function', 'class', and 'attribute'
-        # as NewType can be an attribute and is a class after Python 3.10.
+        # as NewType can be an attribute and is a class.
         filtered.append((15, 'class'))
 
     if parent_obj_type in {'class', 'exception'}:

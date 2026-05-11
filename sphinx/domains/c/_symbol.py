@@ -148,7 +148,8 @@ class Symbol:
             # Duplicate so don't add - will be reported in _add_symbols()
             return
         self._children_by_name[name] = child
-        self._children_by_docname.setdefault(child.docname, {})[name] = child
+        child_docname: str = child.docname
+        self._children_by_docname.setdefault(child_docname, {})[name] = child
         if child.ident.is_anonymous:
             self._anon_children.add(child)
 

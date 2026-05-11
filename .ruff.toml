@@ -1,4 +1,4 @@
-target-version = "py311"  # Pin Ruff to Python 3.11
+target-version = "py312"  # Pin Ruff to Python 3.12
 line-length = 88
 output-format = "full"
 
@@ -8,9 +8,6 @@ extend-exclude = [
     "tests/roots/test-directive-code/target.py",  # Tests break if formatted
     "tests/roots/test-pycode/cp_1251_coded.py",  # Not UTF-8
 ]
-
-[per-file-target-version]
-"tests/roots/test-ext-autodoc/target/pep695.py" = "py312"
 
 [format]
 preview = true

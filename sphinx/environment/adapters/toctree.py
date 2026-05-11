@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -482,12 +482,9 @@ def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
                     subnode = subnode.parent
 
 
-_ET = TypeVar('_ET', bound=Element)
-
-
-def _toctree_copy(
-    node: _ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
-) -> _ET:
+def _toctree_copy[ET: Element](
+    node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
+) -> ET:
     """Utility: Cut and deep-copy a TOC at a specified depth."""
     assert not isinstance(node, addnodes.only)
     depth = max(depth - 1, 1)

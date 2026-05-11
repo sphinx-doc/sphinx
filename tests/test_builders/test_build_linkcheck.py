@@ -15,7 +15,6 @@ from queue import Queue
 from typing import TYPE_CHECKING
 from unittest import mock
 
-import docutils
 import pytest
 from urllib3.poolmanager import PoolManager
 
@@ -177,11 +176,7 @@ def test_defaults(app: SphinxTestApp) -> None:
             'info': f'404 Client Error: Not Found for url: http://{address}/{filename}',
         }
 
-    accurate_linenumbers = docutils.__version_info__[:2] >= (0, 21)
-    image2_lineno = 12 if accurate_linenumbers else 13
-    assert rowsby[f'http://{address}/image2.png'] == _missing_resource(
-        'image2.png', image2_lineno
-    )
+    assert rowsby[f'http://{address}/image2.png'] == _missing_resource('image2.png', 12)
     # looking for '#top' and '#does-not-exist' not found should fail
     assert rowsby[f'http://{address}/#top']['info'] == "Anchor 'top' not found"
     assert rowsby[f'http://{address}/#top']['status'] == 'broken'

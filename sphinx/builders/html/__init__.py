@@ -64,7 +64,7 @@ from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from docutils.nodes import Node
 
@@ -79,7 +79,7 @@ INVENTORY_FILENAME = 'objects.inv'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
-DOMAIN_INDEX_TYPE: TypeAlias = tuple[
+type DOMAIN_INDEX_TYPE = tuple[
     # Index name (e.g. py-modindex)
     str,
     # Index class
@@ -865,6 +865,15 @@ class StandaloneHTMLBuilder(Builder):
                     force=True,
                 )
 
+    def copy_static_dirs(self) -> None:
+        """Copy static files registered by extensions."""
+        for static_dir in self._registry.static_dirs:
+            if static_dir.is_dir():
+                shutil.copytree(static_dir, self._static_dir, dirs_exist_ok=True)
+            else:
+                msg = __("extension static directory '%s' does not exist")
+                logger.warning(msg, static_dir)
+
     def copy_html_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(
@@ -916,6 +925,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.copy_translation_js()
                 self.copy_stemmer_js()
                 self.copy_theme_static_files(context)
+                self.copy_static_dirs()
                 self.copy_html_static_files(context)
                 self.copy_html_logo()
                 self.copy_html_favicon()
@@ -1180,21 +1190,20 @@ class StandaloneHTMLBuilder(Builder):
             templatename = new_template
 
         # sort JS/CSS before rendering HTML
-        try:  # NoQA: SIM105
+        script_files: list[_JavaScript] = ctx['script_files']
+        css_files: list[_CascadingStyleSheet] = ctx['css_files']
+
+        # Skip sorting if users modifies script_files directly (maybe via `html_context`).
+        # See: https://github.com/sphinx-doc/sphinx/issues/8885
+        #
+        # Note: priority sorting feature will not work in this case.
+        with contextlib.suppress(AttributeError):
             # Convert script_files to list to support non-list script_files
             # See: https://github.com/sphinx-doc/sphinx/issues/8889
-            ctx['script_files'] = sorted(
-                ctx['script_files'], key=lambda js: js.priority
-            )
-        except AttributeError:
-            # Skip sorting if users modifies script_files directly (maybe via `html_context`).
-            # See: https://github.com/sphinx-doc/sphinx/issues/8885
-            #
-            # Note: priority sorting feature will not work in this case.
-            pass
+            ctx['script_files'] = sorted(script_files, key=lambda js: js.priority)
 
         with contextlib.suppress(AttributeError):
-            ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
+            ctx['css_files'] = sorted(css_files, key=lambda css: css.priority)
 
         try:
             output = self.templates.render(templatename, ctx)
@@ -1242,7 +1251,8 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('error writing file %s: %s'), output_path, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
-            source_file_path = self._sources_dir / ctx['sourcename']
+            sourcename: str = ctx['sourcename']
+            source_file_path = self._sources_dir / sourcename
             source_file_path.parent.mkdir(parents=True, exist_ok=True)
             copyfile(self.env.doc2path(pagename), source_file_path, force=True)
 

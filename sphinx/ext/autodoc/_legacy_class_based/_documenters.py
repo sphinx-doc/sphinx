@@ -1514,8 +1514,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             object_sig = self.object.__signature__
             if isinstance(object_sig, Signature):
                 return None, None, object_sig
-            if sys.version_info[:2] in {(3, 12), (3, 13)} and callable(object_sig):
-                # Support for enum.Enum.__signature__ in Python 3.12
+            if sys.version_info[:2] <= (3, 14) and callable(object_sig):
+                # Support for enum.Enum.__signature__ in Python 3.12 & 3.13
                 if isinstance(object_sig_str := object_sig(), str):
                     return None, None, inspect.signature_from_str(object_sig_str)
 

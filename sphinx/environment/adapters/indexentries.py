@@ -13,27 +13,27 @@ from sphinx.util import logging
 from sphinx.util.index_entries import _split_into
 
 if TYPE_CHECKING:
-    from typing import Literal, TypeAlias
+    from typing import Literal
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
-    _IndexEntryTarget: TypeAlias = tuple[str | None, str | Literal[False]]
-    _IndexEntryTargets: TypeAlias = list[_IndexEntryTarget]
-    _IndexEntryCategoryKey: TypeAlias = str | None
-    _IndexEntrySubItems: TypeAlias = dict[
+    type _IndexEntryTarget = tuple[str | None, str | Literal[False]]
+    type _IndexEntryTargets = list[_IndexEntryTarget]
+    type _IndexEntryCategoryKey = str | None
+    type _IndexEntrySubItems = dict[
         str,
         tuple[_IndexEntryTargets, _IndexEntryCategoryKey],
     ]
-    _IndexEntry: TypeAlias = tuple[
+    type _IndexEntry = tuple[
         _IndexEntryTargets,
         _IndexEntrySubItems,
         _IndexEntryCategoryKey,
     ]
-    _IndexEntryMap: TypeAlias = dict[str, _IndexEntry]
+    type _IndexEntryMap = dict[str, _IndexEntry]
 
     # Used by ``create_index()`` for 'the real index'
-    _RealIndexEntry: TypeAlias = tuple[
+    type _RealIndexEntry = tuple[
         str,
         tuple[
             _IndexEntryTargets,
@@ -41,8 +41,8 @@ if TYPE_CHECKING:
             _IndexEntryCategoryKey,
         ],
     ]
-    _RealIndexEntries: TypeAlias = list[_RealIndexEntry]
-    _Index: TypeAlias = list[tuple[str, _RealIndexEntries]]
+    type _RealIndexEntries = list[_RealIndexEntry]
+    type _Index = list[tuple[str, _RealIndexEntries]]
 
 logger = logging.getLogger(__name__)
 

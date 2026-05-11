@@ -98,8 +98,9 @@ jobs:
         enable-cache: false
     - name: Install dependencies
       run: uv pip install -r pyproject.toml --group package --group test --group types
+    - run: echo "$(which python)"
     - name: Type check with ty
-      run: ty check --color=always
+      run: ty check --color=always --python="$(which python)"
 
   docs-lint:
     runs-on: ubuntu-latest

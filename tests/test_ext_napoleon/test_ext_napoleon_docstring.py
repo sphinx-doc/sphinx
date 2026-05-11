@@ -1862,7 +1862,7 @@ arg_ : type
 """
 
         config = Config(napoleon_use_ivar=True)
-        config.strip_signature_backslash = True
+        config.strip_signature_backslash = True  # ty: ignore[unresolved-attribute]
         app = mock.Mock()
         actual = NumpyDocstring(docstring, config, app, 'class')
 

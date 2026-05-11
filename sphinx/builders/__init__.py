@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, final
 
 from docutils import nodes
+from docutils.utils import DependencyList
 
 from sphinx._cli.util.colour import bold
 from sphinx.deprecation import _deprecation_warning
@@ -687,7 +688,7 @@ class Builder:
         doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.record_dependencies = None
+        doctree.settings.record_dependencies = DependencyList()
 
         doctree_filename = self.doctreedir / f'{docname}.doctree'
         doctree_filename.parent.mkdir(parents=True, exist_ok=True)

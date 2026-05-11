@@ -74,7 +74,7 @@ if TYPE_CHECKING:
             skip: bool,
             options: Any,
             /,
-        ) -> bool: ...
+        ) -> bool | None: ...
 
 
 def cut_lines(
