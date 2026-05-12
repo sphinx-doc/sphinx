@@ -228,6 +228,7 @@ class Config:
         # the real default is locale-dependent
         'today_fmt': _Opt(None, 'env', frozenset((str,))),
         'language': _Opt('en', 'env', frozenset((str,))),
+        'source_language': _Opt('en', 'env', frozenset((str,))),
         'locale_dirs': _Opt(['locales'], 'env', frozenset((list, tuple))),
         'figure_language_filename': _Opt(
             '{root}.{language}{ext}', 'env', frozenset((str,))
