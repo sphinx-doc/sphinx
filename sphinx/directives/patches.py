@@ -13,7 +13,6 @@ from docutils.parsers.rst.directives.misc import Meta
 from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util._lines import parse_line_num_spec
 from sphinx.util.docutils import SphinxDirective, _normalize_options
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, relpath
@@ -95,48 +94,50 @@ class Code(SphinxDirective):
         'force': directives.flag,
         'name': directives.unchanged,
         'number-lines': optional_int,
-        'emphasize-lines': directives.unchanged_required,
     }
     has_content = True
 
-    # Options that are not part of Docutils' ``code`` directive.
-    # When used, a warning is emitted advising the use of ``code-block`` instead.
-    _SPHINX_ONLY_OPTIONS: ClassVar[frozenset[str]] = frozenset({
-        'caption', 'dedent', 'emphasize-lines', 'force',
-        'linenos', 'lineno-start',
-    })
+    # Options that exist in Sphinx but not in upstream Docutils ``code``.
+    # ``force`` was already supported before; emit a deprecation warning.
+    # All others are rejected with an error pointing to the correct alternative.
+    _SPHINX_ONLY_OPTIONS: dict[str, str] = {
+        'caption': 'Use the "code-block" directive instead.',
+        'dedent': 'Use the "code-block" directive instead.',
+        'emphasize-lines': 'Use the "code-block" directive instead.',
+        'force': '',  # handled separately: deprecation warning, still works
+        'linenos': 'Use ":number-lines:" instead.',
+        'lineno-start': 'Use ":number-lines:" instead.',
+    }
 
     def run(self) -> list[Node]:
         self.assert_has_content()
 
-        sphinx_only_used = self.options.keys() & self._SPHINX_ONLY_OPTIONS
+        sphinx_only_used = self.options.keys() & self._SPHINX_ONLY_OPTIONS.keys()
         if sphinx_only_used:
-            logger.warning(
-                __('The following option(s) on the "code" directive are not '
-                   'part of Docutils\' "code" directive and break '
-                   'compatibility: %s. Use the "code-block" directive instead.'),
-                ', '.join(sorted(sphinx_only_used)),
-            )
+            errors: list[str] = []
+            warnings: list[str] = []
+            for opt in sorted(sphinx_only_used):
+                msg = self._SPHINX_ONLY_OPTIONS[opt]
+                if opt == 'force':
+                    warnings.append(opt)
+                else:
+                    errors.append(f'* "{opt}": {msg}')
+            if warnings:
+                logger.warning(
+                    __('The "%s" option on the "code" directive is not part '
+                       'of Docutils\' "code" directive. Use the "code-block" '
+                       'directive instead.'),
+                    ', '.join(warnings),
+                )
+            if errors:
+                return [self.state.document.reporter.warning(
+                    __('The following option(s) on the "code" directive are '
+                       'not supported:\n\n%s'),
+                    line=self.lineno,
+                )]
 
         self.options = _normalize_options(self.options)
         code = '\n'.join(self.content)
-
-        linespec = self.options.get('emphasize-lines')
-        if linespec:
-            try:
-                nlines = len(self.content)
-                hl_lines = parse_line_num_spec(linespec, nlines)
-                if any(i >= nlines for i in hl_lines):
-                    logger.warning(
-                        __('line number spec is out of range(1-%d): %r'),
-                        nlines,
-                        self.options['emphasize-lines'],
-                    )
-                hl_lines = [x + 1 for x in hl_lines if x < nlines]
-            except ValueError as err:
-                return [self.state.document.reporter.warning(err, line=self.lineno)]
-        else:
-            hl_lines = None
 
         node = nodes.literal_block(
             code,
@@ -145,8 +146,6 @@ class Code(SphinxDirective):
             force='force' in self.options,
             highlight_args={},
         )
-        if hl_lines is not None:
-            node['highlight_args']['hl_lines'] = hl_lines
 
         self.add_name(node)
         set_source_info(self, node)
