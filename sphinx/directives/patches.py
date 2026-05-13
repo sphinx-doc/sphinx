@@ -99,8 +99,24 @@ class Code(SphinxDirective):
     }
     has_content = True
 
+    # Options that are not part of Docutils' ``code`` directive.
+    # When used, a warning is emitted advising the use of ``code-block`` instead.
+    _SPHINX_ONLY_OPTIONS: ClassVar[frozenset[str]] = frozenset({
+        'caption', 'dedent', 'emphasize-lines', 'force',
+        'linenos', 'lineno-start',
+    })
+
     def run(self) -> list[Node]:
         self.assert_has_content()
+
+        sphinx_only_used = self.options.keys() & self._SPHINX_ONLY_OPTIONS
+        if sphinx_only_used:
+            logger.warning(
+                __('The following option(s) on the "code" directive are not '
+                   'part of Docutils\' "code" directive and break '
+                   'compatibility: %s. Use the "code-block" directive instead.'),
+                ', '.join(sorted(sphinx_only_used)),
+            )
 
         self.options = _normalize_options(self.options)
         code = '\n'.join(self.content)
