@@ -794,7 +794,6 @@ __ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. code-block:: [language]
                    .. sourcecode:: [language]
-                   .. code:: [language]
 
    Example::
 
@@ -922,6 +921,44 @@ __ https://pygments.org/docs/lexers
       .. versionadded:: 1.3
       .. versionchanged:: 3.5
          Support automatic dedent.
+
+.. rst:directive:: .. code:: [language]
+
+   This is a compatibility alias for the Docutils ``code`` directive
+   (see :docutilsref:`Docutils documentation <rst/directives.html#code>`).
+   Unlike :rst:dir:`code-block`, it only supports a subset of options:
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separated by spaces
+
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      Ignore minor errors on highlighting.
+
+      .. deprecated:: 4.1
+         The ``force`` option is not part of Docutils' ``code`` directive.
+         Use the :rst:dir:`code-block` directive instead.
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.
+
+   .. rst:directive:option:: number-lines: number
+      :type: number
+
+      Enable line numbers, starting from the given value (default: 1).
+
+      For more formatting options such as ``:linenos:``, ``:caption:``,
+      ``:dedent:``, or ``:emphasize-lines:``, use the
+      :rst:dir:`code-block` directive instead.
 
 .. rst:directive:: .. literalinclude:: filename
 
