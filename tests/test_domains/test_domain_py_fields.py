@@ -573,39 +573,28 @@ def test_type_field(app):
             ],
         ),
     )
+    # .int -> refspecific=True (dot-prefix requests context-relative lookup)
     assert_node(
         extract_node(doctree, 1, 0, 1, 2),
         pending_xref,
         reftarget='int',
         refspecific=True,
     )
-    assert_node(
-        extract_node(doctree, 3, 0, 1, 2),
-        pending_xref,
-        reftarget='builtins.int',
-        refspecific=False,
-    )
-    assert_node(
-        extract_node(doctree, 5, 0, 1, 2),
-        pending_xref,
-        reftarget='typing.Optional',
-        refspecific=False,
-    )
-    assert_node(
-        extract_node(doctree, 5, 0, 1, 4),
-        pending_xref,
-        reftarget='typing.Tuple',
-        refspecific=False,
-    )
-    assert_node(
-        extract_node(doctree, 5, 0, 1, 6),
-        pending_xref,
-        reftarget='int',
-        refspecific=False,
-    )
-    assert_node(
-        extract_node(doctree, 5, 0, 1, 9),
-        pending_xref,
-        reftarget='typing.Any',
-        refspecific=False,
-    )
+    # bare/qualified names should NOT have refspecific set at all, so that
+    # resolve_xref uses exact matching (searchmode=0) rather than fuzzy
+    # suffix matching (searchmode=1)
+    node = extract_node(doctree, 3, 0, 1, 2)
+    assert_node(node, pending_xref, reftarget='builtins.int')
+    assert not node.hasattr('refspecific')
+    node = extract_node(doctree, 5, 0, 1, 2)
+    assert_node(node, pending_xref, reftarget='typing.Optional')
+    assert not node.hasattr('refspecific')
+    node = extract_node(doctree, 5, 0, 1, 4)
+    assert_node(node, pending_xref, reftarget='typing.Tuple')
+    assert not node.hasattr('refspecific')
+    node = extract_node(doctree, 5, 0, 1, 6)
+    assert_node(node, pending_xref, reftarget='int')
+    assert not node.hasattr('refspecific')
+    node = extract_node(doctree, 5, 0, 1, 9)
+    assert_node(node, pending_xref, reftarget='typing.Any')
+    assert not node.hasattr('refspecific')

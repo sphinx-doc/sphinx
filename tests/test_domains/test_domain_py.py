@@ -560,6 +560,35 @@ def test_parse_annotation_suppress(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
+def test_parse_annotation_refspecific(app):
+    # bare names should NOT have refspecific
+    doctree = _parse_annotation('type[int]', app.env)
+    assert_node(
+        doctree,
+        (
+            [pending_xref, 'type'],
+            [desc_sig_punctuation, '['],
+            [pending_xref, 'int'],
+            [desc_sig_punctuation, ']'],
+        ),
+    )
+    assert_node(
+        doctree[0], pending_xref, refdomain='py', reftype='class', reftarget='type'
+    )
+    assert not doctree[0].hasattr('refspecific')
+    assert not doctree[2].hasattr('refspecific')
+
+    # dot-prefixed names SHOULD have refspecific (context-relative lookup)
+    doctree = _parse_annotation('.MyClass', app.env)
+    assert_node(doctree, ([pending_xref, 'MyClass'],))
+    assert_node(
+        doctree[0], pending_xref, refdomain='py', reftype='class', reftarget='MyClass'
+    )
+    assert doctree[0].hasattr('refspecific')
+    assert doctree[0]['refspecific'] is True
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_parse_annotation_Literal(app):
     doctree = _parse_annotation('Literal[True, False]', app.env)
     assert_node(
@@ -925,6 +954,12 @@ def test_warn_missing_reference(app):
         'index.rst:6: WARNING: Failed to create a cross reference. '
         "A title or caption not found: 'existing-label'"
     ) in app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='domain-py-xref-ambiguous-annotation')
+def test_annotation_does_not_trigger_ambiguous_xref(app):
+    app.build()
+    assert 'more than one target found' not in app.warning.getvalue()
 
 
 @pytest.mark.parametrize('include_options', [True, False])
