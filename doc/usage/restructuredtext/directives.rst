@@ -924,11 +924,18 @@ __ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. code:: [language]
 
-   This is a compatibility alias for the Docutils ``code`` directive
-   (see :docutilsref:`Docutils documentation <rst/directives.html#code>`).
-   Unlike :rst:dir:`code-block`, it only supports a subset of options:
+   This directive provides compatibility with the Docutils ``code`` directive
+   (see :docutilsref:`Docutils Directives <rst/directives.html#code>`).
+   For additional customization options (``:caption:``, ``:dedent:``,
+   or ``:emphasize-lines:``), use :rst:dir:`code-block`.
 
    .. rubric:: Options
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      A target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
 
    .. rst:directive:option:: class: class names
       :type: a list of class names separated by spaces
@@ -936,29 +943,20 @@ __ https://pygments.org/docs/lexers
       Assign `class attributes`_.
       This is a :dudir:`common option <common-options>`.
 
+   .. rst:directive:option:: number-lines: number (optional)
+      :type: number
+
+      Enable line numbers, starting from the given value or 1.
+      Corresponds to the ``linenos`` and ``lineno-start`` options.
+
    .. rst:directive:option:: force
       :type: no value
 
       Ignore minor errors on highlighting.
 
       .. deprecated:: 4.1
-         The ``force`` option is not part of Docutils' ``code`` directive.
-         Use the :rst:dir:`code-block` directive instead.
-
-   .. rst:directive:option:: name: a label for hyperlink
-      :type: text
-
-      Define implicit target name that can be referenced by using
-      :rst:role:`ref`.
-
-   .. rst:directive:option:: number-lines: number
-      :type: number
-
-      Enable line numbers, starting from the given value (default: 1).
-
-      For more formatting options such as ``:linenos:``, ``:caption:``,
-      ``:dedent:``, or ``:emphasize-lines:``, use the
-      :rst:dir:`code-block` directive instead.
+         This option is not part of Docutils' ``code`` directive
+         and may be removed.
 
 .. rst:directive:: .. literalinclude:: filename
 
