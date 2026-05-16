@@ -529,7 +529,9 @@ class Builder:
             from sphinx.util.matching import _translate_pattern
 
             master_doc_path = self.env.doc2path(self.config.master_doc)
-            master_doc_canon = master_doc_path.as_posix()
+            master_doc_canon = self.env.doc2path(
+                self.config.master_doc, base=False
+            ).as_posix()
             for pat in EXCLUDE_PATHS:
                 if not re.match(_translate_pattern(pat), master_doc_canon):
                     continue
