@@ -18,6 +18,9 @@ Features added
 Bugs fixed
 ----------
 
+* #11873: Improve the error message when the root document is excluded by
+  ``exclude_patterns``.
+  Patch by hansu650
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
 * #13713: Fix compatibility with MyST-Parser.

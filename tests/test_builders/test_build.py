@@ -29,6 +29,23 @@ def test_root_doc_not_found(
         app.build(force_all=True)  # no index.rst
 
 
+def test_root_doc_excluded_by_exclude_patterns(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
+    (tmp_path / 'conf.py').write_text(
+        "exclude_patterns = ['index.rst']\n", encoding='utf-8'
+    )
+    (tmp_path / 'index.rst').write_text('Hello\n=====\n', encoding='utf-8')
+
+    app = make_app('dummy', srcdir=tmp_path)
+    with pytest.raises(SphinxError) as exc_info:
+        app.build(force_all=True)
+
+    msg = str(exc_info.value)
+    assert 'because it matches an exclude pattern specified in conf.py' in msg
+    assert "'index.rst'" in msg
+
+
 @pytest.mark.sphinx('text', testroot='circular')
 def test_circular_toctree(app: SphinxTestApp) -> None:
     app.build(force_all=True)
