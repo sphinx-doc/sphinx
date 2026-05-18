@@ -519,7 +519,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             and node.parent.get('toctree')
         ):  # fmt: skip
             self.body.append(
-                self.starttag(node, 'p', '', CLASS='caption', ROLE='heading')
+                self.starttag(
+                    node,
+                    'p',
+                    '',
+                    CLASS='caption',
+                    ROLE='heading',
+                    **{'aria-level': '2'},  # type: ignore[arg-type]
+                )
             )
             self.body.append('<span class="caption-text">')
             self.context.append('</span></p>\n')
