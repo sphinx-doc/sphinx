@@ -2909,9 +2909,308 @@ int py:class 1 int.html -
         text = li.text or ''.join(li.itertext())
         assert text == f'{param} (list[int]) \u2013 some param'
 
-        a_ = list(li.findall('.//a[@class="reference external"]'))
+    a_ = list(li.findall('.//a[@class="reference external"]'))
 
-        assert len(a_) == 2
-        for a, uri in zip(a_, ('list.html', 'int.html'), strict=True):
-            assert a.attrib['href'] == f'127.0.0.1:5555/{uri}'
-            assert a.attrib['title'] == '(in Intersphinx Test v42)'
+    assert len(a_) == 2
+    for a, uri in zip(a_, ('list.html', 'int.html'), strict=True):
+        assert a.attrib['href'] == f'127.0.0.1:5555/{uri}'
+        assert a.attrib['title'] == '(in Intersphinx Test v42)'
+
+
+class TestClassSectionOrdering:
+    """Tests for class docstring section reordering (numpydoc 1.8+ standard).
+
+    Per numpydoc 1.8.0, for class docstrings the Attributes and Methods
+    sections should appear directly after Parameters (and Other Parameters),
+    before Returns/Yields/Notes/etc.
+    """
+
+    def test_numpy_attributes_after_parameters_class(self):
+        """Attributes should appear after Parameters for class docstrings."""
+        source = cleandoc("""\
+            My class description.
+
+            Parameters
+            ----------
+            x : int
+                A parameter.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            a : int
+                An attribute.
+        """)
+        config = Config()
+        actual = str(
+            NumpyDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        # Attributes should come before Notes
+        assert actual.index('.. attribute::') < actual.index('.. rubric:: Notes')
+
+    def test_numpy_methods_after_parameters_class(self):
+        """Methods should appear after Parameters for class docstrings."""
+        source = cleandoc("""\
+            My class.
+
+            Parameters
+            ----------
+            x : int
+                A parameter.
+
+            Returns
+            -------
+            int
+                Something.
+
+            Methods
+            -------
+            foo
+                A method.
+        """)
+        config = Config()
+        actual = str(
+            NumpyDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        # Methods should come before Returns
+        assert actual.index('.. method::') < actual.index(':returns:')
+
+    def test_numpy_no_reorder_function(self):
+        """Non-class docstrings should not be reordered."""
+        source = cleandoc("""\
+            My function.
+
+            Parameters
+            ----------
+            x : int
+                A parameter.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            a : int
+                An attribute.
+        """)
+        config = Config()
+        actual = str(
+            NumpyDocstring(source, config=config, what='function', name='my_func', obj=None)
+        )
+        # For functions, original order is preserved
+        assert actual.index('.. rubric:: Notes') < actual.index('.. attribute::')
+
+    def test_numpy_already_correct_order(self):
+        """When attributes already follow parameters, no reorder needed."""
+        source = cleandoc("""\
+            My class.
+
+            Parameters
+            ----------
+            x : int
+                A parameter.
+
+            Attributes
+            ----------
+            a : int
+                An attribute.
+
+            Notes
+            -----
+            Some notes.
+        """)
+        config = Config()
+        actual = str(
+            NumpyDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        lines = actual.splitlines()
+        # Verify order: Parameters → Attributes → Notes
+        assert lines[0] == 'My class.'
+        assert ':param x:' in actual
+        assert '.. attribute:: a' in actual
+        assert '.. rubric:: Notes' in actual
+        assert actual.index(':param x:') < actual.index('.. attribute::')
+        assert actual.index('.. attribute::') < actual.index('.. rubric:: Notes')
+
+    def test_google_attributes_after_args_class(self):
+        """Attributes should appear after Args for Google-style class docstrings."""
+        source = cleandoc("""\
+            My class.
+
+            Args:
+                x (int): A parameter.
+
+            Notes:
+                Some notes.
+
+            Attributes:
+                a (int): An attribute.
+
+            Methods:
+                foo(): A method.
+        """)
+        config = Config()
+        actual = str(
+            GoogleDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        # Attributes and Methods should come before Notes
+        assert actual.index('.. attribute::') < actual.index('.. rubric:: Notes')
+        assert actual.index('.. method::') < actual.index('.. rubric:: Notes')
+
+    def test_exception_reordering(self):
+        """Exception docstrings should also reorder Attributes after Parameters."""
+        source = cleandoc("""\
+            My exception.
+
+            Parameters
+            ----------
+            msg : str
+                Error message.
+
+            Raises
+            ------
+            ValueError
+                If something goes wrong.
+
+            Attributes
+            ----------
+            code : int
+                Error code.
+        """)
+        config = Config()
+        actual = str(
+            NumpyDocstring(source, config=config, what='exception', name='MyError', obj=None)
+        )
+        # Attributes should come before Raises
+        assert actual.index('.. attribute::') < actual.index(':raises ValueError:')
+
+    def test_numpy_no_attributes(self):
+        """Class docstrings without Attributes/Methods should not be affected."""
+        source = cleandoc("""\
+            My class.
+
+            Parameters
+            ----------
+            x : int
+                A parameter.
+
+            Notes
+            -----
+            Some notes.
+        """)
+        config = Config()
+        actual = str(
+            NumpyDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        assert '.. attribute::' not in actual
+        assert '.. rubric:: Notes' in actual
+
+    def test_numpy_use_ivar_reorder(self):
+        """Reordering should work with napoleon_use_ivar=True."""
+        source = cleandoc("""\
+            My class.
+
+            Parameters
+            ----------
+            x : int
+                A parameter.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            a : int
+                An attribute.
+        """)
+        config = Config(napoleon_use_ivar=True)
+        actual = str(
+            NumpyDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        # :ivar should come before Notes
+        assert actual.index(':ivar a:') < actual.index('.. rubric:: Notes')
+
+    def test_numpy_use_param_false_reorder(self):
+        """Reordering should work with napoleon_use_param=False."""
+        source = cleandoc("""\
+            My class.
+
+            Parameters
+            ----------
+            x : int
+                A parameter.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            a : int
+                An attribute.
+        """)
+        config = Config(napoleon_use_param=False)
+        actual = str(
+            NumpyDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        # Attributes should come before Notes
+        assert actual.index('.. attribute::') < actual.index('.. rubric:: Notes')
+
+    def test_numpy_other_parameters_included(self):
+        """Other Parameters should stay with Parameters after reordering."""
+        source = cleandoc("""\
+            My class.
+
+            Parameters
+            ----------
+            x : int
+                A parameter.
+
+            Other Parameters
+            ----------------
+            y : float
+                An optional parameter.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            a : int
+                An attribute.
+        """)
+        config = Config()
+        actual = str(
+            NumpyDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        # Attributes should come before Notes
+        assert actual.index('.. attribute::') < actual.index('.. rubric:: Notes')
+            # Other Parameters (as :param y:) should come before Attributes
+        assert actual.index(':param y:') < actual.index('.. attribute::')
+
+    def test_numpy_no_params_with_attributes(self):
+        """Attributes should be moved up even without Parameters section."""
+        source = cleandoc("""\
+            My class.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            a : int
+            An attribute.
+        """)
+        config = Config()
+        actual = str(
+            NumpyDocstring(source, config=config, what='class', name='MyClass', obj=None)
+        )
+        # Attributes should come before Notes even without Parameters
+        assert actual.index('.. attribute::') < actual.index('.. rubric:: Notes')

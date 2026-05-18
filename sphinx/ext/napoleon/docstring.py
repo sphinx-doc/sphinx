@@ -839,6 +839,15 @@ class GoogleDocstring:
             self._parsed_lines.extend(res)
             return
 
+        # For class/exception docstrings, collect section chunks so we
+        # can reorder them per the numpydoc 1.8+ standard: Attributes
+        # and Methods sections should appear directly after the
+        # Parameters section (and Other Parameters / Keyword Arguments).
+        use_section_buffer = self._what in {'class', 'exception'}
+        # Each entry: (section_key, lines) where section_key is the
+        # lowercased section name (or '' for non-section content).
+        section_chunks: list[tuple[str, list[str]]] = []
+
         while self._lines:
             if self._is_section_header():
                 try:
@@ -849,15 +858,129 @@ class GoogleDocstring:
                         lines = [section, *self._consume_to_next_section()]
                     else:
                         lines = self._sections[section.lower()](section)
+                    if use_section_buffer:
+                        section_chunks.append((section.lower(), lines))
+                        lines = []
                 finally:
                     self._is_in_section = False
                     self._section_indent = 0
             else:
-                if not self._parsed_lines:
+                if not self._parsed_lines and not section_chunks:
                     lines = self._consume_contiguous() + self._consume_empty()
                 else:
                     lines = self._consume_to_next_section()
+                if use_section_buffer and lines:
+                    section_chunks.append(('', lines))
+                    lines = []
+
             self._parsed_lines.extend(lines)
+
+        if use_section_buffer and section_chunks:
+            # Merge any leading non-section chunks into the preamble
+            # (these are the description paragraphs at the top of the
+            # docstring, before any named section).
+            while section_chunks and not section_chunks[0][0]:
+                self._parsed_lines.extend(section_chunks.pop(0)[1])
+            self._parsed_lines = self._reorder_class_sections(
+                self._parsed_lines, section_chunks
+            )
+
+    # Section categories for class docstring reordering.
+    _PARAM_SECTIONS = frozenset({
+        'parameters', 'other parameters', 'keyword arguments', 'keyword args',
+        'args', 'arguments',
+    })
+    _ATTR_METHOD_SECTIONS = frozenset({
+        'attributes', 'methods',
+    })
+
+    def _reorder_class_sections(
+        self,
+        preamble: list[str],
+        chunks: list[tuple[str, list[str]]],
+    ) -> list[str]:
+        """Reorder section chunks for class docstrings.
+
+        Per the numpydoc 1.8.0 standard, for class docstrings the
+        Attributes and Methods sections should appear directly after
+        Parameters and Other Parameters, before Returns/Yields/etc.
+
+        ``preamble`` contains the leading (description) lines.
+        ``chunks`` is a list of ``(section_key, lines)`` pairs where
+        ``section_key`` is the lowercased section name or ``''`` for
+        non-section content (description paragraphs between sections).
+        """
+        # Partition chunks into four groups:
+        #   1. preamble (already handled separately)
+        #   2. param sections (Parameters, Other Parameters, Keyword Arguments)
+        #   3. attr/method sections (Attributes, Methods)
+        #   4. other sections (everything else, including non-section content)
+        #
+        # The desired order is: preamble → params → attr/method → other.
+        # Non-section content (key='') is always treated as "other" so
+        # it stays in its original relative position among other sections.
+        param_chunks: list[tuple[str, list[str]]] = []
+        attr_method_chunks: list[tuple[str, list[str]]] = []
+        other_chunks: list[tuple[str, list[str]]] = []
+
+        for key, chunk_lines in chunks:
+            if key in self._PARAM_SECTIONS:
+                param_chunks.append((key, chunk_lines))
+            elif key in self._ATTR_METHOD_SECTIONS:
+                attr_method_chunks.append((key, chunk_lines))
+            else:
+                other_chunks.append((key, chunk_lines))
+
+        # If no attr/method sections exist, no reordering is needed.
+        if not attr_method_chunks:
+            result = preamble
+            for _, chunk_lines in chunks:
+                result.extend(chunk_lines)
+            return result
+
+        # Check if reordering is actually needed. The correct order is:
+        # params → attr/method → everything else
+        # If the attr/method chunks already appear immediately after all
+        # param chunks (with no "other" chunks in between), we're done.
+        already_correct = True
+        seen_param_end = False
+        seen_attr_method_end = False
+        for key, _ in chunks:
+            if key in self._PARAM_SECTIONS:
+                if seen_attr_method_end:
+                    # param after attr/method — needs reorder
+                    already_correct = False
+                    break
+                seen_param_end = True
+            elif key in self._ATTR_METHOD_SECTIONS:
+                seen_attr_method_end = True
+            else:
+                # non-section or other section between params and attr/method
+                if seen_param_end and not seen_attr_method_end:
+                    already_correct = False
+                    break
+                # other section before any attr/method (and no params)
+                # means attr/method is not at the front — needs reorder
+                if not seen_param_end and not seen_attr_method_end:
+                    already_correct = False
+                    break
+
+        if already_correct:
+            result = preamble
+            for _, chunk_lines in chunks:
+                result.extend(chunk_lines)
+            return result
+
+        # Reorder: preamble -> param -> attr/method -> other
+        result = preamble
+        for _, chunk_lines in param_chunks:
+            result.extend(chunk_lines)
+        for _, chunk_lines in attr_method_chunks:
+            result.extend(chunk_lines)
+        for _, chunk_lines in other_chunks:
+            result.extend(chunk_lines)
+        return result
+
 
     def _parse_admonition(self, admonition: str, section: str) -> list[str]:
         # type (str, str) -> List[str]
