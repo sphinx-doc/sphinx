@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.ext.graphviz import ClickableMapDefinition
+from sphinx.ext import graphviz as graphviz_ext
+from sphinx.ext.graphviz import ClickableMapDefinition, GraphvizError
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -161,6 +162,28 @@ def test_graphviz_i18n(app: SphinxTestApp) -> None:
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" class="graphviz" />'
     assert re.search(html, content, re.MULTILINE)
+
+
+@pytest.mark.sphinx('html', testroot='ext-graphviz')
+def test_graphviz_error_is_reported_on_next_build(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def render_dot_with_error(*args: object, **kwargs: object) -> None:
+        msg = 'broken graph'
+        raise GraphvizError(msg)
+
+    monkeypatch.setattr(graphviz_ext, 'render_dot', render_dot_with_error)
+
+    app.build(force_all=True)
+    assert 'broken graph' in app.warning.getvalue()
+    assert app.env.reread_always == {'index'}
+
+    app.warning.seek(0)
+    app.warning.truncate(0)
+    app.build()
+
+    assert 'broken graph' in app.warning.getvalue()
+    assert app.env.reread_always == {'index'}
 
 
 def test_graphviz_parse_mapfile() -> None:
