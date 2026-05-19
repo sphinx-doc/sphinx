@@ -501,6 +501,45 @@ This class should only be used by runtimes.
 """
         assert str(actual) == expected
 
+    def test_other_parameters_with_use_param(self):
+        """Other Parameters should get a rubric heading when napoleon_use_param=True."""
+        docstring = """\
+Summary.
+
+Args:
+    arg1 (str): First argument.
+
+Other Parameters:
+    arg2 (int): Second argument.
+"""
+        # With napoleon_use_param=False, uses field list format
+        config = Config(napoleon_use_param=False)
+        actual = GoogleDocstring(docstring, config)
+        expected = """\
+Summary.
+
+:Parameters: **arg1** (*str*) -- First argument.
+
+:Other Parameters: **arg2** (*int*) -- Second argument.
+"""
+        assert str(actual) == expected
+
+        # With napoleon_use_param=True, adds rubric to distinguish
+        config = Config(napoleon_use_param=True)
+        actual = GoogleDocstring(docstring, config)
+        expected = """\
+Summary.
+
+:param arg1: First argument.
+:type arg1: str
+
+.. rubric:: Other Parameters
+
+:param arg2: Second argument.
+:type arg2: int
+"""
+        assert str(actual) == expected
+
     def test_attributes_with_class_reference(self):
         docstring = """\
 Attributes:
@@ -1669,6 +1708,8 @@ param2 : :class:`MyClass <name.space.MyClass>` instance
         expected = """\
 :param param1:
 :type param1: :class:`MyClass <name.space.MyClass>` instance
+
+.. rubric:: Other Parameters
 
 :param param2:
 :type param2: :class:`MyClass <name.space.MyClass>` instance

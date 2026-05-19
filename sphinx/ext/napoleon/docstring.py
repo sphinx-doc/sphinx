@@ -965,7 +965,12 @@ class GoogleDocstring:
         if self._config.napoleon_use_param:
             # Allow to declare multiple parameters at once (ex: x, y: int)
             fields = self._consume_fields(multiple=True)
-            return self._format_docutils_params(fields)
+            lines = self._format_docutils_params(fields)
+            # Add a rubric heading to distinguish "Other Parameters" from "Parameters"
+            # since both use :param: directives when napoleon_use_param is True
+            if lines:
+                return [f'.. rubric:: {_("Other Parameters")}', ''] + lines
+            return lines
         else:
             fields = self._consume_fields()
             return self._format_fields(_('Other Parameters'), fields)
