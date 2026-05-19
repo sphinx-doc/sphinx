@@ -801,7 +801,8 @@ __ https://pygments.org/docs/lexers
 
          Some Ruby code.
 
-   The directive's alias name :rst:dir:`sourcecode` works as well.  This
+   The directive's alias name :rst:dir:`sourcecode` works as well.  Docutils'
+   :dudir:`code` directive provides a different, limited set of options.  This
    directive takes a language name as an argument.  It can be `any lexer alias
    supported by Pygments <https://pygments.org/docs/lexers/>`_.  If it is not
    given, the setting of :rst:dir:`highlight` directive will be used.  If not
