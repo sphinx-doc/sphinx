@@ -37,13 +37,79 @@ def test_code_directive(app: SphinxTestApp) -> None:
     assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
     assert_node(doctree[0], language='python', linenos=True, highlight_args={})
 
-    # :number-lines: option
-    text = '.. code:: python\n   :number-lines: 5\n\n   print("hello world")\n'
+ # :number-lines: option
+    text = '.. code:: python\n :number-lines: 5\n\n print("hello world")\n'
 
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
     assert_node(
         doctree[0], language='python', linenos=True, highlight_args={'linenostart': 5}
+    )
+
+    # :emphasize-lines: option
+    text = '.. code:: python\n :emphasize-lines: 1\n\n print("hello world")\n'
+
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
+    assert_node(
+        doctree[0], language='python', highlight_args={'hl_lines': [1]}
+    )
+
+    # :dedent: option
+    text = '.. code:: python\n :dedent:\n\n    print("hello")\n    print("world")\n'
+
+    doctree = restructuredtext.parse(app, text)
+    assert_node(
+        doctree,
+        [nodes.document, nodes.literal_block, 'print("hello")\nprint("world")'],
+    )
+
+    # :linenos: option
+    text = '.. code:: python\n :linenos:\n\n print("hello world")\n'
+
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
+    assert_node(doctree[0], language='python', linenos=True)
+
+    # :lineno-start: option
+    text = '.. code:: python\n :lineno-start: 42\n\n print("hello world")\n'
+
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
+    assert_node(
+        doctree[0], language='python', linenos=True, highlight_args={'linenostart': 42}
+    )
+
+    # :caption: option
+    text = '.. code:: python\n :caption: hello.py\n\n print("hello world")\n'
+
+    doctree = restructuredtext.parse(app, text)
+    assert_node(
+        doctree,
+        [
+            nodes.document,
+            nodes.container,
+            (nodes.caption, nodes.literal_block),
+        ],
+    )
+
+    # combined options
+    text = (
+        '.. code:: python\n'
+        ' :emphasize-lines: 2\n'
+        ' :lineno-start: 5\n'
+        ' :linenos:\n\n'
+        ' first\n'
+        ' second\n'
+    )
+
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, [nodes.document, nodes.literal_block])
+    assert_node(
+        doctree[0],
+        language='python',
+        linenos=True,
+        highlight_args={'hl_lines': [2], 'linenostart': 5},
     )
 
 
