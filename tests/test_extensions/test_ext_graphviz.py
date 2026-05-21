@@ -218,3 +218,183 @@ def test_graphviz_parse_mapfile() -> None:
     assert cmap.id == 'inheritance66ff5471b9'
     assert len(cmap.clickable) == 0
     assert cmap.generate_clickable_map() == ''
+
+
+def test_graphviz_dot_stderr_warnings(tmp_path) -> None:
+    """Test that warnings from dot's stderr are logged even on success (gh-14362)."""
+    import subprocess
+    from unittest.mock import MagicMock, patch
+
+    from sphinx.ext.graphviz import render_dot
+
+    mock_ret = subprocess.CompletedProcess(
+        args=['dot'],
+        returncode=0,
+        stdout=b'',
+        stderr=b'Warning: unsupported style INVALID - ignoring\n',
+    )
+
+    outdir = tmp_path / 'out'
+    imagedir = '_images'
+    imgdir = outdir / imagedir
+    imgdir.mkdir(parents=True)
+
+    srcdir = tmp_path / 'src'
+    srcdir.mkdir()
+    (srcdir / 'index.rst').write_text('test\n')
+
+    mock_builder = MagicMock()
+    mock_builder.config.graphviz_dot = 'dot'
+    mock_builder.config.graphviz_dot_args = []
+    mock_builder.imgpath = imagedir
+    mock_builder.imagedir = imagedir
+    mock_builder.outdir = outdir
+    mock_builder.srcdir = srcdir
+    mock_builder._graphviz_warned_dot = {}
+
+    mock_self = MagicMock()
+    mock_self.builder = mock_builder
+
+    is_file_call_count = 0
+
+    def is_file_side_effect(self_path):
+        nonlocal is_file_call_count
+        is_file_call_count += 1
+        return is_file_call_count > 1
+
+    with (
+        patch('sphinx.ext.graphviz.subprocess.run', return_value=mock_ret),
+        patch('sphinx.ext.graphviz.logger') as mock_logger,
+        patch('pathlib.Path.is_file', is_file_side_effect),
+        patch('sphinx.ext.graphviz.fix_svg_relative_paths'),
+    ):
+        render_dot(
+            mock_self,
+            'digraph { a -> b }',
+            {'docname': 'index'},
+            'svg',
+        )
+
+    warning_calls = [str(call) for call in mock_logger.warning.call_args_list]
+    assert any('dot emitted a warning' in c for c in warning_calls), (
+        f"Expected 'dot emitted a warning' in warnings, got: {warning_calls}"
+    )
+
+
+def test_graphviz_dot_no_stderr_no_warning(tmp_path) -> None:
+    """Test that no warning is logged when dot succeeds without stderr output."""
+    import subprocess
+    from unittest.mock import MagicMock, patch
+
+    from sphinx.ext.graphviz import render_dot
+
+    mock_ret = subprocess.CompletedProcess(
+        args=['dot'],
+        returncode=0,
+        stdout=b'',
+        stderr=b'',
+    )
+
+    outdir = tmp_path / 'out'
+    imagedir = '_images'
+    imgdir = outdir / imagedir
+    imgdir.mkdir(parents=True)
+
+    srcdir = tmp_path / 'src'
+    srcdir.mkdir()
+    (srcdir / 'index.rst').write_text('test\n')
+
+    mock_builder = MagicMock()
+    mock_builder.config.graphviz_dot = 'dot'
+    mock_builder.config.graphviz_dot_args = []
+    mock_builder.imgpath = imagedir
+    mock_builder.imagedir = imagedir
+    mock_builder.outdir = outdir
+    mock_builder.srcdir = srcdir
+    mock_builder._graphviz_warned_dot = {}
+
+    mock_self = MagicMock()
+    mock_self.builder = mock_builder
+
+    is_file_call_count = 0
+
+    def is_file_side_effect(self_path):
+        nonlocal is_file_call_count
+        is_file_call_count += 1
+        return is_file_call_count > 1
+
+    with (
+        patch('sphinx.ext.graphviz.subprocess.run', return_value=mock_ret),
+        patch('sphinx.ext.graphviz.logger') as mock_logger,
+        patch('pathlib.Path.is_file', is_file_side_effect),
+        patch('sphinx.ext.graphviz.fix_svg_relative_paths'),
+    ):
+        render_dot(
+            mock_self,
+            'digraph { a -> b }',
+            {'docname': 'index'},
+            'svg',
+        )
+
+    warning_calls = mock_logger.warning.call_args_list
+    assert len(warning_calls) == 0, f"Expected no warning calls, got {warning_calls}"
+
+
+def test_graphviz_dot_multiline_stderr(tmp_path) -> None:
+    """Test that each line of multi-line stderr from dot is logged separately."""
+    import subprocess
+    from unittest.mock import MagicMock, patch
+
+    from sphinx.ext.graphviz import render_dot
+
+    mock_ret = subprocess.CompletedProcess(
+        args=['dot'],
+        returncode=0,
+        stdout=b'',
+        stderr=b'Warning: foo\nWarning: bar\n\n',
+    )
+
+    outdir = tmp_path / 'out'
+    imagedir = '_images'
+    imgdir = outdir / imagedir
+    imgdir.mkdir(parents=True)
+
+    srcdir = tmp_path / 'src'
+    srcdir.mkdir()
+    (srcdir / 'index.rst').write_text('test\n')
+
+    mock_builder = MagicMock()
+    mock_builder.config.graphviz_dot = 'dot'
+    mock_builder.config.graphviz_dot_args = []
+    mock_builder.imgpath = imagedir
+    mock_builder.imagedir = imagedir
+    mock_builder.outdir = outdir
+    mock_builder.srcdir = srcdir
+    mock_builder._graphviz_warned_dot = {}
+
+    mock_self = MagicMock()
+    mock_self.builder = mock_builder
+
+    is_file_call_count = 0
+
+    def is_file_side_effect(self_path):
+        nonlocal is_file_call_count
+        is_file_call_count += 1
+        return is_file_call_count > 1
+
+    with (
+        patch('sphinx.ext.graphviz.subprocess.run', return_value=mock_ret),
+        patch('sphinx.ext.graphviz.logger') as mock_logger,
+        patch('pathlib.Path.is_file', is_file_side_effect),
+        patch('sphinx.ext.graphviz.fix_svg_relative_paths'),
+    ):
+        render_dot(
+            mock_self,
+            'digraph { a -> b }',
+            {'docname': 'index'},
+            'svg',
+        )
+
+    warning_calls = [str(call) for call in mock_logger.warning.call_args_list]
+    # Two non-empty lines → two warning calls
+    assert len(warning_calls) == 2, f"Expected 2 warning calls, got {len(warning_calls)}: {warning_calls}"

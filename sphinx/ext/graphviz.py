@@ -345,6 +345,16 @@ def render_dot(
             % (ret.stderr, ret.stdout)
         )
 
+    # Log any warnings from dot's stderr even on success
+    if ret.stderr:
+        for line in ret.stderr.decode(errors='replace').strip().splitlines():
+            if line.strip():
+                logger.warning(
+                    __('dot emitted a warning:\n%s'),
+                    line,
+                    location=docname,
+                )
+
     if format == 'svg':
         fix_svg_relative_paths(self, outfn)
 
