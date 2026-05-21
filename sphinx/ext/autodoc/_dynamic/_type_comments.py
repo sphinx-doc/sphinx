@@ -149,7 +149,7 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
             return None
     except (OSError, TypeError):  # failed to load source code
         return None
-    except SyntaxError:  # failed to parse type_comments
+    except (SyntaxError, IndexError):  # failed to parse type_comments / empty body
         return None
 
 
