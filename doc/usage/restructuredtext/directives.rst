@@ -930,6 +930,8 @@ __ https://pygments.org/docs/lexers
    For additional customization options (``:caption:``, ``:dedent:``,
    or ``:emphasize-lines:``), use :rst:dir:`code-block`.
 
+   This directive supports the :dudir:`common options`.
+
    .. rubric:: Options
 
    .. rst:directive:option:: name: label
