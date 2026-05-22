@@ -11,8 +11,10 @@ from docutils.parsers.rst.directives import images, tables
 from docutils.parsers.rst.directives.misc import Meta
 
 from sphinx.directives import optional_int
+from sphinx.directives.code import container_wrapper, dedent_lines
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._lines import parse_line_num_spec
 from sphinx.util.docutils import SphinxDirective, _normalize_options
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, relpath
@@ -85,13 +87,19 @@ class CSVTable(tables.CSVTable):
 class Code(SphinxDirective):
     """Parse and mark up content of a code block.
 
-    This is compatible with docutils' :rst:dir:`code` directive.
+    This is compatible with docutils' :rst:dir:`code` directive, with
+    additional options for line emphasis, dedentation, and captions
+    to match the functionality of :rst:dir:`code-block`.
     """
 
     optional_arguments = 1
     option_spec: ClassVar[OptionSpec] = {
         'class': directives.class_option,
+        'dedent': optional_int,
+        'emphasize-lines': directives.unchanged_required,
+        'caption': directives.unchanged_required,
         'force': directives.flag,
+        'lineno-start': int,
         'name': directives.unchanged,
         'number-lines': optional_int,
     }
@@ -102,21 +110,45 @@ class Code(SphinxDirective):
 
         self.options = _normalize_options(self.options)
         code = '\n'.join(self.content)
-        node = nodes.literal_block(
-            code,
-            code,
-            classes=self.options.get('classes', []),
-            force='force' in self.options,
-            highlight_args={},
+        source, line = self.state_machine.get_source_and_line(self.lineno)
+        location: tuple[str, int] | None = (
+            (source, line) if source is not None and line is not None else None
         )
-        self.add_name(node)
-        set_source_info(self, node)
+
+        linespec = self.options.get('emphasize-lines')
+        if linespec:
+            try:
+                nlines = len(self.content)
+                hl_lines = parse_line_num_spec(linespec, nlines)
+                if any(i >= nlines for i in hl_lines):
+                    logger.warning(
+                        __('line number spec is out of range(1-%d): %r'),
+                        nlines,
+                        self.options['emphasize-lines'],
+                        location=location,
+                    )
+                hl_lines = [x + 1 for x in hl_lines if x < nlines]
+            except ValueError as err:
+                return [self.state.document.reporter.warning(err, line=self.lineno)]
+        else:
+            hl_lines = None
+
+        if 'dedent' in self.options:
+            lines = code.splitlines(True)
+            lines = dedent_lines(lines, self.options['dedent'], location=location)
+            code = ''.join(lines)
+
+        node = nodes.literal_block(code, code)
+        if 'lineno-start' in self.options or 'number-lines' in self.options:
+            node['linenos'] = True
+        node['classes'] += self.options.get('class', [])
+        node['force'] = 'force' in self.options
 
         if self.arguments:
             # highlight language specified
             node['language'] = self.arguments[0]
         else:
-            # no highlight language specified.  Then this directive refers the current
+            # no highlight language specified. Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
             node['language'] = (
@@ -124,12 +156,23 @@ class Code(SphinxDirective):
                 or self.config.highlight_language
             )
 
-        if 'number-lines' in self.options:
-            node['linenos'] = True
+        extra_args = node['highlight_args'] = {}
+        if hl_lines is not None:
+            extra_args['hl_lines'] = hl_lines
+        if 'lineno-start' in self.options:
+            extra_args['linenostart'] = self.options['lineno-start']
+        if 'number-lines' in self.options and self.options['number-lines']:
+            extra_args['linenostart'] = self.options['number-lines']
 
-            # if number given, treat as lineno-start.
-            if self.options['number-lines']:
-                node['highlight_args']['linenostart'] = self.options['number-lines']
+        self.add_name(node)
+        set_source_info(self, node)
+
+        caption = self.options.get('caption')
+        if caption:
+            try:
+                node = container_wrapper(self, node, caption)
+            except ValueError as exc:
+                return [self.state.document.reporter.warning(exc, line=self.lineno)]
 
         return [node]
 
