@@ -1383,6 +1383,8 @@ Options for warning control
    * ``duplicate_declaration.cpp``
    * ``epub.duplicated_toc_entry``
    * ``epub.unknown_project_files``
+   * ``html.numfig_format``
+   * ``html.rubric_heading``
    * ``i18n.babel``
    * ``i18n.inconsistent_references``
    * ``i18n.not_readable``
