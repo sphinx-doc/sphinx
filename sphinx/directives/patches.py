@@ -90,8 +90,13 @@ class Code(SphinxDirective):
 
     optional_arguments = 1
     option_spec: ClassVar[OptionSpec] = {
+        'caption': directives.unchanged,
         'class': directives.class_option,
+        'dedent': directives.unchanged,
+        'emphasize-lines': directives.unchanged,
         'force': directives.flag,
+        'linenos': directives.flag,
+        'lineno-start': directives.unchanged,
         'name': directives.unchanged,
         'number-lines': optional_int,
     }
