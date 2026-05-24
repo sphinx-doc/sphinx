@@ -15,7 +15,7 @@ findthisstemmedkey
 
 textinheading
 
-International
+Internationalize
 
 .. tip::
    :class: no-search

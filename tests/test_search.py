@@ -144,7 +144,7 @@ def test_stemmer(app: SphinxTestApp) -> None:
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkey')
-    assert is_registered_term(searchindex, 'intern')
+    assert is_registered_term(searchindex, 'internation')
 
 
 @pytest.mark.sphinx('html', testroot='search')
