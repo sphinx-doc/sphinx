@@ -79,8 +79,8 @@ class Table:
     representation as we can simply check
     ``if self[x, y] is self[x, y+1]`` to recognize a rowspan.
 
-    Colwidth is not automatically computed, it has to be given, either
-    at construction time, or during the table construction.
+    Colwidth is usually given at construction time or during table construction.
+    Columns marked as ``'auto'`` are computed from the table contents.
 
     Example usage::
 
@@ -100,10 +100,11 @@ class Table:
 
     """
 
-    def __init__(self, colwidth: list[int] | None = None) -> None:
+    def __init__(self, colwidth: list[int | str] | None = None) -> None:
         self.lines: list[list[Cell]] = []
         self.separator = 0
-        self.colwidth: list[int] = colwidth if colwidth is not None else []
+        self.colwidth: list[int | str] = colwidth if colwidth is not None else []
+        self.measured_widths: list[int] = []
         self.current_line = 0
         self.current_col = 0
 
@@ -157,7 +158,7 @@ class Table:
     def __repr__(self) -> str:
         return '\n'.join(map(repr, self.lines))
 
-    def cell_width(self, cell: Cell, source: list[int]) -> int:
+    def cell_width(self, cell: Cell, source: Sequence[int]) -> int:
         """Give the cell width, according to the given source (either
         ``self.colwidth`` or ``self.measured_widths``).
         This takes into account cells spanning multiple columns.
@@ -169,6 +170,50 @@ class Table:
         for i in range(self[cell.row, cell.col].colspan):
             width += source[cell.col + i]
         return width + (cell.colspan - 1) * 3
+
+    def _colwidths(self) -> list[int | str]:
+        columns = max((len(line) for line in self.lines), default=0)
+        return self.colwidth + ['auto'] * (columns - len(self.colwidth))
+
+    @staticmethod
+    def _text_width(text: str) -> int:
+        return max((column_width(line) for line in text.splitlines()), default=0)
+
+    def _auto_columns(self, colwidths: Sequence[int | str]) -> set[int]:
+        return {
+            col for col, width in enumerate(colwidths) if not isinstance(width, int)
+        }
+
+    def _resolved_colwidths(self) -> list[int]:
+        colwidths = self._colwidths()
+        if all(isinstance(width, int) for width in colwidths):
+            return [cast('int', width) for width in colwidths]
+
+        auto_columns = self._auto_columns(colwidths)
+        resolved = [width if isinstance(width, int) else 1 for width in colwidths]
+        for cell in self.cells:
+            if cell.row is None or cell.col is None:
+                msg = 'Cell co-ordinates have not been set'
+                raise ValueError(msg)
+            cell_width = self._text_width(cell.text)
+            if not cell_width:
+                continue
+
+            columns = range(cell.col, cell.col + cell.colspan)
+            auto_cols = [col for col in columns if col in auto_columns]
+            if not auto_cols:
+                continue
+
+            fixed_width = sum(
+                resolved[col] for col in columns if col not in auto_columns
+            )
+            spanned_separator_width = (cell.colspan - 1) * 3
+            auto_width = max(cell_width - fixed_width - spanned_separator_width, 1)
+            auto_width = math.ceil(auto_width / len(auto_cols))
+            for col in auto_cols:
+                resolved[col] = max(resolved[col], auto_width)
+
+        return resolved
 
     @property
     def cells(self) -> Iterator[Cell]:
@@ -183,16 +228,39 @@ class Table:
         """Call ``cell.wrap()`` on all cells, and measure each column width
         after wrapping (result written in ``self.measured_widths``).
         """
-        self.measured_widths = self.colwidth[:]
+        colwidths = self._resolved_colwidths()
+        auto_columns = self._auto_columns(self._colwidths())
+        self.measured_widths = colwidths[:]
         for cell in self.cells:
-            cell.wrap(width=self.cell_width(cell, self.colwidth))
+            cell.wrap(width=self.cell_width(cell, colwidths))
             if not cell.wrapped:
                 continue
             if cell.row is None or cell.col is None:
                 msg = 'Cell co-ordinates have not been set'
                 raise ValueError(msg)
-            width = math.ceil(max(column_width(x) for x in cell.wrapped) / cell.colspan)
-            for col in range(cell.col, cell.col + cell.colspan):
+
+            spanned_columns = list(range(cell.col, cell.col + cell.colspan))
+            spanned_auto_columns = [
+                col for col in spanned_columns if col in auto_columns
+            ]
+            content_width = max(column_width(x) for x in cell.wrapped)
+            if spanned_auto_columns:
+                fixed_width = sum(
+                    self.measured_widths[col]
+                    for col in spanned_columns
+                    if col not in auto_columns
+                )
+                spanned_separator_width = (cell.colspan - 1) * 3
+                width = math.ceil(
+                    max(content_width - fixed_width - spanned_separator_width, 1)
+                    / len(spanned_auto_columns)
+                )
+                columns_to_update = spanned_auto_columns
+            else:
+                width = math.ceil(content_width / cell.colspan)
+                columns_to_update = spanned_columns
+
+            for col in columns_to_update:
                 self.measured_widths[col] = max(self.measured_widths[col], width)
 
     def physical_lines_for_line(self, line: list[Cell]) -> int:
@@ -904,7 +972,8 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_colspec(self, node: Element) -> None:
-        self.table.colwidth.append(node['colwidth'])
+        colwidth = node.get('colwidth', 'auto')
+        self.table.colwidth.append(colwidth if isinstance(colwidth, int) else 'auto')
         raise nodes.SkipNode
 
     def visit_tgroup(self, node: Element) -> None:
