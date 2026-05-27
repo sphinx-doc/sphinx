@@ -588,14 +588,14 @@ msgstr "Η τιμή παραμετροποίησης '{name}' πρέπει να 
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
-msgstr "Η τιμή παραμετροποίησης '{name]' έχει τύπο '[current__name__}'; αναμενόμενη {permitted}."
+msgstr "Η τιμή παραμετροποίησης '{name}' έχει τύπο '{current.__name__}'; αναμενόμενη {permitted}."
 
 #: config.py:846
 #, python-brace-format
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
-msgstr "Η τιμή παραμετροποίησης '{name}' έχει τύπο '{current__name__}', αρχικοποίηση σε '{default__name__}'."
+msgstr "Η τιμή παραμετροποίησης '{name}' έχει τύπο '{current.__name__}', αρχικοποίηση σε '{default.__name__}'."
 
 #: config.py:858
 #, python-format
