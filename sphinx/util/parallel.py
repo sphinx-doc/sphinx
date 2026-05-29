@@ -86,8 +86,20 @@ class ParallelTasks:
             failed = True
             errmsg = traceback.format_exception_only(err.__class__, err)[0].strip()
             ret = (errmsg, traceback.format_exc())
-        logging.convert_serializable(collector.logs)
-        pipe.send((failed, collector.logs, ret))
+
+        try:
+            logging.convert_serializable(collector.logs)
+            logs = collector.logs
+        except Exception as err:
+            logs = []
+            failed = True
+            errmsg = (
+                "Failed to serialize logs: " +
+                traceback.format_exception_only(err.__class__, err)[0].strip()
+            )
+            ret = (errmsg, traceback.format_exc())
+
+        pipe.send((failed, logs, ret))
 
     def add_task(
         self,
