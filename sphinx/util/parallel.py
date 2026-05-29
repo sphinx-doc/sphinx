@@ -99,7 +99,18 @@ class ParallelTasks:
             )
             ret = (errmsg, traceback.format_exc())
 
-        pipe.send((failed, logs, ret))
+        try:
+            pipe.send((failed, logs, ret))
+        except Exception as err:
+            failed = True
+            errmsg = (
+                "Failed to send results: " +
+                traceback.format_exception_only(err.__class__, err)[0].strip()
+            )
+            ret = (errmsg, traceback.format_exc())
+
+            # Fallback to avoid EOF
+            pipe.send((failed, [], ret))
 
     def add_task(
         self,
