@@ -1065,14 +1065,35 @@ __ https://pygments.org/docs/lexers
    .. rst:directive:option:: lines: line numbers
       :type: comma separated numbers
 
-      Specify exactly which lines to include::
+ Specify exactly which lines to include::
 
-         .. literalinclude:: example.py
-            :lines: 1,3,5-10,20-
+   .. literalinclude:: example.py
+      :lines: 1,3,5-10,20-
 
-      This includes line 1, line 3, lines 5 to 10, and line 20 to the end.
+   This includes line 1, line 3, lines 5 to 10, and line 20 to the end.
 
-      .. versionadded:: 0.6
+   Negative line numbers count from the end of the file (``-1`` is the last
+   line, ``-2`` the second-to-last, and so on)::
+
+      .. literalinclude:: example.py
+         :lines: 5--1
+
+   This includes lines 5 through the last line.  Ranges with negative
+   indices use a double dash to separate the start from the negative end:
+
+   - ``5--1`` — lines 5 to the last line
+   - ``-3--1`` — the last 3 lines
+   - ``-1--1`` — the last line only
+   - ``-3-`` — the last 3 lines (half-open right with negative start)
+
+   A bare negative value like ``-5`` retains its existing meaning
+   (lines 1 through 5) for backward compatibility.  Use ``-5--1`` to
+   select the last five lines.
+
+   .. versionadded:: 0.6
+
+   .. versionchanged:: 9.2
+      Negative line indices are now supported in the ``:lines:`` option.
 
    .. rst:directive:option:: start-at: text
                              start-after: text

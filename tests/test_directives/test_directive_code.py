@@ -100,6 +100,96 @@ def test_LiteralIncludeReader_lines2(literal_inc_path: Path) -> None:
     )
 
 
+def test_LiteralIncludeReader_lines_negative(literal_inc_path: Path) -> None:
+    # Negative end: lines 5 to last
+    options = {'lines': '5--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == (
+        'class Foo:\n    pass\n\nclass Bar:\n    def baz():\n        pass\n\n'
+        '# comment after Bar class definition\ndef bar(): pass\n'
+    )
+
+    # Negative start and end: last 3 lines (-3--1)
+    options = {'lines': '-3--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == (
+        '\n# comment after Bar class definition\ndef bar(): pass\n'
+    )
+
+    # Negative start, half-open right: from -3 to end
+    options = {'lines': '-3-'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == (
+        '\n# comment after Bar class definition\ndef bar(): pass\n'
+    )
+
+    # Negative start, positive end: -8-5 → resolved start=6, end=5 → ValueError
+    options = {'lines': '-8-5'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError, match='invalid line number spec'):
+        reader.read()
+
+    # -10-5: -10 in 13 = line 4, end=5 → lines 4-5 (blank + class Foo:)
+    options = {'lines': '-10-5'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == '\nclass Foo:\n'
+
+    # Last line only: -1--1
+    options = {'lines': '-1--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == 'def bar(): pass\n'
+
+    # Single negative line via range: -2--2 selects second-to-last line
+    options = {'lines': '-2--2'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == '# comment after Bar class definition\n'
+
+    # Full file via negative range: -13--1 (13 lines total)
+    options = {'lines': '-13--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == literal_inc_path.read_text(encoding='utf8')
+
+    # Out of range negative index: -14--1 in 13-line file
+    options = {'lines': '-14--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError, match='negative index out of range'):
+        reader.read()
+
+
+def test_LiteralIncludeReader_lines_negative_lineno_match(literal_inc_path: Path) -> None:
+    # lineno-match works with contiguous negative range
+    options = {'lines': '-3--1', 'lineno-match': True}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    # -3--1 in 13 lines = lines 11-13 (0-based: 10,11,12)
+    assert content == (
+        '\n'
+        '# comment after Bar class definition\n'
+        'def bar(): pass\n'
+    )
+    assert reader.lineno_start == 11
+
+    # lineno-match with positive start, negative end
+    options = {'lines': '5--1', 'lineno-match': True}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert reader.lineno_start == 5
+
+    # lineno-match with disjoint negative lines must fail
+    # -5--4 resolves to lines 9-10, -1--1 resolves to line 13 → disjoint
+    options = {'lines': '-5--4,-1--1', 'lineno-match': True}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'):
+        reader.read()
+
+
 def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path: Path) -> None:
     options = {'lines': '3-5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -112,7 +202,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path: Path) ->
 def test_LiteralIncludeReader_lines_and_lineno_match2(
     literal_inc_path: Path, app: SphinxTestApp
 ) -> None:
-    options = {'lines': '0,3,5', 'lineno-match': True}
+    options = {'lines': '1,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
         ValueError,
@@ -631,3 +721,32 @@ Fourth line"""
     assert codeblocks[3].astext() == text_2_indent
     assert codeblocks[4].astext() == text_4_indent
     assert codeblocks[5].astext() == text_0_indent
+
+
+@pytest.mark.sphinx('xml', testroot='directive-code')
+def test_literal_include_negative_lines_build(app: SphinxTestApp) -> None:
+    """Integration test: build a document with literalinclude + negative :lines: specs."""
+    app.build(filenames=[app.srcdir / 'negative-lines.rst'])
+    et = etree_parse(app.outdir / 'negative-lines.xml')
+    blocks = et.findall('.//literal_block')
+    assert len(blocks) == 4, f'Expected 4 literal blocks, got {len(blocks)}'
+
+    # Block 0: :lines: -3--1 → last 3 lines (11-13)
+    # literal.inc has 13 lines. Lines 11-13 are:
+    #   \n# comment after Bar class definition\ndef bar(): pass\n
+    assert blocks[0].text == (
+        '\n'
+        '# comment after Bar class definition\n'
+        'def bar(): pass\n'
+    )
+
+    # Block 1: :lines: 5--1 → lines 5 to end
+    # Lines 5-13: class Foo: ... def bar(): pass\n
+    assert 'class Foo:' in blocks[1].text
+    assert 'def bar(): pass' in blocks[1].text
+
+    # Block 2: :lines: -1--1 → last line only
+    assert blocks[2].text == 'def bar(): pass\n'
+
+    # Block 3: :lines: -3- → same as -3--1 (half-open right with negative start)
+    assert blocks[3].text == blocks[0].text
