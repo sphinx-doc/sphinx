@@ -5,7 +5,6 @@ from __future__ import annotations
 import contextlib
 import os
 import sys
-import typing
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
@@ -75,10 +74,17 @@ class _MockObject:
         return call
 
     def __or__(self, other: Any) -> types.UnionType:
-        return typing.Union[self, other]  # noqa: UP007
+        # Use the mock class itself in the | operator so the result is a real
+        # types.UnionType (PEP 604) rather than a typing._SpecialGenericAlias.
+        return type(self) | other
 
     def __ror__(self, other: Any) -> types.UnionType:
-        return typing.Union[other, self]  # noqa: UP007
+        # Construct a real types.UnionType. If 'other' supports |, use it;
+        # otherwise fall back to a placeholder so the call doesn't recurse.
+        try:
+            return other | type(self)
+        except TypeError:
+            return object | type(self)
 
     def __repr__(self) -> str:
         return self.__display_name__
