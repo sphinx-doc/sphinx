@@ -1,0 +1,6 @@
+test-pycode/cp_1251_coded.py dos
+
+# Non UTF-8 encodings
+roots/test-pycode/cp_1251_coded.py working-tree-encoding=windows-1251
+roots/test-root/wrongenc.inc working-tree-encoding=utf-8
+roots/test-warnings/wrongenc.inc working-tree-encoding=utf-8
