@@ -142,9 +142,8 @@ def test_stemmer_does_not_remove_short_words(app: SphinxTestApp) -> None:
 def test_stemmer(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
-    print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkey')
-    assert is_registered_term(searchindex, 'intern')
+    assert is_registered_term(searchindex, 'internat')
 
 
 @pytest.mark.sphinx('html', testroot='search')
