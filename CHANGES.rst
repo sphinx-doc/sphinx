@@ -18,6 +18,9 @@ Features added
 Bugs fixed
 ----------
 
+* #4248: Do not add substitution definitions (such as those inserted into every
+  document via ``rst_prolog`` or ``rst_epilog``) to the search index.
+  Patch by kyo5uke
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
 * #13713: Fix compatibility with MyST-Parser.

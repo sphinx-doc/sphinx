@@ -598,6 +598,11 @@ def _feed_visit_nodes(
 ) -> None:
     if isinstance(node, nodes.comment):
         return
+    elif isinstance(node, nodes.substitution_definition):
+        # skip substitution definitions (e.g. those added to every document via
+        # rst_prolog / rst_epilog); the substituted text is still indexed
+        # wherever the substitution is actually used
+        return
     elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
         # skip nodes marked with a 'no-search' class
         return
