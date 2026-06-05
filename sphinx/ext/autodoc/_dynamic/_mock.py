@@ -5,20 +5,24 @@ from __future__ import annotations
 import contextlib
 import os
 import sys
-import types
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
+    import types
     from collections.abc import Iterator, Sequence, Set
     from typing import Any
 
     from typing_extensions import TypeIs
+
+
+def _as_union_type(value: Any) -> types.UnionType:
+    return value
 
 
 class _MockObject:
@@ -82,9 +86,9 @@ class _MockObject:
         # Construct a real types.UnionType. If 'other' supports |, use it;
         # otherwise fall back to a placeholder so the call doesn't recurse.
         try:
-            return cast(types.UnionType, other | type(self))
+            return _as_union_type(other | type(self))
         except TypeError:
-            return cast(types.UnionType, object | type(self))
+            return _as_union_type(object | type(self))
 
     def __repr__(self) -> str:
         return self.__display_name__
