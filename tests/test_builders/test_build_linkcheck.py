@@ -720,7 +720,7 @@ def test_follows_redirects_on_HEAD(
         'index.rst:1: [redirected with Found] '
         f'http://{address}/ to http://{address}/?redirected=1\n'
     )
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
@@ -749,7 +749,7 @@ def test_follows_redirects_on_GET(
         'index.rst:1: [redirected with Found] '
         f'http://{address}/ to http://{address}/?redirected=1\n'
     )
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
         127.0.0.1 - - [] "GET / HTTP/1.1" 302 -
@@ -780,7 +780,7 @@ def test_warns_disallowed_redirects(
         'index.rst:1: [redirected with Found] '
         f'http://{address}/ to http://{address}/?redirected=1\n'
     )
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
@@ -1136,7 +1136,7 @@ def test_too_many_requests_retry_after_int_delay(
     rate_limit_log = f'-rate limited-   http://{address}/ | sleeping...\n'
     assert rate_limit_log in strip_escape_sequences(app.status.getvalue())
     _stdout, stderr = capsys.readouterr()
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
@@ -1188,7 +1188,7 @@ def test_too_many_requests_retry_after_HTTP_date(
         'info': '',
     }
     _stdout, stderr = capsys.readouterr()
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
@@ -1221,7 +1221,7 @@ def test_too_many_requests_retry_after_without_header(
         'info': '',
     }
     _stdout, stderr = capsys.readouterr()
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
