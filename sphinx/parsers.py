@@ -36,24 +36,40 @@ class Parser(docutils.parsers.Parser):
 
     @property
     def config(self) -> Config:
-        """The config object."""
-        cls_module = self.__class__.__module__
-        cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.config', remove=(10, 0))
+        """The config object.
+
+        Populated by Sphinx when it instantiates a parser registered via
+        :meth:`.Sphinx.add_source_parser`, so this is available from the
+        start of ``parse()``.
+
+        .. versionchanged:: 9.2
+           No longer deprecated.
+        """
         return self._config
 
     @property
     def env(self) -> BuildEnvironment:
-        """The environment object."""
-        cls_module = self.__class__.__module__
-        cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.env', remove=(10, 0))
+        """The environment object.
+
+        Populated by Sphinx when it instantiates a parser registered via
+        :meth:`.Sphinx.add_source_parser`, so this is available from the
+        start of ``parse()``.
+
+        .. versionchanged:: 9.2
+           No longer deprecated.
+        """
         return self._env
 
     def set_application(self, app: Sphinx) -> None:
-        """set_application will be called from Sphinx to set app and other instance variables
+        """Legacy compatibility hook for receiving the Sphinx application.
 
         :param sphinx.application.Sphinx app: Sphinx application object
+
+        .. deprecated:: 9.0
+           Sphinx now makes ``config`` and ``env`` available on the parser
+           instance automatically, so custom parsers no longer need to
+           override this method to capture the application.  It will be
+           removed in Sphinx 10.
         """
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__

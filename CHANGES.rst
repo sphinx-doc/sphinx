@@ -1,3 +1,16 @@
+Release 9.2.0 (in development)
+==============================
+
+Deprecated
+----------
+
+* #14371: Un-deprecate :py:attr:`!Parser.config` and :py:attr:`!Parser.env`.
+  These remain the supported way for a custom parser to read the build
+  configuration and environment.
+  :py:meth:`!Parser.set_application` continues to be deprecated and is
+  scheduled for removal in Sphinx 10.
+  Patch by Fazeel Usmani.
+
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
 

@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
 
-from sphinx.parsers import RSTParser
+from sphinx.deprecation import RemovedInSphinx10Warning
+from sphinx.parsers import Parser, RSTParser
 from sphinx.util.docutils import new_document
 
 if TYPE_CHECKING:
@@ -68,3 +70,36 @@ def test_RSTParser_prolog_epilog(RSTStateMachine: Mock, app: SphinxTestApp) -> N
         ('dummy.rst', 0, '        hello Sphinx world'),
         ('dummy.rst', 1, '  Sphinx is a document generator'),
     ]
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_parser_config_env_populated_by_registry(app: SphinxTestApp) -> None:
+    """Parsers built via the registry expose config/env without warning (#14371).
+
+    This goes through the real construction path in
+    :meth:`.SphinxComponentRegistry.create_source_parser` so a regression in
+    that code path (for example, removal of the ``isinstance(..., SphinxParser)``
+    gate) would be caught here.
+    """
+    parser = app.registry.create_source_parser(
+        'restructuredtext', config=app.config, env=app.env
+    )
+    # ``create_source_parser`` is typed as ``docutils.parsers.Parser``; narrow
+    # to the Sphinx base class so ``config`` / ``env`` access type-checks and
+    # so a future regression that stops wrapping Sphinx parsers is caught here.
+    assert isinstance(parser, Parser)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter('error', RemovedInSphinx10Warning)
+        assert parser.config is app.config
+        assert parser.env is app.env
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_parser_set_application_still_deprecated(app: SphinxTestApp) -> None:
+    """``Parser.set_application`` must still emit a deprecation warning (#14371)."""
+    parser = RSTParser()
+    with pytest.warns(RemovedInSphinx10Warning, match='set_application'):
+        parser.set_application(app)
+    assert parser.config is app.config
+    assert parser.env is app.env
