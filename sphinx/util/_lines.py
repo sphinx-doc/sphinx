@@ -34,7 +34,7 @@ def _parse_part(part: str, total: int) -> list[int]:
         if end <= 0:
             msg = f'invalid line number spec: {part!r}'
             raise ValueError(msg)
-        return list(range(0, end))
+        return list(range(end))
 
     # Find the range separator dash.  A dash is a separator if:
     # - It is not at position 0 (that's a negative-sign for start).
@@ -74,20 +74,19 @@ def _parse_part(part: str, total: int) -> list[int]:
             while i < len(part) and part[i].isdigit():
                 i += 1
             continue
-        elif c.isdigit():
+        if c.isdigit():
             i += 1
             continue
-        else:
-            msg = f'invalid line number spec: {part!r}'
-            raise ValueError(msg)
+        msg = f'invalid line number spec: {part!r}'
+        raise ValueError(msg)
 
     if sep_idx is None:
         # Single number (no range): e.g. "3"
         try:
             start = int(part)
-        except ValueError:
+        except ValueError as err:
             msg = f'invalid line number spec: {part!r}'
-            raise ValueError(msg)
+            raise ValueError(msg) from err
         if start == 0:
             msg = 'line number 0 is not valid (line numbering starts at 1)'
             raise ValueError(msg)
@@ -101,9 +100,9 @@ def _parse_part(part: str, total: int) -> list[int]:
 
     try:
         start = int(start_str)
-    except ValueError:
+    except ValueError as err:
         msg = f'invalid line number spec: {part!r}'
-        raise ValueError(msg)
+        raise ValueError(msg) from err
     start = _resolve(start, total, part)
 
     if not rest:
@@ -112,9 +111,9 @@ def _parse_part(part: str, total: int) -> list[int]:
     else:
         try:
             end = int(rest)
-        except ValueError:
+        except ValueError as err:
             msg = f'invalid line number spec: {part!r}'
-            raise ValueError(msg)
+            raise ValueError(msg) from err
         end = _resolve(end, total, part)
 
     if start == 0 or end == 0:
