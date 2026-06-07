@@ -78,10 +78,10 @@ def is_registered_term(index: Any, keyword: str) -> bool:
 
 def is_registered_prefix(index: Any, prefix: str) -> bool:
     terms = index['terms']
-    for key, value in terms.items():
-        if key.startswith(prefix) and value != []:
-            return True
-    return False
+    return any(
+        key.startswith(prefix) and value != []
+        for key, value in terms.items()
+    )
 
 
 FILE_CONTENTS = """\
