@@ -904,3 +904,119 @@ div.math:hover a.headerlink {
         display: none;
     }
 }
+
+/* -- dark mode support ----------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+
+    a {
+        color: #80cbc4;
+    }
+
+    a:visited {
+        color: #ce93d8;
+    }
+
+    div.sphinxsidebar input {
+        border: 1px solid #555;
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+    }
+
+    ul.search li p.context {
+        color: #aaa;
+    }
+
+    table.indextable tr.cap {
+        background-color: #2a2a2a;
+    }
+
+    div.modindex-jumpbox,
+    div.genindex-jumpbox {
+        border-top: 1px solid #444;
+        border-bottom: 1px solid #444;
+    }
+
+    div.sidebar,
+    aside.sidebar {
+        border: 1px solid #555;
+        background-color: #2a2a2a;
+    }
+
+    nav.contents,
+    aside.topic,
+    div.topic {
+        border: 1px solid #444;
+        background-color: #1e1e1e;
+    }
+
+    div.admonition {
+        background-color: #1e1e1e;
+        border: 1px solid #444;
+    }
+
+    table.docutils td,
+    table.docutils th {
+        border-bottom: 1px solid #555;
+    }
+
+    table.citation {
+        border-left: solid 1px #666;
+    }
+
+    dt:target,
+    span.highlighted {
+        background-color: #4a4a00;
+    }
+
+    rect.highlighted {
+        fill: #4a4a00;
+    }
+
+    .system-message {
+        background-color: #4a1f1f;
+        border: 3px solid #a00;
+    }
+
+    .footnote:target {
+        background-color: #4a4a00;
+    }
+
+    code,
+    pre {
+        background-color: #1e1e1e;
+        color: #f1f1f1;
+    }
+
+    div.code-block-caption {
+        background-color: #2a2a2a;
+    }
+
+    td.linenos pre {
+        background-color: transparent;
+        color: #666;
+    }
+
+    div.viewcode-block:target {
+        background-color: #3a3a2a;
+    }
+
+    .sig.c   .k, .sig.c   .kt,
+    .sig.cpp .k, .sig.cpp .kt {
+        color: #6db3f2;
+    }
+
+    .sig.c   .m,
+    .sig.cpp .m {
+        color: #80cbc4;
+    }
+
+    .sig.c   .s, .sig.c   .sc,
+    .sig.cpp .s, .sig.cpp .sc {
+        color: #90ee90;
+    }
+}

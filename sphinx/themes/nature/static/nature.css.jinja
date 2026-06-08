@@ -243,3 +243,165 @@ div.code-block-caption {
     color: #222;
     border: 1px solid #C6C9CB;
 }
+
+/* -- dark mode support ----------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a1a;
+        color: #b0b0b0;
+    }
+
+    hr {
+        border: 1px solid #555;
+    }
+
+    div.document {
+        background-color: #252525;
+    }
+
+    div.body {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+
+    div.footer {
+        color: #aaa;
+    }
+
+    div.footer a {
+        color: #aaa;
+    }
+
+    div.related {
+        background-color: #2a5a1e;
+        color: #e0e0e0;
+        text-shadow: 0px 1px 0 #000;
+    }
+
+    div.related a {
+        color: #b8e699;
+    }
+
+    div.sphinxsidebar h3,
+    div.sphinxsidebar h4 {
+        color: #e0e0e0;
+        background-color: #2a2a2a;
+        text-shadow: 1px 1px 0 #000;
+    }
+
+    div.sphinxsidebar h3 a {
+        color: #e0e0e0;
+    }
+
+    div.sphinxsidebar p {
+        color: #aaa;
+    }
+
+    div.sphinxsidebar ul {
+        color: #e0e0e0;
+    }
+
+    div.sphinxsidebar a {
+        color: #80cbc4;
+    }
+
+    div.sphinxsidebar input {
+        border: 1px solid #555;
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+    }
+
+    a {
+        color: #80cbc4;
+    }
+
+    a:hover {
+        color: #ffa06e;
+    }
+
+    a:visited {
+        color: #ce93d8;
+    }
+
+    div.body h1,
+    div.body h2,
+    div.body h3,
+    div.body h4,
+    div.body h5,
+    div.body h6 {
+        background-color: #2a4a5a;
+        color: #6db3f2;
+        text-shadow: 0px 1px 0 #000;
+    }
+
+    div.body h1 {
+        border-top: 20px solid #1a1a1a;
+    }
+
+    div.body h2 {
+        background-color: #2a3a4a;
+    }
+
+    div.body h3,
+    div.body h4,
+    div.body h5,
+    div.body h6 {
+        background-color: #2a3a3a;
+    }
+
+    a.headerlink {
+        color: #ff7742;
+    }
+
+    a.headerlink:hover {
+        background-color: #ff7742;
+        color: #1a1a1a;
+    }
+
+    div.note {
+        background-color: #252525;
+        border: 1px solid #444;
+    }
+
+    div.seealso {
+        background-color: #3a3a1e;
+        border: 1px solid #666;
+    }
+
+    nav.contents,
+    aside.topic,
+    div.topic {
+        background-color: #252525;
+    }
+
+    div.warning {
+        background-color: #3a1e1e;
+        border: 1px solid #a66;
+    }
+
+    pre {
+        background-color: #1e1e1e;
+        color: #f1f1f1;
+        border: 1px solid #444;
+        -webkit-box-shadow: 1px 1px 1px #000;
+        -moz-box-shadow: 1px 1px 1px #000;
+    }
+
+    code {
+        background-color: #2a2a2a;
+        color: #f1f1f1;
+    }
+
+    div.viewcode-block:target {
+        background-color: #3a3a2a;
+        border-top: 1px solid #6db3f2;
+        border-bottom: 1px solid #6db3f2;
+    }
+
+    div.code-block-caption {
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        border: 1px solid #444;
+    }
+}

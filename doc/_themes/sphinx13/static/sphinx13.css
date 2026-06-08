@@ -785,3 +785,88 @@ ul.search li.kind-title {
 ul.search li.kind-text {
     list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
 }
+
+/* -- dark mode support ----------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --colour-sphinx-blue: #1a7db8;
+        --colour-text: #e0e0e0;
+        --colour-links-light: #80cbc4;
+
+        /* darker backgrounds for admonitions */
+        --color-admonition-bg: hsl(0, 0%, 20%);
+        --color-admonition-fg: hsl(0, 0%, 70%);
+        --colour-warning-bg: hsl(28.5, 74%, 20%);
+        --colour-warning-fg: hsl(28.5, 74%, 70%);
+        --colour-note-bg: hsl(219.5, 84%, 20%);
+        --colour-note-fg: hsl(219.5, 84%, 70%);
+        --colour-success-bg: hsl(150, 36.7%, 20%);
+        --colour-success-fg: hsl(150, 36.7%, 70%);
+        --colour-error-bg: hsl(0, 37%, 20%);
+        --colour-error-fg: hsl(0, 37%, 70%);
+        --colour-todo-bg: hsl(266.8, 100%, 20%);
+        --colour-todo-fg: hsl(266.8, 100%, 70%);
+    }
+
+    body {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+
+    a {
+        color: #80cbc4;
+    }
+
+    a:visited {
+        color: #ce93d8;
+    }
+
+    code {
+        background-color: #2a2a2a;
+        color: #f1f1f1;
+    }
+
+    pre {
+        background-color: #1e1e1e;
+        border-color: #444;
+    }
+
+    div.body {
+        border-left-color: #1a7db8;
+    }
+
+    div.related {
+        background-color: #0a3a5a;
+        border-top-color: #081f35;
+    }
+
+    div.sphinxsidebar {
+        background-color: #1e1e1e;
+    }
+
+    div.sphinxsidebar input[type="text"] {
+        background-color: #2a2a2a;
+        border-color: #555;
+        color: #e0e0e0;
+    }
+
+    table.docutils td,
+    table.docutils th {
+        border-color: #555;
+    }
+
+    table.docutils thead th {
+        background-color: #2a2a2a;
+    }
+
+    dt:target,
+    span.highlighted {
+        background-color: #4a4a00;
+    }
+
+    div.topic {
+        background-color: #252525;
+        border-color: #444;
+    }
+}
