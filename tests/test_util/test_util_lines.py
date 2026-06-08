@@ -1,4 +1,5 @@
 # mypy: disable-error-code="import-not-found"
+# mypy: disable-error-code="untyped-decorator"
 from __future__ import annotations
 
 import pytest
