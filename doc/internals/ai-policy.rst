@@ -85,4 +85,3 @@ Acknowledgements
 
 We thank the SciPy and NumPy developers, whose AI policy pages this document
 was adapted from.
-
