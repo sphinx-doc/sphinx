@@ -249,6 +249,7 @@ module = [
     "tests.test_util.test_util_inspect",
     "tests.test_util.test_util_nodes",
     "tests.test_util.test_util_typing",
+    "tests.test_util.test_util_lines",
 ]
 check_untyped_defs = false
 disable_error_code = [

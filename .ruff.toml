@@ -347,7 +347,7 @@ logger-objects = [
 "sphinx/writers/html5.py" = ["S105"]
 
 # __init__.py files with executable code (version detection, etc.)
-"sphinx/__init__.py" = ["RUF067", "S607"]
+"sphinx/__init__.py" = ["S607"]
 
 "tests/*" = [
     "E501",
