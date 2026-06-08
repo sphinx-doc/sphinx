@@ -1065,12 +1065,12 @@ __ https://pygments.org/docs/lexers
    .. rst:directive:option:: lines: line numbers
       :type: comma separated numbers
 
- Specify exactly which lines to include::
+      Specify exactly which lines to include::
 
-   .. literalinclude:: example.py
-      :lines: 1,3,5-10,20-
+      .. literalinclude:: example.py
+         :lines: 1,3,5-10,20-
 
-   This includes line 1, line 3, lines 5 to 10, and line 20 to the end.
+      This includes line 1, line 3, lines 5 to 10, and line 20 to the end.
 
    Negative line numbers count from the end of the file (``-1`` is the last
    line, ``-2`` the second-to-last, and so on)::
