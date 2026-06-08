@@ -77,6 +77,6 @@ AI to contribute to Sphinx:
 Acknowledgements
 ----------------
 
-We thank the SciPy and NumPy developers for their AI policy pages, upon which this document
-is largely based.
+We thank the SciPy and NumPy developers, whose AI policy pages this document
+was adapted from.
 
