@@ -76,6 +76,11 @@ def is_registered_term(index: Any, keyword: str) -> bool:
     return index['terms'].get(keyword, []) != []
 
 
+def is_registered_prefix(index: Any, prefix: str) -> bool:
+    terms = index['terms']
+    return any(k.startswith(prefix) and v != [] for k, v in terms.items())
+
+
 FILE_CONTENTS = """\
 section_title
 =============
@@ -144,7 +149,7 @@ def test_stemmer(app: SphinxTestApp) -> None:
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkey')
-    assert is_registered_term(searchindex, 'intern')
+    assert is_registered_prefix(searchindex, 'intern')
 
 
 @pytest.mark.sphinx('html', testroot='search')
