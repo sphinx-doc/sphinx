@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from sphinx.util._lines import parse_line_num_spec
 
@@ -114,9 +116,6 @@ def test_parse_line_num_spec_negative_edge_cases() -> None:
 # These tests verify that parse_line_num_spec matches Python's slice semantics
 # for all valid inputs, providing exhaustive coverage of edge cases.
 
-from hypothesis import given, strategies as st, assume, settings, HealthCheck
-import pytest
-
 
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture, HealthCheck.too_slow], max_examples=500)
 @given(
@@ -130,7 +129,7 @@ def test_parse_range_matches_python_slice(total: int, start: int, end: int) -> N
     if start == 0 or end == 0:
         return
 
-    spec = f"{start}-{end}"
+    spec = f'{start}-{end}'
 
     # Resolve indices to check if range is valid (start <= end after resolving, and both >= 1)
     def resolve(idx: int) -> int:
@@ -146,14 +145,14 @@ def test_parse_range_matches_python_slice(total: int, start: int, end: int) -> N
     if resolved_start > resolved_end or resolved_start < 1 or resolved_end < 1:
         try:
             parse_line_num_spec(spec, total)
-            pytest.fail(f"Expected ValueError for invalid range {spec!r} with total={total}")
+            pytest.fail(f'Expected ValueError for invalid range {spec!r} with total={total}')
         except ValueError:
             return
 
     try:
         result = parse_line_num_spec(spec, total)
     except ValueError:
-        pytest.fail(f"Unexpected ValueError for valid range {spec!r} with total={total}")
+        pytest.fail(f'Unexpected ValueError for valid range {spec!r} with total={total}')
         return
 
     # Convert to 0-based indices for comparison
@@ -169,7 +168,7 @@ def test_parse_range_matches_python_slice(total: int, start: int, end: int) -> N
     # Expected is range(resolved_start - 1, resolved_end) in 0-based (inclusive end)
     expected = list(range(resolved_start - 1, resolved_end))
 
-    assert result == expected, f"Mismatch for {spec!r} total={total}: got {result}, expected {expected}"
+    assert result == expected, f'Mismatch for {spec!r} total={total}: got {result}, expected {expected}'
 
 
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=200)
@@ -184,7 +183,7 @@ def test_parse_comma_separated_matches_individual(total: int, indices: list[int]
     if not indices:
         return
 
-    spec = ",".join(str(i) for i in indices)
+    spec = ','.join(str(i) for i in indices)
     try:
         result = parse_line_num_spec(spec, total)
     except ValueError:
@@ -194,7 +193,7 @@ def test_parse_comma_separated_matches_individual(total: int, indices: list[int]
                 parse_line_num_spec(str(i), total)
             except ValueError:
                 return  # Expected - at least one invalid
-        pytest.fail(f"Unexpected ValueError for {spec!r} with total={total}")
+        pytest.fail(f'Unexpected ValueError for {spec!r} with total={total}')
         return
 
     expected = []
@@ -203,10 +202,10 @@ def test_parse_comma_separated_matches_individual(total: int, indices: list[int]
             expected.extend(parse_line_num_spec(str(i), total))
         except ValueError:
             # If individual fails but combined doesn't, that's a bug
-            pytest.fail(f"Individual {i} fails but combined {spec!r} succeeds")
+            pytest.fail(f'Individual {i} fails but combined {spec!r} succeeds')
             return
 
-    assert result == expected, f"Mismatch for {spec!r} total={total}: got {result}, expected {expected}"
+    assert result == expected, f'Mismatch for {spec!r} total={total}: got {result}, expected {expected}'
 
 
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=200)
@@ -219,7 +218,7 @@ def test_single_negative_index_matches_python(total: int, start: int) -> None:
     if start == 0:
         return
 
-    spec = f"{start}-{start}"
+    spec = f'{start}-{start}'
     try:
         result = parse_line_num_spec(spec, total)
     except ValueError:
@@ -227,12 +226,12 @@ def test_single_negative_index_matches_python(total: int, start: int) -> None:
         resolved = total + start + 1 if start < 0 else start
         if resolved < 1:
             return  # Expected out of range (negative index too large)
-        pytest.fail(f"Unexpected ValueError for {spec!r} with total={total}")
+        pytest.fail(f'Unexpected ValueError for {spec!r} with total={total}')
         return
 
     expected_idx = total + start if start < 0 else start - 1
     # Implementation allows out-of-bounds indices (caller handles it)
-    assert result == [expected_idx], f"Mismatch for {spec!r} total={total}: got {result}"
+    assert result == [expected_idx], f'Mismatch for {spec!r} total={total}: got {result}'
 
 
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=200)
@@ -245,17 +244,17 @@ def test_half_open_left_negative(total: int, start: int) -> None:
     if start <= 0:
         return  # Only positive numbers after dash are valid for this syntax
 
-    spec = f"-{start}"
+    spec = f'-{start}'
     try:
         result = parse_line_num_spec(spec, total)
     except ValueError:
         # Should not fail for positive start
-        pytest.fail(f"Unexpected ValueError for {spec!r} with total={total}")
+        pytest.fail(f'Unexpected ValueError for {spec!r} with total={total}')
         return
 
     # "-N" means lines 1 through N (0-based: 0 to N-1)
     expected = list(range(start))
-    assert result == expected, f"Mismatch for {spec!r} total={total}: got {result}, expected {expected}"
+    assert result == expected, f'Mismatch for {spec!r} total={total}: got {result}, expected {expected}'
 
 
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=200)
@@ -270,7 +269,7 @@ def test_range_with_half_open_right(total: int, start: int, end: int) -> None:
         return
 
     # Test positive start with half-open right
-    spec = f"{start}-"
+    spec = f'{start}-'
     try:
         result = parse_line_num_spec(spec, total)
     except ValueError:
@@ -278,7 +277,7 @@ def test_range_with_half_open_right(total: int, start: int, end: int) -> None:
         resolved = total + start + 1 if start < 0 else start
         if resolved < 1:
             return
-        pytest.fail(f"Unexpected ValueError for {spec!r} with total={total}")
+        pytest.fail(f'Unexpected ValueError for {spec!r} with total={total}')
         return
 
     resolved_start = total + start + 1 if start < 0 else start
@@ -288,7 +287,7 @@ def test_range_with_half_open_right(total: int, start: int, end: int) -> None:
     # So expected end is max(resolved_start, total)
     expected_end = max(resolved_start, total)
     expected = list(range(resolved_start - 1, expected_end))
-    assert result == expected, f"Mismatch for {spec!r} total={total}: got {result}, expected {expected}"
+    assert result == expected, f'Mismatch for {spec!r} total={total}: got {result}, expected {expected}'
 
 
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=100)
@@ -302,28 +301,28 @@ def test_large_indices_rejected(total: int, start: int, end: int) -> None:
     if start == 0 or end == 0:
         return
 
-    spec = f"{start}-{end}"
+    spec = f'{start}-{end}'
     try:
         result = parse_line_num_spec(spec, total)
     except ValueError:
         return  # Expected for invalid or too-large input
     except MemoryError:
-        pytest.fail(f"MemoryError for {spec!r} with total={total} - should raise ValueError")
+        pytest.fail(f'MemoryError for {spec!r} with total={total} - should raise ValueError')
         return
     except Exception as e:
-        pytest.fail(f"Unexpected exception {type(e).__name__}: {e} for {spec!r} total={total}")
+        pytest.fail(f'Unexpected exception {type(e).__name__}: {e} for {spec!r} total={total}')
         return
 
     # If it succeeds, indices should not be excessively large
     max_allowed = max(total * 2, 10000)
     for idx in result:
-        assert idx <= max_allowed, f"Index {idx} exceeds max_allowed {max_allowed} for {spec!r}"
+        assert idx <= max_allowed, f'Index {idx} exceeds max_allowed {max_allowed} for {spec!r}'
 
 
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=100, deadline=None)
 @given(
     total=st.integers(min_value=1, max_value=30),
-    spec=st.text(alphabet="0123456789-", min_size=1, max_size=20),
+    spec=st.text(alphabet='0123456789-', min_size=1, max_size=20),
 )
 def test_no_crash_on_random_input(total: int, spec: str) -> None:
     """Fuzz test: parser should never crash, only raise ValueError for invalid input."""
@@ -337,4 +336,4 @@ def test_no_crash_on_random_input(total: int, spec: str) -> None:
     except ValueError:
         pass  # Expected for invalid input
     except Exception as e:
-        pytest.fail(f"Unexpected exception {type(e).__name__}: {e} for spec={spec!r} total={total}")
+        pytest.fail(f'Unexpected exception {type(e).__name__}: {e} for spec={spec!r} total={total}')
