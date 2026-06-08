@@ -304,7 +304,7 @@ logger-objects = [
 ]
 
 # whitelist ``print`` for stdout messages
-"sphinx/_cli/__init__.py" = ["T201", "RUF067"]
+"sphinx/_cli/__init__.py" = ["T201"]
 
 # allow use of ``pickle``
 "sphinx/{application,builders/__init__,environment/__init__,ext/coverage,search/__init__,versioning}.py" = [
