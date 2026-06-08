@@ -344,7 +344,7 @@ def test_LiteralIncludeReader_lines_negative_tab_width(literal_inc_path: Path) -
     """Test negative lines with tab-width option."""
     # Create a file with tabs
     import tempfile
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', suffix='.py', delete=False) as f:
         f.write('class TabTest:\n\tdef method(self):\n\t\tpass\n')
         tab_file = f.name
     try:
@@ -354,8 +354,7 @@ def test_LiteralIncludeReader_lines_negative_tab_width(literal_inc_path: Path) -
         # Last 2 lines with tabs expanded to 4 spaces
         assert '    def method(self):' in content or '        pass' in content
     finally:
-        import os
-        os.unlink(tab_file)
+        Path(tab_file).unlink()
 
 
 def test_LiteralIncludeReader_lines_negative_encoding(literal_inc_path: Path) -> None:
@@ -923,11 +922,12 @@ def test_literal_include_negative_lines_build(app: SphinxTestApp) -> None:
         '# comment after Bar class definition\n'
         'def bar(): pass\n'
     )
-
     # Block 1: :lines: 5--1 → lines 5 to end
     # Lines 5-13: class Foo: ... def bar(): pass\n
-    assert 'class Foo:' in blocks[1].text
-    assert 'def bar(): pass' in blocks[1].text
+
+    text1 = blocks[1].text or ''
+    assert 'class Foo:' in text1
+    assert 'def bar(): pass' in text1
 
     # Block 2: :lines: -1--1 → last line only
     assert blocks[2].text == 'def bar(): pass\n'
@@ -940,7 +940,7 @@ def test_literal_include_negative_lines_build(app: SphinxTestApp) -> None:
 def test_literalinclude_emphasize_lines_negative(app: SphinxTestApp) -> None:
     """Test emphasize-lines with negative indices in literalinclude."""
     # Create a test rst file with negative emphasize-lines
-    rst_content = '''
+    rst_content = """
 Test Negative Emphasize Lines
 =============================
 
@@ -948,7 +948,7 @@ Test Negative Emphasize Lines
    :language: python
    :emphasize-lines: -3--1
    :linenos:
-'''
+"""
     test_file = app.srcdir / 'test_emphasize_negative.rst'
     test_file.write_text(rst_content.strip(), encoding='utf8')
     app.build(filenames=[test_file])
@@ -962,7 +962,7 @@ Test Negative Emphasize Lines
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_code_block_emphasize_lines_negative(app: SphinxTestApp) -> None:
     """Test emphasize-lines with negative indices in code-block."""
-    rst_content = '''
+    rst_content = """
 Test Code Block Negative Emphasize Lines
 ========================================
 
@@ -973,7 +973,7 @@ Test Code Block Negative Emphasize Lines
        print("line 1")
        print("line 2")
        print("line 3")
-'''
+"""
     test_file = app.srcdir / 'test_code_emphasize_negative.rst'
     test_file.write_text(rst_content.strip(), encoding='utf8')
     app.build(filenames=[test_file])
@@ -987,14 +987,14 @@ Test Code Block Negative Emphasize Lines
 def test_literalinclude_negative_lines_edge_cases(app: SphinxTestApp) -> None:
     """Test edge cases for negative line numbers in literalinclude."""
     # Test single negative line via range
-    rst_content = '''
+    rst_content = """
 Test Edge Cases
 ===============
 
 .. literalinclude:: literal.inc
    :language: python
    :lines: -2--2
-'''
+"""
     test_file = app.srcdir / 'test_edge_cases.rst'
     test_file.write_text(rst_content.strip(), encoding='utf8')
     app.build(filenames=[test_file])
@@ -1002,17 +1002,18 @@ Test Edge Cases
     blocks = et.findall('.//literal_block')
     assert len(blocks) == 1
     # -2--2 in 13 lines = line 12 (0-based: 11) = "# comment after Bar class definition"
-    assert 'comment after Bar class definition' in blocks[0].text
+    text0 = blocks[0].text or ''
+    assert 'comment after Bar class definition' in text0
 
     # Test full file via negative range
-    rst_content2 = '''
+    rst_content2 = """
 Test Full File
 ==============
 
 .. literalinclude:: literal.inc
    :language: python
    :lines: -13--1
-'''
+"""
     test_file2 = app.srcdir / 'test_full_negative.rst'
     test_file2.write_text(rst_content2.strip(), encoding='utf8')
     app.build(filenames=[test_file2])
@@ -1024,16 +1025,17 @@ Test Full File
     assert blocks[0].text == full_content
 
     # Test out of range negative index
-    rst_content3 = '''
+    rst_content3 = """
 Test Out of Range
 =================
 
 .. literalinclude:: literal.inc
    :language: python
    :lines: -14--1
-'''
+"""
     test_file3 = app.srcdir / 'test_outofrange.rst'
     test_file3.write_text(rst_content3.strip(), encoding='utf8')
     # Should warn but not crash
     app.build(filenames=[test_file3])
-    assert 'negative index out of range' in app.warning.getvalue().lower()
+    warnings = app.warning.getvalue() or ''
+    assert 'negative index out of range' in warnings.lower()
