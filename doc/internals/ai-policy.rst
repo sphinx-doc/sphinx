@@ -70,9 +70,15 @@ While these do not formally form part of Sphinx's AI policy, the following
 resources may be helpful in understanding some pitfalls associated with using
 AI to contribute to Sphinx:
 
-- https://llvm.org/docs/AIToolPolicy.html
-- https://github.com/melissawm/open-source-ai-contribution-policies
-- https://blog.scientific-python.org/scientific-python/community-considerations-around-ai/
+- `LLVM AI tool policy`_
+- `Open source AI contribution policies`_
+- `Scientific Python community considerations around AI`_
+- `Python developer's guide to AI tools`_
+
+.. _LLVM AI tool policy: https://llvm.org/docs/AIToolPolicy.html
+.. _Open source AI contribution policies: https://github.com/melissawm/open-source-ai-contribution-policies
+.. _Scientific Python community considerations around AI: https://blog.scientific-python.org/scientific-python/community-considerations-around-ai/
+.. _Python developer's guide to AI tools: https://devguide.python.org/getting-started/ai-tools/index.html
 
 Acknowledgements
 ----------------
