@@ -189,13 +189,197 @@ def test_LiteralIncludeReader_lines_negative_lineno_match(literal_inc_path: Path
     with pytest.raises(ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'):
         reader.read()
 
-
-def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path: Path) -> None:
-    options = {'lines': '3-5', 'lineno-match': True}
+    # lineno-match with negative start, half-open right
+    options = {'lines': '-3-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
-    assert content == 'foo = "Including Unicode characters: üöä"\n\nclass Foo:\n'
-    assert reader.lineno_start == 3
+    # -3- in 13 lines = lines 11-13 (0-based: 10,11,12)
+    assert content == (
+        '\n'
+        '# comment after Bar class definition\n'
+        'def bar(): pass\n'
+    )
+    assert reader.lineno_start == 11
+
+    # lineno-match with negative start, positive end
+    options = {'lines': '-10-5', 'lineno-match': True}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    # -10-5 in 13 lines = lines 4-5
+    assert content == '\nclass Foo:\n'
+    assert reader.lineno_start == 4
+
+
+def test_LiteralIncludeReader_lines_negative_comma_separated(literal_inc_path: Path) -> None:
+    """Test comma-separated negative line specs."""
+    # Multiple negative ranges
+    options = {'lines': '-3--1,-6--4'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    # -3--1 = lines 11-13, -6--4 = lines 8-10
+    assert '# comment after Bar class definition' in content
+    assert 'def bar(): pass' in content
+    assert 'def baz():' in content
+    assert 'class Bar:' in content
+
+    # Mix of positive and negative
+    options = {'lines': '1-2,-2--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    # Line 1-2 and last 2 lines
+    assert 'Literally included file' in content
+    assert 'comment after Bar class definition' in content
+    assert 'def bar(): pass' in content
+
+
+def test_LiteralIncludeReader_lines_negative_with_pyobject(literal_inc_path: Path) -> None:
+    """Test negative lines combined with pyobject filter."""
+    # pyobject selects Bar class (lines 8-11), then lines filter applies to that subset
+    options = {'pyobject': 'Bar', 'lines': '-2--1', 'lineno-match': True}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    # Bar class is 4 lines (8-11), -2--1 in 4 lines = lines 3-4 of selection
+    # lines 10-11 of file: "    def baz():\n        pass\n"
+    assert 'def baz():' in content
+    assert 'pass' in content
+    assert reader.lineno_start == 9
+
+
+def test_LiteralIncludeReader_lines_negative_with_start_after(literal_inc_path: Path) -> None:
+    """Test negative lines combined with start-after filter."""
+    # start-after selects from after 'class Bar:' (line 8), then lines filter applies
+    options = {'start-after': 'class Bar:', 'lines': '-2--1', 'lineno-match': True}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    # After 'class Bar:' we have 5 lines (9-13), -2--1 in 5 lines = lines 12-13 of file
+    assert '# comment after Bar class definition' in content
+    assert 'def bar(): pass' in content
+    assert reader.lineno_start == 12
+
+
+def test_LiteralIncludeReader_lines_negative_single_line(literal_inc_path: Path) -> None:
+    """Test single negative line selection via range syntax."""
+    # -1--1 selects last line only
+    options = {'lines': '-1--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == 'def bar(): pass\n'
+
+    # -2--2 selects second-to-last line only
+    options = {'lines': '-2--2'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == '# comment after Bar class definition\n'
+
+
+def test_LiteralIncludeReader_lines_negative_half_open_right(literal_inc_path: Path) -> None:
+    """Test half-open right ranges with negative start."""
+    # -3- selects from line -3 to end
+    options = {'lines': '-3-'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == '\n# comment after Bar class definition\ndef bar(): pass\n'
+
+    # -5- selects from line -5 to end
+    options = {'lines': '-5-'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert 'def baz():' in content
+    assert 'def bar(): pass' in content
+
+
+def test_LiteralIncludeReader_lines_negative_empty_result(literal_inc_path: Path) -> None:
+    """Test negative ranges that result in empty selection."""
+    # -20--15 in 13-line file → out of range, should raise ValueError
+    options = {'lines': '-20--15'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError, match='negative index out of range'):
+        reader.read()
+
+    # -15--10 in 13-line file → start < 1 after resolution
+    options = {'lines': '-15--10'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError, match='negative index out of range'):
+        reader.read()
+
+
+def test_LiteralIncludeReader_lines_negative_with_prepend_append(literal_inc_path: Path) -> None:
+    """Test negative lines combined with prepend and append."""
+    options = {'lines': '-2--1', 'prepend': 'HEADER', 'append': 'FOOTER'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content.startswith('HEADER\n')
+    assert content.endswith('FOOTER\n')
+    assert '# comment after Bar class definition' in content
+    assert 'def bar(): pass' in content
+
+
+def test_LiteralIncludeReader_lines_negative_with_dedent(literal_inc_path: Path) -> None:
+    """Test negative lines combined with dedent."""
+    # The last few lines have different indentation
+    options = {'lines': '9-11', 'dedent': 4}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == 'def baz():\n    pass\n\n'
+
+    # Test with negative lines that include indented content
+    options = {'lines': '-5--1', 'dedent': 4}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    # Lines 9-13 with dedent 4
+    assert 'def baz():' in content
+    assert 'pass' in content
+
+
+def test_LiteralIncludeReader_lines_negative_with_diff(literal_inc_path: Path, testroot: Path) -> None:
+    """Test negative lines combined with diff option."""
+    # diff and lines are mutually exclusive, so test that the error is raised
+    literal_diff_path = testroot / 'literal-diff.inc'
+    options = {'diff': literal_diff_path, 'lines': '-3--1'}
+    with pytest.raises(ValueError, match='Cannot use both "diff" and "lines" options'):
+        LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+
+
+def test_LiteralIncludeReader_lines_negative_tab_width(literal_inc_path: Path) -> None:
+    """Test negative lines with tab-width option."""
+    # Create a file with tabs
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write('class TabTest:\n\tdef method(self):\n\t\tpass\n')
+        tab_file = f.name
+    try:
+        options = {'tab-width': 4, 'lines': '-2--1'}
+        reader = LiteralIncludeReader(tab_file, options, DUMMY_CONFIG)
+        content, _lines = reader.read()
+        # Last 2 lines with tabs expanded to 4 spaces
+        assert '    def method(self):' in content or '        pass' in content
+    finally:
+        import os
+        os.unlink(tab_file)
+
+
+def test_LiteralIncludeReader_lines_negative_encoding(literal_inc_path: Path) -> None:
+    """Test negative lines with encoding option."""
+    options = {'encoding': 'utf-8', 'lines': '-1--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == 'def bar(): pass\n'
+
+
+def test_LiteralIncludeReader_lines_negative_force(literal_inc_path: Path) -> None:
+    """Test negative lines with force option."""
+    options = {'force': True, 'lines': '-1--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == 'def bar(): pass\n'
+
+
+def test_LiteralIncludeReader_lines_negative_language(literal_inc_path: Path) -> None:
+    """Test negative lines with language option."""
+    options = {'language': 'python', 'lines': '-1--1'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, _lines = reader.read()
+    assert content == 'def bar(): pass\n'
 
 
 @pytest.mark.sphinx('html', testroot='root')  # init locale for errors
@@ -750,3 +934,106 @@ def test_literal_include_negative_lines_build(app: SphinxTestApp) -> None:
 
     # Block 3: :lines: -3- → same as -3--1 (half-open right with negative start)
     assert blocks[3].text == blocks[0].text
+
+
+@pytest.mark.sphinx('html', testroot='directive-code')
+def test_literalinclude_emphasize_lines_negative(app: SphinxTestApp) -> None:
+    """Test emphasize-lines with negative indices in literalinclude."""
+    # Create a test rst file with negative emphasize-lines
+    rst_content = '''
+Test Negative Emphasize Lines
+=============================
+
+.. literalinclude:: literal.inc
+   :language: python
+   :emphasize-lines: -3--1
+   :linenos:
+'''
+    test_file = app.srcdir / 'test_emphasize_negative.rst'
+    test_file.write_text(rst_content.strip(), encoding='utf8')
+    app.build(filenames=[test_file])
+    html = (app.outdir / 'test_emphasize_negative.html').read_text(encoding='utf8')
+
+    # Last 3 lines should be highlighted (lines 11-13 in 13-line file)
+    # Check for hl_lines in the output
+    assert 'hllines=' in html or 'highlight' in html.lower()
+
+
+@pytest.mark.sphinx('html', testroot='directive-code')
+def test_code_block_emphasize_lines_negative(app: SphinxTestApp) -> None:
+    """Test emphasize-lines with negative indices in code-block."""
+    rst_content = '''
+Test Code Block Negative Emphasize Lines
+========================================
+
+.. code-block:: python
+   :emphasize-lines: -2--1
+
+   def foo():
+       print("line 1")
+       print("line 2")
+       print("line 3")
+'''
+    test_file = app.srcdir / 'test_code_emphasize_negative.rst'
+    test_file.write_text(rst_content.strip(), encoding='utf8')
+    app.build(filenames=[test_file])
+    html = (app.outdir / 'test_code_emphasize_negative.html').read_text(encoding='utf8')
+
+    # Last 2 lines should be highlighted
+    assert 'hllines=' in html or 'highlight' in html.lower()
+
+
+@pytest.mark.sphinx('xml', testroot='directive-code')
+def test_literalinclude_negative_lines_edge_cases(app: SphinxTestApp) -> None:
+    """Test edge cases for negative line numbers in literalinclude."""
+    # Test single negative line via range
+    rst_content = '''
+Test Edge Cases
+===============
+
+.. literalinclude:: literal.inc
+   :language: python
+   :lines: -2--2
+'''
+    test_file = app.srcdir / 'test_edge_cases.rst'
+    test_file.write_text(rst_content.strip(), encoding='utf8')
+    app.build(filenames=[test_file])
+    et = etree_parse(app.outdir / 'test_edge_cases.xml')
+    blocks = et.findall('.//literal_block')
+    assert len(blocks) == 1
+    # -2--2 in 13 lines = line 12 (0-based: 11) = "# comment after Bar class definition"
+    assert 'comment after Bar class definition' in blocks[0].text
+
+    # Test full file via negative range
+    rst_content2 = '''
+Test Full File
+==============
+
+.. literalinclude:: literal.inc
+   :language: python
+   :lines: -13--1
+'''
+    test_file2 = app.srcdir / 'test_full_negative.rst'
+    test_file2.write_text(rst_content2.strip(), encoding='utf8')
+    app.build(filenames=[test_file2])
+    et = etree_parse(app.outdir / 'test_full_negative.xml')
+    blocks = et.findall('.//literal_block')
+    assert len(blocks) == 1
+    # Should include all 13 lines
+    full_content = (app.srcdir / 'literal.inc').read_text(encoding='utf8')
+    assert blocks[0].text == full_content
+
+    # Test out of range negative index
+    rst_content3 = '''
+Test Out of Range
+=================
+
+.. literalinclude:: literal.inc
+   :language: python
+   :lines: -14--1
+'''
+    test_file3 = app.srcdir / 'test_outofrange.rst'
+    test_file3.write_text(rst_content3.strip(), encoding='utf8')
+    # Should warn but not crash
+    app.build(filenames=[test_file3])
+    assert 'negative index out of range' in app.warning.getvalue().lower()

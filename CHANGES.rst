@@ -1,3 +1,17 @@
+Release 9.2.0 (unreleased)
+============================
+
+Features added
+--------------
+
+* #14480: Add support for negative line numbers in the ``:lines:`` option of the
+  :rst:dir:`literalinclude` directive and the ``:emphasize-lines:`` option of
+  both :rst:dir:`code-block` and :rst:dir:`literalinclude` directives.
+  Negative indices count from the end of the file (e.g., ``-1`` is the last line,
+  ``-2`` the second-to-last). Range syntax uses a double dash (e.g., ``5--1``
+  for lines 5 through last, ``-3--1`` for the last 3 lines).
+  Patch by John Laporte
+
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
 
