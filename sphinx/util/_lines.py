@@ -34,6 +34,12 @@ def _parse_part(part: str, total: int) -> list[int]:
         if end <= 0:
             msg = f'invalid line number spec: {part!r}'
             raise ValueError(msg)
+        # Guard against unreasonably large indices that would cause MemoryError
+        max_allowed = max(total * 2, 10000)
+        if end > max_allowed:
+            msg = f'line number spec index too large: {part!r}'
+            raise ValueError(msg)
+        # Allow out-of-bounds indices; caller (lines_filter) handles them
         return list(range(end))
 
     # Find the range separator dash.  A dash is a separator if:
@@ -92,6 +98,11 @@ def _parse_part(part: str, total: int) -> list[int]:
             raise ValueError(msg)
         if start < 0:
             start = _resolve(start, total, part)
+        # Guard against unreasonably large indices
+        max_allowed = max(total * 2, 10000)
+        if start - 1 > max_allowed:
+            msg = f'line number spec index too large: {part!r}'
+            raise ValueError(msg)
         return [start - 1]
 
     # Range form
@@ -121,6 +132,13 @@ def _parse_part(part: str, total: int) -> list[int]:
         raise ValueError(msg)
     if start > end:
         msg = f'invalid line number spec: {part!r}'
+        raise ValueError(msg)
+    # Guard against unreasonably large indices that would cause MemoryError
+    # when creating the range. The caller (lines_filter) handles out-of-bounds
+    # indices, but we should not attempt to allocate massive lists.
+    max_allowed = max(total * 2, 10000)
+    if start - 1 > max_allowed or end > max_allowed:
+        msg = f'line number spec indices too large: {part!r}'
         raise ValueError(msg)
     return list(range(start - 1, end))
 
