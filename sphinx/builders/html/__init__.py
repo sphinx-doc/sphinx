@@ -865,6 +865,15 @@ class StandaloneHTMLBuilder(Builder):
                     force=True,
                 )
 
+    def copy_static_dirs(self) -> None:
+        """Copy static files registered by extensions."""
+        for static_dir in self._registry.static_dirs:
+            if static_dir.is_dir():
+                shutil.copytree(static_dir, self._static_dir, dirs_exist_ok=True)
+            else:
+                msg = __("extension static directory '%s' does not exist")
+                logger.warning(msg, static_dir)
+
     def copy_html_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(
@@ -916,6 +925,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.copy_translation_js()
                 self.copy_stemmer_js()
                 self.copy_theme_static_files(context)
+                self.copy_static_dirs()
                 self.copy_html_static_files(context)
                 self.copy_html_logo()
                 self.copy_html_favicon()

@@ -1673,6 +1673,7 @@ def test_latex_table_longtable(app: SphinxTestApp) -> None:
         'longtable having formerly problematic',
         'longtable having widths and formerly problematic',
         'longtable having stub columns and formerly problematic',
+        'longtable with multirow cell near page footer',
     ):
         actual = tables[sectname]
         expected = get_expected(sectname.replace(' ', '_'))

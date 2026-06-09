@@ -360,7 +360,8 @@ def _make_props_from_imported_object(
 
     if objtype == 'data':
         # Update __annotations__ to support type_comment and so on
-        _ensure_annotations_from_type_comments(parent)
+        if config.autodoc_use_type_comments:
+            _ensure_annotations_from_type_comments(parent)
 
         # obtain annotation
         annotations = get_type_hints(
@@ -410,7 +411,7 @@ def _make_props_from_imported_object(
             obj = SLOTS_ATTR
         elif inspect.isenumattribute(obj):
             obj = obj.value
-        if parent:
+        if parent and config.autodoc_use_type_comments:
             # Update __annotations__ to support type_comment and so on
             _ensure_annotations_from_type_comments(parent)
 
