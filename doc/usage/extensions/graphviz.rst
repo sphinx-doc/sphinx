@@ -8,6 +8,11 @@
 
 .. versionadded:: 0.6
 
+.. important::
+
+   Graphviz must be available on your computer.
+   If it is not you may need to install it yourself.
+
 .. role:: code-py(code)
    :language: Python
 
