@@ -412,7 +412,8 @@ def test_search_index_gen_zh(app: SphinxTestApp) -> None:
 )
 def test_js_stemmer_class_name(js_stemmer_rawcode: str, stemmer_class: str) -> None:
     # check that the JS class name is correctly derived from the filename
-    index = IndexBuilder(DummyEnvironment('1.0', {}), 'en', {}, '')
+    env = DummyEnvironment('1.0', DummyDomainsContainer())
+    index = IndexBuilder(env, 'en', {}, '')  # type: ignore[arg-type]
     index.lang.js_stemmer_rawcode = js_stemmer_rawcode
     js = index.get_js_stemmer_code()
     assert f'var {stemmer_class}' in js
