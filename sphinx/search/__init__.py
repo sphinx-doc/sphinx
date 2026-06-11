@@ -590,6 +590,7 @@ class IndexBuilder:
             self.lang.js_stemmer_rawcode.removesuffix('-stemmer.js')
             .title()
             .replace('_', '')
+            .replace('-', '')
             + 'Stemmer'
         )
         return '\n'.join((
