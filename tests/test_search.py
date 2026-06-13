@@ -404,7 +404,6 @@ def test_search_index_gen_zh(app: SphinxTestApp) -> None:
 @pytest.mark.parametrize(
     ('js_stemmer_rawcode', 'stemmer_class'),
     [
-        # SearchChinese reuses english-stemmer.js
         ('english-stemmer.js', 'EnglishStemmer'),
         # dutch_porter-stemmer.js is the only one with an underscore
         ('dutch_porter-stemmer.js', 'DutchPorterStemmer'),
