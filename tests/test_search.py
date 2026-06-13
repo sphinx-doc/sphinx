@@ -396,6 +396,7 @@ def test_search_index_gen_zh(app: SphinxTestApp) -> None:
     language_data = (app.outdir / '_static' / 'language_data.js').read_text(
         encoding='utf-8'
     )
+    # SearchChinese reuses english-stemmer.js
     assert 'var EnglishStemmer' in language_data
     assert 'window.Stemmer = EnglishStemmer;' in language_data
     assert 'ChineseStemmer' not in language_data
