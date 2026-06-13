@@ -107,7 +107,7 @@ def _parse_part(part: str, total: int) -> list[int]:
 
     # Range form
     start_str = part[:sep_idx]
-    rest = part[sep_idx + 1:]  # after the separator dash
+    rest = part[sep_idx + 1 :]  # after the separator dash
 
     try:
         start = int(start_str)

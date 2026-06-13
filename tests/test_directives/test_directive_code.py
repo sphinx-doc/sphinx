@@ -114,17 +114,13 @@ def test_LiteralIncludeReader_lines_negative(literal_inc_path: Path) -> None:
     options = {'lines': '-3--1'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
-    assert content == (
-        '\n# comment after Bar class definition\ndef bar(): pass\n'
-    )
+    assert content == ('\n# comment after Bar class definition\ndef bar(): pass\n')
 
     # Negative start, half-open right: from -3 to end
     options = {'lines': '-3-'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
-    assert content == (
-        '\n# comment after Bar class definition\ndef bar(): pass\n'
-    )
+    assert content == ('\n# comment after Bar class definition\ndef bar(): pass\n')
 
     # Negative start, positive end: -8-5 → resolved start=6, end=5 → ValueError
     options = {'lines': '-8-5'}
@@ -163,17 +159,15 @@ def test_LiteralIncludeReader_lines_negative(literal_inc_path: Path) -> None:
         reader.read()
 
 
-def test_LiteralIncludeReader_lines_negative_lineno_match(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_lineno_match(
+    literal_inc_path: Path,
+) -> None:
     # lineno-match works with contiguous negative range
     options = {'lines': '-3--1', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
     # -3--1 in 13 lines = lines 11-13 (0-based: 10,11,12)
-    assert content == (
-        '\n'
-        '# comment after Bar class definition\n'
-        'def bar(): pass\n'
-    )
+    assert content == ('\n# comment after Bar class definition\ndef bar(): pass\n')
     assert reader.lineno_start == 11
 
     # lineno-match with positive start, negative end
@@ -186,7 +180,9 @@ def test_LiteralIncludeReader_lines_negative_lineno_match(literal_inc_path: Path
     # -5--4 resolves to lines 9-10, -1--1 resolves to line 13 → disjoint
     options = {'lines': '-5--4,-1--1', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
-    with pytest.raises(ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'):
+    with pytest.raises(
+        ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'
+    ):
         reader.read()
 
     # lineno-match with negative start, half-open right
@@ -194,11 +190,7 @@ def test_LiteralIncludeReader_lines_negative_lineno_match(literal_inc_path: Path
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, _lines = reader.read()
     # -3- in 13 lines = lines 11-13 (0-based: 10,11,12)
-    assert content == (
-        '\n'
-        '# comment after Bar class definition\n'
-        'def bar(): pass\n'
-    )
+    assert content == ('\n# comment after Bar class definition\ndef bar(): pass\n')
     assert reader.lineno_start == 11
 
     # lineno-match with negative start, positive end
@@ -210,7 +202,9 @@ def test_LiteralIncludeReader_lines_negative_lineno_match(literal_inc_path: Path
     assert reader.lineno_start == 4
 
 
-def test_LiteralIncludeReader_lines_negative_comma_separated(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_comma_separated(
+    literal_inc_path: Path,
+) -> None:
     """Test comma-separated negative line specs."""
     # Multiple negative ranges
     options = {'lines': '-3--1,-6--4'}
@@ -232,7 +226,9 @@ def test_LiteralIncludeReader_lines_negative_comma_separated(literal_inc_path: P
     assert 'def bar(): pass' in content
 
 
-def test_LiteralIncludeReader_lines_negative_with_pyobject(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_with_pyobject(
+    literal_inc_path: Path,
+) -> None:
     """Test negative lines combined with pyobject filter."""
     # pyobject selects Bar class (lines 8-11), then lines filter applies to that subset
     options = {'pyobject': 'Bar', 'lines': '-2--1', 'lineno-match': True}
@@ -245,7 +241,9 @@ def test_LiteralIncludeReader_lines_negative_with_pyobject(literal_inc_path: Pat
     assert reader.lineno_start == 9
 
 
-def test_LiteralIncludeReader_lines_negative_with_start_after(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_with_start_after(
+    literal_inc_path: Path,
+) -> None:
     """Test negative lines combined with start-after filter."""
     # start-after selects from after 'class Bar:' (line 8), then lines filter applies
     options = {'start-after': 'class Bar:', 'lines': '-2--1', 'lineno-match': True}
@@ -257,7 +255,9 @@ def test_LiteralIncludeReader_lines_negative_with_start_after(literal_inc_path: 
     assert reader.lineno_start == 12
 
 
-def test_LiteralIncludeReader_lines_negative_single_line(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_single_line(
+    literal_inc_path: Path,
+) -> None:
     """Test single negative line selection via range syntax."""
     # -1--1 selects last line only
     options = {'lines': '-1--1'}
@@ -272,7 +272,9 @@ def test_LiteralIncludeReader_lines_negative_single_line(literal_inc_path: Path)
     assert content == '# comment after Bar class definition\n'
 
 
-def test_LiteralIncludeReader_lines_negative_half_open_right(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_half_open_right(
+    literal_inc_path: Path,
+) -> None:
     """Test half-open right ranges with negative start."""
     # -3- selects from line -3 to end
     options = {'lines': '-3-'}
@@ -288,7 +290,9 @@ def test_LiteralIncludeReader_lines_negative_half_open_right(literal_inc_path: P
     assert 'def bar(): pass' in content
 
 
-def test_LiteralIncludeReader_lines_negative_empty_result(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_empty_result(
+    literal_inc_path: Path,
+) -> None:
     """Test negative ranges that result in empty selection."""
     # -20--15 in 13-line file → out of range, should raise ValueError
     options = {'lines': '-20--15'}
@@ -303,7 +307,9 @@ def test_LiteralIncludeReader_lines_negative_empty_result(literal_inc_path: Path
         reader.read()
 
 
-def test_LiteralIncludeReader_lines_negative_with_prepend_append(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_with_prepend_append(
+    literal_inc_path: Path,
+) -> None:
     """Test negative lines combined with prepend and append."""
     options = {'lines': '-2--1', 'prepend': 'HEADER', 'append': 'FOOTER'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -314,7 +320,9 @@ def test_LiteralIncludeReader_lines_negative_with_prepend_append(literal_inc_pat
     assert 'def bar(): pass' in content
 
 
-def test_LiteralIncludeReader_lines_negative_with_dedent(literal_inc_path: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_with_dedent(
+    literal_inc_path: Path,
+) -> None:
     """Test negative lines combined with dedent."""
     # The last few lines have different indentation
     options = {'lines': '9-11', 'dedent': 4}
@@ -331,7 +339,9 @@ def test_LiteralIncludeReader_lines_negative_with_dedent(literal_inc_path: Path)
     assert 'pass' in content
 
 
-def test_LiteralIncludeReader_lines_negative_with_diff(literal_inc_path: Path, testroot: Path) -> None:
+def test_LiteralIncludeReader_lines_negative_with_diff(
+    literal_inc_path: Path, testroot: Path
+) -> None:
     """Test negative lines combined with diff option."""
     # diff and lines are mutually exclusive, so test that the error is raised
     literal_diff_path = testroot / 'literal-diff.inc'
@@ -344,7 +354,10 @@ def test_LiteralIncludeReader_lines_negative_tab_width(literal_inc_path: Path) -
     """Test negative lines with tab-width option."""
     # Create a file with tabs
     import tempfile
-    with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', suffix='.py', delete=False) as f:
+
+    with tempfile.NamedTemporaryFile(
+        mode='w', encoding='utf-8', suffix='.py', delete=False
+    ) as f:
         f.write('class TabTest:\n\tdef method(self):\n\t\tpass\n')
         tab_file = f.name
     try:
@@ -918,9 +931,7 @@ def test_literal_include_negative_lines_build(app: SphinxTestApp) -> None:
     # literal.inc has 13 lines. Lines 11-13 are:
     #   \n# comment after Bar class definition\ndef bar(): pass\n
     assert blocks[0].text == (
-        '\n'
-        '# comment after Bar class definition\n'
-        'def bar(): pass\n'
+        '\n# comment after Bar class definition\ndef bar(): pass\n'
     )
     # Block 1: :lines: 5--1 → lines 5 to end
     # Lines 5-13: class Foo: ... def bar(): pass\n
