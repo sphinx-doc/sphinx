@@ -8,16 +8,16 @@
 
 .. versionadded:: 0.6
 
-.. important::
-
-   Graphviz must be available on your computer.
-   If it is not you may need to install it yourself.
-
 .. role:: code-py(code)
    :language: Python
 
 This extension allows you to embed `Graphviz <https://graphviz.org/>`_ graphs in
 your documents.
+
+.. important::
+
+   Graphviz must be present on your machine; please refer to the `official
+   instructions <https://graphviz.org/download/>`_ if it is not the case.
 
 It adds these directives:
 
