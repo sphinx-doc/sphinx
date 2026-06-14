@@ -515,6 +515,24 @@ def test_module_file(tmp_path):
     )
 
 
+def test_module_file_east_asian_heading(tmp_path):
+    outdir = tmp_path
+    (outdir / '日本語.py').touch()
+    apidoc_main(['-o', str(tmp_path), str(tmp_path)])
+    assert (outdir / '日本語.rst').exists()
+
+    content = (outdir / '日本語.rst').read_text(encoding='utf8')
+    assert content == (
+        '日本語 module\n'
+        '=============\n'
+        '\n'
+        '.. automodule:: 日本語\n'
+        '   :members:\n'
+        '   :show-inheritance:\n'
+        '   :undoc-members:\n'
+    )
+
+
 def test_module_file_noheadings(tmp_path):
     outdir = tmp_path
     (outdir / 'example.py').touch()
