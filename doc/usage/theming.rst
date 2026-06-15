@@ -128,7 +128,7 @@ Builtin themes
 Sphinx comes with a selection of themes to choose from.
 
 Note that from these themes only the Alabaster and Scrolls themes are
-mobile-optimated, the other themes resort to horizontal scrolling
+mobile-optimized, the other themes resort to horizontal scrolling
 if the screen is too narrow.
 
 .. cssclass:: clear

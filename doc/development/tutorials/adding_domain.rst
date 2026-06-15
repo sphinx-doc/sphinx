@@ -46,7 +46,7 @@ Prerequisites
 We need the same setup as in
 :ref:`the previous extensions <tutorial-extend-build>`.
 This time,
-we will be putting out extension in a file called :file:`recipe.py`.
+we will be putting our extension in a file called :file:`recipe.py`.
 
 Here is an example of the folder structure you might obtain:
 

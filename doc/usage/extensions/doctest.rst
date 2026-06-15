@@ -130,7 +130,7 @@ a comma-separated list of group names.
       * ``<``, ``>``: Exclusive ordered comparison clause
       * ``===``: Arbitrary equality clause.
 
-      ``pyversion`` option is followed :pep:`PEP-440: Version Specifiers
+      ``pyversion`` option follows :pep:`PEP-440: Version Specifiers
       <440#version-specifiers>`.
 
       .. versionadded:: 1.6
@@ -142,7 +142,7 @@ a comma-separated list of group names.
    .. rst:directive:option:: trim-doctest-flags
                              no-trim-doctest-flags
 
-      Whether to trim remove doctest flags (comments looking like
+      Whether to trim doctest flags (comments looking like
       ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
       individually.  Default is ``trim-doctest-flags``.
 
@@ -170,7 +170,7 @@ a comma-separated list of group names.
    .. rst:directive:option:: trim-doctest-flags
                              no-trim-doctest-flags
 
-      Whether to trim remove doctest flags (comments looking like
+      Whether to trim doctest flags (comments looking like
       ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
       individually.  Default is ``trim-doctest-flags``.
 
@@ -218,7 +218,7 @@ a comma-separated list of group names.
    .. rst:directive:option:: trim-doctest-flags
                              no-trim-doctest-flags
 
-      Whether to trim remove doctest flags (comments looking like
+      Whether to trim doctest flags (comments looking like
       ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
       individually.  Default is ``trim-doctest-flags``.
 
@@ -393,7 +393,7 @@ The doctest extension uses the following configuration values:
    :type: :code-py:`str`
    :default: :code-py:`''`
 
-   Python code that is treated like it were put in a ``testsetup`` directive for
+   Python code that is treated as if it were put in a ``testsetup`` directive for
    *every* file that is tested, and for every group.  You can use this to
    e.g. import modules you will always need in your doctests.
 
@@ -403,7 +403,7 @@ The doctest extension uses the following configuration values:
    :type: :code-py:`str`
    :default: :code-py:`''`
 
-   Python code that is treated like it were put in a ``testcleanup`` directive
+   Python code that is treated as if it were put in a ``testcleanup`` directive
    for *every* file that is tested, and for every group.  You can use this to
    e.g. remove any temporary files that the tests leave behind.
 

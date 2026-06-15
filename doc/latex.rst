@@ -1159,7 +1159,7 @@ The color used in the above example is available from having passed the
 
 .. _additionalcss:
 
-Additional  CSS-like ``'sphinxsetup'`` keys
+Additional CSS-like ``'sphinxsetup'`` keys
 -------------------------------------------
 
 .. versionadded:: 5.1.0
@@ -1583,7 +1583,7 @@ Macros
 
   .. versionadded:: 7.1.0
      :code-tex:`\\sphinxparamcomma` which defaults to a comma followed by a
-     space and :code-tex:`\\sphinxparamcommaoneperline`.  It is sed for
+     space and :code-tex:`\\sphinxparamcommaoneperline`.  It is used for
      one-parameter-per-line signatures (see
      :confval:`maximum_signature_line_length`) and defaults to
      :code-tex:`\\texttt{,}`.
@@ -1949,7 +1949,7 @@ Miscellany
   names as in HTML output.
 
   .. versionchanged:: 8.1.0
-     When multiple classes are injected via a a custom role, the LaTeX output
+     When multiple classes are injected via a custom role, the LaTeX output
      uses nested :code-tex:`\\DUrole`'s as in the `Docutils documentation
      <classarguments_>`_.  Formerly it used a single :code-tex:`\\DUrole` with
      comma separated classes, making the LaTeX customization more arduous.

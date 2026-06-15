@@ -51,7 +51,7 @@ The JavaScript domain (name **js**) provides the following directives:
       :no-contents-entry:
       :no-index-entry:
 
-      :param string href: An URI to the location of the resource.
+      :param string href: A URI to the location of the resource.
       :param callback: Gets called with the object.
       :param errback:
           Gets called in case the request fails. And a lot of other

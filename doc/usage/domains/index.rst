@@ -16,7 +16,7 @@ for Python objects.  Since Sphinx has become somewhat popular, interest
 developed in using it for many different purposes: C/C++ projects, JavaScript,
 or even reStructuredText markup (like in this documentation).
 
-While this was always possible, it is now much easier to easily support
+While this was always possible, it is now much easier to support
 documentation of projects using different programming languages or even ones
 not supported by the main Sphinx distribution, by providing a **domain** for
 every such purpose.
@@ -60,7 +60,7 @@ Several third-party domains are available as extensions, including:
 * `Ada <https://pypi.org/project/sphinxcontrib-adadomain/>`__
 * `Antlr4 <https://pypi.org/project/sphinx-syntax/>`__
 * `Bazel <https://pypi.org/project/sphinx-bazel/>`__
-* `BibTex <https://pypi.org/project/sphinxcontrib-bibtex/>`__
+* `BibTeX <https://pypi.org/project/sphinxcontrib-bibtex/>`__
 * `Bison/YACC <https://pypi.org/project/sphinx-syntax/>`__
 * `Chapel <https://pypi.org/project/sphinxcontrib-chapeldomain/>`__
 * `CMake <https://pypi.org/project/sphinxcontrib-moderncmakedomain/>`__

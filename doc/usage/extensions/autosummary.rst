@@ -262,7 +262,7 @@ also use these config values:
 
    Note that if an imported member is listed in ``__all__``, it will be
    documented regardless of the value of ``autosummary_imported_members``. To
-   match the behaviour of ``from module import *``, set
+   match the behavior of ``from module import *``, set
    ``autosummary_ignore_module_all`` to False and
    ``autosummary_imported_members`` to True.
 
@@ -426,7 +426,7 @@ Autolink role
    :rst:role:`!autolink` could resolve to the wrong object.
    It will fail silently if the referenced object is not found,
    for example due to a spelling mistake or renaming.
-   This is sometimes unwanted behaviour.
+   This is sometimes unwanted behavior.
 
    Some users choose to configure their :confval:`default_role` to ``autolink``
    for 'smart' referencing using the default interpreted text role (```content```).

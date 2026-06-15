@@ -178,14 +178,14 @@ Doc comments and docstrings
 
 Python has no built-in support for docstrings for
 module data members or class attributes.
-To allow documenting these, ``autodoc`` recognises a special format of
+To allow documenting these, ``autodoc`` recognizes a special format of
 :ref:`comment <python:comments>` called a 'doc comment' or 'documentation comment'.
 
 These comments start with a colon and an optional space character,
 ``'#:'`` or ``'#: '``.
-To be recognised, the comments must appear either on the same line
+To be recognized, the comments must appear either on the same line
 as the variable or on one or more lines before the variable.
-Multi-line doc-comments must always  appear on the lines before the
+Multi-line doc-comments must always appear on the lines before the
 variable's definition.
 
 For example, all three of the following variables have valid doc-comments:
@@ -202,11 +202,11 @@ For example, all three of the following variables have valid doc-comments:
    #: truffle pate, brandy and a fried egg on top and spam.
    lobster_thermidor = 35.00
 
-Alternatively, ``autodoc`` can recognise a docstring
+Alternatively, ``autodoc`` can recognize a docstring
 on the line immediately following the definition.
 
-In the the following class definition,
-all attributes have documentation recognised by ``autodoc``:
+In the following class definition,
+all attributes have documentation recognized by ``autodoc``:
 
 .. code-block:: python
 
@@ -678,7 +678,7 @@ Automatically document classes or exceptions
       meaning that members of the ``object`` class are not documented.
       To include these, use ``None`` as the argument.
 
-      For example; If your class ``MyList`` is derived from ``list`` class and
+      For example, if your class ``MyList`` is derived from ``list`` class and
       you don't want to document ``list.__len__()``, you should specify a
       option ``:inherited-members: list`` to avoid special members of list
       class.
@@ -1008,7 +1008,7 @@ There are also config values that you can set:
    :default: :code-py:`False`
 
    If true, autodoc will use the legacy class-based implementation.
-   This is the behaviour prior to Sphinx 9.0.
+   This is the behavior prior to Sphinx 9.0.
    It is based on the ``Documenter`` class hierarchy.
 
    This setting is provided for backwards compatibility if your documentation
@@ -1247,7 +1247,7 @@ There are also config values that you can set:
    :type: :code-py:`dict[str, str]`
    :default: :code-py:`{}`
 
-   A dictionary for users defined `type aliases`__ that maps a type name to the
+   A dictionary for user-defined `type aliases`__ that maps a type name to the
    full-qualified object name.  It is used to keep type aliases not evaluated in
    the document.
 
@@ -1267,7 +1267,7 @@ There are also config values that you can set:
          ...
 
    If ``autodoc_type_aliases`` is not set, autodoc will generate internal mark-up
-   from this code as following:
+   from this code as follows:
 
    .. code-block:: rst
 
@@ -1330,7 +1330,7 @@ There are also config values that you can set:
 
    .. versionadded:: 8.2
 
-      Added the option to disable the use of type comments in
+      Added the option to disable the use of type comments
       via the new :confval:`!autodoc_use_type_comments` option,
       which defaults to :code-py:`True` for backwards compatibility.
       The default will change to :code-py:`False` in Sphinx 10.
@@ -1343,7 +1343,7 @@ There are also config values that you can set:
 
    This value controls the behavior of :option:`sphinx-build --fail-on-warning`
    during importing modules.
-   If ``False`` is given, autodoc forcedly suppresses the error if the imported
+   If ``False`` is given, autodoc forcibly suppresses the error if the imported
    module emits warnings.
 
    .. versionchanged:: 8.1

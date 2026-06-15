@@ -190,7 +190,7 @@ used to add a new comment, and will call the web support method
 You'll notice that both a ``parent_id`` and ``node_id`` are sent with the
 request. If the comment is being attached directly to a node, ``parent_id``
 will be empty. If the comment is a child of another comment, then ``node_id``
-will be empty. Then next function handles the retrieval of comments for a
+will be empty. The next function handles the retrieval of comments for a
 specific node, and is aptly named
 :meth:`~sphinxcontrib.websupport.WebSupport.get_data`::
 
@@ -243,7 +243,7 @@ displayed::
 Rejecting comments happens via comment deletion.
 
 To perform a custom action (such as emailing a moderator) when a new comment is
-added but not displayed, you can pass callable to the :class:`~.WebSupport`
+added but not displayed, you can pass a callable to the :class:`~.WebSupport`
 class when instantiating your support object::
 
    def moderation_callback(comment):

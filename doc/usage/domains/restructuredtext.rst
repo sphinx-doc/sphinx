@@ -40,7 +40,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
 .. rst:directive:: .. rst:directive:option:: name
 
    Describes an option for reStructuredText directive.  The *name* can be a single option
-   name or option name with arguments which separated with colon (``:``).
+   name or option name with arguments separated by a colon (``:``).
    For example::
 
        .. rst:directive:: toctree

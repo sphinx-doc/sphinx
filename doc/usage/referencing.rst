@@ -19,7 +19,7 @@ Sphinx supports various cross-referencing roles to create links
 to other elements in the documentation.
 In general, writing ``:role:`target``` creates a link to
 the object called *target* of the type indicated by *role*.
-The link's text depends the role but is often the same as or similar to *target*.
+The link's text depends on the role but is often the same as or similar to *target*.
 
 .. _xref-modifiers:
 
@@ -106,7 +106,7 @@ Cross-referencing arbitrary locations
 
            Figure caption
 
-     In this case, a  reference ``:ref:`my-figure``` would insert a reference
+     In this case, a reference ``:ref:`my-figure``` would insert a reference
      to the figure with link text "Figure caption".
 
      The same works for tables that are given an explicit caption using the
@@ -167,7 +167,7 @@ Referencing downloadable files
       See :download:`this example script <../example.py>`.
 
    The given filename is usually relative to the directory the current source
-   file is contained in, but if it absolute (starting with ``/``), it is taken
+   file is contained in, but if it is absolute (starting with ``/``), it is taken
    as relative to the top source directory.
 
    The ``example.py`` file will be copied to the output directory, and a
@@ -199,7 +199,7 @@ Cross-referencing figures by figure number
    If an explicit link text is given (as usual: ``:numref:`Image of Sphinx (Fig.
    %s) <my-figure>```), the link caption will serve as title of the reference.
    As placeholders, `%s` and `{number}` get replaced by the figure
-   number and  `{name}` by the figure caption.
+   number and `{name}` by the figure caption.
    If no explicit link text is given, the :confval:`numfig_format` setting is
    used as fall-back default.
 

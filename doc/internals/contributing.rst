@@ -125,7 +125,7 @@ These are the basic steps needed to start developing on Sphinx.
 
 #. Hack, hack, hack.
 
-   Write your code along with tests that shows that the bug was fixed or that
+   Write your code along with tests that show that the bug was fixed or that
    the feature works as expected.
 
 #. Add a bullet point to :file:`CHANGES.rst` if the fix or feature is not trivial

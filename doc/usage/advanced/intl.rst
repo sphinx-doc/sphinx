@@ -93,7 +93,7 @@ Quick guide
 ~~~~~~~~~~~
 
 `sphinx-intl`_ is a useful tool to work with Sphinx translation flow.  This
-section describe an easy way to translate with *sphinx-intl*.
+section describes an easy way to translate with *sphinx-intl*.
 
 #. Install `sphinx-intl`_.
 
@@ -232,7 +232,7 @@ easy to fetch and push translations.
 #. Install the `Transifex CLI tool`_.
 
    You need the :command:`tx` command line tool for uploading resources (pot files).
-   The official installation process place the :file:`tx` binary file in
+   The official installation process places the :file:`tx` binary file in
    the current directory along with a README and a LICENSE file, and adds
    the current directory to ``$PATH``.
 
@@ -355,7 +355,7 @@ That's all!
 
 .. tip:: Translating locally and on Transifex
 
-   If you want to push all language's po files, you can be done by using
+   If you want to push all language's po files, this can be done by using
    :command:`tx push -t` command.  Watch out! This operation overwrites
    translations in Transifex.
 

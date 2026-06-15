@@ -159,7 +159,7 @@ These options are used when :option:`--full` is specified:
    * ``make.bat.jinja``
    * ``make.bat.new.jinja``
 
-   In detail, please refer the system template files Sphinx provides.
+   In detail, please refer to the system template files Sphinx provides.
    (``sphinx/templates/apidoc`` and ``sphinx/templates/quickstart``)
 
 Environment
@@ -167,7 +167,7 @@ Environment
 
 .. envvar:: SPHINX_APIDOC_OPTIONS
 
-   A comma-separated list of option to append to generated ``automodule``
+   A comma-separated list of options to append to generated ``automodule``
    directives. Defaults to ``members,undoc-members,show-inheritance``.
 
 See also

@@ -83,7 +83,7 @@ Contributors
 * Kevin Dunn -- MathJax extension
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Kurt McKee -- documentation updates
-* Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
+* Lars Hupfeldt Nielsen -- OpenSSL FIPS mode md5 bug fix
 * Louis Maddox -- better docstrings
 * Łukasz Langa -- partial support for autodoc
 * Marco Buttu -- doctest extension (pyversion option)

@@ -52,7 +52,7 @@ It adds these directives:
    .. rst:directive:option:: alt: alternate text
       :type: text
 
-      The alternate text of the graph.  By default, the graph code is used to
+      The alternate text of the graph.  By default, the graph code is used as
       the alternate text.
 
       .. versionadded:: 1.0
@@ -75,7 +75,7 @@ It adds these directives:
       :type: text
 
       The layout of the graph (e.g. ``dot``, ``neato`` and so on).  A path to the
-      graphviz commands are also allowed.  By default, :confval:`graphviz_dot`
+      graphviz commands is also allowed.  By default, :confval:`graphviz_dot`
       is used.
 
       .. versionadded:: 1.4

@@ -90,9 +90,9 @@ explain in detail shortly:
    :language: python
    :linenos:
 
-This is far more extensive extension than the one detailed in
+This is a far more extensive extension than the one detailed in
 :ref:`tutorial-extending-syntax`,
-however, we will will look at each piece step-by-step to explain what's
+however, we will look at each piece step-by-step to explain what's
 happening.
 
 .. rubric:: The node classes

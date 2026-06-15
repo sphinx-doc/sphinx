@@ -49,7 +49,7 @@ Using Sphinx with...
 
 Read the Docs
     `Read the Docs <https://readthedocs.org>`_ is a documentation hosting
-    service based around Sphinx.  They will host sphinx documentation, along
+    service based around Sphinx.  They will host Sphinx documentation, along
     with supporting a number of other features including version support, PDF
     generation, and more. The `Getting Started`_ guide is a good place to start.
 
@@ -256,7 +256,7 @@ The following list gives some hints for the creation of epub files:
      Section After Toc Tree
      ======================
 
-  kindlegen assumes all documents order in line, but the resulting document
+  kindlegen assumes all documents are ordered in line, but the resulting document
   has complicated order for kindlegen::
 
      ``parent.xhtml`` -> ``child.xhtml`` -> ``parent.xhtml``
@@ -280,7 +280,7 @@ Texinfo info
 ------------
 
 There are two main programs for reading Info files, ``info`` and GNU Emacs.  The
-``info`` program has less features but is available in most Unix environments
+``info`` program has fewer features but is available in most Unix environments
 and can be quickly accessed from the terminal.  Emacs provides better font and
 color display and supports extensive customization (of course).
 
@@ -296,7 +296,7 @@ to this section would look like::
     * note Displaying Links: target-id
 
 In the stand-alone reader, ``info``, references are displayed just as they
-appear in the source.  Emacs, on the other-hand, will by default replace
+appear in the source.  Emacs, on the other hand, will by default replace
 ``*note:`` with ``see`` and hide the ``target-id``.  For example:
 
     :ref:`texinfo-links`

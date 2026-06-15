@@ -547,7 +547,7 @@ Built-in Sphinx extensions that offer more builders are:
 Serialization builder details
 -----------------------------
 
-All serialization builders outputs one file per source file and a few special
+All serialization builders output one file per source file and a few special
 files.  They also copy the reStructuredText source files
 to the ``_sources`` directory under the output directory.
 

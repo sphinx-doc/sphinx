@@ -223,7 +223,7 @@ using the ``{% set %}`` tag:
 .. data:: reldelim2
 
    The delimiter for the items on the right side of the related bar.  This
-   defaults to ``' |'``.  Each item except of the last one in the related bar
+   defaults to ``' |'``.  Each item except the last one in the related bar
    ends with the value of this variable.
 
 Overriding works like this::

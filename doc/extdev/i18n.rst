@@ -86,7 +86,7 @@ In practice, you have to:
       recursive-include src *.pot *.po *.mo
 
 
-When the messages on your extension has been changed, you need to also update
+When the messages in your extension have been changed, you need to also update
 message catalog template and message catalogs, for example via `Babel`_:
 
 .. code-block:: console

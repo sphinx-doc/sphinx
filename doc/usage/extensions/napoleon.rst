@@ -45,7 +45,7 @@ according to the `Google Python Style Guide`_:
 
 Much more legible, no?
 
-Napoleon is a :term:`extension` that enables Sphinx to parse both `NumPy`_ and
+Napoleon is an :term:`extension` that enables Sphinx to parse both `NumPy`_ and
 `Google`_ style docstrings - the style recommended by `Khan Academy`_.
 
 Napoleon is a pre-processor that parses `NumPy`_ and `Google`_ style

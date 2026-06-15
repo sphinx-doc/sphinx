@@ -46,7 +46,7 @@ Some of them are:
 
 **Your own server**
    You can always use your own web server to host Sphinx HTML documentation.
-   It is the option that gives more flexibility, but also more complexity.
+   It is the option that gives the most flexibility, but also the most complexity.
 
 All these options have zero cost, with the option of paying for extra features.
 
@@ -74,7 +74,7 @@ The most popular Version Control System nowadays is Git_, a free and open
 source tool that is the backbone of services like GitHub and GitLab.
 Since both Read the Docs and Netlify have integrations with GitHub and GitLab,
 and both GitHub and GitLab have an integrated Pages product, the most effective
-way of automatically build your documentation online is to upload your sources
+way to automatically build your documentation online is to upload your sources
 to either of these Git hosting services.
 
 .. _Version Control System: https://en.wikipedia.org/wiki/Version_control
@@ -208,7 +208,7 @@ This contains a GitHub Actions workflow with a single job of four steps:
 
 1. Checkout the code.
 2. Build the HTML documentation using Sphinx.
-3. Attach the HTML output the artifacts to the GitHub Actions job, for easier
+3. Attach the HTML output as artifacts to the GitHub Actions job, for easier
    inspection.
 4. If the change happens on the default branch, take the contents of
    ``docs/build/html`` and push it to the ``gh-pages`` branch.
@@ -225,7 +225,7 @@ following contents:
 And finally, you are ready to `publish GitHub Pages from a branch`_. For
 that, go to :guilabel:`Settings`, then :guilabel:`Pages` on the left sidebar,
 select the ``Deploy from a branch`` item in the "Source" dropdown menu,
-select the ``gh-page`` branch in the "Branch" dropdown menu, and click
+select the ``gh-pages`` branch in the "Branch" dropdown menu, and click
 :guilabel:`Save`. After a few minutes, you should be able to see your HTML at
 the designated URL.
 

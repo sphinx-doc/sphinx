@@ -3,8 +3,8 @@
 Deprecated APIs
 ===============
 
-On developing Sphinx, we are always careful to the compatibility of our APIs.
-But, sometimes, the change of interface are needed for some reasons.  In such
+When developing Sphinx, we are always careful about the compatibility of our APIs.
+But, sometimes, changes to the interface are needed for various reasons.  In such
 cases, we've marked them as deprecated. And they are kept during the two
 major versions (for more details, please see :ref:`deprecation-policy`).
 
@@ -1393,7 +1393,7 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
-   * - Omitting the ``filename`` argument in an overriddent
+   * - Omitting the ``filename`` argument in an overridden
        ``IndexBuilder.feed()`` method.
      - 2.0
      - 4.0

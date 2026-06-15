@@ -22,7 +22,7 @@ These nodes form the top-most levels of object descriptions.
 Nodes for high-level structure in signatures
 ............................................
 
-These nodes occur in in non-multiline :py:class:`desc_signature` nodes
+These nodes occur in non-multiline :py:class:`desc_signature` nodes
 and in :py:class:`desc_signature_line` nodes.
 
 .. autoclass:: desc_name

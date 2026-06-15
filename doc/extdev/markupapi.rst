@@ -60,7 +60,7 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
 
 .. class:: Directive
 
-   The markup syntax of the new directive is determined by the follow five class
+   The markup syntax of the new directive is determined by the following five class
    attributes:
 
    .. autoattribute:: required_arguments
