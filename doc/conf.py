@@ -35,7 +35,8 @@ show_warning_types = True
 html_theme = 'sphinx13'
 html_theme_path = ['_themes']
 html_theme_options = {
-    'navigation_with_keys': 'true'  # inherited from the basic theme
+    # basic theme option
+    'navigation_with_keys': 'true'
 }
 html_css_files = [
     # 'basic.css',  # included through inheritance from the basic theme
