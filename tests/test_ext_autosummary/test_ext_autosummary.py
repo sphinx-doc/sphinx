@@ -21,6 +21,7 @@ from sphinx.ext.autosummary import (
 )
 from sphinx.ext.autosummary.generate import (
     AutosummaryEntry,
+    _underline,
     generate_autosummary_content,
     generate_autosummary_docs,
 )
@@ -83,6 +84,10 @@ def test_mangle_signature() -> None:
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace('\u00a0', ' ')
         assert res == outp, f"'{inp}' -> '{res}' != '{outp}'"
+
+
+def test_underline_east_asian_characters() -> None:
+    assert _underline('日本語') == '日本語\n======'
 
 
 def test_extract_summary(capsys):
