@@ -61,3 +61,7 @@ information.
 .. _the documentation: https://www.sphinx-doc.org/
 .. _the contributors guide: https://www.sphinx-doc.org/en/master/internals/contributing.html
 .. _Python Package Index: https://pypi.org/project/Sphinx/
+
+
+.. image:: https://issuehunt.io/repos/sphinx-doc/sphinx/badge.svg
+   :target: https://issuehunt.io/r/sphinx-doc/sphinx
