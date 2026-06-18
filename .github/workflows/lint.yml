@@ -86,7 +86,7 @@ jobs:
     - uses: actions/checkout@v6
       with:
         persist-credentials: false
-    - uses: facebook/pyrefly@v1.1.0
+    - uses: facebook/pyrefly@1.1.0
       with:
         args: "--summarize-errors"
         
