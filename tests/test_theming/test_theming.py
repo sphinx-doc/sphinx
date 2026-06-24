@@ -111,7 +111,10 @@ def test_nonexistent_theme_settings(tmp_path: Path) -> None:
 def test_double_inheriting_theme(app: SphinxTestApp) -> None:
     assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
     assert app.builder.theme.name == 'base_theme2'
-    app.build()  # => not raises TemplateNotFound
+    app.build()  # => not raises ThemeError
+
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<meta name="base-theme2-layout" content="true" />' in result
 
 
 @pytest.mark.sphinx(

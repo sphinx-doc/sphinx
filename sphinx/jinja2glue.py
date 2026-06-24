@@ -30,6 +30,9 @@ if TYPE_CHECKING:
     from sphinx.theming import Theme
 
 
+_TEMPLATE_SKIP_PREFIX = '__sphinx_skip_loader__:'
+
+
 def _tobool(val: str) -> bool:
     if isinstance(val, str):
         return val.lower() in {'true', '1', 'yes', 'on'}
@@ -196,10 +199,13 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
         # make the paths into loaders
         self.loaders = [SphinxFileSystemLoader(x) for x in loaderchain]
+        self._template_loader_indices: dict[str, int] = {}
 
         use_i18n = builder._translator is not None
         extensions = ['jinja2.ext.i18n'] if use_i18n else []
-        self.environment = SandboxedEnvironment(loader=self, extensions=extensions)
+        self.environment = _SphinxSandboxedEnvironment(
+            loader=self, extensions=extensions
+        )
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
         self.environment.filters['todim'] = _todim
@@ -235,18 +241,47 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # Loader interface
 
+    def join_path(self, template: str, parent: str) -> str:
+        if template.startswith('!') and parent in self._template_loader_indices:
+            parent_loader_index = self._template_loader_indices[parent]
+            if parent_loader_index < self.templatepathlen:
+                start_at = self.templatepathlen
+            else:
+                start_at = parent_loader_index + 1
+            return f'{_TEMPLATE_SKIP_PREFIX}{start_at}:{template[1:]}'
+        return template
+
     def get_source(
         self, environment: Environment, template: str
     ) -> tuple[str, str, Callable[[], bool]]:
+        requested_template = template
+        start_at = 0
         loaders = self.loaders
         # exclamation mark starts search from theme
-        if template.startswith('!'):
-            loaders = loaders[self.templatepathlen :]
+        if template.startswith(_TEMPLATE_SKIP_PREFIX):
+            skip_count, _, template = template.removeprefix(
+                _TEMPLATE_SKIP_PREFIX
+            ).partition(':')
+            start_at = int(skip_count)
+            loaders = loaders[start_at:]
+        elif template.startswith('!'):
+            start_at = self.templatepathlen
+            loaders = loaders[start_at:]
             template = template[1:]
-        for loader in loaders:
+        for i, loader in enumerate(loaders, start_at):
             try:
-                return loader.get_source(environment, template)
+                result = loader.get_source(environment, template)
+                self._template_loader_indices[requested_template] = i
+                return result
             except TemplateNotFound:
                 pass
         msg = f'{template!r} not found in {self.environment.loader.pathchain}'  # type: ignore[union-attr]
         raise TemplateNotFound(msg)
+
+
+class _SphinxSandboxedEnvironment(SandboxedEnvironment):
+    def join_path(self, template: str, parent: str) -> str:
+        loader = self.loader
+        if isinstance(loader, BuiltinTemplateLoader):
+            return loader.join_path(template, parent)
+        return super().join_path(template, parent)
