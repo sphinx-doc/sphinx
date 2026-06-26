@@ -371,6 +371,10 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
         elif hasattr(cls, '__qualname__'):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__qualname__}`'
+        elif isinstance(cls, typing.TypeVar):
+            # TypeVars are not documentable objects; render as plain text name
+            # to avoid broken cross-references in nitpicky mode.
+            return cls.__name__
         elif isinstance(cls, typing.ForwardRef):
             return f':py:class:`{cls.__forward_arg__}`'
         else:
