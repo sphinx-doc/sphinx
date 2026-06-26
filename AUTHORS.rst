@@ -31,6 +31,7 @@ Contributors
 * Bart Kamphorst -- warning improvements
 * Ben Egan -- Napoleon improvements & viewcode improvements
 * Benjamin Peterson -- unittests
+* Bernát Gábor -- undocumented TypeVars render as text
 * Blaise Laflamme -- pyramid theme
 * Brecht Machiels -- builder entry-points
 * Bruce Mitchener -- Minor epub improvement

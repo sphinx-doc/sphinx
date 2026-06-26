@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.testing.util import SphinxTestApp
 
 pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
@@ -586,3 +587,13 @@ def test_no_inherited_instance_variable_with_annotations() -> None:
         '      Local',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc-typevar')
+def test_show_inheritance_undocumented_typevar(app: SphinxTestApp) -> None:
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    # the private TypeVar in the base renders as text, not a dangling cross-reference
+    assert '<span class="pre">_T</span>' in content
+    assert 'href="#target.private_typevar._T"' not in content
+    assert 'reference target not found' not in app.warning.getvalue()
