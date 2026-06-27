@@ -8,6 +8,23 @@ Bugs fixed
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
 
+* Update AutoNumbering transform.
+
+  a) Ensure that enumerable elements (tables, figures and literal_blocks)
+     have an ID. (In Docutils > 0.22, `nodes.document.note_implicit_target()`
+     does not genereate an ID if the setting `legacy_ids`_ is False.)
+
+  b) Title-derived IDs for enumerable elements:
+
+     Base the generated IDs on the caption or title text (similar to
+     sections) instead of the "auto-id-prefix" + running number (id1,
+     id2, ...).  To avoid changed IDs when documents are re-compiled,
+     this only happens if the Docutils setting `legacy_ids`_ is False.
+
+  Patch by Günter Milde
+
+  .. _legacy_ids: https://docutils.sf.net/docs/user/config.html#legacy-ids
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
