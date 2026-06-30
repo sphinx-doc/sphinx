@@ -141,7 +141,7 @@ def test_imgmath_svg_parallel(app: SphinxTestApp) -> None:
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
     html = base64.b64encode(b'<!-- DEPTH=0 -->\n<!-- DEPTH=0 -->\n').decode()
-    assert not re.search(html, content, re.DOTALL)
+    assert html not in content
 
 
 @pytest.mark.sphinx(
