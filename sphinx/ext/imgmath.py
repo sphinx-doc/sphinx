@@ -66,15 +66,25 @@ class FileLock:
     """Locks a file from concurrent access."""
 
     def __init__(self, path: str | os.PathLike[str]) -> None:
-        self.fd = os.open(path, os.O_RDWR | os.O_CREAT)
+        try:
+            self.fd = os.open(path, os.O_RDWR | os.O_CREAT)
+        except OSError:
+            with contextlib.suppress(OSError):
+                os.unlink(path)  # noqa: PTH108
+            raise
 
     def __enter__(self) -> None:
-        if os.name == 'posix':
-            os.lockf(self.fd, os.F_LOCK, 0)
-        elif os.name == 'nt':
-            import msvcrt
+        try:
+            if os.name == 'posix':
+                os.lockf(self.fd, os.F_LOCK, 0)
+            elif os.name == 'nt':
+                import msvcrt
 
-            msvcrt.locking(self.fd, msvcrt.LK_NBLCK, 1)  # type: ignore[attr-defined]
+                msvcrt.locking(self.fd, msvcrt.LK_NBLCK, 1)  # type: ignore[attr-defined]
+        except OSError:
+            with contextlib.suppress(OSError):
+                os.close(self.fd)
+            raise
 
     def __exit__(
         self,
@@ -82,13 +92,16 @@ class FileLock:
         val: BaseException | None,
         tb: TracebackType | None,
     ) -> None:
-        if os.name == 'posix':
-            os.lockf(self.fd, os.F_ULOCK, 0)
-        elif os.name == 'nt':
-            import msvcrt
+        try:
+            if os.name == 'posix':
+                os.lockf(self.fd, os.F_ULOCK, 0)
+            elif os.name == 'nt':
+                import msvcrt
 
-            msvcrt.locking(self.fd, msvcrt.LK_UNLCK, 1)  # type: ignore[attr-defined]
-        os.close(self.fd)
+                msvcrt.locking(self.fd, msvcrt.LK_UNLCK, 1)  # type: ignore[attr-defined]
+        finally:
+            with contextlib.suppress(OSError):
+                os.close(self.fd)
 
 
 SUPPORT_FORMAT = ('png', 'svg')
