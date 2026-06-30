@@ -2,6 +2,7 @@
 
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it when packaging is impossible.)
+# dummy change here
 
 from __future__ import annotations
 
