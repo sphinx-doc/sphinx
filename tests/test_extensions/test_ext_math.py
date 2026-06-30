@@ -133,10 +133,10 @@ def test_imgmath_svg_parallel(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
         msg = 'LaTeX command "latex" is not available'
-        raise pytest.skip.Exception(msg)
+        pytest.skip(msg)
     if "dvisvgm command 'dvisvgm' cannot be run" in app.warning.getvalue():
         msg = 'dvisvgm command "dvisvgm" is not available'
-        raise pytest.skip.Exception(msg)
+        pytest.skip(msg)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     shutil.rmtree(app.outdir)
