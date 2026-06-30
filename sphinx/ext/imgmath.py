@@ -18,6 +18,7 @@ from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 
 from docutils import nodes
+from filelock import FileLock
 
 import sphinx
 from sphinx import package_dir
@@ -29,7 +30,6 @@ from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
 if TYPE_CHECKING:
-    from types import TracebackType
     from typing import Any
 
     from docutils.nodes import Element
@@ -60,48 +60,6 @@ class MathExtError(SphinxError):
 
 class InvokeError(SphinxError):
     """errors on invoking converters."""
-
-
-class FileLock:
-    """Locks a file from concurrent access."""
-
-    def __init__(self, path: str | os.PathLike[str]) -> None:
-        try:
-            self.fd = os.open(path, os.O_RDWR | os.O_CREAT)
-        except OSError:
-            with contextlib.suppress(OSError):
-                os.unlink(path)  # noqa: PTH108
-            raise
-
-    def __enter__(self) -> None:
-        try:
-            if os.name == 'posix':
-                os.lockf(self.fd, os.F_LOCK, 0)
-            elif os.name == 'nt':
-                import msvcrt
-
-                msvcrt.locking(self.fd, msvcrt.LK_NBLCK, 1)  # type: ignore[attr-defined]
-        except OSError:
-            with contextlib.suppress(OSError):
-                os.close(self.fd)
-            raise
-
-    def __exit__(
-        self,
-        typ: type[BaseException] | None,
-        val: BaseException | None,
-        tb: TracebackType | None,
-    ) -> None:
-        try:
-            if os.name == 'posix':
-                os.lockf(self.fd, os.F_ULOCK, 0)
-            elif os.name == 'nt':
-                import msvcrt
-
-                msvcrt.locking(self.fd, msvcrt.LK_UNLCK, 1)  # type: ignore[attr-defined]
-        finally:
-            with contextlib.suppress(OSError):
-                os.close(self.fd)
 
 
 SUPPORT_FORMAT = ('png', 'svg')
