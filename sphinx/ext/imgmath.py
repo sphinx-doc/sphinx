@@ -320,7 +320,8 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
     else:
         # cleanup lock files when using parallel workers
         for lockfile in math_outdir.glob('*.lock'):
-            Path.unlink(lockfile)
+            with contextlib.suppress(OSError):
+                Path.unlink(lockfile)
 
 
 def get_tooltip(self: HTML5Translator, node: Element, *, config: Config) -> str:
