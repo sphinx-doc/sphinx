@@ -12,7 +12,7 @@ Glossary
       use builders that e.g. check for broken links in the documentation, or
       build coverage information.
 
-      See :doc:`/usage/builders/index` for an overview over Sphinx's built-in
+      See :doc:`/usage/builders/index` for an overview of Sphinx's built-in
       builders.
 
    configuration directory
@@ -84,8 +84,8 @@ Glossary
       a block; and most objects can be cross-referenced to.
 
    RemoveInSphinxXXXWarning
-      The feature which is warned will be removed in Sphinx-XXX version.
-      It usually caused from Sphinx extensions which is using deprecated.
+      The warned feature will be removed in the Sphinx-XXX version.
+      It is usually caused by Sphinx extensions that use deprecated APIs.
       See also :ref:`when-deprecation-warnings-are-displayed`.
 
    role
