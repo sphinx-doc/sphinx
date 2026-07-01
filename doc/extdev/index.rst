@@ -192,6 +192,14 @@ Metadata keys currently recognized are:
   of the stored data change, to ensure Sphinx does not try and load invalid data
   from a cached environment.
 
+  Extensions that store data on ``env`` should use a unique attribute name to
+  avoid clashing with Sphinx or other extensions.  They must also remove
+  per-document data when Sphinx emits :event:`env-purge-doc`, and merge data
+  from subprocess environments when Sphinx emits :event:`env-merge-info` during
+  parallel reading.  See :ref:`tutorial-extend-build` for a complete example, or
+  use :class:`~sphinx.environment.collectors.EnvironmentCollector` when the
+  extension needs a dedicated collector for environment data.
+
   .. versionadded:: 1.8
 
 ``'parallel_read_safe'``
