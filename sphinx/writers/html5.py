@@ -18,6 +18,7 @@ from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from typing import Any
 
     from docutils.nodes import Element, Node, Text
 
