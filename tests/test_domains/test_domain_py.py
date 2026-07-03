@@ -1526,7 +1526,9 @@ def test_class_def_pep_695(app):
                                                 (
                                                     [pending_xref, 'Sequence'],
                                                     [desc_sig_punctuation, '['],
-                                                    [pending_xref, 'T'],
+                                                    # in-scope type parameters
+                                                    # are not cross-references
+                                                    'T',
                                                     [desc_sig_punctuation, ']'],
                                                 ),
                                             ],
@@ -1628,14 +1630,14 @@ def test_class_def_pep_696(app):
                                             [
                                                 desc_sig_name,
                                                 (
-                                                    # T
-                                                    [pending_xref, 'T'],
+                                                    # T (in scope: no xref)
+                                                    'T',
                                                     [desc_sig_punctuation, ','],
                                                     desc_sig_space,
                                                     # tuple[T, ...]
                                                     [pending_xref, 'tuple'],
                                                     [desc_sig_punctuation, '['],
-                                                    [pending_xref, 'T'],
+                                                    'T',
                                                     [desc_sig_punctuation, ','],
                                                     desc_sig_space,
                                                     [desc_sig_punctuation, '...'],
@@ -1648,7 +1650,7 @@ def test_class_def_pep_696(app):
                                                         'collections.abc.Iterable',
                                                     ],
                                                     [desc_sig_punctuation, '['],
-                                                    [pending_xref, 'T'],
+                                                    'T',
                                                     [desc_sig_punctuation, ']'],
                                                 ),
                                             ],
@@ -1673,10 +1675,12 @@ def test_class_def_pep_696(app):
                                                         'collections.abc.Mapping',
                                                     ],
                                                     [desc_sig_punctuation, '['],
-                                                    [pending_xref, 'KT'],
+                                                    # in-scope type parameters
+                                                    # are not cross-references
+                                                    'KT',
                                                     [desc_sig_punctuation, ','],
                                                     desc_sig_space,
-                                                    [pending_xref, 'VT'],
+                                                    'VT',
                                                     [desc_sig_punctuation, ']'],
                                                 ),
                                             ],
@@ -1900,3 +1904,35 @@ def test_type_alias_xref_resolution(app: SphinxTestApp) -> None:
         '<a class="reference internal" href="#alias_module.HandlerType"'
         in process_error_signature
     ), 'HandlerType type alias link not found in process_error function signature'
+
+
+def test_pep_695_type_params_render_as_text(app):
+    # in-scope PEP 695 type parameters are not turned into cross references
+    # https://github.com/sphinx-doc/sphinx/issues/14462
+    text = '.. py:function:: func[T](x: T, /) -> tuple[T, ...]'
+    doctree = restructuredtext.parse(app, text)
+    reftargets = [n['reftarget'] for n in doctree.findall(addnodes.pending_xref)]
+    assert 'T' not in reftargets
+    assert 'tuple' in reftargets
+
+
+@pytest.mark.sphinx('html', testroot='domain-py-type-param-scope')
+def test_pep_695_type_param_scope_nitpicky(app: SphinxTestApp) -> None:
+    """References to in-scope PEP 695 type parameters do not warn in
+    nitpicky mode, while out-of-scope names still do.
+
+    See https://github.com/sphinx-doc/sphinx/issues/14462
+    """
+    app.config.nitpicky = True
+    app.build()
+
+    warnings = [
+        line
+        for line in app.warning.getvalue().splitlines()
+        if 'reference target not found' in line
+    ]
+    # the only unresolvable reference is ``T`` in ``outside()``, which is
+    # not within the scope of any type parameter list
+    assert len(warnings) == 1, warnings
+    assert 'reference target not found: T [ref.class]' in warnings[0]
+    assert 'index.rst:23' in warnings[0]

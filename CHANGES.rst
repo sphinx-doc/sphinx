@@ -7,6 +7,12 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
+* #14462: Python domain: Stop reporting spurious ``ref.class`` warnings for
+  PEP 695 type parameters referenced in type parameter bounds, argument
+  lists, return annotations, and the bodies of generic classes.
+  Type parameters in scope now render as plain text instead of
+  unresolvable cross-references.
+  Patch by Apoorv Darshan.
 
 * #14229: Fix JavaScript search for languages whose stemmer class name
   does not match the language name, such as Chinese (which reuses the
