@@ -15,6 +15,7 @@ from sphinx.domains.python._annotations import (
     _parse_arglist,
     _parse_type_list,
     _pseudo_parse_arglist,
+    _TypeParameterListParser,
     parse_reftarget,
 )
 from sphinx.locale import _
@@ -168,6 +169,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     :cvar allow_nesting: Class is an object that allows for nested namespaces
     :vartype allow_nesting: bool
     """
+
+    #: the ``py:type_params`` reference context of the enclosing object,
+    #: saved when this object introduces PEP 695 type parameters
+    _outer_type_params: tuple[str, ...]
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
@@ -332,6 +337,28 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         signode += addnodes.desc_name(name, name)
 
         if tp_list:
+            # Bring the PEP 695 type parameters into scope while parsing the
+            # type parameter list, argument list and return annotation, so
+            # that references to them are not reported as unresolvable
+            # classes (#14462). The scope lasts until :py:meth:`after_content`
+            # to also cover e.g. methods of a generic class referring to the
+            # class type parameters.
+            try:
+                tp_parser = _TypeParameterListParser(tp_list)
+                tp_parser.parse()
+                tp_names = tuple(tp[0] for tp in tp_parser.type_params)
+            except Exception:
+                tp_names = ()
+            if tp_names:
+                if not hasattr(self, '_outer_type_params'):
+                    self._outer_type_params = self.env.ref_context.get(
+                        'py:type_params', ()
+                    )
+                current = self.env.ref_context.get('py:type_params', ())
+                self.env.ref_context['py:type_params'] = tuple(
+                    dict.fromkeys((*current, *tp_names))
+                )
+
             try:
                 signode += _parse_type_list(
                     tp_list,
@@ -501,6 +528,12 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 self.env.ref_context['py:module'] = modules.pop()
             else:
                 self.env.ref_context.pop('py:module')
+        if hasattr(self, '_outer_type_params'):
+            # restore the type parameter scope of the enclosing object
+            if self._outer_type_params:
+                self.env.ref_context['py:type_params'] = self._outer_type_params
+            else:
+                self.env.ref_context.pop('py:type_params', None)
 
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
         if not sig_node.get('_toc_parts'):

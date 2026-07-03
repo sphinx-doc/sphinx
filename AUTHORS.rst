@@ -27,6 +27,7 @@ Contributors
 * Andi Albrecht -- agogo theme
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Antti Kaihola -- doctest extension (skipif option)
+* Apoorv Darshan -- PEP 695 type parameter scoping in the Python domain
 * Barry Warsaw -- setup command improvements
 * Bart Kamphorst -- warning improvements
 * Ben Egan -- Napoleon improvements & viewcode improvements
