@@ -7,6 +7,9 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
+* #14414: Intersphinx: Stringify error arguments before displaying them,
+  preventing possible crashes in error handling.
+  Patch by Paul S. Reid.
 
 
 Release 9.1.0 (released Dec 31, 2025)
