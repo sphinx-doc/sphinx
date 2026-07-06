@@ -421,7 +421,12 @@ def _process_docstring(
 
 
 def _skip_member(
-    app: Sphinx, obj_type: _AutodocObjType, name: str, obj: Any, skip: bool, options: Any
+    app: Sphinx,
+    obj_type: _AutodocObjType,
+    name: str,
+    obj: Any,
+    skip: bool,
+    options: Any,
 ) -> bool | None:
     """Determine if private and special class members are included in docs.
 
@@ -465,7 +470,9 @@ def _skip_member(
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_module_member = obj_type == "data" or getattr(obj, "__module__", None) is not None
+    is_module_member = (
+        obj_type == 'data' or getattr(obj, '__module__', None) is not None
+    )
 
     if name != '__weakref__' and has_doc:
         cls_is_owner = False
