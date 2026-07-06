@@ -421,7 +421,7 @@ def _process_docstring(
 
 
 def _skip_member(
-    app: Sphinx, what: _AutodocObjType, name: str, obj: Any, skip: bool, options: Any
+    app: Sphinx, obj_type: _AutodocObjType, name: str, obj: Any, skip: bool, options: Any
 ) -> bool | None:
     """Determine if private and special class members are included in docs.
 
@@ -439,10 +439,10 @@ def _skip_member(
     ----------
     app : sphinx.application.Sphinx
         Application object representing the Sphinx process
-    what : str
-        A string specifying the type of the object to which the member
-        belongs. Valid values: "module", "class", "exception", "function",
-        "method", "attribute".
+    obj_type : str
+        The type of the object which the docstring belongs to (one of "module",
+        "class", "exception", "function", "decorator", "method", "property",
+        "attribute", "data", or "type")
     name : str
         The name of the member.
     obj : module, class, exception, function, method, or attribute.
@@ -465,35 +465,33 @@ def _skip_member(
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_member = what in {'class', 'exception', 'module'}
-    if name != '__weakref__' and has_doc and is_member:
+    is_class_member = obj_type in {'method', 'property', 'attribute'}
+
+    if name != '__weakref__' and has_doc:
         cls_is_owner = False
-        if what in {'class', 'exception'}:
-            qualname = getattr(obj, '__qualname__', '')
-            cls_path, _, _ = qualname.rpartition('.')
-            if cls_path:
-                try:
-                    if '.' in cls_path:
-                        import functools
-                        import importlib
+        qualname = getattr(obj, '__qualname__', '')
+        cls_path, _, _ = qualname.rpartition('.')
+        if is_class_member and cls_path:
+            try:
+                if '.' in cls_path:
+                    import functools
+                    import importlib
 
-                        mod = importlib.import_module(obj.__module__)
-                        mod_path = cls_path.split('.')
-                        cls = functools.reduce(getattr, mod_path, mod)
-                    else:
-                        cls = inspect.unwrap(obj).__globals__[cls_path]
-                except Exception:
-                    cls_is_owner = False
+                    mod = importlib.import_module(obj.__module__)
+                    mod_path = cls_path.split('.')
+                    cls = functools.reduce(getattr, mod_path, mod)
                 else:
-                    cls_is_owner = (
-                        cls  # type: ignore[assignment]
-                        and hasattr(cls, name)
-                        and name in cls.__dict__
-                    )
-            else:
+                    cls = inspect.unwrap(obj).__globals__[cls_path]
+            except Exception:
                 cls_is_owner = False
+            else:
+                cls_is_owner = (
+                    cls  # type: ignore[assignment]
+                    and hasattr(cls, name)
+                    and name in cls.__dict__
+                )
 
-        if what == 'module' or cls_is_owner:
+        if not is_class_member or cls_is_owner:
             is_init = name == '__init__'
             is_special = not is_init and name.startswith('__') and name.endswith('__')
             is_private = not is_init and not is_special and name.startswith('_')
