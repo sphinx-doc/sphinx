@@ -222,6 +222,10 @@ class WordCollector(nodes.NodeVisitor):
         elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
             # skip nodes marked with a 'no-search' class
             raise nodes.SkipNode
+        elif getattr(node, 'source', None) in ('<rst_epilogue>', '<rst_prologue>'):
+            # skip content from rst_epilog/rst_prolog to avoid indexing
+            # substitution definitions on every page (refs #4248)
+            raise nodes.SkipNode
         elif isinstance(node, nodes.raw):
             if 'html' in node.get('format', '').split():
                 # Some people might put content in raw HTML that should be searched,
