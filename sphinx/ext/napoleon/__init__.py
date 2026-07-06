@@ -465,13 +465,14 @@ def _skip_member(
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_class_member = obj_type in {'method', 'property', 'attribute'}
+    is_module_member = obj_type == "data" or getattr(obj, "__module__", None) is not None
 
     if name != '__weakref__' and has_doc:
         cls_is_owner = False
         qualname = getattr(obj, '__qualname__', '')
         cls_path, _, _ = qualname.rpartition('.')
-        if is_class_member and cls_path:
+        if cls_path:
+            is_module_member = False
             try:
                 if '.' in cls_path:
                     import functools
@@ -491,7 +492,7 @@ def _skip_member(
                     and name in cls.__dict__
                 )
 
-        if not is_class_member or cls_is_owner:
+        if is_module_member or cls_is_owner:
             is_init = name == '__init__'
             is_special = not is_init and name.startswith('__') and name.endswith('__')
             is_private = not is_init and not is_special and name.startswith('_')
