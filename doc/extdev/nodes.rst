@@ -94,6 +94,8 @@ Special nodes
 .. autoclass:: only
 .. autoclass:: highlightlang
 
+.. autoclass:: translatable
+
 You should not need to generate the nodes below in extensions.
 
 .. autoclass:: glossary
