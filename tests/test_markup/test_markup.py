@@ -701,7 +701,7 @@ def test_rst_prolog(app: SphinxTestApp) -> None:
     assert_node(extract_node(rst, -1, -1, 0, 0), nodes.Text)
     assert extract_node(rst, -1, -1, 0, 0) == 'Good-bye world'
 
-    # rst_prolog & rst_epilog on exlucding reST parser
+    # rst_prolog & rst_epilog on excluding reST parser
     assert not md.rawsource.startswith('*Hello world*.')
     assert not md.rawsource.endswith('*Good-bye world*.\n')
 
