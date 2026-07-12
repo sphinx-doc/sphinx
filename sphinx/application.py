@@ -1458,13 +1458,19 @@ class Sphinx:
                        ``body`` is given, its value will be added as the content
                        of the  ``<script>`` tag.
 
+        To use this function, the JavaScript file must be placed in the
+        :confval:`html_static_path` directory so that it is copied to the output's
+        ``_static`` directory.  Alternatively, site authors can use
+        :confval:`html_js_files` to include JavaScript files without writing an
+        extension.
+
         Example::
 
             app.add_js_file('example.js')
-            # => <script src="_static/example.js"></script>
+            # => <script src="_static/example.js?v=abcdef01"></script>
 
             app.add_js_file('example.js', loading_method='async')
-            # => <script src="_static/example.js" async="async"></script>
+            # => <script src="_static/example.js?v=abcdef01" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
             # => <script>var myVariable = 'foo';</script>
@@ -1498,6 +1504,9 @@ class Sphinx:
         .. versionchanged:: 4.4
            Take loading_method argument.  Allow to change the loading method of the
            JavaScript file.
+        .. versionchanged:: 7.1
+           The generated ``<script>`` and ``<link>`` URIs now include a CRC32 checksum
+           query parameter (``?v=...``) for cache busting.
         """
         if loading_method == 'async':
             kwargs['async'] = 'async'
@@ -1524,17 +1533,23 @@ class Sphinx:
         :param kwargs: Extra keyword arguments are included as attributes of the
                        ``<link>`` tag.
 
+        To use this function, the CSS file must be placed in the
+        :confval:`html_static_path` directory so that it is copied to the output's
+        ``_static`` directory.  Alternatively, site authors can use
+        :confval:`html_css_files` to include CSS files without writing an extension.
+
         Example::
 
             app.add_css_file('custom.css')
-            # => <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+            # => <link rel="stylesheet" href="_static/custom.css?v=abcdef01"
+            #          type="text/css" />
 
             app.add_css_file('print.css', media='print')
-            # => <link rel="stylesheet" href="_static/print.css"
+            # => <link rel="stylesheet" href="_static/print.css?v=abcdef01"
             #          type="text/css" media="print" />
 
             app.add_css_file('fancy.css', rel='alternate stylesheet', title='fancy')
-            # => <link rel="alternate stylesheet" href="_static/fancy.css"
+            # => <link rel="alternate stylesheet" href="_static/fancy.css?v=abcdef01"
             #          type="text/css" title="fancy" />
 
         .. list-table:: priority range for CSS files
@@ -1570,6 +1585,9 @@ class Sphinx:
 
         .. versionchanged:: 3.5
            Take priority argument.  Allow to add a CSS file to the specific page.
+        .. versionchanged:: 7.1
+           The generated ``<link>`` URIs now include a CRC32 checksum query
+           parameter (``?v=...``) for cache busting.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
