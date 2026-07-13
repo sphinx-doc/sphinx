@@ -21,6 +21,7 @@ from sphinx.util.inventory import InventoryFile
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
+    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -227,7 +228,7 @@ class _InvConfig:
         )
 
 
-def _display_failures(failures: Sequence[tuple[str, ...]]) -> str:
+def _display_failures(failures: Sequence[tuple[Any, ...]]) -> str:
     """Format a list of failure tuples into a readable multi-line string."""
     formatted = []
     for failure_args in failures:
