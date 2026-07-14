@@ -96,6 +96,17 @@ def parse_arguments(args: list[str]) -> dict[str, Any]:
     return {k: v for k, v in parsed.items() if k not in DEFAULTS or v != DEFAULTS[k]}
 
 
+def test_build_main_usage_includes_make_mode() -> None:
+    parser = get_parser()
+    parser.prog = 'sphinx-build'
+
+    assert (
+        'usage: sphinx-build [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]\n'
+        '       sphinx-build -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]'
+        in parser.format_usage()
+    )
+
+
 def test_build_main_parse_arguments_pos_first() -> None:
     # <positional...> <opts>
     args = [

@@ -70,7 +70,7 @@ def jobs_argument(value: str) -> int:
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]\n'
-              '       %(prog)s -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]',
+        '       %(prog)s -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]',
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
@@ -109,18 +109,6 @@ files can be built by specifying individual filenames.
         help=__(
             '(optional) a list of specific files to rebuild. '
             'Ignored if --write-all is specified'
-        ),
-    )
-
-    parser.add_argument(
-        '-M',
-        dest='make_mode',
-        metavar='BUILDER',
-        help=__(
-            'alternative approach to command-line invocation. '
-            'Must always come first. Manages build and cache paths. '
-            'If more flexibility is needed, use -b instead and keep '
-            'in mind different signatures.'
         ),
     )
 
