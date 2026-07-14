@@ -99,11 +99,11 @@ def parse_arguments(args: list[str]) -> dict[str, Any]:
 def test_build_main_usage_includes_make_mode() -> None:
     parser = get_parser()
     parser.prog = 'sphinx-build'
+    usage = strip_escape_sequences(parser.format_usage())
 
     assert (
         'usage: sphinx-build [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]\n'
-        '       sphinx-build -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]'
-        in parser.format_usage()
+        '       sphinx-build -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]' in usage
     )
 
 
