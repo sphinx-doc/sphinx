@@ -80,6 +80,9 @@ in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
 settings. The 'sphinx-quickstart' tool may be used to generate template files,
 including 'conf.py'
 
+Use '-M' for make mode, which manages build and cache directories. It must be
+the first command-line argument. For finer control, use '-b/--builder' instead.
+
 sphinx-build can create documentation in different formats. A format is
 selected by specifying the builder name on the command line; it defaults to
 HTML. Builders can also perform other tasks related to documentation
