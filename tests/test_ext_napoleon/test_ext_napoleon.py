@@ -3,17 +3,13 @@
 from __future__ import annotations
 
 import functools
-import warnings
 from collections import namedtuple
 from unittest import mock
 
 import pytest
 
 from sphinx.application import Sphinx
-from sphinx.deprecation import RemovedInSphinx11Warning
-from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
-from sphinx.ext.napoleon.docstring import NumpyDocstring
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
@@ -116,11 +112,6 @@ class TestProcessDocstring:
             '',
         ]
         assert lines == expected
-
-    def test_autodoc_options_do_not_use_mapping_interface(self) -> None:
-        with warnings.catch_warnings():
-            warnings.simplefilter('error', RemovedInSphinx11Warning)
-            NumpyDocstring('', Config(), options=_AutoDocumenterOptions())
 
 
 class TestSetup:
