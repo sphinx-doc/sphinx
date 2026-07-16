@@ -87,6 +87,89 @@ def test_imgmath_svg(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.skipif(
+    not has_binary('dvipng'),
+    reason='Requires dvipng" binary',
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.imgmath'],
+        'imgmath_batch_size': 100,
+    },
+)
+def test_imgmath_batch_png(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
+    if "dvipng command 'dvipng' cannot be run" in app.warning.getvalue():
+        msg = 'dvipng command "dvipng" is not available'
+        raise pytest.skip.Exception(msg)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
+    assert re.search(r'<img class="math" src="_images/math/\w+\.png"', content)
+
+
+@pytest.mark.skipif(
+    not has_binary('dvisvgm'),
+    reason='Requires dvisvgm" binary',
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.imgmath'],
+        'imgmath_image_format': 'svg',
+        'imgmath_batch_size': 100,
+    },
+)
+def test_imgmath_batch_svg(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
+    if "dvisvgm command 'dvisvgm' cannot be run" in app.warning.getvalue():
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
+    assert re.search(r'<img class="math" src="_images/math/\w+\.svg"', content)
+
+
+@pytest.mark.skipif(
+    not has_binary('dvisvgm'),
+    reason='Requires dvisvgm" binary',
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.imgmath'],
+        'imgmath_image_format': 'svg',
+        'imgmath_embed': True,
+        'imgmath_batch_size': 100,
+    },
+)
+def test_imgmath_batch_svg_embed(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
+    if "dvisvgm command 'dvisvgm' cannot be run" in app.warning.getvalue():
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert re.search(r'<img class="math" src="_images/math/\w+\.svg"', content)
+    svg_files = list((app.outdir / '_images' / 'math').glob('*.svg'))
+    shutil.rmtree(app.outdir)
+    assert len(svg_files) > 0
+
+
+@pytest.mark.skipif(
     not has_binary('dvisvgm'),
     reason='Requires dvisvgm" binary',
 )
