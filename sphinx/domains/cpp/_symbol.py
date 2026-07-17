@@ -1103,7 +1103,7 @@ class Symbol:
             if s is None:
                 if Symbol.debug_lookup:
                     Symbol.debug_indent -= 2
-                return None  # ty: ignore[invalid-return-type]
+                return None
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
         return s
@@ -1155,13 +1155,13 @@ class Symbol:
             # if it was a part of the qualification that could not be found
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
-            return None, None  # ty: ignore[invalid-return-type]
+            return None, None
 
         res = list(lookup_result.symbols)
         if len(res) != 0:
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
-            return res, None  # ty: ignore[invalid-return-type]
+            return res, None
 
         if lookup_result.parent_symbol.declaration is not None:
             if lookup_result.parent_symbol.declaration.objectType == 'templateParam':
@@ -1180,9 +1180,9 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
         if symbol is not None:
-            return [symbol], None  # ty: ignore[invalid-return-type]
+            return [symbol], None
         else:
-            return None, None  # ty: ignore[invalid-return-type]
+            return None, None
 
     def find_declaration(
         self,

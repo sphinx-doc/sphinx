@@ -131,7 +131,7 @@ def test_abc_MockObject():
         def __init__(self):
             pass
 
-    class Derived(Base, mock.SubClass):  # ty: ignore[unsupported-base]
+    class Derived(Base, mock.SubClass):
         pass
 
     obj = Derived()
