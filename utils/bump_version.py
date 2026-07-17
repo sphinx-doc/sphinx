@@ -76,7 +76,20 @@ def parse_version(version: str) -> VersionInfo:
     # - "X.Y.ZrcN" -> (X, Y, Z, 'candidate', N)
     if matched := re.fullmatch(r'(\d+)\.(\d+)\.(\d+)(a|b|rc)(\d+)', version):
         major, minor, micro, level, serial = matched.groups()
-        return VersionInfo(int(major), int(minor), int(micro), level, int(serial))  # type: ignore[arg-type]
+        release_level: Literal['a', 'b', 'rc']
+        match level:
+            case 'a':
+                release_level = 'a'
+            case 'b':
+                release_level = 'b'
+            case 'rc':
+                release_level = 'rc'
+            case _:
+                msg = f'Unknown release level: {level}'
+                raise RuntimeError(msg)
+        return VersionInfo(
+            int(major), int(minor), int(micro), release_level, int(serial)
+        )
 
     msg = f'Unknown version: {version}'
     raise RuntimeError(msg)
