@@ -358,7 +358,7 @@ def _parse_logging(
         warning = TeeStripANSI(warning, warnfp)  # type: ignore[assignment]
         error = warning
 
-    return status, warning, error, warnfp
+    return status, warning, error, warnfp  # ty: ignore[invalid-return-type]
 
 
 def _parse_confoverrides(

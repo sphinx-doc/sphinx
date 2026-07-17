@@ -162,7 +162,7 @@ class _Opt:
                 other.valid_types,
                 other.description,
             )
-            return self_tpl > other_tpl
+            return self_tpl > other_tpl  # ty: ignore[unsupported-operator]
         return NotImplemented
 
     def __hash__(self) -> int:
@@ -619,7 +619,7 @@ def _validate_valid_types(
     if not valid_types:
         return frozenset()
     if isinstance(valid_types, (frozenset, ENUM)):
-        return valid_types
+        return valid_types  # ty: ignore[invalid-return-type]
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
     if valid_types is Any:

@@ -18,30 +18,9 @@ exclude = [
     "tests/test_util/typing_test_data.py",
 ]
 
-# Extra ignores below keep ``ty check`` green on the pinned 0.0.59 release.
-# Prefer enabling these again (or fixing the underlying code) when upgrading ty.
 [rules]
-call-non-callable = "ignore"
-call-top-callable = "ignore"
-empty-body = "ignore"
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
-invalid-attribute-access = "ignore"
-invalid-attribute-override = "ignore"
 invalid-method-override = "ignore"
-invalid-parameter-default = "ignore"
-invalid-return-type = "ignore"
-invalid-type-form = "ignore"
-missing-argument = "ignore"
-no-matching-overload = "ignore"
-not-iterable = "ignore"
 not-subscriptable = "ignore"
-override-of-final-method = "ignore"
 possibly-missing-attribute = "ignore"
-possibly-missing-submodule = "ignore"
-too-many-positional-arguments = "ignore"
-unresolved-attribute = "ignore"
-unresolved-import = "ignore"
-unresolved-reference = "ignore"
-unsupported-base = "ignore"
-unsupported-operator = "ignore"

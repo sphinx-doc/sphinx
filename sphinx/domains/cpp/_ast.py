@@ -4152,7 +4152,7 @@ class ASTTemplateParamNonType(ASTTemplateParam):
             assert isinstance(res, ASTIdentifier)
             return res
         else:
-            return None
+            return None  # ty: ignore[invalid-return-type]
 
     def get_id(
         self, version: int, objectType: str | None = None, symbol: Symbol | None = None
@@ -4576,7 +4576,7 @@ class ASTDeclaration(ASTBase):
     @property
     def function_params(self) -> list[ASTFunctionParameter]:
         if self.objectType != 'function':
-            return None
+            return None  # ty: ignore[invalid-return-type]
         return self.declaration.function_params
 
     def get_id(self, version: int, prefixed: bool = True) -> str:

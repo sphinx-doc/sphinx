@@ -52,7 +52,7 @@ def parse(name, string):
     # The scopedness would usually have been set by CPPEnumObject
     if name == 'enum':
         # simulate unscoped enum
-        ast.scoped = None
+        ast.scoped = None  # ty: ignore[unresolved-attribute]
     return ast
 
 
