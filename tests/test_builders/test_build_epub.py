@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import xml.etree.ElementTree as ET
 from collections import Counter
@@ -418,9 +419,10 @@ def test_epub_anchor_id(app: SphinxTestApp) -> None:
 
     html = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
     assert '<p id="std-setting-STATICFILES_FINDERS">blah blah blah</p>' in html
-    assert (
-        '<span id="std-setting-STATICFILES_SECTION"></span><h1>blah blah blah</h1>'
-    ) in html
+    assert re.search(
+        r'<span id="std-setting-STATICFILES_SECTION"></span>\s*<h1>blah blah blah</h1>',
+        html
+    )
     assert (
         'see <a class="reference internal" href="#std-setting-STATICFILES_FINDERS">'
     ) in html
