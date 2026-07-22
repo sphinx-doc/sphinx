@@ -2213,7 +2213,7 @@ and also make use of these options.
    scale option (*scale*, *width*, or *height*)
    to their original full-resolution image.
    This will not overwrite any link given by the *target* option
-   on the the :dudir:`image` directive, if present.
+   on the :dudir:`image` directive, if present.
 
    .. tip::
 

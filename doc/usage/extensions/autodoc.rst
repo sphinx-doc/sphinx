@@ -205,7 +205,7 @@ For example, all three of the following variables have valid doc-comments:
 Alternatively, ``autodoc`` can recognise a docstring
 on the line immediately following the definition.
 
-In the the following class definition,
+In the following class definition,
 all attributes have documentation recognised by ``autodoc``:
 
 .. code-block:: python
