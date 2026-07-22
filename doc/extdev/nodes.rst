@@ -98,6 +98,7 @@ You should not need to generate the nodes below in extensions.
 
 .. autoclass:: glossary
 .. autoclass:: toctree
+.. autoclass:: translatable
 .. autoclass:: start_of_file
 .. autoclass:: productionlist
 .. autoclass:: production
