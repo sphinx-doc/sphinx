@@ -160,6 +160,7 @@ class CitationReferenceTransform(SphinxTransform):
             target = node.astext()
             ref = pending_xref(
                 target,
+                refdoc=self.env.docname,
                 refdomain='citation',
                 reftype='ref',
                 reftarget=target,
