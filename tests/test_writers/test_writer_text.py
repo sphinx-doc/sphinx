@@ -21,7 +21,7 @@ def test_text_wrapper_break_phantom_symbol(glyph: str) -> None:
 
     for n in range(1, 5):
         # Since the glyph has length 0 and column width 0,
-        # we can always take the entire glpyh.
+        # we can always take the entire glyph.
         assert find_break_end(glyph, n) == glyph_length
         for m in range(1, 5):
             # The multiplied glyph may have non-zero length
