@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import abc
 import sys
+import types
 from importlib import import_module
 from typing import Generic, TypeVar
 
@@ -62,6 +63,20 @@ def test_MockObject() -> None:
     obj2 = SubClass2()  # type: ignore[var-annotated]
     assert SubClass2.__doc__ == 'docstring of SubClass'
     assert isinstance(obj2, SubClass2)
+
+
+def test_MockObject_union_type() -> None:
+    mock = _MockObject()
+
+    # PEP 604: X | Y union syntax should return proper Union types
+    result = mock.SomeClass | None
+    assert isinstance(result, types.UnionType)
+
+    result = None | mock.SomeClass  # noqa: RUF036
+    assert isinstance(result, types.UnionType)
+
+    result = mock.SomeClass | mock.OtherClass
+    assert isinstance(result, types.UnionType)
 
 
 def test_MockObject_generic() -> None:

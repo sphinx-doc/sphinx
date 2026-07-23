@@ -14,10 +14,15 @@ from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
+    import types
     from collections.abc import Iterator, Sequence, Set
     from typing import Any
 
     from typing_extensions import TypeIs
+
+
+def _as_union_type(value: Any) -> types.UnionType:
+    return value
 
 
 class _MockObject:
@@ -71,6 +76,19 @@ class _MockObject:
         call = self.__class__()
         call.__sphinx_decorator_args__ = args
         return call
+
+    def __or__(self, other: Any) -> types.UnionType:
+        # Use the mock class itself in the | operator so the result is a real
+        # types.UnionType (PEP 604) rather than a typing._SpecialGenericAlias.
+        return type(self) | other
+
+    def __ror__(self, other: Any) -> types.UnionType:
+        # Construct a real types.UnionType. If 'other' supports |, use it;
+        # otherwise fall back to a placeholder so the call doesn't recurse.
+        try:
+            return _as_union_type(other | type(self))
+        except TypeError:
+            return _as_union_type(object | type(self))
 
     def __repr__(self) -> str:
         return self.__display_name__
