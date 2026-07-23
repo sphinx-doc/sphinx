@@ -7,8 +7,7 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
-
-* Update AutoNumbering transform.
+* #14400: Update AutoNumbering transform.
 
   a) Ensure that enumerable elements (tables, figures and literal_blocks)
      have an ID. (In Docutils > 0.22, `nodes.document.note_implicit_target()`
@@ -24,6 +23,10 @@ Bugs fixed
   Patch by Günter Milde
 
   .. _legacy_ids: https://docutils.sf.net/docs/user/config.html#legacy-ids
+* #14229: Fix JavaScript search for languages whose stemmer class name
+  does not match the language name, such as Chinese (which reuses the
+  English stemmer) and Dutch (which uses the Dutch Porter stemmer).
+  Patch by Hugo van Kemenade
 
 
 Release 9.1.0 (released Dec 31, 2025)
