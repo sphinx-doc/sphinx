@@ -188,7 +188,20 @@ are built:
    If true, encode LaTeX output images within HTML files
    (base64 encoded) and do not save separate png/svg files to disk.
 
-   .. versionadded:: 5.2
+    .. versionadded:: 5.2
+
+.. confval:: imgmath_batch_size
+   :type: :code-py:`int`
+   :default: :code-py:`1`
+
+   Number of math expressions to compile in a single LaTeX invocation.
+   When set to a value greater than 1, equations are accumulated and
+   compiled into one multi-page DVI document, then split into individual
+   images.
+   This could greatly reduce the number of LaTeX process fired
+   for documents with many equations.
+
+   .. versionadded:: 9.2
 
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
 -------------------------------------------------------
