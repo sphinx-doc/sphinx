@@ -254,6 +254,25 @@ def test_too_many_retries(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'linkcheck',
+    testroot='linkcheck-local-file',
+    freshenv=True,
+)
+def test_linkcheck_local_file_with_query_or_fragment(app: SphinxTestApp) -> None:
+    # a local file that exists should be reported as working, even when
+    # referenced with a trailing query string and/or fragment
+    app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = [json.loads(x) for x in content.splitlines()]
+    rowsby = {row['uri']: row for row in rows}
+
+    assert rowsby['target.html?view=full']['status'] == 'working'
+    assert rowsby['target.html#section']['status'] == 'working'
+    assert rowsby['?mode=full']['status'] == 'working'
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
     testroot='linkcheck-raw-node',
     freshenv=True,
     copy_test_root=True,
