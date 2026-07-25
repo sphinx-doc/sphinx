@@ -269,6 +269,9 @@ def test_linkcheck_local_file_with_query_or_fragment(app: SphinxTestApp) -> None
     assert rowsby['target.html?view=full']['status'] == 'working'
     assert rowsby['target.html#section']['status'] == 'working'
     assert rowsby['?mode=full']['status'] == 'working'
+    # a local file that does not exist should still be reported as broken,
+    # confirming that stripping the query doesn't bypass the existence check
+    assert rowsby['missing.html?view=full']['status'] == 'broken'
 
 
 @pytest.mark.sphinx(
