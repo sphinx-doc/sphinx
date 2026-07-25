@@ -277,12 +277,14 @@ def test_missing_reference_pydomain(tmp_path, app):
     kwargs = {'py:module': 'module1'}
     node, contnode = fake_node('py', 'func', 'func', 'func()', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == 'func()'
 
     # py:attr context helps to search objects
     kwargs = {'py:module': 'module1'}
     node, contnode = fake_node('py', 'attr', 'Foo.bar', 'Foo.bar', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == 'Foo.bar'
 
 
@@ -311,32 +313,38 @@ def test_missing_reference_stddomain(tmp_path, app):
     kwargs = {'std:program': 'ls'}
     node, contnode = fake_node('std', 'option', '-l', 'ls -l', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == 'ls -l'
 
     # refers inventory by name
     kwargs = {}
     node, contnode = fake_node('std', 'option', 'cmd:ls -l', '-l', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == '-l'
 
     # term reference (normal)
     node, contnode = fake_node('std', 'term', 'a term', 'a term')
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == 'a term'
 
     # term reference (case insensitive)
     node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == 'A TERM'
 
     # label reference (normal)
     node, contnode = fake_node('std', 'ref', 'The-Julia-Domain', 'The-Julia-Domain')
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == 'The Julia Domain'
 
     # label reference (case insensitive)
     node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == 'The Julia Domain'
 
 
@@ -431,6 +439,7 @@ def test_missing_reference_jsdomain(tmp_path, app):
     kwargs = {'js:module': 'foo', 'js:object': 'bar'}
     node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
     assert rn.astext() == 'baz()'
 
 
@@ -801,7 +810,7 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
         'sphinx.ext.intersphinx._load._load_inventory', mock_fetch_inventory
     )
 
-    for name, (uri, locations) in app.config.intersphinx_mapping.values():
+    for name, (uri, locations) in app.config.intersphinx_mapping.values():  # ty: ignore[not-iterable]
         project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
         updated = _fetch_inventory_group(
             project=project,

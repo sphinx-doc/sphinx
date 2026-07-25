@@ -652,21 +652,21 @@ def generate_autosummary_docs(
 
     # write
     for entry in sorted(set(items), key=str):
-        if entry.path is None:
+        if entry.path is None:  # ty: ignore[unresolved-attribute]
             # The corresponding autosummary:: directive did not have
             # a :toctree: option
             continue
 
-        path = output_dir or Path(entry.path).resolve()
+        path = output_dir or Path(entry.path).resolve()  # ty: ignore[unresolved-attribute]
         ensuredir(path)
 
         try:
-            name, obj, parent, modname = import_by_name(entry.name)
+            name, obj, parent, modname = import_by_name(entry.name)  # ty: ignore[unresolved-attribute]
             qualname = name.replace(modname + '.', '')
         except ImportExceptionGroup as exc:
             try:
                 # try to import as an instance attribute
-                name, obj, parent, modname = import_ivar_by_name(entry.name)
+                name, obj, parent, modname = import_ivar_by_name(entry.name)  # ty: ignore[unresolved-attribute]
                 qualname = name.replace(modname + '.', '')
             except ImportError as exc2:
                 if exc2.__cause__:
@@ -677,7 +677,7 @@ def generate_autosummary_docs(
                 errors = list({f'* {type(e).__name__}: {e}' for e in exceptions})
                 logger.warning(
                     __('[autosummary] failed to import %s.\nPossible hints:\n%s'),
-                    entry.name,
+                    entry.name,  # ty: ignore[unresolved-attribute]
                     '\n'.join(errors),
                 )
                 continue
@@ -689,9 +689,9 @@ def generate_autosummary_docs(
             obj,
             parent,
             template,
-            entry.template,
+            entry.template,  # ty: ignore[unresolved-attribute]
             imported_members,
-            entry.recursive,
+            entry.recursive,  # ty: ignore[unresolved-attribute]
             context,
             modname,
             qualname,

@@ -65,12 +65,12 @@ def check_xpath(
         return
 
     if callable(check):
-        check(nodes)
+        check(nodes)  # ty: ignore[call-top-callable]
         return
 
     # https://github.com/astral-sh/ty/issues/117
     # callable(...) does not currently narrow in ty.
-    rex = re.compile(check)  # ty: ignore[no-matching-overload]
+    rex = re.compile(check)
     if be_found:
         if any(rex.search(_get_text(node)) for node in nodes):
             return

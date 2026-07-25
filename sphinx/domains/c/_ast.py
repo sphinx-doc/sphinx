@@ -834,7 +834,7 @@ class ASTFunctionParameter(ASTBase):
 
     def get_id(self, version: int, objectType: str, symbol: Symbol) -> str:
         # the anchor will be our parent
-        return symbol.parent.declaration.get_id(version, prefixed=False)
+        return symbol.parent.declaration.get_id(version, prefixed=False)  # ty: ignore[unresolved-attribute]
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.ellipsis:
@@ -849,7 +849,7 @@ class ASTFunctionParameter(ASTBase):
         if self.ellipsis:
             signode += addnodes.desc_sig_punctuation('...', '...')
         else:
-            self.arg.describe_signature(signode, mode, env, symbol=symbol)
+            self.arg.describe_signature(signode, mode, env, symbol=symbol)  # ty: ignore[unresolved-attribute]
 
 
 class ASTParameters(ASTBase):
@@ -1670,7 +1670,7 @@ class ASTMacroParameter(ASTBase):
             name = str(self)
             signode += addnodes.desc_sig_name(name, name)
         else:
-            self.arg.describe_signature(signode, mode, env, symbol=symbol)
+            self.arg.describe_signature(signode, mode, env, symbol=symbol)  # ty: ignore[unresolved-attribute]
 
 
 class ASTMacro(ASTBase):
@@ -1906,7 +1906,7 @@ class ASTDeclaration(ASTBaseBase):
 
     def get_id(self, version: int, prefixed: bool = True) -> str:
         if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
-            return self.enumeratorScopedSymbol.declaration.get_id(version, prefixed)
+            return self.enumeratorScopedSymbol.declaration.get_id(version, prefixed)  # ty: ignore[unresolved-attribute]
         id_ = self.declaration.get_id(version, self.objectType, self.symbol)
         if prefixed:
             return _id_prefix[version] + id_
