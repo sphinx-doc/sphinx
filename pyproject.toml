@@ -130,6 +130,7 @@ types = [
     "mypy==1.19.1",
     "pyrefly",
     "pyright==1.1.407",
+    # Newer releases report hundreds of diagnostics with the current rule ignores.
     "ty==0.0.10",
     { include-group = "type-stubs" },
 ]
