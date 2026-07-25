@@ -299,7 +299,7 @@ def _mangle_name(subject: Any, name: str) -> str:
     """Mangle the given name."""
     try:
         if isclass(subject) and name.startswith('__') and not name.endswith('__'):
-            return f'_{subject.__name__}{name}'
+            return f'_{subject.__name__.lstrip("_")}{name}'
     except AttributeError:
         pass
 
