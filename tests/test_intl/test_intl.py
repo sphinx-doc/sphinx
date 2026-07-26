@@ -1064,7 +1064,7 @@ def test_html_meta(app: SphinxTestApp) -> None:
         '<meta content="I18N, SPHINX, MARKUP" name="keywords" translated="True" />'
     )
     assert expected_expr in result
-    expected_expr = '<p class="caption" role="heading"><span class="caption-text">HIDDEN TOC</span></p>'
+    expected_expr = '<p aria-level="2" class="caption" role="heading"><span class="caption-text">HIDDEN TOC</span></p>'
     assert expected_expr in result
 
 
