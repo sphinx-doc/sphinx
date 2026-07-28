@@ -9,7 +9,7 @@ import pytest
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-    from sphinx.ext.todo import todo_node
+    from sphinx.ext.todo import todo_inline_node, todo_node
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -20,9 +20,9 @@ if TYPE_CHECKING:
     confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True},
 )
 def test_todo(app: SphinxTestApp) -> None:
-    todos = []
+    todos: list[todo_node | todo_inline_node] = []
 
-    def on_todo_defined(app: Sphinx, node: todo_node) -> None:
+    def on_todo_defined(app: Sphinx, node: todo_node | todo_inline_node) -> None:
         todos.append(node)
 
     app.connect('todo-defined', on_todo_defined)
@@ -34,9 +34,18 @@ def test_todo(app: SphinxTestApp) -> None:
 
     assert '<p class="admonition-title">Todo</p>\n<p>todo in bar</p>' in content
 
+    inline_todo = (
+        '<p class="admonition-title">Todo</p>\n'
+        '<p><span class="todo-inline">todo inline in foo</span></p>'
+    )
+    assert content.count(inline_todo) == 2
+
     # check todo
     content = (app.outdir / 'foo.html').read_text(encoding='utf8')
     assert '<p class="admonition-title">Todo</p>\n<p>todo in foo</p>' in content
+
+    assert '<span class="todo-inline"' in content
+    assert 'todo inline in foo</span>' in content
 
     assert (
         '<p class="admonition-title">Todo</p>\n<p>todo in param field</p>'
@@ -45,14 +54,20 @@ def test_todo(app: SphinxTestApp) -> None:
     # check emitted warnings
     assert 'WARNING: TODO entry found: todo in foo' in app.warning.getvalue()
     assert 'WARNING: TODO entry found: todo in bar' in app.warning.getvalue()
+    assert 'WARNING: TODO entry found: todo inline in foo' in app.warning.getvalue()
 
     # check handled event
-    assert len(todos) == 3
-    assert {todo[1].astext() for todo in todos} == {
+    from sphinx.ext.todo import todo_inline_node
+
+    block_todos = [todo for todo in todos if not isinstance(todo, todo_inline_node)]
+    inline_todos = [todo for todo in todos if isinstance(todo, todo_inline_node)]
+    assert len(todos) == 4
+    assert {todo[1].astext() for todo in block_todos} == {
         'todo in foo',
         'todo in bar',
         'todo in param field',
     }
+    assert [todo.astext() for todo in inline_todos] == ['todo inline in foo']
 
 
 @pytest.mark.sphinx(
@@ -62,9 +77,9 @@ def test_todo(app: SphinxTestApp) -> None:
     confoverrides={'todo_include_todos': False, 'todo_emit_warnings': True},
 )
 def test_todo_not_included(app: SphinxTestApp) -> None:
-    todos = []
+    todos: list[todo_node | todo_inline_node] = []
 
-    def on_todo_defined(app: Sphinx, node: todo_node) -> None:
+    def on_todo_defined(app: Sphinx, node: todo_node | todo_inline_node) -> None:
         todos.append(node)
 
     app.connect('todo-defined', on_todo_defined)
@@ -75,22 +90,30 @@ def test_todo_not_included(app: SphinxTestApp) -> None:
     assert '<p class="admonition-title">Todo</p>\n<p>todo in foo</p>' not in content
 
     assert '<p class="admonition-title">Todo</p>\n<p>todo in bar</p>' not in content
+    assert 'todo inline in foo' not in content
 
     # check todo
     content = (app.outdir / 'foo.html').read_text(encoding='utf8')
     assert '<p class="admonition-title">Todo</p>\n<p>todo in foo</p>' not in content
+    assert 'todo inline in foo' not in content
 
     # check emitted warnings
     assert 'WARNING: TODO entry found: todo in foo' in app.warning.getvalue()
     assert 'WARNING: TODO entry found: todo in bar' in app.warning.getvalue()
+    assert 'WARNING: TODO entry found: todo inline in foo' in app.warning.getvalue()
 
     # check handled event
-    assert len(todos) == 3
-    assert {todo[1].astext() for todo in todos} == {
+    from sphinx.ext.todo import todo_inline_node
+
+    block_todos = [todo for todo in todos if not isinstance(todo, todo_inline_node)]
+    inline_todos = [todo for todo in todos if isinstance(todo, todo_inline_node)]
+    assert len(todos) == 4
+    assert {todo[1].astext() for todo in block_todos} == {
         'todo in foo',
         'todo in bar',
         'todo in param field',
     }
+    assert [todo.astext() for todo in inline_todos] == ['todo inline in foo']
 
 
 @pytest.mark.sphinx(
@@ -117,7 +140,7 @@ def test_todo_valid_link(app: SphinxTestApp) -> None:
         r'\\sphinxstyleemphasis{original entry}}}}'
     )
     m = re.findall(link, content)
-    assert len(m) == 4
+    assert len(m) == 6
     target = m[0]
 
     # Look for the targets of this link.

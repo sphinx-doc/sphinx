@@ -1,6 +1,12 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #6689: todo: Add the :rst:role:`todo` role for inline todo items.
+  Patch by Lem0nTea2002.
+
 Bugs fixed
 ----------
 
