@@ -666,6 +666,56 @@ def test_getsafeurl_unauthed() -> None:
     assert actual == expected
 
 
+def test_fetch_inventory_url_error_hides_credentials(capsys, caplog):
+    """Credentials should not appear in error messages on fetch failure."""
+
+    class ErrorHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_error(500, 'Internal Server Error')
+
+        def log_message(*args, **kwargs):
+            pass
+
+    with http_server(ErrorHandler) as server:
+        url = f'http://user:secret@localhost:{server.server_port}/{INVENTORY_FILENAME}'
+        inspect_main([url])
+
+    stdout, stderr = capsys.readouterr()
+    assert 'secret' not in stdout
+    assert 'secret' not in stderr
+    assert not any('secret' in message for message in caplog.messages)
+    assert 'user@localhost' in stderr
+
+
+def test_fetch_inventory_redirect_hides_credentials(capsys, caplog):
+    """Credentials should not appear in redirect log messages."""
+
+    class RedirectHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            if '/new/' not in self.path:
+                self.send_response(302)
+                new_url = f'http://localhost:{self.server.server_port}/new/{INVENTORY_FILENAME}'
+                self.send_header('Location', new_url)
+                self.end_headers()
+            else:
+                self.send_response(200, 'OK')
+                self.end_headers()
+                self.wfile.write(INVENTORY_V2)
+
+        def log_message(*args, **kwargs):
+            pass
+
+    with http_server(RedirectHandler) as server:
+        url = f'http://user:secret@localhost:{server.server_port}/{INVENTORY_FILENAME}'
+        inspect_main([url])
+
+    stdout, stderr = capsys.readouterr()
+    assert 'secret' not in stdout
+    assert 'secret' not in stderr
+    assert not any('secret' in message for message in caplog.messages)
+    assert any('user@localhost' in message for message in caplog.messages)
+
+
 def test_inspect_main_noargs(capsys):
     """inspect_main interface, without arguments"""
     assert inspect_main([]) == 1
