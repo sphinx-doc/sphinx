@@ -1554,7 +1554,7 @@ and also make use of these options.
 
 .. confval:: html_title
    :type: :code-py:`str`
-   :default: :samp:`'{project} {release} documentation'`
+   :default: :code-py:`'{project} {release} documentation'`
 
    The "title" for HTML documentation generated with Sphinx's own templates.
    This is appended to the ``<title>`` tag of individual pages,
@@ -2362,7 +2362,7 @@ so the HTML options also apply where appropriate.
 
 .. confval:: applehelp_kb_product
    :type: :code-py:`str`
-   :default: :samp:`'{project}-{release}'`
+   :default: :code-py:`'{project}-{release}'`
 
    The product tag for use with :confval:`applehelp_kb_url`.
 
@@ -2443,7 +2443,7 @@ so the HTML options also apply where appropriate.
 
 .. confval:: applehelp_title
    :type: :code-py:`str`
-   :default: :samp:`'{project} Help'`
+   :default: :code-py:`'{project} Help'`
 
    Specifies the help book title.
 
