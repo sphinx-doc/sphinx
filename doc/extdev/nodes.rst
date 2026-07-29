@@ -83,6 +83,7 @@ New inline nodes
 ----------------
 
 .. autoclass:: index
+.. autoclass:: translatable
 .. autoclass:: pending_xref
 .. autoclass:: pending_xref_condition
 .. autoclass:: literal_emphasis
