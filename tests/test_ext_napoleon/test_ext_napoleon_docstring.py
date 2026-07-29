@@ -2915,3 +2915,119 @@ int py:class 1 int.html -
         for a, uri in zip(a_, ('list.html', 'int.html'), strict=True):
             assert a.attrib['href'] == f'127.0.0.1:5555/{uri}'
             assert a.attrib['title'] == '(in Intersphinx Test v42)'
+
+
+class TestNumpyDocstringSectionOrder:
+    """NumpyDocstring section ordering for class docstrings.
+
+    numpydoc 1.8+ places Attributes and Methods sections directly below
+    Parameters for class docstrings.
+    """
+
+    config = Config(
+        napoleon_use_param=False,
+        napoleon_use_rtype=False,
+        napoleon_use_keyword=False,
+    )
+
+    def test_attributes_moved_before_notes_for_class(self):
+        docstring = dedent("""\
+            Summary line.
+
+            Parameters
+            ----------
+            param1 : int
+                First parameter.
+
+            Notes
+            -----
+            Some additional notes.
+
+            Attributes
+            ----------
+            attr1 : str
+                An attribute description.
+
+            Examples
+            --------
+            >>> example_code()
+        """)
+        actual = NumpyDocstring(docstring, self.config, what='class')
+        output = str(actual)
+        params_pos = output.find(':Parameters:')
+        attrs_pos = output.find('.. attribute::')
+        notes_pos = output.find('.. rubric:: Notes')
+        assert params_pos >= 0, 'Parameters section should exist'
+        assert attrs_pos >= 0, 'Attributes section should exist'
+        assert notes_pos >= 0, 'Notes section should exist'
+        assert params_pos < attrs_pos, (
+            'Attributes should come after Parameters'
+        )
+        assert attrs_pos < notes_pos, (
+            'Attributes should come before Notes for class docstrings'
+        )
+
+    def test_methods_moved_before_notes_for_class(self):
+        docstring = dedent("""\
+            Summary line.
+
+            Parameters
+            ----------
+            param1 : int
+                First parameter.
+
+            Notes
+            -----
+            Some notes.
+
+            Methods
+            -------
+            method1()
+                A method.
+        """)
+        actual = NumpyDocstring(docstring, self.config, what='class')
+        output = str(actual)
+        params_pos = output.find(':Parameters:')
+        methods_pos = output.find('.. method::')
+        notes_pos = output.find('.. rubric:: Notes')
+        assert params_pos >= 0, 'Parameters section should exist'
+        assert methods_pos >= 0, 'Methods section should exist'
+        assert notes_pos >= 0, 'Notes section should exist'
+        assert params_pos < methods_pos, (
+            'Methods should come after Parameters'
+        )
+        assert methods_pos < notes_pos, (
+            'Methods should come before Notes for class docstrings'
+        )
+
+    def test_no_reordering_for_non_class(self):
+        """Section order should be preserved for non-class objects."""
+        docstring = dedent("""\
+            Summary line.
+
+            Parameters
+            ----------
+            param1 : int
+                First parameter.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            attr1 : str
+                An attribute description.
+        """)
+        actual = NumpyDocstring(docstring, self.config, what='function')
+        output = str(actual)
+        params_pos = output.find(':Parameters:')
+        notes_pos = output.find('.. rubric:: Notes')
+        attrs_pos = output.find('.. attribute::')
+        assert params_pos >= 0
+        assert notes_pos >= 0
+        assert attrs_pos >= 0
+        assert params_pos < notes_pos, 'Parameters should come before Notes'
+        assert notes_pos < attrs_pos, (
+            'Attributes should stay AFTER Notes for non-class objects'
+        )

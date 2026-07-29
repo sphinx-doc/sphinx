@@ -1228,6 +1228,70 @@ class NumpyDocstring(GoogleDocstring):
         else:
             return func(name)
 
+    def _parse(self) -> None:
+        self._parsed_lines = self._consume_empty()
+
+        if self._name and self._what in {'attribute', 'data', 'property'}:
+            res: list[str] = []
+            with contextlib.suppress(StopIteration):
+                res = self._parse_attribute_docstring()
+            self._parsed_lines.extend(res)
+            return
+
+        # Buffer section outputs so we can reorder them for class docstrings.
+        sections: list[tuple[str, list[str]]] = []
+        while self._lines:
+            if self._is_section_header():
+                try:
+                    section = self._consume_section_header()
+                    self._is_in_section = True
+                    self._section_indent = self._get_current_indent()
+                    if _directive_regex.match(section):
+                        lines = [section, *self._consume_to_next_section()]
+                    else:
+                        lines = self._sections[section.lower()](section)
+                    sections.append((section, lines))
+                finally:
+                    self._is_in_section = False
+                    self._section_indent = 0
+            else:
+                if not self._parsed_lines:
+                    self._parsed_lines.extend(
+                        self._consume_contiguous() + self._consume_empty()
+                    )
+                else:
+                    self._parsed_lines.extend(self._consume_to_next_section())
+
+        # For class docstrings, reorder sections so that Attributes and Methods
+        # come right after Parameters, matching the numpydoc 1.8 conventions
+        # (https://numpydoc.readthedocs.io/en/latest/format.html#class-docstring).
+        # This is the equivalent of numpydoc PR #571.
+        if self._what == 'class':
+            params_lines: list[list[str]] = []
+            attr_method_lines: list[list[str]] = []
+            other_lines: list[list[str]] = []
+            for name, lines in sections:
+                sl = name.lower()
+                if sl in (
+                    'parameters', 'args', 'arguments',
+                    'keyword args', 'keyword arguments',
+                    'other parameters',
+                ):
+                    params_lines.append(lines)
+                elif sl in ('attributes', 'methods'):
+                    attr_method_lines.append(lines)
+                else:
+                    other_lines.append(lines)
+            for lines in params_lines:
+                self._parsed_lines.extend(lines)
+            for lines in attr_method_lines:
+                self._parsed_lines.extend(lines)
+            for lines in other_lines:
+                self._parsed_lines.extend(lines)
+        else:
+            for _, lines in sections:
+                self._parsed_lines.extend(lines)
+
     def _consume_field(
         self, parse_type: bool = True, prefer_type: bool = False
     ) -> tuple[str, str, list[str]]:
