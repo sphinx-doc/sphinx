@@ -80,12 +80,8 @@ class Theme:
         self.pygments_style_dark: str | None = None
         for config in reversed(configs.values()):
             options |= config.options
-            for stylesheet in config.stylesheets or ():
-                # Force conversion to string to resolve TranslationProxies
-                # and avoid TypeErrors during membership checks.
-                stylesheet_str = str(stylesheet)
-                if stylesheet_str not in self.stylesheets:
-                    self.stylesheets += (stylesheet_str,)
+            if config.stylesheets is not None:
+                self.stylesheets = config.stylesheets
             if config.sidebar_templates is not None:
                 self.sidebar_templates = config.sidebar_templates
             if config.pygments_style_default is not None:
