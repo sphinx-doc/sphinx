@@ -129,7 +129,7 @@ translations = [
 types = [
     "mypy==1.19.1",
     "pyrefly",
-    "pyright==1.1.407",
+    "pyright==1.1.408",
     "ty",
     { include-group = "type-stubs" },
 ]
