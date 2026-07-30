@@ -107,6 +107,43 @@ def test_table_separator() -> None:
     assert repr(table).count('<Cell ') == 4
 
 
+def test_table_all_auto_colwidth_with_colspan() -> None:
+    table = Table(['auto', 'auto'])
+    table.add_cell(Cell('12345678901234567890', colspan=2))
+
+    table_str = str(table).split('\n')
+
+    assert table.measured_widths == [9, 9]
+    assert table_str[0] == '+-----------+-----------+'
+    assert table_str[1] == '| 12345678901234567890  |'
+    assert table_str[2] == '+-----------+-----------+'
+
+
+def test_table_mixed_fixed_auto_colwidth_without_colspan() -> None:
+    table = Table([4, 'auto'])
+    table.add_cell(Cell('wide'))
+    table.add_cell(Cell('automatic width'))
+
+    table_str = str(table).split('\n')
+
+    assert table.measured_widths == [4, 15]
+    assert table_str[0] == '+------+-----------------+'
+    assert table_str[1] == '| wide | automatic width |'
+    assert table_str[2] == '+------+-----------------+'
+
+
+def test_table_mixed_fixed_auto_colwidth_with_colspan() -> None:
+    table = Table([4, 'auto'])
+    table.add_cell(Cell('12345678901234567890', colspan=2))
+
+    table_str = str(table).split('\n')
+
+    assert table.measured_widths == [4, 13]
+    assert table_str[0] == '+------+---------------+'
+    assert table_str[1] == '| 12345678901234567890 |'
+    assert table_str[2] == '+------+---------------+'
+
+
 def test_table_cell() -> None:
     cell = Cell('Foo bar baz')
     cell.wrap(3)
