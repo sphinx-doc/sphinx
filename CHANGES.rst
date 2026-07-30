@@ -63,3 +63,7 @@ Bugs fixed
 * LaTeX: Fix accidental removal at ``3.5.0`` (#8854) of the documentation of
   ``literalblockcappos`` key of  :ref:`'sphinxsetup' <latexsphinxsetup>`.
   Patch by Jean-François B.
+* #2835: HTML builder now detects changes in theme files (templates and
+  static files) and triggers a full rebuild automatically, without
+  requiring ``make clean``.
+  Patch by kishorhange111.
