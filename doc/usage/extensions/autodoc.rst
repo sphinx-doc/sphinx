@@ -115,6 +115,7 @@ On Windows, set the variable in the shell before running
 the :program:`sphinx-build` command.
 
 .. versionadded:: 9.1
+
 Usage
 ^^^^^
 
