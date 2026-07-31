@@ -104,7 +104,7 @@ Using native modules instead of type stubs
 Starting with Sphinx 9.1, autodoc may use a neighboring ``.pyi`` type stub
 when importing a module. For native extension modules whose documentation is
 available only on the runtime objects, set the
-:envvar:`SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS` environment variable
+`SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS` environment variable
 to a non-empty value to make autodoc import the native module directly:
 
 .. code-block:: console
