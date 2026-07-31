@@ -442,6 +442,34 @@ def test_nosearch(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'html',
     testroot='search',
+    confoverrides={
+        'rst_prolog': (
+            '.. |prologue_subst| replace:: rstprologuesubstituteterm\n'
+            '\n'
+            'rstprologueplainterm is not part of any page.\n'
+        ),
+        'rst_epilog': (
+            '.. |epilogue_subst| replace:: rstepiloguesubstituteterm\n'
+            '\n'
+            'rstepilogueplainterm is not part of any page.\n'
+        ),
+    },
+    freshenv=True,
+)
+def test_rst_prolog_and_epilog_are_not_indexed(app: SphinxTestApp) -> None:
+    # regression test for #4248: rst_prolog/rst_epilog content must not
+    # leak into the search index for every page
+    app.build()
+    index = load_searchindex(app.outdir / 'searchindex.js')
+    assert not is_registered_term(index, 'rstprologuesubstituteterm')
+    assert not is_registered_term(index, 'rstprologueplainterm')
+    assert not is_registered_term(index, 'rstepiloguesubstituteterm')
+    assert not is_registered_term(index, 'rstepilogueplainterm')
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='search',
     parallel=3,
     freshenv=True,
 )

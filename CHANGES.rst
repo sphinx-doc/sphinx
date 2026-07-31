@@ -4,6 +4,10 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #4248: Search: exclude ``rst_prolog`` and ``rst_epilog`` content from the
+  search index to prevent false matches across all pages.
+  Patch by harsh7733ai
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.

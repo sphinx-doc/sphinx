@@ -612,6 +612,10 @@ def _feed_visit_nodes(
     elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
         # skip nodes marked with a 'no-search' class
         return
+    elif getattr(node, 'source', None) in {'<rst_prologue>', '<rst_epilogue>'}:
+        # skip nodes generated from the rst_prolog/rst_epilog config values,
+        # so their content isn't indexed on every page that includes them
+        return
     elif isinstance(node, nodes.raw):
         if 'html' in node.get('format', '').split():
             # Some people might put content in raw HTML that should be searched,
