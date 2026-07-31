@@ -1386,7 +1386,7 @@ types = [
     { name = "mypy", specifier = "==1.19.0" },
     { name = "pyrefly" },
     { name = "pyright", specifier = "==1.1.407" },
-    { name = "ty" },
+    { name = "ty", specifier = "==0.0.1a30" },
     { name = "types-colorama", specifier = "==0.4.15.20250801" },
     { name = "types-defusedxml", specifier = "==0.7.0.20250822" },
     { name = "types-docutils", specifier = "==0.22.3.20251115" },
