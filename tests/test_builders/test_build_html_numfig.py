@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.sphinx('html', testroot='numfig')
+@pytest.mark.test_params(shared_result='test_build_html_numfig')
 def test_numfig_disabled_warn(app: SphinxTestApp) -> None:
     app.build()
     warnings = app.warning.getvalue()
