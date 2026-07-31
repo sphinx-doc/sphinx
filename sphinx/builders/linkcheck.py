@@ -61,7 +61,7 @@ class _Status(StrEnum):
 logger = logging.getLogger(__name__)
 
 # matches to foo:// and // (a protocol relative URL)
-uri_re = re.compile('([a-z]+:)?//')
+uri_re = re.compile('([a-zA-Z]+:)?//', re.IGNORECASE)
 
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
