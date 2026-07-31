@@ -71,8 +71,10 @@ def read_svg_depth(filename: str | os.PathLike[str]) -> int | None:
 
     Returns None if the file does not contain a depth comment.
     """
+    last_line = None
     with open(filename, encoding='utf-8') as f:
-        last_line = next(reversed(list(f)), None)
+        for last_line in f:  # noqa: B007
+            pass
 
     if last_line is not None:
         if matched := depthsvgcomment_re.match(last_line):
