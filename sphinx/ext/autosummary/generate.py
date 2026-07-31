@@ -873,10 +873,8 @@ def find_autosummary_in_lines(
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
-        epilog=str(__('For more information, visit <https://www.sphinx-doc.org/>.')),
-        description=str(
-            __(
-                """
+        description=__(
+            """
  Generate ReStructuredText using autosummary directives.
 
  sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
@@ -888,7 +886,6 @@ def get_parser() -> argparse.ArgumentParser:
 
    pydoc sphinx.ext.autosummary
  """
-            )
         ),
     )
 
@@ -910,7 +907,7 @@ def get_parser() -> argparse.ArgumentParser:
         '--output-dir',
         action='store',
         dest='output_dir',
-        help=str(__('directory to place all output in')),
+        help=__('directory to place all output in'),
     )
     parser.add_argument(
         '-s',
@@ -918,7 +915,7 @@ def get_parser() -> argparse.ArgumentParser:
         action='store',
         dest='suffix',
         default='rst',
-        help=str(__('default suffix for files (default: %(default)s)')),
+        help=__('default suffix for files (default: %(default)s)'),
     )
     parser.add_argument(
         '-t',
@@ -926,7 +923,7 @@ def get_parser() -> argparse.ArgumentParser:
         action='store',
         dest='templates',
         default=None,
-        help=str(__('custom template directory (default: %(default)s)')),
+        help=__('custom template directory (default: %(default)s)'),
     )
     parser.add_argument(
         '-i',
@@ -934,7 +931,7 @@ def get_parser() -> argparse.ArgumentParser:
         action='store_true',
         dest='imported_members',
         default=False,
-        help=str(__('document imported members (default: %(default)s)')),
+        help=__('document imported members (default: %(default)s)'),
     )
     parser.add_argument(
         '-a',
@@ -942,11 +939,9 @@ def get_parser() -> argparse.ArgumentParser:
         action='store_true',
         dest='respect_module_all',
         default=False,
-        help=str(
-            __(
-                'document exactly the members in module __all__ attribute. '
-                '(default: %(default)s)'
-            )
+        help=__(
+            'document exactly the members in module __all__ attribute. '
+            '(default: %(default)s)'
         ),
     )
     parser.add_argument(
@@ -954,8 +949,8 @@ def get_parser() -> argparse.ArgumentParser:
         action='store_true',
         dest='remove_old',
         default=False,
-        help=str(
-            __('Remove existing files in the output directory that were not generated')
+        help=__(
+            'Remove existing files in the output directory that were not generated'
         ),
     )
 
