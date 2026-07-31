@@ -464,12 +464,12 @@ def _skip_member(
         False if it should be included in the docs.
 
     """
-    has_doc = getattr(obj, '__doc__', False)
+    has_doc = inspect.safe_getattr(obj, '__doc__', False)
     is_member = what in {'class', 'exception', 'module'}
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
         if what in {'class', 'exception'}:
-            qualname = getattr(obj, '__qualname__', '')
+            qualname = inspect.safe_getattr(obj, '__qualname__', '')
             cls_path, _, _ = qualname.rpartition('.')
             if cls_path:
                 try:
