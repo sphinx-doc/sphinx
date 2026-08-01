@@ -206,13 +206,20 @@ def _add_directive_lines(
     source_name: str,
 ) -> None:
     # generate the directive header and options, if applicable
+    if props.obj_type in {'class', 'exception'}:
+        from sphinx.ext.autodoc._property_types import _ClassDefProperties
+
+        assert isinstance(props, _ClassDefProperties)
+        if props.doc_as_attr:
+            directive_name = 'py:attribute'
+        else:
+            directive_name = f'py:{props.obj_type}'
+    else:
+        directive_name = f'py:{props.obj_type}'
+
     lines = _directive_header_lines(
         autodoc_typehints=config.autodoc_typehints,
-        directive_name=(
-            'py:attribute'
-            if props.obj_type in {'class', 'exception'} and props.doc_as_attr  # type: ignore[attr-defined]
-            else f'py:{props.obj_type}'
-        ),
+        directive_name=directive_name,
         is_final=is_final,
         options=options,
         props=props,
@@ -266,9 +273,13 @@ def _document_members(
     If *all_members* is True, document all members, else those given by
     *self.options.members*.
     """
-    has_members = props.obj_type == 'module' or (
-        props.obj_type in {'class', 'exception'} and not props.doc_as_attr  # type: ignore[attr-defined]
-    )
+    if props.obj_type in {'class', 'exception'}:
+        from sphinx.ext.autodoc._property_types import _ClassDefProperties
+
+        assert isinstance(props, _ClassDefProperties)
+        has_members = not props.doc_as_attr
+    else:
+        has_members = props.obj_type == 'module'
     if not has_members:
         return
 
