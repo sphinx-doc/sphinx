@@ -181,6 +181,24 @@ def test_term_in_raw_directive(app: SphinxTestApp) -> None:
     assert not is_registered_term(searchindex, 'latex_keyword')
 
 
+@pytest.mark.sphinx(
+    'html',
+    testroot='search',
+    confoverrides={
+        'rst_prolog': '.. |subst_prolog| replace:: prologword\n',
+        'rst_epilog': '.. |subst_epilog| replace:: epilogword\n',
+    },
+    freshenv=True,
+)
+def test_rst_prolog_epilog_not_indexed(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    searchindex = load_searchindex(app.outdir / 'searchindex.js')
+    # words from rst_prolog/rst_epilog are injected into every document
+    # and must not be indexed
+    assert not is_registered_term(searchindex, 'prologword')
+    assert not is_registered_term(searchindex, 'epilogword')
+
+
 def test_IndexBuilder():
     settings = frontend.get_default_settings(rst.Parser)
     parser = rst.Parser()

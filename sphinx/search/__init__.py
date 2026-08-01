@@ -185,6 +185,11 @@ class _JavaScriptIndex:
 
 js_index = _JavaScriptIndex()
 
+#: Source names given to content injected by ``rst_prolog``/``rst_epilog``
+#: (see ``sphinx.util.rst``); such content appears in every document
+#: and must not pollute the per-page search index.
+_INJECTED_SOURCES = frozenset({'<rst_prologue>', '<rst_epilogue>'})
+
 
 def _is_meta_keywords(
     node: nodes.meta,
@@ -218,6 +223,10 @@ class WordCollector(nodes.NodeVisitor):
 
     def dispatch_visit(self, node: Node) -> None:
         if isinstance(node, nodes.comment):
+            raise nodes.SkipNode
+        elif node.source in _INJECTED_SOURCES:
+            # skip content injected via rst_prolog/rst_epilog,
+            # which would otherwise be indexed on every page
             raise nodes.SkipNode
         elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
             # skip nodes marked with a 'no-search' class
@@ -608,6 +617,10 @@ def _feed_visit_nodes(
     language: str,
 ) -> None:
     if isinstance(node, nodes.comment):
+        return
+    elif node.source in _INJECTED_SOURCES:
+        # skip content injected via rst_prolog/rst_epilog,
+        # which would otherwise be indexed on every page
         return
     elif isinstance(node, nodes.Element) and 'no-search' in node['classes']:
         # skip nodes marked with a 'no-search' class

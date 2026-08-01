@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #4248: Do not include content injected via :confval:`rst_prolog` and
+  :confval:`rst_epilog` in the search index, so that a term appearing
+  only in a prologue or epilogue substitution definition no longer
+  matches every page.
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
