@@ -181,22 +181,22 @@ def test_term_in_raw_directive(app: SphinxTestApp) -> None:
     assert not is_registered_term(searchindex, 'latex_keyword')
 
 
-@pytest.mark.sphinx(
-    'html',
-    testroot='search',
-    confoverrides={
-        'rst_prolog': '.. |subst_prolog| replace:: prologword\n',
-        'rst_epilog': '.. |subst_epilog| replace:: epilogword\n',
-    },
-    freshenv=True,
-)
+@pytest.mark.sphinx('html', testroot='search-rst-prolog-epilog', freshenv=True)
 def test_rst_prolog_epilog_not_indexed(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
-    # words from rst_prolog/rst_epilog are injected into every document
-    # and must not be indexed
-    assert not is_registered_term(searchindex, 'prologword')
-    assert not is_registered_term(searchindex, 'epilogword')
+
+    def docs_for_term(term: str) -> set[str]:
+        files = searchindex['terms'].get(term, [])
+        if isinstance(files, int):
+            files = [files]
+        return {searchindex['docnames'][file] for file in files}
+
+    # the substitution definitions from rst_prolog/rst_epilog are injected
+    # into every document; only the page actually using the substitutions
+    # must match, not every page
+    assert docs_for_term('prologword') == {'uses'}
+    assert docs_for_term('epilogword') == {'uses'}
 
 
 def test_IndexBuilder():

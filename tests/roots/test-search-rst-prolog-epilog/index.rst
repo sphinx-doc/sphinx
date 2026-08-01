@@ -1,0 +1,7 @@
+index
+=====
+
+.. toctree::
+
+   uses
+   plain
