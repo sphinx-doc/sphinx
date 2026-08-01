@@ -13,6 +13,11 @@ from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc._shared import LOGGER, _get_render_mode
 from sphinx.locale import _, __
+from sphinx.ext.autodoc._property_types import (
+    _AssignStatementProperties,
+    _ClassDefProperties,
+    _ModuleProperties,
+)
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect
 from sphinx.util.typing import restify, stringify_annotation
@@ -207,8 +212,6 @@ def _add_directive_lines(
 ) -> None:
     # generate the directive header and options, if applicable
     if props.obj_type in {'class', 'exception'}:
-        from sphinx.ext.autodoc._property_types import _ClassDefProperties
-
         assert isinstance(props, _ClassDefProperties)
         if props.doc_as_attr:
             directive_name = 'py:attribute'
@@ -274,8 +277,6 @@ def _document_members(
     *self.options.members*.
     """
     if props.obj_type in {'class', 'exception'}:
-        from sphinx.ext.autodoc._property_types import _ClassDefProperties
-
         assert isinstance(props, _ClassDefProperties)
         has_members = not props.doc_as_attr
     else:
@@ -302,11 +303,14 @@ def _document_members(
 
     # for implicit module members, check __module__ to avoid
     # documenting imported objects
-    members_check_module = bool(
-        props.obj_type == 'module'
-        and want_all
-        and (options.ignore_module_all or props.all is None)  # type: ignore[attr-defined]
-    )
+    if props.obj_type == 'module':
+        assert isinstance(props, _ModuleProperties)
+        members_check_module = bool(
+            want_all and (options.ignore_module_all or props.all is None)
+        )
+    else:
+        members_check_module = False
+
     for member_props, is_attr, member_indent in member_documenters:
         assert member_props.module_name
         # Note that those two methods above do not emit events, so
@@ -335,8 +339,6 @@ def _body_alias_lines(
 ) -> Iterator[str]:
     """Add content from docstrings, attribute documentation and user."""
     if props.obj_type in {'data', 'attribute'}:
-        from sphinx.ext.autodoc._property_types import _AssignStatementProperties
-
         assert isinstance(props, _AssignStatementProperties)
 
         # Support for documenting GenericAliases
@@ -348,8 +350,6 @@ def _body_alias_lines(
         return
 
     if props.obj_type in {'class', 'exception'}:
-        from sphinx.ext.autodoc._property_types import _ClassDefProperties
-
         assert isinstance(props, _ClassDefProperties)
 
         obj = props._obj
