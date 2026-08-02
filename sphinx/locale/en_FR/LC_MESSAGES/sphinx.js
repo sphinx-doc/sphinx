@@ -1,5 +1,5 @@
 Documentation.addTranslations({
-    "locale": "None",
+    "locale": "en_FR",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
         "&#169; %(copyright_prefix)s %(copyright)s.": "",
