@@ -52,6 +52,16 @@ def enable_colour() -> None:
     _COLOURING_DISABLED = False
 
 
+def colour_enabled() -> bool:
+    """Return True if coloured output is currently enabled.
+
+    Unlike :func:`terminal_supports_colour`, which only reports whether the
+    terminal is capable of colour, this also honours colouring having been
+    turned off explicitly (``--no-color``).
+    """
+    return not _COLOURING_DISABLED and terminal_supports_colour()
+
+
 def colourise(colour_name: str, text: str, /) -> str:
     if _COLOURING_DISABLED:
         return text
@@ -61,6 +71,7 @@ def colourise(colour_name: str, text: str, /) -> str:
         'terminal_supports_colour',
         'disable_colour',
         'enable_colour',
+        'colour_enabled',
         'colourise',
     }:
         msg = f'Invalid colour name: {colour_name!r}'

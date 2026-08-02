@@ -13,6 +13,10 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14565: Do not emit ANSI control sequences in progress output when
+  colouring is disabled with ``--no-color``, matching ``NO_COLOR``.
+  Patch by Ali Asgher
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
