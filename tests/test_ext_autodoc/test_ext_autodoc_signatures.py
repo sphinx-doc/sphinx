@@ -289,6 +289,25 @@ def test_format_signatures_event_handler() -> None:
     assert format_sig('method', 'bar', H.foo1, events=events) == ('42', '')
 
 
+@pytest.mark.parametrize('obj_type', ['data', 'module', 'type', 'attribute'])
+def test_format_signatures_event_handler_without_signature(
+    obj_type: _AutodocObjType,
+) -> None:
+    # these object types never have a signature to introspect,
+    # so a handler's return value has nothing to replace
+    def process_signature(*args: Any) -> tuple[str, None]:
+        return '(spam)', None
+
+    events = FakeEvents()
+    events.connect('autodoc-process-signature', process_signature)
+
+    class Callable_:
+        def __call__(self) -> None:
+            pass
+
+    assert format_sig(obj_type, 'bar', Callable_(), events=events) == ('(spam)', '')
+
+
 def test_format_functools_partial_signatures() -> None:
     # test functions created via functools.partial
     from functools import partial
