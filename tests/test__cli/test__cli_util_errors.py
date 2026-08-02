@@ -123,15 +123,30 @@ def test_handle_exception_nice_errors_are_short(exception: SphinxError) -> None:
     assert 'report this error to the developers' not in out
 
 
-def test_handle_exception_nice_error_traceback_opt_in() -> None:
-    # -T/--traceback is an explicit request for the traceback, but it still must
-    # not ask the user to report a bug.
+def test_handle_exception_nice_error_no_traceback_with_T() -> None:
+    # -T prints on the console the traceback that would otherwise be written to a
+    # temporary file. A nice error saves no such file, so -T must not print one
+    # either: an extension reporting a user error should not show a traceback.
     out = _handle(_raised(ExtensionError('boom')), print_traceback=True)
 
     assert 'boom' in out
-    assert 'in _raise' in out
+    assert 'in _raise' not in out
+    assert 'Traceback' not in out
     assert 'full traceback has been saved' not in out
     assert 'report this error to the developers' not in out
+
+
+def test_handle_exception_unexpected_error_traceback_with_T(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # For an unexpected exception -T does print the traceback it would have saved.
+    monkeypatch.setattr(
+        'sphinx._cli.util.errors.write_temporary_file',
+        lambda content: 'sphinx-err-fake.log',
+    )
+    out = _handle(_raised(RuntimeError('boom')), print_traceback=True)
+
+    assert 'in _raise' in out
 
 
 def test_handle_exception_unexpected_errors_are_verbose(

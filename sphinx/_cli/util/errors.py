@@ -221,7 +221,10 @@ def handle_exception(
     print_err()
     if nice_error:
         print_err(str(exception))
-        if print_traceback or use_pdb:
+        # -T prints on the console the traceback that would otherwise be saved to a
+        # temporary file. Nice errors do not save one, so there is none to print;
+        # --pdb is honoured because it is a request to debug this exception.
+        if use_pdb:
             print_err()
             print_err(format_traceback(exception))
     else:
