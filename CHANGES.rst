@@ -13,6 +13,12 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14543: Only print the category and message for :exc:`~sphinx.errors.SphinxError`
+  exceptions, such as those raised by extensions or ``conf.py``. The environment
+  details, loaded extension list, saved traceback and bug report prompt are again
+  reserved for unexpected exceptions.
+  Patch by Ali Asgher
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

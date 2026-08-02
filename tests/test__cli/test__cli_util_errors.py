@@ -2,14 +2,20 @@ from __future__ import annotations
 
 import itertools
 import operator
+from io import StringIO
 from typing import TYPE_CHECKING
 
+import pytest
+
 from sphinx._cli.util.colour import blue, reset
-from sphinx._cli.util.errors import strip_escape_sequences
+from sphinx._cli.util.errors import handle_exception, strip_escape_sequences
+from sphinx.errors import ConfigError, ExtensionError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Final
+
+    from sphinx.errors import SphinxError
 
 CURSOR_UP: Final[str] = '\x1b[2A'  # ignored ANSI code
 ERASE_LINE: Final[str] = '\x1b[2K'  # supported ANSI code
@@ -79,3 +85,67 @@ def test_strip_ansi_short_forms() -> None:
 
     # \x1b[K is equivalent to \x1b[0K
     assert strip_escape_sequences('\x1b[K') == ''
+
+
+def _handle(exception: BaseException, **kwargs: object) -> str:
+    stderr = StringIO()
+    handle_exception(exception, stderr=stderr, **kwargs)  # type: ignore[arg-type]
+    return stderr.getvalue()
+
+
+def _raised(exception: BaseException) -> BaseException:
+    """Return *exception* with a real traceback attached."""
+
+    def _raise() -> None:
+        raise exception
+
+    try:
+        _raise()
+    except BaseException as exc:
+        return exc
+    msg = 'unreachable'
+    raise AssertionError(msg)
+
+
+@pytest.mark.parametrize('exception', [ExtensionError('boom'), ConfigError('boom')])
+def test_handle_exception_nice_errors_are_short(exception: SphinxError) -> None:
+    # SphinxError subclasses are expected errors: only the category and the
+    # message are shown, so extensions and conf.py can report problems without
+    # implying that Sphinx itself is broken. Refs: #14543
+    out = _handle(_raised(exception))
+
+    assert exception.category in out
+    assert 'boom' in out
+    assert 'Versions' not in out
+    assert 'Loaded Extensions' not in out
+    assert 'Traceback' not in out
+    assert 'full traceback has been saved' not in out
+    assert 'report this error to the developers' not in out
+
+
+def test_handle_exception_nice_error_traceback_opt_in() -> None:
+    # -T/--traceback is an explicit request for the traceback, but it still must
+    # not ask the user to report a bug.
+    out = _handle(_raised(ExtensionError('boom')), print_traceback=True)
+
+    assert 'boom' in out
+    assert 'in _raise' in out
+    assert 'full traceback has been saved' not in out
+    assert 'report this error to the developers' not in out
+
+
+def test_handle_exception_unexpected_errors_are_verbose(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Exceptions that are not SphinxError subclasses are unexpected, and keep the
+    # full context and the bug report prompt.
+    monkeypatch.setattr(
+        'sphinx._cli.util.errors.write_temporary_file',
+        lambda content: 'sphinx-err-fake.log',
+    )
+    out = _handle(_raised(RuntimeError('boom')))
+
+    assert 'Versions' in out
+    assert 'Loaded Extensions' in out
+    assert 'full traceback has been saved' in out
+    assert 'report this error to the developers' in out
