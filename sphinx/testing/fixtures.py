@@ -143,7 +143,7 @@ def test_params(request: Any) -> dict[str, Any]:
 
     if result['shared_result'] and not isinstance(result['shared_result'], str):
         msg = 'You can only provide a string type of value for "shared_result"'
-        raise pytest.Exception(msg)
+        pytest.fail(msg)
     return result
 
 

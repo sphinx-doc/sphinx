@@ -67,12 +67,12 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-from sphinx.ext.autodoc._importer import _import_module
-from sphinx.ext.autodoc._loader import _load_object_by_name
-from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
+from sphinx.ext.autodoc._dynamic._importer import _import_module
+from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
+from sphinx.ext.autodoc._dynamic._member_finder import _best_object_type_for_member
+from sphinx.ext.autodoc._dynamic._mock import mock
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
-from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging, rst
@@ -610,17 +610,11 @@ def limited_join(
 # -- Importing items -----------------------------------------------------------
 
 
-class ImportExceptionGroup(Exception):
+class ImportExceptionGroup(BaseExceptionGroup):
     """Exceptions raised during importing the target objects.
 
-    It contains an error messages and a list of exceptions as its arguments.
+    It contains an error message and a list of exceptions as its arguments.
     """
-
-    def __init__(
-        self, message: str | None, exceptions: Sequence[BaseException]
-    ) -> None:
-        super().__init__(message)
-        self.exceptions = list(exceptions)
 
 
 def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
@@ -684,7 +678,8 @@ def import_by_name(
     exceptions: list[BaseException] = functools.reduce(
         operator.iadd, (e.exceptions for e in errors), []
     )
-    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
+    msg = f'could not import {" or ".join(tried)}'
+    raise ImportExceptionGroup(msg, exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:

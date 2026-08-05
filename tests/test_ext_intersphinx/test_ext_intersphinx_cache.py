@@ -18,8 +18,8 @@ from tests.utils import http_server
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
     from typing import Any, BinaryIO
-
 
 BASE_CONFIG = {
     'extensions': ['sphinx.ext.intersphinx'],
@@ -198,7 +198,7 @@ def make_inventory_handler(
     assert all(p.port == port for p in projects)
 
     class InventoryHandler(BaseHTTPRequestHandler):
-        def do_GET(self):
+        def do_GET(self) -> None:
             self.send_response(200, 'OK')
 
             data = b''
@@ -225,7 +225,7 @@ def test_intersphinx_project_fixture() -> None:
     assert project.url == 'http://localhost:9341/route'
 
 
-def test_load_mappings_cache(tmp_path):
+def test_load_mappings_cache(tmp_path: Path) -> None:
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').touch()
     project = SingleEntryProject(1, 'a')
@@ -249,7 +249,7 @@ def test_load_mappings_cache(tmp_path):
     assert inventories.named_inventory == {'spam': {'py:module': item}}
 
 
-def test_load_mappings_cache_update(tmp_path):
+def test_load_mappings_cache_update(tmp_path: Path) -> None:
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').touch()
     old_project = SingleEntryProject(1337, 'old')
@@ -282,7 +282,7 @@ def test_load_mappings_cache_update(tmp_path):
     assert inventories.named_inventory == {'spam': {'py:module': item}}
 
 
-def test_load_mappings_cache_revert_update(tmp_path):
+def test_load_mappings_cache_revert_update(tmp_path: Path) -> None:
     tmp_path.joinpath('conf.py').touch()
     tmp_path.joinpath('index.rst').touch()
     old_project = SingleEntryProject(1337, 'old')

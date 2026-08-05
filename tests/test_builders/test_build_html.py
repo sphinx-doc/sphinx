@@ -30,10 +30,17 @@ from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from pathlib import Path
+    from typing import Any
+    from xml.etree.ElementTree import Element, ElementTree
+
     from sphinx.testing.util import SphinxTestApp
 
 
-def test_html_sidebars_error(make_app, tmp_path):
+def test_html_sidebars_error(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
     (tmp_path / 'conf.py').touch()
     with pytest.raises(
         ConfigError,
@@ -48,7 +55,7 @@ def test_html_sidebars_error(make_app, tmp_path):
         )
 
 
-def test_html4_error(make_app, tmp_path):
+def test_html4_error(make_app: Callable[..., SphinxTestApp], tmp_path: Path) -> None:
     (tmp_path / 'conf.py').touch()
     with pytest.raises(
         ConfigError,
@@ -137,7 +144,13 @@ def test_html4_error(make_app, tmp_path):
 )
 @pytest.mark.sphinx('html', testroot='root')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
-def test_docutils_output(app, cached_etree_parse, fname, path, check):
+def test_docutils_output(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str,
+) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
 
@@ -186,7 +199,7 @@ def test_html_translator(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.parametrize(
-    'expect',
+    ('path', 'check', 'be_found'),
     [
         (FIGURE_CAPTION + "//span[@class='caption-number']", 'Fig. 1', True),
         (FIGURE_CAPTION + "//span[@class='caption-number']", 'Fig. 2', True),
@@ -205,9 +218,21 @@ def test_html_translator(app: SphinxTestApp) -> None:
     testroot='add_enumerable_node',
     srcdir='test_enumerable_node',
 )
-def test_enumerable_node(app, cached_etree_parse, expect):
+def test_enumerable_node(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    path: str,
+    check: str,
+    be_found: bool,
+) -> None:
     app.build()
-    check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
+    check_xpath(
+        cached_etree_parse(app.outdir / 'index.html'),
+        'index.html',
+        path,
+        check,
+        be_found,
+    )
 
 
 @pytest.mark.sphinx(
@@ -336,7 +361,7 @@ def test_html_raw_directive(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.parametrize(
-    'expect',
+    ('path', 'check', 'be_found'),
     [
         (".//link[@href='_static/persistent.css'][@rel='stylesheet']", '', True),
         (
@@ -383,9 +408,21 @@ def test_html_raw_directive(app: SphinxTestApp) -> None:
     ],
 )
 @pytest.mark.sphinx('html', testroot='stylesheets')
-def test_alternate_stylesheets(app, cached_etree_parse, expect):
+def test_alternate_stylesheets(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    path: str,
+    check: str,
+    be_found: bool,
+) -> None:
     app.build()
-    check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
+    check_xpath(
+        cached_etree_parse(app.outdir / 'index.html'),
+        'index.html',
+        path,
+        check,
+        be_found,
+    )
 
 
 @pytest.mark.sphinx('html', testroot='html_style')
@@ -478,12 +515,12 @@ def test_html_sidebar(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.parametrize(
-    ('fname', 'expect'),
+    ('fname', 'path', 'check', 'be_found'),
     [
-        ('index.html', (".//h1/em/a[@href='https://example.com/cp.1']", '', True)),
-        ('index.html', (".//em/a[@href='https://example.com/man.1']", '', True)),
-        ('index.html', (".//em/a[@href='https://example.com/ls.1']", '', True)),
-        ('index.html', (".//em/a[@href='https://example.com/sphinx.']", '', True)),
+        ('index.html', ".//h1/em/a[@href='https://example.com/cp.1']", '', True),
+        ('index.html', ".//em/a[@href='https://example.com/man.1']", '', True),
+        ('index.html', ".//em/a[@href='https://example.com/ls.1']", '', True),
+        ('index.html', ".//em/a[@href='https://example.com/sphinx.']", '', True),
     ],
 )
 @pytest.mark.sphinx(
@@ -492,9 +529,16 @@ def test_html_sidebar(app: SphinxTestApp) -> None:
     confoverrides={'manpages_url': 'https://example.com/{page}.{section}'},
 )
 @pytest.mark.test_params(shared_result='test_build_html_manpage_url')
-def test_html_manpage(app, cached_etree_parse, fname, expect):
+def test_html_manpage(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str,
+    be_found: bool,
+) -> None:
     app.build()
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
 
 @pytest.mark.sphinx(
@@ -629,7 +673,7 @@ def test_html_remove_sources_before_write_gh_issue_10786(app: SphinxTestApp) -> 
     # See: https://github.com/sphinx-doc/sphinx/issues/10786
     target = app.srcdir / 'img.png'
 
-    def handler(app):
+    def handler(app: SphinxTestApp) -> list[tuple[str, dict[str, Any], str]]:
         assert target.exists()
         target.unlink()
         return []
@@ -651,7 +695,9 @@ def test_html_remove_sources_before_write_gh_issue_10786(app: SphinxTestApp) -> 
     testroot='domain-py-python_maximum_signature_line_length',
     confoverrides={'python_maximum_signature_line_length': 1},
 )
-def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
+def test_html_pep_695_one_type_per_line(
+    app: SphinxTestApp, cached_etree_parse: Callable[[Path], ElementTree]
+) -> None:
     app.build()
     fname = app.outdir / 'index.html'
     etree = cached_etree_parse(fname)
@@ -660,7 +706,7 @@ def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
         def __init__(self, expect: str) -> None:
             self.expect = expect
 
-        def __call__(self, nodes):
+        def __call__(self, nodes: Sequence[Element]) -> None:
             assert len(nodes) == 1, nodes
             objnode = ''.join(nodes[0].itertext()).replace('\n\n', '')
             objnode = objnode.rstrip(chr(182))  # remove '¶' symbol
@@ -719,7 +765,7 @@ def test_html_pep_695_trailing_comma_in_multi_line_signatures(
         def __init__(self, expect: str) -> None:
             self.expect = expect
 
-        def __call__(self, nodes):
+        def __call__(self, nodes: Sequence[Element]) -> None:
             assert len(nodes) == 1, nodes
             objnode = ''.join(nodes[0].itertext()).replace('\n\n', '')
             objnode = objnode.rstrip(chr(182))  # remove '¶' symbol
@@ -765,15 +811,17 @@ def test_html_admonition_collapse(app: SphinxTestApp) -> None:
     fname = app.outdir / 'index.html'
     etree = etree_parse(fname)
 
-    def _create_check(text: str, open: bool):  # type: ignore[no-untyped-def]
-        def _check(els):
+    def _create_check(text: str, open: bool) -> Callable[[Sequence[Element]], None]:
+        def _check(els: Sequence[Element]) -> None:
             assert len(els) == 1
             el = els[0]
             if open:
                 assert el.attrib['open'] == 'open'
             else:
                 assert 'open' not in el.attrib
-            assert el.find('p').text == text
+            p = el.find('p')
+            assert p is not None
+            assert p.text == text
 
         return _check
 

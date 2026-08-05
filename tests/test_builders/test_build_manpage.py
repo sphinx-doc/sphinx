@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import docutils
 import pytest
 
 from sphinx.builders.manpage import default_man_pages
@@ -65,25 +64,7 @@ def test_captioned_code_block(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
 
-    if docutils.__version_info__[:2] < (0, 21):
-        expected = """\
-.sp
-caption \\fItest\\fP rb
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-def ruby?
-    false
-end
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
-"""
-    else:
-        expected = """\
+    expected = """\
 .sp
 caption \\fItest\\fP rb
 .INDENT 0.0

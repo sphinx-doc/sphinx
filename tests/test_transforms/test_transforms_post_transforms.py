@@ -19,6 +19,9 @@ if TYPE_CHECKING:
 
     from _pytest.fixtures import SubRequest
 
+    from sphinx.application import Sphinx
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -42,7 +45,12 @@ def test_nitpicky_warning(app: SphinxTestApp) -> None:
     freshenv=True,
 )
 def test_missing_reference(app: SphinxTestApp) -> None:
-    def missing_reference(app_, env_, node_, contnode_):
+    def missing_reference(
+        app_: Sphinx,
+        env_: BuildEnvironment,
+        node_: addnodes.pending_xref,
+        contnode_: nodes.Node,
+    ) -> nodes.inline:
         assert app_ is app
         assert env_ is app.env
         assert node_['reftarget'] == 'io.StringIO'
@@ -65,7 +73,12 @@ def test_missing_reference(app: SphinxTestApp) -> None:
     freshenv=True,
 )
 def test_missing_reference_conditional_pending_xref(app: SphinxTestApp) -> None:
-    def missing_reference(_app, _env, _node, contnode):
+    def missing_reference(
+        _app: Sphinx,
+        _env: BuildEnvironment,
+        _node: addnodes.pending_xref,
+        contnode: nodes.Node,
+    ) -> nodes.Node:
         return contnode
 
     app.warning.truncate(0)
@@ -140,11 +153,13 @@ class TestSigElementFallbackTransform:
         class BaseCustomTranslatorClass(nodes.NodeVisitor):
             """Base class for a custom translator class, orthogonal to ``SphinxTranslator``."""
 
-            def __init__(self, document, *_a):
+            def __init__(
+                self, document: nodes.document, _builder: Builder | None = None
+            ) -> None:
                 super().__init__(document)
                 # ignore other arguments
 
-            def dispatch_visit(self, node):
+            def dispatch_visit(self, node: nodes.Node) -> None:
                 for node_class in node.__class__.__mro__:
                     if method := getattr(self, f'visit_{node_class.__name__}', None):
                         method(node)
@@ -153,11 +168,11 @@ class TestSigElementFallbackTransform:
                     logger.info('generic visit: %r', node.__class__.__name__)
                     super().dispatch_visit(node)
 
-            def unknown_visit(self, node):
+            def unknown_visit(self, node: nodes.Node) -> None:
                 logger.warning('unknown visit: %r', node.__class__.__name__)
                 raise nodes.SkipDeparture  # ignore unknown departure
 
-            def visit_document(self, node):
+            def visit_document(self, node: nodes.document) -> None:
                 raise nodes.SkipDeparture  # ignore departure
 
             def mark_node(self, node: nodes.Node) -> NoReturn:
@@ -173,7 +188,7 @@ class TestSigElementFallbackTransform:
         visitor_methods = {f'visit_{tp.__name__}' for tp in desc_sig_elements_list}
         visitor_methods.update(f'visit_{name}' for name in add_visitor_method_for)
         class_dict = dict.fromkeys(visitor_methods, BaseCustomTranslatorClass.mark_node)
-        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)
+        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)  # ty: ignore[invalid-return-type]
 
     @pytest.mark.parametrize(
         'add_visitor_method_for',

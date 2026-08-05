@@ -11,13 +11,15 @@ from sphinx import addnodes
 from sphinx.ext.autosummary import autosummary_table
 from sphinx.testing.util import assert_node
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-import_cycle')
 @pytest.mark.usefixtures('rollback_sysmodules')
-def test_autosummary_import_cycle(app):
+def test_autosummary_import_cycle(app: SphinxTestApp) -> None:
     app.build()
 
     doctree = app.env.get_doctree('index')
@@ -47,11 +49,11 @@ def test_autosummary_import_cycle(app):
         ),
     )
     assert_node(
-        doctree[4][0][0][2][0],
+        extract_node(doctree, 4, 0, 0, 2, 0),
         ([nodes.entry, nodes.paragraph, (nodes.reference, nodes.Text)], nodes.entry),
     )
     assert_node(
-        doctree[4][0][0][2][0][0][0][0],
+        extract_node(doctree, 4, 0, 0, 2, 0, 0, 0, 0),
         nodes.reference,
         refid='spam.eggs.Ham',
         reftitle='spam.eggs.Ham',

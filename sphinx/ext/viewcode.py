@@ -187,7 +187,7 @@ def env_merge_info(
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore[attr-defined]
     # now merge in the information from the subprocess
-    for modname, entry in other._viewcode_modules.items():
+    for modname, entry in other._viewcode_modules.items():  # ty: ignore[unresolved-attribute]
         if modname not in env._viewcode_modules:  # type: ignore[attr-defined]
             env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]
         else:
@@ -291,7 +291,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
     modnames = set(env._viewcode_modules)
 
     for modname, entry in status_iterator(
-        sorted(env._viewcode_modules.items()),
+        sorted(env._viewcode_modules.items()),  # ty: ignore[unresolved-attribute]
         __('highlighting module code... '),
         'blue',
         len(env._viewcode_modules),

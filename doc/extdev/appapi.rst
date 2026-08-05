@@ -71,6 +71,8 @@ package.
 
 .. automethod:: Sphinx.add_css_file
 
+.. automethod:: Sphinx.add_static_dir
+
 .. automethod:: Sphinx.add_latex_package
 
 .. automethod:: Sphinx.add_lexer
@@ -105,6 +107,13 @@ package.
 
 Emitting events
 ---------------
+
+.. attention::
+
+   Extension developers should prefer using the event manager (``events``)
+   object directly, via :meth:`.EventManager.emit`
+   and :meth:`.EventManager.emit_firstresult`,
+   which have identical behaviour to the methods below.
 
 .. class:: Sphinx
    :no-index:

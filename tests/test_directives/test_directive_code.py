@@ -250,7 +250,7 @@ def test_LiteralIncludeReader_dedent_and_append_and_prepend(
     assert content == 'class Foo:\n  def baz():\n      pass\n\n# comment\n'
 
 
-def test_LiteralIncludeReader_tabwidth(testroot):
+def test_LiteralIncludeReader_tabwidth(testroot: Path) -> None:
     # tab-width: 4
     options = {'tab-width': 4, 'pyobject': 'Qux'}
     reader = LiteralIncludeReader(testroot / 'target.py', options, DUMMY_CONFIG)
@@ -264,14 +264,14 @@ def test_LiteralIncludeReader_tabwidth(testroot):
     assert content == 'class Qux:\n        def quux(self):\n                pass\n'
 
 
-def test_LiteralIncludeReader_tabwidth_dedent(testroot):
+def test_LiteralIncludeReader_tabwidth_dedent(testroot: Path) -> None:
     options = {'tab-width': 4, 'dedent': 4, 'pyobject': 'Qux.quux'}
     reader = LiteralIncludeReader(testroot / 'target.py', options, DUMMY_CONFIG)
     content, _lines = reader.read()
     assert content == 'def quux(self):\n    pass\n'
 
 
-def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
+def test_LiteralIncludeReader_diff(testroot: Path, literal_inc_path: Path) -> None:
     literal_diff_path = testroot / 'literal-diff.inc'
     options = {'diff': literal_diff_path}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)

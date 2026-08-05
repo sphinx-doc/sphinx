@@ -116,10 +116,10 @@ a comma-separated list of group names.
 
       Specify the required Python version for the example to be tested. For instance,
       in the following case the example will be tested only for Python versions greater
-      than 3.12::
+      than 3.14::
 
          .. doctest::
-            :pyversion: > 3.12
+            :pyversion: > 3.14
 
       The following operands are supported:
 
@@ -459,4 +459,4 @@ The doctest extension uses the following configuration values:
 
    Exit when the first failure is encountered.
 
-   .. versionadded:: 8.3
+   .. versionadded:: 9.0

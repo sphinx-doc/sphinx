@@ -1,0 +1,31 @@
+# Test for reordered and translated references.
+# These should NOT trigger inconsistency warnings.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Test\n"
+"Language-Team: xx\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with reordered and translated references"
+msgstr "I18N WITH REORDERED AND TRANSLATED REFERENCES"
+
+msgid "First glossary term"
+msgstr "FIRST GLOSSARY TERM"
+
+msgid "Second glossary term"
+msgstr "SECOND GLOSSARY TERM"
+
+# Reordered references - should NOT warn because targets are the same
+msgid "Multiple refs reordered: :term:`term one` and :term:`term two`."
+msgstr "MULTIPLE REFS REORDERED: :term:`term two` AND :term:`term one`."
+
+# Translated display text - should NOT warn because reftarget is the same
+msgid "Single ref with translated display text: :term:`term one`."
+msgstr "SINGLE REF WITH TRANSLATED DISPLAY TEXT: :term:`TRANSLATED TERM ONE <term one>`."

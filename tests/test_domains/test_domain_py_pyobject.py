@@ -22,6 +22,8 @@ from sphinx.addnodes import (
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
+from tests.utils import extract_node
+
 
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_pyexception_signature(app):
@@ -147,7 +149,7 @@ def test_pydata_with_union_type_operator(app):
     text = '.. py:data:: version\n   :type: int | str'
     doctree = restructuredtext.parse(app, text)
     assert_node(
-        doctree[1][0],
+        extract_node(doctree, 1, 0),
         (
             [desc_name, 'version'],
             [
@@ -195,9 +197,9 @@ def test_pyobject_prefix(app):
         ),
     )
     # prefix is stripped
-    assert doctree[1][1][1].astext().strip() == 'say()'
+    assert extract_node(doctree, 1, 1, 1).astext().strip() == 'say()'
     # not stripped
-    assert doctree[1][1][3].astext().strip() == 'FooBar.say()'
+    assert extract_node(doctree, 1, 1, 3).astext().strip() == 'FooBar.say()'
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
@@ -234,7 +236,9 @@ def test_pydata(app):
             ],
         ),
     )
-    assert_node(doctree[3][0][2][2], pending_xref, **{'py:module': 'example'})
+    assert_node(
+        extract_node(doctree, 3, 0, 2, 2), pending_xref, **{'py:module': 'example'}
+    )
     assert 'example.var' in domain.objects
     assert domain.objects['example.var'] == ('index', 'example.var', 'data', False)
 
@@ -368,12 +372,12 @@ def test_pymethod_options(app):
 
     # method
     assert_node(
-        doctree[1][1][0],
+        extract_node(doctree, 1, 1, 0),
         addnodes.index,
         entries=[('single', 'meth1() (Class method)', 'Class.meth1', '', None)],
     )
     assert_node(
-        doctree[1][1][1],
+        extract_node(doctree, 1, 1, 1),
         (
             [desc_signature, ([desc_name, 'meth1'], [desc_parameterlist, ()])],
             [desc_content, ()],
@@ -384,12 +388,12 @@ def test_pymethod_options(app):
 
     # :classmethod:
     assert_node(
-        doctree[1][1][2],
+        extract_node(doctree, 1, 1, 2),
         addnodes.index,
         entries=[('single', 'meth2() (Class class method)', 'Class.meth2', '', None)],
     )
     assert_node(
-        doctree[1][1][3],
+        extract_node(doctree, 1, 1, 3),
         (
             [
                 desc_signature,
@@ -410,12 +414,12 @@ def test_pymethod_options(app):
 
     # :staticmethod:
     assert_node(
-        doctree[1][1][4],
+        extract_node(doctree, 1, 1, 4),
         addnodes.index,
         entries=[('single', 'meth3() (Class static method)', 'Class.meth3', '', None)],
     )
     assert_node(
-        doctree[1][1][5],
+        extract_node(doctree, 1, 1, 5),
         (
             [
                 desc_signature,
@@ -433,12 +437,12 @@ def test_pymethod_options(app):
 
     # :async:
     assert_node(
-        doctree[1][1][6],
+        extract_node(doctree, 1, 1, 6),
         addnodes.index,
         entries=[('single', 'meth4() (Class method)', 'Class.meth4', '', None)],
     )
     assert_node(
-        doctree[1][1][7],
+        extract_node(doctree, 1, 1, 7),
         (
             [
                 desc_signature,
@@ -456,12 +460,12 @@ def test_pymethod_options(app):
 
     # :abstractmethod:
     assert_node(
-        doctree[1][1][8],
+        extract_node(doctree, 1, 1, 8),
         addnodes.index,
         entries=[('single', 'meth5() (Class method)', 'Class.meth5', '', None)],
     )
     assert_node(
-        doctree[1][1][9],
+        extract_node(doctree, 1, 1, 9),
         (
             [
                 desc_signature,
@@ -482,12 +486,12 @@ def test_pymethod_options(app):
 
     # :final:
     assert_node(
-        doctree[1][1][10],
+        extract_node(doctree, 1, 1, 10),
         addnodes.index,
         entries=[('single', 'meth6() (Class method)', 'Class.meth6', '', None)],
     )
     assert_node(
-        doctree[1][1][11],
+        extract_node(doctree, 1, 1, 11),
         (
             [
                 desc_signature,
@@ -532,12 +536,12 @@ def test_pyclassmethod(app):
         ),
     )
     assert_node(
-        doctree[1][1][0],
+        extract_node(doctree, 1, 1, 0),
         addnodes.index,
         entries=[('single', 'meth() (Class class method)', 'Class.meth', '', None)],
     )
     assert_node(
-        doctree[1][1][1],
+        extract_node(doctree, 1, 1, 1),
         (
             [
                 desc_signature,
@@ -585,12 +589,12 @@ def test_pystaticmethod(app):
         ),
     )
     assert_node(
-        doctree[1][1][0],
+        extract_node(doctree, 1, 1, 0),
         addnodes.index,
         entries=[('single', 'meth() (Class static method)', 'Class.meth', '', None)],
     )
     assert_node(
-        doctree[1][1][1],
+        extract_node(doctree, 1, 1, 1),
         (
             [
                 desc_signature,
@@ -641,12 +645,12 @@ def test_pyattribute(app):
         ),
     )
     assert_node(
-        doctree[1][1][0],
+        extract_node(doctree, 1, 1, 0),
         addnodes.index,
         entries=[('single', 'attr (Class attribute)', 'Class.attr', '', None)],
     )
     assert_node(
-        doctree[1][1][1],
+        extract_node(doctree, 1, 1, 1),
         (
             [
                 desc_signature,
@@ -678,8 +682,12 @@ def test_pyattribute(app):
             [desc_content, ()],
         ),
     )
-    assert_node(doctree[1][1][1][0][1][2], pending_xref, **{'py:class': 'Class'})
-    assert_node(doctree[1][1][1][0][1][6], pending_xref, **{'py:class': 'Class'})
+    assert_node(
+        extract_node(doctree, 1, 1, 1, 0, 1, 2), pending_xref, **{'py:class': 'Class'}
+    )
+    assert_node(
+        extract_node(doctree, 1, 1, 1, 0, 1, 6), pending_xref, **{'py:class': 'Class'}
+    )
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute', False)
 
@@ -722,12 +730,12 @@ def test_pyproperty(app):
         ),
     )
     assert_node(
-        doctree[1][1][0],
+        extract_node(doctree, 1, 1, 0),
         addnodes.index,
         entries=[('single', 'prop1 (Class property)', 'Class.prop1', '', None)],
     )
     assert_node(
-        doctree[1][1][1],
+        extract_node(doctree, 1, 1, 1),
         (
             [
                 desc_signature,
@@ -756,12 +764,12 @@ def test_pyproperty(app):
         ),
     )
     assert_node(
-        doctree[1][1][2],
+        extract_node(doctree, 1, 1, 2),
         addnodes.index,
         entries=[('single', 'prop2 (Class property)', 'Class.prop2', '', None)],
     )
     assert_node(
-        doctree[1][1][3],
+        extract_node(doctree, 1, 1, 3),
         (
             [
                 desc_signature,
@@ -869,7 +877,7 @@ def test_py_type_alias(app):
         ),
     )
     assert_node(
-        doctree[5][1][0],
+        extract_node(doctree, 5, 1, 0),
         addnodes.index,
         entries=[
             (
@@ -882,7 +890,7 @@ def test_py_type_alias(app):
         ],
     )
     assert_node(
-        doctree[5][1][1],
+        extract_node(doctree, 5, 1, 1),
         (
             [
                 desc_signature,

@@ -336,11 +336,11 @@ class DocTestBuilder(Builder):
         if hasattr(self, 'outfile'):
             self.outfile.close()
 
-    def _out(self, text: str) -> None:
+    def _out(self, text: str, /) -> None:
         logger.info(text, nonl=True)
         self.outfile.write(text)
 
-    def _warn_out(self, text: str) -> None:
+    def _warn_out(self, text: str, /) -> None:
         if self.config.verbosity < 0:
             logger.warning(text)
         else:

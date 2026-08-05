@@ -6,22 +6,75 @@ import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-    from typing import Any, TypeAlias
+    from collections.abc import Sequence
+    from typing import Any, Protocol
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc._property_types import _AutodocObjType
 
-    _AutodocProcessDocstringListener: TypeAlias = Callable[
-        [Sphinx, _AutodocObjType, str, Any, dict[str, bool], list[str]], None
-    ]
-    _AutodocProcessSignatureListener: TypeAlias = Callable[  # NoQA: PYI047
-        [Sphinx, _AutodocObjType, str, Any, dict[str, bool], str | None, str | None],
-        tuple[str | None, str | None] | None,
-    ]
-    _AutodocSkipMemberListener: TypeAlias = Callable[  # NoQA: PYI047
-        [Sphinx, _AutodocObjType, str, Any, bool, dict[str, bool]], bool
-    ]
+    class _AutodocProcessDocstringListener(Protocol):
+        # parameter names are non-normative
+        def __call__(
+            self,
+            app: Sphinx,
+            obj_type: _AutodocObjType,
+            full_name: str,
+            obj: Any,
+            options: Any,
+            docstring_lines: list[str],
+            /,
+        ) -> None: ...
+
+    class _AutodocBeforeProcessSignatureListener(Protocol):  # NoQA: PYI046
+        # parameter names are non-normative
+        def __call__(
+            self,
+            app: Sphinx,
+            obj: Any,
+            is_bound_method: bool,
+            /,
+        ) -> None: ...
+
+    class _AutodocProcessSignatureListener(Protocol):  # NoQA: PYI046
+        # parameter names are non-normative
+        # returns: (args, retann) | None
+        def __call__(
+            self,
+            app: Sphinx,
+            obj_type: _AutodocObjType,
+            full_name: str,
+            obj: Any,
+            options: Any,
+            args: str | None,
+            retann: str | None,
+            /,
+        ) -> tuple[str | None, str | None] | None: ...
+
+    class _AutodocProcessBasesListener(Protocol):  # NoQA: PYI046
+        # parameter names are non-normative
+        def __call__(
+            self,
+            app: Sphinx,
+            full_name: str,
+            obj: Any,
+            _unused: None,  # previously: options
+            obj_bases: list[type],
+            /,
+        ) -> None: ...
+
+    class _AutodocSkipMemberListener(Protocol):  # NoQA: PYI046
+        # parameter names are non-normative
+        # returns: skip_member
+        def __call__(
+            self,
+            app: Sphinx,
+            obj_type: _AutodocObjType,
+            member_name: str,
+            member_obj: Any,
+            skip: bool,
+            options: Any,
+            /,
+        ) -> bool | None: ...
 
 
 def cut_lines(
@@ -51,7 +104,7 @@ def cut_lines(
         what_: _AutodocObjType,
         name: str,
         obj: Any,
-        options: dict[str, bool],
+        options: Any,
         lines: list[str],
     ) -> None:
         if what_unique and what_ not in what_unique:
@@ -90,7 +143,7 @@ def between(
         what_: _AutodocObjType,
         name: str,
         obj: Any,
-        options: dict[str, bool],
+        options: Any,
         lines: list[str],
     ) -> None:
         if what and what_ not in what:

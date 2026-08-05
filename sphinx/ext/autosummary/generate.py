@@ -33,10 +33,10 @@ from sphinx import __display_version__, package_dir
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._importer import _import_module
-from sphinx.ext.autodoc._member_finder import _filter_enum_dict, unmangle
+from sphinx.ext.autodoc._dynamic._importer import _import_module
+from sphinx.ext.autodoc._dynamic._member_finder import _filter_enum_dict, unmangle
+from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR, SLOTS_ATTR
-from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
     _get_documenter,

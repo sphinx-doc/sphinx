@@ -5,13 +5,14 @@ from __future__ import annotations
 import functools
 import os
 import pickle
+import warnings
 from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
-from sphinx.deprecation import _deprecation_warning
+from sphinx.deprecation import RemovedInSphinx11Warning, _deprecation_warning
 from sphinx.domains._domains_container import _DomainsContainer
 from sphinx.environment.adapters import toctree as toctree_adapters
 from sphinx.errors import (
@@ -247,6 +248,8 @@ class BuildEnvironment:
         # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
         __dict__.update(_pickled_doctree_cache={}, _write_doc_doctree_cache={})
+        # clear attributes set in Sphinx._post_init_env()
+        __dict__.pop('_builder_cls', None)
         return __dict__
 
     def __setstate__(self, state: dict[str, Any]) -> None:
@@ -293,17 +296,17 @@ class BuildEnvironment:
 
     @property
     def app(self) -> Sphinx:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         return self._app
 
     @app.setter
     def app(self, app: Sphinx) -> None:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         self._app = app
 
     @app.deleter
     def app(self) -> None:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         del self._app
 
     @property
@@ -667,7 +670,7 @@ class BuildEnvironment:
         docname: str,
         builder: Builder,
         *,
-        tags: Tags,
+        tags: Tags = ...,  # type: ignore[assignment]
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False,
@@ -675,6 +678,15 @@ class BuildEnvironment:
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
+        if tags is ...:
+            warnings.warn(
+                "'tags' will become a required keyword argument "
+                'for global_toctree_for_doc() in Sphinx 11.0.',
+                RemovedInSphinx11Warning,
+                stacklevel=2,
+            )
+            tags = builder.tags
+
         if doctree is None:
             try:
                 doctree = self._write_doc_doctree_cache.pop(docname)
@@ -687,7 +699,6 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
-        tags = builder.tags
         for toctreenode in doctree.findall(addnodes.toctree):
             result = toctree_adapters._resolve_toctree(
                 self,

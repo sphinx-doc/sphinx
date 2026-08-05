@@ -23,33 +23,33 @@ The following is a list of deprecated interfaces.
      - Alternatives
 
    * - ``sphinx.io`` (entire module)
-     - 8.3
-     - 10.0
+     - 9.0
+     - 11.0
      - ``docutils.io`` or standard Python I/O
 
    * - ``sphinx.builders.Builder.app``
-     - 8.3
-     - 10.0
+     - 9.0
+     - 11.0
      - N/A
 
    * - ``sphinx.environment.BuildEnvironment.app``
-     - 8.3
-     - 10.0
+     - 9.0
+     - 11.0
      - N/A
 
    * - ``sphinx.transforms.Transform.app``
-     - 8.3
-     - 10.0
+     - 9.0
+     - 11.0
      - N/A
 
    * - ``sphinx.transforms.post_transforms.SphinxPostTransform.app``
-     - 8.3
-     - 10.0
+     - 9.0
+     - 11.0
      - N/A
 
    * - ``sphinx.events.EventManager.app``
-     - 8.3
-     - 10.0
+     - 9.0
+     - 11.0
      - N/A
 
    * - ``sphinx.builders.singlehtml.SingleFileHTMLBuilder.fix_refuris``

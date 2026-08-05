@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -22,8 +22,6 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
-
-N = TypeVar('N')
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +82,7 @@ class TocTreeCollector(EnvironmentCollector):
                     # and unnecessary stuff
                     visitor = SphinxContentsFilter(doctree)
                     title.walkabout(visitor)
-                    nodetext = visitor.get_entry_text()  # type: ignore[no-untyped-call]
+                    nodetext = visitor.get_entry_text()
                     anchorname = _make_anchor_name(sectionnode['ids'], numentries)
                     # make these nodes:
                     # list_item -> compact_paragraph -> reference

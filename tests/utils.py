@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-__all__ = ('http_server',)
+__all__ = (
+    'http_server',
+    'extract_node',
+    'extract_element',
+)
 
 import os
 import socket
@@ -12,11 +16,15 @@ from threading import Thread
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
+from docutils import nodes
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from http.server import HTTPServer
     from socketserver import BaseRequestHandler
     from typing import Final
+
+    from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
 
@@ -130,3 +138,50 @@ def serve_application(
         rewrite_hyperlinks(app, server),
     ):
         yield f'localhost:{server.server_port}'
+
+
+def extract_node(node: Node, /, *indices: int) -> Node:
+    """Walk down a docutils node tree by repeatedly indexing children.
+
+    Returns a Node (could be Element, Text, etc.)
+
+    Example::
+
+        extract_node(doc, 0, 2, 1) == doc[0][2][1]
+    """
+    current: Node = node
+
+    for depth, i in enumerate(indices):
+        path = ''.join(f'[{i}]' for i in indices[:depth])
+        assert isinstance(current, nodes.Element), (
+            f'Expected node{path} (at depth {depth}) to be an Element '
+            f'before indexing with [{i}], got {type(current).__name__!r}'
+        )
+        try:
+            current = current[i]
+        except IndexError as exc:
+            msg = (
+                f'Index {i} out of range for node{path} (at depth {depth}) '
+                f'for {type(current).__name__!r}'
+            )
+            raise AssertionError(msg) from exc
+
+    return current
+
+
+def extract_element(node: Node, /, *indices: int) -> Element:
+    """Walk down a docutils node tree and return an Element.
+
+    Asserts the final result is an Element (for attribute/dict access).
+
+    Example::
+
+        node = extract_node(doc, 0, 2, 1)
+        node['uri']  # Safe: guaranteed to be docutils.nodes.Element
+    """
+    result = extract_node(node, *indices)
+    if isinstance(result, nodes.Element):
+        return result
+    path = ''.join(f'[{i}]' for i in indices)
+    msg = f'Expected node{path} to be an Element, got {type(result).__name__!r}'
+    raise AssertionError(msg)

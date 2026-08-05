@@ -86,3 +86,15 @@ def test_parse_data_uri() -> None:
     )
     with pytest.raises(ValueError, match=r'malformed data URI'):
         parse_data_uri(uri)
+
+    # not base64
+    uri = (
+        'data:image/svg+xml,%3Csvg%20width%3D%22100%22%20height%3D%22100%22%20'
+        'xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ccircle%20cx'
+        '%3D%2250%22%20cy%3D%2250%22%20r%3D%2240%22%20fill%3D%22blue%22%2F%3E'
+        '%3C%2Fsvg%3E'
+    )
+    image = parse_data_uri(uri)
+    assert image is not None
+    assert image.mimetype == 'image/svg+xml'
+    assert b'%' not in image.data

@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Final, Protocol, TypeAlias
+    from typing import Final, Protocol
 
     from typing_extensions import TypeIs
 
@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     class _AttrGetter(Protocol):
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
-    _RoutineType: TypeAlias = (
+    type _RoutineType = (
         types.FunctionType
         | types.LambdaType
         | types.MethodType
@@ -57,7 +57,7 @@ if TYPE_CHECKING:
         | types.MethodDescriptorType
         | types.ClassMethodDescriptorType
     )
-    _SignatureType: TypeAlias = (
+    type _SignatureType = (
         Callable[..., Any] | staticmethod[Any, Any] | classmethod[Any, Any, Any]
     )
 
@@ -436,7 +436,7 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
     """Check if the object is wrapped coroutine-function."""
     if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
         # staticmethod, classmethod and partial method are not a wrapped coroutine-function
-        # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
+        # Note: staticmethod and classmethod are a kind of wrapper
         return False
     return hasattr(obj, '__wrapped__')
 
@@ -710,6 +710,16 @@ def _should_unwrap(subject: _SignatureType) -> bool:
     )
 
 
+# Python 3.14 uses deferred evaluation of annotations by default.
+# Using annotationlib's FORWARDREF format gives us more robust handling
+# of forward references in type annotations.
+signature_kwds: dict[str, Any] = {}
+if sys.version_info[:2] >= (3, 14):
+    import annotationlib  # type: ignore[import-not-found]
+
+    signature_kwds['annotation_format'] = annotationlib.Format.FORWARDREF
+
+
 def signature(
     subject: _SignatureType,
     bound_method: bool = False,
@@ -726,12 +736,16 @@ def signature(
 
     try:
         if _should_unwrap(subject):
-            signature = inspect.signature(subject)  # type: ignore[arg-type]
+            signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
         else:
-            signature = inspect.signature(subject, follow_wrapped=True)  # type: ignore[arg-type]
+            signature = inspect.signature(
+                subject,  # type: ignore[arg-type]
+                follow_wrapped=True,
+                **signature_kwds,
+            )
     except ValueError:
         # follow built-in wrappers up (ex. functools.lru_cache)
-        signature = inspect.signature(subject)  # type: ignore[arg-type]
+        signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
     parameters = list(signature.parameters.values())
     return_annotation = signature.return_annotation
 
@@ -817,9 +831,9 @@ def _evaluate_forwardref(
         # before 3.12.4 still has the old signature).
         #
         # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(
+        return ref._evaluate(  # pyright: ignore[reportDeprecated]
             globalns, localns, type_params=(), recursive_guard=frozenset()
-        )  # type: ignore[call-arg]
+        )
     return ref._evaluate(globalns, localns, recursive_guard=frozenset())
 
 

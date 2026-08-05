@@ -323,6 +323,7 @@ Documentation using PyData Sphinx Theme
 * `Binder <https://mybinder.readthedocs.io/en/latest/>`__
 * `Bokeh <https://docs.bokeh.org/en/latest/>`__
 * `CuPy <https://docs.cupy.dev/en/stable/>`__
+* `DAMASK <https://damask-multiphysics.org/>`__
 * `EnOSlib <https://discovery.gitlabpages.inria.fr/enoslib/>`__
 * `Fairlearn <https://fairlearn.org/main/>`__
 * `Feature-engine <https://feature-engine.readthedocs.io/en/latest/>`__

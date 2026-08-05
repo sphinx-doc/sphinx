@@ -11,6 +11,7 @@ from docutils.parsers.rst.states import (
     state_classes,
 )
 from docutils.statemachine import StringList
+from docutils.utils import Reporter
 
 from sphinx.util.docutils import SphinxDirective, new_document
 
@@ -26,7 +27,7 @@ def make_directive_and_state(
     *, env: SimpleNamespace, input_lines: StringList | None = None
 ) -> tuple[RSTState, SphinxDirective]:
     sm = RSTStateMachine(state_classes, initial_state='Body')
-    sm.reporter = object()
+    sm.reporter = Reporter(source='<tests>', report_level=0, halt_level=0)
     if input_lines is not None:
         sm.input_lines = input_lines
     state = RSTState(sm)
@@ -57,7 +58,7 @@ def make_directive_and_state(
         content_offset=0,
         block_text='',
         state=state,
-        state_machine=state.state_machine,
+        state_machine=sm,
     )
     return state, directive
 

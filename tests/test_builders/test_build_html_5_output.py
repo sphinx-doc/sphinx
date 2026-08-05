@@ -12,8 +12,9 @@ from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
+    from pathlib import Path
     from typing import Literal
-    from xml.etree.ElementTree import Element
+    from xml.etree.ElementTree import Element, ElementTree
 
     from sphinx.testing.util import SphinxTestApp
 
@@ -523,19 +524,31 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
     tags=['testtag'],
     confoverrides={'html_context.hckey_co': 'hcval_co'},
 )
-def test_html5_output(app, cached_etree_parse, fname, path, check):
+def test_html5_output(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+    fname: str,
+    path: str,
+    check: str,
+) -> None:
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
 
 
 @pytest.mark.sphinx('html', testroot='markup-rubric')
 def test_html5_rubric(app: SphinxTestApp) -> None:
-    def insert_invalid_rubric_heading_level(app, doctree, docname):
+    def insert_invalid_rubric_heading_level(
+        app: SphinxTestApp,
+        doctree: nodes.document,
+        docname: str,
+    ) -> None:
         if docname != 'index':
             return
         new_node = nodes.rubric('', 'INSERTED RUBRIC')
         new_node['heading-level'] = 7
-        doctree[0].append(new_node)
+        section = doctree[0]
+        assert isinstance(section, nodes.Element)
+        section.append(new_node)
 
     app.connect('doctree-resolved', insert_invalid_rubric_heading_level)
     app.build()

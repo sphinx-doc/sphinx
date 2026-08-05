@@ -10,6 +10,7 @@ import pickle
 import sys
 from collections import deque
 from io import StringIO
+from pathlib import Path
 from typing import TYPE_CHECKING, overload
 
 from docutils.parsers.rst import roles
@@ -37,7 +38,6 @@ from sphinx.util.tags import Tags
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Collection, Iterable, Sequence, Set
-    from pathlib import Path
     from typing import IO, Any, Final, Literal
 
     from docutils import nodes
@@ -52,12 +52,14 @@ if TYPE_CHECKING:
     from sphinx.config import ENUM, _ConfigRebuild
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
-    from sphinx.ext.autodoc._documenters import Documenter
     from sphinx.ext.autodoc._event_listeners import (
+        _AutodocBeforeProcessSignatureListener,
+        _AutodocProcessBasesListener,
         _AutodocProcessDocstringListener,
         _AutodocProcessSignatureListener,
         _AutodocSkipMemberListener,
     )
+    from sphinx.ext.autodoc._legacy_class_based._documenters import Documenter
     from sphinx.ext.todo import todo_node
     from sphinx.extension import Extension
     from sphinx.registry import (
@@ -721,7 +723,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-before-process-signature'],
-        callback: Callable[[Sphinx, Any, bool], None],
+        callback: _AutodocBeforeProcessSignatureListener,
         priority: int = 500,
     ) -> int: ...
 
@@ -737,7 +739,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-process-bases'],
-        callback: Callable[[Sphinx, str, Any, dict[str, bool], list[str]], None],
+        callback: _AutodocProcessBasesListener,
         priority: int = 500,
     ) -> int: ...
 
@@ -1482,6 +1484,9 @@ class Sphinx:
         A JavaScript file can be added to the specific HTML page when an extension
         calls this method on :event:`html-page-context` event.
 
+        .. seealso::
+           :meth:`add_static_dir` for copying static files to the output directory
+
         .. versionadded:: 0.5
 
         .. versionchanged:: 1.8
@@ -1547,6 +1552,9 @@ class Sphinx:
         A CSS file can be added to the specific HTML page when an extension calls
         this method on :event:`html-page-context` event.
 
+        .. seealso::
+           :meth:`add_static_dir` for copying static files to the output directory
+
         .. versionadded:: 1.0
 
         .. versionchanged:: 1.6
@@ -1569,6 +1577,42 @@ class Sphinx:
             self.builder.add_css_file(  # type: ignore[attr-defined]
                 filename, priority=priority, **kwargs
             )
+
+    def add_static_dir(self, path: str | os.PathLike[str]) -> None:
+        """Register a static directory to include in HTML output.
+
+        The given directory's contents will be copied to the ``_static``
+        directory during an HTML build. Files from extension static directories
+        are copied after theme static files and before any directories from
+        the user-configured ``html_static_path`` setting.
+
+        Sphinx has built-in support for ``static/`` directories in themes;
+        theme developers should only use this method to register further
+        directories to be copied.
+
+        :param path: The path to a directory containing static files.
+                     This is typically relative to the extension's package
+                     directory.
+
+        Example::
+
+            from pathlib import Path
+
+            def setup(app):
+                # All files in this directory are copied to _static/,
+                # preserving the subdirectory structure
+                app.add_static_dir(Path(__file__).parent / 'static')
+
+                # Add JavaScript and CSS files to HTML pages,
+                # the paths are relative to _static/
+                app.add_js_file('js/my_extension.js')
+                app.add_css_file('css/my_extension.css')
+
+        .. versionadded:: 9.1
+        """
+        path = Path(path)
+        logger.debug("[app] adding static_dir: '%s'", path)
+        self.registry.add_static_dir(path)
 
     def add_latex_package(
         self, packagename: str, options: str | None = None, after_hyperref: bool = False
@@ -1629,7 +1673,7 @@ class Sphinx:
         logger.debug('[app] adding autodocumenter: %r', cls)
         from sphinx.ext.autodoc.directive import AutodocDirective
 
-        objtype = cls.objtype  # type: ignore[attr-defined]
+        objtype = cls.objtype
         self.registry.add_documenter(objtype, cls)
         self.add_directive('auto' + objtype, AutodocDirective, override=override)
 

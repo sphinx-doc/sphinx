@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import warnings
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -16,7 +16,7 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from docutils.nodes import Element, Node, TextElement
 
@@ -27,15 +27,15 @@ if TYPE_CHECKING:
         StringifyTransform,
     )
 
-DeclarationType: TypeAlias = Union[
-    'ASTStruct',
-    'ASTUnion',
-    'ASTEnum',
-    'ASTEnumerator',
-    'ASTType',
-    'ASTTypeWithInit',
-    'ASTMacro',
-]
+type DeclarationType = (
+    'ASTStruct'
+    | 'ASTUnion'
+    | 'ASTEnum'
+    | 'ASTEnumerator'
+    | 'ASTType'
+    | 'ASTTypeWithInit'
+    | 'ASTMacro'
+)
 
 
 class ASTBase(ASTBaseBase):

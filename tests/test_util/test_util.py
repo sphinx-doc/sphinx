@@ -8,13 +8,11 @@ import pytest
 
 import sphinx.util
 from sphinx._cli.util.errors import strip_escape_sequences
-from sphinx.deprecation import RemovedInSphinx10Warning, RemovedInSphinx90Warning
-from sphinx.errors import ExtensionError
+from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
 from sphinx.util._importer import import_object
 from sphinx.util._lines import parse_line_num_spec
 from sphinx.util._uri import encode_uri, is_url
-from sphinx.util.index_entries import _split_into, split_index_msg
 from sphinx.util.matching import patfilter
 from sphinx.util.nodes import (
     caption_ref_re,
@@ -45,30 +43,6 @@ def test_ensuredir(tmp_path: Path) -> None:
 
 
 def test_exported_attributes() -> None:
-    # RemovedInSphinx90Warning
-    with pytest.warns(
-        RemovedInSphinx90Warning,
-        match=r"deprecated, use 'sphinx.util.index_entries.split_index_msg' instead.",
-    ):
-        assert sphinx.util.split_index_msg is split_index_msg
-    with pytest.warns(RemovedInSphinx90Warning, match=r'deprecated.'):
-        assert sphinx.util.split_into is _split_into
-    with pytest.warns(
-        RemovedInSphinx90Warning,
-        match=r"deprecated, use 'sphinx.errors.ExtensionError' instead.",
-    ):
-        assert sphinx.util.ExtensionError is ExtensionError
-    with pytest.warns(
-        RemovedInSphinx90Warning,
-        match=r"deprecated, use 'hashlib.md5' instead.",
-    ):
-        _ = sphinx.util.md5
-    with pytest.warns(
-        RemovedInSphinx90Warning,
-        match=r"deprecated, use 'hashlib.sha1' instead.",
-    ):
-        _ = sphinx.util.sha1
-
     # RemovedInSphinx10Warning
     with pytest.warns(RemovedInSphinx10Warning, match=r'deprecated.'):
         assert sphinx.util.FilenameUniqDict is FilenameUniqDict

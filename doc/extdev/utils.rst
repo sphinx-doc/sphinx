@@ -32,13 +32,6 @@ components (e.g. :class:`.Config`, :class:`.BuildEnvironment` and so on) easily.
    :members:
 
 
-Utility components
-------------------
-
-.. autoclass:: sphinx.events.EventManager
-   :members:
-
-
 Utility functions
 -----------------
 

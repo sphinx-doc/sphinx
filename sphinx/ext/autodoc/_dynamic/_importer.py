@@ -15,10 +15,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._dynamic._mock import ismock, mock, undecorate
 from sphinx.ext.autodoc._sentinels import RUNTIME_INSTANCE_ATTRIBUTE, UNINITIALIZED_ATTR
-from sphinx.ext.autodoc.mock import ismock, mock, undecorate
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import inspect, logging
+from sphinx.util import inspect
 from sphinx.util.inspect import isclass, safe_getattr
 from sphinx.util.typing import get_type_hints
 
@@ -35,7 +36,6 @@ if TYPE_CHECKING:
 
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
-logger = logging.getLogger(__name__)
 
 
 class _ImportedObject:
@@ -103,7 +103,7 @@ def _import_object(
             )
             if im_ is not None:
                 return im_
-        logger.warning(exc.args[0], type='autodoc', subtype='import_object')
+        LOGGER.warning(exc.args[0], type='autodoc', subtype='import_object')
         return None
 
     if ismock(im.obj):
@@ -119,9 +119,9 @@ def _import_from_module_and_path(
 ) -> _ImportedObject:
     obj_path = list(obj_path)
     if obj_path:
-        logger.debug('[autodoc] from %s import %s', module_name, '.'.join(obj_path))
+        LOGGER.debug('[autodoc] from %s import %s', module_name, '.'.join(obj_path))
     else:
-        logger.debug('[autodoc] import %s', module_name)
+        LOGGER.debug('[autodoc] import %s', module_name)
 
     module = None
     exc_on_importing = None
@@ -129,9 +129,9 @@ def _import_from_module_and_path(
         while module is None:
             try:
                 module = _import_module(module_name, try_reload=True)
-                logger.debug('[autodoc] import %s => %r', module_name, module)
+                LOGGER.debug('[autodoc] import %s => %r', module_name, module)
             except ImportError as exc:
-                logger.debug('[autodoc] import %s => failed', module_name)
+                LOGGER.debug('[autodoc] import %s => failed', module_name)
                 exc_on_importing = exc
                 if '.' not in module_name:
                     raise
@@ -145,16 +145,16 @@ def _import_from_module_and_path(
         object_name = ''
         for attr_name in obj_path:
             parent = obj
-            logger.debug('[autodoc] getattr(_, %r)', attr_name)
+            LOGGER.debug('[autodoc] getattr(_, %r)', attr_name)
             mangled_name = _mangle_name(obj, attr_name)
             obj = get_attr(obj, mangled_name)
 
             try:
-                logger.debug('[autodoc] => %r', obj)
+                LOGGER.debug('[autodoc] => %r', obj)
             except TypeError:
                 # fallback of failure on logging for broken object
                 # See: https://github.com/sphinx-doc/sphinx/issues/9095
-                logger.debug('[autodoc] => %r', (obj,))
+                LOGGER.debug('[autodoc] => %r', (obj,))
 
             object_name = attr_name
         return _ImportedObject(
@@ -181,7 +181,7 @@ def _import_from_module_and_path(
             # _import_module() raises ImportError having real exception obj and
             # traceback
             real_exc = exc.args[0]
-            traceback_msg = traceback.format_exception(exc)
+            traceback_msg = ''.join(traceback.format_exception(exc))
             if isinstance(real_exc, SystemExit):
                 err_parts.append(
                     'the module executes module level statement '
@@ -201,7 +201,7 @@ def _import_from_module_and_path(
             )
 
         errmsg = '; '.join(err_parts)
-        logger.debug(errmsg)
+        LOGGER.debug(errmsg)
         raise ImportError(errmsg) from exc
 
 

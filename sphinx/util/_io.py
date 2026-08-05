@@ -28,6 +28,6 @@ class TeeStripANSI:
 
     def flush(self) -> None:
         if hasattr(self.stream_term, 'flush'):
-            self.stream_term.flush()
+            self.stream_term.flush()  # ty: ignore[call-non-callable]
         if hasattr(self.stream_file, 'flush'):
-            self.stream_file.flush()
+            self.stream_file.flush()  # ty: ignore[call-non-callable]

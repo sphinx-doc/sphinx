@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.nodes import Element
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx10Warning
+from sphinx.deprecation import RemovedInSphinx11Warning
 from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
@@ -85,8 +85,8 @@ def global_toctree_for_doc(
     if tags is ...:
         warnings.warn(
             "'tags' will become a required keyword argument "
-            'for global_toctree_for_doc() in Sphinx 10.0.',
-            RemovedInSphinx10Warning,
+            'for global_toctree_for_doc() in Sphinx 11.0.',
+            RemovedInSphinx11Warning,
             stacklevel=2,
         )
         tags = builder.tags
@@ -482,12 +482,9 @@ def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
                     subnode = subnode.parent
 
 
-_ET = TypeVar('_ET', bound=Element)
-
-
-def _toctree_copy(
-    node: _ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
-) -> _ET:
+def _toctree_copy[ET: Element](
+    node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tags
+) -> ET:
     """Utility: Cut and deep-copy a TOC at a specified depth."""
     assert not isinstance(node, addnodes.only)
     depth = max(depth - 1, 1)

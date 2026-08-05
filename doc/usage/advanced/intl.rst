@@ -375,10 +375,11 @@ Contributing to Sphinx reference translation
 The recommended way for new contributors to translate Sphinx reference is to
 join the translation team on Transifex.
 
-There is a `sphinx translation page`_ for Sphinx (master) documentation.
+There is a `Sphinx translation page`_ for Sphinx (master) documentation.
 
 1. Login to Transifex_ service.
-2. Go to `sphinx translation page`_.
+2. Go to the `"Sphinx's documentation" translation project
+   <https://app.transifex.com/sphinx-doc/sphinx-doc/>`__.
 3. Click ``Request language`` and fill form.
 4. Wait acceptance by Transifex sphinx translation maintainers.
 5. (After acceptance) Translate on Transifex.
@@ -414,7 +415,7 @@ percentage of nodes that have been translated on a per-document basis.
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
 .. _Transifex: https://app.transifex.com/
 .. _Weblate's documentation: https://docs.weblate.org/en/latest/devel/sphinx.html
-.. _`sphinx translation page`: https://app.transifex.com/sphinx-doc/sphinx-doc/
+.. _`Sphinx translation page`: https://explore.transifex.com/sphinx-doc/sphinx-doc/
 .. _`Transifex Client documentation`: https://developers.transifex.com/docs/using-the-client
 .. _`Transifex API token`: https://app.transifex.com/user/settings/api/
 .. _`sphinx-intl update-txconfig-resources documentation`: https://sphinx-intl.readthedocs.io/en/master/refs.html#sphinx-intl-update-txconfig-resources

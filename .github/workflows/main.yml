@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - ".github/workflows/main.yml"
+      - ".pytest.toml"
       - "sphinx/**"
       - "tests/**"
   pull_request:
     paths:
       - ".github/workflows/main.yml"
+      - ".pytest.toml"
       - "sphinx/**"
       - "tests/**"
 
@@ -34,22 +36,21 @@ jobs:
       fail-fast: false
       matrix:
         python:
-        - "3.11"
         - "3.12"
         - "3.13"
         - "3.13t"
         - "3.14"
         - "3.14t"
         docutils:
-        - "0.20"
+        - "0.21"
         - "0.22"
-        include:
-        # test every supported Docutils version for the latest supported Python
-        - python: "3.14"
-          docutils: "0.21"
+#        include:
+#        # test every supported Docutils version for the latest supported Python
+#        - python: "3.14"
+#          docutils: "0.21"
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Mount the test roots as read-only
@@ -65,7 +66,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -92,11 +93,11 @@ jobs:
         python:
         - "3.15"
         docutils:
-        - "0.20"
+        - "0.21"
         - "0.22"
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
@@ -129,7 +130,7 @@ jobs:
         - "3.15"
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
@@ -164,7 +165,7 @@ jobs:
         echo "TMP=D:\\Tmp" >> $env:GITHUB_ENV
         echo "TEMP=D:\\Tmp" >> $env:GITHUB_ENV
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -176,7 +177,7 @@ jobs:
     - name: Install graphviz
       run: choco install --no-progress graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -193,7 +194,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -205,7 +206,7 @@ jobs:
     - name: Install graphviz
       run: brew install graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -228,7 +229,7 @@ jobs:
         mkdir /tmp/epubcheck && cd /tmp/epubcheck
         wget --no-verbose https://github.com/w3c/epubcheck/releases/download/v${EPUBCHECK_VERSION}/epubcheck-${EPUBCHECK_VERSION}.zip
         unzip epubcheck-${EPUBCHECK_VERSION}.zip
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -240,7 +241,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -261,7 +262,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -273,7 +274,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -294,7 +295,7 @@ jobs:
       image: ghcr.io/sphinx-doc/sphinx-ci
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -304,7 +305,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
@@ -325,7 +326,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Set up Python
@@ -337,7 +338,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false

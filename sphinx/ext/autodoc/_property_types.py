@@ -8,7 +8,7 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
-    from typing import Any, Literal, TypeAlias
+    from typing import Any, Literal
 
     from sphinx.ext.autodoc._sentinels import (
         RUNTIME_INSTANCE_ATTRIBUTE_T,
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
         UNINITIALIZED_ATTR_T,
     )
 
-    _AutodocObjType: TypeAlias = Literal[
+    type _AutodocObjType = Literal[
         'module',
         'class',
         'exception',
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
         'data',
         'type',
     ]
-    _AutodocFuncProperty: TypeAlias = Literal[
+    type _AutodocFuncProperty = Literal[
         'abstractmethod',
         'async',
         'classmethod',

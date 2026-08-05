@@ -32,6 +32,8 @@ from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError, NoOldIdError
 from sphinx.writers.text import STDINDENT
 
+from tests.utils import extract_node
+
 if TYPE_CHECKING:
     from io import StringIO
 
@@ -49,7 +51,8 @@ def parse(name, string):
     parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
     if name == 'enum':
-        ast.scoped = None  # simulate unscoped enum
+        # simulate unscoped enum
+        ast.scoped = None  # ty: ignore[unresolved-attribute]
     return ast
 
 
@@ -2041,7 +2044,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -2053,7 +2056,9 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 
@@ -2104,7 +2109,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_sin
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -2116,7 +2121,9 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_sin
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 
@@ -2165,7 +2172,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -2176,7 +2183,11 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
             ),
         ],
     )
-    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
+    assert_node(
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=True,
+    )
 
 
 @pytest.mark.sphinx(
@@ -2224,7 +2235,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -2236,7 +2247,9 @@ def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 
@@ -2285,7 +2298,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_force_single(
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -2297,7 +2310,9 @@ def test_cpp_function_signature_with_maximum_signature_line_length_force_single(
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 
@@ -2346,7 +2361,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -2357,7 +2372,11 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
             ),
         ],
     )
-    assert_node(doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=True)
+    assert_node(
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=True,
+    )
 
 
 @pytest.mark.sphinx(
@@ -2404,7 +2423,7 @@ def test_cpp_maximum_signature_line_length_overrides_global(app):
         no_index=False,
     )
     assert_node(
-        doctree[1][0][0][3],
+        extract_node(doctree, 1, 0, 0, 3),
         [
             desc_parameterlist,
             desc_parameter,
@@ -2416,7 +2435,9 @@ def test_cpp_maximum_signature_line_length_overrides_global(app):
         ],
     )
     assert_node(
-        doctree[1][0][0][3], desc_parameterlist, multi_line_parameter_list=False
+        extract_node(doctree, 1, 0, 0, 3),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
     )
 
 

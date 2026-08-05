@@ -18,6 +18,7 @@ from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx._cli import inspect_main
 from sphinx.ext.intersphinx._load import (
+    _display_failures,
     _fetch_inventory_data,
     _fetch_inventory_group,
     _get_safe_url,
@@ -923,3 +924,22 @@ def test_inventory_text_version(tmp_path, app):
     assert rn['refuri'] == 'https://docs.python.org/foo.html#module-module1'
     assert rn['reftitle'] == '(in foo stable)'
     assert rn[0].astext() == 'Long Module desc'
+
+
+def test_display_failures():
+    failures_args = [
+        ('Failed to fetch %s from %s', 'inventory', 'http://example.com'),
+        ('Timeout after %d seconds',),  # Only one argument
+        (
+            'intersphinx inventory has moved:',
+            'http://example.com',
+            'http://proxyhost.net',
+        ),  # No '%'
+    ]
+    issues = _display_failures(failures_args)
+    assert 'Failed to fetch inventory from http://example.com' in issues
+    assert 'Timeout after %d seconds' in issues
+    assert (
+        'intersphinx inventory has moved: - http://example.com - http://proxyhost.net'
+        in issues
+    )

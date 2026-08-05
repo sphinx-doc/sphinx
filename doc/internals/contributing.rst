@@ -93,17 +93,29 @@ These are the basic steps needed to start developing on Sphinx.
       git clone https://github.com/<USERNAME>/sphinx
       cd sphinx
 
-#. Setup a virtual environment.
+#. Install uv and set up your environment.
 
-   This is not necessary for unit testing, thanks to :program:`tox`,
-   but it is necessary if you wish to run :program:`sphinx-build` locally
-   or run unit tests without the help of :program:`tox`:
+   We recommend using :program:`uv` for dependency management.
+   Install it with:
 
    .. code-block:: shell
 
-       virtualenv ~/.venv
-       . ~/.venv/bin/activate
-       pip install -e .
+      python -m pip install -U uv
+
+   Then, set up your environment:
+
+   .. code-block:: shell
+
+       uv sync
+
+   **Alternative:** If you prefer not to use :program:`uv`, you can use
+   :program:`pip`:
+
+   .. code-block:: shell
+
+       python -m venv .venv
+       . .venv/bin/activate
+       python -m pip install -e .
 
 #. Create a new working branch. Choose any name you like.
 
@@ -167,8 +179,9 @@ Style and type checks can be run as follows:
 
 .. code-block:: shell
 
-    ruff check .
-    mypy
+    uv run ruff check
+    uv run ruff format
+    uv run mypy
 
 
 Unit tests
@@ -188,24 +201,31 @@ of targets and allows testing against multiple different Python environments:
 
      tox -av
 
-* To run unit tests for a specific Python version, such as Python 3.13:
+* To run unit tests for a specific Python version, such as Python 3.14:
 
   .. code-block:: shell
 
-     tox -e py313
+     tox -e py314
 
 * Arguments to :program:`pytest` can be passed via :program:`tox`,
   e.g., in order to run a particular test:
 
   .. code-block:: shell
 
-     tox -e py313 tests/test_module.py::test_new_feature
+     tox -e py314 tests/test_module.py::test_new_feature
 
 You can also test by installing dependencies in your local environment:
 
   .. code-block:: shell
 
-     pip install . --group test
+     uv run pytest
+
+Or with :program:`pip`:
+
+  .. code-block:: shell
+
+     python -m pip install . --group test
+     pytest
 
 To run JavaScript tests, use :program:`npm`:
 
@@ -280,15 +300,34 @@ To do so, use `sphinx-autobuild`_ to run the following command:
 .. _sphinx-autobuild: https://github.com/sphinx-doc/sphinx-autobuild
 
 Translations
-~~~~~~~~~~~~
+------------
 
 The parts of messages in Sphinx that go into builds are translated into several
 locales.  The translations are kept as gettext ``.po`` files translated from the
 master template :file:`sphinx/locale/sphinx.pot`.
 
+These Sphinx core messages are translated using the online `Transifex
+<https://explore.transifex.com/sphinx-doc/sphinx-1/>`__ platform.
+
+Translated strings from the platform are pulled into the Sphinx repository
+by a maintainer before a new release.
+
+We do not accept pull requests altering the translation files directly.
+Instead, please contribute translations via the Transifex platform.
+
+Translations notes for maintainers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `transifex CLI <https://developers.transifex.com/docs/cli>`__ (``tx``)
+can be used to pull translations in ``.po`` format from Transifex.
+To do this, go to :file:`sphinx/locale` and then run ``tx pull -f -l LANG``
+where ``LANG`` is an existing language identifier.
+It is good practice to run ``python utils/babel_runner.py update`` afterwards
+to make sure the ``.po`` file has the canonical Babel formatting.
+
 Sphinx uses `Babel <https://babel.pocoo.org/en/latest/>`_ to extract messages
 and maintain the catalog files.  The :file:`utils` directory contains a helper
-script, ``babel_runner.py``.
+script, :file:`utils/babel_runner.py`.
 
 * Use ``python babel_runner.py extract`` to update the ``.pot`` template.
 * Use ``python babel_runner.py update`` to update all existing language
@@ -301,18 +340,9 @@ When an updated ``.po`` file is submitted, run
 ``python babel_runner.py compile`` to commit both the source and the compiled
 catalogs.
 
-When a new locale is submitted, add a new directory with the ISO 639-1 language
+When a new locale is added, add a new directory with the ISO 639-1 language
 identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
 values for :confval:`language` in :file:`doc/usage/configuration.rst`.
-
-The Sphinx core messages can also be translated on `Transifex
-<https://www.transifex.com/sphinx-doc/sphinx-1/>`_.  There ``tx`` client tool,
-which is provided by the ``transifex_client`` Python package, can be used to
-pull translations in ``.po`` format from Transifex.  To do this, go to
-:file:`sphinx/locale` and then run ``tx pull -f -l LANG`` where ``LANG`` is an
-existing language identifier.  It is good practice to run
-``python babel_runner.py update`` afterwards to make sure the ``.po`` file has the
-canonical Babel formatting.
 
 
 Debugging tips
