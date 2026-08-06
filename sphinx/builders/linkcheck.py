@@ -212,9 +212,15 @@ class CheckExternalLinksBuilder(Builder):
             # check for various conditions without bothering the network
             if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
                 return 'unchecked', '', 0
-            elif not uri.startswith(('http:', 'https:')):
+            scheme = urlparse(uri).scheme
+            if scheme in ('http', 'https'):
+                pass
+            elif scheme in ('', 'file'):
                 return self.check_local_uri(uri, docname)
-            elif uri in self.good:
+            else:
+                return 'local', '', 0
+
+            if uri in self.good:
                 return 'working', 'old', 0
             elif uri in self.broken:
                 return 'broken', self.broken[uri], 0
@@ -339,14 +345,19 @@ class CheckExternalLinksBuilder(Builder):
 
     def check_local_uri(self, uri: str, docname: str) -> Tuple[str, str, int]:
         docpath = path.join(self.env.srcdir, self.env.doc2path(docname, None))
-        target_uri = uri.split('#', 1)[0]
+        parsed = urlparse(uri)
+        if parsed.scheme == 'file':
+            target_uri = unquote(parsed.path)
+        else:
+            target_uri = uri.split('#', 1)[0]
+
         if path.isabs(target_uri):
             target = target_uri
         else:
             target = path.normpath(path.join(path.dirname(docpath), unquote(target_uri)))
 
         if path.exists(target):
-            return 'working', '', 0
+            return 'local', '', 0
 
         return 'broken', 'File not found', 0
 

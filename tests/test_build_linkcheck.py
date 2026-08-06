@@ -31,7 +31,7 @@ def test_defaults(app, status, warning):
     assert "Not Found for url: https://www.google.com/image.png" in content
     assert "Not Found for url: https://www.google.com/image2.png" in content
     assert "[broken] missing.txt: File not found" in content
-    assert len(content.splitlines()) == 6
+    assert len(content.splitlines()) == 7
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
@@ -71,7 +71,7 @@ def test_defaults_json(app, status, warning):
     assert rowsby['existing.txt'] == {
         'filename': 'links.txt',
         'lineno': 14,
-        'status': 'working',
+        'status': 'local',
         'code': 0,
         'uri': 'existing.txt',
         'info': ''
@@ -117,7 +117,7 @@ def test_anchors_ignored(app, status, warning):
     assert (app.outdir / 'output.txt').exists()
     content = (app.outdir / 'output.txt').read_text()
 
-    assert content == 'links.txt:15: [broken] missing.txt: File not found\n'
+    assert content == 'links.txt:14: [local] existing.txt\nlinks.txt:15: [broken] missing.txt: File not found\n'
 
 
 @pytest.mark.sphinx(
