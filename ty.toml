@@ -22,5 +22,5 @@ exclude = [
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
 invalid-method-override = "ignore"
-non-subscriptable = "ignore"
+not-subscriptable = "ignore"
 possibly-missing-attribute = "ignore"
