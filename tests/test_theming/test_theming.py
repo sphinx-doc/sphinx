@@ -185,6 +185,23 @@ def test_dark_style(app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch) -> None
     ) in result
 
 
+@pytest.mark.sphinx(
+    'html',
+    testroot='theming',
+    confoverrides={'html_theme': 'haiku'},
+)
+def test_haiku_dark_mode_stylesheet(app: SphinxTestApp) -> None:
+    app.build()
+
+    stylesheet = app.outdir / '_static' / 'haiku.css'
+    assert stylesheet.exists()
+    result = stylesheet.read_text(encoding='utf8')
+    assert '@media (prefers-color-scheme: dark)' in result
+    assert 'background-image: none' in result
+    assert 'background-color: #202124' in result
+    assert 'background-color: #25282c' in result
+
+
 @pytest.mark.sphinx('html', testroot='theming')
 def test_theme_sidebars(app: SphinxTestApp) -> None:
     app.build()

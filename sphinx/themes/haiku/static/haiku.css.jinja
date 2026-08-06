@@ -324,6 +324,93 @@ hr {
     margin-top: 20px;
 }
 
+/* dark mode */
+@media (prefers-color-scheme: dark) {
+    html {
+        background-color: #202124;
+        background-image: none;
+    }
+
+    body {
+        color: #e8eaed;
+    }
+
+    a:link {
+        color: #ff9d76;
+    }
+
+    a:visited {
+        color: #d6a8ff;
+    }
+
+    a:hover, a:active {
+        color: #ffb997;
+    }
+
+    h1, h2, h3, h4,
+    div.header h1,
+    div.header h1 a,
+    div.title {
+        color: #9cc9ff;
+    }
+
+    h1, h2, div.title {
+        border-color: #50545a;
+    }
+
+    div.header h2 {
+        color: #b4b4b4;
+    }
+
+    div.bottomnav {
+        background-color: #2d3136;
+    }
+
+    table.index {
+        border-color: #50545a;
+    }
+
+    table.index tr.heading {
+        background-color: #3a4046;
+    }
+
+    table.index tr.index {
+        background-color: #30343a;
+    }
+
+    div.admonition {
+        border-color: #666b72;
+    }
+
+    div.note, div.seealso {
+        background-color: #28432d;
+    }
+
+    div.warning {
+        background-color: #4a3e19;
+    }
+
+    code {
+        background-color: #3a3f44;
+        color: #f0f0f0;
+    }
+
+    pre {
+        background-color: #25282c;
+        border-color: #6ea8d8;
+    }
+
+    hr {
+        border-top-color: #60656b;
+    }
+
+    div.viewcode-block:target {
+        background-color: #4f402d;
+        border-top-color: #8aa878;
+        border-bottom-color: #8aa878;
+    }
+}
+
 /* printer only pretty stuff */
 @media print {
     .noprint {

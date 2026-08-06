@@ -1,6 +1,11 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #13742: Add dark mode support to the Haiku HTML theme.
+
 Bugs fixed
 ----------
 
