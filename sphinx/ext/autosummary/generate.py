@@ -23,17 +23,19 @@ import pkgutil
 import pydoc
 import re
 import sys
+import traceback
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple, Callable
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
+from sphinx.util.tags import Tags
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.builders import Builder
-from sphinx.config import Config
-from sphinx.errors import PycodeError
+from sphinx.config import CONFIG_FILENAME, Config, eval_config_file
+from sphinx.errors import ConfigError, PycodeError
 from sphinx.events import EventManager
 from sphinx.ext.autodoc._dynamic._importer import _import_module
 from sphinx.ext.autodoc._dynamic._member_finder import _filter_enum_dict, unmangle
@@ -1005,16 +1007,23 @@ def main(argv: Sequence[str] = (), /) -> None:
         app.config.templates_path.append(str(Path(args.templates).resolve()))
     app.config.autosummary_ignore_module_all = not args.respect_module_all
 
-    if os.path.exists(os.path.join(os.getcwd(), 'conf.py')):
+    conf_path = Path(os.getcwd(), CONFIG_FILENAME)
+    if conf_path.is_file():
+        namespace = eval_config_file(conf_path, Tags([]))
         try:
-            import importlib.util
-            spec = importlib.util.spec_from_file_location('conf', os.path.join(os.getcwd(), 'conf.py'))
-            conf = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(conf)
-            if hasattr(conf, 'setup'):
-                conf.setup(app)  # type: ignore[attr-defined]
-        except Exception as e:
-            logger.error(f"Error loading conf.py {e}")
+            if 'setup' in namespace:
+                namespace['setup'](app)
+        except SystemExit as exc:
+            msg = __(
+                'The configuration file (or one of the modules it imports) '
+                'called sys.exit()'
+            )
+            raise ConfigError(msg) from exc
+        except ConfigError:
+            raise
+        except Exception as exc:
+            msg = __('There is a programmable error in your configuration file:\n\n%s')
+            raise ConfigError(msg % traceback.format_exc()) from exc
 
     written_files = generate_autosummary_docs(
         args.source_file,
