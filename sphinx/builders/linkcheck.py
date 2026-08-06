@@ -15,7 +15,7 @@ import socket
 import threading
 from html.parser import HTMLParser
 from os import path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, Set, Tuple
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
@@ -213,7 +213,7 @@ class CheckExternalLinksBuilder(Builder):
             if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
                 return 'unchecked', '', 0
             elif not uri.startswith(('http:', 'https:')):
-                return 'local', '', 0
+                return self.check_local_uri(uri, docname)
             elif uri in self.good:
                 return 'working', 'old', 0
             elif uri in self.broken:
@@ -336,6 +336,19 @@ class CheckExternalLinksBuilder(Builder):
 
         if self.broken:
             self.app.statuscode = 1
+
+    def check_local_uri(self, uri: str, docname: str) -> Tuple[str, str, int]:
+        docpath = path.join(self.env.srcdir, self.env.doc2path(docname, None))
+        target_uri = uri.split('#', 1)[0]
+        if path.isabs(target_uri):
+            target = target_uri
+        else:
+            target = path.normpath(path.join(path.dirname(docpath), unquote(target_uri)))
+
+        if path.exists(target):
+            return 'working', '', 0
+
+        return 'broken', 'File not found', 0
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
