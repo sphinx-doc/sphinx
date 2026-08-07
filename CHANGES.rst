@@ -34,6 +34,9 @@ Features added
 Bugs fixed
 ----------
 
+* #12346: todo: Fix parsing of repeated punctuation, such as ``????``,
+  on the directive line.
+  Patch by cyphercodes.
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
 * #13713: Fix compatibility with MyST-Parser.
