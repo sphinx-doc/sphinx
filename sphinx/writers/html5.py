@@ -42,6 +42,11 @@ def multiply_length(length: str, scale: int) -> str:
     result = float(amount) * scale / 100
     return f'{int(result)}{unit}'
 
+def starttag(self, node: Element, tagname: str, *args: Any, **atts: Any) -> str:
+    if 'lang' not in atts:
+        if lang := node.attributes.get('lang'):
+            atts['lang'] = lang
+        return super().starttag(node, tagname, *args, **atts)
 
 class HTML5Translator(SphinxTranslator, BaseTranslator):
     """Our custom HTML translator."""
