@@ -63,3 +63,4 @@ Bugs fixed
 * LaTeX: Fix accidental removal at ``3.5.0`` (#8854) of the documentation of
   ``literalblockcappos`` key of  :ref:`'sphinxsetup' <latexsphinxsetup>`.
   Patch by Jean-François B.
+* Add missing 'toc' type for 'empty_glob' subtype.
