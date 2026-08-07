@@ -383,6 +383,11 @@ class sphinx_domains(CustomReSTDispatcher):
 
 
 class WarningStream:
+    env: BuildEnvironment
+
+    def __init__(self, env: BuildEnvironment):
+        self.env = env
+
     def write(self, text: str) -> None:
         matched = report_re.search(text)
         if not matched:
@@ -390,17 +395,21 @@ class WarningStream:
         else:
             location, type, _level = matched.groups()
             message = report_re.sub('', text).rstrip()
+            numeric_level = Reporter.levels.index(type)
+            if numeric_level >= self.env.config.docutils_warning_level:
+                type = max(logging.LEVEL_NAMES["WARNING"], logging.LEVEL_NAMES[message])
             logger.log(type, message, location=location, type='docutils')
 
 
 class LoggingReporter(Reporter):
     @classmethod
     def from_reporter(
-        cls: type[LoggingReporter], reporter: Reporter
+        cls: type[LoggingReporter], reporter: Reporter, env: BuildEnvironment,
     ) -> LoggingReporter:
         """Create an instance of LoggingReporter from other reporter object."""
         return cls(
             reporter.source,
+            env,
             reporter.report_level,
             reporter.halt_level,
             reporter.debug_flag,
@@ -410,12 +419,13 @@ class LoggingReporter(Reporter):
     def __init__(
         self,
         source: str,
+        env: BuildEnvironment,
         report_level: int = Reporter.WARNING_LEVEL,
         halt_level: int = Reporter.SEVERE_LEVEL,
         debug: bool = False,
         error_handler: str = 'backslashreplace',
     ) -> None:
-        stream = WarningStream()
+        stream = WarningStream(env)
         super().__init__(
             source, report_level, halt_level, stream, debug, error_handler=error_handler
         )
@@ -867,6 +877,7 @@ def _parse_str_to_doctree(
     # Create root document node
     reporter = LoggingReporter(
         source=str(filename),
+        env=env,
         report_level=settings.report_level,
         halt_level=settings.halt_level,
         debug=settings.debug,

@@ -294,6 +294,9 @@ class Config:
             frozenset((dict,)),
         ),
         'option_emphasise_placeholders': _Opt(False, 'env', frozenset((bool,))),
+        # docutils overrides
+        'docutils_report_level': _Opt(2, 'env', frozenset((int,))),
+        'docutils_warning_level': _Opt(2, 'env', frozenset((int,))),
     }
 
     def __init__(
