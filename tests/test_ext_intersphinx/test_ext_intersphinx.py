@@ -287,6 +287,38 @@ def test_missing_reference_pydomain(tmp_path, app):
 
 
 @pytest.mark.sphinx('html', testroot='root')
+def test_missing_reference_pydomain_deco_const(tmp_path, app):
+    # the ``deco`` and ``const`` roles used to be claimed by no object type,
+    # so intersphinx had no candidate types to look for and gave up
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(INVENTORY_V2)
+    set_config(
+        app,
+        {
+            'python': ('https://docs.python.org/', str(inv_file)),
+        },
+    )
+
+    validate_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    # ``deco`` resolves to a function, as ``py:decorator`` is a function
+    node, contnode = fake_node('py', 'deco', 'module1.func', 'module1.func')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn['refuri'] == 'https://docs.python.org/sub/foo.html#module1.func'
+
+    # ... and to a method, as ``py:decoratormethod`` is a method
+    node, contnode = fake_node('py', 'deco', 'module1.Foo.bar', 'module1.Foo.bar')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn['refuri'] == 'https://docs.python.org/index.html#foo.Bar.baz'
+
+    # ``const`` resolves to data
+    node, contnode = fake_node('py', 'const', 'module1.CONST', 'module1.CONST')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn['refuri'] == 'https://docs.python.org/sub/foo.html#module1.CONST'
+
+
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_stddomain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
