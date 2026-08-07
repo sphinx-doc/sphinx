@@ -57,8 +57,14 @@ def parse_reftarget(
 
 def type_to_xref(
     target: str, env: BuildEnvironment, *, suppress_prefix: bool = False
-) -> addnodes.pending_xref:
+) -> addnodes.pending_xref | nodes.Text:
     """Convert a type string to a cross reference node."""
+    if '.' not in target and target in env.ref_context.get('py:type_params', ()):
+        # PEP 695 type parameters in scope shadow any documented object
+        # with the same name and have no link target of their own, so
+        # render them as plain text (#14462).
+        return nodes.Text(target)
+
     if env:
         kwargs = {
             'py:module': env.ref_context.get('py:module'),
