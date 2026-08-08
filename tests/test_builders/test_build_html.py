@@ -289,6 +289,7 @@ def test_html_inventory(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
     with app.outdir.joinpath('objects.inv').open('rb') as f:
+        # pyrefly: ignore [bad-argument-type]
         invdata = InventoryFile.load(f, 'https://www.google.com', posixpath.join)
 
     assert set(invdata.keys()) == {'std:label', 'std:doc'}

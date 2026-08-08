@@ -134,9 +134,11 @@ def update_default_value(obj: Any, bound_method: bool) -> None:
                     parameters[i] = param.replace(default=DefaultValue(value))
                 else:
                     default = kw_defaults.pop(0)  # type: ignore[assignment]
+                    # pyrefly: ignore [bad-argument-type]
                     value = get_default_value(lines, default)
                     if value is None:
                         value = ast_unparse(default)
+                    # pyrefly: ignore [bad-argument-type]
                     parameters[i] = param.replace(default=DefaultValue(value))
 
         sig = sig.replace(parameters=parameters)

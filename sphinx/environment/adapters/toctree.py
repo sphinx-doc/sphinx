@@ -197,6 +197,7 @@ def _resolve_toctree(
         if hasattr(toctree, 'uid'):
             # move uid to caption_node to translate it
             caption_node.uid = toctree.uid  # type: ignore[attr-defined]
+            # pyrefly: ignore [missing-attribute]
             del toctree.uid
         newnode.append(caption_node)
     newnode.extend(tocentries)

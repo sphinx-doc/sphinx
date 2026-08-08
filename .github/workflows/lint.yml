@@ -80,7 +80,7 @@ jobs:
     - name: Type check with pyright
       run: pyright
 
-  ty:
+  pyrefly:
     runs-on: ubuntu-latest
 
     steps:
@@ -99,8 +99,8 @@ jobs:
     - name: Install dependencies
       run: uv pip install -r pyproject.toml --group package --group test --group types
     - run: echo "$(which python)"
-    - name: Type check with ty
-      run: ty check --color=always --python="$(which python)"
+    - name: Type check with pyrefly
+      run: pyrefly check
 
   docs-lint:
     runs-on: ubuntu-latest

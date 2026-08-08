@@ -132,6 +132,7 @@ class PyXrefMixin:
                 results.append(contnode or innernode(sub_target, sub_target))  # type: ignore[call-arg]
             else:
                 results.append(
+                    # pyrefly: ignore [bad-argument-type]
                     self.make_xref(
                         rolename,
                         domain,
@@ -147,6 +148,7 @@ class PyXrefMixin:
             if sub_target in {'Literal', 'typing.Literal', '~typing.Literal'}:
                 in_literal = True
 
+        # pyrefly: ignore [bad-return]
         return results
 
 

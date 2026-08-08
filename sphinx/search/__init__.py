@@ -293,10 +293,12 @@ class IndexBuilder:
         # objtype index -> (domain, type, objname (localized))
         self._objnames: dict[int, tuple[str, str, str]] = env._search_index_objnames
         # add language-specific SearchLanguage instance
+        # pyrefly: ignore [bad-assignment]
         lang_class = languages.get(lang)
 
         # fallback; try again with language-code
         if lang_class is None and '_' in lang:
+            # pyrefly: ignore [bad-assignment]
             lang_class = languages.get(lang.partition('_')[0])
 
         if lang_class is None:

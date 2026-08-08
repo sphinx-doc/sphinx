@@ -590,6 +590,7 @@ class LaTeXTranslator(SphinxTranslator):
             for domain in self._domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
+                    # pyrefly: ignore [not-iterable]
                     if check_names and index_name not in indices_config:
                         continue
                     content, collapsed = index_cls(domain).generate(

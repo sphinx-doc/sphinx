@@ -204,9 +204,12 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.filters['toint'] = _toint
         self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
+        # pyrefly: ignore [unsupported-operation]
         self.environment.globals['debug'] = pass_context(pformat)
         self.environment.globals['warning'] = warning
+        # pyrefly: ignore [unsupported-operation]
         self.environment.globals['accesskey'] = pass_context(accesskey)
+        # pyrefly: ignore [unsupported-operation]
         self.environment.globals['idgen'] = idgen
         if use_i18n:
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension

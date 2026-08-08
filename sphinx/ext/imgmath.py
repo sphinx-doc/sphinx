@@ -186,6 +186,7 @@ def convert_dvi_to_png(dvipath: Path, out_path: Path, *, config: Config) -> int 
         command.append('--depth')
     command.append(dvipath)
 
+    # pyrefly: ignore [bad-argument-type]
     stdout, _stderr = convert_dvi_to_image(command, name)
 
     depth = None
@@ -207,6 +208,7 @@ def convert_dvi_to_svg(dvipath: Path, out_path: Path, *, config: Config) -> int 
     command.extend(config.imgmath_dvisvgm_args)
     command.append(dvipath)
 
+    # pyrefly: ignore [bad-argument-type]
     _stdout, stderr = convert_dvi_to_image(command, name)
 
     depth = None

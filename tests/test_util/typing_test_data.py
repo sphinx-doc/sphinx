@@ -1,3 +1,4 @@
+# pyrefly: ignore-errors
 from inspect import Signature
 from numbers import Integral
 from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TypeVar, Union

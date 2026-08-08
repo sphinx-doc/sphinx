@@ -103,6 +103,7 @@ def app_params(
     # ##### prepare Application params
 
     test_root = kwargs.pop('testroot', 'root')
+    # pyrefly: ignore [unsupported-operation]
     kwargs['srcdir'] = srcdir = sphinx_test_tempdir / kwargs.get('srcdir', test_root)
     copy_test_root = not {'srcdir', 'copy_test_root'}.isdisjoint(kwargs)
 

@@ -60,4 +60,5 @@ def _test_sections(
         assert re.match('[0-9]+[.0-9]*[.]', num), (
             f'Unnumbered section: {subsection[0]!r}'
         )
+        # pyrefly: ignore [bad-argument-type]
         _test_sections(f'{prefix}{i + 1}.', subsection, indent + 4)

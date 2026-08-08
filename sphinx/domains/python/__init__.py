@@ -991,6 +991,7 @@ class PythonDomain(Domain):
                 # if not found, use contnode
                 children = [contnode]
 
+            # pyrefly: ignore [bad-argument-type]
             return make_refnode(builder, fromdocname, obj[0], obj[1], children, name)
 
     def resolve_any_xref(
@@ -1032,6 +1033,7 @@ class PythonDomain(Domain):
                 role = 'py:' + self.role_for_objtype(obj[2])  # type: ignore[operator]
                 results.append((
                     role,
+                    # pyrefly: ignore [bad-argument-type]
                     make_refnode(builder, fromdocname, obj[0], obj[1], children, name),
                 ))
         return results

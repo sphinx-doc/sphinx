@@ -15,6 +15,7 @@ project_includes = [
 project_excludes = [
     "**/tests/roots*",
 ]
+preset = "legacy"
 python_version = "3.12"
 replace_imports_with_any = [
     "imagesize",
@@ -25,3 +26,21 @@ replace_imports_with_any = [
 # https://pyrefly.org/en/docs/error-kinds/
 [errors]
 implicitly-defined-attribute = false  # many false positives
+
+[[sub_config]]
+matches = "sphinx/domains/c/**"
+[sub_config.errors]
+bad-argument-type = false
+bad-assignment = false
+bad-return = false
+missing-attribute = false
+unsupported-operation = false
+
+[[sub_config]]
+matches = "sphinx/domains/cpp/**"
+[sub_config.errors]
+bad-argument-type = false
+bad-assignment = false
+bad-return = false
+missing-attribute = false
+unsupported-operation = false
