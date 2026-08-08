@@ -1,0 +1,2 @@
+project = 'Glossary Test'
+extensions = []
