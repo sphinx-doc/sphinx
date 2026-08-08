@@ -7,8 +7,6 @@ with a backlink to the original location.
 
 from __future__ import annotations
 
-import functools
-import operator
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -20,13 +18,13 @@ from sphinx.domains import Domain
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.docutils import SphinxDirective, new_document
+from sphinx.util.docutils import SphinxDirective, SphinxRole, new_document
 
 if TYPE_CHECKING:
     from collections.abc import Set
     from typing import Any, ClassVar
 
-    from docutils.nodes import Element, Node
+    from docutils.nodes import Element, Node, system_message
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -38,6 +36,10 @@ logger = logging.getLogger(__name__)
 
 
 class todo_node(nodes.Admonition, nodes.Element):
+    pass
+
+
+class todo_inline_node(nodes.inline):
     pass
 
 
@@ -66,12 +68,28 @@ class Todo(SphinxAdmonition):
         return [todo]
 
 
+class TodoRole(SphinxRole):
+    """A todo entry displayed inline with the surrounding text."""
+
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        todo = todo_inline_node(
+            self.rawtext,
+            nodes.Text(self.text),
+            classes=['todo-inline'],
+            ids=[f'todo-{self.env.new_serialno("todo")}'],
+        )
+        todo['docname'] = self.env.current_document.docname
+        self.set_source_info(todo)
+        self.inliner.document.note_explicit_target(todo)
+        return [todo], []
+
+
 class TodoDomain(Domain):
     name = 'todo'
     label = 'todo'
 
     @property
-    def todos(self) -> dict[str, list[todo_node]]:
+    def todos(self) -> dict[str, list[todo_node | todo_inline_node]]:
         return self.data.setdefault('todos', {})
 
     def clear_doc(self, docname: str) -> None:
@@ -85,14 +103,19 @@ class TodoDomain(Domain):
         self, env: BuildEnvironment, docname: str, document: nodes.document
     ) -> None:
         todos = self.todos.setdefault(docname, [])
-        for todo in document.findall(todo_node):
+        for node in document.findall(
+            lambda node: isinstance(node, (todo_node, todo_inline_node))
+        ):
+            todo = cast('todo_node | todo_inline_node', node)
             env.events.emit('todo-defined', todo)
             todos.append(todo)
 
             if env.config.todo_emit_warnings:
-                logger.warning(
-                    __('TODO entry found: %s'), todo[1].astext(), location=todo
-                )
+                if isinstance(todo, todo_node):
+                    message = todo[1].astext()
+                else:
+                    message = todo.astext()
+                logger.warning(__('TODO entry found: %s'), message, location=todo)
 
 
 class TodoList(SphinxDirective):
@@ -121,9 +144,11 @@ class TodoListProcessor:
         self.process(doctree, docname)
 
     def process(self, doctree: nodes.document, docname: str) -> None:
-        todos: list[todo_node] = functools.reduce(
-            operator.iadd, self.domain.todos.values(), []
-        )
+        todos = [
+            todo
+            for document_todos in self.domain.todos.values()
+            for todo in document_todos
+        ]
         for node in list(doctree.findall(todolist)):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
@@ -136,7 +161,7 @@ class TodoListProcessor:
 
             for todo in todos:
                 # Create a copy of the todo node
-                new_todo = todo.deepcopy()
+                new_todo = self.create_todo_copy(todo)
                 new_todo['ids'].clear()
 
                 self.resolve_reference(new_todo, docname)
@@ -147,7 +172,25 @@ class TodoListProcessor:
 
             node.replace_self(content)
 
-    def create_todo_reference(self, todo: todo_node, docname: str) -> nodes.paragraph:
+    @staticmethod
+    def create_todo_copy(todo: todo_node | todo_inline_node) -> todo_node:
+        if isinstance(todo, todo_node):
+            return todo.deepcopy()
+
+        inline = todo.deepcopy()
+        inline['ids'].clear()
+        inline['names'].clear()
+
+        new_todo = todo_node(classes=['admonition-todo'])
+        new_todo.source = todo.source
+        new_todo.line = todo.line
+        new_todo += nodes.title(text=_('Todo'))
+        new_todo += nodes.paragraph('', '', inline)
+        return new_todo
+
+    def create_todo_reference(
+        self, todo: todo_node | todo_inline_node, docname: str
+    ) -> nodes.paragraph:
         if self.config.todo_link_only:
             description = _('<<original entry>>')
         else:
@@ -202,6 +245,17 @@ def depart_todo_node(self: HTML5Translator, node: todo_node) -> None:
     self.depart_admonition(node)
 
 
+def visit_todo_inline_node(self: HTML5Translator, node: todo_inline_node) -> None:
+    if self.config.todo_include_todos:
+        self.visit_inline(node)
+    else:
+        raise nodes.SkipNode
+
+
+def depart_todo_inline_node(self: HTML5Translator, node: todo_inline_node) -> None:
+    self.depart_inline(node)
+
+
 def latex_visit_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     if self.config.todo_include_todos:
         self.body.append('\n\\begin{sphinxtodo}{')
@@ -223,6 +277,20 @@ def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     self.no_latex_floats -= 1
 
 
+def latex_visit_todo_inline_node(self: LaTeXTranslator, node: todo_inline_node) -> None:
+    if self.config.todo_include_todos:
+        self.body.append(self.hypertarget_to(node))
+        self.visit_inline(node)
+    else:
+        raise nodes.SkipNode
+
+
+def latex_depart_todo_inline_node(
+    self: LaTeXTranslator, node: todo_inline_node
+) -> None:
+    self.depart_inline(node)
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_event('todo-defined')
     app.add_config_value('todo_include_todos', False, 'html', types=frozenset({bool}))
@@ -230,6 +298,14 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('todo_emit_warnings', False, 'html', types=frozenset({bool}))
 
     app.add_node(todolist)
+    app.add_node(
+        todo_inline_node,
+        html=(visit_todo_inline_node, depart_todo_inline_node),
+        latex=(latex_visit_todo_inline_node, latex_depart_todo_inline_node),
+        text=(visit_todo_inline_node, depart_todo_inline_node),
+        man=(visit_todo_inline_node, depart_todo_inline_node),
+        texinfo=(visit_todo_inline_node, depart_todo_inline_node),
+    )
     app.add_node(
         todo_node,
         html=(visit_todo_node, depart_todo_node),
@@ -241,6 +317,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     app.add_directive('todo', Todo)
     app.add_directive('todolist', TodoList)
+    app.add_role('todo', TodoRole())
     app.add_domain(TodoDomain)
     app.connect('doctree-resolved', TodoListProcessor)
     return {
