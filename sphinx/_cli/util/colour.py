@@ -42,6 +42,17 @@ def terminal_supports_colour() -> bool:
     return _environ.get('TERM', 'unknown').lower() not in {'dumb', 'unknown'}
 
 
+def colour_enabled() -> bool:
+    """Return True if coloured terminal output is currently in effect.
+
+    This is :func:`terminal_supports_colour` narrowed by an explicit
+    :func:`disable_colour`, which ``--no-color`` triggers. Use it to decide
+    whether to emit any escape sequence, rather than asking only whether the
+    terminal is capable of showing one.
+    """
+    return not _COLOURING_DISABLED and terminal_supports_colour()
+
+
 def disable_colour() -> None:
     global _COLOURING_DISABLED  # NoQA: PLW0603
     _COLOURING_DISABLED = True

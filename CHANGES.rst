@@ -13,6 +13,10 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14565: ``--no-color`` now also suppresses the cursor control sequences
+  used to redraw the progress line, matching ``NO_COLOR``.
+  Patch by Dipak Chaudhari
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
