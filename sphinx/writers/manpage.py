@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Any
 
-    from docutils.nodes import Element
+    from docutils.nodes import Element, Node
 
     from sphinx.builders import Builder
 
@@ -78,6 +78,7 @@ class ManualPageTranslator(SphinxTranslator, manpage.Translator):
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
+        self.defs.setdefault('reference', (r'\fI\%', r'\fP'))
 
         # first title is the manpage title
         self.section_level = -1
@@ -106,6 +107,16 @@ class ManualPageTranslator(SphinxTranslator, manpage.Translator):
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
             self.language.labels[label] = self.deunicode(translation)
+
+    def dispatch_visit(self, node: Node) -> None:
+        if isinstance(node, nodes.reference):
+            # Docutils 0.22 installs its own instance-level ``visit_reference``
+            # handler based on the ``text_references`` setting. Route
+            # references through Sphinx's renderer before the generic visitor
+            # dispatch can see that handler.
+            self._visit_reference(node)
+        else:
+            super().dispatch_visit(node)
 
     # overwritten -- added quotes around all .TH arguments
     def header(self) -> str:
@@ -291,7 +302,7 @@ class ManualPageTranslator(SphinxTranslator, manpage.Translator):
         raise nodes.SkipNode
 
     # overwritten -- don't visit inner marked up nodes
-    def visit_reference(self, node: nodes.reference) -> None:
+    def _visit_reference(self, node: nodes.reference) -> None:
         uri = node.get('refuri', '')
         is_safe_to_click = uri.startswith(('mailto:', 'http:', 'https:', 'ftp:'))
         if is_safe_to_click:

@@ -82,6 +82,15 @@ end
     assert expected in content
 
 
+@pytest.mark.sphinx('man', testroot='manpage-references')
+def test_references_render_as_text(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    content = (app.outdir / 'foo.1').read_text(encoding='utf8')
+    assert r'A \fI\%ref\fP\&. A \fI\%doc\fP' in content
+    assert r'<#\:other-ref>' not in content
+    assert r'\%<>' not in content
+
+
 def test_default_man_pages() -> None:
     config = Config({
         'project': 'STASI™ Documentation',
