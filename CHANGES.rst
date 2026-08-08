@@ -7,6 +7,11 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
+* #14502: Render an undocumented :class:`~typing.TypeVar` as plain text instead
+  of a dangling cross-reference, so generic base classes that use one no longer
+  emit ``nitpicky`` warnings. A documented type variable (or one reachable via
+  intersphinx) still links.
+  Patch by Bernát Gábor.
 
 * #14229: Fix JavaScript search for languages whose stemmer class name
   does not match the language name, such as Chinese (which reuses the

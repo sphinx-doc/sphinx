@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import builtins
 import inspect
+import sys
 import typing
 from types import NoneType
 from typing import TYPE_CHECKING, NamedTuple, cast
@@ -1094,6 +1095,40 @@ def builtin_resolver(
     return None
 
 
+def typevar_resolver(
+    app: Sphinx, env: BuildEnvironment, node: pending_xref, contnode: Element
+) -> Element | None:
+    """Resolve a reference to an undocumented TypeVar to plain text.
+
+    ``restify`` links a TypeVar by name, so a documented one (or one reachable
+    via intersphinx) resolves on its own. A private or undocumented TypeVar has
+    no target, so emit its text here instead of a nitpicky warning.
+    """
+    if node.get('refdomain') != 'py' or node.get('reftype') not in {'class', 'obj'}:
+        return None
+    if isinstance(
+        _lookup_dotted_object(node.get('reftarget', '')),
+        typing.TypeVar | typing.ParamSpec,
+    ):
+        return contnode
+    return None
+
+
+def _lookup_dotted_object(target: str, /) -> object | None:
+    """Resolve a dotted path to an already-imported object without importing."""
+    parts = target.split('.')
+    for split in range(len(parts) - 1, 0, -1):
+        if (obj := sys.modules.get('.'.join(parts[:split]))) is None:
+            continue
+        try:
+            for attr in parts[split:]:
+                obj = getattr(obj, attr)
+        except AttributeError:
+            return None
+        return obj
+    return None
+
+
 def _is_typing(s: str, /) -> bool:
     return s.removeprefix('typing.') in _TYPING_ALL
 
@@ -1122,6 +1157,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)
+    app.connect('missing-reference', typevar_resolver, priority=900)
 
     return {
         'version': 'builtin',

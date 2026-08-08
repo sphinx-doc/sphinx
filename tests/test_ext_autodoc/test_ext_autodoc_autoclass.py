@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.testing.util import SphinxTestApp
 
 pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
@@ -586,3 +587,29 @@ def test_no_inherited_instance_variable_with_annotations() -> None:
         '      Local',
         '',
     ]
+
+
+@pytest.mark.parametrize(
+    ('name', 'links'),
+    [
+        pytest.param('Documented', True, id='documented'),
+        pytest.param('_T', False, id='undocumented'),
+        pytest.param('_T_co', False, id='covariant'),
+        pytest.param('_T_bound', False, id='bound'),
+        pytest.param('_T_constrained', False, id='constrained'),
+        pytest.param('_P', False, id='paramspec'),
+    ],
+)
+@pytest.mark.sphinx('html', testroot='ext-autodoc-typevar', freshenv=True)
+def test_autodoc_typevar_reference(app: SphinxTestApp, name: str, links: bool) -> None:
+    app.build()
+    target = f'target.typevar_autodoc.{name}'
+    assert target not in app.warning.getvalue()
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    # a documented type variable links wherever it is referenced (base, method,
+    # function); an undocumented one renders as text instead of a dangling reference
+    if links:
+        assert f'href="#{target}"' in content
+    else:
+        assert f'href="#{target}"' not in content
+        assert f'<span class="pre">{name}</span>' in content

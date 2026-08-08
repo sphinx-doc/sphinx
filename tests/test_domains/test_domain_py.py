@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from typing import ParamSpec, TypeVar
 from unittest.mock import Mock
 
 import docutils.utils
@@ -31,7 +32,7 @@ from sphinx.addnodes import (
     pending_xref,
 )
 from sphinx.domains import IndexEntry
-from sphinx.domains.python import PythonDomain, PythonModuleIndex
+from sphinx.domains.python import PythonDomain, PythonModuleIndex, typevar_resolver
 from sphinx.domains.python._annotations import _parse_annotation, _pseudo_parse_arglist
 from sphinx.domains.python._object import py_sig_re
 from sphinx.testing import restructuredtext
@@ -1900,3 +1901,30 @@ def test_type_alias_xref_resolution(app: SphinxTestApp) -> None:
         '<a class="reference internal" href="#alias_module.HandlerType"'
         in process_error_signature
     ), 'HandlerType type alias link not found in process_error function signature'
+
+
+RESOLVER_TYPEVAR = TypeVar('RESOLVER_TYPEVAR')
+RESOLVER_PARAMSPEC = ParamSpec('RESOLVER_PARAMSPEC')
+
+
+@pytest.mark.parametrize(
+    ('refdomain', 'reftype', 'target', 'resolves'),
+    [
+        pytest.param('py', 'class', f'{__name__}.RESOLVER_TYPEVAR', True, id='typevar'),
+        pytest.param(
+            'py', 'obj', f'{__name__}.RESOLVER_PARAMSPEC', True, id='paramspec'
+        ),
+        pytest.param('py', 'class', f'{__name__}.PythonModuleIndex', False, id='class'),
+        pytest.param('py', 'class', f'{__name__}.RESOLVER_TYPEVAR.x', False, id='attr'),
+        pytest.param('py', 'class', 'no_such_module.x', False, id='no-module'),
+        pytest.param('py', 'data', f'{__name__}.RESOLVER_TYPEVAR', False, id='reftype'),
+        pytest.param('std', 'ref', f'{__name__}.RESOLVER_TYPEVAR', False, id='domain'),
+    ],
+)
+def test_typevar_resolver(
+    refdomain: str, reftype: str, target: str, resolves: bool
+) -> None:
+    contnode = nodes.inline('', 'x')
+    node = pending_xref('', refdomain=refdomain, reftype=reftype, reftarget=target)
+    resolved = typevar_resolver(Mock(), Mock(), node, contnode)
+    assert resolved is (contnode if resolves else None)
