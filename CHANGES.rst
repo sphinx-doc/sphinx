@@ -27,6 +27,12 @@ Dependencies
 Features added
 --------------
 
+* Add :confval:`intersphinx_request_headers` to allow custom HTTP headers
+  to be set when resolving ``objects.inv`` on remote hosts. In particular,
+  this enables Bearer authorization to allow access to privately hosted
+  documentation on platforms such as GitLab.
+  Patch by Samuel Dowling
+
 * Add :meth:`~sphinx.application.Sphinx.add_static_dir` for copying static
   assets from extensions to the build output.
   Patch by Jared Dillard

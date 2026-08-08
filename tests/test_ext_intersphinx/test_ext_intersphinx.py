@@ -25,6 +25,7 @@ from sphinx.ext.intersphinx._load import (
     _InvConfig,
     _load_inventory,
     _strip_basic_auth,
+    fetch_inventory,
     load_mappings,
     validate_intersphinx_mapping,
 )
@@ -72,6 +73,11 @@ def reference_check(app, *args, **kwds):
 def set_config(app, mapping):
     # copy *mapping* so that normalization does not alter it
     app.config.intersphinx_mapping = mapping.copy()
+    app.config.intersphinx_request_headers = {
+        'python': {
+            'Authorization': 'Bearer abcde',
+        }
+    }
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
     app.config.intersphinx_resolve_self = ''
@@ -802,7 +808,9 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
     )
 
     for name, (uri, locations) in app.config.intersphinx_mapping.values():
-        project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
+        project = _IntersphinxProject(
+            name=name, target_uri=uri, headers={}, locations=locations
+        )
         updated = _fetch_inventory_group(
             project=project,
             cache=intersphinx_cache,
@@ -836,6 +844,7 @@ def test_intersphinx_fetch_inventory_group_url():
     with http_server(InventoryHandler) as server:
         url1 = f'http://localhost:{server.server_port}'
         url2 = f'http://localhost:{server.server_port}/'
+        headers = {'Authorization': 'Bearer abcde'}
 
         config = Config()
         config.intersphinx_cache_limit = -1
@@ -858,7 +867,7 @@ def test_intersphinx_fetch_inventory_group_url():
         side_effect = ValueError('')
 
         project1 = _IntersphinxProject(
-            name='1', target_uri=url1, locations=(url1, None)
+            name='1', target_uri=url1, headers=headers, locations=(url1, None)
         )
         with mock.patch(
             'sphinx.ext.intersphinx._load._fetch_inventory_data',
@@ -867,6 +876,7 @@ def test_intersphinx_fetch_inventory_group_url():
             assert not _fetch_inventory_group(project=project1, **kwds)
         mockfn.assert_any_call(
             target_uri=url1,
+            headers=headers,
             inv_location=url1,
             config=config,
             srcdir=None,
@@ -874,6 +884,7 @@ def test_intersphinx_fetch_inventory_group_url():
         )
         mockfn.assert_any_call(
             target_uri=url1,
+            headers=headers,
             inv_location=url1 + '/' + INVENTORY_FILENAME,
             config=config,
             srcdir=None,
@@ -881,7 +892,7 @@ def test_intersphinx_fetch_inventory_group_url():
         )
 
         project2 = _IntersphinxProject(
-            name='2', target_uri=url2, locations=(url2, None)
+            name='2', target_uri=url2, headers=headers, locations=(url2, None)
         )
         with mock.patch(
             'sphinx.ext.intersphinx._load._fetch_inventory_data',
@@ -890,6 +901,7 @@ def test_intersphinx_fetch_inventory_group_url():
             assert not _fetch_inventory_group(project=project2, **kwds)
         mockfn.assert_any_call(
             target_uri=url2,
+            headers=headers,
             inv_location=url2,
             config=config,
             srcdir=None,
@@ -897,6 +909,7 @@ def test_intersphinx_fetch_inventory_group_url():
         )
         mockfn.assert_any_call(
             target_uri=url2,
+            headers=headers,
             inv_location=url2 + INVENTORY_FILENAME,
             config=config,
             srcdir=None,
@@ -943,3 +956,76 @@ def test_display_failures():
         'intersphinx inventory has moved: - http://example.com - http://proxyhost.net'
         in issues
     )
+
+
+def test_intersphinx_project_repr_redacts_sensitive_headers():
+    url = 'http://localhost'
+    headers = {
+        'Authorization': 'Bearer abcde',
+        'X-API-Key': 'abcd123',
+        'Api-Key': 'abcd123',
+        'X-GitHub-Token': 'abcd123',
+        'X-Access-Token': '`abcd123',
+        'X-Auth-Token': 'abcd123',
+        'Private-Token': 'abcd123',
+        'Cookie': 'abcd123',
+        'X-Amz-Security-Token': 'abcd123',
+        'Proxy-Authorization': 'Basic abcd123',
+        'Digest': 'abcd123',
+        'Host': 'api.example.com',
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip',
+        'Connection': 'keep-alive',
+    }
+    project = _IntersphinxProject(
+        name='1', target_uri=url, headers=headers, locations=(url, None)
+    )
+
+    expected = {
+        'Authorization': 'redacted',
+        'X-API-Key': 'redacted',
+        'Api-Key': 'redacted',
+        'X-GitHub-Token': 'redacted',
+        'X-Access-Token': 'redacted',
+        'X-Auth-Token': 'redacted',
+        'Private-Token': 'redacted',
+        'Cookie': 'redacted',
+        'X-Amz-Security-Token': 'redacted',
+        'Proxy-Authorization': 'redacted',
+        'Digest': 'redacted',
+        'Host': 'api.example.com',
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip',
+        'Connection': 'keep-alive',
+    }
+    result = repr(project)
+
+    for k, v in expected.items():
+        assert f"'{k}': '{v}'" in result
+
+
+@pytest.mark.parametrize(
+    'args',
+    [
+        {'uri': 'https://hostname', 'inv': 'https://hostname/' + INVENTORY_FILENAME},
+        {
+            'uri': 'https://hostname',
+            'inv': 'https://hostname/' + INVENTORY_FILENAME,
+            'headers': {'Authorization': 'Bearer abcd'},
+        },
+    ],
+    ids=[
+        'positional arguments only',
+        'optional header argument',
+    ],
+)
+@mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
+@mock.patch('sphinx.ext.intersphinx._load.requests.get')
+def test_fetch_inventory_interface_regression(get_request, InventoryFile, app, args):
+    mocked_get = get_request.return_value.__enter__.return_value
+    intersphinx_setup(app)
+    mocked_get.content = b'# Sphinx inventory version 2'
+    mocked_get.url = args.get('inv')
+
+    result = fetch_inventory(app, **args)
+    assert result

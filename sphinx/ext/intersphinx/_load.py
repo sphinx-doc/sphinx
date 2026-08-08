@@ -146,12 +146,18 @@ def load_mappings(app: Sphinx) -> None:
     inventories = InventoryAdapter(env)
     intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
     intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
+    intersphinx_request_headers: dict[str, dict[str, str]] = (
+        app.config.intersphinx_request_headers
+    )
 
     projects = []
     for name, (uri, locations) in intersphinx_mapping.values():
         try:
             project = _IntersphinxProject(
-                name=name, target_uri=uri, locations=locations
+                name=name,
+                target_uri=uri,
+                headers=intersphinx_request_headers.get(name, {}),
+                locations=locations,
             )
         except ValueError as err:
             msg = __(
@@ -302,6 +308,7 @@ def _fetch_inventory_group(
             try:
                 raw_data, target_uri = _fetch_inventory_data(
                     target_uri=project.target_uri,
+                    headers=project.headers,
                     inv_location=inv_location,
                     config=config,
                     srcdir=srcdir,
@@ -335,7 +342,9 @@ def _fetch_inventory_group(
     return updated
 
 
-def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
+def fetch_inventory(
+    app: Sphinx, uri: InventoryURI, inv: str, *, headers: dict[str, str] | None = None
+) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     raw_data, uri = _fetch_inventory_data(
         target_uri=uri,
@@ -343,6 +352,7 @@ def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
         config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
         cache_path=None,
+        headers=headers,
     )
     return _load_inventory(raw_data, target_uri=uri).data
 
@@ -354,6 +364,7 @@ def _fetch_inventory_data(
     config: _InvConfig,
     srcdir: Path,
     cache_path: Path | None,
+    headers: dict[str, str] | None = None,
 ) -> tuple[bytes, str]:
     """Fetch inventory data from a local or remote source."""
     # both *target_uri* (base URI of the links to generate)
@@ -364,7 +375,10 @@ def _fetch_inventory_data(
         target_uri = _strip_basic_auth(target_uri)
     if '://' in inv_location:
         raw_data, target_uri = _fetch_inventory_url(
-            target_uri=target_uri, inv_location=inv_location, config=config
+            target_uri=target_uri,
+            headers=headers,
+            inv_location=inv_location,
+            config=config,
         )
         if cache_path is not None:
             cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -386,7 +400,11 @@ def _load_inventory(raw_data: bytes, /, *, target_uri: InventoryURI) -> _Invento
 
 
 def _fetch_inventory_url(
-    *, target_uri: InventoryURI, inv_location: str, config: _InvConfig
+    *,
+    target_uri: InventoryURI,
+    headers: dict[str, str] | None,
+    inv_location: str,
+    config: _InvConfig,
 ) -> tuple[bytes, str]:
     try:
         with requests.get(
@@ -394,6 +412,7 @@ def _fetch_inventory_url(
             timeout=config.intersphinx_timeout,
             _user_agent=config.user_agent,
             _tls_info=(config.tls_verify, config.tls_cacerts),
+            headers=headers,
         ) as r:
             r.raise_for_status()
             raw_data = r.content
