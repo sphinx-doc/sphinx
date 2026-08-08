@@ -111,7 +111,7 @@ lint = [
 ]
 package = [
     "build",
-    "pypi-attestations==0.0.28",
+    "pypi-attestations==0.0.29",
     "twine>=6.1",
 ]
 test = [
