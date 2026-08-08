@@ -67,15 +67,19 @@ depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
 def read_svg_depth(filename: str | os.PathLike[str]) -> int | None:
-    """Read the depth from comment at last line of SVG file"""
+    """Read the depth from comment at last line of SVG file.
+
+    Returns None if the file does not contain a depth comment.
+    """
+    last_line = None
     with open(filename, encoding='utf-8') as f:
-        for line in f:  # NoQA: B007
+        for last_line in f:  # noqa: B007
             pass
-        # Only last line is checked
-        matched = depthsvgcomment_re.match(line)
-        if matched:
+
+    if last_line is not None:
+        if matched := depthsvgcomment_re.match(last_line):
             return int(matched.group(1))
-        return None
+    return None
 
 
 def write_svg_depth(filename: Path, depth: int) -> None:
