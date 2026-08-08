@@ -801,7 +801,7 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
         'sphinx.ext.intersphinx._load._load_inventory', mock_fetch_inventory
     )
 
-    for name, (uri, locations) in app.config.intersphinx_mapping.values():
+    for name, (uri, locations) in app.config.intersphinx_mapping.values():  # ty: ignore[not-iterable]
         project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
         updated = _fetch_inventory_group(
             project=project,

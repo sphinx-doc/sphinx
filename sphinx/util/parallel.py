@@ -101,7 +101,7 @@ class ParallelTasks:
         self._args[tid] = arg
         precv, psend = multiprocessing.Pipe(False)
         context: Any = multiprocessing.get_context('fork')
-        proc = context.Process(target=self._process, args=(psend, task_func, arg))  # ty: ignore[unresolved-attribute]
+        proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
         self._precvs_waiting[tid] = precv
         try:
