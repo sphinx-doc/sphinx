@@ -39,10 +39,7 @@ template_dir = package_dir.joinpath('templates', 'apidoc')
 def is_initpy(filename: str | Path) -> bool:
     """Check *filename* is __init__ file or not."""
     basename = Path(filename).name
-    return any(
-        basename == '__init__' + suffix  # ty: ignore[unsupported-operator]
-        for suffix in sorted(PY_SUFFIXES, key=len, reverse=True)
-    )
+    return any(basename == '__init__' + suffix for suffix in PY_SUFFIXES)
 
 
 def module_join(*modnames: str | None) -> str:
