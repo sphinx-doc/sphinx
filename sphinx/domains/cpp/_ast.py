@@ -4440,6 +4440,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         # This is not part of the Itanium ABI mangling system.
         res = []
         last_index = len(self.templates) - 1
+        # pyrefly: ignore [not-iterable]
         for i, t in enumerate(self.templates):
             if isinstance(t, ASTTemplateParams):
                 res.append(t.get_id(version, excludeRequires=(i == last_index)))

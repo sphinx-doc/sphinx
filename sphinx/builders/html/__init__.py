@@ -864,6 +864,7 @@ class StandaloneHTMLBuilder(Builder):
                     self._static_dir,
                     excluded=DOTFILES,
                     context=context,
+                    # pyrefly: ignore [bad-argument-type]
                     renderer=self.templates,
                     onerror=onerror,
                     force=True,
@@ -891,6 +892,7 @@ class StandaloneHTMLBuilder(Builder):
                 self._static_dir,
                 excluded=excluded,
                 context=context,
+                # pyrefly: ignore [bad-argument-type]
                 renderer=self.templates,
                 onerror=onerror,
                 force=True,
