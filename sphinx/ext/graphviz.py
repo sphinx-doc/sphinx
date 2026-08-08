@@ -339,6 +339,11 @@ def render_dot(
             __('dot exited with error:\n[stderr]\n%r\n[stdout]\n%r')
             % (exc.stderr, exc.stdout)
         ) from exc
+    if ret.stderr:
+        logger.warning(
+            __('dot emitted the following on stderr:\n%s'),
+            ret.stderr.decode(errors='replace').rstrip(),
+        )
     if not outfn.is_file():
         raise GraphvizError(
             __('dot did not produce an output file:\n[stderr]\n%r\n[stdout]\n%r')
