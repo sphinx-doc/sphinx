@@ -1220,6 +1220,77 @@ class NumpyDocstring(GoogleDocstring):
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
+    def _parse(self) -> None:
+        self._parsed_lines = self._consume_empty()
+
+        if self._name and self._what in {'attribute', 'data', 'property'}:
+            res: list[str] = []
+            with contextlib.suppress(StopIteration):
+                res = self._parse_attribute_docstring()
+
+            self._parsed_lines.extend(res)
+            return
+
+        sections: list[tuple[str, list[str]]] = []
+
+        while self._lines:
+            if self._is_section_header():
+                try:
+                    section = self._consume_section_header()
+                    self._is_in_section = True
+                    self._section_indent = self._get_current_indent()
+                    if _directive_regex.match(section):
+                        lines = [section, *self._consume_to_next_section()]
+                        sections.append((section, lines))
+                    else:
+                        lines = self._sections[section.lower()](section)
+                        sections.append((section.lower(), lines))
+                finally:
+                    self._is_in_section = False
+                    self._section_indent = 0
+            else:
+                if not self._parsed_lines and not sections:
+                    lines = self._consume_contiguous() + self._consume_empty()
+                    self._parsed_lines.extend(lines)
+                else:
+                    lines = self._consume_to_next_section()
+                    sections.append(('_msg', lines))
+
+        # Reorder sections: "Attributes" and "Methods" should come after
+        # "Parameters" when that section is present.
+        moved_sections = {'attributes', 'methods'}
+        if any(name in moved_sections for name, _section_lines in sections):
+            try:
+                next(
+                    i
+                    for i, (name, _section_lines) in enumerate(sections)
+                    if name == 'parameters'
+                )
+            except StopIteration:
+                final_sections = sections
+            else:
+                deferred_sections = [
+                    section for section in sections if section[0] in moved_sections
+                ]
+                regular_sections = [
+                    section for section in sections if section[0] not in moved_sections
+                ]
+                insert_idx = next(
+                    i
+                    for i, (name, _section_lines) in enumerate(regular_sections)
+                    if name == 'parameters'
+                )
+                final_sections = (
+                    regular_sections[: insert_idx + 1]
+                    + deferred_sections
+                    + regular_sections[insert_idx + 1 :]
+                )
+        else:
+            final_sections = sections
+
+        for _name, lines in final_sections:
+            self._parsed_lines.extend(lines)
+
     def _escape_args_and_kwargs(self, name: str) -> str:
         func = super()._escape_args_and_kwargs
 

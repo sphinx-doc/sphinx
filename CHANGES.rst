@@ -34,6 +34,9 @@ Features added
 Bugs fixed
 ----------
 
+* #13180: napoleon: In Numpy-style docstrings, move ``Attributes`` and
+  ``Methods`` sections after ``Parameters``.
+  Patch by David Arnal.
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
   Patch by Adam Turner
 * #13713: Fix compatibility with MyST-Parser.
