@@ -64,7 +64,6 @@ if TYPE_CHECKING:
         ALL = enum.auto()
 
         def __contains__(self, item: object) -> Literal[True]: return True
-        # pyrefly: ignore [bad-return]
         def __add__(self, other: object) -> Self: pass
     type ALL_T = Literal[_AllTC.ALL]
     ALL: Final[ALL_T] = _AllTC.ALL
