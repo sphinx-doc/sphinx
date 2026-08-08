@@ -236,6 +236,9 @@ class Config:
         'translation_progress_classes': _Opt(
             False, 'env', ENUM(True, False, 'translated', 'untranslated')
         ),
+        'source_language': _Opt(
+            'en', 'env', frozenset((str,)),
+        ),
         'master_doc': _Opt('index', 'env', frozenset((str,))),
         'root_doc': _Opt(lambda config: config.master_doc, 'env', frozenset((str,))),
         # ``source_suffix`` type is actually ``dict[str, str | None]``:
