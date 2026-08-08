@@ -12,8 +12,8 @@ navigation bars, Sphinx provides mechanisms facilitating the translation of
 .. figure:: /_static/translation.*
    :width: 100%
 
-   Workflow visualization of translations in Sphinx.  (The figure is created by
-   `plantuml <https://plantuml.com>`_.)
+   Workflow visualization of translations in Sphinx.  (The figure is created
+   with `plantuml <https://plantuml.com>`_.)
 
 .. contents::
    :local:

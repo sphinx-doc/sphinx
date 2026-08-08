@@ -1,15 +1,18 @@
 @startuml
-file "SphinxProject"
+!theme sunlust
+skinparam backgroundColor transparent
+
+file SphinxProject as "Sphinx project"
 file ".rst"
 database ".pot"
 database ".po"
 database ".mo"
 actor translator
-file TranslatedBuild
+file TranslatedBuild as "Translated build"
 translator -l-> .po
 SphinxProject -r-> .rst
 .rst -r-> .pot : sphinx-build gettext
-.pot -r-> .po : Pootle
+.pot -r-> .po : Transifex
 .po -d-> .mo : msgfmt
 .mo -l-> TranslatedBuild
 .rst -d-> TranslatedBuild : "sphinx-build -Dlanguage="
