@@ -9,6 +9,7 @@ import json
 import os
 import pickle
 import re
+import urllib.parse
 from importlib import import_module
 from typing import TYPE_CHECKING
 
@@ -425,6 +426,7 @@ class IndexBuilder:
     def freeze(self) -> dict[str, Any]:
         """Create a usable data structure for serializing."""
         docnames, titles = zip(*sorted(self._titles.items()), strict=True)
+        quoted_docnames = tuple(map(urllib.parse.quote, docnames))
         filenames = [self._filenames.get(docname) for docname in docnames]
         fn2index = {f: i for (i, f) in enumerate(docnames)}
         terms, title_terms = self.get_terms(fn2index)
@@ -448,7 +450,7 @@ class IndexBuilder:
                 ))
 
         return {
-            'docnames': docnames,
+            'docnames': quoted_docnames,
             'filenames': filenames,
             'titles': titles,
             'terms': terms,
