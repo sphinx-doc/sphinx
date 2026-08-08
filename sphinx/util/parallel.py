@@ -157,11 +157,7 @@ def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> lis
     # determine how many documents to read in one go
     nargs = len(arguments)
     chunksize = nargs // nproc
-    if chunksize >= maxbatch:
-        # try to improve batch size vs. number of batches
-        chunksize = int(sqrt(nargs / nproc * maxbatch))
-    if chunksize == 0:
-        chunksize = 1
+    chunksize = max(min(chunksize, maxbatch), 1)
     nchunks, rest = divmod(nargs, chunksize)
     if rest:
         nchunks += 1
