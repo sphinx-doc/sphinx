@@ -935,6 +935,7 @@ def test_display_failures():
             'http://example.com',
             'http://proxyhost.net',
         ),  # No '%'
+        (22, 'Invalid argument'),  # Non-string argument
     ]
     issues = _display_failures(failures_args)
     assert 'Failed to fetch inventory from http://example.com' in issues
@@ -943,3 +944,4 @@ def test_display_failures():
         'intersphinx inventory has moved: - http://example.com - http://proxyhost.net'
         in issues
     )
+    assert '22 - Invalid argument' in issues
