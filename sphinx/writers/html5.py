@@ -444,7 +444,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 prefix = self.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = __('numfig_format is not defined for %s') % figtype
-                    logger.warning(msg)
+                    logger.warning(msg, type='html', subtype='numfig_format')
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
@@ -587,6 +587,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                     __('unsupported rubric heading level: %s'),
                     level,
                     type='html',
+                    subtype='rubric_heading',
                     location=node,
                 )
                 super().visit_rubric(node)
