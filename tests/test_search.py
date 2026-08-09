@@ -393,6 +393,32 @@ def test_search_index_gen_zh(app: SphinxTestApp) -> None:
     assert 'chinesetesttwo' in index['terms']
     assert 'cas' in index['terms']
 
+    language_data = (app.outdir / '_static' / 'language_data.js').read_text(
+        encoding='utf-8'
+    )
+    # SearchChinese reuses english-stemmer.js
+    assert 'var EnglishStemmer' in language_data
+    assert 'window.Stemmer = EnglishStemmer;' in language_data
+    assert 'ChineseStemmer' not in language_data
+
+
+@pytest.mark.parametrize(
+    ('js_stemmer_rawcode', 'stemmer_class'),
+    [
+        ('english-stemmer.js', 'EnglishStemmer'),
+        # dutch_porter-stemmer.js is the only one with an underscore
+        ('dutch_porter-stemmer.js', 'DutchPorterStemmer'),
+    ],
+)
+def test_js_stemmer_class_name(js_stemmer_rawcode: str, stemmer_class: str) -> None:
+    # check that the JS class name is correctly derived from the filename
+    env = DummyEnvironment('1.0', DummyDomainsContainer())
+    index = IndexBuilder(env, 'en', {}, '')  # type: ignore[arg-type]
+    index.lang.js_stemmer_rawcode = js_stemmer_rawcode
+    js = index.get_js_stemmer_code()
+    assert f'var {stemmer_class}' in js
+    assert f'window.Stemmer = {stemmer_class};' in js
+
 
 @pytest.mark.sphinx(
     'html',
