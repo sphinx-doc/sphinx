@@ -214,8 +214,9 @@ also use these config values:
 
    .. versionchanged:: 2.3
 
-      Emits :event:`autodoc-skip-member` event as :mod:`~sphinx.ext.autodoc`
-      does.
+      Emits the :event:`autodoc-skip-member` event.  Unlike
+      :mod:`~sphinx.ext.autodoc`, the ``obj_type`` argument is the type of the
+      candidate member.
 
    .. versionchanged:: 4.0
 

@@ -1477,10 +1477,11 @@ member should be included in the documentation by using the following event:
    autodoc and other enabled extensions.
 
    :param app: the Sphinx application object
-   :param obj_type: the type of the object which the docstring belongs to (one of
-      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
-      ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
-   :param name: the fully qualified name of the object
+   :param obj_type: the type of the object whose member is being considered (one
+      of ``'module'``, ``'class'``, ``'exception'``, ``'function'``,
+      ``'decorator'``, ``'method'``, ``'property'``, ``'attribute'``,
+      ``'data'``, or ``'type'``)
+   :param name: the unqualified name of the member
    :param obj: the object itself
    :param skip: a boolean indicating if autodoc will skip this member if the
       user handler does not override the decision
