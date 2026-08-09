@@ -125,7 +125,13 @@ def _format_signatures(
     ):
         if len(result) == 2 and isinstance(result[0], str):
             args, retann = result
-            signatures[0] = (args, retann if isinstance(retann, str) else '')
+            entry = (args, retann if isinstance(retann, str) else '')
+            if signatures:
+                signatures[0] = entry
+            else:
+                # the object had no introspectable signature, but a handler
+                # supplied one (e.g. numpydoc reading it from the docstring)
+                signatures.append(entry)
 
     if props.obj_type in {'module', 'data', 'type'}:
         signatures[1:] = ()  # discard all signatures save the first

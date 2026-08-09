@@ -289,6 +289,19 @@ def test_format_signatures_event_handler() -> None:
     assert format_sig('method', 'bar', H.foo1, events=events) == ('42', '')
 
 
+def test_format_signatures_event_handler_without_introspectable_signature() -> None:
+    # an object with no introspectable signature, whose signature is supplied by
+    # a handler instead (as numpydoc does, reading it from the docstring)
+    events = FakeEvents()
+    events.connect('autodoc-process-signature', _process_signature)
+    config = _AutodocConfig(autodoc_docstring_signature=False)
+
+    # without the handler there is no signature at all
+    assert format_sig('function', 'int', int, config=config) == ()
+    # the handler supplies one, which must not be discarded
+    assert format_sig('function', 'bar', int, config=config, events=events) == ('42', '')
+
+
 def test_format_functools_partial_signatures() -> None:
     # test functions created via functools.partial
     from functools import partial

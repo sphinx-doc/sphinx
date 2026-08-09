@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14576: autodoc: Fix ``IndexError`` when an ``autodoc-process-signature``
+  handler supplies a signature for an object that has none to introspect,
+  as ``numpydoc`` does for signatures held only in the docstring.
+  Patch by Eric Larson
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
