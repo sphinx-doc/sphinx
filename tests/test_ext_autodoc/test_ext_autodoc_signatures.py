@@ -299,7 +299,10 @@ def test_format_signatures_event_handler_without_introspectable_signature() -> N
     # without the handler there is no signature at all
     assert format_sig('function', 'int', int, config=config) == ()
     # the handler supplies one, which must not be discarded
-    assert format_sig('function', 'bar', int, config=config, events=events) == ('42', '')
+    assert format_sig('function', 'bar', int, config=config, events=events) == (
+        '42',
+        '',
+    )
 
 
 def test_format_functools_partial_signatures() -> None:
