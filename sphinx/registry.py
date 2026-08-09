@@ -429,10 +429,8 @@ class SphinxComponentRegistry:
         translator = translator_class(*args)
 
         # transplant handlers for custom nodes to translator instance
-        handlers = self.translation_handlers.get(builder.name, None)
-        if handlers is None:
-            # retry with builder.format
-            handlers = self.translation_handlers.get(builder.format, {})
+        handlers = self.translation_handlers.get(builder.format, {}).copy()
+        handlers.update(self.translation_handlers.get(builder.name, {}))
 
         for name, (visit, depart) in handlers.items():
             setattr(translator, 'visit_' + name, MethodType(visit, translator))
