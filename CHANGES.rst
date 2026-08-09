@@ -7,6 +7,8 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
+* #13989: Allow anchors to wrap anywhere.
+  Patch by Nadav Tasher.
 
 * #14229: Fix JavaScript search for languages whose stemmer class name
   does not match the language name, such as Chinese (which reuses the
