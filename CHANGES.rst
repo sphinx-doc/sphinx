@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14542: linkcheck: Stop reporting local file links that include a query
+  (``?``) or fragment (``#``) component as ``[broken]``. The query and
+  fragment are now stripped before the filesystem existence check.
+  Patch by sudorm-rf0
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

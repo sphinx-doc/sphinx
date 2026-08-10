@@ -1522,3 +1522,30 @@ def test_linkcheck_case_sensitivity(
     assert rowsby[f'http://{address}/path1']['status'] == expected_path1
     assert rowsby[f'http://{address}/path2']['status'] == expected_path2
     assert rowsby[f'http://{address}/PATH3']['status'] == expected_path3
+
+
+def test_linkcheck_local_uri_with_query_or_fragment(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
+    # Regression test for #14542: a local file referenced with a query (?)
+    # or fragment (#) should still be reported as working, because those
+    # components are not part of the filename.
+    tmp_path.joinpath('conf.py').write_text('')
+    tmp_path.joinpath('target.html').write_text('Target')
+    tmp_path.joinpath('index.rst').write_text(
+        'Test\n====\n\n'
+        '`query <target.html?view=full>`_\n'
+        '`fragment <target.html#section>`_\n'
+        '`plain <target.html>`_\n'
+    )
+
+    app = make_app('linkcheck', srcdir=tmp_path)
+    app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        rows = [json.loads(l) for l in fp]
+
+    records = {row['uri']: row for row in rows}
+    assert records['target.html']['status'] == 'working'
+    assert records['target.html?view=full']['status'] == 'working'
+    assert records['target.html#section']['status'] == 'working'
