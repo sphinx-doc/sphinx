@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* autodoc: Record the binary of an extension module as a dependency of the
+  documents that document objects defined in it, so that rebuilding the
+  extension invalidates those documents.
+  Patch by Eric Larson
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
