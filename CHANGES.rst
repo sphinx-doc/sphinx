@@ -19,7 +19,8 @@ Features added
 * Added support for "autodoc-skip-member" event in 'autosummary' extension when running recursively.
   Example conf.py:
 
-  ```python
+  .. code-block:: python
+
     def _skip_member(app, obj_type: str, name: str, obj, skip, options):
         """
         Return True if need to skip. None otherwise.
@@ -35,7 +36,6 @@ Features added
         Register application handlers:
         """
         app.connect("autodoc-skip-member", _skip_member)
-    ```
 
 
 Release 9.1.0 (released Dec 31, 2025)

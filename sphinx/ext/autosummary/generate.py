@@ -18,18 +18,16 @@ import argparse
 import importlib
 import inspect
 import locale
-import os
 import pkgutil
 import pydoc
 import re
 import sys
 import traceback
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple, Callable
+from typing import TYPE_CHECKING, NamedTuple
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
-from sphinx.util.tags import Tags
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -61,10 +59,12 @@ from sphinx.util.inspect import (
     safe_getattr,
 )
 from sphinx.util.osutil import ensuredir
+from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxTemplateLoader
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence, Set
+    import os
+    from collections.abc import Callable, Sequence, Set
     from gettext import NullTranslations
     from typing import Any
 
@@ -1007,7 +1007,7 @@ def main(argv: Sequence[str] = (), /) -> None:
         app.config.templates_path.append(str(Path(args.templates).resolve()))
     app.config.autosummary_ignore_module_all = not args.respect_module_all
 
-    conf_path = Path(os.getcwd(), CONFIG_FILENAME)
+    conf_path = Path.cwd() / CONFIG_FILENAME
     if conf_path.is_file():
         namespace = eval_config_file(conf_path, Tags([]))
         try:

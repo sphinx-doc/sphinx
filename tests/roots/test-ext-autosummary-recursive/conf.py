@@ -8,9 +8,7 @@ autosummary_generate = True
 
 
 def _skip_member(app, obj_type: str, name: str, obj, skip, options):
-    """
-    Return True if need to skip. None otherwise.
-    """
+    """Return True if need to skip. None otherwise."""
     if name.startswith('_'):
         return True
     print(f'Checking {name}...')
@@ -18,7 +16,5 @@ def _skip_member(app, obj_type: str, name: str, obj, skip, options):
 
 
 def setup(app):
-    """
-    Register application handlers:
-    """
-    app.connect("autodoc-skip-member", _skip_member)
+    """Register application handlers:"""
+    app.connect('autodoc-skip-member', _skip_member)
