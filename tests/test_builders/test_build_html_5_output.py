@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 from docutils import nodes
 
+from sphinx import addnodes
 from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
@@ -565,3 +566,34 @@ def test_html5_rubric(app: SphinxTestApp) -> None:
     assert 'WARNING: unsupported rubric heading level: 7' in warnings
     assert '</h7>' not in content
     assert '<p class="rubric">INSERTED RUBRIC</p>' in content
+
+
+@pytest.mark.parametrize(
+    ('node_type', 'version', 'lineno'),
+    [
+        # argument-style content (no blank line after directive)
+        ('versionadded', '0.6', 296),
+        ('versionadded', '0.6.1', 299),
+        # body content (blank line after directive)
+        ('versionadded', '1.2', 314),
+        ('versionadded', '1.2.1', 318),
+        # inline content (text on same line as directive)
+        ('versionchanged', '3.14', 326),
+        ('versionchanged', '3.1416', 328),
+    ],
+)
+@pytest.mark.sphinx('dummy', testroot='root')
+def test_versionadded_paragraph_source_info(
+    app: SphinxTestApp,
+    node_type: str,
+    version: str,
+    lineno: int,
+) -> None:
+    app.build()
+    doctree = app.env.get_doctree('markup')
+    for node in doctree.findall(addnodes.versionmodified):
+        if node['type'] == node_type and node['version'] == version:
+            assert node[0].line == lineno
+            break
+    else:
+        pytest.fail(f'{node_type} {version} node not found')
