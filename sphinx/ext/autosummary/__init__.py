@@ -689,38 +689,49 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
     try:
         name_parts = name.split('.')
 
-        # try first interpret `name` as MODNAME.OBJ
-        modname = '.'.join(name_parts[:-1])
-        if modname:
+        # Walk from the root module towards the target, preferring attribute
+        # access over submodule imports: importing e.g. ``pkg.Foo`` as a
+        # module may wrongly succeed on case-insensitive filesystems when a
+        # ``pkg/foo.py`` module exists, clobbering the ``Foo`` attribute of
+        # ``pkg`` with the mis-imported module (#11362).
+        modname = name_parts[0]
+        obj: Any = _import_module(modname)
+        parent: Any = None
+        for j, part in enumerate(name_parts[1:], start=2):
+            if parent is None and j < len(name_parts):
+                submod = sys.modules.get(f'{modname}.{part}')
+                if isinstance(submod, ModuleType):
+                    # for intermediate parts, an already-imported submodule
+                    # wins over a same-named attribute (e.g. a function
+                    # shadowing its own module), as with the import-first
+                    # resolution used previously
+                    modname = f'{modname}.{part}'
+                    obj = submod
+                    continue
             try:
-                mod = _import_module(modname)
-                return getattr(mod, name_parts[-1]), mod, modname
-            except (ImportError, IndexError, AttributeError) as exc:
-                errors.append(exc.__cause__ or exc)
-
-        # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
-        last_j = 0
-        modname = ''
-        for j in reversed(range(1, len(name_parts) + 1)):
-            last_j = j
-            modname = '.'.join(name_parts[:j])
-            try:
-                _import_module(modname)
-            except ImportError as exc:
-                errors.append(exc.__cause__ or exc)
-
-            if modname in sys.modules:
-                break
-
-        if last_j < len(name_parts):
-            parent = None
-            obj = sys.modules[modname]
-            for obj_name in name_parts[last_j:]:
-                parent = obj
-                obj = getattr(obj, obj_name)
-            return obj, parent, modname
-        else:
-            return sys.modules[modname], None, modname
+                attr = getattr(obj, part)
+            except (AttributeError, ImportError) as exc:
+                if parent is not None:
+                    # ``obj`` was reached as an attribute; cannot fall back
+                    # to importing a submodule of it
+                    raise
+                errors.append(exc)
+                modname = f'{modname}.{part}'
+                obj = _import_module(modname)
+                continue
+            if (
+                j < len(name_parts)
+                and parent is None
+                and isinstance(attr, ModuleType)
+                and attr.__name__ == f'{modname}.{part}'
+            ):
+                # a genuine submodule reached via attribute access: keep
+                # treating the resolution as a module path
+                modname = f'{modname}.{part}'
+                obj = attr
+            else:
+                obj, parent = attr, obj
+        return obj, parent, modname
     except (ValueError, ImportError, AttributeError, KeyError) as exc:
         errors.append(exc)
         if grouped_exception:
