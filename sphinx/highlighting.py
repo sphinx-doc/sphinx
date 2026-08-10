@@ -204,18 +204,47 @@ class PygmentsBridge:
             if lang == 'default':
                 lang = 'none'  # automatic highlighting failed.
             else:
-                logger.warning(
-                    __(
-                        'Lexing literal_block %r as "%s" resulted in an error at token: %r. '
-                        'Retrying in relaxed mode.'
-                    ),
-                    source,
-                    lang,
-                    str(err),
-                    type='misc',
-                    subtype='highlighting_failure',
-                    location=location,
-                )
+                if self.dest == 'latex':
+                    # LaTeX builder includes location information
+                    loc_source = (
+                        location.parent.source
+                        if location and location.parent
+                        else location.source
+                        if location
+                        else None
+                    )
+                    loc_line = location.line if location else None
+                    logger.warning(
+                        __(
+                            'Lexing literal_block %r as "%s" resulted in an '
+                            'error at token: %r '
+                            'at location: %r:%r . '
+                            'Retrying in relaxed mode.',
+                        ),
+                        source,
+                        lang,
+                        str(err),
+                        loc_source,
+                        loc_line,
+                        type='misc',
+                        subtype='highlighting_failure',
+                        location=location,
+                    )
+                else:
+                    # HTML and other builders don't include location in message
+                    logger.warning(
+                        __(
+                            'Lexing literal_block %r as "%s" resulted in an '
+                            'error at token: %r. '
+                            'Retrying in relaxed mode.',
+                        ),
+                        source,
+                        lang,
+                        str(err),
+                        type='misc',
+                        subtype='highlighting_failure',
+                        location=location,
+                    )
                 if force:
                     lang = 'none'
                 else:

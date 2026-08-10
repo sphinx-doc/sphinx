@@ -43,7 +43,7 @@ LATEX_WARNINGS = (
 {root}/index.rst:\\d+: WARNING: unknown option: '&option' \\[ref.option\\]
 {root}/index.rst:\\d+: WARNING: citation not found: missing \\[ref.ref\\]
 {root}/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
-{root}/index.rst:\\d+: WARNING: Lexing literal_block ".*" as "c" resulted in an error at token: ".*". Retrying in relaxed mode. \\[misc.highlighting_failure\\]
+{root}/index.rst:\\d+: WARNING: Lexing literal_block ".*" as "c" resulted in an error at token: ".*" at location: '/[\\w\\d/_-]+/warnings/index.rst':[\\d]+ . Retrying in relaxed mode. \\[misc.highlighting_failure\\]
 """
 )
 
