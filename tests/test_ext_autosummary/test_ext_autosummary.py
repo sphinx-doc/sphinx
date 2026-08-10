@@ -722,6 +722,7 @@ def test_autosummary_recursive(app):
     assert not (app.srcdir / 'generated' / 'package.module_importfail.rst').exists()
     assert (app.srcdir / 'generated' / 'package.package.rst').exists()
     assert (app.srcdir / 'generated' / 'package.package.module.rst').exists()
+    assert not (app.srcdir / 'generated' / 'package.skipme.rst').exists()
 
     # autosummary not having :recursive: option
     assert (app.srcdir / 'generated' / 'package2.rst').exists()
@@ -732,6 +733,7 @@ def test_autosummary_recursive(app):
     assert 'module' in content
     assert 'package' in content
     assert 'module_importfail' in content
+    assert 'skipme' not in content
     # we no longer generate fully-qualified module names.
     assert 'package.module' not in content
     assert 'package.package' not in content
