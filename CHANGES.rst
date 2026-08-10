@@ -16,7 +16,8 @@ Bugs fixed
 Features added
 --------------
 
-* Added support for "autodoc-skip-member" event in 'autosummary' extension when running recursively.
+* Added support for "autodoc-skip-member" event in 'autosummary' extension
+  when running recursively.
   Example conf.py:
 
   .. code-block:: python
