@@ -368,7 +368,7 @@ def generate_autosummary_content(
             )
             ns['modules'] = imported_modules + modules
             ns['all_modules'] = all_imported_modules + all_modules
-    elif obj_type == 'class':
+    elif obj_type in {'class', 'exception'}:
         ns['members'] = dir(obj)
         ns['inherited_members'] = set(dir(obj)) - set(obj.__dict__.keys())
         ns['methods'], ns['all_methods'] = _get_members(
@@ -393,7 +393,7 @@ def generate_autosummary_content(
     if obj_type in {'method', 'attribute', 'property'}:
         ns['class'] = qualname.rsplit('.', 1)[0]
 
-    if obj_type == 'class':
+    if obj_type in {'class', 'exception'}:
         shortname = qualname
     else:
         shortname = qualname.rsplit('.', 1)[-1]
@@ -520,7 +520,7 @@ def _get_all_members(
 ) -> dict[str, Any]:
     if obj_type == 'module':
         return _get_module_members(obj, config=config)
-    elif obj_type == 'class':
+    elif obj_type in {'class', 'exception'}:
         return _get_class_members(obj)
     return {}
 
