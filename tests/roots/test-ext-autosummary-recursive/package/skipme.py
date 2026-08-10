@@ -4,4 +4,4 @@ class SkipMe:
     pass
 
 
-__all__ = ('SkipMe', )
+__all__ = ('SkipMe',)
