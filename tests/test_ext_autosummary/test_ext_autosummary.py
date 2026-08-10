@@ -733,6 +733,7 @@ def test_autosummary_recursive(app):
     assert 'module' in content
     assert 'package' in content
     assert 'module_importfail' in content
+    assert 'skipme' not in content
     # we no longer generate fully-qualified module names.
     assert 'package.module' not in content
     assert 'package.package' not in content
