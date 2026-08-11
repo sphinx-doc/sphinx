@@ -1522,3 +1522,30 @@ def test_linkcheck_case_sensitivity(
     assert rowsby[f'http://{address}/path1']['status'] == expected_path1
     assert rowsby[f'http://{address}/path2']['status'] == expected_path2
     assert rowsby[f'http://{address}/PATH3']['status'] == expected_path3
+
+
+@pytest.mark.parametrize(
+    'uri',
+    [
+        'FTP://example.test/file',
+        'ftp://example.test/file',
+        'SSH://example.test/file',
+    ],
+)
+def test_linkcheck_uppercase_scheme_is_unchecked(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path, uri: str
+) -> None:
+    """Non-http URI schemes are case-insensitive (RFC 3986).
+
+    Uppercase schemes such as ``FTP://`` must be treated like their
+    lowercase equivalents and reported as ``unchecked`` rather than
+    ``broken``.
+    """
+    tmp_path.joinpath('conf.py').write_text('')
+    tmp_path.joinpath('index.rst').write_text(f'Test\n====\n\n`download <{uri}>`_\n')
+    app = make_app('linkcheck', srcdir=tmp_path)
+    app.build()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = [json.loads(x) for x in content.splitlines()]
+    rowsby = {row['uri']: row for row in rows}
+    assert rowsby[uri]['status'] == 'unchecked'
