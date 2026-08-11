@@ -109,7 +109,7 @@ def patfilter(names: Iterable[str], pat: str) -> list[str]:
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     match = _pat_cache[pat].match
-    return list(filter(match, names))
+    return list(filter(match, names))  # ty: ignore[no-matching-overload]
 
 
 def get_matching_files(
