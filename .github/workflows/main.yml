@@ -248,7 +248,7 @@ jobs:
     - name: Install dependencies
       run: uv pip install . --group test
     - name: Install Docutils' HEAD
-      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+      run: uv pip install "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils"
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv
       env:
@@ -312,7 +312,7 @@ jobs:
     - name: Install dependencies
       run: uv pip install . --group test
     - name: Install Docutils' HEAD
-      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+      run: uv pip install "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils"
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
