@@ -429,10 +429,13 @@ class SphinxComponentRegistry:
         translator = translator_class(*args)
 
         # transplant handlers for custom nodes to translator instance
-        handlers = self.translation_handlers.get(builder.name, None)
-        if handlers is None:
-            # retry with builder.format
-            handlers = self.translation_handlers.get(builder.format, {})
+        handlers = {}
+        # Merge format-level handlers (e.g. ``html``) first so builders that
+        # share a format but use a distinct name (e.g. ``dirhtml``) still get
+        # the format's handlers. Builder-name-specific handlers take
+        # precedence and are overlaid on top.
+        handlers.update(self.translation_handlers.get(builder.format, {}))
+        handlers.update(self.translation_handlers.get(builder.name, {}))
 
         for name, (visit, depart) in handlers.items():
             setattr(translator, 'visit_' + name, MethodType(visit, translator))
