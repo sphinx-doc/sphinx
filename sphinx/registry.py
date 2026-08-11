@@ -22,6 +22,7 @@ from sphinx.util.logging import prefixed_warnings
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterator, Mapping, Sequence
+    from pathlib import Path
     from typing import Any
 
     from docutils import nodes
@@ -124,6 +125,9 @@ class SphinxComponentRegistry:
 
         #: js_files; list of JS paths or URLs
         self.js_files: list[tuple[str | None, dict[str, Any]]] = []
+
+        #: static directories registered by extensions
+        self.static_dirs: list[Path] = []
 
         #: LaTeX packages; list of package names and its options
         self.latex_packages: list[tuple[str, str | None]] = []
@@ -465,6 +469,11 @@ class SphinxComponentRegistry:
     def add_js_file(self, filename: str | None, **attributes: Any) -> None:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
+
+    def add_static_dir(self, path: Path) -> None:
+        """Register a static directory for extensions."""
+        logger.debug("[app] adding static_dir: '%s'", path)
+        self.static_dirs.append(path)
 
     def has_latex_package(self, name: str) -> bool:
         packages = self.latex_packages + self.latex_packages_after_hyperref

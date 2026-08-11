@@ -32,6 +32,12 @@ from tests.utils import extract_node
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
+if sys.version_info[:2] >= (3, 15):
+    cached_dunder: tuple[str, ...] = ()
+else:
+    cached_dunder = ('__cached__',)
+
+
 html_warnfile = StringIO()
 
 
@@ -268,7 +274,7 @@ def test_autosummary_generate_content_for_module(app):
         '_Exc',
         '__all__',
         '__builtins__',
-        '__cached__',
+        *cached_dunder,
         '__doc__',
         '__file__',
         '__name__',
@@ -377,7 +383,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
         '_Exc',
         '__all__',
         '__builtins__',
-        '__cached__',
+        *cached_dunder,
         '__doc__',
         '__file__',
         '__name__',
@@ -424,7 +430,7 @@ def test_autosummary_generate_content_for_module_imported_members(app):
         '_Exc',
         '__all__',
         '__builtins__',
-        '__cached__',
+        *cached_dunder,
         '__doc__',
         '__file__',
         '__loader__',
@@ -489,7 +495,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
         'InheritedAttrClass',
         '__all__',
         '__builtins__',
-        '__cached__',
+        *cached_dunder,
         '__doc__',
         '__file__',
         '__loader__',

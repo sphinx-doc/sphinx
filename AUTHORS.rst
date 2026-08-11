@@ -60,6 +60,7 @@ Contributors
 * Florian Best -- log improvements
 * Glenn Matthews -- python domain signature improvements
 * Gregory Szorc -- performance improvements
+* Günter Milde -- various small fixes
 * Henrique Bastos -- SVG support for graphviz extension
 * Hernan Grecco -- search improvements
 * Hong Xu -- svg support in imgmath extension and various bug fixes
@@ -117,6 +118,7 @@ Contributors
 * Thomas Waldmann -- apidoc module fixes
 * Till Hoffmann -- doctest option to exit after first failed test
 * Tim Hoffmann -- theme improvements
+* Tim Pillinger -- documentation improvements
 * Valentin Heinisch -- warning types improvement
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements

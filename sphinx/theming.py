@@ -10,6 +10,7 @@ import shutil
 import sys
 import tempfile
 import tomllib
+import warnings
 from importlib.metadata import entry_points
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -17,6 +18,7 @@ from zipfile import ZipFile
 
 from sphinx import package_dir
 from sphinx.config import check_confval_types as _config_post_init
+from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -152,12 +154,30 @@ class HTMLThemeFactory:
 
     def __init__(
         self,
+        _deprecated_positional_parameter: Sphinx | None = None,
+        /,
         *,
-        confdir: Path,
-        app: Sphinx,
-        config: Config,
-        registry: SphinxComponentRegistry,
+        confdir: Path | None = None,
+        app: Sphinx | None = None,
+        config: Config | None = None,
+        registry: SphinxComponentRegistry | None = None,
     ) -> None:
+        if _deprecated_positional_parameter is not None:
+            warnings.warn(
+                'Positional parameters for HTMLThemeFactory are deprecated, '
+                'and will be removed in Sphinx 10. '
+                'Please use keyword parameters instead.',
+                category=RemovedInSphinx10Warning,
+                stacklevel=2,
+            )
+            app = _deprecated_positional_parameter
+            confdir = app.confdir
+            config = app.config
+            registry = app.registry
+        assert app is not None
+        assert confdir is not None
+        assert config is not None
+        assert registry is not None
         self._app = app
         self._confdir = confdir
         self._themes = registry.html_themes
