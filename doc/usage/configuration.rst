@@ -1758,7 +1758,7 @@ and also make use of these options.
    :type: :code-py:`list[str]`
    :default: :code-py:`[]`
 
-   A list of paths that contain extra files not directly related to
+   A list of paths to extra files or directories not directly related to
    the documentation,
    such as :file:`robots.txt` or :file:`.htaccess`.
    Relative paths are taken as relative to the :term:`configuration directory`.
