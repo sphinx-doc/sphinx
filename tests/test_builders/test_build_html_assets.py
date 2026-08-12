@@ -49,6 +49,8 @@ def test_html_assets(app: SphinxTestApp) -> None:
     assert (app.outdir / 'background.png').exists()
     assert (app.outdir / 'subdir' / '.htaccess').exists()
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
+    assert (app.outdir / 'config.schema.json').read_text(encoding='utf8') == '{}\n'
+    assert not (app.outdir / 'single' / 'config.schema.json').exists()
 
     # html_css_files
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
