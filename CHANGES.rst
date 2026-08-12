@@ -8,6 +8,11 @@ Bugs fixed
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
 
+* #14229: Fix JavaScript search for languages whose stemmer class name
+  does not match the language name, such as Chinese (which reuses the
+  English stemmer) and Dutch (which uses the Dutch Porter stemmer).
+  Patch by Hugo van Kemenade
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
