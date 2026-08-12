@@ -860,6 +860,7 @@ class StandardDomain(Domain):
                 name,
                 docname,
                 location=location,
+                type='ref', subtype=objtype,
             )
         self.objects[objtype, name] = (self.env.current_document.docname, labelid)
 
