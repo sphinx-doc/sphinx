@@ -240,6 +240,36 @@ def test_theme_builds(
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
 
 
+@pytest.mark.parametrize(
+    'theme_name',
+    [
+        'agogo',
+        'epub',
+        'nonav',
+        'scrolls',
+        'traditional',
+    ],
+)
+def test_inherited_themes_import_basic_css(theme_name: str) -> None:
+    """Themes inheriting from ``basic`` must @import its CSS so that
+    foundational style changes propagate automatically.
+
+    We can assert this by parsing the template's source: if the theme's
+    ``*.css.jinja`` does not emit an ``@import url("basic.css");``
+    instruction, the rendered CSS will miss the import, since the
+    template is copied verbatim into the output (Jinja2 processes only
+    the theme-option variables, never the bare ``@import`` line).
+
+    See :issue:`9093`.
+    """
+    theme_path = (
+        HERE.parent.parent / 'sphinx' / 'themes' / theme_name / 'static' / f'{theme_name}.css.jinja'
+    )
+    assert theme_path.exists(), f'{theme_name} theme missing'
+    content = theme_path.read_text(encoding='utf8')
+    assert '@import url("basic.css");' in content
+
+
 def test_config_file_toml() -> None:
     config_path = HERE / 'theme.toml'
     cfg = _load_theme_toml(config_path)
