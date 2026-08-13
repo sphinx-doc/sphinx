@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.deprecation import RemovedInSphinx10Warning
-
 from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
@@ -35,8 +33,7 @@ def test_singlehtml_refuris(
     app: SphinxTestApp,
     cached_etree_parse: Callable[[Path], ElementTree],
 ) -> None:
-    with pytest.warns(RemovedInSphinx10Warning, match=r'deprecated.'):
-        app.build()
+    app.build()
     check_xpath(
         cached_etree_parse(app.outdir / 'index.html'),
         'index.html',
