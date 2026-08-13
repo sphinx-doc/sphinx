@@ -353,6 +353,10 @@ class SphinxContentsFilter(ContentsFilter):
     """
 
     visit_pending_xref = ContentsFilter.ignore_node_but_process_children
+    # ``download_reference`` subclasses ``reference``, but is created during
+    # parsing rather than during reference resolution, so it is not covered
+    # by ``ContentsFilter.visit_reference``.
+    visit_download_reference = ContentsFilter.ignore_node_but_process_children
 
     def visit_image(self, node: nodes.image) -> None:
         raise nodes.SkipNode
