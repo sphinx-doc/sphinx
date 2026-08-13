@@ -1,4 +1,4 @@
-"""Test the LaTeX writer"""
+"""Test the text writer"""
 
 from __future__ import annotations
 
