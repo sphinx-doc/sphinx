@@ -475,7 +475,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             # strip any query or fragment before checking for a local file,
             # as these do not form part of the filesystem path
-            filename = uri.split('#', 1)[0].split('?', 1)[0]
+            filename = urlsplit(uri).path
             if not filename or (hyperlink.docpath.parent / filename).exists():
                 return _Status.WORKING, '', 0
             return _Status.BROKEN, '', 0
