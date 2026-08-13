@@ -548,7 +548,7 @@ def test_samp_role(app: SphinxTestApp) -> None:
         [nodes.paragraph, nodes.literal, ('a', [nodes.emphasis, '{b'], '}c')],
     )
 
-    # half-opened braces
+    # half-open braces
     text = ':samp:`a{bc`'
     doctree = parse_rst(text, env=app.env)
     assert_node(doctree[0], [nodes.paragraph, nodes.literal, 'a{bc'])
@@ -558,7 +558,7 @@ def test_samp_role(app: SphinxTestApp) -> None:
     doctree = parse_rst(text, env=app.env)
     assert_node(doctree[0], [nodes.paragraph, nodes.literal, 'a{b}c'])
 
-    # no braces (whitespaces are keeped as is)
+    # no braces (whitespace is preserved)
     text = ':samp:`code   sample`'
     doctree = parse_rst(text, env=app.env)
     assert_node(doctree[0], [nodes.paragraph, nodes.literal, 'code   sample'])
@@ -773,7 +773,7 @@ def test_default_role1(app: SphinxTestApp) -> None:
 def test_default_role2(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
-    # default-role directive is stronger than configratuion
+    # default-role directive is stronger than configuration
     doctree = app.env.get_doctree('index')
     assert isinstance(doctree[0], nodes.section)
     assert_node(extract_node(doctree, 0, 1), nodes.paragraph)
