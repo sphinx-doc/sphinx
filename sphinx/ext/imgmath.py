@@ -69,6 +69,10 @@ depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 def read_svg_depth(filename: str | os.PathLike[str]) -> int | None:
     """Read the depth from comment at last line of SVG file"""
     with open(filename, encoding='utf-8') as f:
+        # An empty file (or one that was truncated mid-write by a concurrent
+        # build) yields no lines, so `line` stays unbound; treat that as "no
+        # depth" instead of raising UnboundLocalError.
+        line = ''
         for line in f:  # NoQA: B007
             pass
         # Only last line is checked

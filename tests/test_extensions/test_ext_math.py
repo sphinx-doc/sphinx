@@ -625,3 +625,34 @@ def test_duplicate_equation_label_warning_type(app: SphinxTestApp) -> None:
     warnings = strip_escape_sequences(app.warning.getvalue())
     assert 'WARNING: duplicate label of equation duplicated' in warnings
     assert '[ref.equation]' in warnings
+
+
+def test_read_svg_depth(tmp_path):
+    """read_svg_depth returns the depth from the last line's comment."""
+    svg = tmp_path / 'math.svg'
+    svg.write_text('<svg></svg>\n<!-- DEPTH=42 -->\n', encoding='utf8')
+
+    from sphinx.ext.imgmath import read_svg_depth
+
+    assert read_svg_depth(svg) == 42
+
+
+def test_read_svg_depth_without_comment(tmp_path):
+    """read_svg_depth returns None when the last line has no DEPTH comment."""
+    svg = tmp_path / 'math.svg'
+    svg.write_text('<svg></svg>\n', encoding='utf8')
+
+    from sphinx.ext.imgmath import read_svg_depth
+
+    assert read_svg_depth(svg) is None
+
+
+def test_read_svg_depth_empty_file(tmp_path):
+    """read_svg_depth returns None for an empty (or truncated) file instead of
+    raising UnboundLocalError (#14466)."""
+    svg = tmp_path / 'math.svg'
+    svg.write_text('', encoding='utf8')
+
+    from sphinx.ext.imgmath import read_svg_depth
+
+    assert read_svg_depth(svg) is None
