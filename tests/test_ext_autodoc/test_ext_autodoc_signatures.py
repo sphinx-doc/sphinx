@@ -16,7 +16,7 @@ from sphinx.ext.autodoc._property_types import (
 from sphinx.ext.autodoc._shared import _AutodocConfig
 from sphinx.util.inspect import safe_getattr
 
-from tests.test_ext_autodoc.autodoc_util import FakeEvents
+from tests.test_ext_autodoc.autodoc_util import FakeEvents, do_autodoc
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
@@ -287,6 +287,24 @@ def test_format_signatures_event_handler() -> None:
 
     # test processing by event handler
     assert format_sig('method', 'bar', H.foo1, events=events) == ('42', '')
+
+
+@pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
+def test_data_object_signature_from_event_handler() -> None:
+    # https://github.com/sphinx-doc/sphinx/issues/14576
+    # Data objects never get a signature, but an ``autodoc-process-signature``
+    # listener may still provide a replacement one. That replacement must be
+    # appended rather than crashing on ``signatures[0]`` assignment.
+    def process_signature(app, what, name, obj, options, args, retann):
+        if what == 'data':
+            return '()', None
+        return None
+
+    events = FakeEvents()
+    events.connect('autodoc-process-signature', process_signature)
+
+    content = do_autodoc('data', 'target.callable.function', events=events)
+    assert '.. py:data:: function()' in content
 
 
 def test_format_functools_partial_signatures() -> None:

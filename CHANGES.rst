@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14576: autodoc: Fix a crash (``list assignment index out of range``)
+  when an ``autodoc-process-signature`` event handler returns a
+  replacement signature for an object without one (e.g. a callable
+  data object).
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
