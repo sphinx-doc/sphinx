@@ -1,11 +1,13 @@
 Main Documentation
 ==================
 
-Welcome to the documentation.
+This documentation discusses :term:`API` design.
+
+We use :term:`API` throughout our application to communicate between
+different services.
 
 .. toctree::
    :maxdepth: 2
 
-   ch1
    glossary/term1
    glossary/term2
