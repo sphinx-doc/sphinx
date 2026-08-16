@@ -29,7 +29,7 @@ def _internal_reference_fragment_check(nodes: Sequence[Element]) -> None:
 
 
 @pytest.mark.sphinx('singlehtml', testroot='refuris')
-def test_singlehtml_refuris(
+def test_singlehtml_refuris_check_fragments(
     app: SphinxTestApp,
     cached_etree_parse: Callable[[Path], ElementTree],
 ) -> None:
@@ -40,3 +40,25 @@ def test_singlehtml_refuris(
         ".//a[@class='reference internal']",
         _internal_reference_fragment_check,
     )
+
+
+@pytest.mark.sphinx('singlehtml', testroot='refuris')
+def test_singlehtml_refuris_check_term_anchor(
+    app: SphinxTestApp,
+    cached_etree_parse: Callable[[Path], ElementTree],
+) -> None:
+    """Note: Sphinx currently lacks support for multiple glossaries; all term
+    definitions exist in a single namespace, and duplicate names may clobber
+    each other.
+    For more details, see: https://github.com/sphinx-doc/sphinx/issues/1399
+    """
+    app.build()
+    etree = cached_etree_parse(app.outdir / 'index.html')
+    api_refs = [
+        node
+        for node in etree.findall(".//a[@class='reference internal']")
+        if ''.join(node.itertext()) == 'API'
+    ]
+    assert api_refs  # the API term is referenced twice from the document text
+    assert all(ref.get('href') == '#term-API' for ref in api_refs)
+    assert etree.find(".//*[@id='term-API']") is not None
