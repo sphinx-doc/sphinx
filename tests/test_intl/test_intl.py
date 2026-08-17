@@ -1647,7 +1647,7 @@ def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None
     assert_count(expected_expr, result, 2)
 
     # ruby code block should not be translated but be highlighted
-    expected_expr = """<span class="s1">&#39;result&#39;</span>"""
+    expected_expr = """<span class="s1">'result'</span>"""
     assert_count(expected_expr, result, 1)
 
     # C code block without lang should not be translated and *ruby* highlighted
@@ -1738,7 +1738,7 @@ def test_additional_targets_should_be_translated(app: SphinxTestApp) -> None:
     assert_count(expected_expr, result, 1)
 
     # literalinclude should be translated
-    expected_expr = '<span class="s2">&quot;HTTPS://SPHINX-DOC.ORG&quot;</span>'
+    expected_expr = '<span class="s2">"HTTPS://SPHINX-DOC.ORG"</span>'
     assert_count(expected_expr, result, 1)
 
     # title should be translated
@@ -1746,7 +1746,7 @@ def test_additional_targets_should_be_translated(app: SphinxTestApp) -> None:
     assert_count(expected_expr, result, 2)
 
     # ruby code block should be translated and be highlighted
-    expected_expr = """<span class="s1">&#39;RESULT&#39;</span>"""
+    expected_expr = """<span class="s1">'RESULT'</span>"""
     assert_count(expected_expr, result, 1)
 
     # C code block without lang should be translated and *ruby* highlighted

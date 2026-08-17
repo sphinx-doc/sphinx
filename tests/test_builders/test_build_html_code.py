@@ -57,7 +57,7 @@ def test_html_code_role(app: SphinxTestApp) -> None:
         '<span class="o">+</span> '
         '<span class="kc">None</span> '
         '<span class="o">+</span> '
-        '<span class="s2">&quot;abc&quot;</span>'
+        '<span class="s2">"abc"</span>'
         '<span class="p">):</span> '
         '<span class="k">pass</span>'
     )

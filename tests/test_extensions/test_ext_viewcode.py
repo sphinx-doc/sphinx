@@ -51,7 +51,7 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     assert f'<span>class</span>{sp}<span>Class1</span><span>:</span>\n' in result
     assert (
         '<span>    </span>'
-        '<span>&quot;&quot;&quot;this is Class1&quot;&quot;&quot;</span></div>\n'
+        '<span>"""this is Class1"""</span></div>\n'
     ) in result
 
     return result
