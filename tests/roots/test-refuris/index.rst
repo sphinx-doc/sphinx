@@ -10,4 +10,3 @@ different services.
    :maxdepth: 2
 
    glossary/term1
-   glossary/term2

@@ -1,4 +1,0 @@
-.. glossary::
-
-   API
-      Lorem Ipsum.
