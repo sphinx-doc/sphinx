@@ -47,11 +47,6 @@ def test_singlehtml_refuris_check_term_anchor(
     app: SphinxTestApp,
     cached_etree_parse: Callable[[Path], ElementTree],
 ) -> None:
-    """Note: Sphinx currently lacks support for multiple glossaries; all term
-    definitions exist in a single namespace, and duplicate names may clobber
-    each other.
-    For more details, see: https://github.com/sphinx-doc/sphinx/issues/1399
-    """
     app.build()
     etree = cached_etree_parse(app.outdir / 'index.html')
     api_refs = [
