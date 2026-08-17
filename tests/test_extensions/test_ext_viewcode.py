@@ -49,10 +49,7 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     ) in result
     assert '<span>@decorator</span>\n' in result
     assert f'<span>class</span>{sp}<span>Class1</span><span>:</span>\n' in result
-    assert (
-        '<span>    </span>'
-        '<span>"""this is Class1"""</span></div>\n'
-    ) in result
+    assert '<span>    </span><span>"""this is Class1"""</span></div>\n' in result
 
     return result
 
