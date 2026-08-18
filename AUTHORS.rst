@@ -120,6 +120,7 @@ Contributors
 * Tim Hoffmann -- theme improvements
 * Tim Pillinger -- documentation improvements
 * Valentin Heinisch -- warning types improvement
+* Vedant Kumar -- autodoc fixes
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder
