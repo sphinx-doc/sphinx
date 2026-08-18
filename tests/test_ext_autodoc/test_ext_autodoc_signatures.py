@@ -355,3 +355,56 @@ def test_autodoc_process_signature_typehints() -> None:
     assert captured == [
         (app, 'function', '.func', func, options, '(x: int, y: int)', 'int')
     ]
+
+
+def test_autodoc_process_signature_data_object() -> None:
+    # https://github.com/sphinx-doc/sphinx/issues/14576
+    # No signature is introspected for data objects, but a handler for
+    # ``autodoc-process-signature`` may still return a replacement
+    # signature; this must not raise an IndexError.
+    from sphinx.ext.autodoc._property_types import _AssignStatementProperties
+
+    def process_signature(*args: Any) -> tuple[str, str | None]:
+        return '()', None
+
+    events = FakeEvents()
+    events.connect('autodoc-process-signature', process_signature)
+
+    class SigBug:
+        class_var: Any
+
+        def __call__(self) -> None:
+            pass
+
+    sig_bug = SigBug()
+
+    props = _AssignStatementProperties(
+        obj_type='data',
+        module_name='',
+        parts=('sig_bug',),
+        docstring_lines=(),
+        value=sig_bug,
+        annotation='',
+        class_var=False,
+        instance_var=False,
+        _obj=sig_bug,
+        _obj___module__=None,
+        _obj_is_generic_alias=False,
+        _obj_is_attribute_descriptor=False,
+        _obj_is_mock=False,
+        _obj_is_sentinel=None,
+        _obj_repr_rst='',
+        _obj_type_annotation=None,
+    )
+
+    signatures = _format_signatures(
+        autodoc_annotations={},
+        config=_AutodocConfig(),
+        docstrings=None,
+        events=events,
+        get_attr=safe_getattr,
+        options=_AutoDocumenterOptions(),
+        parent=None,
+        props=props,
+    )
+    assert signatures == [('()', '')]

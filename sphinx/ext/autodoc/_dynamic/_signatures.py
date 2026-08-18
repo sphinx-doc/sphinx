@@ -125,7 +125,14 @@ def _format_signatures(
     ):
         if len(result) == 2 and isinstance(result[0], str):
             args, retann = result
-            signatures[0] = (args, retann if isinstance(retann, str) else '')
+            replacement = (args, retann if isinstance(retann, str) else '')
+            if signatures:
+                signatures[0] = replacement
+            else:
+                # No signature was introspected (e.g. for data objects),
+                # but an event handler returned a replacement signature.
+                # See: https://github.com/sphinx-doc/sphinx/issues/14576
+                signatures.append(replacement)
 
     if props.obj_type in {'module', 'data', 'type'}:
         signatures[1:] = ()  # discard all signatures save the first
