@@ -18,7 +18,7 @@ Features added
 Bugs fixed
 ----------
 
-* #14365: intersphinx: Fix leaking basic auth credentials in error and
+* #14342: intersphinx: Fix leaking basic auth credentials in error and
   redirect log messages.
   Patch by Joshua Swanson
 * #14189: autodoc: Fix duplicate ``:no-index-entry:`` for modules.
