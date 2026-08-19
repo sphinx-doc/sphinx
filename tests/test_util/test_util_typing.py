@@ -75,6 +75,8 @@ from typing import (
 )
 from weakref import WeakSet
 
+import pytest
+
 from sphinx.ext.autodoc._dynamic._mock import mock
 from sphinx.util.typing import _INVALID_BUILTIN_CLASSES, restify, stringify_annotation
 
@@ -1011,6 +1013,38 @@ def test_stringify_type_ForwardRef():
         'smart',
     )
     assert ann_str == '~typing.Tuple[dict[MyInt, str], list[~typing.List[int]]]'
+
+
+@pytest.mark.skipif(
+    sys.version_info[:2] < (3, 14),
+    reason='annotations are only deferred from Python 3.14',
+)
+def test_stringify_type_ForwardRef_annotationlib_placeholders():
+    # https://github.com/sphinx-doc/sphinx/issues/14457
+    import annotationlib  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
+
+    # This file uses ``from __future__ import annotations``, which would make
+    # the annotation a plain string; compile the function separately so that
+    # it gets a real PEP 649 deferred annotation instead.
+    ns: dict[str, Any] = {}
+    code = compile(
+        'def func(x: UndefinedMapping[str, int]) -> UndefinedMapping[str, int]: ...',
+        '<test>',
+        'exec',
+        dont_inherit=True,
+    )
+    exec(code, ns)  # NoQA: S102
+    func = ns['func']
+
+    ann = annotationlib.get_annotations(func, format=annotationlib.Format.FORWARDREF)
+    ref = ann['x']
+    assert isinstance(ref, ForwardRef)
+    # annotationlib stores the real objects under placeholder names
+    assert '__annotationlib_name_' in ref.__forward_arg__
+
+    assert stringify_annotation(ref) == 'UndefinedMapping[str, int]'
+    assert stringify_annotation(ref, 'smart') == 'UndefinedMapping[str, int]'
+    assert restify(ref) == ':py:class:`UndefinedMapping[str, int]`'
 
 
 def test_stringify_type_hints_paramspec():
