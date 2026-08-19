@@ -1021,7 +1021,7 @@ def test_stringify_type_ForwardRef():
 )
 def test_stringify_type_ForwardRef_annotationlib_placeholders():
     # https://github.com/sphinx-doc/sphinx/issues/14457
-    import annotationlib
+    import annotationlib  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     # This file uses ``from __future__ import annotations``, which would make
     # the annotation a plain string; compile the function separately so that
