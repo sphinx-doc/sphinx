@@ -13,6 +13,10 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #13180: napoleon: Move the ``Attributes`` and ``Methods`` sections directly
+  below the ``Parameters`` section in NumPy-style docstrings, matching
+  numpydoc 1.8+.
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
