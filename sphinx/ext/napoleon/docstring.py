@@ -373,6 +373,8 @@ class GoogleDocstring:
         self._parsed_lines: list[str] = []
         self._is_in_section = False
         self._section_indent = 0
+        if not hasattr(self, '_deferred_sections'):
+            self._deferred_sections: set[str] = set()
         if not hasattr(self, '_directive_sections'):
             self._directive_sections: list[str] = []
         if not hasattr(self, '_sections'):
@@ -839,6 +841,9 @@ class GoogleDocstring:
             self._parsed_lines.extend(res)
             return
 
+        insert_after_params: list[list[str]] = []
+        params_end: int | None = None
+        summary_end: int | None = None
         while self._lines:
             if self._is_section_header():
                 try:
@@ -852,12 +857,25 @@ class GoogleDocstring:
                 finally:
                     self._is_in_section = False
                     self._section_indent = 0
+
+                if summary_end is None:
+                    summary_end = len(self._parsed_lines)
+                if self._deferred_sections and section.lower() in self._deferred_sections:
+                    insert_after_params.append(lines)
+                    continue
+                self._parsed_lines.extend(lines)
+                if self._deferred_sections and section.lower() == 'parameters':
+                    params_end = len(self._parsed_lines)
             else:
                 if not self._parsed_lines:
                     lines = self._consume_contiguous() + self._consume_empty()
                 else:
                     lines = self._consume_to_next_section()
-            self._parsed_lines.extend(lines)
+                self._parsed_lines.extend(lines)
+        insert_at = params_end if params_end is not None else (summary_end or 0)
+        self._parsed_lines[insert_at:insert_at] = [
+            line for block in insert_after_params for line in block
+        ]
 
     def _parse_admonition(self, admonition: str, section: str) -> list[str]:
         # type (str, str) -> List[str]
@@ -1218,6 +1236,7 @@ class NumpyDocstring(GoogleDocstring):
         options: Any | None = None,
     ) -> None:
         self._directive_sections = ['.. index::']
+        self._deferred_sections = {'attributes', 'methods'}
         super().__init__(docstring, config, app, what, name, obj, options)
 
     def _escape_args_and_kwargs(self, name: str) -> str:
