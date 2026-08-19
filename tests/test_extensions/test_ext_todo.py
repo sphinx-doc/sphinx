@@ -126,3 +126,25 @@ def test_todo_valid_link(app: SphinxTestApp) -> None:
 
     # If everything is correct we should have exactly one target.
     assert len(matched) == 1
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-todo-nested-admonition',
+    freshenv=True,
+    confoverrides={'todo_include_todos': True},
+)
+def test_nested_admonition_title_not_duplicated_on_todolist(
+    app: SphinxTestApp,
+) -> None:
+    """Nested named admonitions inside a todo must keep a single title on both
+    the source page and the todolist page, even when the source document is
+    written first (alphabetical order a.rst then b.rst).
+    """
+    app.build(force_all=True)
+
+    source = (app.outdir / 'a.html').read_text(encoding='utf8')
+    todolist_page = (app.outdir / 'b.html').read_text(encoding='utf8')
+
+    assert source.count('<p class="admonition-title">Danger</p>') == 1
+    assert todolist_page.count('<p class="admonition-title">Danger</p>') == 1
