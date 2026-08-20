@@ -289,6 +289,24 @@ def test_format_signatures_event_handler() -> None:
     assert format_sig('method', 'bar', H.foo1, events=events) == ('42', '')
 
 
+def test_format_signatures_event_handler_on_data() -> None:
+    # A data object skips signature extraction, so *signatures* is still empty
+    # when the event fires. A handler may return a signature for it anyway.
+    def process_signature(*args: Any) -> tuple[str, str | None]:
+        return '()', None
+
+    events = FakeEvents()
+    events.connect('autodoc-process-signature', process_signature)
+
+    class CallableData:
+        class_var: Any
+
+        def __call__(self) -> None:
+            pass
+
+    assert format_sig('data', 'sig_bug', CallableData(), events=events) == ('()', '')
+
+
 def test_format_functools_partial_signatures() -> None:
     # test functions created via functools.partial
     from functools import partial

@@ -125,7 +125,10 @@ def _format_signatures(
     ):
         if len(result) == 2 and isinstance(result[0], str):
             args, retann = result
-            signatures[0] = (args, retann if isinstance(retann, str) else '')
+            # Data and type objects skip signature extraction, so *signatures*
+            # may still be empty here. A handler is free to return a signature
+            # for them anyway, and slice assignment stores it either way.
+            signatures[:1] = [(args, retann if isinstance(retann, str) else '')]
 
     if props.obj_type in {'module', 'data', 'type'}:
         signatures[1:] = ()  # discard all signatures save the first

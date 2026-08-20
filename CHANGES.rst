@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14576: autodoc: Fix ``IndexError`` when an ``autodoc-process-signature``
+  handler returns a signature for a data or type object, which are documented
+  without one. The object was then rendered without its docstring.
+  Patch by Jhon Alvarez
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
