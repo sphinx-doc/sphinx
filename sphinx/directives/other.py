@@ -120,6 +120,7 @@ class TocTree(SphinxDirective):
                         entry,
                         location=toctree,
                         subtype='empty_glob',
+                        type='toc',
                     )
 
                 for docname in doc_names:
