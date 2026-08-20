@@ -13,8 +13,8 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
-* #14625: Fix issue that prevented empty TOC entry warnings from being
-  suppressed.
+* #14625: Allow suppressing warnings for unmatched toctree glob patterns using
+  `toc.empty_glob`.
   Patch by Michel Albert
 
 
