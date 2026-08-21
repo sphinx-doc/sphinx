@@ -14,7 +14,7 @@ Bugs fixed
   Patch by Hugo van Kemenade
 
 * #14625: Allow suppressing warnings for unmatched toctree glob patterns using
-  `toc.empty_glob`.
+  ``toc.empty_glob``.
   Patch by Michel Albert
 
 
