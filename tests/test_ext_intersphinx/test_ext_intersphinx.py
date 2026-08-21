@@ -29,7 +29,10 @@ from sphinx.ext.intersphinx._load import (
     validate_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx._resolve import missing_reference
-from sphinx.ext.intersphinx._shared import _IntersphinxProject
+from sphinx.ext.intersphinx._shared import (
+    _CaseInsensitiveIndex,
+    _IntersphinxProject,
+)
 from sphinx.util.inventory import _Inventory, _InventoryItem
 
 from tests.test_util.intersphinx_data import (
@@ -368,6 +371,61 @@ def test_ambiguous_reference_handling(term, expected_ambiguity, tmp_path, app, w
 
     ambiguity = f'multiple matches found for std:term:{term}' in warning.getvalue()
     assert ambiguity is expected_ambiguity
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_case_insensitive_match_uses_first_in_inventory_order(tmp_path, app):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
+    set_config(app, {'cmd': ('https://docs.python.org/', str(inv_file))})
+
+    validate_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    # 'b term' precedes 'B term' in the inventory, so it wins
+    node, contnode = fake_node('std', 'term', 'B TERM', 'B TERM')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn['refuri'] == 'https://docs.python.org/document.html#id5'
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_case_insensitive_match_after_reload(tmp_path, app):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(INVENTORY_V2)
+    set_config(app, {'cmd': ('https://docs.python.org/', str(inv_file))})
+
+    validate_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
+    assert missing_reference(app, app.env, node, contnode) is not None
+
+    # reloading with a different inventory must not leave a stale index behind
+    other_inv_file = tmp_path / 'other-inventory'
+    other_inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
+    set_config(app, {'cmd': ('https://example.org/', str(other_inv_file))})
+    validate_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
+    assert missing_reference(app, app.env, node, contnode) is None
+
+    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn['refuri'] == 'https://example.org/glossary.html#term-a-term'
+
+
+def test_case_insensitive_index_tracks_inventory_changes():
+    item = _InventoryItem(
+        project_name='foo', project_version='1', uri='u', display_name='-'
+    )
+    inventory: Inventory = {'std:label': {'Spam': item}}
+    index = _CaseInsensitiveIndex(inventory)
+    assert index.matches('std:label', 'spam') == ['Spam']
+    assert index.matches('std:label', 'eggs') == ()
+
+    inventory['std:label']['EGGS'] = item
+    assert index.matches('std:label', 'eggs') == ['EGGS']
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
