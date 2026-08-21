@@ -397,8 +397,23 @@ Docutils supports the following directives:
 
   - :dudir:`raw <raw-data-pass-through>` (include raw target-format markup)
   - :dudir:`include` (include reStructuredText from another file) -- in Sphinx,
-    when given an absolute include file path, this directive takes it as
-    relative to the source directory
+    path handling differs from plain Docutils:
+
+    - A **relative** path is resolved from the directory of the original Sphinx
+      source document. If C includes B and B includes A, relative includes in
+      both A and B resolve from C's directory.
+    - A path that **starts with** ``/`` is *not* an operating-system absolute
+      path. It is resolved from the top of the :term:`source directory`
+      (the same rule as :rst:dir:`literalinclude` and :rst:dir:`toctree`).
+
+    So ``.. include:: /generated/out.rst`` looks for
+    ``<source directory>/generated/out.rst``. If that file is missing, the
+    warning may show a path under the source tree (for example
+    ``source/generated/out.rst``) rather than an OS path under ``/``.
+
+    To pull in a file outside the source tree, prefer a path relative to the
+    including document (for example ``../build/generated.rst``). Relying on
+    OS-absolute paths is brittle and is not the intended model.
 
     .. _rstclass:
 
