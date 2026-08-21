@@ -22,7 +22,9 @@ def _internal_reference_fragment_check(nodes: Sequence[Element]) -> None:
     for node in nodes:
         assert node.tag == 'a', 'Attempted to check hyperlink on a non-anchor element'
         href = node.attrib.get('href')
-        assert not href or href.count('#') < 2, 'Hyperlink contains duplicate fragments'
+        if not href:
+            continue
+        assert href.count('#') < 2, 'Hyperlink contains duplicate fragments'
 
 
 @pytest.mark.sphinx('singlehtml', testroot='refuris')
