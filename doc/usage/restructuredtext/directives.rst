@@ -35,8 +35,7 @@ The ``toctree`` directive is the central element.
    Simple "inclusion" of one file in another can be done with the
    :dudir:`include` directive. In Sphinx, a path starting with ``/`` is
    relative to the :term:`source directory`, not the filesystem root.
-   See :doc:`/usage/restructuredtext/basics` (Special directives) for
-   details.
+   See :ref:`rst-directives` for details.
 
 .. note::
 
