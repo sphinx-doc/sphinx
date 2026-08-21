@@ -399,8 +399,9 @@ Docutils supports the following directives:
   - :dudir:`include` (include reStructuredText from another file) -- in Sphinx,
     path handling differs from plain Docutils:
 
-    - A **relative** path is resolved from the directory of the file that
-      contains the directive.
+    - A **relative** path is resolved from the directory of the original Sphinx
+      source document. If C includes B and B includes A, relative includes in
+      both A and B resolve from C's directory.
     - A path that **starts with** ``/`` is *not* an operating-system absolute
       path. It is resolved from the top of the :term:`source directory`
       (the same rule as :rst:dir:`literalinclude` and :rst:dir:`toctree`).
