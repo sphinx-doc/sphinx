@@ -13,6 +13,10 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14625: Allow suppressing warnings for unmatched toctree glob patterns using
+  ``toc.empty_glob``.
+  Patch by Michel Albert
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
