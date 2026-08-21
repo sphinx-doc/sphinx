@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import weakref
 from typing import TYPE_CHECKING
 
 from sphinx.util import logging
@@ -111,6 +112,42 @@ class _IntersphinxProject:
         raise AttributeError(msg)
 
 
+class _CaseInsensitiveIndex:
+    """Case-insensitive name index for a single inventory.
+
+    Maps a lower-cased object name to the matching names in insertion order.
+    Only ``std:label`` and ``std:term`` are looked up case-insensitively,
+    so the per-object-type indices are built lazily, on first use.
+    """
+
+    __slots__ = ('_indices', '_inventory', '_sizes')
+
+    def __init__(self, inventory: Inventory) -> None:
+        self._inventory = inventory
+        self._indices: dict[str, dict[str, list[str]]] = {}
+        self._sizes: dict[str, int] = {}
+
+    def matches(self, objtype: str, target_lower: str) -> Sequence[str]:
+        """Names of *objtype* whose lower-cased form is *target_lower*."""
+        objects = self._inventory[objtype]
+        index = self._indices.get(objtype)
+        if index is None or self._sizes[objtype] != len(objects):
+            # the size check catches inventories mutated after the index was built
+            index = {}
+            for name in objects:
+                index.setdefault(name.lower(), []).append(name)
+            self._indices[objtype] = index
+            self._sizes[objtype] = len(objects)
+        return index.get(target_lower, ())
+
+
+#: Case-insensitive indices, keyed by build environment.
+#: Kept off the environment itself so that they are never pickled.
+_CASE_INSENSITIVE_INDICES: weakref.WeakKeyDictionary[
+    BuildEnvironment, dict[InventoryName | None, _CaseInsensitiveIndex]
+] = weakref.WeakKeyDictionary()
+
+
 class InventoryAdapter:
     """Inventory adapter for environment"""
 
@@ -143,6 +180,22 @@ class InventoryAdapter:
     def named_inventory(self) -> dict[InventoryName, Inventory]:
         return self.env.intersphinx_named_inventory  # type: ignore[attr-defined]
 
+    def case_insensitive_index(
+        self, inv_name: InventoryName | None
+    ) -> _CaseInsensitiveIndex:
+        """Case-insensitive index for a named inventory, or the main inventory."""
+        indices = _CASE_INSENSITIVE_INDICES.setdefault(self.env, {})
+        try:
+            return indices[inv_name]
+        except KeyError:
+            if inv_name is None:
+                inventory = self.main_inventory
+            else:
+                inventory = self.named_inventory[inv_name]
+            index = indices[inv_name] = _CaseInsensitiveIndex(inventory)
+            return index
+
     def clear(self) -> None:
         self.env.intersphinx_inventory.clear()  # type: ignore[attr-defined]
         self.env.intersphinx_named_inventory.clear()  # type: ignore[attr-defined]
+        _CASE_INSENSITIVE_INDICES.pop(self.env, None)
