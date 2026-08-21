@@ -7,6 +7,10 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
+* #14612: Avoid quadratic re-sorting of consecutive target and index nodes,
+  which could add minutes to the build of projects that include a long list
+  of link targets in every document (e.g. via :confval:`rst_prolog`).
+  Patch by Eric Larson
 
 * #14229: Fix JavaScript search for languages whose stemmer class name
   does not match the language name, such as Chinese (which reuses the
