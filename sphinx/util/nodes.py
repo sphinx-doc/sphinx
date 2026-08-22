@@ -177,9 +177,12 @@ def apply_source_workaround(node: Element) -> None:
         )
         node.source, node.line = node.parent.source, node.parent.line
 
-    # workaround: literal_block under bullet list
-    # See: https://github.com/sphinx-doc/sphinx/issues/4913
-    if isinstance(node, nodes.literal_block) and node.source is None:
+    # Work around Docutils not setting ``source`` on:
+    # - literal blocks under bullet lists (#4913)
+    # - doctest blocks under block quotes (#12871)
+    if isinstance(node, (nodes.literal_block, nodes.doctest_block)) and (
+        node.source is None
+    ):
         with contextlib.suppress(ValueError):
             node.source = get_node_source(node)
 

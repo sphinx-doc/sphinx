@@ -325,6 +325,22 @@ def test_gettext_literalblock_additional(app: SphinxTestApp) -> None:
     ]
 
 
+@pytest.mark.sphinx(
+    'gettext',
+    testroot='gettext-doctest-block',
+    confoverrides={'gettext_additional_targets': ['doctest-block']},
+)
+def test_gettext_indented_doctest_block(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    pot = (app.outdir / 'index.pot').read_text(encoding='utf8')
+
+    assert get_msgids(pot) == [
+        'Indented doctest block',
+        '>>> 2 + 2\\n4',
+    ]
+
+
 @pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
 def test_gettext_trailing_backslashes(app: SphinxTestApp) -> None:
     app.build(force_all=True)
