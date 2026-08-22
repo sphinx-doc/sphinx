@@ -545,24 +545,53 @@ Describing changes between versions
    When this applies to an entire module or component,
    it should be placed at the top of the relevant section before any prose.
 
-   The first argument must be given and is the version in question; you can add
-   a second argument consisting of a *brief* explanation of the change.
+   The first argument must be given and is the version in question.
 
-   .. attention::
-      There must be no blank line between the directive head and the explanation;
-      this is to make these blocks visually continuous in the markup.
+   Give the explanation of the change in the directive **body**.
+   The body is nested reStructuredText, so block constructs such as
+   lists, nested directives, and literal blocks (``::``) work as usual.
+
+   A *brief* explanation may instead be given as a second argument,
+   on the same line as the version or continued on the next line
+   with no blank line. That argument is parsed as inline text only.
+
+   .. note::
+      A blank line after the version starts the body. Use a blank line
+      whenever the explanation needs block markup.
+
+   Further paragraphs in the body should be aligned with the
+   "Added in version ..." label, rather than indented as a nested block.
 
    .. version-changed:: 9.0
       The :rst:dir:`versionadded` directive was renamed to :rst:dir:`version-added`.
       The previous name is retained as an alias.
 
-   Example::
+   Example of a brief explanation given as the second argument::
 
       .. version-added:: 2.5
          The *spam* parameter.
 
+   This is rendered as:
+
    .. version-added:: 2.5
       The *spam* parameter.
+
+   To include a literal block, leave a blank line so the explanation
+   is the body::
+
+      .. version-added:: 2.5
+
+         The *spam* parameter now accepts a sequence::
+
+            spam(eggs)
+
+   This is rendered as:
+
+   .. version-added:: 2.5
+
+      The *spam* parameter now accepts a sequence::
+
+         spam(eggs)
 
 .. rst:directive:: .. version-changed:: version [brief explanation]
                    .. versionchanged:: version [brief explanation]
@@ -587,7 +616,7 @@ Describing changes between versions
 
    Similar to :rst:dir:`version-added`, but describes when the feature was
    deprecated.
-   A *brief* explanation can also be given,
+   An explanation can also be given as described for :rst:dir:`version-added`,
    for example to tell the reader what to use instead.
 
    .. version-changed:: 9.0
@@ -606,8 +635,9 @@ Describing changes between versions
                    .. versionremoved:: version [brief explanation]
 
    Similar to :rst:dir:`version-added`, but describes when the feature was removed.
-   An explanation may be provided to tell the reader what to use instead,
-   or why the feature was removed.
+   An explanation can also be given as described for :rst:dir:`version-added`,
+   for example to tell the reader what to use instead, or why the feature was
+   removed.
 
    .. version-added:: 7.3
 
