@@ -143,13 +143,6 @@ def apply_source_workaround(node: Element) -> None:
     elif isinstance(node, nodes.classifier) and not node.source:
         # docutils-0.15 fills in rawsource attribute, but not in source.
         node.source = node.parent.source
-    if isinstance(node, nodes.image) and node.source is None:
-        logger.debug(
-            '[i18n] PATCH: %r to have source, line: %s',
-            get_full_module_name(node),
-            repr_domxml(node),
-        )
-        node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.title) and node.source is None:
         logger.debug(
             '[i18n] PATCH: %r to have source: %s',
@@ -188,12 +181,8 @@ def apply_source_workaround(node: Element) -> None:
     if isinstance(
         node,
         (
-            # https://github.com/sphinx-doc/sphinx/issues/1305 rubric directive
-            nodes.rubric,
             # https://github.com/sphinx-doc/sphinx/issues/1477 line node
             nodes.line,
-            # https://github.com/sphinx-doc/sphinx/issues/3093 image directive in substitution
-            nodes.image,
             # https://github.com/sphinx-doc/sphinx/issues/3335 field list syntax
             nodes.field_name,
         ),
