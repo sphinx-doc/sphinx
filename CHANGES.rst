@@ -12,6 +12,9 @@ Bugs fixed
   does not match the language name, such as Chinese (which reuses the
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
+* #12871: gettext: Extract indented doctest blocks when ``doctest-block`` is
+  enabled in :confval:`gettext_additional_targets`.
+  Patch by Jared Dillard
 
 
 Release 9.1.0 (released Dec 31, 2025)
