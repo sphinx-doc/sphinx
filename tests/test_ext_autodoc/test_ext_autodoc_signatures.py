@@ -308,6 +308,18 @@ def test_format_signatures_event_handler_without_signature(
     assert format_sig(obj_type, 'bar', Callable_(), events=events) == ('(spam)', '')
 
 
+def test_format_signatures_event_handler_for_builtin_without_signature() -> None:
+    events = FakeEvents()
+    events.connect('autodoc-process-signature', _process_signature)
+    config = _AutodocConfig(autodoc_docstring_signature=False)
+
+    assert format_sig('function', 'int', int, config=config) == ()
+    assert format_sig('function', 'bar', int, config=config, events=events) == (
+        '42',
+        '',
+    )
+
+
 def test_format_functools_partial_signatures() -> None:
     # test functions created via functools.partial
     from functools import partial
