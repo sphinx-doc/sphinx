@@ -177,12 +177,6 @@ def apply_source_workaround(node: Element) -> None:
         )
         node.source, node.line = node.parent.source, node.parent.line
 
-    # workaround: literal_block under bullet list
-    # See: https://github.com/sphinx-doc/sphinx/issues/4913
-    if isinstance(node, nodes.literal_block) and node.source is None:
-        with contextlib.suppress(ValueError):
-            node.source = get_node_source(node)
-
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:
         node.rawsource = node.astext()

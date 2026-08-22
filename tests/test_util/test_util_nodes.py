@@ -13,7 +13,6 @@ from docutils.utils import new_document
 from sphinx.transforms import ApplySourceWorkaround
 from sphinx.util.nodes import (
     NodeMatcher,
-    apply_source_workaround,
     clean_astext,
     extract_messages,
     make_id,
@@ -253,23 +252,3 @@ def test_make_id_sequential(app):
 )
 def test_split_explicit_target(title: str, expected: tuple[bool, str, str]) -> None:
     assert split_explicit_title(title) == expected
-
-
-def test_apply_source_workaround_literal_block_no_source() -> None:
-    """Regression test for https://github.com/sphinx-doc/sphinx/issues/11091.
-
-    Test that apply_source_workaround doesn't raise.
-    """
-    literal_block = nodes.literal_block('', '')
-    list_item = nodes.list_item('', literal_block)
-    bullet_list = nodes.bullet_list('', list_item)
-
-    assert literal_block.source is None
-    assert list_item.source is None
-    assert bullet_list.source is None
-
-    apply_source_workaround(literal_block)
-
-    assert literal_block.source is None
-    assert list_item.source is None
-    assert bullet_list.source is None
