@@ -4193,7 +4193,7 @@ msgstr "HTML 4 больше не поддерживается Sphinx. (стро�
 #: builders/html/__init__.py:1454
 #, python-format
 msgid "%s %s documentation"
-msgstr "документация %s %s"
+msgstr "Документация %s %s"
 
 #: builders/latex/theming.py:87
 #, python-format
