@@ -1,6 +1,13 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #9093: Import ``basic.css`` in the ``agogo``, ``epub``, ``nonav``,
+  ``scrolls``, and ``traditional`` themes.
+  Patch by joyboy
+
 Bugs fixed
 ----------
 
