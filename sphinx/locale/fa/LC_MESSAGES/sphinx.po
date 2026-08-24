@@ -596,7 +596,7 @@ msgstr "مقدار پیکربندی '{name}' دارای نوع '{current.__name_
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
-msgstr "مقدار پیکربندی '{name}' دارای نوع '{current.__name__}' است، حالت پیش‌فرض {permitted} است."
+msgstr "مقدار پیکربندی '{name}' دارای نوع '{current.__name__}' است، حالت پیش‌فرض {default.__name__} است."
 
 #: config.py:858
 #, python-format
