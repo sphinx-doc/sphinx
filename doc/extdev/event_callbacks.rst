@@ -223,8 +223,10 @@ Here is a more detailed list of these events.
    :param app: :class:`.Sphinx`
    :param env: :class:`.BuildEnvironment`
    :param node: The :class:`.pending_xref` node to be resolved.
-      Its ``reftype``, ``reftarget``, ``modname`` and ``classname`` attributes
-      determine the type and target of the reference.
+      Its docutils node attributes ``reftype``, ``reftarget``, ``modname``,
+      and ``classname`` determine the type and target of the reference.
+      These attributes can be accessed using mapping syntax, such as
+      ``node['reftype']``.
    :param contnode: The node that carries the text and formatting inside the
       future reference and should be a child of the returned reference node.
    :returns: A new node to be inserted in the document tree in place of the node,
