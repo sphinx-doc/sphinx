@@ -4172,9 +4172,6 @@ Options for the Python domain
    This can be handy if you document a project that consists of a
    single package.
 
-   .. caution::
-      Works only for the HTML builder currently.
-
    .. versionadded:: 0.6
 
 .. confval:: python_display_short_literal_types
