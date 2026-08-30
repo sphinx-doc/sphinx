@@ -63,7 +63,7 @@ default_settings: dict[str, Any] = {
     'cloak_email_addresses': True,
     'pep_base_url': 'https://peps.python.org/',
     'pep_references': None,
-    'rfc_base_url': 'https://datatracker.ietf.org/doc/html/',
+    'rfc_base_url': 'https://www.rfc-editor.org/rfc/',
     'rfc_references': None,
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,

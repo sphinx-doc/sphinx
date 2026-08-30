@@ -147,13 +147,13 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'markup.html',
-            ".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
+            ".//a[@href='https://www.rfc-editor.org/rfc/rfc1.html']"
             "[@class='rfc reference external']/strong",
             'RFC 1',
         ),
         (
             'markup.html',
-            ".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
+            ".//a[@href='https://www.rfc-editor.org/rfc/rfc1.html']"
             "[@class='rfc reference external']/strong",
             'Request for Comments #1',
         ),
