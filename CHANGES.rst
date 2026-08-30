@@ -1,6 +1,15 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #10688: singlehtml: Add the :confval:`singlehtml_embed_assets` option,
+  to embed local stylesheets, scripts, and images
+  into the generated HTML file,
+  producing a self-contained single file.
+  Patch by Anmol Sharma.
+
 Bugs fixed
 ----------
 
