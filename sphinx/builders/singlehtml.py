@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+import base64
+import html
+import re
 import warnings
+from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.parse import unquote, urlsplit
 
 from docutils import nodes
 
@@ -14,6 +19,7 @@ from sphinx.environment.adapters.toctree import global_toctree_for_doc
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.display import progress_message
+from sphinx.util.images import guess_mimetype
 from sphinx.util.nodes import inline_all_toctrees
 
 if TYPE_CHECKING:
@@ -205,6 +211,185 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             )
 
 
+#: Attributes within an HTML start tag (values must be quoted).
+_ATTR_RE = re.compile(
+    r"""(?P<name>[^\s=<>/]+)\s*=\s*(?P<quote>["'])(?P<value>.*?)(?P=quote)""",
+    re.DOTALL,
+)
+_LINK_TAG_RE = re.compile(r'<link\b[^>]*>', re.IGNORECASE)
+_SCRIPT_TAG_RE = re.compile(r'<script\b(?P<attrs>[^>]*)>\s*</script>', re.IGNORECASE)
+_IMG_TAG_RE = re.compile(r'<img\b[^>]*>', re.IGNORECASE)
+_SCRIPT_CLOSE_RE = re.compile(r'</(script)', re.IGNORECASE)
+#: ``url(...)`` tokens in a stylesheet.
+_CSS_URL_RE = re.compile(
+    r"""url\(\s*(?P<quote>["']?)(?P<url>[^"')]+?)(?P=quote)\s*\)"""
+)
+#: ``@import "..."`` or ``@import url(...)`` rules without media queries.
+_CSS_IMPORT_RE = re.compile(
+    r"""@import\s+(?:url\(\s*)?(?P<quote>["']?)(?P<url>[^"'();]+?)(?P=quote)\s*\)?\s*;"""
+)
+
+
+def _tag_attributes(tag: str) -> dict[str, str]:
+    """Extract the quoted attributes of a single HTML start tag."""
+    return {m['name'].lower(): m['value'] for m in _ATTR_RE.finditer(tag)}
+
+
+def _replace_attribute_value(tag: str, name: str, new_value: str) -> str:
+    """Replace the value of the *name* attribute within an HTML start tag."""
+    pattern = re.compile(
+        rf"""({re.escape(name)}\s*=\s*)(["']).*?\2""",
+        re.DOTALL | re.IGNORECASE,
+    )
+    return pattern.sub(lambda m: f'{m[1]}{m[2]}{new_value}{m[2]}', tag, count=1)
+
+
+def _local_asset_path(url: str, base_dir: Path, outdir: Path) -> Path | None:
+    """Resolve *url* to an existing file within *outdir*, if it is local.
+
+    Returns ``None`` for external references (e.g. ``https://`` or
+    protocol-relative URLs), ``data:`` URIs, fragments,
+    and references to files that do not exist within the output directory.
+    """
+    if not url or url.startswith(('#', '//')):
+        return None
+    if urlsplit(url).scheme:
+        return None
+    # remove any query string ('?v=...' checksums) or fragment
+    path_part = url.partition('#')[0].partition('?')[0]
+    if not path_part:
+        return None
+    path = (base_dir / unquote(path_part)).resolve()
+    if not path.is_relative_to(outdir.resolve()):
+        return None
+    if not path.is_file():
+        return None
+    return path
+
+
+def _data_uri(path: Path) -> str:
+    """Encode the file at *path* as a ``data:`` URI."""
+    mimetype = guess_mimetype(path, default='application/octet-stream')
+    payload = base64.b64encode(path.read_bytes()).decode('ascii')
+    return f'data:{mimetype};base64,{payload}'
+
+
+def _inline_css(path: Path, outdir: Path, _depth: int = 0) -> str | None:
+    """Load a stylesheet, inlining local ``@import`` and ``url()`` references.
+
+    Returns ``None`` if the stylesheet cannot be embedded safely.
+    """
+    if _depth > 10:  # avoid cyclic or pathological @import chains
+        return None
+    try:
+        css = path.read_text(encoding='utf-8')
+    except (OSError, UnicodeDecodeError):
+        return None
+    if '</style' in css.lower():
+        # would terminate the enclosing <style> element early
+        return None
+    base_dir = path.parent
+
+    def replace_import(match: re.Match[str]) -> str:
+        target = _local_asset_path(match['url'], base_dir, outdir)
+        if target is None or target == path:
+            return match[0]
+        inlined = _inline_css(target, outdir, _depth + 1)
+        if inlined is None:
+            return match[0]
+        return inlined
+
+    css = _CSS_IMPORT_RE.sub(replace_import, css)
+
+    def replace_url(match: re.Match[str]) -> str:
+        target = _local_asset_path(match['url'], base_dir, outdir)
+        if target is None:
+            return match[0]
+        return f'url({_data_uri(target)})'
+
+    return _CSS_URL_RE.sub(replace_url, css)
+
+
+def _embed_assets_in_page(page_path: Path, outdir: Path) -> None:
+    """Rewrite *page_path* so that local assets are embedded into the page.
+
+    Local stylesheets become ``<style>`` elements, local scripts become
+    inline ``<script>`` elements, and local images and icons are embedded
+    as ``data:`` URIs. External (e.g. ``https://``) references are
+    left untouched.
+    """
+    page = page_path.read_text(encoding='utf-8')
+    page_dir = page_path.parent
+
+    def replace_link(match: re.Match[str]) -> str:
+        tag = match[0]
+        attrs = _tag_attributes(tag)
+        rel = attrs.get('rel', '').lower().split()
+        href = attrs.get('href', '')
+        path = _local_asset_path(href, page_dir, outdir)
+        if path is None:
+            return tag
+        if 'stylesheet' in rel and 'alternate' not in rel:
+            css = _inline_css(path, outdir)
+            if css is None:
+                return tag
+            media = attrs.get('media', '')
+            media_attr = f' media="{html.escape(media, quote=True)}"' if media else ''
+            return f'<style{media_attr}>\n{css}\n</style>'
+        if 'icon' in rel or 'apple-touch-icon' in rel:
+            return _replace_attribute_value(tag, 'href', _data_uri(path))
+        return tag
+
+    page = _LINK_TAG_RE.sub(replace_link, page)
+
+    def replace_script(match: re.Match[str]) -> str:
+        tag = match[0]
+        attrs = _tag_attributes(tag)
+        src = attrs.get('src', '')
+        path = _local_asset_path(src, page_dir, outdir)
+        if path is None:
+            return tag
+        try:
+            script = path.read_text(encoding='utf-8')
+        except (OSError, UnicodeDecodeError):
+            return tag
+        # prevent the script content from terminating the element early;
+        # within JavaScript string literals this is an escaped forward slash
+        script = _SCRIPT_CLOSE_RE.sub(r'<\\/\1', script)
+        remaining = _ATTR_RE.sub(
+            lambda m: '' if m['name'].lower() == 'src' else m[0],
+            match['attrs'],
+        ).strip()
+        remaining_attrs = f' {remaining}' if remaining else ''
+        return f'<script{remaining_attrs}>{script}</script>'
+
+    page = _SCRIPT_TAG_RE.sub(replace_script, page)
+
+    def replace_img(match: re.Match[str]) -> str:
+        tag = match[0]
+        src = _tag_attributes(tag).get('src', '')
+        path = _local_asset_path(src, page_dir, outdir)
+        if path is None:
+            return tag
+        return _replace_attribute_value(tag, 'src', _data_uri(path))
+
+    page = _IMG_TAG_RE.sub(replace_img, page)
+
+    page_path.write_text(page, encoding='utf-8')
+
+
+def _embed_assets(app: Sphinx, exc: Exception | None) -> None:
+    """Embed local assets into the page written by the singlehtml builder."""
+    builder = app.builder
+    if exc is not None or not isinstance(builder, SingleFileHTMLBuilder):
+        return
+    if not app.config.singlehtml_embed_assets:
+        return
+    with progress_message(__('embedding assets')):
+        page_path = builder.get_output_path(builder.config.root_doc)
+        _embed_assets_in_page(page_path, Path(builder.outdir))
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.html')
 
@@ -215,6 +400,15 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'html',
         types=frozenset({dict}),
     )
+    app.add_config_value(
+        'singlehtml_embed_assets',
+        False,
+        'html',
+        types=frozenset({bool}),
+    )
+    # run late (priority 999) so that assets copied by other extensions'
+    # ``build-finished`` handlers are embedded as well
+    app.connect('build-finished', _embed_assets, priority=999)
 
     return {
         'version': 'builtin',
