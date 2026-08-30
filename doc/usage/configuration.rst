@@ -2260,6 +2260,28 @@ so the HTML options also apply where appropriate.
    but the only permitted key is :code-py:`'index'`,
    and all other keys are ignored.
 
+.. confval:: singlehtml_embed_assets
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   If true, embed local assets referenced by the generated page
+   into the HTML file itself,
+   making the page self-contained
+   so that it can be shared or opened anywhere as a single file:
+
+   * Local stylesheets are replaced by inline ``<style>`` elements.
+     ``@import`` rules and ``url(...)`` references to local files
+     within stylesheets are also embedded.
+   * Local scripts are replaced by inline ``<script>`` elements.
+   * Images in the document body and icons are embedded as ``data:`` URIs.
+
+   External references (e.g. ``https://``) are left unchanged,
+   as are ``srcset`` attributes and assets referenced only from
+   :confval:`html_additional_pages`.
+   Asset files are still written to the output directory,
+   but the generated page no longer depends on them.
+
+   .. versionadded:: 9.2
 
 .. _htmlhelp-options:
 
