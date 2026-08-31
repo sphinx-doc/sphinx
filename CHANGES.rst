@@ -4,7 +4,7 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
-* #14659: Use the canonical ``https://www.rfc-editor.org/rfc/`` base URL for
+* #14659: Use the canonical ``https://www.rfc-editor.org/info/`` base URL for
   the :rst:role:`rfc` role, instead of
   ``https://datatracker.ietf.org/doc/html/``.
 
