@@ -106,6 +106,7 @@ Contributors
 * Rui Pinheiro -- Python 3.14 forward references support
 * Roland Meister -- epub builder
 * Sebastian Wiesner -- image handling, distutils support
+* Sidharth Sridhar -- RFC canonical URL fix
 * Slawek Figiel -- additional warning suppression
 * Stefan Seefeld -- toctree improvements
 * Stefan van der Walt -- autosummary extension
