@@ -591,8 +591,7 @@ class IndexBuilder:
         # stemmer. For example, SearchChinese reuses english-stemmer.js,
         # which defines EnglishStemmer.
         stemmer_class = (
-            self.lang.js_stemmer_rawcode
-            .removesuffix('-stemmer.js')
+            self.lang.js_stemmer_rawcode.removesuffix('-stemmer.js')
             .title()
             .replace('_', '')
             .replace('-', '')

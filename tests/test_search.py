@@ -10,7 +10,7 @@ import pytest
 from docutils import frontend, utils
 from docutils.parsers import rst
 
-from sphinx.search import IndexBuilder
+from sphinx.search import IndexBuilder, SearchLanguage
 
 from tests.utils import TESTS_ROOT
 
@@ -514,3 +514,83 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
         f'Search index fixture {existing_searchindex} does not match regenerated copy.'
     )
     assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg
+
+
+def test_word_re_tokenizes_cli_flags() -> None:
+    """Test that _word_re correctly tokenizes CLI flags as single whole tokens."""
+    lang = SearchLanguage({})
+
+    # Test CLI flags are tokenized as single tokens
+    assert lang.split('--dry-run') == ['--dry-run']
+    assert lang.split('-v') == ['-v']
+    assert lang.split('--verbose') == ['--verbose']
+    assert lang.split('-n') == ['-n']
+
+    # Test multiple CLI flags in text
+    assert lang.split('Use --dry-run for testing -v mode') == [
+        'Use',
+        '--dry-run',
+        'for',
+        'testing',
+        '-v',
+        'mode',
+    ]
+
+
+def test_word_re_regressions() -> None:
+    """Test that _word_re still splits hyphenated words as before (regression guard)."""
+    lang = SearchLanguage({})
+
+    # Test hyphenated words are still split (existing behavior)
+    assert lang.split('auto-generated') == ['auto', 'generated']
+    assert lang.split('state-of-the-art') == ['state', 'of', 'the', 'art']
+
+    # Test normal words still work
+    assert lang.split('hello world') == ['hello', 'world']
+    assert lang.split('test') == ['test']
+
+
+def test_word_re_edge_cases() -> None:
+    """Test edge cases for word splitting behavior."""
+    lang = SearchLanguage({})
+
+    # Test hyphen not at word boundary (should split)
+    assert lang.split('a-b-c') == ['a', 'b', 'c']
+
+    # Test mixed cases
+    assert lang.split('--dry-run and -v flags') == ['--dry-run', 'and', '-v', 'flags']
+
+    # Test isolated hyphen (should be filtered out as it's not a word)
+    assert lang.split('prefix - suffix') == ['prefix', 'suffix']
+
+    # Test multiple consecutive hyphens (second hyphen starts a new CLI flag)
+    assert lang.split('word--word') == ['word', '-word']
+
+
+@pytest.mark.sphinx('html', testroot='search')
+def test_cli_flags_are_indexed(app: SphinxTestApp) -> None:
+    """Integration test: CLI flags like --dry-run should be indexed as searchable terms."""
+    app.build()
+    index = load_searchindex(app.outdir / 'searchindex.js')
+
+    # Check that CLI flags are properly indexed (after stemming)
+    # --dry-run -> run, --verbose -> verbos, -v -> -v
+    assert 'run' in index['terms']
+    assert 'verbos' in index['terms']
+    assert '-v' in index['terms']
+
+    # Verify the indexed terms contain document references
+    # Terms can be int (single doc) or list (multiple docs)
+    run_term = index['terms']['run']
+    verbos_term = index['terms']['verbos']
+    v_term = index['terms']['-v']
+
+    assert (isinstance(run_term, int) and run_term > 0) or (
+        isinstance(run_term, list) and len(run_term) > 0
+    )
+    assert (isinstance(verbos_term, int) and verbos_term > 0) or (
+        isinstance(verbos_term, list) and len(verbos_term) > 0
+    )
+    assert (isinstance(v_term, int) and v_term > 0) or (
+        isinstance(v_term, list) and len(v_term) > 0
+    )
