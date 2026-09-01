@@ -13,6 +13,7 @@ from sphinx import addnodes
 from sphinx.locale import _, __
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole, _normalize_options
+from sphinx.util.nodes import make_index
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -198,20 +199,17 @@ class CVE(ReferenceRole):
     _BASE_URL: Final = 'https://www.cve.org/CVERecord?id=CVE-'
 
     def run(self) -> tuple[list[Node], list[system_message]]:
-        target_id = f'index-{self.env.new_serialno("index")}'
-        entries = [
-            (
-                'single',
-                _('Common Vulnerabilities and Exposures; CVE %s') % self.target,
-                target_id,
-                '',
-                None,
-            )
-        ]
-
-        index = addnodes.index(entries=entries)
-        target = nodes.target('', '', ids=[target_id])
-        self.inliner.document.note_explicit_target(target)
+        index_nodes, _targetid = make_index(
+            self.inliner.document,
+            [
+                (
+                    'single',
+                    _('Common Vulnerabilities and Exposures; CVE %s') % self.target,
+                )
+            ],
+            inline=True,
+        )
+        index, target = index_nodes
 
         try:
             refuri = self.build_uri()
@@ -243,20 +241,12 @@ class CWE(ReferenceRole):
     _BASE_URL: Final = 'https://cwe.mitre.org/data/definitions/'
 
     def run(self) -> tuple[list[Node], list[system_message]]:
-        target_id = f'index-{self.env.new_serialno("index")}'
-        entries = [
-            (
-                'single',
-                _('Common Weakness Enumeration; CWE %s') % self.target,
-                target_id,
-                '',
-                None,
-            )
-        ]
-
-        index = addnodes.index(entries=entries)
-        target = nodes.target('', '', ids=[target_id])
-        self.inliner.document.note_explicit_target(target)
+        index_nodes, _targetid = make_index(
+            self.inliner.document,
+            [('single', _('Common Weakness Enumeration; CWE %s') % self.target)],
+            inline=True,
+        )
+        index, target = index_nodes
 
         try:
             refuri = self.build_uri()
@@ -286,20 +276,12 @@ class CWE(ReferenceRole):
 
 class PEP(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
-        target_id = 'index-%s' % self.env.new_serialno('index')
-        entries = [
-            (
-                'single',
-                _('Python Enhancement Proposals; PEP %s') % self.target,
-                target_id,
-                '',
-                None,
-            )
-        ]
-
-        index = addnodes.index(entries=entries)
-        target = nodes.target('', '', ids=[target_id])
-        self.inliner.document.note_explicit_target(target)
+        index_nodes, _targetid = make_index(
+            self.inliner.document,
+            [('single', _('Python Enhancement Proposals; PEP %s') % self.target)],
+            inline=True,
+        )
+        index, target = index_nodes
 
         try:
             refuri = self.build_uri()
@@ -331,13 +313,13 @@ class PEP(ReferenceRole):
 
 class RFC(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
-        target_id = 'index-%s' % self.env.new_serialno('index')
         formatted_target = _format_rfc_target(self.target)
-        entries = [('single', f'RFC; {formatted_target}', target_id, '', None)]
-
-        index = addnodes.index(entries=entries)
-        target = nodes.target('', '', ids=[target_id])
-        self.inliner.document.note_explicit_target(target)
+        index_nodes, _targetid = make_index(
+            self.inliner.document,
+            [('single', f'RFC; {formatted_target}')],
+            inline=True,
+        )
+        index, target = index_nodes
 
         try:
             refuri = self.build_uri()

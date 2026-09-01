@@ -12,7 +12,7 @@ from sphinx.domains import Domain
 from sphinx.util import logging
 from sphinx.util.docutils import ReferenceRole, SphinxDirective
 from sphinx.util.index_entries import split_index_msg
-from sphinx.util.nodes import process_index_entry
+from sphinx.util.nodes import make_index, process_index_entry
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -78,19 +78,15 @@ class IndexDirective(SphinxDirective):
         if 'name' in self.options:
             targetname = self.options['name']
             targetnode = nodes.target('', '', names=[targetname])
+            self.state.document.note_explicit_target(targetnode)
+            targetid = targetnode['ids'][0]
+            indexnode = addnodes.index(entries=[], inline=False)
         else:
-            targetid = 'index-%s' % self.env.new_serialno('index')
-            targetnode = nodes.target('', '', ids=[targetid])
-
-        self.state.document.note_explicit_target(targetnode)
-        indexnode = addnodes.index()
-        indexnode['entries'] = []
-        indexnode['inline'] = False
+            index_nodes, targetid = make_index(self.state.document, [], inline=False)
+            indexnode, targetnode = index_nodes
         self.set_source_info(indexnode)
         for entry in arguments:
-            indexnode['entries'].extend(
-                process_index_entry(entry, targetnode['ids'][0])
-            )
+            indexnode['entries'].extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
 
 
@@ -110,8 +106,14 @@ class IndexRole(ReferenceRole):
                 title = self.title
                 entries = [('single', self.target, target_id, '', None)]
 
-        index = addnodes.index(entries=entries)
-        target = nodes.target('', '', ids=[target_id])
+        index_nodes, _targetid = make_index(
+            self.inliner.document,
+            [],
+            targetid=target_id,
+            inline=True,
+        )
+        index, target = index_nodes
+        index['entries'] = entries
         text = nodes.Text(title)
         self.set_source_info(index)
         return [index, target, text], []

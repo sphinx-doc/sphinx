@@ -37,6 +37,8 @@ Utility functions
 
 .. autofunction:: sphinx.util.parsing.nested_parse_to_nodes
 
+.. autofunction:: sphinx.util.nodes.make_index
+
 
 Utility types
 -------------

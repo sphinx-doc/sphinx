@@ -637,6 +637,43 @@ def make_id(
     return node_id
 
 
+def make_index(
+    document: nodes.document,
+    entries: Iterable[tuple[str, str]],
+    *,
+    indexname: str = 'index',
+    targetid: str | None = None,
+    inline: bool = False,
+) -> tuple[list[Node], str]:
+    """Create an index node and its target node.
+
+    ``entries`` contains pairs of index entry type and entry text. The helper
+    expands each pair to the full index entry tuple expected by Sphinx and
+    points all entries at the generated (or supplied) target ID.
+
+    :param document: the document receiving the target node
+    :param entries: index entry type and text pairs
+    :param indexname: serial number prefix used when generating a target ID
+    :param targetid: explicit target ID; generated when omitted
+    :param inline: whether the index node is inserted inline
+    :return: the index and target nodes, followed by the target ID
+    """
+    if targetid is None:
+        env = document.settings.env
+        targetid = f'{indexname}-{env.new_serialno(indexname)}'
+
+    targetnode = nodes.target('', '', ids=[targetid])
+    document.note_explicit_target(targetnode)
+    indexnode = addnodes.index(
+        entries=[
+            (entry_type, entry_text, targetid, '', None)
+            for entry_type, entry_text in entries
+        ],
+        inline=inline,
+    )
+    return [indexnode, targetnode], targetid
+
+
 def find_pending_xref_condition(
     node: addnodes.pending_xref, condition: str
 ) -> Element | None:

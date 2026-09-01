@@ -19,7 +19,7 @@ from sphinx.locale import _, __
 from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import clean_astext, make_id, make_refnode
+from sphinx.util.nodes import clean_astext, make_id, make_index, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
@@ -101,14 +101,15 @@ class EnvVarXRefRole(XRefRole):
         if not is_ref:
             return [node], []
         varname = node['reftarget']
-        tgtid = 'index-%s' % env.new_serialno('index')
-        indexnode = addnodes.index()
-        indexnode['entries'] = [
-            ('single', varname, tgtid, '', None),
-            ('single', _('environment variable; %s') % varname, tgtid, '', None),
-        ]
-        targetnode = nodes.target('', '', ids=[tgtid])
-        document.note_explicit_target(targetnode)
+        index_nodes, _targetid = make_index(
+            document,
+            [
+                ('single', varname),
+                ('single', _('environment variable; %s') % varname),
+            ],
+            inline=True,
+        )
+        indexnode, targetnode = index_nodes
         return [indexnode, targetnode, node], []
 
 
@@ -200,10 +201,6 @@ class Target(SphinxDirective):
         # normalize whitespace in fullname like XRefRole does
         fullname = ws_re.sub(' ', self.arguments[0].strip())
         node_id = make_id(self.env, self.state.document, self.name, fullname)
-        node = nodes.target('', '', ids=[node_id])
-        self.set_source_info(node)
-        self.state.document.note_explicit_target(node)
-        ret: list[Node] = [node]
         if self.indextemplate:
             indexentry = self.indextemplate % (fullname,)
             indextype = 'single'
@@ -211,14 +208,28 @@ class Target(SphinxDirective):
             if colon != -1:
                 indextype = indexentry[:colon].strip()
                 indexentry = indexentry[colon + 1 :].strip()
-            inode = addnodes.index(entries=[(indextype, indexentry, node_id, '', None)])
-            ret.insert(0, inode)
+            index_nodes, _targetid = make_index(
+                self.state.document,
+                [(indextype, indexentry)],
+                targetid=node_id,
+                inline=True,
+            )
+            indexnode, targetnode = index_nodes
+            self.set_source_info(targetnode)
+            ret = [indexnode, targetnode]
+            target_location = targetnode
+        else:
+            node = nodes.target('', '', ids=[node_id])
+            self.set_source_info(node)
+            self.state.document.note_explicit_target(node)
+            ret = [node]
+            target_location = node
         name = self.name
         if ':' in self.name:
             name = self.name.partition(':')[-1]
 
         std = self.env.domains.standard_domain
-        std.note_object(name, fullname, node_id, location=node)
+        std.note_object(name, fullname, node_id, location=target_location)
 
         return ret
 

@@ -10,6 +10,7 @@ from docutils import frontend, nodes
 from docutils.parsers import rst
 from docutils.utils import new_document
 
+from sphinx import addnodes
 from sphinx.transforms import ApplySourceWorkaround
 from sphinx.util.nodes import (
     NodeMatcher,
@@ -17,6 +18,7 @@ from sphinx.util.nodes import (
     clean_astext,
     extract_messages,
     make_id,
+    make_index,
     split_explicit_title,
 )
 
@@ -238,6 +240,46 @@ def test_make_id_sequential(app):
     document = create_new_document()
     document.ids['term-0'] = True
     assert make_id(app.env, document, 'term') == 'term-1'
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_make_index(app):
+    document = create_new_document()
+    document.settings.env = app.env
+
+    index_nodes, target_id = make_index(
+        document,
+        [('single', 'first'), ('pair', 'second')],
+    )
+
+    assert target_id == 'index-0'
+    assert isinstance(index_nodes[0], addnodes.index)
+    assert isinstance(index_nodes[1], nodes.target)
+    assert index_nodes[0]['entries'] == [
+        ('single', 'first', target_id, '', None),
+        ('pair', 'second', target_id, '', None),
+    ]
+    assert index_nodes[0]['inline'] is False
+    assert index_nodes[1]['ids'] == [target_id]
+    assert document.ids[target_id] is index_nodes[1]
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_make_index_custom_target_and_inline(app):
+    document = create_new_document()
+    document.settings.env = app.env
+
+    index_nodes, target_id = make_index(
+        document,
+        [('single', 'entry')],
+        indexname='custom',
+        targetid='custom-target',
+        inline=True,
+    )
+
+    assert target_id == 'custom-target'
+    assert index_nodes[0]['inline'] is True
+    assert index_nodes[0]['entries'] == [('single', 'entry', target_id, '', None)]
 
 
 @pytest.mark.parametrize(
