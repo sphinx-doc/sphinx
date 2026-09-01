@@ -13,6 +13,10 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14041: Fix CLI flags like ``--dry-run`` and ``-v`` being unsearchable due to
+  word splitter regex and query parser behavior changes.
+  Patch by User
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
