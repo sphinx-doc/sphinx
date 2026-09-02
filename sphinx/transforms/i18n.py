@@ -13,8 +13,8 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.errors import ConfigError
-from sphinx.locale import safe_format
 from sphinx.locale import init as init_locale
+from sphinx.locale import safe_format
 from sphinx.transforms import SphinxTransform
 from sphinx.util import get_filetype, logging
 from sphinx.util.docutils import LoggingReporter
