@@ -32,7 +32,7 @@ from sphinx._cli.util.colour import (
     terminal_supports_colour,
     underline,
 )
-from sphinx.locale import __, init_console
+from sphinx.locale import __, init_console, safe_format
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
@@ -70,7 +70,7 @@ class _RootArgumentParser(argparse.ArgumentParser):
         help_fragments: list[str] = [
             bold(underline(__('Usage:'))),
             ' ',
-            __('{0} [OPTIONS] <COMMAND> [<ARGS>]').format(bold(self.prog)),
+            safe_format('{0} [OPTIONS] <COMMAND> [<ARGS>]', bold(self.prog)),
             '\n',
             '\n',
             __('  The Sphinx documentation generator.'),
@@ -166,8 +166,13 @@ class _RootArgumentParser(argparse.ArgumentParser):
         raise ValueError(msg)
 
     def error(self, message: str) -> NoReturn:
-        msg = __("{0}: error: {1}\nRun '{0} --help' for information")
-        sys.stderr.write(msg.format(self.prog, message))
+        sys.stderr.write(
+            safe_format(
+                "{0}: error: {1}\nRun '{0} --help' for information",
+                self.prog,
+                message,
+            )
+        )
         raise SystemExit(2)
 
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gettext
 import pickle
 from collections import Counter
 from typing import TYPE_CHECKING, Any
@@ -10,6 +11,7 @@ from unittest import mock
 import pytest
 
 import sphinx
+from sphinx import locale
 from sphinx.config import (
     ENUM,
     Config,
@@ -529,6 +531,24 @@ def test_conf_warning_message(logger, name, default, annotation, actual, message
     check_confval_types(None, config)
     assert logger.warning.called
     assert logger.warning.call_args[0][0] == message
+
+
+@mock.patch('sphinx.config.logger')
+def test_conf_warning_message_corrupted_translation(logger, monkeypatch):
+    class _CorruptedTranslations(gettext.NullTranslations):
+        def gettext(self, message):
+            return message.replace('{current.__name__}', '{current__name__}')
+
+    monkeypatch.setitem(
+        locale.translators, ('console', 'sphinx'), _CorruptedTranslations()
+    )
+    config = Config({'value1': ['foo', 'bar']})
+    config.add('value1', 'string', False, [str])
+    check_confval_types(None, config)
+    assert logger.warning.called
+    assert logger.warning.call_args[0][0] == (
+        "The config value `value1' has type `list'; expected `str'."
+    )
 
 
 @mock.patch('sphinx.config.logger')
