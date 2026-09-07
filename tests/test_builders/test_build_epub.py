@@ -13,14 +13,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx.builders._epub_base import MEDIA_TYPES
 from sphinx.builders.epub3 import _XML_NAME_PATTERN
 from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
     from typing import Self
-
-    from sphinx.testing.util import SphinxTestApp
 
 
 # check given command is runnable
@@ -527,6 +526,31 @@ def test_xml_name_pattern_check() -> None:
     assert _XML_NAME_PATTERN.match('id-pub')
     assert _XML_NAME_PATTERN.match('webpage')
     assert not _XML_NAME_PATTERN.match('1bfda21')
+
+
+def test_epub_ico_media_type() -> None:
+    assert MEDIA_TYPES['.ico'] == 'image/vnd.microsoft.icon'
+
+
+def test_epub_ico_favicon_mimetype(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
+    """html_favicon .ico files must be packaged, not ignored as unknown mimetype."""
+    (tmp_path / 'favicon.ico').write_bytes(b'\x00\x00\x01\x00')
+    (tmp_path / 'conf.py').write_text("html_favicon = 'favicon.ico'\n", encoding='utf8')
+    (tmp_path / 'index.rst').write_text('Test\n====\n\nContent.\n', encoding='utf8')
+
+    app = make_app('epub', srcdir=tmp_path)
+    app.build()
+
+    assert 'unknown mimetype' not in app.warning.getvalue()
+    assert (app.outdir / '_static' / 'favicon.ico').is_file()
+
+    opf = EPUBElementTree.fromstring(
+        (app.outdir / 'content.opf').read_text(encoding='utf8')
+    )
+    item = opf.find("./idpf:manifest/idpf:item[@href='_static/favicon.ico']")
+    assert item.get('media-type') == 'image/vnd.microsoft.icon'
 
 
 @pytest.mark.usefixtures('_http_teapot')

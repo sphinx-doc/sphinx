@@ -4,6 +4,11 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #10350: epub: Register the IANA MIME type for ``.ico`` files
+  (``image/vnd.microsoft.icon``) so ``html_favicon`` icons are included
+  instead of raising ``unknown mimetype`` warnings.
+  Patch by CenFangyu
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
