@@ -15,11 +15,12 @@ import pytest
 
 from sphinx.builders._epub_base import MEDIA_TYPES
 from sphinx.builders.epub3 import _XML_NAME_PATTERN
-from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from typing import Self
+
+    from sphinx.testing.util import SphinxTestApp
 
 
 # check given command is runnable
