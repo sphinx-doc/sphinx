@@ -27,6 +27,7 @@ Contributors
 * Andi Albrecht -- agogo theme
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Antti Kaihola -- doctest extension (skipif option)
+* artur282 -- documentation fix for the parse_node callback in add_object_type
 * Barry Warsaw -- setup command improvements
 * Bart Kamphorst -- warning improvements
 * Ben Egan -- Napoleon improvements & viewcode improvements

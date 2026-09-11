@@ -13,6 +13,10 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #10991: Correct the documented signature of the ``parse_node`` callback
+  accepted by :meth:`~sphinx.application.Sphinx.add_object_type`.
+  Patch by artur282.
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
