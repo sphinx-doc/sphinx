@@ -2,7 +2,15 @@ from __future__ import annotations
 
 import functools
 
-from sphinx._cli.util.colour import bold, terminal_supports_colour
+from sphinx._cli.util.colour import (
+    bold,
+    brown,
+    darkgreen,
+    green,
+    red,
+    terminal_supports_colour,
+    yellow,
+)
 from sphinx.locale import __
 from sphinx.util import logging
 
@@ -21,6 +29,18 @@ def display_chunk(chunk: Any) -> str:
             return str(chunk[0])
         return f'{chunk[0]} .. {chunk[-1]}'
     return str(chunk)
+
+
+def _progress_colour(percent: int) -> Callable[[str], str]:
+    if percent >= 100:
+        return green
+    if percent >= 75:
+        return darkgreen
+    if percent >= 50:
+        return yellow
+    if percent >= 25:
+        return brown
+    return red
 
 
 def status_iterator[T](
@@ -44,7 +64,9 @@ def status_iterator[T](
             if single_line:
                 # clear the entire line ('Erase in Line')
                 logger.info('\x1b[2K', nonl=True)
-            logger.info(f'{bold_summary}[{i / length: >4.0%}] ', nonl=True)  # NoQA: G004
+            percent = round(100 * i / length)
+            percentage = _progress_colour(percent)(f'[{percent: >3}%] ')
+            logger.info(bold_summary + percentage, nonl=True)  # NoQA: G003
             # Emit the string representation of ``item``
             logger.info(stringify_func(item), nonl=True, color=color)
             # If in single-line mode, emit a carriage return to move the cursor
