@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from hashlib import sha1
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -24,15 +25,20 @@ from sphinx import package_dir
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.display import status_iterator
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.builders import Builder
     from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
     from sphinx.writers.html5 import HTML5Translator
@@ -61,8 +67,8 @@ class InvokeError(SphinxError):
 
 SUPPORT_FORMAT = ('png', 'svg')
 
-depth_re = re.compile(r'\[\d+ depth=(-?\d+)\]')
-depthsvg_re = re.compile(r'.*, depth=(.*)pt')
+depth_re = re.compile(r'\[\d+[^\]]*?depth=(-?\d+)\]')
+depthsvg_re = re.compile(r'depth=(.*)pt')
 depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
@@ -84,14 +90,9 @@ def write_svg_depth(filename: Path, depth: int) -> None:
         f.write('\n<!-- DEPTH=%s -->' % depth)
 
 
-def generate_latex_macro(
-    image_format: str,
-    math: str,
-    config: Config,
-    confdir: _StrPath,
-) -> str:
-    """Generate LaTeX macro."""
-    variables = {
+def _latex_variables(image_format: str, math: str, config: Config) -> dict[str, Any]:
+    """Shared variables for single and batch LaTeX documents."""
+    return {
         'fontsize': config.imgmath_font_size,
         'baselineskip': round(config.imgmath_font_size * 1.2),
         'preamble': config.imgmath_latex_preamble,
@@ -100,6 +101,16 @@ def generate_latex_macro(
         'tightpage': '' if image_format == 'png' else ',dvips,tightpage',
         'math': math,
     }
+
+
+def generate_latex_macro(
+    image_format: str,
+    math: str,
+    config: Config,
+    confdir: _StrPath,
+) -> str:
+    """Generate LaTeX macro."""
+    variables = _latex_variables(image_format, math, config)
 
     if config.imgmath_use_preview:
         template_name = 'preview.tex'
@@ -115,9 +126,9 @@ def generate_latex_macro(
     return LaTeXRenderer([templates_path]).render(template_name + '.jinja', variables)
 
 
-def compile_math(latex: str, *, config: Config) -> Path:
-    """Compile LaTeX macros for math to DVI."""
-    tempdir = Path(tempfile.mkdtemp(suffix='-sphinx-imgmath'))
+def _compile_latex_document(latex: str, *, config: Config, suffix: str) -> Path:
+    """Write *latex* to a temp dir and compile it to DVI/XDV."""
+    tempdir = Path(tempfile.mkdtemp(suffix=suffix))
     filename = tempdir / 'math.tex'
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
@@ -156,6 +167,11 @@ def compile_math(latex: str, *, config: Config) -> Path:
         raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
+def compile_math(latex: str, *, config: Config) -> Path:
+    """Compile LaTeX macros for math to DVI."""
+    return _compile_latex_document(latex, config=config, suffix='-sphinx-imgmath')
+
+
 def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
     """Convert DVI file to specific image format."""
     try:
@@ -177,11 +193,19 @@ def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
         raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_png(dvipath: Path, out_path: Path, *, config: Config) -> int | None:
+def convert_dvi_to_png(
+    dvipath: Path,
+    out_path: Path,
+    *,
+    config: Config,
+    page: int | None = None,
+) -> int | None:
     """Convert DVI file to PNG image."""
     name = 'dvipng'
     command = [config.imgmath_dvipng, '-o', out_path, '-T', 'tight', '-z9']
     command.extend(config.imgmath_dvipng_args)
+    if page is not None:
+        command.extend(['-pp', str(page)])
     if config.imgmath_use_preview:
         command.append('--depth')
     command.append(dvipath)
@@ -191,7 +215,7 @@ def convert_dvi_to_png(dvipath: Path, out_path: Path, *, config: Config) -> int 
     depth = None
     if config.imgmath_use_preview:
         for line in stdout.splitlines():
-            matched = depth_re.match(line)
+            matched = depth_re.search(line)
             if matched:
                 depth = int(matched.group(1))
                 write_png_depth(out_path, depth)
@@ -200,11 +224,19 @@ def convert_dvi_to_png(dvipath: Path, out_path: Path, *, config: Config) -> int 
     return depth
 
 
-def convert_dvi_to_svg(dvipath: Path, out_path: Path, *, config: Config) -> int | None:
+def convert_dvi_to_svg(
+    dvipath: Path,
+    out_path: Path,
+    *,
+    config: Config,
+    page: int | None = None,
+) -> int | None:
     """Convert DVI file to SVG image."""
     name = 'dvisvgm'
     command = [config.imgmath_dvisvgm, '-o', out_path]
     command.extend(config.imgmath_dvisvgm_args)
+    if page is not None:
+        command.append(f'--page={page}')
     command.append(dvipath)
 
     _stdout, stderr = convert_dvi_to_image(command, name)
@@ -212,7 +244,7 @@ def convert_dvi_to_svg(dvipath: Path, out_path: Path, *, config: Config) -> int 
     depth = None
     if config.imgmath_use_preview:
         for line in stderr.splitlines():  # not stdout !
-            matched = depthsvg_re.match(line)
+            matched = depthsvg_re.search(line)
             if matched:
                 depth = round(float(matched.group(1)) * 100 / 72.27)  # assume 100ppi
                 write_svg_depth(out_path, depth)
@@ -280,6 +312,286 @@ def render_math(
         return None, None
 
     return generated_path, depth
+
+
+def _has_custom_template(config: Config, confdir: _StrPath) -> bool:
+    """Return True if the user overrides the default imgmath LaTeX template."""
+    template_names = (
+        'template.tex.jinja',
+        'template.tex_t',
+        'preview.tex.jinja',
+        'preview.tex_t',
+    )
+    for template_dir in config.templates_path:
+        base = Path(template_dir)
+        if not base.is_absolute():
+            base = Path(confdir) / base
+        for template_name in template_names:
+            if (base / template_name).exists():
+                return True
+    return False
+
+
+def _collect_math_expressions(env: BuildEnvironment) -> list[str]:
+    """Collect unique math expressions from all doctrees in document order."""
+    seen: set[str] = set()
+    ordered: list[str] = []
+    all_docs = env.all_docs
+
+    def _add(math: str) -> None:
+        if math not in seen:
+            seen.add(math)
+            ordered.append(math)
+
+    for docname in all_docs:
+        try:
+            doctree = env.get_doctree(docname)
+        except Exception as exc:
+            logger.debug(
+                __('Failed to load doctree %r for imgmath batch: %s'), docname, exc
+            )
+            continue
+        for math_node in doctree.findall(nodes.math):
+            _add('$' + math_node.astext() + '$')
+        for block_node in doctree.findall(nodes.math_block):
+            if block_node.get('no-wrap', block_node.get('nowrap', False)):
+                latex = block_node.astext()
+            else:
+                latex = wrap_displaymath(block_node.astext(), None, False)
+            _add(latex)
+    return ordered
+
+
+def _build_batch_document(
+    maths: list[str], *, config: Config, image_format: str
+) -> str:
+    r"""Build a multi-page LaTeX document matching the default templates.
+
+    The preamble, packages, and ``\fontsize`` body must stay in sync with
+    ``sphinx/templates/imgmath/template.tex.jinja`` and
+    ``preview.tex.jinja`` (batching is disabled for custom templates).
+    """
+    variables = _latex_variables(image_format, '', config)
+    fontsize = variables['fontsize']
+    baselineskip = variables['baselineskip']
+    preamble = variables['preamble']
+    tightpage = variables['tightpage']
+    use_preview = config.imgmath_use_preview
+
+    lines = [
+        r'\documentclass[12pt]{article}',
+        r'\usepackage[utf8]{inputenc}',
+        r'\usepackage{amsmath}',
+        r'\usepackage{amsthm}',
+        r'\usepackage{amssymb}',
+        r'\usepackage{amsfonts}',
+        r'\usepackage{anyfontsize}',
+        r'\usepackage{bm}',
+        r'\pagestyle{empty}',
+        preamble,
+        '',
+    ]
+    if use_preview:
+        lines.extend([rf'\usepackage[active{tightpage}]{{preview}}', ''])
+    lines.append(r'\begin{document}')
+    for i, math in enumerate(maths):
+        body = rf'\fontsize{{{fontsize}}}{{{baselineskip}}}\selectfont {math}'
+        if use_preview:
+            lines.extend([r'\begin{preview}', body, r'\end{preview}'])
+        else:
+            lines.append(body)
+        if i < len(maths) - 1:
+            lines.append(r'\clearpage')
+    lines.append(r'\end{document}')
+    return '\n'.join(lines) + '\n'
+
+
+def _compile_batch_document(combined: str, *, config: Config) -> Path:
+    """Compile a combined LaTeX document to DVI/XDV."""
+    return _compile_latex_document(
+        combined, config=config, suffix='-sphinx-imgmath-batch'
+    )
+
+
+def _compile_single_math(
+    math: str,
+    image_format: str,
+    out_path: Path,
+    *,
+    config: Config,
+    confdir: _StrPath,
+) -> None:
+    latex = generate_latex_macro(image_format, math, config, confdir)
+    dvipath = compile_math(latex, config=config)
+    if image_format == 'png':
+        convert_dvi_to_png(dvipath, out_path, config=config)
+    else:
+        convert_dvi_to_svg(dvipath, out_path, config=config)
+
+
+def _render_batch_chunk(
+    maths: list[str],
+    out_paths: list[Path],
+    *,
+    config: Config,
+    confdir: _StrPath,
+    builder: Builder,
+    image_format: str,
+    max_workers: int = 1,
+) -> None:
+    uncached = [
+        (m, p) for m, p in zip(maths, out_paths, strict=True) if not p.is_file()
+    ]
+    if not uncached:
+        return
+    uncached_maths = [m for m, _p in uncached]
+
+    try:
+        combined = _build_batch_document(
+            uncached_maths, config=config, image_format=image_format
+        )
+        dvipath = _compile_batch_document(combined, config=config)
+    except InvokeError:
+        builder._imgmath_warned_latex = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        return
+    except MathExtError as err:
+        logger.warning(
+            __(
+                'Batch LaTeX compilation failed, falling back to single compilation: %s'
+            ),
+            err,
+        )
+        for math, path in uncached:
+            try:
+                _compile_single_math(
+                    math, image_format, path, config=config, confdir=confdir
+                )
+            except (InvokeError, MathExtError) as err_single:
+                if isinstance(err_single, InvokeError):
+                    builder._imgmath_warned_latex = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+                    return
+                logger.warning(
+                    __('Failed to render math %r in single-compilation fallback: %s'),
+                    math,
+                    err_single,
+                )
+        return
+
+    def _convert_page(
+        idx: int, math: str, path: Path
+    ) -> tuple[int, str, Path, Exception | None]:
+        page = idx + 1
+        try:
+            if image_format == 'png':
+                convert_dvi_to_png(dvipath, path, config=config, page=page)
+            else:
+                convert_dvi_to_svg(dvipath, path, config=config, page=page)
+        except (InvokeError, MathExtError) as err_convert:
+            return page, math, path, err_convert
+        return page, math, path, None
+
+    workers = max(1, min(len(uncached), max_workers))
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        results = list(
+            executor.map(
+                _convert_page,
+                range(len(uncached)),
+                [math for math, _path in uncached],
+                [path for _math, path in uncached],
+            )
+        )
+
+    for page, math, path, error in results:
+        if error is None:
+            continue
+        if isinstance(error, InvokeError):
+            builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+            return
+        logger.warning(
+            __('Failed to convert batch page %d, retrying singly: %s'),
+            page,
+            error,
+        )
+        try:
+            _compile_single_math(
+                math, image_format, path, config=config, confdir=confdir
+            )
+        except (InvokeError, MathExtError) as err_retry:
+            if isinstance(err_retry, InvokeError):
+                builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+                return
+            logger.warning(
+                __('Failed to render math %r after batch page failure: %s'),
+                math,
+                err_retry,
+            )
+
+
+def pre_render_batch(app: Sphinx, env: BuildEnvironment) -> None:
+    """Pre-render all math expressions in batches before the write phase.
+
+    Runs on ``env-updated`` so that by the time HTML translation calls
+    :func:`render_math`, images already exist on disk. This keeps
+    ``imgmath_embed``, depth handling, and error reporting identical to
+    single-equation mode, and is safe for parallel writes.
+    """
+    config = app.config
+    batch_size: int = config.imgmath_batch_size
+    if not isinstance(batch_size, int) or batch_size <= 1:
+        return
+    builder = app.builder
+    if builder.format != 'html':
+        return
+
+    image_format = config.imgmath_image_format.lower()
+    if image_format not in SUPPORT_FORMAT:
+        return
+
+    confdir = builder.confdir
+    if _has_custom_template(config, confdir):
+        logger.info(__('imgmath batch disabled: custom LaTeX template detected'))
+        return
+
+    maths = _collect_math_expressions(env)
+    if not maths:
+        return
+
+    out_paths: list[Path] = []
+    for math in maths:
+        latex = generate_latex_macro(image_format, math, config, confdir)
+        filename = (
+            f'{sha1(latex.encode(), usedforsecurity=False).hexdigest()}.{image_format}'
+        )
+        path = Path(builder.outdir) / builder.imagedir / 'math' / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        out_paths.append(path)
+
+    max_workers = app.parallel if app.parallel and app.parallel > 1 else 1
+
+    chunks = [
+        (maths[i : i + batch_size], out_paths[i : i + batch_size])
+        for i in range(0, len(maths), batch_size)
+    ]
+    for idx in status_iterator(
+        range(len(chunks)),
+        __('pre-rendering math... '),
+        length=len(chunks),
+        stringify_func=lambda i: f'batch {i + 1}/{len(chunks)}',
+    ):
+        if hasattr(builder, '_imgmath_warned_latex') or hasattr(
+            builder, '_imgmath_warned_image_translator'
+        ):
+            break
+        chunk_maths, chunk_paths = chunks[idx]
+        _render_batch_chunk(
+            chunk_maths,
+            chunk_paths,
+            config=config,
+            confdir=confdir,
+            builder=builder,
+            image_format=image_format,
+            max_workers=max_workers,
+        )
 
 
 def render_maths_to_base64(image_format: str, generated_path: Path) -> str:
@@ -415,6 +727,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('imgmath_add_tooltips', True, 'html', types=frozenset({bool}))
     app.add_config_value('imgmath_font_size', 12, 'html', types=frozenset({int}))
     app.add_config_value('imgmath_embed', False, 'html', types=frozenset({bool}))
+    app.add_config_value('imgmath_batch_size', 1, 'html', types=frozenset({int}))
+    app.connect('env-updated', pre_render_batch)
     app.connect('build-finished', clean_up_files)
     return {
         'version': sphinx.__display_version__,
