@@ -193,3 +193,52 @@ def test_find_local_package_import_path(app: Sphinx) -> None:
         'href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class3"'
     )
     assert count_class3 == 1
+
+
+def test_env_merge_info_skips_unused_modules(app: SphinxTestApp) -> None:
+    from sphinx.ext.viewcode import env_merge_info
+
+    main_env = app.env
+    main_env._viewcode_modules = {}
+    other_env = app.env.__class__(app)
+    other_env._viewcode_modules = {
+        'unused_mod': ('x = 1', {}, {}, 'unused_mod'),
+        'used_mod': ('y = 2', {'y': ('def', 1, 1)}, {'y': 'doc1'}, 'used_mod'),
+    }
+    env_merge_info(app, main_env, set(), other_env)
+    assert 'unused_mod' not in main_env._viewcode_modules
+    assert 'used_mod' in main_env._viewcode_modules
+
+
+@pytest.mark.sphinx('html', testroot='ext-viewcode', freshenv=True)
+def test_collect_pages_skips_unused_modules(app: SphinxTestApp) -> None:
+    from sphinx.ext.viewcode import collect_pages
+
+    app.env._viewcode_modules = {
+        'unused_mod': ('x = 1', {}, {}, 'unused_mod'),
+    }
+    pages = list(collect_pages(app))
+    assert pages == []
+
+
+@pytest.mark.sphinx('html', testroot='ext-viewcode', freshenv=True)
+def test_collect_pages_filters_unused_module_with_active_modules(
+    app: SphinxTestApp,
+) -> None:
+    from sphinx.ext.viewcode import collect_pages
+
+    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
+    app.env._viewcode_modules = {
+        'unused_mod': ('x = 1', {}, {}, 'unused_mod'),
+        'spam.mod1': (
+            'def func1(): pass',
+            {'func1': ('def', 1, 1)},
+            {'func1': 'index'},
+            'spam.mod1',
+        ),
+    }
+    pages = list(collect_pages(app))
+    pagenames = [p[0] for p in pages]
+    assert '_modules/unused_mod' not in pagenames
+    assert '_modules/spam/mod1' in pagenames
+    assert '_modules/index' in pagenames
