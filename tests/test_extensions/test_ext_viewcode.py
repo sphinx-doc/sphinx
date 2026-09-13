@@ -41,6 +41,11 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     assert result.count('this is the class attribute class_attr') == 2
 
     result = (app.outdir / '_modules/spam/mod1.html').read_text(encoding='utf8')
+    quote = (
+        '"'
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&quot;'
+    )
     # filter pygments classes
     result = re.sub('<span class="[^"]{,2}">', '<span>', result)
     assert (
@@ -50,8 +55,7 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     assert '<span>@decorator</span>\n' in result
     assert f'<span>class</span>{sp}<span>Class1</span><span>:</span>\n' in result
     assert (
-        '<span>    </span>'
-        '<span>&quot;&quot;&quot;this is Class1&quot;&quot;&quot;</span></div>\n'
+        f'<span>    </span><span>{quote * 3}this is Class1{quote * 3}</span></div>\n'
     ) in result
 
     return result

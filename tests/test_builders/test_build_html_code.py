@@ -48,6 +48,11 @@ def test_html_code_role(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
+    quote = (
+        '"'
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&quot;'
+    )
     common_content = (
         f'<span class="k">def</span>{sp}<span class="nf">foo</span>'
         '<span class="p">(</span>'
@@ -57,7 +62,7 @@ def test_html_code_role(app: SphinxTestApp) -> None:
         '<span class="o">+</span> '
         '<span class="kc">None</span> '
         '<span class="o">+</span> '
-        '<span class="s2">&quot;abc&quot;</span>'
+        f'<span class="s2">{quote}abc{quote}</span>'
         '<span class="p">):</span> '
         '<span class="k">pass</span>'
     )

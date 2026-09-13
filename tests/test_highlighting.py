@@ -88,12 +88,17 @@ def test_set_formatter() -> None:
 @mock.patch('sphinx.highlighting.logger')
 def test_default_highlight(logger: mock.Mock) -> None:
     bridge = PygmentsBridge('html')
+    quote = (
+        '"'
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&quot;'
+    )
 
     # default: highlights as python3
     ret = bridge.highlight_block('print "Hello sphinx world"', 'default')
     assert ret == (
         '<div class="highlight"><pre><span></span><span class="nb">print</span> '
-        '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n'
+        f'<span class="s2">{quote}Hello sphinx world{quote}</span>\n</pre></div>\n'
     )
 
     # default: fallbacks to none if highlighting failed
@@ -107,7 +112,7 @@ def test_default_highlight(logger: mock.Mock) -> None:
     assert ret == (
         '<div class="highlight"><pre><span></span><span class="nb">print</span>'
         '<span class="p">(</span>'
-        '<span class="s2">&quot;Hello sphinx world&quot;</span>'
+        f'<span class="s2">{quote}Hello sphinx world{quote}</span>'
         '<span class="p">)</span>\n</pre></div>\n'
     )
 
@@ -116,7 +121,7 @@ def test_default_highlight(logger: mock.Mock) -> None:
     assert ret == (
         '<div class="highlight"><pre><span></span><span class="nb">print</span>'
         '<span class="p">(</span>'
-        '<span class="s2">&quot;Hello sphinx world&quot;</span>'
+        f'<span class="s2">{quote}Hello sphinx world{quote}</span>'
         '<span class="p">)</span>\n</pre></div>\n'
     )
 

@@ -1226,9 +1226,9 @@ def test_html_rebuild_mo(app: SphinxTestApp) -> None:
 
     _, bom_file = _get_bom_intl_path(app.srcdir)
     old_mtime = bom_file.stat().st_mtime
-    new_mtime = old_mtime + (dt := 5)
+    new_mtime = max(old_mtime, time.time()) + 5
     os.utime(bom_file, (new_mtime, new_mtime))
-    assert old_mtime + dt == new_mtime, (old_mtime + dt, new_mtime)
+    assert bom_file.stat().st_mtime > app.env.all_docs['bom'] / 1_000_000
     _, updated, _ = _get_update_targets(app)
     assert updated == {'bom'}
 
@@ -1633,6 +1633,11 @@ def test_xml_strange_markup(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None:
+    single_quote = (
+        "'"
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&#39;'
+    )
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:
@@ -1647,7 +1652,7 @@ def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None
     assert_count(expected_expr, result, 2)
 
     # ruby code block should not be translated but be highlighted
-    expected_expr = """<span class="s1">&#39;result&#39;</span>"""
+    expected_expr = f'<span class="s1">{single_quote}result{single_quote}</span>'
     assert_count(expected_expr, result, 1)
 
     # C code block without lang should not be translated and *ruby* highlighted
@@ -1721,6 +1726,16 @@ def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None
     },
 )
 def test_additional_targets_should_be_translated(app: SphinxTestApp) -> None:
+    single_quote = (
+        "'"
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&#39;'
+    )
+    double_quote = (
+        '"'
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&quot;'
+    )
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:
@@ -1738,7 +1753,9 @@ def test_additional_targets_should_be_translated(app: SphinxTestApp) -> None:
     assert_count(expected_expr, result, 1)
 
     # literalinclude should be translated
-    expected_expr = '<span class="s2">&quot;HTTPS://SPHINX-DOC.ORG&quot;</span>'
+    expected_expr = (
+        f'<span class="s2">{double_quote}HTTPS://SPHINX-DOC.ORG{double_quote}</span>'
+    )
     assert_count(expected_expr, result, 1)
 
     # title should be translated
@@ -1746,7 +1763,7 @@ def test_additional_targets_should_be_translated(app: SphinxTestApp) -> None:
     assert_count(expected_expr, result, 2)
 
     # ruby code block should be translated and be highlighted
-    expected_expr = """<span class="s1">&#39;RESULT&#39;</span>"""
+    expected_expr = f'<span class="s1">{single_quote}RESULT{single_quote}</span>'
     assert_count(expected_expr, result, 1)
 
     # C code block without lang should be translated and *ruby* highlighted
