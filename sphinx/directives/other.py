@@ -59,6 +59,7 @@ class TocTree(SphinxDirective):
         'numbered': int_or_nothing,
         'titlesonly': directives.flag,
         'reversed': directives.flag,
+        'level-up': directives.nonnegative_int,
     }
 
     def run(self) -> list[Node]:
@@ -76,6 +77,9 @@ class TocTree(SphinxDirective):
         subnode['includehidden'] = 'includehidden' in self.options
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
+        subnode['level-up'] = self.options.get(
+            'level-up', self.env.current_document.get('toc_level_up', 0)
+        )
         self.set_source_info(subnode)
         self.parse_content(subnode)
 
@@ -180,6 +184,25 @@ class TocTree(SphinxDirective):
         if 'reversed' in self.options:
             toctree['entries'] = list(reversed(toctree['entries']))
             toctree['includefiles'] = list(reversed(toctree['includefiles']))
+
+
+class TocLevelUp(SphinxDirective):
+    """Set the default ``toctree`` ``:level-up:`` for this document."""
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec: ClassVar[OptionSpec] = {}
+
+    def run(self) -> list[Node]:
+        try:
+            level = directives.nonnegative_int(self.arguments[0])
+        except (TypeError, ValueError) as exc:
+            msg = 'invalid toc-level-up argument'
+            raise self.error(msg) from exc
+        self.env.current_document['toc_level_up'] = level
+        return []
 
 
 class Author(SphinxDirective):
@@ -418,6 +441,7 @@ class Include(BaseInclude, SphinxDirective):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('toctree', TocTree)
+    directives.register_directive('toc-level-up', TocLevelUp)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)
     directives.register_directive('codeauthor', Author)

@@ -1,0 +1,4 @@
+Child page
+==========
+
+Child body.

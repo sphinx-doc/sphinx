@@ -246,6 +246,49 @@ The ``toctree`` directive is the central element.
 
       .. versionadded:: 1.2
 
+   .. rst:directive:option:: level-up
+      :type: nonnegative integer
+
+      Promote the pages listed in this toctree by this many section levels,
+      counted from the section containing the directive.  A value of ``0``
+      leaves the toctree at its normal level.  If the requested value exceeds
+      the available ancestor sections, Sphinx promotes the entries as far as
+      possible and emits a warning.
+
+      For example, this makes ``page1`` a sibling of ``My header`` instead of
+      a child of it::
+
+         My title
+         ========
+
+         My header
+         ---------
+
+         .. toctree::
+            :level-up: 1
+
+            page1
+
+      .. versionadded:: 9.1
+
+.. rst:directive:: toc-level-up
+
+   Set the default ``:level-up:`` value for subsequent :rst:dir:`toctree`
+   directives in the current document.  An explicit ``:level-up:`` option
+   takes precedence, including ``:level-up: 0`` to disable the document
+   default::
+
+      .. toc-level-up:: 1
+
+      .. toctree::
+
+         page1
+
+   The directive affects only the document in which it occurs and does not
+   change the level of toctrees that precede it.
+
+   .. versionadded:: 9.1
+
 
 Special names
 ^^^^^^^^^^^^^

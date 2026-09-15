@@ -26,6 +26,85 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _promote_toctree(toc: nodes.bullet_list) -> None:
+    """Move toctree entries according to their ``:level-up:`` option."""
+    new_entries, pending = _promote_entries(toc)
+    for remaining, toctree in pending:
+        if remaining > 0:
+            logger.warning(
+                __('toctree :level-up: %s exceeds the number of containing sections'),
+                _toctree_level_up(toctree),
+                location=toctree,
+                type='toc',
+                subtype='level_up',
+            )
+        new_entries.append(toctree)
+    toc.clear()
+    toc.extend(new_entries)
+
+
+def _promote_entries(
+    container: Element,
+) -> tuple[list[Element], list[tuple[int, Element]]]:
+    """Promote toctrees nested below sections in *container*."""
+    entries: list[Element] = []
+    pending: list[tuple[int, Element]] = []
+    for child in list(container.children):
+        if isinstance(child, nodes.list_item):
+            nested = _nested_bullet_list(child)
+            if nested is not None:
+                new_children, child_pending = _promote_entries(nested)
+                nested.clear()
+                if new_children:
+                    nested.extend(new_children)
+                elif nested.parent is not None:
+                    nested.parent.remove(nested)
+            else:
+                child_pending = []
+            entries.append(child)
+            for remaining, toctree in child_pending:
+                if remaining == 1:
+                    entries.append(toctree)
+                else:
+                    pending.append((remaining - 1, toctree))
+        elif isinstance(child, addnodes.only):
+            new_children, child_pending = _promote_entries(child)
+            child.clear()
+            if new_children:
+                child.extend(new_children)
+                entries.append(child)
+            for remaining, toctree in child_pending:
+                wrapped = addnodes.only(expr=child['expr'])
+                wrapped.source = child.source
+                wrapped.line = child.line
+                wrapped.append(toctree)
+                pending.append((remaining, wrapped))
+        elif isinstance(child, addnodes.toctree):
+            level_up = child.get('level-up', 0)
+            if level_up:
+                pending.append((level_up, child))
+            else:
+                entries.append(child)
+        else:
+            entries.append(cast('Element', child))
+    return entries, pending
+
+
+def _nested_bullet_list(item: nodes.list_item) -> nodes.bullet_list | None:
+    for child in item.children:
+        if isinstance(child, nodes.bullet_list):
+            return child
+    return None
+
+
+def _toctree_level_up(node: Element) -> int:
+    if isinstance(node, addnodes.toctree):
+        return node.get('level-up', 0)
+    for toctree in node.findall(addnodes.toctree):
+        return toctree.get('level-up', 0)
+    return 0
+
+
 class TocTreeCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.tocs.pop(docname, None)
@@ -186,6 +265,7 @@ class TocTreeCollector(EnvironmentCollector):
 
         toc = build_toc(doctree)
         if toc:
+            _promote_toctree(toc)
             app.env.tocs[docname] = toc
         else:
             app.env.tocs[docname] = nodes.bullet_list('')

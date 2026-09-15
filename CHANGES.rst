@@ -1,6 +1,13 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #8287: Add ``:level-up:`` to the :rst:dir:`toctree` directive and the
+  stateful :rst:dir:`toc-level-up` directive for controlling document
+  hierarchy.
+
 Bugs fixed
 ----------
 

@@ -497,7 +497,7 @@ def inline_all_toctrees(
     """
     tree = tree.deepcopy()
     for toctreenode in list(tree.findall(addnodes.toctree)):
-        newnodes = []
+        newnodes: list[Element] = []
         includefiles = map(str, toctreenode['includefiles'])
         indent += ' '
         for includefile in includefiles:
@@ -530,8 +530,108 @@ def inline_all_toctrees(
                         if 'docname' not in sectionnode:
                             sectionnode['docname'] = includefile
                     newnodes.append(sof)
-        toctreenode.parent.replace(toctreenode, newnodes)
+        _replace_toctree_with_inlined(toctreenode, newnodes)
     return tree
+
+
+def _containing_section(node: Node) -> nodes.section | None:
+    parent = node.parent
+    while parent is not None:
+        if isinstance(parent, nodes.section):
+            return parent
+        parent = parent.parent
+    return None
+
+
+def _only_ancestors_until(node: Node, ancestor: Node) -> list[addnodes.only]:
+    only_nodes: list[addnodes.only] = []
+    parent = node.parent
+    while parent is not None and parent is not ancestor:
+        if isinstance(parent, addnodes.only):
+            only_nodes.append(parent)
+        parent = parent.parent
+    return only_nodes
+
+
+def _wrap_in_only_nodes(
+    newnodes: list[Element], only_nodes: list[addnodes.only]
+) -> list[Element]:
+    wrapped = newnodes
+    for original in only_nodes:
+        replacement = addnodes.only(expr=original['expr'])
+        replacement.source = original.source
+        replacement.line = original.line
+        replacement['_level_up_only_wrapper'] = True
+        replacement.extend(wrapped)
+        wrapped = [replacement]
+    return wrapped
+
+
+def _is_inlined_document(node: Node) -> bool:
+    return isinstance(node, addnodes.start_of_file) or (
+        isinstance(node, addnodes.only) and node.get('_level_up_only_wrapper', False)
+    )
+
+
+def _replace_toctree_with_inlined(
+    toctreenode: addnodes.toctree, newnodes: list[Element]
+) -> None:
+    """Replace an inlined toctree, moving its documents up as requested."""
+    parent = toctreenode.parent
+    if parent is None:
+        return
+
+    level_up = toctreenode.get('level-up', 0)
+    if not level_up:
+        parent.replace(toctreenode, newnodes)
+        return
+
+    target_section: nodes.section | None = None
+    current: Node = toctreenode
+    for _ in range(level_up):
+        section = _containing_section(current)
+        if section is None or section.parent is None:
+            break
+        target_section = section
+        current = section
+
+    escaped_only_nodes: list[addnodes.only] = []
+    if target_section is not None and target_section.parent is not None:
+        escaped_only_nodes = _only_ancestors_until(toctreenode, target_section.parent)
+
+    toc_index = parent.index(toctreenode)
+    wrapper_parent = parent.parent
+    wrapper_index = wrapper_parent.index(parent) if wrapper_parent is not None else 0
+    parent.remove(toctreenode)
+    removed_wrapper = False
+    if (
+        isinstance(parent, nodes.compound)
+        and 'toctree-wrapper' in parent.get('classes', ())
+        and len(parent) == 0
+        and wrapper_parent is not None
+    ):
+        wrapper_parent.remove(parent)
+        removed_wrapper = True
+
+    if not newnodes:
+        return
+
+    if target_section is not None and target_section.parent is not None:
+        insert_parent = target_section.parent
+        index = insert_parent.index(target_section) + 1
+        while index < len(insert_parent) and _is_inlined_document(insert_parent[index]):
+            index += 1
+        moved_nodes = _wrap_in_only_nodes(newnodes, escaped_only_nodes)
+        for offset, newnode in enumerate(moved_nodes):
+            insert_parent.insert(index + offset, newnode)
+        return
+
+    if removed_wrapper and wrapper_parent is not None:
+        for offset, newnode in enumerate(newnodes):
+            wrapper_parent.insert(wrapper_index + offset, newnode)
+    else:
+        for offset, newnode in enumerate(newnodes):
+            parent.insert(toc_index + offset, newnode)
 
 
 def _make_id(string: str) -> str:
