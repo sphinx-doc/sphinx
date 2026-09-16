@@ -339,9 +339,9 @@ class DoctestTransform(SphinxTransform):
         for node in self.document.findall(nodes.doctest_block):
             node['classes'].append('doctest')
         # Docutils 1.0 creates literal_block nodes for doctest blocks
-        for node in self.document.findall(nodes.literal_block):
-            if _is_doctest_block(node):
-                node.setdefault('language', 'pycon')
+        for literal_block in self.document.findall(nodes.literal_block):
+            if _is_doctest_block(literal_block):
+                literal_block.setdefault('language', 'pycon')
 
 
 class FilterSystemMessages(SphinxTransform):
