@@ -11,7 +11,12 @@ from docutils import nodes
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
 
-from sphinx.ext.doctest import DocTestBuilder, is_allowed_version
+from sphinx.ext.doctest import (
+    DocTestBuilder,
+    _condition_default,
+    _condition_with_doctest,
+    is_allowed_version,
+)
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -48,6 +53,14 @@ def test_highlight_language_python3(app: SphinxTestApp) -> None:
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
         assert node['language'] in {'python', 'pycon', 'none'}
+
+
+def test_condition_with_doctest_docutils_1() -> None:
+    # Docutils 1.0 represents a doctest block as a classified literal block
+    source = '>>> 1 + 1\n2'
+    node = nodes.literal_block(source, source, classes=['code', 'pycon', 'doctest'])
+    assert _condition_with_doctest(node)
+    assert not _condition_default(node)
 
 
 def test_is_allowed_version() -> None:

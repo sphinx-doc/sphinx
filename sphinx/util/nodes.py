@@ -96,6 +96,33 @@ class NodeMatcher[N: Node]:
             yield cast('N', found)
 
 
+def _is_doctest_block(node: Node) -> bool:
+    """Check whether *node* is a reStructuredText doctest block.
+
+    Since Docutils 1.0, doctest blocks are represented as ``literal_block``
+    nodes with the ``pycon`` and ``doctest`` classes instead of ``doctest_block``.
+    """
+    if isinstance(node, nodes.doctest_block):
+        return True
+    return (
+        isinstance(node, nodes.literal_block)
+        and 'testnodetype' not in node  # sphinx.ext.doctest directives
+        and {'pycon', 'doctest'}.issubset(node['classes'])
+    )
+
+
+def _get_colwidth(node: Element) -> int:
+    """Return the proportional width of a ``colspec`` node as an integer.
+
+    Docutils 1.0 stores the ``colwidth`` attribute as a string,
+    optionally with a ``*`` unit suffix.
+    """
+    colwidth = node['colwidth']
+    if isinstance(colwidth, str):
+        colwidth = float(colwidth.removesuffix('*'))
+    return int(colwidth)
+
+
 def get_full_module_name(node: Node) -> str:
     """Return full module dotted path like: 'docutils.nodes.paragraph'
 
