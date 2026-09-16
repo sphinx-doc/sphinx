@@ -10,6 +10,8 @@ import pygments
 import pytest
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
     from sphinx.testing.util import SphinxTestApp
 
@@ -193,3 +195,19 @@ def test_find_local_package_import_path(app: Sphinx) -> None:
         'href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class3"'
     )
     assert count_class3 == 1
+
+
+@pytest.mark.sphinx('html', testroot='ext-viewcode-find', freshenv=True)
+def test_no_module_page_without_source_links(app: SphinxTestApp) -> None:
+    # The module source is found, but none of the documented objects are.
+    def find_source(app: Sphinx, modname: str) -> tuple[str, dict[str, Any]]:
+        source = app.srcdir / 'not_a_package/__init__.py'
+        return source.read_text(encoding='utf8'), {}
+
+    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
+    app.connect('viewcode-find-source', find_source)
+    app.build(force_all=True)
+
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert 'viewcode-link' not in result
+    assert not (app.outdir / '_modules').exists()
