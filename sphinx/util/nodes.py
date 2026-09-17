@@ -606,7 +606,7 @@ def _replace_toctree_with_inlined(
     removed_wrapper = False
     if (
         isinstance(parent, nodes.compound)
-        and 'toctree-wrapper' in parent.get('classes', ())
+        and 'toctree-wrapper' in parent.attributes.get('classes', ())
         and len(parent) == 0
         and wrapper_parent is not None
     ):
