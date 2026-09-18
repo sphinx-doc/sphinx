@@ -13,6 +13,10 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14680: Support the Docutils 1.0 representation of doctest blocks
+  and table column widths.
+  Patch by Tejas Nagmote
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

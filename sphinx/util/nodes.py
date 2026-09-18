@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import contextlib
+import math
 import re
 import unicodedata
+from fractions import Fraction
 from io import StringIO
 from typing import TYPE_CHECKING, Any, cast
 
@@ -94,6 +96,56 @@ class NodeMatcher[N: Node]:
         """
         for found in node.findall(self):
             yield cast('N', found)
+
+
+#: Cap on the denominator used when reading a fractional ``colwidth``.
+_MAX_COLWIDTH_DENOMINATOR = 100
+#: Cap on the factor fractional ``colwidth`` values are scaled by, so that a
+#: pathological table cannot inflate the widths handed to the writers.
+_MAX_COLWIDTH_SCALE = 100
+
+
+def _is_doctest_block(node: Node) -> bool:
+    """Check whether *node* is a reStructuredText doctest block.
+
+    Since Docutils 1.0, doctest blocks are represented as ``literal_block``
+    nodes with the ``pycon`` and ``doctest`` classes instead of ``doctest_block``.
+    """
+    if isinstance(node, nodes.doctest_block):
+        return True
+    return (
+        isinstance(node, nodes.literal_block)
+        and 'testnodetype' not in node  # sphinx.ext.doctest directives
+        and {'pycon', 'doctest'}.issubset(node['classes'])
+    )
+
+
+def _parse_colwidth(node: Element) -> Fraction:
+    """Return the ``colwidth`` attribute of a ``colspec`` node exactly.
+
+    Docutils 1.0 stores the attribute as a string,
+    optionally with a ``*`` unit suffix.
+    """
+    colwidth = str(node['colwidth']).removesuffix('*')
+    return Fraction(colwidth).limit_denominator(_MAX_COLWIDTH_DENOMINATOR)
+
+
+def _get_colwidth(node: Element) -> int:
+    """Return the proportional width of a ``colspec`` node as an integer.
+
+    Docutils 1.0 permits fractional widths, which the writers cannot use
+    directly.  Rather than truncate them -- which distorts the ratios between
+    columns and collapses widths below 1 to zero -- every width in the table
+    is scaled by the lowest common denominator of the whole ``tgroup``.
+    Tables that already use integer widths are left unchanged.
+    """
+    width = _parse_colwidth(node)
+    scale = width.denominator
+    if (parent := node.parent) is not None:
+        for sibling in parent.children:
+            if isinstance(sibling, nodes.colspec) and 'colwidth' in sibling:
+                scale = math.lcm(scale, _parse_colwidth(sibling).denominator)
+    return max(1, round(width * min(scale, _MAX_COLWIDTH_SCALE)))
 
 
 def get_full_module_name(node: Node) -> str:

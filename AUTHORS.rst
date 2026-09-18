@@ -113,6 +113,7 @@ Contributors
 * Szymon Karpinski -- intersphinx improvements
 * \T. Powers -- HTML output improvements
 * Taku Shimizu -- epub3 builder
+* Tejas Nagmote -- Docutils 1.0 compatibility fixes
 * Tamika Nomara -- bug fixes
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes
