@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from fractions import Fraction
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any
 
@@ -312,10 +313,44 @@ def test_handle_code_blocks_moves_docutils_1_doctest_blocks() -> None:
         (10, 10),
         ('10', 10),
         ('10*', 10),
-        ('2.5*', 2),
+        ('2.5*', 5),
+        ('0.5*', 1),
     ],
 )
 def test_get_colwidth(colwidth: int | str, expected: int) -> None:
     colspec = nodes.colspec()
     colspec.attributes['colwidth'] = colwidth
     assert _get_colwidth(colspec) == expected
+
+
+@pytest.mark.parametrize(
+    ('colwidths', 'expected'),
+    [
+        # integer widths are passed through untouched
+        (['1*', '3*'], [1, 3]),
+        (['25', '75'], [25, 75]),
+        # fractional widths are scaled, not truncated
+        (['2.5*', '1*'], [5, 2]),
+        (['0.5*', '1*'], [1, 2]),
+        # a column narrower than 1 no longer collapses to zero
+        (['0.5*', '0.25*'], [2, 1]),
+        # unequal denominators share one scale factor
+        (['1.5*', '1.25*'], [6, 5]),
+    ],
+)
+def test_get_colwidth_preserves_proportions(
+    colwidths: list[str], expected: list[int]
+) -> None:
+    tgroup = nodes.tgroup()
+    for colwidth in colwidths:
+        colspec = nodes.colspec()
+        colspec.attributes['colwidth'] = colwidth
+        tgroup += colspec
+
+    widths = [_get_colwidth(c) for c in tgroup.findall(nodes.colspec)]
+
+    assert widths == expected
+    # the ratios between columns survive the conversion to integers
+    first, *rest = [Fraction(str(c.removesuffix('*'))) for c in colwidths]
+    for width, raw in zip(widths[1:], rest, strict=True):
+        assert Fraction(widths[0], width) == first / raw
