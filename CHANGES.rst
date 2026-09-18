@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14675: viewcode: Do not generate module pages for modules without any
+  ``[source]`` links, which could appear depending on the document read order
+  or in parallel builds.
+  Patch by Tejas Nagmote
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
