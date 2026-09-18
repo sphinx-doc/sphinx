@@ -1,3 +1,5 @@
+# ruff: file-ignore [non-empty-init-module]
+
 """Create a full-text search index for offline search."""
 
 from __future__ import annotations
@@ -85,7 +87,11 @@ var Stemmer = function () {
 };
 """
 
-    _word_re = re.compile(r'\w+')
+    # Matches CLI flags (-x, --long-flag) or plain words.
+    # (?<!\w)-{1,2}\w[\w-]* : 1-2 leading dashes (not glued to a preceding word char,
+    #   so "a-b" doesn't count) followed by a word char, then more word/dash chars.
+    # \w+ : otherwise just match a normal word.
+    _word_re = re.compile(r'(?<!\w)-{1,2}\w[\w-]*|\w+')
 
     def __init__(self, options: dict[str, str]) -> None:
         """Initialize the class with the options the user has given."""
@@ -118,7 +124,9 @@ var Stemmer = function () {
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
-from sphinx.search.en import SearchEnglish  # NoQA: E402
+from sphinx.search.en import (  # NoQA: E402
+    SearchEnglish,
+)
 
 
 def parse_stop_word(source: str) -> set[str]:
