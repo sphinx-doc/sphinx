@@ -399,17 +399,27 @@ def _fetch_inventory_url(
             raw_data = r.content
             new_inv_location = r.url
     except Exception as err:
+        safe_url = _get_safe_url(inv_location)
+        # The URLs retained by the exception may be normalised forms of
+        # *inv_location* (e.g. percent-decoded), so redact them separately.
+        err_msg = str(err).replace(inv_location, safe_url)
+        for unsafe_url in (
+            getattr(getattr(err, 'request', None), 'url', None),
+            getattr(getattr(err, 'response', None), 'url', None),
+        ):
+            if unsafe_url:
+                err_msg = err_msg.replace(unsafe_url, _get_safe_url(unsafe_url))
         err.args = (
             'intersphinx inventory %r not fetchable due to %s: %s',
-            inv_location,
+            safe_url,
             err.__class__,
-            str(err),
+            err_msg,
         )
         raise
 
     if inv_location != new_inv_location:
         msg = __('intersphinx inventory has moved: %s -> %s')
-        LOGGER.info(msg, inv_location, new_inv_location)
+        LOGGER.info(msg, _get_safe_url(inv_location), _get_safe_url(new_inv_location))
 
         if target_uri in {
             inv_location,
