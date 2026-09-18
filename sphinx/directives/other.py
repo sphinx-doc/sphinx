@@ -119,6 +119,7 @@ class TocTree(SphinxDirective):
                         __("toctree glob pattern %r didn't match any documents"),
                         entry,
                         location=toctree,
+                        type='toc',
                         subtype='empty_glob',
                     )
 
