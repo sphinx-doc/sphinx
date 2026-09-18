@@ -6,6 +6,8 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -123,9 +125,9 @@ def test_singledispatch() -> None:
 
 def test_cfunction() -> None:
     actual = do_autodoc('function', 'time.asctime')
-    assert actual == [
+    expected = [
         '',
-        '.. py:function:: asctime([tuple]) -> string',
+        '.. py:function:: asctime([time_tuple]) -> string',
         '   :module: time',
         '',
         "   Convert a time tuple to a string, e.g. 'Sat Jun 06 16:26:11 1998'.",
@@ -133,6 +135,17 @@ def test_cfunction() -> None:
         '   is used.',
         '',
     ]
+    # Python versions released before September 2026 used [tuple]:
+    # https://github.com/python/cpython/pull/155790.
+    if (
+        sys.version_info < (3, 13, 16)
+        or (3, 14) <= sys.version_info < (3, 14, 8)
+        # FIXME: Correct upper bound on the next line if the change gets backported
+        # to 3.15 branch: https://github.com/python/cpython/pull/155804.
+        or (3, 15) <= sys.version_info < (3, 16)
+    ):
+        expected[1] = expected[1].replace('[time_tuple]', '[tuple]')
+    assert actual == expected
 
 
 def test_wrapped_function() -> None:
