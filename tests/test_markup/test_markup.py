@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from types import SimpleNamespace
 
+import docutils
 import pytest
 from docutils import nodes, utils
 from docutils.parsers.rst import Parser as RstParser
@@ -28,6 +29,8 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.testing.util import SphinxTestApp
     from sphinx.util.docutils import _DocutilsSettings
+
+RFC_SUFFIX = '/' if docutils.__version_info__[:2] >= (1, 0) else '.html'
 
 
 def new_settings(env: BuildEnvironment) -> _DocutilsSettings:
@@ -212,12 +215,13 @@ def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
             ':rfc:`2324`',
             (
                 '<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-                'href="https://datatracker.ietf.org/doc/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'
+                f'href="https://datatracker.ietf.org/doc/html/rfc2324{RFC_SUFFIX}">'
+                '<strong>RFC 2324</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
-                '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html}'
+                f'\\sphinxhref{{https://datatracker.ietf.org/doc/html/rfc2324{RFC_SUFFIX}}}'
                 '{\\sphinxstylestrong{RFC 2324}}'
             ),
         ),
@@ -226,13 +230,13 @@ def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
             ':rfc:`2324#section-1`',
             (
                 '<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-                'href="https://datatracker.ietf.org/doc/html/rfc2324.html#section-1">'
+                f'href="https://datatracker.ietf.org/doc/html/rfc2324{RFC_SUFFIX}#section-1">'
                 '<strong>RFC 2324 Section 1</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{RFC@\\spxentry{RFC}!RFC 2324 Section 1@\\spxentry{RFC 2324 Section 1}}'
-                '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#section-1}'
+                f'\\sphinxhref{{https://datatracker.ietf.org/doc/html/rfc2324{RFC_SUFFIX}\\#section-1}}'
                 '{\\sphinxstylestrong{RFC 2324 Section 1}}'
             ),
         ),

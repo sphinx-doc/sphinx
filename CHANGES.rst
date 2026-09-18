@@ -4,6 +4,10 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* Support Docutils 1.0's doctest nodes and table column widths in the doctest,
+  autosummary, text, LaTeX, and Texinfo extensions and writers.
+  Patch by Adam Dangoor
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
@@ -12,6 +16,14 @@ Bugs fixed
   does not match the language name, such as Chinese (which reuses the
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
+
+Testing
+-------
+
+* Accept RFC URLs with both the ```.html``` suffix format emitted
+  by ```docutils<1.0``` and also the forward-slash suffix generated
+  subsequently.
+  Patch by James Addison
 
 
 Release 9.1.0 (released Dec 31, 2025)

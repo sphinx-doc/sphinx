@@ -58,6 +58,7 @@ from inspect import Parameter
 from types import ModuleType
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, state_classes
@@ -398,8 +399,16 @@ class Autosummary(SphinxDirective):
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
-        group.append(nodes.colspec('', colwidth=10))
-        group.append(nodes.colspec('', colwidth=90))
+        group.append(
+            nodes.colspec(
+                '', colwidth='10' if docutils.__version_info__[:2] >= (1, 0) else 10
+            )
+        )
+        group.append(
+            nodes.colspec(
+                '', colwidth='90' if docutils.__version_info__[:2] >= (1, 0) else 90
+            )
+        )
         body = nodes.tbody('')
         group.append(body)
 

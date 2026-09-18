@@ -332,6 +332,9 @@ class DoctestTransform(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(nodes.doctest_block):
             node['classes'].append('doctest')
+        for literal_node in self.document.findall(nodes.literal_block):
+            if 'doctest' in literal_node['classes']:
+                literal_node.setdefault('language', 'pycon')
 
 
 class FilterSystemMessages(SphinxTransform):

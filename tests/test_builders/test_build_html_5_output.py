@@ -32,6 +32,19 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
     return checker
 
 
+def attr_check(attr: str, check: str) -> Callable[[Iterable[Element]], Literal[True]]:
+    rex = re.compile(check)
+
+    def checker(nodes: Iterable[Element]) -> Literal[True]:
+        for node in nodes:
+            if attr in node.attrib and rex.search(node.attrib[attr]):
+                return True
+        msg = f'{check!r} not found in attribute {attr} of any nodes {nodes}'
+        raise AssertionError(msg)
+
+    return checker
+
+
 @pytest.mark.parametrize(
     ('fname', 'path', 'check'),
     [
@@ -147,15 +160,15 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'markup.html',
-            ".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
-            "[@class='rfc reference external']/strong",
-            'RFC 1',
+            ".//a[@class='rfc reference external']/strong[.='RFC 1']/../../a[@href]",
+            # canonical RFC URLs may end either with either a '.html' or '/' suffix
+            attr_check('href', r'https://datatracker.ietf.org/doc/html/rfc1(/|\.html)'),
         ),
         (
             'markup.html',
-            ".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
-            "[@class='rfc reference external']/strong",
-            'Request for Comments #1',
+            ".//a[@class='rfc reference external']/strong[.='Request for Comments #1']/../../a[@href]",
+            # canonical RFC URLs may end either with either a '.html' or '/' suffix
+            attr_check('href', r'https://datatracker.ietf.org/doc/html/rfc1(/|\.html)'),
         ),
         (
             'markup.html',
