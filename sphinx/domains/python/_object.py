@@ -454,10 +454,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         build up a stack of the nesting hierarchy so that it can be later
         de-nested correctly, in :py:meth:`after_content`.
 
-        For constructs that aren't nestable, the stack is bypassed, and instead
-        only the most recent object is tracked. This object prefix name will be
-        removed with :py:meth:`after_content`.
+        The current class context is saved so that it can be restored with
+        :py:meth:`after_content`.
         """
+        self._previous_class: str | None = self.env.ref_context.get('py:class')
         prefix = None
         if self.names:
             # fullname and name_prefix come from the `handle_signature` method.
@@ -494,7 +494,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             with contextlib.suppress(IndexError):
                 classes.pop()
 
-        self.env.ref_context['py:class'] = classes[-1] if len(classes) > 0 else None
+        self.env.ref_context['py:class'] = self._previous_class
         if 'module' in self.options:
             modules = self.env.ref_context.setdefault('py:modules', [])
             if modules:
