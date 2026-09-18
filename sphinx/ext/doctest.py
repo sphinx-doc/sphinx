@@ -661,4 +661,9 @@ def _condition_default(node: Node) -> bool:
 
 
 def _condition_with_doctest(node: Node) -> bool:
-    return _condition_default(node) or isinstance(node, nodes.doctest_block)
+    return (
+        _condition_default(node)
+        or isinstance(node, nodes.doctest_block)
+        or isinstance(node, nodes.literal_block)
+        and 'doctest' in node['classes']
+    )

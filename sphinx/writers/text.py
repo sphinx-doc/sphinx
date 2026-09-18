@@ -904,7 +904,7 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_colspec(self, node: Element) -> None:
-        self.table.colwidth.append(node['colwidth'])
+        self.table.colwidth.append(int(node['colwidth']))
         raise nodes.SkipNode
 
     def visit_tgroup(self, node: Element) -> None:

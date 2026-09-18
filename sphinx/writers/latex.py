@@ -1249,7 +1249,7 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         self.table.colcount += 1
         if 'colwidth' in node:
-            self.table.colwidths.append(node['colwidth'])
+            self.table.colwidths.append(int(node['colwidth']))
         if 'stub' in node:
             self.table.stubs.append(self.table.colcount - 1)
 

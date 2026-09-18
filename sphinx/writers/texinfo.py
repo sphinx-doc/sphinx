@@ -1041,7 +1041,7 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_colspec(self, node: Element) -> None:
-        self.colwidths.append(node['colwidth'])
+        self.colwidths.append(int(node['colwidth']))
         if len(self.colwidths) != self.n_cols:
             return
         self.body.append('\n\n@multitable ')
