@@ -69,7 +69,8 @@ def jobs_argument(value: str) -> int:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
+        usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]\n'
+        '       %(prog)s -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]',
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
@@ -78,6 +79,9 @@ sphinx-build generates documentation from the files in SOURCEDIR and places it
 in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
 settings. The 'sphinx-quickstart' tool may be used to generate template files,
 including 'conf.py'
+
+Use '-M' for make mode, which manages build and cache directories. It must be
+the first command-line argument. For finer control, use '-b/--builder' instead.
 
 sphinx-build can create documentation in different formats. A format is
 selected by specifying the builder name on the command line; it defaults to
