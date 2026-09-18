@@ -474,7 +474,7 @@ def stringify_annotation(
     elif annotation_module == 'builtins' and annotation_qualname:
         args = getattr(annotation, '__args__', None)
         if args is None:
-            return annotation_qualname
+            return f'~builtins.{annotation_qualname}'
 
         # PEP 585 generic
         if not args:  # Empty tuple, list, ...
@@ -484,7 +484,7 @@ def stringify_annotation(
             stringify_annotation(arg, mode=mode, short_literals=short_literals)
             for arg in args
         )
-        return f'{annotation_qualname}[{concatenated_args}]'
+        return f'~builtins.{annotation_qualname}[{concatenated_args}]'
     else:
         # add other special cases that can be directly formatted
         pass
