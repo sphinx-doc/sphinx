@@ -1900,3 +1900,40 @@ def test_type_alias_xref_resolution(app: SphinxTestApp) -> None:
         '<a class="reference internal" href="#alias_module.HandlerType"'
         in process_error_signature
     ), 'HandlerType type alias link not found in process_error function signature'
+
+
+@pytest.mark.sphinx('html', testroot='domain-py-xref-type-alias-builtin')
+def test_type_alias_xref_no_false_positive(app: SphinxTestApp) -> None:
+    """Test that builtin type annotations don't falsely link to class attributes.
+
+    Regression test for a bug where ``def process(items: list)`` combined with
+    ``class MyClass`` having a ``list`` attribute would cause the ``list`` type
+    annotation to incorrectly resolve to ``MyClass.list`` via the class→data/attr
+    fallback in PythonDomain.resolve_xref (searchmode must be 0 for exact match).
+    """
+    app.build()
+
+    html_content = (app.outdir / 'index.html').read_text(encoding='utf8')
+
+    # The MyClass.list attribute should still be properly documented
+    assert 'id="mymodule.MyClass.list"' in html_content, (
+        'MyClass.list attribute anchor not found in HTML'
+    )
+
+    # Find the process() function signature
+    process_match = re.search(
+        r'<span class="pre">process</span>.*?</dt>', html_content, re.DOTALL
+    )
+    assert process_match is not None, 'Could not find process function signature'
+    process_signature = process_match.group(0)
+
+    # The critical assertion: ``list`` in the function signature must NOT link
+    # to MyClass.list.  If the fallback used fuzzy matching (searchmode=1),
+    # "list" would match "MyClass.list" and produce a false-positive link.
+    assert (
+        '<a class="reference internal" href="#mymodule.MyClass.list"'
+        not in process_signature
+    ), (
+        'list type annotation in process() signature incorrectly links to '
+        'MyClass.list — the class→data/attr fallback used fuzzy matching'
+    )
