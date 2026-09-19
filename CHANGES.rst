@@ -37,6 +37,12 @@ Release 9.1.1 (released Oct 19, 2026)
 Bugs fixed
 ----------
 
+* Handle ``SOURCE_DATE_EPOCH`` consistently across Sphinx. The Docutils
+  :dudir:`date` directive now honors it with Docutils versions before 1.0,
+  epoch zero is accepted, and malformed or fractional values are rejected.
+  Gettext timestamps are now calculated when the builder is initialized.
+  Patch by Kilian Paul
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.

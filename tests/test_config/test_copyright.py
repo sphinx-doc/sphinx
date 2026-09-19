@@ -34,6 +34,7 @@ LOCALTIME_2009 = type(LT)(LT_NEW)
         # test with pre-2009 SOURCE_DATE_EPOCH set: copyright year should be updated
         ('1199145600', 2008),
         ('1199145599', 2007),
+        ('0', 1970),
     ],
 )
 def expect_date(

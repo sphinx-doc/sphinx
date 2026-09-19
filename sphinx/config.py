@@ -6,13 +6,13 @@ import time
 import traceback
 import types
 from contextlib import chdir
-from os import getenv
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util._timestamps import _get_source_date_epoch
 
 if TYPE_CHECKING:
     import os
@@ -709,15 +709,15 @@ def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
 
 
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
-    """Correct values of copyright year that are not coherent with
-    the SOURCE_DATE_EPOCH environment variable (if set)
+    """Correct copyright years that conflict with a configured
+    ``SOURCE_DATE_EPOCH`` environment variable.
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-    if source_date_epoch := int(getenv('SOURCE_DATE_EPOCH', '0')):
-        source_date_epoch_year = time.gmtime(source_date_epoch).tm_year
-    else:
+    source_date_epoch = _get_source_date_epoch()
+    if source_date_epoch is None:
         return
+    source_date_epoch_year = time.gmtime(source_date_epoch).tm_year
 
     # If the current year is the replacement year, there's no work to do.
     # We also skip replacement years that are in the future.

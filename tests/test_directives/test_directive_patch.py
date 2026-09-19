@@ -6,12 +6,76 @@ from typing import TYPE_CHECKING
 
 import pytest
 from docutils import nodes
+from docutils.parsers.rst.directives.misc import Date as DocutilsDate
 
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='_blank',
+    confoverrides={'today_fmt': '%Y-%m-%d %H:%M:%S'},
+)
+def test_date_directive_source_date_epoch(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '1439131307')
+    text = """\
+.. |docutils-date| date:: %Y-%m-%d %H:%M:%S
+
+Docutils: |docutils-date|
+
+Sphinx: |today|
+"""
+
+    doctree = restructuredtext.parse(app, text)
+
+    assert 'Docutils: 2015-08-09 14:41:47' in doctree.astext()
+    assert 'Sphinx: 2015-08-09 14:41:47' in doctree.astext()
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_date_directive_source_date_epoch_default_format(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+
+    doctree = restructuredtext.parse(app, '.. |date| date::\n\n|date|')
+
+    assert doctree[-1].astext() == '1970-01-01'
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+@pytest.mark.parametrize('source_date_epoch', [None, ''])
+def test_date_directive_without_source_date_epoch_delegates_to_docutils(
+    app: SphinxTestApp,
+    monkeypatch: pytest.MonkeyPatch,
+    source_date_epoch: str | None,
+) -> None:
+    if source_date_epoch is None:
+        monkeypatch.delenv('SOURCE_DATE_EPOCH', raising=False)
+    else:
+        monkeypatch.setenv('SOURCE_DATE_EPOCH', source_date_epoch)
+    monkeypatch.setattr(DocutilsDate, 'run', lambda self: [nodes.Text('docutils-date')])
+
+    doctree = restructuredtext.parse(app, '.. |date| date::\n\n|date|')
+
+    assert doctree[-1].astext() == 'docutils-date'
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_date_directive_invalid_context(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+
+    restructuredtext.parse(app, '.. date::')
+
+    assert 'can only be used within a substitution definition' in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
