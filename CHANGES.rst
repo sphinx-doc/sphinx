@@ -4,6 +4,9 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #14678: Tests: Fix a timing dependency in ``test_html_rebuild_mo``.
+  Patch by Kilian Paul
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.

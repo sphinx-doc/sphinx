@@ -81,6 +81,7 @@ Contributors
 * Justus Magin -- napoleon improvements
 * Kazuya Take -- ``sphinx.testing.path`` bug fix
 * Kevin Dunn -- MathJax extension
+* Kilian Paul -- Docutils compatibility, intl tests, and viewcode fixes
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Kurt McKee -- documentation updates
 * Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix

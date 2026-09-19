@@ -1225,10 +1225,16 @@ def test_html_rebuild_mo(app: SphinxTestApp) -> None:
     assert updated == set()
 
     _, bom_file = _get_bom_intl_path(app.srcdir)
-    old_mtime = bom_file.stat().st_mtime
-    new_mtime = old_mtime + (dt := 5)
-    os.utime(bom_file, (new_mtime, new_mtime))
-    assert old_mtime + dt == new_mtime, (old_mtime + dt, new_mtime)
+    read_time_ns = app.env.all_docs['bom'] * 1_000
+    # A catalog can be written well before its document is read.
+    old_mtime_ns = _set_mtime_ns(bom_file, read_time_ns - 10_000_000_000)
+    assert old_mtime_ns + 5_000_000_000 < read_time_ns
+    _, updated, _ = _get_update_targets(app)
+    assert updated == set()
+
+    new_mtime_ns = max(old_mtime_ns, read_time_ns) + 5_000_000_000
+    actual_mtime_ns = _set_mtime_ns(bom_file, new_mtime_ns)
+    assert actual_mtime_ns > max(old_mtime_ns, read_time_ns)
     _, updated, _ = _get_update_targets(app)
     assert updated == {'bom'}
 
