@@ -1228,6 +1228,62 @@ class NumpyDocstring(GoogleDocstring):
         else:
             return func(name)
 
+    def _parse(self) -> None:
+        self._parsed_lines = self._consume_empty()
+
+        if self._name and self._what in {'attribute', 'data', 'property'}:
+            res: list[str] = []
+            with contextlib.suppress(StopIteration):
+                res = self._parse_attribute_docstring()
+
+            self._parsed_lines.extend(res)
+            return
+
+        parsed_sections: list[tuple[str, list[str]]] = []
+        while self._lines:
+            if self._is_section_header():
+                try:
+                    section = self._consume_section_header()
+                    self._is_in_section = True
+                    self._section_indent = self._get_current_indent()
+                    if _directive_regex.match(section):
+                        lines = [section, *self._consume_to_next_section()]
+                    else:
+                        lines = self._sections[section.lower()](section)
+                finally:
+                    self._is_in_section = False
+                    self._section_indent = 0
+                parsed_sections.append((section.lower(), lines))
+            else:
+                if not parsed_sections:
+                    lines = self._consume_contiguous() + self._consume_empty()
+                else:
+                    lines = self._consume_to_next_section()
+                parsed_sections.append(('', lines))
+
+        if self._what == 'class':
+            extracted = []
+            remaining = []
+            for sec_name, lines in parsed_sections:
+                if sec_name in {'attributes', 'methods'}:
+                    extracted.append((sec_name, lines))
+                else:
+                    remaining.append((sec_name, lines))
+
+            if extracted:
+                insert_idx = 1
+                for i, (sec_name, _) in enumerate(remaining):
+                    if sec_name in {'parameters', 'args', 'arguments'}:
+                        insert_idx = i + 1
+                        break
+
+                parsed_sections = (
+                    remaining[:insert_idx] + extracted + remaining[insert_idx:]
+                )
+
+        for _, lines in parsed_sections:
+            self._parsed_lines.extend(lines)
+
     def _consume_field(
         self, parse_type: bool = True, prefer_type: bool = False
     ) -> tuple[str, str, list[str]]:
