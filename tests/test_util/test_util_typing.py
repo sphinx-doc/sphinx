@@ -289,6 +289,14 @@ def test_restify_Annotated() -> None:
     assert ann_rst == (
         ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`~tests.test_util.test_util_typing.Gt`\\ (gt=\\ -10.0)]'
     )
+    ann_rst = restify(Annotated[int, MyEnum.a], 'fully-qualified-except-typing')
+    assert ann_rst == (
+        ':py:class:`~typing.Annotated`\\ [:py:class:`int`, :py:attr:`tests.test_util.test_util_typing.MyEnum.a`]'
+    )
+    ann_rst = restify(Annotated[int, MyEnum.a], 'smart')
+    assert ann_rst == (
+        ':py:class:`~typing.Annotated`\\ [:py:class:`int`, :py:attr:`~tests.test_util.test_util_typing.MyEnum.a`]'
+    )
 
 
 def test_restify_type_hints_Callable() -> None:
@@ -730,6 +738,12 @@ def test_stringify_Annotated() -> None:
     assert ann_str == (
         '~typing.Annotated[float, ~tests.test_util.test_util_typing.Gt(gt=-10.0)]'
     )
+    ann_str = stringify_annotation(
+        Annotated[int, MyEnum.a], 'fully-qualified-except-typing'
+    )
+    assert ann_str == 'Annotated[int, tests.test_util.test_util_typing.MyEnum.a]'
+    ann_str = stringify_annotation(Annotated[int, MyEnum.a], 'smart')
+    assert ann_str == '~typing.Annotated[int, MyEnum.a]'
 
 
 def test_stringify_Unpack() -> None:
