@@ -84,6 +84,7 @@ def type_to_xref(
     return pending_xref(
         '',
         *contnodes,
+        refdoc=env.docname,
         refdomain='py',
         reftype=reftype,
         reftarget=target,
