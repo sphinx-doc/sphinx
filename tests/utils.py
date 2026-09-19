@@ -7,12 +7,11 @@ __all__ = (
 )
 
 import os
-import socket
 from contextlib import contextmanager
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
-from threading import Thread
+from threading import Event, Thread
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -41,6 +40,16 @@ TEST_ROOTS_DIR: Final[Path] = TESTS_ROOT / (
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
+class _ReadyHTTPServer(ThreadingHTTPServer):
+    def __init__(self, handler: type[BaseRequestHandler], *, port: int) -> None:
+        self.ready = Event()
+        super().__init__(('localhost', port), handler)
+
+    def service_actions(self) -> None:
+        if not self.ready.is_set():
+            self.ready.set()
+
+
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
         """Constructs a threaded HTTP server.
@@ -50,7 +59,7 @@ class HttpServerThread(Thread):
         See: https://docs.python.org/3/library/socketserver.html#asynchronous-mixins
         """
         super().__init__(daemon=True)
-        self.server = ThreadingHTTPServer(('localhost', port), handler)
+        self.server = _ReadyHTTPServer(handler, port=port)
 
     def run(self) -> None:
         self.server.serve_forever(poll_interval=0.001)
@@ -84,8 +93,10 @@ def http_server(
     server_port = server_thread.server.server_port
     assert port in {0, server_port}
     try:
-        socket.create_connection(('localhost', server_port), timeout=0.5).close()
-        yield server_thread.server  # Connection has been confirmed possible; proceed.
+        if not server_thread.server.ready.wait(timeout=5):
+            msg = 'HTTP server did not enter its serving loop within 5 seconds'
+            raise TimeoutError(msg)
+        yield server_thread.server
     finally:
         server_thread.terminate()
 

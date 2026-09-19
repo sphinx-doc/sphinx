@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
+from requests.exceptions import SSLError
 from urllib3.poolmanager import PoolManager
 
 import sphinx.util.http_date
@@ -29,7 +30,6 @@ from sphinx.builders.linkcheck import (
 )
 from sphinx.errors import ConfigError
 from sphinx.testing.util import SphinxTestApp
-from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
 
 from tests.utils import CERT_FILE, serve_application
@@ -862,43 +862,33 @@ class OKHandler(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
 
-@mock.patch('sphinx.builders.linkcheck.requests.get', wraps=requests.get)
 @pytest.mark.sphinx(
     'linkcheck',
     testroot='linkcheck-localserver-https',
     freshenv=True,
 )
-def test_invalid_ssl(get_request: mock.Mock, app: SphinxTestApp) -> None:
-    # Link indicates SSL should be used (https) but the server does not handle it.
-    with serve_application(app, OKHandler) as address:
+def test_certificate_verification_failure_is_broken(app: SphinxTestApp) -> None:
+    certificate_error = '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed'
+    with mock.patch(
+        'requests.sessions.Session.request',
+        autospec=True,
+        side_effect=SSLError(certificate_error),
+    ) as request:
         app.build()
-        assert not get_request.called
+
+    request.assert_called_once()
+    assert request.call_args.kwargs['verify'] is True
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
-    assert content['status'] == 'broken'
-    assert content['filename'] == 'index.rst'
-    assert content['lineno'] == 1
-    assert content['uri'] == f'https://{address}/'
-    assert 'SSLError' in content['info']
-
-
-@pytest.mark.sphinx(
-    'linkcheck',
-    testroot='linkcheck-localserver-https',
-    freshenv=True,
-)
-def test_connect_to_selfsigned_fails(app: SphinxTestApp) -> None:
-    with serve_application(app, OKHandler, tls_enabled=True) as address:
-        app.build()
-
-    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
-        content = json.load(fp)
-    assert content['status'] == 'broken'
-    assert content['filename'] == 'index.rst'
-    assert content['lineno'] == 1
-    assert content['uri'] == f'https://{address}/'
-    assert '[SSL: CERTIFICATE_VERIFY_FAILED]' in content['info']
+    assert content == {
+        'code': 0,
+        'status': 'broken',
+        'filename': 'index.rst',
+        'lineno': 1,
+        'uri': 'https://localhost:7777/',
+        'info': certificate_error,
+    }
 
 
 @pytest.mark.sphinx(
