@@ -344,10 +344,32 @@ General configuration
    It can also adjust current-year values in :confval:`copyright` and
    :confval:`epub_copyright`.
 
+   For example, a project can use the timestamp of its most recent Git commit:
+
+   .. code-block:: console
+
+      $ export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+      $ sphinx-build -M html doc build
+
+   Sphinx does not set this variable automatically. Keep its value stable for
+   the duration of a build. If its effective value changes between incremental
+   builds, including from unset to a non-empty value or vice versa, Sphinx
+   rereads all documents to keep generated dates consistent.
+
+   The variable only replaces dates that Sphinx or Docutils would otherwise
+   derive from the current time. It does not replace dates supplied explicitly
+   by the project. In particular, a non-empty :confval:`today` takes precedence
+   for the :code-rst:`|today|` substitution.
+
+   It also does not change file modification times. Setting this variable alone
+   does not guarantee reproducible output, because themes, extensions, external
+   tools, or fetched resources may introduce other varying data.
+
    .. versionchanged:: 9.1.1
       Values are validated consistently across Sphinx, and the Docutils
       :dudir:`date` directive honors the variable with all supported Docutils
-      versions.
+      versions. Changing the effective value between incremental builds now
+      causes all documents to be reread.
 
 
 Options for figure numbering

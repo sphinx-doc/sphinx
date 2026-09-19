@@ -40,7 +40,9 @@ Bugs fixed
 * Handle ``SOURCE_DATE_EPOCH`` consistently across Sphinx. The Docutils
   :dudir:`date` directive now honors it with Docutils versions before 1.0,
   epoch zero is accepted, and malformed or fractional values are rejected.
-  Gettext timestamps are now calculated when the builder is initialized.
+  Gettext timestamps are now calculated when the builder is initialized, and
+  changing the effective value between incremental builds now causes all
+  documents to be reread.
   Patch by Kilian Paul
 
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
