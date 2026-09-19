@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, cast
 from unittest.mock import Mock
 
 import pytest
 from docutils import nodes
 
-from sphinx.roles import EmphasizedLiteral, _format_rfc_target
+from sphinx.roles import RFC, EmphasizedLiteral, _format_rfc_target
 from sphinx.testing.util import assert_node
+
+if TYPE_CHECKING:
+    from docutils.parsers.rst.states import Inliner
 
 
 def test_samp() -> None:
@@ -137,3 +142,22 @@ def test_samp() -> None:
 )
 def test_format_rfc_target(target: str, expected_output: str) -> None:
     assert _format_rfc_target(target) == expected_output
+
+
+@pytest.mark.parametrize(
+    ('target', 'expected_uri'),
+    [
+        ('2324', 'https://example.com/rfc/rfc2324/'),
+        ('2324#section-1', 'https://example.com/rfc/rfc2324/#section-1'),
+        ('2324#', 'https://example.com/rfc/rfc2324/#'),
+    ],
+)
+def test_rfc_build_uri(target: str, expected_uri: str) -> None:
+    role = RFC()
+    settings = SimpleNamespace(rfc_base_url='https://example.com/rfc/')
+    role.inliner = cast(
+        'Inliner', SimpleNamespace(document=SimpleNamespace(settings=settings))
+    )
+    role.target = target
+
+    assert role.build_uri() == expected_uri

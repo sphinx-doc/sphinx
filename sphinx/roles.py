@@ -360,11 +360,11 @@ class RFC(ReferenceRole):
 
     def build_uri(self) -> str:
         base_url = self.inliner.document.settings.rfc_base_url
-        ret = self.target.partition('#')
-        if ret[1]:
-            return base_url + self.inliner.rfc_url % int(ret[0]) + '#' + ret[2]
-        else:
-            return base_url + self.inliner.rfc_url % int(ret[0])
+        number, separator, anchor = self.target.partition('#')
+        uri = f'{base_url}rfc{int(number)}/'
+        if separator:
+            uri += f'#{anchor}'
+        return uri
 
 
 def _format_rfc_target(target: str, /) -> str:

@@ -63,7 +63,7 @@ default_settings: dict[str, Any] = {
     'cloak_email_addresses': True,
     'pep_base_url': 'https://peps.python.org/',
     'pep_references': None,
-    'rfc_base_url': 'https://datatracker.ietf.org/doc/html/',
+    'rfc_base_url': 'https://www.rfc-editor.org/info/',
     'rfc_references': None,
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,
@@ -76,7 +76,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 66
+ENV_VERSION = 67
 
 # config status
 CONFIG_UNSET = -1
