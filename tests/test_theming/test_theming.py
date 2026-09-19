@@ -240,6 +240,34 @@ def test_theme_builds(
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
 
 
+@pytest.mark.parametrize(
+    ('theme_name', 'css_name'),
+    [
+        ('agogo', 'agogo.css'),
+        ('epub', 'epub.css'),
+        ('nonav', 'nonav.css'),
+        ('scrolls', 'scrolls.css'),
+        ('traditional', 'traditional.css'),
+    ],
+)
+def test_bundled_themes_import_basic_css(
+    make_app: Callable[..., SphinxTestApp],
+    rootdir: Path,
+    sphinx_test_tempdir: Path,
+    theme_name: str,
+    css_name: str,
+) -> None:
+    """Bundled themes that inherit ``basic`` should import ``basic.css``."""
+    testroot_path = rootdir / 'test-basic'
+    srcdir = sphinx_test_tempdir / f'test-theme-{theme_name}-css'
+    shutil.copytree(testroot_path, srcdir)
+
+    app = make_app(srcdir=srcdir, confoverrides={'html_theme': theme_name})
+    app.build()
+    css = (app.outdir / '_static' / css_name).read_text(encoding='utf8')
+    assert '@import url("basic.css");' in css
+
+
 def test_config_file_toml() -> None:
     config_path = HERE / 'theme.toml'
     cfg = _load_theme_toml(config_path)
