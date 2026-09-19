@@ -362,9 +362,9 @@ class RFC(ReferenceRole):
         base_url = self.inliner.document.settings.rfc_base_url
         ret = self.target.partition('#')
         if ret[1]:
-            return base_url + self.inliner.rfc_url % int(ret[0]) + '#' + ret[2]
+            return base_url + 'rfc%d/#%s' % (int(ret[0]), ret[2])
         else:
-            return base_url + self.inliner.rfc_url % int(ret[0])
+            return base_url + 'rfc%d/' % int(ret[0])
 
 
 def _format_rfc_target(target: str, /) -> str:
