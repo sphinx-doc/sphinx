@@ -586,6 +586,7 @@ def test_safe_getattr_with_property_exception() -> None:
 def test_safe_getattr_with___dict___override() -> None:
     class Foo:
         @property
+        # pyrefly: ignore [bad-override]
         def __dict__(self):
             raise Exception
 

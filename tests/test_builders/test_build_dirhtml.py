@@ -32,6 +32,7 @@ def test_dirhtml(app: SphinxTestApp) -> None:
     # objects.inv
     # See: https://github.com/sphinx-doc/sphinx/issues/7095
     with (app.outdir / 'objects.inv').open('rb') as f:
+        # pyrefly: ignore [bad-argument-type]
         invdata = InventoryFile.load(f, 'path/to', posixpath.join)
 
     assert 'index' in invdata.get('std:doc', {})

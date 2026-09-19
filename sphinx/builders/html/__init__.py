@@ -456,6 +456,7 @@ class StandaloneHTMLBuilder(Builder):
             for domain in self.env.domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
+                    # pyrefly: ignore [not-iterable]
                     if check_names and index_name not in indices_config:
                         continue
                     content, collapse = index_cls(domain).generate()
@@ -566,6 +567,7 @@ class StandaloneHTMLBuilder(Builder):
         # find out relations
         prev = next = None
         parents = []
+        # pyrefly: ignore [bad-index, unsupported-operation]
         rellinks = self.globalcontext['rellinks'][:]
         related = self.relations.get(docname)
         titles = self.env.titles
@@ -575,6 +577,7 @@ class StandaloneHTMLBuilder(Builder):
                     'link': self.get_relative_uri(docname, related[2]),
                     'title': self.render_partial(titles[related[2]])['title'],
                 }
+                # pyrefly: ignore [missing-attribute]
                 rellinks.append((related[2], next['title'], 'N', _('next')))
             except KeyError:
                 next = None
@@ -584,6 +587,7 @@ class StandaloneHTMLBuilder(Builder):
                     'link': self.get_relative_uri(docname, related[1]),
                     'title': self.render_partial(titles[related[1]])['title'],
                 }
+                # pyrefly: ignore [missing-attribute]
                 rellinks.append((related[1], prev['title'], 'P', _('previous')))
             except KeyError:
                 # the relation is (somehow) not in the TOC tree, handle
@@ -860,6 +864,7 @@ class StandaloneHTMLBuilder(Builder):
                     self._static_dir,
                     excluded=DOTFILES,
                     context=context,
+                    # pyrefly: ignore [bad-argument-type]
                     renderer=self.templates,
                     onerror=onerror,
                     force=True,
@@ -887,6 +892,7 @@ class StandaloneHTMLBuilder(Builder):
                 self._static_dir,
                 excluded=excluded,
                 context=context,
+                # pyrefly: ignore [bad-argument-type]
                 renderer=self.templates,
                 onerror=onerror,
                 force=True,
@@ -1190,7 +1196,9 @@ class StandaloneHTMLBuilder(Builder):
             templatename = new_template
 
         # sort JS/CSS before rendering HTML
+        # pyrefly: ignore [bad-assignment]
         script_files: list[_JavaScript] = ctx['script_files']
+        # pyrefly: ignore [bad-assignment]
         css_files: list[_CascadingStyleSheet] = ctx['css_files']
 
         # Skip sorting if users modifies script_files directly (maybe via `html_context`).
@@ -1245,12 +1253,16 @@ class StandaloneHTMLBuilder(Builder):
         ensuredir(output_path.parent)
         try:
             output_path.write_text(
-                output, encoding=ctx['encoding'], errors='xmlcharrefreplace'
+                output,
+                # pyrefly: ignore [bad-argument-type]
+                encoding=ctx['encoding'],
+                errors='xmlcharrefreplace',
             )
         except OSError as err:
             logger.warning(__('error writing file %s: %s'), output_path, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
+            # pyrefly: ignore [bad-assignment]
             sourcename: str = ctx['sourcename']
             source_file_path = self._sources_dir / sourcename
             source_file_path.parent.mkdir(parents=True, exist_ok=True)

@@ -441,6 +441,7 @@ class DocFieldTransformer[ObjDescT]:
             # markup being written out
             content = [n for n in content if isinstance(n, (nodes.Inline, nodes.Text))]
             if content:
+                # pyrefly: ignore [unsupported-operation]
                 types.setdefault(typename, {})[fieldarg] = content
             return
 

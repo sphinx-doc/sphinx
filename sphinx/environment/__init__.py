@@ -275,6 +275,7 @@ class BuildEnvironment:
         # initialise domains
         if self.domains is None:
             # if we are unpickling an environment, we need to recreate the domains
+            # pyrefly: ignore [bad-assignment]
             self.domains = _DomainsContainer._from_environment(
                 self, registry=app.registry
             )
@@ -1184,4 +1185,5 @@ class _CurrentDocument:
         other_dict = dict(other) if not isinstance(other, dict) else other
         for dct in other_dict, kwargs:
             for key, value in dct.items():
+                # pyrefly: ignore [unsupported-operation]
                 self[key] = value

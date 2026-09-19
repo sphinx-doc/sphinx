@@ -24,6 +24,7 @@ class SphinxDanglingReferences(DanglingReferences):
             report_level = reporter.report_level
 
             # suppress INFO level messages for a while
+            # pyrefly: ignore [bad-assignment]
             reporter.report_level = max(reporter.WARNING_LEVEL, reporter.report_level)
             super().apply()
         finally:
