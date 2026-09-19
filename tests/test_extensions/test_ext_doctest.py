@@ -50,6 +50,38 @@ def test_highlight_language_python3(app: SphinxTestApp) -> None:
         assert node['language'] in {'python', 'pycon', 'none'}
 
 
+@pytest.mark.sphinx('doctest', testroot='ext-doctest-native')
+def test_native_doctest_blocks(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    assert isinstance(app.builder, DocTestBuilder)
+    assert app.statuscode == 0, f'failures in doctests:\n{app.status.getvalue()}'
+    assert app.builder.total_tries == 2
+    assert app.builder.total_failures == 0
+
+
+@pytest.mark.sphinx(
+    'doctest',
+    testroot='ext-doctest-native',
+    confoverrides={'doctest_test_doctest_blocks': ''},
+)
+def test_native_doctest_blocks_disabled(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    assert isinstance(app.builder, DocTestBuilder)
+    assert app.statuscode == 0
+    assert app.builder.total_tries == 0
+
+
+@pytest.mark.sphinx('html', testroot='ext-doctest-native')
+def test_indented_native_doctest_block_html(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    output = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<blockquote>' not in output
+    assert output.count('<span class="gp">&gt;&gt;&gt;') == 3
+
+
 def test_is_allowed_version() -> None:
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.4', '3.3') is True

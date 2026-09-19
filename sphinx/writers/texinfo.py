@@ -14,6 +14,7 @@ from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
+from sphinx.util.nodes import _parse_colwidth
 from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
@@ -1041,7 +1042,7 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_colspec(self, node: Element) -> None:
-        self.colwidths.append(node['colwidth'])
+        self.colwidths.append(_parse_colwidth(node['colwidth']))
         if len(self.colwidths) != self.n_cols:
             return
         self.body.append('\n\n@multitable ')

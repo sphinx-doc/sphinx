@@ -398,8 +398,8 @@ class Autosummary(SphinxDirective):
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
-        group.append(nodes.colspec('', colwidth=10))
-        group.append(nodes.colspec('', colwidth=90))
+        group.append(nodes.colspec('', colwidth='10'))
+        group.append(nodes.colspec('', colwidth='90'))
         body = nodes.tbody('')
         group.append(body)
 

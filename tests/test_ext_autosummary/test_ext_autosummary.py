@@ -557,6 +557,10 @@ def test_autosummary_generate(app):
         ],
     )
     assert_node(extract_node(doctree, 4, 0), addnodes.toctree, caption='An autosummary')
+    assert [node['colwidth'] for node in doctree[3].findall(nodes.colspec)] == [
+        '10',
+        '90',
+    ]
 
     assert len(extract_node(doctree, 3, 0, 0, 2)) == 8
     assert extract_node(doctree, 3, 0, 0, 2, 0).astext() == (

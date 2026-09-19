@@ -19,7 +19,11 @@ from sphinx.deprecation import _deprecation_warning
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import (
+    _is_doctest_block,
+    apply_source_workaround,
+    is_smartquotable,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -183,7 +187,7 @@ class HandleCodeBlocks(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         # move doctest blocks out of blockquotes
         for node in self.document.findall(nodes.block_quote):
-            if all(isinstance(child, nodes.doctest_block) for child in node.children):
+            if all(_is_doctest_block(child) for child in node.children):
                 node.replace_self(node.children)
         # combine successive doctest blocks
         # for node in self.document.findall(nodes.doctest_block):
@@ -278,6 +282,8 @@ class ExtraTranslatableNodes(SphinxTransform):
             return
 
         def is_translatable_node(node: Node) -> TypeIs[nodes.Element]:
+            if isinstance(node, nodes.literal_block) and _is_doctest_block(node):
+                return 'doctest-block' in targets
             return isinstance(node, target_nodes)
 
         for node in self.document.findall(is_translatable_node):
@@ -325,13 +331,16 @@ class UnreferencedFootnotesDetector(SphinxTransform):
 
 
 class DoctestTransform(SphinxTransform):
-    """Set "doctest" style to each doctest_block node"""
+    """Normalize the attributes of reStructuredText doctest blocks."""
 
     default_priority = 500
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(nodes.doctest_block):
             node['classes'].append('doctest')
+        for literal_node in self.document.findall(nodes.literal_block):
+            if _is_doctest_block(literal_node):
+                literal_node.setdefault('language', 'pycon')
 
 
 class FilterSystemMessages(SphinxTransform):

@@ -44,6 +44,16 @@ def test_texinfo(app: SphinxTestApp) -> None:
         raise AssertionError(msg) from exc
 
 
+@pytest.mark.sphinx('texinfo', testroot='table-colwidths')
+def test_table_with_explicit_colwidths(app: SphinxTestApp) -> None:
+    app.build()
+
+    output = (app.outdir / 'testprojectfortablecolumnwidths.texi').read_text(
+        encoding='utf8'
+    )
+    assert f'@multitable {{{"x" * 12}}} {{{"x" * 92}}}' in output
+
+
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')
 def test_texinfo_rubric(app: SphinxTestApp) -> None:
     app.build()

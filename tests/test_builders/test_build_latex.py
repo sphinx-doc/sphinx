@@ -262,6 +262,16 @@ def test_writer(app: SphinxTestApp) -> None:
     ) in result
 
 
+@pytest.mark.sphinx('latex', testroot='table-colwidths')
+def test_table_with_explicit_colwidths(app: SphinxTestApp) -> None:
+    app.build()
+
+    output = (app.outdir / 'testprojectfortablecolumnwidths.tex').read_text(
+        encoding='utf8'
+    )
+    assert r'\begin{tabular}[t]{\X{10}{100}\X{90}{100}}' in output
+
+
 @pytest.mark.sphinx('latex', testroot='basic')
 def test_latex_basic(app: SphinxTestApp) -> None:
     app.build(force_all=True)

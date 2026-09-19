@@ -107,6 +107,14 @@ def test_table_separator() -> None:
     assert repr(table).count('<Cell ') == 4
 
 
+@pytest.mark.sphinx('text', testroot='table-colwidths')
+def test_table_with_explicit_colwidths(app: SphinxTestApp) -> None:
+    app.build()
+
+    output = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    assert f'+{"-" * 12}+{"-" * 92}+' in output
+
+
 def test_table_cell() -> None:
     cell = Cell('Foo bar baz')
     cell.wrap(3)
