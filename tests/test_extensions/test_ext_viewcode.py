@@ -9,6 +9,10 @@ from typing import TYPE_CHECKING
 import pygments
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
+from sphinx.ext import viewcode
+from sphinx.util.parallel import parallel_available
+
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.testing.util import SphinxTestApp
@@ -57,6 +61,96 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     assert f'<span>    </span><span>{ds}</span></div>\n' in result
 
     return result
+
+
+def check_unused_viewcode_output(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    result = (app.outdir / 'zz-api.html').read_text(encoding='utf8')
+    assert 'viewcode-link' not in result
+    assert not (app.outdir / '_modules/viewcode_unused/_types.html').exists()
+    assert not (app.outdir / '_modules/index.html').exists()
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-viewcode-unused',
+    freshenv=True,
+    parallel=1,
+)
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_viewcode_unused_module_serial(app: SphinxTestApp) -> None:
+    check_unused_viewcode_output(app)
+
+
+@pytest.mark.skipif(
+    not parallel_available,
+    reason='parallel builds require multiprocessing on POSIX',
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-viewcode-unused',
+    freshenv=True,
+    parallel=2,
+)
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_viewcode_unused_module_parallel(app: SphinxTestApp) -> None:
+    check_unused_viewcode_output(app)
+
+    status = strip_escape_sequences(app.status.getvalue())
+    assert re.search(r'reading sources\.\.\. \[\s*\d+%\] \S+ \.\. \S+', status)
+
+    entry = app.env._viewcode_modules['viewcode_unused._types']  # type: ignore[attr-defined]
+    assert entry
+    assert entry[1] == {}
+    assert entry[2] == {}
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-viewcode',
+    freshenv=True,
+    verbosity=1,
+)
+def test_collect_pages_ignores_unused_modules(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    code = 'def function():\n    pass\n'
+    tags = {'function': ('def', 1, 2)}
+    entries = {
+        'sample': (code, tags, {}, 'sample'),
+        'sample.child': (code, tags, {'function': 'index'}, 'sample.child'),
+        'unavailable': False,
+    }
+    app.env._viewcode_modules = entries  # type: ignore[attr-defined]
+    monkeypatch.setattr(
+        viewcode,
+        'should_generate_module_page',
+        lambda _app, _modname: True,
+    )
+    app.status.seek(0)
+    app.status.truncate()
+
+    pages = {
+        pagename: context
+        for pagename, context, _template in viewcode.collect_pages(app)
+    }
+
+    assert set(pages) == {'_modules/sample/child', '_modules/index'}
+    assert pages['_modules/sample/child']['parents'] == [
+        {'link': '../index.html', 'title': 'Module code'}
+    ]
+
+    index_body = pages['_modules/index']['body']
+    assert '<a href="sample/child.html">sample.child</a>' in index_body
+    assert '<a href="sample.html">sample</a>' not in index_body
+    assert '<a href="unavailable.html">unavailable</a>' not in index_body
+
+    status = strip_escape_sequences(app.status.getvalue())
+    assert re.findall(r'highlighting module code\.\.\. .*', status) == [
+        'highlighting module code... [100%] sample.child'
+    ]
+    assert app.env._viewcode_modules is entries  # type: ignore[attr-defined]
 
 
 @pytest.mark.sphinx(

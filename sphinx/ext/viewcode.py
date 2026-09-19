@@ -288,18 +288,22 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
     highlighter = app.builder.highlighter  # type: ignore[attr-defined]
     urito = app.builder.get_relative_uri
 
-    modnames = set(env._viewcode_modules)
+    # Cached analyses without backlinks remain reusable, but need no output pages.
+    modules = {
+        modname: entry
+        for modname, entry in env._viewcode_modules.items()  # ty: ignore[unresolved-attribute]
+        if entry and entry[2]
+    }
+    modnames = set(modules)
 
     for modname, entry in status_iterator(
-        sorted(env._viewcode_modules.items()),  # ty: ignore[unresolved-attribute]
+        sorted(modules.items()),
         __('highlighting module code... '),
         'blue',
-        len(env._viewcode_modules),
+        len(modules),
         app.config.verbosity,
         operator.itemgetter(0),
     ):
-        if not entry:
-            continue
         if not should_generate_module_page(app, modname):
             continue
 
