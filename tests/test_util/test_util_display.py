@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx._cli.util import colour
 from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.util import logging
 from sphinx.util.display import (
@@ -58,6 +59,59 @@ def test_status_iterator_verbosity_0(
     assert 'testing ... [ 33%] hello\r' in output
     assert 'testing ... [ 67%] sphinx\r' in output
     assert 'testing ... [100%] world\r\n' in output
+
+
+@pytest.mark.sphinx('dummy', testroot='root')
+def test_status_iterator_no_control_sequences_when_colour_disabled(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    r"""``--no-color`` must suppress the cursor control sequences too.
+
+    Regression for #14565: ``status_iterator`` asked whether the terminal
+    *supports* colour, which stays true after an explicit ``disable_colour()``,
+    so ``--no-color`` still emitted ``ESC[2K`` and ``\r`` while ``NO_COLOR``
+    did not.
+    """
+    monkeypatch.setenv('FORCE_COLOR', '1')
+    monkeypatch.setattr(colour, '_COLOURING_DISABLED', True)
+    logging.setup(app, app.status, app.warning)
+
+    app.status.seek(0)
+    app.status.truncate(0)
+    yields = status_iterator(
+        ['hello', 'sphinx', 'world'], 'testing ... ', length=3, verbosity=0
+    )
+    assert list(yields) == ['hello', 'sphinx', 'world']
+
+    output = app.status.getvalue()
+    assert '\x1b[' not in output
+    assert '\r' not in output
+    assert 'testing ... [ 33%] hello\n' in output
+
+
+def test_colour_enabled_follows_disable_colour(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv('FORCE_COLOR', '1')
+
+    monkeypatch.setattr(colour, '_COLOURING_DISABLED', False)
+    assert colour.terminal_supports_colour()
+    assert colour.colour_enabled()
+
+    monkeypatch.setattr(colour, '_COLOURING_DISABLED', True)
+    # the terminal is still capable; colouring is merely turned off
+    assert colour.terminal_supports_colour()
+    assert not colour.colour_enabled()
+
+
+def test_colour_enabled_follows_terminal_support(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(colour, '_COLOURING_DISABLED', False)
+    monkeypatch.setenv('NO_COLOR', '1')
+
+    assert not colour.terminal_supports_colour()
+    assert not colour.colour_enabled()
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
