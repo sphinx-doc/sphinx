@@ -270,7 +270,16 @@ as long as the text::
    =================
 
 Normally, there are no heading levels assigned to certain characters as the
-structure is determined from the succession of headings.  However, this
+structure is determined from the succession of headings.
+
+.. note::
+
+   Underline-only adornment styles are distinct from overline-and-underline
+   styles that use the same character. For example, a section adorned with
+   ``=`` both above and below the title is treated as a different heading
+   level than a section adorned only with ``=`` below the title.
+
+However, this
 convention is used in `Python Developer's Guide for documenting
 <https://devguide.python.org/documentation/markup/#sections>`_ which you may
 follow:
