@@ -63,6 +63,9 @@ def document_toc(env: BuildEnvironment, docname: str, tags: Tags) -> Node:
         return nodes.paragraph()
 
     for node in toc.findall(nodes.reference):
+        if 'anchorname' not in node:
+            # not a ToC entry, but a reference nested within the entry's text
+            continue
         node['refuri'] = node['anchorname'] or '#'
     return toc
 
@@ -214,6 +217,9 @@ def _resolve_toctree(
     # set the target paths in the toctrees (they are not known at TOC
     # generation time)
     for refnode in newnode.findall(nodes.reference):
+        if 'anchorname' not in refnode:
+            # not a ToC entry, but a reference nested within the entry's text
+            continue
         if url_re.match(refnode['refuri']) is None:
             rel_uri = builder.get_relative_uri(docname, refnode['refuri'])
             refnode['refuri'] = rel_uri + refnode['anchorname']
@@ -447,7 +453,7 @@ def _toctree_standard_entry(
     if title and toc.children and len(toc.children) == 1:
         child = toc.children[0]
         for refnode in child.findall(nodes.reference):
-            if refnode['refuri'] == ref and not refnode['anchorname']:
+            if refnode.get('refuri') == ref and not refnode.get('anchorname'):
                 refnode.children[:] = [nodes.Text(title)]
     return toc, refdoc
 
@@ -465,8 +471,8 @@ def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
         elif isinstance(subnode, nodes.reference):
             # for <a>, identify which entries point to the current
             # document and therefore may not be collapsed
-            if subnode['refuri'] == docname:
-                if not subnode['anchorname']:
+            if subnode.get('refuri') == docname:
+                if not subnode.get('anchorname'):
                     # give the whole branch a 'current' class
                     # (useful for styling it differently)
                     branchnode: Element = subnode

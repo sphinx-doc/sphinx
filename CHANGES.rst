@@ -13,6 +13,10 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14514: Fix a build crash (``KeyError: 'refuri'`` or ``KeyError:
+  'anchorname'``) when a section title contains a :rst:role:`download` role.
+  Patch by Kayvan Zahiri
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
