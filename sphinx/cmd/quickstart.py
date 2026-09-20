@@ -48,6 +48,15 @@ else:
     else:
         readline.parse_and_bind('tab: complete')
 
+COMMAND_DESCRIPTION = __(
+    '\n'
+    'Generate required files for a Sphinx project.\n'
+    '\n'
+    'sphinx-quickstart is an interactive tool that asks some questions about your\n'
+    'project and then generates a complete documentation directory and sample\n'
+    'Makefile to be used with sphinx-build.\n',
+)
+
 EXTENSIONS = {
     'autodoc': __('automatically insert docstrings from modules'),
     'doctest': __('automatically test code snippets in doctest blocks'),
@@ -573,20 +582,15 @@ def valid_dir(d: dict[str, Any]) -> bool:
 
 
 def get_parser() -> argparse.ArgumentParser:
-    description = __(
-        '\n'
-        'Generate required files for a Sphinx project.\n'
-        '\n'
-        'sphinx-quickstart is an interactive tool that asks some questions about your\n'
-        'project and then generates a complete documentation directory and sample\n'
-        'Makefile to be used with sphinx-build.\n',
-    )
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
-        description=description,
+        description=str(COMMAND_DESCRIPTION),  # str() for resolving TranslationProxy
     )
+    return set_up_parser(parser)
 
+
+def set_up_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument(
         '-q',
         '--quiet',
@@ -752,6 +756,10 @@ def main(argv: Sequence[str] = (), /) -> int:
     except SystemExit as err:
         return err.code  # type: ignore[return-value]
 
+    return run(args)
+
+
+def run(args: argparse.Namespace) -> int:
     d = vars(args)
     # delete None or False value
     d = {k: v for k, v in d.items() if v is not None}
