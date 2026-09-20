@@ -4,14 +4,19 @@ from __future__ import annotations
 
 import re
 import sys
-from typing import TYPE_CHECKING
+from pathlib import Path
+from subprocess import CompletedProcess
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, cast
+from unittest import mock
 
 import pytest
 
-from sphinx.ext.graphviz import ClickableMapDefinition
+from sphinx.ext.graphviz import ClickableMapDefinition, render_dot
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
+    from sphinx.writers.html5 import HTML5Translator
 
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
@@ -218,3 +223,40 @@ def test_graphviz_parse_mapfile() -> None:
     assert cmap.id == 'inheritance66ff5471b9'
     assert len(cmap.clickable) == 0
     assert cmap.generate_clickable_map() == ''
+
+
+@mock.patch('sphinx.ext.graphviz.logger')
+def test_render_dot_warns_on_stderr(
+    logger: mock.Mock, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    outdir = tmp_path / '_build'
+    srcdir = tmp_path / 'src'
+    srcdir.mkdir()
+    builder = SimpleNamespace(
+        config=SimpleNamespace(graphviz_dot='dot', graphviz_dot_args=()),
+        imgpath='_images',
+        imagedir='_images',
+        outdir=outdir,
+        srcdir=srcdir,
+    )
+    translator = cast('HTML5Translator', SimpleNamespace(builder=builder))
+
+    def fake_run(args: list[str], **_kwargs: object) -> CompletedProcess[bytes]:
+        output_path = next(Path(arg[2:]) for arg in args if arg.startswith('-o'))
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_bytes(b'png')
+        return CompletedProcess(
+            args,
+            returncode=0,
+            stdout=b'',
+            stderr=b'Warning: gvrender_set_style: unsupported style INVALID\n',
+        )
+
+    monkeypatch.setattr('sphinx.ext.graphviz.subprocess.run', fake_run)
+
+    render_dot(translator, 'digraph { a -> b }', {'docname': 'index'}, 'png')
+
+    logger.warning.assert_called_once_with(
+        'dot emitted the following on stderr:\n%s',
+        'Warning: gvrender_set_style: unsupported style INVALID',
+    )
