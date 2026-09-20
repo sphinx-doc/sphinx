@@ -351,6 +351,16 @@ def render_dot(
     return relfn, outfn
 
 
+def _mark_graphviz_error_for_reread(
+    self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
+    options: dict[str, Any],
+) -> None:
+    """Force the source document to be re-read on the next build."""
+    docname = options.get('docname', getattr(self.builder, 'current_docname', None))
+    if isinstance(docname, str):
+        self.builder.env.reread_always.add(docname)
+
+
 def render_dot_html(
     self: HTML5Translator,
     node: graphviz,
@@ -370,6 +380,7 @@ def render_dot_html(
     try:
         fname, outfn = render_dot(self, code, options, format, prefix, filename)
     except GraphvizError as exc:
+        _mark_graphviz_error_for_reread(self, options)
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
 
@@ -433,6 +444,7 @@ def render_dot_latex(
     try:
         fname, _outfn = render_dot(self, code, options, 'pdf', prefix, filename)
     except GraphvizError as exc:
+        _mark_graphviz_error_for_reread(self, options)
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
 
@@ -477,6 +489,7 @@ def render_dot_texinfo(
     try:
         fname, _outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
+        _mark_graphviz_error_for_reread(self, options)
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
     if fname is not None:
