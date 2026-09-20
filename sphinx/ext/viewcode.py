@@ -188,14 +188,15 @@ def env_merge_info(
         env._viewcode_modules = {}  # type: ignore[attr-defined]
     # now merge in the information from the subprocess
     for modname, entry in other._viewcode_modules.items():  # ty: ignore[unresolved-attribute]
-        if modname not in env._viewcode_modules:  # type: ignore[attr-defined]
+        if not entry or not entry[2]:
+            continue
+        if modname not in env._viewcode_modules or not env._viewcode_modules[modname]:  # type: ignore[attr-defined]
             env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]
         else:
-            if env._viewcode_modules[modname]:  # type: ignore[attr-defined]
-                used = env._viewcode_modules[modname][2]  # type: ignore[attr-defined]
-                for fullname, docname in entry[2].items():
-                    if fullname not in used:
-                        used[fullname] = docname
+            used = env._viewcode_modules[modname][2]  # type: ignore[attr-defined]
+            for fullname, docname in entry[2].items():
+                if fullname not in used:
+                    used[fullname] = docname
 
 
 def env_purge_doc(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
@@ -288,18 +289,24 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
     highlighter = app.builder.highlighter  # type: ignore[attr-defined]
     urito = app.builder.get_relative_uri
 
-    modnames = set(env._viewcode_modules)
+    modules = {
+        modname: entry
+        for modname, entry in env._viewcode_modules.items()  # ty: ignore[unresolved-attribute]
+        if entry and entry[2]
+    }
+    if not modules:
+        return
+
+    modnames = set(modules)
 
     for modname, entry in status_iterator(
-        sorted(env._viewcode_modules.items()),  # ty: ignore[unresolved-attribute]
+        sorted(modules.items()),
         __('highlighting module code... '),
         'blue',
-        len(env._viewcode_modules),
+        len(modules),
         app.config.verbosity,
         operator.itemgetter(0),
     ):
-        if not entry:
-            continue
         if not should_generate_module_page(app, modname):
             continue
 
