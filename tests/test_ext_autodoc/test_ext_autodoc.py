@@ -1771,6 +1771,29 @@ def test_enum_inherited_custom_name_property(autodoc_enum_options):
     ]
 
 
+def test_attribute_with_composite_flag_value() -> None:
+    # A composite enum.Flag value (e.g. flag1 | flag2) is not a single
+    # canonically named member; collapsing it to its raw int .value shows a
+    # bare, undecodable integer instead of the member names it's made of.
+    # Regression test for #14688.
+    actual = do_autodoc('attribute', 'target.enums.ClassWithFlagAttribute.combo_flag')
+    assert actual == [
+        '',
+        '.. py:attribute:: ClassWithFlagAttribute.combo_flag',
+        '   :module: target.enums',
+        '   :type: ~target.enums.FlagCls',
+        '   :value: <FlagCls.flag1|flag2: 3>',
+        '',
+        '   doc for combo_flag',
+        '',
+    ]
+
+    # a *single* Flag member is unaffected: still collapsed to its raw value
+    fmt = _EnumFormatter('FlagCls')
+    actual = do_autodoc('attribute', fmt.subtarget('flag1'))
+    assert actual == fmt.member('flag1', 1, 'doc for flag1', indent=0)
+
+
 def test_descriptor_class() -> None:
     options = {'members': 'CustomDataDescriptor,CustomDataDescriptor2'}
     actual = do_autodoc('module', 'target.descriptor', options=options)

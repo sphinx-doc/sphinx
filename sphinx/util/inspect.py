@@ -211,6 +211,14 @@ def isenumattribute(x: Any) -> TypeIs[enum.Enum]:
     return isinstance(x, enum.Enum)
 
 
+def is_composite_flag_member(x: Any) -> TypeIs[enum.Flag]:
+    """Check if the object is a :class:`enum.Flag` combination of members
+    (e.g. ``Color.RED | Color.BLUE``) rather than a single, canonically
+    named member.
+    """
+    return isinstance(x, enum.Flag) and x not in type(x).__members__.values()
+
+
 def unpartial(obj: Any) -> Any:
     """Get an original object from a partial-like object.
 
