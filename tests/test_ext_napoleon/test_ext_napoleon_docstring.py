@@ -1341,6 +1341,43 @@ Do as you please
 """
         assert str(actual) == expected
 
+    def test_google_class_section_order_is_source_order(self):
+        """Lock in source-order rendering of Google-style class docstring sections.
+
+        GoogleDocstring._parse renders sections in source order, just like
+        NumpyDocstring. This test documents that behavior so a future
+        reordering change is a deliberate, visible diff.
+        """
+        docstring = cleandoc("""
+            Summary line.
+
+            Args:
+                x (int): Input.
+
+            Notes:
+                Some notes.
+
+            Attributes:
+                attr1 (int): First attribute.
+
+            Example:
+                >>> pass
+            """)
+        config = Config()
+        actual = GoogleDocstring(docstring, config, app=None, what='class', obj=object)
+        rendered = str(actual)
+        # Search for content unique to each section rather than header names,
+        # because Napoleon renames some headers during rendering (e.g. 'Args'
+        # is rendered as 'Parameters'). The content strings are stable.
+        pos_args = rendered.find('Input.')
+        pos_notes = rendered.find('Some notes.')
+        pos_attributes = rendered.find('First attribute.')
+        pos_example = rendered.find('>>> pass')
+        assert 0 < pos_args < pos_notes < pos_attributes < pos_example, (
+            f'Google sections out of source order: args={pos_args}, '
+            f'notes={pos_notes}, attributes={pos_attributes}, example={pos_example}'
+        )
+
 
 class TestNumpyDocstring:
     docstrings = [
@@ -2814,6 +2851,54 @@ Sample class with PEP 526 annotations and numpy docstring
 """
         print(actual)
         assert str(actual) == expected
+
+    def test_class_section_order_is_source_order(self):
+        """Lock in the current source-order rendering of class docstring sections.
+
+        Napoleon's ``NumpyDocstring._parse`` renders sections in the order they
+        appear in the source docstring; it does not reorder sections to match
+        the numpydoc 1.8+ convention (Attributes/Methods directly after
+        Parameters). This test documents the current behavior so that any
+        future reordering change is a deliberate, visible diff rather than a
+        silent regression. See sphinx-doc/sphinx#13180 for the feature
+        request to reorder.
+        """
+        docstring = cleandoc("""
+            Summary line.
+
+            Parameters
+            ----------
+            x : int
+                Input.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            attr1 : int
+                First attribute.
+
+            Examples
+            --------
+            >>> pass
+            """)
+        config = Config()
+        actual = NumpyDocstring(docstring, config, app=None, what='class', obj=object)
+        rendered = str(actual)
+        # Search for content unique to each section rather than header names,
+        # because Napoleon renames some headers during rendering (e.g. 'Args'
+        # is rendered as 'Parameters' in Google style). The content strings
+        # are stable across rendering versions.
+        pos_parameters = rendered.find('Input.')
+        pos_notes = rendered.find('Some notes.')
+        pos_attributes = rendered.find('First attribute.')
+        pos_examples = rendered.find('>>> pass')
+        assert 0 < pos_parameters < pos_notes < pos_attributes < pos_examples, (
+            f'sections out of source order: parameters={pos_parameters}, '
+            f'notes={pos_notes}, attributes={pos_attributes}, examples={pos_examples}'
+        )
 
 
 @pytest.mark.sphinx(
