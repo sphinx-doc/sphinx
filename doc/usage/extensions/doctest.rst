@@ -40,6 +40,9 @@ There are two kinds of test blocks:
 * *code-output-style* blocks consist of an ordinary piece of Python code, and
   optionally, a piece of output for that code.
 
+The following directives that build visible code blocks all also have the
+options from :rst:dir:`code-block` (e.g. ``emphasize-lines``, ``caption``,
+etc.).
 
 Directives
 ----------
