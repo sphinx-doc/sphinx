@@ -13,6 +13,13 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #11362: autosummary: Fix resolution failures on case-insensitive filesystems
+  (Windows and macOS) when a class and a module differ only by case, such as
+  a class ``pkg.Foo`` defined in ``pkg/foo.py``.  Names are now resolved by
+  attribute access where possible instead of importing ``pkg.Foo`` as a
+  module, which could clobber the class attribute with the mis-cased module.
+  Patch by Eric Larson
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
