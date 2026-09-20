@@ -2885,7 +2885,7 @@ Sample class with PEP 526 annotations and numpy docstring
             >>> pass
             """)
         config = Config()
-        actual = NumpyDocstring(docstring, config, app=None, what='class', object=object)
+        actual = NumpyDocstring(docstring, config, app=None, what='class', obj=object)
         rendered = str(actual)
         # Search for content unique to each section rather than header names,
         # because Napoleon renames some headers during rendering (e.g. 'Args'
