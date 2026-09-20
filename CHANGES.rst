@@ -7,6 +7,9 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
+* #13621: linkcheck: Fix false "Anchor not found" errors for valid URLs with encoded
+  characters in fragment identifiers.
+  Patch by Eric Nordlund.
 
 * #14229: Fix JavaScript search for languages whose stemmer class name
   does not match the language name, such as Chinese (which reuses the
