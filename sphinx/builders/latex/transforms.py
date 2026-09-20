@@ -440,10 +440,20 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.unrestrict(node)
 
     def depart_table(self, node: nodes.table) -> None:
-        tbody = next(node.findall(nodes.tbody))
-        for footnote in reversed(self.table_footnotes):
-            fntext = footnotetext('', *footnote.children, ids=footnote['ids'])
-            tbody.insert(0, fntext)
+        tbody = next(node.findall(nodes.tbody), None)
+        if tbody is not None:
+            for footnote in reversed(self.table_footnotes):
+                fntext = footnotetext('', *footnote.children, ids=footnote['ids'])
+                tbody.insert(0, fntext)
+        else:
+            # If there is no tbody (e.g. a table with only header rows),
+            # place any collected footnotes after the table node instead.
+            table_parent = node.parent
+            if table_parent is not None:
+                idx = table_parent.index(node)
+                for i, footnote in enumerate(self.table_footnotes):
+                    fntext = footnotetext('', *footnote.children, ids=footnote['ids'])
+                    table_parent.insert(idx + i + 1, fntext)
 
         self.table_footnotes = []
 
