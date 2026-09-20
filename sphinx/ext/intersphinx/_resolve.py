@@ -28,7 +28,10 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain
     from sphinx.domains._domains_container import _DomainsContainer
     from sphinx.environment import BuildEnvironment
-    from sphinx.ext.intersphinx._shared import InventoryName
+    from sphinx.ext.intersphinx._shared import (
+        InventoryName,
+        _CaseInsensitiveIndex,
+    )
     from sphinx.util.inventory import _InventoryItem
     from sphinx.util.typing import Inventory, RoleFunction
 
@@ -80,6 +83,7 @@ def _create_element_from_result(
 def _resolve_reference_in_domain_by_target(
     inv_name: InventoryName | None,
     inventory: Inventory,
+    ci_index: _CaseInsensitiveIndex,
     domain_name: str,
     objtypes: Iterable[str],
     target: str,
@@ -98,10 +102,7 @@ def _resolve_reference_in_domain_by_target(
             # Some types require case insensitive matches:
             # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
             # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
-            target_lower = target.lower()
-            insensitive_matches = list(
-                filter(lambda k: k.lower() == target_lower, inventory[objtype].keys())
-            )
+            insensitive_matches = ci_index.matches(objtype, target.lower())
             if len(insensitive_matches) > 1:
                 data_items = {
                     inventory[objtype][match] for match in insensitive_matches
@@ -144,6 +145,7 @@ def _resolve_reference_in_domain_by_target(
 def _resolve_reference_in_domain(
     inv_name: InventoryName | None,
     inventory: Inventory,
+    ci_index: _CaseInsensitiveIndex,
     honor_disabled_refs: bool,
     disabled_reftypes: Set[str],
     domain: Domain,
@@ -177,7 +179,14 @@ def _resolve_reference_in_domain(
 
     # without qualification
     res = _resolve_reference_in_domain_by_target(
-        inv_name, inventory, domain_name, objtypes, node['reftarget'], node, contnode
+        inv_name,
+        inventory,
+        ci_index,
+        domain_name,
+        objtypes,
+        node['reftarget'],
+        node,
+        contnode,
     )
     if res is not None:
         return res
@@ -187,7 +196,14 @@ def _resolve_reference_in_domain(
     if full_qualified_name is None:
         return None
     return _resolve_reference_in_domain_by_target(
-        inv_name, inventory, domain_name, objtypes, full_qualified_name, node, contnode
+        inv_name,
+        inventory,
+        ci_index,
+        domain_name,
+        objtypes,
+        full_qualified_name,
+        node,
+        contnode,
     )
 
 
@@ -195,6 +211,7 @@ def _resolve_reference(
     inv_name: InventoryName | None,
     domains: _DomainsContainer,
     inventory: Inventory,
+    ci_index: _CaseInsensitiveIndex,
     honor_disabled_refs: bool,
     disabled_reftypes: Set[str],
     node: pending_xref,
@@ -215,6 +232,7 @@ def _resolve_reference(
             res = _resolve_reference_in_domain(
                 inv_name,
                 inventory,
+                ci_index,
                 honor_disabled_refs,
                 disabled_reftypes,
                 domain,
@@ -244,6 +262,7 @@ def _resolve_reference(
         return _resolve_reference_in_domain(
             inv_name,
             inventory,
+            ci_index,
             honor_disabled_refs,
             disabled_reftypes,
             domain,
@@ -270,10 +289,12 @@ def resolve_reference_in_inventory(
     Requires ``inventory_exists(env, inv_name)``.
     """
     assert inventory_exists(env, inv_name)
+    inventories = InventoryAdapter(env)
     return _resolve_reference(
         inv_name,
         env.domains,
-        InventoryAdapter(env).named_inventory[inv_name],
+        inventories.named_inventory[inv_name],
+        inventories.case_insensitive_index(inv_name),
         False,
         frozenset(env.config.intersphinx_disabled_reftypes),
         node,
@@ -291,10 +312,12 @@ def resolve_reference_any_inventory(
 
     Resolution is tried with the target as is in any inventory.
     """
+    inventories = InventoryAdapter(env)
     return _resolve_reference(
         None,
         env.domains,
-        InventoryAdapter(env).main_inventory,
+        inventories.main_inventory,
+        inventories.case_insensitive_index(None),
         honor_disabled_refs,
         frozenset(env.config.intersphinx_disabled_reftypes),
         node,

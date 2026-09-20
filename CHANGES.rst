@@ -12,6 +12,11 @@ Bugs fixed
   does not match the language name, such as Chinese (which reuses the
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
+* intersphinx: Use an index for the case-insensitive ``std:label`` and
+  ``std:term`` fallback lookup, instead of scanning every inventory entry
+  on each miss. This is speed-up for projects with many or large ``std``
+  inventories.
+  Patch by Eric Larson.
 
 
 Release 9.1.0 (released Dec 31, 2025)
