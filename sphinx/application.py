@@ -1275,12 +1275,13 @@ class Sphinx:
           interpreted.
         - Create a new role (called *rolename*) to cross-reference to these
           object descriptions.
-        - If you provide *parse_node*, it must be a function that takes a
-          string and a docutils node, and it must populate the node with
-          children parsed from the string.  It must then return the name of the
-          item to be used in cross-referencing and index entries.  See the
-          :file:`conf.py` file in the source for this documentation for an
-          example.
+        - If you provide *parse_node*, it must be a function with the signature
+          ``parse_node(env, sig, signode) -> str``.  *env* is the current
+          build environment, *sig* is the signature string, and *signode* is
+          the signature node.  The function must populate *signode* with
+          children parsed from *sig* and return the name of the item to be used
+          in cross-referencing and index entries.  See the :file:`conf.py` file
+          in the source for this documentation for an example.
         - The *objname* (if not given, will default to *directivename*) names
           the type of object.  It is used when listing objects, e.g. in search
           results.
