@@ -141,7 +141,7 @@ type-stubs = [
     "types-docutils==0.22.3.20251115",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.19.0.20251121",
-    "types-requests==2.32.4.20250913",
+    "types-requests==2.32.4.20260107",
     "types-urllib3==1.26.25.14",
 ]
 
