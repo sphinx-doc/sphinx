@@ -12,6 +12,10 @@ Bugs fixed
   does not match the language name, such as Chinese (which reuses the
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
+* #9093: html: Import ``basic.css`` in the ``agogo``, ``epub``, ``nonav``,
+  ``scrolls`` and ``traditional`` themes so foundational styles in
+  ``basic`` propagate automatically.
+  Patch by sudorm-rf0
 
 
 Release 9.1.0 (released Dec 31, 2025)
