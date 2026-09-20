@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 
     from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.ext.autodoc._shared import _AttrGetter
+    from sphinx.testing.util import SphinxTestApp
 
 pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
@@ -1902,6 +1903,40 @@ def test_partialfunction() -> None:
         '   docstring of func3',
         '',
     ]
+
+
+def test_partialfunction_of_imported_function() -> None:
+    options = {'members': None}
+    actual = do_autodoc('module', 'target.external_partial', options=options)
+    assert actual == [
+        '',
+        '.. py:module:: target.external_partial',
+        '',
+        '',
+        '.. py:function:: local_partial(b, c)',
+        '   :module: target.external_partial',
+        '',
+        '   docstring of func1',
+        '',
+    ]
+
+
+@pytest.mark.sphinx(
+    'text',
+    testroot='ext-autodoc',
+    confoverrides={'autodoc_use_legacy_class_based': True},
+    copy_test_root=True,
+)
+def test_partialfunction_of_imported_function_legacy(app: SphinxTestApp) -> None:
+    (app.srcdir / 'index.rst').write_text(
+        '.. automodule:: target.external_partial\n   :members:\n',
+        encoding='utf-8',
+    )
+    app.build()
+
+    content = (app.outdir / 'index.txt').read_text(encoding='utf-8')
+    assert 'local_partial(b, c)' in content
+    assert 'func1(a, b, c)' not in content
 
 
 def test_imported_partialfunction_should_not_shown_without_imported_members() -> None:
