@@ -176,3 +176,15 @@ def test_build_specific(app: SphinxTestApp) -> None:
         method='specific',
         summary='3 source files given on command line',
     )
+
+
+@pytest.mark.sphinx('dummy', testroot='root')
+def test_build_specific_single_file(app: SphinxTestApp) -> None:
+    app.builder.build = Mock()  # type: ignore[method-assign,misc]
+    app.build(False, [app.srcdir / 'index.txt'])
+
+    app.builder.build.assert_called_with(
+        ['index'],
+        method='specific',
+        summary='1 source file given on command line',
+    )

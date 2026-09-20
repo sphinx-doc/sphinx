@@ -364,7 +364,12 @@ class Builder:
 
         self.build(
             docnames,
-            summary=__('%d source files given on command line') % len(docnames),
+            summary=__(
+                '%d source file given on command line'
+                if len(docnames) == 1
+                else '%d source files given on command line'
+            )
+            % len(docnames),
             method='specific',
         )
 
@@ -380,7 +385,11 @@ class Builder:
             to_build = set(to_build)
             self.build(
                 to_build,
-                summary=__('targets for %d source files that are out of date')
+                summary=__(
+                    'target for %d source file that is out of date'
+                    if len(to_build) == 1
+                    else 'targets for %d source files that are out of date'
+                )
                 % len(to_build),
                 method='update',
             )
