@@ -9,7 +9,7 @@ import pytest
 from docutils.utils import DependencyList
 
 from sphinx.testing.util import SphinxTestApp
-from sphinx.versioning import add_uids, get_ratio, merge_doctrees
+from sphinx.versioning import VERSIONING_RATIO, add_uids, get_ratio, merge_doctrees
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
@@ -52,8 +52,8 @@ def is_paragraph(node: nodes.Node) -> bool:
 
 
 def test_get_ratio() -> None:
-    assert get_ratio('', 'a')
-    assert get_ratio('a', '')
+    assert get_ratio('', 'a') == VERSIONING_RATIO
+    assert get_ratio('a', '') == VERSIONING_RATIO
 
 
 def test_add_uids() -> None:
