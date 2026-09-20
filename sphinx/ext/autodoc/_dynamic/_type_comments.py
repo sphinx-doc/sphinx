@@ -64,6 +64,15 @@ def _ensure_annotations_from_type_comments(obj: Any) -> None:
         _update_module_annotations_from_type_comments(obj)
 
 
+def _annotations_for_type_comment_update(cls: type) -> dict[str, Any] | None:
+    """Return a writable annotation copy unless the class cleared it explicitly."""
+    namespace = vars(cls)
+    if '__annotations__' in namespace and namespace['__annotations__'] == {}:
+        return None
+
+    return dict(inspect.getannotations(cls))
+
+
 def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
     """Adds type comment annotations for a single module.
 
@@ -72,7 +81,7 @@ def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
     mod_annotations = dict(inspect.getannotations(mod))
     mod.__annotations__ = mod_annotations
 
-    class_annotations: dict[str, dict[str, Any]] = {}
+    class_annotations: dict[str, dict[str, Any] | None] = {}
 
     try:
         analyzer = ModuleAnalyzer.for_module(mod.__name__)
@@ -82,22 +91,23 @@ def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
             if not classname:
                 annotations = mod_annotations
             else:
-                cls_annotations = class_annotations.get(classname)
-                if cls_annotations is None:
+                if classname not in class_annotations:
                     try:
                         cls = mod
                         for part in classname.split('.'):
                             cls = safe_getattr(cls, part)
-                        annotations = dict(inspect.getannotations(cls))
-                        # Ignore errors setting __annotations__
-                        with contextlib.suppress(TypeError, AttributeError):
-                            cls.__annotations__ = annotations
+                        annotations = _annotations_for_type_comment_update(cls)
+                        if annotations is not None:
+                            # Ignore errors setting __annotations__
+                            with contextlib.suppress(TypeError, AttributeError):
+                                cls.__annotations__ = annotations
                     except AttributeError:
                         annotations = {}
                     class_annotations[classname] = annotations
                 else:
-                    annotations = cls_annotations
-            annotations.setdefault(attrname, annotation)
+                    annotations = class_annotations[classname]
+            if annotations is not None:
+                annotations.setdefault(attrname, annotation)
     except PycodeError:
         pass
 
