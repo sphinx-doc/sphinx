@@ -1341,6 +1341,40 @@ Do as you please
 """
         assert str(actual) == expected
 
+    def test_google_class_section_order_is_source_order(self):
+        """Lock in source-order rendering of Google-style class docstring sections.
+
+        GoogleDocstring._parse renders sections in source order, just like
+        NumpyDocstring. This test documents that behavior so a future
+        reordering change is a deliberate, visible diff.
+        """
+        docstring = cleandoc("""
+            Summary line.
+
+            Args:
+                x (int): Input.
+
+            Notes:
+                Some notes.
+
+            Attributes:
+                attr1 (int): First attribute.
+
+            Example:
+                >>> pass
+            """)
+        config = Config()
+        actual = GoogleDocstring(docstring, config, app=None, what='class', obj=object)
+        rendered = str(actual)
+        pos_args = rendered.find('Args')
+        pos_notes = rendered.find('Notes')
+        pos_attributes = rendered.find('Attributes')
+        pos_example = rendered.find('Example')
+        assert 0 < pos_args < pos_notes < pos_attributes < pos_example, (
+            f'Google sections out of source order: args={pos_args}, '
+            f'notes={pos_notes}, attributes={pos_attributes}, example={pos_example}'
+        )
+
 
 class TestNumpyDocstring:
     docstrings = [
