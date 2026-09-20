@@ -84,6 +84,7 @@ Contributors
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Kurt McKee -- documentation updates
 * Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
+* Lisandro Dalcin - autodoc/autosummary improvements
 * Louis Maddox -- better docstrings
 * Łukasz Langa -- partial support for autodoc
 * Marco Buttu -- doctest extension (pyversion option)
