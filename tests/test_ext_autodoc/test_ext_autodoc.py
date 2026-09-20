@@ -6,10 +6,13 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import importlib.machinery
+import importlib.util
 import itertools
 import logging
 import pathlib
 import sys
+import types
 from typing import TYPE_CHECKING
 from warnings import catch_warnings
 
@@ -18,6 +21,7 @@ import pytest
 from sphinx.environment import _CurrentDocument
 from sphinx.ext.autodoc._directive_options import (
     _AutoDocumenterOptions,
+    _process_documenter_options,
     inherited_members_option,
 )
 from sphinx.ext.autodoc._dynamic._docstrings import _get_docstring_lines
@@ -39,6 +43,7 @@ except ImportError:
     pyximport = None
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping
     from typing import Any
 
     from sphinx.ext.autodoc._property_types import _AutodocObjType
@@ -3219,3 +3224,70 @@ def test_no_index_entry() -> None:
     # functions respect config-level no-index-entry
     actual = do_autodoc('function', 'target.functions.func', config=config)
     assert '   :no-index-entry:' in actual
+
+
+@pytest.fixture
+def reexported_extension_module(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[pathlib.Path]:
+    """A stand-in for a compiled extension module, re-exported from a package."""
+    binary = tmp_path / f'_ext_impl{importlib.machinery.EXTENSION_SUFFIXES[0]}'
+    binary.touch()
+
+    def ext_func() -> None:
+        """Defined in an extension module."""
+
+    ext_func.__module__ = '_ext_impl'
+    ext_module = types.ModuleType('_ext_impl')
+    ext_module.__file__ = str(binary)
+    ext_module.__spec__ = importlib.util.spec_from_file_location('_ext_impl', binary)
+    ext_module.ext_func = ext_func  # type: ignore[attr-defined]
+    # the ``from`` import below resolves against sys.modules, so nothing is loaded
+    monkeypatch.setitem(sys.modules, '_ext_impl', ext_module)
+
+    (tmp_path / '_ext_reexport.py').write_text(
+        'from _ext_impl import ext_func\n', encoding='utf-8'
+    )
+    monkeypatch.syspath_prepend(str(tmp_path))
+    yield binary
+    sys.modules.pop('_ext_reexport', None)
+
+
+def _record_dependencies(
+    obj_type: _AutodocObjType,
+    name: str,
+    *,
+    options: dict[str, Any] | None = None,
+    ref_context: Mapping[str, str | None] = {},
+) -> set[str]:
+    record_dependencies: set[str] = set()
+    _auto_document_object(
+        config=_AutodocConfig(),
+        current_document=_CurrentDocument(docname='index'),
+        events=FakeEvents(),
+        get_attr=safe_getattr,
+        more_content=None,
+        name=name,
+        obj_type=obj_type,
+        options=_process_documenter_options(
+            obj_type=obj_type, default_options={}, options=options or {}
+        ),
+        record_dependencies=record_dependencies,
+        ref_context=ref_context,
+        reread_always=set(),
+    )
+    return record_dependencies
+
+
+def test_extension_module_dependency(reexported_extension_module: pathlib.Path) -> None:
+    # an extension module has no source, so the binary itself is the dependency
+
+    # documented as a member of the module re-exporting it
+    deps = _record_dependencies('module', '_ext_reexport', options={'members': None})
+    assert str(reexported_extension_module) in deps
+
+    # documented directly, with no parent module to analyse instead
+    deps = _record_dependencies(
+        'function', 'ext_func', ref_context={'py:module': '_ext_reexport'}
+    )
+    assert str(reexported_extension_module) in deps
