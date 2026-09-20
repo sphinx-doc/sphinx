@@ -4,6 +4,9 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #14541: linkcheck: Treat URI schemes as case-insensitive (RFC 3986), so
+  uppercase schemes such as ``FTP://`` are no longer reported as ``broken``.
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
