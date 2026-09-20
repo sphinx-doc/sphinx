@@ -483,12 +483,24 @@ def _reorder_index_target_nodes(start_node: nodes.target) -> None:
     Find all consecutive target and index nodes starting from ``start_node``,
     and move all index nodes to before the first target node.
     """
-    nodes_to_reorder: list[nodes.target | addnodes.index] = []
+    parent = start_node.parent
+    if parent is None:
+        return
+    first_idx = parent.index(start_node)
+    if first_idx > 0 and isinstance(parent[first_idx - 1], nodes.target):
+        # Not the first target node of its run: the call for the run's first
+        # target node already sorted this suffix. Without this check, a run of
+        # N consecutive target nodes (e.g. a long list of substitution targets
+        # in an included file) is re-collected and re-sorted N times.
+        # NB an index node before ``start_node`` must not skip: index nodes
+        # are only moved before the *first target* of a run, so a run such as
+        # <index><target><index><target> sorts from its first target onwards.
+        return
 
     # Note that we cannot use 'condition' to filter,
     # as we want *consecutive* target & index nodes.
-    node: nodes.Node
-    for node in start_node.findall(descend=False, siblings=True):
+    nodes_to_reorder: list[nodes.target | addnodes.index] = [start_node]
+    for node in parent.children[first_idx + 1 :]:
         if isinstance(node, (nodes.target, addnodes.index)):
             nodes_to_reorder.append(node)
             continue
@@ -497,12 +509,19 @@ def _reorder_index_target_nodes(start_node: nodes.target) -> None:
     if len(nodes_to_reorder) < 2:
         return  # Nothing to reorder
 
-    parent = nodes_to_reorder[0].parent
-    if parent == nodes_to_reorder[-1].parent:
-        first_idx = parent.index(nodes_to_reorder[0])
-        last_idx = parent.index(nodes_to_reorder[-1])
-        if first_idx + len(nodes_to_reorder) - 1 == last_idx:
-            parent[first_idx : last_idx + 1] = sorted(nodes_to_reorder, key=_sort_key)
+    reordered = sorted(nodes_to_reorder, key=_sort_key)
+    if all(
+        node is reordered_node
+        for node, reordered_node in zip(nodes_to_reorder, reordered, strict=True)
+    ):
+        # Already sorted, which is the common case: the directives that emit
+        # adjacent index and target nodes (``ObjectDescription``, the ``index``
+        # directive, ...) all emit the index node first. This is an
+        # opportunistic fast path, not a requirement on those directives --
+        # skipping the reassignment below merely avoids pointlessly detaching
+        # and re-parenting every node in an already-sorted run.
+        return
+    parent[first_idx : first_idx + len(nodes_to_reorder)] = reordered
 
 
 def _sort_key(node: nodes.Node) -> int:
