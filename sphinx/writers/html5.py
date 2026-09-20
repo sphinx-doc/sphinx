@@ -18,6 +18,7 @@ from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from typing import Any
 
     from docutils.nodes import Element, Node, Text
 
@@ -65,6 +66,19 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self._fieldlist_row_indices = [0]
         self.required_params_left = 0
         self._has_maths_elements: bool = False
+
+    def starttag(self, node: Element, tagname: str, *args: Any, **atts: Any) -> str:
+        """Override to respect ``lang`` attribute set on nodes by Sphinx transforms.
+
+        This ensures that nodes with an explicit ``lang`` attribute (e.g., untranslated
+        text in a multilingual document) pass the attribute through to the HTML output,
+        improving accessibility (WCAG SC 3.1.2 Language of Parts).
+        """
+        # Respect lang already decided by Sphinx (e.g., on <html> or via transforms).
+        if 'lang' not in atts:
+            if lang := node.attributes.get('lang'):
+                atts['lang'] = lang
+        return super().starttag(node, tagname, *args, **atts)
 
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder

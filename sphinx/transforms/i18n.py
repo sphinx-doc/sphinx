@@ -652,7 +652,11 @@ class TranslationProgressTotaliser(SphinxTransform):
 
 
 class AddTranslationClasses(SphinxTransform):
-    """Add ``translated`` or ``untranslated`` classes to indicate translation status."""
+    """Add ``translated`` or ``untranslated`` classes to indicate translation status.
+
+    Also sets the ``lang`` attribute on untranslated nodes to the source language,
+    improving accessibility (WCAG SC 3.1.2 Language of Parts).
+    """
 
     default_priority = 950
 
@@ -680,6 +684,8 @@ class AddTranslationClasses(SphinxTransform):
             )
             raise ConfigError(msg)
 
+        source_lang = self.config.source_language
+
         for node in NodeMatcher(nodes.Element, translated=Any).findall(self.document):
             if node['translated']:
                 if add_translated:
@@ -687,6 +693,8 @@ class AddTranslationClasses(SphinxTransform):
             else:
                 if add_untranslated:
                     node.setdefault('classes', []).append('untranslated')  # type: ignore[arg-type]
+                # Set the lang attribute to the source language for accessibility
+                node['lang'] = source_lang
 
 
 class RemoveTranslatableInline(SphinxTransform):
