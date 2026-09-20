@@ -209,23 +209,24 @@ External links
 ~~~~~~~~~~~~~~
 
 URLs and email addresses in text are automatically linked and do not need
-explicit markup at all.
-For example, https://domain.invalid/ is written with no special markup
+explicit markup at all (:duref:`ref <standalone-hyperlinks>`).
+For example, https://example.org/ is written with no special markup
 in the source of this document, and is recognised as an external hyperlink.
 
-To create text with a link, the best approach is generally to put the URL
-below the paragraph as follows (:duref:`ref <hyperlink-targets>`)::
+To create text with a link, the best approach is generally to put the
+target URL below the paragraph or at the end of the section or document
+(:duref:`ref <hyperlink-targets>`), e.g., ::
 
    This is a paragraph that contains `a link`_.
 
-   .. _a link: https://domain.invalid/
+   .. _a link: https://example.org/
 
-This keeps the paragraph more readable in source code.
+This keeps the text more readable in source code.
 
 Alternatively, you can embed the URL within the prose for an 'inline link'.
 This can lead to longer lines, but has the benefit of keeping the link text
-and the URL pointed to in the same place.
-This uses the following syntax: ```Link text <https://domain.invalid/>`__``
+and the target URL in the same place.
+This uses the following syntax: ```Link text <https://example.org/>`__``
 (:duref:`ref <embedded-uris-and-aliases>`).
 
 .. important::
@@ -235,19 +236,8 @@ This uses the following syntax: ```Link text <https://domain.invalid/>`__``
 
 .. tip::
 
-   Use two trailing underscores when embedding the URL.
-   Technically, a single underscore works as well,
-   but that would create a named reference instead of an anonymous one.
-   Named references typically do not have a benefit when the URL is embedded.
-   Moreover, they have the disadvantage that you must make sure that you
-   do not use the same "Link text" for another link in your document.
-
-You can also separate the link and the target definition (:duref:`ref
-<hyperlink-targets>`), like this::
-
-   This is a paragraph that contains `a link`_.
-
-   .. _a link: https://domain.invalid/
+   Use *two* trailing underscores when you want to use the same "link text"
+   for different target URLs (:duref:`ref <anonymous-hyperlinks>`).
 
 Internal links
 ~~~~~~~~~~~~~~
