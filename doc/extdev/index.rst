@@ -84,7 +84,7 @@ extension. These are:
 
    The config is available as ``env.config``, ``builder.config``, or ``app.config``.
    In :class:`.SphinxDirective`, :class:`.SphinxRole`, or :class:`.SphinxTransform`
-   subclasses, the environment is available as ``self.config``.
+   subclasses, the config is available as ``self.config``.
 
 **Events**
    The event manager object (usually called ``events``) manages and dispatches
