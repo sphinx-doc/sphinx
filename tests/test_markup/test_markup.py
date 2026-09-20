@@ -655,17 +655,25 @@ def test_XRefRole(app: SphinxTestApp) -> None:
 
     # fix_parens
     role = XRefRole(fix_parens=True)
-    doctrees, errors = role('ref', 'rawtext', 'text()', 5, inliner, {}, [])  # type: ignore[arg-type]
-    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text()'])
-    assert_node(
-        doctrees[0],
-        refdoc='dummy',
-        refdomain='',
-        reftype='ref',
-        reftarget='text',
-        refexplicit=False,
-        refwarn=False,
-    )
+    for text, title, target in (
+        ('text', 'text()', 'text'),
+        ('text()', 'text()', 'text'),
+        ('text(arg)', 'text(arg)', 'text(arg)'),
+    ):
+        doctrees, errors = role(  # type: ignore[arg-type]
+            'ref', 'rawtext', text, 5, inliner, {}, []
+        )
+        assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, title])
+        assert_node(
+            doctrees[0],
+            refdoc='dummy',
+            refdomain='',
+            reftype='ref',
+            reftarget=target,
+            refexplicit=False,
+            refwarn=False,
+        )
+        assert errors == []
 
     # lowercase
     role = XRefRole(lowercase=True)

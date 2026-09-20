@@ -87,7 +87,7 @@ class XRefRole(ReferenceRole):
     def update_title_and_target(self, title: str, target: str) -> tuple[str, str]:
         if not self.has_explicit_title:
             if self.config.add_function_parentheses:
-                if not title.endswith('()'):
+                if not title.endswith(')'):
                     # add parentheses to the title
                     title += '()'
             else:
