@@ -1847,6 +1847,98 @@ arg_ : type
 
         assert str(actual) == expected
 
+    def test_attributes_and_methods_follow_parameters(self):
+        docstring = """
+Summary.
+
+Parameters
+----------
+x : int
+    X desc.
+
+Notes
+-----
+Some notes.
+
+Attributes
+----------
+y : int
+    Y desc.
+
+Methods
+-------
+foo(i, j)
+    Method desc.
+
+Examples
+--------
+Some examples.
+"""
+
+        expected = """
+Summary.
+
+:param x: X desc.
+:type x: int
+
+.. attribute:: y
+
+   Y desc.
+
+   :type: int
+
+.. method:: foo(i, j)
+
+   Method desc.
+   
+
+.. rubric:: Notes
+
+Some notes.
+
+.. rubric:: Examples
+
+Some examples.
+"""  # ruff: ignore[blank-line-with-whitespace]
+
+        app = mock.Mock()
+        actual = NumpyDocstring(docstring, Config(), app, 'class')
+
+        assert str(actual) == expected
+
+    def test_attributes_follow_parameters_no_parameters(self):
+        docstring = """
+Summary.
+
+Notes
+-----
+Some notes.
+
+Attributes
+----------
+y : int
+    Y desc.
+"""
+
+        expected = """
+Summary.
+
+.. attribute:: y
+
+   Y desc.
+
+   :type: int
+
+.. rubric:: Notes
+
+Some notes.
+"""
+
+        app = mock.Mock()
+        actual = NumpyDocstring(docstring, Config(), app, 'class')
+
+        assert str(actual) == expected
+
     def test_underscore_in_attribute_strip_signature_backslash(self):
         docstring = """
 Attributes
