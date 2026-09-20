@@ -1366,10 +1366,13 @@ Do as you please
         config = Config()
         actual = GoogleDocstring(docstring, config, app=None, what='class', obj=object)
         rendered = str(actual)
-        pos_args = rendered.find('Args')
-        pos_notes = rendered.find('Notes')
-        pos_attributes = rendered.find('Attributes')
-        pos_example = rendered.find('Example')
+        # Search for content unique to each section rather than header names,
+        # because Napoleon renames some headers during rendering (e.g. 'Args'
+        # is rendered as 'Parameters'). The content strings are stable.
+        pos_args = rendered.find('Input.')
+        pos_notes = rendered.find('Some notes.')
+        pos_attributes = rendered.find('First attribute.')
+        pos_example = rendered.find('>>> pass')
         assert 0 < pos_args < pos_notes < pos_attributes < pos_example, (
             f'Google sections out of source order: args={pos_args}, '
             f'notes={pos_notes}, attributes={pos_attributes}, example={pos_example}'
@@ -2884,11 +2887,14 @@ Sample class with PEP 526 annotations and numpy docstring
         config = Config()
         actual = NumpyDocstring(docstring, config, app=None, what='class', object=object)
         rendered = str(actual)
-        # Sections must appear in source order: Parameters, Notes, Attributes, Examples.
-        pos_parameters = rendered.find('Parameters')
-        pos_notes = rendered.find('Notes')
-        pos_attributes = rendered.find('Attributes')
-        pos_examples = rendered.find('Examples')
+        # Search for content unique to each section rather than header names,
+        # because Napoleon renames some headers during rendering (e.g. 'Args'
+        # is rendered as 'Parameters' in Google style). The content strings
+        # are stable across rendering versions.
+        pos_parameters = rendered.find('Input.')
+        pos_notes = rendered.find('Some notes.')
+        pos_attributes = rendered.find('First attribute.')
+        pos_examples = rendered.find('>>> pass')
         assert 0 < pos_parameters < pos_notes < pos_attributes < pos_examples, (
             f'sections out of source order: parameters={pos_parameters}, '
             f'notes={pos_notes}, attributes={pos_attributes}, examples={pos_examples}'
