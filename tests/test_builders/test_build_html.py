@@ -242,7 +242,7 @@ def test_enumerable_node(
 )
 def test_html_copy_source(app: SphinxTestApp) -> None:
     app.build(force_all=True)
-    assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
+    assert not (app.outdir / '_sources').exists()
 
 
 @pytest.mark.sphinx(
