@@ -160,10 +160,12 @@ div.sphinxsidebar input {
     background-color: {{ theme_sidebarbtncolor }};
     margin-{{side}}: 0;
     color: #FFFFFF;
+    border: none;
     border-{{side}}: 1px solid {{ theme_relbarbgcolor }};
+    font: inherit;
     font-size: 1.2em;
     cursor: pointer;
-    padding-top: 1px;
+    padding: 1px 0 0;
     float: {{ 'left' if theme_rightsidebar|tobool else 'right' }};
     display: table; /* for vertically centering the <span> */
 }
