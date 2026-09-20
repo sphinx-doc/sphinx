@@ -473,7 +473,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Non-supported URI schemes (ex. ftp)
                 return _Status.UNCHECKED, '', 0
 
-            if (hyperlink.docpath.parent / uri).exists():
+            # strip any query or fragment before checking for a local file,
+            # as these do not form part of the filesystem path
+            filename = urlsplit(uri).path
+            if not filename or (hyperlink.docpath.parent / filename).exists():
                 return _Status.WORKING, '', 0
             return _Status.BROKEN, '', 0
 
