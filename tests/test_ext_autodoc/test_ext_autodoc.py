@@ -2515,6 +2515,44 @@ def test_autodoc_TYPE_CHECKING() -> None:
     ]
 
 
+@pytest.mark.skipif(
+    sys.version_info[:2] < (3, 14),
+    reason='annotations are only deferred from Python 3.14',
+)
+def test_autodoc_TYPE_CHECKING_deferred_annotations(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # https://github.com/sphinx-doc/sphinx/issues/14457
+    # With deferred annotations, ``annotationlib`` represents the arguments
+    # of an unresolvable generic with ``__annotationlib_name_N__``
+    # placeholders; make sure those never reach the output.
+    #
+    # The test suite sets SPHINX_AUTODOC_RELOAD_MODULES, which re-imports
+    # modules with ``typing.TYPE_CHECKING = True`` and so makes the names
+    # resolvable.  Users do not normally have it set, so turn it off here
+    # to exercise the unresolved path.
+    monkeypatch.delenv('SPHINX_AUTODOC_RELOAD_MODULES', raising=False)
+    monkeypatch.delitem(sys.modules, 'target.TYPE_CHECKING_pep649', raising=False)
+    options = {
+        'members': None,
+        'undoc-members': None,
+    }
+    actual = do_autodoc('module', 'target.TYPE_CHECKING_pep649', options=options)
+    assert actual == [
+        '',
+        '.. py:module:: target.TYPE_CHECKING_pep649',
+        '',
+        '',
+        '.. py:function:: apply(f: Callable[[str], int], s: str) -> int',
+        '   :module: target.TYPE_CHECKING_pep649',
+        '',
+        '',
+        '.. py:function:: convert_to_dict(x: Mapping[str, int]) -> Mapping[str, int]',
+        '   :module: target.TYPE_CHECKING_pep649',
+        '',
+    ]
+
+
 def test_autodoc_TYPE_CHECKING_circular_import() -> None:
     options = {
         'members': None,

@@ -25,6 +25,7 @@ Contributors
 * Alex Gaynor -- linkcheck retry on errors
 * Alexander Todorov -- inheritance_diagram tests and improvements
 * Andi Albrecht -- agogo theme
+* Anshul Singh -- autodoc deferred annotation fixes
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Antti Kaihola -- doctest extension (skipif option)
 * Barry Warsaw -- setup command improvements

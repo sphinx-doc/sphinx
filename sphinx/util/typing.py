@@ -238,6 +238,39 @@ def _is_unpack_form(obj: Any) -> bool:
     return typing.get_origin(obj) is typing.Unpack
 
 
+def _forward_ref_arg(ref: typing.ForwardRef) -> str:
+    """Return the source text of a :class:`~typing.ForwardRef`.
+
+    On Python 3.14+, ``annotationlib``'s ``FORWARDREF`` format can store
+    placeholder names like ``__annotationlib_name_1__`` in
+    ``__forward_arg__`` when an annotation mixes undefined and defined
+    names (e.g. ``Mapping[str, int]`` with ``Mapping`` only imported under
+    ``TYPE_CHECKING``).  The real objects are kept in ``__extra_names__``.
+    Evaluating the reference in ``STRING`` format gives the clean text on
+    Python 3.14.5+ (python/cpython#148680); substituting ``__extra_names__``
+    by hand covers earlier 3.14 releases.
+    """
+    forward_arg: str = ref.__forward_arg__
+    if sys.version_info[:2] < (3, 14) or '__annotationlib_name_' not in forward_arg:
+        return forward_arg
+
+    import annotationlib  # type: ignore[import-not-found]
+
+    try:
+        evaluated = ref.evaluate(format=annotationlib.Format.STRING)
+    except Exception:
+        evaluated = forward_arg
+    if isinstance(evaluated, str) and '__annotationlib_name_' not in evaluated:
+        return evaluated
+
+    # Older 3.14 releases leave the placeholders in; substitute by hand.
+    extra_names: dict[str, Any] | None = getattr(ref, '__extra_names__', None)
+    if extra_names:
+        for name, value in extra_names.items():
+            forward_arg = forward_arg.replace(name, annotationlib.type_repr(value))
+    return forward_arg
+
+
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
     """Convert a type-like object to a reST reference.
 
@@ -372,7 +405,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         elif hasattr(cls, '__qualname__'):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__qualname__}`'
         elif isinstance(cls, typing.ForwardRef):
-            return f':py:class:`{cls.__forward_arg__}`'
+            return f':py:class:`{_forward_ref_arg(cls)}`'
         else:
             # not a class (ex. TypeVar) but should have a __name__
             return f':py:obj:`{module_prefix}{cls.__module__}.{cls.__name__}`'
@@ -490,7 +523,9 @@ def stringify_annotation(
         pass
 
     module_prefix = f'{annotation_module}.'
-    annotation_forward_arg: str | None = getattr(annotation, '__forward_arg__', None)
+    annotation_forward_arg: str | None = None
+    if isinstance(annotation, typing.ForwardRef):
+        annotation_forward_arg = _forward_ref_arg(annotation)
     if annotation_qualname or (
         annotation_module_is_typing and not annotation_forward_arg
     ):
