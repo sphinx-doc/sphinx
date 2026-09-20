@@ -963,6 +963,13 @@ class StandardDomain(Domain):
                     env.doc2path(self.labels[name][0]),
                     location=node,
                 )
+            elif name in self.anonlabels:
+                logger.info(
+                    __('duplicate label %s, other instance in %s'),
+                    name,
+                    env.doc2path(self.anonlabels[name][0]),
+                    location=node,
+                )
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 title = cast('nodes.title', node[0])
