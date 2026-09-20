@@ -609,3 +609,31 @@ def test_type_field(app):
         reftarget='typing.Any',
         refspecific=False,
     )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_none_type_xref(app):
+    """Test that None type is properly linked with the obj role."""
+    text = (
+        '.. py:module:: example\n'
+        '.. py:function:: func(param: str | None) -> None\n'
+        '\n'
+        '   :param param: A parameter\n'
+        '   :type param: str | None\n'
+        '   :return: Nothing\n'
+        '   :rtype: None\n'
+    )
+    doctree = restructuredtext.parse(app, text)
+
+    # Find the None xref nodes in the function signature and docstring fields
+    # They should use the 'obj' role, not 'class'
+    xrefs = [node for node in doctree.traverse() if isinstance(node, pending_xref)]
+
+    # Check that there are xref nodes for None
+    none_xrefs = [xref for xref in xrefs if xref.astext() == 'None']
+    assert len(none_xrefs) >= 1, 'Expected at least one None xref'
+
+    # Verify that all None xrefs have the correct role
+    for none_xref in none_xrefs:
+        # The reftype should be exactly 'obj' for None
+        assert none_xref.get('reftype') == 'obj'
