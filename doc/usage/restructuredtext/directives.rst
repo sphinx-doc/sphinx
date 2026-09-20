@@ -727,7 +727,7 @@ code blocks using multiple varied syntaxes. Finally, the
 :rst:dir:`literalinclude` directive is useful for including entire code files
 in your documentation.
 
-In all cases, Syntax highlighting is provided by `Pygments
+In all cases, _`syntax highlighting` is provided by `Pygments
 <https://pygments.org>`_. When using literal blocks, this is configured using
 any :rst:dir:`highlight` directives in the source file. When a ``highlight``
 directive is encountered, it is used until the next ``highlight`` directive is
@@ -765,8 +765,8 @@ __ https://pygments.org/docs/lexers
       .. highlight:: c
 
    This language is used until the next ``highlight`` directive is encountered.
-   As discussed previously, *language* can be any lexer alias supported by
-   Pygments.
+   :ref:`As discussed previously <syntax highlighting>`, *language* can be any
+   lexer alias supported by Pygments.
 
    .. rubric:: Options
 
@@ -794,7 +794,6 @@ __ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. code-block:: [language]
                    .. sourcecode:: [language]
-                   .. code:: [language]
 
    Example::
 
@@ -802,13 +801,18 @@ __ https://pygments.org/docs/lexers
 
          Some Ruby code.
 
-   The directive's alias name :rst:dir:`sourcecode` works as well.  This
-   directive takes a language name as an argument.  It can be `any lexer alias
-   supported by Pygments <https://pygments.org/docs/lexers/>`_.  If it is not
-   given, the setting of :rst:dir:`highlight` directive will be used.  If not
-   set, :confval:`highlight_language` will be used.  To display a code example
-   *inline* within other text, rather than as a separate block, you can use the
-   :rst:role:`code` role instead.
+   This directive takes a *language* name as an argument. :ref:`As discussed
+   previously <syntax highlighting>`, it can be `any lexer alias supported by
+   Pygments <https://pygments.org/docs/lexers/>`_. If no *language* is given,
+   the setting of :rst:dir:`highlight` directive will be used.  If not set,
+   :confval:`highlight_language` will be used.
+
+   The :rst:dir:`sourcecode` directive is an alias for :rst:dir:`code-block`.
+   Docutils' :dudir:`code` directive provides a different, limited set of
+   options.
+
+   To display a code example *inline* within other text, rather than as a
+   separate block, you can use the :rst:role:`code` role instead.
 
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
