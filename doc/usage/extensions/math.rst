@@ -190,6 +190,19 @@ are built:
 
    .. versionadded:: 5.2
 
+.. confval:: imgmath_batch_size
+   :type: :code-py:`int`
+   :default: :code-py:`1`
+
+   Number of math expressions to compile in a single LaTeX invocation.
+   When greater than 1, equations are collected after reading and
+   compiled into multi-page DVI documents before writing,
+   reducing *N* LaTeX processes to *ceil(N / batch_size)*.
+   Batching is disabled when a custom ``template.tex``/``preview.tex``
+   template is detected.
+
+   .. versionadded:: 9.2
+
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
 -------------------------------------------------------
 
