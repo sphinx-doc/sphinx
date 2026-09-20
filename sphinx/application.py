@@ -1461,13 +1461,37 @@ class Sphinx:
         Example::
 
             app.add_js_file('example.js')
-            # => <script src="_static/example.js"></script>
+            # => <script src="_static/example.js?v=a1b2c3d4"></script>
 
             app.add_js_file('example.js', loading_method='async')
-            # => <script src="_static/example.js" async="async"></script>
+            # => <script src="_static/example.js?v=a1b2c3d4" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
             # => <script>var myVariable = 'foo';</script>
+
+        .. note::
+
+           For the file to be included in the output, it must be present in
+           the ``_static`` directory at build time.
+           Extension developers should use :meth:`add_static_dir` to register
+           a directory whose contents will be copied to ``_static``.
+           Site authors can place files into a directory listed in
+           :confval:`html_static_path` instead.
+
+        .. tip::
+
+           Site authors (as opposed to extension developers) who wish to add
+           custom JavaScript files may find it easier to use the
+           :confval:`html_js_files` configuration value in combination with
+           :confval:`html_static_path`, rather than writing an extension.
+
+        .. note::
+
+           Files registered by extensions can be overridden by site authors
+           by placing a file with the same name into their
+           :confval:`html_static_path`. Note that this may not work in all
+           cases; see `#12096 <https://github.com/sphinx-doc/sphinx/issues/12096>`__
+           for details.
 
         .. list-table:: priority range for JavaScript files
            :widths: 20,80
@@ -1498,6 +1522,9 @@ class Sphinx:
         .. versionchanged:: 4.4
            Take loading_method argument.  Allow to change the loading method of the
            JavaScript file.
+        .. versionchanged:: 7.1
+           A CRC32 checksum is appended as a query parameter to local asset
+           URIs (e.g. ``?v=a1b2c3d4``) for cache-busting purposes.
         """
         if loading_method == 'async':
             kwargs['async'] = 'async'
@@ -1527,15 +1554,40 @@ class Sphinx:
         Example::
 
             app.add_css_file('custom.css')
-            # => <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+            # => <link rel="stylesheet" href="_static/custom.css?v=a1b2c3d4"
+            #          type="text/css" />
 
             app.add_css_file('print.css', media='print')
-            # => <link rel="stylesheet" href="_static/print.css"
+            # => <link rel="stylesheet" href="_static/print.css?v=a1b2c3d4"
             #          type="text/css" media="print" />
 
             app.add_css_file('fancy.css', rel='alternate stylesheet', title='fancy')
-            # => <link rel="alternate stylesheet" href="_static/fancy.css"
+            # => <link rel="alternate stylesheet" href="_static/fancy.css?v=a1b2c3d4"
             #          type="text/css" title="fancy" />
+
+        .. note::
+
+           For the file to be included in the output, it must be present in
+           the ``_static`` directory at build time.
+           Extension developers should use :meth:`add_static_dir` to register
+           a directory whose contents will be copied to ``_static``.
+           Site authors can place files into a directory listed in
+           :confval:`html_static_path` instead.
+
+        .. tip::
+
+           Site authors (as opposed to extension developers) who wish to add
+           custom CSS files may find it easier to use the
+           :confval:`html_css_files` configuration value in combination with
+           :confval:`html_static_path`, rather than writing an extension.
+
+        .. note::
+
+           Files registered by extensions can be overridden by site authors
+           by placing a file with the same name into their
+           :confval:`html_static_path`. Note that this may not work in all
+           cases; see `#12096 <https://github.com/sphinx-doc/sphinx/issues/12096>`__
+           for details.
 
         .. list-table:: priority range for CSS files
            :widths: 20,80
@@ -1570,6 +1622,10 @@ class Sphinx:
 
         .. versionchanged:: 3.5
            Take priority argument.  Allow to add a CSS file to the specific page.
+
+        .. versionchanged:: 7.1
+           A CRC32 checksum is appended as a query parameter to local asset
+           URIs (e.g. ``?v=a1b2c3d4``) for cache-busting purposes.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
