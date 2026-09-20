@@ -9,6 +9,11 @@ Introduce of Sphinx
 Installation
 ============
 
+.. _custom-label:
+
+Installation
+============
+
 For Windows users
 -----------------
 
@@ -30,6 +35,7 @@ References
 * :ref:`test-ext-autosectionlabel`
 * :ref:`Introduce of Sphinx`
 * :ref:`Installation`
+* :ref:`custom-label`
 * :ref:`For Windows users`
 * :ref:`For UNIX users`
 * :ref:`Linux`
