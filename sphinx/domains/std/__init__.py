@@ -170,7 +170,7 @@ class ConfigurationValue(ObjectDescription[str]):
         field = nodes.field(
             '',
             nodes.field_name('', _('Type')),
-            nodes.field_body('', *parsed),
+            nodes.field_body('', nodes.paragraph('', '', *parsed)),
         )
         return field, msgs
 
@@ -180,7 +180,7 @@ class ConfigurationValue(ObjectDescription[str]):
         field = nodes.field(
             '',
             nodes.field_name('', _('Default')),
-            nodes.field_body('', *parsed),
+            nodes.field_body('', nodes.paragraph('', '', *parsed)),
         )
         return field, msgs
 
