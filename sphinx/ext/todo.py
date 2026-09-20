@@ -87,7 +87,12 @@ class TodoDomain(Domain):
         todos = self.todos.setdefault(docname, [])
         for todo in document.findall(todo_node):
             env.events.emit('todo-defined', todo)
-            todos.append(todo)
+            # Store an independent copy. The HTML writer mutates admonition
+            # nodes in place (inserting title children). If the domain kept
+            # the document's own nodes, writing the source page first would
+            # leave those titles in place; deepcopying them into a later
+            # todolist would then add a second title.
+            todos.append(todo.deepcopy())
 
             if env.config.todo_emit_warnings:
                 logger.warning(
