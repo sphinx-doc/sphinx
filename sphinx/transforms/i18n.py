@@ -74,7 +74,7 @@ def _publish_msgstr(
     doc = docutils.utils.new_document(
         f'{source_path}:{source_line}:<translated>', settings
     )
-    doc.reporter = LoggingReporter.from_reporter(doc.reporter)
+    doc.reporter = LoggingReporter.from_reporter(doc.reporter, env)
 
     # clear rst_prolog temporarily
     rst_prolog = config.rst_prolog
