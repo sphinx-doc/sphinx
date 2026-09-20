@@ -288,7 +288,7 @@ def test_gettext_prolog_epilog_substitution_excluded(app: SphinxTestApp) -> None
 
 @pytest.mark.sphinx(
     'gettext',
-    testroot='root',
+    testroot='intl',
     srcdir='gettext',
     confoverrides={
         'gettext_compact': False,
