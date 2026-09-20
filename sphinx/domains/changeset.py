@@ -70,11 +70,23 @@ class VersionChange(SphinxDirective):
         node['version'] = self.arguments[0]
         text = versionlabels[name] % self.arguments[0]
         if len(self.arguments) == 2:
+            # The argument may be on the same line as the directive, or on the
+            # following line (docutils treats the first non-blank indented line
+            # as the second argument when optional_arguments > 0 and there's no
+            # blank line). Check the directive's own line to tell them apart.
+            directive_line = self.block_text.partition('\n')[0]
+            arg_first_line = self.arguments[1].partition('\n')[0]
+            if arg_first_line in directive_line:
+                arg_lineno = self.lineno
+            else:
+                arg_lineno = self.lineno + 1
             inodes, messages = self.parse_inline(
-                self.arguments[1], lineno=self.lineno + 1
+                self.arguments[1], lineno=arg_lineno
             )
             para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
-            self.set_source_info(para)
+            para.source, para.line = self.state_machine.get_source_and_line(
+                arg_lineno
+            )
             node.append(para)
         else:
             messages = []
@@ -89,9 +101,10 @@ class VersionChange(SphinxDirective):
                 content.source = node[0].source
                 content.line = node[0].line
                 content += node[0].children
-                node[0].replace_self(
-                    nodes.paragraph('', '', content, translatable=False)
-                )
+                new_para = nodes.paragraph('', '', content, translatable=False)
+                new_para.source = node[0].source
+                new_para.line = node[0].line
+                node[0].replace_self(new_para)
 
             para = node[0]
             para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
