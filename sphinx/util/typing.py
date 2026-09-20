@@ -261,6 +261,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
     # things that are not types
     if cls is None or cls == types.NoneType:
         return ':py:obj:`None`'
+
     if cls is Ellipsis:
         return '...'
     if isinstance(cls, str):
