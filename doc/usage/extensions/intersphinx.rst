@@ -212,6 +212,24 @@ linking:
    If ``*`` is in the list of domains, then no non-:rst:role:`external`
    references will be resolved by intersphinx.
 
+.. confval:: intersphinx_request_headers
+   :type: :code-py:`dict[str, dict[str, str]]`
+   :default: :code-py:`{}`
+
+   Headers to pass to the HTTP request for a project's :file:`objects.inv` file.
+   For example:
+
+   .. code-block:: python
+
+      token = "abcde"
+      intersphinx_request_headers = {
+          'python': {
+              "Authorization": f"Bearer {token}",
+          }
+      }
+
+   .. versionadded:: 9.2.0
+
 Explicitly Reference External Objects
 -------------------------------------
 

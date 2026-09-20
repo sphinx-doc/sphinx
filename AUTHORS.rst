@@ -105,6 +105,7 @@ Contributors
 * \A. Rafey Khan -- improved intersphinx typing
 * Rui Pinheiro -- Python 3.14 forward references support
 * Roland Meister -- epub builder
+* Samuel Dowling -- Intersphinx request header support
 * Sebastian Wiesner -- image handling, distutils support
 * Slawek Figiel -- additional warning suppression
 * Stefan Seefeld -- toctree improvements
