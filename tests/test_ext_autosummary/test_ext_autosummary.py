@@ -516,6 +516,305 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
     assert context['objtype'] == 'module'
 
 
+@pytest.mark.sphinx(testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_generate_content_for_module_imported_members_inherited_class(app):
+    import autosummary_dummy_inherited_module
+
+    template = Mock()
+
+    generate_autosummary_content(
+        'autosummary_dummy_inherited_module.InheritedAttrClass',
+        autosummary_dummy_inherited_module.InheritedAttrClass,
+        None,
+        template,
+        None,
+        True,
+        False,
+        {},
+        config=app.config,
+        events=app.events,
+    )
+    assert template.render.call_args[0][0] == 'class'
+
+    context = template.render.call_args[0][1]
+
+    def assert_all_a_in_b(a, b):
+        assert all(x in b for x in a)
+
+    assert_all_a_in_b(
+        [
+            'Bar',
+            'CONSTANT3',
+            'CONSTANT4',
+            '__init__',
+            'bar',
+            'baz',
+            'subclassattr',
+            'value',
+        ],
+        context['members'],
+    )
+    assert_all_a_in_b(
+        ['Bar', 'CONSTANT3', 'CONSTANT4', 'bar', 'baz', 'value'],
+        context['inherited_members'],
+    )
+    assert '__init__' not in context['inherited_members']
+    assert 'subclassattr' not in context['inherited_members']
+
+    assert context['methods'] == ['__init__', 'bar']
+    assert context['attributes'] == [
+        'CONSTANT3',
+        'CONSTANT4',
+        'baz',
+        'subclassattr',
+        'value',
+    ]
+    assert_all_a_in_b(
+        [
+            'autosummary_dummy_module.Foo.Bar',
+            'autosummary_dummy_module.Foo.CONSTANT3',
+            'autosummary_dummy_module.Foo.CONSTANT4',
+            'autosummary_dummy_module.Foo.bar',
+            'autosummary_dummy_module.Foo.baz',
+            'autosummary_dummy_module.Foo.value',
+        ],
+        context['inherited_qualnames'],
+    )
+    assert context['inherited_methods'] == ['autosummary_dummy_module.Foo.bar']
+    assert context['inherited_attributes'] == [
+        'autosummary_dummy_module.Foo.CONSTANT3',
+        'autosummary_dummy_module.Foo.CONSTANT4',
+        'autosummary_dummy_module.Foo.baz',
+        'autosummary_dummy_module.Foo.value',
+    ]
+    assert (
+        context['fullname'] == 'autosummary_dummy_inherited_module.InheritedAttrClass'
+    )
+    assert context['module'] == 'autosummary_dummy_inherited_module'
+    assert context['objname'] == 'InheritedAttrClass'
+    assert context['name'] == 'InheritedAttrClass'
+    assert context['objtype'] == 'class'
+
+
+@pytest.mark.sphinx(testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_generate_content_for_module_imported_members_complex_inheritance(
+    app,
+):
+    import autosummary_dummy_complex_inheritance_module  # type: ignore[import-not-found]
+
+    class _temp:
+        pass
+
+    builtin_obj = _temp()
+    built_in_members = dir(builtin_obj)
+    built_in_attr = [
+        i for i in dir(builtin_obj) if not callable(getattr(builtin_obj, i))
+    ]
+    built_in_methods = [
+        i
+        for i in dir(builtin_obj)
+        if (callable(getattr(builtin_obj, i)) and i != '__class__')
+    ]
+
+    # The following is used to process the expected builtin members for different
+    # versions of Python. The base list above has no annotations.
+
+    def concat_and_sort(list1, list2):
+        return sorted(list1 + list2)
+
+    if sys.version_info[:2] >= (3, 14):
+        add_3_14 = ['__annotate_func__', '__annotations_cache__']
+        built_in_attr = concat_and_sort(built_in_attr, add_3_14)
+        built_in_members2 = concat_and_sort(built_in_members, add_3_14)
+    else:
+        add_3_11 = ['__annotations__']
+        built_in_attr = concat_and_sort(built_in_attr, add_3_11)
+        built_in_members2 = concat_and_sort(built_in_members, add_3_11)
+
+    # This list should be expanded if more builtins are added in future versions
+    non_inherited = [
+        '__module__',
+        '__init__',
+        '__firstlineno__',
+        '__static_attributes__',
+        '__doc__',
+    ]
+    built_in_inherited = [i for i in built_in_members if i not in non_inherited]
+
+    non_base_inherit = ['__dict__', '__weakref__']
+    built_inh_qual = [
+        f'builtins.object.{i}' for i in built_in_inherited if i not in non_base_inherit
+    ]
+
+    template_jerry = Mock()
+
+    generate_autosummary_content(
+        name='autosummary_dummy_complex_inheritance_module.Jerry',
+        obj=autosummary_dummy_complex_inheritance_module.Jerry,
+        parent=None,
+        template=template_jerry,
+        template_name=None,
+        imported_members=True,
+        recursive=False,
+        context={},
+        config=app.config,
+        events=app.events,
+    )
+    assert template_jerry.render.call_args[0][0] == 'class'
+
+    context = template_jerry.render.call_args[0][1]
+
+    assert context['name'] == 'Jerry'
+    assert context['module'] == 'autosummary_dummy_complex_inheritance_module'
+    assert context['fullname'] == 'autosummary_dummy_complex_inheritance_module.Jerry'
+
+    assert context['attributes'] == ['relation']
+    assert context['methods'] == [
+        '__init__',
+        'addition',
+        'get_age',
+        'get_name',
+        'get_salary',
+    ]
+
+    assert context['all_attributes'] == [
+        *built_in_attr,
+        '_private_normal_parent',
+        'relation',
+    ]
+    assert context['all_methods'] == [
+        *built_in_methods,
+        '_private_parent_method',
+        'addition',
+        'get_age',
+        'get_name',
+        'get_salary',
+    ]
+
+    assert context['inherited_attributes'] == [
+        'autosummary_dummy_complex_inheritance_module.Parent.relation'
+    ]
+    assert context['inherited_methods'] == [
+        'autosummary_dummy_complex_inheritance_module.Architect.get_age',
+        'autosummary_dummy_complex_inheritance_module.Job.get_salary',
+        'autosummary_dummy_complex_inheritance_module.Child.addition',
+        'autosummary_dummy_complex_inheritance_module.Child.get_name',
+    ]
+
+    assert context['inherited_qualnames'] == [
+        'autosummary_dummy_complex_inheritance_module.Architect.get_age',
+        'autosummary_dummy_complex_inheritance_module.Job.__dict__',
+        'autosummary_dummy_complex_inheritance_module.Job.__weakref__',
+        'autosummary_dummy_complex_inheritance_module.Job.get_salary',
+        'autosummary_dummy_complex_inheritance_module.Child.addition',
+        'autosummary_dummy_complex_inheritance_module.Child.get_name',
+        'autosummary_dummy_complex_inheritance_module.Parent._private_normal_parent',
+        'autosummary_dummy_complex_inheritance_module.Parent._private_parent_method',
+        'autosummary_dummy_complex_inheritance_module.Parent.relation',
+        *built_inh_qual,
+    ]
+
+    assert context['inherited_members'] == [
+        *built_in_inherited,
+        '_private_normal_parent',
+        '_private_parent_method',
+        'addition',
+        'get_age',
+        'get_name',
+        'get_salary',
+        'relation',
+    ]
+
+    assert context['members'] == [
+        *built_in_members,
+        '_private_normal_parent',
+        '_private_parent_method',
+        'addition',
+        'get_age',
+        'get_name',
+        'get_salary',
+        'relation',
+    ]
+
+    template_baby = Mock()
+
+    generate_autosummary_content(
+        name='autosummary_dummy_complex_inheritance_module.Baby',
+        obj=autosummary_dummy_complex_inheritance_module.Baby,
+        parent=None,
+        template=template_baby,
+        template_name=None,
+        imported_members=True,
+        recursive=False,
+        context={},
+        config=app.config,
+        events=app.events,
+    )
+
+    context2 = template_baby.render.call_args[0][1]
+
+    assert context2['name'] == 'Baby'
+    assert context2['module'] == 'autosummary_dummy_complex_inheritance_module'
+    assert context2['fullname'] == 'autosummary_dummy_complex_inheritance_module.Baby'
+
+    assert context2['attributes'] == ['relation']
+    assert context2['methods'] == ['__init__', 'addition', 'get_age', 'get_name']
+
+    assert context2['all_attributes'] == [
+        '__private_baby_name',
+        *built_in_attr,
+        '_private_normal_parent',
+        'relation',
+    ]
+    assert context2['all_methods'] == [
+        *built_in_methods,
+        '_private_parent_method',
+        'addition',
+        'get_age',
+        'get_name',
+    ]
+
+    assert context2['inherited_attributes'] == [
+        'autosummary_dummy_complex_inheritance_module.Parent.relation'
+    ]
+    assert context2['inherited_methods'] == [
+        'autosummary_dummy_complex_inheritance_module.Child.addition',
+        'autosummary_dummy_complex_inheritance_module.Child.get_name',
+    ]
+
+    assert context2['inherited_qualnames'] == [
+        'autosummary_dummy_complex_inheritance_module.Child.addition',
+        'autosummary_dummy_complex_inheritance_module.Child.get_name',
+        'autosummary_dummy_complex_inheritance_module.Parent.__dict__',
+        'autosummary_dummy_complex_inheritance_module.Parent.__weakref__',
+        'autosummary_dummy_complex_inheritance_module.Parent._private_normal_parent',
+        'autosummary_dummy_complex_inheritance_module.Parent._private_parent_method',
+        'autosummary_dummy_complex_inheritance_module.Parent.relation',
+        *built_inh_qual,
+    ]
+
+    assert context2['inherited_members'] == [
+        *built_in_inherited,
+        '_private_normal_parent',
+        '_private_parent_method',
+        'addition',
+        'get_name',
+        'relation',
+    ]
+
+    assert context2['members'] == [
+        'BabyInnerClass',
+        '__private_baby_name',
+        *built_in_members2,
+        '_private_normal_parent',
+        '_private_parent_method',
+        'addition',
+        'get_age',
+        'get_name',
+        'relation',
+    ]
+
+
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate(app):
     app.build(force_all=True)
