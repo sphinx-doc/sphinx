@@ -2815,6 +2815,51 @@ Sample class with PEP 526 annotations and numpy docstring
         print(actual)
         assert str(actual) == expected
 
+    def test_class_section_order_is_source_order(self):
+        """Lock in the current source-order rendering of class docstring sections.
+
+        Napoleon's ``NumpyDocstring._parse`` renders sections in the order they
+        appear in the source docstring; it does not reorder sections to match
+        the numpydoc 1.8+ convention (Attributes/Methods directly after
+        Parameters). This test documents the current behavior so that any
+        future reordering change is a deliberate, visible diff rather than a
+        silent regression. See sphinx-doc/sphinx#13180 for the feature
+        request to reorder.
+        """
+        docstring = cleandoc("""
+            Summary line.
+
+            Parameters
+            ----------
+            x : int
+                Input.
+
+            Notes
+            -----
+            Some notes.
+
+            Attributes
+            ----------
+            attr1 : int
+                First attribute.
+
+            Examples
+            --------
+            >>> pass
+            """)
+        config = Config()
+        actual = NumpyDocstring(docstring, config, app=None, what='class', object=object)
+        rendered = str(actual)
+        # Sections must appear in source order: Parameters, Notes, Attributes, Examples.
+        pos_parameters = rendered.find('Parameters')
+        pos_notes = rendered.find('Notes')
+        pos_attributes = rendered.find('Attributes')
+        pos_examples = rendered.find('Examples')
+        assert 0 < pos_parameters < pos_notes < pos_attributes < pos_examples, (
+            f'sections out of source order: parameters={pos_parameters}, '
+            f'notes={pos_notes}, attributes={pos_attributes}, examples={pos_examples}'
+        )
+
 
 @pytest.mark.sphinx(
     'text',
