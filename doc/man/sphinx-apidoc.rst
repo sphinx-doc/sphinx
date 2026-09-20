@@ -138,6 +138,53 @@ These options are used when :option:`--full` is specified:
 
    Sets the project release to put in generated files (see :confval:`release`).
 
+.. rubric:: Extension options
+
+.. option:: --ext-autodoc
+
+   Enable the :mod:`sphinx.ext.autodoc` extension.
+
+.. option:: --ext-doctest
+
+   Enable the :mod:`sphinx.ext.doctest` extension.
+
+.. option:: --ext-intersphinx
+
+   Enable the :mod:`sphinx.ext.intersphinx` extension.
+
+.. option:: --ext-todo
+
+   Enable the :mod:`sphinx.ext.todo` extension.
+
+.. option:: --ext-coverage
+
+   Enable the :mod:`sphinx.ext.coverage` extension.
+
+.. option:: --ext-imgmath
+
+   Enable the :mod:`sphinx.ext.imgmath` extension.
+
+.. option:: --ext-mathjax
+
+   Enable the :mod:`sphinx.ext.mathjax` extension.
+
+.. option:: --ext-ifconfig
+
+   Enable the :mod:`sphinx.ext.ifconfig` extension.
+
+.. option:: --ext-viewcode
+
+   Enable the :mod:`sphinx.ext.viewcode` extension.
+
+.. option:: --ext-githubpages
+
+   Enable the :mod:`sphinx.ext.githubpages` extension.
+
+.. option:: --extensions=EXTENSIONS
+
+   Enable arbitrary extensions. This option accepts a comma-separated list and
+   can be specified multiple times.
+
 .. rubric:: Project templating
 
 .. versionadded:: 2.2
