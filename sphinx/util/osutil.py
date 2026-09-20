@@ -114,8 +114,12 @@ def copyfile(
         msg = f'{source} does not exist'
         raise FileNotFoundError(msg)
 
+    dest_exists = dest.exists()
     if (
-        not (dest_exists := dest.exists())
+        not dest_exists
+        # When force is True, always overwrite (even if content is identical)
+        # so that modification times are updated.
+        or force
         # comparison must be done using shallow=False since
         # two different files might have the same size
         or not filecmp.cmp(source, dest, shallow=False)

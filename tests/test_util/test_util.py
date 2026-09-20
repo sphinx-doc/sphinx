@@ -42,6 +42,38 @@ def test_ensuredir(tmp_path: Path) -> None:
     assert path.is_dir()
 
 
+def test_copyfile_force_overwrites_identical_content(tmp_path: Path) -> None:
+    """When force=True, copyfile should overwrite even if content is identical.
+
+    This ensures that modification times are updated for image files
+    during incremental rebuilds.  See sphinx-doc/sphinx#14312.
+    """
+    import os
+    import time
+
+    source = tmp_path / 'source.png'
+    dest = tmp_path / 'dest.png'
+
+    # Create source and dest with identical content
+    source.write_bytes(b'image data')
+    dest.write_bytes(b'image data')
+
+    # Set dest mtime to the past so we can detect updates
+    old_mtime = os.path.getmtime(dest)
+    os.utime(dest, (old_mtime - 10, old_mtime - 10))
+    old_mtime = os.path.getmtime(dest)
+
+    # Without force, identical files should NOT be copied
+    copyfile(source, dest, force=False)
+    assert os.path.getmtime(dest) == old_mtime
+
+    # With force, identical files SHOULD be copied (mtime updated)
+    time.sleep(0.05)  # ensure mtime resolution
+    copyfile(source, dest, force=True)
+    new_mtime = os.path.getmtime(dest)
+    assert new_mtime != old_mtime
+
+
 def test_exported_attributes() -> None:
     # RemovedInSphinx10Warning
     with pytest.warns(RemovedInSphinx10Warning, match=r'deprecated.'):
