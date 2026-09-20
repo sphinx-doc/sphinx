@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #14564: Python domain: let the ``deco`` and ``const`` roles resolve
+  through intersphinx and in ``refspecific`` mode, by claiming them
+  from the object types that back them.
+  Patch by UlikGames
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

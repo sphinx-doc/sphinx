@@ -1815,6 +1815,47 @@ def test_deco_role(app):
     assert doctree.astext() == '\n\n\n\n@bar'
 
 
+@pytest.mark.sphinx('html', testroot='root')
+def test_deco_and_const_object_types(app):
+    domain = app.env.domains.python_domain
+
+    # ``py:decorator`` is registered as a function and ``py:decoratormethod``
+    # as a method, so those are the types ``deco`` may resolve to
+    assert domain.objtypes_for_role('deco') == ['function', 'method']
+    assert domain.objtypes_for_role('const') == ['data']
+
+    # the roles used to *generate* references are unchanged
+    assert domain.role_for_objtype('function') == 'func'
+    assert domain.role_for_objtype('method') == 'meth'
+    assert domain.role_for_objtype('data') == 'data'
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_deco_and_const_refspecific_lookup(app):
+    text = """\
+.. py:module:: m
+
+.. py:decorator:: dec
+
+.. py:decoratormethod:: Cls.meth
+
+.. py:data:: CONST
+"""
+    restructuredtext.parse(app, text)
+    domain = app.env.domains.python_domain
+
+    def find_obj(obj_name, obj_type):
+        return domain.find_obj(app.env, 'm', None, obj_name, obj_type, searchmode=1)
+
+    assert find_obj('dec', 'deco') == [('m.dec', ('index', 'm.dec', 'function', False))]
+    assert find_obj('Cls.meth', 'deco') == [
+        ('m.Cls.meth', ('index', 'm.Cls.meth', 'method', False))
+    ]
+    assert find_obj('CONST', 'const') == [
+        ('m.CONST', ('index', 'm.CONST', 'data', False))
+    ]
+
+
 def test_pytype_canonical(app):
     text = """\
 .. py:type:: A
