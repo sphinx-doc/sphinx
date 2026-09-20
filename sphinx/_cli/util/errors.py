@@ -211,14 +211,31 @@ def handle_exception(
         )
         print_err('\n    import sys\n    sys.setrecursionlimit(1_500)\n')
 
+    # ``SphinxError`` and its subclasses are the documented "nice" exceptions:
+    # the build failed for a reason the user or an extension can act on, so only
+    # the category and message are shown. The environment details, extension
+    # list, saved traceback and bug report prompt are reserved for unexpected
+    # exceptions, which is what they are useful for.
+    nice_error = isinstance(exception, SphinxError)
+
     print_err()
-    error_context = full_exception_context(
-        exception,
-        message_log=message_log,
-        extensions=extensions,
-        full_traceback=print_traceback or use_pdb,
-    )
-    print_err(error_context)
+    if nice_error:
+        print_err(str(exception))
+        # ``-T`` prints on the console the traceback that would otherwise be
+        # saved to a temporary file. Nice errors do not save one, so there is
+        # none to print; ``--pdb`` is honoured because it is a request to debug
+        # this exception.
+        if use_pdb:
+            print_err()
+            print_err(format_traceback(exception))
+    else:
+        error_context = full_exception_context(
+            exception,
+            message_log=message_log,
+            extensions=extensions,
+            full_traceback=print_traceback or use_pdb,
+        )
+        print_err(error_context)
     print_err()
 
     if use_pdb:
@@ -226,6 +243,9 @@ def handle_exception(
 
         print_red(__('Starting debugger:'))
         post_mortem(exception.__traceback__)
+        return
+
+    if nice_error:
         return
 
     # Save full traceback to log file
