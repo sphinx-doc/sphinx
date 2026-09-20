@@ -412,6 +412,90 @@ def test_anchors_ignored_for_url(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'linkcheck',
+    testroot='linkcheck',
+    freshenv=True,
+)
+def test_cache(app: SphinxTestApp) -> None:
+    app.config.linkcheck_cache = True
+
+    class InternalServerErrorHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_GET(self) -> None:
+            self.send_error(500, 'Internal Server Error')
+
+    # First run doing caching
+    with serve_application(app, OKHandler) as address:
+        app.build()
+
+    assert (app.outdir / 'output.json').exists()
+    output_content = (app.outdir / 'output.json').read_text(encoding='utf8')
+
+    rows = [json.loads(x) for x in output_content.splitlines()]
+    assert len(rows) == 10
+    rowsby = {row['uri']: row for row in rows}
+    assert rowsby[f'http://{address}/']['status'] == 'working'
+    assert rowsby[f'http://{address}/#!bar']['status'] == 'working'
+    assert rowsby[f'http://{address}/image.png']['status'] == 'working'
+    assert rowsby[f'http://{address}/image2.png']['status'] == 'working'
+    assert rowsby['conf.py']['status'] == 'working'
+    assert rowsby['path/to/notfound']['status'] == 'broken'
+    assert rowsby[f'http://{address}/#top']['status'] == 'broken'
+
+    assert (app.outdir / app.config.linkcheck_cache_file).exists()
+    with (app.outdir / app.config.linkcheck_cache_file).open('r') as f:
+        cache_initial = json.load(f)
+    assert len(cache_initial) == 5
+    assert f'http://{address}/' in cache_initial
+    assert f'http://{address}/#!bar' in cache_initial
+    assert f'http://{address}/image.png' in cache_initial
+    assert 'conf.py' not in cache_initial  # because it does not use http
+    assert f'http://{address}/#top' not in cache_initial  # because it was broken
+
+    # Second run with cached values
+    # Manually expire a cache item
+    cache_initial[f'http://{address}/image2.png'] = 0.0
+    with (app.outdir / app.config.linkcheck_cache_file).open('w') as f:
+        json.dump(cache_initial, f)
+
+    with serve_application(
+        app, InternalServerErrorHandler, port=int(address.split(':')[1])
+    ):
+        app.build()
+
+    assert (app.outdir / 'output.json').exists()
+    output_content = (app.outdir / 'output.json').read_text(encoding='utf8')
+
+    rows = [json.loads(x) for x in output_content.splitlines()]
+    assert len(rows) == 10
+    rowsby = {row['uri']: row for row in rows}
+    assert rowsby[f'http://{address}/']['status'] == 'cached'
+    assert rowsby[f'http://{address}/#!bar']['status'] == 'cached'
+    assert rowsby[f'http://{address}/image.png']['status'] == 'cached'
+    assert (
+        rowsby[f'http://{address}/image2.png']['status'] == 'broken'
+    )  # because cache expired
+    assert rowsby['conf.py']['status'] == 'working'
+    assert rowsby['path/to/notfound']['status'] == 'broken'
+    assert rowsby[f'http://{address}/#top']['status'] == 'broken'
+
+    assert (app.outdir / app.config.linkcheck_cache_file).exists()
+    with (app.outdir / app.config.linkcheck_cache_file).open('r') as f:
+        cache_after = json.load(f)
+    assert len(cache_after) == 5
+    assert f'http://{address}/' in cache_after
+    assert f'http://{address}/#!bar' in cache_after
+    assert f'http://{address}/image.png' in cache_after
+    assert f'http://{address}/image2.png' in cache_after
+    assert cache_after[f'http://{address}/image2.png'] == 0.0
+    assert 'conf.py' not in cache_after
+    assert f'http://{address}/#top' not in cache_after
+
+    assert all(cache_initial[uri] == cache_after[uri] for uri in cache_initial)
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
     testroot='linkcheck-localserver-anchor',
     freshenv=True,
 )
