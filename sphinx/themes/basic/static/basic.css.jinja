@@ -628,7 +628,7 @@ div.citation > p:last-of-type:after {
 
 dl.field-list {
     display: grid;
-    grid-template-columns: fit-content(30%) auto;
+    grid-template-columns: fit-content(30%) minmax(0, 1fr);
 }
 
 dl.field-list > dt {
@@ -643,6 +643,13 @@ dl.field-list > dd {
     margin-top: 0em;
     margin-left: 0em;
     margin-bottom: 0em;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+dl.field-list span.pre {
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 dl {
