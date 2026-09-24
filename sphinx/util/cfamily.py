@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import re
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
+import regex as re
 from docutils import nodes
 
 from sphinx import addnodes
@@ -27,12 +27,18 @@ _whitespace_re = re.compile(r'\s+')
 anon_identifier_re = re.compile(r'(@[a-zA-Z0-9_])[a-zA-Z0-9_]*\b')
 identifier_re = re.compile(
     r"""
-    (   # This 'extends' _anon_identifier_re with the ordinary identifiers,
-        # make sure they are in sync.
-        (~?\b[a-zA-Z_])  # ordinary identifiers
-    |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
+    ( # This 'extends' _anon_identifier_re with the ordinary identifiers,
+      # make sure they are in sync.
+      (~?\b[a-zA-Z_])  # ordinary identifiers
+    | \p{XID_Start}    # Unicode-allowed starting characters for identifiers
+    | \p{ID_Compat_Math_Start} # Unicode-allowed starting math characters for identifiers
+    | (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
-    [a-zA-Z0-9_]*\b
+    (
+      [a-zA-Z0-9_]     # ordinary identifiers
+    | \p{XID_Continue} # Unicode-allowed continuing characters for identifiers
+    | \p{ID_Compat_Math_Continue} # Unicode-allowed continuing math characters for identifiers
+    )*
     """,
     flags=re.VERBOSE,
 )
