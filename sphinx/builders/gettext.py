@@ -179,6 +179,15 @@ class I18nBuilder(Builder):
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
+        def catalog_for_node(node: nodes.Element) -> Catalog:
+            source_docname = self.env.path2doc(node.source) if node.source else None
+            if source_docname in self.env.found_docs:
+                source_domain = docname_to_domain(
+                    source_docname, self.config.gettext_compact
+                )
+                return self.catalogs[source_domain]
+            return catalog
+
         for toctree in self.env.tocs[docname].findall(addnodes.toctree):
             for node, msg in extract_messages(toctree):
                 node.uid = ''  # type: ignore[attr-defined]  # Hack UUID model
@@ -187,14 +196,14 @@ class I18nBuilder(Builder):
         for node, msg in extract_messages(doctree):
             # Do not extract messages from within substitution definitions.
             if not _is_node_in_substitution_definition(node):
-                catalog.add(msg, node)
+                catalog_for_node(node).add(msg, node)
 
         if 'index' in self.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
                 for entry_type, value, _target_id, _main, _category_key in entries:
                     for m in split_index_msg(entry_type, value):
-                        catalog.add(m, node)
+                        catalog_for_node(node).add(m, node)
 
 
 # If set, use the timestamp from SOURCE_DATE_EPOCH

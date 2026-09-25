@@ -103,6 +103,7 @@ Contributors
 * Pauli Virtanen -- autodoc improvements, autosummary extension
 * Rafael Fontenelle -- internationalisation
 * \A. Rafey Khan -- improved intersphinx typing
+* Rahul Babu K -- gettext handling for included documents
 * Rui Pinheiro -- Python 3.14 forward references support
 * Roland Meister -- epub builder
 * Sebastian Wiesner -- image handling, distutils support

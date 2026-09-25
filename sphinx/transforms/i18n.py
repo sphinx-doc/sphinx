@@ -409,23 +409,45 @@ class Locale(SphinxTransform):
             self.env.current_document.docname, self.config.gettext_compact
         )
 
-        # fetch translations
+        # Fetch translations from the document containing each message.  Text
+        # inserted by an include directive retains the included file as its
+        # source, which may have a different translation domain.
         srcdir = self.env.srcdir
         dirs = [srcdir / directory for directory in self.config.locale_dirs]
-        catalog, has_catalog = init_locale(dirs, self.config.language, textdomain)
-        if not has_catalog:
-            return
+        translations: dict[str, dict[str, str]] = {}
+        source_domains: dict[str, str] = {}
 
-        catalogues = [getattr(catalog, '_catalog', None)]
-        while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]
-            catalogues.append(getattr(catalog, '_catalog', None))
-        merged: dict[str, str] = {}
-        for catalogue in filter(None, reversed(catalogues)):  # type: dict[str, str]
-            merged |= catalogue
+        def messages_for_domain(domain: str) -> dict[str, str]:
+            if domain not in translations:
+                catalog, _ = init_locale(dirs, self.config.language, domain)
+                catalogues = [getattr(catalog, '_catalog', None)]
+                while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]
+                    catalogues.append(getattr(catalog, '_catalog', None))
+                merged: dict[str, str] = {}
+                for catalogue in filter(None, reversed(catalogues)):  # type: dict[str, str]
+                    merged |= catalogue
+                translations[domain] = merged
+            return translations[domain]
+
+        def get_translation(node: nodes.Node, message: str) -> str:
+            if node.source:
+                if node.source not in source_domains:
+                    source_docname = self.env.path2doc(node.source)
+                    source_domains[node.source] = (
+                        docname_to_domain(source_docname, self.config.gettext_compact)
+                        if source_docname in self.env.found_docs
+                        else textdomain
+                    )
+                source_domain = source_domains[node.source]
+                if source_domain != textdomain:
+                    translated = messages_for_domain(source_domain).get(message)
+                    if translated:
+                        return translated
+            return messages_for_domain(textdomain).get(message, '')
 
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
-            msgstr = merged.get(msg, '')
+            msgstr = get_translation(node, msg)
 
             # There is no point in having noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
@@ -509,7 +531,7 @@ class Locale(SphinxTransform):
             if node.setdefault('translated', False):  # to avoid double translation
                 continue  # skip if the node is already translated by phase1
 
-            msgstr = merged.get(msg, '')
+            msgstr = get_translation(node, msg)
             noqa = False
 
             # See above.
@@ -610,7 +632,7 @@ class Locale(SphinxTransform):
                     msg_parts = split_index_msg(entry_type, value)
                     msgstr_parts = []
                     for part in msg_parts:
-                        msgstr = merged.get(part, '')
+                        msgstr = get_translation(node, part)
                         if not msgstr:
                             msgstr = part
                         msgstr_parts.append(msgstr)

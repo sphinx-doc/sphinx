@@ -1,0 +1,7 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: xx\n"
+
+msgid "This text is shared between documents."
+msgstr "This translation is shared between documents."

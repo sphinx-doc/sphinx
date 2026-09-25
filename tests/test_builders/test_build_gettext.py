@@ -69,6 +69,49 @@ def test_build_gettext(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     'gettext',
+    testroot='gettext-include',
+    srcdir='gettext-include-extraction',
+    copy_test_root=True,
+    confoverrides={
+        'gettext_compact': False,
+        'gettext_additional_targets': ['index'],
+    },
+)
+def test_included_document_messages_use_source_catalog(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    shared = get_msgids((app.outdir / 'shared.pot').read_text(encoding='utf-8'))
+    assert 'This text is shared between documents.' in shared
+    assert 'shared term' in shared
+    for docname in ('index', 'other'):
+        messages = get_msgids(
+            (app.outdir / f'{docname}.pot').read_text(encoding='utf-8')
+        )
+        assert 'This text is shared between documents.' not in messages
+        assert 'shared term' not in messages
+
+
+@pytest.mark.sphinx(
+    'text',
+    testroot='gettext-include',
+    srcdir='gettext-include-translation',
+    copy_test_root=True,
+    confoverrides={
+        'language': 'xx',
+        'locale_dirs': ['.'],
+        'gettext_compact': False,
+    },
+)
+def test_included_document_uses_source_translation(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    for docname in ('index', 'other', 'shared'):
+        output = (app.outdir / f'{docname}.txt').read_text(encoding='utf-8')
+        assert 'This translation is shared between documents.' in output
+
+
+@pytest.mark.sphinx(
+    'gettext',
     testroot='root',
     srcdir='root-gettext',
 )
