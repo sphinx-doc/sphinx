@@ -10,7 +10,6 @@
 .mypy_cache/
 .pytest_cache/
 .ropeproject/
-.vscode/
 TAGS
 .tags
 .tox/
@@ -18,6 +17,7 @@ TAGS
 .venv/
 venv/
 .coverage
+temp_auto_push.bat
 htmlcov
 .DS_Store
 sphinx/pycode/Grammar*pickle
@@ -37,3 +37,5 @@ tests/test-server.lock
 utils/regression_test.js
 
 node_modules/
+.gitignore
+branch_structure.json

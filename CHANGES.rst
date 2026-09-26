@@ -4,6 +4,9 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #3591: autosummary: Fix section title underlines for module and class
+  names that contain East Asian wide or full-width characters, which
+  occupy more than one column.
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.

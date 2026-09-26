@@ -21,6 +21,7 @@ from sphinx.ext.autosummary import (
 )
 from sphinx.ext.autosummary.generate import (
     AutosummaryEntry,
+    _underline,
     generate_autosummary_content,
     generate_autosummary_docs,
 )
@@ -982,6 +983,22 @@ def test_autogen(rootdir, tmp_path):
         args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
         assert (tmp_path / 'sphinx.application.TemplateBridge.rst').exists()
+
+
+def test_underline_wide_characters():
+    """The underline must match the display width of the title.
+
+    East Asian wide characters occupy two columns, so the underline must be
+    longer than the number of characters (see gh-issue-3591).
+    """
+    assert _underline('foo') == 'foo\n==='
+    # wide characters count double, narrow characters single
+    assert _underline('日本語') == '日本語\n======'
+    assert _underline('a日b') == 'a日b\n===='
+    # full-width characters count as wide too
+    assert _underline('ＡＢＣ') == 'ＡＢＣ\n======'
+    # custom underline character
+    assert _underline('日本語', line='-') == '日本語\n------'
 
 
 def test_autogen_remove_old(rootdir, tmp_path):
