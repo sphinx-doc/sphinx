@@ -110,7 +110,7 @@ def _underline(title: str, line: str = '=') -> str:
     if '\n' in title:
         msg = 'Can only underline single lines'
         raise ValueError(msg)
-    return title + '\n' + line * len(title)
+    return title + '\n' + line * rst.textwidth(title)
 
 
 class AutosummaryRenderer:
