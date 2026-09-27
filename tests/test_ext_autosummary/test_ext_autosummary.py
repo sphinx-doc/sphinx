@@ -1063,6 +1063,35 @@ def test_autosummary_context_callback_requires_mapping(app, tmp_path):
         )
 
 
+@pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_context_callback_none_uses_global_context(app, tmp_path):
+    app.config.autosummary_context = {'global_context': 'global value'}
+    app.config.autosummary_context_callback = None
+
+    content = _generate_autosummary_with_template(
+        app, tmp_path, 'autosummary_dummy_module.Foo', '{{ global_context }}'
+    )
+
+    assert content == 'global value'
+
+
+@pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_context_callback_propagates_exception(app, tmp_path):
+    callback_error = RuntimeError('callback failed')
+
+    def context_callback(obj):
+        raise callback_error
+
+    app.config.autosummary_context_callback = context_callback
+
+    with pytest.raises(RuntimeError, match=r'^callback failed$') as exc_info:
+        _generate_autosummary_with_template(
+            app, tmp_path, 'autosummary_dummy_module.Foo', '{{ object_context }}'
+        )
+
+    assert exc_info.value is callback_error
+
+
 @pytest.mark.sphinx(
     'dummy',
     testroot='ext-autosummary',

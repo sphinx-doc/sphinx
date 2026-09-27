@@ -214,6 +214,15 @@ also use these config values:
    ``name``, and ``objtype``, retain precedence over both. Exceptions raised
    by the callback are not caught.
 
+   For example, a callback can expose the object's name to a custom template:
+
+   .. code-block:: python
+
+      def autosummary_context_callback(obj):
+          return {'object_name': getattr(obj, '__name__', '')}
+
+   The template can then use ``{{ object_name }}``.
+
    This callback customizes template context only. It does not change display
    names, reference targets, generated filenames, or toctree entries.
 
