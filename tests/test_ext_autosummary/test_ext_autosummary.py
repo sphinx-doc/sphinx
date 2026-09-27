@@ -956,7 +956,7 @@ def test_autosummary_template(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_context_callback(app, tmp_path):
-    import autosummary_dummy_module  # type: ignore[import-not-found]
+    import autosummary_dummy_module
 
     callback_objects = []
 
