@@ -954,6 +954,115 @@ def test_autosummary_template(app):
     assert 'EMPTY' in content
 
 
+@pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_context_callback(app, tmp_path):
+    import autosummary_dummy_module  # type: ignore[import-not-found]
+
+    callback_objects = []
+
+    def context_callback(obj):
+        callback_objects.append(obj)
+        return {'object_context': obj.__name__}
+
+    app.config.autosummary_context_callback = context_callback
+
+    template_dir = tmp_path / 'templates'
+    template_dir.mkdir()
+    (template_dir / 'context.rst').write_text('{{ object_context }}', encoding='utf8')
+    app.config.templates_path = [*app.config.templates_path, str(template_dir)]
+
+    entries = [
+        AutosummaryEntry(
+            f'autosummary_dummy_module.{name}', str(tmp_path), 'context.rst', False
+        )
+        for name in ('Foo', 'bar')
+    ]
+    with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
+        mock.return_value = entries
+        generate_autosummary_docs([], output_dir=tmp_path, app=app)
+
+    assert set(callback_objects) == {
+        autosummary_dummy_module.Foo,
+        autosummary_dummy_module.bar,
+    }
+    assert (tmp_path / 'autosummary_dummy_module.Foo.rst').read_text(
+        encoding='utf8'
+    ) == 'Foo'
+    assert (tmp_path / 'autosummary_dummy_module.bar.rst').read_text(
+        encoding='utf8'
+    ) == 'bar'
+
+
+def _generate_autosummary_with_template(app, tmp_path, name, template_content):
+    template_dir = tmp_path / 'templates'
+    template_dir.mkdir()
+    (template_dir / 'context.rst').write_text(template_content, encoding='utf8')
+    app.config.templates_path = [*app.config.templates_path, str(template_dir)]
+
+    entry = AutosummaryEntry(name, str(tmp_path), 'context.rst', False)
+    with patch('sphinx.ext.autosummary.generate.find_autosummary_in_files') as mock:
+        mock.return_value = [entry]
+        generate_autosummary_docs([], output_dir=tmp_path, app=app)
+
+    return (tmp_path / f'{name}.rst').read_text(encoding='utf8')
+
+
+@pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_context_callback_merges_global_context(app, tmp_path):
+    app.config.autosummary_context = {'shared': 'global', 'global_only': 'retained'}
+
+    def context_callback(obj):
+        return {'shared': 'callback', 'object_context': obj.__name__}
+
+    app.config.autosummary_context_callback = context_callback
+
+    content = _generate_autosummary_with_template(
+        app,
+        tmp_path,
+        'autosummary_dummy_module.Foo',
+        '{{ shared }}|{{ global_only }}|{{ object_context }}',
+    )
+
+    assert content == 'callback|retained|Foo'
+
+
+@pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_context_callback_preserves_standard_context(app, tmp_path):
+    def context_callback(obj):
+        return {
+            'fullname': 'callback',
+            'module': 'callback',
+            'objname': 'callback',
+            'name': 'callback',
+            'objtype': 'callback',
+        }
+
+    app.config.autosummary_context_callback = context_callback
+
+    content = _generate_autosummary_with_template(
+        app,
+        tmp_path,
+        'autosummary_dummy_module.Foo',
+        '{{ fullname }}|{{ module }}|{{ objname }}|{{ name }}|{{ objtype }}',
+    )
+
+    assert content == (
+        'autosummary_dummy_module.Foo|autosummary_dummy_module|Foo|Foo|class'
+    )
+
+
+@pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_context_callback_requires_mapping(app, tmp_path):
+    app.config.autosummary_context_callback = lambda obj: []
+
+    with pytest.raises(
+        TypeError, match='autosummary_context_callback must return a mapping'
+    ):
+        _generate_autosummary_with_template(
+            app, tmp_path, 'autosummary_dummy_module.Foo', '{{ object_context }}'
+        )
+
+
 @pytest.mark.sphinx(
     'dummy',
     testroot='ext-autosummary',

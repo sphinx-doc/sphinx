@@ -200,6 +200,23 @@ also use these config values:
 
    .. versionadded:: 3.1
 
+.. confval:: autosummary_context_callback
+   :type: :code-py:`Callable[[object], Mapping[str, Any]] | None`
+   :default: :code-py:`None`
+
+   A function called for each resolved Python object for which autosummary
+   generates a stub file. The function receives the object and must return a
+   mapping of values to add to the template context.
+
+   The returned values are merged over :confval:`autosummary_context`, so
+   callback values override global values with the same key. Autosummary's
+   standard context values, including ``fullname``, ``module``, ``objname``,
+   ``name``, and ``objtype``, retain precedence over both. Exceptions raised
+   by the callback are not caught.
+
+   This callback customizes template context only. It does not change display
+   names, reference targets, generated filenames, or toctree entries.
+
 .. confval:: autosummary_generate
    :type: :code-py:`bool`
    :default: :code-py:`True`
