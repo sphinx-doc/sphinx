@@ -55,7 +55,7 @@ import posixpath
 import re
 import sys
 from inspect import Parameter
-from types import ModuleType
+from types import FunctionType, ModuleType, NoneType
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -901,6 +901,12 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_role('autolink', AutoLink())
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, 'env', types=frozenset({dict}))
+    app.add_config_value(
+        'autosummary_context_callback',
+        None,
+        'env',
+        types=frozenset({FunctionType, NoneType}),
+    )
     app.add_config_value(
         'autosummary_filename_map', {}, 'html', types=frozenset({dict})
     )

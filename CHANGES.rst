@@ -1,5 +1,10 @@
 Release 9.1.1 (in development)
 ==============================
+Features added
+--------------
+
+* #13003: autosummary: Add ``autosummary_context_callback`` for
+  per-object template context.
 
 Bugs fixed
 ----------

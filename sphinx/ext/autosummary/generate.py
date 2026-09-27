@@ -22,6 +22,7 @@ import pkgutil
 import pydoc
 import re
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
@@ -92,6 +93,7 @@ class DummyApplication:
         self._exception_on_warning = False
 
         self.config.add('autosummary_context', {}, 'env', ())
+        self.config.add('autosummary_context_callback', None, 'env', ())
         self.config.add('autosummary_filename_map', {}, 'env', ())
         self.config.add('autosummary_ignore_module_all', True, 'env', bool)
 
@@ -683,6 +685,12 @@ def generate_autosummary_docs(
                 continue
 
         context: dict[str, Any] = {**app.config.autosummary_context}
+        if (context_callback := app.config.autosummary_context_callback) is not None:
+            object_context = context_callback(obj)
+            if not isinstance(object_context, Mapping):
+                msg = 'autosummary_context_callback must return a mapping'
+                raise TypeError(msg)
+            context.update(object_context)
 
         content = generate_autosummary_content(
             name,
