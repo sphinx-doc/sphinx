@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
-from sphinx.locale import _, __
+from sphinx.locale import _, __, safe_format
 from sphinx.util import logging
 
 if TYPE_CHECKING:
@@ -793,13 +793,13 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
 
         if isinstance(valid_types, ENUM):
             if not valid_types.match(value):
-                msg = __(
-                    'The config value `{name}` has to be a one of {candidates}, '
-                    'but `{current}` is given.'
-                )
                 logger.warning(
-                    msg.format(
-                        name=name, current=value, candidates=valid_types._candidates
+                    safe_format(
+                        'The config value `{name}` has to be a one of {candidates}, '
+                        'but `{current}` is given.',
+                        name=name,
+                        current=value,
+                        candidates=valid_types._candidates,
                     ),
                     once=True,
                 )
@@ -824,10 +824,6 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
             continue  # at least we share a non-trivial base class
 
         if valid_types:
-            msg = __(
-                "The config value `{name}' has type `{current.__name__}'; "
-                'expected {permitted}.'
-            )
             wrapped_valid_types = sorted(f"`{c.__name__}'" for c in valid_types)
             if len(wrapped_valid_types) > 2:
                 permitted = (
@@ -837,16 +833,24 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
             else:
                 permitted = ' or '.join(wrapped_valid_types)
             logger.warning(
-                msg.format(name=name, current=type_value, permitted=permitted),
+                safe_format(
+                    "The config value `{name}' has type `{current.__name__}'; "
+                    'expected {permitted}.',
+                    name=name,
+                    current=type_value,
+                    permitted=permitted,
+                ),
                 once=True,
             )
         else:
-            msg = __(
-                "The config value `{name}' has type `{current.__name__}', "
-                "defaults to `{default.__name__}'."
-            )
             logger.warning(
-                msg.format(name=name, current=type_value, default=type_default),
+                safe_format(
+                    "The config value `{name}' has type `{current.__name__}', "
+                    "defaults to `{default.__name__}'.",
+                    name=name,
+                    current=type_value,
+                    default=type_default,
+                ),
                 once=True,
             )
 

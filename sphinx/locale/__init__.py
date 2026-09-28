@@ -6,6 +6,7 @@ import locale
 import sys
 from gettext import NullTranslations, translation
 from pathlib import Path
+from string import Formatter
 from typing import TYPE_CHECKING
 
 from sphinx import package_dir
@@ -213,6 +214,41 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
             return translator.gettext(message)
 
     return gettext
+
+
+def _format_field_names(message: str) -> set[str]:
+    return {
+        field_name
+        for _, field_name, _, _ in Formatter().parse(message)
+        if field_name is not None
+    }
+
+
+def safe_format(
+    message: str,
+    /,
+    *args: Any,
+    catalog: str = 'sphinx',
+    namespace: str = 'console',
+    **kwargs: Any,
+) -> str:
+    """Format the translation of *message* using ``str.format``, falling back
+    to the untranslated *message* when the translation is damaged: a
+    placeholder that was renamed, dropped, or added, or a format call that
+    raises.
+
+    This is the safe companion to :func:`_` and ``__`` for messages that are
+    formatted eagerly: pass the *untranslated* message and the format
+    arguments, and a damaged catalogue degrades to an English message
+    instead of raising or losing information during the build.
+    """
+    translated = get_translator(catalog, namespace).gettext(message)
+    if _format_field_names(translated) == _format_field_names(message):
+        try:
+            return translated.format(*args, **kwargs)
+        except (KeyError, IndexError, ValueError):
+            pass
+    return message.format(*args, **kwargs)
 
 
 # A shortcut for sphinx-core
