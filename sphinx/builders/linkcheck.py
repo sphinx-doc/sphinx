@@ -123,8 +123,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
         }
         self.write_linkstat(linkstat)
 
-        if result.lineno and result.status != _Status.UNCHECKED:
-            # unchecked links are not logged
+        if (
+            result.lineno
+            and result.status != _Status.UNCHECKED
+            and (
+                result.status != _Status.WORKING
+                or self.config.linkcheck_report_successes
+            )
+        ):
+            # Unchecked links and suppressed successful links are not logged.
             logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
 
         match result.status:
@@ -137,7 +144,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     msg = res_uri
                 logger.info(darkgray('-ignored- ') + msg)  # NoQA: G003
             case _Status.WORKING:
-                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # NoQA: G003
+                if self.config.linkcheck_report_successes:
+                    logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # NoQA: G003
             case _Status.TIMEOUT:
                 if self.config.verbosity < 0:
                     msg = 'timeout   ' + f'{res_uri}{result.message}'
@@ -821,6 +829,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('linkcheck_timeout', 30, '', types=frozenset({float, int}))
     app.add_config_value('linkcheck_workers', 5, '', types=frozenset({int}))
     app.add_config_value('linkcheck_anchors', True, '', types=frozenset({bool}))
+    app.add_config_value(
+        'linkcheck_report_successes', True, '', types=frozenset({bool})
+    )
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value(

@@ -126,6 +126,10 @@ def test_defaults(app: SphinxTestApp) -> None:
         with ConnectionMeasurement() as m:
             app.build()
         assert m.connection_count <= 5
+    assert app.config.linkcheck_report_successes is True
+    assert f'ok        http://{address}/' in strip_escape_sequences(
+        app.status.getvalue()
+    )
 
     # Text output
     assert (app.outdir / 'output.txt').exists()
@@ -198,6 +202,44 @@ def test_defaults(app: SphinxTestApp) -> None:
         'uri': f'http://{address}/anchor.html#found',
         'info': '',
     }
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck',
+    freshenv=True,
+    confoverrides={'linkcheck_report_successes': False},
+)
+def test_linkcheck_report_successes(
+    app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with serve_application(app, DefaultsHandler) as address:
+        app.build()
+
+    capsys.readouterr()
+    status = strip_escape_sequences(app.status.getvalue())
+    assert f'ok        http://{address}/' not in status
+    assert f'broken    http://{address}/image.png' in status
+    assert '(           links: line    3) ' not in status
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rowsby = {row['uri']: row for row in map(json.loads, content.splitlines())}
+    assert rowsby[f'http://{address}/']['status'] == 'working'
+
+
+def test_linkcheck_report_successes_type(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
+    tmp_path.joinpath('conf.py').write_text(
+        "linkcheck_report_successes = 'no'\n", encoding='utf-8'
+    )
+    tmp_path.joinpath('index.rst').touch()
+
+    warning_stream = StringIO()
+    make_app('linkcheck', srcdir=tmp_path, warning=warning_stream)
+    assert strip_escape_sequences(warning_stream.getvalue()).splitlines() == [
+        "WARNING: The config value `linkcheck_report_successes' has type `str'; expected `bool'."
+    ]
 
 
 @pytest.mark.sphinx(
