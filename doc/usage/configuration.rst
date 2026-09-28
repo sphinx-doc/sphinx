@@ -509,6 +509,20 @@ See the documentation on :ref:`intl` for details.
    .. versionchanged:: 1.4
       Support figure substitution
 
+.. confval:: source_language
+   :type: :code-py:`str`
+   :default: :code-py:`'en'`
+
+   The code for the language the source documents are written in.
+
+   When :confval:`translation_progress_classes` is enabled, elements that
+   remain untranslated are marked with the ``lang`` attribute set to this
+   value, so that user agents can apply the correct typography,
+   hyphenation and text direction rules (for instance when mixing
+   right-to-left and left-to-right scripts in one page).
+
+   .. versionadded:: 9.2
+
    .. versionchanged:: 5.0
       The default is now :code-py:`'en'` (previously :code-py:`None`).
 

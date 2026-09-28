@@ -31,6 +31,10 @@ Features added
   assets from extensions to the build output.
   Patch by Jared Dillard
 
+* Add :confval:`source_language` config to set the ``lang`` attribute of
+  untranslated elements when ``translation_progress_classes`` is enabled.
+  Patch by Hesam
+
 Bugs fixed
 ----------
 

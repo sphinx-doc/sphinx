@@ -687,6 +687,7 @@ class AddTranslationClasses(SphinxTransform):
             else:
                 if add_untranslated:
                     node.setdefault('classes', []).append('untranslated')  # type: ignore[arg-type]
+                node['lang'] = self.config.source_language
 
 
 class RemoveTranslatableInline(SphinxTransform):

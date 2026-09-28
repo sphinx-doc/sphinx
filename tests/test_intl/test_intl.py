@@ -849,6 +849,40 @@ def test_translation_progress_classes_true(app: SphinxTestApp) -> None:
     assert len(doctree[0]) == 20
 
 
+@pytest.mark.sphinx(
+    'html',
+    testroot='intl',
+    freshenv=True,
+    confoverrides={
+        'language': _CATALOG_LOCALE,
+        'locale_dirs': ['.'],
+        'gettext_compact': False,
+        'translation_progress_classes': 'untranslated',
+        'source_language': 'en',
+    },
+    copy_test_root=True,
+)
+def test_source_language_lang_attr(app: SphinxTestApp) -> None:
+    app.build(filenames=[app.srcdir / 'translation_progress.txt'])
+
+    doctree = app.env.get_doctree('translation_progress')
+
+    # untranslated paragraphs carry the source-language tag
+    assert extract_element(doctree, 0, 13)['lang'] == 'en'
+    assert extract_element(doctree, 0, 14)['lang'] == 'en'
+    assert extract_element(doctree, 0, 16)['lang'] == 'en'
+    assert extract_element(doctree, 0, 17)['lang'] == 'en'
+
+    # translated paragraphs do not carry the tag
+    assert 'lang' not in extract_element(doctree, 0, 1)
+    assert 'lang' not in extract_element(doctree, 0, 2)
+
+    # the attribute reaches the HTML output
+    result = (app.outdir / 'translation_progress.html').read_text(encoding='utf8')
+    assert '<p class="untranslated" lang="en">' in result
+    assert result.count(' lang="en"') >= 4
+
+
 class _MockClock:
     """Object for mocking :func:`time.time_ns` (if needed).
 
@@ -1226,9 +1260,9 @@ def test_html_rebuild_mo(app: SphinxTestApp) -> None:
 
     _, bom_file = _get_bom_intl_path(app.srcdir)
     old_mtime = bom_file.stat().st_mtime
-    new_mtime = old_mtime + (dt := 5)
+    new_mtime = max(old_mtime, time.time()) + 5
     os.utime(bom_file, (new_mtime, new_mtime))
-    assert old_mtime + dt == new_mtime, (old_mtime + dt, new_mtime)
+    assert bom_file.stat().st_mtime > app.env.all_docs['bom'] / 1_000_000
     _, updated, _ = _get_update_targets(app)
     assert updated == {'bom'}
 
@@ -1633,6 +1667,11 @@ def test_xml_strange_markup(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None:
+    single_quote = (
+        "'"
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&#39;'
+    )
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:
@@ -1726,6 +1765,16 @@ def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None
     },
 )
 def test_additional_targets_should_be_translated(app: SphinxTestApp) -> None:
+    single_quote = (
+        "'"
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&#39;'
+    )
+    double_quote = (
+        '"'
+        if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21)
+        else '&quot;'
+    )
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
         sp = '<span class="w"> </span>'
     else:
