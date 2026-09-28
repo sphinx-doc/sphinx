@@ -174,6 +174,13 @@ a comma-separated list of group names.
       ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
       individually.  Default is ``trim-doctest-flags``.
 
+   Inline doctest flags at the end of a Python statement are honored when the
+   test is run.  For example, ``# doctest: +SKIP`` skips the top-level
+   statement containing it; other inline flags affect comparison with the
+   corresponding :rst:dir:`testoutput` block.  By default, the flag comments
+   are removed from the displayed code.  Use ``:no-trim-doctest-flags:`` to
+   keep them visible.
+
    .. rst:directive:option:: skipif: condition
       :type: text
 

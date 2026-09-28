@@ -161,3 +161,52 @@ keep control char in raw string
     >>> print(r'one\ntwo')
     one\ntwo
 
+inline doctest flags in testcode blocks
+---------------------------------------
+
+.. testcode::
+
+   x = 10
+   x += 10  # doctest: +SKIP
+   print(x)
+
+.. testoutput::
+
+   10
+
+.. testcode::
+   :no-trim-doctest-flags:
+
+   x = 10
+   x += 10  # doctest: +SKIP
+   print(x)
+
+.. testoutput::
+
+   10
+
+.. testcode::
+
+   x = 10  # doctest: +SKIP
+   print('kept')
+   print('skipped')  # doctest: +SKIP
+
+.. testoutput::
+
+   kept
+
+.. testcode::
+
+   print('one    two')  # doctest: +NORMALIZE_WHITESPACE
+
+.. testoutput::
+
+   one two
+
+.. doctest::
+
+   >>> value = 10
+   >>> value += 10  # doctest: +SKIP
+   >>> print(value)
+   10
+

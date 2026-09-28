@@ -22,6 +22,20 @@ test-trim_doctest_flags
    >>> datetime.date.now()   # doctest: +QUX
    datetime.date(2008, 1, 1)
 
+.. testcode::
+
+   value = 1  # doctest: +DEFAULTMARKER
+
+.. testcode::
+   :no-trim-doctest-flags:
+
+   value = 1  # doctest: +KEPTMARKER
+
+.. testcode::
+   :trim-doctest-flags:
+
+   value = 1  # doctest: +EXPLICITMARKER
+
 .. doctest::
 
    >>> datetime.date.now()   # doctest: +QUUX

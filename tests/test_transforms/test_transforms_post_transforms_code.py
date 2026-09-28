@@ -20,6 +20,9 @@ def test_trim_doctest_flags_html(app: SphinxTestApp) -> None:
     assert 'QUUX' not in result
     assert 'CORGE' not in result
     assert 'GRAULT' in result
+    assert 'DEFAULTMARKER' not in result
+    assert 'KEPTMARKER' in result
+    assert 'EXPLICITMARKER' not in result
     assert '<span class="n">now</span><span class="p">()</span>   \n' not in result
     assert '<span class="n">now</span><span class="p">()</span>\n' in result
 
@@ -40,6 +43,9 @@ def test_trim_doctest_flags_disabled(app: SphinxTestApp) -> None:
     assert 'QUUX' not in result
     assert 'CORGE' not in result
     assert 'GRAULT' in result
+    assert 'DEFAULTMARKER' in result
+    assert 'KEPTMARKER' in result
+    assert 'EXPLICITMARKER' not in result
 
 
 @pytest.mark.sphinx('latex', testroot='trim_doctest_flags')
@@ -54,3 +60,6 @@ def test_trim_doctest_flags_latex(app: SphinxTestApp) -> None:
     assert 'QUUX' not in result
     assert 'CORGE' not in result
     assert 'GRAULT' in result
+    assert 'DEFAULTMARKER' not in result
+    assert 'KEPTMARKER' in result
+    assert 'EXPLICITMARKER' not in result
