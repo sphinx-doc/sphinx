@@ -23,6 +23,7 @@ from requests.exceptions import (
 )
 from requests.exceptions import Timeout as RequestTimeout
 
+import sphinx
 from sphinx._cli.util.colour import darkgray, darkgreen, purple, red, turquoise
 from sphinx.builders.dummy import DummyBuilder
 from sphinx.errors import ConfigError
@@ -59,6 +60,7 @@ class _Status(StrEnum):
 
 
 logger = logging.getLogger(__name__)
+_LINKCHECK_USER_AGENT = f'Sphinx/{sphinx.__version__} linkcheck'
 
 # matches to foo:// and // (a protocol relative URL)
 uri_re = re.compile('([a-z]+:)?//')
@@ -410,7 +412,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         else:
             self._timeout_status = _Status.TIMEOUT
 
-        self.user_agent = config.user_agent
+        self.user_agent = config.user_agent or _LINKCHECK_USER_AGENT
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
 

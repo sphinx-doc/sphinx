@@ -32,7 +32,7 @@ from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
 
-from tests.utils import CERT_FILE, serve_application
+from tests.utils import CERT_FILE, http_server, serve_application
 
 ts_re = re.compile(r'.*\[(?P<ts>.*)\].*')
 
@@ -80,6 +80,56 @@ class DefaultsHandler(BaseHTTPRequestHandler):
             self.send_response(404, 'Not Found')
             self.send_header('Content-Length', '0')
             self.end_headers()
+
+
+def _anchor_user_agent_handler(
+    user_agents: dict[str, str],
+) -> type[BaseHTTPRequestHandler]:
+    class AnchorUserAgentHandler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            request_user_agent = self.headers['User-Agent']
+            user_agents[self.path] = request_user_agent
+            if self.path == '/challenge' and request_user_agent.startswith('Mozilla/'):
+                content = b'<html><title>Making sure you are not a bot</title></html>'
+            elif self.path == '/missing':
+                content = b'<html><h2 id="elsewhere">Other</h2></html>'
+            else:
+                content = b'<html><h2 id="changelogs">Changelogs</h2></html>'
+
+            self.send_response(200, 'OK')
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+        def log_message(self, *args: object) -> None:
+            pass
+
+    return AnchorUserAgentHandler
+
+
+def _build_anchor_test_app(
+    make_app: Callable[..., SphinxTestApp],
+    tmp_path: Path,
+    address: str,
+    confoverrides: dict[str, Any] | None = None,
+) -> tuple[SphinxTestApp, dict[str, dict[str, str | int]]]:
+    tmp_path.joinpath('conf.py').touch()
+    tmp_path.joinpath('index.rst').write_text(
+        f'`Valid anchor <{address}/challenge#changelogs>`_\n\n'
+        f'`Missing anchor <{address}/missing#missing>`_\n',
+        encoding='utf-8',
+    )
+    app = make_app(
+        'linkcheck',
+        srcdir=tmp_path,
+        freshenv=True,
+        confoverrides=confoverrides or {},
+    )
+    app.build()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    rows = {str(row['uri']): row for row in map(json.loads, content.splitlines())}
+    return app, rows
 
 
 class ConnectionMeasurement:
@@ -198,6 +248,62 @@ def test_defaults(app: SphinxTestApp) -> None:
         'uri': f'http://{address}/anchor.html#found',
         'info': '',
     }
+
+
+def test_linkcheck_user_agent_checks_anchors(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
+    user_agents: dict[str, str] = {}
+    with http_server(_anchor_user_agent_handler(user_agents)) as server:
+        address = f'http://localhost:{server.server_port}'
+        _app, rows = _build_anchor_test_app(make_app, tmp_path, address)
+
+    assert user_agents['/challenge'].startswith('Sphinx/')
+    assert user_agents['/challenge'].endswith(' linkcheck')
+    assert rows[f'{address}/challenge#changelogs']['status'] == 'working'
+    assert rows[f'{address}/missing#missing'] == {
+        'filename': 'index.rst',
+        'lineno': 3,
+        'status': 'broken',
+        'code': 0,
+        'uri': f'{address}/missing#missing',
+        'info': "Anchor 'missing' not found",
+    }
+
+
+@pytest.mark.parametrize(
+    ('confoverrides', 'expected_user_agent'),
+    [
+        pytest.param(
+            {'user_agent': 'configured-agent/1.0'},
+            'configured-agent/1.0',
+            id='user-agent-config',
+        ),
+        pytest.param(
+            {
+                'user_agent': 'configured-agent/1.0',
+                'linkcheck_request_headers': {'*': {'User-Agent': 'header-agent/1.0'}},
+            },
+            'header-agent/1.0',
+            id='request-header-overrides-user-agent-config',
+        ),
+    ],
+)
+def test_linkcheck_user_agent_overrides(
+    make_app: Callable[..., SphinxTestApp],
+    tmp_path: Path,
+    confoverrides: dict[str, Any],
+    expected_user_agent: str,
+) -> None:
+    user_agents: dict[str, str] = {}
+    with http_server(_anchor_user_agent_handler(user_agents)) as server:
+        address = f'http://localhost:{server.server_port}'
+        _app, rows = _build_anchor_test_app(
+            make_app, tmp_path, address, confoverrides=confoverrides
+        )
+
+    assert user_agents['/challenge'] == expected_user_agent
+    assert rows[f'{address}/challenge#changelogs']['status'] == 'working'
 
 
 @pytest.mark.sphinx(

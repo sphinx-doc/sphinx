@@ -490,6 +490,10 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
    ``requests``, and writes an overview which ones are broken and redirected to
    standard output and to :file:`output.txt` in the output directory.
 
+   Linkcheck requests identify themselves as Sphinx by default.  This can be
+   overridden with :confval:`user_agent` or, for specific URLs, with
+   :confval:`linkcheck_request_headers`.
+
    .. autoattribute:: name
 
    .. autoattribute:: format
