@@ -5,6 +5,7 @@ The extension automatically execute code snippets and checks their results.
 
 from __future__ import annotations
 
+import ast
 import doctest
 import os.path
 import re
@@ -76,18 +77,24 @@ class TestDirective(SphinxDirective):
         # so that our builder recognizes them, and the other builders are happy.
         code = '\n'.join(self.content)
         test = None
-        if self.name == 'doctest':
-            if '<BLANKLINE>' in code:
-                # convert <BLANKLINE>s to ordinary blank lines for presentation
+        if self.name == 'doctest' and '<BLANKLINE>' in code:
+            # convert <BLANKLINE>s to ordinary blank lines for presentation
+            test = code
+            code = blankline_re.sub('', code)
+        trim_flags = (
+            self.name == 'doctest'
+            or self.config.trim_doctest_flags
+            or 'trim-doctest-flags' in self.options
+        )
+        if (
+            self.name in {'doctest', 'testcode'}
+            and trim_flags
+            and doctestopt_re.search(code)
+            and 'no-trim-doctest-flags' not in self.options
+        ):
+            if not test:
                 test = code
-                code = blankline_re.sub('', code)
-            if (
-                doctestopt_re.search(code)
-                and 'no-trim-doctest-flags' not in self.options
-            ):
-                if not test:
-                    test = code
-                code = doctestopt_re.sub('', code)
+            code = doctestopt_re.sub('', code)
         nodetype: type[TextElement] = nodes.literal_block
         if self.name in {'testsetup', 'testcleanup'} or 'hide' in self.options:
             nodetype = nodes.comment
@@ -192,6 +199,43 @@ class TestoutputDirective(TestDirective):
 
 
 parser = doctest.DocTestParser()
+
+
+def _parse_testcode(code: str, name: str) -> tuple[str, dict[int, bool]]:
+    """Remove skipped statements and collect doctest options from testcode."""
+    try:
+        statements = ast.parse(code).body
+    except SyntaxError:
+        return code, {}
+
+    lines = code.splitlines(keepends=True)
+    skipped_lines: set[int] = set()
+    options: dict[int, bool] = {}
+    # Treat each top-level statement as the equivalent of one doctest prompt.
+    for statement in statements:
+        start = statement.lineno
+        end = statement.end_lineno or start
+        source = ''.join(lines[start - 1 : end])
+        prompt = '\n'.join(
+            f'{">>>" if line_number == 0 else "..."} {line}'
+            for line_number, line in enumerate(source.splitlines())
+        )
+        examples = parser.get_examples(prompt, name)
+        statement_options = examples[0].options if examples else {}
+        if statement_options.get(doctest.SKIP, False):
+            skipped_lines.update(range(start, end + 1))
+        options.update({
+            flag: enabled
+            for flag, enabled in statement_options.items()
+            if flag != doctest.SKIP
+        })
+
+    code = ''.join(
+        '\n' if line_number in skipped_lines and line.endswith('\n') else line
+        for line_number, line in enumerate(lines, 1)
+        if line_number not in skipped_lines or line.endswith('\n')
+    )
+    return code, options
 
 
 # helper classes
@@ -581,9 +625,19 @@ class DocTestBuilder(Builder):
             else:
                 # testcode and output separate
                 output = code[1].code if code[1] else ''
-                options = code[1].options if code[1] else {}
+                options = code[1].options.copy() if code[1] else {}
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
+                try:
+                    source, inline_options = _parse_testcode(code[0].code, group.name)
+                except ValueError:
+                    logger.warning(
+                        __('ignoring invalid doctest code: %r'),
+                        code[0].code,
+                        location=(code[0].filename, code[0].lineno),
+                    )
+                    continue
+                options.update(inline_options)
                 # find out if we're testing an exception
                 m = parser._EXCEPTION_RE.match(output)  # type: ignore[attr-defined]
                 if m:
@@ -591,7 +645,7 @@ class DocTestBuilder(Builder):
                 else:
                     exc_msg = None
                 example = doctest.Example(
-                    code[0].code,
+                    source,
                     output,
                     exc_msg=exc_msg,
                     lineno=code[0].lineno,
