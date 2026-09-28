@@ -3655,6 +3655,31 @@ Filtering
 These options control which links the *linkcheck* builder checks,
 and which failures and redirects it ignores.
 
+Output
+~~~~~~
+
+.. confval:: linkcheck_report_successes
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Report successful links to standard output during a ``linkcheck`` build.
+   Set this to :code-py:`False` to suppress successful-link output while still
+   reporting broken links and redirects.
+
+   This configuration value only affects the *linkcheck* builder.  The general
+   :option:`-q <sphinx-build -q>` / :option:`--quiet <sphinx-build --quiet>`
+   options suppress normal output from Sphinx more broadly, while
+   :option:`-Q <sphinx-build -Q>` / :option:`--silent <sphinx-build --silent>`
+   also suppress warnings; errors remain visible.
+
+   Example:
+
+   .. code-block:: python
+
+      linkcheck_report_successes = False
+
+   .. versionadded:: 9.1.1
+
 .. confval:: linkcheck_allowed_redirects
    :type: :code-py:`dict[str, str]`
 

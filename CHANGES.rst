@@ -1,6 +1,12 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #10946: linkcheck: Add the :confval:`linkcheck_report_successes` configuration
+  value to control whether successful links are reported.
+
 Bugs fixed
 ----------
 
