@@ -17,7 +17,7 @@ from sphinx.util import logging
 from sphinx.util.parsing import _fresh_title_style_context
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from docutils.nodes import Element
     from docutils.parsers.rst import Directive
@@ -427,6 +427,32 @@ def split_explicit_title(text: str) -> tuple[bool, str, str]:
 
 indextypes = ['single', 'pair', 'double', 'triple', 'see', 'seealso']
 
+
+def make_index_node(
+    env: BuildEnvironment,
+    document: nodes.document,
+    entries: Sequence[str],
+    *,
+    target_id: str | None = None,
+    index_name: str = 'index',
+) -> tuple[addnodes.index, nodes.target]:
+    """Create an index node and its explicit target.
+
+    ``entries`` use the same syntax as the index directive, for example
+    ``"single: spam"`` or ``"pair: spam; eggs"``.
+    """
+    if target_id is None:
+        target_id = make_id(env, document, index_name)
+
+    target_node = nodes.target('', '', ids=[target_id])
+    document.note_explicit_target(target_node)
+
+    index_entries: list[tuple[str, str, str, str, str | None]] = []
+    for entry in entries:
+        index_entries.extend(process_index_entry(entry, target_id))
+
+    index_node = addnodes.index(entries=index_entries, inline=False)
+    return index_node, target_node
 
 def process_index_entry(
     entry: str,
