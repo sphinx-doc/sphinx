@@ -1,6 +1,12 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #2914: Add :func:`sphinx.util.nodes.make_index_node` to help extensions
+  create an index node and its matching explicit target programmatically.
+
 Bugs fixed
 ----------
 
