@@ -17,6 +17,7 @@ from sphinx.util.nodes import (
     clean_astext,
     extract_messages,
     make_id,
+    make_index_node,
     split_explicit_title,
 )
 
@@ -225,6 +226,24 @@ def test_make_id(app, prefix, term, expected):
     document = create_new_document()
     assert make_id(app.env, document, prefix, term) == expected
 
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_make_index_node(app):
+    document = create_new_document()
+    index_node, target_node = make_index_node(
+        app.env,
+        document,
+        ['single: spam', 'pair: spam; eggs'],
+    )
+
+    target_id = target_node['ids'][0]
+    assert target_id == 'index-0'
+    assert document.ids[target_id] is target_node
+    assert index_node['inline'] is False
+    assert index_node['entries'] == [
+        ('single', 'spam', target_id, '', None),
+        ('pair', 'spam; eggs', target_id, '', None),
+    ]
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_make_id_already_registered(app):
