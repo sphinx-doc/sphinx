@@ -245,6 +245,7 @@ def test_make_index_node(app):
         ('pair', 'spam; eggs', target_id, '', None),
     ]
 
+
 @pytest.mark.sphinx('html', testroot='root')
 def test_make_id_already_registered(app):
     document = create_new_document()
