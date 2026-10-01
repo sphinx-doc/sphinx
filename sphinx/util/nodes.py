@@ -435,7 +435,7 @@ def make_index_node(
     *,
     target_id: str | None = None,
     index_name: str = 'index',
-) -> tuple[addnodes.index, nodes.target]:
+) -> tuple[addnodes.index, Node]:
     """Create an index node and its explicit target.
 
     ``entries`` use the same syntax as the index directive, for example
@@ -453,6 +453,7 @@ def make_index_node(
 
     index_node = addnodes.index(entries=index_entries, inline=False)
     return index_node, target_node
+
 
 def process_index_entry(
     entry: str,
