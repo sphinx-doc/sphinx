@@ -4,6 +4,10 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #14713: autodoc: Keep objects whose signature annotations refer to
+  unavailable attributes.
+  Patch by Charan Rathore
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.

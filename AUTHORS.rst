@@ -35,6 +35,7 @@ Contributors
 * Brecht Machiels -- builder entry-points
 * Bruce Mitchener -- Minor epub improvement
 * Buck Evan -- dummy builder
+* Charan Rathore -- autodoc fixes
 * Charles Duffy -- original graphviz extension
 * Chris Barrick -- Napoleon type preprocessing logic
 * Chris Holdgraf -- improved documentation structure

@@ -586,3 +586,17 @@ def test_no_inherited_instance_variable_with_annotations() -> None:
         '      Local',
         '',
     ]
+
+
+def test_class_missing_annotation_attribute() -> None:
+    actual = do_autodoc('class', 'target.missing_annotation_attribute.Quantity')
+
+    assert actual == [
+        '',
+        '.. py:class:: Quantity(value: np.timedelta64)',
+        '              Quantity(value: int)',
+        '   :module: target.missing_annotation_attribute',
+        '',
+        '   A quantity with an optional dependency in its signature.',
+        '',
+    ]

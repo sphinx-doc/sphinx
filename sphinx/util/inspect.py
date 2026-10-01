@@ -854,7 +854,7 @@ def _evaluate(
                 # might be a ForwardRef'ed annotation in overloaded functions
                 ref = ForwardRef(annotation)
                 annotation = _evaluate_forwardref(ref, globalns, localns)
-    except (NameError, TypeError):
+    except (AttributeError, NameError, TypeError):
         # failed to evaluate type. skipped.
         pass
 

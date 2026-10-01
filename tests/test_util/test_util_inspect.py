@@ -7,7 +7,7 @@ import datetime
 import enum
 import functools
 import types
-from inspect import Parameter
+from inspect import Parameter, Signature
 from typing import Callable, List, Optional, Union  # NoQA: UP035
 
 import pytest
@@ -268,6 +268,23 @@ def test_signature_partialmethod() -> None:
 
     sig = inspect.signature(subject.baz)
     assert stringify_signature(sig) == '()'
+
+
+@pytest.mark.parametrize('namespace', [None, types.SimpleNamespace()])
+def test_evaluate_signature_missing_attribute(namespace: object) -> None:
+    sig = Signature(
+        [
+            Parameter(
+                'value', Parameter.POSITIONAL_OR_KEYWORD, annotation='np.timedelta64'
+            )
+        ],
+        return_annotation='np.timedelta64',
+    )
+
+    evaluated = inspect.evaluate_signature(sig, {'np': namespace})
+
+    assert evaluated == sig
+    assert stringify_signature(evaluated) == '(value: np.timedelta64) -> np.timedelta64'
 
 
 def test_signature_annotations() -> None:
