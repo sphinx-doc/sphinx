@@ -122,6 +122,7 @@ Contributors
 * Valentin Heinisch -- warning types improvement
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements
+* Walentalien -- Smart Quotes cache handling across builders
 * Will Maier -- directory HTML builder
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
 
