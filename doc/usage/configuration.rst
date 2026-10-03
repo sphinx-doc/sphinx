@@ -1281,13 +1281,12 @@ Options for smart quotes
      }
 
    .. note::
+      When builders share a doctree directory, Sphinx authomatically re-parses
+      source files when switching between a builder for which Smart Quotes is
+      enabled and one for which is disabled. Builders with the same Smart Quotes
+      state can continue to reuse cached doctrees.
 
-      When builders share a doctree directory, switching between builders
-      where Smart Quotes is enabled for one builder and disabled for the other
-      causes source files to be re-parsed automatically. Builders with the same
-      builder-dependent Smart Quotes state can reuse the cached doctrees.
-
-   .. hint::
+  .. hint::
 
       An alternative way to effectively deactivate (or customise) the
       smart quotes for a given builder, for example ``latex``,
