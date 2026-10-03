@@ -76,7 +76,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 66
+ENV_VERSION = 67
 
 # config status
 CONFIG_UNSET = -1
@@ -84,11 +84,13 @@ CONFIG_OK = 1
 CONFIG_NEW = 2
 CONFIG_CHANGED = 3
 CONFIG_EXTENSIONS_CHANGED = 4
+CONFIG_SMARTQUOTES_CHANGED = 5
 
 CONFIG_CHANGED_REASON = {
     CONFIG_NEW: __('new config'),
     CONFIG_CHANGED: __('config changed'),
     CONFIG_EXTENSIONS_CHANGED: __('extensions changed'),
+    CONFIG_SMARTQUOTES_CHANGED: __('smart quotes state changed'),
 }
 
 
@@ -119,6 +121,9 @@ class BuildEnvironment:
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
+        # SmartQuotes state selected for reading, including builder overrides.
+        # A change requires rereading the source documents.
+        self._smartquotes_enabled: bool | None = None
         self.events: EventManager = app.events
         self.project: Project = app.project
         self.version: Mapping[str, int] = _get_env_version(app.extensions)
@@ -378,8 +383,8 @@ class BuildEnvironment:
         )
         self.settings['language_code'] = config.language
 
-        # Allow to disable by 3rd party extension (workaround)
-        self.settings.setdefault('smart_quotes', True)
+        # Discard a previous builder's override before the active builder initializes.
+        self.settings['smart_quotes'] = True
 
     def set_versioning_method(
         self, method: str | Callable[[Node], bool], compare: bool
