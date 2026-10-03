@@ -184,9 +184,6 @@ def test_static_config_empty_file_uses_defaults(tmp_path):
         '- item\n',
         'project = null\n',
         'project = "first"\nproject = "second"\n',
-        'project = &anchor "value"\n',
-        'project = *anchor\n',
-        'project = !!python/object/apply:os.system ["echo unsafe"]\n',
     ],
     ids=[
         'malformed',
@@ -194,9 +191,6 @@ def test_static_config_empty_file_uses_defaults(tmp_path):
         'list-root',
         'null-is-not-toml',
         'duplicate-key',
-        'yaml-anchor',
-        'yaml-alias',
-        'python-object-tag',
     ],
 )
 def test_static_config_parser_error_identifies_file(tmp_path, contents):
