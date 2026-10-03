@@ -121,7 +121,7 @@ class BuildEnvironment:
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
-        # Builder-wide SmartQuotes state of the cached doctrees.
+        # Builder-dependent SmartQuotes state of the cached doctrees.
         # A change requires rereading the source documents.
         self._smartquotes_enabled: bool | None = None
         self.events: EventManager = app.events

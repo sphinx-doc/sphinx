@@ -1283,9 +1283,9 @@ Options for smart quotes
    .. note::
 
       When builders share a doctree directory, switching between builders
-      with different effective Smart Quotes states causes source files to be
-      re-parsed automatically. Builders with the same effective state
-      can reuse the cached doctrees.
+      where Smart Quotes is enabled for one builder and disabled for the other
+      causes source files to be re-parsed automatically. Builders with the same
+      builder-dependent Smart Quotes state can reuse the cached doctrees.
 
    .. hint::
 

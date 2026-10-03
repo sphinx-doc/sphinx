@@ -477,7 +477,7 @@ class Builder:
         logger.info(bold(__('updating environment: ')), nonl=True)
 
         self.env.find_files(self.config, self)
-        # SmartQuotes runs before doctrees are cached; a different builder-wide
+        # SmartQuotes runs before doctrees are cached; a different builder-dependent
         # state requires the source documents to be reread.
         smartquotes_enabled = SphinxSmartQuotes._is_enabled_for_builder(
             self.config, self.env._builder_cls.name, self.env.settings['language_code']
