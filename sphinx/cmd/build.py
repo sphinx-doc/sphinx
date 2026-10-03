@@ -75,9 +75,9 @@ def get_parser() -> argparse.ArgumentParser:
 Generate documentation from source files.
 
 sphinx-build generates documentation from the files in SOURCEDIR and places it
-in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
-settings. The 'sphinx-quickstart' tool may be used to generate template files,
-including 'conf.py'
+in OUTPUTDIR. It looks for 'conf.py' or 'Sphinx.toml' in the configuration
+directory (SOURCEDIR by default). The 'sphinx-quickstart' tool may be used to
+generate template files, including 'conf.py'.
 
 sphinx-build can create documentation in different formats. A format is
 selected by specifying the builder name on the command line; it defaults to
@@ -163,7 +163,10 @@ files can be built by specifying individual filenames.
         '-c',
         metavar='PATH',
         dest='confdir',
-        help=__('directory for the configuration file (conf.py) (default: SOURCE_DIR)'),
+        help=__(
+            'directory for the configuration file (conf.py or Sphinx.toml) '
+            '(default: SOURCE_DIR)'
+        ),
     )
 
     group = parser.add_argument_group('build configuration options')

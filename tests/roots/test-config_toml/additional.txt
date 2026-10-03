@@ -1,0 +1,4 @@
+Additional source suffix
+========================
+
+This document uses the configured ``.txt`` source suffix.

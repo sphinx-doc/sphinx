@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+import tomllib
 import traceback
 import types
 from contextlib import chdir
@@ -38,6 +39,7 @@ type _ConfigRebuild = Literal[
 ]
 
 CONFIG_FILENAME = 'conf.py'
+_STATIC_CONFIG_FILENAME = 'Sphinx.toml'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 
 
@@ -344,12 +346,28 @@ class Config:
         tags: Tags,
     ) -> Config:
         """Create a Config object from configuration file."""
-        filename = Path(confdir, CONFIG_FILENAME)
-        if not filename.is_file():
+        conf_py = Path(confdir, CONFIG_FILENAME)
+        static_config = Path(confdir, _STATIC_CONFIG_FILENAME)
+        has_conf_py = conf_py.is_file()
+        has_static_config = static_config.is_file()
+
+        if has_conf_py and has_static_config:
             raise ConfigError(
-                __("config directory doesn't contain a conf.py file (%s)") % confdir
+                __(
+                    'config directory contains both a %s and %s file; '
+                    'only one configuration file may be used (%s)'
+                )
+                % (CONFIG_FILENAME, _STATIC_CONFIG_FILENAME, confdir)
             )
-        return _read_conf_py(filename, overrides=overrides, tags=tags)
+        if has_conf_py:
+            return _read_conf_py(conf_py, overrides=overrides, tags=tags)
+        if has_static_config:
+            return _read_static_config(static_config, overrides=overrides)
+
+        raise ConfigError(
+            __("config directory doesn't contain a %s or %s file (%s)")
+            % (CONFIG_FILENAME, _STATIC_CONFIG_FILENAME, confdir)
+        )
 
     def convert_overrides(self, name: str, value: str) -> Any:
         opt = self._options[name]
@@ -579,6 +597,21 @@ def _read_conf_py(conf_path: Path, *, overrides: dict[str, Any], tags: Tags) -> 
             )
         )
         namespace['language'] = 'en'
+    return Config(namespace, overrides)
+
+
+def _read_static_config(config_path: Path, *, overrides: dict[str, Any]) -> Config:
+    """Read a TOML configuration file."""
+    try:
+        with config_path.open('rb') as config_file:
+            namespace = tomllib.load(config_file)
+    except tomllib.TOMLDecodeError as err:
+        msg = __('There is a syntax error in your configuration file %s: %s')
+        raise ConfigError(msg % (config_path, err)) from err
+    except (OSError, UnicodeError) as err:
+        msg = __('Failed to read configuration file %s: %s')
+        raise ConfigError(msg % (config_path, err)) from err
+
     return Config(namespace, overrides)
 
 

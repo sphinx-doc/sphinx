@@ -149,7 +149,7 @@ class Sphinx:
     """The main application class and extensibility interface.
 
     :ivar srcdir: Directory containing source.
-    :ivar confdir: Directory containing ``conf.py``.
+    :ivar confdir: Directory containing ``conf.py`` or ``Sphinx.toml``.
     :ivar doctreedir: Directory for storing pickled doctrees.
     :ivar outdir: Directory for storing build documents.
     """
@@ -307,16 +307,17 @@ class Sphinx:
 
         # the config file itself can be an extension
         if self.config.setup:
-            prefix = __('while setting up extension %s:') % 'conf.py'
+            prefix = __('while setting up extension %s:') % 'configuration file'
             with prefixed_warnings(prefix):
                 if callable(self.config.setup):
                     self.config.setup(self)
                 else:
                     raise ConfigError(
                         __(
-                            "'setup' as currently defined in conf.py isn't a Python callable. "
-                            'Please modify its definition to make it a callable function. '
-                            'This is needed for conf.py to behave as a Sphinx extension.'
+                            "'setup' as currently defined in the configuration file "
+                            "isn't a Python callable. Please modify its definition to "
+                            'make it a callable function. This is needed for the '
+                            'configuration file to behave as a Sphinx extension.'
                         ),
                     )
 

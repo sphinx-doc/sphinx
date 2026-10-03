@@ -1,0 +1,9 @@
+project = "Sphinx static config"
+html_title = "Static configuration"
+extensions = ["sphinx.ext.todo"]
+todo_include_todos = true
+templates_path = ["_templates"]
+html_static_path = ["_static"]
+html_theme = "basic"
+html_sidebars = { "**" = ["custom.html"] }
+source_suffix = { ".rst" = "restructuredtext", ".txt" = "restructuredtext" }

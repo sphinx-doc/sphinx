@@ -1,6 +1,11 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* Add support for static TOML configuration in :file:`Sphinx.toml` (#9040).
+
 Bugs fixed
 ----------
 
