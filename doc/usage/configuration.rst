@@ -1283,8 +1283,8 @@ Options for smart quotes
    .. note::
 
       When builders share a doctree directory, switching between builders
-      with different Smart Quotes settings causes source files to be
-      re-parsed automatically. Builders with the same effective setting
+      with different effective Smart Quotes states causes source files to be
+      re-parsed automatically. Builders with the same effective state
       can reuse the cached doctrees.
 
    .. hint::
@@ -1296,9 +1296,6 @@ Options for smart quotes
       .. code-block:: console
 
          make latex SPHINXOPTS="-D smartquotes_action="
-
-      This can follow some ``make html`` with no problem, in contrast to the
-      situation from the prior note.
 
    .. versionadded:: 1.6.6
 
