@@ -262,3 +262,38 @@ def test_smartquotes_cache_after_same_state_builder(
     text_app.build()
     assert len(text_reads) == 1
     assert "isn't it?" in (text_app.outdir / 'index.txt').read_text(encoding='utf8')
+
+
+@pytest.mark.parametrize(
+    ('first_builder', 'second_builder', 'expected'),
+    [
+        ('html', 'xml-no-smartquotes', "isn't it?"),
+        ('xml-no-smartquotes', 'html', 'isn’t it?'),
+    ],
+)
+@pytest.mark.sphinx(testroot='smartquotes-cache', srcdir='smartquotes-cache')
+def test_smartquotes_cache_with_builder_override(
+    make_app: Callable[..., SphinxTestApp],
+    app_params: _app_params,
+    first_builder: str,
+    second_builder: str,
+    expected: str,
+    tmp_path: Path,
+) -> None:
+    _args, kwargs = app_params
+    kwargs = {**kwargs, 'builddir': tmp_path / '_build'}
+
+    first_app = make_app(first_builder, freshenv=True, **kwargs)
+    first_app.build()
+
+    second_app = make_app(second_builder, **kwargs)
+    assert second_app.fresh_env_used is False
+    assert second_app.doctreedir == first_app.doctreedir
+    read_doctrees: list[object] = []
+    second_app.connect('doctree-read', lambda _app, doctree: read_doctrees.append(doctree))
+    second_app.build()
+
+    suffix = 'html' if second_builder == 'html' else 'xml'
+    content = (second_app.outdir / f'index.{suffix}').read_text(encoding='utf8')
+    assert expected in content
+    assert len(read_doctrees) == 1
