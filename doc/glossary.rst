@@ -16,9 +16,9 @@ Glossary
       builders.
 
    configuration directory
-      The directory containing :file:`conf.py`.  By default, this is the same as
-      the :term:`source directory`, but can be set differently with the **-c**
-      command-line option.
+      The directory containing :file:`conf.py` or :file:`Sphinx.toml`.  By
+      default, this is the same as the :term:`source directory`, but can be set
+      differently with the **-c** command-line option.
 
    directive
       A reStructuredText markup element that allows marking a block of content
