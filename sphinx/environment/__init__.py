@@ -90,7 +90,7 @@ CONFIG_CHANGED_REASON = {
     CONFIG_NEW: __('new config'),
     CONFIG_CHANGED: __('config changed'),
     CONFIG_EXTENSIONS_CHANGED: __('extensions changed'),
-    CONFIG_SMARTQUOTES_CHANGED: __('smart quotes builder setting changed'),
+    CONFIG_SMARTQUOTES_CHANGED: __('smart quotes state changed'),
 }
 
 
@@ -121,7 +121,8 @@ class BuildEnvironment:
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
-        # SmartQuotes is applied before doctrees are cached, but depends on the builder.
+        # Builder-wide SmartQuotes state of the cached doctrees.
+        # A change requires rereading the source documents.
         self._smartquotes_enabled: bool | None = None
         self.events: EventManager = app.events
         self.project: Project = app.project

@@ -383,12 +383,13 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         if self.document.settings.smart_quotes is False:
             # disabled by 3rd party extension (workaround)
             return False
-        return self._is_available_for_builder(
+        return self._is_enabled_for_builder(
             self.config, self.env._builder_cls.name, self.env.settings['language_code']
         )
 
+    # Document-specific settings are checked by is_available().
     @staticmethod
-    def _is_available_for_builder(
+    def _is_enabled_for_builder(
         config: Config, builder_name: str, language_code: str
     ) -> bool:
         builders = config.smartquotes_excludes.get('builders', [])
