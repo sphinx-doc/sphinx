@@ -9,6 +9,10 @@ import pytest
 from sphinx.testing.util import etree_parse
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
+    from sphinx.testing.fixtures import _app_params
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -169,3 +173,60 @@ def test_smartquotes_excludes_builders(app: SphinxTestApp) -> None:
 
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
     assert '– “Sphinx” is a tool that makes it easy …' in content
+
+
+@pytest.mark.parametrize(
+    ('first_builder', 'second_builder', 'expected', 'rereads'),
+    [
+        (
+            'text',
+            'xml',
+            '<paragraph>This is a line with a quote, isn’t it?</paragraph>',
+            True,
+        ),
+        ('xml', 'text', "This is a line with a quote, isn't it?", True),
+        (
+            'html',
+            'xml',
+            '<paragraph>This is a line with a quote, isn’t it?</paragraph>',
+            False,
+        ),
+        ('text', 'man', r'isn\(aqt it?', False),
+    ],
+)
+@pytest.mark.sphinx(testroot='smartquotes-cache', srcdir='smartquotes-cache')
+def test_smartquotes_when_reusing_doctrees_across_builders(
+    make_app: Callable[..., SphinxTestApp],
+    app_params: _app_params,
+    first_builder: str,
+    second_builder: str,
+    expected: str,
+    rereads: bool,
+    tmp_path: Path,
+) -> None:
+    _args, kwargs = app_params
+    kwargs = {**kwargs, 'builddir': tmp_path / '_build'}
+    first_app = make_app(first_builder, freshenv=True, **kwargs)
+    first_app.build()
+
+    second_app = make_app(second_builder, **kwargs)
+    assert second_app.fresh_env_used is False
+    assert second_app.doctreedir == first_app.doctreedir
+    read_doctrees: list[object] = []
+    second_app.connect(
+        'doctree-read', lambda _app, doctree: read_doctrees.append(doctree)
+    )
+    second_app.build()
+
+    assert len(read_doctrees) == int(rereads)
+    if second_builder == 'man':
+        output_file = next(second_app.outdir.glob('*.1'))
+    else:
+        filename = 'index.xml' if second_builder == 'xml' else 'index.txt'
+        output_file = second_app.outdir / filename
+    content = output_file.read_text(encoding='utf8')
+    assert expected in content
+    title = second_app.env.titles['index'].astext()
+    assert ('“quoted”' in title) == (second_builder == 'xml')
+    toc = second_app.env.tocs['index'].astext()
+    assert ('“quoted”' in toc) == (second_builder == 'xml')

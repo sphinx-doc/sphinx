@@ -380,25 +380,34 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         super().apply()
 
     def is_available(self) -> bool:
-        builders = self.config.smartquotes_excludes.get('builders', [])
-        languages = self.config.smartquotes_excludes.get('languages', [])
-
         if self.document.settings.smart_quotes is False:
             # disabled by 3rd party extension (workaround)
             return False
-        if self.config.smartquotes is False:
+        return self._is_available_for_builder(
+            self.config, self.env._builder_cls.name, self.env.settings['language_code']
+        )
+
+    @staticmethod
+    def _is_available_for_builder(
+        config: Config, builder_name: str, language_code: str
+    ) -> bool:
+        builders = config.smartquotes_excludes.get('builders', [])
+        languages = config.smartquotes_excludes.get('languages', [])
+
+        if config.smartquotes is False:
             # disabled by confval smartquotes
             return False
-        if self.env._builder_cls.name in builders:
+        if builder_name in builders:
             # disabled by confval smartquotes_excludes['builders']
             return False
-        if self.config.language in languages:
+        if config.language in languages:
             # disabled by confval smartquotes_excludes['languages']
             return False
 
         # confirm selected language supports smart_quotes or not
-        language = self.env.settings['language_code']
-        return any(tag in smartchars.quotes for tag in normalize_language_tag(language))
+        return any(
+            tag in smartchars.quotes for tag in normalize_language_tag(language_code)
+        )
 
     def get_tokens(  # type: ignore[override]
         self, txtnodes: Iterable[Node]

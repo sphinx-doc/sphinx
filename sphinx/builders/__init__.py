@@ -17,11 +17,13 @@ from sphinx.deprecation import _deprecation_warning
 from sphinx.environment import (
     CONFIG_CHANGED_REASON,
     CONFIG_OK,
+    CONFIG_SMARTQUOTES_CHANGED,
     _CurrentDocument,
 )
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
+from sphinx.transforms import SphinxSmartQuotes
 from sphinx.util import get_filetype, logging
 from sphinx.util._importer import import_object
 from sphinx.util._pathlib import _StrPathProperty
@@ -475,6 +477,18 @@ class Builder:
         logger.info(bold(__('updating environment: ')), nonl=True)
 
         self.env.find_files(self.config, self)
+        # SmartQuotes changes doctrees during reading, so builder state affects the cache.
+        smartquotes_enabled = SphinxSmartQuotes._is_available_for_builder(
+            self.config, self.env._builder_cls.name, self.env.settings['language_code']
+        )
+        if (
+            self.env.config_status == CONFIG_OK
+            and self.env._smartquotes_enabled is not None
+            and self.env._smartquotes_enabled != smartquotes_enabled
+        ):
+            self.env.config_status = CONFIG_SMARTQUOTES_CHANGED
+        self.env._smartquotes_enabled = smartquotes_enabled
+
         updated = self.env.config_status != CONFIG_OK
         added, changed, removed = self.env.get_outdated_files(updated)
 
