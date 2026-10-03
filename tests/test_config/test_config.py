@@ -279,6 +279,32 @@ def test_static_config_build_from_cli(tmp_path, rootdir):
     assert (output_dir / '_static' / 'configured.css').is_file()
 
 
+def test_static_config_cli_overrides(tmp_path, rootdir):
+    output_dir = tmp_path / 'html'
+    result = subprocess.run(
+        [
+            sys.executable,
+            '-m',
+            'sphinx.cmd.build',
+            '-D',
+            'html_title=CLI override',
+            '-D',
+            'todo_include_todos=0',
+            str(rootdir / 'test-config_toml'),
+            str(output_dir),
+        ],
+        check=False,
+        capture_output=True,
+        encoding='utf-8',
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    html = (output_dir / 'index.html').read_text(encoding='utf-8')
+    assert 'CLI override</title>' in html
+    assert 'A TODO configured from TOML.' not in html
+
+
 def test_static_config_paths_are_relative_to_confdir(tmp_path):
     srcdir = tmp_path / 'source'
     confdir = tmp_path / 'configuration'
