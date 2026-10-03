@@ -121,7 +121,7 @@ class BuildEnvironment:
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
-        # Builder-dependent SmartQuotes state of the cached doctrees.
+        # SmartQuotes state selected for reading, including builder overrides.
         # A change requires rereading the source documents.
         self._smartquotes_enabled: bool | None = None
         self.events: EventManager = app.events
@@ -383,8 +383,8 @@ class BuildEnvironment:
         )
         self.settings['language_code'] = config.language
 
-        # Allow to disable by 3rd party extension (workaround)
-        self.settings.setdefault('smart_quotes', True)
+        # Discard a previous builder's override before the active builder initializes.
+        self.settings['smart_quotes'] = True
 
     def set_versioning_method(
         self, method: str | Callable[[Node], bool], compare: bool

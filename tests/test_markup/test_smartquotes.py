@@ -290,7 +290,9 @@ def test_smartquotes_cache_with_builder_override(
     assert second_app.fresh_env_used is False
     assert second_app.doctreedir == first_app.doctreedir
     read_doctrees: list[object] = []
-    second_app.connect('doctree-read', lambda _app, doctree: read_doctrees.append(doctree))
+    second_app.connect(
+        'doctree-read', lambda _app, doctree: read_doctrees.append(doctree)
+    )
     second_app.build()
 
     suffix = 'html' if second_builder == 'html' else 'xml'
