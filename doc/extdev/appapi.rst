@@ -138,7 +138,7 @@ The application object also provides runtime information as attributes.
 
 .. attribute:: Sphinx.confdir
 
-   Directory containing ``conf.py``.
+   Directory containing ``conf.py`` or ``Sphinx.toml``.
 
 .. attribute:: Sphinx.doctreedir
 

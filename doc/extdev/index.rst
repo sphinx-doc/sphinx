@@ -30,7 +30,7 @@ as directive or role definitions). The ``app`` argument is an instance of
 
 .. note::
 
-    The configuration file itself can be treated as an extension if it
+    The Python configuration file itself can be treated as an extension if it
     contains a ``setup()`` function.  All other extensions to load must be
     listed in the :confval:`extensions` configuration value.
 

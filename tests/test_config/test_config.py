@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import pickle
+import subprocess
+import sys
 from collections import Counter
 from typing import TYPE_CHECKING, Any
 from unittest import mock
@@ -124,8 +126,325 @@ def test_core_config(app: SphinxTestApp) -> None:
 
 
 def test_config_not_found(tmp_path):
-    with pytest.raises(ConfigError):
+    with pytest.raises(ConfigError, match=r'conf\.py or Sphinx\.toml'):
         Config.read(tmp_path, overrides={}, tags=Tags())
+
+
+def test_static_config_values(tmp_path):
+    (tmp_path / 'Sphinx.toml').write_text(
+        """
+project = "Static configuration"
+default_role = "null"
+nitpicky = true
+numfig_secnum_depth = 2
+templates_path = ["_templates"]
+extension_value = ["first", "second"]
+highlight_options = { python = { linenostart = 1, weight = 1.25 } }
+source_suffix = { ".rst" = "restructuredtext", ".txt" = "restructuredtext" }
+""",
+        encoding='utf-8',
+    )
+
+    config = Config.read(tmp_path, overrides={}, tags=Tags())
+
+    assert config.project == 'Static configuration'
+    assert config.default_role == 'null'
+    assert config.nitpicky is True
+    assert config.numfig_secnum_depth == 2
+    assert config.templates_path == ['_templates']
+    assert config.highlight_options == {'python': {'linenostart': 1, 'weight': 1.25}}
+    assert config._raw_config['extension_value'] == ['first', 'second']
+    assert config.source_suffix == {
+        '.rst': 'restructuredtext',
+        '.txt': 'restructuredtext',
+    }
+
+    overridden = Config.read(
+        tmp_path,
+        overrides={'project': 'Project override'},
+        tags=Tags(),
+    )
+    assert overridden.project == 'Project override'
+
+
+def test_static_config_empty_file_uses_defaults(tmp_path):
+    (tmp_path / 'Sphinx.toml').write_text('', encoding='utf-8')
+
+    config = Config.read(tmp_path, overrides={}, tags=Tags())
+
+    assert config.project == 'Project name not set'
+    assert config.default_role is None
+
+
+@pytest.mark.parametrize(
+    'contents',
+    [
+        'project = [\n',
+        'true\n',
+        '- item\n',
+        'project = null\n',
+        'project = "first"\nproject = "second"\n',
+    ],
+    ids=[
+        'malformed',
+        'scalar-root',
+        'list-root',
+        'null-is-not-toml',
+        'duplicate-key',
+    ],
+)
+def test_static_config_parser_error_identifies_file(tmp_path, contents):
+    config_file = tmp_path / 'Sphinx.toml'
+    config_file.write_text(contents, encoding='utf-8')
+
+    with pytest.raises(ConfigError, match=r'syntax error.*Sphinx\.toml'):
+        Config.read(tmp_path, overrides={}, tags=Tags())
+
+
+def test_static_config_does_not_execute_python(tmp_path):
+    code = "__import__('pathlib').Path('must-not-exist').touch()"
+    (tmp_path / 'Sphinx.toml').write_text(
+        f'project = {code!r}\n',
+        encoding='utf-8',
+    )
+
+    config = Config.read(tmp_path, overrides={}, tags=Tags())
+
+    assert config.project == code
+    assert not (tmp_path / 'must-not-exist').exists()
+
+
+def test_static_config_and_conf_py_are_exclusive(tmp_path):
+    (tmp_path / 'conf.py').write_text("project = 'Python config'\n", encoding='utf-8')
+    (tmp_path / 'Sphinx.toml').write_text(
+        'project = "Static config"\n', encoding='utf-8'
+    )
+
+    with pytest.raises(
+        ConfigError,
+        match=r'both.*conf\.py.*Sphinx\.toml.*only one configuration file',
+    ):
+        Config.read(tmp_path, overrides={}, tags=Tags())
+
+
+def test_static_config_is_pickleable(tmp_path):
+    (tmp_path / 'Sphinx.toml').write_text(
+        'project = "Pickled config"\nhighlight_options = { python = [1, 2] }\n',
+        encoding='utf-8',
+    )
+
+    config = Config.read(tmp_path, overrides={}, tags=Tags())
+    restored = pickle.loads(pickle.dumps(config))
+
+    assert restored.project == 'Pickled config'
+    assert restored.highlight_options == {'python': [1, 2]}
+
+
+@pytest.mark.sphinx('html', testroot='config_toml')
+def test_static_config_build(app: SphinxTestApp) -> None:
+    app.build()
+
+    assert app.config.project == 'Sphinx static config'
+    assert 'sphinx.ext.todo' in app.extensions
+    html = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    assert app.config.html_title == 'Static configuration'
+    assert app.config.todo_include_todos is True
+    assert 'A TODO configured from TOML.' in html
+    assert 'TOML template path configured' in html
+    assert (app.outdir / '_static' / 'configured.css').is_file()
+    assert (app.outdir / 'additional.html').is_file()
+
+
+def test_static_config_build_from_cli(tmp_path, rootdir):
+    output_dir = tmp_path / 'html'
+    result = subprocess.run(
+        [
+            sys.executable,
+            '-m',
+            'sphinx.cmd.build',
+            '-j',
+            '2',
+            str(rootdir / 'test-config_toml'),
+            str(output_dir),
+        ],
+        check=False,
+        capture_output=True,
+        encoding='utf-8',
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    html = (output_dir / 'index.html').read_text(encoding='utf-8')
+    assert 'A TODO configured from TOML.' in html
+    assert (output_dir / '_static' / 'configured.css').is_file()
+
+
+def test_static_config_cli_overrides(tmp_path, rootdir):
+    output_dir = tmp_path / 'html'
+    result = subprocess.run(
+        [
+            sys.executable,
+            '-m',
+            'sphinx.cmd.build',
+            '-D',
+            'html_title=CLI override',
+            '-D',
+            'todo_include_todos=0',
+            str(rootdir / 'test-config_toml'),
+            str(output_dir),
+        ],
+        check=False,
+        capture_output=True,
+        encoding='utf-8',
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    html = (output_dir / 'index.html').read_text(encoding='utf-8')
+    assert 'CLI override</title>' in html
+    assert 'A TODO configured from TOML.' not in html
+
+
+def test_static_config_paths_are_relative_to_confdir(tmp_path):
+    srcdir = tmp_path / 'source'
+    confdir = tmp_path / 'configuration'
+    staticdir = confdir / '_static'
+    templatesdir = confdir / '_templates'
+    srcdir.mkdir()
+    staticdir.mkdir(parents=True)
+    templatesdir.mkdir()
+    (srcdir / 'index.rst').write_text(
+        'Separate source directory\n=========================\n', encoding='utf-8'
+    )
+    (confdir / 'Sphinx.toml').write_text(
+        'project = "Separate config directory"\n'
+        'html_theme = "basic"\n'
+        'html_static_path = ["_static"]\n'
+        'templates_path = ["_templates"]\n'
+        'html_sidebars = { "**" = ["custom.html"] }\n',
+        encoding='utf-8',
+    )
+    (staticdir / 'configured.css').write_text(
+        '/* config-dir asset */\n', encoding='utf-8'
+    )
+    (templatesdir / 'custom.html').write_text(
+        '<p>Config-directory template</p>\n', encoding='utf-8'
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            '-m',
+            'sphinx.cmd.build',
+            '-c',
+            str(confdir),
+            str(srcdir),
+            str(tmp_path / 'html'),
+        ],
+        check=False,
+        capture_output=True,
+        encoding='utf-8',
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    html = (tmp_path / 'html' / 'index.html').read_text(encoding='utf-8')
+    assert 'Config-directory template' in html
+    assert (tmp_path / 'html' / '_static' / 'configured.css').is_file()
+
+
+@pytest.mark.parametrize(
+    ('config_files', 'options', 'expected_error'),
+    [
+        ({'conf.py': "project = 'Python-only project'\n"}, [], None),
+        (
+            {
+                'conf.py': "project = 'Python project'\n",
+                'Sphinx.toml': 'project = "TOML project"\n',
+            },
+            [],
+            'only one configuration file may be used',
+        ),
+        ({}, [], "doesn't contain a conf.py or Sphinx.toml"),
+        ({}, ['-C'], None),
+        (
+            {'Sphinx.toml': 'project = [\n'},
+            [],
+            'syntax error in your configuration file',
+        ),
+        ({'Sphinx.toml': 'true\n'}, [], 'syntax error in your configuration file'),
+        (
+            {'Sphinx.toml': 'extensions = ["sphinx.missing_extension"]\n'},
+            [],
+            'Could not import extension',
+        ),
+        (
+            {
+                'Sphinx.toml': (
+                    'extensions = ["sphinx.ext.todo"]\ntodo_include_todos = "yes"\n'
+                )
+            },
+            ['-W'],
+            'todo_include_todos',
+        ),
+    ],
+    ids=[
+        'conf-py-only',
+        'both-files',
+        'no-config',
+        'isolated',
+        'malformed-toml',
+        'invalid-root',
+        'extension-error',
+        'extension-config-validation',
+    ],
+)
+def test_config_discovery_from_cli(tmp_path, config_files, options, expected_error):
+    srcdir = tmp_path / 'source'
+    srcdir.mkdir()
+    (srcdir / 'index.rst').write_text(
+        'CLI configuration\n==================\n', encoding='utf-8'
+    )
+    for name, content in config_files.items():
+        (srcdir / name).write_text(content, encoding='utf-8')
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            '-m',
+            'sphinx.cmd.build',
+            *options,
+            str(srcdir),
+            str(tmp_path / 'html'),
+        ],
+        check=False,
+        capture_output=True,
+        encoding='utf-8',
+        text=True,
+    )
+
+    if expected_error is None:
+        assert result.returncode == 0, result.stdout + result.stderr
+        if 'conf.py' in config_files:
+            html = (tmp_path / 'html' / 'index.html').read_text(encoding='utf-8')
+            assert 'Python-only project' in html
+    else:
+        assert result.returncode != 0
+        assert expected_error in result.stdout + result.stderr
+
+
+def test_build_help_mentions_supported_configuration_files():
+    result = subprocess.run(
+        [sys.executable, '-m', 'sphinx.cmd.build', '--help'],
+        check=False,
+        capture_output=True,
+        encoding='utf-8',
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert 'conf.py' in result.stdout
+    assert 'Sphinx.toml' in result.stdout
 
 
 @pytest.mark.parametrize('protocol', list(range(pickle.HIGHEST_PROTOCOL)))

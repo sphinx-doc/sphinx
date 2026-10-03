@@ -255,6 +255,10 @@ executed by Sphinx, you can do non-trivial tasks in it, like extending
 :data:`sys.path` or importing a module to find out the version you are
 documenting.
 
+As a static alternative, you can create a :file:`Sphinx.toml` file in the
+configuration directory and define configuration values as TOML. The two files
+cannot coexist. See :doc:`/usage/configuration` for details and examples.
+
 The config values that you probably want to change are already put into the
 :file:`conf.py` by :program:`sphinx-quickstart` and initially commented out
 (with standard Python syntax: a ``#`` comments the rest of the line).  To

@@ -20,10 +20,62 @@ Configuration
 .. role:: code-tex(code)
    :language: LaTeX
 
-The :term:`configuration directory` must contain a file named :file:`conf.py`.
-This file (containing Python code) is called the "build configuration file"
-and contains (almost) all configuration needed to customise Sphinx input
-and output behaviour.
+The :term:`configuration directory` must contain one of the following
+configuration files:
+
+* :file:`conf.py`, containing Python code
+* :file:`Sphinx.toml`, containing static TOML data
+
+These files configure Sphinx input and output behaviour. The Python file can
+express dynamic values; the static TOML file is limited to values representable
+in TOML and accepted by Sphinx configuration settings. They cannot be used
+together; if both files exist, Sphinx reports a configuration error.
+
+The :file:`conf.py` file is executed as Python code at build time, and can
+therefore perform dynamic configuration. The static :file:`Sphinx.toml` file
+is parsed as TOML and is not executed. TOML strings, integers, floats,
+booleans, arrays, and tables become Python strings, integers, floats, booleans,
+lists, and dictionaries. TOML date and time values become Python date/time
+objects; use quoted strings for settings that expect text. Sphinx validates
+configuration values using the same rules as values from :file:`conf.py`.
+
+TOML has no equivalent of Python :code-py:`None` or tuples. Omit a setting to
+use its Sphinx default, but it is not possible to explicitly set a value to
+:code-py:`None` in :file:`Sphinx.toml`. The TOML standard library parser
+rejects malformed files, including duplicate keys, and does not execute code
+or construct arbitrary Python objects. An empty file is a valid empty
+configuration.
+
+For example, this static configuration sets common project and HTML options:
+
+.. code-block:: toml
+
+   project = "My documentation"
+   extensions = ["sphinx.ext.todo"]
+   templates_path = ["_templates"]
+   exclude_patterns = ["_build"]
+   html_theme = "alabaster"
+   todo_include_todos = true
+
+These values are handled by the same Sphinx configuration machinery as values
+from :file:`conf.py`, including validation and extension initialization.
+Path values are interpreted relative to the configuration directory, as they
+are for :file:`conf.py`. Quote strings when TOML would otherwise parse them as
+numbers, booleans, or date/time values.
+
+Static configuration is useful when configuration needs to be data rather
+than executable Python, including when it is generated or edited by
+non-Python tooling. It cannot run imports, compute values, or define the
+``setup`` function. Extensions listed in ``extensions`` are loaded and their
+``setup()`` functions run normally; put dynamic behavior in an extension and
+enable it with that setting. Use :file:`conf.py` when configuration itself
+needs Python code.
+
+Exactly one of the files must be present when configuration loading is enabled.
+If both exist, Sphinx reports a configuration error; it does not merge the
+files or give either precedence. If neither exists, Sphinx reports a
+configuration error unless configuration loading was disabled (for example,
+with ``sphinx-build -C``).
 
 An optional file `docutils.conf`_ can be added to the configuration
 directory to adjust `Docutils`_ configuration if not otherwise overridden or
@@ -56,12 +108,12 @@ Important points to note:
 
 .. tip::
 
-   The configuration file is executed as Python code at build time
-   (using :func:`importlib.import_module`, with the current directory set
-   to the :term:`configuration directory`),
+   The Python configuration file is executed as Python code at build time
+   (with the current directory set to the :term:`configuration directory`),
    and therefore can execute arbitrarily complex code.
 
-   Sphinx then reads simple names from the file's namespace as its configuration.
+   Sphinx then reads simple names from the Python file's namespace as its
+   configuration.
    In general, configuration values should be simple strings, numbers, or
    lists or dictionaries of simple values.
 
