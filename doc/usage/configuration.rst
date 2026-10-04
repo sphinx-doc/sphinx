@@ -432,6 +432,41 @@ Options for highlighting
    If not set, either the theme's default style
    or :code-py:`'sphinx'` is selected for HTML output.
 
+   To use a custom style, define a Pygments style class in a Python module
+   and set this option to the module name followed by the class name.
+   Pass this name as a string, not a class object or a file path.
+   The module must be importable when Sphinx builds the documentation.
+
+   For example, create :file:`_ext/custom_style.py` next to :file:`conf.py`:
+
+   .. code-block:: python
+      :caption: _ext/custom_style.py
+
+      from pygments.styles.default import DefaultStyle
+      from pygments.token import Comment, Keyword
+
+      class ProjectStyle(DefaultStyle):
+          styles = {
+              **DefaultStyle.styles,
+              Comment: 'italic #666666',
+              Keyword: 'bold #0055aa',
+          }
+
+   Add the module's directory to Python's search path in :file:`conf.py`,
+   then select the style by its qualified name:
+
+   .. code-block:: python
+      :caption: conf.py
+
+      import sys
+      from pathlib import Path
+
+      sys.path.insert(0, str(Path(__file__).resolve().parent / '_ext'))
+      pygments_style = 'custom_style.ProjectStyle'
+
+   This example changes the colours of comments and keywords while keeping
+   the other token styles from Pygments' default style.
+
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
       this is then used as custom style.
