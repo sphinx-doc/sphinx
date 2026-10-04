@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from os.path import relpath
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -21,7 +21,7 @@ from sphinx.util.nodes import explicit_title_re
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, ClassVar
+    from typing import ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -318,54 +318,50 @@ class Only(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        node = addnodes.only()
-        node.document = self.state.document
-        self.set_source_info(node)
-        node['expr'] = self.arguments[0]
-
-        # Same as util.nested_parse_with_titles but try to handle nested
-        # sections which should be raised higher up the doctree.
-        memo: Any = self.state.memo
-        surrounding_title_styles = memo.title_styles
-        surrounding_section_level = memo.section_level
-        memo.title_styles = []
-        memo.section_level = 0
+        self.env._only_docs.add(self.env.docname)
         try:
-            self.state.nested_parse(
-                self.content, self.content_offset, node, match_titles=True
+            include_content = self.env._tags.eval_condition(self.arguments[0])
+        except Exception as err:
+            logger.warning(
+                __('exception while evaluating only directive expression: %s'),
+                err,
+                location=self.get_location(),
             )
-            title_styles = memo.title_styles
-            if (
-                not surrounding_title_styles
-                or not title_styles
-                or title_styles[0] not in surrounding_title_styles
-                or not self.state.parent
-            ):
-                # No nested sections so no special handling needed.
-                return [node]
-            # Calculate the depths of the current and nested sections.
-            current_depth = 0
-            parent = self.state.parent
-            while parent:
-                current_depth += 1
-                parent = parent.parent
-            current_depth -= 2
-            title_style = title_styles[0]
-            nested_depth = len(surrounding_title_styles)
-            if title_style in surrounding_title_styles:
-                nested_depth = surrounding_title_styles.index(title_style)
-            # Use these depths to determine where the nested sections should
-            # be placed in the doctree.
-            n_sects_to_raise = current_depth - nested_depth + 1
-            parent = cast('nodes.Element', self.state.parent)
-            for _i in range(n_sects_to_raise):
-                if parent.parent:
-                    parent = parent.parent
-            parent.append(node)
-            return []
-        finally:
-            memo.title_styles = surrounding_title_styles
-            memo.section_level = surrounding_section_level
+            include_content = True
+
+        # Reparse enabled content in the document's active section context.
+        # Keep the block's line count unchanged so the parser can reread it at
+        # the original offset without shifting source locations.
+        total_line_count = self.block_text.count('\n') + 1
+        offset_end = self.state_machine.line_offset
+        offset_start = offset_end - total_line_count + 1
+        input_lines = self.state_machine.input_lines
+
+        content_start = 0
+        content_view = self.content
+        while content_view is not input_lines:
+            if content_view.parent is None or content_view.parent_offset is None:
+                msg = 'only directive content is detached from parser input'
+                raise RuntimeError(msg)
+            content_start += content_view.parent_offset
+            content_view = content_view.parent
+
+        # Included and nested input may be a ViewList slice; update each parent.
+        while input_lines is not None:
+            input_lines.data[offset_start : offset_end + 1] = [''] * total_line_count
+            if include_content:
+                input_lines.data[content_start : content_start + len(self.content)] = (
+                    self.content.data
+                )
+
+            if input_lines.parent_offset is not None:
+                offset_start += input_lines.parent_offset
+                offset_end += input_lines.parent_offset
+                content_start += input_lines.parent_offset
+            input_lines = input_lines.parent
+
+        self.state_machine.next_line(1 - total_line_count)
+        return []
 
 
 class Include(BaseInclude, SphinxDirective):

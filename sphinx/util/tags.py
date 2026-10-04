@@ -59,9 +59,11 @@ class Tags:
 
     def add(self, tag: str) -> None:
         self._tags.add(tag)
+        self._condition_cache.clear()
 
     def remove(self, tag: str) -> None:
         self._tags.discard(tag)
+        self._condition_cache.clear()
 
     def eval_condition(self, condition: str) -> bool:
         """Evaluate a boolean condition.

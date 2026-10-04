@@ -1466,8 +1466,10 @@ Including content based on tags
 
    .. warning::
 
-      This directive is designed to control only content of document.  It could
-      not control sections, labels and so on.
+      The content of this directive is parsed during the read phase when its
+      expression evaluates to true.  Sections in the content then participate
+      in the document's normal section hierarchy.  If the active tags change,
+      Sphinx reparses the documents.
 
 .. _table-directives:
 

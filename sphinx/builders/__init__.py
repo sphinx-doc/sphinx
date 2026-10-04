@@ -476,7 +476,19 @@ class Builder:
 
         self.env.find_files(self.config, self)
         updated = self.env.config_status != CONFIG_OK
-        added, changed, removed = self.env.get_outdated_files(updated)
+        current_tags = frozenset(self.tags)
+        previous_tags = getattr(self.env, '_parsed_tags', None)
+        tags_changed = (
+            bool(self.env.all_docs)
+            if previous_tags is None
+            else previous_tags != current_tags
+        )
+        added, changed, removed = self.env.get_outdated_files(
+            updated or (tags_changed and previous_tags is None)
+        )
+        if tags_changed and previous_tags is not None:
+            changed.update(self.env._only_docs & self.env.found_docs)
+        self.env._parsed_tags = current_tags
 
         # allow user intervention as well
         for docs in self.events.emit(
@@ -495,6 +507,8 @@ class Builder:
                 self.env.config_status_extra or ''
             )
             logger.info('[%s] ', reason, nonl=True)
+        elif tags_changed:
+            logger.info('[%s] ', __('tags changed'), nonl=True)
 
         logger.info(
             __('%s added, %s changed, %s removed'),
