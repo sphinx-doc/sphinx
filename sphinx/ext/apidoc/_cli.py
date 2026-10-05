@@ -103,7 +103,10 @@ Note: By default this script will not overwrite already created files."""),
         '--separate',
         action='store_true',
         dest='separate_modules',
-        help=__('put documentation for each module on its own page'),
+        help=__(
+            'put documentation for each module on its own page, with headings '
+            'for documented classes, exceptions, and functions'
+        ),
     )
     parser.add_argument(
         '-P',
@@ -132,9 +135,8 @@ Note: By default this script will not overwrite already created files."""),
         action='store_true',
         dest='no_headings',
         help=__(
-            "don't create headings for the module/package "
-            'packages (e.g. when the docstrings already '
-            'contain them)'
+            "don't create headings for modules, packages, or documented members "
+            '(e.g. when the docstrings already contain them)'
         ),
     )
     parser.add_argument(

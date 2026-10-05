@@ -134,6 +134,11 @@ The apidoc extension uses the following configuration values:
    :default: :code-py:`False`
 
    Put documentation for each module on an individual page.
+   Generated module pages include a section heading for each documented
+   class, exception, and function, making them available in the page's local
+   table of contents. Set :confval:`apidoc_no_headings` to disable these
+   headings. Custom :file:`module.rst.jinja` templates should include the
+   provided ``automodule_options`` context variable to retain this behavior.
 
 .. confval:: apidoc_include_private
    :type: :code-py:`bool`
@@ -145,7 +150,8 @@ The apidoc extension uses the following configuration values:
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
-   Do not create headings for the modules/packages.
+   Do not create headings for the modules/packages or automatically
+   documented members.
    Useful when source docstrings already contain headings.
 
 .. confval:: apidoc_module_first
@@ -170,3 +176,6 @@ The apidoc extension uses the following configuration values:
    :default: :code-py:`{'members', 'show-inheritance', 'undoc-members'}`
 
    Options to pass to generated :rst:dir:`automodule` directives.
+   When :confval:`apidoc_separate_modules` is enabled, the
+   ``member-headings`` option is added unless :confval:`apidoc_no_headings`
+   is enabled.

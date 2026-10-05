@@ -31,6 +31,7 @@ AUTODOC_DEFAULT_OPTIONS = (
     'ignore-module-all',
     'exclude-members',
     'member-order',
+    'member-headings',
     'imported-members',
     'class-doc-from',
     'no-value',
@@ -60,6 +61,7 @@ class _AutoDocumenterOptions:
     platform: str | None = None
     deprecated: Literal[True] | None = None
     member_order: Literal['alphabetical', 'bysource', 'groupwise'] | None = None
+    member_headings: Literal[True] | None = None
     exclude_members: EMPTY_T | set[str] | None = None
     private_members: ALL_T | list[str] | None = None
     special_members: ALL_T | list[str] | None = None
@@ -277,6 +279,7 @@ _OPTION_SPEC_HAS_MEMBERS: Final[OptionSpec] = _OPTION_SPEC_COMMON | {
     'member-order': member_order_option,
 }
 _OPTION_SPEC_MODULE_SPECIFIC: Final[OptionSpec] = {
+    'member-headings': bool_option,
     'ignore-module-all': bool_option,
     'imported-members': bool_option,
     'deprecated': bool_option,

@@ -86,14 +86,18 @@ Options
 
 .. option:: -e, --separate
 
-   Put documentation for each module on its own page.
+   Put documentation for each module on its own page. Each page gets a
+   section heading for each documented class, exception, and function, so
+   they appear in the local table of contents. Use :option:`--no-headings`
+   to disable generated headings.
 
    .. versionadded:: 1.2
 
 .. option:: -E, --no-headings
 
    Do not create headings for the modules/packages. This is useful, for
-   example, when docstrings already contain headings.
+   example, when docstrings already contain headings. This also disables
+   member headings added by :option:`--separate`.
 
 .. option:: -P, --private
 

@@ -1,6 +1,12 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #6788: ``sphinx-apidoc --separate`` now generates section headings for
+  documented classes, exceptions, and functions on each module page.
+
 Bugs fixed
 ----------
 

@@ -513,6 +513,27 @@ Automatically document modules
       .. versionchanged:: 1.0
          Support the ``'bysource'`` option.
 
+   .. rst:directive:option:: member-headings
+      :type: no value
+
+      Create a section heading for each automatically documented class,
+      exception, and function that is a direct member of the module. The
+      headings contain the member names, follow the configured member order,
+      and are included in the document's table of contents. Attributes and
+      members nested inside classes do not get headings from this option.
+
+      .. code-block:: rst
+
+         .. automodule:: noodles
+            :members:
+            :member-headings:
+
+      :program:`sphinx-apidoc` enables this option for generated module pages
+      when :option:`--separate <sphinx-apidoc --separate>` is used, unless
+      :option:`--no-headings <sphinx-apidoc --no-headings>` is also specified.
+
+      .. versionadded:: 9.1.1
+
    .. rst:directive:option:: show-inheritance
       :type: no value
 
