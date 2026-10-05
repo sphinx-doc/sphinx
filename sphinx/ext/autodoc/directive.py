@@ -36,6 +36,7 @@ AUTODOC_DEFAULT_OPTIONS = [
     'ignore-module-all',
     'exclude-members',
     'member-order',
+    'member-headings',
     'imported-members',
     'class-doc-from',
     'no-value',

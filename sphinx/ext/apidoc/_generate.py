@@ -84,6 +84,10 @@ def create_module_file(
 ) -> Path:
     """Build the text of the file and write the file."""
     options = set(OPTIONS if not opts.automodule_options else opts.automodule_options)
+    if opts.no_headings:
+        options.discard('member-headings')
+    elif opts.separate_modules:
+        options.add('member-headings')
     if opts.include_private:
         options.add('private-members')
 
@@ -137,6 +141,8 @@ def create_package_file(
         module_join(master_package, subroot, modname) for modname in submodules
     ]
     options = OPTIONS.copy()
+    if opts.separate_modules and not opts.no_headings:
+        options.add('member-headings')
     if opts.include_private:
         options.add('private-members')
 

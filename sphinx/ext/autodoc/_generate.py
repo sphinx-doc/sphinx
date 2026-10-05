@@ -9,7 +9,11 @@ from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
 from sphinx.ext.autodoc._dynamic._member_finder import _gather_members
 from sphinx.ext.autodoc._dynamic._mock import ismock
-from sphinx.ext.autodoc._renderer import _add_content, _directive_header_lines
+from sphinx.ext.autodoc._renderer import (
+    _add_content,
+    _directive_header_lines,
+    _member_heading_lines,
+)
 from sphinx.ext.autodoc._sentinels import ALL
 from sphinx.ext.autodoc._shared import LOGGER, _get_render_mode
 from sphinx.locale import _, __
@@ -79,6 +83,7 @@ def _generate_directives(
     parent_modname: str | None = None,
     check_module: bool = False,
     all_members: bool = False,
+    member_heading: bool = False,
     *,
     config: _AutodocConfig,
     current_document: _CurrentDocument,
@@ -160,6 +165,12 @@ def _generate_directives(
         modname = get_attr(subject, '__module__', None)
         if modname and modname != props.module_name:
             return
+
+    if member_heading:
+        result.append('', '')
+        for line in _member_heading_lines(props.dotted_parts):
+            result.append(line, '')
+        result.append('', '')
 
     # add all content (from docstrings, attribute docs etc.)
     analyzer_source = '' if analyzer is None else analyzer.srcname
@@ -315,6 +326,12 @@ def _document_members(
             record_dependencies=record_dependencies,
             ref_context=ref_context,
             reread_always=reread_always,
+            member_heading=(
+                options.member_headings is True
+                and props.obj_type == 'module'
+                and member_props.obj_type
+                in {'class', 'exception', 'function', 'decorator'}
+            ),
             result=result,
         )
 

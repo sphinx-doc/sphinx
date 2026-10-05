@@ -10,7 +10,7 @@ from docutils import nodes
 from docutils.nodes import bullet_list, list_item, literal, reference, title
 
 from sphinx import addnodes
-from sphinx.addnodes import compact_paragraph, only
+from sphinx.addnodes import compact_paragraph
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import (
     _toctree_copy,
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.sphinx('xml', testroot='toctree', tags=['html'])
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_process_doc(app):
     app.build()
@@ -45,7 +45,7 @@ def test_process_doc(app):
                             bullet_list,  # [0][1]
                             (
                                 addnodes.toctree,  # [0][1][0]
-                                only,  # [0][1][1]
+                                list_item,  # [0][1][1]
                                 list_item,  # [0][1][2]
                             ),
                         ],
@@ -92,26 +92,23 @@ def test_process_doc(app):
         includefiles=['foo', 'bar'],
     )
 
-    # only branch
-    assert_node(extract_node(toctree, 0, 1, 1), addnodes.only, expr='html')
     assert_node(
         extract_node(toctree, 0, 1, 1),
         [
-            only,
             list_item,
             (
                 [compact_paragraph, reference, 'Section for HTML'],
-                [bullet_list, addnodes.toctree],
+                [bullet_list, (addnodes.toctree, list_item)],
             ),
         ],
     )
     assert_node(
-        extract_node(toctree, 0, 1, 1, 0, 0, 0),
+        extract_node(toctree, 0, 1, 1, 0, 0),
         reference,
         anchorname='#section-for-html',
     )
     assert_node(
-        extract_node(toctree, 0, 1, 1, 0, 1, 0),
+        extract_node(toctree, 0, 1, 1, 1, 0),
         addnodes.toctree,
         caption=None,
         glob=False,
@@ -123,11 +120,12 @@ def test_process_doc(app):
         numbered=0,
     )
     assert_node(
+        extract_node(toctree, 0, 1, 1, 1, 1),
+        [list_item, compact_paragraph, reference, 'subsection'],
+    )
+    assert_node(
         extract_node(toctree, 0, 1, 2),
-        (
-            [compact_paragraph, reference, 'subsection'],
-            [bullet_list, list_item, compact_paragraph, reference, 'subsubsection'],
-        ),
+        [list_item, compact_paragraph, reference, 'subsubsection'],
     )
 
     assert_node(
@@ -484,7 +482,7 @@ def test_domain_objects_document_scoping(app: SphinxTestApp) -> None:
     )
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.sphinx('xml', testroot='toctree', tags=['html'])
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_document_toc(app):
     app.build()
@@ -504,6 +502,7 @@ def test_document_toc(app):
                             (
                                 addnodes.toctree,  # [0][1][0]
                                 list_item,  # [0][1][1]
+                                list_item,  # [0][1][2]
                             ),
                         ],
                     ),
@@ -526,9 +525,17 @@ def test_document_toc(app):
     assert_node(
         extract_node(toctree, 0, 1, 1),
         (
-            [compact_paragraph, reference, 'subsection'],
-            [bullet_list, list_item, compact_paragraph, reference, 'subsubsection'],
+            [compact_paragraph, reference, 'Section for HTML'],
+            [bullet_list, (addnodes.toctree, list_item)],
         ),
+    )
+    assert_node(
+        extract_node(toctree, 0, 1, 1, 1, 1),
+        [list_item, compact_paragraph, reference, 'subsection'],
+    )
+    assert_node(
+        extract_node(toctree, 0, 1, 2),
+        [list_item, compact_paragraph, reference, 'subsubsection'],
     )
     assert_node(
         extract_node(toctree, 1, 0),
@@ -544,7 +551,7 @@ def test_document_toc(app):
     )
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.sphinx('xml', testroot='toctree', tags=['html'])
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_document_toc_only(app):
     app.build()
@@ -589,15 +596,16 @@ def test_document_toc_only(app):
         extract_node(toctree, 0, 1, 1),
         (
             [compact_paragraph, reference, 'Section for HTML'],
-            [bullet_list, addnodes.toctree],
+            [bullet_list, (addnodes.toctree, list_item)],
         ),
     )
     assert_node(
+        extract_node(toctree, 0, 1, 1, 1, 1),
+        [list_item, compact_paragraph, reference, 'subsection'],
+    )
+    assert_node(
         extract_node(toctree, 0, 1, 2),
-        (
-            [compact_paragraph, reference, 'subsection'],
-            [bullet_list, list_item, compact_paragraph, reference, 'subsubsection'],
-        ),
+        [list_item, compact_paragraph, reference, 'subsubsection'],
     )
     assert_node(
         extract_node(toctree, 1, 0),
@@ -613,7 +621,7 @@ def test_document_toc_only(app):
     )
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.sphinx('xml', testroot='toctree', tags=['html'])
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_document_toc_tocdepth(app):
     app.build()
@@ -637,7 +645,7 @@ def test_document_toc_tocdepth(app):
     )
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.sphinx('xml', testroot='toctree', tags=['html'])
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_global_toctree_for_doc(app):
     app.build()
@@ -724,7 +732,7 @@ def test_global_toctree_for_doc(app):
     )
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.sphinx('xml', testroot='toctree', tags=['html'])
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_global_toctree_for_doc_collapse(app):
     app.build()
@@ -784,7 +792,7 @@ def test_global_toctree_for_doc_collapse(app):
     )
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.sphinx('xml', testroot='toctree', tags=['html'])
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_global_toctree_for_doc_maxdepth(app):
     app.build()
@@ -898,7 +906,7 @@ def test_global_toctree_for_doc_maxdepth(app):
     )
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.sphinx('xml', testroot='toctree', tags=['html'])
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_global_toctree_for_doc_includehidden(app):
     app.build()

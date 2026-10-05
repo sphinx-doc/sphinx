@@ -6,6 +6,7 @@ from collections import namedtuple
 from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
 
 import sphinx.ext.apidoc._generate
 from sphinx.ext.apidoc._cli import main as apidoc_main
@@ -624,6 +625,7 @@ def test_package_file_separate(tmp_path):
         '---------------\n'
         '\n'
         '.. automodule:: testpkg\n'
+        '   :member-headings:\n'
         '   :members:\n'
         '   :show-inheritance:\n'
         '   :undoc-members:\n'
@@ -635,10 +637,254 @@ def test_package_file_separate(tmp_path):
         '======================\n'
         '\n'
         '.. automodule:: testpkg.example\n'
+        '   :member-headings:\n'
         '   :members:\n'
         '   :show-inheritance:\n'
         '   :undoc-members:\n'
     )
+
+
+def test_separate_module_file_noheadings(tmp_path):
+    source = tmp_path / 'source'
+    package = source / 'demo'
+    package.mkdir(parents=True)
+    (package / '__init__.py').touch()
+    (package / 'example.py').write_text(
+        'class Widget:\n    """A widget."""\n', encoding='utf-8'
+    )
+    outdir = tmp_path / 'out'
+    apidoc_main([
+        '--separate',
+        '--no-headings',
+        '--automodule-options=member-headings',
+        '-o',
+        str(outdir),
+        str(source),
+    ])
+
+    for filename in ('demo.rst', 'demo.example.rst'):
+        content = (outdir / filename).read_text(encoding='utf-8')
+        assert 'member-headings' not in content
+
+
+@pytest.mark.parametrize('legacy', [False, True], ids=['dynamic', 'legacy'])
+def test_separate_modules_include_member_headings(make_app, tmp_path, legacy):
+    source_root = tmp_path / 'source'
+    package = source_root / 'demo'
+    package.mkdir(parents=True)
+    (package / '__init__.py').write_text('', encoding='utf-8')
+    (package / 'alpha.py').write_text(
+        '''\
+class Alpha:
+    """First public class."""
+
+
+class Beta:
+    """Second public class."""
+
+
+class CustomError(Exception):
+    """A public exception."""
+
+
+def build():
+    """Public function."""
+
+    def nested():
+        """Not a direct module member."""
+
+    return nested
+
+
+class _Private:
+    """Private class."""
+
+
+def _private_function():
+    """Private function."""
+''',
+        encoding='utf-8',
+    )
+    (package / 'beta.py').write_text(
+        '''\
+class Gamma:
+    """Class in another generated file."""
+''',
+        encoding='utf-8',
+    )
+    (package / 'empty.py').write_text(
+        '"""No documented members."""\n', encoding='utf-8'
+    )
+
+    output = tmp_path / 'docs'
+    apidoc_main(['--separate', '-o', str(output), str(source_root)])
+    (output / 'conf.py').write_text(
+        f'import sys\nsys.path.insert(0, {str(source_root)!r})\n'
+        "extensions = ['sphinx.ext.autodoc']\n"
+        "project = 'test'\n",
+        encoding='utf-8',
+    )
+    (output / 'index.rst').write_text(
+        'API\n===\n\n.. toctree::\n\n   modules\n',
+        encoding='utf-8',
+    )
+
+    app = make_app(
+        'html',
+        srcdir=output,
+        builddir=tmp_path / 'build',
+        confoverrides={'autodoc_use_legacy_class_based': legacy},
+    )
+    app.build()
+
+    assert app.env.toctree_includes['demo'] == [
+        'demo.alpha',
+        'demo.beta',
+        'demo.empty',
+    ]
+    alpha_doc = app.env.get_doctree('demo.alpha')
+    alpha_module = next(
+        section
+        for section in alpha_doc.findall(nodes.section)
+        if section[0].astext() == 'demo.alpha module'
+    )
+    alpha_members = [
+        section
+        for section in alpha_module.findall(nodes.section)
+        if section.parent is alpha_module
+    ]
+    assert {section[0].astext() for section in alpha_members} == {
+        'Alpha',
+        'Beta',
+        'CustomError',
+        'build',
+    }
+    assert 'nested' not in {section[0].astext() for section in alpha_members}
+    alpha_toc = app.env.tocs['demo.alpha'].astext()
+    assert all(name in alpha_toc for name in ('Alpha', 'Beta', 'CustomError', 'build'))
+
+    beta_doc = app.env.get_doctree('demo.beta')
+    beta_module = next(
+        section
+        for section in beta_doc.findall(nodes.section)
+        if section[0].astext() == 'demo.beta module'
+    )
+    beta_members = [
+        section
+        for section in beta_module.findall(nodes.section)
+        if section is not beta_module
+    ]
+    assert [section[0].astext() for section in beta_members] == ['Gamma']
+    assert 'Gamma' in app.env.tocs['demo.beta'].astext()
+
+    empty_doc = app.env.get_doctree('demo.empty')
+    empty_module = next(empty_doc.findall(nodes.section))
+    assert empty_module[0].astext() == 'demo.empty module'
+    assert not [
+        section
+        for section in empty_module.findall(nodes.section)
+        if section is not empty_module
+    ]
+
+
+@pytest.mark.parametrize('legacy', [False, True], ids=['dynamic', 'legacy'])
+def test_apidoc_automodule_member_headings_option(make_app, tmp_path, legacy):
+    source_root = tmp_path / 'source'
+    source_root.mkdir()
+    (source_root / 'api.py').write_text(
+        '''\
+def create_widget():
+    """Create a widget."""
+
+
+class Widget:
+    """A widget."""
+
+    def nested_method(self):
+        """A method, not a module member."""
+
+
+class WidgetError(Exception):
+    """A custom exception."""
+''',
+        encoding='utf-8',
+    )
+    output = tmp_path / 'docs'
+    apidoc_main([
+        '--automodule-options=members,undoc-members,member-headings',
+        '-o',
+        str(output),
+        str(source_root),
+    ])
+    (output / 'conf.py').write_text(
+        f'import sys\nsys.path.insert(0, {str(source_root)!r})\n'
+        "extensions = ['sphinx.ext.autodoc']\n"
+        "project = 'test'\n",
+        encoding='utf-8',
+    )
+    (output / 'index.rst').write_text(
+        'API\n===\n\n.. toctree::\n\n   api\n',
+        encoding='utf-8',
+    )
+
+    app = make_app(
+        'html',
+        srcdir=output,
+        builddir=tmp_path / 'build',
+        confoverrides={
+            'autodoc_use_legacy_class_based': legacy,
+            'autodoc_member_order': 'bysource',
+        },
+    )
+    app.build()
+
+    api_doc = app.env.get_doctree('api')
+    api_module = next(api_doc.findall(nodes.section))
+    assert api_module[0].astext() == 'api module'
+    api_members = [
+        section
+        for section in api_module.findall(nodes.section)
+        if section.parent is api_module
+    ]
+    assert [section[0].astext() for section in api_members] == [
+        'create_widget',
+        'Widget',
+        'WidgetError',
+    ]
+
+
+@pytest.mark.parametrize('legacy', [False, True], ids=['dynamic', 'legacy'])
+def test_automodule_member_headings_are_opt_in(make_app, tmp_path, legacy):
+    source_root = tmp_path / 'source'
+    source_root.mkdir()
+    (source_root / 'api.py').write_text(
+        'class Widget:\n    """A widget."""\n', encoding='utf-8'
+    )
+    srcdir = tmp_path / 'docs'
+    srcdir.mkdir()
+    (srcdir / 'conf.py').write_text(
+        f'import sys\nsys.path.insert(0, {str(source_root)!r})\n'
+        "extensions = ['sphinx.ext.autodoc']\n"
+        "project = 'test'\n",
+        encoding='utf-8',
+    )
+    (srcdir / 'index.rst').write_text(
+        'API\n===\n\n.. automodule:: api\n   :members:\n',
+        encoding='utf-8',
+    )
+
+    app = make_app(
+        'html',
+        srcdir=srcdir,
+        builddir=tmp_path / 'build',
+        confoverrides={'autodoc_use_legacy_class_based': legacy},
+    )
+    app.build()
+
+    api_doc = app.env.get_doctree('index')
+    assert [section[0].astext() for section in api_doc.findall(nodes.section)] == [
+        'API'
+    ]
 
 
 def test_package_file_module_first(tmp_path):

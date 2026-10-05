@@ -174,3 +174,7 @@ def _add_content(content: StringList, *, result: StringList, indent: str) -> Non
             result.append(indent + line, src[0], src[1])
         else:
             result.append('', src[0], src[1])
+
+
+def _member_heading_lines(name: str) -> tuple[str, str]:
+    return name, '=' * len(name)

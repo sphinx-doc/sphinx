@@ -29,6 +29,7 @@ from sphinx.ext.autodoc._legacy_class_based._sentinels import (
     SUPPRESS,
     UNINITIALIZED_ATTR,
 )
+from sphinx.ext.autodoc._renderer import _member_heading_lines
 from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.ext.autodoc.importer import (  # type: ignore[attr-defined]
     get_class_members,
@@ -748,6 +749,12 @@ class Documenter:
                 all_members=True,
                 real_modname=self.real_modname,
                 check_module=members_check_module and not isattr,
+                member_heading=(
+                    self.objtype == 'module'
+                    and self.options.member_headings
+                    and documenter.objtype
+                    in {'class', 'exception', 'function', 'decorator'}
+                ),
             )
 
         # reset current objects
@@ -818,6 +825,7 @@ class Documenter:
         real_modname: str | None = None,
         check_module: bool = False,
         all_members: bool = False,
+        member_heading: bool = False,
     ) -> None:
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
@@ -886,6 +894,11 @@ class Documenter:
             )
             return
 
+        if member_heading:
+            for line in _member_heading_lines(self.objpath[-1]):
+                self.add_line(line, sourcename)
+            self.add_line('', sourcename)
+
         # generate the directive header and options, if applicable
         self.add_directive_header(sig)
         self.add_line('', sourcename)
@@ -918,6 +931,7 @@ class ModuleDocumenter(Documenter):
         'platform': identity,
         'deprecated': bool_option,
         'member-order': member_order_option,
+        'member-headings': bool_option,
         'exclude-members': exclude_members_option,
         'private-members': members_option,
         'special-members': members_option,

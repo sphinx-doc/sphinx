@@ -76,7 +76,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 66
+ENV_VERSION = 67
 
 # config status
 CONFIG_UNSET = -1
@@ -122,6 +122,8 @@ class BuildEnvironment:
         self.events: EventManager = app.events
         self.project: Project = app.project
         self.version: Mapping[str, int] = _get_env_version(app.extensions)
+        self._parsed_tags: frozenset[str] | None = None
+        self._only_docs: set[str] = set()
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: Literal[False] | Callable[[Node], bool] | None = None
@@ -411,6 +413,7 @@ class BuildEnvironment:
 
     def clear_doc(self, docname: str) -> None:
         """Remove all traces of a source file in the inventory."""
+        self._only_docs.discard(docname)
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
             self.included.pop(docname, None)
@@ -430,6 +433,10 @@ class BuildEnvironment:
         for docname in docnames:
             self.all_docs[docname] = other.all_docs[docname]
             self.included[docname] = other.included[docname]
+            if docname in other._only_docs:
+                self._only_docs.add(docname)
+            else:
+                self._only_docs.discard(docname)
             if docname in other.reread_always:
                 self.reread_always.add(docname)
 
