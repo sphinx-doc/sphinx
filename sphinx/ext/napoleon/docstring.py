@@ -544,6 +544,8 @@ class GoogleDocstring:
             if colon:
                 if after:
                     _desc = [after, *lines[1:]]
+                    if len(lines) > 1 and lines[1].strip():
+                        _desc[1:] = self._dedent(lines[1:])
                 else:
                     _desc = lines[1:]
 

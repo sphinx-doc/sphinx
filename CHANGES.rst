@@ -4,6 +4,9 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #13602: napoleon: Dedent continuation lines in Google style return descriptions
+  so they do not render as definition lists.
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.

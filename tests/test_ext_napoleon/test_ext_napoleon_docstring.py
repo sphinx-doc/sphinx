@@ -568,6 +568,23 @@ Returns:
         actual = GoogleDocstring(docstring)
         assert str(actual) == expected
 
+    @pytest.mark.parametrize('reference', ['save_path', '`save_path`', '``save_path``'])
+    def test_indented_return_description(self, reference):
+        docstring = f"""Example function.
+
+Returns:
+    str: If {reference} is provided, returns the path to the log
+        file.
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = f"""Example function.
+
+:returns: If {reference} is provided, returns the path to the log
+          file.
+:rtype: str
+"""
+        assert actual == expected
+
     def test_colon_in_return_type(self):
         docstring = """Example property.
 
