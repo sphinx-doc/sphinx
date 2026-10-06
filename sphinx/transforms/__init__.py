@@ -10,7 +10,7 @@ from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.references import Footnotes
-from docutils.transforms.universal import SmartQuotes
+from docutils.transforms.universal import Messages, SmartQuotes
 from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
@@ -341,10 +341,24 @@ class FilterSystemMessages(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         filterlevel = 2 if self.config.keep_warnings else 5
+        Messages(self.document).apply()
+        removed_ids = set()
         for node in list(self.document.findall(nodes.system_message)):
             if node['level'] < filterlevel:
                 logger.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
+                for id_ in node['ids']:
+                    self.document.ids.pop(id_, None)
+                    removed_ids.add(id_)
+        for problem in list(self.document.findall(nodes.problematic)):
+            if problem.get('refid') in removed_ids:
+                problem.parent.replace(problem, nodes.Text(problem.astext()))
+        for section in list(self.document.findall(nodes.section)):
+            if 'system-messages' in section['classes']:
+                if len(section) == 1:
+                    section.parent.remove(section)
+                elif not section['ids']:
+                    self.document.set_id(section)
 
 
 class SphinxContentsFilter(ContentsFilter):
