@@ -727,6 +727,34 @@ def test_keep_warnings_is_False(app: SphinxTestApp) -> None:
     assert len(doctree[0]) == 1
 
 
+@pytest.mark.sphinx('html', testroot='warning-links', freshenv=True)
+@pytest.mark.parametrize('keep_warnings', [False, True])
+def test_warning_links(app: SphinxTestApp, keep_warnings: bool) -> None:
+    app.config.keep_warnings = keep_warnings
+    app.build(force_all=True)
+    doctree = app.env.get_doctree('index')
+    problems = list(doctree.findall(nodes.problematic))
+    messages = list(doctree.findall(nodes.system_message))
+    html = (app.outdir / 'index.html').read_text(encoding='utf-8')
+
+    assert '*asterisk' in doctree.astext()
+    assert 'missing target' in doctree.astext()
+    if app.config.keep_warnings:
+        assert len(problems) == len(messages) == 2
+        message_ids = {id_ for message in messages for id_ in message['ids']}
+        assert {problem['refid'] for problem in problems} <= message_ids
+        for message_id in message_ids:
+            assert f'id="{message_id}"' in html
+    else:
+        assert not problems
+        assert not messages
+        assert not any(
+            isinstance(node, nodes.system_message) for node in doctree.ids.values()
+        )
+        assert 'class="problematic"' not in html
+        assert 'system-messages' not in html
+
+
 @pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
 def test_compact_refonly_bullet_list(app: SphinxTestApp) -> None:
     app.build(force_all=True)
