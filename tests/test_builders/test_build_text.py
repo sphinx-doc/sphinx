@@ -264,3 +264,21 @@ def test_secnums(app: SphinxTestApp) -> None:
     doc2 = (app.outdir / 'doc2.txt').read_text(encoding='utf8')
     expect = 'Section B\n*********\n\n\nSub Ba\n======\n\n\nSub Bb\n======\n'
     assert doc2 == expect
+
+
+@pytest.mark.sphinx('text', testroot='numfig', confoverrides={'numfig': True})
+@pytest.mark.parametrize('text_add_secnumbers', [True, False])
+def test_numref(app: SphinxTestApp, text_add_secnumbers: bool) -> None:
+    app.config.text_add_secnumbers = text_add_secnumbers
+    app.build(force_all=True)
+    result = (app.outdir / 'index.txt').read_text(encoding='utf8').splitlines()
+    assert '* Fig.1 is Fig. 1' in result
+    assert '* Fig.2.2 is Figure2.2' in result
+    assert '* Table.1 is Table 1' in result
+    assert '* Table.2.2 is Table:2.2' in result
+    assert '* List.1 is Listing 1' in result
+    assert '* List.2.2 is Code-2.2' in result
+    assert '* Section.1 is Section 1' in result
+    assert '* Section.2.1 is Section 2.1' in result
+    assert '* Fig.1 is Fig.1 should be Fig.1' in result
+    assert '* Section.1 is Sect.1 Foo' in result
