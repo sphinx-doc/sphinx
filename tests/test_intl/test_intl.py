@@ -761,6 +761,81 @@ def test_translated_refnamed_consistency(
 
 
 @sphinx_intl
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    srcdir='intl_refnamed_section_title_collision',
+    freshenv=True,
+)
+@pytest.mark.parametrize(
+    ('translated', 'warns', 'destination'),
+    [
+        pytest.param(
+            '`Błędy w dokumentacji`_',
+            True,
+            '#documentation-bugs',
+            id='translated-name-selects-section',
+        ),
+        pytest.param(
+            '`Błędy w dokumentacji <Documentation bugs_>`_',
+            False,
+            'https://example.org/issues',
+            id='translated-display-text-keeps-external-target',
+        ),
+        pytest.param(
+            '`Błędy w dokumentacji`_ # noqa',
+            False,
+            '#documentation-bugs',
+            id='changed-target-noqa',
+        ),
+    ],
+)
+def test_translated_refnamed_section_title_collision(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    translated: str,
+    warns: bool,
+    destination: str,
+) -> None:
+    (app.srcdir / 'index.rst').write_text(
+        'Test\n====\n\n'
+        'Documentation bugs\n------------------\n\n'
+        '.. seealso::\n\n'
+        '   `Documentation bugs`_\n'
+        '      A list of documentation bugs.\n\n'
+        '.. _Documentation bugs: https://example.org/issues\n',
+        encoding='utf8',
+    )
+    catalog = Catalog()
+    catalog.add('Documentation bugs', 'Błędy w dokumentacji')
+    catalog.add('`Documentation bugs`_', translated)
+    app.config.locale_dirs = [str(tmp_path)]
+    locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
+    locale_dir.mkdir(parents=True)
+    write_mo(locale_dir / 'index.mo', catalog)
+
+    app.build()
+
+    doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+    assert 'Błędy w dokumentacji' in doctree.astext()
+    refs = list(doctree.findall(nodes.reference))
+    assert len(refs) == 1
+    assert refs[0].astext() == 'Błędy w dokumentacji'
+    assert refs[0].get('refuri', '#' + refs[0].get('refid', '')) == destination
+
+    warnings = getwarning(app.warning)
+    if warns:
+        assert (
+            'index.rst:9: WARNING: inconsistent references in translated message. '
+            "original: ['`Documentation bugs`_'], "
+            "translated: ['`Błędy w dokumentacji`_'] "
+            '[i18n.inconsistent_references]'
+        ) in warnings
+    else:
+        assert not warnings
+
+
+@sphinx_intl
 @pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_section(app: SphinxTestApp) -> None:
