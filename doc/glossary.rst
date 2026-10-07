@@ -35,6 +35,22 @@ Glossary
 
       See :ref:`rst-directives` for more information.
 
+   doctree
+      The in-memory representation of a parsed document: a tree of docutils
+      nodes whose root is a :class:`docutils.nodes.document` instance.
+      Sphinx creates one doctree for each source file during the reading
+      phase, and many :ref:`events <events>` pass a doctree to their callbacks,
+      which may inspect or modify it in-place.
+
+      Docutils does not provide API documentation for its node classes;
+      the available node types and their attributes are described in
+      `The Docutils Document Tree
+      <https://docutils.sourceforge.io/docs/ref/doctree.html>`__,
+      and the implementation is in the `docutils.nodes
+      <https://sourceforge.net/p/docutils/code/HEAD/tree/trunk/docutils/docutils/nodes.py>`__
+      module.  Nodes added by Sphinx are documented in :ref:`nodes`.
+      See also :ref:`build-phases`.
+
    document name
       Since reStructuredText source files can have different extensions
       (some people like ``.txt``, some like ``.rst`` -- the extension can be
