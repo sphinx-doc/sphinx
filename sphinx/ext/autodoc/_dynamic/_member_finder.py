@@ -329,7 +329,10 @@ def _get_members_to_document(
                 unmangled = unmangle(props._obj, name)
                 if (
                     unmangled
-                    and unmangled not in object_members_map
+                    and (
+                        unmangled not in object_members_map
+                        or object_members_map[unmangled].docstring is None
+                    )
                     and unmangled in wanted_members
                 ):
                     if name in obj_dict:

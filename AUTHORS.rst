@@ -124,6 +124,7 @@ Contributors
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
+* Zachary Spector -- member finder fix for custom ``attrgetter`` with ``__slots__``
 
 Former maintainers
 ==================
