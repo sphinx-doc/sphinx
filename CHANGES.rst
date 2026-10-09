@@ -4,6 +4,11 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #14354: autodoc: execute PEP 561 ``.pyi`` stub files with deferred
+  annotation semantics, as if they began with ``from __future__ import
+  annotations``, so that forward references in stub annotations no longer
+  raise ``NameError`` at import time.
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.

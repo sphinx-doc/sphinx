@@ -1,6 +1,7 @@
 """Importer utilities for autodoc"""
 
 from __future__ import annotations
+import __future__
 
 import contextlib
 import importlib
@@ -36,6 +37,17 @@ if TYPE_CHECKING:
 
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
+
+# ``CO_FUTURE_ANNOTATIONS`` is a ``_Feature`` instance (holding the flag in
+# ``.compiler_flag``) on some Python versions and a plain flag integer on
+# others.
+_CO_FUTURE_ANNOTATIONS = int(
+    getattr(
+        __future__.CO_FUTURE_ANNOTATIONS,
+        'compiler_flag',
+        __future__.CO_FUTURE_ANNOTATIONS,
+    )
+)
 
 
 class _ImportedObject:
@@ -224,7 +236,21 @@ def _import_module(modname: str, try_reload: bool = False) -> Any:
                 msg = 'missing loader'
                 raise ImportError(msg, name=spec.name)  # NoQA: TRY301
             sys.modules[modname] = module = module_from_spec(spec)
-            spec.loader.exec_module(module)
+            # PEP 484 requires stub files to be treated as if all type
+            # annotations were lazily evaluated, i.e. as if each file began
+            # with ``from __future__ import annotations``. Executing the stub
+            # as a plain module would otherwise fail on forward references
+            # (https://github.com/sphinx-doc/sphinx/issues/14354).
+            source = spec.loader.get_source(modname)
+            code = compile(
+                source,
+                str(pyi_path),
+                'exec',
+                flags=_CO_FUTURE_ANNOTATIONS,
+                dont_inherit=True,
+            )
+            # Executing the stub is the whole purpose of this loader.
+            exec(code, module.__dict__)  # noqa: S102
     except ImportError:
         raise
     except BaseException as exc:
