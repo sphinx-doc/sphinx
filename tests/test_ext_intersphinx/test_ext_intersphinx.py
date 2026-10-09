@@ -37,6 +37,7 @@ from tests.test_util.intersphinx_data import (
     INVENTORY_V2_AMBIGUOUS_TERMS,
     INVENTORY_V2_NO_VERSION,
     INVENTORY_V2_TEXT_VERSION,
+    INVENTORY_V2_TYPE_ALIASES,
 )
 from tests.utils import http_server
 
@@ -284,6 +285,45 @@ def test_missing_reference_pydomain(tmp_path, app):
     node, contnode = fake_node('py', 'attr', 'Foo.bar', 'Foo.bar', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'Foo.bar'
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_missing_reference_pydomain_class_fallback(tmp_path, app):
+    # type variables and type aliases are documented as py:data or py:attribute
+    # but referenced from annotations with the py:class role (gh-10974)
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(INVENTORY_V2_TYPE_ALIASES)
+    set_config(app, {'python': ('https://docs.python.org/', str(inv_file))})
+    validate_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    # py:class falls back to py:data
+    rn = reference_check(app, 'py', 'class', 'module1.T', 'T')
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#module1.T'
+
+    # ... also when the target is qualified with the current module
+    rn = reference_check(app, 'py', 'class', 'T', 'T', **{'py:module': 'module1'})
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#module1.T'
+
+    # py:class falls back to py:attribute
+    rn = reference_check(app, 'py', 'class', 'module1.Klass.Alias', 'Alias')
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#module1.Klass.Alias'
+
+    # ... but not to py:method (unlike the py:attr role)
+    rn = reference_check(app, 'py', 'class', 'module1.Klass.meth', 'meth')
+    assert rn is None
+
+    # an actual py:class entry is preferred over the fallbacks
+    rn = reference_check(app, 'py', 'class', 'module1.Both', 'Both')
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#class-module1.Both'
+
+    # the fallback is specific to the py:class role ...
+    rn = reference_check(app, 'py', 'exc', 'module1.T', 'T')
+    assert rn is None
+
+    # ... and to the Python domain
+    rn = reference_check(app, 'js', 'class', 'foo.T', 'T')
+    assert rn is None
 
 
 @pytest.mark.sphinx('html', testroot='root')
