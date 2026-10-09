@@ -38,17 +38,6 @@ if TYPE_CHECKING:
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 
-# ``CO_FUTURE_ANNOTATIONS`` is a ``_Feature`` instance (holding the flag in
-# ``.compiler_flag``) on some Python versions and a plain flag integer on
-# others.
-_CO_FUTURE_ANNOTATIONS = int(
-    getattr(
-        __future__.CO_FUTURE_ANNOTATIONS,
-        'compiler_flag',
-        __future__.CO_FUTURE_ANNOTATIONS,
-    )
-)
-
 
 class _ImportedObject:
     #: module containing the object to document
@@ -232,25 +221,36 @@ def _import_module(modname: str, try_reload: bool = False) -> Any:
         if skip_pyi or pyi_path is None:
             module = importlib.import_module(modname)
         else:
-            if spec.loader is None:
+            loader = spec.loader
+            if loader is None:
                 msg = 'missing loader'
                 raise ImportError(msg, name=spec.name)  # NoQA: TRY301
             sys.modules[modname] = module = module_from_spec(spec)
-            # PEP 484 requires stub files to be treated as if all type
-            # annotations were lazily evaluated, i.e. as if each file began
-            # with ``from __future__ import annotations``. Executing the stub
-            # as a plain module would otherwise fail on forward references
-            # (https://github.com/sphinx-doc/sphinx/issues/14354).
-            source = spec.loader.get_source(modname)
-            code = compile(
-                source,
-                str(pyi_path),
-                'exec',
-                flags=_CO_FUTURE_ANNOTATIONS,
-                dont_inherit=True,
-            )
-            # Executing the stub is the whole purpose of this loader.
-            exec(code, module.__dict__)  # noqa: S102
+            if isinstance(loader, _StubFileLoader):
+                # PEP 484 requires stub files to be treated as if all type
+                # annotations were lazily evaluated, i.e. as if each file began
+                # with ``from __future__ import annotations``. Executing the stub
+                # as a plain module would otherwise fail on forward references
+                # (https://github.com/sphinx-doc/sphinx/issues/14354). Python 3.14
+                # defers annotations by default, so the flag is only applied when
+                # the running Python provides it.
+                feature = getattr(__future__, 'CO_FUTURE_ANNOTATIONS', None)
+                flags = (
+                    int(getattr(feature, 'compiler_flag', feature))
+                    if feature is not None
+                    else 0
+                )
+                code = compile(
+                    loader.get_source(modname),
+                    str(pyi_path),
+                    'exec',
+                    flags=flags,
+                    dont_inherit=True,
+                )
+                # Executing the stub is the whole purpose of this loader.
+                exec(code, module.__dict__)  # noqa: S102
+            else:
+                loader.exec_module(module)
     except ImportError:
         raise
     except BaseException as exc:
