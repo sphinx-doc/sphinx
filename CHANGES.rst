@@ -13,6 +13,12 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #10974: intersphinx: Resolve :rst:role:`py:class` references
+  (e.g. from type annotations) to objects documented as
+  :rst:dir:`py:data` or :rst:dir:`py:attribute`, such as type aliases
+  and type variables, mirroring local resolution.
+  Patch by Bhaskar Gurram.
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
