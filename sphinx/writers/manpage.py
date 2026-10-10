@@ -78,6 +78,9 @@ class ManualPageTranslator(SphinxTranslator, manpage.Translator):
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
+        self.__dict__.pop('visit_reference', None)
+        self.__dict__.pop('depart_reference', None)
+        self.defs.setdefault('reference', (r'\fI\%', r'\fP'))
 
         # first title is the manpage title
         self.section_level = -1

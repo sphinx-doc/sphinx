@@ -8,8 +8,11 @@ import pytest
 
 from sphinx.builders.manpage import default_man_pages
 from sphinx.config import Config
+from sphinx.writers.manpage import ManualPageTranslator
 
 if TYPE_CHECKING:
+    from docutils import nodes
+
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -80,6 +83,28 @@ end
 """
 
     assert expected in content
+
+
+@pytest.mark.sphinx('man', testroot='manpage-references')
+def test_references_render_as_text(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    content = (app.outdir / 'foo.1').read_text(encoding='utf8')
+    assert r'A \fI\%ref\fP\&. A \fI\%doc\fP' in content
+    assert r'<#\:other-ref>' not in content
+    assert r'\%<>' not in content
+
+
+@pytest.mark.sphinx('man', testroot='manpage-references')
+def test_custom_reference_handler(app: SphinxTestApp) -> None:
+    class CustomTranslator(ManualPageTranslator):
+        def visit_reference(self, node: nodes.reference) -> None:
+            self.body.append('custom-reference:')
+            super().visit_reference(node)
+
+    app.set_translator('man', CustomTranslator)
+    app.build(force_all=True)
+    content = (app.outdir / 'foo.1').read_text(encoding='utf8')
+    assert r'custom-reference:\fI\%ref\fP' in content
 
 
 def test_default_man_pages() -> None:
