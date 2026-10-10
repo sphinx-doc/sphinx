@@ -11,6 +11,8 @@ from sphinx.config import Config
 from sphinx.writers.manpage import ManualPageTranslator
 
 if TYPE_CHECKING:
+    from docutils import nodes
+
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -95,7 +97,7 @@ def test_references_render_as_text(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx('man', testroot='manpage-references')
 def test_custom_reference_handler(app: SphinxTestApp) -> None:
     class CustomTranslator(ManualPageTranslator):
-        def visit_reference(self, node):
+        def visit_reference(self, node: nodes.reference) -> None:
             self.body.append('custom-reference:')
             super().visit_reference(node)
 
