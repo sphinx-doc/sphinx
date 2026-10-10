@@ -6,6 +6,9 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import re
+import time
+
 import pytest
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -122,10 +125,16 @@ def test_singledispatch() -> None:
 
 
 def test_cfunction() -> None:
+    # CPython has renamed the argument in time.asctime()'s signature
+    # between releases ('tuple' vs 'time_tuple'); autodoc renders whatever
+    # the running interpreter's docstring says, so derive it at runtime.
+    match = re.search(r'asctime\(\[(\w+)\]\)', time.asctime.__doc__ or '')
+    assert match is not None
+    asctime_arg = match.group(1)
     actual = do_autodoc('function', 'time.asctime')
     assert actual == [
         '',
-        '.. py:function:: asctime([tuple]) -> string',
+        f'.. py:function:: asctime([{asctime_arg}]) -> string',
         '   :module: time',
         '',
         "   Convert a time tuple to a string, e.g. 'Sat Jun 06 16:26:11 1998'.",
