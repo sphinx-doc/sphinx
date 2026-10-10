@@ -1,6 +1,13 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* Add an ``extension`` keyword argument to :func:`sphinx.util.logging.getLogger`
+  and logging methods to prefix log messages with the name of the emitting
+  extension. Set the name once on the logger, or override it per message.
+
 Bugs fixed
 ----------
 

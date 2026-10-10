@@ -56,26 +56,33 @@ COLOR_MAP: dict[int, str] = {
 }
 
 
-def getLogger(name: str) -> SphinxLoggerAdapter:
+def getLogger(name: str, *, extension: str | None = None) -> SphinxLoggerAdapter:
     """Get logger wrapped by :class:`sphinx.util.logging.SphinxLoggerAdapter`.
 
     Sphinx logger always uses ``sphinx.*`` namespace to be independent from
     settings of root logger.  It ensures logging is consistent even if a
     third-party extension or imported application resets logger settings.
 
+    Pass ``extension`` to prefix every message from this adapter with the
+    extension name. Individual logging calls can override the name, or disable
+    the prefix with ``extension=None`` or ``extension=''``.
+
     Example usage::
 
         >>> from sphinx.util import logging
-        >>> logger = logging.getLogger(__name__)
+        >>> logger = logging.getLogger(__name__, extension='my_extension')
         >>> logger.info('Hello, this is an extension!')
-        Hello, this is an extension!
+        [my_extension] Hello, this is an extension!
+
+    .. versionadded:: 9.1.1
+       The ``extension`` keyword argument.
     """
     # add sphinx prefix to name forcely
     logger = logging.getLogger(NAMESPACE + '.' + name)
     # Forcely enable logger
     logger.disabled = False
     # wrap logger by SphinxLoggerAdapter
-    return SphinxLoggerAdapter(logger, {})
+    return SphinxLoggerAdapter(logger, {'extension': extension})
 
 
 def convert_serializable(records: list[logging.LogRecord]) -> None:
@@ -98,6 +105,8 @@ class SphinxLogRecord(logging.LogRecord):
 
     def getMessage(self) -> str:
         message = super().getMessage()
+        if extension := getattr(self, 'extension', None):
+            message = f'[{extension}] {message}'
         location = getattr(self, 'location', None)
         if location:
             message = f'{location}: {self.prefix}{message}'
@@ -127,9 +136,9 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 
 
 class SphinxLoggerAdapter(logging.LoggerAdapter[logging.Logger]):
-    """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
+    """LoggerAdapter supporting Sphinx-specific logging keywords."""
 
-    KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
+    KEYWORDS = ['type', 'subtype', 'extension', 'location', 'nonl', 'color', 'once']
 
     def log(  # type: ignore[override]
         self, level: int | str, msg: str, *args: Any, **kwargs: Any
@@ -144,7 +153,8 @@ class SphinxLoggerAdapter(logging.LoggerAdapter[logging.Logger]):
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg: str, kwargs: dict[str, Any]) -> tuple[str, dict[str, Any]]:  # type: ignore[override]
-        extra = kwargs.setdefault('extra', {})
+        extra = {**(self.extra or {}), **(kwargs.get('extra') or {})}
+        kwargs['extra'] = extra
         for keyword in self.KEYWORDS:
             if keyword in kwargs:
                 extra[keyword] = kwargs.pop(keyword)
@@ -179,14 +189,18 @@ class SphinxLoggerAdapter(logging.LoggerAdapter[logging.Logger]):
         :param args: The arguments to substitute into ``msg``.
         :param type: The type of the warning.
         :param subtype: The subtype of the warning.
+        :param extension: The extension name to display before the message.
+            Defaults to the name passed to :func:`getLogger`.
+            Pass ``None`` or an empty string to disable the prefix.
+            This does not affect warning suppression.
         :param location: The source location of the warning's origin,
             which can be a string (the ``docname`` or ``docname:lineno``),
             a tuple of ``(docname, lineno)``,
             or the docutils node object.
         :param nonl: Whether to append a new line terminator to the message.
         :param color: A color code for the message.
-        :param once: Do not log this warning,
-            if a previous warning already has same ``msg``, ``args`` and ``once=True``.
+        :param once: Do not log this warning if a previous warning already has
+            the same ``msg``, ``args``, ``extension`` and ``once=True``.
         """
         return super().warning(
             msg,
@@ -405,6 +419,8 @@ class _RaiseOnWarningFilter(logging.Filter):
             message = record.msg % record.args
         except (TypeError, ValueError):
             message = record.msg  # use record.msg itself
+        if extension := getattr(record, 'extension', None):
+            message = f'[{extension}] {message}'
         if location := getattr(record, 'location', ''):
             message = f'{location}:{message}'
         if record.exc_info is not None:
@@ -469,7 +485,8 @@ class OnceFilter(logging.Filter):
     def __init__(self, name: str = '') -> None:
         super().__init__(name)
         self.messages: dict[
-            str, list[tuple[object, ...] | Mapping[str, object] | None]
+            tuple[str | None, str],
+            list[tuple[object, ...] | Mapping[str, object] | None],
         ] = {}
 
     def filter(self, record: logging.LogRecord) -> bool:
@@ -477,7 +494,8 @@ class OnceFilter(logging.Filter):
         if not once:
             return True
         else:
-            params = self.messages.setdefault(record.msg, [])
+            key = (getattr(record, 'extension', None) or None, record.msg)
+            params = self.messages.setdefault(key, [])
             if record.args in params:
                 return False
 
