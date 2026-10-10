@@ -6,7 +6,8 @@ source file translated by test_build.
 
 from __future__ import annotations
 
-import sys
+import re
+import time
 
 import pytest
 
@@ -124,9 +125,12 @@ def test_singledispatch() -> None:
 
 
 def test_cfunction() -> None:
-    # CPython 3.13 and 3.14 rename the argument in time.asctime()'s
-    # signature to 'time_tuple'; other versions use 'tuple'.
-    asctime_arg = 'time_tuple' if (3, 13) <= sys.version_info[:2] < (3, 15) else 'tuple'
+    # CPython has renamed the argument in time.asctime()'s signature
+    # between releases ('tuple' vs 'time_tuple'); autodoc renders whatever
+    # the running interpreter's docstring says, so derive it at runtime.
+    match = re.search(r'asctime\(\[(\w+)\]\)', time.asctime.__doc__ or '')
+    assert match is not None
+    asctime_arg = match.group(1)
     actual = do_autodoc('function', 'time.asctime')
     assert actual == [
         '',
