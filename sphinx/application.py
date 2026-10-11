@@ -1461,10 +1461,10 @@ class Sphinx:
         Example::
 
             app.add_js_file('example.js')
-            # => <script src="_static/example.js"></script>
+            # => <script src="_static/example.js?v=<CRC32 checksum>"></script>
 
             app.add_js_file('example.js', loading_method='async')
-            # => <script src="_static/example.js" async="async"></script>
+            # => <script src="_static/example.js?v=<CRC32 checksum>" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
             # => <script>var myVariable = 'foo';</script>
@@ -1498,6 +1498,8 @@ class Sphinx:
         .. versionchanged:: 4.4
            Take loading_method argument.  Allow to change the loading method of the
            JavaScript file.
+        .. versionchanged:: 7.1
+           The requested file URI gets a CRC32 checksum appended for cache busting.
         """
         if loading_method == 'async':
             kwargs['async'] = 'async'
@@ -1527,7 +1529,8 @@ class Sphinx:
         Example::
 
             app.add_css_file('custom.css')
-            # => <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+            # => <link rel="stylesheet" href="_static/custom.css?v=<CRC32 checksum>"
+            #          type="text/css" />
 
             app.add_css_file('print.css', media='print')
             # => <link rel="stylesheet" href="_static/print.css"
@@ -1570,6 +1573,8 @@ class Sphinx:
 
         .. versionchanged:: 3.5
            Take priority argument.  Allow to add a CSS file to the specific page.
+        .. versionchanged:: 7.1
+           The requested file URI gets a CRC32 checksum appended for cache busting.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)

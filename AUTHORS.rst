@@ -101,6 +101,7 @@ Contributors
 * Nathan Damon -- bugfix in validation of static paths in html builders
 * Nils Kattenbeck -- pygments dark style
 * Pauli Virtanen -- autodoc improvements, autosummary extension
+* Pedro Monteiro -- documentation updates
 * Rafael Fontenelle -- internationalisation
 * \A. Rafey Khan -- improved intersphinx typing
 * Rui Pinheiro -- Python 3.14 forward references support
