@@ -1529,7 +1529,8 @@ class Sphinx:
         Example::
 
             app.add_css_file('custom.css')
-            # => <link rel="stylesheet" href="_static/custom.css?v=<CRC32 checksum>" type="text/css" />
+            # => <link rel="stylesheet" href="_static/custom.css?v=<CRC32 checksum>"
+            #          type="text/css" />
 
             app.add_css_file('print.css', media='print')
             # => <link rel="stylesheet" href="_static/print.css"
