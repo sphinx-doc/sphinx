@@ -7,10 +7,11 @@ import json
 import re
 import socket
 import time
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from html.parser import HTMLParser
 from queue import PriorityQueue, Queue
-from threading import Thread
+from threading import Lock, Thread
 from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
@@ -55,6 +56,7 @@ class _Status(StrEnum):
     TIMEOUT = 'timeout'
     UNCHECKED = 'unchecked'
     UNKNOWN = 'unknown'
+    CACHED = 'cached'
     WORKING = 'working'
 
 
@@ -69,6 +71,8 @@ DEFAULT_REQUEST_HEADERS = {
 CHECK_IMMEDIATELY = 0
 QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
+
+cache_file_lock = Lock()
 
 
 @object.__new__
@@ -94,7 +98,12 @@ class CheckExternalLinksBuilder(DummyBuilder):
         socket.setdefaulttimeout(5.0)
 
     def finish(self) -> None:
-        checker = HyperlinkAvailabilityChecker(self.config)
+        cache_file = (
+            self.outdir / self.config.linkcheck_cache_file
+            if self.config.linkcheck_cache
+            else None
+        )
+        checker = HyperlinkAvailabilityChecker(self.config, cache_file)
         logger.info('')
 
         output_text = self.outdir / 'output.txt'
@@ -138,6 +147,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 logger.info(darkgray('-ignored- ') + msg)  # NoQA: G003
             case _Status.WORKING:
                 logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # NoQA: G003
+            case _Status.CACHED:
+                logger.info(darkgreen('cached    ') + f'{res_uri} - {result.message}')  # NoQA: G003
             case _Status.TIMEOUT:
                 if self.config.verbosity < 0:
                     msg = 'timeout   ' + f'{res_uri}{result.message}'
@@ -295,7 +306,7 @@ class Hyperlink(NamedTuple):
 
 
 class HyperlinkAvailabilityChecker:
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, cache_file: _StrPath | None) -> None:
         self.config = config
         self.rate_limits: dict[str, RateLimit] = {}
         self.rqueue: Queue[CheckResult] = Queue()
@@ -306,6 +317,13 @@ class HyperlinkAvailabilityChecker:
         self.to_ignore: list[re.Pattern[str]] = list(
             map(re.compile, self.config.linkcheck_ignore)
         )
+        self.last_cache_result = {}
+        self.cache_file = cache_file
+        if self.cache_file and self.cache_file.exists():
+            with self.cache_file.open('r') as f:
+                self.last_cache_result = json.load(f)
+        self.now = datetime.now(UTC)
+        self.cache_duration = timedelta(days=self.config.linkcheck_cache_duration)
 
     def check(self, hyperlinks: dict[str, Hyperlink]) -> Iterator[CheckResult]:
         self.invoke_threads()
@@ -322,6 +340,25 @@ class HyperlinkAvailabilityChecker:
                     code=0,
                 )
             else:
+                if (
+                    self.config.linkcheck_cache
+                    and hyperlink.uri in self.last_cache_result
+                ):
+                    last_succesfful_time = datetime.fromtimestamp(
+                        self.last_cache_result[hyperlink.uri], UTC
+                    )
+                    age = self.now - last_succesfful_time
+                    if age < self.cache_duration:
+                        # Cache is still valid
+                        yield CheckResult(
+                            uri=hyperlink.uri,
+                            docname=hyperlink.docname,
+                            lineno=hyperlink.lineno,
+                            status=_Status.CACHED,
+                            message=last_succesfful_time.strftime('%Y-%m-%d %H:%M'),
+                            code=0,
+                        )
+                        continue
                 self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, hyperlink), False)
                 total_links += 1
 
@@ -335,7 +372,7 @@ class HyperlinkAvailabilityChecker:
     def invoke_threads(self) -> None:
         for _i in range(self.num_workers):
             thread = HyperlinkAvailabilityCheckWorker(
-                self.config, self.rqueue, self.wqueue, self.rate_limits
+                self.config, self.rqueue, self.wqueue, self.rate_limits, self.cache_file
             )
             thread.start()
             self.workers.append(thread)
@@ -372,7 +409,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         rqueue: Queue[CheckResult],
         wqueue: Queue[CheckRequest],
         rate_limits: dict[str, RateLimit],
+        cache_file: _StrPath | None = None,
     ) -> None:
+        self.cache_file = cache_file
         self.rate_limits = rate_limits
         self.rqueue = rqueue
         self.wqueue = wqueue
@@ -484,6 +523,23 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             status, info, code = self._check_uri(uri, hyperlink)
             if status != _Status.BROKEN:
                 break
+
+        # Only cache succesfull results which actually ran the _check_uri
+        if self.cache_file and status == _Status.WORKING:
+            with cache_file_lock:
+                if self.cache_file.exists():
+                    with self.cache_file.open('r') as f:
+                        cache_state = json.load(f)
+                    if not isinstance(cache_state, dict):
+                        logger.warning(
+                            __('Previous linkcheck cache is malformed. Recreating it.')
+                        )
+                        cache_state = {}
+                else:
+                    cache_state = {}
+                cache_state[uri] = datetime.now(UTC).timestamp()
+                with self.cache_file.open('w') as f:
+                    json.dump(cache_state, f)
 
         return status, info, code
 
@@ -844,6 +900,11 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         '',
         types=frozenset({frozenset, list, set, tuple}),
     )
+    app.add_config_value('linkcheck_cache', False, '', types=frozenset({bool}))
+    app.add_config_value(
+        'linkcheck_cache_file', 'linkcheck_cache.json', '', types=frozenset({str})
+    )
+    app.add_config_value('linkcheck_cache_duration', 7.0, '', types=frozenset({float}))
 
     app.add_event('linkcheck-process-uri')
 
