@@ -379,6 +379,18 @@ def isattributedescriptor(obj: Any) -> bool:
     return False
 
 
+def is_namedtuple_instance(obj: Any) -> bool:
+    """Return True if *obj* is an instance of a namedtuple or struct sequence."""
+    if not isinstance(obj, tuple) or isinstance(obj, type):
+        return False
+    cls = type(obj)
+    return (
+        hasattr(cls, '_fields')
+        or hasattr(cls, 'n_sequence_fields')
+        or hasattr(cls, 'n_fields')
+    )
+
+
 def is_singledispatch_function(obj: Any) -> bool:
     """Check if the object is a :func:`~functools.singledispatch` function."""
     return (

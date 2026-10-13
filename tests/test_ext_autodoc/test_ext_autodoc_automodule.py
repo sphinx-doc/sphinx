@@ -237,3 +237,10 @@ def test_subclass_of_mocked_object() -> None:
     assert actual[10:11] == [
         '.. py:class:: Inherited(*args: ~typing.Any, **kwargs: ~typing.Any)',
     ]
+
+
+def test_automodule_c_extension_namedtuple() -> None:
+    options = {'members': 'version_info'}
+    actual = do_autodoc('module', 'sys', options=options)
+    assert '.. py:data:: version_info' in actual
+    assert any('Version information as a named tuple.' in line for line in actual)
