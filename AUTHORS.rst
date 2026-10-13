@@ -86,6 +86,7 @@ Contributors
 * Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
 * Louis Maddox -- better docstrings
 * Łukasz Langa -- partial support for autodoc
+* M Ibtehaj Nasar -- autodoc bug fix
 * Marco Buttu -- doctest extension (pyversion option)
 * Mark Ostroth -- semantic HTML contributions
 * Martin Hans -- autodoc improvements

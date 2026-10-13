@@ -7,7 +7,7 @@ import datetime
 import enum
 import functools
 import types
-from inspect import Parameter
+from inspect import Parameter, Signature
 from typing import Callable, List, Optional, Union  # NoQA: UP035
 
 import pytest
@@ -268,6 +268,17 @@ def test_signature_partialmethod() -> None:
 
     sig = inspect.signature(subject.baz)
     assert stringify_signature(sig) == '()'
+
+
+def test_evaluate_signature_unresolvable_attribute() -> None:
+    # e.g. ``np.timedelta64`` where ``np`` is ``None`` at runtime (#14713)
+    sig = Signature(
+        [Parameter('x', Parameter.POSITIONAL_OR_KEYWORD, annotation='np.timedelta64')],
+        return_annotation='np.ndarray',
+    )
+    sig = inspect.evaluate_signature(sig, {'np': None})
+    assert sig.parameters['x'].annotation == 'np.timedelta64'
+    assert sig.return_annotation == 'np.ndarray'
 
 
 def test_signature_annotations() -> None:
