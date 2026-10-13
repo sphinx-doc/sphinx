@@ -1015,3 +1015,35 @@ def test_is_builtin_class_method() -> None:
     assert not inspect.is_builtin_class_method(
         ObjectWithMroAttr([1, 2, 3]), 'still does not crash'
     )
+
+
+def test_is_namedtuple_instance() -> None:
+    import collections
+    import sys
+    import time
+    from typing import NamedTuple
+
+    Point = collections.namedtuple('Point', ['x', 'y'])  # NoQA: PYI024
+    pt = Point(1, 2)
+
+    class Coord(NamedTuple):
+        lat: float
+        lon: float
+
+    coord = Coord(0.0, 0.0)
+
+    class CustomTuple(tuple[int, ...]):
+        __slots__ = ()
+
+    assert inspect.is_namedtuple_instance(pt)
+    assert inspect.is_namedtuple_instance(coord)
+    assert inspect.is_namedtuple_instance(sys.version_info)
+    assert inspect.is_namedtuple_instance(time.gmtime())
+
+    assert not inspect.is_namedtuple_instance(Point)
+    assert not inspect.is_namedtuple_instance(Coord)
+    assert not inspect.is_namedtuple_instance((1, 2))
+    assert not inspect.is_namedtuple_instance(CustomTuple((1, 2)))
+    assert not inspect.is_namedtuple_instance(123)
+    assert not inspect.is_namedtuple_instance('abc')
+    assert not inspect.is_namedtuple_instance(None)
