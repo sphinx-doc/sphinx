@@ -270,6 +270,15 @@ def test_signature_partialmethod() -> None:
     assert stringify_signature(sig) == '()'
 
 
+def test_evaluate_signature_unresolvable_attribute() -> None:
+    # e.g. ``np.timedelta64`` where ``np`` is ``None`` at runtime (#14713)
+    def func(x: np.timedelta64) -> np.ndarray: ...  # NoQA: F821
+
+    sig = inspect.evaluate_signature(inspect.signature(func), {'np': None})
+    assert sig.parameters['x'].annotation == 'np.timedelta64'
+    assert sig.return_annotation == 'np.ndarray'
+
+
 def test_signature_annotations() -> None:
     import tests.test_util.typing_test_data as mod
 
