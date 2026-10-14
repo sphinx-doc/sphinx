@@ -341,10 +341,25 @@ class FilterSystemMessages(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         filterlevel = 2 if self.config.keep_warnings else 5
-        for node in list(self.document.findall(nodes.system_message)):
-            if node['level'] < filterlevel:
-                logger.debug('%s [filtered system message]', node.astext())
-                node.parent.remove(node)
+        # Include messages that Docutils generated without attaching to the tree.
+        for message in self.document.parse_messages + self.document.transform_messages:
+            if message.parent is None:
+                self.document += message
+
+        removed_ids = set()
+        for message in list(self.document.findall(nodes.system_message)):
+            if message['level'] < filterlevel:
+                logger.debug('%s [filtered system message]', message.astext())
+                message.parent.remove(message)
+                for node_id in message['ids']:
+                    self.document.ids.pop(node_id, None)
+                    removed_ids.add(node_id)
+
+        for node in list(self.document.findall(nodes.problematic)):
+            if node.get('refid') in removed_ids:
+                for node_id in node['ids']:
+                    self.document.ids.pop(node_id, None)
+                node.parent.replace(node, nodes.Text(node.astext()))
 
 
 class SphinxContentsFilter(ContentsFilter):

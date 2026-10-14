@@ -4,6 +4,10 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #13698: Remove links to filtered system messages, and display unattached
+  messages when ``keep_warnings`` is enabled.
+  Patch by Linscon
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
