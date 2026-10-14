@@ -13,6 +13,11 @@ Bugs fixed
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
 
+* #11739, #13822: Fix a crash when starting the command line tools in an
+  environment that requests a locale which is not installed on the system,
+  for example ``LC_ALL=de_DE.UTF-8``.
+  Patch by Xia Jiang
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

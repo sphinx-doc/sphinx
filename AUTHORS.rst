@@ -123,6 +123,7 @@ Contributors
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder
+* Xia Jiang -- ignore unavailable locales from the environment
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
 
 Former maintainers

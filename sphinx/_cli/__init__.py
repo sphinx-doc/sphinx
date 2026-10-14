@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import importlib
-import locale
 import sys
 from typing import TYPE_CHECKING
 
@@ -32,7 +31,7 @@ from sphinx._cli.util.colour import (
     terminal_supports_colour,
     underline,
 )
-from sphinx.locale import __, init_console
+from sphinx.locale import __, _set_locale_from_environment, init_console
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
@@ -291,7 +290,7 @@ def _create_sub_parser(
 
 
 def run(argv: Sequence[str] = (), /) -> int:
-    locale.setlocale(locale.LC_ALL, '')
+    _set_locale_from_environment()
     init_console()
 
     argv = argv or sys.argv[1:]
