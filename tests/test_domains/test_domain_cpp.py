@@ -8,6 +8,7 @@ import zlib
 from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
 
 import sphinx.domains.cpp
 from sphinx import addnodes
@@ -1929,6 +1930,49 @@ def test_domain_cpp_parse_no_index_entry(app):
         entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)],
     )
     assert_node(doctree[2], addnodes.index, entries=[])
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_domain_cpp_type_doc_fields(app):
+    text = (
+        '.. cpp:type:: int (*FunctionPointer)(int a, int b)\n'
+        '\n'
+        '   :param a: first parameter\n'
+        '   :param b: second parameter\n'
+        '   :returns: the return value\n'
+    )
+    doctree = restructuredtext.parse(app, text)
+
+    assert_node(doctree[1], addnodes.desc, domain='cpp', objtype='type', no_index=False)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0),
+        (
+            [nodes.field_name, 'Parameters'],
+            [
+                nodes.field_body,
+                nodes.bullet_list,
+                (
+                    [nodes.list_item, nodes.paragraph],
+                    [nodes.list_item, nodes.paragraph],
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 1),
+        ([nodes.field_name, 'Returns'], [nodes.field_body, nodes.paragraph]),
+    )
+
+
+def test_domain_cpp_type_doc_fields_include_exceptions():
+    # Function pointer types in C++ support the same doc fields as functions,
+    # including ``throws`` / ``throw`` / ``exceptions``.
+    names = {
+        name
+        for field in sphinx.domains.cpp.CPPTypeObject.doc_field_types
+        for name in field.names
+    }
+    assert {'throws', 'throw', 'exception'} <= names
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
