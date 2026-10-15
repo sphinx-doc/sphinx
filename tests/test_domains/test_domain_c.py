@@ -8,7 +8,9 @@ import zlib
 from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
 
+import sphinx.domains.c
 from sphinx import addnodes
 from sphinx.addnodes import (
     desc,
@@ -914,6 +916,49 @@ def test_domain_c_parse_cmember(app):
 
     entry = _get_obj(app, 'PyTypeObject.tp_bases')
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_domain_c_type_doc_fields(app):
+    text = (
+        '.. c:type:: int (*FunctionPointer)(int a, int b)\n'
+        '\n'
+        '   :param a: first parameter\n'
+        '   :param b: second parameter\n'
+        '   :return: the return value\n'
+    )
+    doctree = restructuredtext.parse(app, text)
+
+    assert_node(doctree[1], addnodes.desc, domain='c', objtype='type', no_index=False)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0),
+        (
+            [nodes.field_name, 'Parameters'],
+            [
+                nodes.field_body,
+                nodes.bullet_list,
+                (
+                    [nodes.list_item, nodes.paragraph],
+                    [nodes.list_item, nodes.paragraph],
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 1),
+        ([nodes.field_name, 'Returns'], [nodes.field_body, nodes.paragraph]),
+    )
+
+
+def test_domain_c_type_doc_fields_exclude_exceptions():
+    # Function pointer types in C must not expose the C++-specific
+    # ``throws`` / ``throw`` / ``exceptions`` doc field.
+    names = {
+        name
+        for field in sphinx.domains.c.CTypeObject.doc_field_types
+        for name in field.names
+    }
+    assert {'throws', 'throw', 'exception'}.isdisjoint(names)
 
 
 @pytest.mark.sphinx('html', testroot='_blank')

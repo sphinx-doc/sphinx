@@ -408,6 +408,8 @@ class CEnumeratorObject(CObject):
 class CTypeObject(CObject):
     object_type = 'type'
 
+    doc_field_types = _function_doc_field_types.copy()
+
 
 class CNamespaceObject(SphinxDirective):
     """This directive is just to tell Sphinx that we're documenting stuff in

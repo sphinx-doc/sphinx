@@ -16,6 +16,11 @@ Deprecated
 Features added
 --------------
 
+* The ``c:type`` and ``cpp:type`` directives can now document the parameters
+  and return value of function pointer types via the ``:param:``, ``:retval:``
+  and ``:returns:`` fields.  ``cpp:type`` additionally accepts ``:throws:``
+  (``:throw:``, ``:exception:``).
+
 Bugs fixed
 ----------
 
