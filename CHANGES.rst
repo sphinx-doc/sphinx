@@ -1,6 +1,13 @@
 Release 9.1.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* The C and C++ domains now support documenting the parameters and the return
+  value of function pointer types.  The ``c:type`` and ``cpp:type``
+  directives now accept ``:param:`` and ``:returns:`` fields.
+
 Bugs fixed
 ----------
 

@@ -463,8 +463,39 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return ''
 
 
+_function_doc_field_types = [
+    GroupedField(
+        'parameter',
+        label=_('Parameters'),
+        names=('param', 'parameter', 'arg', 'argument'),
+        can_collapse=True,
+    ),
+    GroupedField(
+        'exceptions',
+        label=_('Throws'),
+        rolename='expr',
+        names=('throws', 'throw', 'exception'),
+        can_collapse=True,
+    ),
+    GroupedField(
+        'retval',
+        label=_('Return values'),
+        names=('retvals', 'retval'),
+        can_collapse=True,
+    ),
+    Field(
+        'returnvalue',
+        label=_('Returns'),
+        has_arg=False,
+        names=('returns', 'return'),
+    ),
+]
+
+
 class CPPTypeObject(CPPObject):
     object_type = 'type'
+
+    doc_field_types = [*CPPObject.doc_field_types, *_function_doc_field_types]
 
 
 class CPPConceptObject(CPPObject):
@@ -478,34 +509,7 @@ class CPPMemberObject(CPPObject):
 class CPPFunctionObject(CPPObject):
     object_type = 'function'
 
-    doc_field_types = [
-        *CPPObject.doc_field_types,
-        GroupedField(
-            'parameter',
-            label=_('Parameters'),
-            names=('param', 'parameter', 'arg', 'argument'),
-            can_collapse=True,
-        ),
-        GroupedField(
-            'exceptions',
-            label=_('Throws'),
-            rolename='expr',
-            names=('throws', 'throw', 'exception'),
-            can_collapse=True,
-        ),
-        GroupedField(
-            'retval',
-            label=_('Return values'),
-            names=('retvals', 'retval'),
-            can_collapse=True,
-        ),
-        Field(
-            'returnvalue',
-            label=_('Returns'),
-            has_arg=False,
-            names=('returns', 'return'),
-        ),
-    ]
+    doc_field_types = [*CPPObject.doc_field_types, *_function_doc_field_types]
 
 
 class CPPClassObject(CPPObject):
