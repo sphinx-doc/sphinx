@@ -3,6 +3,21 @@
 
 {% block extrahead %}
 {{ super() }}
+{%- if not embedded %}
+<meta property="og:site_name" content="{{ docstitle|striptags|e }}" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="{{ title|striptags|e }}" />
+<meta property="og:description" content="Sphinx is a tool that makes it easy to create intelligent and beautiful documentation for Python projects and other software." />
+<meta property="og:url" content="https://www.sphinx-doc.org/en/master/{{ pagename }}.html" />
+<meta property="og:image" content="https://www.sphinx-doc.org/en/master/_static/og-image.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ title|striptags|e }}" />
+<meta name="twitter:description" content="Sphinx is a tool that makes it easy to create intelligent and beautiful documentation for Python projects and other software." />
+<meta name="twitter:image" content="https://www.sphinx-doc.org/en/master/_static/og-image.png" />
+{%- endif %}
 {%- if not embedded and pagename == root_doc %}
 <style>.related { display: none; }</style>
 {%- endif %}
