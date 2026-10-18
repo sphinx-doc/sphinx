@@ -348,6 +348,15 @@ class IndexBuilder:
                     rv[k] = {index2fn[i] for i in v}
             return rv
 
+        self._index_entries = {docname: [] for docname in index2fn}
+        for entry, doc_tuples in frozen['indexentries'].items():
+            for doc, entry_id, main_entry in doc_tuples:
+                self._index_entries[index2fn[doc]].append((
+                    entry,
+                    entry_id,
+                    'main' if main_entry else '',
+                ))
+
         self._mapping = load_terms(frozen['terms'])
         self._title_mapping = load_terms(frozen['titleterms'])
         # no need to load keywords/objtypes
@@ -439,7 +448,7 @@ class IndexBuilder:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
         index_entries: dict[str, list[tuple[int, str, bool]]] = {}
-        for docname, entries in self._index_entries.items():
+        for docname, entries in sorted(self._index_entries.items()):
             for entry, entry_id, main_entry in entries:
                 index_entries.setdefault(entry.lower(), []).append((
                     fn2index[docname],
@@ -469,14 +478,17 @@ class IndexBuilder:
         new_titles = {}
         new_alltitles = {}
         new_filenames = {}
+        new_index_entries = {}
         for docname in docnames:
             if docname in self._titles:
                 new_titles[docname] = self._titles[docname]
                 new_alltitles[docname] = self._all_titles[docname]
                 new_filenames[docname] = self._filenames[docname]
+                new_index_entries[docname] = self._index_entries[docname]
         self._titles = new_titles
         self._filenames = new_filenames
         self._all_titles = new_alltitles
+        self._index_entries = new_index_entries
         for wordnames in self._mapping.values():
             wordnames.intersection_update(docnames)
         for wordnames in self._title_mapping.values():
