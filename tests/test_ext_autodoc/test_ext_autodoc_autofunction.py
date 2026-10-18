@@ -6,6 +6,8 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -125,7 +127,9 @@ def test_cfunction() -> None:
     actual = do_autodoc('function', 'time.asctime')
     assert actual == [
         '',
-        '.. py:function:: asctime([tuple]) -> string',
+        '.. py:function:: asctime([time_tuple]) -> string'
+        if sys.version_info[:2] >= (3, 13)
+        else '.. py:function:: asctime([tuple]) -> string',
         '   :module: time',
         '',
         "   Convert a time tuple to a string, e.g. 'Sat Jun 06 16:26:11 1998'.",
