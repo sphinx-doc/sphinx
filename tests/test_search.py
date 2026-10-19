@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 from io import BytesIO, StringIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from docutils import frontend, utils
@@ -17,11 +17,12 @@ from sphinx.search import IndexBuilder, js_index
 from tests.utils import TESTS_ROOT
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
     from pathlib import Path
     from typing import Any
 
     from sphinx.domains import ObjType
+    from sphinx.environment import BuildEnvironment
     from sphinx.testing.util import SphinxTestApp
 
 JAVASCRIPT_TEST_ROOTS = [
@@ -520,7 +521,7 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
 
 @pytest.mark.parametrize('format', ['json', 'pickle', js_index])
 def test_index_entries_roundtrip(format: Any) -> None:
-    env = DummyEnvironment('1.0', DummyDomainsContainer())
+    env = cast('BuildEnvironment', DummyEnvironment('1.0', DummyDomainsContainer()))
     index = IndexBuilder(env, 'en', {}, '')
     document = utils.new_document('index entries')
     document += addnodes.index(
@@ -538,7 +539,10 @@ def test_index_entries_roundtrip(format: Any) -> None:
     stream.seek(0)
 
     loaded = IndexBuilder(
-        DummyEnvironment('1.0', DummyDomainsContainer()), 'en', {}, ''
+        cast('BuildEnvironment', DummyEnvironment('1.0', DummyDomainsContainer())),
+        'en',
+        {},
+        '',
     )
     loaded.load(stream, format)
     assert loaded.freeze() == expected
@@ -554,7 +558,8 @@ def test_index_entries_roundtrip(format: Any) -> None:
 
 
 def test_index_entries_prune_before_reload() -> None:
-    index = IndexBuilder(DummyEnvironment('1.0', DummyDomainsContainer()), 'en', {}, '')
+    env = cast('BuildEnvironment', DummyEnvironment('1.0', DummyDomainsContainer()))
+    index = IndexBuilder(env, 'en', {}, '')
     document = utils.new_document('index entries')
     document += addnodes.index(entries=[('single', 'entry', 'anchor', '', None)])
     index.feed('removed', 'removed.rst', 'Removed', document)
@@ -564,7 +569,7 @@ def test_index_entries_prune_before_reload() -> None:
 
 
 def test_index_entries_incremental_build(
-    make_app_with_empty_project, tmp_path: Path
+    make_app_with_empty_project: Callable[..., SphinxTestApp], tmp_path: Path
 ) -> None:
     index_path = tmp_path / 'index.rst'
     index_path.write_text('Index\n=====\n\n.. toctree::\n\n   retained\n   updated\n')
