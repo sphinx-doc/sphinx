@@ -1870,7 +1870,7 @@ arg_ : type
 
     def test_class_section_ordering(self):
         """Test that class docstring sections are reordered per numpydoc 1.8+ spec.
-        
+
         Order: Parameters -> Attributes -> Methods -> Returns/Yields/Receives
         -> Other Parameters -> Raises/Warns -> See Also -> Notes -> References -> Examples
         """
@@ -1904,7 +1904,7 @@ param1 : str
         config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
         actual = NumpyDocstring(docstring, config, app=None, what='class', name='TestClass')
         output = str(actual)
-        
+
         # Verify order: Parameters -> Attributes -> Methods -> Notes -> Examples
         param_pos = output.find(':param param1:')
         attr_pos = output.find('.. attribute:: attr1')
@@ -1951,7 +1951,7 @@ Parameters:
         config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
         actual = GoogleDocstring(docstring, config, app=None, what='class', name='TestClass')
         output = str(actual)
-        
+
         # Verify order: Parameters -> Attributes -> Methods -> Notes -> Examples
         param_pos = output.find(':param param1:')
         attr_pos = output.find('.. attribute:: attr1')
