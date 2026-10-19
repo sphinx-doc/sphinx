@@ -1902,7 +1902,9 @@ param1 : str
 """
 
         config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
-        actual = NumpyDocstring(docstring, config, app=None, what='class', name='TestClass')
+        actual = NumpyDocstring(
+            docstring, config, app=None, what='class', name='TestClass'
+        )
         output = str(actual)
 
         # Verify order: Parameters -> Attributes -> Methods -> Notes -> Examples
@@ -1949,7 +1951,9 @@ Parameters:
 """
 
         config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
-        actual = GoogleDocstring(docstring, config, app=None, what='class', name='TestClass')
+        actual = GoogleDocstring(
+            docstring, config, app=None, what='class', name='TestClass'
+        )
         output = str(actual)
 
         # Verify order: Parameters -> Attributes -> Methods -> Notes -> Examples
