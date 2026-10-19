@@ -4,6 +4,9 @@ Release 9.1.1 (in development)
 Bugs fixed
 ----------
 
+* #14751: Remove duplicate viewport meta tags from the basic and Bizstyle themes.
+  Patch by zhengguangzhuo.
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
