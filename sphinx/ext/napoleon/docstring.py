@@ -839,9 +839,10 @@ class GoogleDocstring:
             self._parsed_lines.extend(res)
             return
 
-        # For class docstrings, we need to reorder sections to match numpydoc 1.8+ spec
-        # Order: Parameters -> Attributes -> Methods -> Returns/Yields/Receives -> Other Parameters
-        #        -> Raises/Warns -> See Also -> Notes -> References -> Examples
+        # For class docstrings, we need to reorder sections to match
+        # numpydoc 1.8+ spec. Order: Parameters -> Attributes -> Methods ->
+        # Returns/Yields/Receives -> Other Parameters -> Raises/Warns ->
+        # See Also -> Notes -> References -> Examples
         if self._what == 'class':
             self._parse_class_docstring()
         else:
@@ -936,7 +937,7 @@ class GoogleDocstring:
                 del sections[section_key]
 
         # Add any remaining sections (custom sections, etc.) in original order
-        for _, lines in other_sections:
+        for _section, lines in other_sections:
             self._parsed_lines.extend(lines)
 
         # Add any sections not in the preferred order

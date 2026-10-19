@@ -1911,13 +1911,13 @@ param1 : str
         method_pos = output.find('.. method:: method1()')
         notes_pos = output.find('.. rubric:: Notes')
         examples_pos = output.find('.. rubric:: Examples')
-        
+
         assert param_pos != -1, 'Parameters section missing'
         assert attr_pos != -1, 'Attributes section missing'
         assert method_pos != -1, 'Methods section missing'
         assert notes_pos != -1, 'Notes section missing'
         assert examples_pos != -1, 'Examples section missing'
-        
+
         # Verify correct ordering
         assert param_pos < attr_pos, 'Parameters should come before Attributes'
         assert attr_pos < method_pos, 'Attributes should come before Methods'
@@ -1958,13 +1958,13 @@ Parameters:
         method_pos = output.find('.. method:: method1()')
         notes_pos = output.find('.. rubric:: Notes')
         examples_pos = output.find('.. rubric:: Examples')
-        
+
         assert param_pos != -1, 'Parameters section missing'
         assert attr_pos != -1, 'Attributes section missing'
         assert method_pos != -1, 'Methods section missing'
         assert notes_pos != -1, 'Notes section missing'
         assert examples_pos != -1, 'Examples section missing'
-        
+
         # Verify correct ordering
         assert param_pos < attr_pos, 'Parameters should come before Attributes'
         assert attr_pos < method_pos, 'Attributes should come before Methods'
