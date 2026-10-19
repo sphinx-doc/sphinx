@@ -839,6 +839,48 @@ class GoogleDocstring:
             self._parsed_lines.extend(res)
             return
 
+        # For class docstrings, we need to reorder sections to match numpydoc 1.8+ spec
+        # Order: Parameters -> Attributes -> Methods -> Returns/Yields/Receives -> Other Parameters
+        #        -> Raises/Warns -> See Also -> Notes -> References -> Examples
+        if self._what == 'class':
+            self._parse_class_docstring()
+        else:
+            while self._lines:
+                if self._is_section_header():
+                    try:
+                        section = self._consume_section_header()
+                        self._is_in_section = True
+                        self._section_indent = self._get_current_indent()
+                        if _directive_regex.match(section):
+                            lines = [section, *self._consume_to_next_section()]
+                        else:
+                            lines = self._sections[section.lower()](section)
+                    finally:
+                        self._is_in_section = False
+                        self._section_indent = 0
+                else:
+                    if not self._parsed_lines:
+                        lines = self._consume_contiguous() + self._consume_empty()
+                    else:
+                        lines = self._consume_to_next_section()
+                self._parsed_lines.extend(lines)
+
+    def _parse_class_docstring(self) -> None:
+        """Parse class docstring with section reordering per numpydoc 1.8+ spec."""
+        # Collect all sections first
+        sections: dict[str, list[str]] = {}
+        # Track the order of non-standard sections (directives, etc.)
+        other_sections: list[tuple[str, list[str]]] = []
+
+        # Consume leading content (summary, extended summary)
+        while self._lines and not self._is_section_header():
+            if not self._parsed_lines:
+                lines = self._consume_contiguous() + self._consume_empty()
+            else:
+                lines = self._consume_to_next_section()
+            self._parsed_lines.extend(lines)
+
+        # Parse all sections
         while self._lines:
             if self._is_section_header():
                 try:
@@ -847,16 +889,58 @@ class GoogleDocstring:
                     self._section_indent = self._get_current_indent()
                     if _directive_regex.match(section):
                         lines = [section, *self._consume_to_next_section()]
+                        other_sections.append((section, lines))
                     else:
-                        lines = self._sections[section.lower()](section)
+                        section_key = section.lower()
+                        lines = self._sections[section_key](section)
+                        sections[section_key] = lines
                 finally:
                     self._is_in_section = False
                     self._section_indent = 0
             else:
-                if not self._parsed_lines:
-                    lines = self._consume_contiguous() + self._consume_empty()
-                else:
-                    lines = self._consume_to_next_section()
+                lines = self._consume_to_next_section()
+                other_sections.append(('', lines))
+
+        # Define the preferred order for class docstrings (numpydoc 1.8+)
+        class_section_order = [
+            'parameters',
+            'args',
+            'arguments',
+            'attributes',
+            'methods',
+            'returns',
+            'return',
+            'yields',
+            'yield',
+            'receives',
+            'receive',
+            'other parameters',
+            'raises',
+            'raise',
+            'warns',
+            'warn',
+            'warnings',
+            'warning',
+            'see also',
+            'notes',
+            'note',
+            'references',
+            'examples',
+            'example',
+        ]
+
+        # Add sections in the preferred order
+        for section_key in class_section_order:
+            if section_key in sections:
+                self._parsed_lines.extend(sections[section_key])
+                del sections[section_key]
+
+        # Add any remaining sections (custom sections, etc.) in original order
+        for _, lines in other_sections:
+            self._parsed_lines.extend(lines)
+
+        # Add any sections not in the preferred order
+        for lines in sections.values():
             self._parsed_lines.extend(lines)
 
     def _parse_admonition(self, admonition: str, section: str) -> list[str]:

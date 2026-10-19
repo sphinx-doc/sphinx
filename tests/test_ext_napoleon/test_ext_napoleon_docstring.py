@@ -1868,6 +1868,109 @@ arg_ : type
 
         assert str(actual) == expected
 
+    def test_class_section_ordering(self):
+        """Test that class docstring sections are reordered per numpydoc 1.8+ spec.
+        
+        Order: Parameters -> Attributes -> Methods -> Returns/Yields/Receives
+        -> Other Parameters -> Raises/Warns -> See Also -> Notes -> References -> Examples
+        """
+        docstring = """
+Test class.
+
+Examples
+--------
+Example usage.
+
+Notes
+-----
+Some notes.
+
+Methods
+-------
+method1()
+    Description of method1
+
+Attributes
+----------
+attr1 : int
+    Description of attr1
+
+Parameters
+----------
+param1 : str
+    Description of param1
+"""
+
+        config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
+        actual = NumpyDocstring(docstring, config, app=None, what='class', name='TestClass')
+        output = str(actual)
+        
+        # Verify order: Parameters -> Attributes -> Methods -> Notes -> Examples
+        param_pos = output.find(':param param1:')
+        attr_pos = output.find('.. attribute:: attr1')
+        method_pos = output.find('.. method:: method1()')
+        notes_pos = output.find('.. rubric:: Notes')
+        examples_pos = output.find('.. rubric:: Examples')
+        
+        assert param_pos != -1, 'Parameters section missing'
+        assert attr_pos != -1, 'Attributes section missing'
+        assert method_pos != -1, 'Methods section missing'
+        assert notes_pos != -1, 'Notes section missing'
+        assert examples_pos != -1, 'Examples section missing'
+        
+        # Verify correct ordering
+        assert param_pos < attr_pos, 'Parameters should come before Attributes'
+        assert attr_pos < method_pos, 'Attributes should come before Methods'
+        assert method_pos < notes_pos, 'Methods should come before Notes'
+        assert notes_pos < examples_pos, 'Notes should come before Examples'
+
+    def test_class_section_ordering_google_style(self):
+        """Test that Google-style class docstring sections are reordered per numpydoc 1.8+ spec."""
+        docstring = """
+Test class.
+
+Examples:
+    Example usage.
+
+Notes:
+    Some notes.
+
+Methods:
+    method1()
+        Description of method1
+
+Attributes:
+    attr1 : int
+        Description of attr1
+
+Parameters:
+    param1 : str
+        Description of param1
+"""
+
+        config = Config(napoleon_use_param=True, napoleon_use_rtype=True)
+        actual = GoogleDocstring(docstring, config, app=None, what='class', name='TestClass')
+        output = str(actual)
+        
+        # Verify order: Parameters -> Attributes -> Methods -> Notes -> Examples
+        param_pos = output.find(':param param1:')
+        attr_pos = output.find('.. attribute:: attr1')
+        method_pos = output.find('.. method:: method1()')
+        notes_pos = output.find('.. rubric:: Notes')
+        examples_pos = output.find('.. rubric:: Examples')
+        
+        assert param_pos != -1, 'Parameters section missing'
+        assert attr_pos != -1, 'Attributes section missing'
+        assert method_pos != -1, 'Methods section missing'
+        assert notes_pos != -1, 'Notes section missing'
+        assert examples_pos != -1, 'Examples section missing'
+        
+        # Verify correct ordering
+        assert param_pos < attr_pos, 'Parameters should come before Attributes'
+        assert attr_pos < method_pos, 'Attributes should come before Methods'
+        assert method_pos < notes_pos, 'Methods should come before Notes'
+        assert notes_pos < examples_pos, 'Notes should come before Examples'
+
     def test_return_types(self):
         docstring = dedent("""
             Returns
