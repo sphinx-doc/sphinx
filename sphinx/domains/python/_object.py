@@ -424,17 +424,21 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         domain = self.env.domains.python_domain
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
-        if self.objtype != 'type':
+        if self.objtype == 'type':
             # py:type directive uses `canonical` option for a different meaning
+            # (the type represented by the alias); the runtime name of the
+            # alias is passed through the dedicated `canonical-name` option
+            canonical_name = self.options.get('canonical-name')
+        else:
             canonical_name = self.options.get('canonical')
-            if canonical_name:
-                domain.note_object(
-                    canonical_name,
-                    self.objtype,
-                    node_id,
-                    aliased=True,
-                    location=signode,
-                )
+        if canonical_name:
+            domain.note_object(
+                canonical_name,
+                self.objtype,
+                node_id,
+                aliased=True,
+                location=signode,
+            )
 
         if 'no-index-entry' not in self.options:
             if index_text := self.get_index_text(mod_name, name_cls):  # type: ignore[arg-type]

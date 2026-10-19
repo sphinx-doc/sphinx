@@ -436,6 +436,7 @@ class PyTypeAlias(PyObject):
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'canonical': directives.unchanged,
+        'canonical-name': directives.unchanged,
     })
 
     def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:

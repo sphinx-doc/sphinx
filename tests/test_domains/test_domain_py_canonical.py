@@ -114,3 +114,38 @@ def test_canonical_duplicated(app: SphinxTestApp) -> None:
 
     restructuredtext.parse(app, text)
     assert app.warning.getvalue() != ''
+
+
+@pytest.mark.sphinx('html', testroot='_blank', copy_test_root=True)
+def test_type_alias_canonical_name(app: SphinxTestApp) -> None:
+    text = (
+        '.. py:type:: TokenValidator\n'
+        '   :module: public\n'
+        '   :canonical: str\n'
+        '   :canonical-name: private.TokenValidator\n'
+        '\n'
+        '   The alias.\n'
+        '\n'
+        '.. py:function:: validate(x: private.TokenValidator) -> None\n'
+        '   :module: private\n'
+    )
+    (app.srcdir / 'index.rst').write_text(text, encoding='utf8')
+    app.build()
+
+    domain = app.env.domains.python_domain
+    assert domain.objects['public.TokenValidator'] == (
+        'index',
+        'public.TokenValidator',
+        'type',
+        False,
+    )
+    assert domain.objects['private.TokenValidator'] == (
+        'index',
+        'public.TokenValidator',
+        'type',
+        True,
+    )
+    assert app.warning.getvalue() == ''
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert 'href="#public.TokenValidator"' in content
