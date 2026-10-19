@@ -317,6 +317,20 @@ def test_show_inheritance_for_decendants_of_generic_type() -> None:
     ]
 
 
+def test_show_inheritance_hides_object_base() -> None:
+    # `object` is implicitly a base of every class; it must never be listed
+    # explicitly (refs #14747).
+    options = {'show-inheritance': None}
+    actual = do_autodoc('class', 'target.classes.Foo', options=options)
+    assert actual == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.classes',
+        '',
+    ]
+    assert not any('Bases:' in line for line in actual)
+
+
 def _autodoc_process_bases(
     app: Sphinx, name: str, obj: Any, options: Any, bases: list[type]
 ) -> None:
