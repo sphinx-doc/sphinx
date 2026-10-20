@@ -26,7 +26,7 @@ original_uids: list[str]
 
 @pytest.fixture(scope='module', autouse=True)
 def _setup_module(rootdir: Path, sphinx_test_tempdir: Path) -> Iterator[None]:
-    global original, original_uids  # NoQA: PLW0603
+    global original, original_uids  # ruff: ignore[global-statement]
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
         shutil.copytree(rootdir / 'test-versioning', srcdir)

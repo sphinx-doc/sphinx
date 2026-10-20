@@ -619,10 +619,10 @@ class TypeAliasForwardRef:
     def __or__(self, other: Any) -> Any:
         # When evaluating type hints, our forward ref can appear in type expressions,
         # i.e. `Alias | None`. This means it needs to support ``__or__`` and ``__ror__``.
-        return typing.Union[self, other]  # NoQA: UP007
+        return typing.Union[self, other]  # ruff: ignore[non-pep604-annotation-union]
 
     def __ror__(self, other: Any) -> Any:
-        return typing.Union[other, self]  # NoQA: UP007
+        return typing.Union[other, self]  # ruff: ignore[non-pep604-annotation-union]
 
 
 class TypeAliasModule:

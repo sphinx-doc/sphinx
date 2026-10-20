@@ -329,7 +329,7 @@ def test_autodoc_typehints_description(app: SphinxTestApp) -> None:
 
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.incr(a, b=1)',
         '',
         '   Parameters:',
@@ -342,7 +342,7 @@ def test_autodoc_typehints_description(app: SphinxTestApp) -> None:
         '',
     ))
     assert expect in context
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.tuple_args(x)',
         '',
         '   Parameters:',
@@ -355,7 +355,7 @@ def test_autodoc_typehints_description(app: SphinxTestApp) -> None:
     assert expect in context
 
     # Overloads still get displayed in the signature
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.overload.sum(x: int, y: int = 0) -> int',
         'target.overload.sum(x: float, y: float = 0.0) -> float',
         'target.overload.sum(x: str, y: str = None) -> str',
@@ -390,7 +390,7 @@ def test_autodoc_typehints_description_no_undoc(app: SphinxTestApp) -> None:
         app.build()
     # Restore the original content of the file
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.incr(a, b=1)',
         '',
         'target.typehints.decr(a, b=1)',
@@ -612,7 +612,7 @@ def test_autodoc_typehints_both(app: SphinxTestApp) -> None:
     ):
         app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.incr(a: int, b: int = 1) -> int',
         '',
         '   Parameters:',
@@ -625,7 +625,7 @@ def test_autodoc_typehints_both(app: SphinxTestApp) -> None:
         '',
     ))
     assert expect in context
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.tuple_args(x: tuple[int, int | str]) -> tuple[int, int]',
         '',
         '   Parameters:',
@@ -638,7 +638,7 @@ def test_autodoc_typehints_both(app: SphinxTestApp) -> None:
     assert expect in context
 
     # Overloads still get displayed in the signature
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.overload.sum(x: int, y: int = 0) -> int',
         'target.overload.sum(x: float, y: float = 0.0) -> float',
         'target.overload.sum(x: str, y: str = None) -> str',

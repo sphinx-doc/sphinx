@@ -3,14 +3,16 @@ import missing_package1.missing_module1
 import sphinx.missing_module4
 from missing_module import missing_name
 from missing_package2 import missing_module2
-from missing_package3.missing_module3 import missing_name  # NoQA: F811
+from missing_package3.missing_module3 import (
+    missing_name,  # ruff: ignore[redefined-while-unused]
+)
 from sphinx.missing_module4 import missing_name2
 
 
 @missing_name(int)
 def decorated_function():
     """decorated_function docstring"""
-    return None  # NoQA: RET501
+    return None  # ruff: ignore[unnecessary-return-none]
 
 
 def func(arg: missing_module.Class):
@@ -27,7 +29,7 @@ class TestAutodoc:
     @missing_name
     def decorated_method(self):
         """TestAutodoc::decorated_method docstring"""
-        return None  # NoQA: RET501
+        return None  # ruff: ignore[unnecessary-return-none]
 
 
 class Inherited(missing_module.Class):

@@ -183,7 +183,7 @@ class ExtensionMetadata(typing.TypedDict, total=False):
 
 
 if TYPE_CHECKING:
-    type _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]  # NoQA: PYI047 (false positive)
+    type _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]  # ruff: ignore[unused-private-type-alias] (false positive)
 
 
 def get_type_hints(
@@ -586,12 +586,12 @@ def stringify_annotation(
                 elif dataclasses.is_dataclass(m):
                     # use stringify_annotation for the repr of field values rather than repr
                     d_fields = ', '.join([
-                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode=mode, short_literals=short_literals)}'  # NoQA: E501
+                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode=mode, short_literals=short_literals)}'  # ruff: ignore[line-too-long]
                         for f in dataclasses.fields(m)
                         if f.repr
                     ])
                     meta_args.append(
-                        f'{stringify_annotation(type(m), mode=mode, short_literals=short_literals)}({d_fields})'  # NoQA: E501
+                        f'{stringify_annotation(type(m), mode=mode, short_literals=short_literals)}({d_fields})'  # ruff: ignore[line-too-long]
                     )
                 else:
                     meta_args.append(repr(m))

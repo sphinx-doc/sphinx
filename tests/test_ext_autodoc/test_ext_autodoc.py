@@ -92,7 +92,7 @@ def test_get_docstring_lines():
     def f():
         """
         Docstring
-        """  # NoQA: D212
+        """  # ruff: ignore[multi-line-summary-first-line]
 
     assert get_docstring_lines('function', f) == ('Docstring',)
 

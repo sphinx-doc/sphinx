@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 
 # re-export objects for backwards compatibility
 # See: https://github.com/sphinx-doc/sphinx/issues/12295
-from sphinx.domains.c._ast import (  # NoQA: F401
+from sphinx.domains.c._ast import (  # ruff: ignore[unused-import]
     ASTAlignofExpr,
     ASTArray,
     ASTAssignmentExpr,

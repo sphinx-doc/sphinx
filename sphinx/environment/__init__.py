@@ -1178,7 +1178,7 @@ class _CurrentDocument:
         return self._extension_data.setdefault(key, default)
 
     def clear(self) -> None:
-        _CurrentDocument.__init__(self)  # NoQA: PLC2801
+        _CurrentDocument.__init__(self)  # ruff: ignore[unnecessary-dunder-call]
 
     def update(self, other: Iterable[tuple[str, Any]] = (), /, **kwargs: Any) -> None:
         other_dict = dict(other) if not isinstance(other, dict) else other

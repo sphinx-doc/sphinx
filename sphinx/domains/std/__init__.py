@@ -634,7 +634,7 @@ class ProductionList(SphinxDirective):
     def production_group(
         *,
         lines: MutableSequence[str],
-        options: dict[str, Any],  # NoQA: ARG004
+        options: dict[str, Any],  # ruff: ignore[unused-static-method-argument]
     ) -> str:
         # get production_group
         if not lines or ':' in lines[0]:

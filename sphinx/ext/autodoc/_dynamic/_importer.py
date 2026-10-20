@@ -217,14 +217,14 @@ def _import_module(modname: str, try_reload: bool = False) -> Any:
         spec = find_spec(modname)
         if spec is None:
             msg = f'No module named {modname!r}'
-            raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
+            raise ModuleNotFoundError(msg, name=modname)  # ruff: ignore[raise-within-try]
         spec, pyi_path = _find_type_stub_spec(spec, modname)
         if skip_pyi or pyi_path is None:
             module = importlib.import_module(modname)
         else:
             if spec.loader is None:
                 msg = 'missing loader'
-                raise ImportError(msg, name=spec.name)  # NoQA: TRY301
+                raise ImportError(msg, name=spec.name)  # ruff: ignore[raise-within-try]
             sys.modules[modname] = module = module_from_spec(spec)
             spec.loader.exec_module(module)
     except ImportError:

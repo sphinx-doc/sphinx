@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import document  # NoQA: F401
+from docutils.nodes import document  # ruff: ignore[unused-import]
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

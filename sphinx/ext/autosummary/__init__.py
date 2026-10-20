@@ -726,7 +726,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
     except (ValueError, ImportError, AttributeError, KeyError) as exc:
         errors.append(exc)
         if grouped_exception:
-            raise ImportExceptionGroup('', errors) from None  # NoQA: EM101
+            raise ImportExceptionGroup('', errors) from None  # ruff: ignore[raw-string-in-exception]
         else:
             raise ImportError(*exc.args) from exc
 

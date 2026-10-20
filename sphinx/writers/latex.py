@@ -2575,7 +2575,7 @@ class LaTeXTranslator(SphinxTranslator):
 
 # FIXME: Workaround to avoid circular import
 # See: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
+from sphinx.builders.latex.nodes import (  # ruff: ignore[module-import-not-at-top-of-file]  # isort:skip
     HYPERLINK_SUPPORT_NODES,
     captioned_literal_block,
     footnotetext,

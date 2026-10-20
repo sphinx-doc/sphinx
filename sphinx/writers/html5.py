@@ -342,7 +342,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             )
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
-            assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
+            assert len(node) == 1 and isinstance(node[0], nodes.image)  # ruff: ignore[pytest-composite-assertion]
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']

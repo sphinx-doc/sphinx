@@ -48,7 +48,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import Inventory
 
 
-class FakeList(list[str]):  # NoQA: FURB189
+class FakeList(list[str]):  # ruff: ignore[subclass-builtin]
     def __iter__(self) -> NoReturn:
         raise NotImplementedError
 
