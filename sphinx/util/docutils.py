@@ -470,7 +470,7 @@ class SphinxFileOutput(FileOutput):
         kwargs.setdefault('encoding', 'utf-8')
         super().__init__(**kwargs)
 
-    def write(self, data: str) -> str:
+    def write(self, data: str) -> str:  # type: ignore[override]
         if (
             self.destination_path
             and self.autoclose
@@ -484,9 +484,7 @@ class SphinxFileOutput(FileOutput):
             if on_disk == data:
                 return data
 
-        # TODO: TYPING: Upstream docutils should annotate FileOutput.write()
-        #       so that this suppression is unnecessary.
-        return super().write(data)  # type: ignore[no-untyped-call]
+        return super().write(data)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
 
 class SphinxDirective(Directive):
