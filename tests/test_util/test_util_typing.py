@@ -633,7 +633,8 @@ def test_stringify_type_hints_containers():
     )
 
     ann_str = stringify_annotation(
-        t.Generator[None, None, None], 'fully-qualified-except-typing'  # ruff: ignore[unnecessary-default-type-args]
+        t.Generator[None, None, None],  # ruff: ignore[unnecessary-default-type-args]
+        'fully-qualified-except-typing',
     )
     assert ann_str == 'Generator[None, None, None]'
     ann_str = stringify_annotation(t.Generator[None, None, None], 'fully-qualified')  # ruff: ignore[unnecessary-default-type-args]
@@ -649,7 +650,8 @@ def test_stringify_type_hints_containers():
     assert ann_str == '~typing.Generator[None, None, None]'
 
     ann_str = stringify_annotation(
-        abc.Generator[None, None, None], 'fully-qualified-except-typing'  # ruff: ignore[unnecessary-default-type-args]
+        abc.Generator[None, None, None],  # ruff: ignore[unnecessary-default-type-args]
+        'fully-qualified-except-typing',
     )
     assert ann_str == 'collections.abc.Generator[None, None, None]'
     ann_str = stringify_annotation(abc.Generator[None, None, None], 'fully-qualified')  # ruff: ignore[unnecessary-default-type-args]
