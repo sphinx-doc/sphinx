@@ -12,6 +12,7 @@ from docutils import nodes
 
 from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.cmd.build import build_main
+from sphinx.errors import SphinxWarning
 from sphinx.util import logging
 from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
@@ -48,6 +49,159 @@ def test_info_and_warning(app: SphinxTestApp) -> None:
     assert 'WARNING: message3' in app.warning.getvalue()
     assert 'CRITICAL: message4' in app.warning.getvalue()
     assert 'ERROR: message5' in app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.parametrize(
+    'level', ['debug', 'verbose', 'info', 'warning', 'error', 'critical']
+)
+@pytest.mark.parametrize('extension', [None, '', 'my_extension', 'extension%名称'])
+@pytest.mark.parametrize('location', [None, ('index', 10)])
+@pytest.mark.parametrize('on_logger', [False, True])
+def test_extension_prefix(
+    app: SphinxTestApp,
+    level: str,
+    extension: str | None,
+    location: tuple[str, int] | None,
+    on_logger: bool,
+) -> None:
+    logging.setup(app, app.status, app.warning, verbosity=2)
+    if on_logger:
+        logger = logging.getLogger(__name__, extension=extension)
+        getattr(logger, level)('message: %s', 'value', location=location)
+    else:
+        logger = logging.getLogger(__name__)
+        getattr(logger, level)(
+            'message: %s', 'value', extension=extension, location=location
+        )
+
+    stream = app.warning if level in {'warning', 'error', 'critical'} else app.status
+    expected = 'message: value'
+    if extension:
+        expected = f'[{extension}] {expected}'
+    if level in {'warning', 'error', 'critical'}:
+        expected = f'{level.upper()}: {expected}'
+    if location:
+        expected = f'{app.env.doc2path("index")}:10: {expected}'
+    assert strip_escape_sequences(stream.getvalue()).endswith(expected + '\n')
+
+
+@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.parametrize(
+    'level', ['debug', 'verbose', 'info', 'warning', 'error', 'critical']
+)
+def test_extension_logger_override(app: SphinxTestApp, level: str) -> None:
+    logging.setup(app, app.status, app.warning, verbosity=2)
+    logger = logging.getLogger(__name__, extension='my_extension')
+    log = getattr(logger, level)
+
+    log('default')
+    log('override', extension='other_extension')
+    log('disabled', extension=None)
+    log('empty', extension='')
+    log('extra', extra={'extension': 'extra_extension'})
+    log(
+        'keyword', extension='keyword_extension', extra={'extension': 'extra_extension'}
+    )
+    log('default again')
+
+    stream = app.warning if level in {'warning', 'error', 'critical'} else app.status
+    prefix = f'{level.upper()}: ' if stream is app.warning else ''
+    assert strip_escape_sequences(stream.getvalue()).endswith(
+        '\n'.join(
+            prefix + message
+            for message in [
+                '[my_extension] default',
+                '[other_extension] override',
+                'disabled',
+                'empty',
+                '[extra_extension] extra',
+                '[keyword_extension] keyword',
+                '[my_extension] default again',
+            ]
+        )
+        + '\n'
+    )
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_extension_logger_isolation(app: SphinxTestApp) -> None:
+    logging.setup(app, app.status, app.warning)
+    first = logging.getLogger(__name__, extension='first')
+    second = logging.getLogger(__name__, extension='second')
+    plain = logging.getLogger(__name__)
+
+    extra = {'custom': 'value'}
+    first.info('message1', extra=extra)
+    second.info('message2', extra=extra)
+    plain.info('message3', extra=extra)
+    first.info('message4')
+
+    assert extra == {'custom': 'value'}
+
+    assert app.status.getvalue().endswith(
+        '[first] message1\n[second] message2\nmessage3\n[first] message4\n'
+    )
+
+
+@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.parametrize('show_warning_types', [False, True])
+def test_extension_warning_categories(
+    app: SphinxTestApp, show_warning_types: bool
+) -> None:
+    logging.setup(app, app.status, app.warning)
+    app.config.show_warning_types = show_warning_types
+    app.config.suppress_warnings = ['hidden.category', 'my_extension']
+    logger = logging.getLogger(__name__)
+
+    logger.warning('visible', extension='my_extension', type='test', subtype='category')
+    logger.warning(
+        'hidden', extension='my_extension', type='hidden', subtype='category'
+    )
+
+    expected = 'WARNING: [my_extension] visible'
+    if show_warning_types:
+        expected += ' [test.category]'
+    assert strip_escape_sequences(app.warning.getvalue()).endswith(expected + '\n')
+    assert 'hidden' not in app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_extension_once_warning(app: SphinxTestApp) -> None:
+    logging.setup(app, app.status, app.warning)
+    logger = logging.getLogger(__name__)
+
+    for extension in ['first', 'first', 'second']:
+        logger.warning('message: %d', 1, extension=extension, once=True)
+
+    assert strip_escape_sequences(app.warning.getvalue()).endswith(
+        'WARNING: [first] message: 1\nWARNING: [second] message: 1\n'
+    )
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_extension_pending_logging(app: SphinxTestApp) -> None:
+    logging.setup(app, app.status, app.warning)
+    logger = logging.getLogger(__name__, extension='my_extension')
+
+    with logging.pending_logging() as handler:
+        logger.info('message: %s', 'value', extra={'extension': 'my_extension'})
+        logger.warning('warning: %s', 'value')
+        logging.convert_serializable(handler.buffer)
+
+    assert app.status.getvalue().endswith('[my_extension] message: value\n')
+    assert strip_escape_sequences(app.warning.getvalue()).endswith(
+        'WARNING: [my_extension] warning: value\n'
+    )
+
+
+@pytest.mark.sphinx('html', testroot='root', exception_on_warning=True)
+def test_extension_exception_on_warning(app: SphinxTestApp) -> None:
+    logging.setup(app, app.status, app.warning)
+    logger = logging.getLogger(__name__, extension='my_extension')
+
+    with pytest.raises(SphinxWarning, match=r'\[my_extension\] message: value'):
+        logger.warning('message: %s', 'value')
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -341,7 +495,7 @@ def test_colored_logs(app: SphinxTestApp) -> None:
 )
 def test_logging_in_ParallelTasks(app: SphinxTestApp) -> None:
     logging.setup(app, app.status, app.warning)
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger(__name__, extension='my_extension')
 
     def child_process() -> None:
         logger.info('message1')
@@ -350,8 +504,10 @@ def test_logging_in_ParallelTasks(app: SphinxTestApp) -> None:
     tasks = ParallelTasks(1)
     tasks.add_task(child_process)
     tasks.join()
-    assert 'message1' in app.status.getvalue()
-    assert 'index.txt: WARNING: message2' in app.warning.getvalue()
+    assert '[my_extension] message1' in app.status.getvalue()
+    assert 'index.txt: WARNING: [my_extension] message2' in app.warning.getvalue()
+    assert '[my_extension] [my_extension]' not in app.status.getvalue()
+    assert '[my_extension] [my_extension]' not in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='root')

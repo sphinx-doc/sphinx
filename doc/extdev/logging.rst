@@ -5,7 +5,52 @@ Logging API
 
 .. currentmodule:: sphinx.util.logging
 
-.. autofunction:: getLogger(name)
+.. autofunction:: getLogger(name, *, extension=None)
+
+Identifying an extension
+------------------------
+
+The logger name (usually ``__name__``) identifies the source in the underlying
+Python log record, but Sphinx does not display that name in its output.
+To identify your extension in the output, pass ``extension`` when creating
+the logger. The name is then used for every message from that adapter::
+
+    from sphinx.util import logging
+
+    logger = logging.getLogger(__name__, extension='my_extension')
+    logger.info('Generating examples')
+    logger.warning('Example not found', type='my_extension', subtype='missing')
+
+Sphinx displays these messages as::
+
+    [my_extension] Generating examples
+    WARNING: [my_extension] Example not found [my_extension.missing]
+
+The trailing warning category is only displayed when
+:confval:`show_warning_types` is enabled.
+The extension prefix is independent of that setting and does not affect
+:confval:`suppress_warnings`: continue to use ``type`` and ``subtype`` to
+categorise warnings for suppression.
+With a source location, the output is formatted as
+``path:line: WARNING: [my_extension] message``.
+If you prefer to display the module name, use ``extension=__name__``.
+Omitting ``extension`` from :func:`getLogger`, or passing ``None`` or an empty
+string, leaves messages unprefixed.
+
+Individual logging calls can override the default or disable the prefix::
+
+    logger.info('A different label', extension='other_extension')
+    logger.info('No extension prefix', extension=None)
+
+These overrides do not change the adapter's default.
+Adapters created with the same logger name can have different extension labels
+without affecting each other.
+
+.. versionadded:: 9.1.1
+   The ``extension`` keyword argument.
+
+Logger methods
+--------------
 
 .. autoclass:: SphinxLoggerAdapter(logging.LoggerAdapter)
 
@@ -17,6 +62,12 @@ Logging API
       Basically, the arguments are as with python's logging module.
 
       In addition, Sphinx logger supports following keyword arguments:
+
+      **extension**
+        The extension name to display in square brackets before the message.
+        Overrides the default passed to :func:`getLogger`; ``None`` or an empty
+        string disables the prefix for this message.
+        Supported at all logging levels; see `Identifying an extension`_.
 
       **type**, ***subtype***
         Categories of warning logs.  It is used to suppress
@@ -46,6 +97,10 @@ Logging API
       Basically, the arguments are as with python's logging module.
 
       In addition, Sphinx logger supports following keyword arguments:
+
+      **extension**
+        The extension name to display in square brackets before the message.
+        For more detail, see `Identifying an extension`_.
 
       **nonl**
         If true, the logger does not fold lines at the end of the log message.
