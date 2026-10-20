@@ -27,9 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Final, Protocol
-
-    from typing_extensions import TypeIs
+    from typing import Final, Protocol, TypeIs
 
     from sphinx.util.typing import _StringifyMode
 
@@ -825,16 +823,9 @@ def _evaluate_forwardref(
         # https://docs.python.org/dev/library/annotationlib.html#annotationlib.ForwardRef.evaluate
         # https://docs.python.org/dev/library/typing.html#typing.evaluate_forward_ref
         return typing.evaluate_forward_ref(ref, globals=globalns, locals=localns)
-    if sys.version_info >= (3, 12, 4):
-        # ``type_params`` were added in 3.13 and the signature of _evaluate()
-        # is not backward-compatible (it was backported to 3.12.4, so anything
-        # before 3.12.4 still has the old signature).
-        #
-        # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(  # pyright: ignore[reportDeprecated]
-            globalns, localns, type_params=(), recursive_guard=frozenset()
-        )
-    return ref._evaluate(globalns, localns, recursive_guard=frozenset())
+    return ref._evaluate(  # pyright: ignore[reportDeprecated]
+        globalns, localns, type_params=(), recursive_guard=frozenset()
+    )
 
 
 def _evaluate(

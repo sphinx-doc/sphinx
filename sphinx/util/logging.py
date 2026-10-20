@@ -253,7 +253,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
 
 @contextmanager
-def pending_warnings() -> Generator[logging.Handler, None, None]:
+def pending_warnings() -> Generator[logging.Handler]:
     """Context manager to postpone logging warnings temporarily.
 
     Similar to :func:`pending_logging`.
@@ -281,7 +281,7 @@ def pending_warnings() -> Generator[logging.Handler, None, None]:
 
 
 @contextmanager
-def suppress_logging() -> Generator[MemoryHandler, None, None]:
+def suppress_logging() -> Generator[MemoryHandler]:
     """Context manager to suppress logging all logs temporarily.
 
     For example::
@@ -310,7 +310,7 @@ def suppress_logging() -> Generator[MemoryHandler, None, None]:
 
 
 @contextmanager
-def pending_logging() -> Generator[MemoryHandler, None, None]:
+def pending_logging() -> Generator[MemoryHandler]:
     """Context manager to postpone logging all logs temporarily.
 
     For example::
@@ -333,7 +333,7 @@ skip_warningiserror = nullcontext  # Deprecate in Sphinx 10
 
 
 @contextmanager
-def prefixed_warnings(prefix: str) -> Generator[None, None, None]:
+def prefixed_warnings(prefix: str) -> Generator[None]:
     """Context manager to prepend prefix to all warning log records temporarily.
 
     For example::
@@ -383,7 +383,7 @@ class LogCollector:
         self.logs: list[logging.LogRecord] = []
 
     @contextmanager
-    def collect(self) -> Generator[None, None, None]:
+    def collect(self) -> Generator[None]:
         with pending_logging() as memhandler:
             try:
                 yield

@@ -63,7 +63,7 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
 
 
 @contextmanager
-def default_role(docname: str, name: str) -> Generator[None, None, None]:
+def default_role(docname: str, name: str) -> Generator[None]:
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)  # type: ignore[arg-type]
