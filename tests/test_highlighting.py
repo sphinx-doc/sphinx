@@ -24,7 +24,12 @@ if TYPE_CHECKING:
 if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 18):
     from pygments.formatter import Formatter
 
-    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
+    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+
+if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 21):
+    hsw = '&quot;Hello sphinx world&quot;'
+else:
+    hsw = '"Hello sphinx world"'
 
 
 class MyLexer(RegexLexer):
@@ -93,7 +98,7 @@ def test_default_highlight(logger: mock.Mock) -> None:
     ret = bridge.highlight_block('print "Hello sphinx world"', 'default')
     assert ret == (
         '<div class="highlight"><pre><span></span><span class="nb">print</span> '
-        '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n'
+        f'<span class="s2">{hsw}</span>\n</pre></div>\n'
     )
 
     # default: fallbacks to none if highlighting failed
@@ -107,7 +112,7 @@ def test_default_highlight(logger: mock.Mock) -> None:
     assert ret == (
         '<div class="highlight"><pre><span></span><span class="nb">print</span>'
         '<span class="p">(</span>'
-        '<span class="s2">&quot;Hello sphinx world&quot;</span>'
+        f'<span class="s2">{hsw}</span>'
         '<span class="p">)</span>\n</pre></div>\n'
     )
 
@@ -116,7 +121,7 @@ def test_default_highlight(logger: mock.Mock) -> None:
     assert ret == (
         '<div class="highlight"><pre><span></span><span class="nb">print</span>'
         '<span class="p">(</span>'
-        '<span class="s2">&quot;Hello sphinx world&quot;</span>'
+        f'<span class="s2">{hsw}</span>'
         '<span class="p">)</span>\n</pre></div>\n'
     )
 

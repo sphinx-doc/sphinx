@@ -13,7 +13,7 @@ from sphinx.testing import restructuredtext
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
     from pathlib import Path
 
     from sphinx.testing.util import SphinxTestApp
@@ -22,7 +22,7 @@ pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
 @contextmanager
-def overwrite_file(path: Path, content: str) -> Iterator[None]:
+def overwrite_file(path: Path, content: str) -> Generator[None]:
     current_content = path.read_bytes() if path.exists() else None
     try:
         path.write_text(content, encoding='utf-8')
@@ -135,8 +135,10 @@ def test_autodoc_typehints_signature() -> None:
         "   alias of TypeVar('T', bound=\\ :py:class:`~pathlib.PurePosixPath`)",
         '',
         '',
-        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
-        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        (
+            '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+            'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None'
+        ),
         '   :module: target.typehints',
         '',
         '',
@@ -327,7 +329,7 @@ def test_autodoc_typehints_description(app: SphinxTestApp) -> None:
 
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.incr(a, b=1)',
         '',
         '   Parameters:',
@@ -340,7 +342,7 @@ def test_autodoc_typehints_description(app: SphinxTestApp) -> None:
         '',
     ))
     assert expect in context
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.tuple_args(x)',
         '',
         '   Parameters:',
@@ -353,7 +355,7 @@ def test_autodoc_typehints_description(app: SphinxTestApp) -> None:
     assert expect in context
 
     # Overloads still get displayed in the signature
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.overload.sum(x: int, y: int = 0) -> int',
         'target.overload.sum(x: float, y: float = 0.0) -> float',
         'target.overload.sum(x: str, y: str = None) -> str',
@@ -388,7 +390,7 @@ def test_autodoc_typehints_description_no_undoc(app: SphinxTestApp) -> None:
         app.build()
     # Restore the original content of the file
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.incr(a, b=1)',
         '',
         'target.typehints.decr(a, b=1)',
@@ -610,7 +612,7 @@ def test_autodoc_typehints_both(app: SphinxTestApp) -> None:
     ):
         app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.incr(a: int, b: int = 1) -> int',
         '',
         '   Parameters:',
@@ -623,7 +625,7 @@ def test_autodoc_typehints_both(app: SphinxTestApp) -> None:
         '',
     ))
     assert expect in context
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.typehints.tuple_args(x: tuple[int, int | str]) -> tuple[int, int]',
         '',
         '   Parameters:',
@@ -636,7 +638,7 @@ def test_autodoc_typehints_both(app: SphinxTestApp) -> None:
     assert expect in context
 
     # Overloads still get displayed in the signature
-    expect = '\n'.join((  # NoQA: FLY002
+    expect = '\n'.join((  # ruff: ignore[static-join-to-f-string]
         'target.overload.sum(x: int, y: int = 0) -> int',
         'target.overload.sum(x: float, y: float = 0.0) -> float',
         'target.overload.sum(x: str, y: str = None) -> str',
@@ -774,8 +776,10 @@ def test_autodoc_typehints_format_fully_qualified() -> None:
         "   alias of TypeVar('T', bound=\\ :py:class:`pathlib.PurePosixPath`)",
         '',
         '',
-        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
-        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        (
+            '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+            'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None'
+        ),
         '   :module: target.typehints',
         '',
         '',

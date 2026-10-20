@@ -9,7 +9,7 @@ SENTINEL = object()
 
 
 #: docstring
-ze_lambda = lambda z=SENTINEL: None  # NoQA: E731
+ze_lambda = lambda z=SENTINEL: None  # ruff: ignore[lambda-assignment]
 
 
 def foo(x, y, z=SENTINEL):
@@ -50,5 +50,5 @@ class MyNamedTuple1(NamedTuple):
     c: list[int] = [1, 2, 3]
 
 
-class MyNamedTuple2(namedtuple('Base', ('a', 'b'), defaults=(0, SENTINEL))):  # NoQA: PYI024,SLOT002
+class MyNamedTuple2(namedtuple('Base', ('a', 'b'), defaults=(0, SENTINEL))):  # ruff: ignore[collections-named-tuple, no-slots-in-namedtuple-subclass]
     """docstring"""

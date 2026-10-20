@@ -181,7 +181,7 @@ class I18nBuilder(Builder):
 
         for toctree in self.env.tocs[docname].findall(addnodes.toctree):
             for node, msg in extract_messages(toctree):
-                node.uid = ''  # type: ignore[attr-defined]  # Hack UUID model
+                node.uid = ''  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]  # Hack UUID model
                 catalog.add(msg, node)
 
         for node, msg in extract_messages(doctree):
@@ -264,7 +264,7 @@ class MessageCatalogBuilder(I18nBuilder):
         logger.info(bold(__('building [%s]: ')), self.name, nonl=True)
         logger.info(__('targets for %d template files'), len(files))
 
-        extract_translations = self.templates.environment.extract_translations
+        extract_translations = self.templates.environment.extract_translations  # ty: ignore[unresolved-attribute]
 
         for template in status_iterator(
             files,
@@ -283,7 +283,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 msg = f'{template}: {exc!r}'
                 raise ThemeError(msg) from exc
 
-    def build(  # type: ignore[misc]
+    def build(  # type: ignore[misc]  # ty: ignore[override-of-final-method]
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,

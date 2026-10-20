@@ -51,7 +51,7 @@ AUTODOC_EXTENDABLE_OPTIONS = frozenset({
 
 
 # Retained: legacy class-based
-class DummyOptionSpec(dict[str, Callable[[str], str]]):  # NoQA: FURB189
+class DummyOptionSpec(dict[str, Callable[[str], str]]):  # ruff: ignore[subclass-builtin]
     """An option_spec allows any options."""
 
     def __bool__(self) -> bool:
@@ -150,7 +150,7 @@ class AutodocDirective(SphinxDirective):
             )
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
-            LOGGER.error(  # NoQA: TRY400
+            LOGGER.error(  # ruff: ignore[error-instead-of-exception]
                 'An option to %s is either unknown or has an invalid value: %s',
                 self.name,
                 exc,

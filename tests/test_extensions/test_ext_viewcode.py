@@ -20,6 +20,11 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     else:
         sp = ' '
 
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21):
+        ds = '"""this is Class1"""'
+    else:
+        ds = '&quot;&quot;&quot;this is Class1&quot;&quot;&quot;'
+
     warnings = re.sub(r'\\+', '/', app.warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include "
@@ -49,10 +54,7 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     ) in result
     assert '<span>@decorator</span>\n' in result
     assert f'<span>class</span>{sp}<span>Class1</span><span>:</span>\n' in result
-    assert (
-        '<span>    </span>'
-        '<span>&quot;&quot;&quot;this is Class1&quot;&quot;&quot;</span></div>\n'
-    ) in result
+    assert f'<span>    </span><span>{ds}</span></div>\n' in result
 
     return result
 

@@ -1,12 +1,24 @@
-Release 9.1.1 (in development)
+Release 9.2.0 (in development)
 ==============================
+
+Dependencies
+------------
+
+* #14762: Drop Python 3.12 support.
+  Patch by Adam Turner.
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
 
 Bugs fixed
 ----------
 
-* #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
-  styled with ``'colorrows'`` (which is the default).
-  Patch by Jean-François B.
 * #14400: Update AutoNumbering transform:
   Ensure that enumerable elements (tables, figures and literal_blocks)
   have an ID.
@@ -15,12 +27,27 @@ Bugs fixed
   (To avoid changed IDs when documents are re-compiled, this only happens if
   the Docutils setting `legacy_ids`_ is False.)
   Patch by Günter Milde
+
+.. _legacy_ids: https://docutils.sf.net/docs/user/config.html#legacy-ids
+
+Testing
+-------
+
+Release 9.1.1 (released Oct 19, 2026)
+=====================================
+
+Bugs fixed
+----------
+
+* #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
+  styled with ``'colorrows'`` (which is the default).
+  Patch by Jean-François B.
 * #14229: Fix JavaScript search for languages whose stemmer class name
   does not match the language name, such as Chinese (which reuses the
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
-
-.. _legacy_ids: https://docutils.sf.net/docs/user/config.html#legacy-ids
+* Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
+  Patch by Adam Turner
 
 
 Release 9.1.0 (released Dec 31, 2025)
