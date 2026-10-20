@@ -26,7 +26,7 @@ original_uids: list[str]
 
 @pytest.fixture(scope='module', autouse=True)
 def _setup_module(rootdir: Path, sphinx_test_tempdir: Path) -> Iterator[None]:
-    global original, original_uids  # NoQA: PLW0603
+    global original, original_uids  # ruff: ignore[global-statement]
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
         shutil.copytree(rootdir / 'test-versioning', srcdir)
@@ -35,12 +35,12 @@ def _setup_module(rootdir: Path, sphinx_test_tempdir: Path) -> Iterator[None]:
     app.connect('doctree-resolved', on_doctree_resolved)
     app.build()
     original = doctrees['original']
-    original_uids = [n.uid for n in add_uids(original, is_paragraph)]  # type: ignore[attr-defined]
+    original_uids = [n.uid for n in add_uids(original, is_paragraph)]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     yield
     app.cleanup()
 
 
-doctrees = {}
+doctrees: dict[str, nodes.document] = {}
 
 
 def on_doctree_resolved(app: Sphinx, doctree: nodes.document, docname: str) -> None:
@@ -75,7 +75,7 @@ def test_pickleablility() -> None:
 def test_modified() -> None:
     modified = doctrees['modified']
     new_nodes = list(merge_doctrees(original, modified, is_paragraph))
-    uids = [n.uid for n in modified.findall(is_paragraph)]  # type: ignore[attr-defined]
+    uids = [n.uid for n in modified.findall(is_paragraph)]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert not new_nodes
     assert original_uids == uids
 
@@ -83,7 +83,7 @@ def test_modified() -> None:
 def test_added() -> None:
     added = doctrees['added']
     new_nodes = list(merge_doctrees(original, added, is_paragraph))
-    uids = [n.uid for n in added.findall(is_paragraph)]  # type: ignore[attr-defined]
+    uids = [n.uid for n in added.findall(is_paragraph)]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert len(new_nodes) == 1
     assert original_uids == uids[:-1]
 
@@ -91,7 +91,7 @@ def test_added() -> None:
 def test_deleted() -> None:
     deleted = doctrees['deleted']
     new_nodes = list(merge_doctrees(original, deleted, is_paragraph))
-    uids = [n.uid for n in deleted.findall(is_paragraph)]  # type: ignore[attr-defined]
+    uids = [n.uid for n in deleted.findall(is_paragraph)]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert not new_nodes
     assert original_uids[::2] == uids
 
@@ -99,7 +99,7 @@ def test_deleted() -> None:
 def test_deleted_end() -> None:
     deleted_end = doctrees['deleted_end']
     new_nodes = list(merge_doctrees(original, deleted_end, is_paragraph))
-    uids = [n.uid for n in deleted_end.findall(is_paragraph)]  # type: ignore[attr-defined]
+    uids = [n.uid for n in deleted_end.findall(is_paragraph)]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert not new_nodes
     assert original_uids[:-1] == uids
 
@@ -107,7 +107,7 @@ def test_deleted_end() -> None:
 def test_insert() -> None:
     insert = doctrees['insert']
     new_nodes = list(merge_doctrees(original, insert, is_paragraph))
-    uids = [n.uid for n in insert.findall(is_paragraph)]  # type: ignore[attr-defined]
+    uids = [n.uid for n in insert.findall(is_paragraph)]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert len(new_nodes) == 1
     assert original_uids[0] == uids[0]
     assert original_uids[1:] == uids[2:]
@@ -116,7 +116,7 @@ def test_insert() -> None:
 def test_insert_beginning() -> None:
     insert_beginning = doctrees['insert_beginning']
     new_nodes = list(merge_doctrees(original, insert_beginning, is_paragraph))
-    uids = [n.uid for n in insert_beginning.findall(is_paragraph)]  # type: ignore[attr-defined]
+    uids = [n.uid for n in insert_beginning.findall(is_paragraph)]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert len(new_nodes) == 1
     assert len(uids) == 4
     assert original_uids == uids[1:]
@@ -126,8 +126,8 @@ def test_insert_beginning() -> None:
 def test_insert_similar() -> None:
     insert_similar = doctrees['insert_similar']
     new_nodes = list(merge_doctrees(original, insert_similar, is_paragraph))
-    uids = [n.uid for n in insert_similar.findall(is_paragraph)]  # type: ignore[attr-defined]
+    uids = [n.uid for n in insert_similar.findall(is_paragraph)]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert len(new_nodes) == 1
-    assert new_nodes[0].rawsource == 'Anyway I need more'  # type: ignore[attr-defined]
+    assert new_nodes[0].rawsource == 'Anyway I need more'  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert original_uids[0] == uids[0]
     assert original_uids[1:] == uids[2:]

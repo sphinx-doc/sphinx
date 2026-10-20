@@ -4,7 +4,7 @@ import typing
 from typing import final
 
 import typing_extensions
-from typing_extensions import final as final_ext  # noqa: UP035
+from typing_extensions import final as final_ext  # ruff: ignore[deprecated-import]
 
 
 @typing.final

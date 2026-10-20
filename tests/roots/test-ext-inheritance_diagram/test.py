@@ -18,5 +18,5 @@ class DocMainLevel(Foo):
     pass
 
 
-class Alice(object):  # NoQA: UP004
+class Alice(object):  # ruff: ignore[useless-object-inheritance]
     pass
