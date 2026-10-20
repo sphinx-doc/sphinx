@@ -40,7 +40,7 @@ def _setup_module(rootdir: Path, sphinx_test_tempdir: Path) -> Iterator[None]:
     app.cleanup()
 
 
-doctrees = {}
+doctrees: dict[str, nodes.document] = {}
 
 
 def on_doctree_resolved(app: Sphinx, doctree: nodes.document, docname: str) -> None:

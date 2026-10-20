@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from sphinx.events import EventManager
     from sphinx.ext.autodoc._property_types import _AutodocObjType
 
-processed_signatures = []
+processed_signatures: list[tuple[str, str]] = []
 
 
 def format_sig(
