@@ -386,7 +386,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         # TODO: TYPING: Upstream docutils should be updated so that
         #       smartquotes_action accepts any iterable of characters
         #       and can be overridden per-instance.
-        self.smartquotes_action = self.config.smartquotes_action  # type: ignore[misc]
+        self.smartquotes_action = self.config.smartquotes_action  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
 
         super().apply()
 

@@ -12,6 +12,9 @@ from typing import TYPE_CHECKING
 
 import docutils
 import docutils.frontend
+import docutils.languages
+import docutils.parsers.rst.languages
+import docutils.utils
 import docutils.writers
 from docutils import nodes
 from docutils.io import FileOutput
@@ -81,7 +84,7 @@ if docutils.__version_info__[:2] >= (1, 0):
     _READER_TRANSFORMS = [
         transform
         for transform in standalone.Reader().get_transforms()
-        if transform is not references.ReportUnreferencedTargets  # type: ignore[attr-defined]
+        if transform is not references.ReportUnreferencedTargets  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     ]
 else:
     _READER_TRANSFORMS = [
@@ -98,13 +101,13 @@ additional_nodes: set[type[Element]] = set()
 def docutils_namespace() -> Generator[None]:
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)  # type: ignore[attr-defined]
-        _roles = copy(roles._roles)  # type: ignore[attr-defined]
+        _directives = copy(directives._directives)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        _roles = copy(roles._roles)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         yield
     finally:
-        directives._directives = _directives  # type: ignore[attr-defined]
-        roles._roles = _roles  # type: ignore[attr-defined]
+        directives._directives = _directives  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        roles._roles = _roles  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -113,7 +116,7 @@ def docutils_namespace() -> Generator[None]:
 
 def is_directive_registered(name: str) -> bool:
     """Check the *name* directive is already registered."""
-    return name in directives._directives  # type: ignore[attr-defined]
+    return name in directives._directives  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def register_directive(name: str, directive: type[Directive]) -> None:
@@ -127,7 +130,7 @@ def register_directive(name: str, directive: type[Directive]) -> None:
 
 def is_role_registered(name: str) -> bool:
     """Check the *name* role is already registered."""
-    return name in roles._roles  # type: ignore[attr-defined]
+    return name in roles._roles  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def register_role(name: str, role: RoleFunction) -> None:
@@ -141,7 +144,7 @@ def register_role(name: str, role: RoleFunction) -> None:
 
 def unregister_role(name: str) -> None:
     """Unregister a role from docutils."""
-    roles._roles.pop(name, None)  # type: ignore[attr-defined]
+    roles._roles.pop(name, None)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def is_node_registered(node: type[Element]) -> bool:
@@ -156,7 +159,7 @@ def register_node(node: type[Element]) -> None:
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])  # type: ignore[attr-defined]
+        nodes._add_node_class_names([node.__name__])  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         additional_nodes.add(node)
 
 
@@ -446,17 +449,17 @@ def switch_source_input(
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
-        gsal = state.memo.reporter.get_source_and_line  # type: ignore[attr-defined]
+        gsal = state.memo.reporter.get_source_and_line  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         # replace it by new one
         state_machine: StateMachine[None] = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         yield
     finally:
         # restore the method
-        state.memo.reporter.get_source_and_line = gsal  # type: ignore[attr-defined]
+        state.memo.reporter.get_source_and_line = gsal  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 class SphinxFileOutput(FileOutput):
@@ -960,5 +963,5 @@ if docutils.__version_info__[:2] < (0, 22):
 
 else:
     from docutils.parsers.rst.roles import (
-        normalize_options as _normalize_options,  # ruff: ignore[unused-import]  # ty: ignore[unresolved-import]
+        normalize_options as _normalize_options,  # ruff: ignore[unused-import]
     )

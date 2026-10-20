@@ -563,7 +563,7 @@ class TextTranslator(SphinxTranslator):
         else:
             char = '^'
         text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
+        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]  # ty: ignore[no-matching-overload]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()

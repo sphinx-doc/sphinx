@@ -670,7 +670,7 @@ class BuildEnvironment:
         docname: str,
         builder: Builder,
         *,
-        tags: Tags = ...,  # type: ignore[assignment]
+        tags: Tags = ...,  # type: ignore[assignment]  # ty: ignore[invalid-parameter-default]
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False,

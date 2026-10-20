@@ -324,7 +324,7 @@ def test_autodoc_process_signature_typehints() -> None:
     events = FakeEvents()
     events.connect('autodoc-process-signature', process_signature)
 
-    def func(x: int, y: int) -> int:  # type: ignore[empty-body]
+    def func(x: int, y: int) -> int:  # type: ignore[empty-body]  # ty: ignore[empty-body]
         pass
 
     props = _FunctionDefProperties(

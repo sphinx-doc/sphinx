@@ -147,7 +147,7 @@ class desc_signature(
     classes = ['sig', 'sig-object']
 
     @property
-    def child_text_separator(self) -> str:  # type: ignore[override]
+    def child_text_separator(self) -> str:  # type: ignore[override]  # ty: ignore[invalid-property-type-override]
         if self.get('is_multiline'):
             return ' '
         else:

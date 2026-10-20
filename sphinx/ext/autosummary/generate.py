@@ -136,7 +136,7 @@ class AutosummaryRenderer:
         if app.translator:
             self.env.add_extension('jinja2.ext.i18n')
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
-            self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]
+            self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     def render(self, template_name: str, context: dict[str, Any]) -> str:
         """Render a template file."""

@@ -293,7 +293,7 @@ class TexinfoTranslator(SphinxTranslator):
         for section in self.document.findall(nodes.section):
             # TODO: TYPING: Node.next_node() should accept the non-Node
             #       mixin classes in docutils.nodes.
-            title = section.next_node(nodes.Titular)  # type: ignore[type-var]
+            title = section.next_node(nodes.Titular)  # type: ignore[type-var]  # ty: ignore[no-matching-overload]
             assert isinstance(title, nodes.Node)
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
@@ -894,7 +894,7 @@ class TexinfoTranslator(SphinxTranslator):
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
-        footnode.walkabout(self)  # type: ignore[union-attr]
+        footnode.walkabout(self)  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         raise nodes.SkipChildren
 
     def visit_citation(self, node: Element) -> None:

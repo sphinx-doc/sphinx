@@ -750,7 +750,7 @@ def main(argv: Sequence[str] = (), /) -> int:
     try:
         args = parser.parse_args(argv or sys.argv[1:])
     except SystemExit as err:
-        return err.code  # type: ignore[return-value]
+        return err.code  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
     d = vars(args)
     # delete None or False value
@@ -806,7 +806,7 @@ def main(argv: Sequence[str] = (), /) -> int:
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
 
-    for variable in d.get('variables', []):  # type: ignore[union-attr]
+    for variable in d.get('variables', []):  # type: ignore[union-attr]  # ty: ignore[not-iterable]
         try:
             name, value = variable.split('=')
             d[name] = value

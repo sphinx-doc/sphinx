@@ -626,7 +626,7 @@ def _annotate_to_first_argument(
     if params[first_arg_idx].annotation is Parameter.empty:
         params[first_arg_idx] = params[first_arg_idx].replace(annotation=typ)
         try:
-            dummy.__signature__ = sig.replace(parameters=params)  # type: ignore[attr-defined]
+            dummy.__signature__ = sig.replace(parameters=params)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             return dummy
         except (AttributeError, TypeError):
             # failed to update signature (ex. built-in or extension types)

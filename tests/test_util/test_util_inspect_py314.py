@@ -7,16 +7,16 @@ from sphinx.util import inspect
 from sphinx.util.typing import stringify_annotation
 
 try:
-    from annotationlib import ForwardRef  # type: ignore[import-not-found]
+    from annotationlib import ForwardRef  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 except ImportError:
     pytest.skip('Requires annotationlib (Python 3.14+).', allow_module_level=True)
 
 
-def forward_reference_in_args(x: Foo) -> None:  # type: ignore[name-defined] # ruff: ignore[undefined-name]
+def forward_reference_in_args(x: Foo) -> None:  # type: ignore[name-defined]  # ty: ignore[unresolved-reference] # ruff: ignore[undefined-name]
     pass
 
 
-def forward_reference_in_return() -> Foo:  # type: ignore[name-defined] # ruff: ignore[undefined-name]
+def forward_reference_in_return() -> Foo:  # type: ignore[name-defined]  # ty: ignore[unresolved-reference] # ruff: ignore[undefined-name]
     pass
 
 
