@@ -238,6 +238,7 @@ def test_enumerable_node(
 @pytest.mark.sphinx(
     'html',
     testroot='basic',
+    srcdir='html-copy-source',
     confoverrides={'html_copy_source': False},
 )
 def test_html_copy_source(app: SphinxTestApp) -> None:
