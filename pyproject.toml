@@ -88,6 +88,11 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+test = [
+    "defusedxml>=0.7.1", # for secure XML/HTML parsing
+]
+
 [[project.authors]]
 name = "Adam Turner"
 email = "aa-turner@users.noreply.github.com"
