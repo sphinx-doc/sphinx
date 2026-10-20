@@ -234,7 +234,7 @@ def _make_props_from_imported_object(
         base_classes = tuple(restify(cls, mode=render_mode) for cls in obj_bases)
 
         return _ClassDefProperties(
-            obj_type=objtype,  # type: ignore[arg-type]
+            obj_type=objtype,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -257,7 +257,7 @@ def _make_props_from_imported_object(
             obj_properties.add('async')
 
         return _FunctionDefProperties(
-            obj_type=objtype,  # type: ignore[arg-type]
+            obj_type=objtype,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),

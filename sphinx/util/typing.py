@@ -303,7 +303,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 rf'\ [{args}, {meta}]'
             )
         elif isinstance(cls, typing.NewType):
-            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
+            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
         elif isinstance(cls, types.UnionType) or (
             isgenericalias(cls)
             and cls_module_is_typing

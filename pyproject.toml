@@ -132,7 +132,7 @@ translations = [
     "Jinja2>=3.1",
 ]
 types = [
-    "mypy==1.19.1",
+    "mypy==2.4.0",
     "pyrefly",
     "pyright==1.1.407",
     "ty==0.0.90",
@@ -185,6 +185,7 @@ exclude = [
     "tests/roots",
 ]
 python_version = "3.13"
+num_workers = "auto"
 strict = true
 show_column_numbers = true
 show_error_context = true

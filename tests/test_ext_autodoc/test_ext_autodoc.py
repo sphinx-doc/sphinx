@@ -162,7 +162,7 @@ def test_new_documenter():
     ]
 
 
-getattr_spy = []
+getattr_spy: list[tuple[object, str]] = []
 
 
 def test_attrgetter_using():
