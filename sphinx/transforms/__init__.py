@@ -28,10 +28,9 @@ from sphinx.util.nodes import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
-    from typing import Any, ClassVar, Literal
+    from typing import Any, ClassVar, Literal, TypeIs
 
     from docutils.nodes import Node
-    from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.config import Config

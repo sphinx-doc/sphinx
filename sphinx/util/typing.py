@@ -16,9 +16,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Annotated, Any, Final, Literal, Protocol
-
-    from typing_extensions import TypeIs
+    from typing import Annotated, Any, Final, Literal, Protocol, TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.util.inventory import _InventoryItem

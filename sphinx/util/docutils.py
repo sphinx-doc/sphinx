@@ -95,7 +95,7 @@ additional_nodes: set[type[Element]] = set()
 
 
 @contextmanager
-def docutils_namespace() -> Generator[None, None, None]:
+def docutils_namespace() -> Generator[None]:
     """Create namespace for reST parsers."""
     try:
         _directives = copy(directives._directives)  # type: ignore[attr-defined]
@@ -173,7 +173,7 @@ def unregister_node(node: type[Element]) -> None:
 
 
 @contextmanager
-def patched_get_language() -> Generator[None, None, None]:
+def patched_get_language() -> Generator[None]:
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
@@ -195,7 +195,7 @@ def patched_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def patched_rst_get_language() -> Generator[None, None, None]:
+def patched_rst_get_language() -> Generator[None]:
     """Patch docutils.parsers.rst.languages.get_language().
     Starting from docutils 0.17, get_language() in ``rst.languages``
     also has a reporter, which needs to be disabled temporarily.
@@ -223,7 +223,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
 @contextmanager
 def using_user_docutils_conf(
     confdir: str | os.PathLike[str] | None,
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutils_config = os.environ.get('DOCUTILSCONFIG', None)
@@ -241,7 +241,7 @@ def using_user_docutils_conf(
 @contextmanager
 def patch_docutils(
     confdir: str | os.PathLike[str] | None = None,
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     """Patch to docutils temporarily."""
     with (
         patched_get_language(),
@@ -442,7 +442,7 @@ class NullReporter(Reporter):
 @contextmanager
 def switch_source_input(
     state: State[list[str]], content: StringList
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method

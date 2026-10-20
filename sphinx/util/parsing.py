@@ -73,7 +73,7 @@ def nested_parse_to_nodes(
 
 
 @contextlib.contextmanager
-def _fresh_title_style_context(state: RSTState) -> Generator[None, None, None]:
+def _fresh_title_style_context(state: RSTState) -> Generator[None]:
     # hack around title style bookkeeping
     memo = state.memo
     surrounding_title_styles: list[str | tuple[str, str]] = memo.title_styles

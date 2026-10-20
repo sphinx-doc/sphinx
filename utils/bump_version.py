@@ -164,7 +164,7 @@ class Skip(Exception):
 
 
 @contextmanager
-def processing(message: str) -> Generator[None, None, None]:
+def processing(message: str) -> Generator[None]:
     try:
         print(message + ' ... ', end='')
         yield

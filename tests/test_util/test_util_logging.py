@@ -283,7 +283,7 @@ def test_pending_warnings(app: SphinxTestApp) -> None:
 
 
 @contextmanager
-def force_colors() -> Generator[None, None, None]:
+def force_colors() -> Generator[None]:
     forcecolor = os.environ.get('FORCE_COLOR', None)
 
     try:

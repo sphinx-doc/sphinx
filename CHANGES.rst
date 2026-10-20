@@ -4,6 +4,9 @@ Release 9.2.0 (in development)
 Dependencies
 ------------
 
+* #14762: Drop Python 3.12 support.
+  Patch by Adam Turner.
+
 Incompatible changes
 --------------------
 

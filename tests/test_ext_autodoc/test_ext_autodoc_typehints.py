@@ -22,7 +22,7 @@ pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
 @contextmanager
-def overwrite_file(path: Path, content: str) -> Generator[None, None, None]:
+def overwrite_file(path: Path, content: str) -> Generator[None]:
     current_content = path.read_bytes() if path.exists() else None
     try:
         path.write_text(content, encoding='utf-8')

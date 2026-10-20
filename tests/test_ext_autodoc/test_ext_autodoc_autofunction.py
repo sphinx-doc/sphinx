@@ -125,7 +125,7 @@ def test_singledispatch() -> None:
 
 def test_cfunction() -> None:
     actual = do_autodoc('function', 'time.sleep')
-    if sys.version_info >= (3, 16):
+    if sys.version_info[:2] >= (3, 16):
         assert actual == [
             '',
             '.. py:function:: sleep(seconds, /)',
