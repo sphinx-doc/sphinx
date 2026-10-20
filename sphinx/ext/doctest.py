@@ -420,10 +420,10 @@ class DocTestBuilder(Builder):
             condition = node['skipif']
             context: dict[str, Any] = {}
             if self.config.doctest_global_setup:
-                exec(self.config.doctest_global_setup, context)  # NoQA: S102
-            should_skip = eval(condition, context)  # NoQA: S307
+                exec(self.config.doctest_global_setup, context)  # ruff: ignore[exec-builtin]
+            should_skip = eval(condition, context)  # ruff: ignore[suspicious-eval-usage]
             if self.config.doctest_global_cleanup:
-                exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
+                exec(self.config.doctest_global_cleanup, context)  # ruff: ignore[exec-builtin]
             return should_skip
 
     def test_doc(self, docname: str, doctree: Node) -> bool:

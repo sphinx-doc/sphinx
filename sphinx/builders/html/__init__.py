@@ -352,7 +352,7 @@ class StandaloneHTMLBuilder(Builder):
                     msg = __(
                         'build_info mismatch, copying .buildinfo to .buildinfo.bak'
                     )
-                    logger.info(bold(__('building [html]: ')) + msg)  # NoQA: G003
+                    logger.info(bold(__('building [html]: ')) + msg)  # ruff: ignore[logging-string-concat]
 
                 yield from self.env.found_docs
                 return
@@ -367,7 +367,7 @@ class StandaloneHTMLBuilder(Builder):
                 # Let users know they have a newer template
                 if template_mtime > old_mtime:
                     logger.info(
-                        bold('building [html]: ')  # NoQA: G003
+                        bold('building [html]: ')  # ruff: ignore[logging-string-concat]
                         + __(
                             'template %s has been changed since the previous build, '
                             'all docs will be rebuilt'
@@ -1024,7 +1024,7 @@ class StandaloneHTMLBuilder(Builder):
     ) -> str:
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = False
-        if kwargs.get('maxdepth') == '':  # NoQA: PLC1901
+        if kwargs.get('maxdepth') == '':  # ruff: ignore[compare-to-empty-string]
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(
             self.env, docname, self, tags=self.tags, collapse=collapse, **kwargs

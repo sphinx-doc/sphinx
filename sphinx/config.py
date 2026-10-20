@@ -85,7 +85,7 @@ class ENUM:
     def __repr__(self) -> str:
         return f'ENUM({", ".join(sorted(map(repr, self._candidates)))})'
 
-    def match(self, value: str | bool | None | Sequence[str | bool | None]) -> bool:  # NoQA: RUF036
+    def match(self, value: str | bool | None | Sequence[str | bool | None]) -> bool:  # ruff: ignore[none-not-at-end-of-union]
         if isinstance(value, (str, bool, types.NoneType)):
             return value in self._candidates
         return all(item in self._candidates for item in value)
@@ -373,7 +373,7 @@ class Config:
             msg = __("'%s' must be '0' or '1', got '%s'") % (name, value)
             raise ConfigError(msg)
         if isinstance(default, dict):
-            raise ValueError(  # NoQA: TRY004
+            raise ValueError(  # ruff: ignore[type-check-without-type-error]
                 __(
                     'cannot override dictionary config setting %r, '
                     'ignoring (use %r to set individual elements)'
@@ -593,7 +593,7 @@ def eval_config_file(filename: Path, tags: Tags) -> dict[str, Any]:
         # during executing config file, current dir is changed to ``confdir``.
         try:
             code = compile(filename.read_bytes(), filename, 'exec')
-            exec(code, namespace)  # NoQA: S102
+            exec(code, namespace)  # ruff: ignore[exec-builtin]
         except SyntaxError as err:
             msg = __('There is a syntax error in your configuration file: %s\n')
             raise ConfigError(msg % err) from err

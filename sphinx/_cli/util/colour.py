@@ -43,12 +43,12 @@ def terminal_supports_colour() -> bool:
 
 
 def disable_colour() -> None:
-    global _COLOURING_DISABLED  # NoQA: PLW0603
+    global _COLOURING_DISABLED  # ruff: ignore[global-statement]
     _COLOURING_DISABLED = True
 
 
 def enable_colour() -> None:
-    global _COLOURING_DISABLED  # NoQA: PLW0603
+    global _COLOURING_DISABLED  # ruff: ignore[global-statement]
     _COLOURING_DISABLED = False
 
 

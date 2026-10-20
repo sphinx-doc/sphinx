@@ -1,4 +1,4 @@
-# noqa: I002 as 'from __future__ import annotations' prevents Python 3.14
+# ruff: ignore[missing-required-import] as 'from __future__ import annotations' prevents Python 3.14
 # forward references from causing issues, so we must skip it here.
 
 import pytest
@@ -12,11 +12,11 @@ except ImportError:
     pytest.skip('Requires annotationlib (Python 3.14+).', allow_module_level=True)
 
 
-def forward_reference_in_args(x: Foo) -> None:  # type: ignore[name-defined] # noqa: F821
+def forward_reference_in_args(x: Foo) -> None:  # type: ignore[name-defined] # ruff: ignore[undefined-name]
     pass
 
 
-def forward_reference_in_return() -> Foo:  # type: ignore[name-defined] # noqa: F821
+def forward_reference_in_return() -> Foo:  # type: ignore[name-defined] # ruff: ignore[undefined-name]
     pass
 
 

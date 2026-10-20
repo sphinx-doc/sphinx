@@ -129,7 +129,7 @@ def test_format_function_signatures() -> None:
 )
 def test_format_function_signatures_pep695(params: str, expect: str) -> None:
     ns: dict[str, Any] = {}
-    exec(f'def f[T]{params}: pass', ns)  # NoQA: S102
+    exec(f'def f[T]{params}: pass', ns)  # ruff: ignore[exec-builtin]
     f = ns['f']
     assert format_sig('function', 'f', f) == (expect, '')
     assert format_sig('function', 'f', f, args='(...)') == ('(...)', '')
@@ -138,7 +138,7 @@ def test_format_function_signatures_pep695(params: str, expect: str) -> None:
         '...',
     )
 
-    exec(f'def f[T]{params} -> list[T]: return []', ns)  # NoQA: S102
+    exec(f'def f[T]{params} -> list[T]: return []', ns)  # ruff: ignore[exec-builtin]
     f = ns['f']
     assert format_sig('function', 'f', f) == (expect, 'list[T]')
     assert format_sig('function', 'f', f, args='(...)') == ('(...)', '')
@@ -174,7 +174,7 @@ def test_format_class_signatures() -> None:
             pass
 
     class FNew:
-        def __new__(cls, a, b=None):  # type: ignore[no-untyped-def]  # NoQA: ARG004
+        def __new__(cls, a, b=None):  # type: ignore[no-untyped-def]  # ruff: ignore[unused-static-method-argument]
             return super().__new__(cls)
 
     class FMeta(metaclass=SomeMeta):
@@ -201,7 +201,7 @@ def test_format_class_signatures() -> None:
 
 
 def test_format_class_signatures_text_signature() -> None:
-    class ListSubclass(list):  # type: ignore[type-arg]  # NoQA: FURB189
+    class ListSubclass(list):  # type: ignore[type-arg]  # ruff: ignore[subclass-builtin]
         pass
 
     # only supported if the python implementation decides to document it
@@ -233,7 +233,7 @@ def test_format_class_signatures_init_both() -> None:
             __init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
-            """  # NoQA: D212
+            """  # ruff: ignore[multi-line-summary-first-line]
 
     class G2(F2):
         pass
@@ -254,7 +254,7 @@ def test_format_method_signatures() -> None:
         def foo1(self, b, *c):  # type: ignore[no-untyped-def]
             pass
 
-        def foo2(b, *c):  # type: ignore[no-untyped-def]  # NoQA: N805
+        def foo2(b, *c):  # type: ignore[no-untyped-def]  # ruff: ignore[invalid-first-argument-name-for-method]
             pass
 
         def foo3(self, d='\n'):  # type: ignore[no-untyped-def]

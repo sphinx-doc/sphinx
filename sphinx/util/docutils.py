@@ -840,7 +840,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     caches the result of docutils' and use it on second call for instantiation.
     This makes an instantiation of document nodes much faster.
     """
-    global __document_cache__  # NoQA: PLW0603
+    global __document_cache__  # ruff: ignore[global-statement]
     try:
         cached_settings, reporter = __document_cache__
     except NameError:
@@ -960,5 +960,5 @@ if docutils.__version_info__[:2] < (0, 22):
 
 else:
     from docutils.parsers.rst.roles import (
-        normalize_options as _normalize_options,  # NoQA: F401  # ty: ignore[unresolved-import]
+        normalize_options as _normalize_options,  # ruff: ignore[unused-import]  # ty: ignore[unresolved-import]
     )

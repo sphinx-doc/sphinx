@@ -73,7 +73,7 @@ def _slice_index(
         count = 0
         start = offset
         if slices == slice_number + 1:  # last column
-            offset = len(seq)  # NoQA: SIM113
+            offset = len(seq)
         else:
             for value in values[offset:]:
                 count += 1 + len(value[1][1])

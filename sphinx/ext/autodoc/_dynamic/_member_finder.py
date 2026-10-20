@@ -832,7 +832,7 @@ def _should_keep_member(
 
     if is_private:
         if has_attr_doc or has_doc:
-            if private_members is None:  # NoQA: SIM114
+            if private_members is None:  # ruff: ignore[if-with-same-arms]
                 return False
             elif has_doc and is_filtered_inherited_member:
                 return False

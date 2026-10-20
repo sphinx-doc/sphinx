@@ -239,7 +239,7 @@ class ModuleScanner:
             try:
                 if ('', name) in attr_docs:
                     imported = False
-                elif inspect.ismodule(value):  # NoQA: SIM114
+                elif inspect.ismodule(value):  # ruff: ignore[if-with-same-arms]
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True
@@ -767,7 +767,7 @@ def find_autosummary_in_docstring(
         pass
     except ImportExceptionGroup as exc:
         errors = '\n'.join({f'* {type(e).__name__}: {e}' for e in exc.exceptions})
-        logger.warning(f'Failed to import {name}.\nPossible hints:\n{errors}')  # NoQA: G004
+        logger.warning(f'Failed to import {name}.\nPossible hints:\n{errors}')  # ruff: ignore[logging-f-string]
     except SystemExit:
         logger.warning(
             "Failed to import '%s'; the module executes module level "

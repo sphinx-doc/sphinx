@@ -349,7 +349,7 @@ def _extract_signatures_from_docstrings(
     stripped_docstrings = [list(l) for l in (docstrings or ())]
     for i, doclines in enumerate(docstrings):
         j = 0
-        for j, line in enumerate(doclines):  # NoQA: B007
+        for j, line in enumerate(doclines):  # ruff: ignore[unused-loop-control-variable]
             if not line:
                 # no lines in docstring, no match
                 break
@@ -583,7 +583,7 @@ def _get_object_for_signature(
         return obj, False
 
     if props.obj_type == 'method':
-        if obj == object.__init__ and parent != object:  # NoQA: E721
+        if obj == object.__init__ and parent != object:  # ruff: ignore[type-comparison]
             # Classes not having own __init__() method are shown as no arguments.
             #
             # Note: The signature of object.__init__() is (self, /, *args, **kwargs).
@@ -619,7 +619,7 @@ def _annotate_to_first_argument(
     if len(sig.parameters) == first_arg_idx:
         return None
 
-    def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
+    def dummy():  # type: ignore[no-untyped-def]  # ruff: ignore[missing-return-type-private-function]
         pass
 
     params = list(sig.parameters.values())
