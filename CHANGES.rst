@@ -6,6 +6,9 @@ Dependencies
 
 * #14762: Drop Python 3.12 support.
   Patch by Adam Turner.
+* #14767: Support `Docutils 0.23`_. Patch by Adam Turner.
+
+  .. _Docutils 0.23: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-23-2026-05-27
 
 Incompatible changes
 --------------------
