@@ -94,6 +94,7 @@ ignore = [
     "PLR5501",  # Use `elif` instead of `else` then `if`, to reduce indentation
     "PLR6104",  # Use `{operator}` to perform an augmented assignment directly
     "PLR6301",  # Method `{method_name}` could be a function, class method, or static method
+    "PLW0717",  # Try clause contains too many statements ({} > 5)
     "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
     # flake8-use-pathlib
     "PTH100",  # `os.path.abspath()` should be replaced by `Path.resolve()`
@@ -140,6 +141,10 @@ ignore = [
     "RUF027",  # Possible f-string without an `f` prefix
     "RUF039",  # First argument to {call} is not raw string
     "RUF052",  # Local dummy variable `{}` is accessed
+    "RUF067",  # `__init__` module should only contain docstrings and re-exports
+    "RUF069",  # Unreliable floating point equality comparison `{}`
+    "RUF105",  # `noqa` comment used instead of `{}`
+    "RUF201",  # Rule code used instead of name in `{}`
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
     "SIM113",
@@ -370,6 +375,13 @@ logger-objects = [
 "tests/roots/test-ext-autodoc/target/genericalias.py" = ["UP006", "UP007", "UP035", "UP045"]
 "tests/test_util/test_util_typing.py" = ["RUF036", "UP006", "UP007", "UP035", "UP045"]
 "tests/test_util/typing_test_data.py" = ["FA100", "I002", "PYI030", "UP006", "UP007", "UP035", "UP045"]
+
+# these tests need old-style type comments
+"tests/roots/test-ext-autodoc/target/autodoc_type_aliases.py" = ["PYI033"]
+"tests/roots/test-ext-autodoc/target/cached_property.py" = ["PYI033"]
+"tests/roots/test-ext-autodoc/target/properties.py" = ["PYI033"]
+"tests/roots/test-ext-autodoc/target/typed_vars.py" = ["PYI033"]
+"tests/roots/test-ext-autodoc/target/typehints.py" = ["PYI033"]
 
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages

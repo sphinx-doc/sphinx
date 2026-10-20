@@ -277,7 +277,7 @@ class TableCell:
 
     @property
     def width(self) -> int:
-        """Returns the cell width."""
+        """The cell width."""
         width = 0
         while self.table.cells[self.row, self.col + width] == self.cell_id:
             width += 1
@@ -285,7 +285,7 @@ class TableCell:
 
     @property
     def height(self) -> int:
-        """Returns the cell height."""
+        """The cell height."""
         height = 0
         while self.table.cells[self.row + height, self.col] == self.cell_id:
             height += 1
@@ -625,7 +625,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     @property
     def table(self) -> Table | None:
-        """Get current table."""
+        """The current table."""
         if self.tables:
             return self.tables[-1]
         else:
@@ -2504,7 +2504,8 @@ class LaTeXTranslator(SphinxTranslator):
         #       mainly, %, #, {, } and \ need escaping via a \ escape
         # in \href, the tilde is allowed and must be represented literally
         return (
-            self.encode(text)
+            self
+            .encode(text)
             .replace(r'\textasciitilde{}', '~')
             .replace(r'\sphinxhyphen{}', '-')
             .replace(r'\textquotesingle{}', "'")

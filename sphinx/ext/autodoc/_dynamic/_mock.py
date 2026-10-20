@@ -14,7 +14,7 @@ from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence, Set
+    from collections.abc import Generator, Iterator, Sequence, Set
     from typing import Any
 
     from typing_extensions import TypeIs
@@ -157,7 +157,7 @@ class MockFinder(MetaPathFinder):
 
 
 @contextlib.contextmanager
-def mock(modnames: Sequence[str]) -> Iterator[None]:
+def mock(modnames: Sequence[str]) -> Generator[None, None, None]:
     """Insert mock modules during context::
 
     with mock(['target.module.name']):

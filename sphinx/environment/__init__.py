@@ -576,7 +576,7 @@ class BuildEnvironment:
 
     @property
     def temp_data(self) -> _CurrentDocument:
-        """Returns the temporary data storage for the current document.
+        """The temporary data storage for the current document.
 
         Kept for backwards compatibility.
         """
@@ -584,12 +584,12 @@ class BuildEnvironment:
 
     @property
     def docname(self) -> str:
-        """Returns the docname of the document currently being parsed."""
+        """The docname of the document currently being parsed."""
         return self.current_document.docname
 
     @property
     def parser(self) -> Parser:
-        """Returns the parser being used for to parse the current document."""
+        """The parser being used for to parse the current document."""
         if (parser := self.current_document._parser) is not None:
             return parser
         msg = 'parser'

@@ -2190,8 +2190,10 @@ def test_autodoc_GenericAlias() -> None:
         '',
         '   A list of Class',
         '',
-        '   alias of :py:class:`~typing.List`\\ '
-        '[:py:class:`~target.genericalias.Class`]',
+        (
+            '   alias of :py:class:`~typing.List`\\ '
+            '[:py:class:`~target.genericalias.Class`]'
+        ),
         '',
         '',
         '.. py:data:: T',
@@ -2450,8 +2452,10 @@ def test_autodoc_Annotated() -> None:
         '',
         '   Type alias for a validated string.',
         '',
-        '   alias of :py:class:`~typing.Annotated`\\ [:py:class:`str`, '
-        ':py:class:`~target.annotated.FuncValidator`\\ (func=\\ :py:class:`~target.annotated.validate`)]',
+        (
+            '   alias of :py:class:`~typing.Annotated`\\ [:py:class:`str`, '
+            ':py:class:`~target.annotated.FuncValidator`\\ (func=\\ :py:class:`~target.annotated.validate`)]'
+        ),
         '',
         '',
         ".. py:function:: hello(name: ~typing.Annotated[str, 'attribute']) -> None",

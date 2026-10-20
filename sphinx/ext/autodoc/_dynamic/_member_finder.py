@@ -4,11 +4,9 @@ import operator
 import re
 import sys
 from enum import Enum
-from typing import TYPE_CHECKING, Literal, NewType, TypeVar
+from typing import TYPE_CHECKING, NewType, TypeVar
 
 from sphinx.errors import PycodeError
-from sphinx.events import EventManager
-from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
 from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
 from sphinx.ext.autodoc._property_types import _ClassDefProperties, _ModuleProperties

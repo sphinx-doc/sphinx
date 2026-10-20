@@ -13,7 +13,7 @@ from sphinx.testing import restructuredtext
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
     from pathlib import Path
 
     from sphinx.testing.util import SphinxTestApp
@@ -22,7 +22,7 @@ pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
 @contextmanager
-def overwrite_file(path: Path, content: str) -> Iterator[None]:
+def overwrite_file(path: Path, content: str) -> Generator[None, None, None]:
     current_content = path.read_bytes() if path.exists() else None
     try:
         path.write_text(content, encoding='utf-8')
@@ -135,8 +135,10 @@ def test_autodoc_typehints_signature() -> None:
         "   alias of TypeVar('T', bound=\\ :py:class:`~pathlib.PurePosixPath`)",
         '',
         '',
-        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
-        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        (
+            '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+            'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None'
+        ),
         '   :module: target.typehints',
         '',
         '',
@@ -774,8 +776,10 @@ def test_autodoc_typehints_format_fully_qualified() -> None:
         "   alias of TypeVar('T', bound=\\ :py:class:`pathlib.PurePosixPath`)",
         '',
         '',
-        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
-        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        (
+            '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+            'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None'
+        ),
         '   :module: target.typehints',
         '',
         '',

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime  # ruff: ignore[unconventional-import-alias]
 import os
 import time
 from pathlib import Path

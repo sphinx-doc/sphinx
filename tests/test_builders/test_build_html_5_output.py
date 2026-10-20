@@ -141,14 +141,18 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ('markup.html', ".//li/p/code/em/span[@class='pre']", '^i$'),
         (
             'markup.html',
-            ".//a[@href='https://peps.python.org/pep-0008/']"
-            "[@class='pep reference external']/strong",
+            (
+                ".//a[@href='https://peps.python.org/pep-0008/']"
+                "[@class='pep reference external']/strong"
+            ),
             'PEP 8',
         ),
         (
             'markup.html',
-            ".//a[@href='https://peps.python.org/pep-0008/']"
-            "[@class='pep reference external']/strong",
+            (
+                ".//a[@href='https://peps.python.org/pep-0008/']"
+                "[@class='pep reference external']/strong"
+            ),
             'Python Enhancement Proposal #8',
         ),
         (
@@ -163,8 +167,10 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'markup.html',
-            ".//a[@href='objects.html#envvar-HOME']"
-            "[@class='reference internal']/code/span[@class='pre']",
+            (
+                ".//a[@href='objects.html#envvar-HOME']"
+                "[@class='reference internal']/code/span[@class='pre']"
+            ),
             'HOME',
         ),
         (
@@ -174,8 +180,10 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'markup.html',
-            ".//a[@href='#grammar-token-try_stmt']"
-            "[@class='reference internal']/code/span",
+            (
+                ".//a[@href='#grammar-token-try_stmt']"
+                "[@class='reference internal']/code/span"
+            ),
             '^statement$',
         ),
         (
@@ -195,8 +203,10 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'markup.html',
-            ".//a[@href='objects.html#cmdoption-python-c']"
-            "[@class='reference internal']/code/span[@class='pre']",
+            (
+                ".//a[@href='objects.html#cmdoption-python-c']"
+                "[@class='reference internal']/code/span[@class='pre']"
+            ),
             '-c',
         ),
         # abbreviations
@@ -412,8 +422,10 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'objects.html',
-            ".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']"
-            '/code/span',
+            (
+                ".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']"
+                '/code/span'
+            ),
             'create-auth-token',
         ),
         (

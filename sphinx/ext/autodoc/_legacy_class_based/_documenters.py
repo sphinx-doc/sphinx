@@ -201,7 +201,7 @@ class Documenter:
 
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
-        """Returns registered Documenter classes"""
+        """Registered Documenter classes"""
         return self.env._registry.documenters
 
     def add_line(self, line: str, source: str, *lineno: int) -> None:

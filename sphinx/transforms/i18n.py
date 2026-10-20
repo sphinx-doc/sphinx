@@ -420,7 +420,8 @@ class Locale(SphinxTransform):
         while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]
             catalogues.append(getattr(catalog, '_catalog', None))
         merged: dict[str, str] = {}
-        for catalogue in filter(None, reversed(catalogues)):  # type: dict[str, str]
+        catalogue: dict[str, str]
+        for catalogue in filter(None, reversed(catalogues)):
             merged |= catalogue
 
         # phase1: replace reference ids with translated names
