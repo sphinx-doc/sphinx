@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from types import NoneType
 from typing import TYPE_CHECKING
 
@@ -238,14 +237,6 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         ids.reverse()
         newest_id = ids[0]
         assert newest_id  # shouldn't be None
-        if not re.compile(r'^[a-zA-Z0-9_]*$').match(newest_id):
-            logger.warning(
-                'Index id generation for C++ object "%s" failed, please '
-                'report as bug (id=%s).',
-                ast,
-                newest_id,
-                location=self.get_location(),
-            )
 
         name = ast.symbol.get_full_nested_name().get_display_string().lstrip(':')
         # Add index entry, but not if it's a declaration inside a concept
