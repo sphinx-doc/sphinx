@@ -1747,7 +1747,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             if base_classes:
                 sourcename = self.get_sourcename()
                 self.add_line('', sourcename)
-                self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
+                self.add_line(
+                    '   ' + _('Bases: %s') % ', '.join(base_classes), sourcename
+                )
 
     def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
         members = get_class_members(
