@@ -6,6 +6,8 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -122,17 +124,28 @@ def test_singledispatch() -> None:
 
 
 def test_cfunction() -> None:
-    actual = do_autodoc('function', 'time.asctime')
-    assert actual == [
-        '',
-        '.. py:function:: asctime([tuple]) -> string',
-        '   :module: time',
-        '',
-        "   Convert a time tuple to a string, e.g. 'Sat Jun 06 16:26:11 1998'.",
-        '   When the time tuple is not present, current time as returned by localtime()',
-        '   is used.',
-        '',
-    ]
+    actual = do_autodoc('function', 'time.sleep')
+    if sys.version_info >= (3, 16):
+        assert actual == [
+            '',
+            '.. py:function:: sleep(seconds, /)',
+            '   :module: time',
+            '',
+            '   Delay execution for a given number of seconds.',
+            '',
+            '   The argument may be a floating-point number for subsecond precision.',
+            '',
+        ]
+    else:
+        assert actual == [
+            '',
+            '.. py:function:: sleep(seconds)',
+            '   :module: time',
+            '',
+            '   Delay execution for a given number of seconds.  The argument may be',
+            '   a floating-point number for subsecond precision.',
+            '',
+        ]
 
 
 def test_wrapped_function() -> None:

@@ -7,11 +7,12 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
-
 * #14229: Fix JavaScript search for languages whose stemmer class name
   does not match the language name, such as Chinese (which reuses the
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
+* Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
+  Patch by Adam Turner
 
 
 Release 9.1.0 (released Dec 31, 2025)
