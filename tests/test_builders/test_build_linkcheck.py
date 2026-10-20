@@ -95,7 +95,7 @@ class ConnectionMeasurement:
 
     def _collect_connections(self) -> Callable[[PoolManager, str], HTTPConnectionPool]:
         def connection_collector(obj: PoolManager, url: str) -> HTTPConnectionPool:
-            connection = self.urllib3_connection_from_url(obj, url)  # type: ignore[no-untyped-call]
+            connection = self.urllib3_connection_from_url(obj, url)
             self.connections.add(connection)
             return connection
 
