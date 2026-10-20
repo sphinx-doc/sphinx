@@ -1633,11 +1633,6 @@ def test_xml_strange_markup(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = '<span class="w"> </span>'
-    else:
-        sp = ' '
-
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21):
         res = "'result'"
     else:
@@ -1681,7 +1676,7 @@ def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
-        f"""<span class="kn">import</span>{sp}<span class="nn">sys</span>  """
+        """<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>  """
         """<span class="c1"># sys importing</span>"""
     )
     assert_count(expected_expr, result, 1)
@@ -1726,10 +1721,7 @@ def test_additional_targets_should_not_be_translated(app: SphinxTestApp) -> None
     },
 )
 def test_additional_targets_should_be_translated(app: SphinxTestApp) -> None:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = '<span class="w"> </span>'
-    else:
-        sp = ' '
+    sp = '<span class="w"> </span>'
 
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21):
         home = '"HTTPS://SPHINX-DOC.ORG"'

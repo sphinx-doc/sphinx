@@ -6,7 +6,7 @@ See https://github.com/trailofbits/pypi-attestations.
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "pypi-attestations==0.0.28",
+#     "pypi-attestations==0.0.30",
 # ]
 # ///
 
