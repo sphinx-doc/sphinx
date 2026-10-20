@@ -38,6 +38,7 @@ def inspect_main(argv: list[str], /) -> int:
             config=config,
             srcdir=Path(),
             cache_path=None,
+            headers=None,
         )
         inv = _load_inventory(raw_data, target_uri='')
         for key in sorted(inv.data):
