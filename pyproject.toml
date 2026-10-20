@@ -87,6 +87,11 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+test = [
+    "defusedxml>=0.7.1", # for secure XML/HTML parsing
+]
+
 [[project.authors]]
 name = "Adam Turner"
 email = "aa-turner@users.noreply.github.com"
@@ -94,11 +99,6 @@ email = "aa-turner@users.noreply.github.com"
 [[project.authors]]
 name = "Georg Brandl"
 email = "georg@python.org"
-
-[project.optional-dependencies]
-testing = [
-    "defusedxml>=0.7.1",  # for secure XML/HTML parsing
-]
 
 [project.scripts]
 sphinx-build = "sphinx.cmd.build:main"
