@@ -8,6 +8,7 @@ import unicodedata
 from io import StringIO
 from typing import TYPE_CHECKING, Any, cast
 
+import docutils
 from docutils import nodes
 from docutils.nodes import Node
 
@@ -285,6 +286,15 @@ LITERAL_TYPE_NODES = (
 IMAGE_TYPE_NODES = (
     nodes.image,
 )  # fmt: skip
+
+
+def _is_doctest_block(node: Node) -> bool:
+    if docutils.__version_info__[:2] >= (1, 0) and isinstance(
+        node, nodes.literal_block
+    ):
+        return 'doctest' in node['classes']
+    # Also accept doctest_block nodes from third-party parsers on Docutils 1.0.
+    return isinstance(node, nodes.doctest_block)
 
 
 def _clean_extracted_message(text: str) -> str:

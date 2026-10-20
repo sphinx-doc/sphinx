@@ -7,6 +7,7 @@ import re
 import urllib.parse
 from typing import TYPE_CHECKING
 
+import docutils
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
@@ -671,6 +672,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_block_quote(self, node: Element) -> None:
         self.body.append('</div></blockquote>\n')
+
+    if docutils.__version_info__[:2] >= (1, 0):
+
+        def visit_attribution(self, node: Element) -> None:
+            # Keep attributions inside our blockquote wrapper. Docutils 1.0's
+            # visitor closes the blockquote before emitting the attribution.
+            prefix, suffix = self.attribution_formats[self.settings.attribution]
+            self.context.append(suffix)
+            self.body.append(self.starttag(node, 'p', prefix, CLASS='attribution'))
 
     # overwritten
     def visit_literal(self, node: Element) -> None:

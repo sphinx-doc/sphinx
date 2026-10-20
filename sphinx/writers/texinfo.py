@@ -7,6 +7,7 @@ import re
 import textwrap
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes, writers
 
 from sphinx import __display_version__, addnodes
@@ -1041,7 +1042,12 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_colspec(self, node: Element) -> None:
-        self.colwidths.append(node['colwidth'])
+        if docutils.__version_info__[:2] >= (1, 0):
+            # breaking change in Docutils 1.0
+            # https://sourceforge.net/p/docutils/code/10397
+            self.colwidths.append(int(node['colwidth']))
+        else:
+            self.colwidths.append(node['colwidth'])
         if len(self.colwidths) != self.n_cols:
             return
         self.body.append('\n\n@multitable ')

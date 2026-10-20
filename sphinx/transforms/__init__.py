@@ -6,6 +6,7 @@ import re
 import unicodedata
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
@@ -19,7 +20,11 @@ from sphinx.deprecation import _deprecation_warning
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import (
+    _is_doctest_block,
+    apply_source_workaround,
+    is_smartquotable,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -183,7 +188,7 @@ class HandleCodeBlocks(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         # move doctest blocks out of blockquotes
         for node in self.document.findall(nodes.block_quote):
-            if all(isinstance(child, nodes.doctest_block) for child in node.children):
+            if all(_is_doctest_block(child) for child in node.children):
                 node.replace_self(node.children)
         # combine successive doctest blocks
         # for node in self.document.findall(nodes.doctest_block):
@@ -278,6 +283,8 @@ class ExtraTranslatableNodes(SphinxTransform):
             return
 
         def is_translatable_node(node: Node) -> TypeIs[nodes.Element]:
+            if _is_doctest_block(node):
+                return 'doctest-block' in targets
             return isinstance(node, target_nodes)
 
         for node in self.document.findall(is_translatable_node):
@@ -325,13 +332,18 @@ class UnreferencedFootnotesDetector(SphinxTransform):
 
 
 class DoctestTransform(SphinxTransform):
-    """Set "doctest" style to each doctest_block node"""
+    """Set the style and highlighting language of doctest blocks."""
 
     default_priority = 500
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(nodes.doctest_block):
             node['classes'].append('doctest')
+        if docutils.__version_info__[:2] >= (1, 0):
+            # Docutils 1.0 represents doctests as literal blocks.
+            for literal in self.document.findall(nodes.literal_block):
+                if _is_doctest_block(literal):
+                    literal.setdefault('language', 'pycon')
 
 
 class FilterSystemMessages(SphinxTransform):

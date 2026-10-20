@@ -11,6 +11,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes, writers
 from roman_numerals import RomanNumeral
 
@@ -1249,7 +1250,12 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         self.table.colcount += 1
         if 'colwidth' in node:
-            self.table.colwidths.append(node['colwidth'])
+            if docutils.__version_info__[:2] >= (1, 0):
+                # breaking change in Docutils 1.0
+                # https://sourceforge.net/p/docutils/code/10397
+                self.table.colwidths.append(int(node['colwidth']))
+            else:
+                self.table.colwidths.append(node['colwidth'])
         if 'stub' in node:
             self.table.stubs.append(self.table.colcount - 1)
 

@@ -5,10 +5,16 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+import docutils
 import pytest
 from docutils import nodes
 
 from tests.test_builders.xpath_util import check_xpath
+
+if docutils.__version_info__[:2] >= (1, 0):
+    _RFC_1_URL = 'https://datatracker.ietf.org/doc/html/rfc1/'
+else:
+    _RFC_1_URL = 'https://datatracker.ietf.org/doc/html/rfc1.html'
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -147,14 +153,12 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'markup.html',
-            ".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
-            "[@class='rfc reference external']/strong",
+            f".//a[@href='{_RFC_1_URL}'][@class='rfc reference external']/strong",
             'RFC 1',
         ),
         (
             'markup.html',
-            ".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
-            "[@class='rfc reference external']/strong",
+            f".//a[@href='{_RFC_1_URL}'][@class='rfc reference external']/strong",
             'Request for Comments #1',
         ),
         (

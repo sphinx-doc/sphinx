@@ -18,7 +18,7 @@ from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
 from docutils.readers import standalone
 from docutils.statemachine import StateMachine
-from docutils.transforms.references import DanglingReferences
+from docutils.transforms import references
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
@@ -77,11 +77,18 @@ if TYPE_CHECKING:
         ) -> tuple[RoleFunction | None, list[system_message]]: ...
 
 
-_READER_TRANSFORMS = [
-    transform
-    for transform in standalone.Reader().get_transforms()
-    if transform is not DanglingReferences
-]
+if docutils.__version_info__[:2] >= (1, 0):
+    _READER_TRANSFORMS = [
+        transform
+        for transform in standalone.Reader().get_transforms()
+        if transform is not references.ReportUnreferencedTargets  # type: ignore[attr-defined]
+    ]
+else:
+    _READER_TRANSFORMS = [
+        transform
+        for transform in standalone.Reader().get_transforms()
+        if transform is not references.DanglingReferences
+    ]
 
 
 additional_nodes: set[type[Element]] = set()

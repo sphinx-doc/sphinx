@@ -24,6 +24,7 @@ from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.nodes import _is_doctest_block
 from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
@@ -661,4 +662,4 @@ def _condition_default(node: Node) -> bool:
 
 
 def _condition_with_doctest(node: Node) -> bool:
-    return _condition_default(node) or isinstance(node, nodes.doctest_block)
+    return _condition_default(node) or _is_doctest_block(node)
