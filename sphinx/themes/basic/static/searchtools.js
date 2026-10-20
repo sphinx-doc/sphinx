@@ -185,10 +185,18 @@ const _orderResultsByScoreThenName = (a, b) => {
  * This is the same as ``\W+`` in Python, preserving the surrogate pair area.
  */
 if (typeof splitQuery === "undefined") {
-  var splitQuery = (query) =>
-    query
+  var splitQuery = (query) => {
+    const quotedTerms = [];
+    const rest = query.replace(/"([^"]+)"/g, (_, term) => {
+      quotedTerms.push(term);
+      return " ";
+    });
+
+    var plainTerms = rest
       .split(/[^\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu)
       .filter((term) => term); // remove remaining empty strings
+    return { quotedTerms, plainTerms };
+  };
 }
 
 /**
@@ -305,8 +313,24 @@ const Search = {
     const searchTerms = new Set();
     const excludedTerms = new Set();
     const highlightTerms = new Set();
-    const objectTerms = new Set(splitQuery(query.toLowerCase().trim()));
-    splitQuery(query.trim()).forEach((queryTerm) => {
+
+    const objectSplit = splitQuery(query.toLowerCase().trim());
+    const objectTerms = new Set([
+      ...objectSplit.quotedTerms,
+      ...objectSplit.plainTerms,
+    ]);
+
+    const { quotedTerms, plainTerms } = splitQuery(query.trim());
+
+    quotedTerms.forEach((term) => {
+      const termLower = term.toLowerCase();
+      if (stopwords.has(termLower)) return;
+      const word = stemmer.stemWord(termLower);
+      searchTerms.add(word);
+      highlightTerms.add(termLower);
+    });
+
+    plainTerms.forEach((queryTerm) => {
       const queryTermLower = queryTerm.toLowerCase();
 
       // maybe skip this "word"
