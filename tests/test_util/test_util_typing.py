@@ -514,7 +514,7 @@ def test_restify_broken_type_hints() -> None:
 
 def test_restify_mock() -> None:
     with mock(['unknown']):
-        import unknown  # type: ignore[import-not-found]
+        import unknown  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
         assert restify(unknown) == ':py:class:`unknown`'
         assert restify(unknown.secret.Class) == ':py:class:`unknown.secret.Class`'
@@ -730,10 +730,11 @@ def test_stringify_type_hints_pep_585():
 
     # Mix typing and pep 585
     ann_str = stringify_annotation(
-        tuple[List[dict[int, str]], str, ...], 'fully-qualified-except-typing'
+        tuple[List[dict[int, str]], str, ...],  # ty: ignore[invalid-type-form]
+        'fully-qualified-except-typing',
     )
     assert ann_str == 'tuple[List[dict[int, str]], str, ...]'
-    ann_str = stringify_annotation(tuple[List[dict[int, str]], str, ...], 'smart')
+    ann_str = stringify_annotation(tuple[List[dict[int, str]], str, ...], 'smart')  # ty: ignore[invalid-type-form]
     assert ann_str == 'tuple[~typing.List[dict[int, str]], str, ...]'
 
 

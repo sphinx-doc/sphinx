@@ -23,7 +23,7 @@ def test_sectioning(app: SphinxTestApp) -> None:
     parts = [_get_sections(n) for n in doctree.children if isinstance(n, nodes.section)]
     for i, section in enumerate(parts):
         _test_sections(f'{i + 1}.', section, 4)
-    actual_headings = '\n'.join(p[0] for p in parts)  # type: ignore[misc]
+    actual_headings = '\n'.join(p[0] for p in parts)  # type: ignore[misc]  # ty: ignore[no-matching-overload]
     assert len(parts) == 4, (
         f'Expected 4 document level headings, got:\n{actual_headings}'
     )

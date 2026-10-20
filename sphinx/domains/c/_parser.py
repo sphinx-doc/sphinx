@@ -150,8 +150,8 @@ class DefinitionParser(BaseParser):
 
         # character-literal
         if self.match(char_literal_re):
-            prefix = self.last_match.group(1)  # may be None when no prefix
-            data = self.last_match.group(2)
+            prefix = self.last_match.group(1)  # ty: ignore[unresolved-attribute]  # may be None when no prefix
+            data = self.last_match.group(2)  # ty: ignore[unresolved-attribute]
             try:
                 return ASTCharLiteral(prefix, data)
             except UnicodeDecodeError as e:
@@ -404,7 +404,7 @@ class DefinitionParser(BaseParser):
                         self.pos = pos
                 if not one_more:
                     break
-            return ASTBinOpExpr(exprs, ops)  # type: ignore[return-value]
+            return ASTBinOpExpr(exprs, ops)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
         return _parse_bin_op_expr(self, 0)
 

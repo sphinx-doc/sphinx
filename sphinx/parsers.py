@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import docutils.parsers
 import docutils.parsers.rst
+import docutils.statemachine
 from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes

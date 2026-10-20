@@ -357,7 +357,7 @@ def _extract_zip(filename: Path, target_dir: Path, /) -> None:
 
 def _load_theme_toml(config_file_path: Path, /) -> _ThemeToml:
     c = tomllib.loads(config_file_path.read_text(encoding='utf-8'))
-    return {s: c[s] for s in ('theme', 'options') if s in c}  # type: ignore[return-value]
+    return {s: c[s] for s in ('theme', 'options') if s in c}  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
 
 def _validate_theme_toml(cfg: _ThemeToml, name: str) -> str:

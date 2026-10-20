@@ -55,7 +55,7 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[type-arg]
         # remove transforms which is not needed for Sphinx
         unused: list[type[Transform]] = [references.DanglingReferences]
         if docutils.__version_info__[:2] >= (1, 0):
-            unused.append(references.ReportUnreferencedTargets)  # type: ignore[attr-defined]
+            unused.append(references.ReportUnreferencedTargets)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         for transform in unused:
             if transform in transforms:
                 transforms.remove(transform)

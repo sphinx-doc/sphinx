@@ -246,7 +246,7 @@ def test_escaping(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module(app):
-    import autosummary_dummy_module  # type: ignore[import-not-found]
+    import autosummary_dummy_module  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     template = Mock()
 
@@ -471,7 +471,7 @@ def test_autosummary_generate_content_for_module_imported_members(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module_imported_members_inherited_module(app):
-    import autosummary_dummy_inherited_module  # type: ignore[import-not-found]
+    import autosummary_dummy_inherited_module  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     template = Mock()
 

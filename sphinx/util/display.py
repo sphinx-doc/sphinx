@@ -88,7 +88,7 @@ class progress_message:
 
     def __call__[**P, R](self, f: Callable[P, R]) -> Callable[P, R]:
         @functools.wraps(f)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]  # ty: ignore[invalid-return-type]
             with self:
                 return f(*args, **kwargs)
 

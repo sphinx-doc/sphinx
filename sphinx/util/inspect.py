@@ -446,7 +446,7 @@ def isproperty(obj: Any) -> TypeIs[property | cached_property[Any]]:
 
 def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
     """Check if the object is a generic alias."""
-    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:

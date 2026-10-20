@@ -57,7 +57,7 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
     """Create a heading for *level*."""
     assert level <= 3
     # ``env.language`` is injected by ``sphinx.util.template.ReSTRenderer``
-    width = textwidth(text, WIDECHARS[env.language])  # type: ignore[attr-defined]
+    width = textwidth(text, WIDECHARS[env.language])  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     sectioning_char = SECTIONING_CHARS[level - 1]
     return f'{text}\n{sectioning_char * width}'
 

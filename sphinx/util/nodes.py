@@ -139,7 +139,7 @@ def apply_source_workaround(node: Element) -> None:
         )
         definition_list_item = node.parent
         node.source = definition_list_item.source
-        node.line = definition_list_item.line - 1  # type: ignore[operator]
+        node.line = definition_list_item.line - 1  # type: ignore[operator]  # ty: ignore[unsupported-operator]
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     elif isinstance(node, nodes.classifier) and not node.source:
         # docutils-0.15 fills in rawsource attribute, but not in source.
@@ -235,7 +235,7 @@ def is_translatable(node: Node) -> bool:
     if isinstance(node, nodes.image) and (node.get('translatable') or node.get('alt')):
         return True
 
-    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore[operator]
+    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore[operator]  # ty: ignore[unsupported-operator]
         # inline node must not be translated if 'translatable' is not set
         return False
 
@@ -348,7 +348,7 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
         elif isinstance(node, nodes.meta):
             msg = node['content']
         else:
-            text = node.rawsource  # type: ignore[attr-defined]
+            text = node.rawsource  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             msg = _clean_extracted_message(text)
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes

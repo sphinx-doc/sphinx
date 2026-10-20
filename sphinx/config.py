@@ -619,7 +619,7 @@ def _validate_valid_types(
     if not valid_types:
         return frozenset()
     if isinstance(valid_types, (frozenset, ENUM)):
-        return valid_types  # ty: ignore[invalid-return-type]
+        return valid_types
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
     if valid_types is Any:
@@ -705,7 +705,7 @@ def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
             else:
                 if any('%Y' in line for line in value):
                     items = (line.replace('%Y', replace_yr) for line in value)
-                    config[k] = type(value)(items)  # type: ignore[call-arg]
+                    config[k] = type(value)(items)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
 
 
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
@@ -736,7 +736,7 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
                 items = (
                     _substitute_copyright_year(x, current_yr, replace_yr) for x in value
                 )
-                config[k] = type(value)(items)  # type: ignore[call-arg]
+                config[k] = type(value)(items)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
 
 
 def _substitute_copyright_year(

@@ -541,7 +541,7 @@ def stringify_annotation(
             and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)
         ):  # fmt: skip
             # special case to flatten a Union of Literals into a literal
-            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]
+            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]  # ty: ignore[invalid-type-form]
             args = ', '.join(
                 _format_literal_arg_stringify(a, mode=mode) for a in flattened_args
             )

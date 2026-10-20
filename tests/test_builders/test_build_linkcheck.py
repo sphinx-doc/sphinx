@@ -1346,7 +1346,7 @@ def test_connection_contention(
     get_adapter: mock.Mock, app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
 ) -> None:
     # Create a shared, but limited-size, connection pool
-    import requests
+    import requests.adapters
 
     get_adapter.return_value = requests.adapters.HTTPAdapter(pool_maxsize=1)
 

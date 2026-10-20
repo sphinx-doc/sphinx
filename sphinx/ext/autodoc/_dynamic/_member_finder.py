@@ -584,7 +584,7 @@ def _best_object_type_for_member(
 
     if filtered:
         # return the highest priority object type
-        return max(filtered, key=operator.itemgetter(0))[1]  # type: ignore[return-value]
+        return max(filtered, key=operator.itemgetter(0))[1]  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
     return None
 
 

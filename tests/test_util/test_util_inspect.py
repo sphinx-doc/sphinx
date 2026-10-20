@@ -106,11 +106,11 @@ def _decorator(f):
     return wrapper
 
 
-def forward_reference_in_args(x: Foo) -> None:  # type: ignore[name-defined] # ruff: ignore[undefined-name]
+def forward_reference_in_args(x: Foo) -> None:  # type: ignore[name-defined]  # ty: ignore[unresolved-reference] # ruff: ignore[undefined-name]
     pass
 
 
-def forward_reference_in_return() -> Foo:  # type: ignore[name-defined] # ruff: ignore[undefined-name]
+def forward_reference_in_return() -> Foo:  # type: ignore[name-defined]  # ty: ignore[unresolved-reference] # ruff: ignore[undefined-name]
     pass
 
 
@@ -119,7 +119,7 @@ def test_TypeAliasForwardRef():
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example')"
 
-    alias = Optional[alias]  # ruff: ignore[non-pep604-annotation-optional]
+    alias = Optional[alias]  # ty: ignore[invalid-type-form]  # ruff: ignore[non-pep604-annotation-optional]
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example') | None"
 
@@ -913,7 +913,7 @@ def test_isattributedescriptor() -> None:
     try:
         # _testcapi module cannot be importable in some distro
         # See: https://github.com/sphinx-doc/sphinx/issues/9868
-        import _testcapi  # type: ignore[import-not-found]
+        import _testcapi  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
         # instancemethod (C-API)
         testinstancemethod = _testcapi.instancemethod(str.__repr__)

@@ -184,7 +184,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
                     addnodes.desc_sig_punctuation('', ')'),
                 ]
 
-            return result
+            return result  # ty: ignore[invalid-return-type]
         if isinstance(node, ast.Call):
             # Call nodes can be used in Annotated type metadata,
             # for example Annotated[str, ArbitraryTypeValidator(str, len=10)]

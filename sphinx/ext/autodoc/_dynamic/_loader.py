@@ -177,7 +177,7 @@ def _make_props_from_imported_object(
 
     if objtype == 'module':
         try:
-            mod_origin = im.module.__spec__.origin  # type: ignore[union-attr]
+            mod_origin = im.module.__spec__.origin  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         except AttributeError:
             file_path = None
         else:

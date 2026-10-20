@@ -2212,7 +2212,7 @@ class DefinitionParser(BaseParser):
             name, template_prefix, full_spec_shorthand=False
         )
         res = ASTNamespace(name, template_prefix)
-        res.objectType = 'namespace'  # type: ignore[attr-defined]
+        res.objectType = 'namespace'  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         return res
 
     def parse_xref_object(self) -> tuple[ASTNamespace | ASTDeclaration, bool]:
@@ -2230,7 +2230,7 @@ class DefinitionParser(BaseParser):
                 name, template_prefix, full_spec_shorthand=True
             )
             res1 = ASTNamespace(name, template_prefix)
-            res1.objectType = 'xref'  # type: ignore[attr-defined]
+            res1.objectType = 'xref'  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             return res1, True
         except DefinitionError as e1:
             try:

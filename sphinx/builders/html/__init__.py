@@ -515,7 +515,7 @@ class StandaloneHTMLBuilder(Builder):
         self._orig_js_files = list(dict.fromkeys(self._js_files))
         styles = list(self._get_style_filenames())
 
-        self.globalcontext = {
+        self.globalcontext: dict[str, Any] = {
             'embedded': self.embedded,
             'project': self.config.project,
             'release': return_codes_re.sub('', self.config.release),
@@ -1351,7 +1351,7 @@ def validate_math_renderer(app: Sphinx) -> None:
     if app.builder.format != 'html':
         return
 
-    name = app.builder.math_renderer_name  # type: ignore[attr-defined]
+    name = app.builder.math_renderer_name  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     if name is None:
         msg = __(
             'Many math_renderers are registered. But no math_renderer is selected.'

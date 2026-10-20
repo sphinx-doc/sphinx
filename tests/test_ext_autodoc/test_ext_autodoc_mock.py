@@ -131,10 +131,10 @@ def test_abc_MockObject():
         def __init__(self):
             pass
 
-    class Derived(Base, mock.SubClass):  # ty: ignore[unsupported-base]
+    class Derived(Base, mock.SubClass):
         pass
 
-    obj = Derived()
+    obj = Derived()  # ty: ignore[call-non-callable]
     assert isinstance(obj, Base)
     assert isinstance(obj, _MockObject)
     assert isinstance(obj.some_method(), Derived)

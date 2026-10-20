@@ -1315,7 +1315,7 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
         underlined = [
-            cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]
+            cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
             for cell in cells
         ]
         if all(underlined):
@@ -1328,7 +1328,7 @@ class LaTeXTranslator(SphinxTranslator):
             if underlined[0] is False:
                 i = 1
                 while i < self.table.colcount and underlined[i] is False:
-                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
             while i < self.table.colcount:
@@ -1338,7 +1338,7 @@ class LaTeXTranslator(SphinxTranslator):
                 i += j
                 i += 1
                 while i < self.table.colcount and underlined[i] is False:
-                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
             self.body.append(r'\sphinxfixclines{%d}' % self.table.colcount)
