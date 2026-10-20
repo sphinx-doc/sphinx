@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from sphinx.builders.epub3 import _XML_NAME_PATTERN
-from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

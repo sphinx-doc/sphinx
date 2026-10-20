@@ -10,7 +10,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import SIG_ELEMENTS
-from sphinx.testing.util import SphinxTestApp, assert_node
+from sphinx.testing.util import assert_node
 from sphinx.transforms.post_transforms import SigElementFallbackTransform
 from sphinx.util.docutils import new_document
 

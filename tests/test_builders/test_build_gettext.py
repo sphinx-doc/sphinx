@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from sphinx.builders.gettext import Catalog, MsgOrigin
-from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -318,10 +317,12 @@ def test_gettext_literalblock_additional(app: SphinxTestApp) -> None:
         'literal-block\\nin list',
         'test_code_for_noqa()\\ncontinued()',
         'doctest blocks',
-        '>>> import sys  # sys importing\\n>>> def main():  # define main '
-        "function\\n...     sys.stdout.write('hello')  # call write method of "
-        "stdout object\\n>>>\\n>>> if __name__ == '__main__':  # if run this py "
-        'file as python script\\n...     main()  # call main',
+        (
+            '>>> import sys  # sys importing\\n>>> def main():  # define main '
+            "function\\n...     sys.stdout.write('hello')  # call write method of "
+            "stdout object\\n>>>\\n>>> if __name__ == '__main__':  # if run this py "
+            'file as python script\\n...     main()  # call main'
+        ),
     ]
 
 

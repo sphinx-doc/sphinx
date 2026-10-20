@@ -171,8 +171,10 @@ def _import_from_module_and_path(
         if obj_path:
             dotted_objpath = '.'.join(obj_path)
             err_parts = [
-                f'autodoc: failed to import {dotted_objpath!r} '
-                f'from module {module_name!r}'
+                (
+                    f'autodoc: failed to import {dotted_objpath!r} '
+                    f'from module {module_name!r}'
+                )
             ]
         else:
             err_parts = [f'autodoc: failed to import {module_name!r}']

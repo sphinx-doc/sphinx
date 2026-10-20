@@ -508,7 +508,7 @@ class DefinitionParser(BaseParser):
         rooted = False
         if self.skip_string('.'):
             rooted = True
-        while 1:
+        while True:
             self.skip_ws()
             if not self.match(identifier_re):
                 self.fail('Expected identifier in nested name.')
@@ -586,7 +586,7 @@ class DefinitionParser(BaseParser):
         args = []
         self.skip_ws()
         if not self.skip_string(')'):
-            while 1:
+            while True:
                 self.skip_ws()
                 if self.skip_string('...'):
                     args.append(ASTFunctionParameter(None, True))
@@ -623,7 +623,7 @@ class DefinitionParser(BaseParser):
         volatile = None
         const = None
         attrs = []
-        while 1:  # accept any permutation of a subset of some decl-specs
+        while True:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not storage:
                 if outer == 'member':
@@ -722,7 +722,7 @@ class DefinitionParser(BaseParser):
         else:
             decl_id = None
         array_ops = []
-        while 1:
+        while True:
             self.skip_ws()
             if typed and self.skip_string('['):
                 self.skip_ws()
@@ -789,7 +789,7 @@ class DefinitionParser(BaseParser):
             volatile = False
             const = False
             attrs = []
-            while 1:
+            while True:
                 if not restrict:
                     restrict = self.skip_word_and_ws('restrict')
                     if restrict:
@@ -972,7 +972,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string(')'):
             return ASTMacro(ident, [])
         args = []
-        while 1:
+        while True:
             self.skip_ws()
             if self.skip_string('...'):
                 args.append(ASTMacroParameter(None, True))

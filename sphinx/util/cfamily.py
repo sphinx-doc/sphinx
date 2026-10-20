@@ -480,7 +480,7 @@ class BaseParser:
             if not self.skip_string_and_ws('('):
                 self.fail("Expected '(' after '__attribute__('.")
             attrs = []
-            while 1:
+            while True:
                 if self.match(identifier_re):
                     name = self.matched_text
                     exprs = self._parse_paren_expression_list()

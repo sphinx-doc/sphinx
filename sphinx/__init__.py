@@ -34,7 +34,7 @@ if _in_development:
 
     try:
         if ret := subprocess.run(
-            ('git', 'rev-parse', '--short', 'HEAD'),
+            ('git', 'rev-parse', '--short', 'HEAD'),  # NoQA: S607
             capture_output=True,
             check=False,
             cwd=package_dir,

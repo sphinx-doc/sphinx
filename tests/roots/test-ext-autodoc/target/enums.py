@@ -1,4 +1,4 @@
-# ruff: NoQA: PIE796
+# ruff: noqa: PIE796
 import enum
 from typing import final
 

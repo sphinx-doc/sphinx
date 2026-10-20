@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import ast
-import datetime
+import datetime as dt
 import enum
 import functools
 import types
@@ -127,7 +127,7 @@ def test_TypeAliasForwardRef():
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example') | None"
 
-    alias = None | alias  # NoQA: RUF036
+    alias = None | alias
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "None | TypeAliasForwardRef('example')"
 
@@ -907,7 +907,7 @@ def test_isattributedescriptor() -> None:
     assert not inspect.isattributedescriptor(object.__init__)            # WrapperDescriptorType
     assert not inspect.isattributedescriptor(dict.__dict__['fromkeys'])  # ClassMethodDescriptorType
     assert inspect.isattributedescriptor(types.FrameType.f_locals)       # GetSetDescriptorType
-    assert inspect.isattributedescriptor(datetime.timedelta.days)        # MemberDescriptorType
+    assert inspect.isattributedescriptor(dt.timedelta.days)        # MemberDescriptorType
     # fmt: on
 
     try:
