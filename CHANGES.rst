@@ -1,5 +1,5 @@
-Release 9.2.0 (in development)
-==============================
+Release 9.2.0 (released Oct 20, 2026)
+=====================================
 
 Dependencies
 ------------
@@ -9,21 +9,6 @@ Dependencies
 * #14767: Support `Docutils 0.23`_. Patch by Adam Turner.
 
   .. _Docutils 0.23: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-23-2026-05-27
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
--------
 
 Release 9.1.1 (released Oct 19, 2026)
 =====================================
