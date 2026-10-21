@@ -40,11 +40,11 @@ if TYPE_CHECKING:
 # re-export objects for backwards compatibility
 # See: https://github.com/sphinx-doc/sphinx/issues/12295
 
-from sphinx.domains.python._annotations import (  # NoQA: F401
+from sphinx.domains.python._annotations import (  # ruff: ignore[unused-import]
     _parse_arglist,  # for sphinx-immaterial
     type_to_xref,
 )
-from sphinx.domains.python._object import (  # NoQA: F401
+from sphinx.domains.python._object import (  # ruff: ignore[unused-import]
     PyField,
     PyGroupedField,
     PyTypedField,
@@ -1029,7 +1029,7 @@ class PythonDomain(Domain):
                     # if not found, use contnode
                     children = [contnode]
 
-                role = 'py:' + self.role_for_objtype(obj[2])  # type: ignore[operator]
+                role = 'py:' + self.role_for_objtype(obj[2])  # type: ignore[operator]  # ty: ignore[unsupported-operator]
                 results.append((
                     role,
                     make_refnode(builder, fromdocname, obj[0], obj[1], children, name),

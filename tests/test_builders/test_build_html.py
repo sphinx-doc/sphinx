@@ -238,6 +238,7 @@ def test_enumerable_node(
 @pytest.mark.sphinx(
     'html',
     testroot='basic',
+    srcdir='html-copy-source',
     confoverrides={'html_copy_source': False},
 )
 def test_html_copy_source(app: SphinxTestApp) -> None:
@@ -370,9 +371,11 @@ def test_html_raw_directive(app: SphinxTestApp) -> None:
             True,
         ),
         (
-            ".//link[@href='_static/alternate1.css']"
-            "[@rel='alternate stylesheet']"
-            "[@title='Alternate']",
+            (
+                ".//link[@href='_static/alternate1.css']"
+                "[@rel='alternate stylesheet']"
+                "[@title='Alternate']"
+            ),
             '',
             True,
         ),
@@ -387,16 +390,20 @@ def test_html_raw_directive(app: SphinxTestApp) -> None:
             True,
         ),
         (
-            ".//link[@href='_static/more_default.css']"
-            "[@rel='stylesheet']"
-            "[@title='Default']",
+            (
+                ".//link[@href='_static/more_default.css']"
+                "[@rel='stylesheet']"
+                "[@title='Default']"
+            ),
             '',
             True,
         ),
         (
-            ".//link[@href='_static/more_alternate1.css']"
-            "[@rel='alternate stylesheet']"
-            "[@title='Alternate']",
+            (
+                ".//link[@href='_static/more_alternate1.css']"
+                "[@rel='alternate stylesheet']"
+                "[@title='Alternate']"
+            ),
             '',
             True,
         ),

@@ -43,12 +43,12 @@ def terminal_supports_colour() -> bool:
 
 
 def disable_colour() -> None:
-    global _COLOURING_DISABLED  # NoQA: PLW0603
+    global _COLOURING_DISABLED  # ruff: ignore[global-statement]
     _COLOURING_DISABLED = True
 
 
 def enable_colour() -> None:
-    global _COLOURING_DISABLED  # NoQA: PLW0603
+    global _COLOURING_DISABLED  # ruff: ignore[global-statement]
     _COLOURING_DISABLED = False
 
 
@@ -78,7 +78,7 @@ def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
             return text
         return f'\x1b[{escape_code}m{text}\x1b[39;49;00m'
 
-    inner.__escape_code = escape_code  # type: ignore[attr-defined]
+    inner.__escape_code = escape_code  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     return inner
 
 
