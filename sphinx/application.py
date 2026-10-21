@@ -1507,7 +1507,7 @@ class Sphinx:
         filename = filename or ''
         self.registry.add_js_file(filename, priority=priority, **kwargs)
         with contextlib.suppress(AttributeError):
-            self.builder.add_js_file(  # type: ignore[attr-defined]
+            self.builder.add_js_file(  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 filename, priority=priority, **kwargs
             )
 
@@ -1574,7 +1574,7 @@ class Sphinx:
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
         with contextlib.suppress(AttributeError):
-            self.builder.add_css_file(  # type: ignore[attr-defined]
+            self.builder.add_css_file(  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 filename, priority=priority, **kwargs
             )
 

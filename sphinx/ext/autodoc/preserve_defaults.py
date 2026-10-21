@@ -9,11 +9,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from sphinx.ext.autodoc._dynamic._preserve_defaults import (
-    DefaultValue,  # NoQA: F401
-    _get_arguments,  # NoQA: F401
-    _get_arguments_inner,  # NoQA: F401
-    _is_lambda,  # NoQA: F401
-    get_default_value,  # NoQA: F401
+    DefaultValue,  # ruff: ignore[unused-import]
+    _get_arguments,  # ruff: ignore[unused-import]
+    _get_arguments_inner,  # ruff: ignore[unused-import]
+    _is_lambda,  # ruff: ignore[unused-import]
+    get_default_value,  # ruff: ignore[unused-import]
     update_default_value,
 )
 

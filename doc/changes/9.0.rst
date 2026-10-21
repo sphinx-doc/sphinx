@@ -71,6 +71,10 @@ Incompatible changes
   Patches by Adam Turner.
 * #13355: Don't include escaped title content in the search index.
   Patch by Will Lachance.
+* #13664: HTML builder:
+  :meth:`!sphinx.builders.html.StandaloneHTMLBuilder.render_partial`
+  now returns ``fragment`` and ``title`` keys only.
+  Patch by Adam Turner.
 
 Deprecated
 ----------

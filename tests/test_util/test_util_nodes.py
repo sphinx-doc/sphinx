@@ -31,9 +31,7 @@ def _transform(doctree: nodes.document) -> None:
 
 
 def create_new_document() -> document:
-    # TODO: TYPING: Upstream docutils should accept both instances and subclasses
-    #       of SettingsSpec here.
-    settings = frontend.get_default_settings(rst.Parser)  # type: ignore[arg-type]
+    settings = frontend.get_default_settings(rst.Parser)
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document

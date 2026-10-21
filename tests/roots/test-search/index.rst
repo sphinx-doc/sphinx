@@ -19,6 +19,7 @@ International
 
 .. tip::
    :class: no-search
+
    bat cat
 
 .. toctree::

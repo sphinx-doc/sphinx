@@ -28,7 +28,6 @@ from sphinx.builders.linkcheck import (
     compile_linkcheck_allowed_redirects,
 )
 from sphinx.errors import ConfigError
-from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
 
@@ -96,7 +95,7 @@ class ConnectionMeasurement:
 
     def _collect_connections(self) -> Callable[[PoolManager, str], HTTPConnectionPool]:
         def connection_collector(obj: PoolManager, url: str) -> HTTPConnectionPool:
-            connection = self.urllib3_connection_from_url(obj, url)  # type: ignore[no-untyped-call]
+            connection = self.urllib3_connection_from_url(obj, url)
             self.connections.add(connection)
             return connection
 
@@ -720,7 +719,7 @@ def test_follows_redirects_on_HEAD(
         'index.rst:1: [redirected with Found] '
         f'http://{address}/ to http://{address}/?redirected=1\n'
     )
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
@@ -749,7 +748,7 @@ def test_follows_redirects_on_GET(
         'index.rst:1: [redirected with Found] '
         f'http://{address}/ to http://{address}/?redirected=1\n'
     )
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 405 -
         127.0.0.1 - - [] "GET / HTTP/1.1" 302 -
@@ -780,7 +779,7 @@ def test_warns_disallowed_redirects(
         'index.rst:1: [redirected with Found] '
         f'http://{address}/ to http://{address}/?redirected=1\n'
     )
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 302 -
         127.0.0.1 - - [] "HEAD /?redirected=1 HTTP/1.1" 204 -
@@ -1136,7 +1135,7 @@ def test_too_many_requests_retry_after_int_delay(
     rate_limit_log = f'-rate limited-   http://{address}/ | sleeping...\n'
     assert rate_limit_log in strip_escape_sequences(app.status.getvalue())
     _stdout, stderr = capsys.readouterr()
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
@@ -1188,7 +1187,7 @@ def test_too_many_requests_retry_after_HTTP_date(
         'info': '',
     }
     _stdout, stderr = capsys.readouterr()
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
@@ -1221,7 +1220,7 @@ def test_too_many_requests_retry_after_without_header(
         'info': '',
     }
     _stdout, stderr = capsys.readouterr()
-    assert stderr == textwrap.dedent(
+    assert strip_escape_sequences(stderr) == textwrap.dedent(
         """\
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 429 -
         127.0.0.1 - - [] "HEAD / HTTP/1.1" 200 -
@@ -1347,7 +1346,7 @@ def test_connection_contention(
     get_adapter: mock.Mock, app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
 ) -> None:
     # Create a shared, but limited-size, connection pool
-    import requests
+    import requests.adapters
 
     get_adapter.return_value = requests.adapters.HTTPAdapter(pool_maxsize=1)
 
