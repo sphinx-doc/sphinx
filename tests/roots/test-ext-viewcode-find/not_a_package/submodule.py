@@ -1,8 +1,8 @@
 """
 submodule
-"""  # NoQA: D212
+"""  # ruff: ignore[multi-line-summary-first-line]
 
-raise RuntimeError('This module should not get imported')  # NoQA: EM101,TRY003
+raise RuntimeError('This module should not get imported')  # ruff: ignore[raw-string-in-exception, raise-vanilla-args]
 
 
 def decorator(f):
@@ -13,7 +13,7 @@ def decorator(f):
 def func1(a, b):
     """
     this is func1
-    """  # NoQA: D212
+    """  # ruff: ignore[multi-line-summary-first-line]
     return a, b
 
 
