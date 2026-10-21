@@ -44,7 +44,7 @@ def test_texinfo(app: SphinxTestApp) -> None:
         raise AssertionError(msg) from exc
 
 
-@pytest.mark.sphinx('texinfo', testroot='markup-rubric')
+@pytest.mark.sphinx('texinfo', testroot='markup-rubric', srcdir='markup-rubric-texinfo')
 def test_texinfo_rubric(app: SphinxTestApp) -> None:
     app.build()
 
