@@ -7,7 +7,7 @@
    C.prop_attr1
    C.prop_attr2
    C.C2
-"""  # NoQA: D212
+"""  # ruff: ignore[multi-line-summary-first-line]
 
 
 def with_sentence():

@@ -349,7 +349,7 @@ def _extract_signatures_from_docstrings(
     stripped_docstrings = [list(l) for l in (docstrings or ())]
     for i, doclines in enumerate(docstrings):
         j = 0
-        for j, line in enumerate(doclines):  # NoQA: B007
+        for j, line in enumerate(doclines):  # ruff: ignore[unused-loop-control-variable]
             if not line:
                 # no lines in docstring, no match
                 break
@@ -531,8 +531,8 @@ def _get_object_for_signature(
         else:
             if isinstance(object_sig, Signature):
                 return object_sig, False
-            if sys.version_info[:2] <= (3, 14) and callable(object_sig):
-                # Support for enum.Enum.__signature__ in Python 3.12 & 3.13
+            if sys.version_info[:2] < (3, 14) and callable(object_sig):
+                # Support for enum.Enum.__signature__ in Python 3.13
                 if isinstance(object_sig_str := object_sig(), str):
                     return inspect.signature_from_str(object_sig_str), False
 
@@ -583,7 +583,7 @@ def _get_object_for_signature(
         return obj, False
 
     if props.obj_type == 'method':
-        if obj == object.__init__ and parent != object:  # NoQA: E721
+        if obj == object.__init__ and parent != object:  # ruff: ignore[type-comparison]
             # Classes not having own __init__() method are shown as no arguments.
             #
             # Note: The signature of object.__init__() is (self, /, *args, **kwargs).
@@ -619,14 +619,14 @@ def _annotate_to_first_argument(
     if len(sig.parameters) == first_arg_idx:
         return None
 
-    def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
+    def dummy():  # type: ignore[no-untyped-def]  # ruff: ignore[missing-return-type-private-function]
         pass
 
     params = list(sig.parameters.values())
     if params[first_arg_idx].annotation is Parameter.empty:
         params[first_arg_idx] = params[first_arg_idx].replace(annotation=typ)
         try:
-            dummy.__signature__ = sig.replace(parameters=params)  # type: ignore[attr-defined]
+            dummy.__signature__ = sig.replace(parameters=params)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             return dummy
         except (AttributeError, TypeError):
             # failed to update signature (ex. built-in or extension types)

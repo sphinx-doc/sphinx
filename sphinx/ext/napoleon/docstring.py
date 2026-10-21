@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.config import Config as SphinxConfig
     from sphinx.ext.autodoc._property_types import _AutodocObjType
+    from sphinx.ext.napoleon import Config as NapoleonConfig
 
 logger = logging.getLogger(__name__)
 
@@ -234,7 +235,7 @@ def _convert_type_spec(
     }
 
     converted = ''.join(
-        converters.get(type_)(token)  # type: ignore[misc]
+        converters.get(type_)(token)  # type: ignore[misc]  # ty: ignore[call-non-callable]
         for token, type_ in types
     )
 
@@ -328,7 +329,7 @@ class GoogleDocstring:
     def __init__(
         self,
         docstring: str | list[str],
-        config: SphinxConfig | None = None,
+        config: SphinxConfig | NapoleonConfig | None = None,
         app: Sphinx | None = None,
         what: _AutodocObjType | Literal['object'] = 'object',
         name: str = '',
@@ -337,13 +338,13 @@ class GoogleDocstring:
     ) -> None:
         self._app = app
         if config:
-            self._config = config
+            self._config: SphinxConfig | NapoleonConfig = config
         elif app:
             self._config = app.config
         else:
             from sphinx.ext.napoleon import Config
 
-            self._config = Config()  # type: ignore[assignment]
+            self._config = Config()
 
         if what == 'object':
             if inspect.isclass(obj):
@@ -1210,7 +1211,7 @@ class NumpyDocstring(GoogleDocstring):
     def __init__(
         self,
         docstring: str | list[str],
-        config: SphinxConfig | None = None,
+        config: SphinxConfig | NapoleonConfig | None = None,
         app: Sphinx | None = None,
         what: _AutodocObjType | Literal['object'] = 'object',
         name: str = '',
