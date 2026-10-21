@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import time
 import unicodedata
 from typing import TYPE_CHECKING, cast
 
@@ -11,7 +12,7 @@ from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.references import Footnotes
-from docutils.transforms.universal import SmartQuotes
+from docutils.transforms.universal import Decorations, SmartQuotes
 from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
@@ -19,6 +20,7 @@ from sphinx import addnodes
 from sphinx.deprecation import _deprecation_warning
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util._timestamps import _get_source_date_epoch
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import (
     _is_doctest_block,
@@ -110,6 +112,28 @@ class SphinxTransformer(Transformer):
                 super().apply_transforms()
             finally:
                 self.document = self.document[0]
+
+
+class _SphinxDecorations(Decorations):
+    """Use the epoch for datestamps with Docutils versions before 1.0."""
+
+    def generate_footer(self) -> list[nodes.paragraph] | None:
+        settings = self.document.settings
+        date_format = settings.datestamp
+        if not date_format:
+            return super().generate_footer()
+        source_date_epoch = _get_source_date_epoch()
+        if source_date_epoch is None:
+            return super().generate_footer()
+
+        datestamp = time.strftime(date_format, time.gmtime(source_date_epoch))
+        # Docutils formats this again while assembling the footer. Preserve
+        # literal percent signs and restore the configured format afterwards.
+        settings.datestamp = datestamp.replace('%', '%%')
+        try:
+            return super().generate_footer()
+        finally:
+            settings.datestamp = date_format
 
 
 class DefaultSubstitutions(SphinxTransform):

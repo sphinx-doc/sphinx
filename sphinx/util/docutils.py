@@ -22,11 +22,12 @@ from docutils.parsers.rst import Directive, directives, roles
 from docutils.readers import standalone
 from docutils.statemachine import StateMachine
 from docutils.transforms import references
+from docutils.transforms.universal import Decorations
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.transforms import SphinxTransformer
+from sphinx.transforms import SphinxTransformer, _SphinxDecorations
 from sphinx.util import logging, rst
 from sphinx.util.parsing import nested_parse_to_nodes
 
@@ -88,7 +89,7 @@ if docutils.__version_info__[:2] >= (1, 0):
     ]
 else:
     _READER_TRANSFORMS = [
-        transform
+        _SphinxDecorations if transform is Decorations else transform
         for transform in standalone.Reader().get_transforms()
         if transform is not references.DanglingReferences
     ]
