@@ -867,6 +867,49 @@ class OKHandler(BaseHTTPRequestHandler):
     testroot='linkcheck-localserver-https',
     freshenv=True,
 )
+def test_invalid_ssl(app: SphinxTestApp) -> None:
+    # The URL requires TLS, but the server only supports plain HTTP.
+    with serve_application(app, OKHandler) as address:
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+    assert content['code'] == 0
+    assert content['status'] == 'broken'
+    assert content['filename'] == 'index.rst'
+    assert content['lineno'] == 1
+    assert content['uri'] == f'https://{address}/'
+    assert 'SSLError' in content['info']
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver-https',
+    freshenv=True,
+)
+def test_connect_to_selfsigned_fails(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv('REQUESTS_CA_BUNDLE', raising=False)
+    monkeypatch.delenv('CURL_CA_BUNDLE', raising=False)
+    with serve_application(app, OKHandler, tls_enabled=True) as address:
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+    assert content['code'] == 0
+    assert content['status'] == 'broken'
+    assert content['filename'] == 'index.rst'
+    assert content['lineno'] == 1
+    assert content['uri'] == f'https://{address}/'
+    assert '[SSL: CERTIFICATE_VERIFY_FAILED]' in content['info']
+
+
+@pytest.mark.sphinx(
+    'linkcheck',
+    testroot='linkcheck-localserver-https',
+    freshenv=True,
+)
 def test_certificate_verification_failure_is_broken(app: SphinxTestApp) -> None:
     certificate_error = '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed'
     with mock.patch(
@@ -877,6 +920,7 @@ def test_certificate_verification_failure_is_broken(app: SphinxTestApp) -> None:
         app.build()
 
     request.assert_called_once()
+    assert request.call_args.args[1] == 'HEAD'
     assert request.call_args.kwargs['verify'] is True
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
