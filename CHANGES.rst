@@ -1,3 +1,24 @@
+Release 9.3.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+-------
+
 Release 9.2.0 (released Oct 20, 2026)
 =====================================
 
