@@ -136,7 +136,7 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source, type_comments=True)
-            subject = cast('ast.FunctionDef', module.body[0].body[0])  # type: ignore[attr-defined]
+            subject = cast('ast.FunctionDef', module.body[0].body[0])  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         else:
             module = ast.parse(source, type_comments=True)
             subject = cast('ast.FunctionDef', module.body[0])
@@ -206,9 +206,9 @@ def signature_from_ast(
         params.pop(0)
 
     # merge type_comment into signature
-    if not_suppressed(type_comment.argtypes):  # type: ignore[attr-defined]
+    if not_suppressed(type_comment.argtypes):  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         for i, param in enumerate(params):
-            params[i] = param.replace(annotation=type_comment.argtypes[i])  # type: ignore[attr-defined]
+            params[i] = param.replace(annotation=type_comment.argtypes[i])  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     if node.returns:
         return Signature(params, return_annotation=node.returns)

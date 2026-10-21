@@ -86,7 +86,7 @@ class _Session(requests.Session):
         method: str,
         url: str,
         _user_agent: str = '',
-        _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
+        _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]  # ty: ignore[invalid-parameter-default]
         **kwargs: Any,
     ) -> requests.Response:
         """Sends a request with an HTTP verb and url.

@@ -352,7 +352,7 @@ def _parse_logging(
             warn_file = Path(warnfile).resolve()
             ensuredir(warn_file.parent)
             # the caller is responsible for closing this file descriptor
-            warnfp = open(warn_file, 'w', encoding='utf-8')  # NoQA: SIM115
+            warnfp = open(warn_file, 'w', encoding='utf-8')  # ruff: ignore[open-file-with-context-handler]
         except Exception as exc:
             parser.error(__("cannot open warning file '%s': %s") % (warn_file, exc))
         warning = TeeStripANSI(warning, warnfp)  # type: ignore[assignment]

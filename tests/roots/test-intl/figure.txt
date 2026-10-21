@@ -34,6 +34,8 @@ image url and alt
 .. figure:: img.png
    :alt: img
 
+   ..
+
 
 image on substitution
 ---------------------
@@ -51,3 +53,4 @@ image under note
    .. figure:: img.png
       :alt: img under note
 
+      ..

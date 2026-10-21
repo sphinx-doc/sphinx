@@ -302,7 +302,7 @@ def run(argv: Sequence[str] = (), /) -> int:
         cmd_args = cmd_parser.parse_args(cmd_argv)
         return runner(cmd_args)
     except SystemExit as exc:
-        return exc.code  # type: ignore[return-value]
+        return exc.code  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
     except (Exception, KeyboardInterrupt):
         return 2
 

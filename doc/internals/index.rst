@@ -10,6 +10,7 @@ how to contribute to the project.
    :maxdepth: 2
 
    contributing
+   ai-policy
    release-process
    organization
    code-of-conduct
