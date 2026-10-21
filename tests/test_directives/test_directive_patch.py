@@ -4,10 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import docutils
 import pytest
 from docutils import nodes
+from docutils.languages import get_language
+from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.misc import Date as DocutilsDate
 
+from sphinx.directives.patches import Date
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
@@ -76,6 +80,33 @@ def test_date_directive_invalid_context(
     restructuredtext.parse(app, '.. date::')
 
     assert 'can only be used within a substitution definition' in app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_date_directive_registration(app: SphinxTestApp) -> None:
+    doctree = restructuredtext.parse(app, '.. |date| date::\n\n|date|')
+    directive, _messages = directives.directive('date', get_language('en'), doctree)
+
+    if docutils.__version_info__[:2] < (1, 0):
+        assert directive is Date
+    else:
+        assert directive is DocutilsDate
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_date_directive_extension_override(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class ExtensionDate(DocutilsDate):
+        def run(self) -> list[nodes.Text]:
+            return [nodes.Text('extension date')]
+
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+    app.add_directive('date', ExtensionDate, override=True)
+
+    doctree = restructuredtext.parse(app, '.. |date| date::\n\n|date|')
+
+    assert doctree[-1].astext() == 'extension date'
 
 
 @pytest.mark.sphinx('html', testroot='_blank')

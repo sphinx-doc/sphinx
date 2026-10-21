@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import os
+import re
 import time
+
+from sphinx.locale import __
 
 
 def _get_source_date_epoch() -> int | None:
@@ -10,11 +13,10 @@ def _get_source_date_epoch() -> int | None:
     if not value:
         return None
 
-    try:
-        return int(value)
-    except ValueError:
-        msg = f'Invalid SOURCE_DATE_EPOCH value {value!r}; expected an integer'
-        raise ValueError(msg) from None
+    if re.fullmatch(r'-?[0-9]+', value) is None:
+        msg = __('Invalid SOURCE_DATE_EPOCH value %r; expected an ASCII integer')
+        raise ValueError(msg % value)
+    return int(value)
 
 
 def _format_rfc3339_microseconds(timestamp: int, /) -> str:

@@ -12,6 +12,7 @@ from sphinx.config import (
     correct_copyright_year,
     evaluate_copyright_placeholders,
 )
+from sphinx.errors import ExtensionError
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -19,15 +20,14 @@ if TYPE_CHECKING:
 
     from sphinx.testing.util import SphinxTestApp
 
-LT = time.localtime()
-LT_NEW = (2009, *LT[1:], LT.tm_zone, LT.tm_gmtoff)
-LOCALTIME_2009 = type(LT)(LT_NEW)
+LOCALTIME_2009 = time.gmtime(1230768000)
 
 
 @pytest.fixture(
     params=[
         # test with SOURCE_DATE_EPOCH unset: no modification
         (None, None),
+        ('', None),
         # test with post-2009 SOURCE_DATE_EPOCH set: copyright year should not be updated
         ('1293840000', 2011),
         ('1293839999', 2010),
@@ -44,7 +44,7 @@ def expect_date(
     sde, expect = request.param
     with monkeypatch.context() as m:
         m.setattr(time, 'localtime', lambda *a: LOCALTIME_2009)
-        if sde:
+        if sde is not None:
             m.setenv('SOURCE_DATE_EPOCH', sde)
         else:
             m.delenv('SOURCE_DATE_EPOCH', raising=False)
@@ -129,7 +129,6 @@ def test_correct_year_placeholder(expect_date: int | None) -> None:
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
-    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'2006-{expect_date}, Alice'
     else:
@@ -207,7 +206,6 @@ def test_correct_year_multi_line_all_formats_placeholder(
     cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
     evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
-    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == (
             f'{expect_date}',
@@ -217,7 +215,7 @@ def test_correct_year_multi_line_all_formats_placeholder(
             f'2006-{expect_date} Charlie',
             f'2006-{expect_date}, David',
             '2006-%y, Eve',
-            '2009-%m-%d %H:%M:S %z, Francis',
+            f'{expect_date}-%m-%d %H:%M:S %z, Francis',
         )
     else:
         assert cfg.copyright == (
@@ -249,3 +247,73 @@ def test_correct_year_app(
         assert app.config.copyright == f'2006-{expect_date}, Alice'
     else:
         assert app.config.copyright == copyright_date
+
+
+@pytest.mark.parametrize('name', ['copyright', 'project_copyright', 'epub_copyright'])
+def test_copyright_placeholders_arbitrary_text(
+    name: str, expect_date: int | None
+) -> None:
+    cfg = Config({name: '2000–%Y; Published %Y (%m), Alice'}, {})
+    if name == 'epub_copyright':
+        cfg.add('epub_copyright', '', 'epub', types=str)
+
+    evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
+
+    if expect_date is not None and expect_date <= 2009:
+        assert cfg[name] == f'2000–{expect_date}; Published {expect_date} (%m), Alice'
+    else:
+        assert cfg[name] == '2000–2009; Published 2009 (%m), Alice'
+    if name != 'epub_copyright':
+        assert cfg.copyright == cfg.project_copyright
+
+
+@pytest.mark.parametrize('container', [list, tuple])
+def test_copyright_placeholders_sequence(
+    container: type[list[str] | tuple[str, ...]], expect_date: int | None
+) -> None:
+    cfg = Config({'copyright': container(('2000–%Y, Alice', '2000–2009, Bob'))}, {})
+
+    evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
+
+    if expect_date is not None and expect_date <= 2009:
+        assert cfg.copyright == container((
+            f'2000–{expect_date}, Alice',
+            '2000–2009, Bob',
+        ))
+    else:
+        assert cfg.copyright == container(('2000–2009, Alice', '2000–2009, Bob'))
+    assert isinstance(cfg.copyright, container)
+
+
+@pytest.mark.parametrize('name', ['copyright', 'project_copyright', 'epub_copyright'])
+def test_copyright_placeholders_app(
+    name: str,
+    expect_date: int | None,
+    tmp_path: Path,
+    make_app: Callable[..., SphinxTestApp],
+) -> None:
+    (tmp_path / 'conf.py').touch()
+    app = make_app(
+        'epub', srcdir=tmp_path, confoverrides={name: '2000–%Y; Published %Y, Alice'}
+    )
+
+    if expect_date is not None and expect_date <= 2009:
+        assert app.config[name] == f'2000–{expect_date}; Published {expect_date}, Alice'
+    else:
+        assert app.config[name] == '2000–2009; Published 2009, Alice'
+
+
+def test_source_date_epoch_invalid_at_initialization(
+    tmp_path: Path,
+    make_app: Callable[..., SphinxTestApp],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    (tmp_path / 'conf.py').touch()
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '1_000')
+
+    with pytest.raises(
+        ExtensionError,
+        match="Invalid SOURCE_DATE_EPOCH value '1_000'; expected an ASCII integer",
+    ):
+        make_app('dummy', srcdir=tmp_path)

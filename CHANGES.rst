@@ -16,6 +16,24 @@ Features added
 Bugs fixed
 ----------
 
+* Handle ``SOURCE_DATE_EPOCH`` consistently across Sphinx. The Docutils
+  :dudir:`date` directive now honors it with Docutils versions before 1.0,
+  epoch zero is accepted, and values must use ASCII integer syntax as required
+  by the `SOURCE_DATE_EPOCH specification
+  <https://reproducible-builds.org/specs/source-date-epoch/>`__.
+  Gettext timestamps are now calculated when the builder is initialized, and
+  changing the effective value between incremental builds now causes all
+  documents to be reread and all output to be rewritten.
+  Copyright ``%Y`` placeholders use the timestamp's UTC year directly,
+  capped at the current local year, independently of surrounding punctuation.
+  Patch by Kilian Paul
+
+* Rebuild all output when global read inputs change, even if individual source
+  filenames were specified. This includes changes to read-affecting
+  configuration, the extension list, and ``SOURCE_DATE_EPOCH``.
+  Invalid filename selections no longer consume pending invalidation.
+  Patch by Kilian Paul
+
 Testing
 -------
 
@@ -36,14 +54,6 @@ Release 9.1.1 (released Oct 19, 2026)
 
 Bugs fixed
 ----------
-
-* Handle ``SOURCE_DATE_EPOCH`` consistently across Sphinx. The Docutils
-  :dudir:`date` directive now honors it with Docutils versions before 1.0,
-  epoch zero is accepted, and malformed or fractional values are rejected.
-  Gettext timestamps are now calculated when the builder is initialized, and
-  changing the effective value between incremental builds now causes all
-  documents to be reread.
-  Patch by Kilian Paul
 
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).

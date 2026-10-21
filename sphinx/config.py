@@ -694,8 +694,12 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
 
 
 def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
-    """Replace copyright year placeholders (%Y) with the current year."""
-    replace_yr = str(time.localtime().tm_year)
+    """Replace copyright year placeholders (%Y) with the publication year."""
+    year = time.localtime().tm_year
+    source_date_epoch = _get_source_date_epoch()
+    if source_date_epoch is not None:
+        year = min(year, time.gmtime(source_date_epoch).tm_year)
+    replace_yr = str(year)
     for k in ('copyright', 'epub_copyright'):
         if k in config:
             value: str | Sequence[str] = config[k]
