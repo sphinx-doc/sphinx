@@ -141,7 +141,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
                     trailing_comma=trailing_comma,
                     env=self.env,
                 )
-        return fullname, prefix  # type: ignore[return-value]
+        return fullname, prefix  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         if 'fullname' not in sig_node:

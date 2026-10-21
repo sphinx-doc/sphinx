@@ -94,7 +94,7 @@ def test_progress_message(app: SphinxTestApp) -> None:
 
     # skipping case
     with progress_message('testing'):
-        raise SkipProgressMessage('Reason: %s', 'error')  # NoQA: EM101,TRY003
+        raise SkipProgressMessage('Reason: %s', 'error')  # ruff: ignore[raw-string-in-exception, raise-vanilla-args]
 
     output = strip_escape_sequences(app.status.getvalue())
     assert 'testing... skipped\nReason: error\n' in output
@@ -102,7 +102,7 @@ def test_progress_message(app: SphinxTestApp) -> None:
     # error case
     try:
         with progress_message('testing'):
-            raise RuntimeError  # NoQA: TRY301
+            raise RuntimeError  # ruff: ignore[raise-within-try]
     except Exception:
         pass
 

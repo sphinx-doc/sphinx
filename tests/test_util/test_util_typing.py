@@ -141,7 +141,7 @@ def test_is_invalid_builtin_class() -> None:
     # if these tests start failing, it means that the __module__
     # of one of these classes has changed, and _INVALID_BUILTIN_CLASSES
     # in sphinx.util.typing needs to be updated.
-    invalid_types = (
+    invalid_types: tuple[type, ...] = (
         # contextvars
         Context,
         ContextVar,
@@ -202,7 +202,7 @@ def test_is_invalid_builtin_class() -> None:
         zipfile.Path,
         zipfile.CompleteDirs,
     )
-    if sys.version_info[:2] == (3, 13):
+    if sys.version_info[:2] < (3, 14):
         invalid_types += (
             # pathlib
             Path,
@@ -214,7 +214,7 @@ def test_is_invalid_builtin_class() -> None:
         )
 
     invalid_names = {(cls.__module__, cls.__qualname__) for cls in invalid_types}
-    if sys.version_info[:2] != (3, 13):
+    if sys.version_info[:2] >= (3, 14):
         invalid_names |= {
             ('pathlib._local', 'Path'),
             ('pathlib._local', 'PosixPath'),
@@ -254,15 +254,23 @@ def test_restify_type_hints_containers():
         '[:py:class:`~typing.Tuple`\\ '
         '[:py:class:`int`, :py:class:`int`]]'
     )
-    assert restify(t.Generator[None, None, None]) == (
+    assert restify(t.Generator[None, None, None]) == (  # ruff: ignore[unnecessary-default-type-args]
         ':py:class:`~typing.Generator`\\ '
         '[:py:obj:`None`, :py:obj:`None`, '
         ':py:obj:`None`]'
     )
-    assert restify(abc.Generator[None, None, None]) == (
+    assert restify(t.Generator[None]) == (
+        ':py:class:`~typing.Generator`\\ '
+        '[:py:obj:`None`, :py:obj:`None`, '
+        ':py:obj:`None`]'
+    )
+    assert restify(abc.Generator[None, None, None]) == (  # ruff: ignore[unnecessary-default-type-args]
         ':py:class:`collections.abc.Generator`\\ '
         '[:py:obj:`None`, :py:obj:`None`, '
         ':py:obj:`None`]'
+    )
+    assert restify(abc.Generator[None]) == (
+        ':py:class:`collections.abc.Generator`\\ [:py:obj:`None`]'
     )
     assert restify(t.Iterator[None]) == (
         ':py:class:`~typing.Iterator`\\ [:py:obj:`None`]'
@@ -506,7 +514,7 @@ def test_restify_broken_type_hints() -> None:
 
 def test_restify_mock() -> None:
     with mock(['unknown']):
-        import unknown  # type: ignore[import-not-found]
+        import unknown  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
         assert restify(unknown) == ':py:class:`unknown`'
         assert restify(unknown.secret.Class) == ':py:class:`unknown.secret.Class`'
@@ -625,22 +633,38 @@ def test_stringify_type_hints_containers():
     )
 
     ann_str = stringify_annotation(
-        t.Generator[None, None, None], 'fully-qualified-except-typing'
+        t.Generator[None, None, None],  # ruff: ignore[unnecessary-default-type-args]
+        'fully-qualified-except-typing',
     )
     assert ann_str == 'Generator[None, None, None]'
-    ann_str = stringify_annotation(t.Generator[None, None, None], 'fully-qualified')
+    ann_str = stringify_annotation(t.Generator[None, None, None], 'fully-qualified')  # ruff: ignore[unnecessary-default-type-args]
     assert ann_str == 'typing.Generator[None, None, None]'
-    ann_str = stringify_annotation(t.Generator[None, None, None], 'smart')
+    ann_str = stringify_annotation(t.Generator[None, None, None], 'smart')  # ruff: ignore[unnecessary-default-type-args]
+    assert ann_str == '~typing.Generator[None, None, None]'
+
+    ann_str = stringify_annotation(t.Generator[None], 'fully-qualified-except-typing')
+    assert ann_str == 'Generator[None, None, None]'
+    ann_str = stringify_annotation(t.Generator[None], 'fully-qualified')
+    assert ann_str == 'typing.Generator[None, None, None]'
+    ann_str = stringify_annotation(t.Generator[None], 'smart')
     assert ann_str == '~typing.Generator[None, None, None]'
 
     ann_str = stringify_annotation(
-        abc.Generator[None, None, None], 'fully-qualified-except-typing'
+        abc.Generator[None, None, None],  # ruff: ignore[unnecessary-default-type-args]
+        'fully-qualified-except-typing',
     )
     assert ann_str == 'collections.abc.Generator[None, None, None]'
-    ann_str = stringify_annotation(abc.Generator[None, None, None], 'fully-qualified')
+    ann_str = stringify_annotation(abc.Generator[None, None, None], 'fully-qualified')  # ruff: ignore[unnecessary-default-type-args]
     assert ann_str == 'collections.abc.Generator[None, None, None]'
-    ann_str = stringify_annotation(abc.Generator[None, None, None], 'smart')
+    ann_str = stringify_annotation(abc.Generator[None, None, None], 'smart')  # ruff: ignore[unnecessary-default-type-args]
     assert ann_str == '~collections.abc.Generator[None, None, None]'
+
+    ann_str = stringify_annotation(abc.Generator[None], 'fully-qualified-except-typing')
+    assert ann_str == 'collections.abc.Generator[None]'
+    ann_str = stringify_annotation(abc.Generator[None], 'fully-qualified')
+    assert ann_str == 'collections.abc.Generator[None]'
+    ann_str = stringify_annotation(abc.Generator[None], 'smart')
+    assert ann_str == '~collections.abc.Generator[None]'
 
     ann_str = stringify_annotation(t.Iterator[None], 'fully-qualified-except-typing')
     assert ann_str == 'Iterator[None]'
@@ -706,10 +730,11 @@ def test_stringify_type_hints_pep_585():
 
     # Mix typing and pep 585
     ann_str = stringify_annotation(
-        tuple[List[dict[int, str]], str, ...], 'fully-qualified-except-typing'
+        tuple[List[dict[int, str]], str, ...],  # ty: ignore[invalid-type-form]
+        'fully-qualified-except-typing',
     )
     assert ann_str == 'tuple[List[dict[int, str]], str, ...]'
-    ann_str = stringify_annotation(tuple[List[dict[int, str]], str, ...], 'smart')
+    ann_str = stringify_annotation(tuple[List[dict[int, str]], str, ...], 'smart')  # ty: ignore[invalid-type-form]
     assert ann_str == 'tuple[~typing.List[dict[int, str]], str, ...]'
 
 
