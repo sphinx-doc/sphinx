@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from functools import lru_cache
-from typing import Generator  # NoQA: TC003,UP035
+from typing import (  # ruff: ignore[typing-only-standard-library-import, deprecated-import]
+    Generator,
+)
 
 
-@lru_cache(maxsize=None)  # NoQA: UP033
+@lru_cache(maxsize=None)  # ruff: ignore[lru-cache-with-maxsize-none]
 def slow_function(message, timeout):
     """This function is slow."""
     print(message)

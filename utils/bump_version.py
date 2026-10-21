@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Generator, Sequence
     from typing import Literal
 
 
@@ -164,7 +164,7 @@ class Skip(Exception):
 
 
 @contextmanager
-def processing(message: str) -> Iterator[None]:
+def processing(message: str) -> Generator[None]:
     try:
         print(message + ' ... ', end='')
         yield

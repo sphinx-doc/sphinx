@@ -14,10 +14,8 @@ from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence, Set
-    from typing import Any
-
-    from typing_extensions import TypeIs
+    from collections.abc import Generator, Iterator, Sequence, Set
+    from typing import Any, TypeIs
 
 
 class _MockObject:
@@ -30,7 +28,7 @@ class _MockObject:
     # Attributes listed here should not be mocked and rather raise an Attribute error:
     __sphinx_empty_attrs__: Set[str] = frozenset(('__typing_subst__',))
 
-    def __new__(cls, *args: Any, **kwargs: Any) -> Any:  # NoQA: ARG004
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:  # ruff: ignore[unused-static-method-argument]
         if len(args) == 3 and isinstance(args[1], tuple):
             superclass = args[1][-1].__class__
             if superclass is cls:
@@ -157,7 +155,7 @@ class MockFinder(MetaPathFinder):
 
 
 @contextlib.contextmanager
-def mock(modnames: Sequence[str]) -> Iterator[None]:
+def mock(modnames: Sequence[str]) -> Generator[None]:
     """Insert mock modules during context::
 
     with mock(['target.module.name']):
