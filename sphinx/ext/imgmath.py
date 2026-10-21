@@ -127,6 +127,14 @@ def generate_latex_macro(
     return LaTeXRenderer([templates_path]).render(template_name + '.jinja', variables)
 
 
+def _cleanup_latex_tempdir(dvipath: Path) -> None:
+    """Remove the temp dir created for *dvipath* (best effort)."""
+    with contextlib.suppress(Exception):
+        parent = dvipath.parent
+        if 'sphinx-imgmath' in parent.name:
+            shutil.rmtree(parent, ignore_errors=True)
+
+
 def _compile_latex_document(latex: str, *, config: Config, suffix: str) -> Path:
     """Write *latex* to a temp dir and compile it to DVI/XDV."""
     tempdir = Path(tempfile.mkdtemp(suffix=suffix))
@@ -162,9 +170,11 @@ def _compile_latex_document(latex: str, *, config: Config, suffix: str) -> Path:
             ),
             config.imgmath_latex,
         )
+        shutil.rmtree(tempdir, ignore_errors=True)
         raise InvokeError from exc
     except CalledProcessError as exc:
         msg = 'latex exited with error'
+        shutil.rmtree(tempdir, ignore_errors=True)
         raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
@@ -313,6 +323,8 @@ def render_math(
     except InvokeError:
         self.builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]
         return None, None
+    finally:
+        _cleanup_latex_tempdir(dvipath)
 
     return generated_path, depth
 
@@ -426,10 +438,13 @@ def _compile_single_math(
 ) -> None:
     latex = generate_latex_macro(image_format, math, config, confdir)
     dvipath = compile_math(latex, config=config)
-    if image_format == 'png':
-        convert_dvi_to_png(dvipath, out_path, config=config)
-    else:
-        convert_dvi_to_svg(dvipath, out_path, config=config)
+    try:
+        if image_format == 'png':
+            convert_dvi_to_png(dvipath, out_path, config=config)
+        else:
+            convert_dvi_to_svg(dvipath, out_path, config=config)
+    finally:
+        _cleanup_latex_tempdir(dvipath)
 
 
 def _render_batch_chunk(
@@ -493,41 +508,44 @@ def _render_batch_chunk(
             return page, math, path, err_convert
         return page, math, path, None
 
-    workers = max(1, min(len(uncached), max_workers))
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        results = list(
-            executor.map(
-                _convert_page,
-                range(len(uncached)),
-                [math for math, _path in uncached],
-                [path for _math, path in uncached],
+    try:
+        workers = max(1, min(len(uncached), max_workers))
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            results = list(
+                executor.map(
+                    _convert_page,
+                    range(len(uncached)),
+                    [math for math, _path in uncached],
+                    [path for _math, path in uncached],
+                )
             )
-        )
 
-    for page, math, path, error in results:
-        if error is None:
-            continue
-        if isinstance(error, InvokeError):
-            builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
-            return
-        logger.warning(
-            __('Failed to convert batch page %d, retrying singly: %s'),
-            page,
-            error,
-        )
-        try:
-            _compile_single_math(
-                math, image_format, path, config=config, confdir=confdir
-            )
-        except (InvokeError, MathExtError) as err_retry:
-            if isinstance(err_retry, InvokeError):
+        for page, math, path, error in results:
+            if error is None:
+                continue
+            if isinstance(error, InvokeError):
                 builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 return
             logger.warning(
-                __('Failed to render math %r after batch page failure: %s'),
-                math,
-                err_retry,
+                __('Failed to convert batch page %d, retrying singly: %s'),
+                page,
+                error,
             )
+            try:
+                _compile_single_math(
+                    math, image_format, path, config=config, confdir=confdir
+                )
+            except (InvokeError, MathExtError) as err_retry:
+                if isinstance(err_retry, InvokeError):
+                    builder._imgmath_warned_image_translator = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+                    return
+                logger.warning(
+                    __('Failed to render math %r after batch page failure: %s'),
+                    math,
+                    err_retry,
+                )
+    finally:
+        _cleanup_latex_tempdir(dvipath)
 
 
 def pre_render_batch(app: Sphinx, env: BuildEnvironment) -> None:
