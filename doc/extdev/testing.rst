@@ -1,10 +1,15 @@
 Testing API
 ===========
 
+.. py:module:: sphinx.testing
+   :synopsis: Utility functions and pytest fixtures for testing.
+
 .. versionadded:: 1.6
 
-Sphinx provides utility functions and pytest fixtures to make it easier
+Sphinx provides utility functions and pytest_ fixtures to make it easier
 to write test suites that build multiple Sphinx documentation projects.
+
+.. _pytest: https://docs.pytest.org/en/latest/
 
 Using the ``pytest`` plugin
 ---------------------------
@@ -15,7 +20,7 @@ as follows:
 
 .. code-block:: python
 
-   pytest_plugins = ['sphinx.testing.fixtures']
+   pytest_plugins = ('sphinx.testing.fixtures',)
 
 Markers
 ~~~~~~~
