@@ -5,8 +5,13 @@ from __future__ import annotations
 import posixpath
 from typing import TYPE_CHECKING
 
+import docutils
 import pytest
+from docutils.parsers import rst
+from docutils.readers import standalone
+from docutils.writers import html5_polyglot
 
+from sphinx.util.docutils import _get_settings, new_document
 from sphinx.util.inventory import InventoryFile, _InventoryItem
 
 if TYPE_CHECKING:
@@ -65,3 +70,33 @@ def test_dirhtml(app: SphinxTestApp) -> None:
         uri='path/to/foo/#foo',
         display_name='foo/index',
     )
+
+
+@pytest.mark.sphinx('dirhtml', testroot='builder-dirhtml')
+def test_dirhtml_inherits_format_translation_handlers(app: SphinxTestApp) -> None:
+    # A custom node with a dirhtml-specific handler must not hide handlers
+    # registered for the shared ``html`` format (e.g. graphviz nodes).
+    # See https://github.com/sphinx-doc/sphinx/issues/14587
+    class DirhtmlOnlyNode(docutils.nodes.General, docutils.nodes.Element):
+        pass
+
+    class HtmlOnlyNode(docutils.nodes.General, docutils.nodes.Element):
+        pass
+
+    def visit_custom(self, node: docutils.nodes.Node) -> None:
+        raise docutils.nodes.SkipNode
+
+    app.add_node(
+        DirhtmlOnlyNode, html=(visit_custom, None), dirhtml=(visit_custom, None)
+    )
+    app.registry.add_translation_handlers(
+        HtmlOnlyNode, html=(visit_custom, None)
+    )
+
+    settings = _get_settings(
+        standalone.Reader, rst.Parser, html5_polyglot.Writer, defaults={}
+    )
+    document = new_document('test', settings)
+    translator = app.builder.create_translator(document, app.builder)
+    assert hasattr(translator, 'visit_DirhtmlOnlyNode')
+    assert hasattr(translator, 'visit_HtmlOnlyNode')

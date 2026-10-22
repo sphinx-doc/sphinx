@@ -37,6 +37,10 @@ Release 9.1.1 (released Oct 19, 2026)
 Bugs fixed
 ----------
 
+* #14587: ``dirhtml`` builder: custom node handlers registered for the shared
+  ``html`` format are no longer ignored when an extension also registers a
+  handler for the ``dirhtml`` builder name.
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
