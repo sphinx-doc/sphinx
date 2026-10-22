@@ -20,6 +20,7 @@ from docutils import nodes
 if TYPE_CHECKING:
     from collections.abc import Generator
     from http.server import HTTPServer
+    from socket import socket
     from socketserver import BaseRequestHandler
     from typing import Final
 
@@ -40,6 +41,14 @@ TEST_ROOTS_DIR: Final[Path] = TESTS_ROOT / (
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
+class _HTTPServer(ThreadingHTTPServer):
+    def get_request(self) -> tuple[socket, tuple[str, int]]:
+        connection, address = super().get_request()
+        # Bound reads, including TLS handshakes, in request workers.
+        connection.settimeout(5)
+        return connection, address
+
+
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
         """Constructs a threaded HTTP server.
@@ -51,8 +60,10 @@ class HttpServerThread(Thread):
         super().__init__(daemon=True)
         self.ready = Event()
         self._stop_requested = Event()
-        self.server = ThreadingHTTPServer(('localhost', port), handler)
+        self.server = _HTTPServer(('localhost', port), handler)
         self.server.timeout = 0.001
+        # handle_request() bounds polling; also bound accept() itself.
+        self.server.socket.settimeout(self.server.timeout)
 
     def run(self) -> None:
         self.ready.set()
@@ -62,8 +73,11 @@ class HttpServerThread(Thread):
     def terminate(self) -> None:
         # BaseServer.shutdown() deadlocks if serve_forever() never started.
         self._stop_requested.set()
-        self.join(timeout=5)
-        self.server.server_close()
+        try:
+            if self.ident is not None:
+                self.join(timeout=5)
+        finally:
+            self.server.server_close()
         if self.is_alive():
             msg = 'HTTP server thread did not stop within 5 seconds'
             raise TimeoutError(msg)
@@ -72,11 +86,16 @@ class HttpServerThread(Thread):
 class HttpsServerThread(HttpServerThread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
         super().__init__(handler, port=port)
-        sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
-        sslcontext.load_cert_chain(CERT_FILE)
-        self.server.socket = sslcontext.wrap_socket(
-            self.server.socket, server_side=True
-        )
+        try:
+            sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
+            sslcontext.load_cert_chain(CERT_FILE)
+            # Negotiate TLS on the first read in a worker, not in accept().
+            self.server.socket = sslcontext.wrap_socket(
+                self.server.socket, server_side=True, do_handshake_on_connect=False
+            )
+        except BaseException:
+            self.server.server_close()
+            raise
 
 
 @contextmanager
@@ -88,10 +107,10 @@ def http_server(
 ) -> Generator[HTTPServer]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
     server_thread = server_cls(handler, port=port)
-    server_thread.start()
-    server_port = server_thread.server.server_port
-    assert port in {0, server_port}
     try:
+        server_thread.start()
+        server_port = server_thread.server.server_port
+        assert port in {0, server_port}
         if not server_thread.ready.wait(timeout=5):
             msg = 'HTTP server did not enter its serving loop within 5 seconds'
             raise TimeoutError(msg)
