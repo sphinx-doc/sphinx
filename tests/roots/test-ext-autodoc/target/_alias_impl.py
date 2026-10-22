@@ -1,3 +1,3 @@
 from typing import TypeAliasType
 
-TokenValidator = TypeAliasType('TokenValidator', str)  # NoQA: UP040
+TokenValidator = TypeAliasType('TokenValidator', str)  # ruff: ignore[non-pep695-type-alias]
