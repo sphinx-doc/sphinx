@@ -19,6 +19,10 @@ Bugs fixed
 Testing
 -------
 
+* #14690: Fix test isolation issues caused by shared test directories and
+  inherited ``NO_COLOR`` and ``NO_COLOUR`` environment variables.
+  Patch by Kilian Paul
+
 Release 9.2.0 (released Oct 20, 2026)
 =====================================
 
@@ -36,10 +40,6 @@ Release 9.1.1 (released Oct 19, 2026)
 
 Bugs fixed
 ----------
-
-* #14690: Fix test isolation issues caused by shared test directories and
-  inherited ``NO_COLOR`` and ``NO_COLOUR`` environment variables.
-  Patch by Kilian Paul
 
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
