@@ -9,7 +9,7 @@ from docutils.nodes import Element
 from docutils.statemachine import StringList, string2lines
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
 
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
@@ -73,7 +73,7 @@ def nested_parse_to_nodes(
 
 
 @contextlib.contextmanager
-def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
+def _fresh_title_style_context(state: RSTState) -> Generator[None]:
     # hack around title style bookkeeping
     memo = state.memo
     surrounding_title_styles: list[str | tuple[str, str]] = memo.title_styles
