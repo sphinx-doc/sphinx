@@ -6,7 +6,7 @@ r"""Test with a class diagram like this::
         / \ / \
        E   D   F
 
-"""  # NoQA: D208
+"""  # ruff: ignore[over-indentation]
 
 
 class A:

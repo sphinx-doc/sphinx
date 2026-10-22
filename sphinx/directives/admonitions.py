@@ -27,7 +27,7 @@ def _collapsible_arg(argument: str | None) -> str:
 
 
 class SphinxAdmonition(BaseAdmonition, SphinxDirective):
-    option_spec: ClassVar[OptionSpec] = BaseAdmonition.option_spec.copy()  # type: ignore[union-attr]
+    option_spec: ClassVar[OptionSpec] = BaseAdmonition.option_spec.copy()  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
     option_spec |= {
         'collapsible': _collapsible_arg,
     }

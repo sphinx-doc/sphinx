@@ -113,10 +113,10 @@ class Domain:
         self._type2role: dict[str, str] = {}
 
         # convert class variables to instance one (to enhance through API)
-        self.object_types = dict(self.object_types)  # type: ignore[misc]
-        self.directives = dict(self.directives)  # type: ignore[misc]
-        self.roles = dict(self.roles)  # type: ignore[misc]
-        self.indices = list(self.indices)  # type: ignore[misc]
+        self.object_types = dict(self.object_types)  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
+        self.directives = dict(self.directives)  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
+        self.roles = dict(self.roles)  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
+        self.indices = list(self.indices)  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
 
         if self.name not in domain_data:
             assert isinstance(self.initial_data, dict)
@@ -191,7 +191,7 @@ class Domain:
         fullname = f'{self.name}:{name}'
         BaseDirective = self.directives[name]
 
-        class DirectiveAdapter(BaseDirective):  # type: ignore[valid-type,misc]
+        class DirectiveAdapter(BaseDirective):  # type: ignore[valid-type,misc]  # ty: ignore[unsupported-base]
             def run(self) -> list[Node]:
                 self.name = fullname
                 return super().run()
