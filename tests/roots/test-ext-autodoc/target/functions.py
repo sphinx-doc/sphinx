@@ -9,7 +9,7 @@ async def coroutinefunc():
     pass
 
 
-async def asyncgenerator():  # NoQA: RUF029
+async def asyncgenerator():  # ruff: ignore[unused-async]
     yield
 
 
@@ -20,5 +20,5 @@ builtin_func = print
 partial_builtin_func = partial(print)
 
 
-def slice_arg_func(arg: 'float64[:, :]'):  # NoQA: F821
+def slice_arg_func(arg: 'float64[:, :]'):  # ruff: ignore[undefined-name]
     pass

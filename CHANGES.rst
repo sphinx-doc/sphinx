@@ -1,5 +1,38 @@
-Release 9.1.1 (in development)
+Release 9.3.0 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+-------
+
+Release 9.2.0 (released Oct 20, 2026)
+=====================================
+
+Dependencies
+------------
+
+* #14762: Drop Python 3.12 support.
+  Patch by Adam Turner.
+* #14767: Support `Docutils 0.23`_. Patch by Adam Turner.
+
+  .. _Docutils 0.23: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-23-2026-05-27
+
+Release 9.1.1 (released Oct 19, 2026)
+=====================================
 
 Bugs fixed
 ----------
@@ -11,11 +44,12 @@ Bugs fixed
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
-
 * #14229: Fix JavaScript search for languages whose stemmer class name
   does not match the language name, such as Chinese (which reuses the
   English stemmer) and Dutch (which uses the Dutch Porter stemmer).
   Patch by Hugo van Kemenade
+* Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
+  Patch by Adam Turner
 
 
 Release 9.1.0 (released Dec 31, 2025)

@@ -118,7 +118,9 @@ var Stemmer = function () {
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
-from sphinx.search.en import SearchEnglish  # NoQA: E402
+from sphinx.search.en import (  # ruff: ignore[module-import-not-at-top-of-file]
+    SearchEnglish,
+)
 
 
 def parse_stop_word(source: str) -> set[str]:
@@ -587,7 +589,8 @@ class IndexBuilder:
         # stemmer. For example, SearchChinese reuses english-stemmer.js,
         # which defines EnglishStemmer.
         stemmer_class = (
-            self.lang.js_stemmer_rawcode.removesuffix('-stemmer.js')
+            self.lang.js_stemmer_rawcode
+            .removesuffix('-stemmer.js')
             .title()
             .replace('_', '')
             .replace('-', '')
