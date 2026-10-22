@@ -19,6 +19,9 @@ Bugs fixed
 Testing
 -------
 
+* #14678: Fix a timing dependency in ``test_html_rebuild_mo``.
+  Patch by Kilian Paul
+
 Release 9.2.0 (released Oct 20, 2026)
 =====================================
 
@@ -36,9 +39,6 @@ Release 9.1.1 (released Oct 19, 2026)
 
 Bugs fixed
 ----------
-
-* #14678: Tests: Fix a timing dependency in ``test_html_rebuild_mo``.
-  Patch by Kilian Paul
 
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
