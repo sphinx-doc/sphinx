@@ -2,6 +2,9 @@
 Translation progress
 =====================
 
+.. py:module:: sphinx.ext.translation_progress
+   :synopsis: Report translation progress for documents
+
 The :mod:`sphinx.ext.translation_progress` extension adds a note after the
 title of a document when its translation is incomplete.  The note reports
 the percentage of translatable elements that have been translated.
