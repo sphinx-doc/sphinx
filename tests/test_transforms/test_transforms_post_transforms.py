@@ -70,6 +70,7 @@ def test_missing_reference(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'html',
     testroot='domain-py-python_use_unqualified_type_names',
+    srcdir='missing-reference-conditional-pending-xref',
     freshenv=True,
 )
 def test_missing_reference_conditional_pending_xref(app: SphinxTestApp) -> None:
