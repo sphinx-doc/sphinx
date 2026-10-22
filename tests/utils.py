@@ -40,16 +40,6 @@ TEST_ROOTS_DIR: Final[Path] = TESTS_ROOT / (
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
-class _ReadyHTTPServer(ThreadingHTTPServer):
-    def __init__(self, handler: type[BaseRequestHandler], *, port: int) -> None:
-        self.ready = Event()
-        super().__init__(('localhost', port), handler)
-
-    def service_actions(self) -> None:
-        if not self.ready.is_set():
-            self.ready.set()
-
-
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
         """Constructs a threaded HTTP server.
@@ -59,15 +49,24 @@ class HttpServerThread(Thread):
         See: https://docs.python.org/3/library/socketserver.html#asynchronous-mixins
         """
         super().__init__(daemon=True)
-        self.server = _ReadyHTTPServer(handler, port=port)
+        self.ready = Event()
+        self._stop_requested = Event()
+        self.server = ThreadingHTTPServer(('localhost', port), handler)
+        self.server.timeout = 0.001
 
     def run(self) -> None:
-        self.server.serve_forever(poll_interval=0.001)
+        self.ready.set()
+        while not self._stop_requested.is_set():
+            self.server.handle_request()
 
     def terminate(self) -> None:
-        self.server.shutdown()
+        # BaseServer.shutdown() deadlocks if serve_forever() never started.
+        self._stop_requested.set()
+        self.join(timeout=5)
         self.server.server_close()
-        self.join()
+        if self.is_alive():
+            msg = 'HTTP server thread did not stop within 5 seconds'
+            raise TimeoutError(msg)
 
 
 class HttpsServerThread(HttpServerThread):
@@ -93,7 +92,7 @@ def http_server(
     server_port = server_thread.server.server_port
     assert port in {0, server_port}
     try:
-        if not server_thread.server.ready.wait(timeout=5):
+        if not server_thread.ready.wait(timeout=5):
             msg = 'HTTP server did not enter its serving loop within 5 seconds'
             raise TimeoutError(msg)
         yield server_thread.server

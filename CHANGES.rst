@@ -19,7 +19,8 @@ Bugs fixed
 Testing
 -------
 
-* #14699: Stabilize linkcheck TLS tests on slow runners.
+* #14699: Stabilize linkcheck TLS tests on slow runners and bound test server
+  startup and shutdown waits.
   Patch by Kilian Paul
 
 Release 9.2.0 (released Oct 20, 2026)
