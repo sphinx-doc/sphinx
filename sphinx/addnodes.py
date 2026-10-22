@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import document  # NoQA: F401
+from docutils.nodes import document  # ruff: ignore[unused-import]
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -147,7 +147,7 @@ class desc_signature(
     classes = ['sig', 'sig-object']
 
     @property
-    def child_text_separator(self) -> str:  # type: ignore[override]
+    def child_text_separator(self) -> str:  # type: ignore[override]  # ty: ignore[invalid-property-type-override]
         if self.get('is_multiline'):
             return ' '
         else:

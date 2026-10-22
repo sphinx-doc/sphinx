@@ -66,7 +66,7 @@ class PyXrefMixin:
     ) -> Node:
         # we use inliner=None to make sure we get the old behaviour with a single
         # pending_xref node
-        result = super().make_xref(  # type: ignore[misc]
+        result = super().make_xref(  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
             rolename,
             domain,
             target,
@@ -88,13 +88,13 @@ class PyXrefMixin:
                 result['reftarget'] = reftarget
 
                 result.clear()
-                result += innernode(reftitle, reftitle)  # type: ignore[call-arg]
+                result += innernode(reftitle, reftitle)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
             elif env.config.python_use_unqualified_type_names:
                 children = result.children
                 result.clear()
 
                 shortname = target.rpartition('.')[-1]
-                textnode = innernode('', shortname)  # type: ignore[call-arg]
+                textnode = innernode('', shortname)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
                 contnodes = [
                     pending_xref_condition('', '', textnode, condition='resolved'),
                     pending_xref_condition('', '', *children, condition='*'),
@@ -129,7 +129,7 @@ class PyXrefMixin:
                 contnode = nodes.Text(sub_target)
 
             if in_literal or self._delimiters_re.match(sub_target):
-                results.append(contnode or innernode(sub_target, sub_target))  # type: ignore[call-arg]
+                results.append(contnode or innernode(sub_target, sub_target))  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
             else:
                 results.append(
                     self.make_xref(
