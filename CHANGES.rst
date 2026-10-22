@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14675: viewcode: Do not generate module pages or index entries when no
+  documented objects link to them.
+  Patch by Kilian Paul
+
 Testing
 -------
 
@@ -36,10 +40,6 @@ Release 9.1.1 (released Oct 19, 2026)
 
 Bugs fixed
 ----------
-
-* #14675: viewcode: Do not generate module pages or index entries when no
-  documented objects link to them.
-  Patch by Kilian Paul
 
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).

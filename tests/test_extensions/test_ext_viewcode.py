@@ -97,7 +97,7 @@ def test_viewcode_unused_module_parallel(app: SphinxTestApp) -> None:
     status = strip_escape_sequences(app.status.getvalue())
     assert re.search(r'reading sources\.\.\. \[\s*\d+%\] \S+ \.\. \S+', status)
 
-    entry = app.env._viewcode_modules['viewcode_unused._types']  # type: ignore[attr-defined]
+    entry = app.env._viewcode_modules['viewcode_unused._types']  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert entry
     assert entry[1] == {}
     assert entry[2] == {}
@@ -119,7 +119,7 @@ def test_collect_pages_ignores_unused_modules(
         'sample.child': (code, tags, {'function': 'index'}, 'sample.child'),
         'unavailable': False,
     }
-    app.env._viewcode_modules = entries  # type: ignore[attr-defined]
+    app.env._viewcode_modules = entries  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     monkeypatch.setattr(
         viewcode,
         'should_generate_module_page',
@@ -147,7 +147,7 @@ def test_collect_pages_ignores_unused_modules(
     assert re.findall(r'highlighting module code\.\.\. .*', status) == [
         'highlighting module code... [100%] sample.child'
     ]
-    assert app.env._viewcode_modules is entries  # type: ignore[attr-defined]
+    assert app.env._viewcode_modules is entries  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 @pytest.mark.sphinx(
