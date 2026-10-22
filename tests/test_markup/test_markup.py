@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from types import SimpleNamespace
 
+import docutils
 import pytest
 from docutils import nodes, utils
 from docutils.parsers.rst import Parser as RstParser
@@ -22,6 +23,11 @@ from sphinx.writers.html5 import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 from tests.utils import extract_node
+
+if docutils.__version_info__[:2] >= (1, 0):
+    _RFC_2324_URL = 'https://datatracker.ietf.org/doc/html/rfc2324/'
+else:
+    _RFC_2324_URL = 'https://datatracker.ietf.org/doc/html/rfc2324.html'
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
@@ -212,12 +218,12 @@ def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
             ':rfc:`2324`',
             (
                 '<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-                'href="https://datatracker.ietf.org/doc/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'
+                f'href="{_RFC_2324_URL}"><strong>RFC 2324</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
-                '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html}'
+                rf'\sphinxhref{{{_RFC_2324_URL}}}'
                 '{\\sphinxstylestrong{RFC 2324}}'
             ),
         ),
@@ -226,13 +232,13 @@ def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
             ':rfc:`2324#section-1`',
             (
                 '<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-                'href="https://datatracker.ietf.org/doc/html/rfc2324.html#section-1">'
+                f'href="{_RFC_2324_URL}#section-1">'
                 '<strong>RFC 2324 Section 1</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{RFC@\\spxentry{RFC}!RFC 2324 Section 1@\\spxentry{RFC 2324 Section 1}}'
-                '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#section-1}'
+                rf'\sphinxhref{{{_RFC_2324_URL}\#section-1}}'
                 '{\\sphinxstylestrong{RFC 2324 Section 1}}'
             ),
         ),
@@ -460,6 +466,16 @@ def test_inline(
     if latex_expected:
         latex_translated = rst_to_latex(rst, app=app)
         assert latex_expected == latex_translated, f'from {rst!r}'
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_block_quote_attribution(app: SphinxTestApp) -> None:
+    html = rst_to_html('    A quotation.\n\n    -- The author\n', app=app)
+    assert html == (
+        '<blockquote>\n<div><p>A quotation.</p>\n'
+        '<p class="attribution">—The author</p>\n'
+        '</div></blockquote>'
+    )
 
 
 @pytest.mark.parametrize(

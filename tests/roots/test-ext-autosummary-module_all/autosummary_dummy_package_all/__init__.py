@@ -10,4 +10,4 @@ def public_baz():
     """Public Baz function"""
 
 
-__all__ = ['PublicBar', 'public_foo', 'public_baz', 'extra_dummy_module']  # NoQA: F822
+__all__ = ['PublicBar', 'public_foo', 'public_baz', 'extra_dummy_module']  # ruff: ignore[undefined-export]

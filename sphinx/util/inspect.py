@@ -27,9 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Final, Protocol
-
-    from typing_extensions import TypeIs
+    from typing import Final, Protocol, TypeIs
 
     from sphinx.util.typing import _StringifyMode
 
@@ -448,7 +446,7 @@ def isproperty(obj: Any) -> TypeIs[property | cached_property[Any]]:
 
 def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
     """Check if the object is a generic alias."""
-    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -619,10 +617,10 @@ class TypeAliasForwardRef:
     def __or__(self, other: Any) -> Any:
         # When evaluating type hints, our forward ref can appear in type expressions,
         # i.e. `Alias | None`. This means it needs to support ``__or__`` and ``__ror__``.
-        return typing.Union[self, other]  # NoQA: UP007
+        return typing.Union[self, other]  # ruff: ignore[non-pep604-annotation-union]
 
     def __ror__(self, other: Any) -> Any:
-        return typing.Union[other, self]  # NoQA: UP007
+        return typing.Union[other, self]  # ruff: ignore[non-pep604-annotation-union]
 
 
 class TypeAliasModule:
@@ -825,16 +823,9 @@ def _evaluate_forwardref(
         # https://docs.python.org/dev/library/annotationlib.html#annotationlib.ForwardRef.evaluate
         # https://docs.python.org/dev/library/typing.html#typing.evaluate_forward_ref
         return typing.evaluate_forward_ref(ref, globals=globalns, locals=localns)
-    if sys.version_info >= (3, 12, 4):
-        # ``type_params`` were added in 3.13 and the signature of _evaluate()
-        # is not backward-compatible (it was backported to 3.12.4, so anything
-        # before 3.12.4 still has the old signature).
-        #
-        # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(  # pyright: ignore[reportDeprecated]
-            globalns, localns, type_params=(), recursive_guard=frozenset()
-        )
-    return ref._evaluate(globalns, localns, recursive_guard=frozenset())
+    return ref._evaluate(  # pyright: ignore[reportDeprecated]
+        globalns, localns, type_params=(), recursive_guard=frozenset()
+    )
 
 
 def _evaluate(
