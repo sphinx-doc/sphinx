@@ -81,13 +81,15 @@ def type_to_xref(
     else:
         contnodes = [nodes.Text(title)]
 
+    if refspecific:
+        kwargs['refspecific'] = True
+
     return pending_xref(
         '',
         *contnodes,
         refdomain='py',
         reftype=reftype,
         reftarget=target,
-        refspecific=refspecific,
         **kwargs,
     )
 
