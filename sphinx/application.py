@@ -1523,7 +1523,7 @@ class Sphinx:
            Take loading_method argument.  Allow to change the loading method of the
            JavaScript file.
         .. versionchanged:: 7.1
-           A CRC32 checksum is appended as a query parameter to local asset
+           A checksum is appended as a query parameter to local asset
            URIs (e.g. ``?v=a1b2c3d4``) for cache-busting purposes.
         """
         if loading_method == 'async':
