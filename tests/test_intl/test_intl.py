@@ -55,6 +55,23 @@ def write_mo(pathname: Path, po: Catalog) -> None:
         mofile.write_mo(f, po)
 
 
+def _write_catalogs(
+    app: SphinxTestApp,
+    locale_dir: Path,
+    catalogs: dict[str, dict[str, str]],
+) -> None:
+    # Gettext caches catalogs by filename; callers must use a unique directory.
+    app.config.locale_dirs = [str(locale_dir)]
+    basedir = locale_dir / _CATALOG_LOCALE / 'LC_MESSAGES'
+    for domain, messages in catalogs.items():
+        catalog = Catalog()
+        for original, translated in messages.items():
+            catalog.add(original, translated)
+        path = basedir / f'{domain}.mo'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_mo(path, catalog)
+
+
 def _set_mtime_ns(target: Path, value: int) -> int:
     os.utime(target, ns=(value, value))
     return target.stat().st_mtime_ns
@@ -459,7 +476,9 @@ def test_html_refs_translated_display_text(app: SphinxTestApp) -> None:
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html', testroot='basic', freshenv=True)
+@pytest.mark.sphinx(
+    'html', testroot='basic', srcdir='intl_xref_consistency', freshenv=True
+)
 @pytest.mark.parametrize(
     ('original', 'translated', 'warning_kind'),
     [
@@ -564,15 +583,11 @@ def test_translated_xref_consistency(
         '      Another fruit.\n',
         encoding='utf8',
     )
-    catalog = Catalog()
-    catalog.add(original, translated)
-    catalog.add('apple', 'pomme')
-    catalog.add('pear', 'poire')
-    # Gettext caches catalogs by filename, so each case needs a distinct path.
-    app.config.locale_dirs = [str(tmp_path)]
-    locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
-    locale_dir.mkdir(parents=True)
-    write_mo(locale_dir / 'index.mo', catalog)
+    _write_catalogs(
+        app,
+        tmp_path,
+        {'index': {original: translated, 'apple': 'pomme', 'pear': 'poire'}},
+    )
 
     app.build()
 
@@ -590,7 +605,17 @@ def test_translated_xref_consistency(
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='basic', freshenv=True)
 @pytest.mark.parametrize('parallel', [0, 2])
-@pytest.mark.parametrize('glossary_doc', ['a_glossary', 'z_glossary'])
+@pytest.mark.parametrize(
+    'glossary_doc',
+    [
+        pytest.param(
+            'a_glossary', marks=pytest.mark.sphinx(srcdir='intl_term_a_glossary')
+        ),
+        pytest.param(
+            'z_glossary', marks=pytest.mark.sphinx(srcdir='intl_term_z_glossary')
+        ),
+    ],
+)
 @pytest.mark.parametrize(('target', 'warns'), [('pomme', False), ('poire', True)])
 def test_translated_term_consistency_other_document(
     app: SphinxTestApp,
@@ -614,16 +639,14 @@ def test_translated_term_consistency_other_document(
         '      Another fruit.\n',
         encoding='utf8',
     )
-    app.config.locale_dirs = [str(tmp_path)]
-    locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
-    locale_dir.mkdir(parents=True)
-    catalog = Catalog()
-    catalog.add(original, f'Translated: :term:`{target}`.')
-    write_mo(locale_dir / 'index.mo', catalog)
-    glossary = Catalog()
-    glossary.add('apple', 'pomme')
-    glossary.add('pear', 'poire')
-    write_mo(locale_dir / f'{glossary_doc}.mo', glossary)
+    _write_catalogs(
+        app,
+        tmp_path,
+        {
+            'index': {original: f'Translated: :term:`{target}`.'},
+            glossary_doc: {'apple': 'pomme', 'pear': 'poire'},
+        },
+    )
 
     app.build()
 
@@ -646,21 +669,27 @@ def test_translated_term_consistency_other_document(
 
 @sphinx_intl
 @pytest.mark.sphinx(testroot='basic', srcdir='intl_included_document', freshenv=True)
-@pytest.mark.parametrize('buildername', ['html', 'singlehtml', 'latex'])
+@pytest.mark.parametrize(
+    'buildername',
+    [
+        pytest.param('html', marks=pytest.mark.sphinx('html')),
+        pytest.param('singlehtml', marks=pytest.mark.sphinx('singlehtml')),
+        pytest.param('latex', marks=pytest.mark.sphinx('latex')),
+    ],
+)
 @pytest.mark.parametrize(
     ('term', 'function', 'warns'),
     [('pomme', 'first', False), ('poire', 'first', True), ('pomme', 'second', True)],
 )
 def test_translated_xref_consistency_included_document(
-    make_app: Callable[..., SphinxTestApp],
-    app_params: _app_params,
+    app: SphinxTestApp,
     tmp_path: Path,
     buildername: str,
     term: str,
     function: str,
     warns: bool,
 ) -> None:
-    app = make_app(buildername, **app_params.kwargs)
+    assert app.builder.name == buildername
     original = 'Original: :term:`apple` and :func:`first`. Read `Heading`_.'
     (app.srcdir / 'index.rst').write_text(
         'Test\n====\n\n.. toctree::\n\n   child\n   glossary\n', encoding='utf8'
@@ -680,19 +709,17 @@ def test_translated_xref_consistency_included_document(
         '.. function:: second()\n',
         encoding='utf8',
     )
-    app.config.locale_dirs = [str(tmp_path)]
-    locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
-    locale_dir.mkdir(parents=True)
-    catalog = Catalog()
-    catalog.add(
-        original, f'Translated: :term:`{term}` and :func:`{function}`. Read `Titre`_.'
+    _write_catalogs(
+        app,
+        tmp_path,
+        {
+            'child': {
+                original: f'Translated: :term:`{term}` and :func:`{function}`. Read `Titre`_.',
+                'Heading': 'Titre',
+            },
+            'glossary': {'apple': 'pomme', 'pear': 'poire'},
+        },
     )
-    catalog.add('Heading', 'Titre')
-    write_mo(locale_dir / 'child.mo', catalog)
-    glossary = Catalog()
-    glossary.add('apple', 'pomme')
-    glossary.add('pear', 'poire')
-    write_mo(locale_dir / 'glossary.mo', glossary)
 
     for force_all in (False, True):
         app.warning.seek(0)
@@ -707,7 +734,9 @@ def test_translated_xref_consistency_included_document(
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html', testroot='basic', freshenv=True)
+@pytest.mark.sphinx(
+    'html', testroot='basic', srcdir='intl_refnamed_consistency', freshenv=True
+)
 @pytest.mark.parametrize(
     ('original', 'translated', 'warns'),
     [
@@ -730,18 +759,6 @@ def test_translated_xref_consistency_included_document(
             id='translated-display-text',
         ),
         pytest.param(
-            'Read first_ and second_.',
-            'Read premier_ and deuxieme_.',
-            False,
-            id='ambiguous-translated-names',
-        ),
-        pytest.param(
-            'Read first_ and second_.',
-            'Read deuxieme_ and premier_.',
-            False,
-            id='ambiguous-reordered-translated-names',
-        ),
-        pytest.param(
             'Read first_.',
             'Read `GUIDE <second_>`_. # noqa',
             False,
@@ -758,12 +775,6 @@ def test_translated_xref_consistency_included_document(
             'Read premier_ and deuxieme_ and troisieme_.',
             True,
             id='extra-translated-reference',
-        ),
-        pytest.param(
-            'Read first_ and second_.',
-            'Read deuxieme_ and `PREMIER <first_>`_.',
-            False,
-            id='one-translated-name-with-explicit-target',
         ),
     ],
 )
@@ -783,18 +794,73 @@ def test_translated_refnamed_consistency(
         f'{original}\n',
         encoding='utf8',
     )
-    catalog = Catalog()
-    catalog.add(original, translated)
-    app.config.locale_dirs = [str(tmp_path)]
-    locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
-    locale_dir.mkdir(parents=True)
-    write_mo(locale_dir / 'index.mo', catalog)
+    _write_catalogs(app, tmp_path, {'index': {original: translated}})
 
     app.build()
 
     assert 'Translated:' in app.env.get_doctree('index').astext()
     warnings = getwarning(app.warning)
     assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
+
+
+@sphinx_intl
+@pytest.mark.sphinx(
+    'html', testroot='basic', srcdir='intl_refnamed_fallback', freshenv=True
+)
+@pytest.mark.parametrize(
+    ('translated', 'expected_refs'),
+    [
+        pytest.param(
+            'Read premier_ and deuxieme_.',
+            [('premier', 'first'), ('deuxieme', 'second')],
+            id='translated-names-use-source-order',
+        ),
+        pytest.param(
+            'Read deuxieme_ and premier_.',
+            [('deuxieme', 'first'), ('premier', 'second')],
+            id='reordered-translated-names-still-use-source-order',
+        ),
+        pytest.param(
+            'Read deuxieme_ and `PREMIER <first_>`_.',
+            [('deuxieme', 'second'), ('PREMIER', 'first')],
+            id='one-explicit-target-disambiguates-fallback',
+        ),
+        pytest.param(
+            'Read `DEUXIEME <second_>`_ and `PREMIER <first_>`_.',
+            [('DEUXIEME', 'second'), ('PREMIER', 'first')],
+            id='explicit-targets-preserve-reordered-destinations',
+        ),
+    ],
+)
+def test_translated_refnamed_fallback_destinations(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    translated: str,
+    expected_refs: list[tuple[str, str]],
+) -> None:
+    """Unknown translated names use positional fallback, not semantic matching.
+
+    Reordering those names can silently swap their intended destinations.
+    Explicit original targets preserve destination identity across reordering.
+    """
+    original = 'Original: Read first_ and second_.'
+    (app.srcdir / 'index.rst').write_text(
+        'Test\n====\n\n'
+        '.. _first: https://example.org/first\n'
+        '.. _second: https://example.org/second\n\n'
+        f'{original}\n',
+        encoding='utf8',
+    )
+    _write_catalogs(app, tmp_path, {'index': {original: f'Translated: {translated}'}})
+
+    app.build()
+
+    doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+    assert 'Translated:' in doctree.astext()
+    assert [
+        (ref.astext(), ref['refuri']) for ref in doctree.findall(nodes.reference)
+    ] == [(text, f'https://example.org/{target}') for text, target in expected_refs]
+    assert not getwarning(app.warning)
 
 
 @sphinx_intl
@@ -843,13 +909,16 @@ def test_translated_refnamed_section_title_collision(
         '.. _Documentation bugs: https://example.org/issues\n',
         encoding='utf8',
     )
-    catalog = Catalog()
-    catalog.add('Documentation bugs', 'Błędy w dokumentacji')
-    catalog.add('`Documentation bugs`_', translated)
-    app.config.locale_dirs = [str(tmp_path)]
-    locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
-    locale_dir.mkdir(parents=True)
-    write_mo(locale_dir / 'index.mo', catalog)
+    _write_catalogs(
+        app,
+        tmp_path,
+        {
+            'index': {
+                'Documentation bugs': 'Błędy w dokumentacji',
+                '`Documentation bugs`_': translated,
+            },
+        },
+    )
 
     app.build()
 
@@ -915,13 +984,9 @@ def test_translated_section_reference_scope(
         f'{original}\n',
         encoding='utf8',
     )
-    catalog = Catalog()
-    catalog.add('Heading', 'Titre')
-    catalog.add(original, translated)
-    app.config.locale_dirs = [str(tmp_path)]
-    locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
-    locale_dir.mkdir(parents=True)
-    write_mo(locale_dir / 'index.mo', catalog)
+    _write_catalogs(
+        app, tmp_path, {'index': {'Heading': 'Titre', original: translated}}
+    )
 
     app.build()
 
