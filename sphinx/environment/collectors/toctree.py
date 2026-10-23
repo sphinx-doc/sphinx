@@ -335,11 +335,26 @@ class TocTreeCollector(EnvironmentCollector):
 
             fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
+        def should_process_only_node(node: addnodes.only) -> bool:
+            """Check if content in `only` node should be processed based on tags."""
+            try:
+                return env._tags.eval_condition(node['expr'])
+            except Exception:
+                # If evaluation fails, include the content
+                return True
+
         def _walk_doctree(
             docname: str, doctree: Element, secnum: tuple[int, ...]
         ) -> None:
             nonlocal generated_docnames
             for subnode in doctree.children:
+                # Skip content inside `only` directives that don't match current tags
+                if isinstance(subnode, addnodes.only):
+                    if should_process_only_node(subnode):
+                        # Process the content of the `only` node
+                        _walk_doctree(docname, subnode, secnum)
+                    # Skip this node if it doesn't match tags
+                    continue
                 if isinstance(subnode, nodes.section):
                     next_secnum = get_section_number(docname, subnode)
                     if next_secnum:
