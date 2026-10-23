@@ -215,13 +215,13 @@ def test_text_inconsistency_warnings(app: SphinxTestApp) -> None:
         },
         warning_fmt
         % {
-            'reftype': 'references',
+            'reftype': 'named references',
             'original': "\\['reference_'\\]",
             'translated': "\\['reference_', 'reference_'\\]",
         },
         warning_fmt
         % {
-            'reftype': 'references',
+            'reftype': 'named references',
             'original': '\\[\\]',
             'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
         },
@@ -379,7 +379,7 @@ def test_text_glossary_term_inconsistencies(app: SphinxTestApp) -> None:
     warnings = getwarning(app.warning)
     expected_warning_expr = (
         '.*/glossary_terms_inconsistency.txt:\\d+: '
-        'WARNING: inconsistent term references in translated message.'
+        'WARNING: inconsistent glossary references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\] \\[i18n.inconsistent_references\\]\n"
     )
@@ -461,73 +461,87 @@ def test_html_refs_translated_display_text(app: SphinxTestApp) -> None:
 @sphinx_intl
 @pytest.mark.sphinx('html', testroot='basic', freshenv=True)
 @pytest.mark.parametrize(
-    ('original', 'translated', 'warns'),
+    ('original', 'translated', 'warning_kind'),
     [
-        pytest.param(':func:`first`', ':func:`second`', True, id='changed-target'),
-        pytest.param(':func:`first`', ':class:`first`', True, id='changed-role'),
-        pytest.param(':func:`first`', ':c:func:`first`', True, id='changed-domain'),
+        pytest.param(
+            ':func:`first`', ':func:`second`', 'cross-references', id='changed-target'
+        ),
+        pytest.param(
+            ':func:`first`', ':class:`first`', 'cross-references', id='changed-role'
+        ),
+        pytest.param(
+            ':func:`first`',
+            ':c:func:`first`',
+            'cross-references',
+            id='changed-domain',
+        ),
         pytest.param(
             ':func:`first` and :func:`second`',
             ':func:`SECOND <second>` and :func:`FIRST <first>`',
-            False,
+            None,
             id='reordered-translated-display-text',
         ),
         pytest.param(
             ':func:`first`, :func:`first`, :func:`second`',
             ':func:`first`, :func:`second`, :func:`second`',
-            True,
+            'cross-references',
             id='changed-multiplicity',
         ),
         pytest.param(
             ':func:`first` and :term:`apple`',
             ':term:`pomme` and :func:`FIRST <first>`',
-            False,
+            None,
             id='translated-term-and-unchanged-function',
         ),
         pytest.param(
             ':func:`first` and :term:`apple`',
             ':term:`pomme` and :func:`second`',
-            True,
+            'cross-references',
             id='translated-term-and-changed-function',
         ),
         pytest.param(
             ':term:`apple` and :func:`first`',
             ':func:`first` and :func:`first`',
-            True,
+            'cross-references',
             id='term-replaced-by-function',
         ),
         pytest.param(
             ':term:`apple` and :term:`apple`',
             ':term:`pomme`',
-            True,
+            'glossary references',
             id='missing-term',
         ),
         pytest.param(
             ':term:`apple`',
             ':term:`pomme` and :term:`pomme`',
-            True,
+            'glossary references',
             id='extra-term',
         ),
-        pytest.param(':term:`apple`', ':term:`pear`', True, id='changed-term'),
         pytest.param(
-            ':term:`apple`', ':term:`poire`', True, id='changed-translated-term'
+            ':term:`apple`', ':term:`pear`', 'glossary references', id='changed-term'
+        ),
+        pytest.param(
+            ':term:`apple`',
+            ':term:`poire`',
+            'glossary references',
+            id='changed-translated-term',
         ),
         pytest.param(
             ':term:`apple` and :term:`pear`',
             ':term:`pomme` and :term:`pomme`',
-            True,
+            'glossary references',
             id='changed-term-multiplicity',
         ),
         pytest.param(
             ':term:`apple` and :term:`pear`',
             ':term:`POIRE` and :term:`pomme`',
-            False,
+            None,
             id='reordered-translated-terms',
         ),
         pytest.param(
-            ':term:`apple`', ':term:`pear` # noqa', False, id='changed-term-noqa'
+            ':term:`apple`', ':term:`pear` # noqa', None, id='changed-term-noqa'
         ),
-        pytest.param(':func:`first`', ':func:`second` # noqa', False, id='noqa'),
+        pytest.param(':func:`first`', ':func:`second` # noqa', None, id='noqa'),
     ],
 )
 def test_translated_xref_consistency(
@@ -535,7 +549,7 @@ def test_translated_xref_consistency(
     tmp_path: Path,
     original: str,
     translated: str,
-    warns: bool,
+    warning_kind: str | None,
 ) -> None:
     original = f'Original: {original}.'
     translated = f'Translated: {translated}'
@@ -565,7 +579,12 @@ def test_translated_xref_consistency(
     doctree = app.env.get_doctree('index')
     assert 'Translated:' in doctree.astext()
     warnings = getwarning(app.warning)
-    assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
+    expected_count = 0 if warning_kind is None else 1
+    assert warnings.count('[i18n.inconsistent_references]') == expected_count, warnings
+    if warning_kind is not None:
+        assert f'inconsistent {warning_kind} in translated message.' in warnings, (
+            warnings
+        )
 
 
 @sphinx_intl
@@ -684,7 +703,7 @@ def test_translated_xref_consistency_included_document(
         assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
         assert '[ref.term]' not in warnings, warnings
         if warns:
-            assert 'child.rst:4: WARNING: inconsistent term references' in warnings
+            assert 'child.rst:4: WARNING: inconsistent cross-references' in warnings
 
 
 @sphinx_intl
@@ -844,7 +863,7 @@ def test_translated_refnamed_section_title_collision(
     warnings = getwarning(app.warning)
     if warns:
         assert (
-            'index.rst:9: WARNING: inconsistent references in translated message. '
+            'index.rst:9: WARNING: inconsistent named references in translated message. '
             "original: ['`Documentation bugs`_'], "
             "translated: ['`Błędy w dokumentacji`_'] "
             '[i18n.inconsistent_references]'

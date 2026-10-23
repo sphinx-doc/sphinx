@@ -399,7 +399,7 @@ class _NodeUpdater:
                 old_xrefs,
                 new_xrefs,
                 __(
-                    'inconsistent term references in translated message.'
+                    'inconsistent cross-references in translated message.'
                     ' original: {0}, translated: {1}'
                 ),
                 key_func=get_ref_key,
@@ -453,7 +453,7 @@ class TranslatedNamedReferences(SphinxTransform):
                     old_refs,
                     new_refs,
                     __(
-                        'inconsistent references in translated message.'
+                        'inconsistent named references in translated message.'
                         ' original: {0}, translated: {1}'
                     ),
                     key_func=get_named_ref_key,
@@ -468,9 +468,12 @@ class TranslatedTermReferences(SphinxPostTransform):
     def run(self, **kwargs: Any) -> None:
         domain = self.env.domains.standard_domain
 
+        def is_glossary_reference(ref: nodes.Element) -> bool:
+            return (ref['refdomain'], ref['reftype']) == ('std', 'term')
+
         def get_ref_key(ref: nodes.Element) -> tuple[str, str, str | tuple[str, str]]:
             target = ref['reftarget']
-            if (ref['refdomain'], ref['reftype']) == ('std', 'term'):
+            if is_glossary_reference(ref):
                 # Match the standard domain's exact, then case-insensitive lookup.
                 target = domain.objects.get(('term', target)) or domain._terms.get(
                     target.lower(), target
@@ -482,15 +485,19 @@ class TranslatedTermReferences(SphinxPostTransform):
                 '_i18n_pending_xrefs', []
             )
             for old_refs, new_refs in pending:
+                if all(is_glossary_reference(ref) for ref in (*old_refs, *new_refs)):
+                    warning_msg = __(
+                        'inconsistent glossary references in translated message.'
+                        ' original: {0}, translated: {1}'
+                    )
+                else:
+                    warning_msg = __(
+                        'inconsistent cross-references in translated message.'
+                        ' original: {0}, translated: {1}'
+                    )
                 updater = _NodeUpdater(node, node, self.document, noqa=False)
                 updater.compare_references(
-                    old_refs,
-                    new_refs,
-                    __(
-                        'inconsistent term references in translated message.'
-                        ' original: {0}, translated: {1}'
-                    ),
-                    key_func=get_ref_key,
+                    old_refs, new_refs, warning_msg, key_func=get_ref_key
                 )
 
 
