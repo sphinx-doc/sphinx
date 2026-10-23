@@ -120,6 +120,7 @@ Contributors
 * Tim Hoffmann -- theme improvements
 * Tim Pillinger -- documentation improvements
 * Valentin Heinisch -- warning types improvement
+* Valerian Rey -- doctest options coming from code-block
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder

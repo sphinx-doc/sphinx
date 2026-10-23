@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import textwrap
 from difflib import unified_diff
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -96,15 +96,14 @@ def container_wrapper(
     raise RuntimeError  # never reached
 
 
-class CodeBlock(SphinxDirective):
+class BaseCodeBlock(SphinxDirective):
     """Directive for a code block with special highlighting or line numbering
     settings.
     """
 
     has_content = True
     required_arguments = 0
-    optional_arguments = 1
-    final_argument_whitespace = False
+    optional_arguments = 0
     option_spec: ClassVar[OptionSpec] = {
         'force': directives.flag,
         'linenos': directives.flag,
@@ -153,17 +152,6 @@ class CodeBlock(SphinxDirective):
             literal['linenos'] = True
         literal['classes'] += self.options.get('class', [])
         literal['force'] = 'force' in self.options
-        if self.arguments:
-            # highlight language specified
-            literal['language'] = self.arguments[0]
-        else:
-            # no highlight language specified.  Then this directive refers the current
-            # highlight setting via ``highlight`` directive or ``highlight_language``
-            # configuration.
-            literal['language'] = (
-                self.env.current_document.highlight_language
-                or self.config.highlight_language
-            )
         extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
@@ -183,6 +171,34 @@ class CodeBlock(SphinxDirective):
         self.add_name(literal)
 
         return [literal]
+
+
+class CodeBlock(BaseCodeBlock):
+    """BaseCodeBlock with an optional language argument for syntax highlighting"""
+
+    optional_arguments = 1
+    final_argument_whitespace = False
+
+    def run(self) -> list[Node]:
+        result = super().run()[0]
+        # If caption wrapping occurred, the literal_block is inside the container
+        if isinstance(result, nodes.container):
+            # result[0] is caption, result[1] is literal_block
+            literal = cast('Element', result[1])
+        else:
+            literal = cast('Element', result)
+        if self.arguments:
+            # highlight language specified
+            literal['language'] = self.arguments[0]
+        else:
+            # no highlight language specified.  Then this directive refers the current
+            # highlight setting via ``highlight`` directive or ``highlight_language``
+            # configuration.
+            literal['language'] = (
+                self.env.current_document.highlight_language
+                or self.config.highlight_language
+            )
+        return [result]
 
 
 class LiteralIncludeReader:
