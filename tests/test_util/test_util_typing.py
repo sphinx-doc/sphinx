@@ -1009,7 +1009,7 @@ def test_stringify_broken_type_hints() -> None:
 
 def test_stringify_mock() -> None:
     with mock(['unknown']):
-        import unknown  # pyrefly: ignore[missing-import]
+        import unknown  # ty: ignore[unresolved-import]  # pyrefly: ignore[missing-import]
 
         ann_str = stringify_annotation(unknown, 'fully-qualified-except-typing')
         assert ann_str == 'unknown'

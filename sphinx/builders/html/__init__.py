@@ -1248,9 +1248,7 @@ class StandaloneHTMLBuilder(Builder):
         ensuredir(output_path.parent)
         try:
             output_path.write_text(
-                output,
-                encoding=ctx['encoding'],
-                errors='xmlcharrefreplace',
+                output, encoding=ctx['encoding'], errors='xmlcharrefreplace'
             )
         except OSError as err:
             logger.warning(__('error writing file %s: %s'), output_path, err)

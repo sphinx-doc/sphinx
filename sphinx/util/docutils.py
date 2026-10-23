@@ -303,7 +303,7 @@ class CustomReSTDispatcher:
         lineno: int,
         reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        return self.role_func(  # pyrefly: ignore[bad-return]
+        return self.role_func(  # ty: ignore[invalid-return-type]  # pyrefly: ignore[bad-return]
             role_name,
             language_module,  # type: ignore[return-value]
             lineno,
