@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
-import locale
 import re
 import sys
 from pathlib import Path
@@ -254,7 +253,7 @@ Note: By default this script will not overwrite already created files."""),
 
 def main(argv: Sequence[str] = (), /) -> int:
     """Run the apidoc CLI."""
-    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale._set_locale_from_environment()
     sphinx.locale.init_console()
 
     opts = _parse_args(argv)

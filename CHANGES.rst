@@ -47,6 +47,11 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #11739, #13822: Fix a crash when starting the command line tools in an
+  environment that requests a locale which is not installed on the system,
+  for example ``LC_ALL=de_DE.UTF-8``.
+  Patch by Xia Jiang
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

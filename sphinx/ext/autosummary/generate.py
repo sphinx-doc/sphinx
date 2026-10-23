@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import importlib
 import inspect
-import locale
 import pkgutil
 import pydoc
 import re
@@ -955,7 +954,7 @@ The format of the autosummary directive is documented in the
 
 
 def main(argv: Sequence[str] = (), /) -> None:
-    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale._set_locale_from_environment()
     sphinx.locale.init_console()
 
     app = DummyApplication(sphinx.locale.get_translator())

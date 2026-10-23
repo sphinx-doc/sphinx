@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import locale
 from collections import namedtuple
 from typing import TYPE_CHECKING
 
@@ -798,3 +799,18 @@ def test_sphinx_extension(app: SphinxTestApp) -> None:
 
     # TODO check nothing got re-built
     # TODO test that old files are removed
+
+
+def test_main_with_unsupported_locale(monkeypatch, tmp_path):
+    """An unavailable locale in the environment does not abort the CLI."""
+
+    def setlocale(category, value=None):
+        msg = 'unsupported locale setting'
+        raise locale.Error(msg)
+
+    monkeypatch.setattr(locale, 'setlocale', setlocale)
+    (tmp_path / 'hello.py').touch()
+
+    apidoc_main(['-o', str(tmp_path), str(tmp_path)])
+
+    assert (tmp_path / 'hello.rst').exists()
