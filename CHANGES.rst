@@ -47,6 +47,11 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14543: Only print the category and message for :exc:`~sphinx.errors.SphinxError`
+  exceptions, such as those raised by extensions or ``conf.py``. The environment
+  details, loaded extension list, saved traceback and bug report prompt are again
+  reserved for unexpected exceptions.
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
