@@ -135,7 +135,7 @@ types = [
     "mypy==2.4.0",
     "pyrefly==1.4.0",
     "pyright==1.1.414",
-    "ty==0.0.90",
+    "ty==0.0.91",
     { include-group = "type-stubs" },
 ]
 type-stubs = [
