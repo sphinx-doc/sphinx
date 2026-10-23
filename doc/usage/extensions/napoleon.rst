@@ -607,6 +607,20 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``:
        :param arg2: Description of `arg2`
        :type arg2: :term:`dict-like <mapping>`
 
+   Import aliases used in type definitions can be translated to names present
+   in intersphinx inventories. For example, to translate ``np.ndarray`` to
+   ``numpy.ndarray``:
+
+   .. code-block:: python
+
+       napoleon_preprocess_types = True
+       napoleon_type_aliases = {
+           "np.ndarray": "numpy.ndarray",
+       }
+
+   Napoleon cannot infer module imports from type names written in docstrings,
+   so aliases must be configured explicitly.
+
    .. versionadded:: 3.2
 
 .. confval:: napoleon_attr_annotations
