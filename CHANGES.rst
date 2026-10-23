@@ -47,6 +47,10 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14514: Fix a build crash (``KeyError: 'refuri'`` or ``KeyError:
+  'anchorname'``) when a section title contains a :rst:role:`download` role.
+  Patch by Kayvan Zahiri
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

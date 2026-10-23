@@ -1102,3 +1102,47 @@ def test_toctree_copy_only():
     assert isinstance(extract_node(toc, 0, 0, 0), nodes.reference)
     assert isinstance(extract_node(toc, 0, 0, 0, 0), nodes.literal)
     assert extract_node(toc, 0, 0, 0, 0, 0) == nodes.Text('lobster!')
+
+
+@pytest.mark.sphinx('html', testroot='toctree-download')
+def test_toctree_download_reference_in_section_title(app):
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/14514
+    # ``download_reference`` subclasses ``reference`` and is created while
+    # parsing, so it used to be copied into the ToC entry without the
+    # ``anchorname`` and ``refuri`` attributes that ToC entries carry.
+    app.build()
+
+    toc = app.env.tocs['foo']
+    assert list(toc.findall(addnodes.download_reference)) == []
+    assert_node(
+        extract_node(toc, 0, 1, 0, 0),
+        [compact_paragraph, reference, ('Get ', [literal, 'example.txt'], ' here')],
+    )
+
+    # resolving the local and the global ToC no longer raises ``KeyError``
+    document_toc(app.env, 'foo', app.tags)
+    global_toctree_for_doc(app.env, 'foo', app.builder, tags=app.tags)
+
+
+@pytest.mark.sphinx('html', testroot='toctree-download')
+def test_toctree_nested_reference_is_left_alone(app):
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/14514
+    # references nested within the text of a ToC entry (as extensions may add)
+    # are not ToC entries themselves, and must not be treated as such.
+    app.build()
+    entry = extract_node(app.env.tocs['foo'], 0, 1, 0, 0, 0)
+    assert isinstance(entry, reference)
+    entry += reference('', 'nested', refid='nested')
+
+    local_toc = document_toc(app.env, 'foo', app.tags)
+    nested = [node for node in local_toc.findall(reference) if 'anchorname' not in node]
+    assert len(nested) == 1
+    assert 'refuri' not in nested[0]
+
+    global_toc = global_toctree_for_doc(app.env, 'foo', app.builder, tags=app.tags)
+    assert global_toc is not None
+    nested = [
+        node for node in global_toc.findall(reference) if 'anchorname' not in node
+    ]
+    assert len(nested) == 1
+    assert 'refuri' not in nested[0]
