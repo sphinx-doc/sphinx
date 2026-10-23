@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #12599: Preserve index entries in HTML search indexes during incremental
+  builds and remove entries for deleted documents.
+  Patch by Aarav
+
 Testing
 -------
 
