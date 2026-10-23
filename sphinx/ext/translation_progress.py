@@ -2,25 +2,40 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 
 import sphinx
 from sphinx.locale import _
-from sphinx.transforms import _calculate_translation_progress
+from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
 
-def add_translation_progress_note(
-    app: Sphinx, doctree: nodes.document, docname: str
-) -> None:
-    """Add a note after the title when a document is not fully translated."""
-    del app, docname
+_DEFAULT_TITLE = 'Translation progress'
+_DEFAULT_MESSAGE = (
+    'This page is {percentage} translated based on word count. '
+    'Some content is still in the original language.'
+)
 
+
+def _calculate_word_progress(doctree: nodes.document) -> tuple[int, int]:
+    """Return the translated and total source-language word counts."""
+    total_words = translated_words = 0
+    for node in NodeMatcher(nodes.Element, translated=Any).findall(doctree):
+        source = node.rawsource or node.astext()
+        word_count = len(source.split())
+        total_words += word_count
+        if node['translated']:
+            translated_words += word_count
+    return translated_words, total_words
+
+
+def add_translation_progress_note(app: Sphinx, doctree: nodes.document) -> None:
+    """Add a note after the title when a document is not fully translated."""
     try:
         translation_progress = doctree['translation_progress']
     except KeyError:
@@ -31,11 +46,15 @@ def add_translation_progress_note(
     if total <= 0 or translated >= total:
         return
 
-    percentage = _calculate_translation_progress(doctree)
+    translated_words, total_words = _calculate_word_progress(doctree)
+    if total_words <= 0:
+        return
+
+    percentage = f'{translated_words / total_words:.2%}'
     note = nodes.note(classes=['translation-progress'])
-    note += nodes.title(text=_('Translation progress'))
+    note += nodes.title(text=_(app.config.translation_progress_title))
     note += nodes.paragraph(
-        text=_('This page is %(percentage)s translated.') % {'percentage': percentage}
+        text=_(app.config.translation_progress_message).format(percentage=percentage)
     )
 
     for child in doctree.children:
@@ -51,7 +70,13 @@ def add_translation_progress_note(
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.connect('doctree-resolved', add_translation_progress_note)
+    app.add_config_value(
+        'translation_progress_title', _DEFAULT_TITLE, 'env', types=frozenset({str})
+    )
+    app.add_config_value(
+        'translation_progress_message', _DEFAULT_MESSAGE, 'env', types=frozenset({str})
+    )
+    app.connect('doctree-read', add_translation_progress_note)
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,
