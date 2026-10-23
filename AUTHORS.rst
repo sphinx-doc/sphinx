@@ -79,6 +79,7 @@ Contributors
 * Juan Luis Cano Rodríguez -- new tutorial (2021)
 * Julien Palard -- Colspan and rowspan in text builder
 * Justus Magin -- napoleon improvements
+* Kaushik Reddy Lingireddy -- numbered references in text output
 * Kazuya Take -- ``sphinx.testing.path`` bug fix
 * Kevin Dunn -- MathJax extension
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
