@@ -15,6 +15,9 @@ Features added
 
 Bugs fixed
 ----------
+* #13383: Emit an info-level message about duplicate internal hyperlink
+  declarations.
+  Patch by James Addison.
 
 Testing
 -------
