@@ -168,19 +168,33 @@ Options
 
 .. option:: -D setting=value, --define setting=value
 
-   Override a configuration value set in the :file:`conf.py` file.  The value
-   must be a number, string, list or dictionary value.
-
-   For lists, you can separate elements with a comma like this: ``-D
-   html_theme_path=path1,path2``.
-
-   For dictionary values, supply the setting name and key like this:
-   ``-D latex_elements.docclass=scrartcl``.
+   Override a configuration value set in the :file:`conf.py` file. The
+   ``value`` must be a number, a string or a list. The literal value ``None``
+   is treated as the string ``"None"``.
 
    For boolean values, use ``0`` or ``1`` as the value.
 
+   For lists, you can separate elements with a comma like this:
+   ``-D html_theme_path=path1,path2``. This is equivalent to:
+
+   .. code-block:: python
+
+      html_theme_path = ["path1", "path2"]
+
+   For dictionary values, supply the setting name and key like this:
+   ``-D latex_elements.docclass=scrartcl``. This is equivalent to:
+
+   .. code-block:: python
+
+      latex_elements = {"docclass": "scrartcl"}
+
+   .. note::
+
+      ``--define`` can override only top-level dictionary entries and cannot
+      construct nested list or dictionary values.
+
    .. versionchanged:: 0.6
-      The value can now be a dictionary value.
+      Individual dictionary entries can now be overridden.
 
    .. versionchanged:: 1.3
       The value can now also be a list value.
