@@ -10,6 +10,8 @@ from functools import partial
 from itertools import starmap
 from typing import TYPE_CHECKING, Any
 
+from docutils.parsers.rst.states import Body
+
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.typing import get_type_hints, stringify_annotation
@@ -26,6 +28,19 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _directive_regex = re.compile(r'\.\. \S+::')
+_rst_block_regexes = tuple(
+    re.compile(Body.patterns[name])
+    for name in (
+        'bullet',
+        'enumerator',
+        'field_marker',
+        'option_marker',
+        'doctest',
+        'line_block',
+        'explicit_markup',
+        'anonymous',
+    )
+)
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
 _google_typed_arg_regex = re.compile(r'(.+?)\(\s*(.*[^\s]+)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
@@ -544,6 +559,14 @@ class GoogleDocstring:
 
             if colon:
                 if after:
+                    if (
+                        len(lines) > 1
+                        and lines[1]
+                        and not after.endswith('::')
+                        and not any(regex.match(after) for regex in _rst_block_regexes)
+                    ):
+                        # Dedent hanging prose without flattening nested content.
+                        lines[1:] = self._dedent(lines[1:])
                     _desc = [after, *lines[1:]]
                 else:
                     _desc = lines[1:]

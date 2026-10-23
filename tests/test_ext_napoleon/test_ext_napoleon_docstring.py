@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
+from docutils import nodes
+from docutils.core import publish_doctree
 
 from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.ext.napoleon import Config
@@ -547,6 +549,120 @@ Attributes:
 :vartype bar: str
 """
         assert str(actual) == expected
+
+    @pytest.mark.parametrize('use_rtype', [True, False])
+    @pytest.mark.parametrize('variable', ['save_path', '`save_path`'])
+    @pytest.mark.parametrize('indent', ['    ', '        '])
+    def test_wrapped_returns_description(self, use_rtype, variable, indent):
+        docstring = (
+            'Returns:\n'
+            f'    None or str: If {variable} is provided, returns the path to the log\n'
+            f'{indent}file.\n'
+        )
+        config = Config(napoleon_use_rtype=use_rtype)
+        actual = GoogleDocstring(docstring, config)
+        doctree = publish_doctree(str(actual))
+        body = next(doctree.findall(nodes.field_body))
+
+        assert len(body.children) == 1
+        assert isinstance(body[0], nodes.paragraph)
+        expected = 'If save_path is provided, returns the path to the log file.'
+        if not use_rtype:
+            expected = f'None or str -- {expected}'
+        assert body.astext().replace('\n', ' ') == expected
+        assert not list(doctree.findall(nodes.system_message))
+
+    @pytest.mark.parametrize('use_rtype', [True, False])
+    def test_wrapped_returns_description_with_nested_content(self, use_rtype):
+        docstring = """\
+Returns:
+    str: A result with
+        further details.
+
+        - first item
+
+          - nested item
+
+        Example::
+
+            first line
+                indented line
+
+        .. code-block:: python
+
+            if True:
+                pass
+"""
+        config = Config(napoleon_use_rtype=use_rtype)
+        doctree = publish_doctree(str(GoogleDocstring(docstring, config)))
+        body = next(doctree.findall(nodes.field_body))
+
+        assert isinstance(body[0], nodes.paragraph)
+        assert body[0].astext().endswith('A result with\nfurther details.')
+        assert isinstance(body[1], nodes.bullet_list)
+        assert isinstance(body[1][0][1], nodes.bullet_list)
+        assert [node.astext() for node in body.findall(nodes.literal_block)] == [
+            'first line\n    indented line',
+            'if True:\n    pass',
+        ]
+        assert not list(doctree.findall(nodes.definition_list))
+        assert not list(doctree.findall(nodes.system_message))
+
+    @pytest.mark.parametrize(
+        ('description', 'node_type', 'text'),
+        [
+            (
+                '- first item\n      continued\n\n      - nested item',
+                nodes.bullet_list,
+                'nested item',
+            ),
+            (
+                '1. first item\n       continued\n\n       1. nested item',
+                nodes.enumerated_list,
+                'nested item',
+            ),
+            (
+                '.. note:: First line\n        second line',
+                nodes.note,
+                'First line\nsecond line',
+            ),
+            (
+                '| first line\n        continuation',
+                nodes.line_block,
+                'first line\ncontinuation',
+            ),
+            (
+                ':key: first line\n        continuation',
+                nodes.field_body,
+                'first line\ncontinuation',
+            ),
+            (
+                '1) first item\n       continued\n\n       - nested item',
+                nodes.enumerated_list,
+                'first item\ncontinued\n\nnested item',
+            ),
+            (
+                '--foo  first line\n           continued',
+                nodes.description,
+                'first line\ncontinued',
+            ),
+            ('.. comment\n        continued', nodes.comment, 'comment\ncontinued'),
+            ('>>> print(1)\n        1', nodes.doctest_block, '>>> print(1)\n    1'),
+            (
+                'Example::\n\n        first\n            second',
+                nodes.literal_block,
+                'first\n    second',
+            ),
+        ],
+    )
+    def test_returns_description_preserves_indentation(
+        self, description, node_type, text
+    ):
+        docstring = f'Returns:\n    str: {description}\n'
+        doctree = publish_doctree(str(GoogleDocstring(docstring)))
+
+        assert text in [node.astext() for node in doctree.findall(node_type)]
+        assert not list(doctree.findall(nodes.system_message))
 
     def test_code_block_in_returns_section(self):
         docstring = """

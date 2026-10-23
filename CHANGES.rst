@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #13602: napoleon: Fix hanging indentation in Google-style return descriptions
+  being rendered as definition lists.
+  Patch by Liang Jingyi.
+
 Testing
 -------
 
