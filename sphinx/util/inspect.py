@@ -60,7 +60,7 @@ if TYPE_CHECKING:
         Callable[..., Any] | staticmethod[Any, Any] | classmethod[Any, Any, Any]
     )
 
-_SENTINEL = sentinel('_SENTINEL')
+_INSPECT_SENTINEL = sentinel('_INSPECT_SENTINEL')
 
 logger = logging.getLogger(__name__)
 
@@ -240,8 +240,8 @@ def isclassmethod(
     if cls and name:
         # trace __mro__ if the method is defined in parent class
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, _SENTINEL)
-            if meth is not _SENTINEL:
+            meth = basecls.__dict__.get(name, _INSPECT_SENTINEL)
+            if meth is not _INSPECT_SENTINEL:
                 return isclassmethod(meth)
     return False
 
@@ -259,8 +259,8 @@ def is_classmethod_descriptor(
     if cls and name:
         # trace __mro__ if the method is defined in parent class
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, _SENTINEL)
-            if meth is not _SENTINEL:
+            meth = basecls.__dict__.get(name, _INSPECT_SENTINEL)
+            if meth is not _INSPECT_SENTINEL:
                 return isinstance(meth, types.ClassMethodDescriptorType)
     return False
 
@@ -286,8 +286,8 @@ def is_builtin_classmethod_like(
     if cls and name:
         # trace __mro__ if the method is defined in parent class
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, _SENTINEL)
-            if meth is not _SENTINEL:
+            meth = basecls.__dict__.get(name, _INSPECT_SENTINEL)
+            if meth is not _INSPECT_SENTINEL:
                 return is_classmethod_descriptor(meth, None, None) or (
                     isbuiltin(meth)
                     and getattr(meth, '__self__', None) is not None
@@ -312,8 +312,8 @@ def isstaticmethod(
     if cls and name:
         # trace __mro__ if the method is defined in parent class
         for basecls in getattr(cls, '__mro__', [cls]):
-            meth = basecls.__dict__.get(name, _SENTINEL)
-            if meth is not _SENTINEL:
+            meth = basecls.__dict__.get(name, _INSPECT_SENTINEL)
+            if meth is not _INSPECT_SENTINEL:
                 return isinstance(meth, staticmethod)
     return False
 
