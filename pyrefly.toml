@@ -4,7 +4,8 @@
 #
 # .. _Pyrefly: https://pyrefly.org/en/docs/configuration/
 
-project_includes = [
+python-version = "3.13"
+project-includes = [
     "doc/conf.py",
     "doc/development/tutorials/examples/autodoc_intenum.py",
     "doc/development/tutorials/examples/helloworld.py",
@@ -12,16 +13,41 @@ project_includes = [
     "tests",
     "utils",
 ]
-project_excludes = [
-    "**/tests/roots*",
+project-excludes = [
+    "tests/roots",
+    "tests/test_util/typing_test_data.py",
 ]
-python_version = "3.13"
-replace_imports_with_any = [
+replace-imports-with-any = [
     "imagesize",
     "pyximport",
     "snowballstemmer",
 ]
+check-unannotated-defs = false
 
 # https://pyrefly.org/en/docs/error-kinds/
 [errors]
+bad-override-mutable-attribute = false
+bad-override-param-name = false
 implicitly-defined-attribute = false  # many false positives
+unbound-name = false
+unused-ignore = true
+# Require specific ignore codes once supported:
+# https://github.com/facebook/pyrefly/issues/3450
+
+[[sub_config]]
+matches = "sphinx/domains/c/**"
+[sub_config.errors]
+bad-argument-type = false
+bad-assignment = false
+bad-return = false
+missing-attribute = false
+unsupported-operation = false
+
+[[sub_config]]
+matches = "sphinx/domains/cpp/**"
+[sub_config.errors]
+bad-argument-type = false
+bad-assignment = false
+bad-return = false
+missing-attribute = false
+unsupported-operation = false
