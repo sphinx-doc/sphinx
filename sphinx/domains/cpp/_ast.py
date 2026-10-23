@@ -313,8 +313,8 @@ class ASTNestedName(ASTBase):
             template_params: list[Any] = []
             if mode == 'lastIsName':
                 assert symbol is not None
-                if symbol.declaration.templatePrefix is not None:
-                    template_params = symbol.declaration.templatePrefix.templates
+                if symbol.declaration.templatePrefix is not None:  # ty: ignore[unresolved-attribute]
+                    template_params = symbol.declaration.templatePrefix.templates  # ty: ignore[unresolved-attribute]
             i_template_params = 0
             template_params_prefix = ''
             prefix = ''
@@ -2038,7 +2038,7 @@ class ASTFunctionParameter(ASTBase):
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=False)
+            return symbol.parent.declaration.get_id(version, prefixed=False)  # ty: ignore[unresolved-attribute]
         # else, do the usual
         if self.ellipsis:
             return 'z'
@@ -3394,7 +3394,7 @@ class ASTType(ASTBase):
             if objectType:  # needs the name
                 if objectType == 'function':  # also modifiers
                     res.extend((
-                        symbol.get_full_nested_name().get_id(version),
+                        symbol.get_full_nested_name().get_id(version),  # ty: ignore[unresolved-attribute]
                         self.decl.get_param_id(version),
                         self.decl.get_modifiers_id(version),
                     ))
@@ -3404,7 +3404,7 @@ class ASTType(ASTBase):
                     ):
                         res.append('CE')
                 elif objectType == 'type':  # just the name
-                    res.append(symbol.get_full_nested_name().get_id(version))
+                    res.append(symbol.get_full_nested_name().get_id(version))  # ty: ignore[unresolved-attribute]
                 else:
                     raise AssertionError(objectType)
             else:  # only type encoding
@@ -3421,10 +3421,10 @@ class ASTType(ASTBase):
         if objectType:  # needs the name
             if objectType == 'function':  # also modifiers
                 modifiers = self.decl.get_modifiers_id(version)
-                res.append(symbol.get_full_nested_name().get_id(version, modifiers))
+                res.append(symbol.get_full_nested_name().get_id(version, modifiers))  # ty: ignore[unresolved-attribute]
                 if version >= 4:
                     # with templates we need to mangle the return type in as well
-                    templ = symbol.declaration.templatePrefix
+                    templ = symbol.declaration.templatePrefix  # ty: ignore[unresolved-attribute]
                     if templ is not None:
                         type_id = self.decl.get_ptr_suffix_id(version)
                         if self.trailingReturn:
@@ -3435,7 +3435,7 @@ class ASTType(ASTBase):
                         res.append(return_type_id)
                 res.append(self.decl.get_param_id(version))
             elif objectType == 'type':  # just the name
-                res.append(symbol.get_full_nested_name().get_id(version))
+                res.append(symbol.get_full_nested_name().get_id(version))  # ty: ignore[unresolved-attribute]
             else:
                 raise AssertionError(objectType)
         else:  # only type encoding
@@ -3504,7 +3504,7 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
         assert version >= 2
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=False)
+            return symbol.parent.declaration.get_id(version, prefixed=False)  # ty: ignore[unresolved-attribute]
         else:
             return self.type.get_id(version)
 
@@ -3554,11 +3554,11 @@ class ASTTypeWithInit(ASTBase):
             return self.type.get_id(version, objectType)
         if version == 1:
             return (
-                symbol.get_full_nested_name().get_id(version)
+                symbol.get_full_nested_name().get_id(version)  # ty: ignore[unresolved-attribute]
                 + '__'
                 + self.type.get_id(version)
             )
-        return symbol.get_full_nested_name().get_id(version)
+        return symbol.get_full_nested_name().get_id(version)  # ty: ignore[unresolved-attribute]
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [transform(self.type)]
@@ -3593,7 +3593,7 @@ class ASTTypeUsing(ASTBase):
     ) -> str:
         if version == 1:
             raise NoOldIdError
-        return symbol.get_full_nested_name().get_id(version)
+        return symbol.get_full_nested_name().get_id(version)  # ty: ignore[unresolved-attribute]
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [transform(self.name)]
@@ -3645,7 +3645,7 @@ class ASTConcept(ASTBase):
     ) -> str:
         if version == 1:
             raise NoOldIdError
-        return symbol.get_full_nested_name().get_id(version)
+        return symbol.get_full_nested_name().get_id(version)  # ty: ignore[unresolved-attribute]
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = transform(self.nestedName)
@@ -4051,7 +4051,7 @@ class ASTTemplateParamType(ASTTemplateParam):
         assert version >= 2
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=False)
+            return symbol.parent.declaration.get_id(version, prefixed=False)  # ty: ignore[unresolved-attribute]
         else:
             return self.data.get_id(version)
 
@@ -4100,7 +4100,7 @@ class ASTTemplateParamTemplateType(ASTTemplateParam):
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=None)
+            return symbol.parent.declaration.get_id(version, prefixed=None)  # ty: ignore[unresolved-attribute]
         else:
             return self.nestedParams.get_id(version) + self.data.get_id(version)
 
@@ -4161,7 +4161,7 @@ class ASTTemplateParamNonType(ASTTemplateParam):
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=None)
+            return symbol.parent.declaration.get_id(version, prefixed=None)  # ty: ignore[unresolved-attribute]
         else:
             res = '_'
             if self.parameterPack:
@@ -4312,7 +4312,7 @@ class ASTTemplateIntroductionParameter(ASTBase):
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
-            return symbol.parent.declaration.get_id(version, prefixed=None)
+            return symbol.parent.declaration.get_id(version, prefixed=None)  # ty: ignore[unresolved-attribute]
         else:
             if self.parameterPack:
                 return 'Dp'
@@ -4584,11 +4584,11 @@ class ASTDeclaration(ASTBase):
             if self.templatePrefix or self.trailingRequiresClause:
                 raise NoOldIdError
             if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
-                return self.enumeratorScopedSymbol.declaration.get_id(version)
+                return self.enumeratorScopedSymbol.declaration.get_id(version)  # ty: ignore[unresolved-attribute]
             return self.declaration.get_id(version, self.objectType, self.symbol)
         # version >= 2
         if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
-            return self.enumeratorScopedSymbol.declaration.get_id(version, prefixed)
+            return self.enumeratorScopedSymbol.declaration.get_id(version, prefixed)  # ty: ignore[unresolved-attribute]
         if prefixed:
             res = [_id_prefix[version]]
         else:

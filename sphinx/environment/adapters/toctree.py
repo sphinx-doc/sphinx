@@ -72,7 +72,7 @@ def global_toctree_for_doc(
     docname: str,
     builder: Builder,
     *,
-    tags: Tags = ...,  # type: ignore[assignment]
+    tags: Tags = ...,  # type: ignore[assignment]  # ty: ignore[invalid-parameter-default]
     collapse: bool = False,
     includehidden: bool = True,
     maxdepth: int = 0,
@@ -196,7 +196,7 @@ def _resolve_toctree(
         caption_node.rawsource = toctree['rawcaption']
         if hasattr(toctree, 'uid'):
             # move uid to caption_node to translate it
-            caption_node.uid = toctree.uid  # type: ignore[attr-defined]
+            caption_node.uid = toctree.uid  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             del toctree.uid
         newnode.append(caption_node)
     newnode.extend(tocentries)
@@ -490,7 +490,7 @@ def _toctree_copy[ET: Element](
     depth = max(depth - 1, 1)
     copied = _toctree_copy_seq(node, depth, maxdepth, collapse, tags, initial_call=True)
     assert len(copied) == 1
-    return copied[0]  # type: ignore[return-value]
+    return copied[0]  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
 
 def _toctree_copy_seq(

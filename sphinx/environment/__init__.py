@@ -576,7 +576,7 @@ class BuildEnvironment:
 
     @property
     def temp_data(self) -> _CurrentDocument:
-        """Returns the temporary data storage for the current document.
+        """The temporary data storage for the current document.
 
         Kept for backwards compatibility.
         """
@@ -584,12 +584,12 @@ class BuildEnvironment:
 
     @property
     def docname(self) -> str:
-        """Returns the docname of the document currently being parsed."""
+        """The docname of the document currently being parsed."""
         return self.current_document.docname
 
     @property
     def parser(self) -> Parser:
-        """Returns the parser being used for to parse the current document."""
+        """The parser being used for to parse the current document."""
         if (parser := self.current_document._parser) is not None:
             return parser
         msg = 'parser'
@@ -670,7 +670,7 @@ class BuildEnvironment:
         docname: str,
         builder: Builder,
         *,
-        tags: Tags = ...,  # type: ignore[assignment]
+        tags: Tags = ...,  # type: ignore[assignment]  # ty: ignore[invalid-parameter-default]
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False,
@@ -1178,7 +1178,7 @@ class _CurrentDocument:
         return self._extension_data.setdefault(key, default)
 
     def clear(self) -> None:
-        _CurrentDocument.__init__(self)  # NoQA: PLC2801
+        _CurrentDocument.__init__(self)  # ruff: ignore[unnecessary-dunder-call]
 
     def update(self, other: Iterable[tuple[str, Any]] = (), /, **kwargs: Any) -> None:
         other_dict = dict(other) if not isinstance(other, dict) else other
