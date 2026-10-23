@@ -376,7 +376,10 @@ General configuration
       $ sphinx-build -M html doc build
 
    Sphinx does not set this variable automatically. Keep its value stable for
-   the duration of a build.
+   the duration of a build. If its effective value changes between incremental
+   builds, including from unset to a non-empty value or vice versa, Sphinx
+   rereads all documents and rewrites all output to keep generated dates
+   consistent, even if individual source filenames were specified.
 
    Apart from legacy copyright correction, the variable replaces dates that
    Sphinx would otherwise derive from the current time.
@@ -390,6 +393,8 @@ General configuration
 
    .. versionchanged:: 9.3
       Values are validated consistently across Sphinx.
+      Changing the effective value between incremental builds now
+      causes all documents to be reread and all output to be rewritten.
 
 
 Options for figure numbering

@@ -27,6 +27,12 @@ Bugs fixed
   Document the existing static copyright correction behavior (#13231, #14657).
   Patch by Kilian Paul
 
+* #14770: Reread cached documents and rewrite output when the effective
+  ``SOURCE_DATE_EPOCH`` value changes between builds. Selected-file builds
+  rebuild all output when read-affecting configuration, the extension list,
+  or the epoch changes. Invalid filename selections preserve pending rebuilds.
+  Patch by Kilian Paul
+
 Testing
 -------
 
