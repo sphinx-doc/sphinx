@@ -1624,7 +1624,7 @@ class Sphinx:
            Take priority argument.  Allow to add a CSS file to the specific page.
 
         .. versionchanged:: 7.1
-           A CRC32 checksum is appended as a query parameter to local asset
+           A checksum is appended as a query parameter to local asset
            URIs (e.g. ``?v=a1b2c3d4``) for cache-busting purposes.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
