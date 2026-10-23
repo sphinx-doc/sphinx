@@ -54,10 +54,9 @@ def rootdir() -> Path:
 def pytest_report_header(config: pytest.Config) -> str:
     lines = [
         f'libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}',
+        f'GIL enabled?: {sys._is_gil_enabled()}',
+        f'test roots directory: {TEST_ROOTS_DIR}',
     ]
-    if sys.version_info[:2] >= (3, 13):
-        lines.append(f'GIL enabled?: {sys._is_gil_enabled()}')
-    lines.append(f'test roots directory: {TEST_ROOTS_DIR}')
     if hasattr(config, '_tmp_path_factory'):
         lines.append(f'base tmp_path: {config._tmp_path_factory.getbasetemp()}')
     return '\n'.join(lines)

@@ -201,7 +201,7 @@ class Documenter:
 
     @property
     def documenters(self) -> dict[str, type[Documenter]]:
-        """Returns registered Documenter classes"""
+        """Registered Documenter classes"""
         return self.env._registry.documenters
 
     def add_line(self, line: str, source: str, *lineno: int) -> None:
@@ -617,7 +617,7 @@ class Documenter:
                         self.options.special_members
                         and membername in self.options.special_members
                     ):
-                        if membername == '__doc__':  # NoQA: SIM114
+                        if membername == '__doc__':  # ruff: ignore[if-with-same-arms]
                             keep = False
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False
@@ -636,7 +636,7 @@ class Documenter:
                         keep = True
                 elif want_all and isprivate:
                     if has_doc or self.options.undoc_members:
-                        if self.options.private_members is None:  # NoQA: SIM114
+                        if self.options.private_members is None:  # ruff: ignore[if-with-same-arms]
                             keep = False
                         elif is_filtered_inherited_member(membername, obj):
                             keep = False
@@ -1159,7 +1159,7 @@ class DocstringSignatureMixin:
 
     def _find_signature(self) -> tuple[str | None, str | None] | None:
         # candidates of the object name
-        valid_names = [self.objpath[-1]]  # type: ignore[attr-defined]
+        valid_names = [self.objpath[-1]]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         if isinstance(self, ClassDocumenter):
             valid_names.append('__init__')
             if hasattr(self.object, '__mro__'):
@@ -1191,7 +1191,7 @@ class DocstringSignatureMixin:
                     break
 
                 # re-prepare docstring to ignore more leading indentation
-                directive = self.directive  # type: ignore[attr-defined]
+                directive = self.directive  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 tab_width = directive.state.document.settings.tab_width
                 self._new_docstrings[i] = prepare_docstring(
                     '\n'.join(doclines[j + 1 :]), tab_width
@@ -1213,17 +1213,17 @@ class DocstringSignatureMixin:
     def get_doc(self) -> list[list[str]] | None:
         if self._new_docstrings is not None:
             return self._new_docstrings
-        return super().get_doc()  # type: ignore[misc]
+        return super().get_doc()  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
 
     def format_signature(self, **kwargs: Any) -> str:
         self.args: str | None
-        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore[attr-defined]
+        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             # only act if a signature is not explicitly given already, and if
             # the feature is enabled
             result = self._find_signature()
             if result is not None:
                 self.args, self.retann = result
-        sig = super().format_signature(**kwargs)  # type: ignore[misc]
+        sig = super().format_signature(**kwargs)  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
         if self._signatures:
             return '\n'.join((sig, *self._signatures))
         else:
@@ -1236,7 +1236,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
     """
 
     def format_signature(self, **kwargs: Any) -> str:
-        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore[attr-defined]
+        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             # only act if a signature is not explicitly given already, and if
             # the feature is enabled
             result = self._find_signature()
@@ -1378,14 +1378,14 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if len(sig.parameters) == 0:
             return None
 
-        def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
+        def dummy():  # type: ignore[no-untyped-def]  # ruff: ignore[missing-return-type-private-function]
             pass
 
         params = list(sig.parameters.values())
         if params[0].annotation is Parameter.empty:
             params[0] = params[0].replace(annotation=typ)
             try:
-                dummy.__signature__ = sig.replace(parameters=params)  # type: ignore[attr-defined]
+                dummy.__signature__ = sig.replace(parameters=params)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 return dummy
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
@@ -1514,8 +1514,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             object_sig = self.object.__signature__
             if isinstance(object_sig, Signature):
                 return None, None, object_sig
-            if sys.version_info[:2] <= (3, 14) and callable(object_sig):
-                # Support for enum.Enum.__signature__ in Python 3.12 & 3.13
+            if sys.version_info[:2] < (3, 14) and callable(object_sig):
+                # Support for enum.Enum.__signature__ in Python 3.13
                 if isinstance(object_sig_str := object_sig(), str):
                     return None, None, inspect.signature_from_str(object_sig_str)
 
@@ -1993,7 +1993,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
 
     def import_object(self, raiseerror: bool = False) -> bool:
         try:
-            return super().import_object(raiseerror=True)  # type: ignore[misc]
+            return super().import_object(raiseerror=True)  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
         except ImportError as exc:
             # annotation only instance variable (PEP-526)
             try:
@@ -2027,7 +2027,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
         if self.object is UNINITIALIZED_ATTR:
             return []
         else:
-            return super().get_doc()  # type: ignore[misc]
+            return super().get_doc()  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
 
 
 class DataDocumenter(
@@ -2186,11 +2186,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         obj = self.parent.__dict__.get(self.object_name, self.object)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             # document static members before regular methods
-            self.member_order -= 1  # type: ignore[misc]
+            self.member_order -= 1  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
         elif inspect.isclassmethod(obj):
             # document class methods before static methods as
             # they usually behave as alternative constructors
-            self.member_order -= 2  # type: ignore[misc]
+            self.member_order -= 2  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
         return ret
 
     def format_args(self, **kwargs: Any) -> str:
@@ -2202,7 +2202,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             kwargs.setdefault('short_literals', True)
 
         try:
-            if self.object == object.__init__ and self.parent != object:  # NoQA: E721
+            if self.object == object.__init__ and self.parent != object:  # ruff: ignore[type-comparison]
                 # Classes not having own __init__() method are shown as no arguments.
                 #
                 # Note: The signature of object.__init__() is (self, /, *args, **kwargs).
@@ -2361,14 +2361,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if len(sig.parameters) == 1:
             return None
 
-        def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
+        def dummy():  # type: ignore[no-untyped-def]  # ruff: ignore[missing-return-type-private-function]
             pass
 
         params = list(sig.parameters.values())
         if params[1].annotation is Parameter.empty:
             params[1] = params[1].replace(annotation=typ)
             try:
-                dummy.__signature__ = sig.replace(  # type: ignore[attr-defined]
+                dummy.__signature__ = sig.replace(  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                     parameters=params
                 )
                 return dummy
@@ -2434,7 +2434,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
     """
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)  # type: ignore[misc]
+        ret = super().import_object(raiseerror)  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
         if ret and not inspect.isattributedescriptor(self.object):
             self.non_data_descriptor = True
         else:
@@ -2454,7 +2454,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
             # to display
             return None
         else:
-            return super().get_doc()  # type: ignore[misc]
+            return super().get_doc()  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
 
 
 class SlotsMixin(DataDocumenterMixinBase):
@@ -2471,7 +2471,7 @@ class SlotsMixin(DataDocumenterMixinBase):
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        ret = super().import_object(raiseerror)  # type: ignore[misc]
+        ret = super().import_object(raiseerror)  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
         if self.isslotsattribute():
             self.object = SLOTSATTR
 
@@ -2502,7 +2502,7 @@ class SlotsMixin(DataDocumenterMixinBase):
                 )
                 return []
         else:
-            return super().get_doc()  # type: ignore[misc]
+            return super().get_doc()  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
 
 
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
@@ -2521,7 +2521,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
     def is_runtime_instance_attribute(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__()."""
         # An instance variable defined in __init__().
-        if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore[attr-defined]
+        if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             return True
         return self.is_runtime_instance_attribute_not_commented(parent)
 
@@ -2548,7 +2548,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         attribute.
         """
         try:
-            return super().import_object(raiseerror=True)  # type: ignore[misc]
+            return super().import_object(raiseerror=True)  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
         except ImportError as exc:
             try:
                 with mock(self.config.autodoc_mock_imports):
@@ -2556,7 +2556,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
                         self.modname,
                         self.objpath[:-1],
                         'class',
-                        attrgetter=self.get_attr,  # type: ignore[attr-defined]
+                        attrgetter=self.get_attr,  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                     )
                     parent = ret[3]
                     if self.is_runtime_instance_attribute(parent):
@@ -2585,7 +2585,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         ):
             return None
         else:
-            return super().get_doc()  # type: ignore[misc]
+            return super().get_doc()  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
 
 
 class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
@@ -2610,14 +2610,14 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         the attribute.
         """
         try:
-            return super().import_object(raiseerror=True)  # type: ignore[misc]
+            return super().import_object(raiseerror=True)  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
         except ImportError as exc:
             try:
                 ret = import_object(
                     self.modname,
                     self.objpath[:-1],
                     'class',
-                    attrgetter=self.get_attr,  # type: ignore[attr-defined]
+                    attrgetter=self.get_attr,  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 )
                 parent = ret[3]
                 if self.is_uninitialized_instance_attribute(parent):
@@ -2641,7 +2641,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
     def get_doc(self) -> list[list[str]] | None:
         if self.object is UNINITIALIZED_ATTR:
             return None
-        return super().get_doc()  # type: ignore[misc]
+        return super().get_doc()  # type: ignore[misc]  # ty: ignore[unresolved-attribute]
 
 
 class AttributeDocumenter(  # type: ignore[misc]

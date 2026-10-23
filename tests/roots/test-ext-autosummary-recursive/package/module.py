@@ -1,4 +1,4 @@
-from os import *  # NoQA: F403
+from os import *  # ruff: ignore[undefined-local-with-import-star]
 
 
 class Foo:

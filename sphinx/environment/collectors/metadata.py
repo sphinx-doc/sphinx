@@ -42,7 +42,7 @@ class MetadataCollector(EnvironmentCollector):
             return
         elif isinstance(doctree[index], nodes.docinfo):
             md = app.env.metadata[app.env.current_document.docname]
-            for node in doctree[index]:  # type: ignore[attr-defined]
+            for node in doctree[index]:  # type: ignore[attr-defined]  # ty: ignore[not-iterable]
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
                     authors = cast('list[nodes.author]', node)
@@ -54,7 +54,7 @@ class MetadataCollector(EnvironmentCollector):
                     md[field_name.astext()] = field_body.astext()
                 elif isinstance(node, nodes.TextElement):
                     # other children must be TextElement
-                    # see: https://docutils.sourceforge.io/docs/ref/doctree.html#bibliographic-elements  # NoQA: E501
+                    # see: https://docutils.sourceforge.io/docs/ref/doctree.html#bibliographic-elements
                     md[node.__class__.__name__] = node.astext()
 
             for name, value in md.items():

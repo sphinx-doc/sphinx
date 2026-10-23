@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._dynamic._importer import (
-    _find_type_stub_spec,  # NoQA: F401
-    _reload_module,  # NoQA: F401
-    _StubFileLoader,  # NoQA: F401
+    _find_type_stub_spec,  # ruff: ignore[unused-import]
+    _reload_module,  # ruff: ignore[unused-import]
+    _StubFileLoader,  # ruff: ignore[unused-import]
 )
 from sphinx.ext.autodoc._dynamic._importer import (
     _import_module as import_module,
@@ -18,7 +18,7 @@ from sphinx.ext.autodoc._dynamic._importer import (
 from sphinx.ext.autodoc._dynamic._importer import _mangle_name as mangle
 from sphinx.ext.autodoc._dynamic._member_finder import (
     _filter_enum_dict,
-    _is_native_enum_api,  # NoQA: F401
+    _is_native_enum_api,  # ruff: ignore[unused-import]
     unmangle,
 )
 from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
