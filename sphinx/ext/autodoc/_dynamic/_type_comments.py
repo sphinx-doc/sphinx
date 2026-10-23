@@ -88,6 +88,12 @@ def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
                         cls = mod
                         for part in classname.split('.'):
                             cls = safe_getattr(cls, part)
+                        # Framework metaclasses may deliberately clear annotations
+                        # after consuming them. Respect an explicit empty mapping
+                        # instead of restoring source-level type comments.
+                        if cls.__dict__.get('__annotations__') == {}:
+                            class_annotations[classname] = {}
+                            continue
                         annotations = dict(inspect.getannotations(cls))
                         # Ignore errors setting __annotations__
                         with contextlib.suppress(TypeError, AttributeError):
