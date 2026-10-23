@@ -426,6 +426,22 @@ The following directives are provided for module and class contents:
 
          Represent a regular expression or a compiled pattern.
 
+   .. rst:directive:option:: canonical-name
+      :type: text
+
+      An alternate fully qualified name for the type alias. This is useful
+      when a type alias is re-exported from a different module and annotations
+      still refer to the module where it was originally defined.
+
+      For example, if ``TokenValidator`` is defined in
+      ``package._types`` and re-exported from ``package``, document it as:
+
+      .. code-block:: rst
+
+         .. py:type:: package.TokenValidator
+            :canonical: str
+            :canonical-name: package._types.TokenValidator
+
    .. versionadded:: 7.4
 
 .. rst:directive:: .. py:method:: name(parameters)
