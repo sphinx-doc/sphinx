@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from operator import attrgetter
 from re import DOTALL, match
 from textwrap import indent
@@ -34,6 +35,9 @@ if TYPE_CHECKING:
 
     type _XrefComparison = tuple[
         list[addnodes.pending_xref], list[addnodes.pending_xref]
+    ]
+    type _NamedRefComparison = tuple[
+        list[nodes.reference], list[nodes.reference], dict[int, str | None]
     ]
 
     from sphinx.application import Sphinx
@@ -308,17 +312,21 @@ class _NodeUpdater:
 
             self.document.note_refname(newr)
 
-        # Display text and reference names may be translated, but references
-        # must still resolve to the same targets (including multiplicity).
-        self.compare_references(
-            old_refs,
-            new_refs,
-            __(
-                'inconsistent references in translated message.'
-                ' original: {0}, translated: {1}'
-            ),
-            key_func=lambda ref: self.document.nameids.get(ref['refname']),
-        )
+        if not self.noqa and Counter(ref['refname'] for ref in old_refs) != Counter(
+            ref['refname'] for ref in new_refs
+        ):
+            # Docutils still needs to propagate explicit targets to sections and
+            # resolve indirect targets before their destinations can be compared.
+            pending: list[_NamedRefComparison] = self.node.setdefault(
+                '_i18n_pending_named_refs', []
+            )
+            # Docutils removes refname when it resolves external references.
+            # Keep their original target IDs for the consistency check.
+            targets = {
+                id(ref): self.document.nameids.get(ref['refname'])
+                for ref in (*old_refs, *new_refs)
+            }
+            pending.append((old_refs, new_refs, targets))
 
     def update_refnamed_footnote_references(self) -> None:
         # refnamed footnote should use original 'ids'.
@@ -412,6 +420,43 @@ class _NodeUpdater:
         for child in self.patch.children:
             child.parent = self.node
         self.node.children = self.patch.children
+
+
+class TranslatedNamedReferences(SphinxTransform):
+    """Compare named references after Docutils has resolved their targets."""
+
+    default_priority = 750  # After Docutils InternalTargets (660).
+
+    def apply(self, **kwargs: Any) -> None:
+        reference_targets: dict[int, str | None] = {}
+
+        def get_named_ref_key(ref: nodes.Element) -> str | int | None:
+            target_id = reference_targets[id(ref)]
+            if target_id is None:
+                return None
+            target = self.document.ids.get(target_id)
+            # A translated section name and its explicit label can have
+            # different IDs while pointing to the same section.
+            if isinstance(target, nodes.section):
+                return id(target)
+            return target_id
+
+        for node in self.document.findall(nodes.Element):
+            pending: list[_NamedRefComparison] = node.attributes.pop(
+                '_i18n_pending_named_refs', []
+            )
+            for old_refs, new_refs, targets in pending:
+                reference_targets.update(targets)
+                updater = _NodeUpdater(node, node, self.document, noqa=False)
+                updater.compare_references(
+                    old_refs,
+                    new_refs,
+                    __(
+                        'inconsistent references in translated message.'
+                        ' original: {0}, translated: {1}'
+                    ),
+                    key_func=get_named_ref_key,
+                )
 
 
 class TranslatedTermReferences(SphinxPostTransform):
@@ -762,6 +807,7 @@ class RemoveTranslatableInline(SphinxTransform):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(PreserveTranslatableMessages)
     app.add_transform(Locale)
+    app.add_transform(TranslatedNamedReferences)
     app.add_transform(TranslationProgressTotaliser)
     app.add_transform(AddTranslationClasses)
     app.add_transform(RemoveTranslatableInline)

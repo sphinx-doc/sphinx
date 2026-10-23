@@ -200,35 +200,36 @@ def test_text_inconsistency_warnings(app: SphinxTestApp) -> None:
             'reftype': 'footnote references',
             'original': "\\['\\[#\\]_'\\]",
             'translated': '\\[\\]',
-        }
-        + warning_fmt
+        },
+        warning_fmt
         % {
             'reftype': 'footnote references',
             'original': "\\['\\[100\\]_'\\]",
             'translated': '\\[\\]',
-        }
-        + warning_fmt
+        },
+        warning_fmt
         % {
             'reftype': 'citation references',
             'original': "\\['\\[ref2\\]_'\\]",
             'translated': "\\['\\[ref3\\]_'\\]",
-        }
-        + warning_fmt
+        },
+        warning_fmt
         % {
             'reftype': 'references',
             'original': "\\['reference_'\\]",
             'translated': "\\['reference_', 'reference_'\\]",
-        }
-        + warning_fmt
+        },
+        warning_fmt
         % {
             'reftype': 'references',
             'original': '\\[\\]',
             'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
-        }
+        },
     )
-    assert re.search(expected_warning_expr, warnings), (
-        f'{expected_warning_expr!r} did not match {warnings!r}'
-    )
+    for warning_expr in expected_warning_expr:
+        assert re.search(warning_expr, warnings), (
+            f'{warning_expr!r} did not match {warnings!r}'
+        )
 
     expected_citation_ref_warning_expr = '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.'
     assert re.search(expected_citation_ref_warning_expr, warnings), (
@@ -641,12 +642,14 @@ def test_translated_xref_consistency_included_document(
     warns: bool,
 ) -> None:
     app = make_app(buildername, **app_params.kwargs)
-    original = 'Original: :term:`apple` and :func:`first`.'
+    original = 'Original: :term:`apple` and :func:`first`. Read `Heading`_.'
     (app.srcdir / 'index.rst').write_text(
         'Test\n====\n\n.. toctree::\n\n   child\n   glossary\n', encoding='utf8'
     )
     (app.srcdir / 'child.rst').write_text(
-        f'Child\n=====\n\n{original}\n', encoding='utf8'
+        f'Child\n=====\n\n{original}\n\n'
+        '.. _heading:\n\nHeading\n-------\n\nA section.\n',
+        encoding='utf8',
     )
     (app.srcdir / 'glossary.rst').write_text(
         'Glossary\n========\n\n.. glossary::\n\n'
@@ -662,7 +665,10 @@ def test_translated_xref_consistency_included_document(
     locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
     locale_dir.mkdir(parents=True)
     catalog = Catalog()
-    catalog.add(original, f'Translated: :term:`{term}` and :func:`{function}`.')
+    catalog.add(
+        original, f'Translated: :term:`{term}` and :func:`{function}`. Read `Titre`_.'
+    )
+    catalog.add('Heading', 'Titre')
     write_mo(locale_dir / 'child.mo', catalog)
     glossary = Catalog()
     glossary.add('apple', 'pomme')
@@ -845,6 +851,66 @@ def test_translated_refnamed_section_title_collision(
         ) in warnings
     else:
         assert not warnings
+
+
+@sphinx_intl
+@pytest.mark.sphinx(
+    'html', testroot='basic', srcdir='intl_reference_destinations', freshenv=True
+)
+@pytest.mark.parametrize(
+    ('original', 'translated', 'warns'),
+    [
+        pytest.param('`Heading`_', '`Titre`_', False, id='section-with-two-ids'),
+        pytest.param('first_', 'second_', True, id='different-external-targets'),
+        pytest.param(
+            ':func:`example.first`',
+            ':func:`first`',
+            True,
+            id='qualified-python-name',
+        ),
+        pytest.param(
+            ':py:obj:`example.first`',
+            ':func:`first`',
+            True,
+            id='same-python-object',
+        ),
+    ],
+)
+def test_translated_section_reference_scope(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    original: str,
+    translated: str,
+    warns: bool,
+) -> None:
+    original = f'Original: {original}'
+    translated = f'Translated: {translated}'
+    (app.srcdir / 'index.rst').write_text(
+        'Test\n====\n\n'
+        '.. _first: https://example.org/\n'
+        '.. _second: https://example.org/\n\n'
+        '.. _heading:\n\n'
+        'Heading\n-------\n\n'
+        '.. py:module:: example\n\n'
+        '.. py:function:: first()\n\n'
+        f'{original}\n',
+        encoding='utf8',
+    )
+    catalog = Catalog()
+    catalog.add('Heading', 'Titre')
+    catalog.add(original, translated)
+    app.config.locale_dirs = [str(tmp_path)]
+    locale_dir = tmp_path / _CATALOG_LOCALE / 'LC_MESSAGES'
+    locale_dir.mkdir(parents=True)
+    write_mo(locale_dir / 'index.mo', catalog)
+
+    app.build()
+
+    doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+    assert 'Translated:' in doctree.astext()
+    warnings = getwarning(app.warning)
+    assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
+    assert '[ref.python]' not in warnings, warnings
 
 
 @sphinx_intl
