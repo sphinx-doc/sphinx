@@ -286,6 +286,24 @@ def test_html_entity(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('html', testroot='basic')
+def test_html_viewport_meta_basic(app: SphinxTestApp) -> None:
+    app.build()
+    tree = etree_parse(app.outdir / 'index.html')
+    assert len(tree.findall(".//meta[@name='viewport']")) == 1
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    confoverrides={'html_theme': 'bizstyle'},
+)
+def test_html_viewport_meta_bizstyle(app: SphinxTestApp) -> None:
+    app.build()
+    tree = etree_parse(app.outdir / 'index.html')
+    assert len(tree.findall(".//meta[@name='viewport']")) == 1
+
+
+@pytest.mark.sphinx('html', testroot='basic')
 def test_html_inventory(app: SphinxTestApp) -> None:
     app.build(force_all=True)
 
