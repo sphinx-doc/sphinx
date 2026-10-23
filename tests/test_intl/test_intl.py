@@ -707,20 +707,32 @@ def test_translated_xref_consistency_included_document(
         pytest.param(
             'Read first_ and second_.',
             'Read premier_ and deuxieme_.',
-            True,
+            False,
             id='ambiguous-translated-names',
         ),
         pytest.param(
             'Read first_ and second_.',
             'Read deuxieme_ and premier_.',
-            True,
+            False,
             id='ambiguous-reordered-translated-names',
         ),
         pytest.param(
-            'Read first_ and second_.',
-            'Read premier_ and deuxieme_. # noqa',
+            'Read first_.',
+            'Read `GUIDE <second_>`_. # noqa',
             False,
-            id='ambiguous-translated-names-noqa',
+            id='changed-target-noqa',
+        ),
+        pytest.param(
+            'Read first_ and second_.',
+            'Read premier_.',
+            True,
+            id='missing-translated-reference',
+        ),
+        pytest.param(
+            'Read first_ and second_.',
+            'Read premier_ and deuxieme_ and troisieme_.',
+            True,
+            id='extra-translated-reference',
         ),
         pytest.param(
             'Read first_ and second_.',

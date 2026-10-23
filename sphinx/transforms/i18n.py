@@ -295,9 +295,6 @@ class _NodeUpdater:
         orphans = [
             name for name in dict.fromkeys(old_ref_names) if name not in new_ref_names
         ]
-        ambiguous = len(orphans) > 1 and any(
-            not self.document.has_name(name) for name in new_ref_names
-        )
         for newr in new_refs:
             if not self.document.has_name(newr['refname']):
                 # Maybe refname is translated but target is not translated.
@@ -320,13 +317,7 @@ class _NodeUpdater:
                 'inconsistent references in translated message.'
                 ' original: {0}, translated: {1}'
             ),
-            # The fallback cannot establish which of several orphan targets
-            # a translated name means. Keep warning about those assignments.
-            key_func=lambda ref: (
-                ref.rawsource
-                if ambiguous
-                else self.document.nameids.get(ref['refname'])
-            ),
+            key_func=lambda ref: self.document.nameids.get(ref['refname']),
         )
 
     def update_refnamed_footnote_references(self) -> None:
