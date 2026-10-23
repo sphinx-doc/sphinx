@@ -33,6 +33,11 @@ Bugs fixed
   or the epoch changes. Invalid filename selections preserve pending rebuilds.
   Patch by Kilian Paul
 
+* #14769: Honor ``SOURCE_DATE_EPOCH`` in the Docutils :dudir:`date`
+  directive and configured ``datestamp`` footers with Docutils versions
+  before 1.0. Docutils 1.0 retains its native implementations.
+  Patch by Kilian Paul
+
 Testing
 -------
 

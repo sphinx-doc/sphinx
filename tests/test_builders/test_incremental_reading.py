@@ -32,6 +32,7 @@ def _assert_timestamp_substitutions(app: SphinxTestApp, *, expected_date: str) -
     for docname in ('index', 'second'):
         text = app.env.get_doctree(docname).astext()
         assert f'Sphinx: {expected_date}' in text
+        assert f'Docutils: {expected_date}' in text
 
 
 @pytest.mark.sphinx(
@@ -182,10 +183,10 @@ def test_specific_build_global_change_updates_html(
     (clean_app.outdir / 'second.html').write_text('stale output', encoding='utf8')
 
     overrides: dict[str, str | list[str]] = {}
-    sphinx_date = '1970-01-01'
+    sphinx_date = docutils_date = '1970-01-01'
     if change == 'epoch':
         monkeypatch.setenv('SOURCE_DATE_EPOCH', '86400')
-        sphinx_date = '1970-01-02'
+        sphinx_date = docutils_date = '1970-01-02'
     elif change == 'today':
         overrides = {'today': 'Configured date'}
         sphinx_date = 'Configured date'
@@ -198,8 +199,9 @@ def test_specific_build_global_change_updates_html(
     for docname in ('index', 'second'):
         html = (changed_app.outdir / f'{docname}.html').read_text(encoding='utf8')
         doctree = changed_app.env.get_doctree(docname).astext()
-        assert f'Sphinx: {sphinx_date}' in html
-        assert f'Sphinx: {sphinx_date}' in doctree
+        for text in (f'Sphinx: {sphinx_date}', f'Docutils: {docutils_date}'):
+            assert text in html
+            assert text in doctree
 
     unchanged_app = make_app(*args, confoverrides=overrides, **kwargs)
     read_docnames: list[str] = []
