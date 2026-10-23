@@ -508,7 +508,6 @@ class GoogleDocstring:
 
         indent = self._get_indent(line) + 1
         _descs = [_desc, *self._dedent(self._consume_indented_block(indent))]
-        # pyrefly: ignore [bad-argument-type]
         _descs = self.__class__(_descs, self._config).lines()
         return _name, _type, _descs
 
@@ -532,7 +531,6 @@ class GoogleDocstring:
             _type, _desc = _desc, _type
             _desc += colon
         _descs = [_desc, *self._dedent(self._consume_to_end())]
-        # pyrefly: ignore [bad-argument-type]
         _descs = self.__class__(_descs, self._config).lines()
         return _type, _descs
 
@@ -559,7 +557,6 @@ class GoogleDocstring:
                     debug_location=self._get_location(),
                 )
 
-            # pyrefly: ignore [bad-argument-type]
             _desc = self.__class__(_desc, self._config).lines()
             return [(_name, _type, _desc)]
         else:
@@ -1258,7 +1255,6 @@ class NumpyDocstring(GoogleDocstring):
 
         indent = self._get_indent(line) + 1
         _desc = self._dedent(self._consume_indented_block(indent))
-        # pyrefly: ignore [bad-argument-type]
         _desc = self.__class__(_desc, self._config).lines()
         return _name, _type, _desc
 
