@@ -303,7 +303,14 @@ class Documenter:
 
         subject = inspect.unpartial(self.object)
         modname = self.get_attr(subject, '__module__', None)
-        return not modname or modname == self.modname
+        if not modname or modname == self.modname:
+            return True
+
+        return bool(
+            inspect.ispartial(self.object)
+            and self.analyzer is not None
+            and '.'.join(self.objpath) in self.analyzer.assignments
+        )
 
     def format_args(self, **kwargs: Any) -> str:
         """Format the argument signature of *self.object*.
