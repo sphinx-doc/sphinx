@@ -194,7 +194,7 @@ class Domain:
         class DirectiveAdapter(BaseDirective):  # type: ignore[valid-type,misc]  # ty: ignore[unsupported-base]
             def run(self) -> list[Node]:
                 self.name = fullname
-                return super().run()
+                return super().run()  # pyrefly: ignore[bad-return]
 
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter

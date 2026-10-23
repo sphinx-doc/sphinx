@@ -439,9 +439,11 @@ class DocFieldTransformer[ObjDescT]:
         if is_typefield:
             # filter out only inline nodes; others will result in invalid
             # markup being written out
-            content = [n for n in content if isinstance(n, (nodes.Inline, nodes.Text))]
-            if content:
-                types.setdefault(typename, {})[fieldarg] = content
+            inline_content: list[Node] = [
+                n for n in content if isinstance(n, (nodes.Inline, nodes.Text))
+            ]
+            if inline_content:
+                types.setdefault(typename, {})[fieldarg] = inline_content
             return
 
         # also support syntax like ``:param type name:``
