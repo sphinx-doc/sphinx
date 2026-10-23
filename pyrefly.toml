@@ -14,7 +14,7 @@ project-includes = [
     "utils",
 ]
 project-excludes = [
-    "tests/roots*",
+    "tests/roots",
     "tests/test_util/typing_test_data.py",
 ]
 replace-imports-with-any = [
