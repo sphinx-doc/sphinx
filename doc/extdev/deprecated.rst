@@ -52,11 +52,6 @@ The following is a list of deprecated interfaces.
      - 11.0
      - N/A
 
-   * - ``sphinx.builders.singlehtml.SingleFileHTMLBuilder.fix_refuris``
-     - 8.2
-     - 10.0
-     - N/A
-
    * - ``sphinx.util.FilenameUniqDict``
      - 8.1
      - 10.0

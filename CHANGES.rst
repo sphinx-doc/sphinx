@@ -47,6 +47,11 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14221: Fix a regression from Sphinx v8.2.0 onwards that could cause links
+  produced by ``singlehtml`` builds to contain multiple fragment delimiters
+  (``#``), and withdraw the deprecation of
+  ``SingleFileHTMLBuilder.fix_refuris`` because the builder still requires it.
+  Patch by James Addison
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
