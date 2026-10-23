@@ -1184,5 +1184,4 @@ class _CurrentDocument:
         other_dict = dict(other) if not isinstance(other, dict) else other
         for dct in other_dict, kwargs:
             for key, value in dct.items():
-                # pyrefly: ignore [unsupported-operation]
-                self[key] = value
+                self[key] = value  # pyrefly: ignore[unsupported-operation]

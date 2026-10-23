@@ -293,8 +293,7 @@ class CustomReSTDispatcher:
         language_module: ModuleType,
         document: nodes.document,
     ) -> tuple[type[Directive] | None, list[system_message]]:
-        # pyrefly: ignore [bad-argument-type]
-        return self.directive_func(directive_name, language_module, document)
+        return self.directive_func(directive_name, language_module, document)  # pyrefly: ignore[bad-argument-type]
 
     def role(
         self,

@@ -489,16 +489,12 @@ def test_restify_Unpack() -> None:
 
     # Unpack is considered as typing special form so we always have '~'
     expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
-    # pyrefly: ignore [not-a-type]
-    assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
-    # pyrefly: ignore [not-a-type]
-    assert restify(UnpackCompat['X'], 'smart') == expect
+    assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect  # pyrefly: ignore[not-a-type]
+    assert restify(UnpackCompat['X'], 'smart') == expect  # pyrefly: ignore[not-a-type]
 
     expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
-    # pyrefly: ignore [not-a-type]
-    assert restify(t.Unpack['X'], 'fully-qualified-except-typing') == expect
-    # pyrefly: ignore [not-a-type]
-    assert restify(t.Unpack['X'], 'smart') == expect
+    assert restify(t.Unpack['X'], 'fully-qualified-except-typing') == expect  # pyrefly: ignore[not-a-type]
+    assert restify(t.Unpack['X'], 'smart') == expect  # pyrefly: ignore[not-a-type]
 
 
 def test_restify_type_union_operator() -> None:
@@ -767,10 +763,8 @@ def test_stringify_Unpack() -> None:
         y: int
         label: str
 
-    # pyrefly: ignore [not-a-type]
-    assert stringify_annotation(t.Unpack['X']) == 'Unpack[X]'
-    # pyrefly: ignore [not-a-type]
-    assert stringify_annotation(t.Unpack['X'], 'smart') == '~typing.Unpack[X]'
+    assert stringify_annotation(t.Unpack['X']) == 'Unpack[X]'  # pyrefly: ignore[not-a-type]
+    assert stringify_annotation(t.Unpack['X'], 'smart') == '~typing.Unpack[X]'  # pyrefly: ignore[not-a-type]
 
 
 def test_stringify_type_hints_string() -> None:

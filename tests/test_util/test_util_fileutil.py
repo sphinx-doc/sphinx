@@ -18,8 +18,7 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
-# pyrefly: ignore [inconsistent-inheritance]
-class DummyTemplateLoader(BuiltinTemplateLoader, BaseRenderer):
+class DummyTemplateLoader(BuiltinTemplateLoader, BaseRenderer):  # pyrefly: ignore[inconsistent-inheritance]
     def __init__(self) -> None:
         super().__init__()
         builder = mock.Mock()

@@ -449,15 +449,14 @@ class StandaloneHTMLBuilder(Builder):
         # html_domain_indices can be False/True or a list of index names
         if indices_config := self.config.html_domain_indices:
             if not isinstance(indices_config, bool):
-                check_names = True
                 indices_config = frozenset(indices_config)
-            else:
-                check_names = False
             for domain in self.env.domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
-                    # pyrefly: ignore [not-iterable]
-                    if check_names and index_name not in indices_config:
+                    if (
+                        not isinstance(indices_config, bool)
+                        and index_name not in indices_config
+                    ):
                         continue
                     content, collapse = index_cls(domain).generate()
                     if content:
@@ -861,8 +860,7 @@ class StandaloneHTMLBuilder(Builder):
                     self._static_dir,
                     excluded=DOTFILES,
                     context=context,
-                    # pyrefly: ignore [bad-argument-type]
-                    renderer=self.templates,
+                    renderer=self.templates,  # pyrefly: ignore[bad-argument-type]
                     onerror=onerror,
                     force=True,
                 )
@@ -889,8 +887,7 @@ class StandaloneHTMLBuilder(Builder):
                 self._static_dir,
                 excluded=excluded,
                 context=context,
-                # pyrefly: ignore [bad-argument-type]
-                renderer=self.templates,
+                renderer=self.templates,  # pyrefly: ignore[bad-argument-type]
                 onerror=onerror,
                 force=True,
             )

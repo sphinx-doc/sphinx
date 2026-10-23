@@ -29,6 +29,8 @@ from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
@@ -156,7 +158,9 @@ def compile_math(latex: str, *, config: Config) -> Path:
         raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
+def convert_dvi_to_image(
+    command: Sequence[str | os.PathLike[str]], name: str
+) -> tuple[str, str]:
     """Convert DVI file to specific image format."""
     try:
         ret = subprocess.run(command, capture_output=True, check=True, encoding='ascii')
@@ -186,7 +190,6 @@ def convert_dvi_to_png(dvipath: Path, out_path: Path, *, config: Config) -> int 
         command.append('--depth')
     command.append(dvipath)
 
-    # pyrefly: ignore [bad-argument-type]
     stdout, _stderr = convert_dvi_to_image(command, name)
 
     depth = None
@@ -208,7 +211,6 @@ def convert_dvi_to_svg(dvipath: Path, out_path: Path, *, config: Config) -> int 
     command.extend(config.imgmath_dvisvgm_args)
     command.append(dvipath)
 
-    # pyrefly: ignore [bad-argument-type]
     _stdout, stderr = convert_dvi_to_image(command, name)
 
     depth = None

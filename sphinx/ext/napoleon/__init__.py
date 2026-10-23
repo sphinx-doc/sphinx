@@ -289,10 +289,6 @@ class Config:
     napoleon_custom_sections: Sequence[str | tuple[str, str]] | None
     napoleon_attr_annotations: bool
 
-    if TYPE_CHECKING:
-
-        def __getattr__(self, name: str) -> Any: ...
-
     _config_values: Sequence[tuple[str, bool | None, _ConfigRebuild, Set[type]]] = (
         ('napoleon_google_docstring', True, 'env', frozenset({bool})),
         ('napoleon_numpy_docstring', True, 'env', frozenset({bool})),

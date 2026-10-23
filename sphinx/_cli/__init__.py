@@ -55,8 +55,7 @@ _COMMANDS: dict[str, str] = {}
 
 def _load_subcommand_descriptions() -> Iterator[tuple[str, str]]:
     for command, module_name in _COMMANDS.items():
-        # pyrefly: ignore [bad-assignment]
-        module: _SubcommandModule = importlib.import_module(module_name)
+        module: _SubcommandModule = importlib.import_module(module_name)  # pyrefly: ignore[bad-assignment]
         try:
             description = module.parser_description
         except AttributeError:
@@ -270,8 +269,7 @@ def _parse_command(argv: Sequence[str] = ()) -> tuple[str, Sequence[str]]:
 
 def _load_subcommand(command_name: str) -> tuple[str, _PARSER_SETUP, _RUNNER]:
     try:
-        # pyrefly: ignore [bad-assignment]
-        module: _SubcommandModule = importlib.import_module(_COMMANDS[command_name])
+        module: _SubcommandModule = importlib.import_module(_COMMANDS[command_name])  # pyrefly: ignore[bad-assignment]
     except KeyError:
         msg = f'invalid command name {command_name!r}.'
         raise ValueError(msg) from None

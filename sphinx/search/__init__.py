@@ -295,20 +295,18 @@ class IndexBuilder:
         # objtype index -> (domain, type, objname (localized))
         self._objnames: dict[int, tuple[str, str, str]] = env._search_index_objnames
         # add language-specific SearchLanguage instance
-        # pyrefly: ignore [bad-assignment]
         lang_class = languages.get(lang)
 
         # fallback; try again with language-code
         if lang_class is None and '_' in lang:
-            # pyrefly: ignore [bad-assignment]
             lang_class = languages.get(lang.partition('_')[0])
 
         if lang_class is None:
             self.lang: SearchLanguage = SearchEnglish(options)
         elif isinstance(lang_class, str):
             module, classname = lang_class.rsplit('.', 1)
-            lang_class: type[SearchLanguage] = getattr(import_module(module), classname)  # type: ignore[no-redef]
-            self.lang = lang_class(options)  # type: ignore[operator]
+            lang_cls: type[SearchLanguage] = getattr(import_module(module), classname)
+            self.lang = lang_cls(options)
         else:
             # it's directly a class (e.g. added by app.add_search_language)
             self.lang = lang_class(options)

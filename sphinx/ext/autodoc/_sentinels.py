@@ -27,12 +27,12 @@ class _Sentinel:
     def __or__(self, other: object) -> _SpecialForm:
         from typing import Union
 
-        return Union[self, other]  # ruff: ignore[non-pep604-annotation-union]  # ty: ignore[invalid-type-form, invalid-return-type]  # pyrefly: ignore
+        return Union[self, other]  # ruff: ignore[non-pep604-annotation-union]  # ty: ignore[invalid-type-form, invalid-return-type]  # pyrefly: ignore[bad-return, not-a-type]
 
     def __ror__(self, other: object) -> _SpecialForm:
         from typing import Union
 
-        return Union[other, self]  # ruff: ignore[non-pep604-annotation-union]  # ty: ignore[invalid-type-form, invalid-return-type]  # pyrefly: ignore
+        return Union[other, self]  # ruff: ignore[non-pep604-annotation-union]  # ty: ignore[invalid-type-form, invalid-return-type]  # pyrefly: ignore[bad-return, not-a-type]
 
     def __getstate__(self) -> NoReturn:
         msg = f'Cannot pickle {self._name}'

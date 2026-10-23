@@ -163,8 +163,7 @@ class ChangesBuilder(Builder):
             package_dir.joinpath('themes', 'default', 'static', 'default.css.jinja'),
             self.outdir,
             context=themectx,
-            # pyrefly: ignore [bad-argument-type]
-            renderer=self.templates,
+            renderer=self.templates,  # pyrefly: ignore[bad-argument-type]
             force=True,
         )
         copy_asset_file(

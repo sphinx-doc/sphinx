@@ -986,12 +986,11 @@ class PythonDomain(Domain):
             # determine the content of the reference by conditions
             content = find_pending_xref_condition(node, 'resolved')
             if content:
-                children = content.children
+                children: list[Node] = content.children
             else:
                 # if not found, use contnode
                 children = [contnode]
 
-            # pyrefly: ignore [bad-argument-type]
             return make_refnode(builder, fromdocname, obj[0], obj[1], children, name)
 
     def resolve_any_xref(
@@ -1025,7 +1024,7 @@ class PythonDomain(Domain):
                 # determine the content of the reference by conditions
                 content = find_pending_xref_condition(node, 'resolved')
                 if content:
-                    children = content.children
+                    children: list[Node] = content.children
                 else:
                     # if not found, use contnode
                     children = [contnode]
@@ -1033,7 +1032,6 @@ class PythonDomain(Domain):
                 role = 'py:' + self.role_for_objtype(obj[2])  # type: ignore[operator]  # ty: ignore[unsupported-operator]
                 results.append((
                     role,
-                    # pyrefly: ignore [bad-argument-type]
                     make_refnode(builder, fromdocname, obj[0], obj[1], children, name),
                 ))
         return results

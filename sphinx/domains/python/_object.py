@@ -123,7 +123,7 @@ class PyXrefMixin:
         split_contnode = bool(contnode and contnode.astext() == target)
 
         in_literal = False
-        results = []
+        results: list[Node] = []
         for sub_target in filter(None, sub_targets):
             if split_contnode:
                 contnode = nodes.Text(sub_target)
@@ -132,7 +132,6 @@ class PyXrefMixin:
                 results.append(contnode or innernode(sub_target, sub_target))  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
             else:
                 results.append(
-                    # pyrefly: ignore [bad-argument-type]
                     self.make_xref(
                         rolename,
                         domain,
@@ -148,7 +147,6 @@ class PyXrefMixin:
             if sub_target in {'Literal', 'typing.Literal', '~typing.Literal'}:
                 in_literal = True
 
-        # pyrefly: ignore [bad-return]
         return results
 
 

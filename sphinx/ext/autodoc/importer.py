@@ -284,8 +284,7 @@ def get_class_members(
                 unmangled = unmangle(cls, name)
                 if unmangled and unmangled not in members:
                     if analyzer and (qualname, unmangled) in analyzer.attr_docs:
-                        # pyrefly: ignore [bad-index]
-                        docstring = '\n'.join(analyzer.attr_docs[qualname, unmangled])
+                        docstring = '\n'.join(analyzer.attr_docs[qualname, unmangled])  # pyrefly: ignore[bad-index]
                     else:
                         docstring = None
 
