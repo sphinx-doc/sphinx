@@ -1648,7 +1648,7 @@ requires-dist = [
     { name = "babel", specifier = ">=2.18" },
     { name = "colorama", marker = "sys_platform == 'win32'", specifier = ">=0.4.6" },
     { name = "defusedxml", marker = "extra == 'test'", specifier = ">=0.7.1" },
-    { name = "docutils", specifier = ">=0.21,<0.23" },
+    { name = "docutils", specifier = ">=0.21,<0.24" },
     { name = "imagesize", specifier = ">=1.3" },
     { name = "jinja2", specifier = ">=3.1" },
     { name = "packaging", specifier = ">=25.0" },
@@ -1698,7 +1698,7 @@ type-stubs = [
 types = [
     { name = "mypy", specifier = "==2.4.0" },
     { name = "pillow", specifier = ">=11" },
-    { name = "pyrefly" },
+    { name = "pyrefly", specifier = "==1.4.0" },
     { name = "pyright", specifier = "==1.1.414" },
     { name = "ty", specifier = "==0.0.90" },
     { name = "types-colorama", specifier = "==0.4.15.20260508" },
