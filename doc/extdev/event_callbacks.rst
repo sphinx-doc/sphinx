@@ -24,6 +24,9 @@ to connect functions to the events:
    and calling them them with
    :meth:`.EventManager.emit` or :meth:`.EventManager.emit_firstresult`.
 
+Many events pass a :term:`doctree` to their callbacks.
+See the glossary entry for where its node types are documented.
+
 Core events overview
 --------------------
 
