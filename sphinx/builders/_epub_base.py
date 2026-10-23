@@ -74,6 +74,7 @@ MEDIA_TYPES = {
     '.svg': 'image/svg+xml',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
+    '.ico': 'image/vnd.microsoft.icon',
     '.otf': 'font/otf',
     '.ttf': 'font/ttf',
     '.woff': 'font/woff',
