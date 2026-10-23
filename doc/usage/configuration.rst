@@ -1281,16 +1281,10 @@ Options for smart quotes
      }
 
    .. note::
-
-      Currently, in case of invocation of :program:`make` with multiple
-      targets, the first target name is the only one which is tested against
-      the :code-py:`'builders'` entry and it decides for all.
-      Also, a ``make text`` following ``make html`` needs to be issued
-      in the form ``make text SPHINXOPTS="-E"`` to force re-parsing
-      of source files, as the cached ones are already transformed.
-      On the other hand the issue does not arise with
-      direct usage of :program:`sphinx-build` as it caches
-      (in its default usage) the parsed source files in per builder locations.
+      When builders share a doctree directory, Sphinx automatically re-parses
+      source files when switching between a builder for which Smart Quotes is
+      enabled and one for which it is disabled. Builders with the same Smart Quotes
+      state can continue to reuse cached doctrees.
 
    .. hint::
 
@@ -1301,9 +1295,6 @@ Options for smart quotes
       .. code-block:: console
 
          make latex SPHINXOPTS="-D smartquotes_action="
-
-      This can follow some ``make html`` with no problem, in contrast to the
-      situation from the prior note.
 
    .. versionadded:: 1.6.6
 
