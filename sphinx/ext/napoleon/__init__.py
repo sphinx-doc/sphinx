@@ -286,7 +286,7 @@ class Config:
     napoleon_use_keyword: bool
     napoleon_preprocess_types: bool
     napoleon_type_aliases: dict[str, str] | None
-    napoleon_custom_sections: list[str | tuple[str, str]] | None
+    napoleon_custom_sections: Sequence[str | tuple[str, str]] | None
     napoleon_attr_annotations: bool
 
     if TYPE_CHECKING:

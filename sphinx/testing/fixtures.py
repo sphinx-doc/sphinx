@@ -122,7 +122,7 @@ def app_params(
     return _app_params(args, kwargs)
 
 
-_app_params = namedtuple('_app_params', 'args,kwargs')  # NoQA: PYI024
+_app_params = namedtuple('_app_params', 'args,kwargs')  # ruff: ignore[collections-named-tuple]
 
 
 @pytest.fixture

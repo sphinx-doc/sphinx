@@ -41,7 +41,7 @@ def _get_arguments(obj: Any, /) -> ast.arguments | None:
         if source.startswith((' ', '\t')):
             # 'obj' is in some indented block.
             module = ast.parse('if True:\n' + source)
-            subject = module.body[0].body[0]  # type: ignore[attr-defined]
+            subject = module.body[0].body[0]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         else:
             module = ast.parse(source)
             subject = module.body[0]

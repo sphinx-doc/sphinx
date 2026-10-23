@@ -24,6 +24,6 @@ def test_ReSTRenderer_heading() -> None:
     assert r.render_string(template, {}) == 'русский язык\n------------'
 
     # language: ja
-    r.env.language = 'ja'  # type: ignore[attr-defined]
+    r.env.language = 'ja'  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     template = '{{ "русский язык" | heading }}'
     assert r.render_string(template, {}) == 'русский язык\n======================='

@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import operator
 import re
+import sys
 from enum import Enum
-from typing import TYPE_CHECKING, Literal, NewType, TypeVar
+from typing import TYPE_CHECKING, NewType, TypeVar
 
 from sphinx.errors import PycodeError
-from sphinx.events import EventManager
-from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
 from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
 from sphinx.ext.autodoc._property_types import _ClassDefProperties, _ModuleProperties
@@ -285,9 +284,10 @@ def _get_members_to_document(
     elif props.obj_type in {'class', 'exception'}:
         # the members directly defined in the class
         obj_dict = get_attr(props._obj, '__dict__', {})
+        obj_is_enum_class = isenumclass(props._obj)
 
         # enum members
-        if isenumclass(props._obj):
+        if obj_is_enum_class:
             for name, defining_class, value in _filter_enum_dict(
                 props._obj, get_attr, obj_dict
             ):
@@ -325,6 +325,16 @@ def _get_members_to_document(
                 value = get_attr(props._obj, name)
                 if ismock(value):
                     value = undecorate(value)
+
+                # Do not reintroduce native Enum APIs excluded above.
+                # Python 3.16 exposes supported sunder names in dir().
+                if (
+                    sys.version_info[:2] >= (3, 16)
+                    and obj_is_enum_class
+                    and name in Enum.__dict__
+                    and _is_native_enum_api(value, name)
+                ):
+                    continue
 
                 unmangled = unmangle(props._obj, name)
                 if (
@@ -575,7 +585,7 @@ def _best_object_type_for_member(
 
     if filtered:
         # return the highest priority object type
-        return max(filtered, key=operator.itemgetter(0))[1]  # type: ignore[return-value]
+        return max(filtered, key=operator.itemgetter(0))[1]  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
     return None
 
 
@@ -823,7 +833,7 @@ def _should_keep_member(
 
     if is_private:
         if has_attr_doc or has_doc:
-            if private_members is None:  # NoQA: SIM114
+            if private_members is None:  # ruff: ignore[if-with-same-arms]
                 return False
             elif has_doc and is_filtered_inherited_member:
                 return False

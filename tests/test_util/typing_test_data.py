@@ -17,7 +17,7 @@ T_co = TypeVar('T_co', covariant=True)
 T_contra = TypeVar('T_contra', contravariant=True)
 
 
-def f2(x: List[T], y: List[T_co], z: T) -> List[T_contra]:  # pyright: ignore[reportInvalidTypeVarUse]
+def f2(x: List[T], y: List[T_co], z: T) -> List[T_contra]:  # pyright: ignore[reportInvalidTypeVarUse]  # ruff: ignore[non-pep695-generic-function]
     pass
 
 
@@ -40,7 +40,7 @@ def f6(x: int, *args, y: str, z: str) -> None:
     pass
 
 
-def f7(x: int = None, y: dict = {}) -> None:  # NoQA: B006,RUF013  # ty: ignore[invalid-parameter-default]
+def f7(x: int = None, y: dict = {}) -> None:  # ruff: ignore[mutable-argument-default, implicit-optional]  # ty: ignore[invalid-parameter-default]
     pass
 
 
@@ -78,7 +78,7 @@ def f14() -> Any:
     pass
 
 
-def f15(x: 'Unknown', y: 'int') -> Any:  # NoQA: F821  # type: ignore[attr-defined]
+def f15(x: 'Unknown', y: 'int') -> Any:  # ruff: ignore[undefined-name]  # type: ignore[attr-defined]
     pass
 
 

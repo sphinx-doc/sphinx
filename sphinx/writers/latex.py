@@ -11,6 +11,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes, writers
 from roman_numerals import RomanNumeral
 
@@ -276,7 +277,7 @@ class TableCell:
 
     @property
     def width(self) -> int:
-        """Returns the cell width."""
+        """The cell width."""
         width = 0
         while self.table.cells[self.row, self.col + width] == self.cell_id:
             width += 1
@@ -284,7 +285,7 @@ class TableCell:
 
     @property
     def height(self) -> int:
-        """Returns the cell height."""
+        """The cell height."""
         height = 0
         while self.table.cells[self.row + height, self.col] == self.cell_id:
             height += 1
@@ -625,7 +626,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     @property
     def table(self) -> Table | None:
-        """Get current table."""
+        """The current table."""
         if self.tables:
             return self.tables[-1]
         else:
@@ -1250,7 +1251,12 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         self.table.colcount += 1
         if 'colwidth' in node:
-            self.table.colwidths.append(node['colwidth'])
+            if docutils.__version_info__[:2] >= (1, 0):
+                # breaking change in Docutils 1.0
+                # https://sourceforge.net/p/docutils/code/10397
+                self.table.colwidths.append(int(node['colwidth']))
+            else:
+                self.table.colwidths.append(node['colwidth'])
         if 'stub' in node:
             self.table.stubs.append(self.table.colcount - 1)
 
@@ -1310,7 +1316,7 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
         underlined = [
-            cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]
+            cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
             for cell in cells
         ]
         if all(underlined):
@@ -1323,7 +1329,7 @@ class LaTeXTranslator(SphinxTranslator):
             if underlined[0] is False:
                 i = 1
                 while i < self.table.colcount and underlined[i] is False:
-                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
             while i < self.table.colcount:
@@ -1333,7 +1339,7 @@ class LaTeXTranslator(SphinxTranslator):
                 i += j
                 i += 1
                 while i < self.table.colcount and underlined[i] is False:
-                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
             self.body.append(r'\sphinxfixclines{%d}' % self.table.colcount)
@@ -2499,7 +2505,8 @@ class LaTeXTranslator(SphinxTranslator):
         #       mainly, %, #, {, } and \ need escaping via a \ escape
         # in \href, the tilde is allowed and must be represented literally
         return (
-            self.encode(text)
+            self
+            .encode(text)
             .replace(r'\textasciitilde{}', '~')
             .replace(r'\sphinxhyphen{}', '-')
             .replace(r'\textquotesingle{}', "'")
@@ -2569,7 +2576,7 @@ class LaTeXTranslator(SphinxTranslator):
 
 # FIXME: Workaround to avoid circular import
 # See: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
+from sphinx.builders.latex.nodes import (  # ruff: ignore[module-import-not-at-top-of-file]  # isort:skip
     HYPERLINK_SUPPORT_NODES,
     captioned_literal_block,
     footnotetext,

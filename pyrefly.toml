@@ -16,7 +16,7 @@ project_excludes = [
     "**/tests/roots*",
 ]
 preset = "legacy"
-python_version = "3.12"
+python_version = "3.13"
 replace_imports_with_any = [
     "imagesize",
     "pyximport",
