@@ -2,7 +2,7 @@
 
 .. currentmodule:: {{ module }}
 
-.. autoclass:: {{ objname }}
+.. auto{{ objtype }}:: {{ objname }}
 
    {% block methods %}
    .. automethod:: __init__

@@ -301,9 +301,15 @@ Autosummary uses the following Jinja template files:
 - :file:`autosummary/base.rst` -- fallback template
 - :file:`autosummary/module.rst` -- template for modules
 - :file:`autosummary/class.rst` -- template for classes
+- :file:`autosummary/exception.rst` -- template for exceptions
 - :file:`autosummary/function.rst` -- template for functions
 - :file:`autosummary/attribute.rst` -- template for class attributes
 - :file:`autosummary/method.rst` -- template for class methods
+
+.. versionadded:: 9.2
+
+   Exception templates now receive class-related variables such as
+   members, inherited members, methods, and attributes.
 
 The following variables are available in the templates:
 
@@ -343,15 +349,23 @@ The following variables are available in the templates:
 
 .. data:: members
 
-   List containing names of all members of the module or class.  Only available
-   for modules and classes.
+   List containing names of all members of the module, class, or exception.
+   Only available for modules, classes, and exceptions.
+
+   .. versionchanged:: 9.2
+
+      Members of exceptions are supported.
 
 .. data:: inherited_members
 
-   List containing names of all inherited members of class.  Only available for
-   classes.
+   List containing names of all inherited members of the class or exception.
+   Only available for classes and exceptions.
 
    .. versionadded:: 1.8.0
+
+   .. versionchanged:: 9.2
+
+      Inherited members of exceptions are supported.
 
 .. data:: functions
 
@@ -371,17 +385,25 @@ The following variables are available in the templates:
 
 .. data:: methods
 
-   List containing names of "public" methods in the class.  Only available for
-   classes.
+   List containing names of "public" methods in the class or exception.  Only
+   available for classes and exceptions.
+
+   .. versionchanged:: 9.2
+
+      Methods of exceptions are supported.
 
 .. data:: attributes
 
-   List containing names of "public" attributes in the class/module.  Only
-   available for classes and modules.
+   List containing names of "public" attributes in the class/exception/module.
+   Only available for classes, exceptions, and modules.
 
    .. versionchanged:: 3.1
 
       Attributes of modules are supported.
+
+   .. versionchanged:: 9.2
+
+      Attributes of exceptions are supported.
 
 .. data:: modules
 
