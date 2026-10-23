@@ -47,6 +47,12 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #10974: intersphinx: Resolve :rst:role:`py:class` references
+  (e.g. from type annotations) to objects documented as
+  :rst:dir:`py:data` or :rst:dir:`py:attribute`, such as type aliases
+  and type variables, mirroring local resolution.
+  Patch by Bhaskar Gurram.
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
