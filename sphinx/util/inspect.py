@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any, ForwardRef
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
+from sphinx.util._sentinel import sentinel
 from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
@@ -58,6 +59,8 @@ if TYPE_CHECKING:
     type _SignatureType = (
         Callable[..., Any] | staticmethod[Any, Any] | classmethod[Any, Any, Any]
     )
+
+_SENTINEL = sentinel('_SENTINEL')
 
 logger = logging.getLogger(__name__)
 
@@ -236,10 +239,9 @@ def isclassmethod(
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        sentinel = object()
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, sentinel)
-            if meth is not sentinel:
+            meth = basecls.__dict__.get(name, _SENTINEL)
+            if meth is not _SENTINEL:
                 return isclassmethod(meth)
     return False
 
@@ -256,10 +258,9 @@ def is_classmethod_descriptor(
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        sentinel = object()
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, sentinel)
-            if meth is not sentinel:
+            meth = basecls.__dict__.get(name, _SENTINEL)
+            if meth is not _SENTINEL:
                 return isinstance(meth, types.ClassMethodDescriptorType)
     return False
 
@@ -284,10 +285,9 @@ def is_builtin_classmethod_like(
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        sentinel = object()
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, sentinel)
-            if meth is not sentinel:
+            meth = basecls.__dict__.get(name, _SENTINEL)
+            if meth is not _SENTINEL:
                 return is_classmethod_descriptor(meth, None, None) or (
                     isbuiltin(meth)
                     and getattr(meth, '__self__', None) is not None
@@ -311,10 +311,9 @@ def isstaticmethod(
     # satisfy "isinstance(cls.__dict__[name], staticmethod)".
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        sentinel = object()
         for basecls in getattr(cls, '__mro__', [cls]):
-            meth = basecls.__dict__.get(name, sentinel)
-            if meth is not sentinel:
+            meth = basecls.__dict__.get(name, _SENTINEL)
+            if meth is not _SENTINEL:
                 return isinstance(meth, staticmethod)
     return False
 

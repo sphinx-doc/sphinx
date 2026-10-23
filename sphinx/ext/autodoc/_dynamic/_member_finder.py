@@ -15,6 +15,7 @@ from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect
+from sphinx.util._sentinel import sentinel
 from sphinx.util.docstrings import separate_metadata
 from sphinx.util.inspect import (
     getannotations,
@@ -43,6 +44,8 @@ if TYPE_CHECKING:
         SLOTS_ATTR_T,
     )
     from sphinx.ext.autodoc._shared import _AttrGetter, _AutodocConfig
+
+_ENUM_SENTINEL = sentinel('_ENUM_SENTINEL')
 
 special_member_re = re.compile(r'^__\S+__$')
 
@@ -688,11 +691,9 @@ def _filter_enum_dict(
             return _is_native_enum_api(value, name)
         return name in ignore_names
 
-    sentinel = object()
-
     def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
-        value = attrgetter(enum_class, name, sentinel)
-        if value is not sentinel:
+        value = attrgetter(enum_class, name, _ENUM_SENTINEL)
+        if value is not _ENUM_SENTINEL:
             return name, defining_class, value
         return None
 

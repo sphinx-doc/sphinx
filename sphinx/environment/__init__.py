@@ -26,6 +26,7 @@ from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
 from sphinx.util._pathlib import _StrPathProperty
+from sphinx.util._sentinel import sentinel
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
@@ -1158,7 +1159,7 @@ class _CurrentDocument:
         except KeyError:
             return default
 
-    __sentinel = object()
+    __sentinel = sentinel('__sentinel')
 
     def pop(self, key: str, default: Any | None = __sentinel) -> Any | None:
         if key in self.__attr_map:
