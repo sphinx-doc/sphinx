@@ -125,7 +125,9 @@ def _format_signatures(
     ):
         if len(result) == 2 and isinstance(result[0], str):
             args, retann = result
-            signatures[0] = (args, retann if isinstance(retann, str) else '')
+            # a slice assignment, as there may be no signature to replace:
+            # data, modules and type aliases skip signature extraction
+            signatures[:1] = [(args, retann if isinstance(retann, str) else '')]
 
     if props.obj_type in {'module', 'data', 'type'}:
         signatures[1:] = ()  # discard all signatures save the first
