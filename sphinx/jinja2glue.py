@@ -204,10 +204,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.filters['toint'] = _toint
         self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
-        self.environment.globals['debug'] = pass_context(pformat)
+        self.environment.globals['debug'] = pass_context(pformat)  # pyrefly: ignore[unsupported-operation]
         self.environment.globals['warning'] = warning
-        self.environment.globals['accesskey'] = pass_context(accesskey)
-        self.environment.globals['idgen'] = idgen
+        self.environment.globals['accesskey'] = pass_context(accesskey)  # pyrefly: ignore[unsupported-operation]
+        self.environment.globals['idgen'] = idgen  # pyrefly: ignore[unsupported-operation]
         if use_i18n:
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
             self.environment.install_gettext_translations(builder._translator)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
