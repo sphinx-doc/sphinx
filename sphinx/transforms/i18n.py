@@ -296,9 +296,10 @@ class _NodeUpdater:
         new_refs = list(is_refnamed_ref.findall(self.patch))
         old_ref_names = [r['refname'] for r in old_refs]
         new_ref_names = [r['refname'] for r in new_refs]
-        orphans = [
-            name for name in dict.fromkeys(old_ref_names) if name not in new_ref_names
-        ]
+        orphans: list[str] = []
+        for name in old_ref_names:
+            if name not in new_ref_names and name not in orphans:
+                orphans.append(name)
         for newr in new_refs:
             if not self.document.has_name(newr['refname']):
                 # Maybe refname is translated but target is not translated.
