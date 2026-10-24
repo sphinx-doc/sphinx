@@ -4,11 +4,12 @@
 
 |pypi| |ci| |docs| |license|
 
-.. |pypi| image:: https://img.shields.io/pypi/v/sphinx.svg
+.. |pypi| image:: https://img.shields.io/pypi/v/sphinx
    :target: https://pypi.org/project/Sphinx/
    :alt: Package on PyPI
 
-.. |ci| image:: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml/badge.svg
+.. |ci| image::
+   https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml/badge.svg?branch=master
    :target: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml
    :alt: Build Status
 
@@ -16,7 +17,7 @@
    :target: https://www.sphinx-doc.org/
    :alt: Documentation Status
 
-.. |license| image:: https://img.shields.io/badge/License-BSD%202--Clause-blue.svg
+.. |license| image:: https://img.shields.io/badge/License-BSD%202--Clause-blue
    :target: https://opensource.org/licenses/BSD-2-Clause
    :alt: BSD 2 Clause
 
