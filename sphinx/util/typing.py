@@ -296,7 +296,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                     ])
                     meta_args.append(rf'{restify(type(m), mode)}\ ({d_fields})')
                 else:
-                    meta_args.append(repr(m))
+                    meta_args.append(_format_literal_arg_restify(m, mode=mode))
             meta = ', '.join(meta_args)
             return (
                 f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
@@ -592,7 +592,7 @@ def stringify_annotation(
                         f'{stringify_annotation(type(m), mode=mode, short_literals=short_literals)}({d_fields})'  # ruff: ignore[line-too-long]
                     )
                 else:
-                    meta_args.append(repr(m))
+                    meta_args.append(_format_literal_arg_stringify(m, mode=mode))
             meta = ', '.join(meta_args)
             return f'{module_prefix}Annotated[{args}, {meta}]'
         elif all(is_system_TypeVar(a) for a in annotation_args):

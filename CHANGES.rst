@@ -41,6 +41,10 @@ Release 9.1.1 (released Oct 19, 2026)
 Bugs fixed
 ----------
 
+* #14653: autodoc: Render enum members in ``Annotated`` metadata the same way
+  as ``Literal`` arguments, instead of dumping ``repr()``.
+  Patch by Gyanu
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
