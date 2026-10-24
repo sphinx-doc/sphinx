@@ -133,9 +133,9 @@ translations = [
 ]
 types = [
     "mypy==2.4.0",
-    "pyrefly",
+    "pyrefly==1.4.0",
     "pyright==1.1.414",
-    "ty==0.0.90",
+    "ty==0.0.91",
     { include-group = "type-stubs" },
 ]
 type-stubs = [
@@ -224,8 +224,6 @@ module = [
     "tests.test_search",
     # tests/test_config
     "tests.test_config.test_config",
-    # tests/test_directives
-    "tests.test_directives.test_directive_other",
     # tests/test_domains
     "tests.test_domains.test_domain_c",
     "tests.test_domains.test_domain_cpp",
