@@ -2709,7 +2709,13 @@ class AttributeDocumenter(  # type: ignore[misc]
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
-        if inspect.isenumattribute(self.object):
+        if inspect.isenumattribute(
+            self.object
+        ) and not inspect.is_composite_flag_member(self.object):
+            # Collapsing a composite Flag combination (e.g. VAL1 | VAL2) to
+            # its raw .value would show a bare, undecodable integer instead
+            # of the member names; leave it as the Flag object so
+            # object_description() can render it properly.
             self.object = self.object.value
         if self.parent:
             self.update_annotations(self.parent)
