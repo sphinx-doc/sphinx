@@ -13,7 +13,7 @@
    :target: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml
    :alt: Build Status
 
-.. |docs| image:: https://readthedocs.org/projects/sphinx/badge/?version=master
+.. |docs| image:: https://img.shields.io/readthedocs/sphinx/master
    :target: https://www.sphinx-doc.org/
    :alt: Documentation Status
 
