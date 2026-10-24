@@ -375,7 +375,7 @@ def _get_members_to_document(
                         and unmangled in wanted_members
                     ):
                         if analyzer and (qualname, unmangled) in analyzer.attr_docs:
-                            attr_docstring = analyzer.attr_docs[qualname, unmangled]
+                            attr_docstring = analyzer.attr_docs[qualname, unmangled]  # pyrefly: ignore[bad-index]
                         else:
                             attr_docstring = None
                         object_members_map[unmangled] = ObjectMember(
