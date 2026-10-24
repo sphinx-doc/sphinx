@@ -729,7 +729,7 @@ def extract_role_links(app, filename):
     lis = [l for l in t.split('\n') if l.startswith('<li')]
     entries = []
     for l in lis:
-        li = ET.fromstring(l)  # NoQA: S314  # using known data in tests
+        li = ET.fromstring(l)  # ruff: ignore[suspicious-xml-element-tree-usage]  # using known data in tests
         a_list = list(li.iter('a'))
         assert len(a_list) == 1
         a = a_list[0]
