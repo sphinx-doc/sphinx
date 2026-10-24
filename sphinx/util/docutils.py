@@ -294,7 +294,7 @@ class CustomReSTDispatcher:
         language_module: ModuleType,
         document: nodes.document,
     ) -> tuple[type[Directive] | None, list[system_message]]:
-        return self.directive_func(directive_name, language_module, document)
+        return self.directive_func(directive_name, language_module, document)  # pyrefly: ignore[bad-argument-type]
 
     def role(
         self,
@@ -303,7 +303,7 @@ class CustomReSTDispatcher:
         lineno: int,
         reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        return self.role_func(  # ty: ignore[invalid-return-type]
+        return self.role_func(  # ty: ignore[invalid-return-type]  # pyrefly: ignore[bad-return]
             role_name,
             language_module,  # type: ignore[return-value]
             lineno,
