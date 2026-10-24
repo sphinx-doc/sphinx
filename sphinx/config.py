@@ -2,17 +2,18 @@
 
 from __future__ import annotations
 
+import re
 import time
 import traceback
 import types
 from contextlib import chdir
-from os import getenv
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util._timestamps import _get_source_date_epoch
 
 if TYPE_CHECKING:
     import os
@@ -694,30 +695,52 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
 
 
 def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
-    """Replace copyright year placeholders (%Y) with the current year."""
-    replace_yr = str(time.localtime().tm_year)
+    """Replace copyright year placeholders (%Y) with the publication year."""
+    year = time.localtime().tm_year
+    source_date_epoch = _get_source_date_epoch()
+    if source_date_epoch is not None:
+        year = min(year, time.gmtime(source_date_epoch).tm_year)
     for k in ('copyright', 'epub_copyright'):
         if k in config:
             value: str | Sequence[str] = config[k]
             if isinstance(value, str):
                 if '%Y' in value:
-                    config[k] = value.replace('%Y', replace_yr)
+                    config[k] = _replace_copyright_placeholder(value, year)
             else:
                 if any('%Y' in line for line in value):
-                    items = (line.replace('%Y', replace_yr) for line in value)
+                    items = (
+                        _replace_copyright_placeholder(line, year) for line in value
+                    )
                     config[k] = type(value)(items)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
 
 
+# A four-digit start year followed by a hyphen or en dash and the placeholder.
+_COPYRIGHT_PLACEHOLDER_RANGE = re.compile(r'(?<!\d)(\d{4})(\s*[-\u2013]\s*)%Y')
+
+
+def _replace_copyright_placeholder(copyright_line: str, year: int) -> str:
+    """Replace ``%Y`` in a single copyright line with *year*.
+
+    A ``%Y`` that ends a year range is never replaced with a year
+    before the range's start, such as when ``SOURCE_DATE_EPOCH`` is zero.
+    """
+    copyright_line = _COPYRIGHT_PLACEHOLDER_RANGE.sub(
+        lambda match: f'{match[1]}{match[2]}{max(int(match[1]), year)}',
+        copyright_line,
+    )
+    return copyright_line.replace('%Y', str(year))
+
+
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
-    """Correct values of copyright year that are not coherent with
-    the SOURCE_DATE_EPOCH environment variable (if set)
+    """Correct copyright years that conflict with a configured
+    ``SOURCE_DATE_EPOCH`` environment variable.
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-    if source_date_epoch := int(getenv('SOURCE_DATE_EPOCH', '0')):
-        source_date_epoch_year = time.gmtime(source_date_epoch).tm_year
-    else:
+    source_date_epoch = _get_source_date_epoch()
+    if source_date_epoch is None:
         return
+    source_date_epoch_year = time.gmtime(source_date_epoch).tm_year
 
     # If the current year is the replacement year, there's no work to do.
     # We also skip replacement years that are in the future.
@@ -753,7 +776,8 @@ def _substitute_copyright_year(
     * ``YYYY-YYYY,``
     * ``YYYY-YYYY ``
 
-    The final year in the string is replaced with ``replace_year``.
+    The final year in the string is replaced with ``replace_year``,
+    but a range never ends before its start year.
     """
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
         return copyright_line
@@ -769,7 +793,8 @@ def _substitute_copyright_year(
         and copyright_line[5:9] == current_year
         and copyright_line[9:10] in {'', ' ', ','}
     ):
-        return copyright_line[:5] + replace_year + copyright_line[9:]
+        end_year = max(copyright_line[:4], replace_year, key=int)
+        return copyright_line[:5] + end_year + copyright_line[9:]
 
     return copyright_line
 

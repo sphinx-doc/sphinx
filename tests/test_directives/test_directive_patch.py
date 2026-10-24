@@ -4,14 +4,109 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import docutils
 import pytest
 from docutils import nodes
+from docutils.languages import get_language
+from docutils.parsers.rst import directives
+from docutils.parsers.rst.directives.misc import Date as DocutilsDate
 
+from sphinx.directives.patches import Date
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='_blank',
+    confoverrides={'today_fmt': '%Y-%m-%d %H:%M:%S'},
+)
+def test_date_directive_source_date_epoch(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '1439131307')
+    text = """\
+.. |docutils-date| date:: %Y-%m-%d %H:%M:%S
+
+Docutils: |docutils-date|
+
+Sphinx: |today|
+"""
+
+    doctree = restructuredtext.parse(app, text)
+
+    assert 'Docutils: 2015-08-09 14:41:47' in doctree.astext()
+    assert 'Sphinx: 2015-08-09 14:41:47' in doctree.astext()
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_date_directive_source_date_epoch_default_format(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+
+    doctree = restructuredtext.parse(app, '.. |date| date::\n\n|date|')
+
+    assert doctree[-1].astext() == '1970-01-01'
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+@pytest.mark.parametrize('source_date_epoch', [None, ''])
+def test_date_directive_without_source_date_epoch_delegates_to_docutils(
+    app: SphinxTestApp,
+    monkeypatch: pytest.MonkeyPatch,
+    source_date_epoch: str | None,
+) -> None:
+    if source_date_epoch is None:
+        monkeypatch.delenv('SOURCE_DATE_EPOCH', raising=False)
+    else:
+        monkeypatch.setenv('SOURCE_DATE_EPOCH', source_date_epoch)
+    monkeypatch.setattr(DocutilsDate, 'run', lambda self: [nodes.Text('docutils-date')])
+
+    doctree = restructuredtext.parse(app, '.. |date| date::\n\n|date|')
+
+    assert doctree[-1].astext() == 'docutils-date'
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_date_directive_invalid_context(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+
+    restructuredtext.parse(app, '.. date::')
+
+    assert 'can only be used within a substitution definition' in app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_date_directive_registration(app: SphinxTestApp) -> None:
+    doctree = restructuredtext.parse(app, '.. |date| date::\n\n|date|')
+    directive, _messages = directives.directive('date', get_language('en'), doctree)
+
+    if docutils.__version_info__[:2] < (1, 0):
+        assert directive is Date
+    else:
+        assert directive is DocutilsDate
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_date_directive_extension_override(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class ExtensionDate(DocutilsDate):
+        def run(self) -> list[nodes.Text]:
+            return [nodes.Text('extension date')]
+
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+    app.add_directive('date', ExtensionDate, override=True)
+
+    doctree = restructuredtext.parse(app, '.. |date| date::\n\n|date|')
+
+    assert doctree[-1].astext() == 'extension date'
 
 
 @pytest.mark.sphinx('html', testroot='_blank')

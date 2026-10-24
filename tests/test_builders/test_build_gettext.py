@@ -15,6 +15,9 @@ import pytest
 from sphinx.builders.gettext import Catalog, MsgOrigin
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from sphinx.testing.fixtures import _app_params
     from sphinx.testing.util import SphinxTestApp
 
 _MSGID_PATTERN = re.compile(r'msgid "((?:\n|.)*?)"\nmsgstr', re.MULTILINE)
@@ -23,6 +26,26 @@ _MSGID_PATTERN = re.compile(r'msgid "((?:\n|.)*?)"\nmsgstr', re.MULTILINE)
 def get_msgids(pot: str) -> list[str]:
     matches = _MSGID_PATTERN.findall(pot)
     return [m.replace('"\n"', '') for m in matches[1:]]
+
+
+@pytest.mark.sphinx(
+    'gettext',
+    testroot='root',
+    srcdir='root-gettext',
+)
+def test_gettext_source_date_epoch_is_read_at_build_initialization(
+    make_app: Callable[..., SphinxTestApp],
+    app_params: _app_params,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '1439131307')
+    args, kwargs = app_params
+    app = make_app(*args, **kwargs)
+
+    app.build(force_all=True)
+
+    catalog = (app.outdir / 'markup.pot').read_text(encoding='utf8')
+    assert 'POT-Creation-Date: 2015-08-09 14:41+0000' in catalog
 
 
 def test_Catalog_duplicated_message() -> None:
