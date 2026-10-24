@@ -51,6 +51,13 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #11362: autosummary: Fix resolution failures on case-insensitive filesystems
+  (Windows and macOS) when a class and a module differ only by case, such as
+  a class ``pkg.Foo`` defined in ``pkg/foo.py``.  Names are now resolved by
+  attribute access where possible instead of importing ``pkg.Foo`` as a
+  module, which could clobber the class attribute with the mis-cased module.
+  Patch by Eric Larson
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import sys
 from contextlib import chdir
 from io import StringIO
@@ -821,6 +822,105 @@ def test_import_by_name() -> None:
     assert obj == sphinx.ext.autosummary.Autosummary.get_items
     assert parent is sphinx.ext.autosummary.Autosummary
     assert modname == 'sphinx.ext.autosummary'
+
+
+def _make_case_insensitive_finder(pkg_dir, package_name):
+    # emulate the Windows/macOS import behaviour from GH-11362: submodule
+    # names resolve case-insensitively, e.g. ``pkg.Foo`` finds ``pkg/foo.py``
+    class CaseInsensitiveFinder:
+        @staticmethod
+        def find_spec(fullname, path=None, target=None):  # NoQA: ARG004
+            parent_name, _, child = fullname.rpartition('.')
+            if parent_name != package_name or child == child.lower():
+                return None
+            location = pkg_dir / f'{child.lower()}.py'
+            if location.is_file():
+                return importlib.util.spec_from_file_location(fullname, location)
+            return None
+
+    return CaseInsensitiveFinder
+
+
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_import_by_name_class_shadowing_module(tmp_path, monkeypatch):
+    # https://github.com/sphinx-doc/sphinx/issues/11362
+    # ``case_pkg.Foo`` (class) and ``case_pkg/foo.py`` (module) collide on
+    # case-insensitive filesystems: importing ``case_pkg.Foo`` succeeds there,
+    # returning the mis-cased module and clobbering the class attribute.
+    pkg = tmp_path / 'case_pkg'
+    pkg.mkdir()
+    (pkg / '__init__.py').write_text('from .foo import Foo\n', encoding='utf-8')
+    (pkg / 'foo.py').write_text(
+        'class Foo:\n    def crop(self):\n        """Crop."""\n', encoding='utf-8'
+    )
+    monkeypatch.syspath_prepend(str(tmp_path))
+    finder = _make_case_insensitive_finder(pkg, 'case_pkg')
+    monkeypatch.setattr(sys, 'meta_path', [*sys.meta_path, finder])
+
+    prefixed_name, obj, parent, modname = import_by_name('case_pkg.Foo.crop')
+    case_pkg = sys.modules['case_pkg']
+    assert prefixed_name == 'case_pkg.Foo.crop'
+    assert obj is case_pkg.Foo.crop
+    assert parent is case_pkg.Foo
+    assert modname == 'case_pkg'
+    # the class must not have been shadowed by a mis-cased module import
+    assert isinstance(case_pkg.Foo, type)
+    assert 'case_pkg.Foo' not in sys.modules
+
+
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_import_by_name_attribute_shadows_module(tmp_path, monkeypatch):
+    # a function shadowing its own module (``from .util import util``) must
+    # not prevent resolving other members of the shadowed module
+    pkg = tmp_path / 'shadow_pkg'
+    pkg.mkdir()
+    (pkg / '__init__.py').write_text('from .util import util\n', encoding='utf-8')
+    (pkg / 'util.py').write_text(
+        'def util():\n    """Shadow."""\n\n\ndef helper():\n    """Help."""\n',
+        encoding='utf-8',
+    )
+    # a submodule not imported by __init__ at all
+    (pkg / 'bar.py').write_text('class Bar:\n    """Bar."""\n', encoding='utf-8')
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    _prefixed_name, obj, _parent, modname = import_by_name('shadow_pkg.util')
+    assert callable(obj)  # the attribute, not the module
+    assert modname == 'shadow_pkg'
+
+    _prefixed_name, obj, parent, modname = import_by_name('shadow_pkg.util.helper')
+    assert obj is sys.modules['shadow_pkg.util'].helper
+    assert parent is sys.modules['shadow_pkg.util']
+    assert modname == 'shadow_pkg.util'
+
+    _prefixed_name, obj, _parent, modname = import_by_name('shadow_pkg.bar.Bar')
+    assert obj is sys.modules['shadow_pkg.bar'].Bar
+    assert modname == 'shadow_pkg.bar'
+
+
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='ext-autosummary-case-insensitive',
+    copy_test_root=True,
+)
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_autosummary_class_module_case_collision(app, monkeypatch):
+    # end to end: with the case-insensitive import behaviour emulated, a class
+    # and its same-named module can be documented together as long as
+    # autosummary_filename_map disambiguates the stub filenames
+    finder = _make_case_insensitive_finder(app.srcdir / 'casefoo', 'casefoo')
+    monkeypatch.setattr(sys, 'meta_path', [*sys.meta_path, finder])
+
+    app.build()
+    assert app.warning.getvalue() == ''
+
+    class_stub = (app.srcdir / 'generated' / 'casefoo.Foo.rst').read_text(
+        encoding='utf-8'
+    )
+    assert 'crop' in class_stub
+    module_stub = (app.srcdir / 'generated' / 'casefoo.foo-module.rst').read_text(
+        encoding='utf-8'
+    )
+    assert 'find_foo' in module_stub
 
 
 @pytest.mark.sphinx(
