@@ -34,7 +34,6 @@ LOCALTIME_2009 = time.gmtime(1230768000)
         # test with pre-2009 SOURCE_DATE_EPOCH set: copyright year should be updated
         ('1199145600', 2008),
         ('1199145599', 2007),
-        ('0', 1970),
     ],
 )
 def expect_date(
@@ -302,6 +301,45 @@ def test_copyright_placeholders_app(
         assert app.config[name] == f'2000–{expect_date}; Published {expect_date}, Alice'
     else:
         assert app.config[name] == '2000–2009; Published 2009, Alice'
+
+
+@pytest.mark.parametrize(
+    ('sde', 'expect_year'),
+    [
+        ('0', '1970'),
+        ('315532800', '1980'),
+    ],
+)
+def test_copyright_range_does_not_end_before_start(
+    sde: str,
+    expect_year: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(time, 'localtime', lambda *a: LOCALTIME_2009)
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', sde)
+    cfg = Config(
+        {
+            'copyright': (
+                '2009, Alice',
+                '2006-2009, Bob',
+                '2006-%Y, Charlie',
+                '2006–%Y; Published %Y, David',
+                '1960-%Y, Eve',
+            )
+        },
+        {},
+    )
+
+    evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
+
+    assert cfg.copyright == (
+        f'{expect_year}, Alice',
+        '2006-2006, Bob',
+        '2006-2006, Charlie',
+        f'2006–2006; Published {expect_year}, David',
+        f'1960-{expect_year}, Eve',
+    )
 
 
 def test_source_date_epoch_invalid_at_initialization(
