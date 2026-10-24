@@ -9,10 +9,11 @@ import docutils
 from docutils.io import FileInput
 from docutils.readers import standalone
 from docutils.transforms import references
+from docutils.transforms.universal import Decorations
 from docutils.writers import UnfilteredWriter
 
 from sphinx.deprecation import RemovedInSphinx10Warning
-from sphinx.transforms import SphinxTransformer
+from sphinx.transforms import SphinxTransformer, _SphinxDecorations
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
@@ -59,6 +60,9 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[type-arg]
         for transform in unused:
             if transform in transforms:
                 transforms.remove(transform)
+
+        if docutils.__version_info__[:2] < (1, 0) and Decorations in transforms:
+            transforms[transforms.index(Decorations)] = _SphinxDecorations
 
         return transforms
 

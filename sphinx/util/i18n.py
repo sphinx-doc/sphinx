@@ -16,6 +16,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util._pathlib import _StrPath
+from sphinx.util._timestamps import _get_source_date_epoch
 from sphinx.util.osutil import SEP, _last_modified_time
 
 if TYPE_CHECKING:
@@ -268,11 +269,9 @@ def format_date(
     local_time: bool = False,
 ) -> str:
     if date is None:
-        # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
-        # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
-        source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
+        source_date_epoch = _get_source_date_epoch()
         if source_date_epoch is not None:
-            date = datetime.fromtimestamp(float(source_date_epoch), tz=UTC)
+            date = datetime.fromtimestamp(source_date_epoch, tz=UTC)
             # If SOURCE_DATE_EPOCH is set, users likely want a reproducible result,
             # so enforce GMT/UTC for consistency.
             local_time = False

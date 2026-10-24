@@ -24,6 +24,12 @@ documentation processing.  For a list of available builders, refer to
 
 By default, everything that is outdated is built.  Output only for selected
 files can be built by specifying individual filenames.
+If the saved environment's read-affecting configuration, extension list,
+or effective :envvar:`SOURCE_DATE_EPOCH` value has changed, all output is
+rebuilt even when individual filenames are specified.
+
+.. versionchanged:: 9.3
+   Selected-file builds rebuild all output when global read inputs change.
 
 Options
 -------

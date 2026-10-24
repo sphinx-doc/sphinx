@@ -16,6 +16,29 @@ Features added
 Bugs fixed
 ----------
 
+* #14769: Handle ``SOURCE_DATE_EPOCH`` consistently across Sphinx. The Docutils
+  :dudir:`date` directive and configured ``datestamp`` footers now honor it
+  with Docutils versions before 1.0.
+  Epoch zero is accepted, and values must use ASCII integer syntax as required
+  by the `SOURCE_DATE_EPOCH specification
+  <https://reproducible-builds.org/specs/source-date-epoch/>`__.
+  Gettext timestamps are now calculated when the builder is initialized, and
+  changing the effective value between incremental builds now causes all
+  documents to be reread and all output to be rewritten.
+  Copyright ``%Y`` placeholders use the timestamp's UTC year directly,
+  capped at the current local year, independently of surrounding punctuation.
+  Copyright year ranges no longer end before their start year.
+  See `discussion 13526
+  <https://github.com/orgs/sphinx-doc/discussions/13526>`__.
+  Document the existing static copyright correction behavior (#13231, #14657).
+  Patch by Kilian Paul
+
+* #14770: Rebuild all output when global read inputs change, even if individual
+  source filenames were specified. This includes changes to read-affecting
+  configuration, the extension list, and ``SOURCE_DATE_EPOCH``.
+  Invalid filename selections no longer consume pending invalidation.
+  Patch by Kilian Paul
+
 Testing
 -------
 

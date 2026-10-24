@@ -27,7 +27,10 @@ from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
 from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util._serialise import stable_str
-from sphinx.util._timestamps import _format_rfc3339_microseconds
+from sphinx.util._timestamps import (
+    _format_rfc3339_microseconds,
+    _get_source_date_epoch,
+)
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
@@ -76,7 +79,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 66
+ENV_VERSION = 67
 
 # config status
 CONFIG_UNSET = -1
@@ -122,6 +125,10 @@ class BuildEnvironment:
         self.events: EventManager = app.events
         self.project: Project = app.project
         self.version: Mapping[str, int] = _get_env_version(app.extensions)
+
+        # Read-time date substitutions are stored in cached doctrees. Persist
+        # the epoch so a later build can invalidate them when the value changes.
+        self._source_date_epoch: int | None = None
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: Literal[False] | Callable[[Node], bool] | None = None
@@ -284,12 +291,26 @@ class BuildEnvironment:
         # Initialise config.
         # The old config is self.config, restored from the pickled environment.
         # The new config is app.config, always recreated from ``conf.py``
+        old_config = self.config
+        source_date_epoch = _get_source_date_epoch()
         self.config_status, self.config_status_extra = self._config_status(
-            old_config=self.config,
+            old_config=old_config,
             new_config=app.config,
             verbosity=app.config.verbosity,
         )
+
+        # Treat SOURCE_DATE_EPOCH as a read-environment input because it affects
+        # substitutions resolved into doctrees. A regular config change already
+        # causes the same full reread, so preserve its more specific reason.
+        if (
+            self.config_status == CONFIG_OK
+            and self._source_date_epoch != source_date_epoch
+        ):
+            self.config_status = CONFIG_CHANGED
+            self.config_status_extra = " ('SOURCE_DATE_EPOCH')"
+
         self.config = app.config
+        self._source_date_epoch = source_date_epoch
 
         # initialize settings
         self._update_settings(app.config)
