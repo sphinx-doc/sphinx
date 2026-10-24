@@ -19,6 +19,10 @@ Bugs fixed
 Testing
 -------
 
+* #14699: Stabilize linkcheck tests on slow runners, bound test server
+  startup and shutdown waits, and defer TLS handshakes to request workers.
+  Patch by Kilian Paul
+
 * #14690: Fix test isolation issues caused by shared test directories and
   inherited ``NO_COLOR`` and ``NO_COLOUR`` environment variables.
   Patch by Kilian Paul

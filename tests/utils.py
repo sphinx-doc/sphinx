@@ -7,12 +7,11 @@ __all__ = (
 )
 
 import os
-import socket
 from contextlib import contextmanager
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
-from threading import Thread
+from threading import Event, Thread
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -21,6 +20,7 @@ from docutils import nodes
 if TYPE_CHECKING:
     from collections.abc import Generator
     from http.server import HTTPServer
+    from socket import socket
     from socketserver import BaseRequestHandler
     from typing import Final
 
@@ -41,6 +41,14 @@ TEST_ROOTS_DIR: Final[Path] = TESTS_ROOT / (
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
+class _HTTPServer(ThreadingHTTPServer):
+    def get_request(self) -> tuple[socket, tuple[str, int]]:
+        connection, address = super().get_request()
+        # Bound reads, including TLS handshakes, in request workers.
+        connection.settimeout(5)
+        return connection, address
+
+
 class HttpServerThread(Thread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
         """Constructs a threaded HTTP server.
@@ -50,25 +58,44 @@ class HttpServerThread(Thread):
         See: https://docs.python.org/3/library/socketserver.html#asynchronous-mixins
         """
         super().__init__(daemon=True)
-        self.server = ThreadingHTTPServer(('localhost', port), handler)
+        self.ready = Event()
+        self._stop_requested = Event()
+        self.server = _HTTPServer(('localhost', port), handler)
+        self.server.timeout = 0.001
+        # handle_request() bounds polling; also bound accept() itself.
+        self.server.socket.settimeout(self.server.timeout)
 
     def run(self) -> None:
-        self.server.serve_forever(poll_interval=0.001)
+        self.ready.set()
+        while not self._stop_requested.is_set():
+            self.server.handle_request()
 
     def terminate(self) -> None:
-        self.server.shutdown()
-        self.server.server_close()
-        self.join()
+        # BaseServer.shutdown() deadlocks if serve_forever() never started.
+        self._stop_requested.set()
+        try:
+            if self.ident is not None:
+                self.join(timeout=5)
+        finally:
+            self.server.server_close()
+        if self.is_alive():
+            msg = 'HTTP server thread did not stop within 5 seconds'
+            raise TimeoutError(msg)
 
 
 class HttpsServerThread(HttpServerThread):
     def __init__(self, handler: type[BaseRequestHandler], *, port: int = 0) -> None:
         super().__init__(handler, port=port)
-        sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
-        sslcontext.load_cert_chain(CERT_FILE)
-        self.server.socket = sslcontext.wrap_socket(
-            self.server.socket, server_side=True
-        )
+        try:
+            sslcontext = SSLContext(PROTOCOL_TLS_SERVER)
+            sslcontext.load_cert_chain(CERT_FILE)
+            # Negotiate TLS on the first read in a worker, not in accept().
+            self.server.socket = sslcontext.wrap_socket(
+                self.server.socket, server_side=True, do_handshake_on_connect=False
+            )
+        except BaseException:
+            self.server.server_close()
+            raise
 
 
 @contextmanager
@@ -80,12 +107,14 @@ def http_server(
 ) -> Generator[HTTPServer]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
     server_thread = server_cls(handler, port=port)
-    server_thread.start()
-    server_port = server_thread.server.server_port
-    assert port in {0, server_port}
     try:
-        socket.create_connection(('localhost', server_port), timeout=0.5).close()
-        yield server_thread.server  # Connection has been confirmed possible; proceed.
+        server_thread.start()
+        server_port = server_thread.server.server_port
+        assert port in {0, server_port}
+        if not server_thread.ready.wait(timeout=5):
+            msg = 'HTTP server did not enter its serving loop within 5 seconds'
+            raise TimeoutError(msg)
+        yield server_thread.server
     finally:
         server_thread.terminate()
 
