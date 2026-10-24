@@ -303,6 +303,8 @@ class Documenter:
 
         subject = inspect.unpartial(self.object)
         modname = self.get_attr(subject, '__module__', None)
+        if not modname and inspect.is_namedtuple_instance(subject):
+            modname = self.get_attr(type(subject), '__module__', None)
         return not modname or modname == self.modname
 
     def format_args(self, **kwargs: Any) -> str:
@@ -563,7 +565,11 @@ class Documenter:
             member = obj.object
 
             # if isattr is True, the member is documented as an attribute
-            isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs
+            isattr = (
+                member is INSTANCEATTR
+                or (namespace, membername) in attr_docs
+                or inspect.is_namedtuple_instance(member)
+            )
 
             try:
                 doc = getdoc(
@@ -582,7 +588,7 @@ class Documenter:
                 cls = self.get_attr(member, '__class__', None)
                 if cls:
                     cls_doc = self.get_attr(cls, '__doc__', None)
-                    if cls_doc == doc:
+                    if cls_doc == doc and not inspect.is_namedtuple_instance(member):
                         doc = None
 
                 if isinstance(obj, ObjectMember) and obj.docstring:
@@ -747,7 +753,8 @@ class Documenter:
             documenter._generate(
                 all_members=True,
                 real_modname=self.real_modname,
-                check_module=members_check_module and not isattr,
+                check_module=members_check_module
+                and (not isattr or inspect.is_namedtuple_instance(documenter.object)),
             )
 
         # reset current objects
@@ -2046,7 +2053,9 @@ class DataDocumenter(
     def can_document_member(
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
-        return isinstance(parent, ModuleDocumenter) and isattr
+        return isinstance(parent, ModuleDocumenter) and (
+            isattr or inspect.is_namedtuple_instance(member)
+        )
 
     def update_annotations(self, parent: Any) -> None:
         """Update __annotations__ to support type_comment and so on."""

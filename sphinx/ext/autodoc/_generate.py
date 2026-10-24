@@ -158,6 +158,8 @@ def _generate_directives(
     if check_module and not options.imported_members:
         subject = inspect.unpartial(props._obj)
         modname = get_attr(subject, '__module__', None)
+        if not modname and inspect.is_namedtuple_instance(subject):
+            modname = get_attr(type(subject), '__module__', None)
         if modname and modname != props.module_name:
             return
 
@@ -303,7 +305,8 @@ def _document_members(
         _generate_directives(
             more_content=None,
             parent_modname=real_modname,
-            check_module=members_check_module and not is_attr,
+            check_module=members_check_module
+            and (not is_attr or inspect.is_namedtuple_instance(member_props._obj)),
             all_members=True,
             config=config,
             current_document=current_document,
