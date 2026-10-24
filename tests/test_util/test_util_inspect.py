@@ -1023,7 +1023,7 @@ def test_is_namedtuple_instance() -> None:
     import time
     from typing import NamedTuple
 
-    Point = collections.namedtuple('Point', ['x', 'y'])  # NoQA: PYI024
+    Point = collections.namedtuple('Point', ['x', 'y'])  # ruff: ignore[collections-named-tuple]
     pt = Point(1, 2)
 
     class Coord(NamedTuple):
