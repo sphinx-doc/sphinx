@@ -41,6 +41,11 @@ Release 9.1.1 (released Oct 19, 2026)
 Bugs fixed
 ----------
 
+* #14664: Do not crash with a ``KeyError`` when a translated message
+  catalogue contains a damaged ``str.format`` placeholder; affected messages
+  now fall back to the original English text.
+  Patch by Shash Bhaskar
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.

@@ -76,7 +76,16 @@ OPTIONS_MAP = {
         'include_attrs': 'alt title summary',
     },
 }
-KEYWORDS = {**DEFAULT_KEYWORDS, '_': None, '__': None}
+KEYWORDS = {
+    **DEFAULT_KEYWORDS,
+    '_': None,
+    '__': None,
+    # messages that are translated by ``sphinx.locale.safe_format``
+    'safe_format': None,
+    # ``_NodeUpdater.compare_references`` receives its untranslated warning
+    # message as the third argument
+    'compare_references': (3,),
+}
 
 
 def run_extract() -> None:
