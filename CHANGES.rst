@@ -51,6 +51,10 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #13888: html: Do not create an empty ``_sources`` directory when
+  :confval:`html_copy_source` is ``False``.
+  Patch by Fazeel Usmani
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
