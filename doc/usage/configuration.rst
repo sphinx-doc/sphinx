@@ -151,6 +151,11 @@ Project information
    a space, or the end of the string. Static ranges separated by an en dash
    are left unchanged.
 
+   A year range never ends before its start year. If the timestamp's year is
+   earlier than the start of a range, the range ends at its start year.
+   For example, with ``SOURCE_DATE_EPOCH=0``,
+   :code-py:`'2006-%Y, Author Name'` becomes ``2006-2006, Author Name``.
+
    .. versionadded:: 3.5
       The :code-py:`project_copyright` alias.
 
