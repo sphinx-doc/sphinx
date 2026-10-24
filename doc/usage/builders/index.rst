@@ -446,6 +446,8 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
    This builder produces gettext-style message catalogs.  Each top-level file or
    subdirectory grows a single ``.pot`` catalog template.
+   The ``POT-Creation-Date`` header is derived from
+   :envvar:`SOURCE_DATE_EPOCH` when configured.
 
    See the documentation on :ref:`intl` for further reference.
 

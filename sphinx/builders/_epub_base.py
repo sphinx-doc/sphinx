@@ -21,6 +21,7 @@ from sphinx.builders.html._build_info import BuildInfo
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util._pathlib import _StrPath
+from sphinx.util._timestamps import _get_source_date_epoch
 from sphinx.util.display import status_iterator
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import copyfile, ensuredir, relpath
@@ -533,8 +534,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-        if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
-            time_tuple = time.gmtime(int(source_date_epoch))
+        source_date_epoch = _get_source_date_epoch()
+        if source_date_epoch is not None:
+            time_tuple = time.gmtime(source_date_epoch)
         else:
             time_tuple = time.gmtime()
 

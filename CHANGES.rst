@@ -16,6 +16,17 @@ Features added
 Bugs fixed
 ----------
 
+* #14770: Handle ``SOURCE_DATE_EPOCH`` consistently in existing timestamp
+  consumers. Epoch zero is accepted, and values must use ASCII integer syntax.
+  Gettext timestamps are calculated when the builder is initialized.
+  Copyright ``%Y`` placeholders use the timestamp's UTC year directly,
+  capped at the current local year, independently of surrounding punctuation.
+  Copyright year ranges no longer end before their start year.
+  See `discussion 13526
+  <https://github.com/orgs/sphinx-doc/discussions/13526>`__.
+  Document the existing static copyright correction behavior (#13231, #14657).
+  Patch by Kilian Paul
+
 Testing
 -------
 
