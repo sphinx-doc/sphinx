@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 
     from sphinx.ext.autodoc._property_types import _AutodocObjType
     from sphinx.ext.autodoc._shared import _AttrGetter
+    from sphinx.testing.util import SphinxTestApp
 
 pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
@@ -2339,6 +2340,35 @@ def test_autodoc_pep695_type_alias() -> None:
         '   This fn accepts and returns PEP695 alias.',
         '',
     ]
+
+
+def test_autodoc_type_alias_uses_its_defining_module() -> None:
+    actual = do_autodoc('type', 'target.public_alias.TokenValidator')
+
+    assert '.. py:type:: TokenValidator' in actual
+    assert '   :module: target.public_alias' in actual
+    assert '   :canonical-name: target._alias_impl.TokenValidator' in actual
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc', copy_test_root=True)
+def test_type_alias_reexport_xref_resolution(app: SphinxTestApp) -> None:
+    """A re-exported type alias resolves references via its defining module.
+
+    Regression test for https://github.com/sphinx-doc/sphinx/issues/14745.
+    """
+    (app.srcdir / 'index.rst').write_text(
+        '.. autotype:: target.public_alias.TokenValidator\n'
+        '\n'
+        '.. autofunction:: target.public_alias.validate\n',
+        encoding='utf8',
+    )
+    app.build()
+
+    warnings = app.warning.getvalue()
+    assert 'reference target not found' not in warnings, warnings
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert 'href="#target.public_alias.TokenValidator"' in content
 
 
 def test_autodoc_TypeVar() -> None:
