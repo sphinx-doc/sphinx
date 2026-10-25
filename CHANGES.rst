@@ -41,6 +41,9 @@ Release 9.1.1 (released Oct 19, 2026)
 Bugs fixed
 ----------
 
+* #14694: Python domain: Preserve the enclosing class prefix for sibling objects nested
+  in a non-nestable directive.
+  Patch by Pengyu Lee
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
