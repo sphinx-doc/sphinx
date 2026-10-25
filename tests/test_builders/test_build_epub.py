@@ -10,6 +10,7 @@ from collections import Counter
 from pathlib import Path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
+from zipfile import ZipFile
 
 import pytest
 
@@ -74,6 +75,22 @@ class EPUBElementTree:
     def __iter__(self) -> Iterator[Self]:
         for child in self.tree:
             yield self.__class__(child)
+
+
+@pytest.mark.sphinx('epub', testroot='basic')
+def test_build_epub_out_of_range_timestamps(app: SphinxTestApp) -> None:
+    app.build()
+    filenames = ['mimetype', 'META-INF/container.xml', 'content.opf', 'toc.ncx']
+    filenames.extend(app.builder.files)
+    for filename in filenames:
+        os.utime(app.outdir / filename, (0, 0))
+
+    app.builder.build_epub()
+
+    with ZipFile(app.outdir / (app.config.epub_basename + '.epub')) as archive:
+        assert archive.testzip() is None
+        assert archive.read('mimetype') == b'application/epub+zip'
+        assert all(1980 <= entry.date_time[0] <= 2107 for entry in archive.infolist())
 
 
 @pytest.mark.sphinx('epub', testroot='basic')
