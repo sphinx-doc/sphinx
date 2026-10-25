@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #14781: C: Fix incremental cleanup of declarations and namespaces, preserving
+  members and scope references belonging to unchanged documents.
+
 Testing
 -------
 
