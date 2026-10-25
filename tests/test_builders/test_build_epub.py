@@ -14,7 +14,7 @@ from zipfile import ZipFile
 
 import pytest
 
-from sphinx.builders.epub3 import _XML_NAME_PATTERN
+from sphinx.builders.epub3 import _XML_NAME_PATTERN, Epub3Builder
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -80,12 +80,14 @@ class EPUBElementTree:
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_build_epub_out_of_range_timestamps(app: SphinxTestApp) -> None:
     app.build()
+    builder = app.builder
+    assert isinstance(builder, Epub3Builder)
     filenames = ['mimetype', 'META-INF/container.xml', 'content.opf', 'toc.ncx']
-    filenames.extend(app.builder.files)
+    filenames.extend(builder.files)
     for filename in filenames:
         os.utime(app.outdir / filename, (0, 0))
 
-    app.builder.build_epub()
+    builder.build_epub()
 
     with ZipFile(app.outdir / (app.config.epub_basename + '.epub')) as archive:
         assert archive.testzip() is None
