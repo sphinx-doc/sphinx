@@ -51,6 +51,10 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14041: Fix CLI flags like ``--dry-run`` and ``-v`` being unsearchable due to
+  word splitter regex and query parser behavior changes.
+  Patch by Chish
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
