@@ -29,6 +29,8 @@ from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
@@ -69,7 +71,7 @@ depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 def read_svg_depth(filename: str | os.PathLike[str]) -> int | None:
     """Read the depth from comment at last line of SVG file"""
     with open(filename, encoding='utf-8') as f:
-        for line in f:  # NoQA: B007
+        for line in f:  # ruff: ignore[unused-loop-control-variable]
             pass
         # Only last line is checked
         matched = depthsvgcomment_re.match(line)
@@ -156,7 +158,9 @@ def compile_math(latex: str, *, config: Config) -> Path:
         raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
+def convert_dvi_to_image(
+    command: Sequence[str | os.PathLike[str]], name: str
+) -> tuple[str, str]:
     """Convert DVI file to specific image format."""
     try:
         ret = subprocess.run(command, capture_output=True, check=True, encoding='ascii')

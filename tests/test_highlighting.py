@@ -21,11 +21,6 @@ if TYPE_CHECKING:
 
     from sphinx.testing.util import SphinxTestApp
 
-if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 18):
-    from pygments.formatter import Formatter
-
-    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
-
 if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 21):
     hsw = '&quot;Hello sphinx world&quot;'
 else:
@@ -44,7 +39,7 @@ class MyLexer(RegexLexer):
 
 
 class MyFormatter(HtmlFormatter[str]):
-    def format(
+    def format(  # type: ignore[override]
         self,
         tokensource: Iterable[tuple[_TokenType, str]],
         outfile: TextIO,

@@ -184,7 +184,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
                     addnodes.desc_sig_punctuation('', ')'),
                 ]
 
-            return result
+            return result  # ty: ignore[invalid-return-type]
         if isinstance(node, ast.Call):
             # Call nodes can be used in Annotated type metadata,
             # for example Annotated[str, ArbitraryTypeValidator(str, len=10)]
@@ -607,7 +607,7 @@ def _pseudo_parse_arglist(
                 stack.pop()
                 ends_close -= 1
         if len(stack) != 1:
-            raise IndexError  # NoQA: TRY301
+            raise IndexError  # ruff: ignore[raise-within-try]
     except IndexError:
         # if there are too few or too many elements on the stack, just give up
         # and treat the whole argument list as one argument, discarding the

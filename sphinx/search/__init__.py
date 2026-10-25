@@ -1,5 +1,3 @@
-# ruff: file-ignore [non-empty-init-module]
-
 """Create a full-text search index for offline search."""
 
 from __future__ import annotations
@@ -124,7 +122,7 @@ var Stemmer = function () {
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
-from sphinx.search.en import (  # NoQA: E402
+from sphinx.search.en import (  # ruff: ignore[module-import-not-at-top-of-file]
     SearchEnglish,
 )
 
@@ -311,8 +309,8 @@ class IndexBuilder:
             self.lang: SearchLanguage = SearchEnglish(options)
         elif isinstance(lang_class, str):
             module, classname = lang_class.rsplit('.', 1)
-            lang_class: type[SearchLanguage] = getattr(import_module(module), classname)  # type: ignore[no-redef]
-            self.lang = lang_class(options)  # type: ignore[operator]
+            lang_cls: type[SearchLanguage] = getattr(import_module(module), classname)
+            self.lang = lang_cls(options)
         else:
             # it's directly a class (e.g. added by app.add_search_language)
             self.lang = lang_class(options)
@@ -595,7 +593,8 @@ class IndexBuilder:
         # stemmer. For example, SearchChinese reuses english-stemmer.js,
         # which defines EnglishStemmer.
         stemmer_class = (
-            self.lang.js_stemmer_rawcode.removesuffix('-stemmer.js')
+            self.lang.js_stemmer_rawcode
+            .removesuffix('-stemmer.js')
             .title()
             .replace('_', '')
             .replace('-', '')

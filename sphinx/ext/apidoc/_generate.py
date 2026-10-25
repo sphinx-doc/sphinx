@@ -208,7 +208,7 @@ def is_skipped_package(
     if not Path(dirname).is_dir():
         return False
 
-    files = glob.glob(str(Path(dirname, '*.py')))  # NoQA: PTH207
+    files = glob.glob(str(Path(dirname, '*.py')))  # ruff: ignore[glob]
     regular_package = any(f for f in files if is_initpy(f))
     if not regular_package and not opts.implicit_namespaces:
         # *dirname* is not both a regular package and an implicit namespace package
@@ -305,7 +305,8 @@ def recurse_tree(
             # we are in a package with something to document
             if subs or len(files) > 1 or not is_skipped_package(root, opts):
                 subpackage = (
-                    root.removeprefix(str(root_path))
+                    root
+                    .removeprefix(str(root_path))
                     .lstrip(os.path.sep)
                     .replace(os.path.sep, '.')
                 )

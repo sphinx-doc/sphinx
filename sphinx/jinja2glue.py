@@ -57,7 +57,7 @@ def _todim(val: int | str) -> str:
         return 'initial'
     elif str(val).isdigit():
         return '0' if int(val) == 0 else '%spx' % val
-    return val  # type: ignore[return-value]
+    return val  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
 
 def _slice_index(
@@ -73,7 +73,7 @@ def _slice_index(
         count = 0
         start = offset
         if slices == slice_number + 1:  # last column
-            offset = len(seq)  # NoQA: SIM113
+            offset = len(seq)
         else:
             for value in values[offset:]:
                 count += 1 + len(value[1][1])
@@ -204,13 +204,13 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.filters['toint'] = _toint
         self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
-        self.environment.globals['debug'] = pass_context(pformat)
+        self.environment.globals['debug'] = pass_context(pformat)  # pyrefly: ignore[unsupported-operation]
         self.environment.globals['warning'] = warning
-        self.environment.globals['accesskey'] = pass_context(accesskey)
-        self.environment.globals['idgen'] = idgen
+        self.environment.globals['accesskey'] = pass_context(accesskey)  # pyrefly: ignore[unsupported-operation]
+        self.environment.globals['idgen'] = idgen  # pyrefly: ignore[unsupported-operation]
         if use_i18n:
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
-            self.environment.install_gettext_translations(builder._translator)  # type: ignore[attr-defined]
+            self.environment.install_gettext_translations(builder._translator)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     def render(self, template: str, context: dict[str, Any]) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
@@ -248,5 +248,5 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                 return loader.get_source(environment, template)
             except TemplateNotFound:
                 pass
-        msg = f'{template!r} not found in {self.environment.loader.pathchain}'  # type: ignore[union-attr]
+        msg = f'{template!r} not found in {self.environment.loader.pathchain}'  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         raise TemplateNotFound(msg)
