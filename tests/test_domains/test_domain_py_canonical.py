@@ -75,6 +75,32 @@ def test_canonical(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
+def test_type_alias_canonical_name(app: SphinxTestApp) -> None:
+    text = (
+        '.. py:type:: TokenValidator\n'
+        '   :module: public\n'
+        '   :canonical: str\n'
+        '   :canonical-name: private.TokenValidator\n'
+        '\n'
+        ':py:class:`private.TokenValidator`\n'
+    )
+    (app.srcdir / 'index.rst').write_text(text, encoding='utf8')
+    app.config.nitpicky = True
+    app.build()
+
+    domain = app.env.domains.python_domain
+    assert domain.objects['private.TokenValidator'] == (
+        'index',
+        'public.TokenValidator',
+        'type',
+        True,
+    )
+    assert app.warning.getvalue() == ''
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert 'href="#public.TokenValidator"' in content
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_canonical_definition_overrides(app: SphinxTestApp) -> None:
     text = (
         '.. py:class:: io.StringIO\n'
