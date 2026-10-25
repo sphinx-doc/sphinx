@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import itertools
+import pickle
 import xml.etree.ElementTree as ET
 import zlib
 from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import (
@@ -24,11 +26,12 @@ from sphinx.addnodes import (
 )
 from sphinx.domains.c._ids import _id_prefix, _macro_keywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
-from sphinx.domains.c._symbol import Symbol
+from sphinx.domains.c._symbol import Symbol, _DuplicateSymbolError
 from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError
+from sphinx.util.parallel import parallel_available
 from sphinx.writers.text import STDINDENT
 
 from tests.utils import extract_node
@@ -135,6 +138,200 @@ def check(name, input, id_dict, output=None, key=None, as_text_output=None):
             key,
             as_text_output + ';' if as_text_output is not None else None,
         )
+
+
+def _parse_c_name(text):
+    parser = DefinitionParser(text, location=None, config=Config())
+    name = parser.parse_xref_object()
+    parser.assert_end()
+    return name
+
+
+def _assert_c_symbol_index(root):
+    expected = {}
+    for symbol in root.get_all_symbols():
+        docnames = symbol._scope_docnames.copy()
+        if symbol.docname is not None:
+            docnames.add(symbol.docname)
+        for docname in docnames:
+            expected.setdefault(docname, set()).add(symbol)
+        if symbol is not root:
+            assert symbol._symbols_by_docname is None
+            assert symbol.parent._children_by_name[symbol.ident.name] is symbol
+    assert root._symbols_by_docname == expected
+
+
+def test_c_symbol_clear_doc_nested():
+    root = Symbol(None, None, None, None, None)
+    root.add_declaration(parse('member', 'int global_data'), 'index', 1)
+    root.add_declaration(parse('member', 'int scope.data'), 'index', 2)
+    root.add_declaration(parse('function', 'int scope.f(double k)'), 'index', 3)
+
+    root.clear_doc('index')
+    assert list(root.children) == []
+    root.clear_doc('index')
+    root.clear_doc('unknown')
+    _assert_c_symbol_index(root)
+
+
+@pytest.mark.parametrize('members_first', [False, True])
+@pytest.mark.parametrize('persist', [False, True])
+def test_c_symbol_clear_doc_preserves_members(members_first, persist):
+    root = Symbol(None, None, None, None, None)
+    declarations = [
+        ('struct', 'S', 'parent'),
+        ('member', 'int S.x', 'members'),
+    ]
+    if members_first:
+        declarations.reverse()
+    symbols = {
+        doc: root.add_declaration(parse(kind, text), doc, 1)
+        for kind, text, doc in declarations
+    }
+    key = pickle.loads(pickle.dumps(symbols['members'].get_lookup_key()))
+    if persist:
+        root = pickle.loads(pickle.dumps(root))
+
+    root.clear_doc('parent')
+    member = root.direct_lookup(key)
+    assert member is not None
+    assert member.docname == 'members'
+    assert member.declaration is not None
+    assert member.parent is not None
+    assert member.parent.declaration is None
+    assert member.parent.docname is None
+    assert member.parent.line is None
+    root.clear_doc('parent')
+    parent = root.add_declaration(parse('struct', 'S'), 'parent', 2)
+    assert member.parent is parent
+    _assert_c_symbol_index(root)
+
+
+def test_c_symbol_clear_doc_scope_users():
+    root = Symbol(None, None, None, None, None)
+    parent = root.add_declaration(parse('struct', 'S'), 'parent', 1)
+    root.add_name(_parse_c_name('S'), docname='scope_user')
+    key = pickle.loads(pickle.dumps(parent.get_lookup_key()))
+    root = pickle.loads(pickle.dumps(root))
+
+    root.clear_doc('parent')
+    assert root.direct_lookup(key).declaration is None
+    _assert_c_symbol_index(root)
+    root.clear_doc('scope_user')
+    assert root.direct_lookup(key) is None
+    assert list(root.children) == []
+    _assert_c_symbol_index(root)
+
+
+def test_c_symbol_clear_doc_lookup():
+    root = Symbol(None, None, None, None, None)
+    global_x = root.add_declaration(parse('member', 'int x'), 'global', 1)
+    root.add_declaration(parse('member', 'int S.x'), 'local', 1)
+    scope = root.add_name(_parse_c_name('S'), docname='scope_user')
+    root.clear_doc('local')
+    assert scope.find_declaration(_parse_c_name('x'), 'any', True, True) is global_x
+
+    root.add_declaration(parse('union', '@u'), 'anonymous', 1)
+    member = root.add_declaration(parse('member', 'int @u.x'), 'anonymous', 2)
+    root.clear_doc('global')
+    assert root.find_declaration(_parse_c_name('x'), 'any', True, True) is member
+    assert root._anon_children == {member.parent}
+    _assert_c_symbol_index(root)
+    root.clear_doc('anonymous')
+    assert root._anon_children == set()
+    _assert_c_symbol_index(root)
+
+
+def test_c_symbol_duplicate_candidate_removal():
+    root = Symbol(None, None, None, None, None)
+    primary = root.add_declaration(parse('function', 'int f(int first)'), 'first', 1)
+    with pytest.raises(_DuplicateSymbolError) as exc:
+        root.add_declaration(parse('function', 'int f(int second)'), 'duplicate', 1)
+    candidate = exc.value.declaration.symbol
+    assert candidate is not None
+    assert candidate is not primary
+    candidate.remove()
+    assert list(root.children) == [primary]
+    _assert_c_symbol_index(root)
+    assert root._symbols_by_docname is not None
+    assert 'duplicate' not in root._symbols_by_docname
+    root.clear_doc('duplicate')
+    assert primary.declaration is not None
+
+
+def test_c_symbol_clear_doc_siblings_and_parameters():
+    root = Symbol(None, None, None, None, None)
+    above = root.add_declaration(parse('function', 'int above()'), 'keep', 1)
+    middle = root.add_declaration(parse('function', 'int f(int old)'), 'remove', 1)
+    below = root.add_declaration(parse('function', 'int below()'), 'keep', 2)
+    above.siblingBelow = middle
+    middle.siblingAbove = above
+    middle.siblingBelow = below
+    below.siblingAbove = middle
+
+    root.clear_doc('remove')
+    assert above.siblingBelow is below
+    assert below.siblingAbove is above
+    assert middle.siblingAbove is middle.siblingBelow is None
+    replacement = root.add_declaration(
+        parse('function', 'int f(int replacement)'), 'remove', 2
+    )
+    assert [child.ident.name for child in replacement.children] == ['replacement']
+    _assert_c_symbol_index(root)
+
+
+def test_c_symbol_remove_subtree():
+    root = Symbol(None, None, None, None, None)
+    parent = root.add_declaration(parse('struct', 'S'), 'parent', 1)
+    root.add_declaration(parse('member', 'int S.x'), 'members', 1)
+    root.add_name(_parse_c_name('S'), docname='scope_user')
+    parent.remove()
+    assert list(root.children) == []
+    _assert_c_symbol_index(root)
+    for docname in ('parent', 'members', 'scope_user'):
+        root.clear_doc(docname)
+
+
+def test_c_symbol_clear_doc_prunes_renamed_scopes():
+    root = Symbol(None, None, None, None, None)
+    for i in range(20):
+        scope = root.add_name(_parse_c_name(f'scope{i}'), docname='renamed')
+        scope.add_declaration(parse('function', f'int f{i}(int x)'), 'renamed', 1)
+        root.clear_doc('renamed')
+        assert list(root.get_all_symbols()) == [root]
+        _assert_c_symbol_index(root)
+
+
+@pytest.mark.parametrize('existing_scope', [False, True])
+def test_c_symbol_merge_ownership(existing_scope):
+    root = Symbol(None, None, None, None, None)
+    if existing_scope:
+        root.add_name(_parse_c_name('S'), docname='local_user')
+    other = Symbol(None, None, None, None, None)
+    other.add_declaration(parse('struct', 'S'), 'parent', 1)
+    other.add_declaration(parse('member', 'int S.x'), 'members', 1)
+    other.add_name(_parse_c_name('S'), docname='scope_user')
+    other.add_name(_parse_c_name('S'), docname='unselected_user')
+
+    root.merge_with(other, ['parent', 'members', 'scope_user'], None)
+    root = pickle.loads(pickle.dumps(root))
+    scope = root.find_declaration(_parse_c_name('S'), 'any', True, True)
+    assert ('unselected_user' in scope._scope_docnames) is (not existing_scope)
+    _assert_c_symbol_index(root)
+    root.clear_doc('parent')
+    assert scope.declaration is None
+    assert (
+        scope.find_declaration(_parse_c_name('x'), 'any', True, True).docname
+        == 'members'
+    )
+    root.clear_doc('members')
+    root.clear_doc('scope_user')
+    root.clear_doc('unselected_user')
+    if existing_scope:
+        assert list(root.children) == [scope]
+        root.clear_doc('local_user')
+    assert list(root.children) == []
+    _assert_c_symbol_index(root)
 
 
 def test_domain_c_ast_expressions() -> None:
@@ -748,6 +945,130 @@ def test_domain_c_build(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'index')
     assert len(ws) == 0
+
+
+@pytest.mark.parametrize('parallel', [1, 2])
+@pytest.mark.sphinx(
+    'html', testroot='domain-c-incremental-cleanup', copy_test_root=True
+)
+def test_c_domain_incremental_cleanup(make_app, app_params, parallel):
+    if parallel > 1 and not parallel_available:
+        pytest.skip('parallel reading requires multiprocessing with fork')
+    args, kwargs = app_params
+
+    def build(*, freshenv=False, version='2', changed=(), builddir=None):
+        options = kwargs | {
+            'freshenv': freshenv,
+            'parallel': parallel,
+            'confoverrides': {'version': version},
+        }
+        if builddir is not None:
+            options['builddir'] = builddir
+        app = make_app(*args, **options)
+        try:
+            for docname in changed:
+                app.env.all_docs[docname] = 0
+            app.build(force_all=True)
+            assert app.warning.getvalue() == ''
+            _assert_c_symbol_index(app.env.domaindata['c']['root_symbol'])
+            objects = sorted(app.env.domains.c_domain.get_objects())
+            assert {'S.y', 'Implicit.z', '@u.x'} <= {obj[0] for obj in objects}
+            index = (app.outdir / 'index.html').read_text(encoding='utf8')
+            scoped = (app.outdir / 'scope_user.html').read_text(encoding='utf8')
+            assert 'members.html#c.S.y' in index
+            assert 'b_kept.html#c.fallback' in scoped
+            doctree = app.env.get_and_resolve_doctree(
+                'index', app.builder, tags=app.tags
+            )
+            signatures = [sig.astext() for sig in doctree.findall(desc_signature)]
+            assert signatures == ['int z']
+            return objects, index, scoped
+        finally:
+            app.cleanup()
+
+    build(freshenv=True, version='1')
+    build(version='1')
+    build()  # A configuration change rereads every document from the saved tree.
+
+    parent = kwargs['srcdir'] / 'a_parent.rst'
+    original = parent.read_text(encoding='utf8')
+    parent.write_text(original + '\nChanged prose.\n', encoding='utf8')
+    build(changed=('a_parent',))
+
+    parent.write_text(
+        original.replace('.. c:var:: int x\n', '').replace(
+            'int old', 'int replacement'
+        ),
+        encoding='utf8',
+    )
+    objects, index, _ = build(changed=('a_parent',))
+    names = {obj[0] for obj in objects}
+    assert 'f.old' not in names
+    assert 'f.replacement' in names
+    assert 'b_kept.html#c.&#64;u.x' in index
+
+    parent.unlink()
+    index_source = kwargs['srcdir'] / 'index.rst'
+    index_source.write_text(
+        index_source.read_text(encoding='utf8').replace('   a_parent\n', ''),
+        encoding='utf8',
+    )
+    incremental = build(changed=('index',))
+    assert 'S' not in {obj[0] for obj in incremental[0]}
+    fresh = build(freshenv=True, builddir=kwargs['builddir'] / 'fresh')
+    assert incremental == fresh
+
+
+@pytest.mark.sphinx(
+    'html', testroot='domain-c-incremental-cleanup', copy_test_root=True
+)
+def test_c_domain_incremental_duplicate_signatures(make_app, app_params):
+    args, kwargs = app_params
+    srcdir = kwargs['srcdir']
+    (srcdir / 'a_parent.rst').write_text(
+        'Primary\n=======\n\n.. c:function:: int f(int original)\n',
+        encoding='utf8',
+    )
+    (srcdir / 'b_kept.rst').write_text(
+        'Types\n=====\n\n.. c:type:: int T\n', encoding='utf8'
+    )
+    (srcdir / 'members.rst').write_text(
+        'Signatures\n==========\n\n.. c:function:: T f(T duplicate)\n'
+        '                T g(T final)\n',
+        encoding='utf8',
+    )
+    (srcdir / 'scope_user.rst').write_text('Unused\n======\n', encoding='utf8')
+    index = srcdir / 'index.rst'
+    index.write_text(
+        'Index\n=====\n\n.. toctree::\n\n   a_parent\n   b_kept\n   members\n',
+        encoding='utf8',
+    )
+    app = make_app(*args, **(kwargs | {'freshenv': True}))
+    try:
+        app.build()
+        warnings = app.warning.getvalue()
+        assert warnings.count('[duplicate_declaration.c]') == 1
+        assert 'reference target not found' not in warnings
+        _assert_c_symbol_index(app.env.domaindata['c']['root_symbol'])
+    finally:
+        app.cleanup()
+
+    (srcdir / 'a_parent.rst').unlink()
+    index.write_text(
+        index.read_text(encoding='utf8').replace('   a_parent\n', ''), encoding='utf8'
+    )
+    app = make_app(*args, **kwargs)
+    try:
+        app.env.all_docs['index'] = 0
+        app.build(force_all=True)
+        assert 'reference target not found' not in app.warning.getvalue()
+        assert '[duplicate_declaration.c]' not in app.warning.getvalue()
+        tree = app.env.get_and_resolve_doctree('members', app.builder, tags=app.tags)
+        refs = list(tree.findall(nodes.reference))
+        assert len([ref for ref in refs if ref.get('refuri') == 'b_kept.html#c.T']) == 4
+        _assert_c_symbol_index(app.env.domaindata['c']['root_symbol'])
+    finally:
+        app.cleanup()
 
 
 @pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})

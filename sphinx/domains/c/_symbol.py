@@ -10,7 +10,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Sequence
+    from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
     from typing import Any, Self
 
     from sphinx.domains.c._ast import (
@@ -124,8 +124,14 @@ class Symbol:
         # These properties store the same children for different access patterns.
         # ``_add_child()`` and ``_remove_child()`` should be used for modifying them.
         self._children_by_name: dict[str, Symbol] = {}
-        self._children_by_docname: dict[str, dict[str, Symbol]] = {}
         self._anon_children: set[Symbol] = set()
+
+        # A document can need a scope without declaring any of its children.
+        self._scope_docnames: set[str] = set()
+        # Only the root indexes document ownership, including namespace users.
+        self._symbols_by_docname: dict[str, set[Symbol]] | None = (
+            {} if parent is None else None
+        )
 
         if self.parent:
             self.parent._add_child(self)
@@ -142,22 +148,67 @@ class Symbol:
     def _children(self) -> Iterable[Symbol]:
         return self._children_by_name.values()
 
+    def _get_root(self) -> Symbol | None:
+        symbol = self
+        while symbol.parent is not None:
+            parent = symbol.parent
+            # Duplicate candidates have parents but are not part of the tree.
+            # Their parameter symbols must not enter the document index either.
+            assert symbol.ident is not None
+            if parent._children_by_name.get(symbol.ident.name) is not symbol:
+                return None
+            symbol = parent
+        return symbol if symbol._symbols_by_docname is not None else None
+
+    def _register_document(self, docname: str) -> None:
+        root = self._get_root()
+        if root is not None:
+            assert root._symbols_by_docname is not None
+            root._symbols_by_docname.setdefault(docname, set()).add(self)
+
+    def _record_scope_use(self, docname: str) -> None:
+        self._scope_docnames.add(docname)
+        self._register_document(docname)
+
     def _add_child(self, child: Symbol) -> None:
         name = child.ident.name  # ty: ignore[unresolved-attribute]
         if name in self._children_by_name:
             # Duplicate so don't add - will be reported in _add_symbols()
             return
         self._children_by_name[name] = child
-        child_docname: str = child.docname
-        self._children_by_docname.setdefault(child_docname, {})[name] = child
         if child.ident.is_anonymous:  # ty: ignore[unresolved-attribute]
             self._anon_children.add(child)
 
+        root = self._get_root()
+        if root is not None:
+            assert root._symbols_by_docname is not None
+            # A parallel merge can attach a whole subtree at once.
+            for symbol in child.get_all_symbols():
+                docnames = symbol._scope_docnames
+                if symbol.docname is not None:
+                    docnames = docnames | {symbol.docname}
+                for docname in docnames:
+                    root._symbols_by_docname.setdefault(docname, set()).add(symbol)
+
     def _remove_child(self, child: Symbol) -> None:
         name = child.ident.name  # ty: ignore[unresolved-attribute]
-        self._children_by_name.pop(name, None)
-        if children := self._children_by_docname.get(child.docname):
-            children.pop(name, None)
+        if self._children_by_name.get(name) is not child:
+            return
+
+        root = self._get_root()
+        if root is not None:
+            assert root._symbols_by_docname is not None
+            for symbol in child.get_all_symbols():
+                docnames = symbol._scope_docnames
+                if symbol.docname is not None:
+                    docnames = docnames | {symbol.docname}
+                for docname in docnames:
+                    if symbols := root._symbols_by_docname.get(docname):
+                        symbols.discard(symbol)
+                        if not symbols:
+                            del root._symbols_by_docname[docname]
+
+        del self._children_by_name[name]
         if child.ident.is_anonymous:  # ty: ignore[unresolved-attribute]
             self._anon_children.discard(child)
 
@@ -173,6 +224,7 @@ class Symbol:
         self.declaration.symbol = self
         self.docname = docname
         self.line = line
+        self._register_document(docname)
         self._assert_invariants()
         # and symbol addition should be done as well
         self._add_function_params()
@@ -209,23 +261,33 @@ class Symbol:
             self.parent = None
 
     def clear_doc(self, docname: str) -> None:
-        if docname not in self._children_by_docname:
-            for child in self._children:
-                child.clear_doc(docname)
-            return
+        assert self._symbols_by_docname is not None
+        symbols = self._symbols_by_docname.pop(docname, ())
+        for symbol in symbols:
+            symbol._scope_docnames.discard(docname)
+            if symbol.docname == docname:
+                symbol.declaration = None
+                symbol.docname = None
+                symbol.line = None
+                if symbol.siblingAbove is not None:
+                    symbol.siblingAbove.siblingBelow = symbol.siblingBelow
+                if symbol.siblingBelow is not None:
+                    symbol.siblingBelow.siblingAbove = symbol.siblingAbove
+                symbol.siblingAbove = None
+                symbol.siblingBelow = None
 
-        children: dict[str, Symbol] = self._children_by_docname.pop(docname)
-        for child in children.values():
-            child.declaration = None
-            child.docname = None
-            child.line = None
-            if child.siblingAbove is not None:
-                child.siblingAbove.siblingBelow = child.siblingBelow
-            if child.siblingBelow is not None:
-                child.siblingBelow.siblingAbove = child.siblingAbove
-            child.siblingAbove = None
-            child.siblingBelow = None
-            self._remove_child(child)
+        # Clear all declarations first, then remove only unused scope paths.
+        # Other documents can use a namespace without declaring any children.
+        for symbol in symbols:
+            while (
+                symbol.parent is not None
+                and symbol.declaration is None
+                and not symbol._children_by_name
+                and not symbol._scope_docnames
+            ):
+                parent = symbol.parent
+                symbol.remove()
+                symbol = parent
 
     def get_all_symbols(self) -> Iterator[Symbol]:
         yield self
@@ -543,13 +605,15 @@ class Symbol:
         raise _DuplicateSymbolError(symbol, declaration)
 
     def merge_with(
-        self, other: Symbol, docnames: list[str], env: BuildEnvironment
+        self, other: Symbol, docnames: Collection[str], env: BuildEnvironment
     ) -> None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print('merge_with:')
 
         assert other is not None
+        for docname in other._scope_docnames.intersection(docnames):
+            self._record_scope_use(docname)
         for other_child in other._children:
             other_name = other_child.ident.name  # ty: ignore[unresolved-attribute]
             if other_name not in self._children_by_name:
@@ -590,11 +654,15 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
 
-    def add_name(self, nestedName: ASTNestedName) -> Symbol:
+    def add_name(
+        self, nestedName: ASTNestedName, *, docname: str | None = None
+    ) -> Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print('add_name:')
         res = self._add_symbols(nestedName, declaration=None, docname=None, line=None)
+        if docname is not None:
+            res._record_scope_use(docname)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         return res

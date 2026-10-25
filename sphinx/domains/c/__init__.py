@@ -253,7 +253,9 @@ class CObject(ObjectDescription[ASTDeclaration]):
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()
-            symbol = parent_symbol.add_name(name)
+            symbol = parent_symbol.add_name(
+                name, docname=self.env.current_document.docname
+            )
             self.env.current_document.c_last_symbol = symbol
             raise ValueError from e
 
@@ -275,6 +277,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.current_document.c_last_symbol = e.symbol
+            symbol = e.symbol
             msg = __(
                 'Duplicate C declaration, also defined at %s:%s.\n'
                 "Declaration is '.. c:%s:: %s'."
@@ -290,6 +293,10 @@ class CObject(ObjectDescription[ASTDeclaration]):
                 subtype='c',
             )
 
+        # Each signature can save scope keys, even before the final signature
+        # establishes the scope for the directive's content.
+        symbol._record_scope_use(self.env.current_document.docname)
+
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
 
@@ -302,6 +309,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def before_content(self) -> None:
         last_symbol: Symbol = self.env.current_document.c_last_symbol
         assert last_symbol
+        last_symbol._record_scope_use(self.env.current_document.docname)
         self.oldParentSymbol = self.env.current_document.c_parent_symbol
         self.oldParentKey: LookupKey = self.env.ref_context['c:parent_key']
         self.env.current_document.c_parent_symbol = last_symbol
@@ -435,7 +443,9 @@ class CNamespaceObject(SphinxDirective):
             except DefinitionError as e:
                 logger.warning(e, location=self.get_location())
                 name = _make_phony_error_name()
-            symbol = root_symbol.add_name(name)
+            symbol = root_symbol.add_name(
+                name, docname=self.env.current_document.docname
+            )
             stack = [symbol]
         self.env.current_document.c_parent_symbol = symbol
         self.env.current_document.c_namespace_stack = stack
@@ -465,7 +475,7 @@ class CNamespacePushObject(SphinxDirective):
         old_parent = self.env.current_document.c_parent_symbol
         if not old_parent:
             old_parent = self.env.domaindata['c']['root_symbol']
-        symbol = old_parent.add_name(name)
+        symbol = old_parent.add_name(name, docname=self.env.current_document.docname)
         self.env.current_document.c_namespace_stack.append(symbol)
         self.env.current_document.c_parent_symbol = symbol
         self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
@@ -992,7 +1002,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     return {
         'version': 'builtin',
-        'env_version': 3,
+        'env_version': 4,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
