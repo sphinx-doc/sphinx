@@ -23,7 +23,7 @@ class Foo:
     CONSTANT3 = None
     CONSTANT4 = None
 
-    class Bar:  # NoQA: D106
+    class Bar:  # ruff: ignore[undocumented-public-nested-class]
         pass
 
     def __init__(self):
@@ -42,7 +42,7 @@ class _Baz:
     pass
 
 
-def bar(x: Union[int, str], y: int = 1) -> None:  # NoQA: UP007
+def bar(x: Union[int, str], y: int = 1) -> None:  # ruff: ignore[non-pep604-annotation-union]
     pass
 
 

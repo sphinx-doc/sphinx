@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
     # Readable file stream for inventory loading
     class _SupportsRead(Protocol):
-        def read(self, size: int = ...) -> bytes: ...
+        def read(self, size: int = ..., /) -> bytes: ...
 
     _JoinFunc = Callable[[str, str], str]
 
