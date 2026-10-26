@@ -33,6 +33,7 @@ import sys
 import tempfile
 from os import environ
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from babel.messages.catalog import Catalog
 from babel.messages.extract import (
@@ -45,6 +46,9 @@ from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
+
+if TYPE_CHECKING:
+    from babel.messages.catalog import Message
 
 IS_CI = 'CI' in environ
 ROOT = Path(__file__).resolve().parent.parent
@@ -302,7 +306,7 @@ def _percent_format_fields(text: str) -> set[str]:
     return set(_PERCENT_FIELD_RE.findall(text))
 
 
-def _placeholder_errors(message) -> list[str]:
+def _placeholder_errors(message: Message) -> list[str]:
     """Return placeholder mismatches between a message and its translation.
 
     A translation is in error when its placeholder syntax is invalid, or
@@ -327,8 +331,10 @@ def _placeholder_errors(message) -> list[str]:
     allowed |= _percent_format_fields(''.join(msgid_forms))
 
     msgstr = message.string
+    if msgstr is None:
+        return []
     if isinstance(msgstr, (list, tuple)):
-        msgstr_forms = list(msgstr)
+        msgstr_forms = [form for form in msgstr if form is not None]
     else:
         msgstr_forms = [msgstr]
 

@@ -11,14 +11,21 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 from textwrap import dedent
+from typing import TYPE_CHECKING
 
 import pytest
 from babel.messages.catalog import Message
 
+if TYPE_CHECKING:
+    from types import ModuleType
+    from typing import Any
 
-def _load_babel_runner():
+
+def _load_babel_runner() -> ModuleType:
     path = Path(__file__).parent.parent / 'utils' / 'babel_runner.py'
     spec = importlib.util.spec_from_file_location('babel_runner', path)
+    assert spec is not None
+    assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -27,27 +34,27 @@ def _load_babel_runner():
 babel_runner = _load_babel_runner()
 
 
-def _errors(msgid, msgstr) -> list[str]:
+def _errors(msgid: str | tuple[str, str], msgstr: str | tuple[str, ...]) -> list[str]:
     return babel_runner._placeholder_errors(Message(msgid, msgstr))
 
 
-def test_clean_named_placeholders_pass():
+def test_clean_named_placeholders_pass() -> None:
     assert _errors('bad value {name!r}', 'mauvaise valeur {name!r}') == []
 
 
-def test_missing_placeholder_is_not_an_error():
+def test_missing_placeholder_is_not_an_error() -> None:
     # dropping a placeholder never breaks str.format(); extra keyword
     # arguments are simply unused
     assert _errors('bad value {name!r}', 'valeur incorrecte') == []
 
 
-def test_unknown_placeholder_is_an_error():
+def test_unknown_placeholder_is_an_error() -> None:
     assert _errors('bad value {name!r}', 'valeur incorrecte {nom!r}') == [
         "placeholder 'nom' in translation does not appear in the msgid"
     ]
 
 
-def test_damaged_syntax_is_an_error():
+def test_damaged_syntax_is_an_error() -> None:
     # the Greek catalogue damage from #14664
     assert _errors(
         "the config value '{name}' has type '{current.__name__}';"
@@ -56,7 +63,7 @@ def test_damaged_syntax_is_an_error():
     ) == ['invalid brace-format syntax in translation']
 
 
-def test_renamed_placeholder_is_an_error():
+def test_renamed_placeholder_is_an_error() -> None:
     # the Greek catalogue damage from #14664 (dots dropped from the names)
     assert _errors(
         "value '{name}' has type '{current.__name__}',"
@@ -69,7 +76,7 @@ def test_renamed_placeholder_is_an_error():
     ]
 
 
-def test_placeholder_from_sibling_message_is_an_error():
+def test_placeholder_from_sibling_message_is_an_error() -> None:
     # the Persian catalogue damage from #14664: {permitted} belongs to the
     # other config warning, not this one
     assert _errors(
@@ -80,17 +87,17 @@ def test_placeholder_from_sibling_message_is_an_error():
     ) == ["placeholder 'permitted' in translation does not appear in the msgid"]
 
 
-def test_damaged_msgid_is_not_a_translation_error():
+def test_damaged_msgid_is_not_a_translation_error() -> None:
     assert _errors('{broken', 'translation {ok}') == []
 
 
-def test_percent_placeholders_are_checked():
+def test_percent_placeholders_are_checked() -> None:
     assert _errors('bad value %(name)r', 'valeur incorrecte %(nom)r') == [
         "placeholder 'nom' in translation does not appear in the msgid"
     ]
 
 
-def test_each_plural_form_is_checked():
+def test_each_plural_form_is_checked() -> None:
     msgid = '{name} files', '{name} files'
     msgstr = 'fichiers {nom}', '{name} fichiers'
     assert _errors(msgid, msgstr) == [
@@ -98,7 +105,9 @@ def test_each_plural_form_is_checked():
     ]
 
 
-def test_run_check_reports_and_excludes(tmp_path, monkeypatch, caplog):
+def test_run_check_reports_and_excludes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
     locale_dir = tmp_path / 'sphinx' / 'locale'
     damaged = dedent(
         """\
@@ -119,7 +128,7 @@ def test_run_check_reports_and_excludes(tmp_path, monkeypatch, caplog):
 
     reverted = []
 
-    def fake_git(*args, **kwargs):
+    def fake_git(*args: Any, **kwargs: Any) -> int:
         argv = args[0]
         assert argv[:3] == ('git', 'checkout', '--')
         assert kwargs.get('check') is True
