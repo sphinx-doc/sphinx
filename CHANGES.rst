@@ -50,6 +50,8 @@ Bugs fixed
   Patch by Hugo van Kemenade
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
+* #14678: Tests: Fix a timing dependency in ``test_html_rebuild_mo``.
+  Patch by Tejas Nagmote
 
 
 Release 9.1.0 (released Dec 31, 2025)
