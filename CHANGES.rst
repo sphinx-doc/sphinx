@@ -19,6 +19,11 @@ Bugs fixed
 Testing
 -------
 
+* #14664: Check that the format placeholders of every translation match
+  its msgid when pulling catalogues from Transifex, and exclude failing
+  catalogues from the automated update pull request.
+  Patch by Shash Bhaskar
+
 * #14690: Fix test isolation issues caused by shared test directories and
   inherited ``NO_COLOR`` and ``NO_COLOUR`` environment variables.
   Patch by Kilian Paul
