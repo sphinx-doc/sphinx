@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #3591: autosummary: Recognise East Asian module and object names and use
+  display widths for generated title underlines.
+  Patch by Qiu Guanzong.
+
 Testing
 -------
 
