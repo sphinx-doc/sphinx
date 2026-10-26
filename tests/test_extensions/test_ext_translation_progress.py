@@ -1,4 +1,4 @@
-"""Test the \`\`sphinx.ext.translation_progress\`\` extension."""
+"""Test the ``sphinx.ext.translation_progress`` extension."""
 
 from __future__ import annotations
 

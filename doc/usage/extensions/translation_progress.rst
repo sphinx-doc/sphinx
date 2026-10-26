@@ -21,15 +21,17 @@ untranslated element.  Documents without translation data and fully
 translated documents are left unchanged.
 
 .. confval:: translation_progress_title
-   :type: :class:`str`
+   :type: :code-py:`str`
    :default: ``'Translation progress'``
 
    The title of the translation progress note.
 
 .. confval:: translation_progress_message
-   :type: :class:`str`
-   :default: ``'This page is {percentage} translated based on word count. Some content is still in the original language.'``
+   :type: :code-py:`str`
 
-   The message shown in the translation progress note.  The
-   ``{percentage}`` placeholder is replaced by the percentage of
+   The message shown in the translation progress note.  It defaults to
+   ``'This page is {percentage} translated based on word count. Some content
+   is still in the original language.'``
+
+   The ``{percentage}`` placeholder is replaced by the percentage of
    source-language words in translated elements.
