@@ -18,6 +18,7 @@ Contributors
 
 *Listed alphabetically in forename, surname order*
 
+* Aakash Jha -- fix EPUB packaging for pre-1980 timestamps
 * Aaron Carlisle -- basic theme and templating improvements
 * Adam Dangoor -- improved static typing
 * Adrián Chaves (Gallaecio) -- coverage builder improvements

@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #14168: EPUB: Clamp file timestamps to the range supported by ZIP archives.
+
 Testing
 -------
 

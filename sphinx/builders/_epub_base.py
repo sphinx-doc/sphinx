@@ -801,7 +801,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         outname = self.config.epub_basename + '.epub'
         logger.info(__('writing %s file...'), outname)
         epub_filename = self.outdir / outname
-        with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
+        with ZipFile(epub_filename, 'w', ZIP_DEFLATED, strict_timestamps=False) as epub:
             epub.write(self.outdir / 'mimetype', 'mimetype', ZIP_STORED)
             for filename in ('META-INF/container.xml', 'content.opf', 'toc.ncx'):
                 epub.write(self.outdir / filename, filename, ZIP_DEFLATED)
