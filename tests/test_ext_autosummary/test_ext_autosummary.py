@@ -5,11 +5,13 @@ from __future__ import annotations
 import sys
 from contextlib import chdir
 from io import StringIO
+from types import ModuleType
 from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
 from docutils import nodes
+from docutils.core import publish_doctree
 
 from sphinx import addnodes
 from sphinx.ext.autosummary import (
@@ -21,6 +23,7 @@ from sphinx.ext.autosummary import (
 )
 from sphinx.ext.autosummary.generate import (
     AutosummaryEntry,
+    _underline,
     generate_autosummary_content,
     generate_autosummary_docs,
 )
@@ -242,6 +245,64 @@ def test_escaping(app):
 
     title = etree_parse(docpage).find('section/title')
     assert str_content(title) == 'underscore_module_'
+
+
+@pytest.mark.parametrize('name', ['module', '示例模块', 'example.日本語'])
+def test_autosummary_underline(name):
+    document = publish_doctree(_underline(name), settings_overrides={'halt_level': 2})
+    assert next(document.findall(nodes.title)).astext() == name
+
+
+@pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
+def test_autosummary_generate_content_for_unicode_module(app):
+    name = '示例模块'
+    template = Mock()
+    generate_autosummary_content(
+        name,
+        ModuleType(name),
+        None,
+        template,
+        None,
+        False,
+        False,
+        {},
+        config=app.config,
+        events=app.events,
+    )
+    context = template.render.call_args[0][1]
+    document = publish_doctree(
+        f'{context["fullname"]}\n{context["underline"]}',
+        settings_overrides={'halt_level': 2},
+    )
+    assert next(document.findall(nodes.title)).astext() == name
+
+
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_autosummary_east_asian_names(
+    make_app_with_empty_project, tmp_path, monkeypatch
+):
+    (tmp_path / '示例模块.py').write_text(
+        'def 示例函数():\n    """Return an example value."""\n    return 1\n',
+        encoding='utf-8',
+    )
+    (tmp_path / 'index.rst').write_text(
+        'Example\n=======\n\n.. currentmodule:: 示例模块\n\n'
+        '.. autosummary::\n   :toctree: generated\n\n   示例函数\n',
+        encoding='utf-8',
+    )
+    monkeypatch.syspath_prepend(tmp_path)
+    app = make_app_with_empty_project(
+        buildername='html',
+        confoverrides={
+            'extensions': ['sphinx.ext.autodoc', 'sphinx.ext.autosummary'],
+            'autosummary_generate': True,
+        },
+    )
+    app.build()
+
+    assert (app.srcdir / 'generated' / '示例模块.示例函数.rst').is_file()
+    assert (app.builder.outdir / 'generated' / '示例模块.示例函数.html').is_file()
+    assert app.warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
