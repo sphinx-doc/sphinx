@@ -834,6 +834,8 @@ class StandardDomain(Domain):
                 __('duplicate label %s, other instance in %s'),
                 name,
                 self.env.doc2path(self.anonlabels[name][0]),
+                type='ref',
+                subtype='duplicate_label',
             )
 
         self.anonlabels[name] = (docname, node_id)
@@ -935,6 +937,8 @@ class StandardDomain(Domain):
                         key,
                         self.env.doc2path(self.labels[key][0]),
                         location=(data[0], None),
+                        type='ref',
+                        subtype='duplicate_label',
                     )
                 self.labels[key] = data
         for key, data in otherdata['anonlabels'].items():
@@ -969,6 +973,8 @@ class StandardDomain(Domain):
                     name,
                     env.doc2path(self.labels[name][0]),
                     location=node,
+                    type='ref',
+                    subtype='duplicate_label',
                 )
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
