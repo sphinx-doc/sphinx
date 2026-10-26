@@ -79,6 +79,7 @@ Contributors
 * Juan Luis Cano Rodríguez -- new tutorial (2021)
 * Julien Palard -- Colspan and rowspan in text builder
 * Justus Magin -- napoleon improvements
+* Kayvan Zahiri -- toctree bug fix
 * Kazuya Take -- ``sphinx.testing.path`` bug fix
 * Kevin Dunn -- MathJax extension
 * Kilian Paul -- Docutils compatibility, intl tests, and viewcode fixes
