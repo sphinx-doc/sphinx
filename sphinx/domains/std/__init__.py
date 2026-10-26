@@ -929,6 +929,13 @@ class StandardDomain(Domain):
                 self._terms[key] = data
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
+                if key in self.labels and self.labels[key][0] != data[0]:
+                    logger.warning(
+                        __('duplicate label %s, other instance in %s'),
+                        key,
+                        self.env.doc2path(self.labels[key][0]),
+                        location=(data[0], None),
+                    )
                 self.labels[key] = data
         for key, data in otherdata['anonlabels'].items():
             if data[0] in docnames:
