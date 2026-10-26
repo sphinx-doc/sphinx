@@ -51,6 +51,11 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14457: autodoc: On Python 3.14, annotations that mix names only imported
+  under ``TYPE_CHECKING`` with resolvable ones (e.g. ``Mapping[str, int]``)
+  no longer render with ``__annotationlib_name_N__`` placeholders.
+  Patch by Anshul Singh
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
