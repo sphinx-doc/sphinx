@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14786: Fix ``autosummary`` dropping keyword-only parameters when an
+  earlier positional argument has a default.
+  Patch by Prince Maurya.
+
 Testing
 -------
 
