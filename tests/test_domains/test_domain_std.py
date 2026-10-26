@@ -286,6 +286,18 @@ def test_glossary_warning(app: SphinxTestApp) -> None:
     ) in app.warning.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='_blank', parallel=10)
+def test_duplicate_labels_parallel(app: SphinxTestApp) -> None:
+    for docname in ('index', 'foo', 'bar', 'baz', 'qux', 'quux'):
+        (app.srcdir / f'{docname}.rst').write_text(
+            '.. _test:\n\nhello\n=====\n', encoding='utf8'
+        )
+
+    app.build()
+
+    assert 'WARNING: duplicate label test, other instance in' in app.warning.getvalue()
+
+
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_glossary_comment(app):
     text = (
