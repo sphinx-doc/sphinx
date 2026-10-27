@@ -85,6 +85,18 @@ def test_mangle_signature() -> None:
         assert res == outp, f"'{inp}' -> '{res}' != '{outp}'"
 
 
+@pytest.mark.sphinx('html', testroot='ext-autosummary-overloads', copy_test_root=True)
+def test_autosummary_overloaded_signature(app):
+    app.build(force_all=True)
+
+    text = app.env.get_doctree('index').astext()
+    # Overloads give one signature each; mangling them as a single signature
+    # dropped every parameter of all of them.
+    assert 'overloads_mod.overloaded(…)' in text
+    assert 'overloads_mod.regular(a[, b])' in text
+    assert '-> int' not in text
+
+
 def test_extract_summary(capsys):
     settings = Mock(
         language_code='en',
