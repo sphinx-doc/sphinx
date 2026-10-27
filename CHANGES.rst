@@ -50,6 +50,10 @@ Bugs fixed
   Patch by Hugo van Kemenade
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
+* #14675: viewcode: Do not generate module pages for modules without any
+  ``[source]`` links, which could appear depending on the document read order
+  or in parallel builds.
+  Patch by Tejas Nagmote
 
 
 Release 9.1.0 (released Dec 31, 2025)
