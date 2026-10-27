@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 # xref RemovedInSphinx11Warning
 # From Sphinx 10, duplicate labels should always warn by default
-DUPLICATE_LABEL_WARNINGS = version_info >= (10, 0, 0)
+DUPLICATE_LABEL_WARNINGS = version_info[:2] >= (10, 0)
 
 ENV_WARNINGS = (
     (
