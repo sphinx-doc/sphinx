@@ -16,7 +16,7 @@ from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests.exceptions import (
-    ConnectionError,  # NoQA: A004
+    ConnectionError,  # ruff: ignore[builtin-import-shadowing]
     HTTPError,
     SSLError,
     TooManyRedirects,
@@ -135,9 +135,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     msg = f'{res_uri}: {result.message}'
                 else:
                     msg = res_uri
-                logger.info(darkgray('-ignored- ') + msg)  # NoQA: G003
+                logger.info(darkgray('-ignored- ') + msg)  # ruff: ignore[logging-string-concat]
             case _Status.WORKING:
-                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # NoQA: G003
+                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # ruff: ignore[logging-string-concat]
             case _Status.TIMEOUT:
                 if self.config.verbosity < 0:
                     msg = 'timeout   ' + f'{res_uri}{result.message}'
@@ -449,7 +449,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             status, info, code = self._check(docname, uri, hyperlink)
             if status == _Status.RATE_LIMITED:
                 logger.info(
-                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')  # NoQA: G003
+                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')  # ruff: ignore[logging-string-concat]
                 )
             else:
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
@@ -517,7 +517,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             req_url = encode_uri(req_url)
 
         # Get auth info, if any
-        for pattern, auth_info in self.auth:  # NoQA: B007 (false positive)
+        for pattern, auth_info in self.auth:  # ruff: ignore[unused-loop-control-variable] (false positive)
             if pattern.match(uri):
                 break
         else:
