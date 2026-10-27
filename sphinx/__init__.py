@@ -11,7 +11,7 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     from typing import Final
 
-__version__: Final = '9.1.0'
+__version__: Final = '9.3.0'
 __display_version__: Final = __version__  # used for command line version
 
 #: Version info for better programmatic use.
@@ -22,7 +22,7 @@ __display_version__: Final = __version__  # used for command line version
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info: Final = (9, 1, 0, 'beta', 1)
+version_info: Final = (9, 3, 0, 'beta', 0)
 
 package_dir: Final = _StrPath(__file__).resolve().parent
 del _StrPath
@@ -34,7 +34,7 @@ if _in_development:
 
     try:
         if ret := subprocess.run(
-            ('git', 'rev-parse', '--short', 'HEAD'),
+            ('git', 'rev-parse', '--short', 'HEAD'),  # ruff: ignore[start-process-with-partial-path]
             capture_output=True,
             check=False,
             cwd=package_dir,

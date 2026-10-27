@@ -11,6 +11,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes, writers
 from roman_numerals import RomanNumeral
 
@@ -57,6 +58,7 @@ ENUMERATE_LIST_STYLE = defaultdict(
         'upperroman': r'\Roman',
     },
 )
+VERBATIM_CHUNKSIZE = 500
 
 CR = '\n'
 BLANKLINE = '\n\n'
@@ -275,7 +277,7 @@ class TableCell:
 
     @property
     def width(self) -> int:
-        """Returns the cell width."""
+        """The cell width."""
         width = 0
         while self.table.cells[self.row, self.col + width] == self.cell_id:
             width += 1
@@ -283,7 +285,7 @@ class TableCell:
 
     @property
     def height(self) -> int:
-        """Returns the cell height."""
+        """The cell height."""
         height = 0
         while self.table.cells[self.row + height, self.col] == self.cell_id:
             height += 1
@@ -582,14 +584,14 @@ class LaTeXTranslator(SphinxTranslator):
         # latex_domain_indices can be False/True or a list of index names
         if indices_config := self.config.latex_domain_indices:
             if not isinstance(indices_config, bool):
-                check_names = True
                 indices_config = frozenset(indices_config)
-            else:
-                check_names = False
             for domain in self._domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
-                    if check_names and index_name not in indices_config:
+                    if (
+                        not isinstance(indices_config, bool)
+                        and index_name not in indices_config
+                    ):
                         continue
                     content, collapsed = index_cls(domain).generate(
                         self.builder.docnames
@@ -623,7 +625,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     @property
     def table(self) -> Table | None:
-        """Get current table."""
+        """The current table."""
         if self.tables:
             return self.tables[-1]
         else:
@@ -1248,7 +1250,12 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         self.table.colcount += 1
         if 'colwidth' in node:
-            self.table.colwidths.append(node['colwidth'])
+            if docutils.__version_info__[:2] >= (1, 0):
+                # breaking change in Docutils 1.0
+                # https://sourceforge.net/p/docutils/code/10397
+                self.table.colwidths.append(int(node['colwidth']))
+            else:
+                self.table.colwidths.append(node['colwidth'])
         if 'stub' in node:
             self.table.stubs.append(self.table.colcount - 1)
 
@@ -1298,28 +1305,30 @@ class LaTeXTranslator(SphinxTranslator):
                 # insert suitable strut for equalizing row heights in given multirow
                 self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
             else:  # use \multicolumn for wide multirow cell
+                left_colsep = _colsep if cell.col == 0 else ''
                 self.body.append(
                     r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}'
-                    % (cell.width, _colsep, _colsep, cell.cell_id)
+                    % (cell.width, left_colsep, _colsep, cell.cell_id)
                 )
 
     def depart_row(self, node: Element) -> None:
         assert self.table is not None
-        self.body.append(r'\\' + CR)
         cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
         underlined = [
-            cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]
+            cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
             for cell in cells
         ]
         if all(underlined):
+            self.body.append(r'\\' + CR)
             self.body.append(r'\sphinxhline')
         else:
+            self.body.append(r'\\*' + CR)
             i = 0
             underlined.extend([False])  # sentinel
             if underlined[0] is False:
                 i = 1
                 while i < self.table.colcount and underlined[i] is False:
-                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
             while i < self.table.colcount:
@@ -1329,7 +1338,7 @@ class LaTeXTranslator(SphinxTranslator):
                 i += j
                 i += 1
                 while i < self.table.colcount and underlined[i] is False:
-                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
                         self.body.append(r'\sphinxvlinecrossing{%d}' % i)
                     i += 1
             self.body.append(r'\sphinxfixclines{%d}' % self.table.colcount)
@@ -2107,6 +2116,12 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_abbreviation(self, node: Element) -> None:
         self.body.append(self.context.pop())
 
+    def visit_acronym(self, node: Element) -> None:
+        self.visit_abbreviation(node)
+
+    def depart_acronym(self, node: Element) -> None:
+        self.depart_abbreviation(node)
+
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)
 
@@ -2253,6 +2268,56 @@ class LaTeXTranslator(SphinxTranslator):
             hllines = str(highlight_args.get('hl_lines', []))[1:-1]
             if hllines:
                 self.body.append(CR + r'\fvset{hllines={, %s,}}%%' % hllines)
+
+            _hlcodelines = hlcode.splitlines()
+            _chunksize = VERBATIM_CHUNKSIZE
+            _nbofchunks = (len(_hlcodelines) + _chunksize - 3) // _chunksize
+            if _nbofchunks > 1:
+                _e = _hlcodelines[0][22:]
+                # TODO: confirm firstnumber key if present from highlighter output
+                # is always with numeric value and not auto or last.
+                _idx1 = _e.find('firstnumber=')
+                if _idx1 > -1:
+                    _e1 = _e[_idx1:]
+                    _idx2 = _e1.find(',')
+                    self.body.append(
+                        CR + r'\def\sphinxverbatimfirstnumber{%s}%%' % _e1[12:_idx2]
+                    )
+                else:
+                    self.body.append(CR + r'\def\sphinxverbatimfirstnumber{1}%')
+                _hlcodelines[0] = r'\begin{sphinxLongVerbatimFirst}' + _e
+                _hlcodelines[-1] = r'\end{sphinxLongVerbatimLast}'
+                hlcode = (
+                    CR.join(_hlcodelines[: _chunksize + 1])
+                    + CR
+                    + r'\end{sphinxLongVerbatimFirst}'
+                    + CR
+                )
+                _lineno = _chunksize + 1
+                # _e always starts with r'[commandchars=\\\{\}' and ends with
+                # ']' but let's make sure, for maximal generality, that _e[:-1]
+                # does not trigger index out of range.
+                if _e:
+                    _e = _e[:-1] + ',firstnumber=last]'
+                else:
+                    _e = '[firstnumber=last]'
+                for _ in range(_nbofchunks - 2):
+                    hlcode += (
+                        r'\begin{sphinxLongVerbatimMiddle}'
+                        + _e
+                        + CR
+                        + CR.join(_hlcodelines[_lineno : _lineno + _chunksize])
+                        + CR
+                        + r'\end{sphinxLongVerbatimMiddle}'
+                        + CR
+                    )
+                    _lineno += _chunksize
+                hlcode += (
+                    r'\begin{sphinxLongVerbatimLast}'
+                    + _e
+                    + CR
+                    + CR.join(_hlcodelines[_lineno:])
+                )
             self.body.append(CR + hlcode + CR)
             if hllines:
                 self.body.append(r'\sphinxresetverbatimhllines' + CR)
@@ -2439,7 +2504,8 @@ class LaTeXTranslator(SphinxTranslator):
         #       mainly, %, #, {, } and \ need escaping via a \ escape
         # in \href, the tilde is allowed and must be represented literally
         return (
-            self.encode(text)
+            self
+            .encode(text)
             .replace(r'\textasciitilde{}', '~')
             .replace(r'\sphinxhyphen{}', '-')
             .replace(r'\textquotesingle{}', "'")
@@ -2509,7 +2575,7 @@ class LaTeXTranslator(SphinxTranslator):
 
 # FIXME: Workaround to avoid circular import
 # See: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
+from sphinx.builders.latex.nodes import (  # ruff: ignore[module-import-not-at-top-of-file]  # isort:skip
     HYPERLINK_SUPPORT_NODES,
     captioned_literal_block,
     footnotetext,

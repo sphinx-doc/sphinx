@@ -12,12 +12,16 @@ from typing import TYPE_CHECKING
 
 import docutils
 import docutils.frontend
+import docutils.languages
+import docutils.parsers.rst.languages
+import docutils.utils
+import docutils.writers
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
 from docutils.readers import standalone
 from docutils.statemachine import StateMachine
-from docutils.transforms.references import DanglingReferences
+from docutils.transforms import references
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
@@ -32,7 +36,7 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Sequence
+    from collections.abc import Generator, Mapping, Sequence
     from types import ModuleType, TracebackType
     from typing import Any, Protocol
 
@@ -76,27 +80,34 @@ if TYPE_CHECKING:
         ) -> tuple[RoleFunction | None, list[system_message]]: ...
 
 
-_READER_TRANSFORMS = [
-    transform
-    for transform in standalone.Reader().get_transforms()
-    if transform is not DanglingReferences
-]
+if docutils.__version_info__[:2] >= (1, 0):
+    _READER_TRANSFORMS = [
+        transform
+        for transform in standalone.Reader().get_transforms()
+        if transform is not references.ReportUnreferencedTargets  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+    ]
+else:
+    _READER_TRANSFORMS = [
+        transform
+        for transform in standalone.Reader().get_transforms()
+        if transform is not references.DanglingReferences
+    ]
 
 
 additional_nodes: set[type[Element]] = set()
 
 
 @contextmanager
-def docutils_namespace() -> Iterator[None]:
+def docutils_namespace() -> Generator[None]:
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)  # type: ignore[attr-defined]
-        _roles = copy(roles._roles)  # type: ignore[attr-defined]
+        _directives = copy(directives._directives)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        _roles = copy(roles._roles)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         yield
     finally:
-        directives._directives = _directives  # type: ignore[attr-defined]
-        roles._roles = _roles  # type: ignore[attr-defined]
+        directives._directives = _directives  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        roles._roles = _roles  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -105,7 +116,7 @@ def docutils_namespace() -> Iterator[None]:
 
 def is_directive_registered(name: str) -> bool:
     """Check the *name* directive is already registered."""
-    return name in directives._directives  # type: ignore[attr-defined]
+    return name in directives._directives  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def register_directive(name: str, directive: type[Directive]) -> None:
@@ -119,7 +130,7 @@ def register_directive(name: str, directive: type[Directive]) -> None:
 
 def is_role_registered(name: str) -> bool:
     """Check the *name* role is already registered."""
-    return name in roles._roles  # type: ignore[attr-defined]
+    return name in roles._roles  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def register_role(name: str, role: RoleFunction) -> None:
@@ -133,7 +144,7 @@ def register_role(name: str, role: RoleFunction) -> None:
 
 def unregister_role(name: str) -> None:
     """Unregister a role from docutils."""
-    roles._roles.pop(name, None)  # type: ignore[attr-defined]
+    roles._roles.pop(name, None)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def is_node_registered(node: type[Element]) -> bool:
@@ -148,7 +159,7 @@ def register_node(node: type[Element]) -> None:
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])  # type: ignore[attr-defined]
+        nodes._add_node_class_names([node.__name__])  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         additional_nodes.add(node)
 
 
@@ -165,7 +176,7 @@ def unregister_node(node: type[Element]) -> None:
 
 
 @contextmanager
-def patched_get_language() -> Iterator[None]:
+def patched_get_language() -> Generator[None]:
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
@@ -187,7 +198,7 @@ def patched_get_language() -> Iterator[None]:
 
 
 @contextmanager
-def patched_rst_get_language() -> Iterator[None]:
+def patched_rst_get_language() -> Generator[None]:
     """Patch docutils.parsers.rst.languages.get_language().
     Starting from docutils 0.17, get_language() in ``rst.languages``
     also has a reporter, which needs to be disabled temporarily.
@@ -213,7 +224,9 @@ def patched_rst_get_language() -> Iterator[None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: str | os.PathLike[str] | None) -> Iterator[None]:
+def using_user_docutils_conf(
+    confdir: str | os.PathLike[str] | None,
+) -> Generator[None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutils_config = os.environ.get('DOCUTILSCONFIG', None)
@@ -229,7 +242,9 @@ def using_user_docutils_conf(confdir: str | os.PathLike[str] | None) -> Iterator
 
 
 @contextmanager
-def patch_docutils(confdir: str | os.PathLike[str] | None = None) -> Iterator[None]:
+def patch_docutils(
+    confdir: str | os.PathLike[str] | None = None,
+) -> Generator[None]:
     """Patch to docutils temporarily."""
     with (
         patched_get_language(),
@@ -278,7 +293,7 @@ class CustomReSTDispatcher:
         language_module: ModuleType,
         document: nodes.document,
     ) -> tuple[type[Directive] | None, list[system_message]]:
-        return self.directive_func(directive_name, language_module, document)
+        return self.directive_func(directive_name, language_module, document)  # pyrefly: ignore[bad-argument-type]
 
     def role(
         self,
@@ -287,7 +302,7 @@ class CustomReSTDispatcher:
         lineno: int,
         reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        return self.role_func(  # ty: ignore[invalid-return-type]
+        return self.role_func(  # ty: ignore[invalid-return-type]  # pyrefly: ignore[bad-return]
             role_name,
             language_module,  # type: ignore[return-value]
             lineno,
@@ -428,21 +443,23 @@ class NullReporter(Reporter):
 
 
 @contextmanager
-def switch_source_input(state: State[list[str]], content: StringList) -> Iterator[None]:
+def switch_source_input(
+    state: State[list[str]], content: StringList
+) -> Generator[None]:
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
-        gsal = state.memo.reporter.get_source_and_line  # type: ignore[attr-defined]
+        gsal = state.memo.reporter.get_source_and_line  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         # replace it by new one
         state_machine: StateMachine[None] = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         yield
     finally:
         # restore the method
-        state.memo.reporter.get_source_and_line = gsal  # type: ignore[attr-defined]
+        state.memo.reporter.get_source_and_line = gsal  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 class SphinxFileOutput(FileOutput):
@@ -453,7 +470,7 @@ class SphinxFileOutput(FileOutput):
         kwargs.setdefault('encoding', 'utf-8')
         super().__init__(**kwargs)
 
-    def write(self, data: str) -> str:
+    def write(self, data: str) -> str:  # type: ignore[override]
         if (
             self.destination_path
             and self.autoclose
@@ -467,9 +484,7 @@ class SphinxFileOutput(FileOutput):
             if on_disk == data:
                 return data
 
-        # TODO: TYPING: Upstream docutils should annotate FileOutput.write()
-        #       so that this suppression is unnecessary.
-        return super().write(data)  # type: ignore[no-untyped-call]
+        return super().write(data)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
 
 class SphinxDirective(Directive):
@@ -499,14 +514,12 @@ class SphinxDirective(Directive):
         """
         return self.env.config
 
-    def get_source_info(self) -> tuple[str, int]:
+    def get_source_info(self) -> tuple[str | None, int | None]:
         """Get source and line number.
 
         .. versionadded:: 3.0
         """
         source, line = self.state_machine.get_source_and_line(self.lineno)
-        assert source is not None
-        assert line is not None
         return source, line
 
     def set_source_info(self, node: Node) -> None:
@@ -680,18 +693,20 @@ class SphinxRole:
         """
         return self.env.config
 
-    def get_source_info(self, lineno: int | None = None) -> tuple[str, int]:
+    def get_source_info(
+        self, lineno: int | None = None
+    ) -> tuple[str | os.PathLike[str] | None, int | None]:
         # .. versionadded:: 3.0
         if lineno is None:
             lineno = self.lineno
         source, line = self.inliner.reporter.get_source_and_line(lineno)
-        assert source is not None
-        assert line is not None
-        return str(source), line
+        return source, line
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
         # .. versionadded:: 2.0
-        node.source, node.line = self.get_source_info(lineno)
+        source, line = self.get_source_info(lineno)
+        node.source = str(source) if source is not None else None
+        node.line = line
 
     def get_location(self) -> str:
         """Get current location info for logging.
@@ -826,7 +841,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     caches the result of docutils' and use it on second call for instantiation.
     This makes an instantiation of document nodes much faster.
     """
-    global __document_cache__  # NoQA: PLW0603
+    global __document_cache__  # ruff: ignore[global-statement]
     try:
         cached_settings, reporter = __document_cache__
     except NameError:
@@ -879,6 +894,8 @@ def _parse_str_to_doctree(
     transformer.add_transforms(_READER_TRANSFORMS)
     transformer.add_transforms(transforms)
     transformer.add_transforms(parser.get_transforms())
+    # https://github.com/sphinx-doc/sphinx/issues/13713
+    transformer.components['writer'] = _DummyWriter()  # type: ignore[index]
 
     if default_role:
         default_role_cm = rst.default_role(env.current_document.docname, default_role)
@@ -927,6 +944,11 @@ def _get_settings(
     return settings
 
 
+class _DummyWriter(docutils.writers.Writer):  # type: ignore[type-arg]
+    # compat for MyST-Parser
+    supported = ('html',)
+
+
 if docutils.__version_info__[:2] < (0, 22):
     from docutils.parsers.rst import roles
 
@@ -939,5 +961,5 @@ if docutils.__version_info__[:2] < (0, 22):
 
 else:
     from docutils.parsers.rst.roles import (
-        normalize_options as _normalize_options,  # NoQA: F401  # ty: ignore[unresolved-import]
+        normalize_options as _normalize_options,  # ruff: ignore[unused-import]
     )

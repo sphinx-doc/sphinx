@@ -25,7 +25,7 @@ if TYPE_CHECKING:
             /,
         ) -> None: ...
 
-    class _AutodocBeforeProcessSignatureListener(Protocol):  # NoQA: PYI046
+    class _AutodocBeforeProcessSignatureListener(Protocol):  # ruff: ignore[unused-private-protocol]
         # parameter names are non-normative
         def __call__(
             self,
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
             /,
         ) -> None: ...
 
-    class _AutodocProcessSignatureListener(Protocol):  # NoQA: PYI046
+    class _AutodocProcessSignatureListener(Protocol):  # ruff: ignore[unused-private-protocol]
         # parameter names are non-normative
         # returns: (args, retann) | None
         def __call__(
@@ -50,7 +50,7 @@ if TYPE_CHECKING:
             /,
         ) -> tuple[str | None, str | None] | None: ...
 
-    class _AutodocProcessBasesListener(Protocol):  # NoQA: PYI046
+    class _AutodocProcessBasesListener(Protocol):  # ruff: ignore[unused-private-protocol]
         # parameter names are non-normative
         def __call__(
             self,
@@ -62,7 +62,7 @@ if TYPE_CHECKING:
             /,
         ) -> None: ...
 
-    class _AutodocSkipMemberListener(Protocol):  # NoQA: PYI046
+    class _AutodocSkipMemberListener(Protocol):  # ruff: ignore[unused-private-protocol]
         # parameter names are non-normative
         # returns: skip_member
         def __call__(

@@ -115,6 +115,9 @@ def copy_asset(
 
     Use ``copy_asset_file`` instead to copy a single file.
 
+    Use ``app.add_static_dir()`` instead to copy static files to
+    the output directory.
+
     :param source: The path to source file or directory
     :param destination: The path to destination directory
     :param excluded: The matcher to determine the given path should be copied or not

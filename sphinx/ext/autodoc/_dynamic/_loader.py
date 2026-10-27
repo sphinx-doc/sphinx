@@ -177,7 +177,7 @@ def _make_props_from_imported_object(
 
     if objtype == 'module':
         try:
-            mod_origin = im.module.__spec__.origin  # type: ignore[union-attr]
+            mod_origin = im.module.__spec__.origin  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         except AttributeError:
             file_path = None
         else:
@@ -234,7 +234,7 @@ def _make_props_from_imported_object(
         base_classes = tuple(restify(cls, mode=render_mode) for cls in obj_bases)
 
         return _ClassDefProperties(
-            obj_type=objtype,  # type: ignore[arg-type]
+            obj_type=objtype,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -257,7 +257,7 @@ def _make_props_from_imported_object(
             obj_properties.add('async')
 
         return _FunctionDefProperties(
-            obj_type=objtype,  # type: ignore[arg-type]
+            obj_type=objtype,
             module_name=module_name,
             parts=parts,
             docstring_lines=(),
@@ -360,7 +360,8 @@ def _make_props_from_imported_object(
 
     if objtype == 'data':
         # Update __annotations__ to support type_comment and so on
-        _ensure_annotations_from_type_comments(parent)
+        if config.autodoc_use_type_comments:
+            _ensure_annotations_from_type_comments(parent)
 
         # obtain annotation
         annotations = get_type_hints(
@@ -410,7 +411,7 @@ def _make_props_from_imported_object(
             obj = SLOTS_ATTR
         elif inspect.isenumattribute(obj):
             obj = obj.value
-        if parent:
+        if parent and config.autodoc_use_type_comments:
             # Update __annotations__ to support type_comment and so on
             _ensure_annotations_from_type_comments(parent)
 

@@ -5,9 +5,10 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING
 
+import docutils
 from docutils.io import FileInput
 from docutils.readers import standalone
-from docutils.transforms.references import DanglingReferences
+from docutils.transforms import references
 from docutils.writers import UnfilteredWriter
 
 from sphinx.deprecation import RemovedInSphinx10Warning
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 warnings.warn('sphinx.io is deprecated', RemovedInSphinx10Warning, stacklevel=2)
 
 
-class SphinxBaseReader(standalone.Reader['Any']):
+class SphinxBaseReader(standalone.Reader):  # type: ignore[type-arg]
     """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
@@ -52,7 +53,9 @@ class SphinxBaseReader(standalone.Reader['Any']):
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx
-        unused = [DanglingReferences]
+        unused: list[type[Transform]] = [references.DanglingReferences]
+        if docutils.__version_info__[:2] >= (1, 0):
+            unused.append(references.ReportUnreferencedTargets)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         for transform in unused:
             if transform in transforms:
                 transforms.remove(transform)

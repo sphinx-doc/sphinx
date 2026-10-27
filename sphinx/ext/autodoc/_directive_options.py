@@ -275,7 +275,6 @@ _OPTION_SPEC_HAS_MEMBERS: Final[OptionSpec] = _OPTION_SPEC_COMMON | {
     'private-members': members_option,
     'special-members': members_option,
     'member-order': member_order_option,
-    'show-inheritance': bool_option,
 }
 _OPTION_SPEC_MODULE_SPECIFIC: Final[OptionSpec] = {
     'ignore-module-all': bool_option,
@@ -286,6 +285,7 @@ _OPTION_SPEC_MODULE_SPECIFIC: Final[OptionSpec] = {
 }
 _OPTION_SPEC_CLASS_SPECIFIC: Final[OptionSpec] = {
     'class-doc-from': class_doc_from_option,
+    'show-inheritance': bool_option,
     'inherited-members': inherited_members_option,
 }
 _OPTION_SPEC_ASSIGNMENT: Final[OptionSpec] = _OPTION_SPEC_COMMON | {
@@ -299,7 +299,9 @@ _OPTION_SPEC_FUNCTION_DEF: Final = _OPTION_SPEC_COMMON | _OPTION_SPEC_DEPRECATED
 _OPTION_SPECS: Final[Mapping[_AutodocObjType, OptionSpec]] = {
     'module': _OPTION_SPEC_HAS_MEMBERS
     | _OPTION_SPEC_MODULE_SPECIFIC
+    | {'show-inheritance': bool_option}  # special case
     | {'inherited-members': inherited_members_option}  # special case
+    | {'no-value': bool_option}  # special case
     | _OPTION_SPEC_DEPRECATED,
     'class': _OPTION_SPEC_HAS_MEMBERS
     | _OPTION_SPEC_CLASS_SPECIFIC

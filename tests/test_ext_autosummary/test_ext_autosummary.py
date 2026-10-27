@@ -32,6 +32,12 @@ from tests.utils import extract_node
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
+if sys.version_info[:2] >= (3, 15):
+    cached_dunder: tuple[str, ...] = ()
+else:
+    cached_dunder = ('__cached__',)
+
+
 html_warnfile = StringIO()
 
 
@@ -167,7 +173,7 @@ def test_get_items_summary(make_app, app_params):
     def new_get_items(self, names, *args, **kwargs):
         results = orig_get_items(self, names, *args, **kwargs)
         for name, result in zip(names, results, strict=True):
-            autosummary_items[name] = result  # NoQA: PERF403
+            autosummary_items[name] = result  # ruff: ignore[manual-dict-comprehension]
         return results
 
     def handler(app, what, name, obj, options, lines):
@@ -240,7 +246,7 @@ def test_escaping(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module(app):
-    import autosummary_dummy_module  # type: ignore[import-not-found]
+    import autosummary_dummy_module  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     template = Mock()
 
@@ -268,7 +274,7 @@ def test_autosummary_generate_content_for_module(app):
         '_Exc',
         '__all__',
         '__builtins__',
-        '__cached__',
+        *cached_dunder,
         '__doc__',
         '__file__',
         '__name__',
@@ -377,7 +383,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
         '_Exc',
         '__all__',
         '__builtins__',
-        '__cached__',
+        *cached_dunder,
         '__doc__',
         '__file__',
         '__name__',
@@ -424,7 +430,7 @@ def test_autosummary_generate_content_for_module_imported_members(app):
         '_Exc',
         '__all__',
         '__builtins__',
-        '__cached__',
+        *cached_dunder,
         '__doc__',
         '__file__',
         '__loader__',
@@ -465,7 +471,7 @@ def test_autosummary_generate_content_for_module_imported_members(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autosummary', copy_test_root=True)
 def test_autosummary_generate_content_for_module_imported_members_inherited_module(app):
-    import autosummary_dummy_inherited_module  # type: ignore[import-not-found]
+    import autosummary_dummy_inherited_module  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     template = Mock()
 
@@ -489,7 +495,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
         'InheritedAttrClass',
         '__all__',
         '__builtins__',
-        '__cached__',
+        *cached_dunder,
         '__doc__',
         '__file__',
         '__loader__',
