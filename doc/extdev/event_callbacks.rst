@@ -330,8 +330,9 @@ Here is a more detailed list of these events.
    :param app: :class:`.Sphinx`
    :param env: :class:`.BuildEnvironment`
 
-   Emitted when Consistency checks phase.  You can check consistency of
-   metadata for whole of documents.
+   Emitted after Sphinx has run its environment checks and domain consistency
+   checks. You can do your own consistency checks of the
+   metadata for all of the documents.
 
    .. versionadded:: 1.6
 
@@ -354,7 +355,7 @@ Here is a more detailed list of these events.
    cleanup.  This event is emitted even when the build process raised an
    exception, given as the *exception* argument.  The exception is reraised in
    the application after the event handlers have run.  If the build process
-   raised no exception, *exception* will be ``None``.  This allows to customize
+   raised no exception, *exception* will be ``None``.  This allows you to customize
    cleanup actions depending on the exception status.
 
    .. versionadded:: 0.5
@@ -371,7 +372,8 @@ These events are emitted by specific builders.
       where *pagename* and *templatename* are strings and
       *context* is a ``dict[str, Any]``.
 
-   Emitted when the HTML builder is starting to write non-document pages.
+   Emitted when the HTML builder is starting to write non-document pages
+   (i.e. those that are not rendered from a source document's doctree).
 
    You can add pages to write by returning an iterable from this event.
 
