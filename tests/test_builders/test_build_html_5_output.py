@@ -551,7 +551,7 @@ def test_html5_output(
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
 
 
-@pytest.mark.sphinx('html', testroot='markup-rubric')
+@pytest.mark.sphinx('html', testroot='markup-rubric', freshenv=True)
 def test_html5_rubric(app: SphinxTestApp) -> None:
     def insert_invalid_rubric_heading_level(
         app: SphinxTestApp,
