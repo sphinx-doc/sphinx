@@ -1048,7 +1048,7 @@ class Sphinx:
     ) -> None:
         """Register a Docutils node class as a numfig target.
 
-        Sphinx numbers the node automatically so that users can refer it
+        Sphinx numbers the node automatically so that users can refer to it
         using :rst:role:`numref`.
 
         :param node: A node class
