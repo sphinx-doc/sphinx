@@ -924,10 +924,12 @@ class Sphinx:
 
                       When omitted, the accepted type is inferred from the
                       evaluated *default*.  If *default* is ``None`` and no
-                      types are supplied, type checking is disabled.  A
-                      ``None`` default remains accepted when types are supplied;
-                      with any other default, include ``type(None)`` among the
-                      types to also accept ``None``.
+                      types are supplied, type checking is disabled.
+                      With class-based types, a ``None`` default remains
+                      accepted when types are supplied. With any other
+                      default, include ``type(None)`` among the types to also
+                      accept ``None``. When using ``sphinx.config.ENUM``,
+                      include ``None`` among its candidates to accept it.
         :param description: A short description of the configuration value.
 
         .. versionchanged:: 0.4
