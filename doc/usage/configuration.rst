@@ -1545,7 +1545,7 @@ and also make use of these options.
 
 .. confval:: html_title
    :type: :code-py:`str`
-   :default: :samp:`'{project} {release} documentation'`
+   :default: :code-py:`'{project} {release} documentation'`
 
    The "title" for HTML documentation generated with Sphinx's own templates.
    This is appended to the ``<title>`` tag of individual pages,
@@ -2353,7 +2353,7 @@ so the HTML options also apply where appropriate.
 
 .. confval:: applehelp_kb_product
    :type: :code-py:`str`
-   :default: :samp:`'{project}-{release}'`
+   :default: :code-py:`'{project}-{release}'`
 
    The product tag for use with :confval:`applehelp_kb_url`.
 
@@ -2434,7 +2434,7 @@ so the HTML options also apply where appropriate.
 
 .. confval:: applehelp_title
    :type: :code-py:`str`
-   :default: :samp:`'{project} Help'`
+   :default: :code-py:`'{project} Help'`
 
    Specifies the help book title.
 
@@ -4162,9 +4162,6 @@ Options for the Python domain
    then ``foo.bar`` is shown under ``B``, not ``F``).
    This can be handy if you document a project that consists of a
    single package.
-
-   .. caution::
-      Works only for the HTML builder currently.
 
    .. versionadded:: 0.6
 

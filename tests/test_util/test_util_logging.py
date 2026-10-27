@@ -21,7 +21,7 @@ from tests.utils import TEST_ROOTS_DIR
 
 if TYPE_CHECKING:
     import io
-    from collections.abc import Iterator
+    from collections.abc import Generator
 
     from sphinx.testing.util import SphinxTestApp
 
@@ -283,7 +283,7 @@ def test_pending_warnings(app: SphinxTestApp) -> None:
 
 
 @contextmanager
-def force_colors() -> Iterator[None]:
+def force_colors() -> Generator[None]:
     forcecolor = os.environ.get('FORCE_COLOR', None)
 
     try:
