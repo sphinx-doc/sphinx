@@ -11,16 +11,30 @@ babel_runner.py update
 
 babel_runner.py compile
     Compile the ".po" catalogue files to ".mo" and ".js" files.
+
+babel_runner.py check [--exclude-failing]
+    Check that the format placeholders of every translation match its
+    msgid. Babel's own "Catalog.check()" only validates messages that
+    carry a "python-brace-format" flag, which catalogues downloaded from
+    Transifex largely do not, so damaged placeholders slip through it
+    (#14664). With "--exclude-failing" (used by the Transifex sync),
+    failing catalogues are reverted so that the automated pull request
+    excludes them, and they are listed in its body. Placeholders that a
+    translation drops are reported as warnings and do not fail the check.
 """
 
 from __future__ import annotations
 
 import json
 import logging
+import re
+import string
+import subprocess
 import sys
 import tempfile
 from os import environ
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from babel.messages.catalog import Catalog
 from babel.messages.extract import (
@@ -33,6 +47,9 @@ from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
+
+if TYPE_CHECKING:
+    from babel.messages.catalog import Message
 
 IS_CI = 'CI' in environ
 ROOT = Path(__file__).resolve().parent.parent
@@ -270,6 +287,209 @@ def _get_logger() -> logging.Logger:
     return log
 
 
+def _brace_format_fields(text: str) -> set[str]:
+    """Return the set of brace-format placeholder names in *text*.
+
+    Raises ``ValueError`` for invalid brace-format syntax.
+    """
+    fields: set[str] = set()
+    for _literal, field_name, _spec, _conversion in string.Formatter().parse(text):
+        if field_name is not None:
+            fields.add(field_name)
+    return fields
+
+
+_PERCENT_FIELD_RE = re.compile(r'%\((\w+)\)')
+
+
+def _percent_format_fields(text: str) -> set[str]:
+    """Return the set of named percent-format placeholders in *text*."""
+    return set(_PERCENT_FIELD_RE.findall(text))
+
+
+def _placeholder_errors(message: Message) -> list[str]:
+    """Return placeholder mismatches between a message and its translation.
+
+    A translation is in error when its placeholder syntax is invalid, or
+    when it references a placeholder that does not exist in the msgid -
+    both abort ``str.format()``/``%`` formatting at runtime (#14664).
+    Placeholders that the translation drops are not errors: the extra
+    keyword arguments are simply unused.
+    """
+    msgid = message.id
+    if isinstance(msgid, (list, tuple)):
+        msgid_forms = [msgid[0], msgid[1]]
+    else:
+        msgid_forms = [msgid]
+
+    allowed: set[str] = set()
+    for form in msgid_forms:
+        try:
+            allowed |= _brace_format_fields(form)
+        except ValueError:
+            # the msgid itself is malformed; that is not a translation error
+            return []
+    allowed |= _percent_format_fields(''.join(msgid_forms))
+
+    msgstr = message.string
+    if msgstr is None:
+        return []
+    if isinstance(msgstr, (list, tuple)):
+        msgstr_forms = [form for form in msgstr if form is not None]
+    else:
+        msgstr_forms = [msgstr]
+
+    errors = []
+    for form in msgstr_forms:
+        try:
+            used = _brace_format_fields(form)
+        except ValueError:
+            errors.append('invalid brace-format syntax in translation')
+            continue
+        used |= _percent_format_fields(form)
+        errors.extend(
+            f'placeholder {name!r} in translation does not appear in the msgid'
+            for name in sorted(used - allowed)
+        )
+    return errors
+
+
+def _missing_placeholders(message: Message) -> list[str]:
+    """Return placeholders of the msgid that the translation drops.
+
+    A dropped placeholder does not break formatting, so it is reported
+    as a warning rather than an error: the message still renders, but
+    loses the information the placeholder carried (a name, a path, ...).
+
+    For plural messages a placeholder only has to appear in one of the
+    translated forms, since a singular form may legitimately omit the
+    count. Positional ``{}`` fields are not compared.
+    """
+    msgid = message.id
+    if isinstance(msgid, (list, tuple)):
+        msgid_forms = [msgid[0], msgid[1]]
+    else:
+        msgid_forms = [msgid]
+
+    required: set[str] = set()
+    for form in msgid_forms:
+        try:
+            required |= _brace_format_fields(form)
+        except ValueError:
+            return []
+    required |= _percent_format_fields(''.join(msgid_forms))
+    required.discard('')
+
+    msgstr = message.string
+    if msgstr is None:
+        return []
+    if isinstance(msgstr, (list, tuple)):
+        msgstr_forms = [form for form in msgstr if form]
+    else:
+        msgstr_forms = [msgstr]
+    if not msgstr_forms:
+        return []
+
+    used: set[str] = set()
+    for form in msgstr_forms:
+        try:
+            used |= _brace_format_fields(form)
+        except ValueError:
+            # invalid syntax is already reported by _placeholder_errors()
+            return []
+        used |= _percent_format_fields(form)
+
+    return [
+        f'placeholder {name!r} from the msgid is missing in translation'
+        for name in sorted(required - used)
+    ]
+
+
+def run_check(exclude_failing: bool = False) -> None:
+    """Check catalogue placeholder consistency.
+
+    With *exclude_failing*, revert catalogues that fail the check so the
+    Transifex sync excludes them from the automated pull request, and
+    record them in its body.
+
+    Placeholders that a translation drops are reported as warnings: they
+    neither fail the check nor exclude the catalogue.
+    """
+    log = _get_logger()
+
+    directory = ROOT / 'sphinx' / 'locale'
+    excluded: list[str] = []
+    missing: dict[str, int] = {}
+    failures = 0
+
+    for locale in sorted(directory.iterdir()):
+        po_file = locale / 'LC_MESSAGES' / 'sphinx.po'
+        if not po_file.exists():
+            continue
+
+        with open(po_file, encoding='utf-8') as infile:
+            catalogue = read_po(infile, locale=locale.name, domain='sphinx')
+
+        locale_errors = 0
+        for message in catalogue:
+            if not message.id or not message.string or message.fuzzy:
+                continue
+            errors = _placeholder_errors(message)
+            for error in errors:
+                locale_errors += 1
+                log.error(
+                    'error: %s:%d: %s\nerror:     in message string: %r',
+                    po_file.relative_to(ROOT),
+                    message.lineno,
+                    error,
+                    message.string,
+                )
+            if errors:
+                # a renamed placeholder is already an error; do not also
+                # report the original name as missing
+                continue
+            for warning in _missing_placeholders(message):
+                missing[locale.name] = missing.get(locale.name, 0) + 1
+                log.warning(
+                    'warning: %s:%d: %s\nwarning:     in message string: %r',
+                    po_file.relative_to(ROOT),
+                    message.lineno,
+                    warning,
+                    message.string,
+                )
+
+        if not locale_errors:
+            continue
+        failures += locale_errors
+        if exclude_failing:
+            excluded.append(locale.name)
+            log.info(
+                'excluding catalogue %r from this update (%d errors)',
+                locale.name,
+                locale_errors,
+            )
+            subprocess.run(
+                ('git', 'checkout', '--', str(po_file)),  # ruff: ignore[start-process-with-partial-path]
+                check=True,
+            )
+
+    if excluded:
+        _write_pr_body_line('## Catalogues excluded from this update')
+        _write_pr_body_line('')
+        for locale_name in excluded:
+            _write_pr_body_line(f'* {locale_name}')
+
+    if missing:
+        _write_pr_body_line('## Translations missing placeholders')
+        _write_pr_body_line('')
+        for locale_name, count in missing.items():
+            s = 's' if count != 1 else ''
+            _write_pr_body_line(f'* {locale_name}: {count} placeholder{s}')
+
+    if failures and not exclude_failing:
+        raise SystemExit(1)
+
+
 def _write_pr_body_line(message: str) -> None:
     if not IS_CI:
         return
@@ -290,6 +510,8 @@ if __name__ == '__main__':
         run_update()
     elif action == 'compile':
         run_compile()
+    elif action == 'check':
+        run_check(exclude_failing='--exclude-failing' in sys.argv)
     elif action == 'all':
         run_extract()
         run_update()
