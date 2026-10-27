@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #13526: Improve ``SOURCE_DATE_EPOCH`` support during ``%Y`` pattern
+  substition in :confval:`copyright` (and :confval:`project_copyright`).
+  Patch by James Addison.
+
 Testing
 -------
 
