@@ -180,7 +180,7 @@ def test_extract_messages_without_rawsource() -> None:
     document.append(p)
     _transform(document)
     assert_node_count(extract_messages(document), nodes.TextElement, 1)
-    assert next(m for n, m in extract_messages(document)), 'text sentence'
+    assert next(m for n, m in extract_messages(document)) == 'testsentence'
 
 
 def test_clean_astext() -> None:
@@ -249,7 +249,7 @@ def test_make_id_sequential(app):
         ('hello <world> <sphinx>', (True, 'hello <world>', 'sphinx')),
     ],
 )
-def test_split_explicit_target(title, expected):
+def test_split_explicit_target(title: str, expected: tuple[bool, str, str]) -> None:
     assert split_explicit_title(title) == expected
 
 

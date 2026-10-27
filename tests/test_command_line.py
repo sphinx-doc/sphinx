@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.cmd import make_mode
 from sphinx.cmd.build import get_parser
 from sphinx.cmd.make_mode import run_make_mode
@@ -13,10 +14,7 @@ from sphinx.cmd.make_mode import run_make_mode
 if TYPE_CHECKING:
     from typing import Any
 
-broken_argparse = (
-    sys.version_info[:3] <= (3, 12, 6)
-    or sys.version_info[:3] == (3, 13, 0)
-)  # fmt: skip
+broken_argparse = sys.version_info[:3] == (3, 13, 0)
 
 DEFAULTS = {
     'filenames': [],
@@ -150,7 +148,7 @@ def test_build_main_parse_arguments_pos_intermixed(
     if broken_argparse:
         with pytest.raises(SystemExit):
             parse_arguments(args)
-        stderr = capsys.readouterr().err.splitlines()
+        stderr = strip_escape_sequences(capsys.readouterr().err).splitlines()
         assert stderr[-1].endswith('error: unrecognized arguments: filename1 filename2')
     else:
         assert parse_arguments(args) == EXPECTED_BUILD_MAIN
@@ -178,7 +176,7 @@ def test_make_mode_parse_arguments_pos_last(
     ]
     with pytest.raises(SystemExit):
         run_make_mode(args)
-    stderr = capsys.readouterr().err.splitlines()
+    stderr = strip_escape_sequences(capsys.readouterr().err).splitlines()
     assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
 
 
@@ -195,7 +193,7 @@ def test_make_mode_parse_arguments_pos_middle(
     ]
     with pytest.raises(SystemExit):
         run_make_mode(args)
-    stderr = capsys.readouterr().err.splitlines()
+    stderr = strip_escape_sequences(capsys.readouterr().err).splitlines()
     assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
 
 
@@ -232,5 +230,5 @@ def test_make_mode_parse_arguments_pos_intermixed(
     ]
     with pytest.raises(SystemExit):
         run_make_mode(args)
-    stderr = capsys.readouterr().err.splitlines()
+    stderr = strip_escape_sequences(capsys.readouterr().err).splitlines()
     assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')

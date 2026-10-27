@@ -727,6 +727,13 @@ The color used in the above example is available from having passed the
 
     .. versionadded:: 8.1.0
 
+``literalblockcappos``
+    Decides the caption position: either ``b`` ("bottom") or ``t`` ("top").
+
+    Default: ``t``
+
+    .. versionadded:: 1.7
+
 ``verbatimwithframe``
     Boolean to specify if :rst:dir:`code-block`\ s and literal includes are
     framed. Setting it to ``false`` does not deactivate use of package

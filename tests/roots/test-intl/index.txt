@@ -33,6 +33,7 @@ CONTENTS
    topic
    markup
    backslashes
+   refs_reordered
 
 .. toctree::
    :maxdepth: 2

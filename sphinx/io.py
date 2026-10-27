@@ -5,9 +5,10 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING
 
+import docutils
 from docutils.io import FileInput
 from docutils.readers import standalone
-from docutils.transforms.references import DanglingReferences
+from docutils.transforms import references
 from docutils.writers import UnfilteredWriter
 
 from sphinx.deprecation import RemovedInSphinx10Warning
@@ -19,12 +20,12 @@ if TYPE_CHECKING:
     from typing import Any
 
     from docutils import nodes
-    from docutils.frontend import Values
     from docutils.io import Input
     from docutils.parsers import Parser
     from docutils.transforms import Transform
 
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.docutils import _DocutilsSettings
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 warnings.warn('sphinx.io is deprecated', RemovedInSphinx10Warning, stacklevel=2)
 
 
-class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
+class SphinxBaseReader(standalone.Reader):  # type: ignore[type-arg]
     """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
@@ -52,7 +53,9 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx
-        unused = [DanglingReferences]
+        unused: list[type[Transform]] = [references.DanglingReferences]
+        if docutils.__version_info__[:2] >= (1, 0):
+            unused.append(references.ReportUnreferencedTargets)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         for transform in unused:
             if transform in transforms:
                 transforms.remove(transform)
@@ -90,17 +93,24 @@ class SphinxStandaloneReader(SphinxBaseReader):
     def _setup_transforms(self, transforms: list[type[Transform]], /) -> None:
         self.transforms = self.transforms + transforms
 
-    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
+    def read(
+        self,
+        source: Input,  # type: ignore[type-arg]
+        parser: Parser,
+        settings: _DocutilsSettings,
+    ) -> nodes.document:
         self.source = source
-        if not self.parser:  # type: ignore[has-type]
+        if not self.parser:
             self.parser = parser
         self.settings = settings
         self.input = self.read_source(settings.env)
         self.parse()
+        assert self.document is not None
         return self.document
 
     def read_source(self, env: BuildEnvironment) -> str:
         """Read content from source and do post-process."""
+        assert self.source is not None
         content = self.source.read()
 
         # emit "source-read" event

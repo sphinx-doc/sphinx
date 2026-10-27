@@ -181,14 +181,17 @@ nitpick_ignore = {
         'template<typename TOuter> template<typename TInner> Wrapper::Outer<TOuter>::Inner',
     ),
     ('cpp:identifier', 'MyContainer'),
-    ('js:func', 'SomeError'),
-    ('js:func', 'number'),
-    ('js:func', 'string'),
+    ('js:class', 'SomeError'),
+    ('js:class', 'number'),
+    ('js:class', 'string'),
     ('py:attr', 'srcline'),
     # sphinx.application.Sphinx.connect
     ('py:class', '_AutodocProcessDocstringListener'),
     # sphinx.application.Sphinx.connect
+    ('py:class', '_AutodocBeforeProcessSignatureListener'),
+    # sphinx.application.Sphinx.connect
     ('py:class', '_AutodocProcessSignatureListener'),
+    ('py:class', '_AutodocProcessBasesListener'),  # sphinx.application.Sphinx.connect
     ('py:class', '_AutodocSkipMemberListener'),  # sphinx.application.Sphinx.connect
     ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
     # sphinx.application.Sphinx.add_html_math_renderer
@@ -269,7 +272,7 @@ nitpick_ignore = {
 
 # -- Extension interface -------------------------------------------------------
 
-from sphinx import addnodes  # NoQA: E402
+from sphinx import addnodes  # ruff: ignore[module-import-not-at-top-of-file]
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -325,7 +328,7 @@ REDIRECT_TEMPLATE = """
         <a href="{{rel_url}}">If not, click here to continue.</a>
     </body>
 </html>
-"""  # NoQA: E501
+"""  # ruff: ignore[line-too-long]
 
 
 def build_redirects(app: Sphinx, exception: Exception | None) -> None:

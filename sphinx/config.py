@@ -5,13 +5,11 @@ from __future__ import annotations
 import time
 import traceback
 import types
-import warnings
 from contextlib import chdir
 from os import getenv
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
-from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -20,7 +18,6 @@ from sphinx.util._timestamps import _get_publication_time
 if TYPE_CHECKING:
     import os
     from collections.abc import Collection, Iterable, Iterator, Sequence, Set
-    from typing import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -29,7 +26,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild: TypeAlias = Literal[
+type _ConfigRebuild = Literal[
     '',
     'env',
     'epub',
@@ -89,13 +86,13 @@ class ENUM:
     def __repr__(self) -> str:
         return f'ENUM({", ".join(sorted(map(repr, self._candidates)))})'
 
-    def match(self, value: str | bool | None | Sequence[str | bool | None]) -> bool:  # NoQA: RUF036
+    def match(self, value: str | bool | None | Sequence[str | bool | None]) -> bool:  # ruff: ignore[none-not-at-end-of-union]
         if isinstance(value, (str, bool, types.NoneType)):
             return value in self._candidates
         return all(item in self._candidates for item in value)
 
 
-_OptValidTypes: TypeAlias = frozenset[type] | ENUM
+type _OptValidTypes = frozenset[type] | ENUM
 
 
 class _Opt:
@@ -166,7 +163,7 @@ class _Opt:
                 other.valid_types,
                 other.description,
             )
-            return self_tpl > other_tpl
+            return self_tpl > other_tpl  # ty: ignore[unsupported-operator]
         return NotImplemented
 
     def __hash__(self) -> int:
@@ -195,15 +192,6 @@ class _Opt:
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
         super().__setattr__('description', description)
-
-    def __getitem__(self, item: int | slice) -> Any:
-        warnings.warn(
-            f'The {self.__class__.__name__!r} object tuple interface is deprecated, '
-            "use attribute access instead for 'default', 'rebuild', and 'valid_types'.",
-            RemovedInSphinx90Warning,
-            stacklevel=2,
-        )
-        return (self.default, self.rebuild, self.valid_types)[item]
 
 
 class Config:
@@ -386,7 +374,7 @@ class Config:
             msg = __("'%s' must be '0' or '1', got '%s'") % (name, value)
             raise ConfigError(msg)
         if isinstance(default, dict):
-            raise ValueError(  # NoQA: TRY004
+            raise ValueError(  # ruff: ignore[type-check-without-type-error]
                 __(
                     'cannot override dictionary config setting %r, '
                     'ignoring (use %r to set individual elements)'
@@ -606,7 +594,7 @@ def eval_config_file(filename: Path, tags: Tags) -> dict[str, Any]:
         # during executing config file, current dir is changed to ``confdir``.
         try:
             code = compile(filename.read_bytes(), filename, 'exec')
-            exec(code, namespace)  # NoQA: S102
+            exec(code, namespace)  # ruff: ignore[exec-builtin]
         except SyntaxError as err:
             msg = __('There is a syntax error in your configuration file: %s\n')
             raise ConfigError(msg % err) from err
@@ -719,7 +707,7 @@ def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
             else:
                 if any('%Y' in line for line in value):
                     items = (line.replace('%Y', replace_yr) for line in value)
-                    config[k] = type(value)(items)  # type: ignore[call-arg]
+                    config[k] = type(value)(items)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
 
 
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
@@ -750,7 +738,7 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
                 items = (
                     _substitute_copyright_year(x, current_yr, replace_yr) for x in value
                 )
-                config[k] = type(value)(items)  # type: ignore[call-arg]
+                config[k] = type(value)(items)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
 
 
 def _substitute_copyright_year(

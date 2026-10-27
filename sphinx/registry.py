@@ -22,7 +22,8 @@ from sphinx.util.logging import prefixed_warnings
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterator, Mapping, Sequence
-    from typing import Any, TypeAlias
+    from pathlib import Path
+    from typing import Any
 
     from docutils import nodes
     from docutils.nodes import Element, Node, TextElement
@@ -36,7 +37,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain, Index
     from sphinx.environment import BuildEnvironment
-    from sphinx.ext.autodoc._documenters import Documenter
+    from sphinx.ext.autodoc._legacy_class_based._documenters import Documenter
     from sphinx.util.docfields import Field
     from sphinx.util.typing import (
         ExtensionMetadata,
@@ -49,15 +50,13 @@ if TYPE_CHECKING:
     # visit/depart function
     # the parameters should be (SphinxTranslator, Element)
     # or any subtype of either, but mypy rejects this.
-    _NodeHandler: TypeAlias = Callable[[Any, Any], None]
-    _NodeHandlerPair: TypeAlias = tuple[_NodeHandler, _NodeHandler | None]
+    type _NodeHandler = Callable[[Any, Any], None]
+    type _NodeHandlerPair = tuple[_NodeHandler, _NodeHandler | None]
 
-    _MathsRenderer: TypeAlias = Callable[[HTML5Translator, nodes.math], None]
-    _MathsBlockRenderer: TypeAlias = Callable[[HTML5Translator, nodes.math_block], None]
-    _MathsInlineRenderers: TypeAlias = tuple[_MathsRenderer, _MathsRenderer | None]
-    _MathsBlockRenderers: TypeAlias = tuple[
-        _MathsBlockRenderer, _MathsBlockRenderer | None
-    ]
+    type _MathsRenderer = Callable[[HTML5Translator, nodes.math], None]
+    type _MathsBlockRenderer = Callable[[HTML5Translator, nodes.math_block], None]
+    type _MathsInlineRenderers = tuple[_MathsRenderer, _MathsRenderer | None]
+    type _MathsBlockRenderers = tuple[_MathsBlockRenderer, _MathsBlockRenderer | None]
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +125,9 @@ class SphinxComponentRegistry:
 
         #: js_files; list of JS paths or URLs
         self.js_files: list[tuple[str | None, dict[str, Any]]] = []
+
+        #: static directories registered by extensions
+        self.static_dirs: list[Path] = []
 
         #: LaTeX packages; list of package names and its options
         self.latex_packages: list[tuple[str, str | None]] = []
@@ -467,6 +469,11 @@ class SphinxComponentRegistry:
     def add_js_file(self, filename: str | None, **attributes: Any) -> None:
         logger.debug('[app] adding js_file: %r, %r', filename, attributes)
         self.js_files.append((filename, attributes))
+
+    def add_static_dir(self, path: Path) -> None:
+        """Register a static directory for extensions."""
+        logger.debug("[app] adding static_dir: '%s'", path)
+        self.static_dirs.append(path)
 
     def has_latex_package(self, name: str) -> bool:
         packages = self.latex_packages + self.latex_packages_after_hyperref

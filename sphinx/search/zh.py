@@ -15,9 +15,10 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 try:
-    import jieba  # type: ignore[import-not-found]
-    from jieba import cut_for_search
-    from jieba import load_userdict as jieba_load_userdict
+    import jieba  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
+
+    jieba_load_userdict = jieba.load_userdict
+    cut_for_search = jieba.cut_for_search
 except ImportError:
     JIEBA_DEFAULT_DICT = ''
 

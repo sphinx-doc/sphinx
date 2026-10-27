@@ -21,21 +21,18 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Set
-    from typing import Any, Protocol, TypeVar
+    from typing import Any, Protocol
 
     from docutils.nodes import Node
 
     from sphinx.environment import BuildEnvironment
 
-    _T_co = TypeVar('_T_co', covariant=True)
-    _T_contra = TypeVar('_T_contra', contravariant=True)
+    class _ReadableStream[T](Protocol):
+        def read(self, n: int = ..., /) -> T: ...
+        def readline(self, n: int = ..., /) -> T: ...
 
-    class _ReadableStream(Protocol[_T_co]):
-        def read(self, n: int = ..., /) -> _T_co: ...
-        def readline(self, n: int = ..., /) -> _T_co: ...
-
-    class _WritableStream(Protocol[_T_contra]):
-        def write(self, s: _T_contra, /) -> object: ...
+    class _WritableStream[T](Protocol):
+        def write(self, s: T, /) -> object: ...
 
 
 _NON_MINIFIED_JS_PATH = package_dir.joinpath('search', 'non-minified-js')
@@ -121,7 +118,9 @@ var Stemmer = function () {
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
-from sphinx.search.en import SearchEnglish  # NoQA: E402
+from sphinx.search.en import (  # ruff: ignore[module-import-not-at-top-of-file]
+    SearchEnglish,
+)
 
 
 def parse_stop_word(source: str) -> set[str]:
@@ -306,8 +305,8 @@ class IndexBuilder:
             self.lang: SearchLanguage = SearchEnglish(options)
         elif isinstance(lang_class, str):
             module, classname = lang_class.rsplit('.', 1)
-            lang_class: type[SearchLanguage] = getattr(import_module(module), classname)  # type: ignore[no-redef]
-            self.lang = lang_class(options)  # type: ignore[operator]
+            lang_cls: type[SearchLanguage] = getattr(import_module(module), classname)
+            self.lang = lang_cls(options)
         else:
             # it's directly a class (e.g. added by app.add_search_language)
             self.lang = lang_class(options)
@@ -585,10 +584,22 @@ class IndexBuilder:
 
         base_js_path = _MINIFIED_JS_PATH / 'base-stemmer.js'
         language_js_path = _MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode
+        # Derive the JS class name from the stemmer filename rather than
+        # from language_name, since some languages reuse another language's
+        # stemmer. For example, SearchChinese reuses english-stemmer.js,
+        # which defines EnglishStemmer.
+        stemmer_class = (
+            self.lang.js_stemmer_rawcode
+            .removesuffix('-stemmer.js')
+            .title()
+            .replace('_', '')
+            .replace('-', '')
+            + 'Stemmer'
+        )
         return '\n'.join((
             base_js_path.read_text(encoding='utf-8'),
             language_js_path.read_text(encoding='utf-8'),
-            f'window.Stemmer = {self.lang.language_name}Stemmer;',
+            f'window.Stemmer = {stemmer_class};',
         ))
 
 

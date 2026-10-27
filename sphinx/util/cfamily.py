@@ -13,13 +13,13 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any, NoReturn, TypeAlias
+    from typing import Any, NoReturn
 
     from docutils.nodes import TextElement
 
     from sphinx.config import Config
 
-    StringifyTransform: TypeAlias = Callable[[Any], str]
+    type StringifyTransform = Callable[[Any], str]
 
 logger = logging.getLogger(__name__)
 
@@ -339,7 +339,7 @@ class BaseParser:
     def status(self, msg: str) -> None:
         # for debugging
         indicator = '-' * self.pos + '^'
-        logger.debug(f'{msg}\n{self.definition}\n{indicator}')  # NoQA: G004
+        logger.debug(f'{msg}\n{self.definition}\n{indicator}')  # ruff: ignore[logging-f-string]
 
     def fail(self, msg: str) -> NoReturn:
         errors = []
@@ -356,7 +356,10 @@ class BaseParser:
         raise self._make_multi_error(errors, '')
 
     def warn(self, msg: str) -> None:
-        logger.warning(msg, location=self.location)
+        subtype = 'c' if self.language == 'C' else 'cpp'
+        logger.warning(
+            msg, location=self.location, type='source_code_parser', subtype=subtype
+        )
 
     def match(self, regex: re.Pattern[str]) -> bool:
         match = regex.match(self.definition, self.pos)
@@ -477,7 +480,7 @@ class BaseParser:
             if not self.skip_string_and_ws('('):
                 self.fail("Expected '(' after '__attribute__('.")
             attrs = []
-            while 1:
+            while True:
                 if self.match(identifier_re):
                     name = self.matched_text
                     exprs = self._parse_paren_expression_list()

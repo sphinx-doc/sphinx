@@ -35,6 +35,7 @@ keep_warnings = True
 pygments_style = 'sphinx'
 show_authors = True
 numfig = True
+linkcheck_timeout = 0.25
 
 html_sidebars = {
     '**': [
@@ -137,7 +138,7 @@ extlinks = {
 }
 
 # modify tags from conf.py
-tags.add('confpytag')  # NoQA: F821 (tags is injected into conf.py)
+tags.add('confpytag')  # ruff: ignore[undefined-name] (tags is injected into conf.py)
 
 
 # -- extension API

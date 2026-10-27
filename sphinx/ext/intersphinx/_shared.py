@@ -8,7 +8,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Final, NoReturn, TypeAlias
+    from typing import Any, Final, NoReturn
 
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     InventoryLocation = str | None
 
     #: Inventory cache entry. The integer field is the cache expiration time.
-    InventoryCacheEntry: TypeAlias = tuple[InventoryName, int, Inventory]
+    type InventoryCacheEntry = tuple[InventoryName, int, Inventory]
 
     #: The type of :confval:`intersphinx_mapping` *after* normalisation.
     IntersphinxMapping = dict[
@@ -119,10 +119,10 @@ class InventoryAdapter:
 
         if not hasattr(env, 'intersphinx_cache'):
             # initial storage when fetching inventories before processing
-            self.env.intersphinx_cache = {}  # type: ignore[attr-defined]
+            self.env.intersphinx_cache = {}  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
-            self.env.intersphinx_inventory = {}  # type: ignore[attr-defined]
-            self.env.intersphinx_named_inventory = {}  # type: ignore[attr-defined]
+            self.env.intersphinx_inventory = {}  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+            self.env.intersphinx_named_inventory = {}  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     @property
     def cache(self) -> dict[InventoryURI, InventoryCacheEntry]:
@@ -133,16 +133,16 @@ class InventoryAdapter:
         - Element two is a time value for cache invalidation, an integer.
         - Element three is the loaded remote inventory of type :class:`!Inventory`.
         """
-        return self.env.intersphinx_cache  # type: ignore[attr-defined]
+        return self.env.intersphinx_cache  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     @property
     def main_inventory(self) -> Inventory:
-        return self.env.intersphinx_inventory  # type: ignore[attr-defined]
+        return self.env.intersphinx_inventory  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     @property
     def named_inventory(self) -> dict[InventoryName, Inventory]:
-        return self.env.intersphinx_named_inventory  # type: ignore[attr-defined]
+        return self.env.intersphinx_named_inventory  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     def clear(self) -> None:
-        self.env.intersphinx_inventory.clear()  # type: ignore[attr-defined]
-        self.env.intersphinx_named_inventory.clear()  # type: ignore[attr-defined]
+        self.env.intersphinx_inventory.clear()  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        self.env.intersphinx_named_inventory.clear()  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]

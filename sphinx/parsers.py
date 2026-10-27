@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import docutils.parsers
 import docutils.parsers.rst
+import docutils.statemachine
 from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
@@ -39,7 +40,7 @@ class Parser(docutils.parsers.Parser):
         """The config object."""
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.config', remove=(9, 0))
+        _deprecation_warning(cls_module, f'{cls_name}.config', remove=(10, 0))
         return self._config
 
     @property
@@ -47,7 +48,7 @@ class Parser(docutils.parsers.Parser):
         """The environment object."""
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.env', remove=(9, 0))
+        _deprecation_warning(cls_module, f'{cls_name}.env', remove=(10, 0))
         return self._env
 
     def set_application(self, app: Sphinx) -> None:
@@ -57,7 +58,7 @@ class Parser(docutils.parsers.Parser):
         """
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.set_application', remove=(9, 0))
+        _deprecation_warning(cls_module, f'{cls_name}.set_application', remove=(10, 0))
         self._config = app.config
         self._env = app.env
 

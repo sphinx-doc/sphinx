@@ -545,24 +545,53 @@ Describing changes between versions
    When this applies to an entire module or component,
    it should be placed at the top of the relevant section before any prose.
 
-   The first argument must be given and is the version in question; you can add
-   a second argument consisting of a *brief* explanation of the change.
+   The first argument must be given and is the version in question.
 
-   .. attention::
-      There must be no blank line between the directive head and the explanation;
-      this is to make these blocks visually continuous in the markup.
+   Give the explanation of the change in the directive **body**.
+   The body is nested reStructuredText, so block constructs such as
+   lists, nested directives, and literal blocks (``::``) work as usual.
 
-   .. version-changed:: 8.3
+   A *brief* explanation may instead be given as a second argument,
+   on the same line as the version or continued on the next line
+   with no blank line. That argument is parsed as inline text only.
+
+   .. note::
+      A blank line after the version starts the body. Use a blank line
+      whenever the explanation needs block markup.
+
+   Further paragraphs in the body should be aligned with the
+   "Added in version ..." label, rather than indented as a nested block.
+
+   .. version-changed:: 9.0
       The :rst:dir:`versionadded` directive was renamed to :rst:dir:`version-added`.
       The previous name is retained as an alias.
 
-   Example::
+   Example of a brief explanation given as the second argument::
 
       .. version-added:: 2.5
          The *spam* parameter.
 
+   This is rendered as:
+
    .. version-added:: 2.5
       The *spam* parameter.
+
+   To include a literal block, leave a blank line so the explanation
+   is the body::
+
+      .. version-added:: 2.5
+
+         The *spam* parameter now accepts a sequence::
+
+            spam(eggs)
+
+   This is rendered as:
+
+   .. version-added:: 2.5
+
+      The *spam* parameter now accepts a sequence::
+
+         spam(eggs)
 
 .. rst:directive:: .. version-changed:: version [brief explanation]
                    .. versionchanged:: version [brief explanation]
@@ -570,7 +599,7 @@ Describing changes between versions
    Similar to :rst:dir:`version-added`, but describes when and what changed in
    the named feature in some way (new parameters, changed side effects, etc.).
 
-   .. version-changed:: 8.3
+   .. version-changed:: 9.0
       The :rst:dir:`versionchanged` directive was renamed to :rst:dir:`version-changed`.
       The previous name is retained as an alias.
 
@@ -587,10 +616,10 @@ Describing changes between versions
 
    Similar to :rst:dir:`version-added`, but describes when the feature was
    deprecated.
-   A *brief* explanation can also be given,
+   An explanation can also be given as described for :rst:dir:`version-added`,
    for example to tell the reader what to use instead.
 
-   .. version-changed:: 8.3
+   .. version-changed:: 9.0
       The :rst:dir:`deprecated` directive was renamed to :rst:dir:`version-deprecated`.
       The previous name is retained as an alias
 
@@ -606,12 +635,13 @@ Describing changes between versions
                    .. versionremoved:: version [brief explanation]
 
    Similar to :rst:dir:`version-added`, but describes when the feature was removed.
-   An explanation may be provided to tell the reader what to use instead,
-   or why the feature was removed.
+   An explanation can also be given as described for :rst:dir:`version-added`,
+   for example to tell the reader what to use instead, or why the feature was
+   removed.
 
    .. version-added:: 7.3
 
-   .. version-changed:: 8.3
+   .. version-changed:: 9.0
       The :rst:dir:`versionremoved` directive was renamed to :rst:dir:`version-removed`.
       The previous name is retained as an alias.
 
@@ -1492,7 +1522,7 @@ Check the :confval:`latex_table_style`.
    complex contents such as multiple paragraphs, blockquotes, lists, literal
    blocks, will render correctly to LaTeX output.
 
-.. versionchanged:: 8.3.0
+.. versionchanged:: 9.0
    The partial support of the LaTeX builder for nesting a table in another
    has been extended.
    Formerly Sphinx would raise an error if ``longtable`` class was specified
@@ -1579,15 +1609,15 @@ Check the :confval:`latex_table_style`.
    preamble, as in fact Sphinx uses ``T`` and sets it by default to be an
    alias of ``J``.
 
-.. versionchanged:: 8.3.0
+.. versionchanged:: 9.0
 
    Formerly, Sphinx did not use ``tabulary`` if the table had at least one
    cell containing "problematic" elements such as lists, object descriptions,
    blockquotes (etc...) because such contents are not out-of-the-box
-   compatible with ``tabulary``.  At ``8.3.0`` a technique, which was already
+   compatible with ``tabulary``.  At ``9.0`` a technique, which was already
    in use for merged cells, was extended to such cases, and the sole
    "problematic" contents are code-blocks and nested tables.  So tables
-   containing (only) cells with mutliple paragraphs, bullet or enumerated
+   containing (only) cells with multiple paragraphs, bullet or enumerated
    lists, or line blocks, will now better fit to their contents (if not
    rendered by ``longtable``).  Cells with object descriptions or admonitions
    will still have a tendency to induce the table to fill the full text area
@@ -1726,7 +1756,7 @@ There is this directive:
    Multiple production lists with the same *production_group*
    thus define rules in the same scope.
    This can also be used to split the description of a long or complex grammar
-   accross multiple ``productionlist`` directives with the same *production_group*.
+   across multiple ``productionlist`` directives with the same *production_group*.
 
    The definition can contain token names which are marked as interpreted text,
    (e.g. "``sum ::= `integer` "+" `integer```"),

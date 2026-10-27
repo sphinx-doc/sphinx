@@ -436,6 +436,7 @@ class Glossary(SphinxDirective):
         in_comment = False
         was_empty = True
         messages: list[Node] = []
+        indent_len = 0
         for line, (source, lineno) in zip(
             self.content, self.content.items, strict=True
         ):
@@ -633,7 +634,7 @@ class ProductionList(SphinxDirective):
     def production_group(
         *,
         lines: MutableSequence[str],
-        options: dict[str, Any],  # NoQA: ARG004
+        options: dict[str, Any],  # ruff: ignore[unused-static-method-argument]
     ) -> str:
         # get production_group
         if not lines or ':' in lines[0]:
@@ -693,7 +694,7 @@ class ProductionList(SphinxDirective):
 
     @staticmethod
     def separator_node(*, name: str, max_len: int) -> nodes.Text:
-        """Return seperator between 'name' and 'tokens'."""
+        """Return separator between 'name' and 'tokens'."""
         if name:
             return nodes.Text(' ::= '.rjust(max_len - len(name) + 5))
         return nodes.Text(' ' * (max_len + 5))
@@ -807,7 +808,7 @@ class StandardDomain(Domain):
         # set up enumerable nodes
 
         # create a copy for this instance
-        self.enumerable_nodes = copy(self.enumerable_nodes)  # type: ignore[misc]
+        self.enumerable_nodes = copy(self.enumerable_nodes)  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
         for node, settings in env._registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
@@ -945,7 +946,7 @@ class StandardDomain(Domain):
             node = document.ids[labelid]
             if isinstance(node, nodes.target) and 'refid' in node:
                 # indirect hyperlink targets
-                node = document.ids.get(node['refid'])  # type: ignore[assignment]
+                node = document.ids[node['refid']]
                 labelid = node['names'][0]
             if (
                 node.tagname == 'footnote'
@@ -1043,7 +1044,7 @@ class StandardDomain(Domain):
         if typ == 'ref':
             resolver = self._resolve_ref_xref
         elif typ == 'numref':
-            resolver = self._resolve_numref_xref  # type: ignore[assignment]
+            resolver = self._resolve_numref_xref
         elif typ == 'keyword':
             resolver = self._resolve_keyword_xref
         elif typ == 'doc':
@@ -1092,7 +1093,7 @@ class StandardDomain(Domain):
         target: str,
         node: pending_xref,
         contnode: Element,
-    ) -> nodes.reference | Element | None:
+    ) -> nodes.reference | None:
         if target in self.labels:
             docname, labelid, figname = self.labels.get(target, ('', '', ''))
         else:
@@ -1112,12 +1113,12 @@ class StandardDomain(Domain):
             logger.warning(
                 __('numfig is disabled. :numref: is ignored.'), location=node
             )
-            return contnode
+            return contnode  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
         try:
             fignumber = self.get_fignumber(env, builder, figtype, docname, target_node)
             if fignumber is None:
-                return contnode
+                return contnode  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
         except ValueError:
             logger.warning(
                 __(
@@ -1126,7 +1127,7 @@ class StandardDomain(Domain):
                 labelid,
                 location=node,
             )
-            return contnode
+            return contnode  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
         try:
             if node['refexplicit']:
@@ -1136,7 +1137,7 @@ class StandardDomain(Domain):
 
             if figname is None and '{name}' in title:
                 logger.warning(__('the link has no caption: %s'), title, location=node)
-                return contnode
+                return contnode  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
             else:
                 fignum = '.'.join(map(str, fignumber))
                 if '{name}' in title or 'number' in title:
@@ -1152,10 +1153,10 @@ class StandardDomain(Domain):
             logger.warning(
                 __('invalid numfig_format: %s (%r)'), title, exc, location=node
             )
-            return contnode
+            return contnode  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
         except TypeError:
             logger.warning(__('invalid numfig_format: %s'), title, location=node)
-            return contnode
+            return contnode  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
         return self.build_reference_node(
             fromdocname,
@@ -1321,7 +1322,7 @@ class StandardDomain(Domain):
                 key = (objtype, ltarget)
             if key in self.objects:
                 docname, labelid = self.objects[key]
-                role = 'std:' + self.role_for_objtype(objtype)  # type: ignore[operator]
+                role = 'std:' + self.role_for_objtype(objtype)  # type: ignore[operator]  # ty: ignore[unsupported-operator]
                 results.append((
                     role,
                     make_refnode(builder, fromdocname, docname, labelid, contnode),
@@ -1449,7 +1450,7 @@ def warn_missing_reference(
         return None
     else:
         target = node['reftarget']
-        if target not in domain.anonlabels:  # type: ignore[attr-defined]
+        if target not in domain.anonlabels:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             msg = __('undefined label: %r')
         else:
             msg = __(

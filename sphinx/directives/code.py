@@ -85,7 +85,7 @@ def container_wrapper(
     node = parsed[0]
     if isinstance(node, nodes.system_message):
         msg = __('Invalid caption: %s') % node.astext()
-        raise ValueError(msg)  # NoQA: TRY004
+        raise ValueError(msg)  # ruff: ignore[type-check-without-type-error]
     if isinstance(node, nodes.Element):
         caption_node = nodes.caption(node.rawsource, '', *node.children)
         caption_node.source = literal_node.source
@@ -119,7 +119,10 @@ class CodeBlock(SphinxDirective):
     def run(self) -> list[Node]:
         document = self.state.document
         code = '\n'.join(self.content)
-        location = self.state_machine.get_source_and_line(self.lineno)
+        source, line = self.state_machine.get_source_and_line(self.lineno)
+        location: tuple[str, int] | None = (
+            (source, line) if source is not None and line is not None else None
+        )
 
         linespec = self.options.get('emphasize-lines')
         if linespec:
@@ -141,7 +144,6 @@ class CodeBlock(SphinxDirective):
             hl_lines = None
 
         if 'dedent' in self.options:
-            location = self.state_machine.get_source_and_line(self.lineno)
             lines = code.splitlines(True)
             lines = dedent_lines(lines, self.options['dedent'], location=location)
             code = ''.join(lines)
@@ -454,7 +456,10 @@ class LiteralInclude(SphinxDirective):
             self.options['diff'] = path
 
         try:
-            location = self.state_machine.get_source_and_line(self.lineno)
+            source, line = self.state_machine.get_source_and_line(self.lineno)
+            location: tuple[str, int] | None = (
+                (source, line) if source is not None and line is not None else None
+            )
             rel_filename, filename = self.env.relfn2path(self.arguments[0])
             self.env.note_dependency(rel_filename)
 

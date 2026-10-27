@@ -23,7 +23,7 @@ def test_sectioning(app: SphinxTestApp) -> None:
     parts = [_get_sections(n) for n in doctree.children if isinstance(n, nodes.section)]
     for i, section in enumerate(parts):
         _test_sections(f'{i + 1}.', section, 4)
-    actual_headings = '\n'.join(p[0] for p in parts)  # type: ignore[misc]
+    actual_headings = '\n'.join(p[0] for p in parts)  # type: ignore[misc]  # ty: ignore[no-matching-overload]
     assert len(parts) == 4, (
         f'Expected 4 document level headings, got:\n{actual_headings}'
     )
@@ -32,7 +32,9 @@ def test_sectioning(app: SphinxTestApp) -> None:
 def _get_sections(section: nodes.Node) -> list[str | list[Any]]:
     if not isinstance(section, nodes.section):
         return list(map(_get_sections, section.children))
-    title = section.next_node(nodes.title).astext().strip()
+    next_title_node = section.next_node(nodes.title)
+    assert next_title_node is not None
+    title = next_title_node.astext().strip()
     subsections = []
     children = section.children.copy()
     while children:
@@ -58,4 +60,4 @@ def _test_sections(
         assert re.match('[0-9]+[.0-9]*[.]', num), (
             f'Unnumbered section: {subsection[0]!r}'
         )
-        _test_sections(f'{prefix}{i + 1}.', subsection, indent + 4)
+        _test_sections(f'{prefix}{i + 1}.', subsection, indent + 4)  # pyrefly: ignore[bad-argument-type]

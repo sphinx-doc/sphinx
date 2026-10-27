@@ -15,7 +15,6 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
-from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
@@ -253,8 +252,8 @@ class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
 
 def _clean_up_global_state() -> None:
     # clean up Docutils global state
-    directives._directives.clear()  # type: ignore[attr-defined]
-    roles._roles.clear()  # type: ignore[attr-defined]
+    directives._directives.clear()  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+    roles._roles.clear()  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     for node in additional_nodes:
         delattr(nodes.GenericNodeVisitor, f'visit_{node.__name__}')
         delattr(nodes.GenericNodeVisitor, f'depart_{node.__name__}')
@@ -267,25 +266,3 @@ def _clean_up_global_state() -> None:
 
     # clean up autodoc global state
     sphinx.pycode.ModuleAnalyzer.cache.clear()
-
-
-# deprecated name -> (object to return, canonical path or '', removal version)
-_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'strip_escseq': (
-        strip_escape_sequences,
-        'sphinx.util.console.strip_escape_sequences',
-        (9, 0),
-    ),
-}
-
-
-def __getattr__(name: str) -> Any:
-    if name not in _DEPRECATED_OBJECTS:
-        msg = f'module {__name__!r} has no attribute {name!r}'
-        raise AttributeError(msg)
-
-    from sphinx.deprecation import _deprecation_warning
-
-    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=remove)
-    return deprecated_object

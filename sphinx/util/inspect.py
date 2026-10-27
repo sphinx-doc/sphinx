@@ -27,9 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Final, Protocol, TypeAlias
-
-    from typing_extensions import TypeIs
+    from typing import Final, Protocol, TypeIs
 
     from sphinx.util.typing import _StringifyMode
 
@@ -47,7 +45,7 @@ if TYPE_CHECKING:
     class _AttrGetter(Protocol):
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
-    _RoutineType: TypeAlias = (
+    type _RoutineType = (
         types.FunctionType
         | types.LambdaType
         | types.MethodType
@@ -57,7 +55,7 @@ if TYPE_CHECKING:
         | types.MethodDescriptorType
         | types.ClassMethodDescriptorType
     )
-    _SignatureType: TypeAlias = (
+    type _SignatureType = (
         Callable[..., Any] | staticmethod[Any, Any] | classmethod[Any, Any, Any]
     )
 
@@ -436,7 +434,7 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
     """Check if the object is wrapped coroutine-function."""
     if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
         # staticmethod, classmethod and partial method are not a wrapped coroutine-function
-        # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
+        # Note: staticmethod and classmethod are a kind of wrapper
         return False
     return hasattr(obj, '__wrapped__')
 
@@ -448,7 +446,7 @@ def isproperty(obj: Any) -> TypeIs[property | cached_property[Any]]:
 
 def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
     """Check if the object is a generic alias."""
-    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -619,10 +617,10 @@ class TypeAliasForwardRef:
     def __or__(self, other: Any) -> Any:
         # When evaluating type hints, our forward ref can appear in type expressions,
         # i.e. `Alias | None`. This means it needs to support ``__or__`` and ``__ror__``.
-        return typing.Union[self, other]  # NoQA: UP007
+        return typing.Union[self, other]  # ruff: ignore[non-pep604-annotation-union]  # pyrefly: ignore[not-a-type]
 
     def __ror__(self, other: Any) -> Any:
-        return typing.Union[other, self]  # NoQA: UP007
+        return typing.Union[other, self]  # ruff: ignore[non-pep604-annotation-union]  # pyrefly: ignore[not-a-type]
 
 
 class TypeAliasModule:
@@ -710,6 +708,16 @@ def _should_unwrap(subject: _SignatureType) -> bool:
     )
 
 
+# Python 3.14 uses deferred evaluation of annotations by default.
+# Using annotationlib's FORWARDREF format gives us more robust handling
+# of forward references in type annotations.
+signature_kwds: dict[str, Any] = {}
+if sys.version_info[:2] >= (3, 14):
+    import annotationlib  # type: ignore[import-not-found]
+
+    signature_kwds['annotation_format'] = annotationlib.Format.FORWARDREF
+
+
 def signature(
     subject: _SignatureType,
     bound_method: bool = False,
@@ -726,12 +734,16 @@ def signature(
 
     try:
         if _should_unwrap(subject):
-            signature = inspect.signature(subject)  # type: ignore[arg-type]
+            signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
         else:
-            signature = inspect.signature(subject, follow_wrapped=True)  # type: ignore[arg-type]
+            signature = inspect.signature(
+                subject,  # type: ignore[arg-type]
+                follow_wrapped=True,
+                **signature_kwds,
+            )
     except ValueError:
         # follow built-in wrappers up (ex. functools.lru_cache)
-        signature = inspect.signature(subject)  # type: ignore[arg-type]
+        signature = inspect.signature(subject, **signature_kwds)  # type: ignore[arg-type]
     parameters = list(signature.parameters.values())
     return_annotation = signature.return_annotation
 
@@ -811,16 +823,9 @@ def _evaluate_forwardref(
         # https://docs.python.org/dev/library/annotationlib.html#annotationlib.ForwardRef.evaluate
         # https://docs.python.org/dev/library/typing.html#typing.evaluate_forward_ref
         return typing.evaluate_forward_ref(ref, globals=globalns, locals=localns)
-    if sys.version_info >= (3, 12, 4):
-        # ``type_params`` were added in 3.13 and the signature of _evaluate()
-        # is not backward-compatible (it was backported to 3.12.4, so anything
-        # before 3.12.4 still has the old signature).
-        #
-        # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(
-            globalns, localns, type_params=(), recursive_guard=frozenset()
-        )  # type: ignore[call-arg]
-    return ref._evaluate(globalns, localns, recursive_guard=frozenset())
+    return ref._evaluate(  # pyright: ignore[reportDeprecated]
+        globalns, localns, type_params=(), recursive_guard=frozenset()
+    )
 
 
 def _evaluate(

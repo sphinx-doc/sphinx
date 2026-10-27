@@ -58,6 +58,7 @@ from inspect import Parameter
 from types import ModuleType
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, state_classes
@@ -67,12 +68,12 @@ import sphinx
 from sphinx import addnodes
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
-from sphinx.ext.autodoc._importer import _import_module
-from sphinx.ext.autodoc._loader import _load_object_by_name
-from sphinx.ext.autodoc._member_finder import _best_object_type_for_member
+from sphinx.ext.autodoc._dynamic._importer import _import_module
+from sphinx.ext.autodoc._dynamic._loader import _load_object_by_name
+from sphinx.ext.autodoc._dynamic._member_finder import _best_object_type_for_member
+from sphinx.ext.autodoc._dynamic._mock import mock
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR
 from sphinx.ext.autodoc._shared import _AutodocAttrGetter, _AutodocConfig
-from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging, rst
@@ -398,8 +399,9 @@ class Autosummary(SphinxDirective):
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
-        group.append(nodes.colspec('', colwidth=10))
-        group.append(nodes.colspec('', colwidth=90))
+        for width in (10, 90):
+            colwidth = str(width) if docutils.__version_info__[:2] >= (1, 0) else width
+            group.append(nodes.colspec('', colwidth=colwidth))
         body = nodes.tbody('')
         group.append(body)
 
@@ -610,17 +612,11 @@ def limited_join(
 # -- Importing items -----------------------------------------------------------
 
 
-class ImportExceptionGroup(Exception):
+class ImportExceptionGroup(BaseExceptionGroup):
     """Exceptions raised during importing the target objects.
 
-    It contains an error messages and a list of exceptions as its arguments.
+    It contains an error message and a list of exceptions as its arguments.
     """
-
-    def __init__(
-        self, message: str | None, exceptions: Sequence[BaseException]
-    ) -> None:
-        super().__init__(message)
-        self.exceptions = list(exceptions)
 
 
 def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
@@ -684,7 +680,8 @@ def import_by_name(
     exceptions: list[BaseException] = functools.reduce(
         operator.iadd, (e.exceptions for e in errors), []
     )
-    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
+    msg = f'could not import {" or ".join(tried)}'
+    raise ImportExceptionGroup(msg, exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:
@@ -729,7 +726,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
     except (ValueError, ImportError, AttributeError, KeyError) as exc:
         errors.append(exc)
         if grouped_exception:
-            raise ImportExceptionGroup('', errors) from None  # NoQA: EM101
+            raise ImportExceptionGroup('', errors) from None  # ruff: ignore[raw-string-in-exception]
         else:
             raise ImportError(*exc.args) from exc
 

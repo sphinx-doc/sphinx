@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
 
 from sphinx.ext.inheritance_diagram import (
     InheritanceDiagram,
@@ -32,6 +33,7 @@ def test_inheritance_diagram(app: SphinxTestApp) -> None:
     def new_run(self):
         result = orig_run(self)
         node = result[0]
+        assert isinstance(node.document, nodes.document)
         source = Path(node.document.current_source).stem
         graphs[source] = node['graph']
         return result
@@ -331,7 +333,7 @@ def test_import_classes(rootdir):
     saved_path = sys.path.copy()
     sys.path.insert(0, str(rootdir / 'test-ext-inheritance_diagram'))
     try:
-        from example.sphinx import DummyClass  # type: ignore[import-not-found]
+        from example.sphinx import DummyClass  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
         # got exception for unknown class or module
         with pytest.raises(InheritanceException):

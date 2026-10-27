@@ -38,6 +38,8 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
 
+from tests.utils import extract_node
+
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -987,8 +989,12 @@ def test_python_maximum_signature_line_length_overrides_global(app):
             [nodes.inline, pending_xref, 'str'],
         ),
     ]
-    assert_node(doctree[1][0][1], expected_sig)
-    assert_node(doctree[1][0][1], desc_parameterlist, multi_line_parameter_list=False)
+    assert_node(extract_node(doctree, 1, 0, 1), expected_sig)
+    assert_node(
+        extract_node(doctree, 1, 0, 1),
+        desc_parameterlist,
+        multi_line_parameter_list=False,
+    )
 
 
 @pytest.mark.sphinx(

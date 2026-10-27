@@ -6,6 +6,7 @@ import re
 import unicodedata
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
@@ -19,14 +20,17 @@ from sphinx.deprecation import _deprecation_warning
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import (
+    _is_doctest_block,
+    apply_source_workaround,
+    is_smartquotable,
+)
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from typing import Any, Literal, TypeAlias
+    from collections.abc import Iterable, Iterator
+    from typing import Any, ClassVar, Literal, TypeIs
 
-    from docutils.nodes import Node, Text
-    from typing_extensions import TypeIs
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -34,7 +38,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
 
-    _DEFAULT_SUBSTITUTION_NAMES: TypeAlias = Literal[
+    type _DEFAULT_SUBSTITUTION_NAMES = Literal[
         'version',
         'release',
         'today',
@@ -64,7 +68,7 @@ class SphinxTransform(Transform):
         """Reference to the :class:`.Sphinx` object."""
         cls_module = self.__class__.__module__
         cls_name = self.__class__.__qualname__
-        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(10, 0))
+        _deprecation_warning(cls_module, f'{cls_name}.app', remove=(11, 0))
         return self.env._app
 
     @property
@@ -92,7 +96,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            super().apply_transforms()  # type: ignore[misc]
+            super().apply_transforms()
         else:
             # wrap the target node by document node during transforming
             try:
@@ -183,7 +187,7 @@ class HandleCodeBlocks(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         # move doctest blocks out of blockquotes
         for node in self.document.findall(nodes.block_quote):
-            if all(isinstance(child, nodes.doctest_block) for child in node.children):
+            if all(_is_doctest_block(child) for child in node.children):
                 node.replace_self(node.children)
         # combine successive doctest blocks
         # for node in self.document.findall(nodes.doctest_block):
@@ -278,9 +282,12 @@ class ExtraTranslatableNodes(SphinxTransform):
             return
 
         def is_translatable_node(node: Node) -> TypeIs[nodes.Element]:
+            if _is_doctest_block(node):
+                return 'doctest-block' in targets
             return isinstance(node, target_nodes)
 
         for node in self.document.findall(is_translatable_node):
+            assert isinstance(node, nodes.Element)
             node['translatable'] = True
 
 
@@ -324,13 +331,18 @@ class UnreferencedFootnotesDetector(SphinxTransform):
 
 
 class DoctestTransform(SphinxTransform):
-    """Set "doctest" style to each doctest_block node"""
+    """Set the style and highlighting language of doctest blocks."""
 
     default_priority = 500
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(nodes.doctest_block):
             node['classes'].append('doctest')
+        if docutils.__version_info__[:2] >= (1, 0):
+            # Docutils 1.0 represents doctests as literal blocks.
+            for literal in self.document.findall(nodes.literal_block):
+                if _is_doctest_block(literal):
+                    literal.setdefault('language', 'pycon')
 
 
 class FilterSystemMessages(SphinxTransform):
@@ -364,13 +376,17 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
 
     default_priority = 750
+    smartquotes_action: ClassVar[str] = SmartQuotes.smartquotes_action
 
     def apply(self, **kwargs: Any) -> None:
         if not self.is_available():
             return
 
         # override default settings with :confval:`smartquotes_action`
-        self.smartquotes_action = self.config.smartquotes_action
+        # TODO: TYPING: Upstream docutils should be updated so that
+        #       smartquotes_action accepts any iterable of characters
+        #       and can be overridden per-instance.
+        self.smartquotes_action = self.config.smartquotes_action  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
 
         super().apply()
 
@@ -395,7 +411,9 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         language = self.env.settings['language_code']
         return any(tag in smartchars.quotes for tag in normalize_language_tag(language))
 
-    def get_tokens(self, txtnodes: list[Text]) -> Iterator[tuple[str, str]]:
+    def get_tokens(  # type: ignore[override]
+        self, txtnodes: Iterable[Node]
+    ) -> Iterator[tuple[Literal['literal', 'plain'], str]]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:

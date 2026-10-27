@@ -7,6 +7,7 @@ import re
 import textwrap
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes, writers
 
 from sphinx import __display_version__, addnodes
@@ -290,7 +291,10 @@ class TexinfoTranslator(SphinxTranslator):
         ]
         # each section is also a node
         for section in self.document.findall(nodes.section):
-            title = cast('nodes.TextElement', section.next_node(nodes.Titular))  # type: ignore[type-var]
+            # TODO: TYPING: Node.next_node() should accept the non-Node
+            #       mixin classes in docutils.nodes.
+            title = section.next_node(nodes.Titular)  # type: ignore[type-var]  # ty: ignore[no-matching-overload]
+            assert isinstance(title, nodes.Node)
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
 
@@ -490,14 +494,14 @@ class TexinfoTranslator(SphinxTranslator):
 
         if indices_config := self.config.texinfo_domain_indices:
             if not isinstance(indices_config, bool):
-                check_names = True
                 indices_config = frozenset(indices_config)
-            else:
-                check_names = False
             for domain in self._domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
-                    if check_names and index_name not in indices_config:
+                    if (
+                        not isinstance(indices_config, bool)
+                        and index_name not in indices_config
+                    ):
                         continue
                     content, collapsed = index_cls(domain).generate(
                         self.builder.docnames
@@ -890,7 +894,7 @@ class TexinfoTranslator(SphinxTranslator):
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
-        footnode.walkabout(self)  # type: ignore[union-attr]
+        footnode.walkabout(self)  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         raise nodes.SkipChildren
 
     def visit_citation(self, node: Element) -> None:
@@ -1038,7 +1042,12 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_colspec(self, node: Element) -> None:
-        self.colwidths.append(node['colwidth'])
+        if docutils.__version_info__[:2] >= (1, 0):
+            # breaking change in Docutils 1.0
+            # https://sourceforge.net/p/docutils/code/10397
+            self.colwidths.append(int(node['colwidth']))
+        else:
+            self.colwidths.append(node['colwidth'])
         if len(self.colwidths) != self.n_cols:
             return
         self.body.append('\n\n@multitable ')
@@ -1173,7 +1182,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_topic(self, node: Element) -> None:
         # ignore TOC's since we have to have a "menu" anyway
-        if 'contents' in node.get('classes', ()):
+        if (classes := node.get('classes', ())) and 'contents' in classes:
             raise nodes.SkipNode
         title = cast('nodes.title', node[0])
         self.visit_rubric(title)

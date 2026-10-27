@@ -11,18 +11,16 @@ from typing import TYPE_CHECKING, cast
 from weakref import WeakSet
 
 from sphinx.errors import PycodeError
+from sphinx.ext.autodoc._shared import LOGGER
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.pycode.ast import unparse as ast_unparse
-from sphinx.util import inspect, logging
+from sphinx.util import inspect
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
-
-
-logger = logging.getLogger(__name__)
 
 
 _objects_with_type_comment_annotations: WeakSet[Any] = WeakSet()
@@ -52,7 +50,8 @@ def _ensure_annotations_from_type_comments(obj: Any) -> None:
     """
     if obj in _objects_with_type_comment_annotations:
         return
-    _objects_with_type_comment_annotations.add(obj)
+    with contextlib.suppress(TypeError):
+        _objects_with_type_comment_annotations.add(obj)
 
     if isinstance(obj, type):
         for cls in inspect.getmro(obj):
@@ -118,11 +117,11 @@ def _update_annotations_using_type_comments(obj: Any, bound_method: bool) -> Non
             if 'return' not in obj.__annotations__:
                 obj.__annotations__['return'] = type_sig.return_annotation
     except KeyError as exc:
-        logger.warning(
+        LOGGER.warning(
             __('Failed to update signature for %r: parameter not found: %s'), obj, exc
         )
     except NotImplementedError as exc:  # failed to ast.unparse()
-        logger.warning(__('Failed to parse type_comment for %r: %s'), obj, exc)
+        LOGGER.warning(__('Failed to parse type_comment for %r: %s'), obj, exc)
 
 
 def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
@@ -137,7 +136,7 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source, type_comments=True)
-            subject = cast('ast.FunctionDef', module.body[0].body[0])  # type: ignore[attr-defined]
+            subject = cast('ast.FunctionDef', module.body[0].body[0])  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         else:
             module = ast.parse(source, type_comments=True)
             subject = cast('ast.FunctionDef', module.body[0])
@@ -145,7 +144,7 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
         type_comment = getattr(subject, 'type_comment', None)
         if type_comment:
             function = ast.parse(type_comment, mode='func_type', type_comments=True)
-            return signature_from_ast(subject, bound_method, function)  # type: ignore[arg-type]
+            return signature_from_ast(subject, bound_method, function)
         else:
             return None
     except (OSError, TypeError):  # failed to load source code
@@ -207,9 +206,9 @@ def signature_from_ast(
         params.pop(0)
 
     # merge type_comment into signature
-    if not_suppressed(type_comment.argtypes):  # type: ignore[attr-defined]
+    if not_suppressed(type_comment.argtypes):  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         for i, param in enumerate(params):
-            params[i] = param.replace(annotation=type_comment.argtypes[i])  # type: ignore[attr-defined]
+            params[i] = param.replace(annotation=type_comment.argtypes[i])  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     if node.returns:
         return Signature(params, return_annotation=node.returns)

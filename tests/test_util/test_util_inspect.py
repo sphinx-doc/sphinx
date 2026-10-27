@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import ast
-import datetime
+import datetime as dt
 import enum
 import functools
 import types
 from inspect import Parameter
-from typing import Callable, List, Optional, Union  # NoQA: UP035
+from typing import Callable, List, Optional, Union  # ruff: ignore[deprecated-import]
 
 import pytest
 
@@ -77,7 +77,7 @@ async def coroutinefunc():
     pass
 
 
-async def asyncgenerator():  # NoQA: RUF029
+async def asyncgenerator():  # ruff: ignore[unused-async]
     yield
 
 
@@ -106,12 +106,20 @@ def _decorator(f):
     return wrapper
 
 
+def forward_reference_in_args(x: Foo) -> None:  # type: ignore[name-defined]  # ty: ignore[unresolved-reference] # ruff: ignore[undefined-name]
+    pass
+
+
+def forward_reference_in_return() -> Foo:  # type: ignore[name-defined]  # ty: ignore[unresolved-reference] # ruff: ignore[undefined-name]
+    pass
+
+
 def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example')"
 
-    alias = Optional[alias]  # NoQA: UP045
+    alias = Optional[alias]  # ty: ignore[invalid-type-form]  # ruff: ignore[non-pep604-annotation-optional]
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example') | None"
 
@@ -119,7 +127,7 @@ def test_TypeAliasForwardRef():
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example') | None"
 
-    alias = None | alias  # NoQA: RUF036
+    alias = None | alias
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "None | TypeAliasForwardRef('example')"
 
@@ -171,6 +179,13 @@ def test_signature() -> None:
 
     sig = inspect.stringify_signature(inspect.signature(func))
     assert sig == '(a, b, c=1, d=2, *e, **f)'
+
+    # forward references
+    sig = inspect.stringify_signature(inspect.signature(forward_reference_in_args))
+    assert sig == '(x: Foo) -> None'
+
+    sig = inspect.stringify_signature(inspect.signature(forward_reference_in_return))
+    assert sig == '() -> Foo'
 
 
 def test_signature_partial() -> None:
@@ -571,7 +586,7 @@ def test_safe_getattr_with_property_exception() -> None:
 def test_safe_getattr_with___dict___override() -> None:
     class Foo:
         @property
-        def __dict__(self):
+        def __dict__(self):  # pyrefly: ignore[bad-override]
             raise Exception
 
     obj = Foo()
@@ -708,7 +723,7 @@ def test_getslots() -> None:
         __slots__ = {'attr': 'docstring'}
 
     class Qux:
-        __slots__ = 'attr'  # NoQA: PLC0205
+        __slots__ = 'attr'  # ruff: ignore[single-string-slots]
 
     assert inspect.getslots(Foo) is None
     assert inspect.getslots(Bar) == {'attr': None}
@@ -892,13 +907,13 @@ def test_isattributedescriptor() -> None:
     assert not inspect.isattributedescriptor(object.__init__)            # WrapperDescriptorType
     assert not inspect.isattributedescriptor(dict.__dict__['fromkeys'])  # ClassMethodDescriptorType
     assert inspect.isattributedescriptor(types.FrameType.f_locals)       # GetSetDescriptorType
-    assert inspect.isattributedescriptor(datetime.timedelta.days)        # MemberDescriptorType
+    assert inspect.isattributedescriptor(dt.timedelta.days)        # MemberDescriptorType
     # fmt: on
 
     try:
         # _testcapi module cannot be importable in some distro
         # See: https://github.com/sphinx-doc/sphinx/issues/9868
-        import _testcapi  # type: ignore[import-not-found]
+        import _testcapi  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
         # instancemethod (C-API)
         testinstancemethod = _testcapi.instancemethod(str.__repr__)
@@ -919,15 +934,15 @@ def test_isproperty() -> None:
 
 def test_isgenericalias() -> None:
     #: A list of int
-    T = List[int]  # NoQA: UP006
-    S = list[Union[str, None]]  # NoQA: UP007
+    T = List[int]  # ruff: ignore[non-pep585-annotation]
+    S = list[Union[str, None]]  # ruff: ignore[non-pep604-annotation-union]
 
     C = Callable[[int], None]  # a generic alias not having a doccomment
 
     assert inspect.isgenericalias(C)
     assert inspect.isgenericalias(Callable)
     assert inspect.isgenericalias(T)
-    assert inspect.isgenericalias(List)  # NoQA: UP006
+    assert inspect.isgenericalias(List)  # ruff: ignore[non-pep585-annotation]
     assert inspect.isgenericalias(S)
     assert not inspect.isgenericalias(list)
     assert not inspect.isgenericalias([])
@@ -973,7 +988,7 @@ def test_getdoc_inherited_decorated_method():
             """
 
     class Bar(Foo):
-        @functools.lru_cache  # NoQA: B019
+        @functools.lru_cache  # ruff: ignore[cached-instance-method]
         def meth(self):
             # inherited and decorated method
             pass
@@ -984,7 +999,7 @@ def test_getdoc_inherited_decorated_method():
 
 def test_is_builtin_class_method() -> None:
     class MyInt(int):
-        def my_method(self):
+        def my_method(self) -> None:
             pass
 
     assert inspect.is_builtin_class_method(MyInt, 'to_bytes')

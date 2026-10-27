@@ -10,11 +10,7 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
-    from typing import Any, ParamSpec, TypeVar
-
-    T = TypeVar('T')
-    P = ParamSpec('P')
-    R = TypeVar('R')
+    from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +23,7 @@ def display_chunk(chunk: Any) -> str:
     return str(chunk)
 
 
-def status_iterator(
+def status_iterator[T](
     iterable: Iterable[T],
     summary: str,
     color: str = 'darkgreen',
@@ -48,7 +44,7 @@ def status_iterator(
             if single_line:
                 # clear the entire line ('Erase in Line')
                 logger.info('\x1b[2K', nonl=True)
-            logger.info(f'{bold_summary}[{i / length: >4.0%}] ', nonl=True)  # NoQA: G004
+            logger.info(f'{bold_summary}[{i / length: >4.0%}] ', nonl=True)  # ruff: ignore[logging-f-string]
             # Emit the string representation of ``item``
             logger.info(stringify_func(item), nonl=True, color=color)
             # If in single-line mode, emit a carriage return to move the cursor
@@ -79,20 +75,20 @@ class progress_message:
     ) -> bool:
         prefix = '' if self.nonl else bold(self.message + ': ')
         if isinstance(val, SkipProgressMessage):
-            logger.info(prefix + __('skipped'))  # NoQA: G003
+            logger.info(prefix + __('skipped'))  # ruff: ignore[logging-string-concat]
             if val.args:
                 logger.info(*val.args)
             return True
         elif val:
-            logger.info(prefix + __('failed'))  # NoQA: G003
+            logger.info(prefix + __('failed'))  # ruff: ignore[logging-string-concat]
         else:
-            logger.info(prefix + __('done'))  # NoQA: G003
+            logger.info(prefix + __('done'))  # ruff: ignore[logging-string-concat]
 
         return False
 
-    def __call__(self, f: Callable[P, R]) -> Callable[P, R]:
+    def __call__[**P, R](self, f: Callable[P, R]) -> Callable[P, R]:
         @functools.wraps(f)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]  # ty: ignore[invalid-return-type]
             with self:
                 return f(*args, **kwargs)
 

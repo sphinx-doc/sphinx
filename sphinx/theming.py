@@ -10,6 +10,7 @@ import shutil
 import sys
 import tempfile
 import tomllib
+import warnings
 from importlib.metadata import entry_points
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -17,6 +18,7 @@ from zipfile import ZipFile
 
 from sphinx import package_dir
 from sphinx.config import check_confval_types as _config_post_init
+from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -152,12 +154,30 @@ class HTMLThemeFactory:
 
     def __init__(
         self,
+        _deprecated_positional_parameter: Sphinx | None = None,
+        /,
         *,
-        confdir: Path,
-        app: Sphinx,
-        config: Config,
-        registry: SphinxComponentRegistry,
+        confdir: Path | None = None,
+        app: Sphinx | None = None,
+        config: Config | None = None,
+        registry: SphinxComponentRegistry | None = None,
     ) -> None:
+        if _deprecated_positional_parameter is not None:
+            warnings.warn(
+                'Positional parameters for HTMLThemeFactory are deprecated, '
+                'and will be removed in Sphinx 10. '
+                'Please use keyword parameters instead.',
+                category=RemovedInSphinx10Warning,
+                stacklevel=2,
+            )
+            app = _deprecated_positional_parameter
+            confdir = app.confdir
+            config = app.config
+            registry = app.registry
+        assert app is not None
+        assert confdir is not None
+        assert config is not None
+        assert registry is not None
         self._app = app
         self._confdir = confdir
         self._themes = registry.html_themes
@@ -337,7 +357,7 @@ def _extract_zip(filename: Path, target_dir: Path, /) -> None:
 
 def _load_theme_toml(config_file_path: Path, /) -> _ThemeToml:
     c = tomllib.loads(config_file_path.read_text(encoding='utf-8'))
-    return {s: c[s] for s in ('theme', 'options') if s in c}  # type: ignore[return-value]
+    return {s: c[s] for s in ('theme', 'options') if s in c}  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
 
 def _validate_theme_toml(cfg: _ThemeToml, name: str) -> str:
@@ -491,22 +511,22 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
         raise SystemExit(0)
     argv = argv[1:]
     if len(argv) != 1:
-        print('Usage: python -m sphinx.theming conf_to_toml <theme path>')  # NoQA: T201
+        print('Usage: python -m sphinx.theming conf_to_toml <theme path>')  # ruff: ignore[print]
         raise SystemExit(1)
     theme_dir = Path(argv[0]).resolve()
     conf_path = theme_dir / _THEME_CONF
     if not theme_dir.is_dir() or not conf_path.is_file():
-        print(  # NoQA: T201
+        print(  # ruff: ignore[print]
             f'{theme_dir!r} must be a path to a theme directory containing a "theme.conf" file'
         )
         return 1
     _cfg_parser = _load_theme_conf(conf_path)
     if not _cfg_parser.has_section('theme'):
-        print('The "theme" table is missing.')  # NoQA: T201
+        print('The "theme" table is missing.')  # ruff: ignore[print]
         return 1
     inherit = _cfg_parser.get('theme', 'inherit', fallback=None)
     if not inherit:
-        print('The "theme.inherit" setting is missing.')  # NoQA: T201
+        print('The "theme.inherit" setting is missing.')  # ruff: ignore[print]
         return 1
 
     toml_lines = [
@@ -551,7 +571,7 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
 
     toml_path = theme_dir / _THEME_TOML
     toml_path.write_text('\n'.join(toml_lines) + '\n', encoding='utf-8')
-    print(f'Written converted settings to {toml_path!r}')  # NoQA: T201
+    print(f'Written converted settings to {toml_path!r}')  # ruff: ignore[print]
     return 0
 
 

@@ -9,7 +9,7 @@ from docutils.nodes import Element
 from docutils.statemachine import StringList, string2lines
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
 
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
@@ -39,8 +39,7 @@ def nested_parse_to_nodes(
         Note that this option bypasses Docutils' usual checks on
         doctree structure, and misuse of this option can lead to
         an incoherent doctree. In Docutils, section nodes should
-        only be children of ``Structural`` nodes, which includes
-        ``document``, ``section``, and ``sidebar`` nodes.
+        only be children of ``document`` or ``section`` nodes.
     :param keep_title_context:
         If this is False (the default), then *content* is parsed as if it were
         an independent document, meaning that title decorations (e.g. underlines)
@@ -49,6 +48,10 @@ def nested_parse_to_nodes(
         a completely different context, such as docstrings.
         If this is True, then title underlines must match those in
         the surrounding document, otherwise the behaviour is undefined.
+
+        Warning: Up to Docutils 0.21, sections with a decoration style
+        matching a level that is higher than the current section level are
+        silently discarded! Since Docutils 0.22.1, an error is reported.
 
     .. versionadded:: 7.4
     """
@@ -70,7 +73,7 @@ def nested_parse_to_nodes(
 
 
 @contextlib.contextmanager
-def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
+def _fresh_title_style_context(state: RSTState) -> Generator[None]:
     # hack around title style bookkeeping
     memo = state.memo
     surrounding_title_styles: list[str | tuple[str, str]] = memo.title_styles

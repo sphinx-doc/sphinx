@@ -107,7 +107,7 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
       How to display signatures. Valid values are
 
       - ``long`` (*default*): use a long signature. This is still cut off so that name
-        plus signature do not exceeed a certain length.
+        plus signature do not exceed a certain length.
       - ``short``: Function and class signatures are displayed as ``(…)`` if they have
         arguments and as ``()`` if they don't have arguments.
       - ``none``: do not show signatures.

@@ -18,6 +18,7 @@ from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx._cli import inspect_main
 from sphinx.ext.intersphinx._load import (
+    _display_failures,
     _fetch_inventory_data,
     _fetch_inventory_group,
     _get_safe_url,
@@ -47,7 +48,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import Inventory
 
 
-class FakeList(list[str]):  # NoQA: FURB189
+class FakeList(list[str]):  # ruff: ignore[subclass-builtin]
     def __iter__(self) -> NoReturn:
         raise NotImplementedError
 
@@ -276,12 +277,14 @@ def test_missing_reference_pydomain(tmp_path, app):
     kwargs = {'py:module': 'module1'}
     node, contnode = fake_node('py', 'func', 'func', 'func()', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == 'func()'
 
     # py:attr context helps to search objects
     kwargs = {'py:module': 'module1'}
     node, contnode = fake_node('py', 'attr', 'Foo.bar', 'Foo.bar', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == 'Foo.bar'
 
 
@@ -310,32 +313,38 @@ def test_missing_reference_stddomain(tmp_path, app):
     kwargs = {'std:program': 'ls'}
     node, contnode = fake_node('std', 'option', '-l', 'ls -l', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == 'ls -l'
 
     # refers inventory by name
     kwargs = {}
     node, contnode = fake_node('std', 'option', 'cmd:ls -l', '-l', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == '-l'
 
     # term reference (normal)
     node, contnode = fake_node('std', 'term', 'a term', 'a term')
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == 'a term'
 
     # term reference (case insensitive)
     node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == 'A TERM'
 
     # label reference (normal)
     node, contnode = fake_node('std', 'ref', 'The-Julia-Domain', 'The-Julia-Domain')
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == 'The Julia Domain'
 
     # label reference (case insensitive)
     node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == 'The Julia Domain'
 
 
@@ -430,6 +439,7 @@ def test_missing_reference_jsdomain(tmp_path, app):
     kwargs = {'js:module': 'foo', 'js:object': 'bar'}
     node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert isinstance(rn, nodes.reference)
     assert rn.astext() == 'baz()'
 
 
@@ -800,7 +810,7 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
         'sphinx.ext.intersphinx._load._load_inventory', mock_fetch_inventory
     )
 
-    for name, (uri, locations) in app.config.intersphinx_mapping.values():
+    for name, (uri, locations) in app.config.intersphinx_mapping.values():  # ty: ignore[not-iterable]
         project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
         updated = _fetch_inventory_group(
             project=project,
@@ -923,3 +933,22 @@ def test_inventory_text_version(tmp_path, app):
     assert rn['refuri'] == 'https://docs.python.org/foo.html#module-module1'
     assert rn['reftitle'] == '(in foo stable)'
     assert rn[0].astext() == 'Long Module desc'
+
+
+def test_display_failures():
+    failures_args = [
+        ('Failed to fetch %s from %s', 'inventory', 'http://example.com'),
+        ('Timeout after %d seconds',),  # Only one argument
+        (
+            'intersphinx inventory has moved:',
+            'http://example.com',
+            'http://proxyhost.net',
+        ),  # No '%'
+    ]
+    issues = _display_failures(failures_args)
+    assert 'Failed to fetch inventory from http://example.com' in issues
+    assert 'Timeout after %d seconds' in issues
+    assert (
+        'intersphinx inventory has moved: - http://example.com - http://proxyhost.net'
+        in issues
+    )

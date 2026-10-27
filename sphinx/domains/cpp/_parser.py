@@ -151,7 +151,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_string(self) -> str:
         if self.current_char != '"':
-            return None
+            return None  # ty: ignore[invalid-return-type]
         start_pos = self.pos
         self.pos += 1
         escape = False
@@ -234,7 +234,7 @@ class DefinitionParser(BaseParser):
                     ' resulting in multiple decoded characters.'
                 )
             return _udl(char_lit)
-        return None
+        return None  # ty: ignore[invalid-return-type]
 
     def _parse_fold_or_paren_expression(self) -> ASTExpression | None:
         # "(" expression ")"
@@ -323,7 +323,7 @@ class DefinitionParser(BaseParser):
         nn = self._parse_nested_name()
         if nn is not None:
             return ASTIdExpression(nn)
-        return None
+        return None  # ty: ignore[invalid-return-type]
 
     def _parse_initializer_list(
         self, name: str, open: str, close: str
@@ -333,7 +333,7 @@ class DefinitionParser(BaseParser):
         #  | initializer-list ',' initializer-clause '...'[opt]
         self.skip_ws()
         if not self.skip_string_and_ws(open):
-            return None, None
+            return None, None  # ty: ignore[invalid-return-type]
         if self.skip_string(close):
             return [], False
 
@@ -369,7 +369,7 @@ class DefinitionParser(BaseParser):
             'parenthesized expression-list', '(', ')'
         )
         if exprs is None:
-            return None
+            return None  # ty: ignore[invalid-return-type]
         return ASTParenExprList(exprs)
 
     def _parse_initializer_clause(self) -> ASTExpression | ASTBracedInitList:
@@ -385,7 +385,7 @@ class DefinitionParser(BaseParser):
             'braced-init-list', '{', '}'
         )
         if exprs is None:
-            return None
+            return None  # ty: ignore[invalid-return-type]
         return ASTBracedInitList(exprs, trailing_comma)
 
     def _parse_expression_list_or_braced_init_list(
@@ -889,13 +889,13 @@ class DefinitionParser(BaseParser):
         #    id-expression
         self.skip_ws()
         if not self.skip_string_and_ws('<'):
-            return None
+            return None  # ty: ignore[invalid-return-type]
         if self.skip_string('>'):
             return ASTTemplateArgs([], False)
         prev_errors = []
         template_args: list[ASTType | ASTTemplateArgConstant] = []
         pack_expansion = False
-        while 1:
+        while True:
             pos = self.pos
             parsed_comma = False
             parsed_end = False
@@ -955,7 +955,7 @@ class DefinitionParser(BaseParser):
         rooted = False
         if self.skip_string('::'):
             rooted = True
-        while 1:
+        while True:
             self.skip_ws()
             if len(names) > 0:
                 template = self.skip_word_and_ws('template')
@@ -1038,7 +1038,7 @@ class DefinitionParser(BaseParser):
                 modifier = t
             self.skip_ws()
         if len(names) == 0:
-            return None
+            return None  # ty: ignore[invalid-return-type]
 
         if typ in {
             'auto', 'void', 'bool',
@@ -1158,7 +1158,7 @@ class DefinitionParser(BaseParser):
         args = []
         self.skip_ws()
         if not self.skip_string(')'):
-            while 1:
+            while True:
                 self.skip_ws()
                 if self.skip_string('...'):
                     args.append(ASTFunctionParameter(None, True))
@@ -1264,7 +1264,7 @@ class DefinitionParser(BaseParser):
         const = None
         friend = None
         attrs = []
-        while 1:  # accept any permutation of a subset of some decl-specs
+        while True:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not const and typed:
                 const = self.skip_word('const')
@@ -1410,7 +1410,7 @@ class DefinitionParser(BaseParser):
         else:
             decl_id = None
         array_ops = []
-        while 1:
+        while True:
             self.skip_ws()
             if typed and self.skip_string('['):
                 self.skip_ws()
@@ -1450,7 +1450,7 @@ class DefinitionParser(BaseParser):
             volatile = False
             const = False
             attr_list = []
-            while 1:
+            while True:
                 if not volatile:
                     volatile = self.skip_word_and_ws('volatile')
                     if volatile:
@@ -1536,7 +1536,7 @@ class DefinitionParser(BaseParser):
             else:
                 volatile = False
                 const = False
-                while 1:
+                while True:
                     if not volatile:
                         volatile = self.skip_word_and_ws('volatile')
                         if volatile:
@@ -1776,7 +1776,7 @@ class DefinitionParser(BaseParser):
         bases = []
         self.skip_ws()
         if self.skip_string(':'):
-            while 1:
+            while True:
                 self.skip_ws()
                 visibility = None
                 virtual = False
@@ -1951,7 +1951,7 @@ class DefinitionParser(BaseParser):
 
         # for sure it must be a template introduction now
         params = []
-        while 1:
+        while True:
             self.skip_ws()
             parameter_pack = self.skip_string('...')
             self.skip_ws()
@@ -2032,7 +2032,7 @@ class DefinitionParser(BaseParser):
         self, object_type: str
     ) -> ASTTemplateDeclarationPrefix | None:
         templates: list[ASTTemplateParams | ASTTemplateIntroduction] = []
-        while 1:
+        while True:
             self.skip_ws()
             # the saved position is only used to provide a better error message
             params: ASTTemplateParams | ASTTemplateIntroduction | None = None
@@ -2212,7 +2212,7 @@ class DefinitionParser(BaseParser):
             name, template_prefix, full_spec_shorthand=False
         )
         res = ASTNamespace(name, template_prefix)
-        res.objectType = 'namespace'  # type: ignore[attr-defined]
+        res.objectType = 'namespace'  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         return res
 
     def parse_xref_object(self) -> tuple[ASTNamespace | ASTDeclaration, bool]:
@@ -2230,7 +2230,7 @@ class DefinitionParser(BaseParser):
                 name, template_prefix, full_spec_shorthand=True
             )
             res1 = ASTNamespace(name, template_prefix)
-            res1.objectType = 'xref'  # type: ignore[attr-defined]
+            res1.objectType = 'xref'  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             return res1, True
         except DefinitionError as e1:
             try:

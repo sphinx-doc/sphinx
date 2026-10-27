@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import pygments
 import pytest
 from docutils import nodes
 
@@ -250,7 +249,7 @@ def test_LiteralIncludeReader_dedent_and_append_and_prepend(
     assert content == 'class Foo:\n  def baz():\n      pass\n\n# comment\n'
 
 
-def test_LiteralIncludeReader_tabwidth(testroot):
+def test_LiteralIncludeReader_tabwidth(testroot: Path) -> None:
     # tab-width: 4
     options = {'tab-width': 4, 'pyobject': 'Qux'}
     reader = LiteralIncludeReader(testroot / 'target.py', options, DUMMY_CONFIG)
@@ -264,14 +263,14 @@ def test_LiteralIncludeReader_tabwidth(testroot):
     assert content == 'class Qux:\n        def quux(self):\n                pass\n'
 
 
-def test_LiteralIncludeReader_tabwidth_dedent(testroot):
+def test_LiteralIncludeReader_tabwidth_dedent(testroot: Path) -> None:
     options = {'tab-width': 4, 'dedent': 4, 'pyobject': 'Qux.quux'}
     reader = LiteralIncludeReader(testroot / 'target.py', options, DUMMY_CONFIG)
     content, _lines = reader.read()
     assert content == 'def quux(self):\n    pass\n'
 
 
-def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
+def test_LiteralIncludeReader_diff(testroot: Path, literal_inc_path: Path) -> None:
     literal_diff_path = testroot / 'literal-diff.inc'
     options = {'diff': literal_diff_path}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -409,11 +408,6 @@ def test_literal_include_block_start_with_comment_or_brank(app: SphinxTestApp) -
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_linenos(app: SphinxTestApp) -> None:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = '<span class="w"> </span>'
-    else:
-        sp = ' '
-
     app.build(filenames=[app.srcdir / 'linenos.rst'])
     html = (app.outdir / 'linenos.html').read_text(encoding='utf8')
 
@@ -431,7 +425,7 @@ def test_literal_include_linenos(app: SphinxTestApp) -> None:
 
     # :lines: 5-9
     assert (
-        f'<span class="linenos">5</span><span class="k">class</span>{sp}'
+        '<span class="linenos">5</span><span class="k">class</span><span class="w"> </span>'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 
@@ -576,17 +570,12 @@ def test_code_block_highlighted(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_linenothreshold(app: SphinxTestApp) -> None:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = '<span class="w"> </span>'
-    else:
-        sp = ' '
-
     app.build(filenames=[app.srcdir / 'linenothreshold.rst'])
     html = (app.outdir / 'linenothreshold.html').read_text(encoding='utf8')
 
     # code-block using linenothreshold
     assert (
-        f'<span class="linenos">1</span><span class="k">class</span>{sp}'
+        '<span class="linenos">1</span><span class="k">class</span><span class="w"> </span>'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 

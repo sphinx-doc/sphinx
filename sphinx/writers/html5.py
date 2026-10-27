@@ -7,6 +7,7 @@ import re
 import urllib.parse
 from typing import TYPE_CHECKING
 
+import docutils
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
@@ -17,6 +18,8 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -41,7 +44,7 @@ def multiply_length(length: str, scale: int) -> str:
     return f'{int(result)}{unit}'
 
 
-class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
+class HTML5Translator(SphinxTranslator, BaseTranslator):
     """Our custom HTML translator."""
 
     builder: StandaloneHTMLBuilder
@@ -339,7 +342,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             )
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
-            assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
+            assert len(node) == 1 and isinstance(node[0], nodes.image)  # ruff: ignore[pytest-composite-assertion]
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']
@@ -347,7 +350,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             atts['target'] = node['target']
         if 'rel' in node:
             atts['rel'] = node['rel']
-        self.body.append(self.starttag(node, 'a', '', **atts))
+        # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+        #       to accept **attributes; current stub treats the 4th parameter
+        #       as empty: bool.
+        self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
 
         if node.get('secnumber'):
             self.body.append(
@@ -361,7 +367,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: Element) -> None:
+    def visit_comment(
+        self, node: nodes.comment, sub: Callable[[str, str], str] | None = None
+    ) -> None:
         raise nodes.SkipNode
 
     # overwritten
@@ -372,8 +380,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             tag_name = 'details'
             if collapsible == 'open':
                 attributes['open'] = 'open'
+        # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+        #       to accept **attributes; current stub treats the 4th parameter
+        #       as empty: bool.
         self.body.append(
-            self.starttag(node, tag_name, CLASS=f'admonition {name}', **attributes)
+            self.starttag(
+                node,
+                tag_name,
+                CLASS=f'admonition {name}',
+                **attributes,  # type: ignore[arg-type]
+            )
         )
         self.context.append(f'</{tag_name}>\n')
         if name:
@@ -474,7 +490,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     def depart_classifier(self, node: Element) -> None:
         self.body.append('</span>')
 
-        next_node: Node = node.next_node(descend=False, siblings=True)
+        next_node: Node | None = node.next_node(descend=False, siblings=True)
         if not isinstance(next_node, nodes.classifier):
             # close `<dt>` tag at the tail of classifiers
             self.body.append('</dt>')
@@ -485,7 +501,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     # overwritten
     def depart_term(self, node: Element) -> None:
-        next_node: Node = node.next_node(descend=False, siblings=True)
+        next_node: Node | None = node.next_node(descend=False, siblings=True)
         if isinstance(next_node, nodes.classifier):
             # Leave the end tag to `self.depart_classifier()`, in case
             # there's a classifier.
@@ -657,6 +673,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     def depart_block_quote(self, node: Element) -> None:
         self.body.append('</div></blockquote>\n')
 
+    if docutils.__version_info__[:2] >= (1, 0):
+
+        def visit_attribution(self, node: Element) -> None:
+            # Keep attributions inside our blockquote wrapper. Docutils 1.0's
+            # visitor closes the blockquote before emitting the attribution.
+            prefix, suffix = self.attribution_formats[self.settings.attribution]
+            self.context.append(suffix)
+            self.body.append(self.starttag(node, 'p', prefix, CLASS='attribution'))
+
     # overwritten
     def visit_literal(self, node: Element) -> None:
         if 'kbd' in node['classes']:
@@ -724,14 +749,20 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         elif 'refuri' in node:
             atts['class'] += ' external'
             atts['href'] = node['refuri']
-            self.body.append(self.starttag(node, 'a', '', **atts))
+            # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+            #       to accept **attributes; current stub treats the 4th parameter
+            #       as empty: bool.
+            self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
             atts['href'] = posixpath.join(
                 self.builder.dlpath, urllib.parse.quote(node['filename'])
             )
-            self.body.append(self.starttag(node, 'a', '', **atts))
+            # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+            #       to accept **attributes; current stub treats the 4th parameter
+            #       as empty: bool.
+            self.body.append(self.starttag(node, 'a', '', **atts))  # type: ignore[arg-type]
             self.context.append('</a>')
         else:
             self.context.append('')
@@ -908,7 +939,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         attrs = {}
         if explanation := node.get('explanation', ''):
             attrs['title'] = explanation
-        self.body.append(self.starttag(node, 'abbr', '', **attrs))
+        # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+        #       to accept **attributes; current stub treats the 4th parameter
+        #       as empty: bool.
+        self.body.append(self.starttag(node, 'abbr', '', **attrs))  # type: ignore[arg-type]
 
     def depart_abbreviation(self, node: Element) -> None:
         self.body.append('</abbr>')
@@ -933,7 +967,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
         if 'width' in node:
             atts['style'] = 'width: %s' % node['width']
-        tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
+        # TODO: TYPING: Upstream docutils should type HTMLTranslator.starttag()
+        #       to accept **attributes; current stub treats the 4th parameter
+        #       as empty: bool.
+        tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)  # type: ignore[arg-type]
         self.body.append(tag)
 
     def depart_table(self, node: nodes.table) -> None:
@@ -947,7 +984,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         else:
             node['classes'].append('row-odd')
         self.body.append(self.starttag(node, 'tr', ''))
-        node.column = 0  # type: ignore[attr-defined]
+        node.column = 0  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     def visit_field_list(self, node: nodes.field_list) -> None:
         self._fieldlist_row_indices.append(0)

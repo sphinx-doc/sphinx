@@ -5,13 +5,14 @@ from __future__ import annotations
 import functools
 import os
 import pickle
+import warnings
 from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
-from sphinx.deprecation import _deprecation_warning
+from sphinx.deprecation import RemovedInSphinx11Warning, _deprecation_warning
 from sphinx.domains._domains_container import _DomainsContainer
 from sphinx.environment.adapters import toctree as toctree_adapters
 from sphinx.errors import (
@@ -247,6 +248,8 @@ class BuildEnvironment:
         # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
         __dict__.update(_pickled_doctree_cache={}, _write_doc_doctree_cache={})
+        # clear attributes set in Sphinx._post_init_env()
+        __dict__.pop('_builder_cls', None)
         return __dict__
 
     def __setstate__(self, state: dict[str, Any]) -> None:
@@ -293,17 +296,17 @@ class BuildEnvironment:
 
     @property
     def app(self) -> Sphinx:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         return self._app
 
     @app.setter
     def app(self, app: Sphinx) -> None:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         self._app = app
 
     @app.deleter
     def app(self) -> None:
-        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(10, 0))
+        _deprecation_warning(__name__, 'BuildEnvironment.app', remove=(11, 0))
         del self._app
 
     @property
@@ -573,7 +576,7 @@ class BuildEnvironment:
 
     @property
     def temp_data(self) -> _CurrentDocument:
-        """Returns the temporary data storage for the current document.
+        """The temporary data storage for the current document.
 
         Kept for backwards compatibility.
         """
@@ -581,12 +584,12 @@ class BuildEnvironment:
 
     @property
     def docname(self) -> str:
-        """Returns the docname of the document currently being parsed."""
+        """The docname of the document currently being parsed."""
         return self.current_document.docname
 
     @property
     def parser(self) -> Parser:
-        """Returns the parser being used for to parse the current document."""
+        """The parser being used for to parse the current document."""
         if (parser := self.current_document._parser) is not None:
             return parser
         msg = 'parser'
@@ -667,7 +670,7 @@ class BuildEnvironment:
         docname: str,
         builder: Builder,
         *,
-        tags: Tags,
+        tags: Tags = ...,  # type: ignore[assignment]  # ty: ignore[invalid-parameter-default]
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False,
@@ -675,6 +678,15 @@ class BuildEnvironment:
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
+        if tags is ...:
+            warnings.warn(
+                "'tags' will become a required keyword argument "
+                'for global_toctree_for_doc() in Sphinx 11.0.',
+                RemovedInSphinx11Warning,
+                stacklevel=2,
+            )
+            tags = builder.tags
+
         if doctree is None:
             try:
                 doctree = self._write_doc_doctree_cache.pop(docname)
@@ -687,7 +699,6 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
-        tags = builder.tags
         for toctreenode in doctree.findall(addnodes.toctree):
             result = toctree_adapters._resolve_toctree(
                 self,
@@ -1167,10 +1178,10 @@ class _CurrentDocument:
         return self._extension_data.setdefault(key, default)
 
     def clear(self) -> None:
-        _CurrentDocument.__init__(self)  # NoQA: PLC2801
+        _CurrentDocument.__init__(self)  # ruff: ignore[unnecessary-dunder-call]
 
     def update(self, other: Iterable[tuple[str, Any]] = (), /, **kwargs: Any) -> None:
         other_dict = dict(other) if not isinstance(other, dict) else other
         for dct in other_dict, kwargs:
             for key, value in dct.items():
-                self[key] = value
+                self[key] = value  # pyrefly: ignore[unsupported-operation]

@@ -429,6 +429,7 @@ class InheritanceDiagram(SphinxDirective):
                 include_subclasses='include-subclasses' in self.options,
             )
         except InheritanceException as err:
+            assert node.document is not None
             return [node.document.reporter.warning(err, line=self.lineno)]
 
         # Create xref nodes for each target of the graph's image map and
@@ -436,7 +437,7 @@ class InheritanceDiagram(SphinxDirective):
         # references to real URLs later.  These nodes will eventually be
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
-            refnodes, _x = class_role(  # type: ignore[misc]
+            refnodes, _x = class_role(  # type: ignore[misc]  # ty: ignore[call-non-callable]
                 'class', f':class:`{name}`', name, 0, self.state.inliner
             )
             node.extend(refnodes)

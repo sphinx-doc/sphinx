@@ -12,8 +12,8 @@ import typing
 
 import pytest
 
+from sphinx.ext.autodoc._dynamic._mock import _MockObject
 from sphinx.ext.autodoc._shared import _AutodocConfig
-from sphinx.ext.autodoc.mock import _MockObject
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
 
@@ -230,7 +230,7 @@ def test_subclass_of_mocked_object() -> None:
     for name in ('args', 'kwargs'):
         parameters[name] = parameters[name].replace(annotation=typing.Any)
     sig = sig.replace(parameters=tuple(parameters.values()))
-    _MockObject.__new__.__signature__ = sig  # type: ignore[attr-defined]
+    _MockObject.__new__.__signature__ = sig  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     options = {'members': None}
     actual = do_autodoc('module', 'target.need_mocks', config=config, options=options)

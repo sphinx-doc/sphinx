@@ -9,7 +9,6 @@ import inspect
 import itertools
 import operator
 import re
-import sys
 import tokenize
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
@@ -21,12 +20,8 @@ if TYPE_CHECKING:
     from inspect import Signature
     from typing import Any
 
-if sys.version_info[:2] >= (3, 12):
-    AssignmentLike = ast.Assign | ast.AnnAssign | ast.TypeAlias
-    AssignmentLikeType = (ast.Assign, ast.AnnAssign, ast.TypeAlias)
-else:
-    AssignmentLike = ast.Assign | ast.AnnAssign
-    AssignmentLikeType = (ast.Assign, ast.AnnAssign)
+AssignmentLike = ast.Assign | ast.AnnAssign | ast.TypeAlias
+AssignmentLikeType = (ast.Assign, ast.AnnAssign, ast.TypeAlias)
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
@@ -63,31 +58,31 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     if node_name in {'Constant', 'Index', 'Slice', 'Subscript'}:
         raise TypeError('%r does not create new variable' % node)
     if node_name == 'Name':
-        if self is None or node.id == self_id:  # type: ignore[attr-defined]
-            return [node.id]  # type: ignore[attr-defined]
+        if self is None or node.id == self_id:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+            return [node.id]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name in {'Tuple', 'List'}:
         members = []
-        for elt in node.elts:  # type: ignore[attr-defined]
+        for elt in node.elts:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             with contextlib.suppress(TypeError):
                 members.extend(get_lvar_names(elt, self))
 
         return members
     elif node_name == 'Attribute':
         if (
-            node.value.__class__.__name__ == 'Name'  # type: ignore[attr-defined]
+            node.value.__class__.__name__ == 'Name'  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             and self
-            and node.value.id == self_id  # type: ignore[attr-defined]
+            and node.value.id == self_id  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         ):
             # instance variable
-            return ['%s' % get_lvar_names(node.attr, self)[0]]  # type: ignore[attr-defined]
+            return ['%s' % get_lvar_names(node.attr, self)[0]]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name == 'str':
-        return [node]  # type: ignore[list-item]
+        return [node]  # type: ignore[list-item]  # ty: ignore[invalid-return-type]
     elif node_name == 'Starred':
-        return get_lvar_names(node.value, self)  # type: ignore[attr-defined]
+        return get_lvar_names(node.value, self)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     else:
         raise NotImplementedError('Unexpected node name %r' % node_name)
 
@@ -215,7 +210,7 @@ class AfterCommentParser(TokenProcessor):
                 tokens += self.fetch_until([OP, ']'])
             elif current == INDENT:
                 tokens += self.fetch_until(DEDENT)
-            elif current == [OP, ';']:  # NoQA: SIM114
+            elif current == [OP, ';']:  # ruff: ignore[if-with-same-arms]
                 break
             elif current and current.kind not in {OP, NAME, NUMBER, STRING}:
                 break
@@ -506,13 +501,12 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles AsyncFunctionDef node and set context."""
         self.visit_FunctionDef(node)  # type: ignore[arg-type]
 
-    def visit_TypeAlias(self, node: ast.TypeAlias) -> None:  # type: ignore[name-defined]
+    def visit_TypeAlias(self, node: ast.TypeAlias) -> None:
         """Handles TypeAlias node and picks up a variable comment.
 
         .. note:: TypeAlias node refers to `type Foo = Bar` (PEP 695) assignment,
                   NOT `Foo: TypeAlias = Bar` (PEP 613).
         """
-        # Python 3.12+
         current_line = self.get_line(node.lineno)
         self._collect_doc_comment(node, [node.name.id], current_line)
 
@@ -563,22 +557,22 @@ class DefinitionFinder(TokenProcessor):
     def parse_definition(self, typ: str) -> None:
         """Parse AST of definition."""
         name = self.fetch_token()
-        self.context.append(name.value)  # type: ignore[union-attr]
+        self.context.append(name.value)  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         funcname = '.'.join(self.context)
 
         if self.decorator:
             start_pos = self.decorator.start[0]
             self.decorator = None
         else:
-            start_pos = name.start[0]  # type: ignore[union-attr]
+            start_pos = name.start[0]  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
 
         self.fetch_until([OP, ':'])
-        if self.fetch_token().match(COMMENT, NEWLINE):  # type: ignore[union-attr]
+        if self.fetch_token().match(COMMENT, NEWLINE):  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
             self.fetch_until(INDENT)
             self.indents.append((typ, funcname, start_pos))
         else:
             # one-liner
-            self.add_definition(funcname, (typ, start_pos, name.end[0]))  # type: ignore[union-attr]
+            self.add_definition(funcname, (typ, start_pos, name.end[0]))  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
             self.context.pop()
 
     def finalize_block(self) -> None:
@@ -586,7 +580,7 @@ class DefinitionFinder(TokenProcessor):
         definition = self.indents.pop()
         if definition[0] != 'other':
             typ, funcname, start_pos = definition
-            end_pos = self.current.end[0] - 1  # type: ignore[union-attr]
+            end_pos = self.current.end[0] - 1  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
             while emptyline_re.match(self.get_line(end_pos)):
                 end_pos -= 1
 

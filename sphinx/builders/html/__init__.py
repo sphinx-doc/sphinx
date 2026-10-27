@@ -32,7 +32,6 @@ from sphinx.builders.html._assets import (
 )
 from sphinx.builders.html._build_info import BuildInfo
 from sphinx.config import ENUM
-from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -65,7 +64,7 @@ from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from docutils.nodes import Node
 
@@ -80,7 +79,7 @@ INVENTORY_FILENAME = 'objects.inv'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
-DOMAIN_INDEX_TYPE: TypeAlias = tuple[
+type DOMAIN_INDEX_TYPE = tuple[
     # Index name (e.g. py-modindex)
     str,
     # Index class
@@ -258,13 +257,6 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.dark_highlighter = None
 
-    @property
-    def css_files(self) -> list[_CascadingStyleSheet]:
-        _deprecation_warning(
-            __name__, f'{self.__class__.__name__}.css_files', remove=(9, 0)
-        )
-        return self._css_files
-
     def init_css_files(self) -> None:
         self._css_files = []
         self.add_css_file('pygments.css', priority=200)
@@ -293,12 +285,6 @@ class StandaloneHTMLBuilder(Builder):
 
         if (asset := _CascadingStyleSheet(filename, **kwargs)) not in self._css_files:
             self._css_files.append(asset)
-
-    @property
-    def script_files(self) -> list[_JavaScript]:
-        canonical_name = f'{self.__class__.__name__}.script_files'
-        _deprecation_warning(__name__, canonical_name, remove=(9, 0))
-        return self._js_files
 
     def init_js_files(self) -> None:
         self._js_files = []
@@ -366,7 +352,7 @@ class StandaloneHTMLBuilder(Builder):
                     msg = __(
                         'build_info mismatch, copying .buildinfo to .buildinfo.bak'
                     )
-                    logger.info(bold(__('building [html]: ')) + msg)  # NoQA: G003
+                    logger.info(bold(__('building [html]: ')) + msg)  # ruff: ignore[logging-string-concat]
 
                 yield from self.env.found_docs
                 return
@@ -381,7 +367,7 @@ class StandaloneHTMLBuilder(Builder):
                 # Let users know they have a newer template
                 if template_mtime > old_mtime:
                     logger.info(
-                        bold('building [html]: ')  # NoQA: G003
+                        bold('building [html]: ')  # ruff: ignore[logging-string-concat]
                         + __(
                             'template %s has been changed since the previous build, '
                             'all docs will be rebuilt'
@@ -463,14 +449,14 @@ class StandaloneHTMLBuilder(Builder):
         # html_domain_indices can be False/True or a list of index names
         if indices_config := self.config.html_domain_indices:
             if not isinstance(indices_config, bool):
-                check_names = True
                 indices_config = frozenset(indices_config)
-            else:
-                check_names = False
             for domain in self.env.domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
-                    if check_names and index_name not in indices_config:
+                    if (
+                        not isinstance(indices_config, bool)
+                        and index_name not in indices_config
+                    ):
                         continue
                     content, collapse = index_cls(domain).generate()
                     if content:
@@ -529,7 +515,7 @@ class StandaloneHTMLBuilder(Builder):
         self._orig_js_files = list(dict.fromkeys(self._js_files))
         styles = list(self._get_style_filenames())
 
-        self.globalcontext = {
+        self.globalcontext: dict[str, Any] = {
             'embedded': self.embedded,
             'project': self.config.project,
             'release': return_codes_re.sub('', self.config.release),
@@ -681,8 +667,9 @@ class StandaloneHTMLBuilder(Builder):
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
+        # get title as plain text
         title_node = self.env.longtitles.get(docname)
-        title = self.render_partial(title_node)['title'] if title_node else ''
+        title = title_node.astext() if title_node else ''
         self.index_page(docname, doctree, title)
 
     def finish(self) -> None:
@@ -873,10 +860,19 @@ class StandaloneHTMLBuilder(Builder):
                     self._static_dir,
                     excluded=DOTFILES,
                     context=context,
-                    renderer=self.templates,
+                    renderer=self.templates,  # pyrefly: ignore[bad-argument-type]
                     onerror=onerror,
                     force=True,
                 )
+
+    def copy_static_dirs(self) -> None:
+        """Copy static files registered by extensions."""
+        for static_dir in self._registry.static_dirs:
+            if static_dir.is_dir():
+                shutil.copytree(static_dir, self._static_dir, dirs_exist_ok=True)
+            else:
+                msg = __("extension static directory '%s' does not exist")
+                logger.warning(msg, static_dir)
 
     def copy_html_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
@@ -891,7 +887,7 @@ class StandaloneHTMLBuilder(Builder):
                 self._static_dir,
                 excluded=excluded,
                 context=context,
-                renderer=self.templates,
+                renderer=self.templates,  # pyrefly: ignore[bad-argument-type]
                 onerror=onerror,
                 force=True,
             )
@@ -929,6 +925,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.copy_translation_js()
                 self.copy_stemmer_js()
                 self.copy_theme_static_files(context)
+                self.copy_static_dirs()
                 self.copy_html_static_files(context)
                 self.copy_html_logo()
                 self.copy_html_favicon()
@@ -1027,7 +1024,7 @@ class StandaloneHTMLBuilder(Builder):
     ) -> str:
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = False
-        if kwargs.get('maxdepth') == '':  # NoQA: PLC1901
+        if kwargs.get('maxdepth') == '':  # ruff: ignore[compare-to-empty-string]
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(
             self.env, docname, self, tags=self.tags, collapse=collapse, **kwargs
@@ -1193,21 +1190,20 @@ class StandaloneHTMLBuilder(Builder):
             templatename = new_template
 
         # sort JS/CSS before rendering HTML
-        try:  # NoQA: SIM105
+        script_files: list[_JavaScript] = ctx['script_files']
+        css_files: list[_CascadingStyleSheet] = ctx['css_files']
+
+        # Skip sorting if users modifies script_files directly (maybe via `html_context`).
+        # See: https://github.com/sphinx-doc/sphinx/issues/8885
+        #
+        # Note: priority sorting feature will not work in this case.
+        with contextlib.suppress(AttributeError):
             # Convert script_files to list to support non-list script_files
             # See: https://github.com/sphinx-doc/sphinx/issues/8889
-            ctx['script_files'] = sorted(
-                ctx['script_files'], key=lambda js: js.priority
-            )
-        except AttributeError:
-            # Skip sorting if users modifies script_files directly (maybe via `html_context`).
-            # See: https://github.com/sphinx-doc/sphinx/issues/8885
-            #
-            # Note: priority sorting feature will not work in this case.
-            pass
+            ctx['script_files'] = sorted(script_files, key=lambda js: js.priority)
 
         with contextlib.suppress(AttributeError):
-            ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
+            ctx['css_files'] = sorted(css_files, key=lambda css: css.priority)
 
         try:
             output = self.templates.render(templatename, ctx)
@@ -1255,7 +1251,8 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('error writing file %s: %s'), output_path, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
-            source_file_path = self._sources_dir / ctx['sourcename']
+            sourcename: str = ctx['sourcename']
+            source_file_path = self._sources_dir / sourcename
             source_file_path.parent.mkdir(parents=True, exist_ok=True)
             copyfile(self.env.doc2path(pagename), source_file_path, force=True)
 
@@ -1354,7 +1351,7 @@ def validate_math_renderer(app: Sphinx) -> None:
     if app.builder.format != 'html':
         return
 
-    name = app.builder.math_renderer_name  # type: ignore[attr-defined]
+    name = app.builder.math_renderer_name  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     if name is None:
         msg = __(
             'Many math_renderers are registered. But no math_renderer is selected.'
@@ -1556,26 +1553,3 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
-
-
-# deprecated name -> (object to return, canonical path or empty string, removal version)
-_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'Stylesheet': (
-        _CascadingStyleSheet,
-        'sphinx.builders.html._assets._CascadingStyleSheet',
-        (9, 0),
-    ),
-    'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
-}
-
-
-def __getattr__(name: str) -> Any:
-    if name not in _DEPRECATED_OBJECTS:
-        msg = f'module {__name__!r} has no attribute {name!r}'
-        raise AttributeError(msg)
-
-    from sphinx.deprecation import _deprecation_warning
-
-    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=remove)
-    return deprecated_object

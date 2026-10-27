@@ -14,6 +14,11 @@
 This extension allows you to embed `Graphviz <https://graphviz.org/>`_ graphs in
 your documents.
 
+.. important::
+
+   Graphviz must be present on your machine; please refer to the `official
+   instructions <https://graphviz.org/download/>`_ if it is not the case.
+
 It adds these directives:
 
 .. rst:directive:: graphviz

@@ -6,8 +6,9 @@ import contextlib
 import re
 import unicodedata
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, cast
 
+import docutils
 from docutils import nodes
 from docutils.nodes import Node
 
@@ -36,10 +37,7 @@ explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<([^<]*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
-N = TypeVar('N', bound=Node)
-
-
-class NodeMatcher(Generic[N]):
+class NodeMatcher[N: Node]:
     """A helper class for Node.findall().
 
     It checks that the given node is an instance of the specified node-classes and
@@ -141,7 +139,7 @@ def apply_source_workaround(node: Element) -> None:
         )
         definition_list_item = node.parent
         node.source = definition_list_item.source
-        node.line = definition_list_item.line - 1  # type: ignore[operator]
+        node.line = definition_list_item.line - 1  # type: ignore[operator]  # ty: ignore[unsupported-operator]
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     elif isinstance(node, nodes.classifier) and not node.source:
         # docutils-0.15 fills in rawsource attribute, but not in source.
@@ -237,7 +235,7 @@ def is_translatable(node: Node) -> bool:
     if isinstance(node, nodes.image) and (node.get('translatable') or node.get('alt')):
         return True
 
-    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore[operator]
+    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore[operator]  # ty: ignore[unsupported-operator]
         # inline node must not be translated if 'translatable' is not set
         return False
 
@@ -288,6 +286,15 @@ LITERAL_TYPE_NODES = (
 IMAGE_TYPE_NODES = (
     nodes.image,
 )  # fmt: skip
+
+
+def _is_doctest_block(node: Node) -> bool:
+    if docutils.__version_info__[:2] >= (1, 0) and isinstance(
+        node, nodes.literal_block
+    ):
+        return 'doctest' in node['classes']
+    # Also accept doctest_block nodes from third-party parsers on Docutils 1.0.
+    return isinstance(node, nodes.doctest_block)
 
 
 def _clean_extracted_message(text: str) -> str:
@@ -341,7 +348,7 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
         elif isinstance(node, nodes.meta):
             msg = node['content']
         else:
-            text = node.rawsource  # type: ignore[attr-defined]
+            text = node.rawsource  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             msg = _clean_extracted_message(text)
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
@@ -394,8 +401,8 @@ def traverse_translatable_index(
 
 
 def nested_parse_with_titles(
-    state: RSTState, content: StringList, node: Node, content_offset: int = 0
-) -> str:
+    state: RSTState, content: StringList, node: Element, content_offset: int = 0
+) -> int:
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -435,8 +442,6 @@ def process_index_entry(
     entry: str,
     targetid: str,
 ) -> list[tuple[str, str, str, str, str | None]]:
-    from sphinx.domains.python import pairindextypes
-
     indexentries: list[tuple[str, str, str, str, str | None]] = []
     entry = entry.strip()
     oentry = entry
@@ -444,42 +449,46 @@ def process_index_entry(
     if entry.startswith('!'):
         main = 'main'
         entry = entry[1:].lstrip()
-    for index_type in pairindextypes:
+
+    for index_type in (
+        'module',
+        'keyword',
+        'operator',
+        'object',
+        'exception',
+        'statement',
+        'builtin',
+    ):
         if entry.startswith(f'{index_type}:'):
             value = entry[len(index_type) + 1 :].strip()
-            value = f'{pairindextypes[index_type]}; {value}'
-            # xref RemovedInSphinx90Warning
-            logger.warning(
-                __(
-                    '%r is deprecated for index entries (from entry %r). '
-                    "Use 'pair: %s' instead."
-                ),
-                index_type,
-                entry,
-                value,
-                type='index',
-            )
-            indexentries.append(('pair', value, targetid, main, None))
+            if index_type == 'builtin':
+                value = f'built-in function; {value}'
+            else:
+                value = f'{index_type}; {value}'
+            msg = __(
+                '%r is no longer supported for index entries (from entry %r). '
+                "Use 'pair: %s' instead."
+            ) % (index_type, entry, value)
+            raise ValueError(msg)
+
+    for index_type in indextypes:
+        if entry.startswith(f'{index_type}:'):
+            value = entry[len(index_type) + 1 :].strip()
+            if index_type == 'double':
+                index_type = 'pair'
+            indexentries.append((index_type, value, targetid, main, None))
             break
+    # shorthand notation for single entries
     else:
-        for index_type in indextypes:
-            if entry.startswith(f'{index_type}:'):
-                value = entry[len(index_type) + 1 :].strip()
-                if index_type == 'double':
-                    index_type = 'pair'
-                indexentries.append((index_type, value, targetid, main, None))
-                break
-        # shorthand notation for single entries
-        else:
-            for value in oentry.split(','):
-                value = value.strip()
-                main = ''
-                if value.startswith('!'):
-                    main = 'main'
-                    value = value[1:].lstrip()
-                if not value:
-                    continue
-                indexentries.append(('single', value, targetid, main, None))
+        for value in oentry.split(','):
+            value = value.strip()
+            main = ''
+            if value.startswith('!'):
+                main = 'main'
+                value = value[1:].lstrip()
+            if not value:
+                continue
+            indexentries.append(('single', value, targetid, main, None))
     return indexentries
 
 
@@ -505,7 +514,7 @@ def inline_all_toctrees(
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
-                    logger.info(indent + colorfunc(includefile))  # NoQA: G003
+                    logger.info(indent + colorfunc(includefile))  # ruff: ignore[logging-string-concat]
                     subtree = inline_all_toctrees(
                         builder,
                         docnameset,
@@ -683,8 +692,10 @@ def set_source_info(directive: Directive, node: Node) -> None:
 
 
 def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
-    gsal = inliner.reporter.get_source_and_line  # type: ignore[attr-defined]
-    node.source, node.line = gsal(lineno)
+    gsal = inliner.reporter.get_source_and_line
+    source, line = gsal(lineno)
+    node.source = source  # type: ignore[assignment]
+    node.line = line
 
 
 def copy_source_info(src: Element, dst: Element) -> None:

@@ -7,7 +7,7 @@ Connecting callback functions to events is a simple way to extend Sphinx,
 by hooking into the build process at various points.
 
 Use :meth:`.Sphinx.connect` in an extension's ``setup`` function,
-or a ``setup`` function in your projects :file:`conf.py`,
+or a ``setup`` function in your project's :file:`conf.py`,
 to connect functions to the events:
 
 .. code-block:: python
@@ -22,7 +22,10 @@ to connect functions to the events:
 
    Extensions can add their own events by using :meth:`.Sphinx.add_event`,
    and calling them them with
-   :meth:`.Sphinx.emit` or :meth:`.Sphinx.emit_firstresult`.
+   :meth:`.EventManager.emit` or :meth:`.EventManager.emit_firstresult`.
+
+Many events pass a :term:`doctree` to their callbacks.
+See the glossary entry for where its node types are documented.
 
 Core events overview
 --------------------
@@ -161,7 +164,7 @@ Here is a more detailed list of these events.
    :param docname: ``str``
    :param content: ``list[str]``
       with a single element,
-      representing the content of the included file.
+      representing the content of the source file.
 
    Emitted when a source file has been read.
 
@@ -223,8 +226,10 @@ Here is a more detailed list of these events.
    :param app: :class:`.Sphinx`
    :param env: :class:`.BuildEnvironment`
    :param node: The :class:`.pending_xref` node to be resolved.
-      Its ``reftype``, ``reftarget``, ``modname`` and ``classname`` attributes
-      determine the type and target of the reference.
+      Its docutils node attributes ``reftype``, ``reftarget``, ``modname``,
+      and ``classname`` determine the type and target of the reference.
+      These attributes can be accessed using mapping syntax, such as
+      ``node['reftype']``.
    :param contnode: The node that carries the text and formatting inside the
       future reference and should be a child of the returned reference node.
    :returns: A new node to be inserted in the document tree in place of the node,

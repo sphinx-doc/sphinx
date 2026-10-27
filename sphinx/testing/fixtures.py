@@ -121,7 +121,7 @@ def app_params(
     return _app_params(args, kwargs)
 
 
-_app_params = namedtuple('_app_params', 'args,kwargs')  # NoQA: PYI024
+_app_params = namedtuple('_app_params', 'args,kwargs')  # ruff: ignore[collections-named-tuple]
 
 
 @pytest.fixture
@@ -143,7 +143,7 @@ def test_params(request: Any) -> dict[str, Any]:
 
     if result['shared_result'] and not isinstance(result['shared_result'], str):
         msg = 'You can only provide a string type of value for "shared_result"'
-        raise pytest.Exception(msg)
+        pytest.fail(msg)
     return result
 
 

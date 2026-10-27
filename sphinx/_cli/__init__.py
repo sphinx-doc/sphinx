@@ -36,12 +36,10 @@ from sphinx.locale import __, init_console
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import NoReturn, TypeAlias
+    from typing import NoReturn
 
-    _PARSER_SETUP: TypeAlias = Callable[
-        [argparse.ArgumentParser], argparse.ArgumentParser
-    ]
-    _RUNNER: TypeAlias = Callable[[argparse.Namespace], int]
+    type _PARSER_SETUP = Callable[[argparse.ArgumentParser], argparse.ArgumentParser]
+    type _RUNNER = Callable[[argparse.Namespace], int]
 
     from typing import Protocol
 
@@ -57,7 +55,7 @@ _COMMANDS: dict[str, str] = {}
 
 def _load_subcommand_descriptions() -> Iterator[tuple[str, str]]:
     for command, module_name in _COMMANDS.items():
-        module: _SubcommandModule = importlib.import_module(module_name)
+        module: _SubcommandModule = importlib.import_module(module_name)  # pyrefly: ignore[bad-assignment]
         try:
             description = module.parser_description
         except AttributeError:
@@ -271,7 +269,7 @@ def _parse_command(argv: Sequence[str] = ()) -> tuple[str, Sequence[str]]:
 
 def _load_subcommand(command_name: str) -> tuple[str, _PARSER_SETUP, _RUNNER]:
     try:
-        module: _SubcommandModule = importlib.import_module(_COMMANDS[command_name])
+        module: _SubcommandModule = importlib.import_module(_COMMANDS[command_name])  # pyrefly: ignore[bad-assignment]
     except KeyError:
         msg = f'invalid command name {command_name!r}.'
         raise ValueError(msg) from None
@@ -304,7 +302,7 @@ def run(argv: Sequence[str] = (), /) -> int:
         cmd_args = cmd_parser.parse_args(cmd_argv)
         return runner(cmd_args)
     except SystemExit as exc:
-        return exc.code  # type: ignore[return-value]
+        return exc.code  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
     except (Exception, KeyboardInterrupt):
         return 2
 

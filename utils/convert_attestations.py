@@ -3,12 +3,10 @@
 See https://github.com/trailofbits/pypi-attestations.
 """
 
-# resolution fails without betterproto and protobuf-specs
 # /// script
-# requires-python = ">=3.11"
+# requires-python = ">=3.13"
 # dependencies = [
-#     "pypi-attestations==0.0.27",
-#     "betterproto==2.0.0b6",
+#     "pypi-attestations==0.0.30",
 # ]
 # ///
 

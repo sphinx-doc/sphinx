@@ -6,6 +6,8 @@ source file translated by test_build.
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 
 from tests.test_ext_autodoc.autodoc_util import do_autodoc
@@ -85,5 +87,25 @@ def test_cached_properties_with_type_comment() -> None:
         '.. py:property:: Foo.prop_with_type_comment',
         '   :module: target.cached_property',
         '   :type: int',
+        '',
+    ]
+
+
+def test_property_with_undefined_annotation() -> None:
+    if sys.version_info[:2] >= (3, 14):
+        type_checking_only_name = 'TypeCheckingOnlyName'
+    else:
+        type_checking_only_name = 'int'
+
+    actual = do_autodoc(
+        'property', 'target.properties.Foo.prop3_with_undefined_anotation'
+    )
+    assert actual == [
+        '',
+        '.. py:property:: Foo.prop3_with_undefined_anotation',
+        '   :module: target.properties',
+        f'   :type: {type_checking_only_name}',
+        '',
+        '   docstring',
         '',
     ]

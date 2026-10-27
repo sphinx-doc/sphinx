@@ -39,9 +39,11 @@ def stable_str(obj: Any, *, indent: int | None = None) -> str:
 def _stable_str_prep(obj: Any) -> dict[str, Any] | list[Any] | str:
     if isinstance(obj, dict):
         # Convert to a sorted dict
-        obj = [(_stable_str_prep(k), _stable_str_prep(v)) for k, v in obj.items()]
-        obj.sort()
-        return dict(obj)
+        lst: list[tuple[Any, Any]] = [
+            (_stable_str_prep(k), _stable_str_prep(v)) for k, v in obj.items()
+        ]
+        lst.sort()
+        return dict(lst)
     if isinstance(obj, (list, tuple, set, frozenset)):
         # Convert to a sorted list
         return sorted(map(_stable_str_prep, obj), key=str)

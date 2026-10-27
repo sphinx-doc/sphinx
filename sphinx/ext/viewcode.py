@@ -118,7 +118,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         env._viewcode_modules = {}  # type: ignore[attr-defined]
 
     def has_tag(modname: str, fullname: str, docname: str, refname: str) -> bool:
-        entry = env._viewcode_modules.get(modname, None)  # type: ignore[attr-defined]
+        entry = env._viewcode_modules.get(modname, None)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         if entry is False:
             return False
 
@@ -128,7 +128,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                 analyzer = ModuleAnalyzer.for_module(modname)
                 analyzer.find_tags()
             except Exception:
-                env._viewcode_modules[modname] = False  # type: ignore[attr-defined]
+                env._viewcode_modules[modname] = False  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 return False
 
             code = analyzer.code
@@ -138,7 +138,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
         if entry is None or entry[0] != code:
             entry = code, tags, {}, refname
-            env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]
+            env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         _, tags, used, _ = entry
         if fullname in tags:
             used[fullname] = docname
@@ -187,12 +187,12 @@ def env_merge_info(
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore[attr-defined]
     # now merge in the information from the subprocess
-    for modname, entry in other._viewcode_modules.items():
-        if modname not in env._viewcode_modules:  # type: ignore[attr-defined]
-            env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]
+    for modname, entry in other._viewcode_modules.items():  # ty: ignore[unresolved-attribute]
+        if modname not in env._viewcode_modules:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+            env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         else:
-            if env._viewcode_modules[modname]:  # type: ignore[attr-defined]
-                used = env._viewcode_modules[modname][2]  # type: ignore[attr-defined]
+            if env._viewcode_modules[modname]:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+                used = env._viewcode_modules[modname][2]  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 for fullname, docname in entry[2].items():
                     if fullname not in used:
                         used[fullname] = docname
@@ -285,13 +285,13 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
         return
     if not is_supported_builder(env._builder_cls, env.config.viewcode_enable_epub):
         return
-    highlighter = app.builder.highlighter  # type: ignore[attr-defined]
+    highlighter = app.builder.highlighter  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     urito = app.builder.get_relative_uri
 
     modnames = set(env._viewcode_modules)
 
     for modname, entry in status_iterator(
-        sorted(env._viewcode_modules.items()),
+        sorted(env._viewcode_modules.items()),  # ty: ignore[unresolved-attribute]
         __('highlighting module code... '),
         'blue',
         len(env._viewcode_modules),

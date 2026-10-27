@@ -33,10 +33,10 @@ from sphinx import __display_version__, package_dir
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc._importer import _import_module
-from sphinx.ext.autodoc._member_finder import _filter_enum_dict, unmangle
+from sphinx.ext.autodoc._dynamic._importer import _import_module
+from sphinx.ext.autodoc._dynamic._member_finder import _filter_enum_dict, unmangle
+from sphinx.ext.autodoc._dynamic._mock import ismock, undecorate
 from sphinx.ext.autodoc._sentinels import INSTANCE_ATTR, SLOTS_ATTR
-from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
     _get_documenter,
@@ -136,7 +136,7 @@ class AutosummaryRenderer:
         if app.translator:
             self.env.add_extension('jinja2.ext.i18n')
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
-            self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]
+            self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     def render(self, template_name: str, context: dict[str, Any]) -> str:
         """Render a template file."""
@@ -239,7 +239,7 @@ class ModuleScanner:
             try:
                 if ('', name) in attr_docs:
                     imported = False
-                elif inspect.ismodule(value):  # NoQA: SIM114
+                elif inspect.ismodule(value):  # ruff: ignore[if-with-same-arms]
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True
@@ -767,7 +767,7 @@ def find_autosummary_in_docstring(
         pass
     except ImportExceptionGroup as exc:
         errors = '\n'.join({f'* {type(e).__name__}: {e}' for e in exc.exceptions})
-        logger.warning(f'Failed to import {name}.\nPossible hints:\n{errors}')  # NoQA: G004
+        logger.warning(f'Failed to import {name}.\nPossible hints:\n{errors}')  # ruff: ignore[logging-f-string]
     except SystemExit:
         logger.warning(
             "Failed to import '%s'; the module executes module level "

@@ -9,6 +9,7 @@ import textwrap
 from itertools import chain, groupby, pairwise
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes, writers
 from docutils.utils import column_width
 
@@ -241,7 +242,7 @@ class Table:
                 for colno, cell in enumerate(line):
                     if cell.col != colno:
                         continue
-                    if lineno != cell.row:  # NoQA: SIM114
+                    if lineno != cell.row:  # ruff: ignore[if-with-same-arms]
                         physical_text = ''
                     elif physical_line >= len(cell.wrapped):
                         physical_text = ''
@@ -292,18 +293,18 @@ class TextWrapper(textwrap.TextWrapper):
             else:
                 indent = self.initial_indent
 
+            # Note that column_width(x) > len(x) is possible,
+            # but _handle_long_word() handles negative widths.
             width = self.width - column_width(indent)
 
             if self.drop_whitespace and not chunks[-1].strip() and lines:
                 del chunks[-1]
 
             while chunks:
-                l = column_width(chunks[-1])
-
-                if cur_len + l <= width:
+                chunk_width = column_width(chunks[-1])
+                if cur_len + chunk_width <= width:
                     cur_line.append(chunks.pop())
-                    cur_len += l
-
+                    cur_len += chunk_width
                 else:
                     break
 
@@ -318,45 +319,71 @@ class TextWrapper(textwrap.TextWrapper):
 
         return lines
 
-    def _break_word(self, word: str, space_left: int) -> tuple[str, str]:
-        """Break line by unicode width instead of len(word)."""
+    @staticmethod
+    def _find_break_end(word: str, space_left: int) -> int:
+        """Break word by Unicode width instead of len(word).
+
+        The returned position 'end' satisfies::
+
+            assert column_width(word[:end]) <= space_left
+            assert end == len(word) or column_width(word[:end+1]) > space_left
+        """
         total = 0
-        for i, c in enumerate(word):
+        for end, c in enumerate(word, start=1):
             total += column_width(c)
             if total > space_left:
-                return word[: i - 1], word[i - 1 :]
-        return word, ''
+                return end - 1
+        return len(word)
 
     def _split(self, text: str) -> list[str]:
         """Override original method that only split by 'wordsep_re'.
 
         This '_split' splits wide-characters into chunks by one character.
         """
-
-        def split(t: str) -> list[str]:
-            return super(TextWrapper, self)._split(t)
-
         chunks: list[str] = []
-        for chunk in split(text):
-            for w, g in groupby(chunk, column_width):
-                if w == 1:
-                    chunks.extend(split(''.join(g)))
+        for chunk in super()._split(text):
+            for w, g in groupby(chunk, _column_width_safe):
+                if w <= 1:
+                    chunks += super()._split(''.join(g))
                 else:
-                    chunks.extend(list(g))
+                    chunks += g
         return chunks
 
     def _handle_long_word(
         self, reversed_chunks: list[str], cur_line: list[str], cur_len: int, width: int
     ) -> None:
-        """Override original method for using self._break_word() instead of slice."""
-        space_left = max(width - cur_len, 1)
-        if self.break_long_words:
-            l, r = self._break_word(reversed_chunks[-1], space_left)
-            cur_line.append(l)
-            reversed_chunks[-1] = r
+        """Override using self._find_break() instead of str.find()."""
+        # Make sure at least one character is stripped off on every pass.
+        #
+        # Do NOT use space_left = max(width - cur_len, 1) as corner cases
+        # with "self.drop_whitespace == False" and "self.width == 1" fail.
+        space_left = 1 if width < 1 else (width - cur_len)
 
+        if self.break_long_words:
+            # Some characters may have len(X) < space_left < column_width(X)
+            # so we should only wrap chunks for which len(X) > space_left.
+            end = space_left
+            chunk = reversed_chunks[-1]
+            if space_left > 0:
+                end = self._find_break_end(chunk, space_left)
+            if end == 0 and space_left:
+                # force processing at least one character
+                end = 1
+            cur_line.append(chunk[:end])
+            reversed_chunks[-1] = chunk[end:]
         elif not cur_line:
             cur_line.append(reversed_chunks.pop())
+
+
+def _column_width_safe(x: str) -> int:
+    # Handle characters that are 0-width. We should refine
+    # the grouping to prevent splitting a word at combining
+    # characters or in a group of combining characters with
+    # at most one non-combining character as the combining
+    # characters may act on the right or left character.
+    #
+    # See https://github.com/sphinx-doc/sphinx/issues/13741.
+    return max(1, column_width(x))
 
 
 MAXWIDTH = 70
@@ -536,7 +563,7 @@ class TextTranslator(SphinxTranslator):
         else:
             char = '^'
         text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
+        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]  # ty: ignore[no-matching-overload]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
@@ -878,7 +905,12 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_colspec(self, node: Element) -> None:
-        self.table.colwidth.append(node['colwidth'])
+        if docutils.__version_info__[:2] >= (1, 0):
+            # breaking change in Docutils 1.0
+            # https://sourceforge.net/p/docutils/code/10397
+            self.table.colwidth.append(int(node['colwidth']))
+        else:
+            self.table.colwidth.append(node['colwidth'])
         raise nodes.SkipNode
 
     def visit_tgroup(self, node: Element) -> None:

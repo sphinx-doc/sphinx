@@ -2,17 +2,32 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx.ext.autodoc import between, cut_lines
 
 from tests.test_ext_autodoc.autodoc_util import FakeEvents, do_autodoc
 
+if TYPE_CHECKING:
+    from typing import Any
+
+    from sphinx.application import Sphinx
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
+
 pytestmark = pytest.mark.usefixtures('inject_autodoc_root_into_sys_path')
 
 
 def test_process_docstring() -> None:
-    def on_process_docstring(app, what, name, obj, options, lines):
+    def on_process_docstring(
+        app: Sphinx,
+        what: _AutodocObjType,
+        name: str,
+        obj: Any,
+        options: Any,
+        lines: list[str],
+    ) -> None:
         lines.clear()
         lines.append('my docstring')
 
@@ -31,7 +46,14 @@ def test_process_docstring() -> None:
 
 
 def test_process_docstring_for_nondatadescriptor() -> None:
-    def on_process_docstring(app, what, name, obj, options, lines):
+    def on_process_docstring(
+        app: Sphinx,
+        what: _AutodocObjType,
+        name: str,
+        obj: Any,
+        options: Any,
+        lines: list[str],
+    ) -> None:
         raise RuntimeError
 
     events = FakeEvents()
@@ -62,7 +84,7 @@ def test_cut_lines() -> None:
     ]
 
 
-def test_cut_lines_no_objtype():
+def test_cut_lines_no_objtype() -> None:
     docstring_lines = [
         'first line',
         '---',
@@ -73,7 +95,7 @@ def test_cut_lines_no_objtype():
     ]
     process = cut_lines(2)
 
-    process(None, 'function', 'func', None, {}, docstring_lines)
+    process(None, 'function', 'func', None, {}, docstring_lines)  # type: ignore[arg-type]
     assert docstring_lines == [
         'second line',
         '---',
@@ -116,7 +138,14 @@ def test_between_exclude() -> None:
 
 
 def test_skip_module_member() -> None:
-    def autodoc_skip_member(app, what, name, obj, skip, options):
+    def autodoc_skip_member(
+        app: Sphinx,
+        what: _AutodocObjType,
+        name: str,
+        obj: Any,
+        skip: bool,
+        options: Any,
+    ) -> bool | None:
         if name == 'Class':
             return True  # Skip "Class" class in __all__
         elif name == 'raises':
