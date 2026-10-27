@@ -100,7 +100,7 @@ def test_default_man_pages() -> None:
     assert default_man_pages(config) == expected
 
 
-@pytest.mark.sphinx('man', testroot='markup-rubric')
+@pytest.mark.sphinx('man', testroot='markup-rubric', srcdir='markup-rubric-man')
 def test_rubric(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
