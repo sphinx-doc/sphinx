@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14789: Fix ``autosummary`` dropping every parameter of overloaded
+  functions and methods from the summary table.
+  Patch by Prince Maurya.
+
 Testing
 -------
 
