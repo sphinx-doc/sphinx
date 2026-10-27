@@ -19,7 +19,8 @@ babel_runner.py check [--exclude-failing]
     Transifex largely do not, so damaged placeholders slip through it
     (#14664). With "--exclude-failing" (used by the Transifex sync),
     failing catalogues are reverted so that the automated pull request
-    excludes them, and they are listed in its body.
+    excludes them, and they are listed in its body. Placeholders that a
+    translation drops are reported as warnings and do not fail the check.
 """
 
 from __future__ import annotations
@@ -353,17 +354,72 @@ def _placeholder_errors(message: Message) -> list[str]:
     return errors
 
 
+def _missing_placeholders(message: Message) -> list[str]:
+    """Return placeholders of the msgid that the translation drops.
+
+    A dropped placeholder does not break formatting, so it is reported
+    as a warning rather than an error: the message still renders, but
+    loses the information the placeholder carried (a name, a path, ...).
+
+    For plural messages a placeholder only has to appear in one of the
+    translated forms, since a singular form may legitimately omit the
+    count. Positional ``{}`` fields are not compared.
+    """
+    msgid = message.id
+    if isinstance(msgid, (list, tuple)):
+        msgid_forms = [msgid[0], msgid[1]]
+    else:
+        msgid_forms = [msgid]
+
+    required: set[str] = set()
+    for form in msgid_forms:
+        try:
+            required |= _brace_format_fields(form)
+        except ValueError:
+            return []
+    required |= _percent_format_fields(''.join(msgid_forms))
+    required.discard('')
+
+    msgstr = message.string
+    if msgstr is None:
+        return []
+    if isinstance(msgstr, (list, tuple)):
+        msgstr_forms = [form for form in msgstr if form]
+    else:
+        msgstr_forms = [msgstr]
+    if not msgstr_forms:
+        return []
+
+    used: set[str] = set()
+    for form in msgstr_forms:
+        try:
+            used |= _brace_format_fields(form)
+        except ValueError:
+            # invalid syntax is already reported by _placeholder_errors()
+            return []
+        used |= _percent_format_fields(form)
+
+    return [
+        f'placeholder {name!r} from the msgid is missing in translation'
+        for name in sorted(required - used)
+    ]
+
+
 def run_check(exclude_failing: bool = False) -> None:
     """Check catalogue placeholder consistency.
 
     With *exclude_failing*, revert catalogues that fail the check so the
     Transifex sync excludes them from the automated pull request, and
     record them in its body.
+
+    Placeholders that a translation drops are reported as warnings: they
+    neither fail the check nor exclude the catalogue.
     """
     log = _get_logger()
 
     directory = ROOT / 'sphinx' / 'locale'
     excluded: list[str] = []
+    missing: dict[str, int] = {}
     failures = 0
 
     for locale in sorted(directory.iterdir()):
@@ -378,13 +434,27 @@ def run_check(exclude_failing: bool = False) -> None:
         for message in catalogue:
             if not message.id or not message.string or message.fuzzy:
                 continue
-            for error in _placeholder_errors(message):
+            errors = _placeholder_errors(message)
+            for error in errors:
                 locale_errors += 1
                 log.error(
                     'error: %s:%d: %s\nerror:     in message string: %r',
                     po_file.relative_to(ROOT),
                     message.lineno,
                     error,
+                    message.string,
+                )
+            if errors:
+                # a renamed placeholder is already an error; do not also
+                # report the original name as missing
+                continue
+            for warning in _missing_placeholders(message):
+                missing[locale.name] = missing.get(locale.name, 0) + 1
+                log.warning(
+                    'warning: %s:%d: %s\nwarning:     in message string: %r',
+                    po_file.relative_to(ROOT),
+                    message.lineno,
+                    warning,
                     message.string,
                 )
 
@@ -408,6 +478,13 @@ def run_check(exclude_failing: bool = False) -> None:
         _write_pr_body_line('')
         for locale_name in excluded:
             _write_pr_body_line(f'* {locale_name}')
+
+    if missing:
+        _write_pr_body_line('## Translations missing placeholders')
+        _write_pr_body_line('')
+        for locale_name, count in missing.items():
+            s = 's' if count != 1 else ''
+            _write_pr_body_line(f'* {locale_name}: {count} placeholder{s}')
 
     if failures and not exclude_failing:
         raise SystemExit(1)

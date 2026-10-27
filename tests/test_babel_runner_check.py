@@ -105,6 +105,48 @@ def test_each_plural_form_is_checked() -> None:
     ]
 
 
+def _missing(msgid: str | tuple[str, str], msgstr: str | tuple[str, ...]) -> list[str]:
+    return babel_runner._missing_placeholders(Message(msgid, msgstr))
+
+
+def test_missing_placeholder_is_a_warning() -> None:
+    assert _missing('bad value {name!r}', 'valeur incorrecte') == [
+        "placeholder 'name' from the msgid is missing in translation"
+    ]
+
+
+def test_missing_percent_placeholder_is_a_warning() -> None:
+    assert _missing('bad value %(name)r', 'valeur incorrecte') == [
+        "placeholder 'name' from the msgid is missing in translation"
+    ]
+
+
+def test_complete_translation_has_no_missing_placeholders() -> None:
+    assert _missing('bad value {name!r}', 'mauvaise valeur {name!r}') == []
+
+
+def test_reordered_placeholders_are_not_missing() -> None:
+    assert _missing('{name} in {path}', 'dans {path}: {name}') == []
+
+
+def test_plural_placeholder_needs_only_one_form() -> None:
+    # the singular form may legitimately omit the count
+    msgid = 'one file in {path}', '{n} files in {path}'
+    msgstr = 'un fichier dans {path}', '{n} fichiers dans {path}'
+    assert _missing(msgid, msgstr) == []
+    assert _missing(msgid, ('un fichier', '{n} fichiers')) == [
+        "placeholder 'path' from the msgid is missing in translation"
+    ]
+
+
+def test_positional_placeholders_are_not_compared() -> None:
+    assert _missing('bad value {}', 'valeur incorrecte') == []
+
+
+def test_damaged_syntax_is_not_also_reported_missing() -> None:
+    assert _missing('bad value {name}', 'valeur incorrecte {name]') == []
+
+
 def test_run_check_reports_and_excludes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -140,13 +182,49 @@ def test_run_check_reports_and_excludes(
     monkeypatch.setattr(babel_runner, '_write_pr_body_line', lambda m: None)
 
     # plain mode: reports the damaged catalogue and exits non-zero
-    with caplog.at_level('ERROR', logger='babel'), pytest.raises(SystemExit) as exc:
+    with caplog.at_level('WARNING', logger='babel'), pytest.raises(SystemExit) as exc:
         babel_runner.run_check()
     assert exc.value.code == 1
     assert any('el' in record.getMessage() for record in caplog.records)
+    # the renamed placeholder is an error only, not also a missing one
+    assert not [r for r in caplog.records if r.levelname == 'WARNING']
 
     # exclusion mode: reverts the damaged catalogue and exits cleanly
     babel_runner.run_check(exclude_failing=True)
     assert len(reverted) == 1
     assert Path(reverted[0]).name == 'sphinx.po'
     assert Path(reverted[0]).parent.parent.name == 'el'
+
+
+def test_run_check_warns_without_excluding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    d = tmp_path / 'sphinx' / 'locale' / 'el' / 'LC_MESSAGES'
+    d.mkdir(parents=True)
+    (d / 'sphinx.po').write_text(
+        dedent(
+            """\
+            msgid "value '{name}'"
+            msgstr "valeur"
+            """
+        ),
+        encoding='utf-8',
+    )
+
+    def fake_git(*_args: Any, **_kwargs: Any) -> int:
+        pytest.fail('a catalogue with only missing placeholders was reverted')
+
+    body: list[str] = []
+    monkeypatch.setattr(babel_runner, 'ROOT', tmp_path)
+    monkeypatch.setattr(babel_runner.subprocess, 'run', fake_git)
+    monkeypatch.setattr(babel_runner, '_write_pr_body_line', body.append)
+
+    # neither mode fails or excludes the catalogue
+    with caplog.at_level('WARNING', logger='babel'):
+        babel_runner.run_check()
+        babel_runner.run_check(exclude_failing=True)
+    warnings = [r for r in caplog.records if r.levelname == 'WARNING']
+    assert len(warnings) == 2
+    assert "'name'" in warnings[0].getMessage()
+    assert '* el: 1 placeholder' in body
+    assert '## Catalogues excluded from this update' not in body

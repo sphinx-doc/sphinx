@@ -21,7 +21,8 @@ Testing
 
 * #14664: Check that the format placeholders of every translation match
   its msgid when pulling catalogues from Transifex, and exclude failing
-  catalogues from the automated update pull request.
+  catalogues from the automated update pull request. Placeholders that a
+  translation drops are reported as warnings.
   Patch by Shash Bhaskar
 
 * #14690: Fix test isolation issues caused by shared test directories and
