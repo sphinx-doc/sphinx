@@ -3,13 +3,13 @@ from __future__ import annotations
 import functools
 
 from sphinx._cli.util.colour import (
+    blue,
     bold,
-    brown,
-    darkgreen,
+    darkgray,
     green,
-    red,
+    teal,
     terminal_supports_colour,
-    yellow,
+    turquoise,
 )
 from sphinx.locale import __
 from sphinx.util import logging
@@ -31,16 +31,19 @@ def display_chunk(chunk: Any) -> str:
     return str(chunk)
 
 
-def _progress_colour(percent: int) -> Callable[[str], str]:
-    if percent >= 100:
+def _progress_colour(i: int, length: int) -> Callable[[str], str]:
+    # A cool grey-blue-cyan ramp that ends in green once complete.
+    # Red and yellow are avoided as they suggest warnings or errors.
+    if i >= length:
         return green
-    if percent >= 75:
-        return darkgreen
-    if percent >= 50:
-        return yellow
-    if percent >= 25:
-        return brown
-    return red
+    fraction = i / length
+    if fraction >= 0.75:
+        return teal
+    if fraction >= 0.5:
+        return turquoise
+    if fraction >= 0.25:
+        return blue
+    return darkgray
 
 
 def status_iterator[T](
@@ -64,8 +67,7 @@ def status_iterator[T](
             if single_line:
                 # clear the entire line ('Erase in Line')
                 logger.info('\x1b[2K', nonl=True)
-            percent = round(100 * i / length)
-            percentage = _progress_colour(percent)(f'[{percent: >3}%] ')
+            percentage = _progress_colour(i, length)(f'[{i / length: >4.0%}] ')
             logger.info(bold_summary + percentage, nonl=True)  # ruff: ignore[logging-string-concat]
             # Emit the string representation of ``item``
             logger.info(stringify_func(item), nonl=True, color=color)
