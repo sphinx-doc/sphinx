@@ -10,6 +10,10 @@ Incompatible changes
 Deprecated
 ----------
 
+* #14371: Un-deprecate ``Parser.config`` and ``Parser.env``.
+  ``Parser.set_application`` is still deprecated.
+  Patch by Fazeel Usmani.
+
 Features added
 --------------
 
