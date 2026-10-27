@@ -38,8 +38,8 @@ from sphinx.util.parallel import (
 )
 
 # side effect: registers roles and directives
-from sphinx import directives  # NoQA: F401  isort:skip
-from sphinx import roles  # NoQA: F401  isort:skip
+from sphinx import directives  # ruff: ignore[unused-import]  isort:skip
+from sphinx import roles  # ruff: ignore[unused-import]  isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
@@ -258,7 +258,7 @@ class Builder:
         def cat2relpath(cat: CatalogInfo, srcdir: Path = self.srcdir) -> str:
             return Path(relpath(cat.mo_path, srcdir)).as_posix()
 
-        logger.info(bold(__('building [mo]: ')) + message)  # NoQA: G003
+        logger.info(bold(__('building [mo]: ')) + message)  # ruff: ignore[logging-string-concat]
         for catalog in status_iterator(
             catalogs,
             __('writing output... '),
@@ -398,7 +398,7 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ')) + summary, self.name)  # NoQA: G003
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)  # ruff: ignore[logging-string-concat]
 
         # while reading, collect all warnings from docutils
         with (

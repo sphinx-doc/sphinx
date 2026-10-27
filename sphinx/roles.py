@@ -599,7 +599,7 @@ def code_role(
     return [node], []
 
 
-code_role.options = {  # type: ignore[attr-defined]
+code_role.options = {  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     'class': docutils.parsers.rst.directives.class_option,
     'language': docutils.parsers.rst.directives.unchanged,
 }
