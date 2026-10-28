@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14680: Support fractional and starred table column widths with Docutils 1.0
+  in the LaTeX, Texinfo and text writers.
+  Patch by Tejas Nagmote
+
 Testing
 -------
 

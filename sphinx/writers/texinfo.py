@@ -7,7 +7,6 @@ import re
 import textwrap
 from typing import TYPE_CHECKING, cast
 
-import docutils
 from docutils import nodes, writers
 
 from sphinx import __display_version__, addnodes
@@ -15,6 +14,7 @@ from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
+from sphinx.util.nodes import _get_colwidth
 from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
@@ -1042,12 +1042,7 @@ class TexinfoTranslator(SphinxTranslator):
         pass
 
     def visit_colspec(self, node: Element) -> None:
-        if docutils.__version_info__[:2] >= (1, 0):
-            # breaking change in Docutils 1.0
-            # https://sourceforge.net/p/docutils/code/10397
-            self.colwidths.append(int(node['colwidth']))
-        else:
-            self.colwidths.append(node['colwidth'])
+        self.colwidths.append(_get_colwidth(node))
         if len(self.colwidths) != self.n_cols:
             return
         self.body.append('\n\n@multitable ')

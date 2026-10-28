@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from fractions import Fraction
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any
 
@@ -13,6 +14,7 @@ from docutils.utils import new_document
 from sphinx.transforms import ApplySourceWorkaround
 from sphinx.util.nodes import (
     NodeMatcher,
+    _get_colwidth,
     apply_source_workaround,
     clean_astext,
     extract_messages,
@@ -271,3 +273,52 @@ def test_apply_source_workaround_literal_block_no_source() -> None:
     assert literal_block.source is None
     assert list_item.source is None
     assert bullet_list.source is None
+
+
+@pytest.mark.parametrize(
+    ('colwidth', 'expected'),
+    [
+        (10, 10),
+        ('10', 10),
+        ('10*', 10),
+        ('2.5*', 5),
+        ('0.5*', 1),
+    ],
+)
+def test_get_colwidth(colwidth: int | str, expected: int) -> None:
+    colspec = nodes.colspec()
+    colspec.attributes['colwidth'] = colwidth
+    assert _get_colwidth(colspec) == expected
+
+
+@pytest.mark.parametrize(
+    ('colwidths', 'expected'),
+    [
+        # integer widths are passed through untouched
+        (['1*', '3*'], [1, 3]),
+        (['25', '75'], [25, 75]),
+        # fractional widths are scaled, not truncated
+        (['2.5*', '1*'], [5, 2]),
+        (['0.5*', '1*'], [1, 2]),
+        # a column narrower than 1 no longer collapses to zero
+        (['0.5*', '0.25*'], [2, 1]),
+        # unequal denominators share one scale factor
+        (['1.5*', '1.25*'], [6, 5]),
+    ],
+)
+def test_get_colwidth_preserves_proportions(
+    colwidths: list[str], expected: list[int]
+) -> None:
+    tgroup = nodes.tgroup()
+    for colwidth in colwidths:
+        colspec = nodes.colspec()
+        colspec.attributes['colwidth'] = colwidth
+        tgroup += colspec
+
+    widths = [_get_colwidth(c) for c in tgroup.findall(nodes.colspec)]
+
+    assert widths == expected
+    # the ratios between columns survive the conversion to integers
+    first, *rest = [Fraction(str(c.removesuffix('*'))) for c in colwidths]
+    for width, raw in zip(widths[1:], rest, strict=True):
+        assert Fraction(widths[0], width) == first / raw

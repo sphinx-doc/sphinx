@@ -11,7 +11,6 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-import docutils
 from docutils import nodes, writers
 from roman_numerals import RomanNumeral
 
@@ -21,7 +20,7 @@ from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.index_entries import split_index_msg
-from sphinx.util.nodes import clean_astext, get_prev_node
+from sphinx.util.nodes import _get_colwidth, clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
 
@@ -1250,12 +1249,7 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         self.table.colcount += 1
         if 'colwidth' in node:
-            if docutils.__version_info__[:2] >= (1, 0):
-                # breaking change in Docutils 1.0
-                # https://sourceforge.net/p/docutils/code/10397
-                self.table.colwidths.append(int(node['colwidth']))
-            else:
-                self.table.colwidths.append(node['colwidth'])
+            self.table.colwidths.append(_get_colwidth(node))
         if 'stub' in node:
             self.table.stubs.append(self.table.colcount - 1)
 
