@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #13991: autosummary: Fix a crash when a class has an attribute whose name
+  matches the class name, such as a property. Patch by Prince Maurya
+
 Testing
 -------
 

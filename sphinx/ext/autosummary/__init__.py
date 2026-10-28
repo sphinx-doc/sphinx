@@ -662,6 +662,14 @@ def import_by_name(
                 subtype='import_cycle',
             )
             continue
+        if prefix is not None and name.startswith(f'{prefix.rpartition(".")[2]}.'):
+            # *name* is already qualified by the prefix, which is typically the
+            # current class (e.g. ``Foo.bar`` under ``pkg.mod.Foo``).  Prefixing
+            # it again would resolve ``pkg.mod.Foo.Foo.bar``, an unintended path
+            # that can still exist on the class -- for instance when a property
+            # is named like its class -- silently documenting the wrong object.
+            # See https://github.com/sphinx-doc/sphinx/issues/13991
+            continue
         try:
             if prefix:
                 prefixed_name = f'{prefix}.{name}'
