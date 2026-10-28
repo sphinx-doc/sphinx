@@ -10,7 +10,7 @@ class Base:
         """Inherited class method."""
 
     @staticmethod
-    def inheritedstaticmeth(cls):  # NoQA: PLW0211
+    def inheritedstaticmeth(cls):  # ruff: ignore[bad-staticmethod-argument]
         """Inherited static method."""
 
 
@@ -26,6 +26,6 @@ class Derived(Base, AnotherBase):
         pass
 
 
-class MyList(list):  # NoQA: FURB189
+class MyList(list):  # ruff: ignore[subclass-builtin]
     def meth(self):
         """docstring"""

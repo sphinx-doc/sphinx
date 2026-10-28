@@ -10,7 +10,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import SIG_ELEMENTS
-from sphinx.testing.util import SphinxTestApp, assert_node
+from sphinx.testing.util import assert_node
 from sphinx.transforms.post_transforms import SigElementFallbackTransform
 from sphinx.util.docutils import new_document
 
@@ -70,6 +70,7 @@ def test_missing_reference(app: SphinxTestApp) -> None:
 @pytest.mark.sphinx(
     'html',
     testroot='domain-py-python_use_unqualified_type_names',
+    srcdir='transforms-post_transforms-missing-reference-conditional',
     freshenv=True,
 )
 def test_missing_reference_conditional_pending_xref(app: SphinxTestApp) -> None:
@@ -188,7 +189,7 @@ class TestSigElementFallbackTransform:
         visitor_methods = {f'visit_{tp.__name__}' for tp in desc_sig_elements_list}
         visitor_methods.update(f'visit_{name}' for name in add_visitor_method_for)
         class_dict = dict.fromkeys(visitor_methods, BaseCustomTranslatorClass.mark_node)
-        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)  # ty: ignore[invalid-return-type]
+        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)
 
     @pytest.mark.parametrize(
         'add_visitor_method_for',
