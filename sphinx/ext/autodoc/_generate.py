@@ -159,7 +159,13 @@ def _generate_directives(
         subject = inspect.unpartial(props._obj)
         modname = get_attr(subject, '__module__', None)
         if modname and modname != props.module_name:
-            return
+            is_local_partial = (
+                inspect.ispartial(props._obj)
+                and analyzer is not None
+                and props.dotted_parts in analyzer.assignments
+            )
+            if not is_local_partial:
+                return
 
     # add all content (from docstrings, attribute docs etc.)
     analyzer_source = '' if analyzer is None else analyzer.srcname
