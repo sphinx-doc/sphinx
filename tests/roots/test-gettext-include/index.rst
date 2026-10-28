@@ -1,0 +1,4 @@
+Index
+=====
+
+.. include:: part.rst
