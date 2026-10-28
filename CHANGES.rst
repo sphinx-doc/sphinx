@@ -51,6 +51,11 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* autodoc: Record the binary of an extension module as a dependency of the
+  documents that document objects defined in it, so that rebuilding the
+  extension invalidates those documents.
+  Patch by Eric Larson
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
