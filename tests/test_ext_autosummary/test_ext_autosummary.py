@@ -670,6 +670,19 @@ def test_autosummary_generate(app):
 
 
 @pytest.mark.sphinx(
+    'html', testroot='ext-autosummary-property-collision', copy_test_root=True
+)
+def test_autosummary_class_with_property_named_like_class(app):
+    app.build()
+
+    assert app.warning.getvalue() == ''
+    doctree = app.env.get_doctree('generated/collision_module.foo')
+    assert (
+        'Property docstring you expect autosummary/autodoc to show.' in doctree.astext()
+    )
+
+
+@pytest.mark.sphinx(
     'dummy',
     testroot='ext-autosummary',
     confoverrides={'autosummary_generate_overwrite': False},
