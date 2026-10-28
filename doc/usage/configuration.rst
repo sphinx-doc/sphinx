@@ -317,6 +317,35 @@ General configuration
    (or, if translation is enabled with :confval:`language`,
    an equivalent format for the selected locale).
 
+.. confval:: docutils_report_level
+   :type: :code-py:`int`
+   :default: :code-py:`2`
+
+   This value sets the minimum Docutils reporting level. This numeric value
+   follows the level values reported in `Docutils PEP-0258 Error Handling`_.
+   Defaults to :code-py:`2`, which is ``WARNING``.
+
+   This can be useful if you want to extract additional information from
+   Docutils builds.
+
+   .. versionadded:: 1.9
+
+.. confval:: docutils_warning_level
+   :type: :code-py:`int`
+   :default: :code-py:`2`
+
+   This value sets the minimum internal Docutils reporting level to be
+   interpreted as a Sphinx warning. This numeric value follows the level values
+   reported in `Docutils PEP-0258 Error Handling`_. Defaults to :code-py:`2`,
+   which is ``WARNING``.
+
+   This can be useful if you want to use the warning stream created by Sphinx as
+   a linter check and would like some additional reporting from Docutils to be
+   included.
+
+   .. versionadded:: 1.9
+
+.. _`Docutils PEP-0258 Error Handling`: https://www.docutils.org/docs/peps/pep-0258.html#error-handling
 
 Options for figure numbering
 ----------------------------
