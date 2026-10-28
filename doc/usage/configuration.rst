@@ -1758,11 +1758,23 @@ and also make use of these options.
    :type: :code-py:`list[str]`
    :default: :code-py:`[]`
 
-   A list of paths that contain extra files not directly related to
+   A list of paths to extra files or directories not directly related to
    the documentation,
    such as :file:`robots.txt` or :file:`.htaccess`.
    Relative paths are taken as relative to the :term:`configuration directory`.
-   They are copied to the output directory.
+   The contents of each directory are copied to the root of the output
+   directory; the directory's own name is not retained. Likewise, when an
+   entry names a single file, only its basename is retained in the output.
+   For example, an entry of :file:`cli/docs/config.schema.json` is copied to
+   :file:`config.schema.json`, not
+   :file:`cli/docs/config.schema.json`.
+
+   To preserve a directory hierarchy, place it under a dedicated directory
+   and add that directory to :confval:`html_extra_path`. For example, with
+   :file:`_extra/cli/docs/config.schema.json` and
+   :code-py:`html_extra_path = ['_extra']`, the output contains
+   :file:`cli/docs/config.schema.json`.
+
    They will overwrite any existing file of the same name.
 
    As these files are not meant to be built,
