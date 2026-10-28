@@ -11,9 +11,20 @@ from docutils import nodes
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
 
-from sphinx.ext.doctest import DocTestBuilder, is_allowed_version
+from sphinx.directives.code import BaseCodeBlock, CodeBlock
+from sphinx.ext.doctest import (
+    DocTestBuilder,
+    DoctestDirective,
+    TestcodeDirective,
+    TestoutputDirective,
+    _condition_default,
+    is_allowed_version,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
     from sphinx.testing.util import SphinxTestApp
 
 cleanup_called = 0
@@ -201,3 +212,234 @@ def test_doctest_block_group_name(
     assert f'File "dir/bar.py", line ?, in {group_name}' in failures
     assert f'File "foo.py", line ?, in {group_name}' in failures
     assert f'File "index.rst", line 4, in {group_name}' in failures
+
+
+# Tests for the new BaseCodeBlock-derived TestDirective features
+
+
+def test_condition_default_literal_block() -> None:
+    node = nodes.literal_block('code', 'code')
+    node['testnodetype'] = 'doctest'
+    assert _condition_default(node) is True
+
+
+def test_condition_default_comment() -> None:
+    node = nodes.comment('code', 'code')
+    node['testnodetype'] = 'testsetup'
+    assert _condition_default(node) is True
+
+
+def test_condition_default_container_with_testnodetype() -> None:
+    """Container nodes (produced when :caption: is used) must also match."""
+    container = nodes.container()
+    container['testnodetype'] = 'doctest'
+    assert _condition_default(container) is True
+
+
+def test_condition_default_container_without_testnodetype() -> None:
+    """Plain container nodes (no testnodetype) must not match."""
+    container = nodes.container()
+    assert _condition_default(container) is False
+
+
+def test_condition_default_plain_literal_block() -> None:
+    """A literal_block without testnodetype must not match."""
+    node = nodes.literal_block('code', 'code')
+    assert _condition_default(node) is False
+
+
+def test_test_directive_option_spec_includes_basecodeblock_options() -> None:
+    """Doctest directives should inherit BaseCodeBlock options."""
+    for directive_cls in (DoctestDirective, TestcodeDirective, TestoutputDirective):
+        for option in ('linenos', 'caption', 'emphasize-lines', 'dedent', 'force'):
+            assert option in directive_cls.option_spec, (
+                f'{directive_cls.__name__} missing option {option!r}'
+            )
+
+
+def test_basecodeblock_has_no_language_argument() -> None:
+    assert BaseCodeBlock.optional_arguments == 0
+
+
+def test_codeblock_has_language_argument() -> None:
+    assert CodeBlock.optional_arguments == 1
+
+
+def _make_doctest_app(
+    tmp_path: Path,
+    make_app: Callable[..., SphinxTestApp],
+    rst_content: str,
+) -> SphinxTestApp:
+    """Create a minimal Sphinx app with doctest extension from RST content."""
+    (tmp_path / 'conf.py').write_text(
+        "extensions = ['sphinx.ext.doctest']\n", encoding='utf-8'
+    )
+    (tmp_path / 'index.rst').write_text(rst_content, encoding='utf-8')
+    app = make_app(buildername='dummy', srcdir=tmp_path)
+    app.build(force_all=True)
+    return app
+
+
+def test_doctest_directive_with_linenos(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
+    """The :linenos: option from BaseCodeBlock should be accepted by doctest directives."""
+    rst = """\
+Test
+====
+
+.. doctest::
+   :linenos:
+
+   >>> 1 + 1
+   2
+"""
+    app = _make_doctest_app(tmp_path, make_app, rst)
+    doctree = app.env.get_doctree('index')
+    literal_blocks = list(doctree.findall(nodes.literal_block))
+    assert literal_blocks, 'expected at least one literal_block'
+    assert literal_blocks[0].get('linenos') is True
+
+
+def test_doctest_directive_with_caption_produces_container(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
+    """:caption: on a doctest directive wraps the literal_block in a container."""
+    rst = """\
+Test
+====
+
+.. doctest::
+   :caption: My caption
+
+   >>> 1 + 1
+   2
+"""
+    app = _make_doctest_app(tmp_path, make_app, rst)
+    doctree = app.env.get_doctree('index')
+    containers = list(doctree.findall(nodes.container))
+    assert containers, 'expected a container node when :caption: is used'
+    container = containers[0]
+    assert 'testnodetype' in container
+    assert container['testnodetype'] == 'doctest'
+    # The literal_block is the second child (first is the caption)
+    assert isinstance(container[1], nodes.literal_block)
+
+
+def test_testcode_directive_with_caption_produces_container(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
+    """:caption: on a testcode directive also wraps in a container."""
+    rst = """\
+Test
+====
+
+.. testcode::
+   :caption: My testcode caption
+
+   print(1 + 1)
+
+.. testoutput::
+
+   2
+"""
+    app = _make_doctest_app(tmp_path, make_app, rst)
+    doctree = app.env.get_doctree('index')
+    containers = list(doctree.findall(nodes.container))
+    assert containers, 'expected a container node when :caption: is used'
+    container = containers[0]
+    assert container['testnodetype'] == 'testcode'
+
+
+def test_doctest_node_test_attribute_always_set(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
+    """node['test'] must always be set, even without BLANKLINE or doctest flags."""
+    rst = """\
+Test
+====
+
+.. doctest::
+
+   >>> x = 1
+   >>> x
+   1
+"""
+    app = _make_doctest_app(tmp_path, make_app, rst)
+    doctree = app.env.get_doctree('index')
+    literal_blocks = list(doctree.findall(nodes.literal_block))
+    assert literal_blocks
+    node = literal_blocks[0]
+    assert 'test' in node
+    assert node['test'] == '>>> x = 1\n>>> x\n1'
+
+
+def test_doctest_blankline_trimmed_in_display_but_kept_in_test(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
+    """<BLANKLINE> is removed from the displayed literal but kept in node['test']."""
+    rst = """\
+Test
+====
+
+.. doctest::
+
+   >>> print()
+   <BLANKLINE>
+"""
+    app = _make_doctest_app(tmp_path, make_app, rst)
+    doctree = app.env.get_doctree('index')
+    literal_blocks = list(doctree.findall(nodes.literal_block))
+    assert literal_blocks
+    node = literal_blocks[0]
+    # The raw test code retains <BLANKLINE>
+    assert '<BLANKLINE>' in node['test']
+    # The displayed text has it removed
+    assert '<BLANKLINE>' not in node.astext()
+
+
+def test_doctest_flags_trimmed_in_display_but_kept_in_test(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
+    """Doctest flags are removed from the displayed literal but kept in node['test']."""
+    rst = """\
+Test
+====
+
+.. doctest::
+
+   >>> 1 + 1  # doctest: +ELLIPSIS
+   2
+"""
+    app = _make_doctest_app(tmp_path, make_app, rst)
+    doctree = app.env.get_doctree('index')
+    literal_blocks = list(doctree.findall(nodes.literal_block))
+    assert literal_blocks
+    node = literal_blocks[0]
+    # The raw test code retains the doctest flag
+    assert '# doctest: +ELLIPSIS' in node['test']
+    # The displayed text has it trimmed
+    assert '# doctest:' not in node.astext()
+
+
+def test_doctest_flags_kept_with_no_trim_option(
+    tmp_path: Path, make_app: Callable[..., SphinxTestApp]
+) -> None:
+    """:no-trim-doctest-flags: preserves flags in both test and displayed text."""
+    rst = """\
+Test
+====
+
+.. doctest::
+   :no-trim-doctest-flags:
+
+   >>> 1 + 1  # doctest: +ELLIPSIS
+   2
+"""
+    app = _make_doctest_app(tmp_path, make_app, rst)
+    doctree = app.env.get_doctree('index')
+    literal_blocks = list(doctree.findall(nodes.literal_block))
+    assert literal_blocks
+    node = literal_blocks[0]
+    assert '# doctest: +ELLIPSIS' in node['test']
+    assert '# doctest: +ELLIPSIS' in node.astext()
