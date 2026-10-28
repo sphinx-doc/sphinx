@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14794: autodoc: Fix a ``*args`` or ``**kwargs`` parameter documented with a
+  leading star losing its type when ``autodoc_typehints = 'description'``.
+  Patch by Prince Maurya
+
 Testing
 -------
 
