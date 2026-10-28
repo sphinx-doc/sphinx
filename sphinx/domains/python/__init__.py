@@ -939,6 +939,9 @@ class PythonDomain(Domain):
     ) -> nodes.reference | None:
         modname = node.get('py:module')
         clsname = node.get('py:class')
+        # TODO(stephenfin): Consider replacing this with getattr so users can
+        # set this to False and get expected behavior. This should be done as
+        # part of a major version as it may impact plugins.
         searchmode = 1 if node.hasattr('refspecific') else 0
         matches = self.find_obj(env, modname, clsname, target, type, searchmode)
 

@@ -532,6 +532,9 @@ class JavaScriptDomain(Domain):
     ) -> nodes.reference | None:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
+        # TODO(stephenfin): Consider replacing this with getattr so users can
+        # set this to False and get expected behavior. This should be done as
+        # part of a major version as it may impact plugins.
         searchorder = 1 if node.hasattr('refspecific') else 0
         name, obj = self.find_obj(env, mod_name, prefix, target, typ, searchorder)
         if not obj:
