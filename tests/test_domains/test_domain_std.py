@@ -311,9 +311,7 @@ def test_duplicate_labels_incremental_parallel(app: SphinxTestApp) -> None:
     app.warning.seek(0)
     app.warning.truncate(0)
 
-    (app.srcdir / 'foo.rst').write_text(
-        '.. _test:\n\nFoo\n===\n', encoding='utf8'
-    )
+    (app.srcdir / 'foo.rst').write_text('.. _test:\n\nFoo\n===\n', encoding='utf8')
     app.env.all_docs['foo'] = 0
     app.build()
 
