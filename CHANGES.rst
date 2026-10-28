@@ -16,6 +16,17 @@ Features added
 Bugs fixed
 ----------
 
+* #14400: Update AutoNumbering transform:
+  Ensure that enumerable elements (tables, figures and literal_blocks)
+  have an ID.
+  Base the generated IDs on the caption or title text (similar to sections)
+  instead of the "auto-id-prefix" + running number (``id1``, ``id2``, ...).
+  (To avoid changed IDs when documents are re-compiled, this only happens if
+  the Docutils setting `legacy_ids`_ is False.)
+  Patch by Günter Milde
+
+.. _legacy_ids: https://docutils.sf.net/docs/user/config.html#legacy-ids
+
 Testing
 -------
 
