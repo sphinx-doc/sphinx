@@ -98,6 +98,7 @@ class ASTIdentifier(ASTBaseBase):
             target_text = prefix + self.name
             pnode = addnodes.pending_xref(
                 '',
+                refdoc=env.docname,
                 refdomain='c',
                 reftype='identifier',
                 reftarget=target_text,
