@@ -1,0 +1,13 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: test-gettext-include\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: xx\n"
+
+msgid "Part"
+msgstr "PartTranslated"
+
+msgid "This paragraph is shared through ``include``."
+msgstr "This paragraph is translated from the included document."
