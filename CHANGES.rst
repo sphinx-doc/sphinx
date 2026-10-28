@@ -41,6 +41,10 @@ Release 9.1.1 (released Oct 19, 2026)
 Bugs fixed
 ----------
 
+* #14623: todo: Nested admonitions no longer get a duplicate title on the
+  todolist page when the source document is written first.
+  Patch by Burak Keskin
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
