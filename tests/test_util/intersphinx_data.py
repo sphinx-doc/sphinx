@@ -23,6 +23,7 @@ INVENTORY_V2: Final[bytes] = b"""\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
+module1.CONST py:data 1 sub/foo.html#$ -
 module1.Foo.bar py:method 1 index.html#foo.Bar.baz -
 CFunc c:function 2 cfunc.html#CFunc -
 std cpp:type 1 index.html#std -

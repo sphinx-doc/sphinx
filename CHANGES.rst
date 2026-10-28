@@ -51,6 +51,11 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14564: Python domain: let the ``deco`` and ``const`` roles resolve
+  through intersphinx and in ``refspecific`` mode, by claiming them
+  from the object types that back them.
+  Patch by UlikGames
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
