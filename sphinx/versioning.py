@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
 try:
-    import Levenshtein  # type: ignore[import-not-found]
+    import Levenshtein  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     IS_SPEEDUP = True
 except ImportError:
@@ -41,7 +41,7 @@ def add_uids(doctree: Node, condition: Callable[[Node], bool]) -> Iterator[Node]
         A callable which returns either ``True`` or ``False`` for a given node.
     """
     for node in doctree.findall(condition):
-        node.uid = uuid4().hex  # type: ignore[attr-defined]
+        node.uid = uuid4().hex  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         yield node
 
 
@@ -74,9 +74,9 @@ def merge_doctrees(
         if new_node is None:
             old_nodes.append(old_node)
             continue
-        ratio = get_ratio(old_node.rawsource, new_node.rawsource)  # type: ignore[union-attr]
+        ratio = get_ratio(old_node.rawsource, new_node.rawsource)  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         if ratio == 0:
-            new_node.uid = old_node.uid  # type: ignore[union-attr]
+            new_node.uid = old_node.uid  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
             seen.add(new_node)
         else:
             ratios[old_node, new_node] = ratio
@@ -87,9 +87,9 @@ def merge_doctrees(
     for old_node, new_node in product(old_nodes, new_nodes):
         if new_node in seen or (old_node, new_node) in ratios:
             continue
-        ratio = get_ratio(old_node.rawsource, new_node.rawsource)  # type: ignore[union-attr]
+        ratio = get_ratio(old_node.rawsource, new_node.rawsource)  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         if ratio == 0:
-            new_node.uid = old_node.uid  # type: ignore[union-attr]
+            new_node.uid = old_node.uid  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
             seen.add(new_node)
         else:
             ratios[old_node, new_node] = ratio
@@ -102,7 +102,7 @@ def merge_doctrees(
         else:
             seen.add(new_node)
         if ratio < VERSIONING_RATIO:
-            new_node.uid = old_node.uid  # type: ignore[union-attr]
+            new_node.uid = old_node.uid  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         else:
             new_node.uid = uuid4().hex  # type: ignore[union-attr]
             yield new_node

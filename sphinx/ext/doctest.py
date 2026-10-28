@@ -273,7 +273,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
         self, filename: str, module_globals: Any = None
     ) -> Any:
         # this is overridden from DocTestRunner adding the try-except below
-        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)  # type: ignore[attr-defined]
+        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         if m and m.group('name') == self.test.name:
             try:
                 example = self.test.examples[int(m.group('examplenum'))]
@@ -284,7 +284,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
                 pass
             else:
                 return example.source.splitlines(True)
-        return self.save_linecache_getlines(filename, module_globals)  # type: ignore[attr-defined]
+        return self.save_linecache_getlines(filename, module_globals)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
 
 # the new builder -- use sphinx-build.py -b doctest to run
@@ -308,7 +308,7 @@ class DocTestBuilder(Builder):
         # for doctest examples but unusable for multi-statement code such
         # as setup code -- to be able to use doctest error reporting with
         # that code nevertheless, we monkey-patch the "compile" it uses.
-        doctest.compile = self.compile  # type: ignore[attr-defined]
+        doctest.compile = self.compile  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         sys.path[0:0] = self.config.doctest_path
 
@@ -420,10 +420,10 @@ class DocTestBuilder(Builder):
             condition = node['skipif']
             context: dict[str, Any] = {}
             if self.config.doctest_global_setup:
-                exec(self.config.doctest_global_setup, context)  # NoQA: S102
-            should_skip = eval(condition, context)  # NoQA: S307
+                exec(self.config.doctest_global_setup, context)  # ruff: ignore[exec-builtin]
+            should_skip = eval(condition, context)  # ruff: ignore[suspicious-eval-usage]
             if self.config.doctest_global_cleanup:
-                exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
+                exec(self.config.doctest_global_cleanup, context)  # ruff: ignore[exec-builtin]
             return should_skip
 
     def test_doc(self, docname: str, doctree: Node) -> bool:
@@ -433,8 +433,8 @@ class DocTestBuilder(Builder):
         self.test_runner = SphinxDocTestRunner(verbose=False, optionflags=self.opt)
         self.cleanup_runner = SphinxDocTestRunner(verbose=False, optionflags=self.opt)
 
-        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
-        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
+        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
         if self.config.doctest_test_doctest_blocks:
             condition = _condition_with_doctest
@@ -444,24 +444,24 @@ class DocTestBuilder(Builder):
             if self.skipped(node):  # type: ignore[arg-type]
                 continue
 
-            source = node['test'] if 'test' in node else node.astext()  # type: ignore[index, operator]
+            source = node['test'] if 'test' in node else node.astext()  # type: ignore[index, operator]  # ty: ignore[unsupported-operator]
             filename = self.get_filename_for_node(node, docname)
             line_number = self.get_line_number(node)
             if not source:
                 logger.warning(
                     __('no code/output in %s block at %s:%s'),
-                    node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
+                    node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                     filename,
                     line_number,
                 )
             code = TestCode(
                 source,
-                type=node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
+                type=node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 filename=filename,
                 lineno=line_number,  # type: ignore[arg-type]
-                options=node.get('options'),  # type: ignore[attr-defined]
+                options=node.get('options'),  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             )
-            node_groups = node.get('groups', [self.config.doctest_test_doctest_blocks])  # type: ignore[attr-defined]
+            node_groups = node.get('groups', [self.config.doctest_test_doctest_blocks])  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             if '*' in node_groups:
                 add_to_all_groups.append(code)
                 continue
@@ -586,7 +586,7 @@ class DocTestBuilder(Builder):
                 # disable <BLANKLINE> processing as it is not needed
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
-                m = parser._EXCEPTION_RE.match(output)  # type: ignore[attr-defined]
+                m = parser._EXCEPTION_RE.match(output)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 if m:
                     exc_msg = m.group('msg')
                 else:

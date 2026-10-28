@@ -399,13 +399,9 @@ class Autosummary(SphinxDirective):
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
-        if docutils.__version_info__[:2] < (0, 22):
-            group.append(nodes.colspec('', colwidth=10))
-            group.append(nodes.colspec('', colwidth=90))
-        else:
-            # Docutils 1.0 expects colwidth to be a string
-            group.append(nodes.colspec('', colwidth='10'))
-            group.append(nodes.colspec('', colwidth='90'))
+        for width in (10, 90):
+            colwidth = str(width) if docutils.__version_info__[:2] >= (1, 0) else width
+            group.append(nodes.colspec('', colwidth=colwidth))
         body = nodes.tbody('')
         group.append(body)
 
@@ -730,7 +726,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
     except (ValueError, ImportError, AttributeError, KeyError) as exc:
         errors.append(exc)
         if grouped_exception:
-            raise ImportExceptionGroup('', errors) from None  # NoQA: EM101
+            raise ImportExceptionGroup('', errors) from None  # ruff: ignore[raw-string-in-exception]
         else:
             raise ImportError(*exc.args) from exc
 

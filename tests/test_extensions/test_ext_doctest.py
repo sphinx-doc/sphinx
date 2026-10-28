@@ -11,12 +11,7 @@ from docutils import nodes
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
 
-from sphinx.ext.doctest import (
-    DocTestBuilder,
-    _condition_default,
-    _condition_with_doctest,
-    is_allowed_version,
-)
+from sphinx.ext.doctest import DocTestBuilder, is_allowed_version
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -26,7 +21,7 @@ cleanup_called = 0
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest')
 def test_build(app: SphinxTestApp) -> None:
-    global cleanup_called  # NoQA: PLW0603
+    global cleanup_called  # ruff: ignore[global-statement]
     cleanup_called = 0
     app.build(force_all=True)
     assert app.statuscode == 0, f'failures in doctests:\n{app.status.getvalue()}'
@@ -55,14 +50,6 @@ def test_highlight_language_python3(app: SphinxTestApp) -> None:
         assert node['language'] in {'python', 'pycon', 'none'}
 
 
-def test_condition_with_doctest_docutils_1() -> None:
-    # Docutils 1.0 represents a doctest block as a classified literal block
-    source = '>>> 1 + 1\n2'
-    node = nodes.literal_block(source, source, classes=['code', 'pycon', 'doctest'])
-    assert _condition_with_doctest(node)
-    assert not _condition_default(node)
-
-
 def test_is_allowed_version() -> None:
     assert is_allowed_version('<3.4', '3.3') is True
     assert is_allowed_version('<3.4', '3.3') is True
@@ -88,7 +75,7 @@ def test_is_allowed_version() -> None:
 
 
 def cleanup_call() -> None:
-    global cleanup_called  # NoQA: PLW0603
+    global cleanup_called  # ruff: ignore[global-statement]
     cleanup_called += 1
 
 
@@ -106,7 +93,7 @@ def test_skipif(app: SphinxTestApp) -> None:
     in ``test_build`` above, and the assertion below would fail.
 
     """
-    global recorded_calls  # NoQA: PLW0603
+    global recorded_calls  # ruff: ignore[global-statement]
     recorded_calls = Counter()
     app.build(force_all=True)
     if app.statuscode != 0:

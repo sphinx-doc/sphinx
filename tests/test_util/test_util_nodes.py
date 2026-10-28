@@ -11,11 +11,10 @@ from docutils import frontend, nodes
 from docutils.parsers import rst
 from docutils.utils import new_document
 
-from sphinx.transforms import ApplySourceWorkaround, HandleCodeBlocks
+from sphinx.transforms import ApplySourceWorkaround
 from sphinx.util.nodes import (
     NodeMatcher,
     _get_colwidth,
-    _is_doctest_block,
     apply_source_workaround,
     clean_astext,
     extract_messages,
@@ -34,9 +33,7 @@ def _transform(doctree: nodes.document) -> None:
 
 
 def create_new_document() -> document:
-    # TODO: TYPING: Upstream docutils should accept both instances and subclasses
-    #       of SettingsSpec here.
-    settings = frontend.get_default_settings(rst.Parser)  # type: ignore[arg-type]
+    settings = frontend.get_default_settings(rst.Parser)
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
@@ -185,7 +182,7 @@ def test_extract_messages_without_rawsource() -> None:
     document.append(p)
     _transform(document)
     assert_node_count(extract_messages(document), nodes.TextElement, 1)
-    assert next(m for n, m in extract_messages(document)), 'text sentence'
+    assert next(m for n, m in extract_messages(document)) == 'testsentence'
 
 
 def test_clean_astext() -> None:
@@ -276,35 +273,6 @@ def test_apply_source_workaround_literal_block_no_source() -> None:
     assert literal_block.source is None
     assert list_item.source is None
     assert bullet_list.source is None
-
-
-def _docutils_1_doctest_block() -> nodes.literal_block:
-    # Docutils 1.0 represents a doctest block as a classified literal block
-    source = '>>> 1 + 1\n2'
-    return nodes.literal_block(source, source, classes=['code', 'pycon', 'doctest'])
-
-
-def test_is_doctest_block() -> None:
-    assert _is_doctest_block(nodes.doctest_block('>>> 1', '>>> 1'))
-    assert _is_doctest_block(_docutils_1_doctest_block())
-
-    assert not _is_doctest_block(nodes.literal_block('>>> 1', '>>> 1'))
-    assert not _is_doctest_block(nodes.literal_block('', '', classes=['code', 'pycon']))
-    # nodes created by the sphinx.ext.doctest directives
-    doctest_directive_node = _docutils_1_doctest_block()
-    doctest_directive_node['testnodetype'] = 'doctest'
-    assert not _is_doctest_block(doctest_directive_node)
-
-
-def test_handle_code_blocks_moves_docutils_1_doctest_blocks() -> None:
-    document = create_new_document()
-    block = _docutils_1_doctest_block()
-    document += nodes.block_quote('', block)
-
-    HandleCodeBlocks(document).apply()
-
-    assert not list(document.findall(nodes.block_quote))
-    assert block.parent is document
 
 
 @pytest.mark.parametrize(

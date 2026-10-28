@@ -6,6 +6,7 @@ import re
 import unicodedata
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
@@ -27,10 +28,9 @@ from sphinx.util.nodes import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
-    from typing import Any, ClassVar, Literal
+    from typing import Any, ClassVar, Literal, TypeIs
 
     from docutils.nodes import Node
-    from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -282,7 +282,7 @@ class ExtraTranslatableNodes(SphinxTransform):
             return
 
         def is_translatable_node(node: Node) -> TypeIs[nodes.Element]:
-            if isinstance(node, nodes.literal_block) and _is_doctest_block(node):
+            if _is_doctest_block(node):
                 return 'doctest-block' in targets
             return isinstance(node, target_nodes)
 
@@ -331,17 +331,18 @@ class UnreferencedFootnotesDetector(SphinxTransform):
 
 
 class DoctestTransform(SphinxTransform):
-    """Set "doctest" style to each doctest_block node"""
+    """Set the style and highlighting language of doctest blocks."""
 
     default_priority = 500
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(nodes.doctest_block):
             node['classes'].append('doctest')
-        # Docutils 1.0 creates literal_block nodes for doctest blocks
-        for literal_block in self.document.findall(nodes.literal_block):
-            if _is_doctest_block(literal_block):
-                literal_block.setdefault('language', 'pycon')
+        if docutils.__version_info__[:2] >= (1, 0):
+            # Docutils 1.0 represents doctests as literal blocks.
+            for literal in self.document.findall(nodes.literal_block):
+                if _is_doctest_block(literal):
+                    literal.setdefault('language', 'pycon')
 
 
 class FilterSystemMessages(SphinxTransform):
@@ -385,7 +386,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         # TODO: TYPING: Upstream docutils should be updated so that
         #       smartquotes_action accepts any iterable of characters
         #       and can be overridden per-instance.
-        self.smartquotes_action = self.config.smartquotes_action  # type: ignore[misc]
+        self.smartquotes_action = self.config.smartquotes_action  # type: ignore[misc]  # ty: ignore[invalid-attribute-access]
 
         super().apply()
 

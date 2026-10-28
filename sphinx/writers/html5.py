@@ -7,6 +7,7 @@ import re
 import urllib.parse
 from typing import TYPE_CHECKING
 
+import docutils
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
@@ -341,7 +342,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             )
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
-            assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
+            assert len(node) == 1 and isinstance(node[0], nodes.image)  # ruff: ignore[pytest-composite-assertion]
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']
@@ -672,6 +673,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_block_quote(self, node: Element) -> None:
         self.body.append('</div></blockquote>\n')
 
+    if docutils.__version_info__[:2] >= (1, 0):
+
+        def visit_attribution(self, node: Element) -> None:
+            # Keep attributions inside our blockquote wrapper. Docutils 1.0's
+            # visitor closes the blockquote before emitting the attribution.
+            prefix, suffix = self.attribution_formats[self.settings.attribution]
+            self.context.append(suffix)
+            self.body.append(self.starttag(node, 'p', prefix, CLASS='attribution'))
+
     # overwritten
     def visit_literal(self, node: Element) -> None:
         if 'kbd' in node['classes']:
@@ -974,7 +984,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         else:
             node['classes'].append('row-odd')
         self.body.append(self.starttag(node, 'tr', ''))
-        node.column = 0  # type: ignore[attr-defined]
+        node.column = 0  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     def visit_field_list(self, node: nodes.field_list) -> None:
         self._fieldlist_row_indices.append(0)

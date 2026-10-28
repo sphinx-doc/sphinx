@@ -293,7 +293,7 @@ class TexinfoTranslator(SphinxTranslator):
         for section in self.document.findall(nodes.section):
             # TODO: TYPING: Node.next_node() should accept the non-Node
             #       mixin classes in docutils.nodes.
-            title = section.next_node(nodes.Titular)  # type: ignore[type-var]
+            title = section.next_node(nodes.Titular)  # type: ignore[type-var]  # ty: ignore[no-matching-overload]
             assert isinstance(title, nodes.Node)
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
@@ -494,14 +494,14 @@ class TexinfoTranslator(SphinxTranslator):
 
         if indices_config := self.config.texinfo_domain_indices:
             if not isinstance(indices_config, bool):
-                check_names = True
                 indices_config = frozenset(indices_config)
-            else:
-                check_names = False
             for domain in self._domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
-                    if check_names and index_name not in indices_config:
+                    if (
+                        not isinstance(indices_config, bool)
+                        and index_name not in indices_config
+                    ):
                         continue
                     content, collapsed = index_cls(domain).generate(
                         self.builder.docnames
@@ -894,7 +894,7 @@ class TexinfoTranslator(SphinxTranslator):
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
-        footnode.walkabout(self)  # type: ignore[union-attr]
+        footnode.walkabout(self)  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         raise nodes.SkipChildren
 
     def visit_citation(self, node: Element) -> None:

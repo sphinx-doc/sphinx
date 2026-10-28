@@ -242,7 +242,7 @@ class Table:
                 for colno, cell in enumerate(line):
                     if cell.col != colno:
                         continue
-                    if lineno != cell.row:  # NoQA: SIM114
+                    if lineno != cell.row:  # ruff: ignore[if-with-same-arms]
                         physical_text = ''
                     elif physical_line >= len(cell.wrapped):
                         physical_text = ''
@@ -563,7 +563,7 @@ class TextTranslator(SphinxTranslator):
         else:
             char = '^'
         text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
+        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]  # ty: ignore[no-matching-overload]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
