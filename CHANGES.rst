@@ -51,6 +51,11 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14576: autodoc: Fix ``IndexError`` when an ``autodoc-process-signature``
+  handler returns a signature for an object that has none, such as a
+  module, a data object, a type alias, or an attribute.
+  Patch by UlikGames
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
