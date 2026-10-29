@@ -236,5 +236,17 @@ class _TypeStatementProperties(_ItemProperties):
     _obj___value__: str  # The aliased annotation
 
     @property
+    def canonical_full_name(self) -> str | None:
+        modname = self._obj___module__
+        if modname is None:
+            modname = self.module_name
+        qualname = self._obj___qualname__
+        if qualname is None:
+            qualname = self._obj___name__
+        if not modname or not qualname or '<locals>' in qualname:
+            return None
+        return f'{modname}.{qualname}'
+
+    @property
     def _groupwise_order_key(self) -> int:
         return 70

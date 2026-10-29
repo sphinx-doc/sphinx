@@ -44,6 +44,10 @@ Release 9.1.1 (released Oct 19, 2026)
 Bugs fixed
 ----------
 
+* #14745: autodoc: Register the defining module path of re-exported type
+  aliases as an additional target via the new ``py:type`` ``:canonical-name:``
+  option, so that references via the runtime module path resolve.
+
 * #14465: LaTeX: PDF build crash since LaTeX June 2026 release if tables are
   styled with ``'colorrows'`` (which is the default).
   Patch by Jean-François B.
