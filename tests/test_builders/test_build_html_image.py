@@ -24,6 +24,20 @@ def test_html_remote_images(app: SphinxTestApp) -> None:
     assert not (app.outdir / 'sphinx.png').exists()
 
 
+@pytest.mark.sphinx('html', testroot='images')
+def test_html_images_keep_aspect_ratio(app: SphinxTestApp) -> None:
+    # Images with both width and height attributes must not be stretched when
+    # the column is narrower than the width attribute
+    # (https://github.com/sphinx-doc/sphinx/issues/14799)
+    app.build(force_all=True)
+
+    css = (app.outdir / '_static' / 'basic.css').read_text(encoding='utf8')
+    img_rule = re.search(r'^img \{(.*?)\}', css, re.MULTILINE | re.DOTALL)
+    assert img_rule is not None
+    assert 'max-width: 100%;' in img_rule.group(1)
+    assert 'height: auto;' in img_rule.group(1)
+
+
 @pytest.mark.sphinx('html', testroot='image-escape')
 def test_html_encoded_image(app: SphinxTestApp) -> None:
     app.build(force_all=True)

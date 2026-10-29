@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14799: HTML: keep the aspect ratio of images that have both ``width``
+  and ``height`` attributes when the column is narrower than the image,
+  by adding ``height: auto`` to the ``basic`` theme
+
 Testing
 -------
 
