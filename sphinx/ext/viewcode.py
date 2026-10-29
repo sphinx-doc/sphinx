@@ -328,11 +328,16 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
             _type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (
-                f'<div class="viewcode-block" id="{name}">\n'
-                f'<a class="viewcode-back" href="{backlink}">{link_text}</a>\n'
+                f'<div class="viewcode-block" id="{name}">'
+                f'<a class="viewcode-back" href="{backlink}">{link_text}</a>'
                 + lines[start]
             )
-            lines[min(end, max_index)] += '</div>\n'
+        # close each block at the start of the line after it: a newline
+        # after the </div> would render as an extra blank line
+        for name in used:
+            _type, _start, end = tags[name]
+            closing = min(end + 1, max_index)
+            lines[closing] = '</div>' + lines[closing]
 
         # try to find parents (for submodules)
         parents = []
