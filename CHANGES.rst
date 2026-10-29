@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14801: viewcode: Remove the extra blank lines around ``[docs]`` links
+  in highlighted source pages.
+  Patch by Giampaolo Rodola.
+
 Testing
 -------
 

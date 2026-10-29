@@ -44,14 +44,15 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     # filter pygments classes
     result = re.sub('<span class="[^"]{,2}">', '<span>', result)
     assert (
-        '<div class="viewcode-block" id="Class1">\n'
-        '<a class="viewcode-back" href="../../index.html#spam.Class1">[docs]</a>\n'
+        '<div class="viewcode-block" id="Class1">'
+        '<a class="viewcode-back" href="../../index.html#spam.Class1">[docs]</a>'
     ) in result
+    assert '[docs]</a>\n' not in result
     assert '<span>@decorator</span>\n' in result
     assert (
         '<span>class</span><span> </span><span>Class1</span><span>:</span>\n' in result
     )
-    assert f'<span>    </span><span>{ds}</span></div>\n' in result
+    assert f'<span>    </span><span>{ds}</span>\n</div>' in result
 
     return result
 
