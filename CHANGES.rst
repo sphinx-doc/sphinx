@@ -54,6 +54,10 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14733: autodoc: Support documenting C-extension named tuple and struct
+  sequence instances at module level.
+  Patch by Ansh Rohilla.
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================

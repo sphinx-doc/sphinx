@@ -508,7 +508,11 @@ def _filter_members(
 
         if keep:
             # if is_attr is True, the member is documented as an attribute
-            is_attr = member_obj is INSTANCE_ATTR or has_attr_doc
+            is_attr = (
+                member_obj is INSTANCE_ATTR
+                or has_attr_doc
+                or inspect.is_namedtuple_instance(member_obj)
+            )
             yield member_name, member_obj, is_attr
 
 
@@ -777,7 +781,7 @@ def _should_keep_member(
         cls = get_attr(member_obj, '__class__', None)
         if cls:
             cls_doc = get_attr(cls, '__doc__', None)
-            if cls_doc == doc:
+            if cls_doc == doc and not inspect.is_namedtuple_instance(member_obj):
                 doclines = None
 
     if doclines is not None:
