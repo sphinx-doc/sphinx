@@ -231,6 +231,9 @@ def _make_props_from_imported_object(
             SimpleNamespace(),
             obj_bases,
         )
+        # `object` is implicitly a base of every class; listing it explicitly
+        # carries no information, so never render it (refs #14747).
+        obj_bases = [base for base in obj_bases if base is not object]
         base_classes = tuple(restify(cls, mode=render_mode) for cls in obj_bases)
 
         return _ClassDefProperties(
