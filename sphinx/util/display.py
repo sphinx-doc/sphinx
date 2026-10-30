@@ -2,7 +2,15 @@ from __future__ import annotations
 
 import functools
 
-from sphinx._cli.util.colour import bold, terminal_supports_colour
+from sphinx._cli.util.colour import (
+    blue,
+    bold,
+    darkgray,
+    green,
+    teal,
+    terminal_supports_colour,
+    turquoise,
+)
 from sphinx.locale import __
 from sphinx.util import logging
 
@@ -21,6 +29,21 @@ def display_chunk(chunk: Any) -> str:
             return str(chunk[0])
         return f'{chunk[0]} .. {chunk[-1]}'
     return str(chunk)
+
+
+def _progress_colour(i: int, length: int) -> Callable[[str], str]:
+    # A cool grey-blue-cyan ramp that ends in green once complete.
+    # Red and yellow are avoided as they suggest warnings or errors.
+    if i >= length:
+        return green
+    fraction = i / length
+    if fraction >= 0.75:
+        return teal
+    if fraction >= 0.5:
+        return turquoise
+    if fraction >= 0.25:
+        return blue
+    return darkgray
 
 
 def status_iterator[T](
@@ -44,7 +67,8 @@ def status_iterator[T](
             if single_line:
                 # clear the entire line ('Erase in Line')
                 logger.info('\x1b[2K', nonl=True)
-            logger.info(f'{bold_summary}[{i / length: >4.0%}] ', nonl=True)  # ruff: ignore[logging-f-string]
+            percentage = _progress_colour(i, length)(f'[{i / length: >4.0%}] ')
+            logger.info(bold_summary + percentage, nonl=True)  # ruff: ignore[logging-string-concat]
             # Emit the string representation of ``item``
             logger.info(stringify_func(item), nonl=True, color=color)
             # If in single-line mode, emit a carriage return to move the cursor
