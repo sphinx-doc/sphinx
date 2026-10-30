@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #11537: Add the :mod:`sphinx.ext.translation_progress` extension to show
+  translation progress for documents with incomplete translations.
+
 Bugs fixed
 ----------
 
