@@ -54,6 +54,10 @@ Bugs fixed
 * Fixed support for Python 3.16 alpha 0 (changes in the ``enum`` module).
   Patch by Adam Turner
 
+* #14565: ``--no-color`` now also suppresses the cursor control sequences
+  used to redraw the progress line, matching ``NO_COLOR``.
+  Patch by Dipak Chaudhari
+
 
 Release 9.1.0 (released Dec 31, 2025)
 =====================================
