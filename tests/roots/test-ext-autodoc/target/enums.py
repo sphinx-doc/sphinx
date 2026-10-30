@@ -242,3 +242,19 @@ class EnumNamePropertyInClass(enum.Enum):
     def name(self):
         """docstring"""
         return super().name
+
+
+class FlagCls(enum.Flag):
+    """this is a flag class"""
+
+    #: doc for flag1
+    flag1 = enum.auto()
+    #: doc for flag2
+    flag2 = enum.auto()
+
+
+class ClassWithFlagAttribute:
+    """this is a class with a Flag-typed attribute"""
+
+    #: doc for combo_flag
+    combo_flag: FlagCls = FlagCls.flag1 | FlagCls.flag2

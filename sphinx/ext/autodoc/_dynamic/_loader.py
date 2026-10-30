@@ -409,7 +409,11 @@ def _make_props_from_imported_object(
     if objtype == 'attribute':
         if _is_slots_attribute(parent=parent, obj_path=parts):
             obj = SLOTS_ATTR
-        elif inspect.isenumattribute(obj):
+        elif inspect.isenumattribute(obj) and not inspect.is_composite_flag_member(obj):
+            # Collapsing a composite Flag combination (e.g. VAL1 | VAL2) to
+            # its raw .value would show a bare, undecodable integer instead
+            # of the member names; leave it as the Flag object so
+            # object_description() can render it properly.
             obj = obj.value
         if parent and config.autodoc_use_type_comments:
             # Update __annotations__ to support type_comment and so on
