@@ -7,16 +7,22 @@ import shutil
 import subprocess
 import warnings
 from typing import TYPE_CHECKING
+from unittest.mock import MagicMock, patch
 
 import pytest
 from docutils import nodes
+from docutils.utils import new_document
 
+from sphinx.ext import imgmath as imgmath_mod
 from sphinx.ext.mathjax import MATHJAX_URL
 from sphinx.testing.util import assert_node
+from sphinx.util._pathlib import _StrPath
 
 from tests.utils import extract_node
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from sphinx.testing.util import SphinxTestApp
 
 FAKE_MATHJAX_URL = 'https://example.org/fake-mathjax.js'
@@ -30,6 +36,145 @@ def has_binary(binary: str) -> bool:
     except OSError:
         pass
     return True
+
+
+def _mock_imgmath_config(**overrides: object) -> MagicMock:
+    config = MagicMock()
+    config.imgmath_font_size = 12
+    config.imgmath_latex_preamble = ''
+    config.imgmath_use_preview = False
+    config.imgmath_image_format = 'png'
+    config.imgmath_batch_size = 2
+    config.imgmath_latex = 'latex'
+    config.imgmath_latex_args = []
+    config.imgmath_dvipng = 'dvipng'
+    config.imgmath_dvipng_args = []
+    config.imgmath_dvisvgm = 'dvisvgm'
+    config.imgmath_dvisvgm_args = []
+    config.templates_path = []
+    for key, value in overrides.items():
+        setattr(config, key, value)
+    return config
+
+
+def test_imgmath_build_batch_document_png() -> None:
+    config = _mock_imgmath_config()
+    doc = imgmath_mod._build_batch_document(
+        ['$a$', '$b$'], config=config, image_format='png'
+    )
+    assert doc.count(r'\clearpage') == 1
+    assert r'\begin{document}' in doc
+    assert '$a$' in doc
+    assert '$b$' in doc
+    # png uses tightpage='' so no dvips option
+    assert 'preview' not in doc
+    # single equation has no separator
+    single = imgmath_mod._build_batch_document(
+        ['$a$'], config=config, image_format='png'
+    )
+    assert r'\clearpage' not in single
+
+
+def test_imgmath_build_batch_document_svg_preview() -> None:
+    config = _mock_imgmath_config(imgmath_use_preview=True)
+    doc = imgmath_mod._build_batch_document(
+        ['$a$', '$b$'], config=config, image_format='svg'
+    )
+    assert r'\usepackage[active,dvips,tightpage]{preview}' in doc
+    assert doc.count(r'\begin{preview}') == 2
+    assert doc.count(r'\end{preview}') == 2
+    assert r'\usepackage{amsmath}' in doc
+
+
+def test_imgmath_has_custom_template(tmp_path: Path) -> None:
+    confdir = _StrPath(tmp_path)
+    config = _mock_imgmath_config()
+    assert imgmath_mod._has_custom_template(config, confdir) is False
+    template_dir = tmp_path / '_templates'
+    template_dir.mkdir()
+    config.templates_path = ['_templates']
+    assert imgmath_mod._has_custom_template(config, confdir) is False
+    (template_dir / 'template.tex.jinja').write_text('custom', encoding='utf-8')
+    assert imgmath_mod._has_custom_template(config, confdir) is True
+    # absolute templates_path is honoured
+    config.templates_path = [str(template_dir)]
+    assert imgmath_mod._has_custom_template(config, confdir) is True
+
+
+def test_imgmath_collect_math_expressions_dedupes() -> None:
+    doc1 = new_document('<test>')
+    doc1 += nodes.math('', 'E=mc^2')
+    doc1 += nodes.math_block('', 'a^2', number=None)
+    doc2 = new_document('<test>')
+    doc2 += nodes.math('', 'E=mc^2')  # duplicate inline
+    env = MagicMock()
+    env.all_docs = {'index': 0, 'other': 0}
+    env.get_doctree.side_effect = [doc1, doc2]
+    maths = imgmath_mod._collect_math_expressions(env)
+    assert maths[0] == '$E=mc^2$'
+    assert len(maths) == 2  # duplicate removed
+    # unreadable doctree is skipped, not fatal
+    env.get_doctree.side_effect = Exception('boom')
+    env.all_docs = {'broken': 0}
+    assert imgmath_mod._collect_math_expressions(env) == []
+
+
+def test_imgmath_pre_render_batch_disabled() -> None:
+    app = MagicMock()
+    app.config.imgmath_batch_size = 1
+    imgmath_mod.pre_render_batch(app, MagicMock())
+    app.builder.assert_not_called()
+    # invalid image format is ignored
+    app.config.imgmath_batch_size = 10
+    app.config.imgmath_image_format = 'bogus'
+    app.builder.format = 'html'
+    imgmath_mod.pre_render_batch(app, MagicMock())
+    # non-html builders are ignored
+    app.config.imgmath_image_format = 'png'
+    app.builder.format = 'latex'
+    imgmath_mod.pre_render_batch(app, MagicMock())
+
+
+def test_imgmath_render_batch_chunk_skips_cached(tmp_path: Path) -> None:
+    cached = tmp_path / 'cached.png'
+    cached.write_bytes(b'x')
+    config = _mock_imgmath_config()
+    builder = MagicMock()
+    with patch.object(imgmath_mod, '_compile_batch_document') as compile_batch:
+        imgmath_mod._render_batch_chunk(
+            ['$a$'],
+            [cached],
+            config=config,
+            confdir=_StrPath(tmp_path),
+            builder=builder,
+            image_format='png',
+        )
+    compile_batch.assert_not_called()
+
+
+def test_imgmath_render_batch_chunk_falls_back_to_single(tmp_path: Path) -> None:
+    from sphinx.ext.imgmath import MathExtError
+
+    out = tmp_path / 'out.png'
+    config = _mock_imgmath_config()
+    builder = MagicMock()
+    with (
+        patch.object(
+            imgmath_mod,
+            '_compile_batch_document',
+            side_effect=MathExtError('latex boom'),
+        ),
+        patch.object(imgmath_mod, '_compile_single_math') as single,
+    ):
+        imgmath_mod._render_batch_chunk(
+            ['$a$'],
+            [out],
+            config=config,
+            confdir=_StrPath(tmp_path),
+            builder=builder,
+            image_format='png',
+        )
+    single.assert_called_once()
 
 
 @pytest.mark.skipif(
@@ -84,6 +229,166 @@ def test_imgmath_svg(app: SphinxTestApp) -> None:
         r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>'
     )
     assert re.search(html, content, re.DOTALL)
+
+
+@pytest.mark.skipif(
+    not has_binary('dvipng'),
+    reason='Requires dvipng" binary',
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.imgmath'],
+        'imgmath_batch_size': 2,
+    },
+)
+def test_imgmath_batch_png(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
+    if "dvipng command 'dvipng' cannot be run" in app.warning.getvalue():
+        msg = 'dvipng command "dvipng" is not available'
+        raise pytest.skip.Exception(msg)
+    warning = app.warning.getvalue()
+    assert 'latex exited with error' not in warning
+    assert 'Batch LaTeX compilation failed' not in warning
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    math_images = list((app.outdir / '_images' / 'math').glob('*.png'))
+    try:
+        # inline and display math are both rendered
+        assert re.search(
+            r'<img class="math" src="_images/math/[0-9a-f]{40}\.png"', content
+        )
+        assert '<div class="math">' in content
+        # all images are non-empty and deterministically named (sha1)
+        assert len(math_images) >= 2
+        assert all(p.stat().st_size > 0 for p in math_images)
+    finally:
+        shutil.rmtree(app.outdir)
+
+
+@pytest.mark.skipif(
+    not has_binary('dvisvgm'),
+    reason='Requires dvisvgm" binary',
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.imgmath'],
+        'imgmath_image_format': 'svg',
+        'imgmath_batch_size': 2,
+    },
+)
+def test_imgmath_batch_svg(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
+    if "dvisvgm command 'dvisvgm' cannot be run" in app.warning.getvalue():
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
+    warning = app.warning.getvalue()
+    assert 'latex exited with error' not in warning
+    assert 'Batch LaTeX compilation failed' not in warning
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    math_images = list((app.outdir / '_images' / 'math').glob('*.svg'))
+    try:
+        assert re.search(
+            r'<img class="math" src="_images/math/[0-9a-f]{40}\.svg"', content
+        )
+        assert '<div class="math">' in content
+        assert len(math_images) >= 2
+        assert all(p.stat().st_size > 0 for p in math_images)
+    finally:
+        shutil.rmtree(app.outdir)
+
+
+@pytest.mark.skipif(
+    not has_binary('dvisvgm'),
+    reason='Requires dvisvgm" binary',
+)
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.imgmath'],
+        'imgmath_image_format': 'svg',
+        'imgmath_embed': True,
+        'imgmath_batch_size': 2,
+    },
+)
+def test_imgmath_batch_svg_embed(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    if "LaTeX command 'latex' cannot be run" in app.warning.getvalue():
+        msg = 'LaTeX command "latex" is not available'
+        raise pytest.skip.Exception(msg)
+    if "dvisvgm command 'dvisvgm' cannot be run" in app.warning.getvalue():
+        msg = 'dvisvgm command "dvisvgm" is not available'
+        raise pytest.skip.Exception(msg)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    try:
+        # embed mode renders inline + display math without separate files
+        assert re.search(r'<img src="data:image/svg\+xml;base64,[\w+/=]+"', content)
+        assert re.search(r'<img class="math" src="data:image/svg\+xml;base64,', content)
+    finally:
+        shutil.rmtree(app.outdir)
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-math',
+    confoverrides={
+        'extensions': ['sphinx.ext.imgmath'],
+        'imgmath_image_format': 'svg',
+        'imgmath_batch_size': 100,
+    },
+)
+def test_imgmath_batch_single_latex_invocation(app: SphinxTestApp) -> None:
+    """Batching compiles N equations with fewer LaTeX processes (mocked)."""
+    from pathlib import Path as _Path
+
+    latex_calls = 0
+    convert_calls = 0
+
+    real_build = imgmath_mod._build_batch_document
+
+    def fake_compile_batch(_combined: str, *, config: object) -> _Path:
+        nonlocal latex_calls
+        latex_calls += 1
+        assert r'\clearpage' in _combined or _combined.count('$') >= 2
+        return _Path('/nonexistent/math.dvi')
+
+    def fake_convert_dvi_to_svg(
+        _dvipath: _Path, out_path: _Path, *, config: object, page: int | None = None
+    ) -> None:
+        nonlocal convert_calls
+        convert_calls += 1
+        assert page is not None
+        assert page >= 1
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_bytes(b'<svg></svg>')
+
+    with (
+        patch.object(imgmath_mod, '_compile_batch_document', fake_compile_batch),
+        patch.object(imgmath_mod, '_build_batch_document', real_build),
+        patch.object(imgmath_mod, 'convert_dvi_to_svg', fake_convert_dvi_to_svg),
+    ):
+        app.build(force_all=True)
+
+    maths = imgmath_mod._collect_math_expressions(app.env)
+    assert len(maths) >= 2
+    # one LaTeX call for the whole batch, one convert per equation
+    assert latex_calls == 1
+    assert convert_calls == len(maths)
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
+    assert re.search(r'<img class="math" src="_images/math/\w+\.svg"', content)
 
 
 @pytest.mark.skipif(
