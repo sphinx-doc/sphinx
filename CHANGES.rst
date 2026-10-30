@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #14414: Intersphinx: Stringify error arguments before displaying them,
+  preventing possible crashes in error handling.
+  Patch by Paul S. Reid.
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
