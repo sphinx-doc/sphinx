@@ -1942,7 +1942,7 @@ Miscellany
      Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
 
-- The :dudir:`role` directive allows to mark inline text with class arguments.
+- The :dudir:`role` directive allows you to mark inline text with class arguments.
   This is handled in LaTeX output via the :code-tex:`\\DUrole` dispatcher
   command `as in Docutils <classarguments_>`_.  Object signatures also use
   :code-tex:`\\DUrole` for some components, with one or two-letters class

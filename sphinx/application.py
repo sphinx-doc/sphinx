@@ -800,7 +800,9 @@ class Sphinx:
         :param event: The name of target event
         :param callback: Callback function for the event
         :param priority: The priority of the callback.  The callbacks will be invoked
-                         in order of *priority* (ascending).
+                         in order of *priority* (ascending). Callback with the same
+                         priority will be invoked in the order they are registered,
+                         typically the order that extensions are listed in ``conf.py``.
         :return: A listener ID.  It can be used for :meth:`disconnect`.
 
         .. versionchanged:: 3.0
@@ -835,6 +837,10 @@ class Sphinx:
 
         Return the return values of all callbacks as a list.  Do not emit core
         Sphinx events in extensions!
+
+        `allowed_exceptions` is a tuple of exception types that pass through
+        the event dispatcher unchanged. If a handler raises one of those types,
+        Sphinx re-raises it rather than wrapping it in an `ExtensionError`.
 
         :param event: The name of event that will be emitted
         :param args: The arguments for the event
@@ -876,7 +882,7 @@ class Sphinx:
 
         :param builder: A builder class
         :param override: If true, install the builder forcedly even if another builder
-                         is already installed as the same name
+                         is already installed with the same name
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -911,7 +917,8 @@ class Sphinx:
         :param types: The type of configuration value.  A list of types can be specified.  For
                       example, ``[str]`` is used to describe a configuration that takes string
                       value.
-        :param description: A short description of the configuration value.
+        :param description: A short description of the configuration value. The description is
+                            not used by Sphinx, but may be useful for debugging.
 
         .. versionchanged:: 0.4
            If the *default* value is a callable, it will be called with the
@@ -942,7 +949,8 @@ class Sphinx:
     def add_event(self, name: str) -> None:
         """Register an event called *name*.
 
-        This is needed to be able to emit it.
+        An event must be registered before it can be emitted.
+        See :ref:`events` for more information.
 
         :param name: The name of the event
         """
@@ -957,6 +965,9 @@ class Sphinx:
     ) -> None:
         """Register or override a Docutils translator class.
 
+        A translator is a Docutils ``NodeVisitor`` class used by a builder to
+        turn a parsed doctree into the builder's output format, for example HTML.
+
         This is used to register a custom output translator or to replace a
         builtin translator.  This allows extensions to use a custom translator
         and define custom nodes for the translator (see :meth:`add_node`).
@@ -964,7 +975,7 @@ class Sphinx:
         :param name: The name of the builder for the translator
         :param translator_class: A translator class
         :param override: If true, install the translator forcedly even if another translator
-                         is already installed as the same name
+                         is already installed with the same name
 
         .. versionadded:: 1.3
         .. versionchanged:: 1.8
@@ -986,12 +997,12 @@ class Sphinx:
         :param node: A node class
         :param kwargs: Visitor functions for each builder (see below)
         :param override: If true, install the node forcedly even if another node is already
-                         installed as the same name
+                         installed with the same name
 
         Node visitor functions for the Sphinx HTML, LaTeX, text and manpage
         writers can be given as keyword arguments: the keyword should be one or
         more of ``'html'``, ``'latex'``, ``'text'``, ``'man'``, ``'texinfo'``
-        or any other supported translators, the value a 2-tuple of ``(visit,
+        or any other supported translators, the value is a 2-tuple of ``(visit,
         depart)`` methods.  ``depart`` can be ``None`` if the ``visit``
         function raises :exc:`docutils.nodes.SkipNode`.  Example:
 
@@ -1037,7 +1048,7 @@ class Sphinx:
     ) -> None:
         """Register a Docutils node class as a numfig target.
 
-        Sphinx numbers the node automatically. And then the users can refer it
+        Sphinx numbers the node automatically so that users can refer to it
         using :rst:role:`numref`.
 
         :param node: A node class
@@ -1048,13 +1059,13 @@ class Sphinx:
                         figtype if a new figtype is given.
         :param title_getter: A getter function to obtain the title of node.  It takes an
                              instance of the enumerable node, and it must return its title as
-                             string.  The title is used to the default title of references for
+                             string.  The title is used as the default title of references for
                              :rst:role:`ref`.  By default, Sphinx searches
                              ``docutils.nodes.caption`` or ``docutils.nodes.title`` from the
                              node as a title.
         :param kwargs: Visitor functions for each builder (same as :meth:`add_node`)
         :param override: If true, install the node forcedly even if another node is already
-                         installed as the same name
+                         installed with the same name
 
         .. versionadded:: 1.4
         """
@@ -1071,7 +1082,7 @@ class Sphinx:
         :param name: The name of the directive
         :param cls: A directive class
         :param override: If false, do not install it if another directive
-                         is already installed as the same name
+                         is already installed with the same name.
                          If true, unconditionally install the directive.
 
         For example, a custom directive named ``my-directive`` would be added
@@ -1124,7 +1135,7 @@ class Sphinx:
         :param name: The name of role
         :param role: A role function
         :param override: If false, do not install it if another role
-                         is already installed as the same name
+                         is already installed with the same name.
                          If true, unconditionally install the role.
 
         For more details about role functions, see `the Docutils docs
@@ -1152,7 +1163,7 @@ class Sphinx:
         node given by *nodeclass*.
 
         :param override: If false, do not install it if another role
-                         is already installed as the same name
+                         is already installed with the same name.
                          If true, unconditionally install the role.
 
         .. versionadded:: 0.6
@@ -1177,7 +1188,7 @@ class Sphinx:
 
         :param domain: A domain class
         :param override: If false, do not install it if another domain
-                         is already installed as the same name
+                         is already installed with the same name.
                          If true, unconditionally install the domain.
 
         .. versionadded:: 1.0
@@ -1198,7 +1209,7 @@ class Sphinx:
         :param name: A name of directive
         :param cls: A directive class
         :param override: If false, do not install it if another directive
-                         is already installed as the same name
+                         is already installed with the same name.
                          If true, unconditionally install the directive.
 
         .. versionadded:: 1.0
@@ -1223,7 +1234,7 @@ class Sphinx:
         :param name: The name of the role
         :param role: The role function
         :param override: If false, do not install it if another role
-                         is already installed as the same name
+                         is already installed with the same name.
                          If true, unconditionally install the role.
 
         .. versionadded:: 1.0
@@ -1242,7 +1253,7 @@ class Sphinx:
         :param domain: The name of the target domain
         :param index: The index class
         :param override: If false, do not install it if another index
-                         is already installed as the same name
+                         is already installed with the same name.
                          If true, unconditionally install the index.
 
         .. versionadded:: 1.0
@@ -1372,7 +1383,7 @@ class Sphinx:
 
 
         :param override: If false, do not install it if another cross-reference type
-                         is already installed as the same name
+                         is already installed with the same name.
                          If true, unconditionally install the cross-reference type.
 
         .. versionchanged:: 1.8
