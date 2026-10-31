@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #14675: viewcode: Do not generate module pages or index entries when no
+  documented objects link to them.
+  Patch by Kilian Paul
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
