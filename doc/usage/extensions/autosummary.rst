@@ -214,8 +214,9 @@ also use these config values:
 
    .. versionchanged:: 2.3
 
-      Emits :event:`autodoc-skip-member` event as :mod:`~sphinx.ext.autodoc`
-      does.
+      Emits the :event:`autodoc-skip-member` event.  The arguments differ
+      from those passed by :mod:`~sphinx.ext.autodoc`; see the event's
+      documentation.
 
    .. versionchanged:: 4.0
 
