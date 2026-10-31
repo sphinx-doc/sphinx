@@ -286,6 +286,39 @@ def test_glossary_warning(app: SphinxTestApp) -> None:
     ) in app.warning.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='_blank', parallel=10)
+def test_duplicate_labels_parallel(app: SphinxTestApp) -> None:
+    """Duplicate labels from different workers are reported."""
+    for docname in ('index', 'foo', 'bar', 'baz', 'qux', 'quux'):
+        (app.srcdir / f'{docname}.rst').write_text(
+            '.. _test:\n\nhello\n=====\n', encoding='utf8'
+        )
+
+    app.build()
+
+    assert 'WARNING: duplicate label test, other instance in' in app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='_blank', parallel=10)
+def test_duplicate_labels_incremental_parallel(app: SphinxTestApp) -> None:
+    """Rebuild after adding a duplicate to check the worker and merge warn only once."""
+    (app.srcdir / 'index.rst').write_text(
+        '.. _test:\n\nIndex\n=====\n', encoding='utf8'
+    )
+    (app.srcdir / 'foo.rst').write_text('Foo\n===\n', encoding='utf8')
+
+    app.build()
+    app.warning.seek(0)
+    app.warning.truncate(0)
+
+    (app.srcdir / 'foo.rst').write_text('.. _test:\n\nFoo\n===\n', encoding='utf8')
+    app.env.all_docs['foo'] = 0
+    app.build()
+
+    warning = app.warning.getvalue()
+    assert warning.count('[ref.duplicate_label]') == 1
+
+
 @pytest.mark.sphinx('html', testroot='_blank')
 def test_glossary_comment(app):
     text = (

@@ -834,6 +834,8 @@ class StandardDomain(Domain):
                 __('duplicate label %s, other instance in %s'),
                 name,
                 self.env.doc2path(self.anonlabels[name][0]),
+                type='ref',
+                subtype='duplicate_label',
             )
 
         self.anonlabels[name] = (docname, node_id)
@@ -915,6 +917,7 @@ class StandardDomain(Domain):
         to_remove3 = [key for key, (fn, _l) in self.anonlabels.items() if fn == docname]
         for key3 in to_remove3:
             del self.anonlabels[key3]
+        self.data.get('_duplicate_labels_warned', {}).pop(docname, None)
 
     def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
@@ -929,6 +932,22 @@ class StandardDomain(Domain):
                 self._terms[key] = data
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
+                already_warned = key in otherdata.get(
+                    '_duplicate_labels_warned', {}
+                ).get(data[0], ())
+                if (
+                    key in self.labels
+                    and self.labels[key][0] != data[0]
+                    and not already_warned
+                ):
+                    logger.warning(
+                        __('duplicate label %s, other instance in %s'),
+                        key,
+                        self.env.doc2path(self.labels[key][0]),
+                        location=(data[0], None),
+                        type='ref',
+                        subtype='duplicate_label',
+                    )
                 self.labels[key] = data
         for key, data in otherdata['anonlabels'].items():
             if data[0] in docnames:
@@ -962,7 +981,12 @@ class StandardDomain(Domain):
                     name,
                     env.doc2path(self.labels[name][0]),
                     location=node,
+                    type='ref',
+                    subtype='duplicate_label',
                 )
+                self.data.setdefault('_duplicate_labels_warned', {}).setdefault(
+                    docname, set()
+                ).add(name)
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 title = cast('nodes.title', node[0])
