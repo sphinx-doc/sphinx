@@ -1495,9 +1495,9 @@ member should be included in the documentation by using the following event:
    autodoc and other enabled extensions.
 
    :param app: the Sphinx application object
-   :param obj_type: the type of the object which the docstring belongs to (one of
-      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
-      ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
+   :param obj_type: the type of the object whose members are being documented
+      (one of ``'module'``, ``'class'``, or ``'exception'``), not the type of
+      the member itself
    :param name: the unqualified name of the member within the namespace of the
       object being documented
    :param obj: the object itself
@@ -1506,3 +1506,11 @@ member should be included in the documentation by using the following event:
    :param options: the options given to the directive: an object with attributes
       corresponding to the options used in the auto directive, e.g.
       ``inherited_members``, ``undoc_members``, or ``show_inheritance``.
+
+   .. note::
+
+      :mod:`~sphinx.ext.autosummary` also emits this event, but with different
+      arguments.  There, *obj_type* is the type of the member itself, for
+      example ``'function'`` for a function in a module, or ``'method'`` for a
+      method in a class.  *skip* is always ``False``, and *options* is an
+      empty dictionary.
