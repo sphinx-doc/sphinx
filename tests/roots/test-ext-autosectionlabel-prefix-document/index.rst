@@ -9,6 +9,11 @@ Introduce of Sphinx
 Installation
 ============
 
+.. _custom-label:
+
+Installation
+============
+
 For Windows users
 -----------------
 
@@ -30,6 +35,7 @@ References
 
 * :ref:`index:Introduce of Sphinx`
 * :ref:`index:Installation`
+* :ref:`custom-label`
 * :ref:`index:For Windows users`
 * :ref:`index:For UNIX users`
 * :ref:`index:Linux`
