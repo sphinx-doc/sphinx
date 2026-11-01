@@ -82,12 +82,19 @@ def convert_serializable(records: list[logging.LogRecord]) -> None:
     """Convert LogRecord serializable."""
     for r in records:
         # extract arguments to a message and clear them
-        r.msg = r.getMessage()
+        try:
+            r.msg = r.getMessage()
+        except Exception as err:
+            r.msg += f"\n  ^^^ Failed to format log message: {err}"
+            r.msg += f"\n      args: {r.args}"
         r.args = ()
 
         location = getattr(r, 'location', None)
         if isinstance(location, nodes.Node):
-            r.location = get_node_location(location)
+            try:
+                r.location = get_node_location(location)
+            except Exception:
+                r.location = "<invalid location>"
 
 
 class SphinxLogRecord(logging.LogRecord):
