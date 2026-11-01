@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import locale
 import sys
 from gettext import NullTranslations, translation
@@ -142,6 +143,16 @@ def init(
     # guarantee translators[(namespace, catalog)] exists
     translators[namespace, catalog] = translator
     return translator, has_translation
+
+
+def _set_locale_from_environment() -> None:
+    """Adopt the locale requested by the environment, if it is available.
+
+    A locale that is not installed on the system is ignored, which is common in
+    containers and CI images.
+    """
+    with contextlib.suppress(locale.Error):
+        locale.setlocale(locale.LC_ALL, '')
 
 
 def init_console(

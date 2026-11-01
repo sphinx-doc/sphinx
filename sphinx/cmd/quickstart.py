@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import locale
 import os
 import os.path
 import sys
@@ -739,7 +738,7 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] = (), /) -> int:
-    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale._set_locale_from_environment()
     sphinx.locale.init_console()
 
     if not terminal_supports_colour():

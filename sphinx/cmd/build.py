@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import contextlib
-import locale
 import multiprocessing
 import sys
 from pathlib import Path
@@ -473,7 +472,7 @@ def _bug_report_info() -> int:
 
 
 def main(argv: Sequence[str] = (), /) -> int:
-    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale._set_locale_from_environment()
     sphinx.locale.init_console()
 
     if not argv:
