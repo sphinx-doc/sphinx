@@ -56,6 +56,7 @@ Contributors
 * Erik Bedard -- config options for :mod:`sphinx.ext.duration`
 * Etienne Desautels -- apidoc module
 * Ezio Melotti -- collapsible sidebar JavaScript
+* Fazeel Usmani -- parser API fixes
 * Filip Vavera -- napoleon todo directive
 * Florian Best -- log improvements
 * Glenn Matthews -- python domain signature improvements

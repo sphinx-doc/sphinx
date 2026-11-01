@@ -36,3 +36,24 @@ to configure their settings appropriately.
 
 .. autoclass:: Parser
    :members:
+
+Accessing the Sphinx config and environment
+-------------------------------------------
+
+A custom parser can read the :class:`~sphinx.config.Config` and the
+:class:`~sphinx.environment.BuildEnvironment` through ``self.config`` and
+``self.env``.  Sphinx sets both when it creates a parser registered with
+:meth:`.Sphinx.add_source_parser`.
+
+.. code-block:: python
+
+   from sphinx.parsers import Parser
+
+
+   class MyParser(Parser):
+       supported = ('mytype',)
+
+       def parse(self, inputstring, document):
+           encoding = self.config.source_encoding
+           docname = self.env.docname
+           ...
