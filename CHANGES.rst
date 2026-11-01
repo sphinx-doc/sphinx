@@ -19,6 +19,8 @@ Bugs fixed
 * #3591: autosummary: Recognise East Asian module and object names and use
   display widths for generated title underlines.
   Patch by Qiu Guanzong.
+* #14797: Add missing hyphen to CVE and CWE role formats.
+  Patch by Hugo van Kemenade
 
 Testing
 -------
