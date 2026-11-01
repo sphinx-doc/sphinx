@@ -400,6 +400,22 @@ Docutils supports the following directives:
     when given an absolute include file path, this directive takes it as
     relative to the source directory
 
+    Sphinx considers each file whose suffix is listed in
+    :confval:`source_suffix` to be a standalone source document, even if the
+    file is also included in another document. To use a file only as reusable
+    content, either give it a suffix that is not listed in ``source_suffix``,
+    such as :file:`.rsti`, or exclude it from source discovery. For example,
+    to store reusable content in an :file:`_includes` directory, add the
+    following to :file:`conf.py`:
+
+    .. code-block:: python
+
+       exclude_patterns = ['_includes/**']
+
+    Files excluded by :confval:`exclude_patterns` can still be included, and
+    included content is parsed as reStructuredText regardless of its filename
+    extension.
+
     .. _rstclass:
 
   - :dudir:`class <setting-class-attributes>`
