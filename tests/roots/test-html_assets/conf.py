@@ -2,7 +2,7 @@ project = 'Sphinx'
 version = '1.4.4'
 
 html_static_path = ['static', 'subdir']
-html_extra_path = ['extra', 'subdir']
+html_extra_path = ['extra', 'subdir', 'single/config.schema.json']
 html_css_files = [
     'css/style.css',
     (
