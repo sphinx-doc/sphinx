@@ -23,7 +23,14 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, MutableSequence, Set
+    from collections.abc import (
+        Callable,
+        Iterable,
+        Iterator,
+        MutableSequence,
+        Sequence,
+        Set,
+    )
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
@@ -804,6 +811,9 @@ class StandardDomain(Domain):
 
     def __init__(self, env: BuildEnvironment) -> None:
         super().__init__(env)
+        self._numref_targets: dict[
+            str, dict[str, tuple[str | None, tuple[str, ...]]]
+        ] = {}
 
         # set up enumerable nodes
 
@@ -894,6 +904,7 @@ class StandardDomain(Domain):
         return self.data.setdefault('anonlabels', {})  # labelname -> docname, labelid
 
     def clear_doc(self, docname: str) -> None:
+        self._numref_targets.pop(docname, None)
         to_remove1 = [
             key for key, (fn, _l) in self.progoptions.items() if fn == docname
         ]
@@ -917,6 +928,8 @@ class StandardDomain(Domain):
             del self.anonlabels[key3]
 
     def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
+        for docname in docnames:
+            self._numref_targets.pop(docname, None)
         # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
@@ -937,6 +950,7 @@ class StandardDomain(Domain):
     def process_doc(
         self, env: BuildEnvironment, docname: str, document: nodes.document
     ) -> None:
+        self._numref_targets.pop(docname, None)
         for name, explicit in document.nametypes.items():
             if not explicit:
                 continue
@@ -1103,9 +1117,20 @@ class StandardDomain(Domain):
         if not docname:
             return None
 
-        target_node = env.get_doctree(docname).ids.get(labelid)
-        assert target_node is not None
-        figtype = self.get_enumerable_node_type(target_node)
+        target_ids: Sequence[str] = ()
+        if (
+            getattr(self.get_fignumber, '__func__', None)
+            is StandardDomain.get_fignumber
+            and getattr(self.get_enumerable_node_type, '__func__', None)
+            is StandardDomain.get_enumerable_node_type
+        ):
+            figtype, target_ids = self._get_numref_target(env, docname, labelid)
+            target_node = None
+        else:
+            # Extensions overriding these methods must receive the actual node.
+            target_node = env.get_doctree(docname).ids.get(labelid)
+            assert target_node is not None
+            figtype = self.get_enumerable_node_type(target_node)
         if figtype is None:
             return None
 
@@ -1116,7 +1141,14 @@ class StandardDomain(Domain):
             return contnode  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
         try:
-            fignumber = self.get_fignumber(env, builder, figtype, docname, target_node)
+            if target_node is None:
+                fignumber = self._get_fignumber(
+                    env, builder, figtype, docname, target_ids
+                )
+            else:
+                fignumber = self.get_fignumber(
+                    env, builder, figtype, docname, target_node
+                )
             if fignumber is None:
                 return contnode  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
         except ValueError:
@@ -1168,6 +1200,20 @@ class StandardDomain(Domain):
             node_class=addnodes.number_reference,
             title=title,
         )
+
+    def _get_numref_target(
+        self, env: BuildEnvironment, docname: str, labelid: str
+    ) -> tuple[str | None, tuple[str, ...]]:
+        if docname not in self._numref_targets:
+            document = env.get_doctree(docname)
+            # Keep only numbering metadata, not nodes retaining the whole doctree.
+            self._numref_targets[docname] = {
+                node_id: (self.get_enumerable_node_type(node), tuple(node['ids']))
+                for node_id, node in document.ids.items()
+            }
+        target = self._numref_targets[docname].get(labelid)
+        assert target is not None
+        return target
 
     def _resolve_keyword_xref(
         self,
@@ -1400,13 +1446,23 @@ class StandardDomain(Domain):
         docname: str,
         target_node: Element,
     ) -> tuple[int, ...] | None:
+        return self._get_fignumber(env, builder, figtype, docname, target_node['ids'])
+
+    def _get_fignumber(
+        self,
+        env: BuildEnvironment,
+        builder: Builder,
+        figtype: str,
+        docname: str,
+        target_ids: Sequence[str],
+    ) -> tuple[int, ...] | None:
         if figtype == 'section':
             if builder.name == 'latex':
                 return ()
             elif docname not in env.toc_secnumbers:
                 raise ValueError  # no number assigned
             else:
-                anchorname = '#' + target_node['ids'][0]
+                anchorname = '#' + target_ids[0]
                 if anchorname not in env.toc_secnumbers[docname]:
                     # try first heading which has no anchor
                     return env.toc_secnumbers[docname].get('')
@@ -1414,7 +1470,7 @@ class StandardDomain(Domain):
                     return env.toc_secnumbers[docname].get(anchorname)
         else:
             try:
-                figure_id = target_node['ids'][0]
+                figure_id = target_ids[0]
                 return env.toc_fignumbers[docname][figtype][figure_id]
             except (KeyError, IndexError) as exc:
                 # target_node is found, but fignumber is not assigned.

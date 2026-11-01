@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from typing import TYPE_CHECKING
+from unittest import mock
 
 import pytest
 
@@ -16,6 +17,49 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import ElementTree
 
     from sphinx.testing.util import SphinxTestApp
+
+
+def test_numref_loads_target_doctree_once(
+    make_app_with_empty_project: Callable[..., SphinxTestApp], tmp_path: Path
+) -> None:
+    count = 12
+    source = 'Tables\n======\n\n'
+    source += '\n\n'.join(f':numref:`table-{i}`' for i in range(count))
+    source += '\n\n'
+    source += '\n'.join(
+        f'.. csv-table:: Caption {i}\n   :name: table-{i}\n\n   a,b\n\n'
+        for i in range(count)
+    )
+    (tmp_path / 'index.rst').write_text(source, encoding='utf8')
+    app = make_app_with_empty_project(
+        buildername='html', confoverrides={'numfig': True, 'numfig_secnum_depth': 0}
+    )
+    with mock.patch.object(
+        type(app.env),
+        'get_doctree',
+        autospec=True,
+        side_effect=type(app.env).get_doctree,
+    ) as load:
+        app.build()
+
+    assert not app.warning.getvalue()
+    output = (app.outdir / 'index.html').read_text(encoding='utf8')
+    for i in range(count):
+        assert f'<span class="std std-numref">Table {i + 1}</span>' in output
+    # Reading, numbering and writing need only a fixed number of tree loads.
+    assert load.call_count <= 4
+
+    source = source.replace(
+        '.. csv-table:: Caption 0\n   :name: table-0\n\n   a,b\n',
+        '.. code-block:: text\n   :name: table-0\n   :caption: Caption 0\n\n   a,b\n',
+    )
+    (tmp_path / 'index.rst').write_text(source, encoding='utf8')
+    app.env.all_docs['index'] = 0
+    app.build()
+    assert not app.warning.getvalue()
+    output = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<span class="std std-numref">Listing 1</span>' in output
+    assert '<span class="std std-numref">Table 11</span>' in output
 
 
 @pytest.mark.sphinx('html', testroot='numfig')

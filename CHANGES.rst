@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #12611: Avoid repeatedly unpickling target document trees when resolving
+  numbered references to figures, tables, code blocks, and sections.
+
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
