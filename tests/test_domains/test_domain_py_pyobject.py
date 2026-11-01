@@ -203,6 +203,50 @@ def test_pyobject_prefix(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
+def test_pyobject_non_nestable_context(app):
+    text = (
+        '.. py:module:: mymod\n'
+        '\n'
+        '.. py:attribute:: Widget.flags\n'
+        '\n'
+        '   .. py:data:: FLAG_A\n'
+        '\n'
+        '   .. py:data:: FLAG_B\n'
+        '\n'
+        '   .. py:data:: FLAG_C\n'
+        '\n'
+        '.. py:data:: GLOBAL\n'
+    )
+    domain = app.env.domains.python_domain
+    restructuredtext.parse(app, text)
+
+    assert domain.objects['mymod.Widget.FLAG_A'] == (
+        'index',
+        'mymod.Widget.FLAG_A',
+        'data',
+        False,
+    )
+    assert domain.objects['mymod.Widget.FLAG_B'] == (
+        'index',
+        'mymod.Widget.FLAG_B',
+        'data',
+        False,
+    )
+    assert domain.objects['mymod.Widget.FLAG_C'] == (
+        'index',
+        'mymod.Widget.FLAG_C',
+        'data',
+        False,
+    )
+    assert domain.objects['mymod.GLOBAL'] == (
+        'index',
+        'mymod.GLOBAL',
+        'data',
+        False,
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_pydata(app):
     text = '.. py:module:: example\n.. py:data:: var\n   :type: int\n'
     domain = app.env.domains.python_domain
