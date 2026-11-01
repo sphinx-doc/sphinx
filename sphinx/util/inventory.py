@@ -176,15 +176,32 @@ class InventoryFile:
         cls, filename: str | os.PathLike[str], env: BuildEnvironment, builder: Builder
     ) -> None:
         def escape(string: str) -> str:
+            if not isinstance(string, str):
+                string = str(string) if string is not None else ''
             return re.sub('\\s+', ' ', string)
+
+        # ``version`` can be shadowed in conf.py (e.g. ``from importlib.metadata import version``)
+        # which replaces the expected string config value with a function. Fall back to
+        # ``release`` when ``version`` is not a string, otherwise to an empty string.
+        version = env.config.version
+        if not isinstance(version, str):
+            release = env.config.release
+            if isinstance(release, str):
+                version = release
+            else:
+                version = ''
+
+        project = env.config.project
+        if not isinstance(project, str):
+            project = str(project) if project is not None else ''
 
         with open(filename, 'wb') as f:
             # header
             f.write(
                 (
                     '# Sphinx inventory version 2\n'
-                    f'# Project: {escape(env.config.project)}\n'
-                    f'# Version: {escape(env.config.version)}\n'
+                    f'# Project: {escape(project)}\n'
+                    f'# Version: {escape(version)}\n'
                     '# The remainder of this file is compressed using zlib.\n'
                 ).encode()
             )
