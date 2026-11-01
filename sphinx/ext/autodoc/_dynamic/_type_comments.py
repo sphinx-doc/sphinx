@@ -147,7 +147,7 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
             return signature_from_ast(subject, bound_method, function)
         else:
             return None
-    except (OSError, TypeError):  # failed to load source code
+    except (OSError, TypeError, IndexError):  # failed to load source code
         return None
     except SyntaxError:  # failed to parse type_comments
         return None
