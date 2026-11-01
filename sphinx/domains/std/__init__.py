@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import operator
+import os.path
 import re
 from copy import copy
 from typing import TYPE_CHECKING, cast
@@ -778,6 +779,7 @@ class StandardDomain(Domain):
             'modindex': ('py-modindex', ''),
             'search': ('search', ''),
         },
+        'labels_source': {},  # labelname -> source file path
     }
 
     # labelname -> docname, sectionname
@@ -893,6 +895,12 @@ class StandardDomain(Domain):
     def anonlabels(self) -> dict[str, tuple[str, str]]:
         return self.data.setdefault('anonlabels', {})  # labelname -> docname, labelid
 
+    @property
+    def labels_source(self) -> dict[str, str]:
+        return self.data.setdefault(
+            'labels_source', {}
+        )  # labelname -> source file path
+
     def clear_doc(self, docname: str) -> None:
         to_remove1 = [
             key for key, (fn, _l) in self.progoptions.items() if fn == docname
@@ -911,6 +919,7 @@ class StandardDomain(Domain):
         to_remove3 = [key for key, (fn, _l, _l) in self.labels.items() if fn == docname]
         for key3 in to_remove3:
             del self.labels[key3]
+            self.labels_source.pop(key3, None)
 
         to_remove3 = [key for key, (fn, _l) in self.anonlabels.items() if fn == docname]
         for key3 in to_remove3:
@@ -933,6 +942,9 @@ class StandardDomain(Domain):
         for key, data in otherdata['anonlabels'].items():
             if data[0] in docnames:
                 self.anonlabels[key] = data
+        for key, data in otherdata.get('labels_source', {}).items():
+            if key in self.labels:
+                self.labels_source[key] = data
 
     def process_doc(
         self, env: BuildEnvironment, docname: str, document: nodes.document
@@ -957,12 +969,30 @@ class StandardDomain(Domain):
                 # link and object descriptions
                 continue
             if name in self.labels:
-                logger.warning(
-                    __('duplicate label %s, other instance in %s'),
-                    name,
-                    env.doc2path(self.labels[name][0]),
-                    location=node,
-                )
+                current_source = getattr(node, 'source', None)
+                existing_source = self.labels_source.get(name)
+                existing_docname = self.labels[name][0]
+
+                # Check if both labels come from the same source file
+                if current_source and existing_source:
+                    current_norm = os.path.normcase(os.path.normpath(current_source))
+                    existing_norm = os.path.normcase(os.path.normpath(existing_source))
+                    same_source = current_norm == existing_norm
+                else:
+                    same_source = False
+
+                if same_source:
+                    # Same source file included in multiple documents.
+                    # Prefer the including document for proper figure numbering.
+                    if existing_docname not in env.included.get(docname, set()):
+                        continue
+                else:
+                    logger.warning(
+                        __('duplicate label %s, other instance in %s'),
+                        name,
+                        env.doc2path(existing_docname),
+                        location=node,
+                    )
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 title = cast('nodes.title', node[0])
@@ -991,6 +1021,9 @@ class StandardDomain(Domain):
                         # anonymous-only labels
                         continue
             self.labels[name] = docname, labelid, sectname
+            node_source = getattr(node, 'source', None)
+            if node_source:
+                self.labels_source[name] = node_source
 
     def add_program_option(
         self, program: str | None, name: str, docname: str, labelid: str
