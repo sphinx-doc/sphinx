@@ -945,11 +945,12 @@ class PythonDomain(Domain):
         if not matches and type == 'class':
             # fallback to data/attr (for type aliases)
             # type aliases are documented as data/attr but referenced as class
-            matches = self.find_obj(env, modname, clsname, target, 'data', searchmode)
+            # Use searchmode=0 (exact match only) to avoid fuzzy matching
+            # that could incorrectly match class attributes (e.g. D.list)
+            # when resolving builtin type annotations (e.g. list[int]).
+            matches = self.find_obj(env, modname, clsname, target, 'data', 0)
             if not matches:
-                matches = self.find_obj(
-                    env, modname, clsname, target, 'attr', searchmode
-                )
+                matches = self.find_obj(env, modname, clsname, target, 'attr', 0)
         if not matches and type == 'attr':
             # fallback to meth (for property; Sphinx 2.4.x)
             # this ensures that `:attr:` role continues to refer to the old property entry
