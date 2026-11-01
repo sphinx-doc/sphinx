@@ -723,11 +723,11 @@ class PythonDomain(Domain):
     name = 'py'
     label = 'Python'
     object_types = {
-        'function': ObjType(_('function'), 'func', 'obj'),
-        'data': ObjType(_('data'), 'data', 'obj'),
+        'function': ObjType(_('function'), 'func', 'deco', 'obj'),
+        'data': ObjType(_('data'), 'data', 'const', 'obj'),
         'class': ObjType(_('class'), 'class', 'exc', 'obj'),
         'exception': ObjType(_('exception'), 'exc', 'class', 'obj'),
-        'method': ObjType(_('method'), 'meth', 'obj'),
+        'method': ObjType(_('method'), 'meth', 'deco', 'obj'),
         'classmethod': ObjType(_('class method'), 'meth', 'obj'),
         'staticmethod': ObjType(_('static method'), 'meth', 'obj'),
         'attribute': ObjType(_('attribute'), 'attr', 'obj'),
