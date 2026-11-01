@@ -61,7 +61,7 @@ class _Status(StrEnum):
 logger = logging.getLogger(__name__)
 
 # matches to foo:// and // (a protocol relative URL)
-uri_re = re.compile('([a-z]+:)?//')
+uri_re = re.compile('([a-z]+:)?//', re.IGNORECASE)
 
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
@@ -466,9 +466,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 )
                 return _Status.IGNORED, info, 0
 
-        if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
+        if len(uri) == 0 or uri.lower().startswith(('#', 'mailto:', 'tel:')):
             return _Status.UNCHECKED, '', 0
-        if not uri.startswith(('http:', 'https:')):
+        if not uri.lower().startswith(('http:', 'https:')):
             if uri_re.match(uri):
                 # Non-supported URI schemes (ex. ftp)
                 return _Status.UNCHECKED, '', 0
