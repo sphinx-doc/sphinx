@@ -377,6 +377,7 @@ class BuildEnvironment:
             config.trim_footnote_reference_space
         )
         self.settings['language_code'] = config.language
+        self.settings['report_level'] = config.docutils_report_level
 
         # Allow to disable by 3rd party extension (workaround)
         self.settings.setdefault('smart_quotes', True)
@@ -658,7 +659,7 @@ class BuildEnvironment:
 
         doctree = pickle.loads(serialised)
         doctree.settings.env = self
-        doctree.reporter = LoggingReporter(str(self.doc2path(docname)))
+        doctree.reporter = LoggingReporter(str(self.doc2path(docname)), self)
         return doctree
 
     @functools.cached_property
@@ -691,7 +692,7 @@ class BuildEnvironment:
             try:
                 doctree = self._write_doc_doctree_cache.pop(docname)
                 doctree.settings.env = self
-                doctree.reporter = LoggingReporter(str(self.doc2path(docname)))
+                doctree.reporter = LoggingReporter(str(self.doc2path(docname)), self)
             except KeyError:
                 doctree = self.get_doctree(docname)
 
