@@ -91,7 +91,7 @@ Wiesner for suggestions.
 Bugs fixed
 ----------
 
-* sphinx.ext.autodoc: Don't check ``__module__`` for explicitly given
+* document: Don't check ``__module__`` for explicitly given
   members.  Remove "self" in class constructor argument list.
 
 * sphinx.htmlwriter: Don't use os.path for joining image HREFs.
