@@ -75,6 +75,7 @@ Contributors
 * Joel Wurtz -- cellspanning support in LaTeX
 * John Waltman -- Texinfo builder
 * Jon Dufresne -- modernisation
+* Jorge Marques -- warning suppression
 * Josip Dzolonga -- coverage builder
 * Juan Luis Cano Rodríguez -- new tutorial (2021)
 * Julien Palard -- Colspan and rowspan in text builder
