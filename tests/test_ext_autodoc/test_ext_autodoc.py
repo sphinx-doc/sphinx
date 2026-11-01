@@ -2341,6 +2341,17 @@ def test_autodoc_pep695_type_alias() -> None:
     ]
 
 
+def test_autodoc_type_alias_uses_its_defining_module() -> None:
+    actual = do_autodoc(
+        'type',
+        'target.public_alias.TokenValidator',
+    )
+
+    assert '.. py:type:: TokenValidator' in actual
+    assert '   :module: target.public_alias' in actual
+    assert '   :canonical-name: target._alias_impl.TokenValidator' in actual
+
+
 def test_autodoc_TypeVar() -> None:
     options = {
         'members': None,

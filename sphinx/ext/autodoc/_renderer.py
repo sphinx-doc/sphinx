@@ -164,6 +164,10 @@ def _directive_header_lines(
     if props.obj_type == 'type':
         assert isinstance(props, _TypeStatementProperties)
 
+        canonical_fullname = props.canonical_full_name
+        if canonical_fullname and props.full_name != canonical_fullname:
+            yield f'   :canonical-name: {canonical_fullname}'
+
         if not options.no_value and not props._docstrings_has_hide_value:
             yield f'   :canonical: {props._obj___value__}'
 
