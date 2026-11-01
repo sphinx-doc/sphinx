@@ -33,3 +33,10 @@ International
 .. raw:: latex
 
    latex_keyword
+
+CLI Flags
+=========
+
+Use --dry-run for testing build process.
+Also try -v for verbose output.
+Don't forget --verbose mode.
