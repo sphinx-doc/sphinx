@@ -30,6 +30,92 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
+@pytest.fixture
+def numref_context() -> tuple[StandardDomain, mock.Mock, mock.Mock]:
+    env = mock.Mock(domaindata={})
+    env._registry.enumerable_nodes = {}
+    env.config.numfig = True
+    env.config.numfig_format = {'table': 'Table %s', 'figure': 'Figure %s'}
+    env.toc_fignumbers = {
+        'doc': {'table': {'table-id': (1,)}, 'figure': {'figure-id': (2,)}}
+    }
+    env.get_doctree.return_value = mock.Mock(
+        ids={'alias': nodes.table(ids=['table-id', 'alias'])}
+    )
+    domain = StandardDomain(env)
+    domain.note_hyperlink_target('target', 'doc', 'alias')
+    builder = mock.Mock()
+    builder.name = 'html'
+    return domain, env, builder
+
+
+def _resolve_numref(domain: StandardDomain, builder: mock.Mock) -> nodes.reference:
+    ref = domain.resolve_xref(
+        domain.env,
+        'doc',
+        builder,
+        'numref',
+        'target',
+        pending_xref('', refexplicit=False),
+        nodes.inline('', 'target'),
+    )
+    assert ref is not None
+    return ref
+
+
+@pytest.mark.parametrize('event', ['clear_doc', 'process_doc', 'merge_domaindata'])
+def test_numref_target_cache_invalidation(
+    numref_context: tuple[StandardDomain, mock.Mock, mock.Mock], event: str
+) -> None:
+    domain, env, builder = numref_context
+    assert _resolve_numref(domain, builder).astext() == 'Table 1'
+    assert _resolve_numref(domain, builder).astext() == 'Table 1'
+    assert env.get_doctree.call_count == 1
+
+    env.get_doctree.return_value = mock.Mock(
+        ids={'alias': nodes.figure(ids=['figure-id', 'alias'])}
+    )
+    if event == 'clear_doc':
+        domain.clear_doc('doc')
+    elif event == 'process_doc':
+        domain.process_doc(env, 'doc', mock.Mock(nametypes={}))
+    else:
+        domain.merge_domaindata(
+            {'doc'},
+            {
+                'progoptions': {},
+                'objects': {},
+                'terms': {},
+                'labels': {},
+                'anonlabels': {},
+            },
+        )
+    domain.note_hyperlink_target('target', 'doc', 'alias')
+    assert _resolve_numref(domain, builder).astext() == 'Figure 2'
+    assert env.get_doctree.call_count == 2
+
+
+@pytest.mark.parametrize('method', ['get_fignumber', 'get_enumerable_node_type'])
+def test_numref_overrides_receive_original_node(
+    numref_context: tuple[StandardDomain, mock.Mock, mock.Mock], method: str
+) -> None:
+    domain, env, builder = numref_context
+    original = env.get_doctree.return_value.ids['alias']
+    with mock.patch.object(domain, method, wraps=getattr(domain, method)) as callback:
+        assert _resolve_numref(domain, builder).astext() == 'Table 1'
+        assert callback.call_args.args[-1] is original
+
+
+def test_numref_uses_current_figure_numbers(
+    numref_context: tuple[StandardDomain, mock.Mock, mock.Mock],
+) -> None:
+    domain, env, builder = numref_context
+    assert _resolve_numref(domain, builder).astext() == 'Table 1'
+    env.toc_fignumbers['doc']['table']['table-id'] = (9,)
+    assert _resolve_numref(domain, builder).astext() == 'Table 9'
+    assert env.get_doctree.call_count == 1
+
+
 def test_process_doc_handle_figure_caption() -> None:
     env = mock.Mock(domaindata={})
     env._registry.enumerable_nodes = {}
