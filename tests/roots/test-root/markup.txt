@@ -295,6 +295,11 @@ Version markup
 .. version-added:: 0.6
    Some funny **stuff**.
 
+.. version-added:: 0.6.1
+   Some more funny **stuff**
+   that took much more text
+   to describe.
+
 .. version-changed:: 0.6
    Even more funny stuff.
 
@@ -308,15 +313,26 @@ Version markup
 
    First paragraph of version-added.
 
+.. version-added:: 1.2.1
+
+   First paragraph of version-added.
+   With multiple lines.
+
 .. version-changed:: 1.2
    First paragraph of version-changed.
 
    Second paragraph of version-changed.
 
-.. version-added:: 0.6
+.. version-changed:: 3.14 This was the pi release.
+
+.. version-changed:: 3.1416 This was the pi release.
+   It was great because pi is trancendental
+   and has a lot of digits.
+
+.. versionadded:: 0.6
    Deprecated alias for version-added.
 
-.. version-changed:: 0.6
+.. versionchanged:: 0.6
    Deprecated alias for version-changed.
 
 .. deprecated:: 0.6
