@@ -953,6 +953,50 @@ def test_autosummary_template(app):
     content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text(encoding='utf8')
     assert 'EMPTY' in content
 
+    content = (app.srcdir / 'generate' / 'target.Exc.rst').read_text(encoding='utf8')
+    assert 'target.Exc\n=' in content
+    assert '.. currentmodule:: target\n' in content
+    assert '.. autoexception:: Exc\n' in content
+    assert (
+        '..\n'
+        '   name: Exc\n'
+        '   methods:\n'
+        '     - method\n'
+        '   inherited_methods:\n'
+        '     - __init__\n'
+        '     - add_note\n'
+        '     - with_traceback\n'
+    ) in content  # fmt: skip
+    assert (
+        '..\n'
+        '   name: Exc\n'
+        '   attributes:\n'
+        '     - attribute\n'
+        '   inherited_attributes:\n'
+        '     - args\n'
+    ) in content  # fmt: skip
+
+    content = (app.srcdir / 'generate' / 'target.Outer.Exc.rst').read_text(encoding='utf8')
+    assert 'target.Outer.Exc\n=' in content
+    assert '.. currentmodule:: target\n' in content
+    assert '.. autoexception:: Outer.Exc\n' in content
+    assert (
+        '..\n'
+        '   name: Outer.Exc\n'
+        '   methods:\n'
+        '   inherited_methods:\n'
+        '     - __init__\n'
+        '     - add_note\n'
+        '     - with_traceback\n'
+    ) in content  # fmt: skip
+    assert (
+        '..\n'
+        '   name: Outer.Exc\n'
+        '   attributes:\n'
+        '   inherited_attributes:\n'
+        '     - args\n'
+    ) in content  # fmt: skip
+
 
 @pytest.mark.sphinx(
     'dummy',
