@@ -388,7 +388,8 @@ def render_dot_html(
         if format == 'svg':
             self.body.append('<div class="graphviz">')
             self.body.append(
-                f'<object data="{src}" type="image/svg+xml" class="{imgcls}">\n'
+                f'<object data="{src}" type="image/svg+xml"'
+                f' class="{imgcls}" aria-label="{alt}">\n'
             )
             self.body.append(f'<p class="warning">{alt}</p>')
             self.body.append('</object></div>\n')
