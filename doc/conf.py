@@ -24,6 +24,7 @@ extensions = [
 coverage_statistics_to_report = coverage_statistics_to_stdout = True
 templates_path = ['_templates']
 exclude_patterns = ['_build']
+suppress_warnings = ['toc.multiple_toc_parents']
 
 project = 'Sphinx'
 copyright = '2007-%Y, the Sphinx developers'
