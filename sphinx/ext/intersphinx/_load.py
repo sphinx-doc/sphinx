@@ -331,6 +331,8 @@ def _fetch_inventory_group(
         LOGGER.warning(
             __('failed to reach any of the inventories with the following issues:\n%s'),
             _display_failures(failures),
+            type='intersphinx',
+            subtype='inventory',
         )
     return updated
 

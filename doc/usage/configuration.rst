@@ -1424,6 +1424,7 @@ Options for warning control
    * ``autosummary.import_cycle``
    * ``duration``
    * ``intersphinx.external``
+   * ``intersphinx.inventory``
 
    You can choose from these types.  You can also give only the first
    component to exclude all warnings attached to it.
@@ -1490,6 +1491,9 @@ Options for warning control
 
    .. versionadded:: 9.0
       ``duration``.
+
+   .. versionadded:: 9.1.1
+      ``intersphinx.inventory``.
 
 
 Builder options
