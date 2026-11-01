@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any
 
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util._sentinel import sentinel
 from sphinx.util.typing import get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
@@ -63,7 +64,7 @@ class Deque(collections.deque[Any]):
     The `.Deque.get` and `.Deque.next` methods are added.
     """
 
-    sentinel = object()
+    sentinel = sentinel('sentinel')
 
     def get(self, n: int) -> Any:
         """Return the nth element of the stack, or ``self.sentinel`` if n is

@@ -29,6 +29,7 @@ from sphinx.errors import ConfigError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging, requests
+from sphinx.util._sentinel import sentinel
 from sphinx.util._uri import encode_uri
 from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import NodeMatcher, get_node_line
@@ -70,14 +71,7 @@ CHECK_IMMEDIATELY = 0
 QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
 
-
-@object.__new__
-class _SENTINEL_LAR:
-    def __repr__(self) -> str:
-        return '_SENTINEL_LAR'
-
-    def __reduce__(self) -> str:
-        return self.__class__.__name__
+_SENTINEL_LAR = sentinel('_SENTINEL_LAR')
 
 
 class CheckExternalLinksBuilder(DummyBuilder):

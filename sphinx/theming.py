@@ -23,6 +23,7 @@ from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util._pathlib import _StrPath
+from sphinx.util._sentinel import sentinel
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
@@ -50,7 +51,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_NO_DEFAULT = object()
+_NO_DEFAULT = sentinel('_NO_DEFAULT')
 _THEME_TOML = 'theme.toml'
 _THEME_CONF = 'theme.conf'
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from sphinx.util._sentinel import sentinel
+
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     from typing import Final, Literal, NoReturn, Self, _SpecialForm
@@ -99,8 +101,8 @@ if TYPE_CHECKING:
 else:
     ALL = _All('ALL')
     EMPTY = _Empty('EMPTY')
-    INSTANCE_ATTR = _Sentinel('INSTANCE_ATTR')
-    RUNTIME_INSTANCE_ATTRIBUTE = _Sentinel('RUNTIME_INSTANCE_ATTRIBUTE')
-    SLOTS_ATTR = _Sentinel('SLOTS_ATTR')
-    SUPPRESS = _Sentinel('SUPPRESS')
-    UNINITIALIZED_ATTR = _Sentinel('UNINITIALIZED_ATTR')
+    INSTANCE_ATTR = sentinel('INSTANCE_ATTR')
+    RUNTIME_INSTANCE_ATTRIBUTE = sentinel('RUNTIME_INSTANCE_ATTRIBUTE')
+    SLOTS_ATTR = sentinel('SLOTS_ATTR')
+    SUPPRESS = sentinel('SUPPRESS')
+    UNINITIALIZED_ATTR = sentinel('UNINITIALIZED_ATTR')
