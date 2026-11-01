@@ -2915,3 +2915,50 @@ int py:class 1 int.html -
         for a, uri in zip(a_, ('list.html', 'int.html'), strict=True):
             assert a.attrib['href'] == f'127.0.0.1:5555/{uri}'
             assert a.attrib['title'] == '(in Intersphinx Test v42)'
+
+    def test_numpydoc_section_ordering(self):
+        docstring = """
+Summary line
+
+Parameters
+----------
+arg1 : int
+    arg1 description
+
+Methods
+-------
+method1()
+    method1 description
+
+Attributes
+----------
+attr1 : int
+    attr1 description
+
+Notes
+-----
+some notes
+"""
+        expected = """
+Summary line
+
+:Parameters: **arg1** (:py:class:`int`) -- arg1 description
+
+.. attribute:: attr1
+   :type: int
+
+   attr1 description
+
+.. method:: method1()
+
+   method1 description
+
+.. rubric:: Notes
+
+some notes
+"""
+        config = Config(
+            napoleon_use_param=True, napoleon_use_rtype=True, napoleon_use_ivar=True
+        )
+        actual = NumpyDocstring(docstring, config, app=None, what='class')
+        assert str(actual) == expected
