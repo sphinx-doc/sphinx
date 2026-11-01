@@ -16,6 +16,15 @@ i18n API
 .. autofunction:: __
 
 
+Translatable nodes
+------------------
+
+Some Sphinx nodes preserve their original messages during translation and
+gettext extraction by inheriting from
+:py:class:`sphinx.addnodes.translatable`; see :ref:`nodes` for the API
+reference.
+
+
 .. _ext-i18n:
 
 Extension internationalization (``i18n``) and localization (``l10n``) using i18n API
