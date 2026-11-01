@@ -94,6 +94,20 @@ def test_todo_not_included(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx(
+    'html',
+    testroot='ext-todo-repeated-punctuation',
+    freshenv=True,
+    confoverrides={'todo_include_todos': True},
+)
+def test_todo_repeated_punctuation(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    assert 'Unexpected section title or transition' not in app.warning.getvalue()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<p class="admonition-title">Todo</p>\n<p>????</p>' in content
+
+
+@pytest.mark.sphinx(
     'latex',
     testroot='ext-todo',
     freshenv=True,

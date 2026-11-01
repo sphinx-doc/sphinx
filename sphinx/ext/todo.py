@@ -20,7 +20,7 @@ from sphinx.domains import Domain
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.docutils import SphinxDirective, new_document
+from sphinx.util.docutils import SphinxDirective, _normalize_options, new_document
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -49,16 +49,30 @@ class Todo(SphinxAdmonition):
     """A todo entry, displayed (if configured) in the form of an admonition."""
 
     node_class = todo_node
+    optional_arguments = 1
 
     def run(self) -> list[Node]:
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
-        (todo,) = super().run()
-        if not isinstance(todo, todo_node):
-            return [todo]
+        if not self.arguments and not self.content:
+            self.assert_has_content()
 
+        self.options = _normalize_options(self.options)
+        text = '\n'.join([*self.arguments, *self.content])
+        todo = self.node_class(text, **self.options)
         todo.insert(0, nodes.title(text=_('Todo')))
+        if self.arguments:
+            textnodes, messages = self.parse_inline(
+                self.arguments[0], lineno=self.lineno
+            )
+            paragraph = nodes.paragraph(self.arguments[0], '', *textnodes)
+            paragraph.source, paragraph.line = self.get_source_info()
+            todo += paragraph
+            todo += messages
+        if self.content:
+            todo += self.parse_content_to_nodes()
+
         todo['docname'] = self.env.current_document.docname
         self.add_name(todo)
         self.set_source_info(todo)
