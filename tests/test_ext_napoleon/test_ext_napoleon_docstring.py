@@ -1622,6 +1622,32 @@ class TestNumpyDocstring:
             expected = dedent(expected)
             assert str(actual) == expected
 
+    def test_sections_order_parameters_before_attributes_and_methods(self):
+        docstring = dedent("""
+        Summary
+
+        Attributes
+        ----------
+        attr1 : int
+            Attribute description.
+
+        Methods
+        -------
+        do_it()
+            Method description.
+
+        Parameters
+        ----------
+        arg1 : str
+            Parameter description.
+        """)
+
+        actual = str(NumpyDocstring(docstring, Config(napoleon_use_param=True)))
+        assert actual.index(':param arg1:') < actual.index('.. attribute:: attr1')
+        assert actual.index('.. attribute:: attr1') < actual.index(
+            '.. method:: do_it()'
+        )
+
     def test_type_preprocessor(self):
         docstring = dedent("""
         Single line summary
