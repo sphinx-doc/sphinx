@@ -25,6 +25,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
+from docutils.utils import column_width
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -110,7 +111,7 @@ def _underline(title: str, line: str = '=') -> str:
     if '\n' in title:
         msg = 'Can only underline single lines'
         raise ValueError(msg)
-    return title + '\n' + line * len(title)
+    return title + '\n' + line * column_width(title)
 
 
 class AutosummaryRenderer:
@@ -404,7 +405,7 @@ def generate_autosummary_content(
     ns['name'] = shortname
 
     ns['objtype'] = obj_type
-    ns['underline'] = len(name) * '='
+    ns['underline'] = column_width(name) * '='
 
     if template_name:
         return template.render(template_name, ns)
@@ -793,9 +794,9 @@ def find_autosummary_in_lines(
     corresponding options set.
     """
     autosummary_re = re.compile(r'^(\s*)\.\.\s+autosummary::\s*')
-    automodule_re = re.compile(r'^\s*\.\.\s+automodule::\s*([A-Za-z0-9_.]+)\s*$')
-    module_re = re.compile(r'^\s*\.\.\s+(current)?module::\s*([a-zA-Z0-9_.]+)\s*$')
-    autosummary_item_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_.]*)\s*.*?')
+    automodule_re = re.compile(r'^\s*\.\.\s+automodule::\s*([\w.]+)\s*$')
+    module_re = re.compile(r'^\s*\.\.\s+(current)?module::\s*([\w.]+)\s*$')
+    autosummary_item_re = re.compile(r'^\s+(~?[^\W\d][\w.]*)\s*.*?')
     recursive_arg_re = re.compile(r'^\s+:recursive:\s*$')
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')

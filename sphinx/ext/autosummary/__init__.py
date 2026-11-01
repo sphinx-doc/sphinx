@@ -214,7 +214,7 @@ class Autosummary(SphinxDirective):
         names = [
             x.strip().split()[0]
             for x in self.content
-            if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])
+            if x.strip() and (x.strip()[0] == '~' or x.strip()[0].isidentifier())
         ]
         items = self.get_items(names)
         nodes = self.get_table(items)
