@@ -123,27 +123,40 @@ def _generate_directives(
         LOGGER.debug('[autodoc] module analyzer failed: %s', exc)
         # no source file -- e.g. for builtin and C modules
         analyzer = None
-        # at least add the module source file as a dependency
-        if props.module_name:
+        # at least add the module source file as a dependency. *real_modname* is
+        # the one that failed to analyze, so record it too: for an object defined
+        # in an extension and re-exported, it is the binary that must invalidate.
+        for modname in (props.module_name, real_modname):
+            if not modname:
+                continue
             try:
-                module_spec = sys.modules[props.module_name].__spec__
+                module_spec = sys.modules[modname].__spec__
             except (AttributeError, KeyError):
-                pass
-            else:
-                if (
-                    module_spec is not None
-                    and module_spec.has_location
-                    and module_spec.origin
-                ):
-                    record_dependencies.add(module_spec.origin)
+                continue
+            if (
+                module_spec is not None
+                and module_spec.has_location
+                and module_spec.origin
+            ):
+                record_dependencies.add(module_spec.origin)
 
     if real_modname != props.canonical_module_name:
         # Add module to dependency list if target object is defined in other module.
         try:
             srcname, _ = ModuleAnalyzer.get_module_source(props.canonical_module_name)
-            record_dependencies.add(str(srcname))
         except PycodeError:
-            pass
+            # no source file -- record the binary, so rebuilding it invalidates
+            canonical_spec = getattr(
+                sys.modules.get(props.canonical_module_name), '__spec__', None
+            )
+            if (
+                canonical_spec is not None
+                and canonical_spec.has_location
+                and canonical_spec.origin
+            ):
+                record_dependencies.add(canonical_spec.origin)
+        else:
+            record_dependencies.add(str(srcname))
 
     has_docstring = bool(props.docstring_lines)
     if ismock(props._obj) and not has_docstring:
