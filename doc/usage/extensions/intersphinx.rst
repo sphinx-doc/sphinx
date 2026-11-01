@@ -57,7 +57,7 @@ To use Intersphinx linking, add ``'sphinx.ext.intersphinx'`` to your
 linking:
 
 .. confval:: intersphinx_mapping
-   :type: :code-py:`dict[str, tuple[str, tuple[str, tuple[str | None, ...]]]]`
+   :type: :code-py:`dict[str, tuple[str, str | tuple[str | None, ...] | None]]`
    :default: :code-py:`{}`
 
    This config value contains the locations and names of other projects that
