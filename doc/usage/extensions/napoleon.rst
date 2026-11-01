@@ -293,7 +293,7 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``:
     napoleon_numpy_docstring = True
     napoleon_include_init_with_doc = False
     napoleon_include_private_with_doc = False
-    napoleon_include_special_with_doc = True
+    napoleon_include_special_with_doc = False
     napoleon_use_admonition_for_examples = False
     napoleon_use_admonition_for_notes = False
     napoleon_use_admonition_for_references = False
@@ -367,7 +367,7 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``:
 
 .. confval:: napoleon_include_special_with_doc
    :type: :code-py:`bool`
-   :default: :code-py:`True`
+   :default: :code-py:`False`
 
    True to include special members (like ``__membername__``) with
    docstrings in the documentation. False to fall back to Sphinx's

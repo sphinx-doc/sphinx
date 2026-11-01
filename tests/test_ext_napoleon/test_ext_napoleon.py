@@ -173,7 +173,7 @@ class TestSkipMember:
         # raise an error on building document
         # See: https://github.com/sphinx-doc/sphinx/issues/1455
         self.assert_skip(
-            'class',
+            'method',
             '_asdict',
             SampleNamedTuple._asdict,
             True,
@@ -182,7 +182,7 @@ class TestSkipMember:
 
     def test_class_private_doc(self) -> None:
         self.assert_skip(
-            'class',
+            'method',
             '_private_doc',
             SampleClass._private_doc,
             False,
@@ -191,7 +191,7 @@ class TestSkipMember:
 
     def test_class_private_undoc(self) -> None:
         self.assert_skip(
-            'class',
+            'method',
             '_private_undoc',
             SampleClass._private_undoc,
             True,
@@ -200,7 +200,7 @@ class TestSkipMember:
 
     def test_class_special_doc(self) -> None:
         self.assert_skip(
-            'class',
+            'method',
             '__special_doc__',
             SampleClass.__special_doc__,
             False,
@@ -209,7 +209,7 @@ class TestSkipMember:
 
     def test_class_special_undoc(self) -> None:
         self.assert_skip(
-            'class',
+            'method',
             '__special_undoc__',
             SampleClass.__special_undoc__,
             True,
@@ -218,7 +218,7 @@ class TestSkipMember:
 
     def test_class_decorated_doc(self) -> None:
         self.assert_skip(
-            'class',
+            'method',
             '__decorated_func__',
             SampleClass.__decorated_func__,
             False,
@@ -227,7 +227,7 @@ class TestSkipMember:
 
     def test_exception_private_doc(self) -> None:
         self.assert_skip(
-            'exception',
+            'method',
             '_private_doc',
             SampleError._private_doc,
             False,
@@ -236,7 +236,7 @@ class TestSkipMember:
 
     def test_exception_private_undoc(self) -> None:
         self.assert_skip(
-            'exception',
+            'method',
             '_private_undoc',
             SampleError._private_undoc,
             True,
@@ -245,7 +245,7 @@ class TestSkipMember:
 
     def test_exception_special_doc(self) -> None:
         self.assert_skip(
-            'exception',
+            'method',
             '__special_doc__',
             SampleError.__special_doc__,
             False,
@@ -254,7 +254,7 @@ class TestSkipMember:
 
     def test_exception_special_undoc(self) -> None:
         self.assert_skip(
-            'exception',
+            'method',
             '__special_undoc__',
             SampleError.__special_undoc__,
             True,
@@ -263,7 +263,7 @@ class TestSkipMember:
 
     def test_module_private_doc(self) -> None:
         self.assert_skip(
-            'module',
+            'function',
             '_private_doc',
             _private_doc,
             False,
@@ -272,7 +272,7 @@ class TestSkipMember:
 
     def test_module_private_undoc(self) -> None:
         self.assert_skip(
-            'module',
+            'function',
             '_private_undoc',
             _private_undoc,
             True,
@@ -281,7 +281,7 @@ class TestSkipMember:
 
     def test_module_special_doc(self) -> None:
         self.assert_skip(
-            'module',
+            'function',
             '__special_doc__',
             __special_doc__,
             False,
@@ -290,7 +290,7 @@ class TestSkipMember:
 
     def test_module_special_undoc(self) -> None:
         self.assert_skip(
-            'module',
+            'function',
             '__special_undoc__',
             __special_undoc__,
             True,
