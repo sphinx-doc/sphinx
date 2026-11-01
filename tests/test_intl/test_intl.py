@@ -55,6 +55,23 @@ def write_mo(pathname: Path, po: Catalog) -> None:
         mofile.write_mo(f, po)
 
 
+def _write_catalogs(
+    app: SphinxTestApp,
+    locale_dir: Path,
+    catalogs: dict[str, dict[str, str]],
+) -> None:
+    # Gettext caches catalogs by filename; callers must use a unique directory.
+    app.config.locale_dirs = [str(locale_dir)]
+    basedir = locale_dir / _CATALOG_LOCALE / 'LC_MESSAGES'
+    for domain, messages in catalogs.items():
+        catalog = Catalog()
+        for original, translated in messages.items():
+            catalog.add(original, translated)
+        path = basedir / f'{domain}.mo'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_mo(path, catalog)
+
+
 def _set_mtime_ns(target: Path, value: int) -> int:
     os.utime(target, ns=(value, value))
     return target.stat().st_mtime_ns
@@ -200,35 +217,36 @@ def test_text_inconsistency_warnings(app: SphinxTestApp) -> None:
             'reftype': 'footnote references',
             'original': "\\['\\[#\\]_'\\]",
             'translated': '\\[\\]',
-        }
-        + warning_fmt
+        },
+        warning_fmt
         % {
             'reftype': 'footnote references',
             'original': "\\['\\[100\\]_'\\]",
             'translated': '\\[\\]',
-        }
-        + warning_fmt
+        },
+        warning_fmt
         % {
             'reftype': 'citation references',
             'original': "\\['\\[ref2\\]_'\\]",
             'translated': "\\['\\[ref3\\]_'\\]",
-        }
-        + warning_fmt
+        },
+        warning_fmt
         % {
-            'reftype': 'references',
+            'reftype': 'named references',
             'original': "\\['reference_'\\]",
             'translated': "\\['reference_', 'reference_'\\]",
-        }
-        + warning_fmt
+        },
+        warning_fmt
         % {
-            'reftype': 'references',
+            'reftype': 'named references',
             'original': '\\[\\]',
             'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
-        }
+        },
     )
-    assert re.search(expected_warning_expr, warnings), (
-        f'{expected_warning_expr!r} did not match {warnings!r}'
-    )
+    for warning_expr in expected_warning_expr:
+        assert re.search(warning_expr, warnings), (
+            f'{warning_expr!r} did not match {warnings!r}'
+        )
 
     expected_citation_ref_warning_expr = '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.'
     assert re.search(expected_citation_ref_warning_expr, warnings), (
@@ -378,7 +396,7 @@ def test_text_glossary_term_inconsistencies(app: SphinxTestApp) -> None:
     warnings = getwarning(app.warning)
     expected_warning_expr = (
         '.*/glossary_terms_inconsistency.txt:\\d+: '
-        'WARNING: inconsistent term references in translated message.'
+        'WARNING: inconsistent glossary references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\] \\[i18n.inconsistent_references\\]\n"
     )
@@ -411,6 +429,572 @@ def test_text_refs_reordered_no_warning(app: SphinxTestApp) -> None:
     assert not re.search(unexpected_warning_expr, warnings), (
         f'Unexpected warning found: {warnings!r}'
     )
+
+
+@sphinx_intl
+@pytest.mark.sphinx('html', testroot='intl')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_html_refs_translated_display_text(app: SphinxTestApp) -> None:
+    """Translated references resolve without warnings (issue #14162)."""
+    app.build()
+    doctree = app.env.get_and_resolve_doctree(
+        'refs_translated_display_text', app.builder, tags=app.tags
+    )
+    refs = [
+        (ref.astext(), ref.get('refuri', '#' + ref.get('refid', '')))
+        for ref in doctree.findall(nodes.reference)
+    ]
+    assert refs == [
+        ('VECTORCALL', 'https://peps.python.org/pep-0590/'),
+        ('SUGGERIMENTI MIGLIORATI', 'https://github.com/example/pr/1'),
+        (
+            'TRANSLATED DOCUMENTATION BUGS',
+            'https://github.com/sphinx-doc/sphinx/issues',
+        ),
+        ('CODIFICAÇÃO DA LOCALIDADE', '#term-locale-encoding'),
+        (
+            'TRANSLATED DOCUMENTATION BUGS',
+            'https://github.com/sphinx-doc/sphinx/issues',
+        ),
+        ('VECTORCALL', 'https://peps.python.org/pep-0590/'),
+        ('wirtualną', '#term-abstract-base-class'),
+        ('kodowanie tekstu', '#term-text-encoding'),
+        ('dekorator', '#term-decorator'),
+        ('kodowanie tekstu', '#term-text-encoding'),
+        ('dekorator', '#term-decorator'),
+    ]
+
+    warnings = getwarning(app.warning)
+    # The fixture is intentionally absent from the toctree.
+    unexpected = [
+        line
+        for line in warnings.splitlines()
+        if '/refs_translated_display_text.txt' in line
+        and '[toc.not_included]' not in line
+    ]
+    assert not unexpected, f'Unexpected warning found: {warnings!r}'
+
+
+@sphinx_intl
+@pytest.mark.sphinx(
+    'html', testroot='basic', srcdir='intl_xref_consistency', freshenv=True
+)
+@pytest.mark.parametrize(
+    ('original', 'translated', 'warning_kind'),
+    [
+        pytest.param(
+            ':func:`first`', ':func:`second`', 'cross-references', id='changed-target'
+        ),
+        pytest.param(
+            ':func:`first`', ':class:`first`', 'cross-references', id='changed-role'
+        ),
+        pytest.param(
+            ':func:`first`',
+            ':c:func:`first`',
+            'cross-references',
+            id='changed-domain',
+        ),
+        pytest.param(
+            ':func:`first` and :func:`second`',
+            ':func:`SECOND <second>` and :func:`FIRST <first>`',
+            None,
+            id='reordered-translated-display-text',
+        ),
+        pytest.param(
+            ':func:`first`, :func:`first`, :func:`second`',
+            ':func:`first`, :func:`second`, :func:`second`',
+            'cross-references',
+            id='changed-multiplicity',
+        ),
+        pytest.param(
+            ':func:`first` and :term:`apple`',
+            ':term:`pomme` and :func:`FIRST <first>`',
+            None,
+            id='translated-term-and-unchanged-function',
+        ),
+        pytest.param(
+            ':func:`first` and :term:`apple`',
+            ':term:`pomme` and :func:`second`',
+            'cross-references',
+            id='translated-term-and-changed-function',
+        ),
+        pytest.param(
+            ':term:`apple` and :func:`first`',
+            ':func:`first` and :func:`first`',
+            'cross-references',
+            id='term-replaced-by-function',
+        ),
+        pytest.param(
+            ':term:`apple` and :term:`apple`',
+            ':term:`pomme`',
+            'glossary references',
+            id='missing-term',
+        ),
+        pytest.param(
+            ':term:`apple`',
+            ':term:`pomme` and :term:`pomme`',
+            'glossary references',
+            id='extra-term',
+        ),
+        pytest.param(
+            ':term:`apple`', ':term:`pear`', 'glossary references', id='changed-term'
+        ),
+        pytest.param(
+            ':term:`apple`',
+            ':term:`poire`',
+            'glossary references',
+            id='changed-translated-term',
+        ),
+        pytest.param(
+            ':term:`apple` and :term:`pear`',
+            ':term:`pomme` and :term:`pomme`',
+            'glossary references',
+            id='changed-term-multiplicity',
+        ),
+        pytest.param(
+            ':term:`apple` and :term:`pear`',
+            ':term:`POIRE` and :term:`pomme`',
+            None,
+            id='reordered-translated-terms',
+        ),
+        pytest.param(
+            ':term:`apple`', ':term:`pear` # noqa', None, id='changed-term-noqa'
+        ),
+        pytest.param(':func:`first`', ':func:`second` # noqa', None, id='noqa'),
+    ],
+)
+def test_translated_xref_consistency(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    original: str,
+    translated: str,
+    warning_kind: str | None,
+) -> None:
+    original = f'Original: {original}.'
+    translated = f'Translated: {translated}'
+    (app.srcdir / 'index.rst').write_text(
+        f'Test\n====\n\n{original}\n\n'
+        '.. function:: first()\n\n'
+        '.. function:: second()\n\n'
+        '.. glossary::\n\n'
+        '   apple\n'
+        '      A fruit.\n\n'
+        '   pear\n'
+        '      Another fruit.\n',
+        encoding='utf8',
+    )
+    _write_catalogs(
+        app,
+        tmp_path,
+        {'index': {original: translated, 'apple': 'pomme', 'pear': 'poire'}},
+    )
+
+    app.build()
+
+    doctree = app.env.get_doctree('index')
+    assert 'Translated:' in doctree.astext()
+    warnings = getwarning(app.warning)
+    expected_count = 0 if warning_kind is None else 1
+    assert warnings.count('[i18n.inconsistent_references]') == expected_count, warnings
+    if warning_kind is not None:
+        assert f'inconsistent {warning_kind} in translated message.' in warnings, (
+            warnings
+        )
+
+
+@sphinx_intl
+@pytest.mark.sphinx('html', testroot='basic', freshenv=True)
+@pytest.mark.parametrize('parallel', [0, 2])
+@pytest.mark.parametrize(
+    'glossary_doc',
+    [
+        pytest.param(
+            'a_glossary', marks=pytest.mark.sphinx(srcdir='intl_term_a_glossary')
+        ),
+        pytest.param(
+            'z_glossary', marks=pytest.mark.sphinx(srcdir='intl_term_z_glossary')
+        ),
+    ],
+)
+@pytest.mark.parametrize(('target', 'warns'), [('pomme', False), ('poire', True)])
+def test_translated_term_consistency_other_document(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    parallel: int,
+    glossary_doc: str,
+    target: str,
+    warns: bool,
+) -> None:
+    app.parallel = parallel
+    original = 'Original: :term:`apple`.'
+    (app.srcdir / 'index.rst').write_text(
+        f'Test\n====\n\n{original}\n\n.. toctree::\n\n   {glossary_doc}\n',
+        encoding='utf8',
+    )
+    (app.srcdir / f'{glossary_doc}.rst').write_text(
+        'Glossary\n========\n\n.. glossary::\n\n'
+        '   apple\n'
+        '      A fruit.\n\n'
+        '   pear\n'
+        '      Another fruit.\n',
+        encoding='utf8',
+    )
+    _write_catalogs(
+        app,
+        tmp_path,
+        {
+            'index': {original: f'Translated: :term:`{target}`.'},
+            glossary_doc: {'apple': 'pomme', 'pear': 'poire'},
+        },
+    )
+
+    app.build()
+
+    warnings = getwarning(app.warning)
+    assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
+    assert '[ref.term]' not in warnings, warnings
+    doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+    paragraph = next(doctree.findall(nodes.paragraph))
+    ref = next(paragraph.findall(nodes.reference))
+    term_id = 'pear' if warns else 'apple'
+    assert ref['refuri'] == f'{glossary_doc}.html#term-{term_id}'
+
+    # Reusing the saved doctree must retain the deferred consistency check.
+    app.warning.seek(0)
+    app.warning.truncate(0)
+    app.build(force_all=True)
+    warnings = getwarning(app.warning)
+    assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
+
+
+@sphinx_intl
+@pytest.mark.sphinx(testroot='basic', srcdir='intl_included_document', freshenv=True)
+@pytest.mark.parametrize(
+    'buildername',
+    [
+        pytest.param('html', marks=pytest.mark.sphinx('html')),
+        pytest.param('singlehtml', marks=pytest.mark.sphinx('singlehtml')),
+        pytest.param('latex', marks=pytest.mark.sphinx('latex')),
+    ],
+)
+@pytest.mark.parametrize(
+    ('term', 'function', 'warns'),
+    [('pomme', 'first', False), ('poire', 'first', True), ('pomme', 'second', True)],
+)
+def test_translated_xref_consistency_included_document(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    buildername: str,
+    term: str,
+    function: str,
+    warns: bool,
+) -> None:
+    assert app.builder.name == buildername
+    original = 'Original: :term:`apple` and :func:`first`. Read `Heading`_.'
+    (app.srcdir / 'index.rst').write_text(
+        'Test\n====\n\n.. toctree::\n\n   child\n   glossary\n', encoding='utf8'
+    )
+    (app.srcdir / 'child.rst').write_text(
+        f'Child\n=====\n\n{original}\n\n'
+        '.. _heading:\n\nHeading\n-------\n\nA section.\n',
+        encoding='utf8',
+    )
+    (app.srcdir / 'glossary.rst').write_text(
+        'Glossary\n========\n\n.. glossary::\n\n'
+        '   apple\n'
+        '      A fruit.\n\n'
+        '   pear\n'
+        '      Another fruit.\n\n'
+        '.. function:: first()\n\n'
+        '.. function:: second()\n',
+        encoding='utf8',
+    )
+    _write_catalogs(
+        app,
+        tmp_path,
+        {
+            'child': {
+                original: f'Translated: :term:`{term}` and :func:`{function}`. Read `Titre`_.',
+                'Heading': 'Titre',
+            },
+            'glossary': {'apple': 'pomme', 'pear': 'poire'},
+        },
+    )
+
+    for force_all in (False, True):
+        app.warning.seek(0)
+        app.warning.truncate(0)
+        app.build(force_all=force_all)
+
+        warnings = getwarning(app.warning)
+        assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
+        assert '[ref.term]' not in warnings, warnings
+        if warns:
+            assert 'child.rst:4: WARNING: inconsistent cross-references' in warnings
+
+
+@sphinx_intl
+@pytest.mark.sphinx(
+    'html', testroot='basic', srcdir='intl_refnamed_consistency', freshenv=True
+)
+@pytest.mark.parametrize(
+    ('original', 'translated', 'warns'),
+    [
+        pytest.param(
+            'Read first_.',
+            'Read `GUIDE <second_>`_.',
+            True,
+            id='changed-target',
+        ),
+        pytest.param(
+            'Read first_ and second_.',
+            'Read first_ and first_.',
+            True,
+            id='duplicated-target',
+        ),
+        pytest.param(
+            'Read `guide <first_>`_.',
+            'Read `GUIDE <first_>`_.',
+            False,
+            id='translated-display-text',
+        ),
+        pytest.param(
+            'Read first_.',
+            'Read `GUIDE <second_>`_. # noqa',
+            False,
+            id='changed-target-noqa',
+        ),
+        pytest.param(
+            'Read first_ and second_.',
+            'Read premier_.',
+            True,
+            id='missing-translated-reference',
+        ),
+        pytest.param(
+            'Read first_ and second_.',
+            'Read premier_ and deuxieme_ and troisieme_.',
+            True,
+            id='extra-translated-reference',
+        ),
+    ],
+)
+def test_translated_refnamed_consistency(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    original: str,
+    translated: str,
+    warns: bool,
+) -> None:
+    original = f'Original: {original}'
+    translated = f'Translated: {translated}'
+    (app.srcdir / 'index.rst').write_text(
+        'Test\n====\n\n'
+        '.. _first: https://example.org/first\n'
+        '.. _second: https://example.org/second\n\n'
+        f'{original}\n',
+        encoding='utf8',
+    )
+    _write_catalogs(app, tmp_path, {'index': {original: translated}})
+
+    app.build()
+
+    assert 'Translated:' in app.env.get_doctree('index').astext()
+    warnings = getwarning(app.warning)
+    assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
+
+
+@sphinx_intl
+@pytest.mark.sphinx(
+    'html', testroot='basic', srcdir='intl_refnamed_fallback', freshenv=True
+)
+@pytest.mark.parametrize(
+    ('translated', 'expected_refs'),
+    [
+        pytest.param(
+            'Read premier_ and deuxieme_.',
+            [('premier', 'first'), ('deuxieme', 'second')],
+            id='translated-names-use-source-order',
+        ),
+        pytest.param(
+            'Read deuxieme_ and premier_.',
+            [('deuxieme', 'first'), ('premier', 'second')],
+            id='reordered-translated-names-still-use-source-order',
+        ),
+        pytest.param(
+            'Read deuxieme_ and `PREMIER <first_>`_.',
+            [('deuxieme', 'second'), ('PREMIER', 'first')],
+            id='one-explicit-target-disambiguates-fallback',
+        ),
+        pytest.param(
+            'Read `DEUXIEME <second_>`_ and `PREMIER <first_>`_.',
+            [('DEUXIEME', 'second'), ('PREMIER', 'first')],
+            id='explicit-targets-preserve-reordered-destinations',
+        ),
+    ],
+)
+def test_translated_refnamed_fallback_destinations(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    translated: str,
+    expected_refs: list[tuple[str, str]],
+) -> None:
+    """Unknown translated names use positional fallback, not semantic matching.
+
+    Reordering those names can silently swap their intended destinations.
+    Explicit original targets preserve destination identity across reordering.
+    """
+    original = 'Original: Read first_ and second_.'
+    (app.srcdir / 'index.rst').write_text(
+        'Test\n====\n\n'
+        '.. _first: https://example.org/first\n'
+        '.. _second: https://example.org/second\n\n'
+        f'{original}\n',
+        encoding='utf8',
+    )
+    _write_catalogs(app, tmp_path, {'index': {original: f'Translated: {translated}'}})
+
+    app.build()
+
+    doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+    assert 'Translated:' in doctree.astext()
+    assert [
+        (ref.astext(), ref['refuri']) for ref in doctree.findall(nodes.reference)
+    ] == [(text, f'https://example.org/{target}') for text, target in expected_refs]
+    assert not getwarning(app.warning)
+
+
+@sphinx_intl
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    srcdir='intl_refnamed_section_title_collision',
+    freshenv=True,
+)
+@pytest.mark.parametrize(
+    ('translated', 'warns', 'destination'),
+    [
+        pytest.param(
+            '`Błędy w dokumentacji`_',
+            True,
+            '#documentation-bugs',
+            id='translated-name-selects-section',
+        ),
+        pytest.param(
+            '`Błędy w dokumentacji <Documentation bugs_>`_',
+            False,
+            'https://example.org/issues',
+            id='translated-display-text-keeps-external-target',
+        ),
+        pytest.param(
+            '`Błędy w dokumentacji`_ # noqa',
+            False,
+            '#documentation-bugs',
+            id='changed-target-noqa',
+        ),
+    ],
+)
+def test_translated_refnamed_section_title_collision(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    translated: str,
+    warns: bool,
+    destination: str,
+) -> None:
+    (app.srcdir / 'index.rst').write_text(
+        'Test\n====\n\n'
+        'Documentation bugs\n------------------\n\n'
+        '.. seealso::\n\n'
+        '   `Documentation bugs`_\n'
+        '      A list of documentation bugs.\n\n'
+        '.. _Documentation bugs: https://example.org/issues\n',
+        encoding='utf8',
+    )
+    _write_catalogs(
+        app,
+        tmp_path,
+        {
+            'index': {
+                'Documentation bugs': 'Błędy w dokumentacji',
+                '`Documentation bugs`_': translated,
+            },
+        },
+    )
+
+    app.build()
+
+    doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+    assert 'Błędy w dokumentacji' in doctree.astext()
+    refs = list(doctree.findall(nodes.reference))
+    assert len(refs) == 1
+    assert refs[0].astext() == 'Błędy w dokumentacji'
+    assert refs[0].get('refuri', '#' + refs[0].get('refid', '')) == destination
+
+    warnings = getwarning(app.warning)
+    if warns:
+        assert (
+            'index.rst:9: WARNING: inconsistent named references in translated message. '
+            "original: ['`Documentation bugs`_'], "
+            "translated: ['`Błędy w dokumentacji`_'] "
+            '[i18n.inconsistent_references]'
+        ) in warnings
+    else:
+        assert not warnings
+
+
+@sphinx_intl
+@pytest.mark.sphinx(
+    'html', testroot='basic', srcdir='intl_reference_destinations', freshenv=True
+)
+@pytest.mark.parametrize(
+    ('original', 'translated', 'warns'),
+    [
+        pytest.param('`Heading`_', '`Titre`_', False, id='section-with-two-ids'),
+        pytest.param('first_', 'second_', True, id='different-external-targets'),
+        pytest.param(
+            ':func:`example.first`',
+            ':func:`first`',
+            True,
+            id='qualified-python-name',
+        ),
+        pytest.param(
+            ':py:obj:`example.first`',
+            ':func:`first`',
+            True,
+            id='same-python-object',
+        ),
+    ],
+)
+def test_translated_section_reference_scope(
+    app: SphinxTestApp,
+    tmp_path: Path,
+    original: str,
+    translated: str,
+    warns: bool,
+) -> None:
+    original = f'Original: {original}'
+    translated = f'Translated: {translated}'
+    (app.srcdir / 'index.rst').write_text(
+        'Test\n====\n\n'
+        '.. _first: https://example.org/\n'
+        '.. _second: https://example.org/\n\n'
+        '.. _heading:\n\n'
+        'Heading\n-------\n\n'
+        '.. py:module:: example\n\n'
+        '.. py:function:: first()\n\n'
+        f'{original}\n',
+        encoding='utf8',
+    )
+    _write_catalogs(
+        app, tmp_path, {'index': {'Heading': 'Titre', original: translated}}
+    )
+
+    app.build()
+
+    doctree = app.env.get_and_resolve_doctree('index', app.builder, tags=app.tags)
+    assert 'Translated:' in doctree.astext()
+    warnings = getwarning(app.warning)
+    assert ('[i18n.inconsistent_references]' in warnings) is warns, warnings
+    assert '[ref.python]' not in warnings, warnings
 
 
 @sphinx_intl
