@@ -123,6 +123,46 @@ def test_cmd_option_with_optional_value(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
+def test_cmd_option_with_conjoined_placeholder(app: SphinxTestApp) -> None:
+    text = '.. option:: -S<value>'
+    doctree = restructuredtext.parse(app, text)
+    assert_node(
+        doctree,
+        (
+            index,
+            [
+                desc,
+                (
+                    [desc_signature, ([desc_name, '-S'], [desc_addname, '<value>'])],
+                    [desc_content, ()],
+                ),
+            ],
+        ),
+    )
+    assert_node(
+        doctree[0],
+        addnodes.index,
+        entries=[('pair', 'command line option; -S', 'cmdoption-S', '', None)],
+    )
+
+    domain = app.env.domains.standard_domain
+    objects = list(domain.get_objects())
+    assert ('-S', '-S', 'cmdoption', 'index', 'cmdoption-S', 1) in objects
+
+    refnode = domain.resolve_xref(
+        app.env,
+        'index',
+        app.builder,
+        'option',
+        '-S<other>',
+        pending_xref(),
+        nodes.paragraph(),
+    )
+    assert refnode is not None
+    assert_node(refnode, nodes.reference, refid='cmdoption-S')
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_cmd_option_starting_with_bracket(app: SphinxTestApp) -> None:
     text = '.. option:: [enable=]PATTERN'
     doctree = restructuredtext.parse(app, text)
