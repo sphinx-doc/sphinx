@@ -486,6 +486,242 @@ def test_info_field_list_napoleon_deliminator_or(app):
 
 
 @pytest.mark.sphinx('html', testroot='_blank')
+def test_info_field_list_multiple_paragraphs(app):
+    text = (
+        '.. py:function:: f(x, y)\n'
+        '\n'
+        '   :param x: blah blah\n'
+        '   :type x: int\n'
+        '   :param y: blah blah\n'
+        '\n'
+        '      blah blah blah\n'
+        '   :type y: int\n'
+    )
+    doctree = restructuredtext.parse(app, text)
+
+    # :param x: (single-paragraph description, rendered inline)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0, 1, 0, 0, 0),
+        (
+            [addnodes.literal_strong, 'x'],
+            ' (',
+            [pending_xref, addnodes.literal_emphasis, 'int'],
+            ')',
+            ' -- ',
+            'blah blah',
+        ),
+    )
+
+    # :param y: (multi-paragraph description: the remaining paragraphs are
+    # siblings of the first paragraph inside the same list item)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0, 1, 0, 1),
+        (
+            [
+                nodes.paragraph,
+                (
+                    [addnodes.literal_strong, 'y'],
+                    ' (',
+                    [pending_xref, addnodes.literal_emphasis, 'int'],
+                    ')',
+                    ' -- ',
+                    'blah blah',
+                ),
+            ],
+            [nodes.paragraph, 'blah blah blah'],
+        ),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_info_field_list_multiple_paragraphs_collapsed(app):
+    text = (
+        '.. py:function:: f(y)\n'
+        '\n'
+        '   :param y: blah blah\n'
+        '\n'
+        '      blah blah blah\n'
+        '   :type y: int\n'
+    )
+    doctree = restructuredtext.parse(app, text)
+
+    # :param y: (multi-paragraph description: single item, so the field list
+    # collapses: no bullet list; the paragraphs are direct children of the
+    # field body)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0, 1),
+        (
+            [
+                nodes.paragraph,
+                (
+                    [addnodes.literal_strong, 'y'],
+                    ' (',
+                    [pending_xref, addnodes.literal_emphasis, 'int'],
+                    ')',
+                    ' -- ',
+                    'blah blah',
+                ),
+            ],
+            [nodes.paragraph, 'blah blah blah'],
+        ),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_info_field_list_multiple_paragraphs_returns(app):
+    text = (
+        '.. py:function:: f()\n'
+        '\n'
+        '   :returns: blah blah\n'
+        '\n'
+        '      blah blah blah\n'
+    )  # fmt: skip
+    doctree = restructuredtext.parse(app, text)
+
+    # :returns: (multi-paragraph description: Field adds no prefix, so both
+    # paragraphs are direct children of the field body)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0, 1),
+        (
+            [nodes.paragraph, 'blah blah'],
+            [nodes.paragraph, 'blah blah blah'],
+        ),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_info_field_list_multiple_paragraphs_raises(app):
+    text = (
+        '.. py:function:: f()\n'
+        '\n'
+        '   :raises ValueError: blah blah\n'
+        '\n'
+        '      blah blah blah\n'
+    )
+    doctree = restructuredtext.parse(app, text)
+
+    # :raises ValueError: (multi-paragraph description: single item, so the
+    # field list collapses: no bullet list; the paragraphs are direct children
+    # of the field body)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0, 1),
+        (
+            [
+                nodes.paragraph,
+                (
+                    [pending_xref, addnodes.literal_strong, 'ValueError'],
+                    ' -- ',
+                    'blah blah',
+                ),
+            ],
+            [nodes.paragraph, 'blah blah blah'],
+        ),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_info_field_list_bullet_list(app):
+    text = (
+        '.. py:function:: f(y)\n'
+        '\n'
+        '   :param y:\n'
+        '      - item one\n'
+        '      - item two\n'
+        '   :type y: int\n'
+    )
+    doctree = restructuredtext.parse(app, text)
+
+    # :param y: (bullet-list description with no leading paragraph, so the name
+    # line ends at the ' -- ' separator and the list is a sibling block)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0, 1),
+        (
+            [
+                nodes.paragraph,
+                (
+                    [addnodes.literal_strong, 'y'],
+                    ' (',
+                    [pending_xref, addnodes.literal_emphasis, 'int'],
+                    ')',
+                    ' -- ',
+                ),
+            ],
+            [
+                nodes.bullet_list,
+                (
+                    [nodes.list_item, [nodes.paragraph, 'item one']],
+                    [nodes.list_item, [nodes.paragraph, 'item two']],
+                ),
+            ],
+        ),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_info_field_list_paragraph_then_bullet_list(app):
+    text = (
+        '.. py:function:: f(y)\n'
+        '\n'
+        '   :param y: blah blah\n'
+        '\n'
+        '      - item one\n'
+        '      - item two\n'
+        '   :type y: int\n'
+    )
+    doctree = restructuredtext.parse(app, text)
+
+    # :param y: (paragraph then bullet list: the list is a sibling block of
+    # the description paragraph)
+    assert_node(
+        extract_node(doctree, 1, 1, 0, 0, 1),
+        (
+            [
+                nodes.paragraph,
+                (
+                    [addnodes.literal_strong, 'y'],
+                    ' (',
+                    [pending_xref, addnodes.literal_emphasis, 'int'],
+                    ')',
+                    ' -- ',
+                    'blah blah',
+                ),
+            ],
+            [
+                nodes.bullet_list,
+                (
+                    [nodes.list_item, [nodes.paragraph, 'item one']],
+                    [nodes.list_item, [nodes.paragraph, 'item two']],
+                ),
+            ],
+        ),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_info_field_list_multiple_paragraphs_html(app):
+    text = (
+        '.. py:function:: f(x, y)\n'
+        '\n'
+        '   :param x: blah blah\n'
+        '   :type x: int\n'
+        '   :param y: blah blah\n'
+        '\n'
+        '      blah blah blah\n'
+        '   :type y: int\n'
+    )
+    (app.srcdir / 'index.rst').write_text(text, encoding='utf8')
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+
+    # :param y: (html: extra paragraph is a sibling <p>)
+    assert (
+        '<li><p><strong>y</strong> (<em>int</em>) – blah blah</p>\n'
+        '<p>blah blah blah</p>\n'
+        '</li>'
+    ) in content
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
 def test_type_field(app):
     text = (
         '.. py:data:: var1\n'

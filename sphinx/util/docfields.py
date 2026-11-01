@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 def _is_single_paragraph(node: nodes.field_body) -> bool:
-    """True if the node only contains one paragraph (and system messages)."""
+    """True if the *node* only contains one paragraph (and system messages)."""
     if len(node) == 0:
         return False
     elif len(node) > 1:
@@ -40,6 +40,35 @@ def _is_single_paragraph(node: nodes.field_body) -> bool:
             if not isinstance(subnode, nodes.system_message):
                 return False
     return isinstance(node[0], nodes.paragraph)
+
+
+def _is_block_node(node: Node) -> bool:
+    """True if the *node* is a block-level node (not inline or text)."""
+    return not isinstance(node, (nodes.Inline, nodes.Text))
+
+
+def _split_field_content(content: list[Node]) -> tuple[list[Node], list[Node]]:
+    """Split a doc field body into inline content and block content."""
+    if (
+        len(content) == 1
+        and isinstance(content[0], nodes.inline)
+        and content[0].get('translatable')
+    ):
+        wrapper = content[0]
+        body = wrapper.children
+        if body and _is_block_node(body[0]):
+            first, *rest = body
+            if isinstance(first, nodes.paragraph):
+                first_wrapper = nodes.inline(first.rawsource, translatable=True)
+                document = wrapper.document
+                assert document is not None
+                first_wrapper.document = document
+                first_wrapper.source = first.source
+                first_wrapper.line = first.line
+                first_wrapper += first.children
+                return [first_wrapper], list(rest)
+            return [], list(body)
+    return content, []
 
 
 class Field:
@@ -180,7 +209,10 @@ class Field:
                 inliner=inliner,
                 location=location,
             )
-        fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
+        inline_content, blocks = _split_field_content(content)
+        fieldbody = nodes.field_body(
+            '', nodes.paragraph('', '', *inline_content), *blocks
+        )
         return nodes.field('', fieldname, fieldbody)
 
 
@@ -223,6 +255,7 @@ class GroupedField(Field):
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
+            inline_content, blocks = _split_field_content(content)
             par = nodes.paragraph()
             par.extend(
                 self.make_xrefs(
@@ -236,12 +269,12 @@ class GroupedField(Field):
                 )
             )
             par += nodes.Text(' -- ')
-            par += content
-            listnode += nodes.list_item('', par)
+            par += inline_content
+            listnode += nodes.list_item('', par, *blocks)
 
         if len(items) == 1 and self.can_collapse:
             list_item = cast('nodes.list_item', listnode[0])
-            fieldbody = nodes.field_body('', list_item[0])
+            fieldbody = nodes.field_body('', *list_item.children)
             return nodes.field('', fieldname, fieldbody)
 
         fieldbody = nodes.field_body('', listnode)
@@ -292,7 +325,8 @@ class TypedField(GroupedField):
         inliner: Inliner | None = None,
         location: Element | None = None,
     ) -> nodes.field:
-        def handle_item(fieldarg: str, content: list[Node]) -> nodes.paragraph:
+        def handle_item(fieldarg: str, content: list[Node]) -> list[Node]:
+            inline_content, blocks = _split_field_content(content)
             par = nodes.paragraph()
             par.extend(
                 self.make_xrefs(
@@ -324,18 +358,18 @@ class TypedField(GroupedField):
             has_content = any(c.astext().strip() for c in content)
             if has_content:
                 par += nodes.Text(' -- ')
-                par += content
-            return par
+                par += inline_content
+            return [par, *blocks]
 
         fieldname = nodes.field_name('', self.label)
         if len(items) == 1 and self.can_collapse:
             fieldarg, content = items[0]
-            bodynode: Node = handle_item(fieldarg, content)
+            fieldbody = nodes.field_body('', *handle_item(fieldarg, content))
         else:
             bodynode = self.list_type()
             for fieldarg, content in items:
-                bodynode += nodes.list_item('', handle_item(fieldarg, content))
-        fieldbody = nodes.field_body('', bodynode)
+                bodynode += nodes.list_item('', *handle_item(fieldarg, content))
+            fieldbody = nodes.field_body('', bodynode)
         return nodes.field('', fieldname, fieldbody)
 
 
