@@ -61,7 +61,9 @@ class _Status(StrEnum):
 logger = logging.getLogger(__name__)
 
 # matches to foo:// and // (a protocol relative URL)
-uri_re = re.compile('([a-z]+:)?//')
+# URI schemes are case-insensitive per RFC 3986, so the pattern is
+# case-insensitive (e.g. ``FTP://`` is treated the same as ``ftp://``).
+uri_re = re.compile('([a-z]+:)?//', re.IGNORECASE)
 
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
