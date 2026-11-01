@@ -250,6 +250,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.annotations: dict[tuple[str, str], str] = {}
         self.previous: ast.AST | None = None
         self.deforders: dict[str, int] = {}
+        self.assignments: set[str] = set()
         self.finals: list[str] = []
         self.overloads: dict[str, list[Signature]] = {}
         self.typing_mods: set[str] = set()
@@ -349,6 +350,11 @@ class VariableCommentPicker(ast.NodeVisitor):
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
+
+        for varname in varnames:
+            qualname = self.get_qualname_for(varname)
+            if qualname:
+                self.assignments.add('.'.join(qualname))
 
         # record annotation
         if hasattr(node, 'annotation') and node.annotation:
@@ -601,6 +607,7 @@ class Parser:
         self.comments: dict[tuple[str, str], str] = {}
         self.deforders: dict[str, int] = {}
         self.definitions: dict[str, tuple[str, int, int]] = {}
+        self.assignments: set[str] = set()
         self.finals: list[str] = []
         self.overloads: dict[str, list[Signature]] = {}
 
@@ -617,6 +624,7 @@ class Parser:
         self.annotations = picker.annotations
         self.comments = picker.comments
         self.deforders = picker.deforders
+        self.assignments = picker.assignments
         self.finals = picker.finals
         self.overloads = picker.overloads
 

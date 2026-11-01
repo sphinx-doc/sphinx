@@ -21,6 +21,7 @@ class ModuleAnalyzer:
     attr_docs: dict[tuple[str, str], list[str]]
     finals: list[str]
     overloads: dict[str, list[Signature]]
+    assignments: set[str]
     tagorder: dict[str, int]
     tags: dict[str, tuple[str, int, int]]
 
@@ -150,6 +151,7 @@ class ModuleAnalyzer:
                     self.attr_docs[scope] = ['']
 
             self.annotations = parser.annotations
+            self.assignments = parser.assignments
             self.finals = parser.finals
             self.overloads = parser.overloads
             self.tags = parser.definitions
