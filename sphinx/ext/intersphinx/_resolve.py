@@ -150,15 +150,17 @@ def _resolve_reference_in_domain(
     objtypes: Iterable[str],
     node: pending_xref,
     contnode: TextElement,
+    *,
+    legacy_objtypes: bool = True,
 ) -> nodes.reference | None:
     domain_name = domain.name
     obj_types: dict[str, None] = dict.fromkeys(objtypes)
 
     # we adjust the object types for backwards compatibility
-    if domain_name == 'std' and 'cmdoption' in obj_types:
+    if legacy_objtypes and domain_name == 'std' and 'cmdoption' in obj_types:
         # cmdoptions were stored as std:option until Sphinx 1.6
         obj_types['option'] = None
-    if domain_name == 'py' and 'attribute' in obj_types:
+    if legacy_objtypes and domain_name == 'py' and 'attribute' in obj_types:
         # properties are stored as py:method since Sphinx 2.1
         obj_types['method'] = None
 
@@ -241,7 +243,7 @@ def _resolve_reference(
         objtypes = domain.objtypes_for_role(typ) or ()
         if not objtypes:
             return None
-        return _resolve_reference_in_domain(
+        res = _resolve_reference_in_domain(
             inv_name,
             inventory,
             honor_disabled_refs,
@@ -251,6 +253,26 @@ def _resolve_reference(
             node,
             contnode,
         )
+        if res is None and domain_name == 'py' and typ == 'class':
+            # Type aliases and type variables are documented as data or
+            # attributes but referenced as classes (e.g. from annotations).
+            # Mirror the fallback in PythonDomain.resolve_xref(), which does
+            # not extend 'attr' to methods, hence legacy_objtypes=False.
+            for fallback_role in ('data', 'attr'):
+                res = _resolve_reference_in_domain(
+                    inv_name,
+                    inventory,
+                    honor_disabled_refs,
+                    disabled_reftypes,
+                    domain,
+                    domain.objtypes_for_role(fallback_role) or (),
+                    node,
+                    contnode,
+                    legacy_objtypes=False,
+                )
+                if res is not None:
+                    break
+        return res
 
 
 def inventory_exists(env: BuildEnvironment, inv_name: InventoryName) -> bool:

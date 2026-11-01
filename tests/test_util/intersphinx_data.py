@@ -71,3 +71,19 @@ INVENTORY_V2_TEXT_VERSION: Final[bytes] = b"""\
 """ + zlib.compress(b"""\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 """)
+
+INVENTORY_V2_TYPE_ALIASES: Final[bytes] = b"""\
+# Sphinx inventory version 2
+# Project: foo
+# Version: 2.0
+# The remainder of this file is compressed with zlib.
+""" + zlib.compress(b"""\
+module1 py:module 0 foo.html#module-module1 -
+module1.T py:data 1 foo.html#module1.T -
+module1.Klass py:class 1 foo.html#module1.Klass -
+module1.Klass.Alias py:attribute 1 foo.html#module1.Klass.Alias -
+module1.Klass.meth py:method 1 foo.html#module1.Klass.meth -
+module1.Both py:class 1 foo.html#class-module1.Both -
+module1.Both py:data 1 foo.html#data-module1.Both -
+foo.T js:data 1 foo.html#js-foo.T -
+""")
