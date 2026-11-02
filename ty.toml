@@ -18,6 +18,9 @@ exclude = [
     "tests/test_util/typing_test_data.py",
 ]
 
+[analysis]
+return-type-inference = "always"
+
 [rules]
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"

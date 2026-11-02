@@ -135,7 +135,9 @@ if the screen is too narrow.
 
 These themes are:
 
-**basic**
+basic
+"""""
+
   This is a basically unstyled layout used as the base for the
   other themes, and usable as the base for custom themes as well.  The HTML
   contains all important elements like sidebar and relation bar.  There are
@@ -192,7 +194,9 @@ These themes are:
 
     .. versionadded:: 3.2
 
-**alabaster**
+alabaster
+"""""""""
+
   `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally
   based on @mitsuhiko's theme used for Flask & related projects.  Refer to its
@@ -202,7 +206,9 @@ These themes are:
   .. _Alabaster theme: https://pypi.org/project/alabaster/
   .. _installation page: https://alabaster.readthedocs.io/en/latest/installation.html
 
-**classic**
+classic
+"""""""
+
   This is the classic theme, which looks like `the Python 2
   documentation <https://docs.python.org/2/>`_.  It can be customized via
   these options:
@@ -248,7 +254,9 @@ These themes are:
   - **bodyfont** (CSS font-family): Font for normal text.
   - **headfont** (CSS font-family): Font for headings.
 
-**sphinxdoc**
+sphinxdoc
+"""""""""
+
   The theme originally used by this documentation. It features
   a sidebar on the right side. There are currently no options beyond
   *nosidebar* and *sidebarwidth*.
@@ -259,7 +267,9 @@ These themes are:
     `an adjusted version of the sphinxdoc theme
     <https://github.com/sphinx-doc/sphinx/tree/master/doc/_themes/sphinx13>`_.
 
-**scrolls**
+scrolls
+"""""""
+
   A more lightweight theme, based on `the Jinja documentation
   <https://jinja.palletsprojects.com/>`_.  The following color options are
   available:
@@ -270,7 +280,9 @@ These themes are:
   - **visitedlinkcolor**
   - **admonitioncolor**
 
-**agogo**
+agogo
+"""""
+
   A theme created by Andi Albrecht.  The following options are supported:
 
   - **bodyfont** (CSS font family): Font for normal text.
@@ -294,15 +306,21 @@ These themes are:
   - **textalign** (CSS *text-align* value): Text alignment for the body, default
     is ``justify``.
 
-**nature**
+nature
+""""""
+
   A greenish theme.  There are currently no options beyond
   *nosidebar* and *sidebarwidth*.
 
-**pyramid**
+pyramid
+"""""""
+
   A theme from the Pyramid web framework project, designed by Blaise Laflamme.
   There are currently no options beyond *nosidebar* and *sidebarwidth*.
 
-**haiku**
+haiku
+"""""
+
   A theme without sidebar inspired by the `Haiku OS user guide
   <https://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
   options are supported:
@@ -315,11 +333,15 @@ These themes are:
   - **textcolor**, **headingcolor**, **linkcolor**, **visitedlinkcolor**,
     **hoverlinkcolor** (CSS colors): Colors for various body elements.
 
-**traditional**
+traditional
+"""""""""""
+
   A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar* and *sidebarwidth*.
 
-**epub**
+epub
+""""
+
   A theme for the epub builder.  This theme tries to save visual
   space which is a sparse resource on ebook readers.  The following options
   are supported:
@@ -330,7 +352,9 @@ These themes are:
   - **footer**  (true or false, default ``True``): If this is true, the
     ``footer`` block is inserted in the epub output, otherwise it is omitted.
 
-**bizstyle**
+bizstyle
+""""""""
+
   A simple bluish theme. The following options are supported
   beyond *nosidebar* and *sidebarwidth*:
 

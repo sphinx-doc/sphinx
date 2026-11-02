@@ -2490,7 +2490,7 @@ class SlotsMixin(DataDocumenterMixinBase):
                 if parent___slots__ and (
                     docstring := parent___slots__.get(self.objpath[-1])
                 ):
-                    docstring = prepare_docstring(docstring)
+                    docstring = prepare_docstring(docstring)  # pyrefly: ignore[bad-argument-type]
                     return [docstring]
                 else:
                     return []

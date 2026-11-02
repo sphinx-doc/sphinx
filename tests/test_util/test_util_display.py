@@ -44,6 +44,8 @@ def test_status_iterator_length_0(app: SphinxTestApp) -> None:
 def test_status_iterator_verbosity_0(
     app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.delenv('NO_COLOR', raising=False)
+    monkeypatch.delenv('NO_COLOUR', raising=False)
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
@@ -64,6 +66,8 @@ def test_status_iterator_verbosity_0(
 def test_status_iterator_verbosity_1(
     app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.delenv('NO_COLOR', raising=False)
+    monkeypatch.delenv('NO_COLOUR', raising=False)
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 

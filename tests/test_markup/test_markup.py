@@ -125,14 +125,14 @@ def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
             (
                 '<p><span class="target" id="index-0"></span><a class="cve reference external" '
                 'href="https://www.cve.org/CVERecord?id=CVE-2020-10735">'
-                '<strong>CVE 2020-10735</strong></a></p>'
+                '<strong>CVE-2020-10735</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
-                '!CVE 2020\\sphinxhyphen{}10735@\\spxentry{CVE 2020\\sphinxhyphen{}10735}}'
+                '!CVE\\sphinxhyphen{}2020\\sphinxhyphen{}10735@\\spxentry{CVE\\sphinxhyphen{}2020\\sphinxhyphen{}10735}}'
                 '\\sphinxhref{https://www.cve.org/CVERecord?id=CVE-2020-10735}'
-                '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735}}'
+                '{\\sphinxstylestrong{CVE\\sphinxhyphen{}2020\\sphinxhyphen{}10735}}'
             ),
         ),
         (
@@ -141,14 +141,14 @@ def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
             (
                 '<p><span class="target" id="index-0"></span><a class="cve reference external" '
                 'href="https://www.cve.org/CVERecord?id=CVE-2020-10735#id1">'
-                '<strong>CVE 2020-10735#id1</strong></a></p>'
+                '<strong>CVE-2020-10735#id1</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
-                '!CVE 2020\\sphinxhyphen{}10735\\#id1@\\spxentry{CVE 2020\\sphinxhyphen{}10735\\#id1}}'
+                '!CVE\\sphinxhyphen{}2020\\sphinxhyphen{}10735\\#id1@\\spxentry{CVE\\sphinxhyphen{}2020\\sphinxhyphen{}10735\\#id1}}'
                 '\\sphinxhref{https://www.cve.org/CVERecord?id=CVE-2020-10735\\#id1}'
-                '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735\\#id1}}'
+                '{\\sphinxstylestrong{CVE\\sphinxhyphen{}2020\\sphinxhyphen{}10735\\#id1}}'
             ),
         ),
         (
@@ -157,14 +157,14 @@ def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
             (
                 '<p><span class="target" id="index-0"></span><a class="cwe reference external" '
                 'href="https://cwe.mitre.org/data/definitions/787.html">'
-                '<strong>CWE 787</strong></a></p>'
+                '<strong>CWE-787</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
-                '!CWE 787@\\spxentry{CWE 787}}'
+                '!CWE\\sphinxhyphen{}787@\\spxentry{CWE\\sphinxhyphen{}787}}'
                 '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html}'
-                '{\\sphinxstylestrong{CWE 787}}'
+                '{\\sphinxstylestrong{CWE\\sphinxhyphen{}787}}'
             ),
         ),
         (
@@ -173,14 +173,14 @@ def rst_to_latex(rst: str, *, app: SphinxTestApp) -> str:
             (
                 '<p><span class="target" id="index-0"></span><a class="cwe reference external" '
                 'href="https://cwe.mitre.org/data/definitions/787.html#id1">'
-                '<strong>CWE 787#id1</strong></a></p>'
+                '<strong>CWE-787#id1</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
-                '!CWE 787\\#id1@\\spxentry{CWE 787\\#id1}}'
+                '!CWE\\sphinxhyphen{}787\\#id1@\\spxentry{CWE\\sphinxhyphen{}787\\#id1}}'
                 '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html\\#id1}'
-                '{\\sphinxstylestrong{CWE 787\\#id1}}'
+                '{\\sphinxstylestrong{CWE\\sphinxhyphen{}787\\#id1}}'
             ),
         ),
         (
