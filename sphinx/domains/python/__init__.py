@@ -986,7 +986,7 @@ class PythonDomain(Domain):
             # determine the content of the reference by conditions
             content = find_pending_xref_condition(node, 'resolved')
             if content:
-                children = content.children
+                children: list[Node] = content.children
             else:
                 # if not found, use contnode
                 children = [contnode]
@@ -1024,7 +1024,7 @@ class PythonDomain(Domain):
                 # determine the content of the reference by conditions
                 content = find_pending_xref_condition(node, 'resolved')
                 if content:
-                    children = content.children
+                    children: list[Node] = content.children
                 else:
                     # if not found, use contnode
                     children = [contnode]
