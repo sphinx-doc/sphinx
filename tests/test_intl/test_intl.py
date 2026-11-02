@@ -1225,10 +1225,10 @@ def test_html_rebuild_mo(app: SphinxTestApp) -> None:
     assert updated == set()
 
     _, bom_file = _get_bom_intl_path(app.srcdir)
-    old_mtime = bom_file.stat().st_mtime
-    new_mtime = old_mtime + (dt := 5)
-    os.utime(bom_file, (new_mtime, new_mtime))
-    assert old_mtime + dt == new_mtime, (old_mtime + dt, new_mtime)
+    # Base the new .mo mtime on when 'bom' was read rather than on the old
+    # .mo mtime, which may be older than the read time after a slow build.
+    new_mtime_ns = (app.env.all_docs['bom'] + 5_000_000) * 1_000
+    assert _set_mtime_ns(bom_file, new_mtime_ns) == new_mtime_ns
     _, updated, _ = _get_update_targets(app)
     assert updated == {'bom'}
 
