@@ -9,13 +9,13 @@ import textwrap
 from itertools import chain, groupby, pairwise
 from typing import TYPE_CHECKING, cast
 
-import docutils
 from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
 from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
+from sphinx.util.nodes import _get_colwidth
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
@@ -905,12 +905,7 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_colspec(self, node: Element) -> None:
-        if docutils.__version_info__[:2] >= (1, 0):
-            # breaking change in Docutils 1.0
-            # https://sourceforge.net/p/docutils/code/10397
-            self.table.colwidth.append(int(node['colwidth']))
-        else:
-            self.table.colwidth.append(node['colwidth'])
+        self.table.colwidth.append(_get_colwidth(node))
         raise nodes.SkipNode
 
     def visit_tgroup(self, node: Element) -> None:

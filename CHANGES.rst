@@ -18,6 +18,9 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14680: Support fractional and starred table column widths with Docutils 1.0
+  in the LaTeX, Texinfo and text writers.
+  Patch by Tejas Nagmote
 
 Testing
 -------
