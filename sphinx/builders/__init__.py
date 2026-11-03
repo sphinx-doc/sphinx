@@ -5,9 +5,11 @@ from __future__ import annotations
 import pickle
 import re
 import time
-from contextlib import nullcontext
+from contextlib import nullcontext, suppress
 from pathlib import Path
+from shutil import copymode
 from typing import TYPE_CHECKING, final
+from uuid import uuid4
 
 from docutils import nodes
 from docutils.utils import DependencyList
@@ -59,6 +61,23 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+
+def _write_pickle(filename: Path, value: Any) -> None:
+    # Keep the previous cache entry readable until the new pickle is complete.
+    # The temporary file must be on the same filesystem for atomic replacement.
+    filename = Path(filename)
+    temporary_filename = filename.with_name(f'.sphinx-{uuid4().hex}.tmp')
+    # Exclusive creation also preserves normal new-file permissions and umask.
+    stream = temporary_filename.open('xb')
+    try:
+        with stream:
+            pickle.dump(value, stream, pickle.HIGHEST_PROTOCOL)
+        with suppress(FileNotFoundError):
+            copymode(filename, temporary_filename)
+        temporary_filename.replace(filename)
+    finally:
+        temporary_filename.unlink(missing_ok=True)
 
 
 class Builder:
@@ -421,11 +440,8 @@ class Builder:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
 
-            with (
-                progress_message(__('pickling environment')),
-                open(self.doctreedir / ENV_PICKLE_FILENAME, 'wb') as f,
-            ):
-                pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
+            with progress_message(__('pickling environment')):
+                _write_pickle(self.doctreedir / ENV_PICKLE_FILENAME, self.env)
 
             # global actions
             self.phase = BuildPhase.CONSISTENCY_CHECK
@@ -692,8 +708,7 @@ class Builder:
 
         doctree_filename = self.doctreedir / f'{docname}.doctree'
         doctree_filename.parent.mkdir(parents=True, exist_ok=True)
-        with open(doctree_filename, 'wb') as f:
-            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+        _write_pickle(doctree_filename, doctree)
 
         # When Sphinx is running in parallel mode, ``write_doctree()`` is invoked
         # in the context of a process worker, and thus it does not make sense to
