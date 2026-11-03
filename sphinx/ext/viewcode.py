@@ -136,15 +136,19 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         else:
             code, tags = code_tags
 
+        if fullname not in tags:
+            # An object the module does not define, like an instance whose
+            # ``__module__`` is the module of its class, must not create the
+            # entry: the module would get a page nothing links to, and the
+            # backlinks of its own objects the prefix of this object's path.
+            return False
+
         if entry is None or entry[0] != code:
             entry = code, tags, {}, refname
             env._viewcode_modules[modname] = entry  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
-        _, tags, used, _ = entry
-        if fullname in tags:
-            used[fullname] = docname
-            return True
-
-        return False
+        _, _, used, _ = entry
+        used[fullname] = docname
+        return True
 
     for objnode in list(doctree.findall(addnodes.desc)):
         if objnode.get('domain') != 'py':

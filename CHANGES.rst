@@ -18,6 +18,10 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14675: viewcode: Stop an object that a module does not define, like an
+  instance of one of its classes, from giving the module a page that nothing
+  links to, or giving its backlinks the path of that object.
+  Patch by Kevin Deldycke
 
 Testing
 -------
