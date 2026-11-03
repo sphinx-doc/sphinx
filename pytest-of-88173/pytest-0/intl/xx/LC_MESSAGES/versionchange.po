@@ -1,0 +1,47 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Georg Brandl & Team
+# This file is distributed under the same license as the Sphinx <Tests> package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-12-15 03:17+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with versionchange"
+msgstr "I18N WITH VERSIONCHANGE"
+
+msgid "This is the *first* paragraph of version-deprecated."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSION-DEPRECATED."
+
+msgid "This is the *second* paragraph of version-deprecated."
+msgstr "THIS IS THE *SECOND* PARAGRAPH OF VERSION-DEPRECATED."
+
+msgid "This is the *first* paragraph of version-added."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSION-ADDED."
+
+msgid "This is the *first* paragraph of version-changed."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSION-CHANGED."
+
+msgid "This is the *first* paragraph of version-removed."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSION-REMOVED."
+
+msgid "This is the *first* paragraph of deprecated."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF DEPRECATED."
+
+msgid "This is the *first* paragraph of versionadded."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSIONADDED."
+
+msgid "This is the *first* paragraph of versionchanged."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSIONCHANGED."
+
+msgid "This is the *first* paragraph of versionremoved."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSIONREMOVED."

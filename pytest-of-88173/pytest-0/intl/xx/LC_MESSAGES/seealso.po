@@ -1,0 +1,33 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Georg Brandl & Team
+# This file is distributed under the same license as the Sphinx <Tests> package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx <Tests> 0.6\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-12-16 06:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with seealso"
+msgstr "I18N WITH SEEALSO"
+
+msgid "short text 1"
+msgstr "SHORT TEXT 1"
+
+msgid "long text 1"
+msgstr "LONG TEXT 1"
+
+msgid "short text 2"
+msgstr "SHORT TEXT 2"
+
+msgid "long text 2"
+msgstr "LONG TEXT 2"
+

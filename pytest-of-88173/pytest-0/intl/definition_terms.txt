@@ -1,0 +1,16 @@
+:tocdepth: 2
+
+i18n with definition terms
+==========================
+
+Some term
+   The corresponding definition
+
+Some *term* `with link <https://sphinx-doc.org/>`__
+   The corresponding definition #2
+
+Some **term** with : classifier1  : classifier2
+   The corresponding definition
+
+Some term with : classifier[]
+   The corresponding definition

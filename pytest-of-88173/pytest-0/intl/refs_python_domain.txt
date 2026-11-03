@@ -1,0 +1,15 @@
+:tocdepth: 2
+
+i18n with python domain refs
+=============================
+
+.. currentmodule:: sensitive
+
+See this decorator: :func:`sensitive_variables`.
+
+.. function:: sensitive_variables(*variables)
+
+   Some description
+
+.. currentmodule:: reporting
+

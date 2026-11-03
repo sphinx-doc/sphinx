@@ -1,0 +1,17 @@
+:tocdepth: 2
+
+i18n with refs inconsistency
+=============================
+
+* [100]_ for [#]_ citation [ref2]_.
+* for reference_.
+* normal text.
+* we ignore the [order]_ of the [refs]_ in [translations]_.
+
+.. [#] This is a auto numbered footnote.
+.. [ref2] This is a citation.
+.. [100] This is a numbered footnote.
+.. _reference: https://www.example.com
+.. [order] order
+.. [refs] references
+.. [translations] translations

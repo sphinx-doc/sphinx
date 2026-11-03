@@ -1,0 +1,77 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2013, foo
+# This file is distributed under the same license as the foo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: foo foo\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-01-05 18:10+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with index entries"
+msgstr ""
+
+msgid "index target section"
+msgstr ""
+
+msgid "this is :index:`Newsletter` target paragraph."
+msgstr "THIS IS :index:`NEWSLETTER` TARGET PARAGRAPH."
+
+msgid "various index entries"
+msgstr ""
+
+msgid "That's all."
+msgstr ""
+
+msgid "Mailing List"
+msgstr "MAILING LIST"
+
+msgid "Newsletter"
+msgstr "NEWSLETTER"
+
+msgid "Recipients List"
+msgstr "RECIPIENTS LIST"
+
+msgid "First"
+msgstr "FIRST"
+
+msgid "Second"
+msgstr "SECOND"
+
+msgid "Third"
+msgstr "THIRD"
+
+msgid "Entry"
+msgstr "ENTRY"
+
+msgid "See"
+msgstr "SEE"
+
+msgid "Module"
+msgstr "MODULE"
+
+msgid "Keyword"
+msgstr "KEYWORD"
+
+msgid "Operator"
+msgstr "OPERATOR"
+
+msgid "Object"
+msgstr "OBJECT"
+
+msgid "Exception"
+msgstr "EXCEPTION"
+
+msgid "Statement"
+msgstr "STATEMENT"
+
+msgid "Builtin"
+msgstr "BUILTIN"

@@ -1,0 +1,47 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, foof
+# This file is distributed under the same license as the foo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-11-22 08:28+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with external links"
+msgstr "EXTERNAL LINKS"
+
+msgid "External link to Python_."
+msgstr "EXTERNAL LINK TO Python_."
+
+msgid "Internal link to `i18n with external links`_."
+msgstr "`EXTERNAL LINKS`_ IS INTERNAL LINK."
+
+msgid "Inline link by `Sphinx Site <https://sphinx-doc.org>`_."
+msgstr "INLINE LINK BY `THE SPHINX SITE <https://sphinx-doc.org>`_."
+
+msgid "Unnamed link__."
+msgstr "UNNAMED LINK__."
+
+msgid "link target swapped translation"
+msgstr "LINK TARGET SWAPPED TRANSLATION"
+
+msgid "link to external1_ and external2_."
+msgstr "LINK TO external2_ AND external1_."
+
+msgid "link to `Sphinx Site <https://sphinx-doc.org>`_ and `Python Site <https://python.org>`_."
+msgstr "LINK TO `THE PYTHON SITE <https://python.org>`_ AND `THE SPHINX SITE <https://sphinx-doc.org>`_."
+
+msgid "Multiple references in the same line"
+msgstr "MULTIPLE REFERENCES IN THE SAME LINE"
+
+msgid "Link to `Sphinx Site <https://sphinx-doc.org>`_, `Python Site <https://python.org>`_, Python_, Unnamed__ and `i18n with external links`_."
+msgstr "LINK TO `EXTERNAL LINKS`_, Python_, `THE SPHINX SITE <https://sphinx-doc.org>`_, UNNAMED__ AND `THE PYTHON SITE <https://python.org>`_."

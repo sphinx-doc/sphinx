@@ -1,0 +1,71 @@
+:tocdepth: 2
+
+i18n with literal block
+=========================
+
+Correct literal block::
+
+   this is
+   literal block
+
+Missing literal block::
+
+That's all.
+
+.. literalinclude:: raw.txt
+   :caption: included raw.txt
+
+code blocks
+==============
+
+.. highlight:: ruby
+
+::
+
+   def main
+      'result'
+   end
+
+::
+
+   #include <stdlib.h>
+   int main(int argc, char** argv)
+   {
+       return 0;
+   }
+
+.. code-block:: c
+   :caption: example of C language
+
+   #include <stdio.h>
+   int main(int argc, char** argv)
+   {
+       return 0;
+   }
+
+
+* ::
+
+      literal-block
+      in list
+
+.. highlight:: none
+
+::
+
+   test_code_for_noqa()
+   continued()
+
+
+doctest blocks
+==============
+
+.. highlight:: python
+
+>>> import sys  # sys importing
+>>> def main():  # define main function
+...     sys.stdout.write('hello')  # call write method of stdout object
+>>>
+>>> if __name__ == '__main__':  # if run this py file as python script
+...     main()  # call main
+

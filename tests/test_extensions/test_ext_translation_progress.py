@@ -119,8 +119,9 @@ def test_translation_progress_note_latex_child(app: SphinxTestApp) -> None:
 def test_progress_counts_source_words_of_a_translated_literal_block(
     app: SphinxTestApp,
 ) -> None:
-    """A translated literal block keeps its source words: the ratio does not follow the
-    length of its translation."""
+    """A translated literal block keeps its source words: the ratio does not follow
+    the length of its translation.
+    """
     app.setup_extension('sphinx.ext.translation_progress')
 
     (app.srcdir / 'progress_literal.txt').write_text(

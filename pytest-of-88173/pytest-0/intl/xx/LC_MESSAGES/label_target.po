@@ -1,0 +1,66 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2013, sphinx
+# This file is distributed under the same license as the sphinx package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-06-19 00:33+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "section and label"
+msgstr "X SECTION AND LABEL"
+
+msgid ""
+":ref:`implicit-target` point to ``implicit-target`` and "
+"`section and label`_ point to ``section-and-label``."
+msgstr ""
+":ref:`implicit-target` POINT TO ``implicit-target`` AND "
+"`X SECTION AND LABEL`_ POINT TO ``section-and-label``."
+
+msgid "explicit-target"
+msgstr "X EXPLICIT-TARGET"
+
+msgid ""
+":ref:`explicit-target` point to ``explicit-target`` and `explicit-target`_"
+" point to duplicated id like ``id1``."
+msgstr ""
+":ref:`explicit-target` POINT TO ``explicit-target`` AND `X EXPLICIT-TARGET`_"
+" POINT TO DUPLICATED ID LIKE ``id1``."
+
+msgid "implicit section name"
+msgstr "X IMPLICIT SECTION NAME"
+
+msgid "`implicit section name`_ point to ``implicit-section-name``."
+msgstr "`X IMPLICIT SECTION NAME`_ POINT TO ``implicit-section-name``."
+
+msgid "duplicated sub section"
+msgstr "X DUPLICATED SUB SECTION"
+
+msgid ""
+"`duplicated sub section`_ is broken link."
+msgstr ""
+"`X DUPLICATED SUB SECTION`_ IS BROKEN LINK."
+
+msgid "label bridged target section"
+msgstr "X LABEL BRIDGED TARGET SECTION"
+
+msgid "`bridge label`_ is not translatable but linked to translated section title."
+msgstr "X `bridge label`_ IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED SECTION TITLE."
+
+msgid ""
+"`bridge label2`_ point to ``section and label`` and `bridge label`_ point to "
+"``label bridged target section``. The second appeared `bridge label2`_ point "
+"to correct target."
+msgstr ""
+"X `bridge label`_ POINT TO ``LABEL BRIDGED TARGET SECTION`` AND "
+"`bridge label2`_ POINT TO ``SECTION AND LABEL``. THE SECOND APPEARED "
+"`bridge label2`_ POINT TO CORRECT TARGET."

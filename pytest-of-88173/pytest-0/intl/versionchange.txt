@@ -1,0 +1,18 @@
+:tocdepth: 2
+
+i18n with versionchange
+============================
+
+.. version-deprecated:: 1.0
+   This is the *first* paragraph of version-deprecated.
+
+   This is the *second* paragraph of version-deprecated.
+
+.. version-added:: 1.0
+   This is the *first* paragraph of version-added.
+
+.. version-changed:: 1.0
+
+   This is the *first* paragraph of version-changed.
+
+.. version-removed:: 1.0 This is the *first* paragraph of version-removed.

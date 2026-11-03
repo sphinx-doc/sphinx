@@ -1,0 +1,12 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "File with UTF-8 BOM"
+msgstr "Datei mit UTF-8"
+
+msgid "This file has a UTF-8 \"BOM\"."
+msgstr "This file has umlauts: äöü."
