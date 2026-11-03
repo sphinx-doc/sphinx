@@ -909,8 +909,6 @@ def mock_time_and_i18n() -> Iterator[tuple[pytest.MonkeyPatch, _MockClock]]:
         # ensure that the .mo file being written has a correct fake timestamp
         _set_mtime_ns(self.mo_path, time.time_ns())
 
-    # see: https://github.com/pytest-dev/pytest/issues/363
-    # see: https://github.com/astral-sh/ty/issues/1787
     with pytest.MonkeyPatch.context() as mock:
         clock: _MockClock
         if os.name == 'posix':
