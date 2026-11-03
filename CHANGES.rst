@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #2946: Publish completed doctree and environment cache pickles atomically
+  so readers do not observe partially written cache entries.
+  Patch by harshitdeora
+
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
