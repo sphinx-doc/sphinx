@@ -19,6 +19,7 @@ from sphinx.util.inspect import signature_from_str
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+    from inspect import _ParameterKind
     from typing import Any
 
     from docutils.nodes import Element, Node
@@ -97,10 +98,11 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
     short_literals = env.config.python_display_short_literal_types
 
     def unparse(node: ast.AST) -> list[Node]:
+        result: list[Node]
         if isinstance(node, ast.Attribute):
             return [nodes.Text(f'{unparse(node.value)[0]}.{node.attr}')]
         if isinstance(node, ast.BinOp):
-            result: list[Node] = unparse(node.left)
+            result = unparse(node.left)
             result.extend(unparse(node.op))
             result.extend(unparse(node.right))
             return result
@@ -184,7 +186,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
                     addnodes.desc_sig_punctuation('', ')'),
                 ]
 
-            return result  # ty: ignore[invalid-return-type]
+            return result
         if isinstance(node, ast.Call):
             # Call nodes can be used in Annotated type metadata,
             # for example Annotated[str, ArbitraryTypeValidator(str, len=10)]
@@ -284,11 +286,11 @@ class _TypeParameterListParser(TokenProcessor):
                     [token.OP, '*'], [token.OP, '**']
                 ):
                     if self.previous == [token.OP, '*']:
-                        tp_kind = Parameter.VAR_POSITIONAL
+                        tp_kind: _ParameterKind = Parameter.VAR_POSITIONAL
                     else:
-                        tp_kind = Parameter.VAR_KEYWORD  # type: ignore[assignment]
+                        tp_kind = Parameter.VAR_KEYWORD
                 else:
-                    tp_kind = Parameter.POSITIONAL_OR_KEYWORD  # type: ignore[assignment]
+                    tp_kind = Parameter.POSITIONAL_OR_KEYWORD
 
                 tp_ann: Any = Parameter.empty
                 tp_default: Any = Parameter.empty
@@ -318,9 +320,9 @@ class _TypeParameterListParser(TokenProcessor):
 
     def _build_identifier(self, tokens: list[Token]) -> str:
         idents: list[str] = []
-        tokens: Iterable[Token] = iter(tokens)  # type: ignore[no-redef]
+        token_iter = iter(tokens)
         # do not format opening brackets
-        for tok in tokens:
+        for tok in token_iter:
             if not tok.match([token.OP, '('], [token.OP, '['], [token.OP, '{']):
                 # check if the first non-delimiter character is an unpack operator
                 is_unpack_operator = tok.match([token.OP, '*'], [token.OP, ['**']])
@@ -331,7 +333,7 @@ class _TypeParameterListParser(TokenProcessor):
         # check the remaining tokens
         stop = Token(token.ENDMARKER, '', (-1, -1), (-1, -1), '<sentinel>')
         is_unpack_operator = False
-        for tok, op, after in _triplewise(chain(tokens, [stop, stop])):
+        for tok, op, after in _triplewise(chain(token_iter, [stop, stop])):
             ident = self._pformat_token(tok, native=is_unpack_operator)
             idents.append(ident)
             # determine if the next token is an unpack operator depending
