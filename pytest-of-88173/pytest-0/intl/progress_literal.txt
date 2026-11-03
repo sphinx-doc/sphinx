@@ -1,8 +1,0 @@
-Short title
-===========
-
-.. code-block:: text
-
-   This literal block has ten source words in it.
-
-A paragraph that stays in the original language.

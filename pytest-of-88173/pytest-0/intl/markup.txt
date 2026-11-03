@@ -1,6 +1,0 @@
-i18n with strange markup
-========================
-
-1. title starting with 1.
--------------------------
-

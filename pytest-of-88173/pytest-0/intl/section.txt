@@ -1,8 +1,0 @@
-1. Section
-==========
-
-.. contents:: 3. Contents Title
-   :local:
-
-2. Sub Section
---------------
