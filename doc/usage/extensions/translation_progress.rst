@@ -20,6 +20,10 @@ The extension only adds a note when a translated document has at least one
 untranslated element.  Documents without translation data and fully
 translated documents are left unchanged.
 
+The percentage is the ratio of translated source-language words, counted
+before the translation replaces each element.  It is the same metric that
+the ``|translation progress|`` substitution reports.
+
 .. confval:: translation_progress_title
    :type: :code-py:`str`
    :default: ``'Translation progress'``

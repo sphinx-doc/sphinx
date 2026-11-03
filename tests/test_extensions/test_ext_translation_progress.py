@@ -106,6 +106,52 @@ def test_translation_progress_note_latex_child(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx(
+    'html',
+    testroot='intl',
+    confoverrides={
+        'language': 'xx',
+        'locale_dirs': ['.'],
+        'gettext_compact': False,
+        'gettext_additional_targets': ['literal-block'],
+    },
+    copy_test_root=True,
+)
+def test_progress_counts_source_words_of_a_translated_literal_block(
+    app: SphinxTestApp,
+) -> None:
+    """A translated literal block keeps its source words: the ratio does not follow the
+    length of its translation."""
+    app.setup_extension('sphinx.ext.translation_progress')
+
+    (app.srcdir / 'progress_literal.txt').write_text(
+        'Short title\n===========\n\n'
+        '.. code-block:: text\n\n'
+        '   This literal block has ten source words in it.\n\n'
+        'A paragraph that stays in the original language.\n',
+        encoding='utf-8',
+    )
+    locale_dir = app.srcdir / 'xx' / 'LC_MESSAGES'
+    (locale_dir / 'progress_literal.po').write_text(
+        'msgid ""\nmsgstr ""\n'
+        '"Language: xx\\n"\n'
+        '"MIME-Version: 1.0\\n"\n'
+        '"Content-Type: text/plain; charset=UTF-8\\n"\n'
+        '"Content-Transfer-Encoding: 8bit\\n"\n\n'
+        'msgid "Short title"\nmsgstr "COURT"\n\n'
+        'msgid "This literal block has ten source words in it."\nmsgstr "UN"\n',
+        encoding='utf-8',
+    )
+    _compile_catalog(app, 'progress_literal')
+
+    app.build(filenames=[app.srcdir / 'progress_literal.txt'])
+
+    output = (app.outdir / 'progress_literal.html').read_text(encoding='utf-8')
+    # 11 of 19 source words: the title (2) and the nine-word literal block are translated,
+    # the eight-word paragraph is not. Counting the one-word translation would say 27.27%.
+    assert '57.89% translated based on word count.' in output
+
+
+@pytest.mark.sphinx(
     'text',
     testroot='basic',
     confoverrides={'extensions': ['sphinx.ext.translation_progress']},

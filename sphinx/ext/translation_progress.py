@@ -2,36 +2,23 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 import sphinx
 from sphinx.locale import _
-from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
 
-_DEFAULT_TITLE = 'Translation progress'
-_DEFAULT_MESSAGE = (
+_DEFAULT_TITLE = _('Translation progress')
+_DEFAULT_MESSAGE = _(
     'This page is {percentage} translated based on word count. '
     'Some content is still in the original language.'
 )
-
-
-def _calculate_word_progress(doctree: nodes.document) -> tuple[int, int]:
-    """Return the translated and total source-language word counts."""
-    total_words = translated_words = 0
-    for node in NodeMatcher(nodes.Element, translated=Any).findall(doctree):
-        source = node.rawsource or node.astext()
-        word_count = len(source.split())
-        total_words += word_count
-        if node['translated']:
-            translated_words += word_count
-    return translated_words, total_words
 
 
 def add_translation_progress_note(app: Sphinx, doctree: nodes.document) -> None:
@@ -41,17 +28,14 @@ def add_translation_progress_note(app: Sphinx, doctree: nodes.document) -> None:
     except KeyError:
         return
 
-    total = translation_progress['total']
-    translated = translation_progress['translated']
+    total = translation_progress['total_words']
+    translated = translation_progress['translated_words']
     if total <= 0 or translated >= total:
         return
 
-    translated_words, total_words = _calculate_word_progress(doctree)
-    if total_words <= 0:
-        return
-
-    percentage = f'{translated_words / total_words:.2%}'
-    note = nodes.note(classes=['translation-progress'])
+    percentage = f'{translated / total:.2%}'
+    # nodes.note supplies a localized "Note" heading; a custom title needs an admonition.
+    note = nodes.admonition(classes=['translation-progress'])
     note += nodes.title(text=_(app.config.translation_progress_title))
     note += nodes.paragraph(
         text=_(app.config.translation_progress_message).format(percentage=percentage)

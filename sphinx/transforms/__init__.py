@@ -147,8 +147,8 @@ def _calculate_translation_progress(document: nodes.document) -> str:
     except KeyError:
         return _('could not calculate translation progress!')
 
-    total = translation_progress['total']
-    translated = translation_progress['translated']
+    total = translation_progress['total_words']
+    translated = translation_progress['translated_words']
     if total <= 0:
         return _('no translated elements!')
     return f'{translated / total:.2%}'
