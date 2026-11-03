@@ -121,8 +121,12 @@ class TodoListProcessor:
         self.process(doctree, docname)
 
     def process(self, doctree: nodes.document, docname: str) -> None:
+        # A parallel read or an incremental rebuild fills the mapping in another
+        # order than a full serial read: list the todos document by document.
         todos: list[todo_node] = functools.reduce(
-            operator.iadd, self.domain.todos.values(), []
+            operator.iadd,
+            (self.domain.todos[docname] for docname in sorted(self.domain.todos)),
+            [],
         )
         for node in list(doctree.findall(todolist)):
             if not self.config.todo_include_todos:

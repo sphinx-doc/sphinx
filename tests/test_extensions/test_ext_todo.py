@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx.ext.todo import todo_node
+
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-    from sphinx.ext.todo import todo_node
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -53,6 +54,28 @@ def test_todo(app: SphinxTestApp) -> None:
         'todo in bar',
         'todo in param field',
     }
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-todo',
+    freshenv=True,
+    confoverrides={'todo_include_todos': True},
+)
+def test_todolist_order_follows_the_documents(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    # A parallel read or an incremental rebuild fills the mapping of todos in
+    # another order than a full serial read. Reverse it, then resolve again.
+    todos = app.env.domains['todo'].todos
+    reversed_todos = dict(reversed(todos.items()))
+    todos.clear()
+    todos.update(reversed_todos)
+    doctree = app.env.get_and_resolve_doctree('index', app.builder)
+
+    listed = [node[1].astext() for node in doctree.findall(todo_node)]
+    # Two todolists, each listing the todos page by page, in document order.
+    assert listed == ['todo in bar', 'todo in foo', 'todo in param field'] * 2
 
 
 @pytest.mark.sphinx(

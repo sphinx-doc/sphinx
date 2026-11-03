@@ -18,6 +18,9 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* todo: List the entries of a ``todolist`` document by document, so a
+  parallel read or an incremental rebuild no longer reorders them.
+  Patch by Kevin Deldycke
 
 Testing
 -------
