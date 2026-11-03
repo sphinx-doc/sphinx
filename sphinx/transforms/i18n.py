@@ -428,7 +428,9 @@ class Locale(SphinxTransform):
         for node, msg in extract_messages(self.document):
             # Count the source words here, before the translation rewrites ``rawsource``
             # (a translated literal block keeps only its translated text there).
-            node.setdefault('translation_progress_source_words', len(msg.split()))
+            # A plain attribute, not a node attribute: the latter would be written out
+            # as an extra HTML/XML/LaTeX attribute by the builders.
+            node.translation_progress_source_words = len(msg.split())
             msgstr = merged.get(msg, '')
 
             # There is no point in having noqa on literal blocks because
@@ -646,7 +648,7 @@ class TranslationProgressTotaliser(SphinxTransform):
         total = translated = 0
         total_words = translated_words = 0
         for node in NodeMatcher(nodes.Element, translated=Any).findall(self.document):
-            words = node.get('translation_progress_source_words')
+            words = getattr(node, 'translation_progress_source_words', None)
             if words is None:
                 # Inline nodes created while patching have no count of their own.
                 words = len((node.rawsource or node.astext()).split())
