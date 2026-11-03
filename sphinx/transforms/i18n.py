@@ -396,6 +396,11 @@ class _NodeUpdater:
         self.node.children = self.patch.children
 
 
+# Kept as a plain attribute rather than a node attribute: the writers would
+# otherwise emit it as an extra HTML/XML/LaTeX attribute of every translated node.
+_SOURCE_WORDS_ATTR = 'translation_progress_source_words'
+
+
 class Locale(SphinxTransform):
     """Replace translatable nodes with their translated doctree."""
 
@@ -430,7 +435,7 @@ class Locale(SphinxTransform):
             # (a translated literal block keeps only its translated text there).
             # A plain attribute, not a node attribute: the latter would be written out
             # as an extra HTML/XML/LaTeX attribute by the builders.
-            node.translation_progress_source_words = len(msg.split())
+            setattr(node, _SOURCE_WORDS_ATTR, len(msg.split()))
             msgstr = merged.get(msg, '')
 
             # There is no point in having noqa on literal blocks because
@@ -648,7 +653,7 @@ class TranslationProgressTotaliser(SphinxTransform):
         total = translated = 0
         total_words = translated_words = 0
         for node in NodeMatcher(nodes.Element, translated=Any).findall(self.document):
-            words = getattr(node, 'translation_progress_source_words', None)
+            words = getattr(node, _SOURCE_WORDS_ATTR, None)
             if words is None:
                 # Inline nodes created while patching have no count of their own.
                 words = len((node.rawsource or node.astext()).split())
