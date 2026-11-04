@@ -14,13 +14,17 @@ babel_runner.py compile
 
 babel_runner.py check [--exclude-failing]
     Check that the format placeholders of every translation match its
-    msgid. Babel's own "Catalog.check()" only validates messages that
-    carry a "python-brace-format" flag, which catalogues downloaded from
-    Transifex largely do not, so damaged placeholders slip through it
-    (#14664). With "--exclude-failing" (used by the Transifex sync),
-    failing catalogues are reverted so that the automated pull request
-    excludes them, and they are listed in its body. Placeholders that a
-    translation drops are reported as warnings and do not fail the check.
+    msgid. Babel's own checkers do not validate "python-brace-format"
+    messages (python-babel/babel#333), so damaged placeholders slipped
+    through them (#14664). Brace placeholders are validated here for
+    messages flagged "python-brace-format" (babel derives the flag from
+    the msgid); percent placeholders are validated by babel's own
+    "Message.check()". With "--exclude-failing" (used by the Transifex
+    sync), failing catalogues are reverted - or removed, when a newly
+    pulled language has no committed version to revert to - so that the
+    automated pull request excludes them, and they are listed in its
+    body. Placeholders that a translation drops are reported as warnings
+    and do not fail the check.
 """
 
 from __future__ import annotations
@@ -287,15 +291,27 @@ def _get_logger() -> logging.Logger:
     return log
 
 
+_VALID_CONVERSIONS = frozenset('sra')
+
+
 def _brace_format_fields(text: str) -> set[str]:
     """Return the set of brace-format placeholder names in *text*.
+
+    Placeholders nested inside format specifications are included, and
+    an unknown conversion character raises ``ValueError``;
+    ``str.format()`` rejects both at runtime.
 
     Raises ``ValueError`` for invalid brace-format syntax.
     """
     fields: set[str] = set()
-    for _literal, field_name, _spec, _conversion in string.Formatter().parse(text):
+    for _literal, field_name, spec, conversion in string.Formatter().parse(text):
         if field_name is not None:
             fields.add(field_name)
+        if conversion is not None and conversion not in _VALID_CONVERSIONS:
+            msg = f'unknown conversion {conversion!r}'
+            raise ValueError(msg)
+        if spec:
+            fields |= _brace_format_fields(spec)
     return fields
 
 
@@ -310,47 +326,54 @@ def _percent_format_fields(text: str) -> set[str]:
 def _placeholder_errors(message: Message) -> list[str]:
     """Return placeholder mismatches between a message and its translation.
 
+    Brace placeholders are validated for messages flagged
+    ``python-brace-format`` (babel derives the flag from the msgid);
+    percent placeholders are validated by babel's own ``Message.check()``.
     A translation is in error when its placeholder syntax is invalid, or
     when it references a placeholder that does not exist in the msgid -
     both abort ``str.format()``/``%`` formatting at runtime (#14664).
     Placeholders that the translation drops are not errors: the extra
     keyword arguments are simply unused.
     """
-    msgid = message.id
-    if isinstance(msgid, (list, tuple)):
-        msgid_forms = [msgid[0], msgid[1]]
-    else:
-        msgid_forms = [msgid]
-
-    allowed: set[str] = set()
-    for form in msgid_forms:
-        try:
-            allowed |= _brace_format_fields(form)
-        except ValueError:
-            # the msgid itself is malformed; that is not a translation error
-            return []
-    allowed |= _percent_format_fields(''.join(msgid_forms))
-
     msgstr = message.string
     if msgstr is None:
         return []
-    if isinstance(msgstr, (list, tuple)):
-        msgstr_forms = [form for form in msgstr if form is not None]
-    else:
-        msgstr_forms = [msgstr]
 
     errors = []
-    for form in msgstr_forms:
-        try:
-            used = _brace_format_fields(form)
-        except ValueError:
-            errors.append('invalid brace-format syntax in translation')
-            continue
-        used |= _percent_format_fields(form)
-        errors.extend(
-            f'placeholder {name!r} in translation does not appear in the msgid'
-            for name in sorted(used - allowed)
-        )
+    if 'python-brace-format' in message.flags:
+        msgid = message.id
+        if isinstance(msgid, (list, tuple)):
+            msgid_forms = [msgid[0], msgid[1]]
+        else:
+            msgid_forms = [msgid]
+
+        allowed: set[str] = set()
+        for form in msgid_forms:
+            try:
+                allowed |= _brace_format_fields(form)
+            except ValueError:
+                # the msgid itself is malformed; that is not a translation error
+                return []
+
+        if isinstance(msgstr, (list, tuple)):
+            msgstr_forms = [form for form in msgstr if form is not None]
+        else:
+            msgstr_forms = [msgstr]
+        for form in msgstr_forms:
+            try:
+                used = _brace_format_fields(form)
+            except ValueError:
+                errors.append('invalid brace-format syntax in translation')
+                continue
+            errors.extend(
+                f'placeholder {name!r} in translation does not appear in the msgid'
+                for name in sorted(used - allowed)
+            )
+
+    # percent placeholders: babel's own check, once a message carries
+    # the "python-format" flag (removable once python-babel/babel#333
+    # also validates brace-format messages there)
+    errors.extend(str(error) for error in message.check())
     return errors
 
 
@@ -405,12 +428,24 @@ def _missing_placeholders(message: Message) -> list[str]:
     ]
 
 
+def _is_tracked(path: Path) -> bool:
+    """Return whether *path* is tracked in the git repository."""
+    process = subprocess.run(
+        ('git', 'ls-files', '--', str(path)),  # ruff: ignore[start-process-with-partial-path]
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    return bool(process.stdout.strip())
+
+
 def run_check(exclude_failing: bool = False) -> None:
     """Check catalogue placeholder consistency.
 
-    With *exclude_failing*, revert catalogues that fail the check so the
-    Transifex sync excludes them from the automated pull request, and
-    record them in its body.
+    With *exclude_failing*, revert catalogues that fail the check - or
+    remove them, when a newly pulled language has no committed version
+    to revert to - so the Transifex sync excludes them from the
+    automated pull request, and record them in its body.
 
     Placeholders that a translation drops are reported as warnings: they
     neither fail the check nor exclude the catalogue.
@@ -468,10 +503,14 @@ def run_check(exclude_failing: bool = False) -> None:
                 locale.name,
                 locale_errors,
             )
-            subprocess.run(
-                ('git', 'checkout', '--', str(po_file)),  # ruff: ignore[start-process-with-partial-path]
-                check=True,
-            )
+            if _is_tracked(po_file):
+                subprocess.run(
+                    ('git', 'checkout', '--', str(po_file)),  # ruff: ignore[start-process-with-partial-path]
+                    check=True,
+                )
+            else:
+                log.info('removing new catalogue %r', po_file.relative_to(ROOT))
+                po_file.unlink()
 
     if excluded:
         _write_pr_body_line('## Catalogues excluded from this update')
