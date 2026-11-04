@@ -611,6 +611,15 @@ class Builder:
             self.env._app = self._app
             for docname in docs:
                 self.read_doc(docname, _cache=False)
+            # The main process already has the intersphinx inventories
+            # (possibly large) and nothing merges them, so don't send
+            # them back.
+            for name in (
+                'intersphinx_cache',
+                'intersphinx_inventory',
+                'intersphinx_named_inventory',
+            ):
+                self.env.__dict__.pop(name, None)
             # allow pickling self to send it back
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
