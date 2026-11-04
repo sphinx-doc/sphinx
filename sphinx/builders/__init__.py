@@ -15,7 +15,9 @@ from docutils.utils import DependencyList
 from sphinx._cli.util.colour import bold
 from sphinx.deprecation import _deprecation_warning
 from sphinx.environment import (
+    CONFIG_CHANGED,
     CONFIG_CHANGED_REASON,
+    CONFIG_EXTENSIONS_CHANGED,
     CONFIG_OK,
     _CurrentDocument,
 )
@@ -359,6 +361,15 @@ class Builder:
                 continue
 
             docnames.append(docname)
+
+        if not docnames:
+            return
+
+        if self.env.config_status in {CONFIG_CHANGED, CONFIG_EXTENSIONS_CHANGED}:
+            # Global read inputs affect every document. Rewriting only selected
+            # files would leave other output stale after the doctrees are saved.
+            self.build_all()
+            return
 
         self.compile_specific_catalogs(filenames)
 

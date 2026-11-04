@@ -114,6 +114,24 @@ def test_format_date_timezone() -> None:
     assert fd_local != fd_gmt
 
 
+def test_format_date_source_date_epoch(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+
+    assert (
+        i18n.format_date('%Y-%m-%d %H:%M:%S %z', language='en', local_time=True)
+        == '1970-01-01 00:00:00 +0000'
+    )
+
+
+def test_format_date_explicit_date_precedes_source_date_epoch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', 'invalid')
+    date = datetime.datetime(2016, 2, 7, tzinfo=datetime.UTC)
+
+    assert i18n.format_date('%Y-%m-%d', date=date, language='en') == '2016-02-07'
+
+
 @pytest.mark.sphinx('html', testroot='root')
 def test_get_filename_for_language(app: SphinxTestApp) -> None:
     get_filename = i18n.get_image_filename_for_language
