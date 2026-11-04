@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import gc
 import locale
 import multiprocessing
 import sys
@@ -394,6 +395,10 @@ def _parse_confoverrides(
 
 def build_main(argv: Sequence[str]) -> int:
     """Sphinx build "main" command-line entry."""
+    # Run the cyclic GC less often: with the default threshold (700, or
+    # 2000 on Python 3.14+) it eats a big chunk of the build time.
+    if gc.get_threshold()[0] < 10_000:
+        gc.set_threshold(10_000, *gc.get_threshold()[1:])
     parser = get_parser()
     args = _parse_arguments(parser, argv)
     args.confdir = _parse_confdir(args.noconfig, args.confdir, args.sourcedir)
