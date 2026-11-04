@@ -37,6 +37,8 @@ Bugs fixed
   directive and configured ``datestamp`` footers with Docutils versions
   before 1.0. Docutils 1.0 retains its native implementations.
   Patch by Kilian Paul
+* #14797: Add missing hyphen to CVE and CWE role formats.
+  Patch by Hugo van Kemenade
 
 Testing
 -------
