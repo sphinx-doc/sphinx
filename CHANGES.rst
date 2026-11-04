@@ -13,6 +13,14 @@ Deprecated
 Features added
 --------------
 
+* #12323: Emit machine-readable license tags in the JavaScript that Sphinx
+  generates and ships with HTML output, so that tools such as GNU LibreJS
+  and REUSE/SPDX can recognise it as free software. The tags
+  (``@license`` magnet and ``SPDX-License-Identifier``/``SPDX-FileCopyrightText``)
+  are added to ``doctools.js``, ``searchtools.js``, ``sphinx_highlight.js``,
+  ``documentation_options.js``, and ``language_data.js``.
+  Patch by Aarav
+
 Bugs fixed
 ----------
 
