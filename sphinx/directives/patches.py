@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 import os
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes
 from docutils.nodes import make_id
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import directives, states
 from docutils.parsers.rst.directives import images, tables
+from docutils.parsers.rst.directives.misc import Date as DocutilsDate
 from docutils.parsers.rst.directives.misc import Meta
 
 from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._timestamps import _get_source_date_epoch
 from sphinx.util.docutils import SphinxDirective, _normalize_options
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, relpath
@@ -28,6 +32,23 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+
+class Date(DocutilsDate):
+    """A compatibility adapter for Docutils' ``date`` directive."""
+
+    def run(self) -> Sequence[Node]:
+        # Let Docutils retain ownership of context validation and unset behavior.
+        if not isinstance(self.state, states.SubstitutionDef):
+            return super().run()
+
+        source_date_epoch = _get_source_date_epoch()
+        if source_date_epoch is None:
+            return super().run()
+
+        format_str = '\n'.join(self.content) or '%Y-%m-%d'
+        timestamp = time.gmtime(source_date_epoch)
+        return [nodes.Text(time.strftime(format_str, timestamp))]
 
 
 class Figure(images.Figure):
@@ -226,6 +247,9 @@ class Rubric(SphinxDirective):
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
+    # Docutils 1.0 and later provide native SOURCE_DATE_EPOCH support.
+    if docutils.__version_info__[:2] < (1, 0):
+        directives.register_directive('date', Date)
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)

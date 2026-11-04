@@ -323,7 +323,9 @@ default. They are set in the build configuration file.
 
    Replaced by either today's date (the date on which the document is read), or
    the date set in the build configuration file.  Normally has the format
-   ``April 14, 2007``.  Set by :confval:`today_fmt` and :confval:`today`.
+   ``April 14, 2007``. The value and format are controlled by :confval:`today`
+   and :confval:`today_fmt`. When :confval:`today` is empty,
+   :envvar:`SOURCE_DATE_EPOCH` can supply the date.
 
 .. describe:: |translation progress|
 

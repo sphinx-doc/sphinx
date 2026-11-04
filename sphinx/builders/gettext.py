@@ -7,7 +7,7 @@ import os
 import os.path
 import time
 from collections import defaultdict
-from os import getenv, walk
+from os import walk
 from pathlib import Path
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -20,6 +20,7 @@ from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._timestamps import _get_source_date_epoch
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
@@ -197,16 +198,6 @@ class I18nBuilder(Builder):
                         catalog.add(m, node)
 
 
-# If set, use the timestamp from SOURCE_DATE_EPOCH
-# https://reproducible-builds.org/specs/source-date-epoch/
-if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is not None:
-    timestamp = time.gmtime(float(source_date_epoch))
-else:
-    # determine timestamp once to remain unaffected by DST changes during build
-    timestamp = time.localtime()
-ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
-
-
 def should_write(filepath: Path, new_content: str) -> bool:
     if not filepath.exists():
         return True
@@ -244,6 +235,13 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def init(self) -> None:
         super().init()
+        source_date_epoch = _get_source_date_epoch()
+        if source_date_epoch is not None:
+            timestamp = time.gmtime(source_date_epoch)
+        else:
+            # Snapshot local time once so DST cannot change during the build.
+            timestamp = time.localtime()
+        self._ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
         self.create_template_bridge()
         self.templates.init(self)
 
@@ -300,7 +298,7 @@ class MessageCatalogBuilder(I18nBuilder):
             'project': self.config.project,
             'last_translator': self.config.gettext_last_translator,
             'language_team': self.config.gettext_language_team,
-            'ctime': ctime,
+            'ctime': self._ctime,
             'display_location': self.config.gettext_location,
             'display_uuid': self.config.gettext_uuid,
         }

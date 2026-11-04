@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.builders.epub3 import _XML_NAME_PATTERN
+from sphinx.builders.epub3 import _XML_NAME_PATTERN, Epub3Builder
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -74,6 +74,20 @@ class EPUBElementTree:
     def __iter__(self) -> Iterator[Self]:
         for child in self.tree:
             yield self.__class__(child)
+
+
+@pytest.mark.sphinx('epub', testroot='basic')
+def test_epub_metadata_source_date_epoch(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv('SOURCE_DATE_EPOCH', '0')
+    assert isinstance(app.builder, Epub3Builder)
+
+    epub2_metadata = super(Epub3Builder, app.builder).content_metadata()
+    epub3_metadata = app.builder.content_metadata()
+
+    assert epub2_metadata['date'] == '1970-01-01'
+    assert epub3_metadata['date'] == '1970-01-01T00:00:00Z'
 
 
 @pytest.mark.sphinx('epub', testroot='basic')
