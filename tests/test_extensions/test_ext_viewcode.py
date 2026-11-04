@@ -192,3 +192,16 @@ def test_find_local_package_import_path(app: Sphinx) -> None:
         'href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class3"'
     )
     assert count_class3 == 1
+
+
+@pytest.mark.sphinx('html', testroot='ext-viewcode-instance', freshenv=True)
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_viewcode_instance_documented_before_its_class(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    # An instance resolves to the module of its class, which does not define it.
+    # The backlink of the class keeps the path the class is documented under.
+    result = (app.outdir / '_modules/fruits/basket.html').read_text(encoding='utf8')
+    assert 'href="../../index.html#fruits.Basket"' in result
+    # No document describes an object of this module, so it gets no page.
+    assert not (app.outdir / '_modules/fruits/crate.html').exists()
