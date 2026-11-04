@@ -38,6 +38,8 @@ Bugs fixed
   configuration, the extension list, and ``SOURCE_DATE_EPOCH``.
   Invalid filename selections no longer consume pending invalidation.
   Patch by Kilian Paul
+* #14797: Add missing hyphen to CVE and CWE role formats.
+  Patch by Hugo van Kemenade
 
 Testing
 -------
