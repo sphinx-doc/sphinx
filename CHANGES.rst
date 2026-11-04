@@ -26,6 +26,8 @@ Bugs fixed
   <https://github.com/orgs/sphinx-doc/discussions/13526>`__.
   Document the existing static copyright correction behavior (#13231, #14657).
   Patch by Kilian Paul
+* #14797: Add missing hyphen to CVE and CWE role formats.
+  Patch by Hugo van Kemenade
 
 Testing
 -------

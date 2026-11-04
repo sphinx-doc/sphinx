@@ -253,7 +253,7 @@ The following roles generate external links:
 
    A reference to a `Common Vulnerabilities and Exposures`_ record.
    This generates appropriate index entries.
-   The text "CVE *number*\ " is generated;
+   The text "CVE-*number*\ " is generated;
    with a link to an online copy of the specified CVE.
    You can link to a specific section by using ``:cve:`number#anchor```.
 
@@ -267,7 +267,7 @@ The following roles generate external links:
 
    A reference to a `Common Weakness Enumeration`_.
    This generates appropriate index entries.
-   The text "CWE *number*\ " is generated; in the HTML output,
+   The text "CWE-*number*\ " is generated; in the HTML output,
    with a link to an online copy of the specified CWE.
    You can link to a specific section by using ``:cwe:`number#anchor```.
 
