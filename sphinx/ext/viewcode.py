@@ -6,6 +6,7 @@ import importlib
 import operator
 import posixpath
 import traceback
+from pathlib import Path
 from types import NoneType
 from typing import TYPE_CHECKING, cast
 
@@ -130,6 +131,10 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             except Exception:
                 env._viewcode_modules[modname] = False  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
                 return False
+
+            source_path = Path(analyzer.srcname)
+            if source_path.is_file():
+                env.note_dependency(source_path)
 
             code = analyzer.code
             tags = analyzer.tags

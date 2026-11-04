@@ -192,3 +192,16 @@ def test_find_local_package_import_path(app: Sphinx) -> None:
         'href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class3"'
     )
     assert count_class3 == 1
+
+
+@pytest.mark.sphinx('html', testroot='ext-viewcode-incremental', freshenv=True)
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_viewcode_registers_source_dependency(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    assert (app.outdir / '_modules/sphinx_viewcode_incremental_8759.html').exists()
+
+    source = (app.srcdir / 'sphinx_viewcode_incremental_8759.py').resolve()
+    dependencies = app.env.dependencies.get('index', set())
+
+    assert source in {path.resolve() for path in dependencies}

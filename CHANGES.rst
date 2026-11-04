@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8759: viewcode: Rebuild documentation when a referenced Python
+  source file changes. Patch by Sainimal G E.
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
