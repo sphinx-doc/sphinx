@@ -6,7 +6,6 @@ Originally derived from epub.py.
 from __future__ import annotations
 
 import html
-import os
 import re
 import time
 from typing import TYPE_CHECKING, NamedTuple
@@ -16,6 +15,7 @@ from sphinx.builders import _epub_base
 from sphinx.config import ENUM
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._timestamps import _get_source_date_epoch
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import make_filename
 
@@ -105,8 +105,9 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """
         writing_mode = self.config.epub_writing_mode
 
-        if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
-            time_tuple = time.gmtime(int(source_date_epoch))
+        source_date_epoch = _get_source_date_epoch()
+        if source_date_epoch is not None:
+            time_tuple = time.gmtime(source_date_epoch)
         else:
             time_tuple = time.gmtime()
 
