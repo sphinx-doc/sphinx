@@ -322,11 +322,16 @@ Documentation using PyData Sphinx Theme
 * `Astropy <https://docs.astropy.org/>`__
 * `Binder <https://mybinder.readthedocs.io/en/latest/>`__
 * `Bokeh <https://docs.bokeh.org/en/latest/>`__
+* `caldav <https://caldav.readthedocs.io/stable/>`__
+* `calendaring-jmap <https://calendaring-jmap.readthedocs.io/en/stable/>`__
 * `CuPy <https://docs.cupy.dev/en/stable/>`__
 * `DAMASK <https://damask-multiphysics.org/>`__
 * `EnOSlib <https://discovery.gitlabpages.inria.fr/enoslib/>`__
 * `Fairlearn <https://fairlearn.org/main/>`__
 * `Feature-engine <https://feature-engine.readthedocs.io/en/latest/>`__
+* `icalendar <https://icalendar.readthedocs.io/en/stable/>`__
+* `icalendar-anonymizer <https://docs.icalendar-anonymizer.com/stable/>`__
+* `ics-query <https://ics-query.readthedocs.io/en/stable/>`__
 * `Jupyter <https://docs.jupyter.org/en/latest/>`__
 * `Jupyter Book <https://jupyterbook.org/en/stable/intro.html>`__
 * `Matplotlib <https://matplotlib.org/stable/index.html>`__
@@ -338,6 +343,7 @@ Documentation using PyData Sphinx Theme
 * `PhaseFieldX <https://phasefieldx.readthedocs.io/>`__
 * `Pystra (continuation of PyRe) <https://pystra.github.io/pystra/>`__
 * `PyVista <https://docs.pyvista.org/>`__
+* `recurring-ical-events <https://recurring-ical-events.readthedocs.io/en/latest/>`__
 * `SciPy <https://docs.scipy.org/doc/scipy/>`__
 * `Seaborn <https://seaborn.pydata.org/>`__
 * `SEPAL <https://docs.sepal.io/en/latest/index.html>`__
@@ -348,6 +354,7 @@ Documentation using Furo theme
 `Furo theme documentation <https://pradyunsg.me/furo/>`__
 
 * `Furo theme <https://pradyunsg.me/furo/>`__
+* `mergecal <https://mergecal.readthedocs.io/en/latest/>`__
 * `pytest <https://docs.pytest.org/>`__
 * `Python Packaging User Guide <https://packaging.python.org/>`__
 * `Python Developer's Guide <https://devguide.python.org/>`__
