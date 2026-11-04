@@ -32,6 +32,8 @@ Bugs fixed
   rebuild all output when read-affecting configuration, the extension list,
   or the epoch changes. Invalid filename selections preserve pending rebuilds.
   Patch by Kilian Paul
+* #14797: Add missing hyphen to CVE and CWE role formats.
+  Patch by Hugo van Kemenade
 
 Testing
 -------
