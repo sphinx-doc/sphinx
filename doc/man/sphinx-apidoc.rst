@@ -56,7 +56,9 @@ Options
 
    Do not create or remove any files.
 
-.. option:: -s, --suffix <suffix>
+.. option:: -s, --suffix <SUFFIX>
+
+   Suffix for the source files generated. Defaults to ``rst``.
 
    Suffix for the source files generated. Defaults to ``rst``.
 
@@ -115,13 +117,9 @@ Options
 
    Put module documentation before submodule documentation.
 
-.. option:: -h, --help
+.. option:: -h, --help, --version
 
-   Show the help message and exit.
-
-.. option:: --version
-
-   Show :program:`sphinx-apidoc`'s version number and exit.
+   Display usage summary or version information.
 
 .. option:: --automodule-options=<AUTOMODULE_OPTIONS>
 
@@ -233,7 +231,7 @@ Environment
 
    A comma-separated list of option to append to generated ``automodule``
    directives. Defaults to ``members,undoc-members,show-inheritance``.
-   Alternatively use :option:`--automodule-options`.
+   Alternatively, use :option:`--automodule-options`.
 
 See also
 --------
