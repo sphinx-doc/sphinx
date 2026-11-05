@@ -429,13 +429,26 @@ def _missing_placeholders(message: Message) -> list[str]:
 
 
 def _is_tracked(path: Path) -> bool:
-    """Return whether *path* is tracked in the git repository."""
+    """Return whether *path* is tracked in the git repository.
+
+    Git runs from the checkout root, so the answer does not depend on
+    the caller's working directory.  A failed invocation raises rather
+    than letting its empty output pass the catalogue off as untracked
+    (and thus deletable).
+    """
     process = subprocess.run(
         ('git', 'ls-files', '--', str(path)),  # ruff: ignore[start-process-with-partial-path]
         capture_output=True,
         check=False,
+        cwd=ROOT,
         text=True,
     )
+    if process.returncode != 0:
+        msg = (
+            f'git ls-files failed with status {process.returncode}:'
+            f' {process.stderr.strip()}'
+        )
+        raise SystemExit(msg)
     return bool(process.stdout.strip())
 
 
@@ -507,6 +520,7 @@ def run_check(exclude_failing: bool = False) -> None:
                 subprocess.run(
                     ('git', 'checkout', '--', str(po_file)),  # ruff: ignore[start-process-with-partial-path]
                     check=True,
+                    cwd=ROOT,
                 )
             else:
                 log.info('removing new catalogue %r', po_file.relative_to(ROOT))

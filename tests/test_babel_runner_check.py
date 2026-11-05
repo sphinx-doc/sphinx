@@ -321,3 +321,88 @@ def test_run_check_warns_without_excluding(
     assert "'name'" in warnings[0].getMessage()
     assert '* el: 1 placeholder' in body
     assert '## Catalogues excluded from this update' not in body
+
+
+def test_run_check_runs_git_from_the_checkout_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    # the runner may be invoked from outside the checkout (the Transifex
+    # sync does so); git must then still operate on the checkout itself,
+    # or ls-files fails and a tracked catalogue looks untracked
+    checkout = tmp_path / 'sphinx-checkout'
+    locale_dir = checkout / 'sphinx' / 'locale'
+    damaged = dedent(
+        """\
+        msgid "value '{name}'"
+        msgstr "valeur '{nom}'"
+        """
+    )
+    clean = dedent(
+        """\
+        msgid "value '{name}'"
+        msgstr "valeur '{name}'"
+        """
+    )
+    d = locale_dir / 'el' / 'LC_MESSAGES'
+    d.mkdir(parents=True)
+    (d / 'sphinx.po').write_text(damaged, encoding='utf-8')
+
+    reverted = []
+
+    def fake_git(*args: Any, **kwargs: Any) -> Any:
+        # both git invocations run in the checkout, whatever the caller's
+        # working directory is
+        assert kwargs.get('cwd') == checkout
+        argv = args[0]
+        if argv[1] == 'ls-files':
+            return SimpleNamespace(returncode=0, stdout=f'{argv[3]}\n')
+        assert argv[:3] == ('git', 'checkout', '--')
+        assert kwargs.get('check') is True
+        reverted.append(argv[3])
+        Path(argv[3]).write_text(clean, encoding='utf-8')
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(babel_runner, 'ROOT', checkout)
+    monkeypatch.chdir(tmp_path)  # outside the checkout
+    monkeypatch.setattr(babel_runner.subprocess, 'run', fake_git)
+    monkeypatch.setattr(babel_runner, '_write_pr_body_line', lambda m: None)
+
+    # the tracked catalogue is reverted, not removed
+    with caplog.at_level('INFO', logger='babel'):
+        babel_runner.run_check(exclude_failing=True)
+    assert len(reverted) == 1
+    assert (d / 'sphinx.po').read_text(encoding='utf-8') == clean
+    assert not [r for r in caplog.records if 'removing' in r.getMessage()]
+
+
+def test_run_check_does_not_remove_catalogue_when_ls_files_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # when git cannot say whether a catalogue is tracked (it exits 128
+    # outside a repository), the empty output must not be read as
+    # "untracked": nothing is reverted or removed
+    d = tmp_path / 'sphinx' / 'locale' / 'el' / 'LC_MESSAGES'
+    d.mkdir(parents=True)
+    (d / 'sphinx.po').write_text(
+        dedent(
+            """\
+            msgid "value '{name}'"
+            msgstr "valeur '{nom}'"
+            """
+        ),
+        encoding='utf-8',
+    )
+
+    def fake_git(*args: Any, **kwargs: Any) -> Any:
+        assert args[0][1] == 'ls-files'
+        return SimpleNamespace(
+            returncode=128, stdout='', stderr='fatal: not a git repository'
+        )
+
+    monkeypatch.setattr(babel_runner, 'ROOT', tmp_path)
+    monkeypatch.setattr(babel_runner.subprocess, 'run', fake_git)
+    monkeypatch.setattr(babel_runner, '_write_pr_body_line', lambda m: None)
+
+    with pytest.raises(SystemExit, match='git ls-files failed'):
+        babel_runner.run_check(exclude_failing=True)
+    assert (d / 'sphinx.po').exists()
