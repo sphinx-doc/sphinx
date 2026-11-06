@@ -540,6 +540,11 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
             return 'list(...)'
         seen |= {id(obj)}
         return '[%s]' % ', '.join(object_description(x, _seen=seen) for x in obj)
+    elif isinstance(obj, types.MappingProxyType):
+        if id(obj) in seen:
+            return 'mappingproxy(...)'
+        seen |= {id(obj)}
+        return 'mappingproxy(%s)' % object_description(dict(obj), _seen=seen)
 
     try:
         s = repr(obj)

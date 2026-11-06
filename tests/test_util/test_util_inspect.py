@@ -8,7 +8,7 @@ import enum
 import functools
 import types
 from inspect import Parameter
-from typing import Callable, List, Optional, Union  # ruff: ignore[deprecated-import]
+from typing import TYPE_CHECKING, Callable, List, Optional, Union  # ruff: ignore[deprecated-import]
 
 import pytest
 
@@ -19,6 +19,9 @@ from sphinx.util.inspect import (
     stringify_signature,
 )
 from sphinx.util.typing import stringify_annotation
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class Base:
@@ -677,6 +680,24 @@ def test_recursive_collection_description():
 
     assert description_c == '[1, 2, 3, 4, [5, 6, 7, 8, list(...)]]'
     assert description_d == '[5, 6, 7, 8, [1, 2, 3, 4, list(...)]]'
+
+
+def test_mappingproxy_description() -> None:
+    proxy = types.MappingProxyType({
+        'key': frozenset(('b', 'a', 'c')),
+        'another': {'z', 'y', 'x'},
+    })
+    description = inspect.object_description(proxy)
+    assert description == (
+        "mappingproxy({'another': {'x', 'y', 'z'}, 'key': frozenset({'a', 'b', 'c'})})"
+    )
+
+
+def test_recursive_mappingproxy_description() -> None:
+    list_: list[Any] = [1]
+    list_.append(types.MappingProxyType({'link': list_}))
+    description = inspect.object_description(list_)
+    assert description == "[1, mappingproxy({'link': list(...)})]"
 
 
 def test_dict_customtype() -> None:
