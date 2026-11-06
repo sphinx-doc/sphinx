@@ -237,6 +237,67 @@ def convert_dvi_to_png(
     return depth
 
 
+_glyph_id_re = re.compile(r'g\d+-\d+')
+_path_tag_re = re.compile(r'<path\b[^>]*>', re.IGNORECASE)
+_path_id_re = re.compile(r"""\bid\s*=\s*['"](g\d+-\d+)['"]""")
+_path_d_re = re.compile(r"""\bd\s*=\s*['"]([^'"]*)['"]""")
+
+
+def _normalize_svg_glyph_ids(svg_text: str) -> str:
+    """Remap dvisvgm ``gF-C`` glyph IDs to canonical sequential numbers.
+
+    ``dvisvgm --no-fonts`` derives the ``F`` (font index) part from the
+    DVI's global font table, so the same equation gets different ``gF-C``
+    prefixes depending on which other equations share the batch DVI
+    (page order, chunk composition, cache state).  This remaps IDs based
+    solely on the glyph outline data in *this* file, making the output
+    invariant under batch composition and therefore deterministic
+    across parallel/incremental builds.
+    """
+    defs: dict[str, str] = {}
+    for tag in _path_tag_re.findall(svg_text):
+        id_match = _path_id_re.search(tag)
+        d_match = _path_d_re.search(tag)
+        if id_match and d_match and id_match.group(1) not in defs:
+            defs[id_match.group(1)] = d_match.group(1)
+    if not defs and 'g' not in svg_text:
+        return svg_text
+
+    def _suffix(glyph_id: str) -> str:
+        return glyph_id.split('-', 1)[1]
+
+    # Deterministic order: sort glyph definitions by outline data.
+    ordered_defs = sorted(defs, key=lambda gid: (defs[gid], _suffix(gid), gid))
+    mapping: dict[str, str] = {}
+    for new_index, old_id in enumerate(ordered_defs):
+        mapping[old_id] = f'g{new_index}-{_suffix(old_id)}'
+
+    # ``<use id='g..'>`` anchors (e.g. scaled glyphs) have no outline;
+    # give them deterministic numbers after the definitions.
+    remaining = sorted(set(_glyph_id_re.findall(svg_text)) - mapping.keys())
+    for extra_index, old_id in enumerate(remaining, start=len(mapping)):
+        mapping[old_id] = f'g{extra_index}-{_suffix(old_id)}'
+
+    if not mapping:
+        return svg_text
+
+    def _replace(match: re.Match[str]) -> str:
+        return mapping.get(match.group(0), match.group(0))
+
+    return _glyph_id_re.sub(_replace, svg_text)
+
+
+def _canonicalize_svg_file(out_path: Path) -> None:
+    """Rewrite *out_path* with canonical glyph IDs (best effort)."""
+    try:
+        text = out_path.read_text(encoding='utf-8')
+    except OSError:
+        return
+    normalized = _normalize_svg_glyph_ids(text)
+    if normalized != text:
+        out_path.write_text(normalized, encoding='utf-8')
+
+
 def convert_dvi_to_svg(
     dvipath: Path,
     out_path: Path,
@@ -253,6 +314,7 @@ def convert_dvi_to_svg(
     command.append(dvipath)
 
     _stdout, stderr = convert_dvi_to_image(command, name)
+    _canonicalize_svg_file(out_path)
 
     depth = None
     if config.imgmath_use_preview:
@@ -358,7 +420,10 @@ def _collect_math_expressions(env: BuildEnvironment) -> list[str]:
             seen.add(math)
             ordered.append(math)
 
-    for docname in all_docs:
+    # Sort docnames: ``all_docs`` insertion order varies with parallel
+    # reading (set-based discovery + completion order), which would
+    # otherwise leak into batch DVI page order and dvisvgm font indices.
+    for docname in sorted(all_docs):
         try:
             doctree = env.get_doctree(docname)
         except Exception as exc:

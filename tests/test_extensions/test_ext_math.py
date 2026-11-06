@@ -119,6 +119,26 @@ def test_imgmath_collect_math_expressions_dedupes() -> None:
     assert imgmath_mod._collect_math_expressions(env) == []
 
 
+def test_imgmath_normalize_svg_glyph_ids_is_deterministic() -> None:
+    make_svg = (
+        '<svg><defs>'
+        "<path id='g%(f1)s-65' d='M1 2'/>"
+        "<path id='g%(f2)s-66' d='M3 4'/>"
+        '</defs><g>'
+        '<use href="#g%(f1)s-65"/>'
+        '<use href="#g%(f2)s-66"/>'
+        '</g></svg>'
+    )
+    first = imgmath_mod._normalize_svg_glyph_ids(make_svg % {'f1': 16, 'f2': 19})
+    second = imgmath_mod._normalize_svg_glyph_ids(make_svg % {'f1': 15, 'f2': 18})
+    assert first == second
+    # canonical ids are sequential from zero, glyph code preserved
+    assert "id='g0-65'" in first
+    assert "id='g1-66'" in first
+    assert first.count('g0-65') == 2  # definition + reference
+    assert first.count('g1-66') == 2
+
+
 def test_imgmath_pre_render_batch_disabled() -> None:
     app = MagicMock()
     app.config.imgmath_batch_size = 1
