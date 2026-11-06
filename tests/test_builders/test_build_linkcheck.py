@@ -1461,20 +1461,22 @@ class CapitalisePathHandler(BaseHTTPRequestHandler):
 
     protocol_version = 'HTTP/1.1'
 
-    def do_GET(self) -> None:
+    def _respond(self) -> None:
         if self.path.islower():
             # Redirect lowercase paths to uppercase versions
             self.send_response(301, 'Moved Permanently')
             self.send_header('Location', self.path.upper())
-            self.send_header('Content-Length', '0')
-            self.end_headers()
         else:
             # Serve uppercase paths
-            content = b'ok\n\n'
             self.send_response(200, 'OK')
-            self.send_header('Content-Length', str(len(content)))
-            self.end_headers()
-            self.wfile.write(content)
+        self.send_header('Content-Length', '0')
+        self.end_headers()
+
+    def do_GET(self) -> None:
+        self._respond()
+
+    def do_HEAD(self) -> None:
+        self._respond()
 
 
 @pytest.mark.sphinx(

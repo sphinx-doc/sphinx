@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+import shutil
+import subprocess
 import sys
 from typing import TYPE_CHECKING
 
@@ -12,6 +14,30 @@ from sphinx.ext.graphviz import ClickableMapDefinition
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
+
+
+def _neato_usable() -> bool:
+    """Return True if the ``neato`` layout engine binary actually runs.
+
+    Mere presence on PATH is not sufficient: the binary may fail for the
+    current platform or graphviz version, in which case the graphviz
+    extension skips the node with a warning.
+    """
+    neato = shutil.which('neato')
+    if neato is None:
+        return False
+    try:
+        completed = subprocess.run(
+            [neato, '-Tcanon'],
+            check=False,
+            input='digraph { a -> b; }',
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except OSError:
+        return False
+    return completed.returncode == 0
 
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
@@ -32,12 +58,6 @@ def test_graphviz_png_html(app: SphinxTestApp) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
-        '<img src=".*?" alt="digraph foo {\nbaz -&gt; qux\n}" '
-        'class="graphviz neato-graph" />'
-    )
-    assert re.search(html, content, re.DOTALL)
-
-    html = (
         r'<figure class="align-right" .*?>\s*'
         r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
         r'<p><span class="caption-text">on <em>right</em></span>.*</p>\s*'
@@ -50,6 +70,28 @@ def test_graphviz_png_html(app: SphinxTestApp) -> None:
         r'<div class="graphviz"><img src=\".*\.png\" alt=\"digraph foo {\n'
         r'centered\n'
         r'}\" class="graphviz" /></div>\n</div>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+
+@pytest.mark.sphinx('html', testroot='ext-graphviz')
+@pytest.mark.usefixtures('if_graphviz_found')
+@pytest.mark.skipif(
+    not _neato_usable(),
+    reason='Requires a working neato layout engine',
+)
+def test_graphviz_png_html_neato_layout(app: SphinxTestApp) -> None:
+    """The ``graphviz_dot`` option selects an alternate layout engine binary.
+
+    Split from :func:`test_graphviz_png_html` as ``neato`` may be missing
+    where only ``dot`` is installed.
+    """
+    app.build(force_all=True)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    html = (
+        '<img src=".*?" alt="digraph foo {\nbaz -&gt; qux\n}" '
+        'class="graphviz neato-graph" />'
     )
     assert re.search(html, content, re.DOTALL)
 
