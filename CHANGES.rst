@@ -19,6 +19,14 @@ Bugs fixed
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
+* #14817: Images collected from different directories whose filenames
+  differ only in case silently overwrote each other in the build output
+  on filesystems that treat such names as the same file (such as NTFS).
+  Unique names are now compared with ``os.path.normcase``, so collisions
+  are detected on case-insensitive platforms, while case-sensitive
+  filesystems keep both files.
+  Patch by Shash Bhaskar
+
 Testing
 -------
 

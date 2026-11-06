@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import os.path
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.util._pathlib import _StrPath
 
 if TYPE_CHECKING:
-    import os
     from collections.abc import Set
 
 
@@ -33,11 +33,15 @@ class FilenameUniqDict(dict[str, tuple[set[str], str]]):  # ruff: ignore[subclas
         base = new_file.stem
         ext = new_file.suffix
         i = 0
-        while unique_name in self._existing:
+        # compare names the way the local filesystem would, so that names
+        # differing only in case are not treated as unique where they
+        # would overwrite each other (normcase folds case on Windows
+        # and is the identity on POSIX)
+        while os.path.normcase(unique_name) in self._existing:
             i += 1
             unique_name = f'{base}{i}{ext}'
         self[newfile] = ({docname}, unique_name)
-        self._existing.add(unique_name)
+        self._existing.add(os.path.normcase(unique_name))
         return unique_name
 
     def purge_doc(self, docname: str) -> None:
@@ -45,7 +49,7 @@ class FilenameUniqDict(dict[str, tuple[set[str], str]]):  # ruff: ignore[subclas
             docs.discard(docname)
             if not docs:
                 del self[filename]
-                self._existing.discard(unique)
+                self._existing.discard(os.path.normcase(unique))
 
     def merge_other(
         self, docnames: Set[str], other: dict[str, tuple[set[str], str]]
@@ -58,7 +62,7 @@ class FilenameUniqDict(dict[str, tuple[set[str], str]]):  # ruff: ignore[subclas
         return self._existing
 
     def __setstate__(self, state: set[str]) -> None:
-        self._existing = state
+        self._existing = {os.path.normcase(name) for name in state}
 
 
 class DownloadFiles(dict[Path, tuple[set[str], _StrPath]]):  # ruff: ignore[subclass-builtin]
