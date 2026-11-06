@@ -2,14 +2,9 @@
 
 from __future__ import annotations
 
-import os.path
 import pickle
-from typing import TYPE_CHECKING
 
 from sphinx.util._files import FilenameUniqDict
-
-if TYPE_CHECKING:
-    import pytest
 
 
 def test_add_file() -> None:
@@ -20,38 +15,36 @@ def test_add_file() -> None:
     assert d.add_file('doc', 'B/picture.png') == 'picture.png'
 
 
-def test_add_file_case_insensitive_collision(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Names differing only in case collide, as on Windows or macOS."""
-    # simulate a case-insensitive filesystem, as on Windows
-    monkeypatch.setattr(os.path, 'normcase', str.lower)
+def test_add_file_case_collision() -> None:
+    """Names differing only in case collide on every platform."""
     d = FilenameUniqDict()
     assert d.add_file('doc', 'A/image.png') == 'image.png'
     # #14817: this used to keep the name ``Image.png``, which overwrote
-    # ``image.png`` in the output on case-insensitive filesystems
+    # ``image.png`` in the output on case-insensitive filesystems; the
+    # comparison now always folds case so the output is portable
     assert d.add_file('doc', 'B/Image.png') == 'Image1.png'
     assert d.add_file('doc', 'C/image.PNG') == 'image2.PNG'
 
 
-def test_add_file_case_sensitive_filesystem(monkeypatch: pytest.MonkeyPatch) -> None:
-    """On a case-sensitive filesystem, both files keep their own names."""
-    # simulate a case-sensitive filesystem, as on Linux
-    monkeypatch.setattr(os.path, 'normcase', lambda s: s)
+def test_add_file_keeps_original_spelling() -> None:
+    """Only the comparison key is folded; stored names keep their case."""
     d = FilenameUniqDict()
-    assert d.add_file('doc', 'A/image.png') == 'image.png'
-    assert d.add_file('doc', 'B/Image.png') == 'Image.png'
+    d.add_file('doc', 'A/image.png')
+    assert d.add_file('doc', 'B/Image.png') == 'Image1.png'
+    assert d['B/Image.png'] == ({'doc'}, 'Image1.png')
 
 
-def test_add_file_unique_names_differ_under_normcase() -> None:
-    """Unique names must not collide under the local filesystem's rules."""
+def test_add_file_no_full_unicode_case_folding() -> None:
+    """Folding matches filesystems, not full Unicode case folding."""
     d = FilenameUniqDict()
-    first = d.add_file('doc', 'A/image.png')
-    second = d.add_file('doc', 'B/Image.png')
-    assert os.path.normcase(first) != os.path.normcase(second)
+    # ``str.casefold`` would equate ``ß`` and ``ss``, but they are
+    # distinct names on every real filesystem
+    assert d.add_file('doc', 'A/straße.png') == 'straße.png'
+    assert d.add_file('doc', 'B/STRASSE.png') == 'STRASSE.png'
 
 
-def test_purge_doc_case_insensitive(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_purge_doc_case_folded() -> None:
     """Purging frees names for reuse, compared case-insensitively."""
-    monkeypatch.setattr(os.path, 'normcase', str.lower)
     d = FilenameUniqDict()
     d.add_file('doc1', 'A/image.png')
     d.add_file('doc2', 'B/Image.png')
@@ -60,9 +53,8 @@ def test_purge_doc_case_insensitive(monkeypatch: pytest.MonkeyPatch) -> None:
     assert d.add_file('doc3', 'C/Image.png') == 'Image.png'
 
 
-def test_pickle_roundtrip(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_pickle_roundtrip() -> None:
     """Environments pickled before the fix are normalised when loaded."""
-    monkeypatch.setattr(os.path, 'normcase', str.lower)
     d = FilenameUniqDict()
     # an environment pickled by an older Sphinx stored un-normalised names
     d.__setstate__({'Image.png'})
