@@ -60,7 +60,7 @@ Features added
   of existing declarations.
 * #7745: html: inventory is broken if the docname contains a space
 * #7991: html search: Allow searching for numbers
-* #7902: html theme: Add a new option :confval:`globaltoc_maxdepth` to control
+* #7902: html theme: Add a new option ``globaltoc_maxdepth`` to control
   the behavior of globaltoc in sidebar
 * #7840: i18n: Optimize the dependencies check on bootstrap
 * #7768: i18n: :confval:`figure_language_filename` supports ``docpath`` token

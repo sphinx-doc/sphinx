@@ -259,14 +259,6 @@ nitpick_ignore = {
     ('py:mod', 'sphinx.ext'),
     ('py:obj', 'sphinx.util.relative_uri'),
     ('rst:role', 'c:any'),
-    ('std:confval', 'autodoc_inherit_docstring'),
-    ('std:confval', 'automodule_skip_lines'),
-    ('std:confval', 'autossummary_imported_members'),
-    ('std:confval', 'gettext_language_team'),
-    ('std:confval', 'gettext_last_translator'),
-    ('std:confval', 'globaltoc_collapse'),
-    ('std:confval', 'globaltoc_includehidden'),
-    ('std:confval', 'globaltoc_maxdepth'),
 }
 
 
