@@ -72,11 +72,19 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    assert_type,
 )
 from weakref import WeakSet
 
+import pytest
+
 from sphinx.ext.autodoc._dynamic._mock import mock
-from sphinx.util.typing import _INVALID_BUILTIN_CLASSES, restify, stringify_annotation
+from sphinx.util.typing import (
+    _INVALID_BUILTIN_CLASSES,
+    _is_annotated_form,
+    restify,
+    stringify_annotation,
+)
 
 
 class MyClass1:
@@ -106,6 +114,12 @@ class BrokenType:
 @dataclasses.dataclass(frozen=True)
 class Gt:
     gt: float
+
+
+@pytest.mark.parametrize('annotation', [42, int, str, list[int]])
+def test_is_annotated_form_does_not_narrow(annotation: Any) -> None:
+    assert not _is_annotated_form(annotation)
+    assert_type(annotation, Any)
 
 
 def test_restify() -> None:

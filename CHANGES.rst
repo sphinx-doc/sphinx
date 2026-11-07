@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* Fix incorrect type narrowing after checking for an ``Annotated`` type.
+  Patch by Adam Dangoor.
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 

@@ -16,7 +16,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Annotated, Any, Final, Literal, Protocol, TypeIs
+    from typing import Any, Final, Literal, Protocol
 
     from sphinx.application import Sphinx
     from sphinx.util.inventory import _InventoryItem
@@ -223,8 +223,10 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, typing.TypeVar)
 
 
-def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
+def _is_annotated_form(obj: Any) -> bool:
     """Check if *obj* is an annotated type."""
+    # Annotated[Any, ...] is equivalent to Any for type checkers, so using
+    # TypeIs would incorrectly make the negative branch unreachable.
     return (
         typing.get_origin(obj) is typing.Annotated
         or str(obj).startswith('typing.Annotated')
