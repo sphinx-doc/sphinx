@@ -60,8 +60,6 @@ Options
 
    Suffix for the source files generated. Defaults to ``rst``.
 
-   Suffix for the source files generated. Defaults to ``rst``.
-
 .. option:: -d, --maxdepth <MAXDEPTH>
 
    Maximum depth for the generated table of contents file. Defaults to ``4``.
