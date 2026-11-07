@@ -220,7 +220,7 @@ These options are used when :option:`--full` is specified:
    In detail, please refer to the system template files Sphinx provides,
    (``sphinx/templates/apidoc`` and ``sphinx/templates/quickstart``).
    You can modify these templates by copying them to the specified
-   ``TEMPLATEDIR``, and replacing the file name's ``.jinja`` with ``_t``.
+   ``TEMPLATEDIR``.
 
 Environment
 -----------
