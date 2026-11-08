@@ -14,8 +14,17 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
 
-_DEFAULT_TITLE = _('Translation progress')
-_DEFAULT_MESSAGE = _(
+# Keep the message IDs until the active application's language is available.
+# The unreachable calls allow Babel to extract the default messages.
+if False:
+    _('Translation progress')
+    _(
+        'This page is {percentage} translated based on word count. '
+        'Some content is still in the original language.'
+    )
+
+_DEFAULT_TITLE = 'Translation progress'
+_DEFAULT_MESSAGE = (
     'This page is {percentage} translated based on word count. '
     'Some content is still in the original language.'
 )
