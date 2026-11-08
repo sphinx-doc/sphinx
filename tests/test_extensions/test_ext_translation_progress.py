@@ -8,6 +8,7 @@ import pytest
 from babel.messages import mofile, pofile
 
 if TYPE_CHECKING:
+    from sphinx.application import Sphinx
     from sphinx.testing.util import SphinxTestApp
 
 
@@ -237,8 +238,10 @@ def test_default_messages_follow_current_language(
 ) -> None:
     from gettext import NullTranslations
     from types import SimpleNamespace
+    from typing import cast
 
     from docutils import nodes
+    from docutils.utils import new_document
 
     from sphinx.ext.translation_progress import (
         _DEFAULT_MESSAGE,
@@ -255,16 +258,21 @@ def test_default_messages_follow_current_language(
         def gettext(self, message: str) -> str:
             return f'{self.prefix} {message}'
 
-    app = SimpleNamespace(
-        config=SimpleNamespace(
-            translation_progress_title=_DEFAULT_TITLE,
-            translation_progress_message=_DEFAULT_MESSAGE,
-        )
+    app = cast(
+        'Sphinx',
+        SimpleNamespace(
+            config=SimpleNamespace(
+                translation_progress_title=_DEFAULT_TITLE,
+                translation_progress_message=_DEFAULT_MESSAGE,
+            )
+        ),
     )
     for language in ('French', 'German'):
         monkeypatch.setitem(translators, ('general', 'sphinx'), Translator(language))
-        doctree = nodes.document('', '')
+        doctree = new_document('test')
         doctree['translation_progress'] = {'total_words': 2, 'translated_words': 1}
         add_translation_progress_note(app, doctree)
-        assert doctree[0][0].astext() == f'{language} Translation progress'
-        assert doctree[0][1].astext().startswith(f'{language} This page is 50.00%')
+        note = doctree[0]
+        assert isinstance(note, nodes.admonition)
+        assert note[0].astext() == f'{language} Translation progress'
+        assert note[1].astext().startswith(f'{language} This page is 50.00%')
