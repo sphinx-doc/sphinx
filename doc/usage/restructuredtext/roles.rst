@@ -327,6 +327,7 @@ default. They are set in the build configuration file.
 
 .. describe:: |translation progress|
 
-   Replaced by the translation progress of the document.
+   Replaced by the translation progress of the document, as the
+   percentage of source-language words that have been translated.
    This substitution is intended for use by document translators
    as a marker for the translation progress of the document.

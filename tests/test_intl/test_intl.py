@@ -788,8 +788,8 @@ def test_translation_progress_substitution(app: SphinxTestApp) -> None:
 
     doctree = app.env.get_doctree('translation_progress')
 
-    # 11 out of 16 lines are translated
-    assert extract_node(doctree, 0, 19, 0) == '68.75%'
+    # the same source-word ratio the extension reports: 68.64% of source words are translated
+    assert extract_node(doctree, 0, 19, 0) == '68.64%'
 
 
 @pytest.mark.sphinx(

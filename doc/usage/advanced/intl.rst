@@ -402,7 +402,9 @@ can be used to add a class to each element,
 depending on the value of the ``translated`` attribute.
 
 The ``|translation progress|`` substitution can be used to display the
-percentage of nodes that have been translated on a per-document basis.
+percentage of source-language words that have been translated on a
+per-document basis.  It is the same word count that
+:mod:`sphinx.ext.translation_progress` reports.
 
 .. rubric:: Footnotes
 
