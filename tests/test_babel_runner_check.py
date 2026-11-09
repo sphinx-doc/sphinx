@@ -131,6 +131,84 @@ def test_matching_nested_placeholders_pass() -> None:
     assert _errors('value {amount:{width}}', 'valeur {amount:{width}}') == []
 
 
+def test_positional_reordering_passes() -> None:
+    # translators may reorder the arguments of automatically numbered
+    # fields by switching to explicit positional indices
+    assert (
+        _errors(
+            'File {} was created by user {}.',
+            'Użytkownik {1} utworzył plik {0}.',
+        )
+        == []
+    )
+
+
+def test_automatic_and_explicit_numbering_are_interchangeable() -> None:
+    assert _errors('{} files', '{0} fichiers') == []
+    assert _errors('{0} files', '{} fichiers') == []
+
+
+def test_repeated_positional_index_passes() -> None:
+    assert _errors('{0} and {1}', '{0} und {0}') == []
+    assert _errors('{} and {}', '{0} und {0}') == []
+
+
+def test_mixed_numbering_in_translation_is_an_error() -> None:
+    # str.format() itself refuses to mix the numberings
+    assert _errors('{} of {}', '{} of {0}') == [
+        'cannot mix automatic and manual field numbering in translation'
+    ]
+    assert _errors('{0} of {1}', '{0} of {}') == [
+        'cannot mix automatic and manual field numbering in translation'
+    ]
+
+
+def test_out_of_range_positional_index_is_an_error() -> None:
+    assert _errors('{} of {}', '{2} fichiers') == [
+        'positional field 2 in translation is out of range for the msgid'
+    ]
+    assert _errors('{0} and {1}', '{0} and {2}') == [
+        'positional field 2 in translation is out of range for the msgid'
+    ]
+
+
+def test_extra_automatic_fields_are_an_error() -> None:
+    # '{} and {}' needs two arguments, but the msgid passes only one
+    assert _errors('{} file', '{} and {}') == [
+        'translation uses more positional fields than the msgid has arguments'
+    ]
+
+
+def test_positional_fields_of_a_named_msgid_are_an_error() -> None:
+    # the msgid is formatted with keyword arguments only
+    assert _errors('value {name}', 'valeur {0}') == [
+        'positional field 0 in translation is out of range for the msgid'
+    ]
+
+
+def test_plural_forms_share_the_msgid_argument_list() -> None:
+    # every plural form is formatted with the same arguments, so the
+    # argument count of one msgid form binds every translation form
+    msgid = '{0} file', '{0} files'
+    msgstr = 'un fichier', '{1} fichiers'
+    assert _errors(msgid, msgstr) == [
+        'positional field 1 in translation is out of range for the msgid'
+    ]
+
+
+def test_nested_spec_beyond_the_runtime_limit_is_an_error() -> None:
+    # str.format() raises 'ValueError: Max string recursion exceeded'
+    # for a specification nested inside a specification
+    assert _errors('{a}', 'wartość {a:{b:{c}}}') == [
+        'format specifications in translation are nested deeper than str.format() allows'
+    ]
+
+
+def test_nested_spec_at_the_runtime_limit_passes() -> None:
+    # one level of nesting is exactly what str.format() still formats
+    assert _errors('{a:{b}}', 'wartość {a:{b}}') == []
+
+
 def test_each_plural_form_is_checked() -> None:
     msgid = '{name} files', '{name} files'
     msgstr = 'fichiers {nom}', '{name} fichiers'
@@ -175,6 +253,17 @@ def test_plural_placeholder_needs_only_one_form() -> None:
 
 def test_positional_placeholders_are_not_compared() -> None:
     assert _missing('bad value {}', 'valeur incorrecte') == []
+
+
+def test_renumbered_positional_fields_are_not_missing() -> None:
+    # '{}' and '{0}' address the same argument, whichever way the msgid
+    # numbers it; dropping one of several arguments still loses
+    # information and stays a warning
+    assert _missing('{0} and {1}', '{} and {}') == []
+    assert _missing('{0} and {1}', '{1} and {0}') == []
+    assert _missing('{0} and {1}', '{0} and {0}') == [
+        'placeholder 1 from the msgid is missing in translation'
+    ]
 
 
 def test_damaged_syntax_is_not_also_reported_missing() -> None:
