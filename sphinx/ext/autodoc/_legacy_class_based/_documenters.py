@@ -1737,12 +1737,19 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 'autodoc-process-bases', self.fullname, self.object, self.options, bases
             )
 
+            # `object` is implicitly a base of every class; listing it explicitly
+            # carries no information, so never render it (refs #14747).
+            bases = [base for base in bases if base is not object]
+
             mode = _get_render_mode(self.config.autodoc_typehints_format)
             base_classes = [restify(cls, mode=mode) for cls in bases]
 
-            sourcename = self.get_sourcename()
-            self.add_line('', sourcename)
-            self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
+            if base_classes:
+                sourcename = self.get_sourcename()
+                self.add_line('', sourcename)
+                self.add_line(
+                    '   ' + _('Bases: %s') % ', '.join(base_classes), sourcename
+                )
 
     def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
         members = get_class_members(

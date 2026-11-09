@@ -81,7 +81,9 @@ def _directive_header_lines(
             yield f'   :canonical: {canonical_fullname}'
 
         # add inheritance info, if wanted
-        if not props.doc_as_attr and options.show_inheritance:
+        # (`object` is filtered from the bases during loading since it
+        # carries no information; skip the line if no bases remain.)
+        if not props.doc_as_attr and options.show_inheritance and props._obj_bases:
             yield ''
             yield '   ' + _('Bases: %s') % ', '.join(props._obj_bases)
 
