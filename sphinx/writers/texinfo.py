@@ -181,6 +181,7 @@ class TexinfoTranslator(SphinxTranslator):
 
         self.body: list[str] = []
         self.context: list[str] = []
+        self.admonitions: list[Element] = []
         self.descs: list[addnodes.desc] = []
         self.previous_section: nodes.section | None = None
         self.section_level = 0
@@ -1124,12 +1125,16 @@ class TexinfoTranslator(SphinxTranslator):
             title = cast('nodes.title', node[0])
             name = self.escape(title.astext())
         self.body.append('\n@cartouche\n@quotation %s ' % name)
+        self.admonitions.append(node)
 
     def _visit_named_admonition(self, node: Element) -> None:
         label = admonitionlabels[node.tagname]
-        self.body.append('\n@cartouche\n@quotation %s ' % label)
+        self.visit_admonition(node, label)
 
     def depart_admonition(self, node: Element) -> None:
+        if not self.admonitions or self.admonitions[-1] is not node:
+            return
+        self.admonitions.pop()
         self.ensure_eol()
         self.body.append('@end quotation\n@end cartouche\n')
 
@@ -1365,6 +1370,10 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n')
 
     def visit_start_of_file(self, node: Element) -> None:
+        # A toctree can occur inside an admonition, but Texinfo nodes and
+        # menus cannot be nested inside quotation or cartouche blocks.
+        while self.admonitions:
+            self.depart_admonition(self.admonitions[-1])
         # add a document target
         self.next_section_ids.add(':doc')
         self.curfilestack.append(node['docname'])
