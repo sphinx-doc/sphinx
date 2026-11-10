@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* imgmath: Add :confval:`imgmath_batch_size` to compile multiple math
+  expressions in a single LaTeX invocation,
+  reducing *N* LaTeX processes to *ceil(N / batch_size)*.
+
 Bugs fixed
 ----------
 
