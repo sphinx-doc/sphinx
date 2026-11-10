@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #13776: Texinfo: Close admonitions before expanding nested toctrees
+  to avoid unmatched block endings in the generated manual.
+  Patch by arimakana
+
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 

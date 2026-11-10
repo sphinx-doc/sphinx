@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import shutil
 import subprocess
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -17,7 +18,59 @@ from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sphinx.testing.util import SphinxTestApp
+
+
+@pytest.mark.parametrize('directive', ['admonition:: Virtual modules', 'note::'])
+@pytest.mark.parametrize('nested', [False, True])
+def test_texinfo_toctree_in_admonition(
+    make_app_with_empty_project: Callable[..., SphinxTestApp],
+    tmp_path: Path,
+    directive: str,
+    nested: bool,
+) -> None:
+    content = (
+        f'.. {directive}\n\n'
+        '   Before the tree.\n\n'
+        '   .. toctree::\n\n'
+        '      child\n\n'
+        '   After the tree.\n'
+    )
+    if nested:
+        content = '.. warning::\n\n' + ''.join(
+            f'   {line}\n' for line in content.splitlines()
+        )
+    (tmp_path / 'index.rst').write_text('Root\n====\n\n' + content, encoding='utf8')
+    (tmp_path / 'child.rst').write_text(
+        'Child\n=====\n\n.. note::\n\n   Child note.\n', encoding='utf8'
+    )
+    app = make_app_with_empty_project(buildername='texinfo')
+    app.build()
+    output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
+    assert 'Before the tree.' in output
+    assert 'After the tree.' in output
+    assert 'Child note.' in output
+    assert output.count('@cartouche\n') == 2 + nested
+    assert '@quotation Note \nChild note.\n@end quotation\n@end cartouche' in output
+    # Texinfo section nodes and menus cannot occur inside an admonition.
+    blocks = []
+    for line in output.splitlines():
+        if line.startswith(('@cartouche', '@quotation')):
+            blocks.append(line.split()[0][1:])
+        elif line.startswith(('@end cartouche', '@end quotation')):
+            assert blocks.pop() == line.split()[1]
+        elif line.startswith(('@node ', '@menu')):
+            assert not blocks
+    assert not blocks
+    if makeinfo := shutil.which('makeinfo'):
+        subprocess.run(
+            [makeinfo, '--no-split', 'projectnamenotset.texi'],
+            cwd=app.outdir,
+            capture_output=True,
+            check=True,
+        )
 
 
 @pytest.mark.sphinx('texinfo', testroot='root')
