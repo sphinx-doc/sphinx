@@ -66,6 +66,11 @@ def test_html_assets(app: SphinxTestApp) -> None:
         '<script async="async" src="https://example.com/script.js"></script>'
     ) in content
 
+    # Sphinx-owned JavaScript files include machine-readable license metadata.
+    for filename in ('doctools.js', 'sphinx_highlight.js', 'documentation_options.js'):
+        javascript = (app.outdir / '_static' / filename).read_text(encoding='utf8')
+        assert javascript.startswith('// @license magnet:?xt=urn:btih:87f119ba0b429ba17a44b4bffcab33165ebdacc0&dn=freebsd.txt BSD-2-Clause')
+
 
 @pytest.mark.sphinx('html', testroot='html_assets')
 def test_assets_order(app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch) -> None:
