@@ -65,7 +65,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz libgvplugin-neato-layout8
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -108,7 +108,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz libgvplugin-neato-layout8
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -142,7 +142,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz libgvplugin-neato-layout8
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -240,7 +240,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz libgvplugin-neato-layout8
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -273,7 +273,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz libgvplugin-neato-layout8
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -294,22 +294,23 @@ jobs:
     timeout-minutes: 15
     container:
       image: ghcr.io/sphinx-doc/sphinx-ci
+    env:
+      UV_SYSTEM_PYTHON: "0"
+      UV_PYTHON_PREFERENCE: "only-managed"
 
     steps:
     - uses: actions/checkout@v6
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3"
-    - name: Check Python version
-      run: python --version --version
-    - name: Install uv
+    - name: Set up uv and Python
       uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
+        python-version: "3"
+        activate-environment: true
+    - name: Check Python version
+      run: python --version --version
     - name: Install dependencies
       run: uv pip install . --group test
     - name: Install Docutils' HEAD
@@ -337,7 +338,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz libgvplugin-neato-layout8
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
